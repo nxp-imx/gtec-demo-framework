@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslNativeGraphicsStub">
+    <Dependency Name="FslDemoPlatform"/>
+    <Platform Name="Windows" ProjectId="A8C4C2B5-FCB7-4528-AE33-BBFB3F449C5B"/>
+  </Library>
+</FslBuildGen>

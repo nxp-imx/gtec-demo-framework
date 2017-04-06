@@ -1,0 +1,2 @@
+# Defines
+target_compile_definitions(##PACKAGE_NAME## ##PACKAGE_COMPILE_DEFINITIONS##)

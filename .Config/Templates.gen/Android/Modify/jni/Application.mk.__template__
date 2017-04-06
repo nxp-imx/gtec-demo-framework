@@ -1,0 +1,15 @@
+# GLES3 requires 18+ GLES2 is 5?
+APP_PLATFORM := ##PACKAGE_APP_PLATFORM##
+
+# For release build for 'all'
+# For faster builds use one of these: mips armeabi armeabi-v7a x86 
+APP_ABI := ##PACKAGE_APP_ABI##
+
+APP_STL := gnustl_static
+
+# then enable c++11 extensions in source code
+APP_CPPFLAGS += -std=c++11 -fexceptions -frtti -pthread
+
+NDK_TOOLCHAIN_VERSION := clang
+# GCC support is being removed in a future NDK update.
+#NDK_TOOLCHAIN_VERSION := 4.9 

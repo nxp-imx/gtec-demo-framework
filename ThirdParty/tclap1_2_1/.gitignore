@@ -1,0 +1,6 @@
+build/
+.StartProject.bat
+tclap1_2_1.sln
+tclap1_2_1.vcxproj
+tclap1_2_1.vcxproj.user
+CMakeLists.txt

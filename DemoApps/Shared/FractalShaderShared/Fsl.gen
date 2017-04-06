@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FractalShaderShared">
+    <Dependency Name="FslBase"/>
+    <Dependency Name="FslGraphics"/>
+    <Dependency Name="FslDemoApp"/>
+    <Platform Name="Windows" ProjectId="A2576784-E397-4997-B5A5-3F6739917483"/>
+  </Library>
+</FslBuildGen>

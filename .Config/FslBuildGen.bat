@@ -1,0 +1,1 @@
+@%FSL_GRAPHICS_SDK%\.Config\FslBuildGen.py %*

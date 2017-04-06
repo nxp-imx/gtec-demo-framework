@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslDemoAppOpenCL">
+    <Dependency Name="OpenCL"/>
+    <Dependency Name="FslDemoApp"/>
+    <Dependency Name="FslNativeGraphicsStub" Access="Private"/>
+    <Dependency Name="FslDemoHostConsole" Access="Private"/>
+    <Dependency Name="FslDemoPlatform" Access="Link"/>
+    <Platform Name="Windows" ProjectId="3A7F5779-B796-4F5B-BDD0-F702530C8262"/>
+  </Library>
+</FslBuildGen>

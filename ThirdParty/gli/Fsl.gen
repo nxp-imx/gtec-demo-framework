@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <HeaderLibrary Name="gli">
+    <Dependency Name="glm"/>
+    <CPPDefine Name="FSL_FEATURE_GLI" Access="Public"/>
+    <Platform Name="Windows" ProjectId="D04BD20C-13E6-42A5-B64C-66EB82FEE754"/>
+  </HeaderLibrary>
+</FslBuildGen>

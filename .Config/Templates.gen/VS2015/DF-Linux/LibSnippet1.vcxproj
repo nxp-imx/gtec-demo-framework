@@ -1,0 +1,24 @@
+    <ProjectConfiguration Include="##VARIANT##Debug|ARM">
+      <Configuration>##VARIANT##Debug</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="##VARIANT##Release|ARM">
+      <Configuration>##VARIANT##Release</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="##VARIANT##Debug|x86">
+      <Configuration>##VARIANT##Debug</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="##VARIANT##Release|x86">
+      <Configuration>##VARIANT##Release</Configuration>
+      <Platform>x86</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="##VARIANT##Debug|x64">
+      <Configuration>##VARIANT##Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="##VARIANT##Release|x64">
+      <Configuration>##VARIANT##Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>

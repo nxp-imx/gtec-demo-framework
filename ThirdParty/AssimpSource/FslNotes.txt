@@ -1,0 +1,2 @@
+This was modified to allow us to compile it using Gradle/cmake.
+For now we link in a static library.

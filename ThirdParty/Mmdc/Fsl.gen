@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="Mmdc">
+    <CPPDefine Name="FSL_MMDC_AS_LIBRARY" Access="Private"/> 
+    <Platform Name="Yocto"/>
+    <Platform Name="Android" NotSupported="true"/>
+    <Platform Name="QNX" NotSupported="true"/>
+    <Platform Name="Ubuntu" NotSupported="true"/>
+    <Platform Name="Windows" NotSupported="true" ProjectId="63B1BFDE-F82B-4E97-83D5-9B2E9CDFF3CA"/>
+  </Library>
+</FslBuildGen>

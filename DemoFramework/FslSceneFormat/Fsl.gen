@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslSceneFormat">
+    <Dependency Name="FslGraphics3D"/>
+    <Platform Name="Windows" ProjectId="E21F4A70-DCD5-4155-A2AB-AF92B3030D4A"/>
+  </Library>
+</FslBuildGen>

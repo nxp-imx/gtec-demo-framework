@@ -1,0 +1,31 @@
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <RemoteProjectDir>##RELATIVE_PACKAGE_PATH##</RemoteProjectDir>
+    <OutDir>$(ProjectDir)\build\##PLATFORM_NAME##\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\##PLATFORM_NAME##\obj\$(Platform)\$(Configuration)\</IntDir>
+    </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <RemoteProjectDir>##RELATIVE_PACKAGE_PATH##</RemoteProjectDir>
+    <OutDir>$(ProjectDir)\build\##PLATFORM_NAME##\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\##PLATFORM_NAME##\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <RemoteProjectDir>##RELATIVE_PACKAGE_PATH##</RemoteProjectDir>
+    <OutDir>$(ProjectDir)\build\##PLATFORM_NAME##\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\##PLATFORM_NAME##\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <RemoteProjectDir>##RELATIVE_PACKAGE_PATH##</RemoteProjectDir>
+    <OutDir>$(ProjectDir)\build\##PLATFORM_NAME##\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\##PLATFORM_NAME##\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <RemoteProjectDir>##RELATIVE_PACKAGE_PATH##</RemoteProjectDir>
+    <OutDir>$(ProjectDir)\build\##PLATFORM_NAME##\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\##PLATFORM_NAME##\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <RemoteProjectDir>##RELATIVE_PACKAGE_PATH##</RemoteProjectDir>
+    <OutDir>$(ProjectDir)\build\##PLATFORM_NAME##\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\build\##PLATFORM_NAME##\obj\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  

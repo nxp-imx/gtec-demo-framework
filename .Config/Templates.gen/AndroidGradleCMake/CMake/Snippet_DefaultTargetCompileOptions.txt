@@ -1,0 +1,3 @@
+if(CMAKE_COMPILER_IS_GNUCXX)
+  target_compile_options(##PACKAGE_NAME## PRIVATE -Wall -Wtype-limits -Wuninitialized)
+endif()

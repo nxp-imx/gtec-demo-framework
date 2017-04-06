@@ -1,0 +1,6 @@
+		##VARIANT##Debug|ARM = ##VARIANT##Debug|ARM
+		##VARIANT##Debug|x64 = ##VARIANT##Debug|x64
+		##VARIANT##Debug|x86 = ##VARIANT##Debug|x86
+		##VARIANT##Release|ARM = ##VARIANT##Release|ARM
+		##VARIANT##Release|x64 = ##VARIANT##Release|x64
+		##VARIANT##Release|x86 = ##VARIANT##Release|x86

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="WindowSystem">
+    <Platform Name="QNX">
+      <ExternalDependency Name="screen" Type="StaticLib"/>
+    </Platform>
+    <Platform Name="Ubuntu">
+      <ExternalDependency Name="Xrandr" Type="StaticLib"/>
+      <ExternalDependency Name="X11" Type="StaticLib"/>
+      <CPPDefine Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
+    </Platform>
+    <Platform Name="Windows">
+      <!--ExternalDependency Name="Shcore.lib" Type="StaticLib"/-->
+    </Platform>
+    <Platform Name="Yocto">
+      <Variant Name="WindowSystem">
+        <Option Name="FB">
+          <CPPDefine Name="FSL_WINDOWSYSTEM_FRAMEBUFFER" Access="Public"/>
+        </Option>
+        <Option Name="Wayland">
+          <ExternalDependency Name="wayland-client" Type="StaticLib"/>
+          <ExternalDependency Name="wayland-cursor" Type="StaticLib"/>
+          <CPPDefine Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
+        </Option>
+        <Option Name="X11">
+          <ExternalDependency Name="Xrandr" Type="StaticLib"/>
+          <ExternalDependency Name="X11" Type="StaticLib"/>
+          <CPPDefine Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
+        </Option>
+      </Variant>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

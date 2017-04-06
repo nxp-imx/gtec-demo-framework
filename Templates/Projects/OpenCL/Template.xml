@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildNewTemplate Version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FslBuildNewTemplate.xsd">
+  <Template NoInclude="true" Force="true" Warning="Are you sure you inteded to create a generic OpenCL project instead of a version specific? Such a project must be able to compile with all versions of OpenCL. Its recommended to use OpenCL1.1 or OpenCL1.2" />
+</FslBuildNewTemplate>

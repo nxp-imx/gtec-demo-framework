@@ -1,0 +1,44 @@
+LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE    := DemoNativeActivity
+LOCAL_SRC_FILES := \
+DemoNativeActivity.cpp \
+
+LOCAL_LDLIBS    := -llog -landroid -lEGL -lGLESv2 -lGLESv3 ##ALL_EXTERNAL_STATIC_LIBS##
+LOCAL_STATIC_LIBRARIES := ##PACKAGE_LIBRARY_DEPENDENCIES## \
+  ##PACKAGE_TARGET_NAME##
+
+FSL_DEMO_NAME=##PACKAGE_TARGET_NAME##
+FSL_DEMO_LOCATION=##PACKAGE_LOCATION##
+FSL_TMP_APP_CONTENT_PATH=$(LOCAL_PATH)/../assets/fsl-content
+FSL_APP_CONTENT_PATH=$(abspath $(FSL_TMP_APP_CONTENT_PATH)) 
+FSL_DEMO_PATH=$(FSL_DEMO_LOCATION)/$(FSL_DEMO_NAME)/Content
+
+ifeq ($(OS),Windows_NT)
+  FSL_SYNC_COMMAND :=$(FSL_GRAPHICS_SDK)\.Config\FslContentSync.bat $(FSL_DEMO_PATH) $(FSL_APP_CONTENT_PATH) -i --create --ifExist
+else
+  FSL_SYNC_COMMAND :=$(FSL_GRAPHICS_SDK)/.Config/FslContentSync.py $(FSL_DEMO_PATH) $(FSL_APP_CONTENT_PATH) -i --create --ifExist
+endif
+
+SHELL_OUTPUT := $(shell $(FSL_SYNC_COMMAND) 2>&1)
+ifeq ($(filter error: ,$(SHELL_OUTPUT)),)
+  $(info $(SHELL_OUTPUT))
+else
+  $(error $(SHELL_OUTPUT))
+endif
+
+include $(BUILD_SHARED_LIBRARY)
+
+$(call import-module,android/ndk_helper)
+$(call import-module,android/native_app_glue)
+$(call import-module,android/cpufeatures)
+
+##PACKAGE_DEPENDENCY_IMPORT##
+
+# Set the DemoApps import path
+$(call import-add-path,$(FSL_DEMO_LOCATION))
+
+# Sample app
+$(call import-module,##PACKAGE_TARGET_NAME##)

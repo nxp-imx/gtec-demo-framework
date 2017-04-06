@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../FslBuildTemplate.xsd">
+  <Dependency Name="FslDemoAppG2D"/>
+</FslBuildTemplate>

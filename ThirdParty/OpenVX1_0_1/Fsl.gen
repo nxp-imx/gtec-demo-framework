@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- Change the type here depending on how its integrated -->
+  <ExternalLibrary Name="OpenVX1_0_1">
+    <UsesFeature Name="OpenVX1.0.1"/>
+    <CPPDefine Name="FSL_FEATURE_OPENVX1_0_1" Access="Public"/> 
+    <Dependency Name="OpenVX"/>
+  </ExternalLibrary>
+</FslBuildGen>

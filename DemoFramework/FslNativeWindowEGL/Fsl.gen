@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslNativeWindowEGL">
+    <Dependency Name="FslNativeWindowPlatform"/>
+    <Dependency Name="FslGraphicsEGL"/>
+    <Dependency Name="EGL"/>
+    <Platform Name="Windows" ProjectId="A7C3FE08-7990-44B9-BE64-FE1F87E2AED8"/>
+    </Library>
+</FslBuildGen>

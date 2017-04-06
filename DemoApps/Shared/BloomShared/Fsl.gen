@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="BloomShared">
+    <Dependency Name="FslSceneFormat"/>
+    <Dependency Name="FslSimpleUIApp"/>
+    <Platform Name="Windows" ProjectId="82B051E3-82AC-479B-9902-70CEEF1EF552"/>
+  </Library>
+</FslBuildGen>

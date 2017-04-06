@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslGraphicsVG">
+    <Dependency Name="OpenVG"/>
+    <Dependency Name="FslBase"/>
+    <Dependency Name="FslGraphics"/>
+    <CPPDefine Name="FSL_ENABLE_GRAPHICS_OPENVG" Access="Public"/>
+    <Platform Name="Windows" ProjectId="F57D9B45-15B3-4AAD-83EB-3CF7EA3CADAB"/>
+  </Library>
+</FslBuildGen>

@@ -1,0 +1,4 @@
+		{##PACKAGE_PLATFORM_PROJECT_ID##}.##VARIANT1##Debug|x64.ActiveCfg = ##VARIANT2##Debug|x64
+		{##PACKAGE_PLATFORM_PROJECT_ID##}.##VARIANT1##Debug|x64.Build.0 = ##VARIANT2##Debug|x64
+		{##PACKAGE_PLATFORM_PROJECT_ID##}.##VARIANT1##Release|x64.ActiveCfg = ##VARIANT2##Release|x64
+		{##PACKAGE_PLATFORM_PROJECT_ID##}.##VARIANT1##Release|x64.Build.0 = ##VARIANT2##Release|x64

@@ -1,0 +1,5 @@
+<resources>
+
+    <string name="app_name">##PREFIXED_PROJECT_NAME##</string>
+
+</resources>

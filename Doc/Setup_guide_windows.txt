@@ -1,0 +1,166 @@
+Prerequisites:
+- Read the Readme_FslBuild.txt
+
+- Visual Studio 2015 (community or better)
+  The community version can be downloaded here:
+  https://www.visualstudio.com/vs/community/
+
+- Python 2.7.x (To be able run python scripts, they are not needed to build)
+  For 64bit windows: https://www.python.org/ftp/python/2.7.13/python-2.7.13.msi
+  
+One of these:
+  - Arm Mali OpenGL ES Emulator 3.0.2.g694a9 (64 bit)
+    https://developer.arm.com/products/software-development-tools/graphics-development-tools/opengl-es-emulator/downloads
+    Please use the exact version (64bit) and use the installer to install it to the default location!
+  - Vivante OpenGL ES Emulator
+
+For OpenCL, OpenCV and OpenVX support additional packages are required, see below.
+  
+To get started its recommended to utilize the Arm Mali OpenGL ES 3.0.2 emulator 
+(64 bit) which this guide will assume you are using.
+
+Download the source from git.
+
+Simple setup:
+-------------
+  1. Start a windows console (cmd.exe) in the DemoFramework folder
+  2. Run the 'prepare.bat' file located in the root of the framework folder to
+     configure the necessary environment variables and paths.
+     Please beware that the prepare.bat file requires the current working 
+     directory to be the root of your demoframework folder to function 
+     (which is also the folder it resides in).
+ 
+
+To Compile and run an existing GLES2 sample application: 
+--------------------------------------------------------
+In this example we will utilize the GLES2 S06_Texturing app.
+  0. Make sure that you performed the simple setup
+  1. Change directory to the sample directory:
+       cd DemoApps\GLES2\S06_Texturing
+  2. Generate build files
+       FslBuildGen.py
+  3. Launch visual studio using the Arm Mali Emulator:
+       .StartProject.bat arm
+  4. Compile and run the project (The default is to press F5)
+   
+  To utilize a different emulator the .StartProject.bat file can be launched with the following arguments
+       arm      = the arm mali emulator
+       powervr  = the powervr emulator
+       qualcomm = the qualcomm andreno adreno emulator (expects its installed in "c:\AdrenoSDK"
+       vivante  = the vivante emulator
+  
+To create a new GLES2 demo project named 'CoolNewDemo'
+------------------------------------------------------  
+  0. Make sure that you performed the simple setup
+  1. Change directory to the GLES2 sample directory:
+       cd DemoApps/GLES2
+  2. Create the project template using the FslBuildNew.py script
+       FslBuildNew.py GLES2 CoolNewDemo  
+  3. Change directory to the newly created project folder 'CoolNewDemo'
+       cd CoolNewDemo
+  4. Generate build files for Android, Ubuntu and Yocto (this step will be simplified soon)
+       FslBuildGen.py
+  5. Launch visual studio using the Arm Mali Emulator:
+       .StartProject.bat arm
+  6. Compile and run the project (The default is to press F5) or start creating your new demo.
+
+
+If you add source files to a project or change the Fsl.gen file then run the 
+FslBuildGen.py script in the project root folder to regenerate the various 
+build files.
+
+
+Building OpenCV 2.4.11 demo framework apps:
+-------------------------------------------
+1. See "Setup OpenCV 2.4.11"
+2. Run prepare.bat as usual.
+3. Add a dependency to OpenCV to your "fsl.gen" file like this
+      <Dependency Name="OpenCV2_4"/>
+   See DemoApps/GLES3/OpenCV101_V2_4/Fsl.gen for how its done.
+4. Run FslBuildGen.py to regenerate the project files.   
+
+
+Building OpenCV 3.1 demo framework apps:
+----------------------------------------
+1. See "Setup OpenCV 3.1"
+2. Run prepare.bat as usual.
+3. Add a dependency to OpenCV to your "fsl.gen" file like this
+      <Dependency Name="OpenCV3_1"/>
+   See DemoApps/GLES3/OpenCV101_V3_1/Fsl.gen for how its done.
+4. Run FslBuildGen.py to regenerate the project files.   
+
+
+Building OpenCL demo framework apps:
+------------------------------------
+1. Download and install the desired OpenCL sdk from Amd
+   - Amd (AMD APP SDK 3.0): http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/
+2. Generate a new project add a dependency to OpenCL by adding 
+       <Dependency Name="OpenCL"/>
+   to the projects "Fsl.gen" file (See DemoApps/GLES3/OpenCV101/Fsl/Fsl.gen for a example).
+3. Run FslBuildGen on the "Fsl.gen" file.
+4. Start the project
+
+
+Building OpenVX demo framework apps:
+------------------------------------
+1. See "Setup OpenVX"
+2. Generate a new project add a dependency to OpenVX by adding 
+       <Dependency Name="OpenVX"/>
+   to the projects "Fsl.gen" file (See DemoApps/GLES3/OpenVX101/Fsl/Fsl.gen for a example).
+3. Run FslBuildGen on the "Fsl.gen" file.
+4. Start the project
+
+
+Setup OpenCV 2.4.11:
+--------------------
+1. Install the 2.4.11 sdk files.
+2. Configure the environment variable OPENCV2_4_DIR to point to the sdk location like this
+   set OPENCV2_4_DIR=c:\_sdk\OpenCV-2.4.11\build
+
+Setup OpenCV 3.1
+----------------
+1. Install the 3.1 sdk files.
+2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
+   set OPENCV_DIR=c:\_sdk\OpenCV-3.1.\build
+
+
+Setup OpenVX
+------------
+1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV3.1)
+
+   
+Legacy Git note:
+When you add the generated build.sh to git on windows then please remember to set the 
+executable bit using: git update-index --chmod=+x build.sh
+
+--------------------------------------------------------------------------------
+Notes for building AMD OpenVX files yourself
+WARNING: only do this if you have issues with the precompiled version we include
+--------------------------------------------------------------------------------
+Building OpenVX demo framework apps:
+1. Download and build the OpenVX sdk using the AMD SDK Setup below
+2. Generate a new project add a dependency to OpenVX by adding 
+       <Dependency Name="OpenVX"/>
+   to the projects "Fsl.gen" file (See DemoApps/GLES3/OpenVX101/Fsl/Fsl.gen for a example).
+3. Run FslBuildGen on the "Fsl.gen" file.
+4. Start the project
+
+
+AMD SDK Setup:
+1. Make sure you have cmake 
+   You can get it here: https://cmake.org/download/
+2. Amd (AMD APP SDK 3.0): http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/
+3. Make sure your OpenCV_DIR environment variable points to the OpenCV 3.1 build directory
+    set OpenCV_DIR=c:\sdk\OpenCV-3.1\build
+4. download the AMD OpenVX sdk code
+     git clone https://github.com/GPUOpen-ProfessionalCompute-Libraries/amdovx-core.git
+5. Make sure that OpenVX finds the AMD OpenCL implementation and the OpenCV directory
+      cmake-gui.exe 
+   Point it to the cmake directory you cloned the OpenVX files to then use the 'advanced' checkbox to see the make environment
+6. Generate the build files for Visual Studio 12 (2013) (x86) using cmake
+7. Open the %FSL_AMD_OPENVX_PATH%\openvx.sln project file and 
+   build the release version of OpenVX.
+   - If you dont have a supported AMD gpu set the build flag ENABLE_OPENCL=0 before you build!
+8 Copy the build files into the correct locations under %FSL_GRAPHICS_SDK%\ThirdParty\Precompiled\amdovx-core-0.9-beta1
+9. Do the normal setup
+10. You can now build OpenVX apps

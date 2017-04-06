@@ -1,0 +1,55 @@
+Android:
+--------
+- Android does not handle unicode file names inside the 'assets' folder, 
+  so do not utilize unicode for filenames stored in Content.
+
+
+Windows:
+--------
+- The generated project files do not detect changes to the build environment automatically.
+  So its your job to run FslBuildGen when you change it!
+- If a new shader is added to Content.bld and no files has been modified the content builder
+  does not get run by visual studio.
+
+
+G2D
+---
+- Early access. Everything is subject to changes.
+- Experimental support and it only works under Yocto.
+- DFGraphicsBasic2D shows a black screen because its using stub implementations to render.
+- '--Stats' shows nothing because its using stub implementations to render.
+- Screenshot functionality does not work.
+- NativeGraphicsBasic2D is mostly a stub.
+- NativeTexture2D is a stub.
+- NativeBatch2D is a stub.
+- The screen resolution used by the demoframework is invalid (it thinks the size is 0,0).
+- No input support.
+
+
+OpenCV 2.4:
+-----------
+- OpenCV 2.4 support is deprecated.
+- It will most likely only work on windows.
+- If you use a debug build on windows then the VS2013 debug runtime libs are required.
+
+
+OpenCL
+------
+- Early access. Everything is subject to changes.
+- Limited platform support
+
+
+OpenVX
+------
+- Early access. Everything is subject to changes.
+- Limited platform support
+
+
+Vulkan
+------
+- Early access. Everything is subject to changes.
+- DemoAppVulkan is a complete work in progress.
+- Limited platform support
+- Ubuntu X11 is in theory supported but has not been tested yet.
+- Qnx support is disabled.
+- Yocto support is available for WindowSystem=FB only.

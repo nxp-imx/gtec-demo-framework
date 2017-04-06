@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- Change the type here depending on how its integrated -->
+  <ExternalLibrary Name="Gst">
+    <Platform Name="Yocto">
+        <ExternalDependency Name="gstreamer-1.0" Include="$(PKG_CONFIG_SYSROOT_DIR)/usr/include/gstreamer-1.0" Access="Public" Type="StaticLib"/> 
+        <ExternalDependency Name="gobject-2.0" Include="$(PKG_CONFIG_SYSROOT_DIR)/usr/include/glib-2.0" Access="Public" Type="StaticLib"/>
+        <ExternalDependency Name="glib-2.0" Include="$(PKG_CONFIG_SYSROOT_DIR)/usr/lib/glib-2.0/include" Access="Public" Type="StaticLib"/>
+        <ExternalDependency Name="" Include="$(PKG_CONFIG_SYSROOT_DIR)/usr/lib/gstreamer-1.0/include"  Access="Public" Type="StaticLib"/>
+    </Platform>    
+  </ExternalLibrary>
+</FslBuildGen>

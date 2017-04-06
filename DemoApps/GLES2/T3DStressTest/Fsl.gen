@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES2.T3DStressTest" NoInclude="true">
+    <ImportTemplate Name="DemoAppGLES2"/>
+    <Dependency Name="FslGraphics_Draft"/>
+    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>
+  </Executable>
+</FslBuildGen>

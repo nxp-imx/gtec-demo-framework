@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGenProjectRoot Version="1">
+  <Project Name="DemoFramework" DefaultTemplate="DF" DefaultPackageLanguage="C++" ToolConfigFile="$(FSL_GRAPHICS_SDK)/.Config/FslBuildGen.xml">
+  </Project>
+</FslBuildGenProjectRoot>

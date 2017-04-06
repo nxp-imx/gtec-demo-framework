@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="GLES2">
+    <UsesFeature Name="OpenGLES2"/>
+    <Dependency Name="GLES"/>
+    <!--
+    <Platform Name="Windows">
+      <Variant Name="EGLBackend">
+        <Option Name="Vivante">
+          <ExternalDependency Name="libEGL" Include="$(FSL_GLES_EMULATOR_PATH)/inc" Access="Public" Location="$(FSL_GLES_EMULATOR_PATH)/lib" Type="StaticLib"/>
+          <ExternalDependency Name="libGLESv2" Include="$(FSL_GLES_EMULATOR_PATH)/inc" Access="Public" Location="$(FSL_GLES_EMULATOR_PATH)/lib" Type="StaticLib"/>
+        </Option>
+      </Variant>
+    </Platform>
+    -->
+    <Platform Name="Android">
+      <ExternalDependency Name="GLESv2" Type="StaticLib"/>
+    </Platform>
+    <Platform Name="CMake">
+      <ExternalDependency Name="OpenGLES" Type="Find"/>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

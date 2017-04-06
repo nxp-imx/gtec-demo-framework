@@ -1,0 +1,32 @@
+# stop if cmake version below 3.2
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+
+# project name
+project(##PACKAGE_NAME##)
+
+# Add all the include and source files to the library
+add_library(##PACKAGE_NAME####PACKAGE_SOURCE_FILES####PACKAGE_INCLUDE_FILES##)
+add_library(##ALIAS_PACKAGE_NAME## ALIAS ##PACKAGE_NAME##)
+  
+##PACKAGES_FIND_DIRECT_EXTERNAL_DEPENDENCIES##
+##TARGET_INCLUDE_DIRECTORIES##
+##PACKAGE_DIRECT_DEPENDENCIES_TARGET_LINK_LIBRARIES##
+##PACKAGE_DIRECT_DEPENDENCIES_TARGET_COMPILE_DEFINITIONS##
+
+##SNIPPET_DEFAULT_TARGET_COMPILE_OPTIONS##
+##SNIPPET_DEFAULT_TARGET_COMPILE_FEATURES##
+
+# 'make install' to the correct location
+install(TARGETS ##PACKAGE_NAME## EXPORT ##PACKAGE_NAME##Config 
+    ARCHIVE  DESTINATION lib
+    LIBRARY  DESTINATION lib
+    RUNTIME  DESTINATION bin)  # This is for Windows
+install(DIRECTORY include/ DESTINATION include)
+
+# This makes the project importable from the install directory
+# Put config file in per-project dir (name MUST match), can also
+# just go into <prefix>/cmake.
+install(EXPORT ##PACKAGE_NAME##Config DESTINATION share/##PACKAGE_NAME##/cmake)
+
+# This makes the project importable from the build directory
+export(TARGETS ##PACKAGE_NAME## FILE ##PACKAGE_NAME##Config.cmake)

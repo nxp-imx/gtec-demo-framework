@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- This is the generic OpenCL library, no version promises are made -->
+  <ExternalLibrary Name="OpenCL">
+    <UsesFeature Name="OpenCL"/>
+    <UsesFeature Name="EarlyAccess"/>
+    <CPPDefine Name="FSL_FEATURE_OPENCL" Access="Public"/> 
+    <Platform Name="Android" NotSupported="true"/>
+    <Platform Name="QNX" NotSupported="true"/>
+    <Platform Name="Ubuntu">
+      <ExternalDependency Name="OpenCL" Include="$(AMDAPPSDKROOT)/include" Access="Public" Location="$(AMDAPPSDKROOT)/lib/x86_64" Type="StaticLib"/>
+    </Platform>
+    <Platform Name="Yocto">
+      <ExternalDependency Name="OpenCL" Access="Public" Type="StaticLib"/>
+    </Platform>    
+    <Platform Name="Windows">
+      <ExternalDependency Name="openCL.lib" Include="$(AMDAPPSDKROOT)/include" Access="Public" Location="$(AMDAPPSDKROOT)/lib/x86_64" Type="StaticLib"/>
+    </Platform>    
+    <Platform Name="CMake">
+      <ExternalDependency Name="OpenCL" Type="Find"/>
+    </Platform>    
+  </ExternalLibrary>
+</FslBuildGen>

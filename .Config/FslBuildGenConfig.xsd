@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation>
+      Describes the FslBuildGen.xml configuration file format
+    </xs:documentation>
+  </xs:annotation>
+
+
+  <xs:complexType name="_T_GenFile">
+    <xs:annotation>
+      <xs:documentation>Specifies the name of the gen file used by the tool</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_TemplateFolder">
+    <xs:annotation>
+      <xs:documentation>Specifies the directory that contains the template files used by the build generators</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_AddRootDirectory">
+    <xs:annotation>
+      <xs:documentation>Add a root directory</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_AddTemplateImportDirectory">
+    <xs:annotation>
+      <xs:documentation>Add a root directory</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_ContentBuilder_AddExtension">
+    <xs:annotation>
+      <xs:documentation>Define a input file extensions used by the builder</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+    <xs:attribute name="PostfixedOutputExtension" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_ContentBuilder">
+    <xs:annotation>
+      <xs:documentation>Add a content builder</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_ContentBuilderCommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Executable" type="xs:string" use="required"/>
+    <xs:attribute name="Parameters" type="xs:string" use="required"/>
+    <xs:attribute name="FeatureRequirements" type="xs:string" use="optional"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_ContentBuilderConfiguration">
+    <xs:annotation>
+      <xs:documentation>Add a content builder configurations</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_ContentBuilderConfigurationCommandList"/>
+  </xs:complexType>
+  
+
+  <xs:complexType name="_T_PackageConfiguration">
+    <xs:annotation>
+      <xs:documentation>Add a configuration</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_PackageConfigurationCommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_PackageLocation">
+    <xs:annotation>
+      <xs:documentation>Add package location</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_PackageLocationCommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_BlackList">
+    <xs:annotation>
+      <xs:documentation>Blacklist the given package</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:group name="_G_ContentBuilder_AddExtension">
+    <xs:choice>
+      <xs:element name="AddExtension" type="_T_ContentBuilder_AddExtension"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_ContentBuilderCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_ContentBuilder_AddExtension" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:group name="_G_ContentBuilder">
+    <xs:choice>
+      <xs:element name="ContentBuilder" type="_T_ContentBuilder"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_ContentBuilderConfigurationCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_ContentBuilder" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:group name="_G_ContentBuilderConfiguration">
+    <xs:choice>
+      <xs:element name="ContentBuilderConfiguration" type="_T_ContentBuilderConfiguration"/>
+    </xs:choice>
+  </xs:group>
+  
+
+  <xs:group name="_G_TemplateFolder">
+    <xs:choice>
+      <xs:element name="TemplateFolder" type="_T_TemplateFolder"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_GenFile">
+    <xs:choice>
+      <xs:element name="GenFile" type="_T_GenFile"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_AddRootDirectory">
+    <xs:choice>
+      <xs:element name="AddRootDirectory" type="_T_AddRootDirectory"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_AddTemplateImportDirectory">
+    <xs:choice>
+      <xs:element name="AddTemplateImportDirectory" type="_T_AddTemplateImportDirectory"/>
+    </xs:choice>
+  </xs:group>
+  
+
+  <xs:group name="_G_PackageConfiguration">
+    <xs:choice>
+      <xs:element name="PackageConfiguration" type="_T_PackageConfiguration"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_PackageLocation">
+    <xs:choice>
+      <xs:element name="PackageLocation" type="_T_PackageLocation"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_BlackList">
+    <xs:choice>
+      <xs:element name="BlackList" type="_T_BlackList"/>
+    </xs:choice>
+  </xs:group>
+ 
+
+  <xs:group name="_G_PackageLocationCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_BlackList" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:group name="_G_PackageConfigurationCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_PackageLocation" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  
+
+  <xs:group name="_G_CommandList">
+    <xs:sequence>
+      <xs:group ref="_G_GenFile" minOccurs="0" maxOccurs="1"/>
+      <xs:group ref="_G_TemplateFolder" minOccurs="0" maxOccurs="1"/>
+      <xs:group ref="_G_AddRootDirectory" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_AddTemplateImportDirectory" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_PackageConfiguration" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_ContentBuilderConfiguration" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:complexType name="_T_FslBuildGenConfig">
+    <xs:annotation>
+      <xs:documentation></xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_CommandList"/>
+    <xs:attribute name="Version" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:element name="FslBuildGenConfig" type="_T_FslBuildGenConfig"/>
+</xs:schema>

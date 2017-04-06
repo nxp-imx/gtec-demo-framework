@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.TessellationSample" NoInclude="true">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="FslGraphicsGLES3_1"/>
+    <Dependency Name="FslGraphics_Draft"/>
+    <Dependency Name="FslSceneFormat"/>
+    <Dependency Name="FslSimpleUIApp"/>
+    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF">
+      <Dependency Name="FslAssimp"/>
+    </Platform>
+    <Platform Name="Ubuntu">
+      <Dependency Name="FslAssimp"/>
+    </Platform>
+    <Platform Name="Yocto">
+      <Dependency Name="FslAssimp"/>
+    </Platform>
+  </Executable>
+</FslBuildGen>

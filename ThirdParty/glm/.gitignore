@@ -1,0 +1,6 @@
+build/
+.StartProject.bat
+CMakeLists.txt
+glm.sln
+glm.vcxproj
+glm.vcxproj.user

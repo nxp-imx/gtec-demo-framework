@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MB>
+  <ProjectState Version="1" AutoStep="true" ActiveTab="1">
+    <FontState Version="1" PublishPath="Font" FontName="Freestyle Script" Style="Normal" Size="50" Color="4294967295" MatrixSpaceX="16" MatrixSpaceY="16" GlyphsPerLine="16" PreviewText="true">
+      <Ranges Count="1">
+        <Range Begin="32" End="127" />
+      </Ranges>
+    </FontState>
+    <BitmapState Version="1" ShowOriginalBitmap="false" ShowModifiedBitmap="true" BackgroundColor="8421631" />
+  </ProjectState>
+</MB>

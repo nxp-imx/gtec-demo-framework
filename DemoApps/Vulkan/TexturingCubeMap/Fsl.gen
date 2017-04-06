@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.TexturingCubeMap" NoInclude="true">
+    <ImportTemplate Name="DemoAppWindow"/>
+    <Dependency Name="FslGraphicsVulkan1_0"/>
+    <Dependency Name="FslNativeWindowVulkan"/>
+    <Dependency Name="FslDemoHostWindow"/>
+    <Dependency Name="VulkanExperimental"/>
+    <Dependency Name="VulkanWindowExperimental"/>
+    <Dependency Name="VulkanWillemsMeshDemoAppExperimental"/>
+    <Dependency Name="glm"/>
+    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>
+  </Executable>
+</FslBuildGen>

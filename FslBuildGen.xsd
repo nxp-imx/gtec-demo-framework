@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation>
+      Describes the Fsl.gen format
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:simpleType name="_TP_FeatureName">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EGL" />
+      <xs:enumeration value="OpenGLES2" />
+      <xs:enumeration value="OpenGLES3" />
+      <xs:enumeration value="OpenVG" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  
+  <xs:simpleType name="_TP_DependencyAccess">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Public" />
+      <xs:enumeration value="Private" />
+      <xs:enumeration value="Link" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="_TP_Access">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Public" />
+      <xs:enumeration value="Private" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="_TP_Bool">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true" />
+      <xs:enumeration value="false" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:simpleType name="_TP_ExternalDependencyType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="StaticLib" />
+      <xs:enumeration value="Headers" />
+      <xs:enumeration value="Find" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:simpleType name="_TP_VariantType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Normal" />
+      <xs:enumeration value="Virtual" />
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:complexType name="_T_UsesFeature">
+    <xs:annotation>
+      <xs:documentation>Specifies a requirement for the given feature name to exist</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="_TP_FeatureName" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_ImportTemplate">
+    <xs:annotation>
+      <xs:documentation>Specifies the name of a template that should be imported from one of the import directories</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  
+  <xs:complexType name="_T_Dependency">
+    <xs:annotation>
+      <xs:documentation>Specifies a direct dependency on the named package</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Access" type="_TP_DependencyAccess" use="optional"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_ExternalDependency">
+    <xs:annotation>
+      <xs:documentation>Specifies a direct dependency to something external. If this dependency is used a lot consider creating a ExternalLibrary package for it instead.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Include" type="xs:string" use="optional"/>
+    <xs:attribute name="Location" type="xs:string" use="optional"/>
+    <xs:attribute name="Access" type="_TP_Access" use="optional"/>
+    <xs:attribute name="Type" type="_TP_ExternalDependencyType" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_CPPDefine">
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Access" type="_TP_Access" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_Platform">
+    <xs:annotation>
+      <xs:documentation>Platform specific configuration</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_PlatformCommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="ProjectId" type="xs:string" use="optional"/>
+    <xs:attribute name="NotSupported" type="_TP_Bool" use="optional"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_Variant">
+    <xs:annotation>
+      <xs:documentation>Adds a variant of this package. The variant is inherited by everyone that is dependent on this package, so be careful with them</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_VariantCommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Extend" type="_TP_Bool" use="optional"/>
+    <xs:attribute name="Type" type="_TP_VariantType" use="optional"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_VariantOption">
+    <xs:group ref="_G_VariantOptionCommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:group name="_G_UsesFeatureElement">
+    <xs:choice>
+      <xs:element name="UsesFeature" type="_T_UsesFeature"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_ImportTemplate">
+    <xs:choice>
+      <xs:element name="ImportTemplate" type="_T_ImportTemplate"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_DependencyElement">
+    <xs:choice>
+      <xs:element name="Dependency" type="_T_Dependency"/>
+    </xs:choice>
+  </xs:group>
+
+  
+  <xs:group name="_G_ExternalDependencyElement">
+    <xs:choice>
+      <xs:element name="ExternalDependency" type="_T_ExternalDependency"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_CPPDefineElement">
+    <xs:choice>
+      <xs:element name="CPPDefine" type="_T_CPPDefine"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_PlatformElement">
+    <xs:choice>
+      <xs:element name="Platform" type="_T_Platform"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_VariantElement">
+    <xs:choice>
+      <xs:element name="Variant" type="_T_Variant"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_VariantOptionElement">
+    <xs:choice>
+      <xs:element name="Option" type="_T_VariantOption"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_CommandList">
+    <xs:sequence>
+      <xs:group ref="_G_UsesFeatureElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_ImportTemplate" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_DependencyElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_CPPDefineElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_PlatformElement" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="_G_PlatformCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_UsesFeatureElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_DependencyElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_CPPDefineElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_VariantElement" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="_G_VariantCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_VariantOptionElement" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="_G_VariantOptionCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_CPPDefineElement" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="_T_Executable">
+    <xs:annotation>
+      <xs:documentation>Build a executable</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_CommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="NoInclude" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_Library">
+    <xs:annotation>
+      <xs:documentation>Build a static library</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_CommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_ExternalLibrary">
+    <xs:annotation>
+      <xs:documentation>A description of a external library</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_CommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:complexType name="_T_HeaderLibrary">
+    <xs:annotation>
+      <xs:documentation>Build a header only library</xs:documentation>
+    </xs:annotation>
+    <xs:group ref="_G_CommandList"/>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+  </xs:complexType>
+
+
+  <xs:group name="_G_BuildElement">
+    <xs:choice>
+      <xs:element name="Executable" type="_T_Executable"/>
+      <xs:element name="Library" type="_T_Library"/>
+      <xs:element name="ExternalLibrary" type="_T_ExternalLibrary"/>
+      <xs:element name="HeaderLibrary" type="_T_HeaderLibrary"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="_T_FslBuildGen">
+    <xs:group ref="_G_BuildElement"/>
+  </xs:complexType>
+
+  <xs:element name="FslBuildGen" type="_T_FslBuildGen"/>
+</xs:schema>

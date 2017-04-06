@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslUtilOpenVX1_1">
+    <Dependency Name="OpenVX1_1"/>
+    <Dependency Name="FslUtilOpenVX"/>
+    <Dependency Name="FslBase"/>
+    <Platform Name="Windows" ProjectId="52A2964F-BD92-4144-A774-AC6EE56BAEB0"/>
+  </Library>
+</FslBuildGen>

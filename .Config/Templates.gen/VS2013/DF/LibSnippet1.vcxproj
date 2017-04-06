@@ -1,0 +1,8 @@
+    <ProjectConfiguration Include="##VARIANT##Debug|x64">
+      <Configuration>##VARIANT##Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="##VARIANT##Release|x64">
+      <Configuration>##VARIANT##Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>

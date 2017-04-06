@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- Change the type here depending on how its integrated -->
+  <ExternalLibrary Name="G2D">
+    <UsesFeature Name="G2D"/>
+    <UsesFeature Name="EarlyAccess"/>
+    <Platform Name="QNX" NotSupported="true"/>
+    <Platform Name="Yocto">
+      <ExternalDependency Name="g2d" Type="StaticLib"/>
+    </Platform>    
+    <Platform Name="Android">
+      <Dependency Name="G2DEmulation"/>
+    </Platform>    
+    <Platform Name="Ubuntu">
+      <Dependency Name="G2DEmulation"/>
+    </Platform>    
+    <Platform Name="Windows">
+      <Dependency Name="G2DEmulation"/>
+    </Platform>    
+  </ExternalLibrary>
+</FslBuildGen>

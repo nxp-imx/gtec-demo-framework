@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- Change the type here depending on how its integrated -->
+  <ExternalLibrary Name="OpenVX">
+    <UsesFeature Name="OpenVX"/>
+    <UsesFeature Name="EarlyAccess"/>
+    <CPPDefine Name="FSL_FEATURE_OPENVX" Access="Public"/> 
+    <Platform Name="Android" NotSupported="true"/>
+    <Platform Name="Ubuntu" NotSupported="true"/>
+    <Platform Name="Yocto" NotSupported="true"/>
+    <Platform Name="QNX" NotSupported="true"/>
+    <Platform Name="Windows">
+      <ExternalDependency Name="openvx.lib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/amdovx-core-0.9-beta1/include" Access="Public" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/amdovx-core-0.9-beta1/lib" Type="StaticLib"/>
+    </Platform>    
+  </ExternalLibrary>
+</FslBuildGen>

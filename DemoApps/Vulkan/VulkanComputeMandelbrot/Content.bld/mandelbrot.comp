@@ -1,0 +1,85 @@
+#version 450 core
+
+// The Mandelbrot Set
+// see http://warp.povusers.org/Mandelbrot/
+
+#define VKTS_LOCAL_SIZE 16
+
+#define VKTS_MAX_ITERATIONS   64
+
+#define VKTS_IMAGE_LENGTH     1024
+
+#define VKTS_REAL_START       -2.25
+#define VKTS_IMAGINARY_START  -1.5
+
+#define VKTS_NUMBER_LENGTH    3.0
+
+#define VKTS_REAL_STEP        (VKTS_NUMBER_LENGTH / float(VKTS_IMAGE_LENGTH - 1))
+#define VKTS_IMAGINARY_STEP   (VKTS_NUMBER_LENGTH / float(VKTS_IMAGE_LENGTH -1))
+
+layout (binding = 0, rgba8) uniform image2D u_texture; 
+
+layout (local_size_x = VKTS_LOCAL_SIZE, local_size_y = VKTS_LOCAL_SIZE) in;
+
+vec2 complexSquare(vec2 c)
+{
+    return vec2(c.x * c.x - c.y * c.y, 2.0 * c.x * c.y);
+}
+
+void main(void)
+{
+    ivec2 storePos = ivec2(gl_GlobalInvocationID.xy);
+
+    // Enable, to render upside down.    
+    //storePos.y = VKTS_IMAGE_LENGTH - 1 - storePos.y;
+    
+    int x = int(gl_GlobalInvocationID.x);
+    int y = int(gl_GlobalInvocationID.y);
+    
+    //
+
+    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    //
+    
+    vec2 c = vec2(VKTS_REAL_START + float(x) * VKTS_REAL_STEP, VKTS_IMAGINARY_START + float(y) * VKTS_IMAGINARY_STEP);
+
+    vec2 z = c;
+    
+    bool inside = true;
+    
+    int i;
+    for (i = 0; i < VKTS_MAX_ITERATIONS; i++)
+    {
+        // Square distance of z.
+        if (dot(z, z) > 4.0)
+        {
+            inside = false;
+
+            break;
+        }
+
+        z = complexSquare(z) + c;
+    }
+
+    if (!inside)
+    {
+        // Colorize.
+        if (i < VKTS_MAX_ITERATIONS / 2)
+        {
+            color.r = float(i) / float(VKTS_MAX_ITERATIONS / 2 - 1);
+        }
+        else
+        {
+            color.r = 1.0;
+
+            color.g = float(i - VKTS_MAX_ITERATIONS / 2) / float(VKTS_MAX_ITERATIONS / 2 - 1);
+
+            color.b = color.g;
+        }
+    }
+
+    //
+
+    imageStore(u_texture, storePos, color);
+}

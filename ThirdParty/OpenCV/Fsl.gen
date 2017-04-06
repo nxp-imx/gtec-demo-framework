@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- Change the type here depending on how its integrated -->
+  <ExternalLibrary Name="OpenCV">
+    <UsesFeature Name="OpenCV"/>
+    <UsesFeature Name="EarlyAccess"/>
+    <CPPDefine Name="FSL_FEATURE_OPENCV" Access="Public"/> 
+    <Platform Name="QNX" NotSupported="true"/>
+  </ExternalLibrary>
+</FslBuildGen>

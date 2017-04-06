@@ -1,0 +1,23 @@
+# stop if cmake version below 3.2
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+
+# project name
+project(##PACKAGE_NAME##)
+
+# Add all the include and source files to the library
+add_library(##PACKAGE_NAME## STATIC ##PACKAGE_SOURCE_FILES####PACKAGE_INCLUDE_FILES##)
+add_library(##ALIAS_PACKAGE_NAME## ALIAS ##PACKAGE_NAME##)
+  
+##PACKAGES_FIND_DIRECT_EXTERNAL_DEPENDENCIES##
+##TARGET_INCLUDE_DIRECTORIES##
+##PACKAGE_DIRECT_DEPENDENCIES_TARGET_LINK_LIBRARIES##
+##PACKAGE_DIRECT_DEPENDENCIES_TARGET_COMPILE_DEFINITIONS##
+
+##SNIPPET_DEFAULT_TARGET_COMPILE_OPTIONS##
+
+add_custom_target(ProjectContentSync_##PACKAGE_NAME##
+    COMMAND ${FSL_GRAPHICS_SDK}/.Config/FslContentSync.py ##PACKAGE_CONTENT_PATH## ##PACKAGE_ANDROID_PROJECT_PATH##/app/src/main/assets/fsl-content -i --create --ifExist
+)
+
+add_dependencies(##PACKAGE_NAME## ProjectContentSync_##PACKAGE_NAME##)
+
