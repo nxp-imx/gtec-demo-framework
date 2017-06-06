@@ -27,7 +27,7 @@
 /// @ref gtx_matrix_transform_2d
 /// @file glm/gtx/matrix_transform_2d.hpp
 /// @date 2014-02-20
-/// @author Miguel Ángel Pérez Martínez
+/// @author Miguel Angel Parez Martinez
 ///
 /// @see core (dependence)
 ///

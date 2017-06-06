@@ -1,5 +1,7 @@
+#ifndef FSLDEMOHOST_SERVICE_PROFILER_PROFILERSERVICEOPTIONPARSER_HPP
+#define FSLDEMOHOST_SERVICE_PROFILER_PROFILERSERVICEOPTIONPARSER_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -12,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -29,46 +31,27 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslAssimp/SceneHelper.hpp>
-#include <FslBase/Math/Vector3.hpp>
-
-#include <assimp/Importer.hpp>  //OO version Header!
-#include <assimp/postprocess.h>
-
-#include <algorithm>
-#include <limits>
+#include <FslDemoHost/Service/AServiceOptionParser.hpp>
 
 namespace Fsl
 {
-  void SceneHelper::GetBoundingBox(const aiScene* pScene, Vector3& rMin, Vector3& rMax)
-  {
-    rMin.X = rMin.Y = rMin.Z = std::numeric_limits<float>::max();
-    rMax.X = rMax.Y = rMax.Z = std::numeric_limits<float>::lowest();
-    GetBoundingBoxForNode(pScene, pScene->mRootNode, rMin, rMax);
-  }
 
-
-  void SceneHelper::GetBoundingBoxForNode(const aiScene* pScene, const aiNode* pNode, Vector3& rMin, Vector3& rMax)
+  class ProfilerServiceOptionParser
+    : public AServiceOptionParser
   {
-    aiMatrix4x4 prev;
-    for (std::size_t meshIndex = 0; meshIndex < pNode->mNumMeshes; ++meshIndex)
+    uint32_t m_averageEntries;
+  public:
+    ProfilerServiceOptionParser();
+    virtual void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    virtual OptionParseResult::Enum OnParse(const int32_t cmdId, const char*const pszOptArg) override;
+    virtual bool OnParsingComplete() override;
+
+    //! @brief Get the number of frames to average the FPS over for Average mode.
+    uint32_t GetAverageEntries() const
     {
-      const aiMesh* mesh = pScene->mMeshes[pNode->mMeshes[meshIndex]];
-      for (std::size_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex)
-      {
-        aiVector3D tmp = mesh->mVertices[vertexIndex];
-
-        rMin.X = std::min(rMin.X, tmp.x);
-        rMin.Y = std::min(rMin.Y, tmp.y);
-        rMin.Z = std::min(rMin.Z, tmp.z);
-
-        rMax.X = std::max(rMax.X, tmp.x);
-        rMax.Y = std::max(rMax.Y, tmp.y);
-        rMax.Z = std::max(rMax.Z, tmp.z);
-      }
+      return m_averageEntries;
     }
-
-    for (std::size_t i = 0; i < pNode->mNumChildren; ++i)
-      GetBoundingBoxForNode(pScene, pNode->mChildren[i], rMin, rMax);
-  }
+  };
 }
+
+#endif

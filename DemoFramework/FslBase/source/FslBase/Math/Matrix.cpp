@@ -1,36 +1,3 @@
-/****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
-
-// The functions in this file are a port of an MIT licensed library: MonaGame - Matrix.cs.
-
 /*
 MIT License
 Copyright (C) 2006 The Mono.Xna Team
@@ -55,6 +22,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
+// The functions in this file are a port of an MIT licensed library: MonoGame - Matrix.cs.
 
 #include <FslBase/Math/Matrix.hpp>
 #include <cassert>
@@ -1135,7 +1104,7 @@ namespace Fsl
   {
     Matrix result(OptimizationFlag::NoInitialization);
     Invert(result, matrix);
-    return matrix;
+    return result;
   }
 
 
@@ -1461,36 +1430,36 @@ namespace Fsl
   void MatrixInternals::Transform(Vector3& rResult, const Vector3& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector3((position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + pMatrix[_M41],
-      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42],
-      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43]);
+    rResult = Vector3((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + pMatrix[_M41],
+                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42],
+                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43]);
   }
 
 
   void MatrixInternals::TransformNormal(Vector3& rResult, const Vector3& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector3((position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]),
-      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]),
-      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]));
+    rResult = Vector3((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]),
+                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]),
+                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]));
   }
 
   void MatrixInternals::Transform(Vector4& rResult, const Vector2& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
     rResult = Vector4((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + pMatrix[_M41],
-      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + pMatrix[_M42],
-      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + pMatrix[_M43],
-      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + pMatrix[_M44]);
+                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + pMatrix[_M42],
+                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + pMatrix[_M43],
+                      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + pMatrix[_M44]);
   }
 
   void MatrixInternals::Transform(Vector4& rResult, const Vector3& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
     rResult = Vector4((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + pMatrix[_M41],
-      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42],
-      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43],
-      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + pMatrix[_M44]);
+                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42],
+                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43],
+                      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + pMatrix[_M44]);
   }
 
 
@@ -1498,9 +1467,9 @@ namespace Fsl
   {
     const float* pMatrix = matrix.DirectAccess();
     rResult = Vector4((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + (position.W * pMatrix[_M41]),
-      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + (position.W * pMatrix[_M42]),
-      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + (position.W * pMatrix[_M43]),
-      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + (position.W * pMatrix[_M44]));
+                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + (position.W * pMatrix[_M42]),
+                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + (position.W * pMatrix[_M43]),
+                      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + (position.W * pMatrix[_M44]));
   }
 
   Matrix Matrix::operator-() const

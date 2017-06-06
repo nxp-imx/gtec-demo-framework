@@ -51,6 +51,7 @@
 #include <FslDemoHost/Service/NativeWindowEvents/NativeWindowEventsService.hpp>
 #include <FslDemoHost/Service/Options/OptionsService.hpp>
 #include <FslDemoHost/Service/Profiler/ProfilerService.hpp>
+#include <FslDemoHost/Service/Profiler/ProfilerServiceFactory.hpp>
 #include <FslDemoHost/Service/Persistent/PersistentDataManagerServiceFactory.hpp>
 #include <FslDemoHost/Service/Test/TestService.hpp>
 #include <FslDemoPlatform/Service/DemoPlatformControl/DemoPlatformControl.hpp>
@@ -78,7 +79,6 @@ namespace Fsl
   typedef ThreadLocalSingletonServiceFactoryTemplate2<NativeWindowEventsService, INativeWindowEvents, INativeWindowEventSender> NativeWindowEventsFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<OptionsService, IOptions, IOptionsServiceControl> OptionsServiceFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate<TestService, ITestService> TestServiceFactory;
-  typedef ThreadLocalSingletonServiceFactoryTemplate2<ProfilerService, IProfilerService, IProfilerServiceControl> ProfilerServiceFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate<ContentMonitorService, IContentMonitor> ContentMonitorServiceFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<HostInfoService, IHostInfo, IHostInfoControl> HostInfoServiceFactory;
 

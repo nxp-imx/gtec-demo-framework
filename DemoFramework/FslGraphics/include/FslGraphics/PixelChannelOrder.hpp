@@ -1,5 +1,7 @@
+#ifndef FSLGRAPHICS_PIXELCHANNELORDER_HPP
+#define FSLGRAPHICS_PIXELCHANNELORDER_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -12,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -29,46 +31,27 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslAssimp/SceneHelper.hpp>
-#include <FslBase/Math/Vector3.hpp>
-
-#include <assimp/Importer.hpp>  //OO version Header!
-#include <assimp/postprocess.h>
-
-#include <algorithm>
-#include <limits>
 
 namespace Fsl
 {
-  void SceneHelper::GetBoundingBox(const aiScene* pScene, Vector3& rMin, Vector3& rMax)
+  //! Describes the preferred ordering of color channels
+  enum class PixelChannelOrder
   {
-    rMin.X = rMin.Y = rMin.Z = std::numeric_limits<float>::max();
-    rMax.X = rMax.Y = rMax.Z = std::numeric_limits<float>::lowest();
-    GetBoundingBoxForNode(pScene, pScene->mRootNode, rMin, rMax);
-  }
-
-
-  void SceneHelper::GetBoundingBoxForNode(const aiScene* pScene, const aiNode* pNode, Vector3& rMin, Vector3& rMax)
-  {
-    aiMatrix4x4 prev;
-    for (std::size_t meshIndex = 0; meshIndex < pNode->mNumMeshes; ++meshIndex)
-    {
-      const aiMesh* mesh = pScene->mMeshes[pNode->mMeshes[meshIndex]];
-      for (std::size_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex)
-      {
-        aiVector3D tmp = mesh->mVertices[vertexIndex];
-
-        rMin.X = std::min(rMin.X, tmp.x);
-        rMin.Y = std::min(rMin.Y, tmp.y);
-        rMin.Z = std::min(rMin.Z, tmp.z);
-
-        rMax.X = std::max(rMax.X, tmp.x);
-        rMax.Y = std::max(rMax.Y, tmp.y);
-        rMax.Z = std::max(rMax.Z, tmp.z);
-      }
-    }
-
-    for (std::size_t i = 0; i < pNode->mNumChildren; ++i)
-      GetBoundingBoxForNode(pScene, pNode->mChildren[i], rMin, rMax);
-  }
+    //! Not defined
+    Undefined = 0,
+    //! Prefer channels defined in the order R, G, B, A.
+    //! If a channel isn't available its just removed from the above order list. So BGR would become RGB.
+    RGBA = 1,
+    //! Prefer channels defined in the order B, G, R, A
+    //! If a channel isn't available its just removed from the above order list. So RGB would become BGR.
+    BGRA = 2,
+    //! Prefer channels defined in the order A, R, G, B
+    //! If a channel isn't available its just removed from the above order list. So BRA would become ARB.
+    ARGB = 3,
+    //! Prefer channels defined in the order A, B, G, R
+    //! If a channel isn't available its just removed from the above order list. So ARB would become BRA.
+    ABGR = 4
+  };
 }
+
+#endif

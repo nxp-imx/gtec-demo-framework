@@ -48,7 +48,7 @@ namespace Fsl
 {
   namespace
   {
-    const Texture CreateTargetTexture(const Texture& srcTexture, const PixelFormat desiredPixelFormat)
+    Texture CreateTargetTexture(const Texture& srcTexture, const PixelFormat desiredPixelFormat)
     {
       assert(!PixelFormatUtil::IsCompressed(srcTexture.GetPixelFormat()));
       TextureBlobBuilder builder(srcTexture.GetTextureType(), srcTexture.GetExtent(), desiredPixelFormat, srcTexture.GetTextureInfo(), srcTexture.GetBitmapOrigin());

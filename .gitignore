@@ -12,8 +12,16 @@
 /.Config/FslBuildGen/BuildContent/__pycache__
 /.Config/FslBuildGen/Generator/*.pyc
 /.Config/FslBuildGen/Generator/__pycache__
+/.Config/FslBuildGen/BuildContent/Processor/*.pyc
+/.Config/FslBuildGen/BuildContent/Processor/__pycache__
+/.Config/FslBuildGen/BuildContent/Sync/*.pyc
+/.Config/FslBuildGen/BuildContent/Sync/__pycache__
+/.Config/FslBuildGen/Template/*.pyc
+/.Config/FslBuildGen/Template/__pycache__
 /.Config/FslBuildGen/Tool/*.pyc
 /.Config/FslBuildGen/Tool/__pycache__
+/.Config/FslBuildGen/Vars/*.pyc
+/.Config/FslBuildGen/Vars/__pycache__
 /.Config/FslFontHelper/BasicKerningObjects.pyc
 /.Config/FslFontHelper/FormatPlugin.pyc
 /.Config/FslFontHelper/FormatPluginBasicKerning.pyc

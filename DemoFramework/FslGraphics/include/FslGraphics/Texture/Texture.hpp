@@ -88,6 +88,12 @@ namespace Fsl
     //! @param builder a valid builder with information about the layout of the content in the pContent buffer.
     Texture(const void*const pContent, const std::size_t contentByteSize, TextureBlobBuilder&& builder);
 
+    //! @brief Create a texture based on the given builder
+    //! @param content a array containing the content
+    //! @param builder a valid builder with information about the layout of the content in the pContent buffer.
+    Texture(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
+
+
     ~Texture();
 
     //! @brief Destroys the texture and resets the object to its default state.
@@ -107,6 +113,11 @@ namespace Fsl
     //! @param contentByteSize the size of the content in bytes (we expect this to match the builder.GetContentSize())
     //! @param builder a valid builder with information about the layout of the content in the pContent buffer.
     void Reset(const void*const pContent, const std::size_t contentByteSize, TextureBlobBuilder&& builder);
+
+    //! @brief Destroys the texture and creates a texture based on the given builder
+    //! @param content a array containing the content
+    //! @param builder a valid builder with information about the layout of the content in the pContent buffer.
+    void Reset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
 
     //! @brief Check if this object contains a valid resource
     bool IsValid() const
@@ -205,6 +216,7 @@ namespace Fsl
     };
   private:
     void DoReset(const void*const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder);
+    void DoReset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
 
     RawTexture Lock() const;
     RawTextureEx LockEx();

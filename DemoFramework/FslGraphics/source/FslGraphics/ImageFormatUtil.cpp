@@ -49,16 +49,20 @@ namespace Fsl
         rC += ('a' - 'A');
     }
 
-    if (extension == ".bmp")
-      return ImageFormat::Bmp;
-    else if (extension == ".dds")
-      return ImageFormat::DDS;
-    else if (extension == ".jpg" || extension == ".jpeg")
+    if(extension == ".jpg" || extension == ".jpeg")
       return ImageFormat::Jpeg;
-    else if (extension == ".ktx")
-      return ImageFormat::KTX;
     else if (extension == ".png")
       return ImageFormat::Png;
+    else if (extension == ".dds")
+      return ImageFormat::DDS;
+    else if (extension == ".bmp")
+      return ImageFormat::Bmp;
+    else if (extension == ".hdr")
+      return ImageFormat::Hdr;
+    else if (extension == ".ktx")
+      return ImageFormat::KTX;
+    else if (extension == ".tga")
+      return ImageFormat::Tga;
     return ImageFormat::Undefined;
   }
 }

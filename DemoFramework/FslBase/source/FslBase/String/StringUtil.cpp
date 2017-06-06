@@ -50,7 +50,7 @@ namespace Fsl
   int32_t StringUtil::IndexOf(const std::string& source, const char ch)
   {
     const std::size_t index = source.find(ch);
-    assert(index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+    assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
     return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
   }
 
@@ -58,7 +58,7 @@ namespace Fsl
   int32_t StringUtil::IndexOf(const std::string& source, const char ch, const int32_t fromIndex)
   {
     const std::size_t index = source.find(ch, fromIndex);
-    assert(index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+    assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
     return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
   }
 

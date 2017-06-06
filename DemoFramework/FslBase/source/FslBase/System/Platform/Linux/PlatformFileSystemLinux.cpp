@@ -34,10 +34,11 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/PathDeque.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <cstring>
 #include <dirent.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 namespace Fsl
 {
@@ -188,9 +189,16 @@ namespace Fsl
 
     void PlatformFileSystem::CreateDir(const Path& path)
     {
-      throw NotImplementedException("CreateDir");
-    }
+      const auto dir = path.ToUTF8String();
 
+      auto res = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      if (res != 0)
+      {
+        const auto error = errno;
+        if( error != EEXIST )
+          throw IOException(std::string("Failed to create directory: '") + dir + "'");
+      }
+    }
   }
 }
 

@@ -246,6 +246,7 @@ namespace Fsl
       const Point2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseMoveEvent(position);
       eventQueue->PostEvent(event);
+      //FSLLOG("MOVE: X: " << position.X << " Y: " << position.Y);
       return 0;
     }
 
@@ -253,9 +254,23 @@ namespace Fsl
     LRESULT OnMouseWheel(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
       const int32_t zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
-      const Point2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-      const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseWheelEvent(zDelta, position);
-      eventQueue->PostEvent(event);
+
+      // Unlike the other coordinates, this is in screen space instead, so we need to transform
+      POINT pt;
+      pt.x = GET_X_LPARAM(lParam);
+      pt.y = GET_Y_LPARAM(lParam);
+      if (ScreenToClient(hWnd, &pt))
+      {
+        const Point2 position(pt.x, pt.y);
+
+        const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseWheelEvent(zDelta, position);
+        eventQueue->PostEvent(event);
+        //FSLLOG("WHEEL: X: " << position.X << " Y: " << position.Y);
+      }
+      else
+      {
+        FSLLOG_ERROR("Failed to transform mouse wheel position to client space");
+      }
       return 0;
     }
 
@@ -510,7 +525,7 @@ namespace Fsl
   {
     MSG sMessage;
     bool bQuit = false;
-    if (PeekMessage(&sMessage, nullptr, 0, 0, PM_REMOVE))
+    while(PeekMessage(&sMessage, nullptr, 0, 0, PM_REMOVE) != 0)
     {
       switch (sMessage.message)
       {

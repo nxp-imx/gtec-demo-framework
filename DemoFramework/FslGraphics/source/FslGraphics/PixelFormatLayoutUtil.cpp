@@ -30,6 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Exceptions.hpp>
+#include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
 #include <cassert>
 
@@ -47,93 +48,153 @@ namespace Fsl
       R8G8B8A8,
     };
 
+    // A mirror layout is considered to be 'swizzle' compatible with the associated format
+    struct MirrorLayout
+    {
+      PixelFormatLayout Layout1;
+      PixelFormatLayout Layout2;
+
+      MirrorLayout()
+        : Layout1(PixelFormatLayout::Undefined)
+        , Layout2(PixelFormatLayout::Undefined)
+      {
+      }
+
+      MirrorLayout(const PixelFormatLayout layout)
+        : Layout1(layout)
+        , Layout2(PixelFormatLayout::Undefined)
+      {
+      }
+
+      MirrorLayout(const PixelFormatLayout layout1, const PixelFormatLayout layout2)
+        : Layout1(layout1)
+        , Layout2(layout2)
+      {
+      }
+    };
+
 
     struct PixelFormatLayoutRecord
     {
       PixelFormatLayout Layout;
+      PixelChannelOrder ChannelOrder;
       SwizzleCompatibilityId SwizzleCompatibility;
+      MirrorLayout Mirror;
 
       PixelFormatLayoutRecord()
         : Layout(PixelFormatLayout::Undefined)
+        , ChannelOrder(PixelChannelOrder::Undefined)
         , SwizzleCompatibility(SwizzleCompatibilityId::None)
+        , Mirror()
       {
       }
 
-      PixelFormatLayoutRecord(const PixelFormatLayout layout, SwizzleCompatibilityId swizzleCompatibilityId = SwizzleCompatibilityId::None)
+      PixelFormatLayoutRecord(const PixelFormatLayout layout, const PixelChannelOrder channelOrder)
         : Layout(layout)
-        , SwizzleCompatibility(swizzleCompatibilityId)
+        , ChannelOrder(channelOrder)
+        , SwizzleCompatibility(SwizzleCompatibilityId::None)
+        , Mirror()
       {
+      }
+
+      PixelFormatLayoutRecord(const PixelFormatLayout layout, const PixelChannelOrder channelOrder, const SwizzleCompatibilityId swizzleCompatibilityId)
+        : Layout(layout)
+        , ChannelOrder(channelOrder)
+        , SwizzleCompatibility(swizzleCompatibilityId)
+        , Mirror()
+      {
+      }
+
+
+      PixelFormatLayoutRecord(const PixelFormatLayout layout, const PixelChannelOrder channelOrder, const MirrorLayout& mirror)
+        : Layout(layout)
+        , ChannelOrder(channelOrder)
+        , SwizzleCompatibility(SwizzleCompatibilityId::None)
+        , Mirror(mirror)
+      {
+        assert(layout != mirror.Layout1 || layout == PixelFormatLayout::Undefined);
+        assert(layout != mirror.Layout2 || layout == PixelFormatLayout::Undefined);
+      }
+
+      PixelFormatLayoutRecord(const PixelFormatLayout layout, const PixelChannelOrder channelOrder, const SwizzleCompatibilityId swizzleCompatibilityId, const MirrorLayout& mirror)
+        : Layout(layout)
+        , ChannelOrder(channelOrder)
+        , SwizzleCompatibility(swizzleCompatibilityId)
+        , Mirror(mirror)
+      {
+        assert(layout != mirror.Layout1 || layout == PixelFormatLayout::Undefined);
+        assert(layout != mirror.Layout2 || layout == PixelFormatLayout::Undefined);
       }
     };
 
     PixelFormatLayoutRecord g_pixelFormatLayouts[] =
     {
-      PixelFormatLayoutRecord(PixelFormatLayout::Undefined),
-      PixelFormatLayoutRecord(PixelFormatLayout::R4G4),
-      PixelFormatLayoutRecord(PixelFormatLayout::R4G4B4A4_PACK16, SwizzleCompatibilityId::R4G4B4A4_PACK16),
-      PixelFormatLayoutRecord(PixelFormatLayout::B4G4R4A4_PACK16, SwizzleCompatibilityId::R4G4B4A4_PACK16),
-      PixelFormatLayoutRecord(PixelFormatLayout::R5G6B5_PACK16, SwizzleCompatibilityId::R5G6B5_PACK16),
-      PixelFormatLayoutRecord(PixelFormatLayout::B5G6R5_PACK16, SwizzleCompatibilityId::R5G6B5_PACK16),
-      PixelFormatLayoutRecord(PixelFormatLayout::R5G5B5A1_PACK16, SwizzleCompatibilityId::R5G6B5_PACK16),
-      PixelFormatLayoutRecord(PixelFormatLayout::B5G5R5A1_PACK16, SwizzleCompatibilityId::R5G6B5_PACK16),
-      PixelFormatLayoutRecord(PixelFormatLayout::A1R5G5B5_PACK16),
-      PixelFormatLayoutRecord(PixelFormatLayout::R8),
-      PixelFormatLayoutRecord(PixelFormatLayout::R8G8),
-      PixelFormatLayoutRecord(PixelFormatLayout::R8G8B8, SwizzleCompatibilityId::R8G8B8),
-      PixelFormatLayoutRecord(PixelFormatLayout::B8G8R8, SwizzleCompatibilityId::R8G8B8),
-      PixelFormatLayoutRecord(PixelFormatLayout::R8G8B8A8, SwizzleCompatibilityId::R8G8B8A8),
-      PixelFormatLayoutRecord(PixelFormatLayout::B8G8R8A8, SwizzleCompatibilityId::R8G8B8A8),
-      PixelFormatLayoutRecord(PixelFormatLayout::A8B8G8R8_PACK32),
-      PixelFormatLayoutRecord(PixelFormatLayout::A2R10G10B10_PACK32),
-      PixelFormatLayoutRecord(PixelFormatLayout::A2B10G10R10_PACK32),
-      PixelFormatLayoutRecord(PixelFormatLayout::R16),
-      PixelFormatLayoutRecord(PixelFormatLayout::R16G16),
-      PixelFormatLayoutRecord(PixelFormatLayout::R16G16B16),
-      PixelFormatLayoutRecord(PixelFormatLayout::R16G16B16A16),
-      PixelFormatLayoutRecord(PixelFormatLayout::R32),
-      PixelFormatLayoutRecord(PixelFormatLayout::R32G32),
-      PixelFormatLayoutRecord(PixelFormatLayout::R32G32B32),
-      PixelFormatLayoutRecord(PixelFormatLayout::R32G32B32A32),
-      PixelFormatLayoutRecord(PixelFormatLayout::R64),
-      PixelFormatLayoutRecord(PixelFormatLayout::R64G64),
-      PixelFormatLayoutRecord(PixelFormatLayout::R64G64B64),
-      PixelFormatLayoutRecord(PixelFormatLayout::R64G64B64A64),
-      PixelFormatLayoutRecord(PixelFormatLayout::B10G11R11_PACK32),
-      PixelFormatLayoutRecord(PixelFormatLayout::E5B9G9R9_PACK32),
-      PixelFormatLayoutRecord(PixelFormatLayout::D16),
-      PixelFormatLayoutRecord(PixelFormatLayout::X8_D24_PACK32),
-      PixelFormatLayoutRecord(PixelFormatLayout::D32),
-      PixelFormatLayoutRecord(PixelFormatLayout::S8),
-      PixelFormatLayoutRecord(PixelFormatLayout::D16_S8),
-      PixelFormatLayoutRecord(PixelFormatLayout::D24_S8),
-      PixelFormatLayoutRecord(PixelFormatLayout::D32_S8),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC1_RGB_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC1_RGBA_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC2_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC3_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC4_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC5_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC6H_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::BC7_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ETC2_R8G8B8_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ETC2_R8G8B8A1_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ETC2_R8G8B8A8_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::EAC_R11_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::EAC_R11G11_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_4x4_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_5x4_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_5x5_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_6x5_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_6x6_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_8x5_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_8x6_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_8x8_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x5_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x6_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x8_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x10_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_12x10_BLOCK),
-      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_12x12_BLOCK),
+      PixelFormatLayoutRecord(),
+      PixelFormatLayoutRecord(PixelFormatLayout::R4G4, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R4G4B4A4_PACK16, PixelChannelOrder::RGBA, SwizzleCompatibilityId::R4G4B4A4_PACK16, MirrorLayout(PixelFormatLayout::B4G4R4A4_PACK16)),
+      PixelFormatLayoutRecord(PixelFormatLayout::B4G4R4A4_PACK16, PixelChannelOrder::BGRA, SwizzleCompatibilityId::R4G4B4A4_PACK16, MirrorLayout(PixelFormatLayout::R4G4B4A4_PACK16)),
+      PixelFormatLayoutRecord(PixelFormatLayout::R5G6B5_PACK16, PixelChannelOrder::RGBA, SwizzleCompatibilityId::R5G6B5_PACK16, MirrorLayout(PixelFormatLayout::B5G6R5_PACK16)),
+      PixelFormatLayoutRecord(PixelFormatLayout::B5G6R5_PACK16, PixelChannelOrder::BGRA, SwizzleCompatibilityId::R5G6B5_PACK16, MirrorLayout(PixelFormatLayout::R5G6B5_PACK16)),
+      PixelFormatLayoutRecord(PixelFormatLayout::R5G5B5A1_PACK16, PixelChannelOrder::RGBA, SwizzleCompatibilityId::R5G6B5_PACK16, MirrorLayout(PixelFormatLayout::B5G5R5A1_PACK16, PixelFormatLayout::A1R5G5B5_PACK16)),
+      PixelFormatLayoutRecord(PixelFormatLayout::B5G5R5A1_PACK16, PixelChannelOrder::BGRA, SwizzleCompatibilityId::R5G6B5_PACK16, MirrorLayout(PixelFormatLayout::R5G5B5A1_PACK16, PixelFormatLayout::A1R5G5B5_PACK16)),
+      PixelFormatLayoutRecord(PixelFormatLayout::A1R5G5B5_PACK16, PixelChannelOrder::ARGB, MirrorLayout(PixelFormatLayout::R5G5B5A1_PACK16, PixelFormatLayout::B5G5R5A1_PACK16)),
+      PixelFormatLayoutRecord(PixelFormatLayout::R8, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::R8G8, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R8G8B8, PixelChannelOrder::RGBA, SwizzleCompatibilityId::R8G8B8, MirrorLayout(PixelFormatLayout::B8G8R8)),
+      PixelFormatLayoutRecord(PixelFormatLayout::B8G8R8, PixelChannelOrder::BGRA, SwizzleCompatibilityId::R8G8B8, MirrorLayout(PixelFormatLayout::R8G8B8)),
+      PixelFormatLayoutRecord(PixelFormatLayout::R8G8B8A8, PixelChannelOrder::RGBA, SwizzleCompatibilityId::R8G8B8A8, MirrorLayout(PixelFormatLayout::B8G8R8A8)),
+      PixelFormatLayoutRecord(PixelFormatLayout::B8G8R8A8, PixelChannelOrder::BGRA, SwizzleCompatibilityId::R8G8B8A8, MirrorLayout(PixelFormatLayout::R8G8B8A8)),
+      PixelFormatLayoutRecord(PixelFormatLayout::A8B8G8R8_PACK32, PixelChannelOrder::ABGR),
+      PixelFormatLayoutRecord(PixelFormatLayout::A2R10G10B10_PACK32, PixelChannelOrder::ARGB, MirrorLayout(PixelFormatLayout::A2B10G10R10_PACK32)),
+      PixelFormatLayoutRecord(PixelFormatLayout::A2B10G10R10_PACK32, PixelChannelOrder::ABGR, MirrorLayout(PixelFormatLayout::A2R10G10B10_PACK32)),
+      PixelFormatLayoutRecord(PixelFormatLayout::R16, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::R16G16, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R16G16B16, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R16G16B16A16, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R32, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::R32G32, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R32G32B32, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R32G32B32A32, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R64, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::R64G64, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R64G64B64, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::R64G64B64A64, PixelChannelOrder::RGBA),
+      PixelFormatLayoutRecord(PixelFormatLayout::B10G11R11_PACK32, PixelChannelOrder::BGRA),
+      PixelFormatLayoutRecord(PixelFormatLayout::E5B9G9R9_PACK32, PixelChannelOrder::BGRA),
+      PixelFormatLayoutRecord(PixelFormatLayout::D16, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::X8_D24_PACK32, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::D32, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::S8, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::D16_S8, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::D24_S8, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::D32_S8, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC1_RGB_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC1_RGBA_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC2_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC3_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC4_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC5_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC6H_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::BC7_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ETC2_R8G8B8_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ETC2_R8G8B8A1_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ETC2_R8G8B8A8_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::EAC_R11_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::EAC_R11G11_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_4x4_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_5x4_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_5x5_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_6x5_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_6x6_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_8x5_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_8x6_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_8x8_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x5_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x6_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x8_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_10x10_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_12x10_BLOCK, PixelChannelOrder::Undefined),
+      PixelFormatLayoutRecord(PixelFormatLayout::ASTC_12x12_BLOCK, PixelChannelOrder::Undefined),
     };
 
     static_assert(static_cast<uint32_t>(sizeof(g_pixelFormatLayouts) / sizeof(PixelFormatLayoutRecord)) == static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE), "g_pixelFormatLayouts needs to match the size of the enum range");
@@ -218,6 +279,39 @@ namespace Fsl
   PixelFormatLayout PixelFormatLayoutUtil::TryGetPixelFormatLayoutById(const uint32_t formatId)
   {
     return (formatId < static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE)) ? g_pixelFormatLayouts[formatId].Layout : PixelFormatLayout::Undefined;
+  }
+
+
+  PixelFormatLayout PixelFormatLayoutUtil::Transform(const PixelFormatLayout layout, const PixelChannelOrder preferredChannelOrder)
+  {
+    if (layout == PixelFormatLayout::Undefined)
+      return PixelFormatLayout::Undefined;
+    if (preferredChannelOrder == PixelChannelOrder::Undefined)
+      return layout;
+
+    const auto srcId = GetId(layout);
+    if (g_pixelFormatLayouts[srcId].ChannelOrder == preferredChannelOrder)
+      return layout;
+
+    const auto& mirrorLayout = g_pixelFormatLayouts[srcId].Mirror;
+    {
+      if (mirrorLayout.Layout1 == PixelFormatLayout::Undefined)
+        return layout;
+
+      const auto mirrorId = GetId(mirrorLayout.Layout1);
+      if (g_pixelFormatLayouts[mirrorId].ChannelOrder == preferredChannelOrder)
+        return mirrorLayout.Layout1;
+    }
+    {
+      if (mirrorLayout.Layout2 == PixelFormatLayout::Undefined)
+        return layout;
+
+      const auto mirrorId = GetId(mirrorLayout.Layout2);
+      if (g_pixelFormatLayouts[mirrorId].ChannelOrder == preferredChannelOrder)
+        return mirrorLayout.Layout2;
+    }
+    // No compatible 'transform' found so return the original
+    return layout;
   }
 
   // Due to lack of constexpr we use this nasty macro

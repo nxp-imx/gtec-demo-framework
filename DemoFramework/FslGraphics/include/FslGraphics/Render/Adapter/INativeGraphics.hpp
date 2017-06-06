@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
+#include <memory>
 
 namespace Fsl
 {

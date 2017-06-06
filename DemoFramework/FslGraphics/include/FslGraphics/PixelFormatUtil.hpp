@@ -31,6 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
+#include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
 #include <FslGraphics/StrideRequirement.hpp>
@@ -61,6 +62,11 @@ namespace Fsl
     //! @note  Returns the PixelFormat value or PixelFormat::Undefined if the lookup fails (or if asked to lookup the undefined value)
     static PixelFormat TryGetPixelFormatById(const uint32_t formatId);
 
+    //! @brief Check if a PixelFormatFlags is set in the pixel format
+    static bool IsPixelFormatFlagSet(const PixelFormat pixelFormat, const PixelFormatFlags::Enum flag)
+    {
+      return (static_cast<uint32_t>(pixelFormat) & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag);
+    }
 
     static PixelFormatLayout GetPixelFormatLayout(const PixelFormat pixelFormat)
     {
@@ -102,7 +108,21 @@ namespace Fsl
       return PixelFormatLayoutUtil::IsValidStride(width, bytesPerPixel, strideRequirement, desiredStride);
     }
 
+    //! @brief Extract the numeric format from the pixel format
+    static PixelFormatFlags::Enum GetNumericFormat(const PixelFormat pixelFormat)
+    {
+      return static_cast<PixelFormatFlags::Enum>(static_cast<uint32_t>(pixelFormat) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT));
+    }
 
+    //! @brief Try to transform the PixelFormatFlag of pixelFormat to the one supplied in pixelFormatFlags
+    //! @param pixelFormat if pixelFormat == PixelFormat::Undefined this returns PixelFormat::Undefined
+    //! @param pixelFormatFlags = the new pixelFormatFlags
+    static PixelFormat TryTransform(const PixelFormat pixelFormat, const PixelFormatFlags::Enum numericFormat);
+
+    //! @brief Transform the given pixel format to the one that best matches the preferredChannelOrder.
+    //! @param pixelFormat if pixelFormat == PixelFormat::Undefined this returns PixelFormat::Undefined
+    //! @param preferredChannelOrder if preferredChannelOrder == PixelChannelOrder::Undefined this returns pixelFormat
+    static PixelFormat Transform(const PixelFormat pixelFormat, const PixelChannelOrder preferredChannelOrder);
   };
 }
 

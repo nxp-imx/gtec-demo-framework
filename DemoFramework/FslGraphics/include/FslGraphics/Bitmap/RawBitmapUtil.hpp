@@ -68,6 +68,11 @@ namespace Fsl
 
     //! @brief Swizzle the color channels in a 24bpp image according to the supplied rules
     //! @param rBitmap the bitmap to swizzle.
+    //! @note Works on any 3 bytes per pixel format, but the validity is up to the caller to ensure.
+    static void Swizzle24From012To210(RawBitmapEx& rBitmap);
+
+    //! @brief Swizzle the color channels in a 24bpp image according to the supplied rules
+    //! @param rBitmap the bitmap to swizzle.
     //! @param srcIdx0 the location to read 'byte0' from (0-2)
     //! @param srcIdx1 the location to read 'byte1' from (0-2)
     //! @param srcIdx2 the location to read 'byte2' from (0-2)
@@ -129,6 +134,14 @@ namespace Fsl
     //!        The only verification this does is that the bytes per pixel matches and the bitmaps are valid and that width, height and origin matches.
     //! @note  If the memory buffers of the bitmaps overlap the result is undefined.
     static void MemoryCopy(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+
+    //! @brief Swizzle the color channels in a 24bpp image according to the supplied rules
+    //! @param rDstBitmap the bitmap to swizzle to.
+    //! @param srcBitmap the bitmap to swizzle from.
+    //! @note Works on any 3 bytes per pixel format, but the validity is up to the caller to ensure.
+    //        This works on overlapping buffers as long as rDstBitmap.Content == srcBitmap.Content and srcBitmap.Stride >= rDstBitmap.Stride
+    static void Swizzle24From012To210(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap);
+
 
     //! @brief Swizzle the color channels in a 24bpp image according to the supplied rules
     //! @param rDstBitmap the bitmap to swizzle to.

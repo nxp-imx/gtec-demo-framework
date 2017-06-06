@@ -81,41 +81,6 @@ namespace Fsl
         throw std::runtime_error("UTF16 to UTF8 conversion failed");
       return std::string(buffer.data());
     }
-
-
-    inline const std::wstring DoWiden(const char* psz, int srcLen)
-    {
-      assert(psz != nullptr);
-      if (srcLen == 0)
-        return std::wstring();
-
-
-      assert(srcLen > 0 || srcLen == -1);
-
-      if (srcLen > 0 && srcLen <= DEFAULT_CONV_BUFFER_SIZE)
-      {
-        // Try a conversion with minimal heap allocations
-        wchar_t tmpBuffer[DEFAULT_CONV_BUFFER_SIZE + 1];
-        const auto dstLen = MultiByteToWideChar(CP_UTF8, 0, psz, srcLen, tmpBuffer, DEFAULT_CONV_BUFFER_SIZE);
-        if (dstLen > 0)
-        {
-          assert(dstLen <= DEFAULT_CONV_BUFFER_SIZE);
-          tmpBuffer[dstLen] = 0;
-          return std::wstring(tmpBuffer);
-        }
-      }
-
-      // Query the required buffer size
-      const auto dstLen = MultiByteToWideChar(CP_UTF8, 0, psz, srcLen, nullptr, 0);
-      if (dstLen <= 0)
-        throw std::runtime_error("UTF8 to UTF16 conversion failed");
-
-      // Try again with a buffer of the correct size
-      std::vector<wchar_t> buffer(dstLen + 1);
-      if (MultiByteToWideChar(CP_UTF8, 0, psz, srcLen, buffer.data(), dstLen) <= 0)
-        throw std::runtime_error("UTF8 to UTF16 conversion failed");
-      return std::wstring(buffer.data());
-    }
   }
 
 
@@ -139,7 +104,9 @@ namespace Fsl
   {
     if (psz == nullptr)
       throw std::invalid_argument("psz can not be null");
-    return DoWiden(psz, -1);
+
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> convl;
+    return convl.from_bytes(psz);
   }
 
 
@@ -147,7 +114,9 @@ namespace Fsl
   {
     if (str.size() > static_cast<std::size_t>(std::numeric_limits<int>::max()))
       throw std::runtime_error("string is too large");
-    return DoWiden(str.c_str(), static_cast<int>(str.size()));
+
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> convl;
+    return convl.from_bytes(str);
   }
 
 
@@ -215,13 +184,6 @@ namespace Fsl
   //    throw std::runtime_error("Failed to QueryPerformanceCounter");
   //  return value.QuadPart;
   //}
-
-  std::wstring Platform::UTF8ToWString(const std::string& str)
-  {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> convl;
-    return convl.from_bytes(str);
-  }
-
 
 }
 #endif

@@ -11,7 +11,7 @@ Also demonstrates the use of combined image samplers. Samplers are detached from
 only contain information on how an image is sampled in the shader.
 
 Based on a example called [Texture mapping](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample by in 2016.
+Recreated as a DemoFramework freestyle window sample in 2016.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

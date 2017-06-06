@@ -103,12 +103,6 @@ namespace Fsl
     }
 
 
-    std::wstring Path::ToWString() const
-    {
-      return m_content.ToWString();
-    }
-
-
     //Path Path::ToLowerInvariant() const
     //{
 

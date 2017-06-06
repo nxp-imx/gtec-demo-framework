@@ -68,7 +68,7 @@ namespace Fsl
     , m_brightPassEnabled(true)
     , m_renderFinalScene(true)
     , m_renderFinalBloom(true)
-    , m_showBuffers(true)
+    , m_showBuffers(false)
     , m_scaleInputSequentially(true)
   {
   }

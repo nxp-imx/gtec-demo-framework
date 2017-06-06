@@ -47,6 +47,32 @@ namespace Fsl
     {
       GLenum m_type;
     public:
+      //! @brief Move assignment operator
+      GLIndexBuffer& operator=(GLIndexBuffer&& other)
+      {
+        if (this != &other)
+        {
+          GLBuffer::operator=(std::move(other));
+
+          // Claim ownership here
+          m_type = other.m_type;
+          // Remove the data from other
+          other.m_type = 0;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLIndexBuffer(GLIndexBuffer&& other)
+        : GLBuffer(std::move(other))
+        , m_type(other.m_type)
+      {
+        // Remove the data from other
+        other.m_type = 0;
+      }
+
+
       //! @brief Create a uninitialized index buffer
       GLIndexBuffer();
 

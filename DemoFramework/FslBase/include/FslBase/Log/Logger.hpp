@@ -38,13 +38,33 @@
 
 namespace Fsl
 {
+  enum class LogType
+  {
+    Error = 0,
+    Warning = 1,
+    Info = 2,
+    // Things below require 'verbose'
+    Verbose = 3,
+  };
+
   // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
   class Logger : private Noncopyable
   {
+    static LogType g_logLevel;
   public:
-    static void WriteLine(const LogLocation& location, const char*const psz);
-    static void WriteLine(const LogLocation& location, const std::string& str);
-    static void WriteLine(const LogLocation& location, const std::stringstream& str);
+    static LogType GetLogLevel()
+    {
+      return g_logLevel;
+    }
+
+    static void SetLogLevel(const LogType level)
+    {
+      g_logLevel = level;
+    }
+
+    static void WriteLine(const LogType logType, const char*const psz, const LogLocation& location);
+    static void WriteLine(const LogType logType, const std::string& str, const LogLocation& location);
+    static void WriteLine(const LogType logType, const std::stringstream& str, const LogLocation& location);
   };
 }
 

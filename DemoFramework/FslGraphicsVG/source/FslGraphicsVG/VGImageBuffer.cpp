@@ -137,7 +137,7 @@ namespace Fsl
       const uint8_t* pSrc = static_cast<const uint8_t*>(bitmap.Content()) + (bitmap.Height()-1) * bitmap.Stride();
       assert(bitmap.Stride() < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
       int32_t stride = static_cast<int32_t>(bitmap.Stride());
-      vgImageSubData(m_handle, pSrc, stride, pixelFormat, 0, 0, bitmap.Width(), bitmap.Height());
+      vgImageSubData(m_handle, pSrc, -stride, pixelFormat, 0, 0, bitmap.Width(), bitmap.Height());
       FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
     }
 

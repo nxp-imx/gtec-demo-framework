@@ -18,7 +18,7 @@
     </Platform>
     <Platform Name="Windows">
       <CPPDefine Name="VK_USE_PLATFORM_WIN32_KHR" Access="Public"/>
-      <ExternalDependency Name="vulkan-1.lib" Include="$(VK_SDK_PATH)/Include" Access="Public" Location="$(VK_SDK_PATH)/Bin" Type="StaticLib"/>
+      <ExternalDependency Name="vulkan-1.lib" Include="$(VK_SDK_PATH)/Include" Access="Public" Location="$(VK_SDK_PATH)/Lib" Type="StaticLib"/>
     </Platform>
     <Platform Name="Yocto">
       <ExternalDependency Name="vulkan" Type="StaticLib"/>

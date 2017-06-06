@@ -31,6 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -59,6 +60,8 @@ namespace Fsl
     //! @brief Tries to remove and return the element at the beginning of the concurrent queue.
     //! @return true on success, false if unsuccessful. When false rValue will be set to T().
     bool TryDequeue(T& rValue);
+
+    bool TryDequeWait(T& rValue, const std::chrono::milliseconds& duration);
 
     //! @brief Tries to return a element from the beginning of the queue without removing it.
     //! @return true on success, false if unsuccessful. When false rValue will be set to T().

@@ -182,6 +182,13 @@ namespace Fsl
   }
 
 
+  Texture::Texture(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder)
+    : Texture()
+  {
+    Reset(std::move(content), std::move(builder));
+  }
+
+
   Texture::~Texture()
   {
     FSLLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
@@ -233,6 +240,20 @@ namespace Fsl
 
     // TODO: claim the vector from the builder to prevent unnecessary allocations
     Reset(pContent, contentByteSize, builder);
+  }
+
+
+  void Texture::Reset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder)
+  {
+    if (m_isLocked)
+      throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+
+    if (!builder.IsValid())
+      throw std::invalid_argument("build can not be invalid");
+    if (content.size() != builder.GetContentSize())
+      throw NotSupportedException("the builder content size did not match the buffer size");
+
+    DoReset(std::move(content), std::move(builder));
   }
 
 
@@ -401,6 +422,54 @@ namespace Fsl
     // Just copy the data old school style
     if (pContent != nullptr && contentByteSize > 0)
       std::memcpy(m_content.data(), pContent, contentByteSize);
+    m_extent = builder.GetExtent();
+    m_pixelFormat = builder.GetPixelFormat();
+    m_textureType = builder.GetTextureType();
+    m_textureInfo = builder.GetTextureInfo();
+    m_totalTexels = builder.GetTotalTexelCount();
+    m_bitmapOrigin = builder.GetBitmapOrigin();
+  }
+
+
+  void Texture::DoReset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder)
+  {
+    // If any of these fire the builder did not keep its contract or
+    // we forgot to validate a input parameter somewhere
+    assert(!m_isLocked);
+    assert(builder.IsValid());
+    assert(builder.GetTextureType() != TextureType::Undefined);
+    assert(builder.GetPixelFormat() != PixelFormat::Undefined);
+    assert(builder.GetBitmapOrigin() != BitmapOrigin::Undefined);
+    assert(builder.GetLevels() >= 1);
+    assert(builder.GetFaces() == TextureTypeUtil::GetFaceCount(builder.GetTextureType()));
+    assert(builder.GetLayers() >= 1);
+    assert(builder.GetBlobCount() == (builder.GetLevels() * builder.GetFaces() * builder.GetLayers()));
+    assert(content.size() == builder.GetContentSize());
+
+    if (IsValid())
+      Reset();
+
+    try
+    {
+      const auto blobCount = builder.GetBlobCount();
+      m_content = std::move(content);
+      m_blobs.resize(blobCount);
+
+      for (std::size_t i = 0; i < blobCount; ++i)
+        m_blobs[i] = builder.GetBlobByIndex(i);
+
+      const uint32_t totalTexels = ValidateBlobs(m_content, m_blobs, builder.GetExtent(), builder.GetPixelFormat(), builder.GetTextureInfo());
+      if (totalTexels != builder.GetTotalTexelCount())
+        throw std::invalid_argument("The builder does not contain the expected amount of texels in the blobs");
+    }
+    catch (const std::exception&)
+    {
+      m_content.clear();
+      m_blobs.clear();
+      throw;
+    }
+
+    // We don't copy the content here size we 'moved' the source into this object
     m_extent = builder.GetExtent();
     m_pixelFormat = builder.GetPixelFormat();
     m_textureType = builder.GetTextureType();

@@ -30,6 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <algorithm>
@@ -37,7 +38,6 @@
 #include <cstring>
 #include <limits>
 #include <sstream>
-#include "../System/Platform/Platform.hpp"
 
 namespace Fsl
 {
@@ -98,7 +98,8 @@ namespace Fsl
   UTF8String::UTF8String(const char*const psz)
     : m_content(psz != nullptr ? psz : "")
   {
-    if (!IsValidUTF8(psz, 0, std::strlen(psz)))
+    FSLLOG_WARNING_IF(psz == nullptr, "UTF8String was supplied a null pointer, using a empty string");
+    if (psz != nullptr && !IsValidUTF8(psz, 0, std::strlen(psz)))
       throw InvalidUTF8StringException("The supplied UTF8 string is not valid");
   }
 
@@ -207,11 +208,11 @@ namespace Fsl
   }
 
 
-  int32_t UTF8String::IndexOf(const char ch) const
+  int32_t UTF8String::IndexOf(const char ch, const std::size_t fromIndex) const
   {
     if (!IsValidChar(int(ch)))
       throw std::invalid_argument("ch should be in the range 0 to 127");
-    return StringUtil::IndexOf(m_content, ch);
+    return StringUtil::IndexOf(m_content, ch, static_cast<int32_t>(fromIndex));
   }
 
 
@@ -220,7 +221,7 @@ namespace Fsl
     if (!IsValidChar(int(ch)))
       throw std::invalid_argument("ch should be in the range 0 to 127");
     const std::size_t index = m_content.rfind(ch);
-    assert(index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+    assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
     return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
   }
 
@@ -248,12 +249,6 @@ namespace Fsl
       ++itr;
     }
     return stream.str();
-  }
-
-
-  std::wstring UTF8String::ToWString() const
-  {
-    return Platform::UTF8ToWString(m_content);
   }
 
 

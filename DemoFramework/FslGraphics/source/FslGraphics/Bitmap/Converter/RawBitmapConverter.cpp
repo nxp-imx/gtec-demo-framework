@@ -78,7 +78,7 @@ namespace Fsl
       // 012    012
       // RGB -> BGR
       // BGR -> RGB
-      RawBitmapUtil::Swizzle24(rBitmap, 2, 1, 0);
+      RawBitmapUtil::Swizzle24From012To210(rBitmap);
       rBitmap.SetPixelFormat(desiredPixelFormat);
       return true;
     }
@@ -142,7 +142,7 @@ namespace Fsl
       // 012    012
       // RGB -> BGR
       // BGR -> RGB
-      RawBitmapUtil::Swizzle24(rDstBitmap, srcBitmap, 2, 1, 0);
+      RawBitmapUtil::Swizzle24From012To210(rDstBitmap, srcBitmap);
       return true;
     }
     else if ((srcPixelFormatLayout == PixelFormatLayout::R8G8B8A8 && dstPixelFormatLayout == PixelFormatLayout::B8G8R8A8) ||
@@ -190,7 +190,7 @@ namespace Fsl
       RawBitmapUtil::Swizzle24To32(rDstBitmap, srcBitmap, 0, 1, 2, 3, 0xFF);
       return true;
     }
-    else if (dstPixelFormat == PixelFormat::EX_ALPHA8_UNORM || dstPixelFormat == PixelFormat::EX_ALPHA8_UNORM)
+    else if (dstPixelFormat == PixelFormat::EX_ALPHA8_UNORM || dstPixelFormat == PixelFormat::EX_LUMINANCE8_UNORM)
     {
       if (srcPixelFormatLayout == PixelFormatLayout::R8G8B8 || srcPixelFormatLayout == PixelFormatLayout::B8G8R8)
       {
@@ -203,7 +203,7 @@ namespace Fsl
         return true;
       }
     }
-    else if ((srcPixelFormat == PixelFormat::EX_ALPHA8_UNORM || srcPixelFormat == PixelFormat::EX_ALPHA8_UNORM) &&
+    else if ((srcPixelFormat == PixelFormat::EX_ALPHA8_UNORM || srcPixelFormat == PixelFormat::EX_LUMINANCE8_UNORM) &&
              (dstPixelFormatLayout == PixelFormatLayout::B8G8R8 || dstPixelFormatLayout == PixelFormatLayout::R8G8B8 ||
               dstPixelFormatLayout == PixelFormatLayout::B8G8R8A8 || dstPixelFormatLayout == PixelFormatLayout::R8G8B8A8))
     {

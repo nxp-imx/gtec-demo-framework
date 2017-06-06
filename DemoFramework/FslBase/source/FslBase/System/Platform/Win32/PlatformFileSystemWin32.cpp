@@ -87,14 +87,14 @@ namespace Fsl
       void ExtractData(FileData& rData, const Path& fullPath)
       {
         rData = FileData();
-        rData.IsDataValid = (GetFileAttributesEx(fullPath.ToWString().c_str(), GetFileExInfoStandard, &rData.AttributeData) != 0);
+        rData.IsDataValid = (GetFileAttributesEx(PlatformWin32::Widen(fullPath.ToUTF8String()).c_str(), GetFileExInfoStandard, &rData.AttributeData) != 0);
       }
 
 
 
       void GetFilesInDirectory(PathDeque& rResult, const IO::Path& path, const bool includeSubdirectories)
       {
-        const std::wstring searchPath = path.ToWString() + L"/*";
+        const std::wstring searchPath = PlatformWin32::Widen(path.ToUTF8String()) + L"/*";
 
         WIN32_FIND_DATA fd;
         HANDLE hFind = ::FindFirstFile(searchPath.c_str(), &fd);
@@ -132,7 +132,7 @@ namespace Fsl
 
     bool PlatformFileSystem::TryGetAttributes(const Path& path, FileAttributes& rAttributes)
     {
-      DWORD res = GetFileAttributes(path.ToWString().c_str());
+      DWORD res = GetFileAttributes(PlatformWin32::Widen(path.ToUTF8String()).c_str());
       if (res == INVALID_FILE_ATTRIBUTES)
         return false;
 
@@ -196,7 +196,7 @@ namespace Fsl
 
     void PlatformFileSystem::CreateDir(const Path& path)
     {
-      const std::wstring name = path.ToWString();
+      const std::wstring name = PlatformWin32::Widen(path.ToUTF8String());
       auto res = CreateDirectory(name.c_str(), nullptr);
       if (res == 0 && GetLastError() != ERROR_ALREADY_EXISTS)
         throw IOException("Failed to create directory");

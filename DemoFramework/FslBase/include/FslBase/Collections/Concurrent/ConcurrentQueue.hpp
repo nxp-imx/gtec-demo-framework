@@ -91,6 +91,31 @@ namespace Fsl
 
 
   template<typename T>
+  bool ConcurrentQueue<T>::TryDequeWait(T& rValue, const std::chrono::milliseconds& duration)
+  {
+    std::unique_lock<std::mutex> lock(m_mutex);
+
+    if (duration.count() > 0)
+    {
+      // Wait for a message to arrive
+      if(m_queue.empty())
+        m_waitForMsgCondition.wait_for(lock, duration);
+    }
+
+    if (m_queue.empty())
+    {
+      rValue = T();
+      return false;
+    }
+
+
+    const T result = m_queue.front();
+    m_queue.pop();
+    return result;
+  }
+
+
+  template<typename T>
   bool ConcurrentQueue<T>::TryPeek(T& rValue)
   {
     std::lock_guard<std::mutex> lock(m_mutex);

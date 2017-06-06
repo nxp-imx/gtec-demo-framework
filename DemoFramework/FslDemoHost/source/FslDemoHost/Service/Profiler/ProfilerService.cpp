@@ -30,6 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Service/Profiler/ProfilerService.hpp>
+#include <FslDemoHost/Service/Profiler/ProfilerServiceOptionParser.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <algorithm>
@@ -41,7 +42,6 @@ namespace Fsl
 {
   namespace
   {
-    const uint16_t DEFAULT_ENTRIES = 60;
     const uint16_t MAX_CUSTOM_COUNTERS = 20;
 
     inline int32_t CapTime(const uint64_t value)
@@ -50,9 +50,9 @@ namespace Fsl
     }
   }
 
-  ProfilerService::ProfilerService(const ServiceProvider& serviceProvider)
+  ProfilerService::ProfilerService(const ServiceProvider& serviceProvider, const std::shared_ptr<ProfilerServiceOptionParser>& optionParser)
     : ThreadLocalService(serviceProvider)
-    , m_maxCapacity(DEFAULT_ENTRIES)
+    , m_maxCapacity(optionParser->GetAverageEntries())
     , m_combinedTime()
     , m_customCounters(MAX_CUSTOM_COUNTERS)
     , m_customCounterCount(0)

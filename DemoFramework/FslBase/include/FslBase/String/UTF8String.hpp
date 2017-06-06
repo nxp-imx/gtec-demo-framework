@@ -67,12 +67,11 @@ namespace Fsl
     bool EndsWith(const char ch) const;
     bool EndsWith(const UTF8String& path) const;
     void Replace(const char from, const char to);
-    int32_t IndexOf(const char ch) const;
+    int32_t IndexOf(const char ch, const std::size_t fromIndex = 0) const;
     int32_t LastIndexOf(const char ch) const;
 
     std::string ToUTF8String() const { return m_content; }
     std::string ToAsciiString() const;
-    std::wstring ToWString() const;
 
     void Reset(const char*const psz, const std::size_t startIndex, const std::size_t length);
 

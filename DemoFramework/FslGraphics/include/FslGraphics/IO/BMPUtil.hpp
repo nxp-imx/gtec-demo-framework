@@ -66,6 +66,12 @@ namespace Fsl
     //! @param originHint the bitmap origin that we would prefer to get the image in (but the load does not fail if the origin couldn't be obeyed).
     static void Load(Bitmap& rBitmap, std::ifstream& rStream, const BitmapOrigin originHint);
 
+    //! @brief Load bitmap from file
+    //! @param rBitmap the bitmap that will be resized to fit the loaded bmp image.
+    //! @param strFilename the file to load.
+    //! @param originHint the bitmap origin that we would prefer to get the image in (but the load does not fail if the origin couldn't be obeyed).
+    static bool TryLoad(Bitmap& rBitmap, const IO::Path& strFilename, const BitmapOrigin originHint);
+
 
     //! @brief Save bitmap to file
     //! @note Only supportes bitmaps in PixelFormat::B8G8R8A8_UINT format all other formats will

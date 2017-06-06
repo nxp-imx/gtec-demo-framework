@@ -93,6 +93,9 @@ namespace Fsl
       //! @brief Reset the rotation
       void ResetRotation();
 
+      //! @brief Set the rotation
+      void SetRotation(const Matrix& matrix);
+
     };
   }
 }

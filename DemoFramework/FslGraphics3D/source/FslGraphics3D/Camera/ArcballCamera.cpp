@@ -227,5 +227,12 @@ namespace Fsl
     }
 
 
+    void ArcballCamera::SetRotation(const Matrix& matrix)
+    {
+      CancelDrag();
+      m_rotationMatrix = matrix;
+    }
+
+
   }
 }

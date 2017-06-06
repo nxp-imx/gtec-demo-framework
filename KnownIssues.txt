@@ -53,3 +53,4 @@ Vulkan
 - Ubuntu X11 is in theory supported but has not been tested yet.
 - Qnx support is disabled.
 - Yocto support is available for WindowSystem=FB only.
+- Requires 1.0.42.2 or newer or windows

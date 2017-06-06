@@ -53,11 +53,14 @@ namespace Fsl
       }
     }
 
-
-    void Directory::CreateDirectory(const Path& path)
+    void Directory::CreateDir(const Path& path)
     {
-      if (path.EndsWith(":"))
+      if (path.EndsWith(":")  )
         throw IOException("Invalid path name");
+
+      const auto indexOfSlash = path.IndexOf('/');
+      if (indexOfSlash >= 0 && path.IndexOf(':', indexOfSlash) > 0)
+        throw NotSupportedException("A path can only contain ':' in the drive label");
 
       RecursiveCreate(path);
     }

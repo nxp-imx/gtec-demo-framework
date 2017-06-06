@@ -44,7 +44,7 @@ namespace Fsl
 {
   namespace GLES3
   {
-    class GLBuffer : private Noncopyable
+    class GLBuffer
     {
       GLuint m_handle;
       GLenum m_target;
@@ -52,6 +52,53 @@ namespace Fsl
       uint32_t m_elementStride;
       GLenum m_usage;
     public:
+      GLBuffer(const GLBuffer&) = delete;
+      GLBuffer& operator=(const GLBuffer&) = delete;
+
+      //! @brief Move assignment operator
+      GLBuffer& operator=(GLBuffer&& other)
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          if (IsValid())
+            Reset();
+
+          // Claim ownership here
+          m_handle = other.m_handle;
+          m_target = other.m_target;
+          m_capacity = other.m_capacity;
+          m_elementStride = other.m_elementStride;
+          m_usage = other.m_usage;
+
+          // Remove the data from other
+          other.m_handle = GLValues::INVALID_HANDLE;
+          other.m_target = 0;
+          other.m_capacity = 0;
+          other.m_elementStride = 0;
+          other.m_usage = 0;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLBuffer(GLBuffer&& other)
+        : m_handle(other.m_handle)
+        , m_target(other.m_target)
+        , m_capacity(other.m_capacity)
+        , m_elementStride(other.m_elementStride)
+        , m_usage(other.m_usage)
+      {
+        // Remove the data from other
+        other.m_handle = GLValues::INVALID_HANDLE;
+        other.m_target = 0;
+        other.m_capacity = 0;
+        other.m_elementStride = 0;
+        other.m_usage = 0;
+      }
+
+
       //! @brief Create a uninitialized buffer
       GLBuffer();
 

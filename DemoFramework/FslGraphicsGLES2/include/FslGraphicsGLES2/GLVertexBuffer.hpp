@@ -50,6 +50,35 @@ namespace Fsl
       std::vector<GLVertexElement> m_vertexElements;
       uint32_t m_originalVertexElementCount;
     public:
+      //! @brief Move assignment operator
+      GLVertexBuffer& operator=(GLVertexBuffer&& other)
+      {
+        if (this != &other)
+        {
+          GLBuffer::operator=(std::move(other));
+
+          // Claim ownership here
+          m_vertexElements = std::move(other.m_vertexElements);
+          m_originalVertexElementCount = other.m_originalVertexElementCount;
+
+          // Remove the data from other
+          other.m_originalVertexElementCount = 0;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLVertexBuffer(GLVertexBuffer&& other)
+        : GLBuffer(std::move(other))
+        , m_vertexElements(std::move(other.m_vertexElements))
+        , m_originalVertexElementCount(other.m_originalVertexElementCount)
+      {
+        // Remove the data from other
+        other.m_originalVertexElementCount = 0;
+      }
+
+
       //! @brief Create a uninitialized vertex buffer
       GLVertexBuffer();
 

@@ -49,7 +49,8 @@
 // since its the only supported platform that doesn't allow UTF8 strings
 // but instead provides its own 'hack' for opening wstring's
 #ifdef _WIN32
-#define PATH_GET_NAME(X) X.ToWString()
+#include <FslBase/System/Platform/PlatformWin32.hpp>
+#define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
 #else
 #define PATH_GET_NAME(X) X.ToUTF8String()
 #endif
@@ -564,6 +565,21 @@ namespace Fsl
 
     // At his point we know we have a 24bit bgr or 32bit bgra bitmap
     DecodeBitmap(rBitmap, rStream, bitmapHeader, originHint);
+  }
+
+
+  bool BMPUtil::TryLoad(Bitmap& rBitmap, const IO::Path& strFilename, const BitmapOrigin originHint)
+  {
+    // Good enough for now
+    try
+    {
+      Load(rBitmap, strFilename, originHint);
+      return true;
+    }
+    catch (const std::exception)
+    {
+      return false;
+    }
   }
 
 

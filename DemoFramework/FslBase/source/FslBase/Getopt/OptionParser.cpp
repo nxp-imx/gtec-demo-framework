@@ -51,9 +51,9 @@ namespace Fsl
       for (std::size_t i = 0; i < combinedOptions.size(); ++i)
       {
         const Option existingOption = combinedOptions[i];
-        if (option.ShortName != nullptr && existingOption.ShortName != nullptr && strcmp(option.ShortName, existingOption.ShortName) == 0)
+        if (option.ShortName.size() > 0 && option.ShortName == existingOption.ShortName)
           return false;
-        if (option.Name != nullptr && existingOption.Name != nullptr && strcmp(option.Name, existingOption.Name) == 0)
+        if (option.Name.size() > 0 && option.Name == existingOption.Name)
           return false;
       }
       return true;
@@ -71,11 +71,11 @@ namespace Fsl
         else
         {
           std::stringstream stream("Option already defined: ");
-          if (option.ShortName != nullptr)
+          if (option.ShortName.size() > 0)
             stream << "'" << option.ShortName << "'";
-          if (option.Name != nullptr)
+          if (option.Name.size() > 0)
           {
-            if (option.ShortName != nullptr)
+            if (option.ShortName.size() > 0)
               stream << "' ";
             else
               stream << "'";
@@ -128,8 +128,8 @@ namespace Fsl
       {
         if ((optionGroupFlags & int32_t(itr->Group)) != 0)
         {
-          auto len = itr->Name != nullptr ? strlen(itr->Name) + 2 : 0;
-          len += itr->ShortName != nullptr ? 4 : 0;
+          auto len = itr->Name.size() > 0 ? itr->Name.size() + 2 : 0;
+          len += itr->ShortName.size() > 0 ? 4 : 0;
 
           switch (itr->HasArg)
           {
@@ -153,15 +153,9 @@ namespace Fsl
     }
 
 
-    const char* SafeString(const char*const psz)
-    {
-      return psz != nullptr ? psz : "";
-    }
 
-
-    const std::string GetFormattedDescription(const char*const psz, const std::size_t indentation)
+    const std::string GetFormattedDescription(const std::string& str, const std::size_t indentation)
     {
-      std::string str(psz);
       std::stringstream stream;
 
       std::string::const_iterator itrFrom = str.begin();
@@ -195,15 +189,15 @@ namespace Fsl
     {
       std::string str;
 
-      if (option.ShortName != nullptr)
+      if (option.ShortName.size() > 0)
       {
         if ( ! option.IsPositional )
           str += "-";
         str += option.ShortName;
-        if (option.Name != nullptr)
+        if (option.Name.size() > 0)
           str += ", ";
       }
-      if (option.Name != nullptr)
+      if (option.Name.size() > 0)
       {
         if (!option.IsPositional)
           str += "--";
@@ -244,7 +238,7 @@ namespace Fsl
         {
           // 4 due to the "  --"
           // 3 due to the " = "
-          std::string strDesc(GetFormattedDescription(SafeString(itr->Description), 4 + 3 + maxNameLength));
+          std::string strDesc(GetFormattedDescription(itr->Description, 4 + 3 + maxNameLength));
           stream << "  ";
           stream.width(maxNameLength);
           stream << std::left << GetFormattedName(*itr);

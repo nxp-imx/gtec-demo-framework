@@ -38,10 +38,6 @@ namespace Fsl
 {
   namespace
   {
-    const char* SafeString(const char*const psz)
-    {
-      return psz != nullptr ? psz : "";
-    }
 
     void ToTCLAPArguments(std::deque<OptionParserTCLAP::ArgRecord>& rArgs, const std::deque<Option>& combinedOptions, TCLAP::CmdLine& rCmd)
     {
@@ -55,18 +51,18 @@ namespace Fsl
         switch(srcItr->HasArg)
         {
         case OptionArgument::OptionNone:
-          arg = std::make_shared<TCLAP::SwitchArg>(SafeString(srcItr->ShortName), SafeString(srcItr->Name), SafeString(srcItr->Description), rCmd, false);
+          arg = std::make_shared<TCLAP::SwitchArg>(srcItr->ShortName, srcItr->Name, srcItr->Description, rCmd, false);
           break;
         //case OptionArgument::OptionOptional:
-          //arg = std::make_shared<TCLAP::ValueArg<std::string> >(SafeString(srcItr->ShortName), SafeString(srcItr->Name), SafeString(srcItr->Description), false, DEFAULT_STR, "", rCmd);
+          //arg = std::make_shared<TCLAP::ValueArg<std::string> >(srcItr->ShortName, srcItr->Name, srcItr->Description, false, DEFAULT_STR, "", rCmd);
           //  break;
         case OptionArgument::OptionRequired:
           if ( ! srcItr->IsPositional )
-            arg = std::make_shared<TCLAP::ValueArg<std::string> >(SafeString(srcItr->ShortName), SafeString(srcItr->Name), SafeString(srcItr->Description), false, DEFAULT_STR, "", rCmd);
+            arg = std::make_shared<TCLAP::ValueArg<std::string> >(srcItr->ShortName, srcItr->Name, srcItr->Description, false, DEFAULT_STR, "", rCmd);
           else
           {
             const bool isRequired = srcItr->HasArg == OptionArgument::OptionRequired;
-            arg = std::make_shared<TCLAP::UnlabeledValueArg<std::string> >(SafeString(srcItr->Name), SafeString(srcItr->Description), isRequired, DEFAULT_STR, "", rCmd);
+            arg = std::make_shared<TCLAP::UnlabeledValueArg<std::string> >(srcItr->Name, srcItr->Description, isRequired, DEFAULT_STR, "", rCmd);
           }
           break;
         }

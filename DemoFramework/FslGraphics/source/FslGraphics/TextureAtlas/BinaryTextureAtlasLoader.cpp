@@ -41,11 +41,14 @@
 #include <sstream>
 #include <vector>
 
+
+
 // Nasty hack for dealing with UTF8 file names on windows,
 // since its the only supported platform that doesn't allow UTF8 strings
 // but instead provides its own 'hack' for opening wstring's
 #ifdef _WIN32
-#define PATH_GET_NAME(X) X.ToWString()
+#include <FslBase/System/Platform/PlatformWin32.hpp>
+#define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
 #else
 #define PATH_GET_NAME(X) X.ToUTF8String()
 #endif

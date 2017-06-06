@@ -190,7 +190,11 @@ namespace Fsl
 
     void PlatformFileSystem::CreateDir(const Path& path)
     {
-      throw NotImplementedException("CreateDir");
+      const auto dir = path.ToUTF8String();
+
+      auto res = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+      if (res != 0 && res != EEXIST)
+        throw IOException("Failed to create directory");
     }
 
   }

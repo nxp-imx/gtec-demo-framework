@@ -79,7 +79,7 @@ namespace Fsl
     //PFNEGLGETPLATFORMDISPLAYEXTPROC TryGetEglProcAddressPlatformWayland(const char* pAddress)
     //{
     //  const char* extensions = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
-    //  if (extensions == nullptr || ! (strstr(extensions, "EGL_EXT_platform_wayland") || strstr(extensions, "EGL_KHR_platform_wayland"))) 
+    //  if (extensions == nullptr || ! (strstr(extensions, "EGL_EXT_platform_wayland") || strstr(extensions, "EGL_KHR_platform_wayland")))
     //    return nullptr;
     //  return reinterpret_cast<PFNEGLGETPLATFORMDISPLAYEXTPROC>(eglGetProcAddress(pAddress));
     //}

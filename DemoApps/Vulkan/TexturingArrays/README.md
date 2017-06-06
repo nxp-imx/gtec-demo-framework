@@ -8,7 +8,7 @@ Texture arrays allow storing of multiple images in different layers without any 
 This example demonstrates the use of a 2D texture array with instanced rendering. Each instance samples from a different layer of the texture array.
 
 Based on a example called [Texture arrays](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample by in 2016.
+Recreated as a DemoFramework freestyle window sample in 2016.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

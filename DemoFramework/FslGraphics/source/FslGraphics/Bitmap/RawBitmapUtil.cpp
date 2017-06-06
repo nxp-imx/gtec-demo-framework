@@ -106,7 +106,10 @@ namespace Fsl
     {
     case PixelFormatLayout::R8G8B8:
     case PixelFormatLayout::B8G8R8:
-      Swizzle24(rBitmap, srcIdx0, srcIdx1, srcIdx2);
+      if (srcIdx0 == 2 && srcIdx1 == 1 && srcIdx2 == 0)
+        Swizzle24From012To210(rBitmap);
+      else
+        Swizzle24(rBitmap, srcIdx0, srcIdx1, srcIdx2);
       break;
     case PixelFormatLayout::R8G8B8A8:
     case PixelFormatLayout::B8G8R8A8:
@@ -115,6 +118,11 @@ namespace Fsl
     default:
       throw UnsupportedPixelFormatException("Swizzle only supports R8G8B8_UINT, B8G8R8_UINT, R8G8B8A8_UINT or B8G8R8A8_UINT format", rBitmap.GetPixelFormat());
     }
+  }
+
+  void RawBitmapUtil::Swizzle24From012To210(RawBitmapEx& rBitmap)
+  {
+    Swizzle24From012To210(rBitmap, rBitmap);
   }
 
 
@@ -329,6 +337,49 @@ namespace Fsl
   }
 
 
+  void RawBitmapUtil::Swizzle24From012To210(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap)
+  {
+    if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
+      throw std::invalid_argument("Swizzle24From012To210 requires valid bitmaps");
+
+    if (rDstBitmap.Width() != srcBitmap.Width() || rDstBitmap.Height() != srcBitmap.Height() || rDstBitmap.GetOrigin() != srcBitmap.GetOrigin())
+      throw std::invalid_argument("Swizzle24From012To210 requires that width, height and origin matches");
+
+    const auto srcLayout = srcBitmap.GetPixelFormatLayout();
+    const auto dstLayout = rDstBitmap.GetPixelFormatLayout();
+    const std::size_t bytesPerPixel = PixelFormatLayoutUtil::GetBytesPerPixel(srcLayout);
+    if (bytesPerPixel != 3 || 3 != PixelFormatLayoutUtil::GetBytesPerPixel(dstLayout))
+      throw UsageErrorException("Swizzle24From012To210 requires 3 bytes per pixel");
+
+    const uint8_t* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
+    const uint8_t*const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    uint8_t* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
+    uint8_t*const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+
+    const uint32_t srcStride = srcBitmap.Stride();
+    const uint32_t dstStride = rDstBitmap.Stride();
+
+    // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
+    if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
+      throw UsageErrorException("Swizzle24From012To210 does not support overlapping buffers");
+
+    // Generic slow swizzle for 24bpp formats
+    const uint32_t srcWidthM3 = srcBitmap.Width() * 3;
+    const uint32_t srcHeight = srcBitmap.Height();
+
+    for (uint32_t y = 0; y < srcHeight; ++y)
+    {
+      for (uint32_t x = 0; x < srcWidthM3; x += 3)
+      {
+        pDst[x + 0] = pSrc[x + 2];
+        pDst[x + 1] = pSrc[x + 1];
+        pDst[x + 2] = pSrc[x + 0];
+      }
+      pSrc += srcStride;
+      pDst += dstStride;
+    }
+  }
+
   void RawBitmapUtil::Swizzle24(RawBitmapEx& rDstBitmap, const RawBitmap& srcBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1, const uint32_t srcIdx2)
   {
     if (!rDstBitmap.IsValid() && srcBitmap.IsValid())
@@ -356,7 +407,7 @@ namespace Fsl
 
     // The buffers can only overlap if pSrc == pDst && srcStride >= dstStride, if thats not the case they can not overlap
     if ((pSrc != pDst || (pSrc == pDst && srcStride < dstStride)) && !(pSrc >= pDstEnd || pSrcEnd <= pDst))
-      throw UsageErrorException("Swizzle32 does not support overlapping buffers");
+      throw UsageErrorException("Swizzle24 does not support overlapping buffers");
 
     // Generic slow swizzle for 24bpp formats
 
@@ -367,12 +418,9 @@ namespace Fsl
     {
       for (uint32_t x = 0; x < srcWidth; ++x)
       {
-        const uint8_t b0 = pSrc[(x * 3) + srcIdx0];
-        const uint8_t b1 = pSrc[(x * 3) + srcIdx1];
-        const uint8_t b2 = pSrc[(x * 3) + srcIdx2];
-        pDst[(x * 3) + 0] = b0;
-        pDst[(x * 3) + 1] = b1;
-        pDst[(x * 3) + 2] = b2;
+        pDst[(x * 3) + 0] = pSrc[(x * 3) + srcIdx0];
+        pDst[(x * 3) + 1] = pSrc[(x * 3) + srcIdx1];
+        pDst[(x * 3) + 2] = pSrc[(x * 3) + srcIdx2];
       }
       pSrc += srcStride;
       pDst += dstStride;

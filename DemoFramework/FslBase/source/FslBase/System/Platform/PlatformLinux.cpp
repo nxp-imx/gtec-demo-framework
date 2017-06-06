@@ -86,12 +86,6 @@ namespace Fsl
 //    //time += (currentTime.tv_nsec / 1000);
 //    //return time;
 //  }
-
-  std::wstring Platform::UTF8ToWString(const std::string& str)
-  {
-    throw std::logic_error("not supported on this platform");
-  }
-
 }
 
 #endif

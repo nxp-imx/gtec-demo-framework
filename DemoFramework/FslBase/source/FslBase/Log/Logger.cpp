@@ -53,34 +53,53 @@
 
 namespace Fsl
 {
-
-
-  void Logger::WriteLine(const LogLocation& location, const char* const psz)
+  namespace
   {
+#ifndef __ANDROID__
+    template<typename T>
+    void SafePrint(const T& str)
+    {
+      // Done this way to ensure that string and the std::endl gets written to cout in one go
+      std::stringstream tmp;
+      tmp << str << std::endl;
+
+      std::cout << tmp.str();
+    }
+#endif
+  }
+
+  LogType Logger::g_logLevel = LogType::Info;
+
+
+  void Logger::WriteLine(const LogType logType, const char*const psz, const LogLocation& location)
+  {
+    if (psz == nullptr)
+      return;
+
 #ifdef __ANDROID__
     __android_log_print(ANDROID_LOG_DEBUG, "FSL_LOG_TAG", "%s", psz);
 #else
-    std::cout << psz << std::endl;
+    SafePrint(psz);
     IDE_LOG(location.pszFile << "(" << location.line << "): " << psz);
 #endif
   }
 
-  void Logger::WriteLine(const LogLocation& location, const std::string& str)
+  void Logger::WriteLine(const LogType logType, const std::string& str, const LogLocation& location)
   {
 #ifdef __ANDROID__
     __android_log_print(ANDROID_LOG_DEBUG, "FSL_LOG_TAG", "%s", str.c_str());
 #else
-    std::cout << str.c_str() << std::endl;
+    SafePrint(str);
     IDE_LOG(location.pszFile << "(" << location.line << "): " << str.c_str());
 #endif
   }
 
-  void Logger::WriteLine(const LogLocation& location, const std::stringstream& str)
+  void Logger::WriteLine(const LogType logType, const std::stringstream& str, const LogLocation& location)
   {
 #ifdef __ANDROID__
     __android_log_print(ANDROID_LOG_DEBUG, "FSL_LOG_TAG", "%s", str.str().c_str());
 #else
-    std::cout << str.str().c_str() << std::endl;
+    SafePrint(str.str());
     IDE_LOG(location.pszFile << "(" << location.line << "): " << str.str().c_str());
 #endif
   }

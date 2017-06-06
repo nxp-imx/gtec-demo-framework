@@ -56,7 +56,7 @@ namespace Fsl
   }
 
   OptionParser::OptionParser()
-    : m_length(16)
+    : m_length(0)
   {
   }
 
@@ -69,19 +69,16 @@ namespace Fsl
 
   void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
-    rOptions.push_back(Option("Length", OptionArgument::OptionRequired, CommandId::Length, "FFT length."));
+    rOptions.push_back(PositionalOption("Length", OptionArgument::OptionRequired, CommandId::Length, "FFT length."));
   }
 
 
   OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char*const pszOptArg)
   {
-    int intValue;
     switch (cmdId)
     {
     case CommandId::Length:
-      if (StringParseUtil::Parse(intValue, pszOptArg)<= 0)
-         return OptionParseResult::Failed;
-      m_length = intValue;
+      StringParseUtil::Parse(m_length, pszOptArg);
       return OptionParseResult::Parsed;
     default:
       return OptionParseResult::NotHandled;

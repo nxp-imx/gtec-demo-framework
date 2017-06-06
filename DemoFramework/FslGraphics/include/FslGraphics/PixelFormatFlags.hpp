@@ -49,22 +49,23 @@ namespace Fsl
   {
     enum Enum
     {
-      BIT_COUNT_FORMAT_ID       = 10,
-      BIT_COUNT_NUMERIC_FORMAT  = 4,
-      BIT_COUNT_LAYOUT          = 17,
-      BIT_COUNT_RESERVED        = 1,
+      BIT_COUNT_FORMAT_ID = 10,
+      BIT_COUNT_NUMERIC_FORMAT = 4,
+      BIT_COUNT_LAYOUT = 17,
+      BIT_COUNT_RESERVED = 1,
 
-      BIT_INDEX_FORMAT_ID       = 0,
-      BIT_INDEX_NUMERIC_FORMAT  = BIT_INDEX_FORMAT_ID      + BIT_COUNT_FORMAT_ID,
-      BIT_INDEX_LAYOUT          = BIT_INDEX_NUMERIC_FORMAT + BIT_COUNT_NUMERIC_FORMAT,
-      BIT_INDEX_RESERVED        = BIT_INDEX_LAYOUT         + BIT_COUNT_LAYOUT,
+      BIT_INDEX_FORMAT_ID = 0,
+      BIT_INDEX_NUMERIC_FORMAT = BIT_INDEX_FORMAT_ID + BIT_COUNT_FORMAT_ID,
+      BIT_INDEX_LAYOUT = BIT_INDEX_NUMERIC_FORMAT + BIT_COUNT_NUMERIC_FORMAT,
+      BIT_INDEX_RESERVED = BIT_INDEX_LAYOUT + BIT_COUNT_LAYOUT,
 
-      BIT_MASK_FORMAT_ID        = ((1 << BIT_COUNT_FORMAT_ID)      - 1) << BIT_INDEX_FORMAT_ID,
-      BIT_MASK_NUMERIC_FORMAT   = ((1 << BIT_COUNT_NUMERIC_FORMAT) - 1) << BIT_INDEX_NUMERIC_FORMAT,
-      BIT_MASK_LAYOUT           = ((1 << BIT_COUNT_LAYOUT)         - 1) << BIT_INDEX_LAYOUT,
-      BIT_MASK_RESERVED         = ((1 << BIT_COUNT_RESERVED)       - 1) << BIT_INDEX_RESERVED,
+      BIT_MASK_FORMAT_ID = ((1 << BIT_COUNT_FORMAT_ID) - 1) << BIT_INDEX_FORMAT_ID,
+      BIT_MASK_NUMERIC_FORMAT = ((1 << BIT_COUNT_NUMERIC_FORMAT) - 1) << BIT_INDEX_NUMERIC_FORMAT,
+      BIT_MASK_LAYOUT = ((1 << BIT_COUNT_LAYOUT) - 1) << BIT_INDEX_LAYOUT,
+      BIT_MASK_RESERVED = ((1 << BIT_COUNT_RESERVED) - 1) << BIT_INDEX_RESERVED,
 
       // Numeric Formats (see the Vulkan for details)
+      NF_Undefined = 0,
 
       //! The components are unsigned normalized values in the range [0,1]
       //! See the Vulkan documentation for details

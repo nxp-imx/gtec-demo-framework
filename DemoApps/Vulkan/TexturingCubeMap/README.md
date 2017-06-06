@@ -10,7 +10,7 @@ is copied over to a device local optimal image using buffer to image copies for 
 The demo then uses two different pipelines (and shader sets) to display the cubemap as a skybox (background) and as a source for reflections.
 
 Based on a example called [Cube maps](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample by in 2016.
+Recreated as a DemoFramework freestyle window sample in 2016.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

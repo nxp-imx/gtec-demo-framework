@@ -9,7 +9,7 @@ based on [this paper](http://alex.vlachos.com/graphics/CurvedPNTriangles.pdf), w
 [this tutorial](http://onrendering.blogspot.de/2011/12/tessellation-on-gpu-curved-pn-triangles.html).
 
 Based on a example called [PN-Triangles](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample by in 2016.
+Recreated as a DemoFramework freestyle window sample in 2016.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

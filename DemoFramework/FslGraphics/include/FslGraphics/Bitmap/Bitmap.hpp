@@ -138,6 +138,11 @@ namespace Fsl
 
     void Reset();
 
+    //! @brief Get the byte size of the image
+    std::size_t GetByteSize() const
+    {
+      return m_extent.Height * m_stride;
+    }
 
     //! @brief Reset the image to the given dimensions.
     //! @param clearMethod defines what to do with the existing content

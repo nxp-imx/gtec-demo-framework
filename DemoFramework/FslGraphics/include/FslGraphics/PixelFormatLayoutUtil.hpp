@@ -32,6 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
+#include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormatLayout.hpp>
 #include <FslGraphics/StrideRequirement.hpp>
 #include <cassert>
@@ -115,6 +116,10 @@ namespace Fsl
       return (static_cast<int32_t>(pixelFormatLayout)& PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT1_COMPRESSION_SCHEME);
     }
 
+    //! @brief Transform the given pixel format layout to the one that best matches the preferredChannelOrder.
+    //! @param layout if layout == PixelFormatLayout::Undefined this returns PixelFormatLayout::Undefined
+    //! @param preferredChannelOrder if preferredChannelOrder == PixelChannelOrder::Undefined this returns layout
+    static PixelFormatLayout Transform(const PixelFormatLayout layout, const PixelChannelOrder preferredChannelOrder);
   };
 }
 

@@ -43,6 +43,9 @@
 #include <cassert>
 #include <sstream>
 #include <IL/il.h>
+#ifdef _WIN32
+#include <FslBase/System/Platform/PlatformWin32.hpp>
+#endif
 
 namespace Fsl
 {
@@ -247,7 +250,7 @@ namespace Fsl
 
 #ifdef _WIN32
       // Loads into the current bound image
-      ilLoadImage(path.ToWString().c_str());
+      ilLoadImage(PlatformWin32::Widen(path.ToUTF8String()).c_str());
 #else
       ilLoadImage(path.ToAsciiString().c_str());
 #endif

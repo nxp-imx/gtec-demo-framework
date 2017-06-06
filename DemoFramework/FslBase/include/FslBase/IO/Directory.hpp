@@ -45,9 +45,9 @@ namespace Fsl
     class Directory : private Noncopyable
     {
     public:
-      //! @brief Create the given directory
+      //! @brief Create the given directory (renamed form CreateDirectory to prevent issues with windows.h>
       //! @note Any and all directories specified in path are created, unless they already exist or unless some part of path is invalid
-      static void CreateDirectory(const Path& path);
+      static void CreateDir(const Path& path);
 
       //! @brief Check if a directory exists
       static bool Exists(const Path& path);

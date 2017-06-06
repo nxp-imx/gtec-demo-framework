@@ -9,7 +9,7 @@ Procedurally generates separate meshes for each gear, with every mesh having it'
 Also demonstrates how to use different descriptor sets.
 
 Based on a example called [Vulkan Gears](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample by in 2016.
+Recreated as a DemoFramework freestyle window sample in 2016.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

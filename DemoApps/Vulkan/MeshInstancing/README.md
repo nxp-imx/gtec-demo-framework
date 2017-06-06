@@ -10,7 +10,7 @@ is used to pass instance data to the shader via vertex attributes with a per-ins
 The instance data also contains a texture layer index for having different textures for the instanced meshes.
 
 Based on a example called [Mesh instancing](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
-Recreated as a DemoFramework freestyle window sample by in 2016.
+Recreated as a DemoFramework freestyle window sample in 2016.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

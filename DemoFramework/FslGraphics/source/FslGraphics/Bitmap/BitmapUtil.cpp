@@ -323,7 +323,7 @@ namespace Fsl
         return true;
       }
     }
-    else if (desiredPixelFormat == PixelFormat::EX_ALPHA8_UNORM || desiredPixelFormat == PixelFormat::EX_ALPHA8_UNORM)
+    else if (desiredPixelFormat == PixelFormat::EX_ALPHA8_UNORM || desiredPixelFormat == PixelFormat::EX_LUMINANCE8_UNORM)
     {
       const auto desiredStride = rBitmap.GetPreferredStride(desiredPixelFormat);
       if (srcPixelFormatLayout == PixelFormatLayout::R8G8B8 || srcPixelFormatLayout == PixelFormatLayout::B8G8R8)
@@ -353,7 +353,7 @@ namespace Fsl
         return true;
       }
     }
-    else if ((currentPixelFormat == PixelFormat::EX_ALPHA8_UNORM || currentPixelFormat == PixelFormat::EX_ALPHA8_UNORM) && (desiredPixelFormatLayout == PixelFormatLayout::B8G8R8A8 || desiredPixelFormatLayout == PixelFormatLayout::R8G8B8A8))
+    else if ((currentPixelFormat == PixelFormat::EX_ALPHA8_UNORM || currentPixelFormat == PixelFormat::EX_LUMINANCE8_UNORM) && (desiredPixelFormatLayout == PixelFormatLayout::B8G8R8A8 || desiredPixelFormatLayout == PixelFormatLayout::R8G8B8A8))
     {
       const auto desiredStride = rBitmap.GetPreferredStride(desiredPixelFormat);
 

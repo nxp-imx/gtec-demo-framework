@@ -40,6 +40,8 @@
 
 namespace Fsl
 {
+  class ProfilerServiceOptionParser;
+
   class ProfilerService
     : public ThreadLocalService
     , public IProfilerService
@@ -91,7 +93,7 @@ namespace Fsl
     int32_t m_customCounterCount;
     uint32_t m_customConfigurationRevision;
   public:
-    ProfilerService(const ServiceProvider& serviceProvider);
+    ProfilerService(const ServiceProvider& serviceProvider, const std::shared_ptr<ProfilerServiceOptionParser>& optionParser);
     ~ProfilerService();
 
     // From IProfilerService
