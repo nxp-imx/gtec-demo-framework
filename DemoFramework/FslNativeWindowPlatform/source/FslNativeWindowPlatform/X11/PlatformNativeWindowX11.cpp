@@ -521,20 +521,21 @@ namespace Fsl
       throw GraphicsException("Could not get native visual");
 
     const int screen = DefaultScreen(m_platformDisplay);
-    const Window rootwindow = RootWindow(m_platformDisplay, screen);
-
+    const Window rootwindow =RootWindow(m_platformDisplay, screen);
+    XWindowAttributes windowATTR;
+    XGetWindowAttributes(m_platformDisplay,rootwindow,&windowATTR);
     //GET SCREEN RESOURCES FOR THE DEVICE
-    XRRScreenResources * screenResources = XRRGetScreenResources(m_platformDisplay, rootwindow);
+    //XRRScreenResources * screenResources = XRRGetScreenResources(m_platformDisplay, rootwindow);
 
     //We now have info on the Screen Resources, get information about the available CRTs
-    XRRCrtcInfo * crtDeviceInformation = XRRGetCrtcInfo(m_platformDisplay, screenResources, screenResources->crtcs[0]);
+    //XRRCrtcInfo * crtDeviceInformation = XRRGetCrtcInfo(m_platformDisplay, screenResources, screenResources->crtcs[1]);
 
-    //printf("Specific CRT information %dx%d\n",crtDeviceInformation->width, crtDeviceInformation->height);
+    //printf("Specific CRT information screen count %d,  %dx%d   window %dx%d\n", screenResources->noutput, crtDeviceInformation->width, crtDeviceInformation->height, windowATTR.width, windowATTR.height);
 
     if (nativeWindowConfig.GetWindowMode() != WindowMode::Window)
     {
-      windowWidth  = crtDeviceInformation->width;
-      windowHeight = crtDeviceInformation->height;
+      windowWidth  = windowATTR.width ;
+      windowHeight = windowATTR.height;
       windowX = 0;
       windowY = 0;
     }
@@ -556,7 +557,6 @@ namespace Fsl
     windowAttributes.background_pixel = 0xFFFFFFFF;
     windowAttributes.border_pixel = 0;
     windowAttributes.event_mask = StructureNotifyMask | ExposureMask;
-
 
     m_platformWindow = XCreateWindow(m_platformDisplay, rootwindow, windowX, windowY, windowWidth, windowHeight,
                                      0, m_pVisual->depth, InputOutput, m_pVisual->visual, mask, &windowAttributes);

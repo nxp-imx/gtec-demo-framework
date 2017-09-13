@@ -40,9 +40,9 @@ import hashlib
 import os
 import shutil
 import sys
-import time
+#import time
 
-
+g_isPython3 = sys.version_info >= (3,)
 g_isVerbose = False
 g_isInfo = False
 GLOBAL_SEP = '\\'
@@ -50,38 +50,45 @@ GLOBAL_SEP = '\\'
 g_cacheFilename = "_ContentSyncCache.fsl"
 
 def GetTitle():
-    return 'FslContentSync V0.2.7'
+    return 'FslContentSync V0.2.9'
 
-def GetCacheFormatVersion():
+def GetCacheFormatVersion1():
     return '1'
 
+def GetCacheFormatVersion2():
+    return '2'
+
+def GetCacheFormatVersion():
+    return '3' if g_isPython3 else GetCacheFormatVersion2()
+
+
 def ShowTitleIfNecessary():
-    global g_isVerbose
     if not g_isVerbose:
         print(GetTitle())
 
 
-def LogPrint(str):
-    global g_isVerbose
+def LogPrint(strMessage):
     if g_isVerbose:
-        print(str.encode(sys.getdefaultencoding(), 'replace'))
+        print(strMessage)
 
 
-def LogPrintInfo(str):
-    global g_isVerbose
-    global g_isInfo
+def LogPrintInfo(strMessage):
     if g_isVerbose or g_isInfo:
-        print(str.encode(sys.getdefaultencoding(), 'replace'))
+        print(strMessage)
 
 
-def PreviewPrint(str):
-    print(str.encode(sys.getdefaultencoding(), 'replace'))
+def PreviewPrint(strMessage):
+    print(strMessage)
 
-def EnsureUTF8(str):
+
+def EnsureUTF8(value):
+    if value is None:
+        return None
     try:
-        return unicode(str.encode('utf-8'))
+        # in python 3 all strings are unicode
+        return str(value) if g_isPython3 else unicode(value.encode('utf-8'))
     except ValueError:
-        return str
+        return value
 
 
 def ReadFile(filename):
@@ -110,7 +117,13 @@ def WriteFileIfChanged(filename, content):
 def FileModificationDate(filename):
     t = os.path.getmtime(filename)
     time = datetime.datetime.utcfromtimestamp(t)
-    return "{:0>4d}-{:0>2d}-{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}:{:0>4d}".format(time.year, time.month, time.day, time.hour, time.minute, time.second,time.microsecond / 1000)
+
+    if g_isPython3:
+        return time.isoformat()
+    # Fallback for python2
+    # Since shutil.copy2 cant copy the timestamps with full precission under python2.7
+    # we use a work around that just removes a lot of the precission
+    return "{:0>4d}-{:0>2d}-{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}:{:0>2d}".format(time.year, time.month, time.day, time.hour, time.minute, time.second, time.microsecond / 100000)
 
 def ToUnixStylePath(path):
     return path.replace("\\", "/")
@@ -131,17 +144,23 @@ def SafeMakeDirs(path):
             raise
 
 
-class CacheState:
-  Unmodified = 0
-  Modified = 1
-  New = 2
+class CacheState(object):
+    Unmodified = 0
+    Modified = 1
+    New = 2
 
 
 def GetCacheHeader():
     return "# FslContentSync cache file\n"
 
 def GetCacheVersionString():
-    return "# Format: %s\n" % (GetCacheFormatVersion())
+    return "# Format: %s" % (GetCacheFormatVersion())
+
+def GetCacheVersionString1():
+    return "# Format: %s" % (GetCacheFormatVersion1())
+
+def GetCacheVersionString2():
+    return "# Format: %s" % (GetCacheFormatVersion2())
 
 def GetCacheToolVersion():
     return "# Created by %s\n" % (GetTitle())
@@ -154,9 +173,25 @@ class ContentState(object):
         self.ModifiedDate = ""
         self.Checksum = ""
         self.CacheState = CacheState.New
+        self.ModificationComment = ""
 
     def IsSameState(self, entry):
         return self.Name == entry.Name and self.Length == entry.Length and self.ModifiedDate == entry.ModifiedDate and self.Checksum == entry.Checksum
+
+    def GetDifferenceString(self, entry):
+        res = ""
+        if self.Name != entry.Name:
+            res = self.__AddToString(res, "Name: {0} != {1}".format(self.Name, entry.Name))
+        if self.Length != entry.Length:
+            res = self.__AddToString(res, "Length: {0} != {1}".format(self.Length, entry.Length))
+        if self.ModifiedDate != entry.ModifiedDate:
+            res = self.__AddToString(res, "ModifiedDate: {0} != {1}".format(self.ModifiedDate, entry.ModifiedDate))
+        if self.Checksum != entry.Checksum:
+            res = self.__AddToString(res, "Checksum: {0} != {1}".format(self.Checksum, entry.Checksum))
+        return res
+
+    def __AddToString(self, strMessage, strNew):
+        return strNew if not strMessage else "{0}, {1}".format(strMessage, strNew)
 
 class SyncState(object):
     def __init__(self, folder):
@@ -166,6 +201,7 @@ class SyncState(object):
         self.Entries = {}
         self.Removed = {}
         self.IsNew = True
+        self.AutoEnableForce = False
 
 
     def Add(self, syncState):
@@ -182,13 +218,13 @@ class SyncState(object):
 
 
     def GetDirState(self, syncState):
-        if self.Dirs.has_key(syncState.Name):
+        if syncState.Name in self.Dirs:
             return self.Dirs[syncState.Name]
         return None
 
 
     def GetFileState(self, syncState):
-        if self.Entries.has_key(syncState.Name):
+        if syncState.Name in self.Entries:
             return self.Entries[syncState.Name]
         return None
 
@@ -202,6 +238,7 @@ class SyncState(object):
         self.Entries = {}
         self.Removed = {}
         self.IsNew = True
+        self.AutoEnableForce = False
         cacheHeader = GetCacheHeader()
         # if the file starts with a invalid header, we ignore it
         if not content.startswith(cacheHeader):
@@ -211,6 +248,17 @@ class SyncState(object):
         entries = []
         dirs = []
         lines = content.splitlines(False)
+        if len(lines) < 3:
+            LogPrint("WARNING: Cache at '{0}' is invalid, ignoring it.".format(path))
+            return
+        if lines[1] != GetCacheVersionString():
+            if lines[1] != GetCacheVersionString1() and lines[1] != GetCacheVersionString2():
+                LogPrint("WARNING: Cache at '{0}' is a unsupported format, ignoring it.".format(path))
+                return
+            else:
+                LogPrint("WARNING: Cache at '{0}' is from a version that could syncronize the files timestamps incorrect due to precission issues in python2. To be safe we auto enabled '--force'.".format(path))
+                self.AutoEnableForce = True
+
         for line in lines:
             line = line.strip()
             if not line.startswith('#'):
@@ -237,21 +285,21 @@ class SyncState(object):
 
     def Save(self, path):
 
-        result = [GetCacheHeader(), GetCacheVersionString(), GetCacheToolVersion() ]
+        result = [GetCacheHeader(), "{0}\n".format(GetCacheVersionString()), GetCacheToolVersion()]
 
         sortedList = list(self.Dirs.keys())
         sortedList.sort()
         for name in sortedList:
             entry = self.Dirs[name]
-            str = "%s%s%s%s%s%s%s\n" % (entry.Name, GLOBAL_SEP,entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum)
-            result.append(str)
+            strValue = "%s%s%s%s%s%s%s\n" % (entry.Name, GLOBAL_SEP, entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum)
+            result.append(strValue)
 
         sortedList = list(self.Entries.keys())
         sortedList.sort()
         for name in sortedList:
             entry = self.Entries[name]
-            str = "%s%s%s%s%s%s%s\n" % (entry.Name, GLOBAL_SEP,entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum)
-            result.append(str)
+            strValue = "%s%s%s%s%s%s%s\n" % (entry.Name, GLOBAL_SEP, entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum)
+            result.append(strValue)
         WriteFileIfChanged(path, "".join(result))
 
 
@@ -338,7 +386,7 @@ def GetCacheFilename(folder):
 
 
 def BuildSyncState(folder, cachedSyncState, allowCaching):
-    if cachedSyncState == None:
+    if cachedSyncState is None:
         LogPrint("Examining content of '%s'" % (folder))
         cachedSyncState = SyncState(folder)
         cachedSyncState.Load(GetCacheFilename(folder))
@@ -346,7 +394,6 @@ def BuildSyncState(folder, cachedSyncState, allowCaching):
         LogPrint("Rescanning content of '%s'" % (folder))
 
     dirs, files = GetDirAndFilePaths(folder)
-
 
     absCacheFile = PathSafeJoin(folder, g_cacheFilename)
     if absCacheFile in files:
@@ -356,11 +403,11 @@ def BuildSyncState(folder, cachedSyncState, allowCaching):
 
     allowNew = True #not cachedSyncState.IsNew
 
-    for dir in dirs:
-        if dir.find('..') != -1:
-            raise Exception("'..' is now allowed in content file names ('%s')" % (dir))
+    for dirEntry in dirs:
+        if dirEntry.find('..') != -1:
+            raise Exception("'..' is now allowed in content file names ('%s')" % (dirEntry))
         dirState = ContentState()
-        dirState.Name = dir[len(folder)+1:]
+        dirState.Name = dirEntry[len(folder)+1:]
         dirState.Length = -1
         dirState.ModifiedDate = "0"
         dirState.Checksum = "0"
@@ -370,15 +417,15 @@ def BuildSyncState(folder, cachedSyncState, allowCaching):
         syncState.AddDir(dirState)
 
 
-    for file in files:
-        if file.find('..') != -1:
-            raise Exception("'..' is now allowed in content file names ('%s')" % (file))
-        if file.find('\\') != -1:
-            raise Exception("'\\' is now allowed in content file names ('%s')" % (file))
+    for fileEntry in files:
+        if fileEntry.find('..') != -1:
+            raise Exception("'..' is now allowed in content file names ('%s')" % (fileEntry))
+        if fileEntry.find('\\') != -1:
+            raise Exception("'\\' is now allowed in content file names ('%s')" % (fileEntry))
         fileState = ContentState()
-        fileState.Name = file[len(folder)+1:]
-        fileState.Length = os.path.getsize(file)
-        fileState.ModifiedDate = FileModificationDate(file)
+        fileState.Name = fileEntry[len(folder)+1:]
+        fileState.Length = os.path.getsize(fileEntry)
+        fileState.ModifiedDate = FileModificationDate(fileEntry)
 
         cachedState = cachedSyncState.GetFileState(fileState)
         if allowCaching and cachedState and fileState.Length == cachedState.Length and fileState.ModifiedDate == cachedState.ModifiedDate:
@@ -386,12 +433,13 @@ def BuildSyncState(folder, cachedSyncState, allowCaching):
             LogPrint("Using cached checksum for '%s'" % (fileState.Name))
         else:
             LogPrint("Calculating checksum for '%s'" % (fileState.Name))
-            fileState.Checksum = HashFile(file)
+            fileState.Checksum = HashFile(fileEntry)
         # Mark the entry as being new
         if not cachedState and allowNew:
             fileState.CacheState = CacheState.New
         elif cachedState and not fileState.IsSameState(cachedState):
             fileState.CacheState = CacheState.Modified
+            fileState.ModificationComment = fileState.GetDifferenceString(cachedState)
         else:
             fileState.CacheState = CacheState.Unmodified
         syncState.Add(fileState)
@@ -399,44 +447,47 @@ def BuildSyncState(folder, cachedSyncState, allowCaching):
 
     # Tag the sync state with information about which files were removed compared the the last time we synced
     for entry in cachedSyncState.Entries.values():
-        if not syncState.Entries.has_key(entry.Name):
+        if not entry.Name in syncState.Entries:
             syncState.AddRemoved(entry)
 
     # Tag the sync state with information about which dirs were removed compared the the last time we synced
     for entry in cachedSyncState.Dirs.values():
-        if not syncState.Dirs.has_key(entry.Name):
+        if not entry.Name in syncState.Dirs:
             syncState.AddRemoved(entry)
+
+    if not cachedSyncState is None and cachedSyncState.AutoEnableForce:
+        syncState.AutoEnableForce = True
     return syncState
 
 
 def RemoveDirs(location, entries, isPreview):
     for entry in entries:
         LogPrint("Removing directory '%s'" % entry.Name)
-        dir = PathSafeJoin(location, entry.Name)
+        dirEntry = PathSafeJoin(location, entry.Name)
         if not isPreview:
-            os.rmdir(dir)
+            os.rmdir(dirEntry)
         else:
-            PreviewPrint("Removing directory '%s'" % (dir))
+            PreviewPrint("Removing directory '%s'" % (dirEntry))
 
 
 def CreateDirs(location, entries, isPreview):
     for entry in entries:
         LogPrint("Creating directory '%s'" % entry.Name)
-        dir = PathSafeJoin(location, entry.Name)
+        dirEntry = PathSafeJoin(location, entry.Name)
         if not isPreview:
-            SafeMakeDirs(dir)
+            SafeMakeDirs(dirEntry)
         else:
-            PreviewPrint("Creating directory '%s'" % (dir))
+            PreviewPrint("Creating directory '%s'" % (dirEntry))
 
 
 def RemoveFiles(location, entries, isPreview):
     for entry in entries:
         LogPrint("Removing '%s'" % entry.Name)
-        file = PathSafeJoin(location, entry.Name)
+        fileEntry = PathSafeJoin(location, entry.Name)
         if not isPreview:
-            os.remove(file)
+            os.remove(fileEntry)
         else:
-            PreviewPrint("Removing '%s'" % (file))
+            PreviewPrint("Removing '%s'" % (fileEntry))
 
 
 def CopyFiles(srcLocation, dstLocation, entries, isPreview):
@@ -458,7 +509,7 @@ def PrepareDirSync(syncStateFrom, syncStateTo):
     deleteList = []
     createList = []
     for entry in syncStateTo.Dirs.values():
-        if syncStateFrom.GetDirState(entry) == None:
+        if syncStateFrom.GetDirState(entry) is None:
             deleteList.append(entry)
 
     # locate all the entries that were modified or missing
@@ -472,18 +523,19 @@ def PrepareDirSync(syncStateFrom, syncStateTo):
     return (deleteList, createList)
 
 
-def ExtractNames(list):
+def ExtractNames(sourceList):
     names = []
-    for entry in list:
+    for entry in sourceList:
         names.append(entry.Name)
     return names
+
 
 def PrepareFileSync(syncStateFrom, syncStateTo):
     # Build delete list
     deleteList = []
     copyList = []
     for entry in syncStateTo.Entries.values():
-        if syncStateFrom.GetFileState(entry) == None:
+        if syncStateFrom.GetFileState(entry) is None:
             deleteList.append(entry)
 
     # locate all the entries that were modified or missing
@@ -502,17 +554,17 @@ def PrepareFileSync(syncStateFrom, syncStateTo):
 def ScanForNewOrModifiedFiles(syncStateTo, allowForce):
     newFiles = []
 
-    for file in syncStateTo.Entries.values():
-        if file.CacheState != CacheState.Unmodified:
-            newFiles.append(file)
+    for fileEntry in syncStateTo.Entries.values():
+        if fileEntry.CacheState != CacheState.Unmodified:
+            newFiles.append(fileEntry)
 
     if len(newFiles) > 0:
         newFiles.sort(key=lambda s: s.Name.lower())
         if not allowForce:
             raise Exception("Found new or dirty files in the to folder '%s' files '%s'" % (syncStateTo.Folder, ", ".join(ExtractNames(newFiles))))
         else:
-            for file in newFiles:
-                LogPrintInfo("WARNING: new file '%s' ignored." % (file.Name))
+            for fileEntry in newFiles:
+                LogPrintInfo("WARNING: new file '%s' ignored." % (fileEntry.Name))
 
 
 def DoSynchronizeOneWay(syncStateFrom, syncStateTo, isPreview, allowForce):
@@ -521,6 +573,7 @@ def DoSynchronizeOneWay(syncStateFrom, syncStateTo, isPreview, allowForce):
     # Build sync lists for files
     fileDeleteList, fileCopyList = PrepareFileSync(syncStateFrom, syncStateTo)
 
+    allowForce = allowForce or syncStateTo.AutoEnableForce
     ScanForNewOrModifiedFiles(syncStateTo, allowForce)
 
     RemoveFiles(syncStateTo.Folder, fileDeleteList, isPreview)
@@ -531,13 +584,36 @@ def DoSynchronizeOneWay(syncStateFrom, syncStateTo, isPreview, allowForce):
     CopyFiles(syncStateFrom.Folder, syncStateTo.Folder, fileCopyList, isPreview)
 
 
+
+
+def ToFilenameListString(files):
+    newList = ["\n  - {0}".format(filename) for filename in files]
+    return "".join(newList)
+
+
+def ToFilenameValidationIssueList(entries):
+    newList = ["\n  - {0} because {1}".format(entry.Name, entry.ModificationComment) for entry in entries]
+    return "".join(newList)
+
+
+
 def ValidateSyncState(syncState):
+    validationErrors = []
     for entry in syncState.Entries.values():
         if entry.CacheState != CacheState.Unmodified:
-            raise Exception("Sync validation failed");
+            validationErrors.append(entry)
 
-    if len(syncState.Removed) != 0:
-        raise Exception("Sync validation failed");
+    errorMessage = None
+    if len(validationErrors) != 0 or len(syncState.Removed) != 0:
+        errorMessage = "Sync validation failed for folder '{0}'".format(syncState.Folder)
+        if len(validationErrors) != 0:
+            errorMessage += "\n* the following files failed validation:{0}".format(ToFilenameValidationIssueList(validationErrors))
+
+        if len(syncState.Removed) != 0:
+            errorMessage += "\n* the following files are missing:{0}".format(ToFilenameListString(syncState.Removed.keys()))
+
+    if errorMessage != None:
+        raise Exception(errorMessage)
 
 
 def DoSynchronize(fromFolder, toFolder, isPreview, allowForce, allowCache):
@@ -581,7 +657,7 @@ def CheckThatCacheFileExists(fromFolder, toFolder):
 
 def Synchronize(fromFolder, toFolder, isSDK, isPreview, createEnabled, allowForce, allowCache, ifExist):
     orgFromFolder = fromFolder
-    if fromFolder == None:
+    if fromFolder is None:
         raise Exception("Missing input argument FromFolder")
 
     fromFolder = EnsureUTF8(fromFolder)
@@ -598,7 +674,7 @@ def Synchronize(fromFolder, toFolder, isSDK, isPreview, createEnabled, allowForc
         if toFolder != None:
             raise Exception("ToFolder can not be supplied when using the --sdk option")
         fromFolder, toFolder = SDKDetectFolders(fromFolder)
-    elif toFolder == None:
+    elif toFolder is None:
         raise Exception("Missing input argument ToFolder")
     else:
         toFolder = EnsureUTF8(toFolder)
@@ -621,8 +697,8 @@ def Main():
     parser.add_argument('-p', '--preview', action='store_true', help='If preview is enabled nothing is modified, the tool just lists what it intends to do')
     parser.add_argument('-i', '--info', action='store_true', help='Enable info mode')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose mode')
-    parser.add_argument('--create', action='store_true', help="Disable the requirements for the ToFolder to exist and for a '%s' file to exist in the sync folders" % (g_cacheFilename) )
-    parser.add_argument('--force', action='store_true', help='if any new  or modified file is found in the toFolder they will be remove or overwritten' )
+    parser.add_argument('--create', action='store_true', help="Disable the requirements for the ToFolder to exist and for a '{0}' file to exist in the sync folders".format(g_cacheFilename))
+    parser.add_argument('--force', action='store_true', help='if any new or modified file is found in the toFolder they will be remove or overwritten')
     parser.add_argument('--version', action='store_true', help='Show version')
     parser.add_argument('--cache', action='store_true', help='Allow the cache checksum to be used if the file is deemed likely to the same')
     parser.add_argument('--sdk', action='store_true', help='Enable sdk mode which allows you to just specify the apps content folder')
@@ -630,19 +706,25 @@ def Main():
     parser.add_argument('FromFolder', help='The primary content folder')
     parser.add_argument('ToFolder', nargs="?", help='The folder that needs to match the from folder')
 
-    currentDir = EnsureUTF8(os.getcwd())
+    #currentDir = EnsureUTF8(os.getcwd())
+    debugFromFolder = None
+    debugToFolder = None
     try:
         args = parser.parse_args()
         g_isVerbose = args.verbose
         g_isInfo = args.info
+        debugFromFolder = args.FromFolder
+        debugToFolder = args.ToFolder
 
         if args.version:
-          print(GetTitle())
+            print(GetTitle())
         if args.FromFolder:
             Synchronize(args.FromFolder, args.ToFolder, args.sdk, args.preview, args.create, args.force, args.cache, args.ifExist)
     except (Exception) as ex:
         ShowTitleIfNecessary()
-        print("error: %s" % ex.message)
+        if debugFromFolder != None and debugToFolder != None:
+            print("A error occurred while syncronizing from {0} to {1}".format(debugFromFolder, debugToFolder))
+        print("ERROR: {0}".format(str(ex)))
         if g_isVerbose:
             raise
         sys.exit(1)
