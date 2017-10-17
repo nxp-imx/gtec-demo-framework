@@ -54,7 +54,7 @@ namespace Fsl
       }
     }
 
-    static uint32_t CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel)
+    static constexpr uint32_t CalcMinimumStride(const uint32_t width, const uint32_t bytesPerPixel)
     {
       return width * bytesPerPixel;
     }
@@ -95,7 +95,7 @@ namespace Fsl
 
     // @brief Extract the basic encoded layout (can only differentiate between layout0 and 1, not any extended encodings)
     // @return PixelFormatLayoutFlags::ENCODED_LAYOUT0 or PixelFormatLayoutFlags::ENCODED_LAYOUT1
-    static int32_t GetBasicEncodedLayout(const PixelFormatLayout pixelFormatLayout)
+    static constexpr int32_t GetBasicEncodedLayout(const PixelFormatLayout pixelFormatLayout)
     {
       return (static_cast<int32_t>(pixelFormatLayout)& PixelFormatLayoutFlags::BIT_MASK_ENCODED_LAYOUT_BIT0);
     }

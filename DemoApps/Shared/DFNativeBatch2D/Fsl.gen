@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.DFNativeBatch2D">
+    <Dependency Name="FslBase"/>
+    <Dependency Name="FslGraphics"/>
+    <Dependency Name="FslDemoApp.Base"/>
+    <Platform Name="Windows" ProjectId="9FE548DE-7497-41D7-853F-E9D5BB838E7C"/>
+  </Library>
+</FslBuildGen>

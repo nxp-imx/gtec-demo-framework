@@ -29,9 +29,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppOpenCL/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/OpenCL/Setup/RegisterDemoApp.hpp>
 #include "Info.hpp"
 
-
-// Configure the demo environment to run this demo app in a OpenCL host environment
-FSL_REGISTER_OPENCL_DEMO(Info);
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a OpenCL host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppRegister::OpenCL::Register<Info>(rSetup, "OpenCL.Info");
+  }
+}

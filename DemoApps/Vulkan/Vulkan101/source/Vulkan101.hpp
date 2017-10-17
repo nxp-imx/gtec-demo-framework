@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppVulkan/DemoAppVulkan.hpp>
+#include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 
 namespace Fsl
 {

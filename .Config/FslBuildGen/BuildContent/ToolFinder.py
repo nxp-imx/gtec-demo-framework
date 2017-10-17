@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,27 +31,29 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen import IOUtil, Config, PlatformUtil
+from FslBuildGen import IOUtil
+from FslBuildGen import PlatformUtil
 from FslBuildGen.DataTypes import BuildPlatformType
-import subprocess
+from FslBuildGen.Log import Log
+
 
 class ToolFinder(object):
-    def __init__(self, config):
+    def __init__(self, log: Log) -> None:
         super(ToolFinder, self).__init__()
         self.BuildPlatform = PlatformUtil.DetectBuildPlatformType()
         self.VulkanShaderCompiler = self.GetPlatformDependentExecuteableName("glslangValidator")
 
 
-    def GetPlatformDependentExecuteableName(self, exeName):
+    def GetPlatformDependentExecuteableName(self, exeName: str) -> str:
         if self.BuildPlatform == BuildPlatformType.Windows:
             return exeName + ".exe"
         return exeName
 
 
-    def CheckVulkanShaderCompiler(self):
-        if not IOUtil.FindExecutable(self.VulkanShaderCompiler):
-            raise EnvironmentError("Could not locate the Vulkan shader compiler: '%s'" % (self.VulkanShaderCompiler));
+    def CheckVulkanShaderCompiler(self) -> None:
+        if IOUtil.TryFindExecutable(self.VulkanShaderCompiler) is None:
+            raise EnvironmentError("Could not locate the Vulkan shader compiler: '%s'" % (self.VulkanShaderCompiler))
 
-    def CheckToolCommand(self, toolCommand, toolDescription):
-        if not IOUtil.FindExecutable(toolCommand):
-            raise EnvironmentError("Could not locate the content builder '%s' (%s)" % (toolCommand, toolDescription));
+    def CheckToolCommand(self, toolCommand: str, toolDescription: str) -> None:
+        if IOUtil.TryFindExecutable(toolCommand) is None:
+            raise EnvironmentError("Could not locate the content builder '%s' (%s)" % (toolCommand, toolDescription))

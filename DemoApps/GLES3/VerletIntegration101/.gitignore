@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES3.VerletIntegration101
 GLES3.VerletIntegration101.VC.VC.opendb
 GLES3.VerletIntegration101.VC.db
 GLES3.VerletIntegration101.aps
@@ -18,10 +19,18 @@ GLES3.VerletIntegration101.v12.suo
 GLES3.VerletIntegration101.vcxproj
 GLES3.VerletIntegration101.vcxproj.filters
 GLES3.VerletIntegration101.vcxproj.user
+GLES3.VerletIntegration101_FB
+GLES3.VerletIntegration101_Wayland
+GLES3.VerletIntegration101_X11
 GNUmakefile
 GNUmakefile_Yocto
+VerletIntegration101
 VerletIntegration101_FB
+VerletIntegration101_FB_d
 VerletIntegration101_Wayland
+VerletIntegration101_Wayland_d
 VerletIntegration101_X11
+VerletIntegration101_X11_d
+VerletIntegration101_d
 build/
 resource.h

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslDemoHost.EGL">
+    <Dependency Name="FslBase"/>
+    <Dependency Name="FslGraphics"/>
+    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslDemoHost.Base"/>
+    <Dependency Name="FslUtil.EGL"/>
+    <Dependency Name="FslNativeWindow.EGL" Access="Private"/>
+    
+    <Platform Name="Android">
+      <Dependency Name="Platform.Android.Glue"/>
+      <Dependency Name="Platform.Android.NDKHelper"/>
+      <!--PublicFlag Name="FSL_USE_ANDROID_GLCONTEXT"/-->
+    </Platform>
+    <Platform Name="Windows" ProjectId="0E96433D-79BC-4410-A92B-3FA7D39ADA82"/>
+  </Library>
+</FslBuildGen>

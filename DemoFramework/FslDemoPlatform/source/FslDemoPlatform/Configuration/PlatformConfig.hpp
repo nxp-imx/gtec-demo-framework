@@ -32,7 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
-#include <FslDemoHost/Service/ServiceRegistry.hpp>
+#include <FslService/Impl/Registry/ServiceRegistry.hpp>
 
 namespace Fsl
 {

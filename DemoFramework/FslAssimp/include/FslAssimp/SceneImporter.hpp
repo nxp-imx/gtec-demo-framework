@@ -36,8 +36,8 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslAssimp/MeshImporter.hpp>
-#include <FslGraphics3D/SceneAllocator.hpp>
-#include <FslGraphics3D/SceneAllocatorFunc.hpp>
+#include <FslGraphics3D/BasicScene/SceneAllocator.hpp>
+#include <FslGraphics3D/BasicScene/SceneAllocatorFunc.hpp>
 #include <memory>
 
 namespace Fsl

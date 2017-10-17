@@ -35,6 +35,19 @@
 
 namespace Fsl
 {
+  Option::Option()
+    : ShortName()
+    , Name()
+    , HasArg(OptionArgument::OptionNone)
+    , CmdId(0)
+    , Description()
+    , Group(OptionGroup::Default)
+    , Type(OptionType::Default)
+    , IsPositional(false)
+  {
+  }
+
+
   Option::Option(const std::string& smartName, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description)
     : ShortName()
     , Name()

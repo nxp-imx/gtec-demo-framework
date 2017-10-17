@@ -29,13 +29,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include "OpenCV101.hpp"
 #include <GLES2/gl2.h>
 #include <iostream>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv/cv.hpp>
+#include <opencv/highgui.h>
 
 namespace Fsl
 {

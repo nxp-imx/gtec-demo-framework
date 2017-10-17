@@ -51,6 +51,7 @@ namespace Fsl
     OptionType::Enum Type;
     bool IsPositional;
 
+    Option();
     Option(const std::string& smartName, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description);
     Option(const std::string& smartName, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description, const OptionGroup::Enum group);
     Option(const std::string& shortName, const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description);

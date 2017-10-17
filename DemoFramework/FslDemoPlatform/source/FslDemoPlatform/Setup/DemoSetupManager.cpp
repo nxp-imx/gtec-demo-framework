@@ -30,47 +30,60 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Setup/DemoSetupManager.hpp>
-#include <FslDemoApp/Setup/HostDemoAppSetup.hpp>
+#include <FslBase/Log/Log.hpp>
+#include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
 #include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
-#include <FslDemoHost/Service/ServiceOptionParserDeque.hpp>
-#include <FslDemoHost/Service/ServicePriorityList.hpp>
-#include <FslDemoHost/Service/ServiceRegistryImpl.hpp>
-#include <FslDemoHost/Service/ServiceRegistry.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-#include <FslDemoHost/Service/BitmapConverter/BitmapConverterService.hpp>
-#include <FslDemoHost/Service/Image/ImageService.hpp>
-#include <FslDemoHost/Service/Content/ContentManagerServiceFactory.hpp>
-#include <FslDemoHost/Service/ContentMonitor/ContentMonitorService.hpp>
-#include <FslDemoHost/Service/DemoAppControl/DemoAppControlServiceFactory.hpp>
-#include <FslDemoHost/Service/Events/EventsService.hpp>
-#include <FslDemoHost/Service/Graphics/GraphicsService.hpp>
-#include <FslDemoHost/Service/Host/HostInfoService.hpp>
-#include <FslDemoHost/Service/Keyboard/KeyboardService.hpp>
-#include <FslDemoHost/Service/Mouse/MouseService.hpp>
-#include <FslDemoHost/Service/NativeWindowEvents/NativeWindowEventsService.hpp>
-#include <FslDemoHost/Service/Options/OptionsService.hpp>
-#include <FslDemoHost/Service/Profiler/ProfilerService.hpp>
-#include <FslDemoHost/Service/Profiler/ProfilerServiceFactory.hpp>
-#include <FslDemoHost/Service/Persistent/PersistentDataManagerServiceFactory.hpp>
-#include <FslDemoHost/Service/Test/TestService.hpp>
+#include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
+#include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceImpl.hpp>
+#include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceProxy.hpp>
+#include <FslDemoHost/Base/Service/BitmapConverter/BitmapConverterService.hpp>
+#include <FslDemoHost/Base/Service/Content/ContentManagerServiceFactory.hpp>
+#include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorService.hpp>
+#include <FslDemoHost/Base/Service/DemoAppControl/DemoAppControlServiceFactory.hpp>
+#include <FslDemoHost/Base/Service/Events/EventsService.hpp>
+#include <FslDemoHost/Base/Service/Gamepad/GamepadsService.hpp>
+#include <FslDemoHost/Base/Service/Graphics/GraphicsService.hpp>
+#include <FslDemoHost/Base/Service/Host/HostInfoService.hpp>
+#include <FslDemoHost/Base/Service/Image/ImageService.hpp>
+#include <FslDemoHost/Base/Service/ImageBasic/ImageBasicService.hpp>
+#include <FslDemoHost/Base/Service/Keyboard/KeyboardService.hpp>
+#include <FslDemoHost/Base/Service/Mouse/MouseService.hpp>
+#include <FslDemoHost/Base/Service/NativeWindowEvents/NativeWindowEventsService.hpp>
+#include <FslDemoHost/Base/Service/Options/OptionsService.hpp>
+#include <FslDemoHost/Base/Service/Profiler/ProfilerService.hpp>
+#include <FslDemoHost/Base/Service/Profiler/ProfilerServiceFactory.hpp>
+#include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerServiceFactory.hpp>
+#include <FslDemoHost/Base/Service/Test/TestService.hpp>
 #include <FslDemoPlatform/Service/DemoPlatformControl/DemoPlatformControl.hpp>
+#include <FslService/Impl/ServiceOptionParserDeque.hpp>
+#include <FslService/Impl/Registry/ServiceRegistry.hpp>
+#include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
+#include <FslService/Impl/ServiceType/Async/AsynchronousServiceImplFactoryTemplate.hpp>
+#include <FslService/Impl/ServiceType/Async/AsynchronousServiceProxyFactoryTemplate.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 #include "../Configuration/PlatformConfig.hpp"
-#include <FslDemoApp/Setup/RegisterDemoApp_fwd.hpp>
+#include <FslDemoApp/Base/Setup/RegisterDemoApp_fwd.hpp>
 #include <cassert>
 //#include <FslDemoPlatform/Service/MMDCStats/MMDCStatsService.hpp>
 
 #ifdef FSL_FEATURE_GLI
 #include <FslDemoPlatform/Service/ImageLibrary/ImageLibraryGLIService.hpp>
 #endif
+#ifdef FSL_FEATURE_STB
+#include <FslDemoPlatform/Service/ImageLibrary/ImageLibrarySTBService.hpp>
+#endif
 
 namespace Fsl
 {
-
-  //typedef ThreadLocalSingletonServiceFactoryTemplate<MMDCStatsService, IMMDCStatsService> MMDCStatsServiceFactory;
+  typedef AsynchronousServiceProxyFactoryTemplate<AsyncImageServiceProxy, IAsyncImageService> AsyncImageServiceProxyFactory;
+  typedef AsynchronousServiceImplFactoryTemplate<AsyncImageServiceImpl> AsyncImageServiceImplFactory;
 
   typedef ThreadLocalSingletonServiceFactoryTemplate<BitmapConverterService, IBitmapConverter> BitmapConverterServiceFactory;
+  typedef ThreadLocalSingletonServiceFactoryTemplate<GamepadsService, IGamepads> GamepadsFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<ImageService, IImageService, IImageServiceControl> ImageServiceFactory;
+  typedef ThreadLocalSingletonServiceFactoryTemplate<ImageBasicService, IImageBasicService> ImageBasicServiceFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate<DemoPlatformControl, IDemoPlatformControl> PlatformControlFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<EventsService, IEventService, IEventPoster> EventsFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl> GraphicsServiceFactory;
@@ -86,12 +99,41 @@ namespace Fsl
 #ifdef FSL_FEATURE_GLI
   typedef ThreadLocalSingletonServiceFactoryTemplate<ImageLibraryGLIService, IImageLibraryService> ImageLibraryServiceGLIFactory;
 #endif
+#ifdef FSL_FEATURE_STB
+  typedef ThreadLocalSingletonServiceFactoryTemplate<ImageLibrarySTBService, IImageLibraryService> ImageLibraryServiceSTBFactory;
+#endif
 
 
-  DemoBasicSetup DemoSetupManager::GetSetup(const DemoSetupManagerConfig& config, const bool verbose, bool& rEnableFirewallRequest)
+  DemoBasicSetup DemoSetupManager::GetSetup(const DemoSetupManagerConfig& config, ExceptionMessageFormatter& rExceptionMessageFormatter, const std::weak_ptr<IServiceRegistry> weakServiceRegistry, const bool verbose, bool& rEnableFirewallRequest)
   {
-    auto theServiceRegistry = std::make_shared<ServiceRegistryImpl>();
-    ServiceRegistry serviceRegistry(theServiceRegistry);
+    ServiceRegistry serviceRegistry(weakServiceRegistry);
+
+    DemoHostRegistry hostRegistry;
+    // Prepare the app and its desired host configuration.
+    DemoHostAppSetupBuilder hostAppSetupBuilder;
+    HostCustomization hostCustomization;
+    {
+      HostDemoAppSetup hostDemoAppSetup(hostRegistry, serviceRegistry, hostAppSetupBuilder, rExceptionMessageFormatter);
+      ConfigureDemoAppEnvironment(hostDemoAppSetup);
+      hostCustomization = hostDemoAppSetup.CustomizeHost;
+    }
+
+    const DemoHostAppSetup appSetup = hostAppSetupBuilder.GetSetup();
+
+    const bool useAsyncImage = hostCustomization.Service.PreferAsyncImageService;
+    auto imageServiceGroup = serviceRegistry.GetMainServiceGroup();
+    if (useAsyncImage)
+    {
+      FSLLOG2(LogType::Verbose, "AsyncImage service enabled");
+      // Setup all image loading and conversion to run in a separate thread
+      imageServiceGroup = serviceRegistry.CreateServiceGroup(ServiceGroupName::Image());
+      serviceRegistry.Register(AsynchronousServiceFactory(std::make_shared<AsyncImageServiceProxyFactory>(), std::make_shared<AsyncImageServiceImplFactory>()), ServicePriorityList::AsyncImageService(), imageServiceGroup);
+    }
+    else
+    {
+      // Not using async, so make sure that all image services run in the main thread
+      serviceRegistry.SetServiceGroupName(imageServiceGroup, ServiceGroupName::Image());
+    }
 
     const auto contentManagerServiceFactory = std::make_shared<ContentManagerServiceFactory>(config.ContentPath);
     const auto persistentDataManagerServiceFactory = std::make_shared<PersistentDataManagerServiceFactory>(config.PersistentDataPath);
@@ -101,13 +143,19 @@ namespace Fsl
     serviceRegistry.Register(contentManagerServiceFactory);
     serviceRegistry.Register(persistentDataManagerServiceFactory);
 
-    serviceRegistry.Register<BitmapConverterServiceFactory>(ServicePriorityList::BitmapConverterService());
+    // The image service always run on the main thread
     serviceRegistry.Register<ImageServiceFactory>(ServicePriorityList::ImageService());
+    serviceRegistry.Register<BitmapConverterServiceFactory>(ServicePriorityList::BitmapConverterService(), imageServiceGroup);
+    serviceRegistry.Register<ImageBasicServiceFactory>(ServicePriorityList::ImageBasicService(), imageServiceGroup);
 #ifdef FSL_FEATURE_GLI
-    serviceRegistry.Register<ImageLibraryServiceGLIFactory>(ServicePriorityList::ImageLibraryService());
+    serviceRegistry.Register<ImageLibraryServiceGLIFactory>(ServicePriorityList::ImageLibraryService(), imageServiceGroup);
+#endif
+#ifdef FSL_FEATURE_STB
+    serviceRegistry.Register<ImageLibraryServiceSTBFactory>(ServicePriorityList::ImageLibraryService(), imageServiceGroup);
 #endif
     serviceRegistry.Register<HostInfoServiceFactory>(ServicePriorityList::HostInfo());
     serviceRegistry.Register<GraphicsServiceFactory>();
+    serviceRegistry.Register<GamepadsFactory>();
     serviceRegistry.Register<KeyboardFactory>();
     serviceRegistry.Register<MouseFactory>();
     serviceRegistry.Register<EventsFactory>(ServicePriorityList::EventsService());
@@ -122,27 +170,11 @@ namespace Fsl
     //serviceRegistry.Register<MMDCStatsServiceFactory>(ServicePriorityList::MMDCStatsService());
 
     // Prepare the hosts
-    DemoHostRegistry hostRegistry;
     PlatformConfig::Configure(hostRegistry, serviceRegistry, rEnableFirewallRequest);
 
-    // Prepare the app and its desired host configuration.
-    DemoHostAppSetupBuilder hostAppSetupBuilder;
-    HostDemoAppSetup hostDemoAppSetup(hostRegistry, serviceRegistry, hostAppSetupBuilder);
-    HOST_DemoAppSetup(&hostDemoAppSetup);
 
-    const DemoHostAppSetup appSetup = hostAppSetupBuilder.GetSetup();
     DemoHostSetup hostSetup = hostRegistry.GetSetup(*(appSetup.DemoHostFeatures));
 
-
-    // Extract the registered services and their option parsers
-    assert(!hostSetup.ServiceOptionParsers);
-    hostSetup.ServiceOptionParsers = std::make_shared<ServiceOptionParserDeque>();
-
-    auto services = std::make_shared<ThreadLocalServiceDeque>();
-    theServiceRegistry->LockAndExtractServices(*services, *hostSetup.ServiceOptionParsers);
-    theServiceRegistry.reset();
-
-
-    return DemoBasicSetup(services, hostSetup, appSetup, verbose);
+    return DemoBasicSetup(hostSetup, appSetup, verbose);
   }
 }

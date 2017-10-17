@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,9 +31,12 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
-from FslBuildGen import IOUtil
 import subprocess
+from FslBuildGen import IOUtil
+from FslBuildGen.Config import Config
+from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
+from FslBuildGen.BuildContent.PathRecord import PathRecord
+from FslBuildGen.BuildContent.ToolFinder import ToolFinder
 
 # .vert   for a vertex shader
 # .tesc   for a tessellation control shader
@@ -45,21 +48,21 @@ g_vulkanFileExtensionSet = {"vert", "tesc", "tese", "geom", "frag", "comp"}
 g_vulkanFeatureName = "Vulkan"
 
 class VulkanContentProcessor(ContentProcessor):
-    def __init__(self):
+    def __init__(self) -> None:
         super(VulkanContentProcessor, self).__init__("VulkanContentProcessor", g_vulkanFeatureName, g_vulkanFileExtensionSet)
 
 
-    def GetOutputFileName(self, config, contentBuildPath, contentOutputPath, contentFile):
-        outputFilename = super(VulkanContentProcessor, self).GetOutputFileName(config, contentBuildPath, contentOutputPath, contentFile, False)
+    def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
+        outputFilename = super(VulkanContentProcessor, self).GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
         return outputFilename + ".spv"
 
 
 
-    def Process(self, config, contentBuildPath, contentOutputPath, contentFile, toolFinder):
+    def Process(self, config: Config, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord, toolFinder: ToolFinder) -> None:
         # we ask the tool to write to a temporary file so that we can ensure that the output file is only modified
         # if the content was changed
-        tmpOutputFileName = self.GetTempFileName(contentBuildPath, contentFile)
-        buildCommand = [toolFinder.VulkanShaderCompiler, '-t', '-o', tmpOutputFileName, '-V', contentFile ]
+        tmpOutputFileName = self.GetTempFileName(contentBuildPath, contentFileRecord)
+        buildCommand = [toolFinder.VulkanShaderCompiler, '-t', '-o', tmpOutputFileName, '-V', contentFileRecord.ResolvedPath]
         #if config.Verbosity == 0:
         #    buildCommand += ['-s']
 
@@ -69,18 +72,17 @@ class VulkanContentProcessor(ContentProcessor):
             toolFinder.CheckVulkanShaderCompiler()
             return
 
-        outputFileName = self.GetOutputFileName(config, contentBuildPath, contentOutputPath, contentFile)
+        outputFileName = self.GetOutputFileName(config, contentOutputPath, contentFileRecord)
         self.EnsureDirectoryExist(config, outputFileName)
 
         try:
             result = subprocess.call(buildCommand, cwd=contentBuildPath)
             if result != 0:
                 toolFinder.CheckVulkanShaderCompiler()
-                raise Exception("VulkanContentProcessor: Failed to compile file '%s' to SPIR-V binary" % (contentFile));
+                raise Exception("VulkanContentProcessor: Failed to compile file '{0}' to SPIR-V binary".format(contentFileRecord.ResolvedPath))
             IOUtil.CopySmallFile(tmpOutputFileName, outputFileName)
         except:
             toolFinder.CheckVulkanShaderCompiler()
             raise
         finally:
             IOUtil.RemoveFile(tmpOutputFileName)
-            pass

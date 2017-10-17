@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.ObjectSelection" NoInclude="true">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="FslGraphics3D.Procedural"/>
+    <Dependency Name="Shared.ObjectSelection"/>
+    <Platform Name="Windows" ProjectId="7A9CA052-8A76-483D-A9C5-9CD9C0236D7C"/>
+  </Executable>
+</FslBuildGen>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslDemoService.NativeGraphics.G2D">
+    <Dependency Name="FslDemoPlatform"/>
+    <Dependency Name="G2D" Access="Private"/>
+    <Platform Name="Windows" ProjectId="92BB109D-50FC-4A18-BCD8-335A38CF438A"/>
+  </Library>
+</FslBuildGen>

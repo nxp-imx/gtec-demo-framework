@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #****************************************************************************************************************************************************
 # Copyright 2017 NXP
@@ -45,6 +45,7 @@ __g_licenseFilename = "License.json"
 
 __g_Image = "Image"
 __g_Model = "Model"
+__g_Video = "Video"
 __g_extensions = [
     ('.bmp', __g_Image), 
     ('.dds', __g_Image), 
@@ -60,6 +61,13 @@ __g_extensions = [
     ('.fsf', __g_Model),
     ('.obj', __g_Model), 
     ('.nff', __g_Model),
+    # video
+    ('.avi', __g_Video),
+    ('.fsf', __g_Video),
+    ('.mp4', __g_Video),
+    ('.mpg', __g_Video),
+    ('.mpeg', __g_Video),
+    ('.mkv', __g_Video),
     ]
 __g_ignore = "example.jpg"
 
@@ -113,13 +121,13 @@ def GetExtensionList(extensions):
 
 
 def GetTitle():
-    return 'FslResourceScan V0.0.5 alpha'
+    return 'FslResourceScan V0.1.0 alpha'
 
 
 def ShowTitleIfNecessary():
     global __g_verbosityLevel
     if __g_verbosityLevel > 0:
-        print(GetTitle())
+        print((GetTitle()))
 
 
 def ReadBinaryFile(filename):
@@ -141,7 +149,7 @@ def ReadJsonFile(filename):
 
 def WriteJsonFile(filename, dict):
     with io.open(filename, 'w', encoding='utf-8') as currentFile:
-        currentFile.write(unicode(json.dumps(dict, ensure_ascii=False, indent=2)))
+        currentFile.write(str(json.dumps(dict, ensure_ascii=False, indent=2)))
 
 def ToUnixStylePath(path):
     if path == None:
@@ -256,7 +264,7 @@ def BuildUniqueFileDictByContent(config, files, uniqueFiles):
     # this should limit the amount of files that have to be byte compared quite a bit
     duplicationDict = {}
     dictHash = BuildFileContentHashDict(files)
-    for fileList in dictHash.values():
+    for fileList in list(dictHash.values()):
         if len(fileList) > 1:
             newDuplicationDict = BuildDuplicatedDict(config, fileList, uniqueFiles)
             duplicationDict.update(newDuplicationDict)
@@ -273,7 +281,7 @@ def BuildUniqueFileDict(config, files, uniqueFiles):
     #config.LogPrint("Initial bins {0}".format(len(dictFileLength)))
     
     duplicationDict = {}
-    for fileList in dictFileLength.values():
+    for fileList in list(dictFileLength.values()):
         if len(fileList) > 1:
             newDuplicationDict = BuildUniqueFileDictByContent(config, fileList, uniqueFiles)
             duplicationDict.update(newDuplicationDict)
@@ -307,7 +315,7 @@ def BuildResourceDirectorySet(uniqueFiles, duplicatedFilesDict):
         if not dirName in resourceDirSet:
             resourceDirSet.add(dirName)
 
-    for fileList in duplicatedFilesDict.values():
+    for fileList in list(duplicatedFilesDict.values()):
         for entry in fileList:
             dirName = GetDirectoryName(entry)
             if not dirName in resourceDirSet:
@@ -394,7 +402,7 @@ def TagDictWithLicenses(inputDirectory, fileDict, directoryLicenseDict):
     skipChars = len(inputDirectory) if inputDirectory.endswith('/') else len(inputDirectory)+1
 
     res = {}    
-    for key, value in fileDict.iteritems():
+    for key, value in fileDict.items():
         keyFilename = key[skipChars:]
         res[keyFilename] = TagListWithLicenses(inputDirectory, value, directoryLicenseDict)
     return res;
@@ -409,7 +417,7 @@ def WriteCSV(dstFilename, extensions, uniqueEntries, duplicatedEntryDict):
     uniqueEntries.sort(key=lambda s: s.SourcePath.lower())
     sortedDuplicatedFiles = list(duplicatedEntryDict.keys())
     sortedDuplicatedFiles.sort()
-    for fileList in duplicatedEntryDict.values():
+    for fileList in list(duplicatedEntryDict.values()):
         fileList.sort(key=lambda s: s.SourcePath.lower());
 
     extensionDict = BuildExtensionDict(extensions)
@@ -443,7 +451,7 @@ def PrintIssueDirectories(fileList, dict):
         if not entry.SourceDirectory in uniqueDirs:
             uniqueDirs.add(entry.SourceDirectory)
 
-    for value in dict.values():
+    for value in list(dict.values()):
         for entry in value:
             if not entry.SourceDirectory in uniqueDirs:
                 uniqueDirs.add(entry.SourceDirectory)
@@ -471,7 +479,7 @@ def Filter(config, ignoreDirList, inputDirectory, files):
 def ProcessDictLicenses(config, licenseFilename, dict):
     licenseManager = LicenseManager()
     newLicenseDirs = set()
-    for key, entryList in dict.iteritems():
+    for key, entryList in dict.items():
         firstLicenseEntry = None
         noLicenseEntries = []
         for entry in entryList:
@@ -496,7 +504,7 @@ def ProcessDictLicenses(config, licenseFilename, dict):
 
 def FilterDictBasedOnLicense(dict):
     newDict = {}
-    for key, entryList in dict.iteritems():
+    for key, entryList in dict.items():
         newList = []
         firstLicenseEntry = None
         for entry in entryList:
@@ -517,7 +525,7 @@ def PrintListFixTags(entries):
 
 def PrintFixTags(uniqueEntries, duplicatedEntriesDict):
     PrintListFixTags(uniqueEntries)
-    for entries in duplicatedEntriesDict.values():
+    for entries in list(duplicatedEntriesDict.values()):
         PrintListFixTags(entries)
 
 
@@ -538,7 +546,7 @@ def ExpandLicense(key):
 def PrintLicenses(uniqueEntries, duplicatedEntriesDict):
     licenseDict = {}
     AddLicenses(licenseDict, uniqueEntries)
-    for entries in duplicatedEntriesDict.values():
+    for entries in list(duplicatedEntriesDict.values()):
         AddLicenses(licenseDict, entries)
 
     sortedKeys = list(licenseDict.keys())
@@ -622,7 +630,7 @@ def EarlyArgumentParser():
         __g_verbosityLevel = args.verbosity
         __g_debugEnabled = True if args.debug else False;
     except (Exception) as ex:
-        print("ERROR: %s" % ex.message)
+        print("ERROR: {0}".format(ex.message))
         if __g_debugEnabled:
             raise
         else:
@@ -660,7 +668,7 @@ def Main():
         Process(config, __g_ignoreDir, args.directory, __g_extensions, __g_ignore, __g_licenseFilename, args.list)
     except (Exception) as ex:
         ShowTitleIfNecessary()
-        print("ERROR: %s" % ex.message)
+        print("ERROR: {0}".format(ex.message))
         if __g_debugEnabled:
             raise
     return

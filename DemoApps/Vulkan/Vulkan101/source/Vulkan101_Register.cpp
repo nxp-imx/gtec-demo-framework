@@ -29,9 +29,16 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppVulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
 #include "Vulkan101.hpp"
 
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a Vulkan host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigVulkan config;
 
-// Configure the demo environment to run this demo app in a OpenVulkan host environment
-FSL_REGISTER_VULKAN_DEMO(Vulkan101, DemoAppHostConfigVulkan());
+    DemoAppRegister::Vulkan::Register<Vulkan101>(rSetup, "Vulkan.Vulkan101", config);
+  }
+}

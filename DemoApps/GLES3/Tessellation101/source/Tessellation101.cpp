@@ -36,9 +36,9 @@
 #include <FslBase/Math/Vector4.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
-#include <FslGraphicsGLES3/GLUtil.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include "Tessellation101.hpp"
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
 #include <GLES3/gl31.h>

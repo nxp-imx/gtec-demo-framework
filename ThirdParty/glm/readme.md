@@ -51,6 +51,116 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 
 ## Release notes
 
+#### [GLM 0.9.8.5](https://github.com/g-truc/glm/releases/tag/0.9.8.5) - 2017-08-16
+##### Features:
+- Added Conan package support #647
+
+##### Fixes:
+- Fixed Clang version detection from source #608
+- Fixed packF3x9_E1x5 exponent packing #614
+- Fixed build error min and max specializations with integer #616
+- Fixed simd_mat4 build error #652
+
+#### [GLM 0.9.8.4](https://github.com/g-truc/glm/releases/tag/0.9.8.4) - 2017-01-22
+##### Fixes:
+- Fixed GTC_packing test failing on GCC x86 due to denorms #212 #577
+- Fixed POPCNT optimization build in Clang #512
+- Fixed intersectRayPlane returns true in parallel case #578
+- Fixed GCC 6.2 compiler warnings #580
+- Fixed GTX_matrix_decompose decompose #582 #448
+- Fixed GCC 4.5 and older build #566
+- Fixed Visual C++ internal error when declaring a global vec type with siwzzle expression enabled #594
+- Fixed GLM_FORCE_CXX11 with Clang and libstlc++ which wasn't using C++11 STL features. #604
+
+#### [GLM 0.9.8.3](https://github.com/g-truc/glm/releases/tag/0.9.8.3) - 2016-11-12
+##### Improvements:
+- Broader support of GLM_FORCE_UNRESTRICTED_GENTYPE #378
+
+##### Fixes:
+- Fixed Android build error with C++11 compiler but C++98 STL #284 #564
+- Fixed GTX_transform2 shear* functions #403
+- Fixed interaction between GLM_FORCE_UNRESTRICTED_GENTYPE and ortho function #568
+- Fixed bitCount with AVX on 32 bit builds #567
+- Fixed CMake find_package with version specification #572 #573
+
+#### [GLM 0.9.8.2](https://github.com/g-truc/glm/releases/tag/0.9.8.2) - 2016-11-01
+##### Improvements:
+- Added Visual C++ 15 detection
+- Added Clang 4.0 detection
+- Added warning messages when using GLM_FORCE_CXX** but the compiler
+  is known to not fully support the requested C++ version #555
+- Refactored GLM_COMPILER_VC values
+- Made quat, vec, mat type component length() static #565
+
+##### Fixes:
+- Fixed Visual C++ constexpr build error #555, #556
+
+#### [GLM 0.9.8.1](https://github.com/g-truc/glm/releases/tag/0.9.8.1) - 2016-09-25
+##### Improvements:
+- Optimized quaternion log function #554
+
+##### Fixes:
+- Fixed GCC warning filtering, replaced -pedantic by -Wpedantic
+- Fixed SIMD faceforward bug. #549
+- Fixed GCC 4.8 with C++11 compilation option #550
+- Fixed Visual Studio aligned type W4 warning #548
+- Fixed packing/unpacking function fixed for 5_6_5 and 5_5_5_1 #552
+
+#### [GLM 0.9.8.0](https://github.com/g-truc/glm/releases/tag/0.9.8.0) - 2016-09-11
+##### Features:
+- Added right and left handed projection and clip control support #447 #415 #119
+- Added compNormalize and compScale functions to GTX_component_wise
+- Added packF3x9_E1x5 and unpackF3x9_E1x5 to GTC_packing for RGB9E5 #416
+- Added (un)packHalf to GTC_packing
+- Added (un)packUnorm and (un)packSnorm to GTC_packing
+- Added 16bit pack and unpack to GTC_packing
+- Added 8bit pack and unpack to GTC_packing
+- Added missing bvec* && and || operators
+- Added iround and uround to GTC_integer, fast round on positive values
+- Added raw SIMD API
+- Added 'aligned' qualifiers
+- Added GTC_type_aligned with aligned *vec* types
+- Added GTC_functions extension
+- Added quaternion version of isnan and isinf #521
+- Added lowestBitValue to GTX_bit #536
+- Added GLM_FORCE_UNRESTRICTED_GENTYPE allowing non basic genType #543
+
+##### Improvements:
+- Improved SIMD and swizzle operators interactions with GCC and Clang #474
+- Improved GTC_random linearRand documentation
+- Improved GTC_reciprocal documentation
+- Improved GLM_FORCE_EXPLICIT_CTOR coverage #481
+- Improved OpenMP support detection for Clang, GCC, ICC and VC
+- Improved GTX_wrap for SIMD friendliness
+- Added constexpr for *vec*, *mat*, *quat* and *dual_quat* types #493
+- Added NEON instruction set detection
+- Added MIPS CPUs detection
+- Added PowerPC CPUs detection
+- Use Cuda built-in function for abs function implementation with Cuda compiler
+- Factorized GLM_COMPILER_LLVM and GLM_COMPILER_APPLE_CLANG into GLM_COMPILER_CLANG
+- No more warnings for use of long long
+- Added more information to build messages
+
+##### Fixes:
+- Fixed GTX_extended_min_max filename typo #386
+- Fixed intersectRayTriangle to not do any unintentional backface culling
+- Fixed long long warnings when using C++98 on GCC and Clang #482
+- Fixed sign with signed integer function on non-x86 architecture
+- Fixed strict aliasing warnings #473
+- Fixed missing vec1 overload to length2 and distance2 functions #431
+- Fixed GLM test '/fp:fast' and '/Za' command-line options are incompatible
+- Fixed quaterion to mat3 cast function mat3_cast from GTC_quaternion #542
+- Fixed GLM_GTX_io for Cuda #547 #546
+
+##### Deprecation:
+- Removed GLM_FORCE_SIZE_FUNC define
+- Deprecated GLM_GTX_simd_vec4 extension
+- Deprecated GLM_GTX_simd_mat4 extension
+- Deprecated GLM_GTX_simd_quat extension
+- Deprecated GLM_SWIZZLE, use GLM_FORCE_SWIZZLE instead
+- Deprecated GLM_MESSAGES, use GLM_FORCE_MESSAGES instead
+
+--------------------------------------------------------------------------------
 #### [GLM 0.9.7.6](https://github.com/g-truc/glm/releases/tag/0.9.7.6) - 2016-07-16
 ##### Improvements:
 - Added pkg-config file #509
@@ -63,6 +173,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Fixed long long warnings when using C++98 on GCC and Clang #482
 - Fixed scalar reciprocal functions (GTC_reciprocal) #520
 
+--------------------------------------------------------------------------------
 #### [GLM 0.9.7.5](https://github.com/g-truc/glm/releases/tag/0.9.7.5) - 2016-05-24
 ##### Improvements:
 - Added Visual C++ Clang toolset detection
@@ -76,6 +187,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Fixed GTX_extended_min_max filename typo #386
 - Fixed intersectRayTriangle to not do any unintentional backface culling
 
+--------------------------------------------------------------------------------
 #### [GLM 0.9.7.4](https://github.com/g-truc/glm/releases/tag/0.9.7.4) - 2016-03-19
 ##### Fixes:
 - Fixed asinh and atanh warning with C++98 STL #484
@@ -86,6 +198,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Fixed missing GLM_PLATFORM_CYGWIN declaration #495
 - Fixed various undefined reference errors #490
 
+--------------------------------------------------------------------------------
 #### [GLM 0.9.7.3](https://github.com/g-truc/glm/releases/tag/0.9.7.3) - 2016-02-21
 ##### Improvements:
 - Added AVX512 detection
@@ -96,6 +209,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Fixed Clang build on Windows #479
 - Fixed 64 bits constants warnings on GCC #463
 
+--------------------------------------------------------------------------------
 #### [GLM 0.9.7.2](https://github.com/g-truc/glm/releases/tag/0.9.7.2) - 2016-01-03
 ##### Fixes:
 - Fixed GTC_round floorMultiple/ceilMultiple #412
@@ -109,6 +223,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Fixed missing unary + operator #435
 - Fixed Cygwin build errors when using C++11 #405
 
+--------------------------------------------------------------------------------
 #### [GLM 0.9.7.1](https://github.com/g-truc/glm/releases/tag/0.9.7.1) - 2015-09-07
 ##### Improvements:
 - Improved constexpr for constant functions coverage #198
@@ -125,6 +240,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Fixed builtin bitscan never being used #392
 - Removed unused func_noise.* files #398
 
+--------------------------------------------------------------------------------
 #### [GLM 0.9.7.0](https://github.com/g-truc/glm/releases/tag/0.9.7.0) - 2015-08-02
 ##### Features:
 - Added GTC_color_space: convertLinearToSRGB and convertSRGBToLinear functions
@@ -205,7 +321,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 ##### Fixes:
 - Fixed scalar uaddCarry build error with Cuda #276
 - Fixed C++11 explicit conversion operators detection #282
-- Fixed missing explicit convertion when using integer log2 with *vec1 types
+- Fixed missing explicit conversion when using integer log2 with *vec1 types
 - Fixed 64 bits integer GTX_string_cast to_string on VC 32 bit compiler
 - Fixed Android build issue, STL C++11 is not supported by the NDK #284
 - Fixed unsupported _BitScanForward64 and _BitScanReverse64 in VC10
@@ -435,7 +551,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Fixed isnan and isinf for CUDA compiler
 - Fixed GLM_FORCE_RADIANS on glm::perspective
 - Fixed GCC warnings
-- Fixed packDouble2x32 on XCode
+- Fixed packDouble2x32 on Xcode
 - Fixed mix for vec4 SSE implementation
 - Fixed 0x2013 dash character in comments that cause issue in Windows 
   Japanese mode
@@ -526,7 +642,7 @@ glm::mat4 camera(float Translate, glm::vec2 const & Rotate)
 - Promoted GLM_GTC_noise extension: simplex, perlin, periodic noise functions
 - Promoted GLM_GTC_random extension: linear, gaussian and various random number 
 generation distribution
-- Added GLM_GTX_constants: provides usefull constants
+- Added GLM_GTX_constants: provides useful constants
 - Added extension versioning
 - Removed many unused namespaces
 - Fixed half based type contructors

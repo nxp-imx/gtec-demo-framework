@@ -45,12 +45,6 @@ namespace Fsl
   }
 
 
-
-  Quaternion::Quaternion(const OptimizationFlag flag)
-  {
-  }
-
-
   Quaternion::Quaternion(const float x, const float y, const float z, const float w)
     : X(x)
     , Y(y)

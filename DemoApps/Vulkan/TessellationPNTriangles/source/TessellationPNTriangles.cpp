@@ -13,17 +13,13 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "TessellationPNTriangles.hpp"
-#include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <RapidVulkan/Check.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -34,6 +30,7 @@
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
@@ -52,6 +49,7 @@ namespace Fsl
 
   TessellationPNTriangles::TessellationPNTriangles(const DemoAppConfig& config)
     : VulkanWillemsMeshDemoApp(config)
+    , m_descriptorSet(VK_NULL_HANDLE)
     , m_pPipelineLeft(&m_pipelines.WirePassThrough)
     , m_pPipelineRight(&m_pipelines.Wire)
     , m_splitScreen(true)
@@ -191,12 +189,12 @@ namespace Fsl
       {
       case VirtualKey::UpArrow:
       case VirtualKey::Add:
-      case VirtualKey::GamePadButtonR1:
+      case VirtualKey::GamePadButtonRightShoulder:
         ChangeTessellationLevel(0.25f);
         break;
       case VirtualKey::Subtract:
       case VirtualKey::DownArrow:
-      case VirtualKey::GamePadButtonL1:
+      case VirtualKey::GamePadButtonLeftShoulder:
         ChangeTessellationLevel(-0.25f);
         break;
       case VirtualKey::W:
@@ -530,7 +528,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayout.GetPointer();
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
 
     VkDescriptorImageInfo texDescriptor{};
     texDescriptor.sampler = m_textures.ColorMap.GetSampler();

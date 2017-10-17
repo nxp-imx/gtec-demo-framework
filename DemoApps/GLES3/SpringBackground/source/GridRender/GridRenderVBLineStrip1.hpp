@@ -33,9 +33,9 @@
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Matrix.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
 #include "../IGridRender.hpp"
 #include <cstddef>

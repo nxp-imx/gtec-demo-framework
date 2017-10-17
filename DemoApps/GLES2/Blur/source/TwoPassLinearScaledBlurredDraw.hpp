@@ -33,14 +33,13 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslDemoApp/Service/ServiceProvider.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslDemoApp/DemoTime.hpp>
-#include <FslGraphicsGLES2/GLFrameBuffer.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
-#include <FslGraphicsGLES2/GLTexture.hpp>
-#include <FslGraphicsGLES2/GLVertexBuffer.hpp>
-#include <FslGraphicsGLES2/NativeBatch2D.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslUtil/OpenGLES2/GLFrameBuffer.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLTexture.hpp>
+#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES2/NativeBatch2D.hpp>
 #include <memory>
 #include "ABlurredDraw.hpp"
 #include "Config.hpp"

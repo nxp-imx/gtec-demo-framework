@@ -4,12 +4,18 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+Example2
 Example2_FB
+Example2_FB_d
 Example2_Wayland
+Example2_Wayland_d
 Example2_X11
+Example2_X11_d
+Example2_d
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+OpenVG.Example2
 OpenVG.Example2.VC.VC.opendb
 OpenVG.Example2.VC.db
 OpenVG.Example2.aps
@@ -23,5 +29,8 @@ OpenVG.Example2.v12.suo
 OpenVG.Example2.vcxproj
 OpenVG.Example2.vcxproj.filters
 OpenVG.Example2.vcxproj.user
+OpenVG.Example2_FB
+OpenVG.Example2_Wayland
+OpenVG.Example2_X11
 build/
 resource.h

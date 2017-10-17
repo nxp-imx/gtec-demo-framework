@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,23 +31,31 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.Exceptions import *
-from FslBuildGen.XmlStuff import XmlGenFslBuildTemplate
+from typing import Dict
+from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Config import Config
+from FslBuildGen.Xml.Exceptions import ImportTemplateNotFoundException
+from FslBuildGen.Xml.SubPackageSupportConfig import SubPackageSupportConfig
+from FslBuildGen.Xml.XmlGenFslBuildTemplate import XmlGenFslBuildTemplate
+from FslBuildGen.Xml.XmlStuff import XmlGenFileImportTemplate
+
 
 class PackageTemplateLoader(object):
-    def __init__(self, templateLocationCache):
+    def __init__(self, config: Config, templateLocationCache: Dict[str, str]) -> None:
         super(PackageTemplateLoader, self).__init__()
+        self.__Config = config  # type: Config
+        self.BasicConfig = config  # type: BasicConfig
         self.TemplateLocationCache = templateLocationCache
-        self.TemplateDict = {}
+        self.TemplateDict = {}  # type: Dict[str, XmlGenFslBuildTemplate]
 
-    def Import(self, fromPackage, cmd, name):
+
+    def Import(self, subPackageSupportConfig: SubPackageSupportConfig, cmd: XmlGenFileImportTemplate, name: str) -> XmlGenFslBuildTemplate:
         if name in self.TemplateDict:
             return self.TemplateDict[name]
 
         if not name in self.TemplateLocationCache:
             raise ImportTemplateNotFoundException(cmd.XMLElement, name)
 
-        template = XmlGenFslBuildTemplate(self.TemplateLocationCache[name], fromPackage.GetSubPackageSupport())
+        template = XmlGenFslBuildTemplate(self.__Config, self.TemplateLocationCache[name], subPackageSupportConfig)
         self.TemplateDict[name] = template
         return template
-

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.Vulkan">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Ubuntu">
+      <!--
+      <ExperimentalRecipe>
+        <Pipeline Name="Vulkan1" ExternalInstallDirectory="$(VK_SDK_PATH)"/>
+        <Installation>
+          <EnvironmentVariable Name="VK_SDK_PATH" Method="IsDirectory" Help="This environment variable is normally set by the vulkan installation to make it easy to locate the vulkan installation"/>
+          <Path Name="Bin/glslangValidator.exe" Method="IsFile"/>
+          <Path Name="include/vulkan/vulkan.h" Method="IsFile"/>
+          <Path Name="include/vulkan/vulkan.hpp" Method="IsFile"/>
+          <Path Name="lib/vulkan-1.lib" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+      -->
+    </Platform>
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe ExternalInstallDirectory="$(VK_SDK_PATH)">
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/vulkan-1.lib"/>
+          <EnvironmentVariable Name="VK_SDK_PATH" Method="IsDirectory" Help="This environment variable is normally set by the vulkan installation to make it easy to locate the vulkan installation"/>
+          <Path Name="Bin/glslangValidator.exe" Method="IsFile"/>
+          <Path Name="include/vulkan/vulkan.h" Method="IsFile"/>
+          <Path Name="include/vulkan/vulkan.hpp" Method="IsFile"/>
+          <Path Name="lib/vulkan-1.lib" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

@@ -7,9 +7,15 @@ Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+TexturingCubeMap
 TexturingCubeMap_FB
+TexturingCubeMap_FB_d
 TexturingCubeMap_Wayland
+TexturingCubeMap_Wayland_d
 TexturingCubeMap_X11
+TexturingCubeMap_X11_d
+TexturingCubeMap_d
+Vulkan.TexturingCubeMap
 Vulkan.TexturingCubeMap.VC.VC.opendb
 Vulkan.TexturingCubeMap.VC.db
 Vulkan.TexturingCubeMap.aps
@@ -23,5 +29,8 @@ Vulkan.TexturingCubeMap.v12.suo
 Vulkan.TexturingCubeMap.vcxproj
 Vulkan.TexturingCubeMap.vcxproj.filters
 Vulkan.TexturingCubeMap.vcxproj.user
+Vulkan.TexturingCubeMap_FB
+Vulkan.TexturingCubeMap_Wayland
+Vulkan.TexturingCubeMap_X11
 build/
 resource.h

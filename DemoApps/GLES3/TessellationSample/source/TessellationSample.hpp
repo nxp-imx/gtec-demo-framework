@@ -31,10 +31,10 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
-#include <FslGraphicsGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUIApp/UIDemoAppExtension.hpp>
+#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <deque>
 #include <memory>
 #include <vector>

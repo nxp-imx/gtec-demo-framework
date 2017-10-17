@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+E6_0_MultipleRenderTargets
 E6_0_MultipleRenderTargets_FB
+E6_0_MultipleRenderTargets_FB_d
 E6_0_MultipleRenderTargets_Wayland
+E6_0_MultipleRenderTargets_Wayland_d
 E6_0_MultipleRenderTargets_X11
+E6_0_MultipleRenderTargets_X11_d
+E6_0_MultipleRenderTargets_d
 FslSDKIcon.ico
+GLES3.E6_0_MultipleRenderTargets
 GLES3.E6_0_MultipleRenderTargets.VC.VC.opendb
 GLES3.E6_0_MultipleRenderTargets.VC.db
 GLES3.E6_0_MultipleRenderTargets.aps
@@ -21,6 +27,9 @@ GLES3.E6_0_MultipleRenderTargets.v12.suo
 GLES3.E6_0_MultipleRenderTargets.vcxproj
 GLES3.E6_0_MultipleRenderTargets.vcxproj.filters
 GLES3.E6_0_MultipleRenderTargets.vcxproj.user
+GLES3.E6_0_MultipleRenderTargets_FB
+GLES3.E6_0_MultipleRenderTargets_Wayland
+GLES3.E6_0_MultipleRenderTargets_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

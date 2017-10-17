@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="EGL">
-    <UsesFeature Name="EGL"/>
+    <Requirement Name="EGL" Type="feature"/>
     <Dependency Name="WindowSystem"/>
     <Dependency Name="GLBase"/>
     <Platform Name="Android">
@@ -9,7 +9,7 @@
     </Platform>
     <Platform Name="Ubuntu">
       <ExternalDependency Name="EGL" Type="StaticLib"/>
-      <CPPDefine Name="MESA_EGL_NO_X11_HEADERS" Access="Public"/>
+      <Define Name="MESA_EGL_NO_X11_HEADERS" Access="Public"/>
     </Platform>
     <Platform Name="QNX">
       <ExternalDependency Name="EGL" Type="StaticLib"/>
@@ -19,14 +19,14 @@
       <ExternalDependency Name="EGL" Type="StaticLib"/>
       <Variant Name="WindowSystem" Extend="true">
         <Option Name="FB">
-          <CPPDefine Name="EGL_API_FB" Access="Public"/>
+          <Define Name="EGL_API_FB" Access="Public"/>
         </Option>
         <Option Name="Wayland">
-          <CPPDefine Name="EGL_API_WL" Access="Public"/>
-          <CPPDefine Name="EGL_API_FB" Access="Public"/>
+          <Define Name="EGL_API_WL" Access="Public"/>
+          <Define Name="EGL_API_FB" Access="Public"/>
         </Option>
         <Option Name="X11">
-          <CPPDefine Name="EGL_USE_X11" Access="Public"/>
+          <Define Name="EGL_USE_X11" Access="Public"/>
         </Option>
       </Variant>
     </Platform>

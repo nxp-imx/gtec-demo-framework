@@ -1,3 +1,0 @@
-    <CustomBuild Include="##FILE_PATH##">
-      <FileType>Document</FileType>
-    </CustomBuild>

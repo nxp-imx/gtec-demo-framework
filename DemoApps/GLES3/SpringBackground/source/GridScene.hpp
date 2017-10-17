@@ -31,9 +31,9 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslGraphicsGLES3/GLTexture.hpp>
-#include <FslGraphicsGLES3/NativeBatch2D.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include "IScene.hpp"
 #include "Grid.hpp"
 #include "GridRender/GridRenderNativeBatchBasic.hpp"

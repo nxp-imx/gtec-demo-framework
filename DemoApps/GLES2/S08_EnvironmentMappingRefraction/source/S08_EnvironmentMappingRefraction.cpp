@@ -30,12 +30,12 @@
 ****************************************************************************************************************************************************/
 
 #include "S08_EnvironmentMappingRefraction.hpp"
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
-#include <EnvironmentMappingShared/SphereMeshCreator.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <Shared/EnvironmentMapping/SphereMeshCreator.hpp>
 #include <cassert>
 
 namespace Fsl

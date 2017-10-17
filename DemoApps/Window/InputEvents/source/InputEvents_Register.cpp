@@ -29,8 +29,16 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include "InputEvents.hpp"
 
-// Configure the demo environment to run this demo app in a Window host environment
-FSL_REGISTER_WINDOW_DEMO(InputEvents, DemoAppHostConfigWindow());
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a Window host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigWindow config;
+
+    DemoAppRegister::Window::Register<InputEvents>(rSetup, "Window.InputEvents", config);
+  }
+}

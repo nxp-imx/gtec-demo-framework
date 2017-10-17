@@ -46,6 +46,16 @@ namespace Fsl
 {
   namespace
   {
+    constexpr BitmapOrigin CheckBitmapOrigin(const BitmapOrigin origin)
+    {
+      return origin != BitmapOrigin::Undefined ? origin : BitmapOrigin::UpperLeft;
+    }
+
+    inline Extent3D CalcExtent(const Extent3D& startExtent, const std::size_t level)
+    {
+      return level == 0 ? startExtent : Extent3D(std::max(startExtent.Width >> level, 1u), std::max(startExtent.Height >> level, 1u), std::max(startExtent.Depth >> level, 1u));
+    }
+
     //! @brief Returns the total texel count
     uint32_t ValidateBlobs(const std::vector<uint8_t>& srcContent, const std::vector<BlobRecord>& srcBlobs,
                            const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo)
@@ -189,9 +199,36 @@ namespace Fsl
   }
 
 
+  Texture::Texture(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+    : Texture()
+  {
+    DoReset(extent, pixelFormat, origin);
+  }
+
+
+  Texture::Texture(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+    : Texture()
+  {
+    DoReset(std::move(content), extent, pixelFormat, origin);
+  }
+
+
   Texture::~Texture()
   {
     FSLLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
+  }
+
+
+  void Texture::ReleaseInto(std::vector<uint8_t>& rContentTarget)
+  {
+    // Reset() should not throw, but this warrants a program stop since its a critical error
+    if (m_isLocked)
+      throw UsageErrorException("Can not release a locked texture, that would invalidate the content being accessed");
+
+    // Get the current content array, then reset this object
+    rContentTarget = std::move(m_content);
+
+    ResetNoThrow();
   }
 
 
@@ -257,6 +294,24 @@ namespace Fsl
   }
 
 
+  void Texture::Reset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  {
+    if (m_isLocked)
+      throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+
+    DoReset(extent, pixelFormat, origin);
+  }
+
+
+  void Texture::Reset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  {
+    if (m_isLocked)
+      throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+
+    DoReset(std::move(content), extent, pixelFormat, origin);
+  }
+
+
   BitmapOrigin Texture::GetBitmapOrigin() const
   {
     return m_bitmapOrigin;
@@ -276,7 +331,19 @@ namespace Fsl
     if (level >= m_textureInfo.Levels)
       throw std::invalid_argument("argument out of bounds");
 
-    return level == 0 ? m_extent : Extent3D(std::max(m_extent.Width >> level, 1u), std::max(m_extent.Height >> level, 1u), std::max(m_extent.Depth >> level, 1u));
+    return CalcExtent(m_extent, level);
+  }
+
+
+  std::size_t Texture::GetStride(const std::size_t level) const
+  {
+    if (!IsValid())
+      throw UsageErrorException("GetExtent called on invalid object");
+    if (level >= m_textureInfo.Levels)
+      throw std::invalid_argument("argument out of bounds");
+
+    const Extent3D levelExtent = CalcExtent(m_extent, level);
+    return PixelFormatUtil::CalcMinimumStride(levelExtent.Width, m_pixelFormat);
   }
 
 
@@ -346,6 +413,80 @@ namespace Fsl
   {
     assert(m_content.size() <= std::numeric_limits<uint32_t>::max());
     return static_cast<uint32_t>(m_content.size());
+  }
+
+
+  void Texture::SetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer,
+                         const uint32_t x, const uint32_t y, const uint32_t z,
+                         const uint8_t value, const bool ignoreOrigin)
+  {
+    if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat) )
+    {
+      FSLLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant modify a compressed pixel format");
+      return;
+    }
+    const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
+    const Extent3D levelExtent = CalcExtent(m_extent, level);
+    const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
+    if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
+    {
+      FSLLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      return;
+    }
+
+    const uint32_t actualY = ignoreOrigin ? y : (m_bitmapOrigin == BitmapOrigin::UpperLeft ? y : levelExtent.Height - 1 - y);
+
+    const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
+    const auto& rBlobRecord = m_blobs[index];
+
+    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width, bytesPerPixel);
+
+    // slizeSize is the size of one 2d image.
+    const auto sliceSize = levelExtent.Height * stride;
+
+    m_content[rBlobRecord.Offset + (sliceSize * z) + (stride * actualY) + x] = value;
+  }
+
+
+  uint8_t Texture::GetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer,
+                            const uint32_t x, const uint32_t y, const uint32_t z,
+                            const bool ignoreOrigin) const
+  {
+    if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat))
+    {
+      FSLLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant read from a compressed pixel format");
+      return 0;
+    }
+    const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
+    const Extent3D levelExtent = CalcExtent(m_extent, level);
+    const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
+    if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
+    {
+      FSLLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
+      FSLLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      return 0;
+    }
+
+    const uint32_t actualY = ignoreOrigin ? y : (m_bitmapOrigin == BitmapOrigin::UpperLeft ? y : levelExtent.Height - 1 - y);
+
+    const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
+    const auto& rBlobRecord = m_blobs[index];
+
+    const std::size_t stride = PixelFormatUtil::CalcMinimumStride(levelExtent.Width, bytesPerPixel);
+
+    // slizeSize is the size of one 2d image.
+    const auto sliceSize = levelExtent.Height * stride;
+
+    return m_content[rBlobRecord.Offset + (sliceSize * z) + (stride * actualY) + x];
   }
 
 
@@ -427,7 +568,7 @@ namespace Fsl
     m_textureType = builder.GetTextureType();
     m_textureInfo = builder.GetTextureInfo();
     m_totalTexels = builder.GetTotalTexelCount();
-    m_bitmapOrigin = builder.GetBitmapOrigin();
+    m_bitmapOrigin = CheckBitmapOrigin(builder.GetBitmapOrigin());
   }
 
 
@@ -475,7 +616,79 @@ namespace Fsl
     m_textureType = builder.GetTextureType();
     m_textureInfo = builder.GetTextureInfo();
     m_totalTexels = builder.GetTotalTexelCount();
-    m_bitmapOrigin = builder.GetBitmapOrigin();
+    m_bitmapOrigin = CheckBitmapOrigin(builder.GetBitmapOrigin());
+  }
+
+
+  void Texture::DoReset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  {
+    // If any of these fire the caller did not keep its contract.
+    assert(!m_isLocked);
+    if (IsValid())
+      Reset();
+
+    try
+    {
+      const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
+      const std::size_t totalByteSize = (extent.Height * minStride);
+
+      m_content.resize(totalByteSize);
+      m_blobs.resize(1);
+      m_blobs[0].Offset = 0;
+      m_blobs[0].Size = totalByteSize;
+
+      std::fill(m_content.begin(), m_content.end(), 0);
+    }
+    catch (const std::exception&)
+    {
+      m_content.clear();
+      m_blobs.clear();
+      throw;
+    }
+
+    // We don't copy the content here size we 'moved' the source into this object
+    m_extent = Extent3D(extent.Width, extent.Height, 1);
+    m_pixelFormat = pixelFormat;
+    m_textureType = TextureType::Tex2D;
+    m_textureInfo = TextureInfo(1, 1, 1);
+    m_totalTexels = extent.Width * extent.Height;
+    m_bitmapOrigin = CheckBitmapOrigin(origin);
+  }
+
+
+  void Texture::DoReset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  {
+    // If any of these fire the caller did not keep its contract.
+    assert(!m_isLocked);
+    if (IsValid())
+      Reset();
+
+    const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
+    const std::size_t totalByteSize = (extent.Height * minStride);
+    if (content.size() != totalByteSize)
+      throw std::invalid_argument("the content buffer size is does not match the described content");
+
+    try
+    {
+      m_content = std::move(content);
+      m_blobs.resize(1);
+      m_blobs[0].Offset = 0;
+      m_blobs[0].Size = totalByteSize;
+    }
+    catch (const std::exception&)
+    {
+      m_content.clear();
+      m_blobs.clear();
+      throw;
+    }
+
+    // We don't copy the content here size we 'moved' the source into this object
+    m_extent = Extent3D(extent.Width, extent.Height, 1);
+    m_pixelFormat = pixelFormat;
+    m_textureType = TextureType::Tex2D;
+    m_textureInfo = TextureInfo(1, 1, 1);
+    m_totalTexels = extent.Width * extent.Height;
+    m_bitmapOrigin = CheckBitmapOrigin(origin);
   }
 
 
@@ -505,7 +718,7 @@ namespace Fsl
 
     BitmapOrigin currentOrigin = texture.GetBitmapOrigin();
     if (currentOrigin != m_bitmapOrigin)
-      m_bitmapOrigin = currentOrigin;
+      m_bitmapOrigin = CheckBitmapOrigin(currentOrigin);
 
     m_isLocked = false;
   }

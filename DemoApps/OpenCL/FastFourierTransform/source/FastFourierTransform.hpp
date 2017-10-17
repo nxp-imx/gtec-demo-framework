@@ -31,12 +31,12 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppOpenCL/DemoAppOpenCL.hpp>
-#include <FslUtilOpenCL1_1/Buffer.hpp>
-#include <FslUtilOpenCL1_1/ContextEx.hpp>
-#include <FslUtilOpenCL1_1/CommandQueue.hpp>
-#include <FslUtilOpenCL1_1/Kernel.hpp>
-#include <FslUtilOpenCL1_1/UserEvent.hpp>
+#include <FslDemoApp/OpenCL/DemoAppOpenCL.hpp>
+#include <FslUtil/OpenCL1_1/ContextEx.hpp>
+#include <RapidOpenCL1/Buffer.hpp>
+#include <RapidOpenCL1/CommandQueue.hpp>
+#include <RapidOpenCL1/Kernel.hpp>
+#include <RapidOpenCL1/UserEvent.hpp>
 #include <array>
 
 namespace Fsl
@@ -54,7 +54,7 @@ namespace Fsl
 
     OpenCL::ContextEx m_context;
     cl_device_id m_deviceId;
-    OpenCL::CommandQueue m_commandQueue;
+    RapidOpenCL1::CommandQueue m_commandQueue;
 
     // h_Freal and h_Fimag represent the input signal to be transformed.
     std::vector<float> m_Freal;
@@ -71,16 +71,16 @@ namespace Fsl
 
     // m_deviceMemFreal and m_deviceMemFimag represent the input signal to be transformed.
     // m_deviceMemRreal and m_deviceMemRimag represent the transformed output.
-    OpenCL::Buffer m_deviceMemFreal;
-    OpenCL::Buffer m_deviceMemFimag;
-    OpenCL::Buffer m_deviceMemRreal;
-    OpenCL::Buffer m_deviceMemRimag;
+    RapidOpenCL1::Buffer m_deviceMemFreal;
+    RapidOpenCL1::Buffer m_deviceMemFimag;
+    RapidOpenCL1::Buffer m_deviceMemRreal;
+    RapidOpenCL1::Buffer m_deviceMemRimag;
     // real & imag interleaved
-    OpenCL::Buffer m_deviceMemIntime; // time-domain input samples
-    OpenCL::Buffer m_deviceMemOutfft; // freq-domain output samples
+    RapidOpenCL1::Buffer m_deviceMemIntime; // time-domain input samples
+    RapidOpenCL1::Buffer m_deviceMemOutfft; // freq-domain output samples
 
-    OpenCL::UserEvent m_gpuDone;
-    std::array<OpenCL::UserEvent, FFT_MAX_LOG2N> m_gpuExecution;
+    RapidOpenCL1::UserEvent m_gpuDone;
+    std::array<RapidOpenCL1::UserEvent, FFT_MAX_LOG2N> m_gpuExecution;
 
   public:
     FastFourierTransform(const DemoAppConfig& config);

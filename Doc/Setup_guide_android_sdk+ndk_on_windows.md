@@ -23,9 +23,11 @@ Prerequisites
   - Make sure to configure ANDROID_NDK to point to the android ndk directory
   - Make sure you have at least android-ndk-r12b
   
-- [Python 2.7.x](https://www.python.org/ftp/python/2.7.12/python-2.7.12.amd64.msi)
+- [Python 3.4+](https://www.python.org/ftp/python/3.6.2/python-3.6.2-amd64.exe)
 
-  To be able run python scripts, they are needed to build.
+  To be able run python scripts, they are needed to build. 
+  If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
+  
 - Download the source from git.
 
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)

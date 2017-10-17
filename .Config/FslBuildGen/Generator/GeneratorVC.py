@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,36 +31,78 @@
 #
 #****************************************************************************************************************************************************
 
-import itertools
-import os
-import os.path
-from FslBuildGen.Generator.VariantHelper import VariantHelper
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import Union
+from FslBuildGen import IOUtil
+from FslBuildGen import Util
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import BuildVariantConfig
+from FslBuildGen.DataTypes import ExternalDependencyType
+from FslBuildGen.DataTypes import PackageLanguage
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.DataTypes import VariantType
+from FslBuildGen.Exceptions import InternalErrorException
+from FslBuildGen.Exceptions import UnsupportedException
+from FslBuildGen.Generator.ExceptionsVC import PackageDuplicatedWindowsVisualStudioProjectIdException
+from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Generator.GeneratorVCTemplate import CodeTemplateVC
+from FslBuildGen.Generator.GeneratorVCTemplate import CodeTemplateProjectBatFiles
 from FslBuildGen.Generator.GeneratorVCTemplate import GeneratorVCTemplate
+from FslBuildGen.Generator.GeneratorVCTemplate import NuGetPackageConfigSnippets
 from FslBuildGen.Generator.GeneratorVCTemplateManager import GeneratorVCTemplateManager
-from FslBuildGen import IOUtil, MakeFileHelper, Util, PackageConfig
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-from FslBuildGen.SharedGeneration import *
-from FslBuildGen.PackageBuildReport import *
+from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
+from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
+from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
+from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
+from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
+from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
+from FslBuildGen.Generator.VariantHelper import VariantHelper
+from FslBuildGen.Log import Log
+from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Packages.Package import PackageDefine
+from FslBuildGen.Packages.Package import PackageExternalDependency
+from FslBuildGen.Packages.Package import PackagePlatformVariant
+from FslBuildGen.Packages.Package import PackagePlatformVariantOption
+from FslBuildGen.Packages.PackageRequirement import PackageRequirement
+from FslBuildGen.SharedGeneration import ToolAddedVariant
+from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_FEATURE_SETTING
+from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_VARIANT_SETTING
+from FslBuildGen.Template.TemplateFileProcessor import TemplateFileProcessor
+from FslBuildGen.Xml.Exceptions import XmlFormatException
 
-def GetVCBuildConfigurationName(entry):
-    return "-".join(entry)
 
 #class GeneratorVCMode:
 #    Normal = 0
 #    LinuxTools = 1
 
+class LocalMagicFilenames:
+    BuildProject = "BuildProject.bat"
+    StartProject = ".StartProject.bat"
+    RunProject = "RunProject.bat"
 
-class GeneratorVC(object):
-    def __init__(self, config, packages, platformName, vsVersion):
+class LocalMagicBuildVariants:
+    GeneratorConfig = "FSLGEN_GENERATOR_Config"
+
+class LocalMagicBuildVariantOption:
+    Debug = "Debug"
+    Release = "Release"
+
+
+class GeneratorVC(GeneratorBase):
+    def __init__(self, config: Config, packages: List[Package], platformName: str, vsVersion: int, activeThirdPartyLibsDir: str) -> None:
         super(GeneratorVC, self).__init__()
-        
+        self.__ActiveThirdPartyLibsDir = activeThirdPartyLibsDir
 
         packageLanguage = config.ToolConfig.DefaultPackageLanguage
-        templateManger = GeneratorVCTemplateManager(config.ToolConfig.TemplateFolder, vsVersion)
+        templateManger = GeneratorVCTemplateManager(config, config.ToolConfig.TemplateFolder, vsVersion)
         # for now we assume all packages are using the same language
         languageTemplates = templateManger.TryGetLanguageTemplates(packageLanguage)
-        if languageTemplates == None:
+        if languageTemplates is None:
             raise UnsupportedException("No visual studio generator templates found for language: {0}".format(PackageLanguage.ToString(packageLanguage)))
 
         template = GeneratorVCTemplate(config, platformName, vsVersion, languageTemplates)
@@ -70,61 +112,73 @@ class GeneratorVC(object):
 
         for package in packages:
             if package.Type == PackageType.Library:
-                self.__GenerateLibraryBuildFile(config, package, platformName, template.Lib, template.Bat, vsVersion)
+                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetLibraryTemplate(package), template.GetBatTemplate(), vsVersion)
             elif package.Type == PackageType.Executable:
-                self.__GenerateLibraryBuildFile(config, package, platformName, template.Exe, template.Bat, vsVersion)
-            elif template.HeaderLib and package.Type == PackageType.HeaderLibrary:
-                self.__GenerateLibraryBuildFile(config, package, platformName, template.HeaderLib, template.Bat, vsVersion)
+                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetExecutableTemplate(package), template.GetBatTemplate(), vsVersion)
+            elif package.Type == PackageType.HeaderLibrary:
+                headerLibTemplate = template.TryGetHeaderLibraryTemplate()
+                if headerLibTemplate is not None:
+                    self.__GenerateLibraryBuildFile(config, package, platformName, headerLibTemplate, template.GetBatTemplate(), vsVersion)
 
-        self.__ValidateProjectIds(packages);
-
-
-    def GetPackageGitIgnoreDict(self):
-        """ Return a dictionary of packages and a list of strings that should be added to git ignore for it """
-        return {}
+        self.__ValidateProjectIds(packages)
 
 
-    def __CheckProjectIds(self, packages):
+    def __CheckProjectIds(self, packages: List[Package]) -> None:
         for package in packages:
             if package.Type == PackageType.Library or package.Type == PackageType.Executable or package.Type == PackageType.HeaderLibrary:
-                if package.ResolvedPlatform == None or package.ResolvedPlatform.ProjectId == None:
-                    raise XmlFormatException("Missing project id for windows platform for package %s" % (package.Name))
+                if package.ResolvedPlatform is None or package.ResolvedPlatform.ProjectId is None:
+                    raise XmlFormatException("Missing project id for windows platform for package {0}".format(package.Name))
 
 
-    def __ValidateProjectIds(self, packages):
+    def __ValidateProjectIds(self, packages: List[Package]) -> None:
         idDict = {}
         for package in packages:
             if package.Type == PackageType.Executable and package.ResolvedPlatform != None:
+                if package.ResolvedPlatform is None:
+                    raise Exception("Invalid package")
                 idDict[package.ResolvedPlatform.ProjectId] = package
 
         for package in packages:
             if package.Type == PackageType.Library or package.Type == PackageType.HeaderLibrary:
+                if package.ResolvedPlatform is None or package.ResolvedPlatform.ProjectId is None:
+                    raise Exception("Invalid package")
                 if package.ResolvedPlatform.ProjectId in idDict:
                     raise PackageDuplicatedWindowsVisualStudioProjectIdException(package, idDict[package.ResolvedPlatform.ProjectId], package.ResolvedPlatform.ProjectId)
                 else:
                     idDict[package.ResolvedPlatform.ProjectId] = package
 
 
-    def __GenerateLibraryBuildFile(self, config, package, platformName, template, batTemplate, vsVersion):
-        platformProjectId = 'ErrorNotDefined'
-        if package.ResolvedPlatform == None or package.ResolvedPlatform.ProjectId == None:
-            raise XmlFormatException("Missing project id for windows platform for package %s" % (package.Name))
+    def __GenerateLibraryBuildFile(self, config: Config,
+                                   package: Package,
+                                   platformName: str,
+                                   template : CodeTemplateVC,
+                                   batTemplate: CodeTemplateProjectBatFiles,
+                                   vsVersion: int) -> None:
 
-        platformProjectId = package.ResolvedPlatform.ProjectId
+        if package.ResolvedPlatform is None or package.ResolvedPlatform.ProjectId is None:
+            raise XmlFormatException("Missing project id for windows platform for package {0}".format(package.Name))
+        if (package.ResolvedBuildSourceFiles is None or package.AbsolutePath is None or package.ResolvedBuildContentSourceFiles is None or
+            package.ResolvedBuildPath is None):
+            raise Exception("Invalid package")
+
         variantHelper = VariantHelper(package)
-        libName = package.Name
+        targetName = GeneratorVCUtil.GetTargetName(package)
+
+        strCurrentYear = config.CurrentYearString
+        strPackageCreationYear = strCurrentYear if package.CreationYear is None else package.CreationYear
+        strPackageCompanyName = package.CompanyName
 
         slnSnippet1 = self.__GenerateSLNPackageVariantConfig(variantHelper, template.SLNSnippet1, package)
         slnSnippet2 = self.__GenerateSLNPackageVariants(variantHelper, template.SLNSnippet2)
         libDep1SLN = self.__GenerateSLNDependencies1(package)
-        libDep2SLN = self.__GenerateSLNDependencies2(config, package)
+        libDep2SLN = self.__GenerateSLNDependencies2(config, package, template.SLNAddProject, template.ProjectExtension)
         libDep3SLN = self.__GenerateSLNDependencies3(variantHelper, template.SLNSnippet2, package)
         solutionFolderDefinitions = self.__GenerateFolderDefinitions(config, package, template.SLNSnippet3)
         solutionFolderEntries = self.__GenerateFolderEntries(config, package, template.SLNSnippet4, template.SLNSnippet4_1)
 
         build = template.TemplateSLN
-        build = build.replace("##PACKAGE_TARGET_NAME##", libName)
-        build = build.replace("##PACKAGE_PLATFORM_PROJECT_ID##", platformProjectId)
+        build = build.replace("##PACKAGE_TARGET_NAME##", targetName)
+        build = build.replace("##PACKAGE_PLATFORM_PROJECT_ID##", package.ResolvedPlatform.ProjectId)
         build = build.replace("##PACKAGE_LIBRARY_DEPENDENCIES1##", libDep1SLN)
         build = build.replace("##PACKAGE_LIBRARY_DEPENDENCIES2##", libDep2SLN)
         build = build.replace("##PACKAGE_LIBRARY_DEPENDENCIES3##", libDep3SLN)
@@ -132,178 +186,214 @@ class GeneratorVC(object):
         build = build.replace("##PACKAGE_SOLUTION_FOLDER_ENTRIES##", solutionFolderEntries)
         build = build.replace("##SNIPPET1##", slnSnippet1)
         build = build.replace("##SNIPPET2##", slnSnippet2)
+        build = build.replace("##CURRENT_YEAR##", strCurrentYear)
+        build = build.replace("##PACKAGE_CREATION_YEAR##", strPackageCreationYear)
+        build = build.replace("##PACKAGE_COMPANY_NAME##", strPackageCompanyName)
         buildSLN = build
 
-        projectionConfigurations = self.__GenerateProjectConfigurations(variantHelper, template.Snippet1, package)
+        projectionConfigurations = self.__GenerateProjectConfigurations(variantHelper, template.VariantProjectConfiguration, package)
 
-        libDepVC = self.__GenerateVCDependencies(template.Snippet2_1, config, package)
+        libDepVC = self.__GenerateVCDependencies(template.ProjectReferences_1, config, package, template.ProjectExtension)
         if len(libDepVC) > 0:
-            libDepVC = template.Snippet2.replace("##SNIPPET##", libDepVC)
-        
+            libDepVC = template.ProjectReferences.replace("##SNIPPET##", libDepVC)
+
         resolvedBuildAllIncludeFiles = self.__GetPackageResolvedBuildAllIncludeFiles(config.GenFileName, package)
-        includeFiles = self.__CreateVisualStudioStyleFileList(template.Snippet3, resolvedBuildAllIncludeFiles)
-        sourceFiles = self.__CreateVisualStudioStyleFileList(template.Snippet4, package.ResolvedBuildSourceFiles)
+        includeFiles = self.__CreateVisualStudioStyleFileList(template.AddHeaderFile, resolvedBuildAllIncludeFiles)
+        sourceFiles = self.__CreateVisualStudioStyleFileList(template.AddSourceFile, package.ResolvedBuildSourceFiles)
         contentSourceFiles = self.__CreateContentSourceFilesList(template.Snippet9, template.Snippet9_1, package.ResolvedBuildContentSourceFiles)
 
-        snippet5 = self.__VariantSimpleReplace(variantHelper, template.Snippet5, package)
-        importGroups = self.__GenerateImportGroups(variantHelper, template.Snippet6, package)
-        variantPropertyGroups = self.__GenerateVariantPropertyGroups(config, variantHelper, template.Snippet7, package)
-        compilerSettingsGroups = self.__GenerateCompilerSettingsGroups(config, variantHelper, template.Snippet8, template.Snippet8_1, template.Snippet8_2, package)
-        compilerSettingsGroups = self.__ApplyOptimizations(compilerSettingsGroups, config, template, package) 
+
+        variantConfigurations = self.__VariantSimpleReplace(variantHelper, template.VariantConfiguration, package)
+        importGroups = self.__GenerateImportGroups(variantHelper, template.VariantPropertySheets, package)
+        variantPropertyGroups = self.__GenerateVariantPropertyGroups(config, variantHelper, template.VariantPropertyGroups, package)
+        compilerSettingsGroups = self.__GenerateCompilerSettingsGroups(config, variantHelper, template.VariantCompilerSettings, template.VariantCompilerSettings_1, template.VariantCompilerSettings_2, package)
+        compilerSettingsGroups = self.__ApplyOptimizations(compilerSettingsGroups, config, template, package)
+
+        externalFilesToOutput = self.__GenerateExternalFilesToOutput(config, variantHelper, template.ExternalFileToOutput, package)
 
         featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
-        featureList = ",".join(featureList)
+        strFeatureList = ",".join(featureList)
 
         build = template.Master
-        build = build.replace("##SNIPPET1##", projectionConfigurations)
-        build = build.replace("##SNIPPET2##", libDepVC)
-        build = build.replace("##SNIPPET3##", includeFiles)
-        build = build.replace("##SNIPPET4##", sourceFiles)
-        build = build.replace("##SNIPPET5##", snippet5)
-        build = build.replace("##SNIPPET6##", importGroups)
-        build = build.replace("##SNIPPET7##", variantPropertyGroups)
+        build = build.replace("##ADD_PROJECT_CONFIGURATIONS##", projectionConfigurations)
+        build = build.replace("##ADD_PROJECT_REFERENCES##", libDepVC)
+        build = build.replace("##ADD_INCLUDE_FILES##", includeFiles)
+        build = build.replace("##ADD_SOURCE_FILES##", sourceFiles)
+        build = build.replace("##ADD_CONFIGURATIONS##", variantConfigurations)
+        build = build.replace("##ADD_PROPERTY_SHEETS##", importGroups)
+        build = build.replace("##ADD_PROPERTY_GROUPS##", variantPropertyGroups)
+        build = build.replace("##ADD_EXTENAL_FILES_TO_OUTPUT##", externalFilesToOutput)
         build = build.replace("##SNIPPET8##", compilerSettingsGroups)
-        build = build.replace("##SNIPPET9##", contentSourceFiles)
-        build = build.replace("##PACKAGE_PLATFORM_PROJECT_ID##", platformProjectId)
-        build = build.replace("##PACKAGE_TARGET_NAME##", libName)
-        build = build.replace("##FEATURE_LIST##", featureList)
+        build = build.replace("##ADD_CUSTOM_BUILD_FILES##", contentSourceFiles)
+        build = build.replace("##PACKAGE_PLATFORM_PROJECT_ID##", package.ResolvedPlatform.ProjectId)
+        build = build.replace("##PACKAGE_TARGET_NAME##", targetName)
+        build = build.replace("##FEATURE_LIST##", strFeatureList)
         build = build.replace("##PLATFORM_NAME##", platformName)
+        build = build.replace("##CURRENT_YEAR##", strCurrentYear)
+        build = build.replace("##PACKAGE_CREATION_YEAR##", strPackageCreationYear)
+        build = build.replace("##PACKAGE_COMPANY_NAME##", strPackageCompanyName)
+
+        addConfigGroup = ""
+        addConfigs = ""
+        buildNuGetPackageConfigFile = None
+        if package.PackageLanguage == PackageLanguage.CSharp:
+            assemblyReferences = self.__GetAssemblyReferences(config, package, template.AssemblyReferenceSimple, template.AssemblyReferenceComplex)
+            build = build.replace("##ADD_ASSEMBLY_REFERENCES##", assemblyReferences)
+            buildNuGetPackageConfigFile = self.__TryGenerateNuGetPackageConfig(config, package, template.NuGetPackageConfig)
+            if buildNuGetPackageConfigFile is not None:
+                addConfigGroup = '\n  <ItemGroup>##ADD_CONFIGS##'
+                addConfigGroup += '\n  </ItemGroup>'
+                addConfigs = '\n    <None Include="packages.config" />'
+
+        build = build.replace("##ADD_CONFIG_GROUP##", addConfigGroup)
+        build = build.replace("##ADD_CONFIGS##", addConfigs)
 
         #build = build.replace("##VARIANT##", "")
         buildVC = build
 
 
         # generate bat file
-        startProjectFile = self.__GenerateProjectBatFile(config, package, batTemplate.TemplateStartBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, platformName, False)
-        buildProjectFile = self.__PrepareProjectBatFile(config, package, batTemplate.TemplateBuildBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, libName, featureList, platformName)
-        runProjectFile = self.__PrepareProjectBatFile(config, package, batTemplate.TemplateRunBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, libName, featureList, platformName)
+        startProjectFile = self.__TryGenerateProjectBatFile(config, package, batTemplate.TemplateStartBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, platformName, False)
+        buildProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateBuildBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, targetName, strFeatureList, platformName)
+        runProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateRunBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, targetName, strFeatureList, platformName)
 
 
         dstName = package.Name
-        if (package.ResolvedPlatform == None or package.ResolvedPlatform.ProjectId == None):
-            raise InternalErrorException("Could not find project name");
+        if (package.ResolvedPlatform is None or package.ResolvedPlatform.ProjectId is None):
+            raise InternalErrorException("Could not find project name")
             #dstName = 'test'
         #dstName = 'test'
-        dstFileSLN = IOUtil.Join(package.AbsolutePath, dstName + ".sln")
-        dstFileVC = IOUtil.Join(package.AbsolutePath, dstName + ".vcxproj")
+        dstFileSLN = IOUtil.Join(package.AbsolutePath, dstName + ".{0}".format(template.SolutionExtension))
+        dstFileVC = IOUtil.Join(package.AbsolutePath, dstName + ".{0}".format(template.ProjectExtension))
 
-        dstFileStartProject = IOUtil.Join(package.AbsolutePath, ".StartProject.bat")
+        dstFileNuGetConfig = IOUtil.Join(package.AbsolutePath, "packages.config")
+
+        dstFileStartProject = IOUtil.Join(package.AbsolutePath, LocalMagicFilenames.StartProject)
 
         buildBasePath = IOUtil.Join(package.AbsolutePath, package.ResolvedBuildPath)
-        dstFileBuildProject = IOUtil.Join(buildBasePath, "BuildProject.bat")
-        dstFileRunProject = IOUtil.Join(buildBasePath, "RunProject.bat")
+        dstFileBuildProject = IOUtil.Join(buildBasePath, LocalMagicFilenames.BuildProject)
+        dstFileRunProject = IOUtil.Join(buildBasePath, LocalMagicFilenames.RunProject)
         if not config.DisableWrite:
             IOUtil.SafeMakeDirs(buildBasePath)
             IOUtil.WriteFileIfChanged(dstFileSLN, buildSLN)
             IOUtil.WriteFileIfChanged(dstFileVC, buildVC)
 
-            if package.Type == PackageType.Executable:
-                manifestFile = IOUtil.Join(package.AbsolutePath, dstName + ".manifest")
-                IOUtil.WriteFileIfChanged(manifestFile, template.Manifest)
-
-            if template.FilterFile != None:
-                filterFile = IOUtil.Join(package.AbsolutePath, dstName + ".vcxproj.filters")
-                IOUtil.WriteFileIfChanged(filterFile, template.FilterFile)
-
-            IOUtil.WriteFileIfChanged(dstFileStartProject, startProjectFile)
-            IOUtil.WriteFileIfChanged(dstFileBuildProject, buildProjectFile)
-            IOUtil.WriteFileIfChanged(dstFileRunProject, runProjectFile)
+            if startProjectFile is not None:
+                IOUtil.WriteFileIfChanged(dstFileStartProject, startProjectFile)
+            if buildProjectFile is not None:
+                IOUtil.WriteFileIfChanged(dstFileBuildProject, buildProjectFile)
+            if runProjectFile is not None:
+                IOUtil.WriteFileIfChanged(dstFileRunProject, runProjectFile)
+            if buildNuGetPackageConfigFile is not None:
+                IOUtil.WriteFileIfChanged(dstFileNuGetConfig, buildNuGetPackageConfigFile)
 
 
-        if package.Type == PackageType.Executable:
-            self.__AttachBuildReport(package, variantHelper, libName)
-
-            if not config.DisableWrite:
-                content = template.ResouceFile
-                rcFileName = IOUtil.Join(package.AbsolutePath, dstName + ".rc")
-                IOUtil.WriteFileIfChanged(rcFileName, content)
-
-                for fileName in template.ExeCopyFiles:
-                    copyToFileName = IOUtil.Join(package.AbsolutePath, IOUtil.GetFileName(fileName))
-                    IOUtil.CopySmallFile(fileName, copyToFileName)
-
-            for fileName in template.ExeProcessTextFiles:
-                content = IOUtil.ReadFile(fileName)
-                content = content.replace("##PACKAGE_PLATFORM_PROJECT_ID##", platformProjectId)
-                content = content.replace("##PACKAGE_TARGET_NAME##", libName)
-                content = content.replace("##FEATURE_LIST##", featureList)
-                content = content.replace("##PLATFORM_NAME##", platformName)
-                writeToFileName = IOUtil.Join(package.AbsolutePath, IOUtil.GetFileName(fileName))
-                if not config.DisableWrite:
-                        IOUtil.WriteFileIfChanged(writeToFileName, content)
+        templateFileProcessor = TemplateFileProcessor(config, platformName)
+        templateFileProcessor.Environment.Set("##FEATURE_LIST##", strFeatureList)
+        templateFileProcessor.Process(config, template.TemplateFileRecordManager, package.AbsolutePath, package)
 
 
-    def __GetPackageResolvedBuildAllIncludeFiles(self, genFileName, package):
+    def __GenerateExternalFilesToOutput(self, config: Config, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
+        if snippet is None or len(snippet) <= 0 or package.Type != PackageType.Executable:
+            return ""
+        if package.ResolvedBuildAllExternalDependencies is None:
+            raise Exception("Invalid package")
+
+        extDeps = Util.FilterByType(package.ResolvedBuildAllExternalDependencies, ExternalDependencyType.DLL)
+        if len(extDeps) <= 0:
+            return ""
+
+        allVariantNames = GeneratorVCUtil.GenerateSLNVariantNames(variantHelper)
+        if len(allVariantNames) < 1:
+            allVariantNames.append('')
+
+        result = ""
+        for variantName in allVariantNames:
+            for entry in extDeps:
+                debugFilePath = IOUtil.Join(entry.ResolvedLocation.ResolvedPath, entry.DebugName)
+                filePath = IOUtil.Join(entry.ResolvedLocation.ResolvedPath, entry.Name)
+
+                content = snippet
+                content = content.replace("##DEBUG_FILE_PATH##", debugFilePath)
+                content = content.replace("##FILE_PATH##", filePath)
+                content = content.replace("##VARIANT##", variantName)
+                result += "\n" + content
+        return result
+
+
+    def __GetPackageResolvedBuildAllIncludeFiles(self, genFileName: str, package: Package) -> List[str]:
+        if package.ResolvedBuildAllIncludeFiles is None:
+            raise Exception("Invalid package")
+
         if not self.UsingLinuxTools:
             return package.ResolvedBuildAllIncludeFiles
         files = list(package.ResolvedBuildAllIncludeFiles)
-        # we add 'fsl.gen' to ensure that the 'remote' copy process doesn't remove any dirs 
+        # we add 'fsl.gen' to ensure that the 'remote' copy process doesn't remove any dirs
         files.append(genFileName)
-        return files;
+        return files
 
 
-    def __PrepareProjectBatFile(self, config, package, templateBat, templateSnippetErrorCheck, vsVersion, libName, featureList, platformName):
-        buildProjectFile = self.__GenerateProjectBatFile(config, package, templateBat, templateSnippetErrorCheck, vsVersion, platformName, True)
-        buildProjectFile = buildProjectFile.replace("##PACKAGE_TARGET_NAME##", libName)
-        buildProjectFile = buildProjectFile.replace("##FEATURE_LIST##", featureList)
+    def __TryPrepareProjectBatFile(self, config: Config, package: Package,
+                                   templateBat: Optional[str],
+                                   templateSnippetErrorCheck: str,
+                                   vsVersion: int,
+                                   targetName: str,
+                                   strFeatureList: str,
+                                   platformName: str) -> Optional[str]:
+        buildProjectFile = self.__TryGenerateProjectBatFile(config, package, templateBat, templateSnippetErrorCheck, vsVersion, platformName, True)
+        if buildProjectFile is None:
+            return None
+
+        buildProjectFile = buildProjectFile.replace("##PACKAGE_TARGET_NAME##", targetName)
+        buildProjectFile = buildProjectFile.replace("##FEATURE_LIST##", strFeatureList)
         return buildProjectFile
 
 
-    def __AttachBuildReport(self, package, variantHelper, libName):
-        # $(SolutionDir)\build\##PLATFORM_NAME##\##PACKAGE_TARGET_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\
-        # $(SolutionDir)\build\Windows\S06_Texturing\$(Configuration)_$(FSL_GLES_NAME)\
-        allVariantNames = self.__GenerateSLNVariantNames(variantHelper) 
-        if len(allVariantNames) < 1:
-            allVariantNames.append('')
-        allVariantPathDict = {}
-        for variantName in allVariantNames:
-            foundBuildPath = IOUtil.Join(package.AbsolutePath, package.ResolvedBuildPath)
-            foundBuildPath = IOUtil.Join(foundBuildPath, libName)
-            foundConfiguration = "%sDebug" % (variantName)
-            foundVariantName = package.ResolvedVirtualVariantName
-            foundFullVariantName = foundConfiguration + foundVariantName
-            foundExecutableName = "%s/%s/%s.exe" % (foundBuildPath, foundFullVariantName, libName)
-            # we are using the configuration as the virtual variant is part of the path
-            allVariantPathDict[foundConfiguration] = foundExecutableName
-           
-        package.BuildReport = PackageBuildReport(allVariantPathDict)
-
-
-    def __GenerateProjectBatFile(self, config, package, strBatTemplate, snippetErrorCheck, vsVersion, platformName, useEnvironmentConfig):
+    def __TryGenerateProjectBatFile(self, config: Config,
+                                    package: Package,
+                                    strBatTemplate: Optional[str],
+                                    snippetErrorCheck: str,
+                                    vsVersion: int,
+                                    platformName: str,
+                                    useEnvironmentConfig: bool) -> Optional[str]:
+        if strBatTemplate is None or package.AbsolutePath is None:
+            return None
         projectPath = config.ToDosPath(package.AbsolutePath)
 
         featureList = []
         if not useEnvironmentConfig:
             batCount = 0
-            skipEGLHack = self.__ContainsOverrideFeature(package.ResolvedAllUsedFeatures);
+            skipEGLHack = self.__ContainsOverrideFeature(package.ResolvedAllUsedFeatures)
             for feature in package.ResolvedAllUsedFeatures:
                 if not skipEGLHack or feature.Id != 'egl':
-                    scriptName = "Configure%s.bat" % (feature.Name)
+                    scriptName = "Configure{0}.bat".format(feature.Name)
                     scriptPath = IOUtil.Join(config.SDKPath, ".Config")
                     scriptPath = IOUtil.Join(scriptPath, scriptName)
                     if IOUtil.IsFile(scriptPath):
                         batCount = batCount + 1
-                        featureList.append("call %s %%%s" % (scriptName, batCount))
+                        featureList.append("call {0} %{1}".format(scriptName, batCount))
                         featureList.append(snippetErrorCheck)
         else:
             featureToVariantDict = self.__MatchFeaturesToVariants(config, package)
-            skipEGLHack = self.__ContainsOverrideFeature(package.ResolvedAllUsedFeatures);
+            skipEGLHack = self.__ContainsOverrideFeature(package.ResolvedAllUsedFeatures)
             for feature in package.ResolvedAllUsedFeatures:
                 if not skipEGLHack or feature.Id != 'egl':
-                    scriptName = "Configure%s.bat" % (feature.Name)
+                    scriptName = "Configure{0}.bat".format(feature.Name)
                     scriptPath = IOUtil.Join(config.SDKPath, ".Config")
                     scriptPath = IOUtil.Join(scriptPath, scriptName)
                     if IOUtil.IsFile(scriptPath):
-                        featureEnvName = "%%%s%s%%" % (GEN_BUILD_ENV_FEATURE_SETTING, feature.Name.upper())
+                        featureEnvName = "%{0}{1}%".format(GEN_BUILD_ENV_FEATURE_SETTING, feature.Name.upper())
                         if feature.Name in featureToVariantDict:
                             variant = featureToVariantDict[feature.Name]
-                            variantEnvName = "%%%s%s%%" % (GEN_BUILD_ENV_VARIANT_SETTING, variant.PurifiedName.upper())
-                            featureList.append("call %s %s %s" % (scriptName, variantEnvName, featureEnvName))
+                            variantEnvName = "%{0}{1}%".format(GEN_BUILD_ENV_VARIANT_SETTING, variant.PurifiedName.upper())
+                            featureList.append("call {0} {1} {2}".format(scriptName, variantEnvName, featureEnvName))
                         else:
-                            featureList.append("call %s %s" % (scriptName, featureEnvName))
+                            featureList.append("call {0} {1}".format(scriptName, featureEnvName))
                         featureList.append(snippetErrorCheck)
 
-        strVersion = "%s" % (vsVersion)
+        activeThirdPartyLibsDir = "" if self.__ActiveThirdPartyLibsDir is None else self.__ActiveThirdPartyLibsDir
+
+        strVersion = "{0}".format(vsVersion)
         result = strBatTemplate
         result = result.replace("##PLATFORM_NAME##", platformName)
         result = result.replace("##VS_VERSION##", strVersion)
@@ -311,61 +401,65 @@ class GeneratorVC(object):
         result = result.replace("##CONFIG_SCRIPTS##", "\n".join(featureList))
         result = result.replace("##VS_VERSION##", strVersion)
         result = result.replace("##PROJECT_PATH##", projectPath)
+        result = result.replace("##ACTIVE_THIRD_PARTY_LIBS_DIRECTORY##", activeThirdPartyLibsDir)
         return result
 
-    def __ContainsOverrideFeature(self, allUsedFeatures):
-        """ Hack to work around the EGL / GLES or VG issues, because VG has a custom EGL """
-        """ The main issue is from the fact that there is no proper link between the batch files and the features (or feature and the variant)"""
+    def __ContainsOverrideFeature(self, allUsedFeatures: List[PackageRequirement]) -> bool:
+        """ Hack to work around the EGL / GLES or VG issues, because VG has a custom EGL
+            The main issue is from the fact that there is no proper link between the batch files and the features (or feature and the variant)
+        """
         for feature in allUsedFeatures:
-            if feature.Id.startswith("opengles") or feature.Name.lower().startswith("openvg"):
+            if feature.Id.startswith("opengles") or feature.Id.startswith("openvg"):
                 return True
         return False
-        
 
 
-    def __MatchFeaturesToVariants(self, config, package):
+    def __MatchFeaturesToVariants(self, config: Config, package: Package) -> Dict[str, PackagePlatformVariant]:
         virtualVariants = self.__GetVirtualVariants(package)
-        featureToVariantDict = {}
-        for feature in package.ResolvedAllUsedFeatures:
-            variant = self.__LocateFeatureOwningVariant(config, package, virtualVariants, feature)
-            if variant:
-                featureToVariantDict[feature.Name] = variant
+        featureToVariantDict = {}  # type: Dict[str, PackagePlatformVariant]
+        for feature1 in package.ResolvedAllUsedFeatures:
+            variant1 = self.__TryLocateFeatureOwningVariant(config, package, virtualVariants, feature1)
+            if variant1:
+                featureToVariantDict[feature1.Name] = variant1
 
         # Log warnings for failed matches
         if len(virtualVariants) > 0 and len(virtualVariants) != len(featureToVariantDict):
-            variantToFeatureDict = {}
-            for feaure, variant in featureToVariantDict.items():
-                variantToFeatureDict[variant.Name] = feature
+            variantToFeatureDict = {}  # type: Dict[str, str]
+            for feature2, variant2 in list(featureToVariantDict.items()):
+                variantToFeatureDict[variant2.Name] = feature2
             for entry in virtualVariants:
                 if not entry.Name in variantToFeatureDict:
-                    config.DoPrint("WARNING: Failed to match variant '%s' with a feature" % (entry.Name));
+                    config.DoPrint("WARNING: Failed to match variant '{0}' with a feature".format(entry.Name))
         return featureToVariantDict
 
 
-    def __LocateFeatureOwningVariant(self, config, package, virtualVariants, feature):
+    def __TryLocateFeatureOwningVariant(self, config: Config,
+                                        package: Package,
+                                        virtualVariants: List[PackagePlatformVariant],
+                                        feature: PackageRequirement) -> Optional[PackagePlatformVariant]:
         # Try a simple lookup first
         for variant in virtualVariants:
             if variant.IntroducedByPackageName == feature.IntroducedByPackageName:
                 return variant
         # No such luck
         # Build a package name -> package lookup dict
-        packageDict = {}
+        packageDict = {}  # type: Dict[str, Package]
         for entry in package.ResolvedBuildOrder:
             packageDict[entry.Name] = entry
 
         if not feature.IntroducedByPackageName in packageDict:
-            raise Exception("Could not locate package '%s' during feature resolve" % (feature.IntroducedByPackageName))
+            raise Exception("Could not locate package '{0}' during feature resolve".format(feature.IntroducedByPackageName))
 
         featurePackage = packageDict[feature.IntroducedByPackageName]
         variants = self.__LocateVarientsInPackageDependencies(featurePackage.ResolvedBuildOrder)
         if len(variants) == 1:
-            return variants.values()[0]
+            return list(variants.values())[0]
         if config.Verbosity > 1 and len(variants) > 1:
-            config.DoPrint("WARNING: Could not determine which variant %s introduced the feature: %s" % (variants.keys(), feature.Name))
+            config.DoPrint("WARNING: Could not determine which variant %s introduced the feature: %s" % (list(variants.keys()), feature.Name))
         return None
 
 
-    def __LocateVarientsInPackageDependencies(self, packages):
+    def __LocateVarientsInPackageDependencies(self, packages: List[Package]) -> Dict[str, PackagePlatformVariant]:
         result = {}
         for entry in packages:
             for variant in entry.ResolvedDirectVariants:
@@ -374,45 +468,46 @@ class GeneratorVC(object):
 
 
 
-    def __GetVirtualVariants(self, package):
-        virtualVariants = []
-        for entry in package.ResolvedAllVariantDict.values():
+    def __GetVirtualVariants(self, package: Package) -> List[PackagePlatformVariant]:
+        virtualVariants = []  # type: List[PackagePlatformVariant]
+        for entry in list(package.ResolvedAllVariantDict.values()):
             if entry.Type == VariantType.Virtual:
                 virtualVariants.append(entry)
         return virtualVariants
 
 
-    def __GetExternalLibraryDependencies(self, package):
-        libPaths = []
-        buildOrder = list(package.ResolvedBuildOrder)
-        buildOrder.reverse()
-        for entry in buildOrder:
-            externalList = Util.FilterByType(entry.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib)
-            libPaths += externalList
-        return libPaths
+    # FIX: method defined twice (so disabled this one as the code has been calling the other one)
+    #def __GetExternalLibraryDependencies(self, package):
+    #    libPaths = []
+    #    buildOrder = list(package.ResolvedBuildOrder)
+    #    buildOrder.reverse()
+    #    for entry in buildOrder:
+    #        externalList = Util.FilterByType(entry.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib)
+    #        libPaths += externalList
+    #    return libPaths
 
 
-    def __CreateVisualStudioStyleFileList(self, snippet, entries):
-        if entries == None:
+    def __CreateVisualStudioStyleFileList(self, snippet: str, entries: List[str]) -> str:
+        if entries is None:
             return ""
         res = []
         for entry in entries:
-            str = snippet.replace("##FILE_PATH##", entry.replace('/', '\\'))
-            res.append(str)
+            strContent = snippet.replace("##FILE_PATH##", entry.replace('/', '\\'))
+            res.append(strContent)
         return "\n".join(res)
 
 
-    def __CreateContentSourceFilesList(self, snippet, snippetEntry, entries):
+    def __CreateContentSourceFilesList(self, snippet: str, snippetEntry: str, entries: List[str]) -> str:
         if len(entries) <= 0:
             return ""
         fileEntries = self.__CreateVisualStudioStyleFileList(snippetEntry, entries)
-        result = snippet;
+        result = snippet
         result = result.replace("##SNIPPET##", fileEntries)
         return result
 
 
-    def __CreateVisualStudioStyleList(self, entries):
-        if entries != None and len(entries) > 0:
+    def __CreateVisualStudioStyleList(self, entries: Union[List[str], Set[str]]) -> str:
+        if entries is not None and len(entries) > 0:
             res = ";".join(entries)
             if not self.UsingLinuxTools:
                 res = res.replace("/", "\\")
@@ -421,38 +516,38 @@ class GeneratorVC(object):
             return ""
 
 
-    def __CreateVisualStudioStyleDefineList(self, entries):
-        if entries != None and len(entries) > 0:
+    def __CreateVisualStudioStyleDefineList(self, entries: List[str]) -> str:
+        if entries is not None and len(entries) > 0:
             return ";".join(entries).replace("/", "\\") + ';'
-        else:
-            return ""
+        return ""
 
 
-    def __GenerateVariantPostfix(self, package):
-        variants = package.ResolvedAllVariantDict.keys()
+    def __GenerateVariantPostfix(self, package : Package) -> str:
+        variants = list(package.ResolvedAllVariantDict.keys())
         if len(variants) > 0:
             return "_" + "_".join(variants)
-        else:
-            return ""
+        return ""
 
 
-    def FilterVariants(self, variants):
-        dict = {}
-        for entry in variants:
-            if not entry.Type in dict:
-                dict[entry.Type] = []
-            dict[entry.Type].append(entry)
-        return dict
+    #def FilterVariants(self, variants):
+    #    resDict = {}
+    #    for entry in variants:
+    #        if not entry.Type in resDict:
+    #            resDict[entry.Type] = []
+    #        resDict[entry.Type].append(entry)
+    #    return resDict
 
 
-    def __ContainsVariant(self, list, variantName):
-        for entry in list:
+    def __ContainsVariant(self, srcList: List[PackagePlatformVariant], variantName: str) -> bool:
+        for entry in srcList:
             if entry.Name == variantName:
                 return True
         return False
 
 
-    def __BuildMatchedVariantName(self, parentVariantHelper, currentConfiguration, variantHelper):
+    def __BuildMatchedVariantName(self, parentVariantHelper: VariantHelper,
+                                  currentConfiguration: Tuple[str, ...],
+                                  variantHelper: VariantHelper) -> str:
         parentVariantList = parentVariantHelper.NormalVariants
         variantList = variantHelper.NormalVariants
         filteredVariantList = []
@@ -464,66 +559,79 @@ class GeneratorVC(object):
         return "-".join(filteredVariantList)
 
 
-    def __GenerateSLNVariantNames(self, variantHelper):
-        variantNames = []
+    def __GenerateSLNPackageVariantConfig(self, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
         if len(variantHelper.CartesianProduct) > 0:
             lines = []
             for entry in variantHelper.CartesianProduct:
-                variantNames.append(GetVCBuildConfigurationName(entry))
-        return variantNames
-
-    def __GenerateSLNPackageVariantConfig(self, variantHelper, snippet, package):
-        if len(variantHelper.CartesianProduct) > 0:
-            lines = []
-            for entry in variantHelper.CartesianProduct:
-                sectionVariantName = GetVCBuildConfigurationName(entry)
+                sectionVariantName = GeneratorVCUtil.GetVCBuildConfigurationName(entry)
                 section = snippet.replace("##VARIANT##", sectionVariantName)
                 lines.append(section)
             return "\n".join(lines)
-        else:
-            return snippet.replace("##VARIANT##", '')
+        return snippet.replace("##VARIANT##", '')
 
 
-    def __VariantSimpleReplace(self, variantHelper, snippet, package):
+    def __VariantSimpleReplace(self, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
         if len(variantHelper.CartesianProduct) > 0:
             lines = []
             for entry in variantHelper.CartesianProduct:
                 section = snippet
-                sectionVariantName = GetVCBuildConfigurationName(entry)
+                sectionVariantName = GeneratorVCUtil.GetVCBuildConfigurationName(entry)
                 section = section.replace("##VARIANT##", sectionVariantName)
                 lines.append(section)
             return "\n".join(lines)
-        else:
-            return snippet.replace("##VARIANT##", '')
+        return snippet.replace("##VARIANT##", '')
 
-    def __GenerateProjectConfigurations(self, variantHelper, snippet, package):
+    def __GenerateProjectConfigurations(self, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
         return self.__VariantSimpleReplace(variantHelper, snippet, package)
 
 
-    def __GenerateImportGroups(self, variantHelper, snippet, package):
+    def __GenerateImportGroups(self, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
         return self.__VariantSimpleReplace(variantHelper, snippet, package)
 
 
-    def __GenerateVariantPropertyGroups(self, config, variantHelper, snippet, package):
+    def __GenerateVariantPropertyGroups(self, config: Config, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
+        defines = package.ResolvedBuildAllDefines
         if len(variantHelper.CartesianProduct) > 0:
+            orgDefines = defines
             lines = []
             for entry in variantHelper.CartesianProduct:
-                dynamicName = package.ResolvedVirtualVariantName
+                defines = list(orgDefines)
+                localDefines = Util.ExtractNames(defines)
+                localDefineNames = self.__CreateVisualStudioStyleDefineList(localDefines)
+
+                if package.ResolvedVirtualVariantNameHint is None:
+                    raise Exception("Invalid package")
+                dynamicName = package.ResolvedVirtualVariantNameHint
                 section = self.__GetVariantPropertySections(config, snippet, dynamicName, package)
-                sectionVariantName = GetVCBuildConfigurationName(entry)
+                sectionVariantName = GeneratorVCUtil.GetVCBuildConfigurationName(entry)
                 section = section.replace("##VARIANT##", sectionVariantName)
+                section = section.replace("##PACKAGE_DEFINES##", localDefineNames)
                 lines.append(section)
             return "\n".join(lines)
-        else:
-            section = self.__GetVariantPropertySections(config, snippet, package.ResolvedVariantName, package)
-            return section.replace("##VARIANT##", '')
+
+        localDefines = Util.ExtractNames(defines)
+        localDefineNames = self.__CreateVisualStudioStyleDefineList(localDefines)
+
+        if package.ResolvedMakeVariantNameHint is None:
+            raise Exception("Invalid package")
+
+        section = self.__GetVariantPropertySections(config, snippet, package.ResolvedMakeVariantNameHint, package)
+        section = section.replace("##VARIANT##", '')
+        section = section.replace("##PACKAGE_DEFINES##", localDefineNames)
+        return section
 
 
-    def __BuildGenerateCompilerSettingsGroupSection(self, config, snippet, subSnippet1, subSnippet2, package, includeDirs, cppDefines, variantExtDeps):
+    def __BuildGenerateCompilerSettingsGroupSection(self,
+                                                    config: Config,
+                                                    snippet: str, subSnippet1: str, subSnippet2: str,
+                                                    package: Package,
+                                                    includeDirs: List[str],
+                                                    defines: List[PackageDefine],
+                                                    variantExtDeps: List[PackageExternalDependency]) -> str:
         includeDirs = self.__FixIncludes(includeDirs)
         if self.UsingLinuxTools:
             includeDirs = self.__FixIncludesForLinuxTools(config, package, includeDirs)
-        includeDirs = self.__CreateVisualStudioStyleList(includeDirs)
+        strIncludeDirs = self.__CreateVisualStudioStyleList(includeDirs)
 
         # FIX: variantExtDeps contains items already referenced by things we are dependent upon.
         extLinkLibDepVC = ''
@@ -537,65 +645,73 @@ class GeneratorVC(object):
             extLibDepVC = self.__GenerateVCExternalLibDependencies(package, variantExtDeps)
             extLibDebugDepVC = self.__GenerateVCExternalLibDependencies(package, variantExtDeps)
 
-        cppLocalDefines = Util.ExtractNames(cppDefines)
-        cppLocalDefineNames = self.__CreateVisualStudioStyleDefineList(cppLocalDefines)
+        localDefines = Util.ExtractNames(defines)
+        localDefineNames = self.__CreateVisualStudioStyleDefineList(localDefines)
 
         section = snippet
-        section = section.replace("##PACKAGE_INCLUDE_DIRS##", includeDirs)
-        section = section.replace("##PACKAGE_CPP_FLAGS##", cppLocalDefineNames)
-        section = section.replace('##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##', extLinkLibDepVC);
-        section = section.replace('##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##', extLinkDebugLibDepVC);
+        section = section.replace("##PACKAGE_INCLUDE_DIRS##", strIncludeDirs)
+        section = section.replace("##PACKAGE_DEFINES##", localDefineNames)
+        section = section.replace('##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##', extLinkLibDepVC)
+        section = section.replace('##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##', extLinkDebugLibDepVC)
         section = section.replace("##PACKAGE_EXTERNAL_LIBRARY_DEPENDENCIES##", extLibDepVC)
         section = section.replace("##PACKAGE_EXTERNAL_DEBUG_LIBRARY_DEPENDENCIES##", extLibDebugDepVC)
         return section
 
 
-    def __FindByName(self, variantExtDeps, name):
+    def __FindByName(self, variantExtDeps: List[PackageExternalDependency], name: str) -> bool:
         for entry in variantExtDeps:
             if entry.Name == name:
                 return True
         return False
 
 
-    def AddOption(self, option, includeDirs, variantExtDeps, cppDefines):
+    def AddOption(self, option: PackagePlatformVariantOption,
+                  includeDirs: List[str],
+                  rVariantExtDeps: List[PackageExternalDependency],
+                  defines: List[PackageDefine]) -> None:
         # add external dependencies
-        for entry in option.ExternalDependencies:
-            if entry.Include != None and not entry.Include in includeDirs:
-                includeDirs.append(entry.Include)
+        for entry1 in option.ExternalDependencies:
+            if entry1.Include is not None and not entry1.Include in includeDirs:
+                includeDirs.append(entry1.Include)
                 # disabled since we did the exe links all fix
-                #if entry.IsFirstActualUse:
-                #variantExtDeps.append(entry)
+                #if entry1.IsFirstActualUse:
+                #rVariantExtDeps.append(entry1)
             # due to the exe links all fix
-            if not self.__FindByName(variantExtDeps, entry.Name):
-                variantExtDeps.append(entry)
+            if not self.__FindByName(rVariantExtDeps, entry1.Name):
+                rVariantExtDeps.append(entry1)
 
         # add cpp defines
-        for entry in option.DirectCPPDefines:
-            cppDefines.append(entry)
+        for entry2 in option.DirectDefines:
+            defines.append(entry2)
 
 
-    def __GenerateCompilerSettingsGroups(self, config, variantHelper, snippet, subSnippet1, subSnippet2, package):
-        includeDirs = package.ResolvedBuildAllIncludeDirs
-        cppDefines = package.ResolvedBuildAllCPPDefines
+    def __GenerateCompilerSettingsGroups(self, config: Config,
+                                         variantHelper: VariantHelper,
+                                         snippet: str, subSnippet1: str, subSnippet2: str,
+                                         package: Package) -> str:
+        if package.ResolvedBuildAllIncludeDirs is None:
+            raise Exception("Invalid package")
+        includeDirs = package.ResolvedBuildAllIncludeDirs  # type: List[str]
+        defines = package.ResolvedBuildAllDefines  # type: List[PackageDefine]
 
         # Process virtual variants
         variantExtDeps = self.__GetExternalLibraryDependencies(package)
         if VariantType.Virtual in variantHelper.VariantTypeDict:
             for variant in variantHelper.VariantTypeDict[VariantType.Virtual]:
                 if not len(variant.Options) == 1:
-                    raise InternalErrorException("The virtual variant does not contain the expected option");
-                self.AddOption(variant.Options[0], includeDirs, variantExtDeps, cppDefines)
+                    raise InternalErrorException("The virtual variant does not contain the expected option")
+                self.AddOption(variant.Options[0], includeDirs, variantExtDeps, defines)
 
         if len(variantHelper.CartesianProduct) > 0:
             orgIncludeDirs = includeDirs
             orgVariantExtDeps = variantExtDeps
-            orgCppDefines = cppDefines
+            orgDefines = defines
 
             lines = []
             for entry in variantHelper.CartesianProduct:
                 includeDirs = list(orgIncludeDirs)
                 variantExtDeps = list(orgVariantExtDeps)
-                cppDefines = list(orgCppDefines)
+                defines = list(orgDefines)
 
                 variantList = variantHelper.NormalVariants
                 variantIdx = 0
@@ -603,34 +719,39 @@ class GeneratorVC(object):
                     variant = variantList[variantIdx]
                     option = variant.OptionDict[optionName]
                     variantIdx = variantIdx + 1
-                    self.AddOption(option, includeDirs, variantExtDeps, cppDefines)
+                    self.AddOption(option, includeDirs, variantExtDeps, defines)
 
-                dynamicName = package.ResolvedVirtualVariantName
-                section = self.__BuildGenerateCompilerSettingsGroupSection(config, snippet, subSnippet1, subSnippet2, package, includeDirs, cppDefines, variantExtDeps)
-                sectionVariantName = GetVCBuildConfigurationName(entry)
+                #dynamicName = package.ResolvedVirtualVariantNameHint
+                section = self.__BuildGenerateCompilerSettingsGroupSection(config, snippet, subSnippet1, subSnippet2, package, includeDirs, defines, variantExtDeps)
+                sectionVariantName = GeneratorVCUtil.GetVCBuildConfigurationName(entry)
                 section = section.replace("##VARIANT##", sectionVariantName)
                 lines.append(section)
             return "\n".join(lines)
-        else:
-            section = self.__BuildGenerateCompilerSettingsGroupSection(config, snippet, subSnippet1, subSnippet2, package, includeDirs, cppDefines, variantExtDeps)
-            return section.replace("##VARIANT##", '')
+
+        section = self.__BuildGenerateCompilerSettingsGroupSection(config, snippet, subSnippet1, subSnippet2, package, includeDirs, defines, variantExtDeps)
+        return section.replace("##VARIANT##", '')
 
 
-    def __ApplyOptimizations(self, compilerSettingsGroups, config, template, package):
+    def __ApplyOptimizations(self, compilerSettingsGroups: str,
+                             config: Config,
+                             template: CodeTemplateVC,
+                             package: Package) -> str:
         debugTemplate = template.DebugOptimizations[package.BuildCustomization.Debug.Optimization]
         compilerSettingsGroups = compilerSettingsGroups.replace("##DEBUG_OPTIMIZATION_TYPE##", debugTemplate.SnippetOptimizationType)
         compilerSettingsGroups = compilerSettingsGroups.replace("##DEBUG_OPTIMIZATION_OPTIONS##", debugTemplate.SnippetOptimizationOptions)
         return compilerSettingsGroups
 
 
-    def __GetVariantPropertySections(self, config, snippet, variantName, package):
-        str = snippet.replace("##PROJECT_VARIANT_NAME##", variantName)
-        str = str.replace("##RELATIVE_PACKAGE_PATH##", self.__ToRemotePath(config, package.AbsolutePath))
-        return str
+    def __GetVariantPropertySections(self, config: Config, snippet: str, variantName: str, package: Package) -> str:
+        if package.AbsolutePath is None:
+            raise Exception("Invalid package")
+        strContent = snippet.replace("##PROJECT_VARIANT_NAME##", variantName)
+        strContent = strContent.replace("##RELATIVE_PACKAGE_PATH##", self.__ToRemotePath(config, package.AbsolutePath))
+        return strContent
 
 
-    def __FixIncludes(self, entries):
-        res = []
+    def __FixIncludes(self, entries: List[str]) -> List[str]:
+        res = []  # type: List[str]
         for entry in entries:
             if entry == 'include':
                 entry = "$(ProjectDir)\\include" if not self.UsingLinuxTools else "include"
@@ -638,56 +759,61 @@ class GeneratorVC(object):
         return res
 
 
-    def __GenerateSLNDependencies1(self, package):
-        str = ""
+    def __GenerateSLNDependencies1(self, package: Package) -> str:
+        strContent = ""
         if len(package.ResolvedDirectDependencies) > 0:
-            str += '\tProjectSection(ProjectDependencies) = postProject\n'
+            strContent += '\tProjectSection(ProjectDependencies) = postProject\n'
             for dep in package.ResolvedDirectDependencies:
-                if self.__IsProject(dep.Package) and dep.Package.ResolvedPlatform != None:
-                    str += '\t\t{%s} = {%s}\n' % (dep.Package.ResolvedPlatform.ProjectId, dep.Package.ResolvedPlatform.ProjectId)
-            str += '\tEndProjectSection\n'
-        return str
+                if self.__IsProject(dep.Package) and dep.Package.ResolvedPlatform is not None and dep.Package.ResolvedPlatform.ProjectId is not None:
+                    strContent += '\t\t{%s} = {%s}\n' % (dep.Package.ResolvedPlatform.ProjectId, dep.Package.ResolvedPlatform.ProjectId)
+            strContent += '\tEndProjectSection\n'
+        return strContent
 
 
-    def __IsProject(self, package):
+    def __IsProject(self, package: Package) -> bool:
         return not package.IsVirtual or (self.UsingLinuxTools and package.Type == PackageType.HeaderLibrary)
 
 
-    def __GenerateSLNDependencies2(self, config, package):
-        str = ""
+    def __GenerateSLNDependencies2(self, config: Config, package: Package, templateAddProject: str, projectExtension: str) -> str:
+        strContent = ""
         for entry in package.ResolvedBuildOrder:
-            if self.__IsProject(entry) and entry.ResolvedPlatform != None and package != entry:
+            if self.__IsProject(entry) and entry.ResolvedPlatform is not None and package != entry:
                 projectName = entry.Name
-                projectPath = config.ToDosPathDirectConversion(entry.AbsolutePath)
+                projectPath = config.TryLegacyToDosPathDirectConversion(entry.AbsolutePath)
                 # To use relative paths instead of absolute
                 # NOTE: This was disabled because it doesn't play well with 'msbuild' (even though visual studio has no problems with it).
-                #projectPath = config.ToDosPath(entry.AbsolutePath)
-                projectPath = "%s\\%s.vcxproj" % (projectPath, projectName)
+                #projectPath = config.TryLegacyToDosPath(entry.AbsolutePath)
+                projectPath = "{0}\\{1}.{2}".format(projectPath, projectName, projectExtension)
+                if entry.ResolvedPlatform.ProjectId is None:
+                    raise Exception("Invalid package")
                 projectId = entry.ResolvedPlatform.ProjectId
-                str += '\nProject("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "%s", "%s", "{%s}"\n' % (projectName, projectPath, projectId)
-                str += "EndProject"
-        return str
+                content = templateAddProject
+                content = content.replace("##PACKAGE_TARGET_NAME##", projectName)
+                content = content.replace("##PACKAGE_PROJECT_FILE##", projectPath)
+                content = content.replace("##PACKAGE_PLATFORM_PROJECT_ID##", projectId)
+                strContent += "\n" + content
+        return strContent
 
 
-    def __HasSubProjects(self, package):
+    def __HasSubProjects(self, package: Package) -> bool:
         for entry in package.ResolvedBuildOrder:
             if self.__IsProject(entry) and entry.ResolvedPlatform != None and package != entry:
                 return True
         return False
 
-    def __GenerateFolderDefinitions(self, config, package, snippet):
+    def __GenerateFolderDefinitions(self, config: Config, package: Package, snippet: str) -> str:
         if not self.__HasSubProjects(package):
             return ""
         return "\n" + snippet
 
 
-    def __GenerateFolderEntries(self, config, package, snippet, subSnippet):
+    def __GenerateFolderEntries(self, config: Config, package: Package, snippet: str, subSnippet: str) -> str:
         if not self.__HasSubProjects(package) or len(snippet) <= 0:
             return ""
 
         subContent = ""
         for entry in package.ResolvedBuildOrder:
-            if self.__IsProject(entry) and entry.ResolvedPlatform != None and package != entry:
+            if self.__IsProject(entry) and entry.ResolvedPlatform is not None and entry.ResolvedPlatform.ProjectId is not None and package != entry:
                 section = "\n" + subSnippet
                 section = section.replace("##PACKAGE_PLATFORM_PROJECT_ID##", entry.ResolvedPlatform.ProjectId)
                 subContent += section
@@ -697,40 +823,42 @@ class GeneratorVC(object):
         return "\n" + content
 
 
-    def __GenerateSLNPackageDependency(XmlUnsupportedPlatformException, snippet, package, sectionVariantName1, sectionVariantName2):
+    def __GenerateSLNPackageDependency(self, snippet: str, package: Package, sectionVariantName1: str, sectionVariantName2: str) -> str:
+        if package.ResolvedPlatform is None or package.ResolvedPlatform.ProjectId is None:
+            raise Exception("Invalid package")
         section = snippet
-        section = section.replace("##PACKAGE_PLATFORM_PROJECT_ID##",  package.ResolvedPlatform.ProjectId)
+        section = section.replace("##PACKAGE_PLATFORM_PROJECT_ID##", package.ResolvedPlatform.ProjectId)
         section = section.replace("##VARIANT1##", sectionVariantName1)
         section = section.replace("##VARIANT2##", sectionVariantName2)
         return section
 
 
-    def __GenerateSLNPackageVariants(self, variantHelper, snippet):
-        if len(variantHelper.CartesianProduct) > 0:
-            lines = []
-            for entry in variantHelper.CartesianProduct:
-                sectionVariantName = GetVCBuildConfigurationName(entry)
-                section = self.__GenerateSLNPackageDependency(snippet, variantHelper.Package, sectionVariantName, sectionVariantName)
-                lines.append(section)
-            return "\n".join(lines)
-        else:
+    def __GenerateSLNPackageVariants(self, variantHelper: VariantHelper, snippet: str) -> str:
+        if len(variantHelper.CartesianProduct) <= 0:
             return self.__GenerateSLNPackageDependency(snippet, variantHelper.Package, '', '')
 
-    def __GenerateAndMatchSLNPackageVariants(self, parentVariantHelper, variantHelper, snippet):
-        if len(parentVariantHelper.CartesianProduct) > 0:
-            lines = []
-            for entry in parentVariantHelper.CartesianProduct:
-                sectionVariantName = GetVCBuildConfigurationName(entry)
-                matchedVariantName = self.__BuildMatchedVariantName(parentVariantHelper, entry, variantHelper)
-                section = self.__GenerateSLNPackageDependency(snippet, variantHelper.Package, sectionVariantName, matchedVariantName)
-                lines.append(section)
-            return "\n".join(lines)
-        else:
+        lines = []
+        for entry in variantHelper.CartesianProduct:
+            sectionVariantName = GeneratorVCUtil.GetVCBuildConfigurationName(entry)
+            section = self.__GenerateSLNPackageDependency(snippet, variantHelper.Package, sectionVariantName, sectionVariantName)
+            lines.append(section)
+        return "\n".join(lines)
+
+
+    def __GenerateAndMatchSLNPackageVariants(self, parentVariantHelper: VariantHelper, variantHelper: VariantHelper, snippet: str) -> str:
+        if len(parentVariantHelper.CartesianProduct) <= 0:
             return self.__GenerateSLNPackageDependency(snippet, variantHelper.Package, '', '')
 
+        lines = []
+        for entry in parentVariantHelper.CartesianProduct:
+            sectionVariantName = GeneratorVCUtil.GetVCBuildConfigurationName(entry)
+            matchedVariantName = self.__BuildMatchedVariantName(parentVariantHelper, entry, variantHelper)
+            section = self.__GenerateSLNPackageDependency(snippet, variantHelper.Package, sectionVariantName, matchedVariantName)
+            lines.append(section)
+        return "\n".join(lines)
 
 
-    def __GenerateSLNDependencies3(self, variantHelper, snippet, package):
+    def __GenerateSLNDependencies3(self, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
         res = []
         for entry in package.ResolvedBuildOrder:
             if self.__IsProject(entry) and entry.ResolvedPlatform != None and package != entry:
@@ -740,21 +868,27 @@ class GeneratorVC(object):
         return "\n".join(res) + "\n" if len(res) > 0 else ""
 
 
-    def __GenerateVCDependencies(self, snippet, config, package):
+    def __GenerateVCDependencies(self, snippet: str, config: Config, package: Package, projectExtension: str) -> str:
         res = []
         if len(package.ResolvedBuildOrder) > 1:
             for entry in package.ResolvedBuildOrder:
-                if self.__IsProject(entry) and entry.ResolvedPlatform != None and package != entry:
-                    projectPath = "%s\\%s.vcxproj" % (config.ToPath(entry.AbsolutePath).replace('/', '\\'), entry.Name)
+                if self.__IsProject(entry) and entry.ResolvedPlatform is not None and package != entry:
+                    if entry.AbsolutePath is None or entry.ResolvedPlatform.ProjectId is None:
+                        raise Exception("Invalid package")
+                    projectPath = "{0}\\{1}.{2}".format(config.ToPath(entry.AbsolutePath).replace('/', '\\'), entry.Name, projectExtension)
                     projectId = entry.ResolvedPlatform.ProjectId
-                    str = snippet.replace("##PACKAGE_DEPENDENCY_PROJECT_PATH##",projectPath)
-                    str = str.replace("##PACKAGE_DEPENDENCY_PROJECTID##", projectId.lower())
-                    res.append(str)
+                    strContent = snippet.replace("##PACKAGE_DEPENDENCY_PROJECT_PATH##", projectPath)
+                    strContent = strContent.replace("##PACKAGE_DEPENDENCY_PROJECTID##", projectId.lower())
+                    strContent = strContent.replace("##PACKAGE_NAME##", entry.Name)
+                    res.append(strContent)
         return "\n".join(res)
 
 
-    def __GenerateVCExternalLinkDependencies(self, snippet1, snippet2, package, variantExtDeps, useDebugLibs):
-        str = ""
+    def __GenerateVCExternalLinkDependencies(self, snippet1: str, snippet2: str,
+                                             package: Package,
+                                             variantExtDeps: List[PackageExternalDependency],
+                                             useDebugLibs: bool) -> str:
+        strContent = ""
         extDeps = Util.FilterByType(package.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib)
         extDeps2 = Util.FilterByType(variantExtDeps, ExternalDependencyType.StaticLib)
         extDeps += extDeps2
@@ -766,16 +900,22 @@ class GeneratorVC(object):
                 if entry.Location != None:
                     additionalLibraryDirectories.add(entry.Location)
             if len(additionalDependencies) > 0:
-                additionalDependencies = self.__CreateVisualStudioStyleList(additionalDependencies)
-                str += "\n" + snippet1.replace("##PACKAGE_EXTERNAL_LINK_DEPENDENCIES##", additionalDependencies)
+                # sort these to ensure we get the same order everytime.
+                sortedAdditionalDependenciesList = list(additionalDependencies)
+                sortedAdditionalDependenciesList.sort()
+                strAdditionalDependencies = self.__CreateVisualStudioStyleList(sortedAdditionalDependenciesList)
+                strContent += "\n" + snippet1.replace("##PACKAGE_EXTERNAL_LINK_DEPENDENCIES##", strAdditionalDependencies)
             if len(additionalLibraryDirectories) > 0:
-                additionalLibraryDirectories = self.__CreateVisualStudioStyleList(additionalLibraryDirectories)
-                str += "\n" + snippet2.replace("##PACKAGE_EXTERNAL_LIBRARY_DIRECTORIES##", additionalLibraryDirectories)
-        return str
+                # sort these to ensure we get the same order everytime.
+                sortedAdditionalDependencyList = list(additionalLibraryDirectories)
+                sortedAdditionalDependencyList.sort()
+                strAdditionalLibraryDirectories = self.__CreateVisualStudioStyleList(sortedAdditionalDependencyList)
+                strContent += "\n" + snippet2.replace("##PACKAGE_EXTERNAL_LIBRARY_DIRECTORIES##", strAdditionalLibraryDirectories)
+        return strContent
 
 
-    def __GenerateVCExternalLibDependencies(self, package, variantExtDeps):
-        str = ""
+    def __GenerateVCExternalLibDependencies(self, package: Package, variantExtDeps: List[PackageExternalDependency]) -> str:
+        strContent = ""
         extDeps = Util.FilterByType(package.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib)
         extDeps2 = Util.FilterByType(variantExtDeps, ExternalDependencyType.StaticLib)
         extDeps += extDeps2
@@ -784,33 +924,112 @@ class GeneratorVC(object):
             additionalLibraryDirectories = set()
             for entry in extDeps:
                 additionalDependencies.add(entry.Name)
-                if entry.Location != None:
+                if entry.Location is not None:
                     additionalLibraryDirectories.add(entry.Location)
-            str += '\n    <Lib>\n'
+            strContent += '\n    <Lib>\n'
             if len(additionalDependencies) > 0:
-                additionalDependencies = self.__CreateVisualStudioStyleList(additionalDependencies)
-                str += '      <AdditionalDependencies>%s</AdditionalDependencies>\n' % (additionalDependencies)
+                # sort these to ensure we get the same order everytime.
+                sortedAdditionalDependenciesList = list(additionalDependencies)
+                sortedAdditionalDependenciesList.sort()
+                strAdditionalDependencies = self.__CreateVisualStudioStyleList(sortedAdditionalDependenciesList)
+                strContent += '      <AdditionalDependencies>{0}</AdditionalDependencies>\n'.format(strAdditionalDependencies)
             if len(additionalLibraryDirectories) > 0:
-                additionalLibraryDirectories = self.__CreateVisualStudioStyleList(additionalLibraryDirectories)
-                str += '      <AdditionalLibraryDirectories>%s</AdditionalLibraryDirectories>\n' % (additionalLibraryDirectories)
-            str += '    </Lib>'
-        return str
+                # sort these to ensure we get the same order everytime.
+                sortedAdditionalDependencyList = list(additionalLibraryDirectories)
+                sortedAdditionalDependencyList.sort()
+                strAdditionalLibraryDirectories = self.__CreateVisualStudioStyleList(sortedAdditionalDependencyList)
+                strContent += '      <AdditionalLibraryDirectories>%s</AdditionalLibraryDirectories>\n' % (strAdditionalLibraryDirectories)
+            strContent += '    </Lib>'
+        return strContent
 
 
-    def __GetExternalLibraryDependencies(self, package):
-        libPaths = []
+    def __GetExternalLibraryDependencies(self, package: Package) -> List[PackageExternalDependency]:
+        libPaths = []  # type: List[PackageExternalDependency]
         for entry in package.ResolvedBuildOrder:
             externalList = Util.FilterByType(entry.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib)
             libPaths += externalList
         return libPaths
 
 
-    def __FixIncludesForLinuxTools(self, config, package, includeDirs):
+    def __GetExternalAssemblyDependencies(self, package: Package) -> List[PackageExternalDependency]:
+        externalAssemblyDeps = Util.FilterByType(package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
+        for entry in package.ResolvedDirectDependencies:
+            if entry.Package.IsVirtual:
+                externalList = Util.FilterByType(entry.Package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
+                externalAssemblyDeps += externalList
+        return externalAssemblyDeps
+
+
+    def __GetAssemblyName(self, entry: PackageExternalDependency) -> str:
+        name = entry.Name
+        if entry.Version != None:
+            name += ", Version={0}".format(entry.Version)
+        if entry.Culture != None:
+            name += ", Culture={0}".format(entry.Culture)
+        if entry.PublicKeyToken != None:
+            name += ", PublicKeyToken={0}".format(entry.PublicKeyToken)
+        if entry.ProcessorArchitecture != None:
+            name += ", processorArchitecture={0}".format(entry.ProcessorArchitecture)
+        return name
+
+
+    def __GetAssemblyReferences(self, config: Config, package: Package, snippetSimple: Optional[str], snippetComplex: Optional[str]) -> str:
+        assemblyList = self.__GetExternalAssemblyDependencies(package)  # type: List[PackageExternalDependency]
+        if len(assemblyList) <= 0:
+            return ""
+        if snippetSimple is None or snippetComplex is None:
+            raise Exception("We have external assembly refernces but no valid code snippet to insert.")
+
+        result = ""
+        for entry in assemblyList:
+            content = "\n"
+            if entry.HintPath is not None:
+                content += snippetComplex
+                content = content.replace("##PACKAGE_DEPENDENCY_HINT_PATH##", entry.HintPath)
+            else:
+                content += snippetSimple
+            content = content.replace("##PACKAGE_DEPENDENCY_INCLUDE##", self.__GetAssemblyName(entry))
+            result += content
+        return result
+
+
+    def __TryGenerateNuGetPackageConfig(self, config: Config, package: Package, nuGetPackageConfig: Optional[NuGetPackageConfigSnippets]) -> Optional[str]:
+        externalAssemblyList = self.__GetExternalAssemblyDependencies(package)  # type: List[PackageExternalDependency]
+
+        externalDependencies = []
+        for entry in externalAssemblyList:
+            if entry.PackageManager is not None and entry.PackageManager.Name == "NuGet":
+                externalDependencies.append(entry)
+
+        if len(externalDependencies) <= 0:
+            return None
+        if nuGetPackageConfig is None:
+            raise Exception("No PackageConfig snippet supplied")
+
+        contentPackageList = ""
+        for entry in externalDependencies:
+            if entry.PackageManager is None:
+                raise Exception("Invalid package")
+            content = "\n" + nuGetPackageConfig.PackageEntry
+            content = content.replace("##PACKAGE_NAME##", entry.Name)
+            if entry.PackageManager.PackageVersion is None or entry.PackageManager.PackageTargetFramework is None:
+                raise Exception("Not supported")
+            content = content.replace("##PACKAGE_VERSION##", entry.PackageManager.PackageVersion)
+            content = content.replace("##PACKAGE_TARGET_FRAMEWORK##", entry.PackageManager.PackageTargetFramework)
+            contentPackageList += content
+
+        content = nuGetPackageConfig.Master
+        content = content.replace("##PACKAGE_LIST##", contentPackageList)
+        return content
+
+    def __FixIncludesForLinuxTools(self, config: Config, package: Package, includeDirs: List[str]) -> List[str]:
+        if package.AbsolutePath is None:
+            raise Exception("Invalid package")
         packagePath = config.ToBashPath(package.AbsolutePath)
         packagePath = packagePath.replace('$', '__')
         basePath = self.__GenerateBackpedalToRoot(packagePath)
 
-        newDirs = []
+        newDirs = []  # type: List[str]
         for entry in includeDirs:
             if entry == package.BaseIncludePath:
                 newDirs.append(entry)
@@ -821,22 +1040,104 @@ class GeneratorVC(object):
                 newDirs.append(newName)
         return newDirs
 
-    def __CountDirectories(self, path, count = 1):
+
+    def __CountDirectories(self, path: str, count: int = 1) -> int:
         name = IOUtil.GetDirectoryName(path)
         if len(name) <= 0 or name == '.':
             return count
         return self.__CountDirectories(name, count + 1)
 
 
-    def __GenerateBackpedalToRoot(self, path):
+    def __GenerateBackpedalToRoot(self, path: str) -> str:
         directoryCount = self.__CountDirectories(path)
         backPedal = []
-        for i in range(0,directoryCount):
+        for i in range(0, directoryCount):
             backPedal.append('..')
         return '/'.join(backPedal)
 
-    def __ToRemotePath(self, config, path):
+
+    def __ToRemotePath(self, config: Config, path: str) -> str:
         path = config.ToBashPath(path)
         path = path.replace('$', '__')
         path = IOUtil.Join("$(RemoteRootDir)", path)
         return path
+
+
+class GeneratorVCUtil(object):
+    @staticmethod
+    def GetVCBuildConfigurationName(entry: Iterable[str]) -> str:
+        return "-".join(entry)
+
+
+    @staticmethod
+    def GenerateSLNVariantNames(variantHelper: VariantHelper) -> List[str]:
+        variantNames = []
+        if len(variantHelper.CartesianProduct) > 0:
+            #lines = []
+            for entry in variantHelper.CartesianProduct:
+                variantNames.append(GeneratorVCUtil.GetVCBuildConfigurationName(entry))
+        return variantNames
+
+
+    @staticmethod
+    def GetTargetName(package: Package) -> str:
+        return package.Name
+
+
+    @staticmethod
+    def TryGenerateBuildReport(log: Log, generatorName: str, package: Package, variantHelper: VariantHelper) -> Optional[GeneratorBuildReport]:
+        if package.IsVirtual:
+            return None
+
+        if package.ResolvedBuildPath is None:
+            raise Exception("Invalid package")
+
+        activeVariantName = "{0}${{{1}}}".format(variantHelper.ResolvedNormalVariantNameHint, LocalMagicBuildVariants.GeneratorConfig)
+        buildCommandArguments = ["/p:Configuration={0}".format(activeVariantName)]
+
+        # Unfortunately this causes the libs to not be copied from src -> target location too :(
+        # buildCommandArguments += ["/p:BuildProjectReferences=false"]
+
+        buildCommand = IOUtil.Join(package.ResolvedBuildPath, LocalMagicFilenames.BuildProject)
+        buildCommandReport = GeneratorCommandReport(False, buildCommand, buildCommandArguments)
+        return GeneratorBuildReport(buildCommandReport)
+
+
+    @staticmethod
+    def TryGenerateExecutableReport(log: Log, generatorName: str, package: Package, variantHelper: VariantHelper) -> Optional[GeneratorExecutableReport]:
+        if package.Type != PackageType.Executable or package.IsVirtual:
+            return None
+
+        if package.ResolvedBuildPath is None:
+            raise Exception("Invalid package")
+
+        targetName = GeneratorVCUtil.GetTargetName(package)
+
+        # $(SolutionDir)\build\##PLATFORM_NAME##\##PACKAGE_TARGET_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\
+        # $(SolutionDir)\build\Windows\S06_Texturing\$(Configuration)_$(FSL_GLES_NAME)\
+        allVariantNames = GeneratorVCUtil.GenerateSLNVariantNames(variantHelper)
+        if len(allVariantNames) < 1:
+            allVariantNames.append('')
+
+        configVariantName = "${{{0}}}".format(LocalMagicBuildVariants.GeneratorConfig)
+
+        foundBuildPath = IOUtil.Join(package.ResolvedBuildPath, targetName)
+        normalVariantFormatString = variantHelper.ResolvedNormalVariantNameHint
+        exeFormatString = "{0}/{1}{2}{3}/{4}.exe".format(foundBuildPath, normalVariantFormatString, configVariantName, package.ResolvedVirtualVariantNameHint, targetName)
+        runScript = "{0}/{1}".format(package.ResolvedBuildPath, LocalMagicFilenames.RunProject)
+
+        return GeneratorExecutableReport(False, exeFormatString, runScript, FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable)
+
+
+    @staticmethod
+    def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package) -> Optional[PackageGeneratorReport]:
+        if package.IsVirtual:
+            return None
+
+        variableReport = GeneratorVariableReport(log)
+        variableReport.Add(LocalMagicBuildVariants.GeneratorConfig, [LocalMagicBuildVariantOption.Debug, LocalMagicBuildVariantOption.Release], ToolAddedVariant.CONFIG)
+
+        variantHelper = VariantHelper(package)
+        buildReport = GeneratorVCUtil.TryGenerateBuildReport(log, generatorName, package, variantHelper)
+        executableReport = GeneratorVCUtil.TryGenerateExecutableReport(log, generatorName, package, variantHelper)
+        return PackageGeneratorReport(buildReport, executableReport, variableReport)

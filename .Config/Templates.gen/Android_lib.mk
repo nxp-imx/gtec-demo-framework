@@ -10,7 +10,7 @@ LOCAL_MODULE    := ##PACKAGE_TARGET_NAME##
 
 LOCAL_EXPORT_CPPFLAGS := ##PACKAGE_PUBLIC_CPP_FLAGS##
 
-LOCAL_CPPFLAGS := ##PACKAGE_CPP_FLAGS##
+LOCAL_CPPFLAGS := ##PACKAGE_DEFINES##
 
 # This indicates the path to the headers that users of your library wants (like libfoo.h)
 LOCAL_EXPORT_C_INCLUDES :=##PACKAGE_PUBLIC_INCLUDE_DIRS##

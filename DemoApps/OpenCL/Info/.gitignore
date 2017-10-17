@@ -7,6 +7,9 @@ Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+Info
+Info_d
+OpenCL.Info
 OpenCL.Info.VC.VC.opendb
 OpenCL.Info.VC.db
 OpenCL.Info.aps

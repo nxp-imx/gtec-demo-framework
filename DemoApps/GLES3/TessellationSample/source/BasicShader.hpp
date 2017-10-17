@@ -32,8 +32,8 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Noncopyable.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLVertexAttribLink.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLVertexAttribLink.hpp>
 #include <memory>
 #include <vector>
 #include "RenderCameraConfig.hpp"

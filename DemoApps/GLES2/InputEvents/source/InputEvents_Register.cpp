@@ -29,19 +29,27 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES2/Setup/RegisterDemoAppGLES2.hpp>
+#include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "InputEvents.hpp"
 #include "InputEventsOptionParser.hpp"
 
-namespace
+namespace Fsl
 {
-  // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-  static const EGLint g_eglConfigAttribs[] =
+  namespace
   {
-    EGL_NONE
-  };
-}
+    // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
+    static const EGLint g_eglConfigAttribs[] =
+    {
+      EGL_NONE
+    };
+  }
 
-// Configure the demo environment to run this demo app in a OpenGLES2 host environment
-FSL_REGISTER_OPENGLES2_DEMO_EX(InputEvents, DemoAppHostConfigEGL(g_eglConfigAttribs), InputEventsOptionParser);
+  // Configure the demo environment to run this demo app in a OpenGLES2 host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+
+    DemoAppRegister::GLES2::Register<InputEvents, InputEventsOptionParser>(rSetup, "GLES2.InputEvents", config);
+  }
+}

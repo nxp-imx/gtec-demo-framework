@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/StringParseArrayResult.hpp>
+#include <chrono>
 
 namespace Fsl
 {
@@ -113,6 +114,9 @@ namespace Fsl
     static StringParseArrayResult ParseArray(double* pDst, const int dstLength, const char*const psz, const std::size_t startIndex, const std::size_t length);
 
     static bool TryParse(int32_t& rValue, const char*const psz, const std::size_t startIndex, const std::size_t length, const int32_t radix = 10);
+
+    //! @brief Parse a time string in the format HH:MM:SS and return the result in seconds
+    static std::size_t ParseTime(std::chrono::seconds& rResult, const char*const psz);
   };
 }
 

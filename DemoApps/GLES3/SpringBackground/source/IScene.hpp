@@ -31,9 +31,9 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslDemoApp/DemoTime.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector4.hpp>

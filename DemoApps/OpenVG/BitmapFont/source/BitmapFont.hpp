@@ -31,8 +31,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppVG/DemoAppVG.hpp>
-#include <FslGraphicsVG/VGImageBuffer.hpp>
+#include <FslDemoApp/OpenVG/DemoAppVG.hpp>
+#include <FslUtil/OpenVG/VGImageBuffer.hpp>
 
 namespace Fsl
 {

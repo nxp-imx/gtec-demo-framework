@@ -31,8 +31,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES2/DemoAppGLES2.hpp>
-#include <DFSimpleUI101Shared/Shared.hpp>
+#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <Shared/DFSimpleUI101/Shared.hpp>
 
 namespace Fsl
 {

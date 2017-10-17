@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,94 +31,108 @@
 #
 #****************************************************************************************************************************************************
 
-import sys
+from typing import Any
+from typing import List
+from typing import Optional
+#from FslBuildGen.DataTypes import ExternalDependencyType
 
-
-def ExtractNames(entries):
-    list = []
+# TODO: add a proper type to entries. It is a type that contains the Name attribute of type str
+def ExtractNames(entries: Any) -> List[str]:
+    resList = []
     for entry in entries:
-        list.append(entry.Name)
-    return list
+        resList.append(entry.Name)
+    return resList
 
 
-def ExtractNonVirtualNames(entries):
-    list = []
+# TODO: add a proper type to entries. It is a type that contains the Package attribute and the package attribute is of type Package
+def ExtractNonVirtualNames(entries: Any) -> List[str]:
+    resList = []
     for entry in entries:
         package = entry.Package
         if not package.IsVirtual:
-            list.append(package.Name)
-    return list
+            resList.append(package.Name)
+    return resList
 
 
-def ExtractNamesAsMakeEnvironmentVariables(entries):
-    list = []
+# TODO: add a proper type to entries. It is a type that contains the Name attribute of type str
+def ExtractNamesAsMakeEnvironmentVariables(entries: Any) -> List[str]:
+    resList = []
     for entry in entries:
-        if not (entry.Name.startswith('$(') and entry.Name.endswith(')')):
-            list.append("$(%s)" % (entry.Name))
+        if not (entry.Name.startswith("$(") and entry.Name.endswith(")")):
+            resList.append("$({0})".format(entry.Name))
         else:
-            list.append(entry.Name)
-    return list
+            resList.append(entry.Name)
+    return resList
 
 
 
-def RemoveEnvironmentVariablePadding(environmentVariableName):
+
+def RemoveEnvironmentVariablePadding(environmentVariableName: str) -> str:
     if not environmentVariableName.startswith("$(") or not environmentVariableName.endswith(")"):
-        raise Exception("Environment variable name '%s' did not follow the expected pattern of $(name)" % (environmentVariableName))
+        raise Exception("Environment variable name '{0}' did not follow the expected pattern of $(name)".format(environmentVariableName))
     return environmentVariableName[2:-1]
 
 
-def FilterByType(entries, type):
+# TODO: add a proper type to entries. It is a type that contains the Type attribute of type typeValue
+def FilterByType(entries: List[Any], typeValue: Any) -> List[Any]: #: ExternalDependencyType):
     res = []
     for entry in entries:
-        if entry.Type == type:
+        if entry.Type == typeValue:
             res.append(entry)
     return res
 
-def EnsureUTF8(value):
-    if value == None:
-        return None
-    try:
-        if sys.version_info < (3,):
-            return unicode(value.encode('utf-8'))
-        else: # in python 3 all strings are unicode
-            return str(value)
-    except ValueError:
-        return value
 
-def UTF8ToAscii(value):
-    if value == None:
-        return None
-    try:
-        if sys.version_info < (3,):
-            udata=value.decode("utf-8")
-            return udata.encode("ascii","ignore")
-        else:
-            return value;
-    except ValueError:
-        return value
+#def EnsureUTF8(value: Optional[str]) -> Optional[str]:
+#    if value is None:
+#        return None
+#    try:
+#        # in python 3 all strings are unicode
+#        return str(value)
+#    except ValueError:
+#        return value
 
 
-def IsValidNameStartCharacter(ch):
+
+def TryUTF8ToAscii(value: Optional[str]) -> Optional[str]:
+    return value
+    #if value is None:
+    #    return None
+    #try:
+    #    return str(value.encode('ascii'))
+    #except UnicodeEncodeError:
+    #    return None
+
+
+def UTF8ToAscii(value: str) -> str:
+    return value
+#    return str(value.encode('ascii'))
+
+
+def IsValidNameStartCharacter(ch: str) -> bool:
     return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z'))
 
-def IsValidNameEndCharacter(ch):
+
+def IsValidNameEndCharacter(ch: str) -> bool:
     return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or (ch == '_'))
 
-def IsValidNameCharacter(ch):
+
+def IsValidNameCharacter(ch: str) -> bool:
     return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or (ch == '_'))
 
-def IsValidPackageNameCharacter(ch):
+
+def IsValidPackageNameCharacter(ch: str) -> bool:
     return ((ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or (ch == '_') or (ch == '.'))
 
 
-def IsValidUppercaseNameStartCharacter(ch):
+def IsValidUppercaseNameStartCharacter(ch: str) -> bool:
     return ((ch >= 'A' and ch <= 'Z'))
 
-def IsValidUppercaseNameCharacter(ch):
+
+def IsValidUppercaseNameCharacter(ch: str) -> bool:
     return ((ch >= 'A' and ch <= 'Z') or (ch >= '0' and ch <= '9') or (ch == '_'))
 
 
-def IsValidName(name):
+def IsValidName(name: str) -> bool:
     if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
         return False
 
@@ -127,7 +141,7 @@ def IsValidName(name):
             return False
     return True
 
-def IsValidUppercaseName(name):
+def IsValidUppercaseName(name: str) -> bool:
     if len(name) <= 0 or not IsValidUppercaseNameStartCharacter(name[0]):
         return False
 
@@ -137,13 +151,13 @@ def IsValidUppercaseName(name):
     return True
 
 
-def IsValidVirtualVariantName(name):
+def IsValidVirtualVariantName(name: str) -> bool:
     if not name.startswith("$(") or not name.endswith(")"):
         return False
     return IsValidUppercaseName(name[2:-1])
 
 
-def IsValidPackageName(name, allowSubPackages):
+def IsValidPackageName(name: str, allowSubPackages: bool) -> bool:
     if not allowSubPackages:
         return IsValidName(name)
 
@@ -164,12 +178,39 @@ def IsValidPackageName(name, allowSubPackages):
                 isFirstCharInName = False
         else:
             isFirstCharInName = True
-            pass
 
     return name.find('..') < 0
 
 
-def ChangeToBashEnvVariables(path):
+def IsValidCStyleName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+    for index in range(1, len(name)):
+        if not IsValidNameCharacter(name[index]):
+            return False
+    return True
+
+
+def IsValidRequirementName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+    for index in range(1, len(name)):
+        if name[index] != '.' and not IsValidNameCharacter(name[index]):
+            return False
+    return True
+
+
+def ExtractNamesAsVariables(entries: Any) -> List[str]:
+    resList = []
+    for entry in entries:
+        if IsValidCStyleName(entry.Name):
+            resList.append("${{{0}}}".format(entry.Name))
+        else:
+            raise Exception("The name '{0}' is not a valid variable name".format(entry.Name))
+    return resList
+
+
+def ChangeToBashEnvVariables(path: str) -> str:
     index = path.find("$(")
     if index < 0:
         return path
@@ -183,7 +224,7 @@ def ChangeToBashEnvVariables(path):
     return ChangeToBashEnvVariables(path)
 
 
-def ChangeToCMakeVariables(path):
+def ChangeToCMakeVariables(path: str) -> str:
     index = path.find("$(")
     if index < 0:
         return path
@@ -197,7 +238,7 @@ def ChangeToCMakeVariables(path):
     return ChangeToCMakeVariables(path)
 
 
-def ChangeToCMakeEnvVariables(path):
+def ChangeToCMakeEnvVariables(path: str) -> str:
     index = path.find("$(")
     if index < 0:
         return path
@@ -209,3 +250,17 @@ def ChangeToCMakeEnvVariables(path):
     end = path[endIndex+1:]
     path = "%s$ENV{%s}%s" % (start, envName, end)
     return ChangeToCMakeEnvVariables(path)
+
+
+def ChangeToDosEnvironmentVariables(path: str) -> str:
+    index = path.find("$(")
+    if index < 0:
+        return path
+    endIndex = path.find(")")
+    if endIndex < 0:
+        return path
+    start = path[:index]
+    envName = path[index+2:endIndex]
+    end = path[endIndex+1:]
+    path = "%s%%%s%%%s" % (start, envName, end)
+    return ChangeToDosEnvironmentVariables(path)

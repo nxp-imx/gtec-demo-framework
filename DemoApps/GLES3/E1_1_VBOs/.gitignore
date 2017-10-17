@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+E1_1_VBOs
 E1_1_VBOs_FB
+E1_1_VBOs_FB_d
 E1_1_VBOs_Wayland
+E1_1_VBOs_Wayland_d
 E1_1_VBOs_X11
+E1_1_VBOs_X11_d
+E1_1_VBOs_d
 FslSDKIcon.ico
+GLES3.E1_1_VBOs
 GLES3.E1_1_VBOs.VC.VC.opendb
 GLES3.E1_1_VBOs.VC.db
 GLES3.E1_1_VBOs.aps
@@ -21,6 +27,9 @@ GLES3.E1_1_VBOs.v12.suo
 GLES3.E1_1_VBOs.vcxproj
 GLES3.E1_1_VBOs.vcxproj.filters
 GLES3.E1_1_VBOs.vcxproj.user
+GLES3.E1_1_VBOs_FB
+GLES3.E1_1_VBOs_Wayland
+GLES3.E1_1_VBOs_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

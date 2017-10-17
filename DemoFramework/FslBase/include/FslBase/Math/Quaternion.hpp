@@ -43,7 +43,8 @@ namespace Fsl
     float W;
 
     Quaternion();
-    Quaternion(const OptimizationFlag flag);
+    // coverity[uninit_member]
+    Quaternion(const OptimizationFlag flag) {};
     Quaternion(const float x, const float y, const float z, const float w);
     Quaternion(const Vector3& vectorPart, const float scalarPart);
 
@@ -146,8 +147,8 @@ inline Fsl::Quaternion operator*(const Fsl::Quaternion lhs, const float scaleFac
 }
 
 
-extern Fsl::Quaternion operator/(const Fsl::Quaternion lhs, const Fsl::Quaternion& rhs);
-extern Fsl::Quaternion operator*(const Fsl::Quaternion lhs, const Fsl::Quaternion& rhs);
+Fsl::Quaternion operator/(const Fsl::Quaternion lhs, const Fsl::Quaternion& rhs);
+Fsl::Quaternion operator*(const Fsl::Quaternion lhs, const Fsl::Quaternion& rhs);
 
 
 #endif

@@ -29,11 +29,12 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/Setup/RegisterDemoApp.hpp>
+//#include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include "DynamicTerrainTessellation.hpp"
-#include <VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <VulkanWindowExperimental/OptionParser.hpp>
-#include <FslDemoAppVulkan/Config/DemoAppHostConfigVulkanEx.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
+#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
+#include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 
 namespace Fsl
 {
@@ -57,6 +58,16 @@ namespace Fsl
       }
     };
   }
+
+
+  // Configure the demo environment to run this demo app in a Window host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+
+    //rSetup.CustomizeHost.Service.PreferAsyncImageService = true;
+    //rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<Stub::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
+
+    DemoAppRegister::Window::Register<DynamicTerrainTessellation, OptionParser>(rSetup, "Vulkan.DynamicTerrainTessellation", config);
+  }
 }
-// Configure the demo environment to run this demo app in a Window host environment
-FSL_REGISTER_WINDOW_DEMO_EX(DynamicTerrainTessellation, DemoAppHostConfigWindow(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>()), OptionParser);

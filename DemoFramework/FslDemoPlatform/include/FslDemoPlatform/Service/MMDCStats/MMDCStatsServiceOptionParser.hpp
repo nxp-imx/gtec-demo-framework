@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Service/AServiceOptionParser.hpp>
+#include <FslService/Impl/AServiceOptionParser.hpp>
 #include <string>
 
 namespace Fsl

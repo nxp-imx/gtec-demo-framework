@@ -4,12 +4,18 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+CoverFlow
 CoverFlow_FB
+CoverFlow_FB_d
 CoverFlow_Wayland
+CoverFlow_Wayland_d
 CoverFlow_X11
+CoverFlow_X11_d
+CoverFlow_d
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+OpenVG.CoverFlow
 OpenVG.CoverFlow.VC.VC.opendb
 OpenVG.CoverFlow.VC.db
 OpenVG.CoverFlow.aps
@@ -23,5 +29,8 @@ OpenVG.CoverFlow.v12.suo
 OpenVG.CoverFlow.vcxproj
 OpenVG.CoverFlow.vcxproj.filters
 OpenVG.CoverFlow.vcxproj.user
+OpenVG.CoverFlow_FB
+OpenVG.CoverFlow_Wayland
+OpenVG.CoverFlow_X11
 build/
 resource.h

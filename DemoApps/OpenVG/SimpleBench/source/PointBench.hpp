@@ -31,11 +31,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsVG/VGImageBuffer.hpp>
-#include <FslGraphicsVG/VGPaintBuffer.hpp>
-#include <FslGraphicsVG/VGPathBuffer.hpp>
-#include <FslGraphicsVG/VGFontBuffer.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
+#include <FslUtil/OpenVG/VGImageBuffer.hpp>
+#include <FslUtil/OpenVG/VGPaintBuffer.hpp>
+#include <FslUtil/OpenVG/VGPathBuffer.hpp>
+#include <FslUtil/OpenVG/VGFontBuffer.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslGraphics/Color.hpp>
 #include "IBench.hpp"
 #include <vector>

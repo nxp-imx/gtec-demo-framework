@@ -7,7 +7,7 @@
     <Platform Name="Ubuntu">
       <ExternalDependency Name="Xrandr" Type="StaticLib"/>
       <ExternalDependency Name="X11" Type="StaticLib"/>
-      <CPPDefine Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
+      <Define Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
     </Platform>
     <Platform Name="Windows">
       <!--ExternalDependency Name="Shcore.lib" Type="StaticLib"/-->
@@ -15,17 +15,17 @@
     <Platform Name="Yocto">
       <Variant Name="WindowSystem">
         <Option Name="FB">
-          <CPPDefine Name="FSL_WINDOWSYSTEM_FRAMEBUFFER" Access="Public"/>
+          <Define Name="FSL_WINDOWSYSTEM_FRAMEBUFFER" Access="Public"/>
         </Option>
         <Option Name="Wayland">
           <ExternalDependency Name="wayland-client" Type="StaticLib"/>
           <ExternalDependency Name="wayland-cursor" Type="StaticLib"/>
-          <CPPDefine Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
+          <Define Name="FSL_WINDOWSYSTEM_WAYLAND" Access="Public"/>
         </Option>
         <Option Name="X11">
           <ExternalDependency Name="Xrandr" Type="StaticLib"/>
           <ExternalDependency Name="X11" Type="StaticLib"/>
-          <CPPDefine Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
+          <Define Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
         </Option>
       </Variant>
     </Platform>

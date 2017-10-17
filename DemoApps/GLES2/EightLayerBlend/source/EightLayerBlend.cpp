@@ -29,8 +29,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>

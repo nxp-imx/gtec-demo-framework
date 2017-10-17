@@ -68,7 +68,7 @@ namespace Fsl
       return (static_cast<uint32_t>(pixelFormat) & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag);
     }
 
-    static PixelFormatLayout GetPixelFormatLayout(const PixelFormat pixelFormat)
+    static constexpr PixelFormatLayout GetPixelFormatLayout(const PixelFormat pixelFormat)
     {
       return static_cast<PixelFormatLayout>((static_cast<int32_t>(pixelFormat)& PixelFormatFlags::BIT_MASK_LAYOUT) >> PixelFormatFlags::BIT_INDEX_LAYOUT);
     }

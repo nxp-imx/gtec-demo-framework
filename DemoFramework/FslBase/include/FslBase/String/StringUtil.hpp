@@ -41,9 +41,17 @@ namespace Fsl
   class StringUtil
   {
   public:
+    static bool Contains(const std::string& src, const char ch);
+    static bool Contains(const std::string& src, const std::string& str);
+
+    //! @brief Check if the 'source' string starts with the character
+    static bool StartsWith(const std::string& src, const char ch);
 
     //! @brief Check if the 'source' string starts with the 'value'
     static bool StartsWith(const std::string& source, const std::string& value);
+
+    //! @brief Check if the 'source' string ends with the character
+    static bool EndsWith(const std::string& src, const char ch);
 
     //! @brief Check if the 'source' string ends with the 'value'
     static bool EndsWith(const std::string& source, const std::string& value);
@@ -58,6 +66,10 @@ namespace Fsl
     //! @return the index or less than zero if not found
     static int32_t IndexOf(const std::string& source, const char ch, const int32_t fromIndex);
 
+    static int32_t LastIndexOf(const std::string& src, const char ch);
+
+    //! @brief Replace all instances of the 'from' character with the 'to' character
+    static void Replace(std::string& src, const char from, const char to);
 
     //! @brief Replace all instances of the old value in str with the new value
     static void Replace(std::string& str, const std::string& oldValue, const std::string& newValue);

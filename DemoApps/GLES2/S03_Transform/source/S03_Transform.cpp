@@ -30,8 +30,8 @@
 *****************************************************************************/
 
 #include <FslBase/Math/Matrix.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "S03_Transform.hpp"
 #include <GLES2/gl2.h>
 #include <iostream>
@@ -64,6 +64,7 @@ namespace Fsl
     "my_Color",
     nullptr
   };
+
 
   S03_Transform::S03_Transform(const DemoAppConfig& config)
     : DemoAppGLES2(config)
@@ -110,6 +111,8 @@ namespace Fsl
   {
     // Set up rotation matrix rotating by angle around y axis.
     m_matTransform = Matrix::CreateRotationY(m_angle);
+
+    // Use demoTime.DeltaTime to make the animation frame rate independent.
     m_angle += 0.8f * demoTime.DeltaTime;
   }
 

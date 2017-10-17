@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES3.TessellationSample
 GLES3.TessellationSample.VC.VC.opendb
 GLES3.TessellationSample.VC.db
 GLES3.TessellationSample.aps
@@ -18,10 +19,18 @@ GLES3.TessellationSample.v12.suo
 GLES3.TessellationSample.vcxproj
 GLES3.TessellationSample.vcxproj.filters
 GLES3.TessellationSample.vcxproj.user
+GLES3.TessellationSample_FB
+GLES3.TessellationSample_Wayland
+GLES3.TessellationSample_X11
 GNUmakefile
 GNUmakefile_Yocto
+TessellationSample
 TessellationSample_FB
+TessellationSample_FB_d
 TessellationSample_Wayland
+TessellationSample_Wayland_d
 TessellationSample_X11
+TessellationSample_X11_d
+TessellationSample_d
 build/
 resource.h

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,25 +31,63 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.DataTypes import *
+from typing import List
+from typing import Optional
+from typing import Set
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Packages.Package import Package
 
-
-def GetExecutablePackage(packages):
+def TryFindFirstExecutablePackage(packages: List[Package]) -> Optional[Package]:
     """ Given a list of packages locate the first marked as PackageType.Executable """
     for package in packages:
         if package.Type == PackageType.Executable:
-            return package;
+            return package
+    return None
+
+
+def FindFirstExecutablePackage(packages: List[Package]) -> Package:
+    package = TryFindFirstExecutablePackage(packages)
+    if package is not None:
+        return package
     raise Exception("No executable package found")
 
 
-def GetExecutablePackages(packages):
+def GetExecutablePackages(packages: List[Package]) -> List[Package]:
     """ Given a list of packages marked as PackageType.Executable """
     return [package for package in packages if package.Type == PackageType.Executable]
 
-def GetTopLevelPackage(packages):
+
+def GetTopLevelPackage(packages: List[Package]) -> Package:
     """ Given a list of packages locate the TopLevel one or raise a exception if not found"""
     for package in packages:
         if package.Type == PackageType.TopLevel:
             return package
     raise Exception("No TopLevel package")
 
+
+
+def BuildReferencedPackageSet(packageList: List[Package]) -> Set[Package]:
+    """ build a set of packages that is referenced by the packages in packageList.
+        This is basically all packages in the package list and any packages that they depend upon.
+    """
+    referencedPackageSet = set()
+    for package in packageList:
+        referencedPackageSet.add(package)
+        for dependency in package.ResolvedBuildOrder:
+            referencedPackageSet.add(dependency)
+    return referencedPackageSet
+
+
+def GetRequiredPackagesInSourcePackageListOrder(packageList: List[Package], sourcePackageList: List[Package]) -> List[Package]:
+    """ Generate a list of all the packages that are required to build the packages in packageList in resolved build order.
+    """
+
+    # From the packageList build a set of all packages required to build
+    allRequiredPackageSet = BuildReferencedPackageSet(packageList)
+    # Then remove all packages from the sourcePackageList that isn't part of the required packages.
+
+    filteredResolvedBuildOrder = []
+    for package in sourcePackageList:
+        if package in allRequiredPackageSet:
+            filteredResolvedBuildOrder.append(package)
+    return filteredResolvedBuildOrder

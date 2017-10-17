@@ -212,6 +212,7 @@ namespace Fsl
       int8_t SwizzleG;
       int8_t SwizzleB;
       int8_t SwizzleA;
+      PixelFormat ActivePixelFormat;
 
       BitmapHeader(const BMPBitmapV3InfoHeader& header, BmpCompression compression)
         : ImageWidth(header.ImageWidth)
@@ -229,6 +230,7 @@ namespace Fsl
         , SwizzleG(1)
         , SwizzleB(2)
         , SwizzleA(3)
+        , ActivePixelFormat(PixelFormat::Undefined)
       {
         if (header.ImageWidth < 0)
           throw FormatException("Negative width bitmaps not supported");
@@ -248,7 +250,10 @@ namespace Fsl
         }
 
         // Quick resolution
-        if (header.RedMask != 0x00FF0000 || header.GreenMask != 0x0000FF00 || header.BlueMask == 0x000000FF)
+
+        const bool isB8G8R8 = header.RedMask == 0x00FF0000 && header.GreenMask == 0x0000FF00 && header.BlueMask == 0x000000FF;
+        const bool isR8G8B8 = header.RedMask == 0x000000FF && header.GreenMask == 0x0000FF00 && header.BlueMask == 0x00FF0000;
+        if (! isR8G8B8 && ! isB8G8R8)
         {
           const int shiftR = BitsUtil::IndexOf(header.RedMask);
           const int shiftG = BitsUtil::IndexOf(header.GreenMask);
@@ -283,6 +288,24 @@ namespace Fsl
           SwizzleA = shiftA / 8;
         }
 
+        if (header.AlphaMask == 0xFF000000)
+        {
+          if( isR8G8B8 )
+            ActivePixelFormat = PixelFormat::R8G8B8A8_UINT;
+          else if( isB8G8R8 )
+            ActivePixelFormat = PixelFormat::B8G8R8A8_UINT;
+          else
+            ActivePixelFormat = PixelFormat::R8G8B8A8_UINT;
+        }
+        else
+        {
+          if (isR8G8B8)
+            ActivePixelFormat = PixelFormat::R8G8B8_UINT;
+          else if (isB8G8R8)
+            ActivePixelFormat = PixelFormat::B8G8R8_UINT;
+          else
+            ActivePixelFormat = PixelFormat::R8G8B8_UINT;
+        }
       }
     };
 
@@ -460,7 +483,7 @@ namespace Fsl
       const auto cbBitmap = CalcBitmapSize(bitmapHeader, minimumBmpStride, bytesPerPixel, true);
 
       // Ensure that the bitmap can hold the image (dont modify because we fill eventual padding with content from the bmp)
-      const PixelFormat pf = !bitmapHeader.Swizzle ? PixelFormat::B8G8R8_UINT : PixelFormat::R8G8B8_UINT;
+      const PixelFormat pf = bitmapHeader.ActivePixelFormat;
       rBitmap.Reset(Extent2D(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minimumBmpStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
 
       ReadBitmapContent(rStream, rBitmap, cbBitmap, minimumBmpStride, bitmapHeader, originHint);
@@ -477,7 +500,7 @@ namespace Fsl
       const auto cbBitmap = CalcBitmapSize(bitmapHeader, minStride, bytesPerPixel, false);
 
       // Ensure that the bitmap can hold the image (We use dont modify because there is no padding to clear and everything will be overwritten)
-      const PixelFormat pf = !bitmapHeader.Swizzle ? PixelFormat::B8G8R8A8_UINT : PixelFormat::R8G8B8A8_UINT;
+      const PixelFormat pf = bitmapHeader.ActivePixelFormat;
       rBitmap.Reset(Extent2D(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
 
       ReadBitmapContent(rStream, rBitmap, cbBitmap, minStride, bitmapHeader, originHint);

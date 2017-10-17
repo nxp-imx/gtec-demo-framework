@@ -31,40 +31,22 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
-#include <FslBase/Log/LogLocation.hpp>
+#include <FslBase/Log/BasicLogger.hpp>
 #include <sstream>
-#include <string>
 
 namespace Fsl
 {
-  enum class LogType
-  {
-    Error = 0,
-    Warning = 1,
-    Info = 2,
-    // Things below require 'verbose'
-    Verbose = 3,
-  };
-
   // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-  class Logger : private Noncopyable
+  class Logger : public BasicLogger
   {
-    static LogType g_logLevel;
   public:
-    static LogType GetLogLevel()
-    {
-      return g_logLevel;
-    }
+    Logger(const Logger&) = delete;
+    Logger& operator=(const Logger&) = delete;
 
-    static void SetLogLevel(const LogType level)
+    static void WriteLine(const LogType logType, const std::stringstream& str, const LogLocation& location)
     {
-      g_logLevel = level;
+      BasicLogger::WriteLine(logType, str.str().c_str(), location);
     }
-
-    static void WriteLine(const LogType logType, const char*const psz, const LogLocation& location);
-    static void WriteLine(const LogType logType, const std::string& str, const LogLocation& location);
-    static void WriteLine(const LogType logType, const std::stringstream& str, const LogLocation& location);
   };
 }
 

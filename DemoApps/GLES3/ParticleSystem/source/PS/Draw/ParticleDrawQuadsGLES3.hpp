@@ -34,8 +34,8 @@
 #include "IParticleDraw.hpp"
 #include "../Particle.hpp"
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <memory>
 #include <vector>
 

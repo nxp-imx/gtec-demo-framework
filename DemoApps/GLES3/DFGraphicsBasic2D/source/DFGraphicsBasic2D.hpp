@@ -31,9 +31,9 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslDemoApp/Service/Graphics/Basic2D.hpp>
-#include <DFGraphicsBasic2DShared/Shared.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <Shared/DFGraphicsBasic2D/Shared.hpp>
 
 namespace Fsl
 {

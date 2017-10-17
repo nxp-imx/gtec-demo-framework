@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,17 +31,24 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
-from FslBuildGen import IOUtil
+from typing import Optional
+from typing import List
+from typing import Set
 import subprocess
-import shlex 
-
+import shlex
+from FslBuildGen import IOUtil
+from FslBuildGen.Config import Config
+from FslBuildGen.BuildContent.ContentProcessor import ContentProcessor
+from FslBuildGen.BuildContent.PathRecord import PathRecord
+from FslBuildGen.BuildContent.ToolFinder import ToolFinder
+from FslBuildGen.ToolConfig import ToolContentBuilder
+from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilderAddExtension
 
 # $(OutputFileName) = Absolute path to the output file
 # $(InputFileName)  = Absolute path to the input file
 
 class BasicContentProcessor(ContentProcessor):
-    def __init__(self, config, toolFinder, contentBuilderConfig):
+    def __init__(self, config: Config, toolFinder: ToolFinder, contentBuilderConfig: ToolContentBuilder) -> None:
         super(BasicContentProcessor, self).__init__(contentBuilderConfig.Name, contentBuilderConfig.FeatureRequirements, self.__GetExtensionsSet(contentBuilderConfig.DefaultExtensions))
         self.BasedUpon = contentBuilderConfig
         self.DefaultExtensions = contentBuilderConfig.DefaultExtensions
@@ -49,32 +56,33 @@ class BasicContentProcessor(ContentProcessor):
         self.ToolCommand = toolFinder.GetPlatformDependentExecuteableName(contentBuilderConfig.Executable)
         self.ToolDescription = contentBuilderConfig.Description
 
-    def __GetExtensionsSet(self, extensions):
+
+    def __GetExtensionsSet(self, extensions: List[XmlConfigContentBuilderAddExtension]) -> Set[str]:
         return {extension.Name for extension in extensions}
 
 
-    def __ProcessToolParameters(self, toolParameters):
+    def __ProcessToolParameters(self, toolParameters: str) -> List[str]:
         res = shlex.split(toolParameters)
         return res
 
 
-    def GetOutputFileName(self, config, contentBuildPath, contentOutputPath, contentFile):
-        outputFilename = super(BasicContentProcessor, self).GetOutputFileName(config, contentBuildPath, contentOutputPath, contentFile, False)
-        extension = self.__TryFindExtension(contentFile)
-        if not extension or not extension.PostfixedOutputExtension or len(extension.PostfixedOutputExtension) <= 0:
+    def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
+        outputFilename = super(BasicContentProcessor, self).GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
+        extension = self.__TryFindExtension(contentFileRecord.RelativePath)
+        if extension is None or extension.PostfixedOutputExtension is None or len(extension.PostfixedOutputExtension) <= 0:
             return outputFilename
         return outputFilename + extension.PostfixedOutputExtension
 
 
-    def __TryFindExtension(self, contentFile):
+    def __TryFindExtension(self, contentFile: str) -> Optional[XmlConfigContentBuilderAddExtension]:
         for entry in self.DefaultExtensions:
             if contentFile.endswith(entry.Name):
                 return entry
         return None
-    
 
-    def __GetToolParameterList(self, outputFile, inputFile):
-        res = [] 
+
+    def __GetToolParameterList(self, outputFile: str, inputFile: str) -> List[str]:
+        res = []
         for argument in self.ToolArguments:
             if argument == '$(OutputFileName)':
                 res.append(outputFile)
@@ -85,12 +93,12 @@ class BasicContentProcessor(ContentProcessor):
         return res
 
 
-    def Process(self, config, contentBuildPath, contentOutputPath, contentFile, toolFinder):
+    def Process(self, config: Config, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord, toolFinder: ToolFinder) -> None:
         # we ask the tool to write to a temporary file so that we can ensure that the output file is only modified
         # if the content was changed
-        tmpOutputFileName = self.GetTempFileName(contentBuildPath, contentFile)
-        buildCommand = [self.ToolCommand] 
-        buildCommand += self.__GetToolParameterList(tmpOutputFileName, contentFile)
+        tmpOutputFileName = self.GetTempFileName(contentBuildPath, contentFileRecord)
+        buildCommand = [self.ToolCommand]
+        buildCommand += self.__GetToolParameterList(tmpOutputFileName, contentFileRecord.ResolvedPath)
 
         if config.DisableWrite:
             # if write is disabled we do a "tool-command" check directly since the subprocess call can't fail
@@ -98,18 +106,17 @@ class BasicContentProcessor(ContentProcessor):
             toolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
             return
 
-        outputFileName = self.GetOutputFileName(config, contentBuildPath, contentOutputPath, contentFile)
+        outputFileName = self.GetOutputFileName(config, contentOutputPath, contentFileRecord)
         self.EnsureDirectoryExist(config, outputFileName)
 
         try:
             result = subprocess.call(buildCommand, cwd=contentBuildPath)
             if result != 0:
                 toolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
-                raise Exception("%s: Failed to process file '%s' (%s)" % (self.ToolCommand, contentFile, self.ToolDescription));
+                raise Exception("{0}: Failed to process file '{1}' ({2})".format(self.ToolCommand, contentFileRecord.ResolvedPath, self.ToolDescription))
             IOUtil.CopySmallFile(tmpOutputFileName, outputFileName)
         except:
             toolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
             raise
         finally:
             IOUtil.RemoveFile(tmpOutputFileName)
-            pass

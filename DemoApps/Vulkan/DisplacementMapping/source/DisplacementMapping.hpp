@@ -31,13 +31,13 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
-#include <VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
 #include <vector>
 
 namespace Fsl
@@ -82,8 +82,8 @@ namespace Fsl
 
     struct Pipelines
     {
-      Vulkan::GraphicsPipeline Solid;
-      Vulkan::GraphicsPipeline Wireframe;
+      RapidVulkan::GraphicsPipeline Solid;
+      RapidVulkan::GraphicsPipeline Wireframe;
     };
 
     Meshes m_meshes;
@@ -93,10 +93,10 @@ namespace Fsl
     Willems::VulkanUniformData m_uniformDataTE;
     UboTC m_uboTC;
     UboTE m_uboTE;
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
     Pipelines m_pipelines;
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
     // We use the native type here since this is managed by a pool
     VkDescriptorSet m_descriptorSet;
 

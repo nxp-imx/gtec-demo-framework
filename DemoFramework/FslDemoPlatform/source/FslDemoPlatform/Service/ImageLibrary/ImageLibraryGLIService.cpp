@@ -30,7 +30,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Service/ImageLibrary/IImageLibraryService.hpp>
+#include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
 #include <FslDemoPlatform/Service/ImageLibrary/ImageLibraryGLIService.hpp>
 #include <FslDemoPlatform/Service/ImageLibrary/GLIConversionHelper.hpp>
 #include <FslBase/BlobRecord.hpp>
@@ -119,7 +119,7 @@ namespace Fsl
   }
 
 
-  bool ImageLibraryGLIService::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint)
+  bool ImageLibraryGLIService::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
     if (!IO::Path::IsPathRooted(absolutePath))
       return false;
@@ -150,7 +150,7 @@ namespace Fsl
 
     try
     {
-      rBitmap.Reset(tex.data(), Extent2D(extentL0.x, extentL0.y), pixelFormat, static_cast<uint32_t>(strideL0), BitmapOrigin::UpperLeft);
+      rBitmap.Reset(tex.data(), cbTexL0, Extent2D(extentL0.x, extentL0.y), pixelFormat, static_cast<uint32_t>(strideL0), BitmapOrigin::UpperLeft);
     }
     catch (const std::exception&)
     {
@@ -163,7 +163,7 @@ namespace Fsl
   }
 
 
-  bool ImageLibraryGLIService::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint)
+  bool ImageLibraryGLIService::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
     if (!IO::Path::IsPathRooted(absolutePath))
       return false;
@@ -225,7 +225,7 @@ namespace Fsl
         Extent3D levelExtent(gliLevelExtent.x, gliLevelExtent.y, gliLevelExtent.z);
         if (levelExtent != blobBuilder.GetExtent(level))
         {
-          FSLLOG_DEBUG_WARNING("The blobbuilder and GLI did not agree on the extent size for level: " << level);
+          FSLLOG_DEBUG_WARNING("The blobBuilder and GLI did not agree on the extent size for level: " << level);
           return false;
         }
         const auto levelSize = tex.size(level);

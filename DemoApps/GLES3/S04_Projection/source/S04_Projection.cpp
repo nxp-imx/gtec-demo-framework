@@ -10,8 +10,8 @@
 */
 
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "S04_Projection.hpp"
 #include <GLES3/gl3.h>
 #include <iostream>

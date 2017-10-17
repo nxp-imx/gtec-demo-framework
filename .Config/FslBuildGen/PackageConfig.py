@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,14 +31,18 @@
 #
 #****************************************************************************************************************************************************
 
+class PackageNameMagicString(object):
+    TopLevelName = 'SYS__TopLevel'
 
-PLATFORM_ANDROID = "Android"
-PLATFORM_UBUNTU = "Ubuntu"
-PLATFORM_YOCTO = "Yocto"
-PLATFORM_WINDOWS = "Windows"
-PLATFORM_QNX = "QNX"
 
-# Special
-PLATFORM_CMAKE = "CMake"
+class PlatformNameString(object):
+    INVALID = "Invalid"
+    ANDROID = "Android"
+    UBUNTU = "Ubuntu"
+    YOCTO = "Yocto"
+    WINDOWS = "Windows"
+    QNX = "QNX"
+    # Special
+    CMAKE = "CMake"
 
-APPROVED_PLATFORM_NAMES = [PLATFORM_ANDROID, PLATFORM_UBUNTU, PLATFORM_YOCTO, PLATFORM_WINDOWS, PLATFORM_QNX, PLATFORM_CMAKE]
+APPROVED_PLATFORM_NAMES = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.WINDOWS, PlatformNameString.QNX, PlatformNameString.CMAKE]

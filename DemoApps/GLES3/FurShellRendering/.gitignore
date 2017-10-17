@@ -5,9 +5,15 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+FurShellRendering
 FurShellRendering_FB
+FurShellRendering_FB_d
 FurShellRendering_Wayland
+FurShellRendering_Wayland_d
 FurShellRendering_X11
+FurShellRendering_X11_d
+FurShellRendering_d
+GLES3.FurShellRendering
 GLES3.FurShellRendering.VC.VC.opendb
 GLES3.FurShellRendering.VC.db
 GLES3.FurShellRendering.aps
@@ -21,6 +27,9 @@ GLES3.FurShellRendering.v12.suo
 GLES3.FurShellRendering.vcxproj
 GLES3.FurShellRendering.vcxproj.filters
 GLES3.FurShellRendering.vcxproj.user
+GLES3.FurShellRendering_FB
+GLES3.FurShellRendering_Wayland
+GLES3.FurShellRendering_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

@@ -28,14 +28,17 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
-#include <VulkanExperimental/VulkanUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
+#include <RapidVulkan/Check.hpp>
 #include "OptionParser.hpp"
 #include "VulkanComputeMandelbrot.hpp"
-#include <thread>
 #include "SaveHelper.hpp"
+#include <thread>
+
+using namespace RapidVulkan;
 
 namespace Fsl
 {
@@ -65,13 +68,13 @@ namespace Fsl
       { // this was basically the setup done in main.cpp in the original example
         const auto options = config.GetOptions<OptionParser>();
 
-        m_instance = VulkanUtil::CreateInstance("VulkanComputeMandelbrot", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0, nullptr, 0, nullptr);
+        m_instance = InstanceUtil::CreateInstance("VulkanComputeMandelbrot", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0, nullptr, 0, nullptr);
 
         const uint32_t physicalDeviceIndex = options->GetPhysicalDeviceIndex();
-        m_physicalDevice = VulkanUtil::GetPhysicalDevice(m_instance.Get(), physicalDeviceIndex);
+        m_physicalDevice = InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicalDeviceIndex);
 
-        const auto deviceQueueFamilyProperties = VulkanHelper::GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice.Device);
-        const uint32_t queueFamilyIndex = VulkanUtil::GetFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_COMPUTE_BIT, 0, nullptr);
+        const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice.Device);
+        const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_COMPUTE_BIT, 0, nullptr);
 
         const float queuePriorities[1] = { 0.0f };
         VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
@@ -83,7 +86,7 @@ namespace Fsl
 
         m_device.Reset(m_physicalDevice.Device, 0, 1, &deviceQueueCreateInfo, 0, nullptr, 0, nullptr, nullptr);
 
-        m_deviceQueue = VulkanUtil::GetDeviceQueue(m_device.Get(), queueFamilyIndex, 0);
+        m_deviceQueue = DeviceUtil::GetDeviceQueue(m_device.Get(), queueFamilyIndex, 0);
       }
 
       m_fence.Reset(m_device.Get(), 0);
@@ -142,7 +145,7 @@ namespace Fsl
     {
       // Note: It is possible to wait (and block) for a fence.
       //      It is demonstrated, that the CPU can execute in parallel.
-      if (m_fence.GetStatus() == VK_SUCCESS)
+      if (m_fence.GetFenceStatus() == VK_SUCCESS)
       {
         FSLLOG("Compute shader done.");
         //
@@ -190,7 +193,7 @@ namespace Fsl
       DeviceTexture stageTexture = CreateTexture(m_device.Get(), VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 0);
 
       // Reset the command buffer
-      FSLGRAPHICSVULKAN_CHECK(vkResetCommandBuffer(m_commandBuffer.Get(), 0));
+      RAPIDVULKAN_CHECK(vkResetCommandBuffer(m_commandBuffer.Get(), 0));
 
       m_commandBuffer.Begin(0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
       {
@@ -262,7 +265,7 @@ namespace Fsl
 
       auto stageBuffer = CreateBuffer(m_device.Get(), bufferCreateInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-      FSLGRAPHICSVULKAN_CHECK(vkResetCommandBuffer(m_commandBuffer.Get(), 0));
+      RAPIDVULKAN_CHECK(vkResetCommandBuffer(m_commandBuffer.Get(), 0));
       m_commandBuffer.Begin(0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
       {
         VkBufferImageCopy bufferImageCopy{};
@@ -479,7 +482,7 @@ namespace Fsl
 
     DeviceMemoryEx deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties.memoryTypeCount, physicalDeviceMemoryProperties.memoryTypes, memoryPropertyFlags);
 
-    FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(device, buffer.Get(), deviceMemory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(device, buffer.Get(), deviceMemory.Get(), 0));
     return DeviceBuffer(std::move(buffer), std::move(deviceMemory));
   }
 
@@ -498,7 +501,7 @@ namespace Fsl
     DeviceMemoryEx deviceMemory(device, memoryRequirements, VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memoryPropertyFlagBits);
 
     // Bind image to memory.
-    FSLGRAPHICSVULKAN_CHECK(vkBindImageMemory(device, image.Get(), deviceMemory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindImageMemory(device, image.Get(), deviceMemory.Get(), 0));
 
     // move the local stack based objects into the Texture class
     return DeviceTexture(std::move(image), std::move(deviceMemory), imageFormat);

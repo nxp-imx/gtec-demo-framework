@@ -34,7 +34,7 @@
 //--------------------------------------------------------------------------------
 
 #include <android_native_app_glue.h>
-#include <FslDemoApp/Setup/RegisterDemoApp_fwd.hpp>
+#include <FslDemoApp/Base/Setup/RegisterDemoApp_fwd.hpp>
 #include <FslDemoPlatform/Configuration/Android/DemoMainAndroid.hpp>
 //#include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
 
@@ -55,8 +55,12 @@ void android_main(android_app* state)
   // Prevent this method from being stripped
   app_dummy();
 
-  // Prevent 'HOST_DemoAppSetup' from being stripped
-  Fsl::HOST_DemoAppSetup(nullptr);
+  if( state == nullptr )
+  {
+    // Prevent 'ConfigureDemoAppEnvironment' from being stripped (this code will never be called since state will never be null)
+    Fsl::HostDemoAppSetup* pInvalid = nullptr;
+    Fsl::ConfigureDemoAppEnvironment(*pInvalid);
+  }
 
   Fsl::AndroidMain(state, HELPER_CLASS_NAME);
 }

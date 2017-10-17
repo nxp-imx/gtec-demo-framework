@@ -33,8 +33,8 @@
 #endif
 
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "DirectMultiSamplingVideoYUV.hpp"
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>

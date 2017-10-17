@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="VulkanWindowExperimental">
-    <Dependency Name="FslDemoAppWindow"/>
-    <Dependency Name="FslDemoHostWindow"/>
-    <Dependency Name="FslGraphicsVulkan1_0"/>
-    <Dependency Name="FslNativeWindowVulkan"/>
-    <Dependency Name="VulkanExperimental"/>
-    <Dependency Name="FslDemoAppVulkan.Config"/>
+  <Library Name="Shared.VulkanWindowExperimental">
+    <Dependency Name="FslDemoApp.Window"/>
+    <Dependency Name="FslDemoHost.Window"/>
+    <Dependency Name="FslUtil.Vulkan1_0"/>
+    <Dependency Name="FslNativeWindow.Vulkan"/>
+    <Dependency Name="FslDemoApp.Vulkan.Config"/>
     <Platform Name="Windows" ProjectId="5224CE80-41DE-47BD-912A-216C8D5251BE"/>
   </Library>
 </FslBuildGen>

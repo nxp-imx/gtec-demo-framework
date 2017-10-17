@@ -33,6 +33,8 @@
 
 #include <memory>
 #include <FslDemoPlatform/Setup/DemoSetup.hpp>
+#include <FslDemoPlatform/DurationExitConfig.hpp>
+#include <FslBase/System/HighResolutionTimer.hpp>
 
 namespace Fsl
 {
@@ -43,6 +45,7 @@ namespace Fsl
   class IHostInfoControl;
   class INativeWindowEventQueue;
   class INativeWindowEventSender;
+  class IServiceHostLooper;
   class ITestService;
   class NativeWindowEventQueue;
 
@@ -70,12 +73,16 @@ namespace Fsl
     std::shared_ptr<INativeWindowEventSender> m_nativeWindowEventSender;
     //! Provide support for exiting after a number of successfully rendered frames (if negative, we render a unlimited amount of frames)
     int32_t m_exitAfterFrame;
+    DurationExitConfig m_exitAfterDuration;
     bool m_windowSizeIsDirty;
+    HighResolutionTimer m_timer;
+    //! Only used if m_exitAfterDuration.Enabled is true
+    std::chrono::microseconds m_exitTime;
   public:
     DemoHostManager(const DemoSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser);
     ~DemoHostManager();
 
-    int Run();
+    int Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper);
   private:
     void ProcessMessages();
     void CmdRestart();

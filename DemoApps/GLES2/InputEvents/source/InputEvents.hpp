@@ -31,10 +31,12 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES2/DemoAppGLES2.hpp>
-#include <FslDemoApp/Service/Graphics/Basic2D.hpp>
+#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <FslDemoApp/Base/Service/Gamepad/IGamepads.hpp>
 #include <deque>
 #include <string>
+#include <vector>
 
 namespace Fsl
 {
@@ -42,7 +44,8 @@ namespace Fsl
   {
     std::shared_ptr<Basic2D> m_basic2D;
     std::deque<std::string> m_console;
-
+    std::shared_ptr<IGamepads> m_gamepads;
+    std::vector<GamepadState> m_gamepadStates;
   public:
     InputEvents(const DemoAppConfig& config);
     ~InputEvents();
@@ -54,6 +57,8 @@ namespace Fsl
   protected:
     virtual void Update(const DemoTime& demoTime) override;
     virtual void Draw(const DemoTime& demoTime) override;
+  private:
+    void UpdateGamepadStates();
   };
 }
 

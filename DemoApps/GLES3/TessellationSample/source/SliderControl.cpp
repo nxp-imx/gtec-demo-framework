@@ -30,12 +30,12 @@
 ****************************************************************************************************************************************************/
 
 #include "SliderControl.hpp"
-#include <FslSimpleUI/Control/Label.hpp>
-#include <FslSimpleUI/Control/Slider.hpp>
-#include <FslSimpleUI/Layout/ComplexStackLayout.hpp>
-#include <FslSimpleUI/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/IWindowManager.hpp>
-#include <FslSimpleUI/WindowContext.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/Slider.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
+#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/EqualHelper.hpp>

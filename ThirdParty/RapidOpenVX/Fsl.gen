@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <HeaderLibrary Name="RapidOpenVX" AllowCheck="false">
+    <Dependency Name="FslBase"/>
+    <Dependency Name="OpenVX"/>
+    <Define Name="FSL_DEMOFRAMEWORK" Access="Public"/>
+    <Platform Name="Windows" ProjectId="22FEF212-B845-4114-87A4-68C64F3C903A"/>
+  </HeaderLibrary>
+</FslBuildGen>

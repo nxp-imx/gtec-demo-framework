@@ -1,0 +1,48 @@
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|ARM'">
+    <ClCompile>
+      <PreprocessorDefinitions>##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|ARM'">
+    <ClCompile>
+      <PreprocessorDefinitions>##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x86'">
+    <ClCompile>
+      <PreprocessorDefinitions>##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x86'">
+    <ClCompile>
+      <PreprocessorDefinitions>##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
+    </Link>
+  </ItemDefinitionGroup>  
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
+    </Link>
+  </ItemDefinitionGroup>

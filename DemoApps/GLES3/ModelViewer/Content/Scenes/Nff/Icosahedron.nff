@@ -1,0 +1,4 @@
+# An icosahedron at 2 0 0 with a 'radius' (a/2) of 2
+# This is a non-tesselated sphere. 'tess' sets the number of subdivisions.
+# The default value for spheres is 4.
+tess 0 s 2 0 0 2

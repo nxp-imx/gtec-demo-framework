@@ -5,20 +5,26 @@ Prerequisites
   ```bash
   sudo apt-get install build-essential libxrandr-dev
   ```
-- Python 2.7 
+- Python 3.4+ 
 
   To be able run python scripts, they are not needed to build.
   It should be part of the default Ubuntu install.
+  If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
+  To install the typing library in Python **3.4** run:
+  ```bash
+  sudo apt-get install python3-pip
+  sudo pip3 install typing
+  ```
  
 - One of these (they are mutually exclusive):
   - Mesa OpenGL ES 2
     ```bash
     sudo apt-get install libgles2-mesa-dev
     ```
-  - [Arm Mali OpenGL ES 3.0 Emulator V1.4.1 (64 bit)](http://malideveloper.arm.com/develop-for-mali/tools/opengl-es-3-0-emulator/)
+  - [Arm Mali OpenGL ES 3.0 Emulator V3.0.2 (64 bit)](https://developer.arm.com/products/software-development-tools/graphics-development-tools/opengl-es-emulator/downloads)
     ```bash
-    wget http://malideveloper.arm.com/downloads/tools/emulator/1.4.1/Mali_OpenGL_ES_Emulator-1.4.1-Linux-64bit.deb
-    sudo dpkg -i Mali_OpenGL_ES_Emulator-1.4.1-Linux-64bit.deb
+    wget https://armkeil.blob.core.windows.net/developer/Files/downloads/open-gl-es-emulator/3.0.2/Mali_OpenGL_ES_Emulator-v3.0.2.g694a9-Linux-64bit.deb
+    sudo dpkg -i Mali_OpenGL_ES_Emulator-v3.0.2.g694a9-Linux-64bit.deb
     ```
 
 - DevIL (Developer's Image Library)
@@ -51,9 +57,9 @@ Simple setup
 To Compile all samples
 ----------------------
   1. Make sure that you performed the [simple setup].
-  2. Compile everything (a good rule of thumb for '-j N' is number of cpu cores * 2)
+  2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
 ```bash
-      FslBuild.py -- -j 2
+      FslBuild.py --BuildThreads 2
 ```
 
      
@@ -65,10 +71,12 @@ In this example we will utilize the GLES2.S06_Texturing app.
     ```bash
     cd DemoApps/GLES2/S06_Texturing
     ```
-  3. Compile the project (a good rule of thumb for '-j N' is number of cpu cores * 2)
-    ```bash
-    FslBuild.py -- -j 2
-    ```
+  3. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
+     If you FslBuild without the --BuildThreads argument it will be set to 'auto' which uses your cpu core count.
+```bash
+    FslBuild.py --BuildThreads 2
+```
+
 
 To create a new GLES2 demo project named 'CoolNewDemo'
 ------------------------------------------------------
@@ -85,9 +93,9 @@ To create a new GLES2 demo project named 'CoolNewDemo'
     ```bash
     cd CoolNewDemo
     ```
-  5. Compile the project (a good rule of thumb for '-j N' is number of cpu cores * 2)
+  5. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
-    FslBuild.py -- -j 2
+    FslBuild.py --BuildThreads 2
     ```
 
 Note: 
@@ -112,25 +120,26 @@ See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/gett
 1. Download the vulkan sdk from https://vulkan.lunarg.com/sdk/home
 2. Make the downloaded file executable
     ```bash
-    chmod ugo+x vulkansdk-linux-x86_64-1.0.30.0.run
+    chmod ugo+x vulkansdk-linux-x86_64-1.0.51.0.run
     ```
 3. Move the downloaded file to a sdk dir
     ```bash
     mkdir ~/vulkan
-    mv vulkansdk-linux-x86_64-1.0.30.0.run ~/vulkan
+    mv vulkansdk-linux-x86_64-1.0.51.0.run ~/vulkan
     ```
 4. Run it
     ```bash
     cd ~/vulkan
-    ./vulkansdk-linux-x86_64-1.0.30.0.run
+    ./vulkansdk-linux-x86_64-1.0.51.0.run
     ```
 5. Install the necessary packages
     ```bash
-    sudo apt-get install libglm-dev graphviz libxcb-dri3-0 libxcb-present0 libpciaccess0 cmake libpng-dev libxcb-dri3-dev libx11-dev
+    sudo apt-get install libglm-dev graphviz libxcb-dri3-0 libxcb-present0 libpciaccess0 cmake libpng-dev libxcb-dri3-dev libx11-dev libmirclient-dev libwayland-dev libxrandr-dev
+    sudo apt-get install git libpython2.7
     ```
 6. Setup the vulkan environment
     ```bash
-    pushd ~/vulkan/VulkanSDK/1.0.30.0
+    pushd ~/vulkan/VulkanSDK/1.0.51.0
     source setup-env.sh
     popd
     ```
@@ -141,7 +150,7 @@ See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/gett
 8. Run the normal setup.
 
 
-Building OpenCV 2.4.11 demo framework apps
+Building OpenCV 3.2 demo framework apps
 ------------------------------------------
 1. Follow the normal setup procedure for the sdk
 2. Install the required packages
@@ -157,12 +166,12 @@ Building OpenCV 2.4.11 demo framework apps
     mkdir ~/sdk
     cd ~/sdk
     ```
-5. Download the 2.4.11 release for ubuntu, unzip it, remove the download, enter the directory
+5. Download the 3.2 release for ubuntu, unzip it, remove the download, enter the directory
     ```bash
-    wget https://github.com/Itseez/opencv/archive/2.4.11.zip
-    unzip 2.4.11.zip
-    rm 2.4.11.zip
-    cd opencv-2.4.11
+    wget https://github.com/opencv/opencv/archive/3.2.0.zip
+    unzip 3.2.0.zip
+    rm 3.2.0.zip
+    cd opencv-3.2.0
     ```
 6. Build OpenCV
     ```bash
@@ -178,7 +187,7 @@ Building OpenCV 2.4.11 demo framework apps
     ```
 8. Add a dependency to OpenCV to your "fsl.gen" file like this
     ```xml
-    <Dependency Name="OpenCV"/>
+    <Dependency Name="OpenCV3"/>
     ```
    See DemoApps/GLES2/OpenCV101/Fsl.gen for how its done.
 
@@ -190,10 +199,10 @@ Building OpenCL demo framework apps
   It will use the AMD OpenCL CPU implementation. 
   If you encounter problems or want to use proper GPU accelleration please refer to AMD's guidelines.
 
-1. Download the [AMD sdk](http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/) 
+1. Download the [AMD sdk](http://developer.amd.com/amd-accelerated-parallel-processing-app-sdk/) 
    (AMD APP SDK v2.9.1 beware the 3.0 release appears to be broken) 
      
-2. Go to the location of the downloaded file AMD-APP-SDKInstaller-v3.0.130.136-GA-linux64.tar.bz2
+2. Go to the location of the downloaded file AMD-APP-SDK-linux-v2.9-1.599.381-GA-x64.tar.bz2
 3. Extract the sdk (Follow the next three steps or look at the install guide)
     ```bash
     tar xvjf AMD-APP-SDK-linux-v2.9-1.599.381-GA-x64.tar.bz2

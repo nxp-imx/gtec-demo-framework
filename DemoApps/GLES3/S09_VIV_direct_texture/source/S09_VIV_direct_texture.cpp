@@ -28,8 +28,8 @@
 * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 ****************************************************************************************************************************************************/
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "S09_VIV_direct_texture.hpp"
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>

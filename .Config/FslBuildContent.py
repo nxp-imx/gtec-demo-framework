@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
 # All rights reserved.
@@ -31,76 +31,10 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen import IOUtil, PluginConfig, ParseUtil, Util, PackageListUtil
-from FslBuildGen.BuildConfig import Validate
-from FslBuildGen.BuildContent import ContentBuilder
-from FslBuildGen.Exceptions import *
-from FslBuildGen.Main import *
-from FslBuildGen.PlatformUtil import *
-from FslBuildGen.Build import Builder
-from FslBuildGen.Tool import ToolProgramFlow
-from FslBuildGen.Tool.ToolProgramFlowConfig import ProgramFlowConfig
-from FslBuildGen.BuildContent.SharedValues import CONFIG_FSLBUILDCONTENT_ENABLED
-from FslBuildGen.PackageListUtil import GetTopLevelPackage
+from FslBuildGen import PythonVersionCheck
+PythonVersionCheck.CheckVersion()
 
+from FslBuildGen.Tool import ToolAppMain
+from FslBuildGen.Tool.Flow.ToolFlowBuildContent import ToolAppFlowFactory
 
-def __GetTitle():
-    return 'FslBuildContent V0.4.1 - Build pipeline for content'
-
-
-def ToolMain(funcGetTitle, args, currentDir, toolConfig, userTag):
-    # Check if a environment variable has been set to disable this tool
-    # This is for example done by FslBuild to prevent multiple executions of content building.
-    toolEnabled = IOUtil.TryGetEnvironmentVariable(CONFIG_FSLBUILDCONTENT_ENABLED)
-
-    featureList = ParseUtil.ParseFeatureList(args.UseFeatures)
-
-    allowDevelopmentPlugins = True if args.dev else False
-    config = Config(toolConfig, args.verbosity, PluginConfig.TYPE_DEFAULT, None, allowDevelopmentPlugins)
-
-    config.LogPrint(funcGetTitle())
-
-    # Get the platform and see if its supported
-    platform = PluginConfig.GetGeneratorPluginById(args.platform)
-    CheckBuildPlatform(platform.Name)
-
-    config.LogPrint("Active platform: %s" % (platform.Name))
-
-    discoverFeatureList = '*' in featureList
-    if discoverFeatureList or args.project == None:
-        if discoverFeatureList:
-            config.LogPrint("No features specified, so using package to determine them")
-        theFiles = DoGetFiles(config, currentDir)
-        packages = DoGetPackages(config, theFiles, platform)
-        topLevelPackage = GetTopLevelPackage(packages)
-        if discoverFeatureList:
-            featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
-        #if args.project == None:
-        #    executeablePackage = PackageListUtil.GetExecutablePackage(packages)
-        #    args.project = executeablePackage.ShortName
-
-    if args.Validate:
-        Validate.ValidatePlatform(config, args.platform, featureList)
-
-    if toolEnabled != None and not ParseUtil.ParseBool(toolEnabled):
-        if args.verbosity > 0:
-            print("FslBuildContent has been disabled by environment variable %s set to %s" % (CONFIG_FSLBUILDCONTENT_ENABLED, toolEnabled))
-        return
-
-    ContentBuilder.Build(config, currentDir, featureList)
-
-
-def __ParserAddCustomArguments(parser, userTag):
-    parser.add_argument('-u', '--UseFeatures', default="*",  help='Dont use this unless you know what you are doing. The list of available features to build for. For example [OpenGLES2,OpenGLES3.1] or * for everything the package needs.')
-    parser.add_argument('--project', default=None,  help='The name of the project')
-    parser.add_argument('--Validate', action='store_true',  help='Do build config validation, like running FslBuildCheck')
-
-
-
-def Main():
-    programFlowConfig = ProgramFlowConfig()
-    programFlowConfig.AddPlatformArg = True
-    ToolProgramFlow.ProgramMain(__GetTitle, __ParserAddCustomArguments, ToolMain, programFlowConfig)
-
-
-Main()
+ToolAppMain.Run(ToolAppFlowFactory())

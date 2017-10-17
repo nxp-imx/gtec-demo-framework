@@ -23,7 +23,7 @@ SOURCES=##PACKAGE_SOURCE_FILES##
 
 INCLUDE_DIRS=##PACKAGE_INCLUDE_DIRS##
 
-CPP_DEFINE_FLAG_NAMES=##PACKAGE_CPP_FLAGS##
+CPP_DEFINE_FLAG_NAMES=##PACKAGE_DEFINES##
 
 USER_LIB_DEPS=##PACKAGE_LIBRARY_DEPENDENCIES##
 
@@ -113,6 +113,7 @@ install: all
 	@mkdir -p $(DESTDIR)
 	@cp $(TARGET) $(INSTALL_TARGET)
 	@$(FSL_GRAPHICS_SDK)/.Config/FslContentSync.py Content $(DESTDIR)/Content --create --cache --ifExist
+	@$(FSL_GRAPHICS_SDK)/.Config/FslBuildInfo.py --SaveJson $(DESTDIR)/.AppInfo.json --IncludeGeneratorReport --PackageType [Executable]
 	@echo Installed to: $(DESTDIR)
 
 # Pattern Rule

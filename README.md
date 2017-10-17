@@ -13,6 +13,13 @@ The framework also allows for ‘real’ comparative benchmarks between the diff
 since the exact same demo/benchmark code run on all of them.
 
 ## Supported app templates:
+
+<img src="Doc/Images/EGL/EGL_100px_June16.png" height="50px">
+<img src="Doc/Images/OpenGL_ES/OpenGL-ES_100px_May16.png" height="50px">
+<img src="Doc/Images/OpenVG/OpenVG_100px_June16.png" height="50px">
+<img src="Doc/Images/OpenVX/OpenVX_100px_June16.png" height="50px">
+<img src="Doc/Images/Vulkan/Vulkan_100px_Dec16.png" height="50px">
+
 * Console. A freestyle project that runs in a console like environment.
 * G2D (early access)
 * OpenCL (early access)
@@ -32,33 +39,34 @@ since the exact same demo/benchmark code run on all of them.
 
 # Table of contents
 <!-- #AG_TOC_BEGIN# -->
-* [Introduction](#introduction)
-  * [Technical overview](#technical-overview)
-* [Building](#building)
-  * [Reasoning](#reasoning)
-  * [Build system per platform:](#build-system-per-platform)
-  * [Scripts](#scripts)
-* [Demo application details](#demo-application-details)
-  * [Method overview](#method-overview)
-  * [Execution order of methods during a frame](#execution-order-of-methods-during-a-frame)
-  * [Content loading](#content-loading)
-  * [Dealing with screen resolution changes](#dealing-with-screen-resolution-changes)
-  * [Exit](#exit)
-* [Demo playback](#demo-playback)
-  * [Command line arguments](#command-line-arguments)
-  * [Default keyboard mappings.](#default-keyboard-mappings)
-  * [Demo single stepping / pause.](#demo-single-stepping--pause)
-* [Demo applications](#demo-applications)
-  * [Console](#console)
-  * [G2D](#g2d)
-  * [GLES2](#gles2)
-  * [GLES3](#gles3)
-  * [OpenCL](#opencl)
-  * [OpenCV](#opencv)
-  * [OpenVG](#openvg)
-  * [OpenVX](#openvx)
-  * [Vulkan](#vulkan)
-  * [Window](#window)
+* [Introduction](#Introduction)
+  * [Technical overview](#Technical-overview)
+* [Building](#Building)
+  * [Reasoning](#Reasoning)
+  * [Build system per platform:](#Build-system-per-platform:)
+  * [Scripts](#Scripts)
+* [Demo application details](#Demo-application-details)
+  * [Method overview](#Method-overview)
+  * [Execution order of methods during a frame](#Execution-order-of-methods-during-a-frame)
+  * [Content loading](#Content-loading)
+  * [Demo registration](#Demo-registration)
+  * [Dealing with screen resolution changes](#Dealing-with-screen-resolution-changes)
+  * [Exit](#Exit)
+* [Demo playback](#Demo-playback)
+  * [Command line arguments](#Command-line-arguments)
+  * [Default keyboard mappings.](#Default-keyboard-mappings.)
+  * [Demo single stepping / pause.](#Demo-single-stepping-/-pause.)
+* [Demo applications](#Demo-applications)
+  * [Console](#Console)
+  * [G2D](#G2D)
+  * [GLES2](#GLES2)
+  * [GLES3](#GLES3)
+  * [OpenCL](#OpenCL)
+  * [OpenCV](#OpenCV)
+  * [OpenVG](#OpenVG)
+  * [OpenVX](#OpenVX)
+  * [Vulkan](#Vulkan)
+  * [Window](#Window)
 <!-- #AG_TOC_END# -->
 
 # Introduction
@@ -178,7 +186,7 @@ Operating System | Build system
 --- | ---
 Android|gradle + cmake (Android Studio can be used with the generated projects)
 Ubuntu|make
-Windows|Visual studio 2015, 2017 (IDE or nmake)
+Windows|Visual studio 2015, 2017 (IDE or msbuild)
 Yocto|make
 
 ## Scripts
@@ -191,21 +199,24 @@ See the [FslBuildGen document](./Doc/FslBuildGen.docx) for details.
 Extends the technology behind FslBuildGen with additional knowledge about how to execute the build system for a given platform.
 So basically, FslBuild works like this
 1.	Invoke the build-file generator that updates all build files if necessary.
-2.	Filter the builds request based on the provided feature list.
+2.	Filter the builds request based on the provided feature and extension list.
 3.	Build all necessary build files in the correct order.
 
 #### Useful arguments
 FslBuild comes with a few useful arguments
 
 Argument|Description
----|---
---ListFeatures|List all features required by the build
---UseFeatures|Allows you to limit what’s build based on a provided feature list. For example [EGL,OpenGLES2]. This parameter defaults to all features.
---ListVariants|List all variants.
---Variants|Define the variants you wish to build (if any). For yocto for example you select the window system and build type using --Variants [config=Debug,WindowSystem=FB]
--t 'sdk'|Build all demo framework projects
--v |Set verbosity level
--- [forwarded arguments]|arguments written after this is send directly to the native build system.
+-------------------|---
+--ListRequirements | List the requirement tree and exit.
+--ListVariants     | List all variants.
+--RequireFeatures  | The list of features that are required for a executable package to be build. For example [OpenGLES2] to build all executables that use OpenGLES2.
+--UseFeatures      | Allows you to limit what’s build based on a provided feature list. For example [EGL,OpenGLES2]. This parameter defaults to all features.
+--UseExtensions    | The list of available extensions to build for. For example [OpenGLES3.1:EXT_geometry_shader,OpenGLES3.1:EXT_tessellation_shader] to allow the OpenGLES3.1 extensions EXT_geometry_shader and EXT_tessellation_shader. You can also specify * for all extensions (default).
+--Variants         | Define the variants you wish to build (if any). For yocto for example you select the window system and build type using --Variants [config=Debug,WindowSystem=FB]
+--BuildTime        | Time the build and print the result and the end.
+-t 'sdk'           | Build all demo framework projects
+-v                 | Set verbosity level
+--                 | arguments written after this is send directly to the native build system.
 
 #### Important notes
 * Don’t modify the auto-generated files.
@@ -246,6 +257,13 @@ Check the current build environment to see if the package can be build.
 FslBuildCheck.py --ScanSource
 ```
 Scan the current package and see if there is any common mistakes with for example include guards, tabs, etc.
+
+### FslBuildDoc.py
+A new **work in progress* tool that helps keep the README.md files similar and that fills out various areas of the root README.md file.
+
+```
+FslBuildDoc.py
+```
 
 ### FslResourceScan.py
 This is a stand alone tool used to scan for 'graphics' files like textures and models and determine if a there is a 'License.json'
@@ -387,6 +405,48 @@ IO::Path texture1Path = IO::Path::Combine(contentPath, "Texture1.bmp");
 
 You can then open the files with any method you prefer. Both methods work for all supported platforms.
 
+## Demo registration
+This is done in the S01_SimpleTriangle_Register.cpp file.
+
+```C++
+namespace Fsl
+{
+  namespace
+  {
+     // Custom EGL config (these will per default overwrite the custom settings. However an exact EGL config can be used)
+     static const EGLint g_eglConfigAttribs[] =
+     {
+        EGL_SAMPLES, 0,
+        EGL_RED_SIZE, 8,
+        EGL_GREEN_SIZE, 8,
+        EGL_BLUE_SIZE, 8,
+        EGL_ALPHA_SIZE, 0, // buffers with the smallest alpha component size are preferred
+        EGL_DEPTH_SIZE, 24,
+        EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+        EGL_NONE,
+     };
+  }
+
+  // Configure the demo environment to run this demo app in a OpenGLES2 host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+
+    DemoAppRegister::GLES2::Register<S01_SimpleTriangle>(rSetup, "GLES2.S01_SimpleTriangle", config);
+  }
+}
+```
+
+Since the demo framework is controlling the main method, you need to register your application with the Demo Host specific registration call
+ (in this case the OpenGL ES2 host), for the framework to register your demo class.
+
+### OpenGL ES 3.X registration
+
+To register a demo for OpenGLES 3.X you would use the GLES3 register method:
+```C++
+    DemoAppRegister::GLES3::Register<S01_SimpleTriangle>(rSetup, "GLES3.S01_SimpleTriangle", config);
+```
+
 ## Dealing with screen resolution changes
 Per default the app is destroyed and recreated when a resolution change occurs.
 It is left up to the DemoApp to save and restore demo specific state.
@@ -473,6 +533,19 @@ The layers are rendered to the FB directly without having the need of using othe
 
 
 ## GLES2
+
+### [Bloom](DemoApps/GLES2/Bloom)
+<a href="DemoApps/GLES2/Bloom">
+<img src="DemoApps/GLES2/Bloom/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+A example of how to create a bloom effect. The idea is not to create the most accurate bloom,
+but something that is fairly fast to render.
+
+Instead of increasing the kernal size to get a good blur we do a fairly fast approximation by
+downscaling the original image to multiple smaller render-targets and then blurring these
+using a relative small kernel and then finally rescaling the result to the original size.
+
 
 ### [Blur](DemoApps/GLES2/Blur)
 <a href="DemoApps/GLES2/Blur">
@@ -580,6 +653,30 @@ Use the commandline arguments to select the scene and quality.
 Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
 
 This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
+
+
+### [ModelLoaderBasics](DemoApps/GLES2/ModelLoaderBasics)
+<a href="DemoApps/GLES2/ModelLoaderBasics">
+<img src="DemoApps/GLES2/ModelLoaderBasics/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Demonstrates how to use the FslSceneImporter and Assimp to load a scene and render it using OpenGLES2.
+
+The model is rendered using a simple per pixel directional light shader.
+
+For a more complex example take a look at the ModelViewer example.
+
+
+### [ModelViewer](DemoApps/GLES2/ModelViewer)
+<a href="DemoApps/GLES2/ModelViewer">
+<img src="DemoApps/GLES2/ModelViewer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Expands the ModelLoaderBasics example with:
+
+- A arcball camera
+- Multiple different scenes (Knight, Dragon, Car, etc)
+- More advanced shaders for directional per pixel specular light with support for gloss and normal maps.
 
 
 ### [OpenCV101](DemoApps/GLES2/OpenCV101)
@@ -699,6 +796,19 @@ This example shows how to use the DirectVIV extension to use an existing buffer 
 
 
 ## GLES3
+
+### [Bloom](DemoApps/GLES3/Bloom)
+<a href="DemoApps/GLES3/Bloom">
+<img src="DemoApps/GLES3/Bloom/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+A example of how to create a bloom effect. The idea is not to create the most accurate bloom,
+but something that is fairly fast to render.
+
+Instead of increasing the kernal size to get a good blur we do a fairly fast approximation by
+downscaling the original image to multiple smaller render-targets and then blurring these
+using a relative small kernel and then finally rescaling the result to the original size.
+
 
 ### [D1_1_VBOs](DemoApps/GLES3/D1_1_VBOs)
 <a href="DemoApps/GLES3/D1_1_VBOs">
@@ -879,6 +989,41 @@ The fur is rendered on a layered approach using a seamless texture as a base and
 .
 
 
+### [ModelLoaderBasics](DemoApps/GLES3/ModelLoaderBasics)
+<a href="DemoApps/GLES3/ModelLoaderBasics">
+<img src="DemoApps/GLES3/ModelLoaderBasics/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Demonstrates how to use the FslSceneImporter and Assimp to load a scene and render it using OpenGLES2.
+
+The model is rendered using a simple per pixel directional light shader.
+
+For a more complex example take a look at the ModelViewer example.
+
+
+### [ModelViewer](DemoApps/GLES3/ModelViewer)
+<a href="DemoApps/GLES3/ModelViewer">
+<img src="DemoApps/GLES3/ModelViewer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Expands the ModelLoaderBasics example with:
+
+- A arcball camera
+- Multiple different scenes (Knight, Dragon, Car, etc)
+- More advanced shaders for directional per pixel specular light with support for gloss and normal maps.
+
+
+### [ObjectSelection](DemoApps/GLES3/ObjectSelection)
+<a href="DemoApps/GLES3/ObjectSelection">
+<img src="DemoApps/GLES3/ObjectSelection/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Shows how to select (pick) 3d objects using the mouse via Axis Aligned Bounding Boxes (AABB).
+
+Beware that AABB's often represent quite a rough fit and therefore is best used as a quick way to determine
+if there might be a collision and then utilize a more precise calculation to verify it.
+
+
 ### [OpenCL101](DemoApps/GLES3/OpenCL101)
 <a href="DemoApps/GLES3/OpenCL101">
 <img src="DemoApps/GLES3/OpenCL101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
@@ -911,6 +1056,30 @@ Demonstrates how to use OpenCV from inside a OpenGL ES 2 project.
 
 This is a very basic example that mainly shows how to setup the correct dependency in the Fsl.gen file and
 then it does some very basic OpenCV operations. It could be used as a good starting point for a more complex example.
+
+
+### [OpenCVMatToNativeBatch](DemoApps/GLES3/OpenCVMatToNativeBatch)
+<a href="DemoApps/GLES3/OpenCVMatToNativeBatch">
+<img src="DemoApps/GLES3/OpenCVMatToNativeBatch/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Demonstrates how to take a OpenCV mat and convert it to a Bitmap which is then converted to a Texture2D for use with
+the NativeBatch. The texture is then shown on screen and can be compared to the same texture that was loaded using the
+normal DemoFramework methods.
+
+The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
+
+
+### [OpenCVMatToUI](DemoApps/GLES3/OpenCVMatToUI)
+<a href="DemoApps/GLES3/OpenCVMatToUI">
+<img src="DemoApps/GLES3/OpenCVMatToUI/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Demonstrates how to take a OpenCV mat and convert it to a Bitmap which is then converted to a Texture2D for use with
+the UI frmaework. The texture is then shown on screen and can be compared to the same texture that was loaded using the
+normal DemoFramework methods.
+
+The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
 
 
 ### [OpenVX101](DemoApps/GLES3/OpenVX101)
@@ -1100,17 +1269,12 @@ Information related to CL kernel compilers, number of buffers supported, extensi
 
 ## OpenCV
 
-### [OpenCV101_V2_4](DemoApps/OpenCV/OpenCV101_V2_4)
-Simple and quick test for OpenCV 2.4.
-This test tries to read a couple of bitmaps, process them and show the result on the window.
-
-
-### [OpenCV101_V3_1](DemoApps/OpenCV/OpenCV101_V3_1)
+### [OpenCV101](DemoApps/OpenCV/OpenCV101)
 Simple and quick test for OpenCV 3.1.
 This test tries to read a couple of bitmaps, process them and show the result on the window.
 
 
-### [OpenCV102_V3_1](DemoApps/OpenCV/OpenCV102_V3_1)
+### [OpenCV102](DemoApps/OpenCV/OpenCV102)
 Simple and quick test for OpenCV 3.1.
 This test tries to read a couple of bitmaps, process them and show the result on the window.
 
@@ -1236,6 +1400,13 @@ Demonstrates the use of memory barriers for synchronizing vertex buffer access b
 
 Based on a example called [ComputeParticles](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
 Recreated as a DemoFramework freestyle window sample in 2016.
+
+
+### [DevBatch](DemoApps/Vulkan/DevBatch)
+Early development prototype of a basic quad batch implementation that can be used to implement the native batch for Vulkan.
+This will allow the UI library to work with Vulkan.
+
+.
 
 
 ### [DisplacementMapping](DemoApps/Vulkan/DisplacementMapping)
@@ -1366,6 +1537,10 @@ Please ignore it for now.
 
 
 ### [VulkanComputeMandelbrot](DemoApps/Vulkan/VulkanComputeMandelbrot)
+<a href="DemoApps/Vulkan/VulkanComputeMandelbrot">
+<img src="DemoApps/Vulkan/VulkanComputeMandelbrot/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
 Calculating and drawing of the Mandelbrot set using the core Vulkan API
 
 Based on a sample by Norbert Nopper from VKTS Examples [VKTS_Sample08](https://github.com/McNopper/Vulkan/blob/master/VKTS_Example08)
@@ -1384,6 +1559,10 @@ This can also be used to do some basic real time tests of the input system when 
 
 
 ### [VulkanTriangle](DemoApps/Window/VulkanTriangle)
+<a href="DemoApps/Window/VulkanTriangle">
+<img src="DemoApps/Window/VulkanTriangle/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
 Demonstrates how to use the Freestyle window project type to create a window for use with Vulkan.
 
 Then renders a simple triangle to it.

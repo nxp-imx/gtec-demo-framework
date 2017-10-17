@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,15 +31,22 @@
 #
 #****************************************************************************************************************************************************
 
-import itertools
-import os
-import os.path
-from FslBuildGen.Generator.VariantHelper import VariantHelper
-from FslBuildGen import IOUtil, MakeFileHelper, Util
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-from FslBuildGen.SharedGeneration import *
-from FslBuildGen.PackageBuildReport import *
+from typing import List
+from typing import Optional
+from FslBuildGen import IOUtil
+from FslBuildGen import Util
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import AccessType
+from FslBuildGen.DataTypes import ExternalDependencyType
+from FslBuildGen.Packages.Package import Package
+
+class CMakePathType(object):
+    LocalRelative = 0
+    # relative to a specific root
+    Relative = 1
+    # absolute path (not supported by cmake)
+    # Absolute = 2
+
 
 # Status
 # - External libs with special debug libraries are not handled
@@ -49,7 +56,7 @@ from FslBuildGen.PackageBuildReport import *
 # - FslBuild things dont work
 # - Using the 'root' CMakeLists.txt is kind of a 'work around' to allow us to re-use libraries
 #   It would have been better to have a unique build file for each package with its own 'build' dir
-#   However that would be more complex to implement and might make it impossible to have 'all' 
+#   However that would be more complex to implement and might make it impossible to have 'all'
 #   package dependencies added as sub-projects in the IDE.
 # - Install target does not work due to the way external libs are handled :(
 # - Android content sync is not implemented
@@ -57,7 +64,7 @@ from FslBuildGen.PackageBuildReport import *
 # - Version tags and handling?
 
 class CodeTemplateCMake(object):
-    def __init__(self, config, strTemplatePath, filePrefix, hasManifest):
+    def __init__(self, config: Config, strTemplatePath: str, filePrefix: str, hasManifest: bool) -> None:
         super(CodeTemplateCMake, self).__init__()
         self.TemplatePath = strTemplatePath
         self.AbsoluteTemplatePath = IOUtil.Join(config.SDKConfigTemplatePath, strTemplatePath)
@@ -78,51 +85,52 @@ class CodeTemplateCMake(object):
             self.PackageTargetIncludeDirectories = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "Package_TargetIncludeDirectories.txt"))
 
 
-def GetSDKBasedPath(config, path):
+def GetSDKBasedPath(config: Config, path: str) -> str:
     return Util.ChangeToCMakeEnvVariables(config.ToPath(path))
 
-def GetSDKBasedPathUsingCMakeVariable(config, path):
+
+def GetSDKBasedPathUsingCMakeVariable(config: Config, path: str) -> str:
     return Util.ChangeToCMakeVariables(config.ToPath(path))
 
 
-def GetRelativePath(config, rootPath, path):
+def GetRelativePath(config: Config, rootPath: str, path: str) -> str:
     if not rootPath or not path:
-        raise Exception("rootPath or root can not be None");
+        raise Exception("rootPath or root can not be None")
     if not path.startswith(rootPath):
-        raise Exception("Path not a part of the root path");
+        raise Exception("Path not a part of the root path")
     return path[len(rootPath)+1:]
 
 
-def GetAccessTypeString(package, accessType, allowPrivate=True):
+def GetAccessTypeString(package: Package, accessType: int, allowPrivate: bool = True) -> str:
     if not package.IsVirtual:
         if accessType == AccessType.Public or not allowPrivate:
             return "PUBLIC"
-        else:
-            return "PRIVATE"
+        return "PRIVATE"
     else:
         if accessType == AccessType.Public:
             return "INTERFACE"
-        else:
-            raise Exception("Not supported");
+        raise Exception("Not supported")
 
 
-def GetPackageName(package):
-    return package.Name if not package.IsVirtual else ("_Virtual_%s" % package.Name)
+def GetPackageName(package: Package) -> str:
+    return package.Name if not package.IsVirtual else ("_Virtual_{0}".format(package.Name))
 
 
-def GetPackageShortName(package):
-    return package.ShortName if not package.IsVirtual else ("_Virtual_%s" % package.ShortName)
+def GetPackageShortName(package: Package) -> str:
+    if package.ShortName is None:
+        raise Exception("Invalid package")
+    return package.ShortName if not package.IsVirtual else ("_Virtual_{0}".format(package.ShortName))
 
 
-def GetAliasPackageName(package):
+def GetAliasPackageName(package: Package) -> str:
     return GetAliasName(package.Name)
 
 
-def GetAliasName(name):
-    return "FslDemoFramework::%s" % (name)
+def GetAliasName(name: str) -> str:
+    return "FslDemoFramework::{0}".format(name)
 
 
-def BuildFindDirectExternalDependencies(config, package, templatePackageDependencyFindPackage):       
+def BuildFindDirectExternalDependencies(config: Config, package: Package, templatePackageDependencyFindPackage: str) -> str:
     externalDeps = []
     for externalDep in package.ResolvedDirectExternalDependencies:
         if externalDep.Type == ExternalDependencyType.Find:
@@ -130,7 +138,7 @@ def BuildFindDirectExternalDependencies(config, package, templatePackageDependen
 
     if len(externalDeps) <= 0:
         return ""
-        
+
     snippet = templatePackageDependencyFindPackage
     content = ""
     for externalDep in externalDeps:
@@ -141,24 +149,33 @@ def BuildFindDirectExternalDependencies(config, package, templatePackageDependen
     return content
 
 
-def BuildTargetLinkLibrariesForDirectDependencies(config, package, templatePackageDependencyTargetLinkLibraries, ignoreLibs = []):       
+def BuildTargetLinkLibrariesForDirectDependencies(config: Config,
+                                                  package: Package,
+                                                  templatePackageDependencyTargetLinkLibraries: str,
+                                                  ignoreLibs: Optional[List[str]] = None) -> str:
+    if ignoreLibs is None:
+        ignoreLibs = []
+
+    if package.ResolvedDirectDependencies is None:
+        raise Exception("Invalid package")
+
     deps = ""
-    for entry in package.ResolvedDirectDependencies:
-        deps += "\n  %s %s" % (GetAccessTypeString(package, entry.Access, False), GetPackageName(entry.Package))
-#        deps += "\n  %s %s" % (GetAccessTypeString(package, entry.Access), GetAliasPackageName(entry.Package))
+    for entry1 in package.ResolvedDirectDependencies:
+        deps += "\n  %s %s" % (GetAccessTypeString(package, entry1.Access, False), GetPackageName(entry1.Package))
+#        deps += "\n  %s %s" % (GetAccessTypeString(package, entry1.Access), GetAliasPackageName(entry1.Package))
 
     # FIX: handle debug libraries
-    for entry in package.ResolvedDirectExternalDependencies:
-        if entry.Name not in ignoreLibs:
-            if entry.Type == ExternalDependencyType.StaticLib:
-                location = entry.Location if entry.Location else ""
-                fullPathLinkDir = Util.ChangeToCMakeEnvVariables(IOUtil.Join(location, entry.Name))
-                deps += "\n  %s %s" % (GetAccessTypeString(package, entry.Access, False), fullPathLinkDir)
-            if entry.Type == ExternalDependencyType.Find:
-                linkName = "${%s_LIBRARY}" % (entry.Name)
-                deps += "\n  %s %s" % (GetAccessTypeString(package, entry.Access, False), linkName)
+    for entry2 in package.ResolvedDirectExternalDependencies:
+        if entry2.Name not in ignoreLibs:
+            if entry2.Type == ExternalDependencyType.StaticLib:
+                location = entry2.Location if entry2.Location else ""
+                fullPathLinkDir = Util.ChangeToCMakeEnvVariables(IOUtil.Join(location, entry2.Name))
+                deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry2.Access, False), fullPathLinkDir)
+            if entry2.Type == ExternalDependencyType.Find:
+                linkName = "${%s_LIBRARY}" % (entry2.Name)
+                deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry2.Access, False), linkName)
         else:
-            config.LogPrint("INFO: Force ignored '%s'" % entry.Name);
+            config.LogPrint("INFO: Force ignored '{0}'".format(entry2.Name))
 
     if len(deps) <= 0:
         return ""
@@ -168,41 +185,50 @@ def BuildTargetLinkLibrariesForDirectDependencies(config, package, templatePacka
     return content
 
 
-def BuildDirectDefinitions(config, package, templatePackageDependencyTargetCompileDefinitions):
-    if len(package.ResolvedBuildDirectCPPDefines) <= 0:
+def BuildDirectDefinitions(config: Config, package: Package, templatePackageDependencyTargetCompileDefinitions: str) -> str:
+    if package.ResolvedBuildDirectDefines is None:
+        raise Exception("Invalid package")
+
+    if len(package.ResolvedBuildDirectDefines) <= 0:
         return ""
     snippet = templatePackageDependencyTargetCompileDefinitions
     content = ""
-    for entry in package.ResolvedBuildDirectCPPDefines:
-        content += "\n  %s %s" % (GetAccessTypeString(package, entry.Access), entry.Name)
-    
+    for entry in package.ResolvedBuildDirectDefines:
+        content += "\n  {0} {1}".format(GetAccessTypeString(package, entry.Access), entry.Name)
+
     return snippet.replace("##PACKAGE_COMPILE_DEFINITIONS##", content)
 
 
-def __GenerateDirEntryString(access, incPath, templatePackageTargetIncludeDirEntry):        
+def __GenerateDirEntryString(access: str, incPath: str, templatePackageTargetIncludeDirEntry: str) -> str:
     content = templatePackageTargetIncludeDirEntry
     content = content.replace("##DIR_ACCESS##", access)
     content = content.replace("##DIR_PATH##", incPath)
     return content
 
 
-def __GetPackageIncludePath(config, package, absPathInsidePackage, useSDKRelativePath):
-    if not useSDKRelativePath:
+def __GetPackageIncludePath(config: Config, package: Package, absPathInsidePackage: str, pathType: int) -> str:
+    if pathType == CMakePathType.LocalRelative:
+        if package.AbsolutePath is None:
+            raise Exception("Invalid package")
         lenAbsPath = len(package.AbsolutePath)
-        return package.AbsoluteIncludePath[lenAbsPath+1:]
-    else:
+        return absPathInsidePackage[lenAbsPath+1:]
+    elif pathType == CMakePathType.Relative:
         return GetSDKBasedPathUsingCMakeVariable(config, absPathInsidePackage)
+    raise Exception("Unsupported path type")
 
 
-def BuildTargetIncludeDirectories(config, package, templatePackageTargetIncludeDirectories, templatePackageTargetIncludeDirEntry, useSDKRelativePath=False):
+def BuildTargetIncludeDirectories(config: Config, package: Package,
+                                  templatePackageTargetIncludeDirectories: str,
+                                  templatePackageTargetIncludeDirEntry: str,
+                                  pathType: int = CMakePathType.Relative) -> str:
     publicIncludeDir = ""
     if package.AbsoluteIncludePath:
-        pubIncPath = __GetPackageIncludePath(config, package, package.AbsoluteIncludePath, useSDKRelativePath)
+        pubIncPath = __GetPackageIncludePath(config, package, package.AbsoluteIncludePath, pathType)
         accessString = "PUBLIC" if not package.IsVirtual else "INTERFACE"
         publicIncludeDir = "\n" + __GenerateDirEntryString(accessString, pubIncPath, templatePackageTargetIncludeDirEntry)
     privateIncludeDir = ""
     if package.AbsoluteSourcePath:
-        priIncPath = __GetPackageIncludePath(config, package, package.AbsoluteSourcePath, useSDKRelativePath)
+        priIncPath = __GetPackageIncludePath(config, package, package.AbsoluteSourcePath, pathType)
         accessString = "PRIVATE" if not package.IsVirtual else "INTERFACE"
         privateIncludeDir = "\n" + __GenerateDirEntryString(accessString, priIncPath, templatePackageTargetIncludeDirEntry)
 
@@ -210,12 +236,14 @@ def BuildTargetIncludeDirectories(config, package, templatePackageTargetIncludeD
         if directExternalDeps.Type != ExternalDependencyType.Find:
             currentIncDir = directExternalDeps.Include
             if currentIncDir:
+                if package.AbsolutePath is None:
+                    raise Exception("Invalid package")
                 packageRootPath = config.ToPath(package.AbsolutePath)
                 if currentIncDir.startswith(packageRootPath):
-                    relativeCurrentIncDir = currentIncDir[len(packageRootPath)+1:] if not useSDKRelativePath else Util.ChangeToCMakeVariables(currentIncDir)
+                    relativeCurrentIncDir = currentIncDir[len(packageRootPath)+1:] if pathType == CMakePathType.LocalRelative else Util.ChangeToCMakeVariables(currentIncDir)
                     add = "\n" + __GenerateDirEntryString(GetAccessTypeString(package, directExternalDeps.Access), relativeCurrentIncDir, templatePackageTargetIncludeDirEntry)
                 else:
-                    add = "\n  %s %s" % (GetAccessTypeString(package, directExternalDeps.Access), Util.ChangeToCMakeEnvVariables(currentIncDir))
+                    add = "\n  {0} {1}".format(GetAccessTypeString(package, directExternalDeps.Access), Util.ChangeToCMakeEnvVariables(currentIncDir))
                 if directExternalDeps.Access == AccessType.Public:
                     publicIncludeDir += add
                 else:
@@ -227,7 +255,7 @@ def BuildTargetIncludeDirectories(config, package, templatePackageTargetIncludeD
             else:
                 privateIncludeDir += add
 
-            
+
     if len(publicIncludeDir) <= 0 and len(privateIncludeDir) <= 0:
         return ""
 
@@ -235,4 +263,3 @@ def BuildTargetIncludeDirectories(config, package, templatePackageTargetIncludeD
     content = content.replace("##PACKAGE_PUBLIC_INCLUDE_DIRECTORIES##", publicIncludeDir)
     content = content.replace("##PACKAGE_PRIVATE_INCLUDE_DIRECTORIES##", privateIncludeDir)
     return content
-

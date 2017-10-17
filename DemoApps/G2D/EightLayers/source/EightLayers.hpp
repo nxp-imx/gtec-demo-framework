@@ -32,7 +32,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppG2D/DemoAppG2D.hpp>
+#include <FslDemoApp/G2D/DemoAppG2D.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <vector>
 #include <g2d.h>

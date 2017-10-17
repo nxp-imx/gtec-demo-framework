@@ -29,8 +29,16 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include "Window101.hpp"
 
-// Configure the demo environment to run this demo app in a Window host environment
-FSL_REGISTER_WINDOW_DEMO(Window101, DemoAppHostConfigWindow());
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a Window host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigWindow config;
+
+    DemoAppRegister::Window::Register<Window101>(rSetup, "Window.Window101", config);
+  }
+}

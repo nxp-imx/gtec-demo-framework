@@ -41,10 +41,10 @@ namespace Fsl
     switch (unit)
     {
     case TransitionTimeUnit::Milliseconds:
-      Ticks = time * 10000;
+      Ticks = static_cast<int64_t>(time) * 10000;
       break;
     case TransitionTimeUnit::Microseconds:
-      Ticks = time * 10;
+      Ticks = static_cast<int64_t>(time) * 10;
       break;
     default:
       throw NotSupportedException("The given time unit has not been implemented");
@@ -56,10 +56,10 @@ namespace Fsl
     switch (unit)
     {
     case TransitionTimeUnit::Milliseconds:
-      Ticks = time * 10000;
+      Ticks = static_cast<int64_t>(time) * 10000;
       break;
     case TransitionTimeUnit::Microseconds:
-      Ticks = time * 10;
+      Ticks = static_cast<int64_t>(time) * 10;
       break;
     default:
       throw NotSupportedException("The given time unit has not been implemented");

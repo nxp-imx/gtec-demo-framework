@@ -13,21 +13,16 @@
 #include "Texturing.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslDemoHostWindow/Service/WindowHost/IWindowHostInfo.hpp>
-#include <FslNativeWindowVulkan/IVulkanNativeWindow.hpp>
+#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <VulkanExperimental/PhysicalDeviceEx.hpp>
-#include <VulkanExperimental/VulkanUtil.hpp>
-#include <VulkanWindowExperimental/VulkanWindowSystem.hpp>
-#include <VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
 #include <vulkan/vulkan.h>
 #include <array>
 #include <cstddef>
@@ -36,9 +31,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+using namespace RapidVulkan;
+
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
@@ -131,9 +129,9 @@ namespace Fsl
     //! @param size Size of the buffer in byes
     //! @param data Pointer to the data that should be copied to the buffer after creation (optional, if not set, no data is copied over)
     //! @return VK_SUCCESS if buffer handle and memory have been created and (optionally passed) data has been copied
-    VkResult DoCreateBuffer(BufferData& rBuffer, const PhysicalDeviceEx& physicalDevice, VkDevice device, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize size, void *data = nullptr)
+    VkResult DoCreateBuffer(BufferData& rBuffer, const PhysicalDeviceRecord& physicalDevice, VkDevice device, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize size, void *data = nullptr)
     {
-      using namespace MemoryTypeHelper;
+      using namespace MemoryTypeUtil;
       const VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = physicalDevice.GetPhysicalDeviceMemoryProperties();
 
       // Create the buffer handle
@@ -164,7 +162,7 @@ namespace Fsl
       // If a pointer to the buffer data has been passed, map the buffer and copy over the data
       if (data != nullptr)
       {
-        FSLGRAPHICSVULKAN_CHECK(vkMapMemory(device, rBuffer.Memory.Get(), 0, VK_WHOLE_SIZE, 0, &rBuffer.pMapped));
+        RAPIDVULKAN_CHECK(vkMapMemory(device, rBuffer.Memory.Get(), 0, VK_WHOLE_SIZE, 0, &rBuffer.pMapped));
         std::memcpy(rBuffer.pMapped, data, size);
         vkUnmapMemory(device, rBuffer.Memory.Get());
       }
@@ -182,6 +180,7 @@ namespace Fsl
   Texturing::Texturing(const DemoAppConfig& config)
     : VulkanWillemsDemoApp(config)
     , m_indexCount(0)
+    , m_descriptorSet(VK_NULL_HANDLE)
   {
     FSLLOG("Texturing app creating");
     m_zoom = -2.5f;
@@ -196,9 +195,17 @@ namespace Fsl
 
   Texturing::~Texturing()
   {
-    // Wait for everything to be idle before we try to free it
-    WaitForIdle();
-    FSLLOG("Texturing app destroying");
+    try
+    {
+      // Wait for everything to be idle before we try to free it
+      WaitForIdle();
+      FSLLOG("Texturing app destroying");
+    }
+    catch (const std::exception& ex)
+    {
+      // We log and swallow it since destructors are not allowed to throw
+      FSLLOG_ERROR("WaitForIdle, threw exception: " << ex.what());
+    }
   }
 
 
@@ -313,12 +320,12 @@ namespace Fsl
       {
       case VirtualKey::UpArrow:
       case VirtualKey::Add:
-      case VirtualKey::GamePadButtonR1:
+      case VirtualKey::GamePadButtonRightShoulder:
         ChangeLodBias(0.1f);
         break;
       case VirtualKey::DownArrow:
       case VirtualKey::Subtract:
-      case VirtualKey::GamePadButtonL1:
+      case VirtualKey::GamePadButtonLeftShoulder:
         ChangeLodBias(-0.1f);
         break;
       default:
@@ -369,12 +376,12 @@ namespace Fsl
     // Create buffers
     // For the sake of simplicity we won't stage the vertex data to the gpu memory
     // Vertex buffer
-    FSLGRAPHICSVULKAN_CHECK(DoCreateBuffer(m_vertexBuffer, m_physicalDevice, m_device.Get(),
+    RAPIDVULKAN_CHECK(DoCreateBuffer(m_vertexBuffer, m_physicalDevice, m_device.Get(),
       VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
       vertices.size() * sizeof(Vertex), vertices.data()));
 
     // Index buffer
-    FSLGRAPHICSVULKAN_CHECK(DoCreateBuffer(m_indexBuffer, m_physicalDevice, m_device.Get(),
+    RAPIDVULKAN_CHECK(DoCreateBuffer(m_indexBuffer, m_physicalDevice, m_device.Get(),
       VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
       indices.size() * sizeof(uint32_t), indices.data()));
   }
@@ -423,7 +430,7 @@ namespace Fsl
   void Texturing::PrepareUniformBuffers()
   {
     // Vertex shader uniform buffer block
-    FSLGRAPHICSVULKAN_CHECK(DoCreateBuffer(m_uniformBufferVS, m_physicalDevice, m_device.Get(),
+    RAPIDVULKAN_CHECK(DoCreateBuffer(m_uniformBufferVS, m_physicalDevice, m_device.Get(),
       VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
       VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
       sizeof(m_uboVS),
@@ -448,7 +455,7 @@ namespace Fsl
 
     m_uboVS.ViewPos = glm::vec4(0.0f, 0.0f, -m_zoom, 0.0f);
 
-    FSLGRAPHICSVULKAN_CHECK(vkMapMemory(m_device.Get(), m_uniformBufferVS.Memory.Get(), 0, VK_WHOLE_SIZE, 0, &m_uniformBufferVS.pMapped));
+    RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), m_uniformBufferVS.Memory.Get(), 0, VK_WHOLE_SIZE, 0, &m_uniformBufferVS.pMapped));
     std::memcpy(m_uniformBufferVS.pMapped, &m_uboVS, sizeof(m_uboVS));
     vkUnmapMemory(m_device.Get(), m_uniformBufferVS.Memory.Get());
   }
@@ -456,7 +463,7 @@ namespace Fsl
 
   void Texturing::LoadTexture(const std::string& fileName, const bool forceLinearTiling)
   {
-    using namespace MemoryTypeHelper;
+    using namespace MemoryTypeUtil;
     Texture texture;
     GetContentManager()->Read(texture, fileName);
 
@@ -512,11 +519,11 @@ namespace Fsl
       memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
       Memory stagingMemory(m_device.Get(), memAllocInfo);
-      FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
+      RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
 
       // Copy texture data into staging buffer
       uint8_t *data;
-      FSLGRAPHICSVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingMemory.Get(), 0, memReqs.size, 0, reinterpret_cast<void**>(&data)));
+      RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingMemory.Get(), 0, memReqs.size, 0, reinterpret_cast<void**>(&data)));
       {
         RawTexture rawTexture;
         Texture::ScopedDirectAccess directAccess(texture, rawTexture);
@@ -566,7 +573,7 @@ namespace Fsl
       memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
       m_texture.DeviceMemory.Reset(m_device.Get(), memAllocInfo);
-      FSLGRAPHICSVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_texture.Image.Get(), m_texture.DeviceMemory.Get(), 0));
+      RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_texture.Image.Get(), m_texture.DeviceMemory.Get(), 0));
 
       CommandBuffer copyCmd(m_device.Get(), m_commandPool.Get(), VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
@@ -645,7 +652,7 @@ namespace Fsl
       m_texture.DeviceMemory.Reset(m_device.Get(), memAllocInfo);
 
       // Bind allocated image for use
-      FSLGRAPHICSVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_texture.Image.Get(), m_texture.DeviceMemory.Get(), 0));
+      RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_texture.Image.Get(), m_texture.DeviceMemory.Get(), 0));
 
       // Get sub resource layout
       // Mip map count, array layer, etc.
@@ -660,7 +667,7 @@ namespace Fsl
       vkGetImageSubresourceLayout(m_device.Get(), m_texture.Image.Get(), &subRes, &subResLayout);
 
       // Map image memory
-      FSLGRAPHICSVULKAN_CHECK(vkMapMemory(m_device.Get(), m_texture.DeviceMemory.Get(), 0, memReqs.size, 0, &data));
+      RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), m_texture.DeviceMemory.Get(), 0, memReqs.size, 0, &data));
       {
         RawTexture rawTexture;
         Texture::ScopedDirectAccess directAccess(texture, rawTexture);
@@ -920,7 +927,7 @@ namespace Fsl
     allocInfo.descriptorPool = m_descriptorPool.Get();
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayout.GetPointer();
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
 
     std::array<VkWriteDescriptorSet, 2> writeDescriptorSets{};
     // Binding 0 : Vertex shader uniform buffer

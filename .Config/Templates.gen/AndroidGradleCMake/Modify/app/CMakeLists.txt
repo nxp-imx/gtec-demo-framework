@@ -1,13 +1,6 @@
 cmake_minimum_required(VERSION 3.4.1 FATAL_ERROR)
 
-
-if(NOT DEFINED ENV{FSL_GRAPHICS_SDK})
-    message(FATAL_ERROR "The FSL_GRAPHICS_SDK environment variable is not defined")
-    # some more commands
-else()
-  set(FSL_GRAPHICS_SDK "$ENV{FSL_GRAPHICS_SDK}")
-  string(REPLACE "\\" "/" FSL_GRAPHICS_SDK ${FSL_GRAPHICS_SDK})
-endif()
+##CMAKE_DEFINE_PACKAGE_ROOT_VARIABLES##
 
 # location of additional cmake modules
 set(CMAKE_MODULE_PATH
@@ -72,6 +65,6 @@ target_link_libraries(DemoNativeActivity PUBLIC android app-glue ndk_helper ${lo
 
 
 
-#set(FslDemoAppGLES2_DIR "e:/Work/DemoFramework/DemoFramework/FslDemoAppGLES2")
-#find_package(FslDemoAppGLES2 REQUIRED)
-#target_link_libraries(DemoNativeActivity PUBLIC app-glue ${log-lib} DepFslDemoAppGLES2)
+#set(FslDemoApp.OpenGLES2_DIR "e:/Work/DemoFramework/DemoFramework/FslDemoApp.OpenGLES2")
+#find_package(FslDemoApp.OpenGLES2 REQUIRED)
+#target_link_libraries(DemoNativeActivity PUBLIC app-glue ${log-lib} DepFslDemoApp.OpenGLES2)

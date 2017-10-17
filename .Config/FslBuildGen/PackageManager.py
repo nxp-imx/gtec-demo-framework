@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,36 +31,46 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.DataTypes import *
-from FslBuildGen.DependencyGraph import DependencyGraph
-from FslBuildGen.Exceptions import *
-from FslBuildGen.Package import Package
-from FslBuildGen.PackageDependency import PackageDependency
-from FslBuildGen.XmlStuff import XmlGenFile
+from typing import Dict
+from typing import List
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Exceptions import DependencyNotFoundException
+from FslBuildGen.Exceptions import InternalErrorException
+from FslBuildGen.Exceptions import InvalidDependencyException
+from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Packages.Package import PackageDependency
+from FslBuildGen.Xml.XmlGenFile import XmlGenFile
+
+
+def _AllocatePackage(config: Config, genFile: XmlGenFile) -> Package:
+    return Package(config, genFile)
 
 
 class PackageManager(object):
-    def __init__(self, platformName, genFiles):
+    def __init__(self, config: Config, platformName: str, genFiles: List[XmlGenFile]) -> None:
         super(PackageManager, self).__init__()
-        uniqueDict = {}
+        self.__PackageFactoryFunction = _AllocatePackage
+        uniqueDict = {}  # type: Dict[str, Package]
         for genFile in genFiles:
             if not genFile.Name in uniqueDict:
-                uniqueDict[genFile.Name] = Package(genFile)
+                uniqueDict[genFile.Name] = self.__PackageFactoryFunction(config, genFile)
             else:
                 raise InternalErrorException("Package has been defined multiple times, this ought to have been caught earlier")
 
         self.OriginalPackageDict = uniqueDict
-        self.Packages = list(uniqueDict.values())
+        self.Packages = list(uniqueDict.values())  # type: List[Package]
 
         # Resolve dependency package names -> actual package objects
         for package in self.Packages:
             self.__ResolvePackageDependencies(platformName, package)
 
 
-    def CreatePackage(self, platformName, genFile, insertAtFront=False):
+    def CreatePackage(self, config: Config, platformName: str, genFile: XmlGenFile, insertAtFront: bool = False) -> Package:
         if genFile.Name in self.OriginalPackageDict:
-            raise UsageErrorException("Package '%s' already exist" % genFile.Name);
-        package = Package(genFile)
+            raise UsageErrorException("Package '{0}' already exist".format(genFile.Name))
+        package = self.__PackageFactoryFunction(config, genFile)
         self.__ResolvePackageDependencies(platformName, package)
         if not insertAtFront:
             self.Packages.append(package)
@@ -70,12 +80,12 @@ class PackageManager(object):
         return package
 
 
-    def __ResolvePackageDependencies(self, platformName, package):
+    def __ResolvePackageDependencies(self, platformName: str, package: Package) -> None:
         for dep in package.GetDirectDependencies(platformName):
             if not dep.Name in self.OriginalPackageDict:
-                raise DependencyNotFoundException(package, dep.Name)
+                raise DependencyNotFoundException(package.Name, dep.Name)
             elif package.Type != PackageType.TopLevel and not self.OriginalPackageDict[dep.Name].AllowDependencyOnThis:
-                raise InvalidDependencyException(package, dep.Name)
+                raise InvalidDependencyException(package.Name, dep.Name)
             else:
                 resolvedDep = PackageDependency(self.OriginalPackageDict[dep.Name], dep.Access)
                 package.ResolvedDirectDependencies.append(resolvedDep)

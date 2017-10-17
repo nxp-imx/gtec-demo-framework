@@ -2,8 +2,8 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- Change the type here depending on how its integrated -->
   <ExternalLibrary Name="OpenCL1_1">
-    <UsesFeature Name="OpenCL1.1"/>
-    <CPPDefine Name="FSL_FEATURE_OPENCL1_1" Access="Public"/> 
+    <Requirement Name="OpenCL1.1" Type="feature" Extends="OpenCL" Version="1.1"/>
+    <Define Name="FSL_FEATURE_OPENCL1_1" Access="Public"/> 
     <Dependency Name="OpenCL"/>
   </ExternalLibrary>
 </FslBuildGen>

@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+DFSimpleUI100
 DFSimpleUI100_FB
+DFSimpleUI100_FB_d
 DFSimpleUI100_Wayland
+DFSimpleUI100_Wayland_d
 DFSimpleUI100_X11
+DFSimpleUI100_X11_d
+DFSimpleUI100_d
 FslSDKIcon.ico
+GLES3.DFSimpleUI100
 GLES3.DFSimpleUI100.VC.VC.opendb
 GLES3.DFSimpleUI100.VC.db
 GLES3.DFSimpleUI100.aps
@@ -21,6 +27,9 @@ GLES3.DFSimpleUI100.v12.suo
 GLES3.DFSimpleUI100.vcxproj
 GLES3.DFSimpleUI100.vcxproj.filters
 GLES3.DFSimpleUI100.vcxproj.user
+GLES3.DFSimpleUI100_FB
+GLES3.DFSimpleUI100_Wayland
+GLES3.DFSimpleUI100_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

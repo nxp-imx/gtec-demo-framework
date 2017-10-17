@@ -35,7 +35,7 @@ namespace Fsl
 {
   enum class ImageFormat
   {
-    Undefined,
+    Undefined = 0,
     Bmp,
     // DirectDraw Surface file format
     // https://msdn.microsoft.com/en-us/library/windows/desktop/bb943990%28v=vs.85%29.aspx

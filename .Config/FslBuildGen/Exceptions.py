@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python3
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
 # All rights reserved.
@@ -31,271 +30,192 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen import PackageConfig
-from FslBuildGen import Util
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+
 
 class GroupedException(Exception):
-    def __init__(self, exceptionList):
-        self.ExceptionList = exceptionList
-
+    def __init__(self, exceptionList: List[Exception]) -> None:
+        super(GroupedException, self).__init__("GroupedException")
+        self.ExceptionList = exceptionList # type: List[Exception]
 
 
 class PackageHasMultipleDefinitionsException(Exception):
-    def __init__(self, packageList):
-        locationList = []
-        for package in packageList:
-            locationList.append(package.AbsolutePath)
-        msg = "Package '%s' defined by '%s'" % (packageList[0].Name, ", ".join(locationList))
-        super(PackageHasMultipleDefinitionsException, self).__init__(msg)
+    def __init__(self, message: str) -> None:
+        super(PackageHasMultipleDefinitionsException, self).__init__(message)
 
 
 class PackageMissingRequiredIncludeDirectoryException(Exception):
-    def __init__(self, directory):
-        msg = "Required include directory '%s' not found" % (directory)
+    def __init__(self, directory: str) -> None:
+        msg = "Required include directory '{0}' not found".format(directory)
         super(PackageMissingRequiredIncludeDirectoryException, self).__init__(msg)
 
 
 class PackageMissingRequiredSourceDirectoryException(Exception):
-    def __init__(self, directory):
-        msg = "Required source directory '%s' not found" % (directory)
+    def __init__(self, directory: str) -> None:
+        msg = "Required source directory '{0}' not found".format(directory)
         super(PackageMissingRequiredSourceDirectoryException, self).__init__(msg)
 
 
+class PackageRequirementExtendsUnusedFeatureException(Exception):
+    def __init__(self, requirementName: str, requirementExtends: str, packageName: str) -> None:
+        msg = "Package requirement '{0}' in package '{1}' extends unknown feature '{2}'. Is it a feature spelling error or missing package dependency?".format(requirementName, packageName, requirementExtends)
+        super(PackageRequirementExtendsUnusedFeatureException, self).__init__(msg)
+
+
 class InternalErrorException(Exception):
-  """ Error
-  """
+    """ Error
+    """
 
 
 class UsageErrorException(Exception):
-  """ Error
-  """
+    """ Error
+    """
+
 
 class UnknownTypeException(Exception):
-  """ Error
-  """
+    """ Error
+    """
+
 
 class FileNotFoundException(Exception):
-  """ Error
-  """
+    """ Error
+    """
 
-class XmlInvalidRootElement(Exception):
-  """ Error
-  """
-
-class XmlUnsupportedPackageType(Exception):
-  """ Error
-  """
-
-class XmlException(Exception):
-  """ Error
-  """
-
-class XmlException2(Exception):
-    def __init__(self, xmlElement, message):
-        super(XmlException2, self).__init__("%s" % (message))
-
-class XmlRequiredAttributeMissingException(XmlException2):
-    def __init__(self, xmlElement, attribName):
-        msg = "Element '%s' did not contain the required '%s' attribute" % (xmlElement.tag, attribName)
-        super(XmlRequiredAttributeMissingException, self).__init__(xmlElement, msg)
-
-
-class XmlUnsupportedPlatformException(XmlException2):
-    def __init__(self, xmlElement, name):
-        msg = "Platform name: '%s' is not a valid platform name, expected: %s" % (name, ", ".join(PackageConfig.APPROVED_PLATFORM_NAMES))
-        super(XmlUnsupportedPlatformException, self).__init__(xmlElement, msg)
-
-
-class XmlMissingWindowsVisualStudioProjectIdException(XmlException2):
-    def __init__(self, xmlElement):
-        msg = "The windows platform requires a ProjectId to be defined"
-        super(XmlMissingWindowsVisualStudioProjectIdException, self).__init__(xmlElement, msg)
-
-
-class PackageDuplicatedWindowsVisualStudioProjectIdException(XmlException2):
-    def __init__(self, package1, package2, duplicatedProjectId):
-        msg = "The windows platform requires a unique ProjectId to be defined. %s is defined in %s and %s " % (duplicatedProjectId, package1.Name, package2.Name)
-        super(PackageDuplicatedWindowsVisualStudioProjectIdException, self).__init__(package1.XMLElement, msg)
-
-
-class XmlInvalidPackageNameException(XmlException2):
-    def __init__(self, xmlElement, correctName, invalidName):
-        msg = "The name: '%s' does not match the dir name '%s'" % (invalidName, correctName)
-        super(XmlInvalidPackageNameException, self).__init__(xmlElement, msg)
-
-
-class XmlInvalidSubPackageNameException(XmlException2):
-    def __init__(self, xmlElement, correctName, invalidName):
-        msg = "The sub package names: '%s' does not match the dir names '%s'" % (invalidName, correctName)
-        super(XmlInvalidSubPackageNameException, self).__init__(xmlElement, msg)
-
-class XmlInvalidSubPackageShortNameConflictException(XmlException2):
-    def __init__(self, xmlElement, correctName, invalidName):
-        msg = "The short sub package name: '%s' is not allowed because a directory called '%s' exist" % (invalidName, correctName)
-        super(XmlInvalidSubPackageShortNameConflictException, self).__init__(xmlElement, msg)
-
-
-class XmlUnsupportedPackageNameException(XmlException2):
-    def __init__(self, xmlElement, name):
-        msg = "The name: '%s' contains unsupported characters" % (name)
-        super(XmlUnsupportedPackageNameException, self).__init__(xmlElement, msg)
-
-
-class XmlUnsupportedVariantNameException(XmlException2):
-    def __init__(self, xmlElement, name):
-        msg = "The variant name: '%s' contains unsupported characters" % (name)
-        super(XmlUnsupportedVariantNameException, self).__init__(xmlElement, msg)
-
-
-class XmlUnsupportedVirtualVariantNameException(XmlException2):
-    def __init__(self, xmlElement, name):
-        msg = "The variant name: '%s' contains unsupported characters" % (name)
-        super(XmlUnsupportedVirtualVariantNameException, self).__init__(xmlElement, msg)
-
-
-class XmlUnsupportedVariantOptionNameException(XmlException2):
-    def __init__(self, xmlElement, name):
-        msg = "The variant option name: '%s' contains unsupported characters" % (name)
-        super(XmlUnsupportedVariantOptionNameException, self).__init__(xmlElement, msg)
-
-
-class XmlInvalidVirtualVariantOptionException(XmlException2):
-    def __init__(self, xmlElement, name):
-        msg = "Variant '%s'. A virtual variant must contain exactly one option." % (name)
-        super(XmlInvalidVirtualVariantOptionException, self).__init__(xmlElement, msg)
-
-class XmlUnsupportedVirtualVariantOptionNameException(XmlException2):
-    def __init__(self, xmlElement, variantName, name):
-        msg = "The virtual variant option name: '%s' is not equal to the variant name '%s'" % (variantName, name)
-        super(XmlUnsupportedVirtualVariantOptionNameException, self).__init__(xmlElement, msg)
-
-
-class XmlUnsupportedSubPackageNameException(XmlException2):
-    def __init__(self, xmlElement, name):
-        msg = "The name: '%s' is a invalid sub package name" % (name)
-        super(XmlUnsupportedSubPackageNameException, self).__init__(xmlElement, msg)
-
-
-class XmlVariantOptionNameCollisionException(XmlException2):
-    def __init__(self, xmlElement, firstName, secondName):
-        msg = "The option name: '%s' collides with the previously defined '%s'" % (secondName, firstName)
-        super(XmlVariantOptionNameCollisionException, self).__init__(xmlElement, msg)
-
-
-class PlatformAlreadyDefinedException(XmlException2):
-    def __init__(self, newPlaformDef, oldPlatformDef):
-        msg = "The platform name: '%s' has already been defined." % (newPlaformDef.Name)
-        super(PlatformAlreadyDefinedException, self).__init__(newPlaformDef.XMLElement, msg)
-
-
-class BuildCustomizationAlreadyDefinedException(XmlException2):
-    def __init__(self, newDef, oldDef):
-        msg = "The build customization name: '{0}' has already been defined.".format(newDef.Name)
-        super(BuildCustomizationAlreadyDefinedException, self).__init__(newDef.XMLElement, msg)
-
-
-class UnknownBuildCustomizationException(XmlException2):
-    def __init__(self, xmlElement):
-        msg = "The build customization name: '{0}' is not valid.".format(xmlElement.tag)
-        super(UnknownBuildCustomizationException, self).__init__(xmlElement, msg)
-
-
-class VariantExtensionNotSupportedException(XmlException2):
-    def __init__(self, extendingPackage, extendingVariant, basePackage):
-        msg = "Package '%s' variant: '%s' can not extend the variant defined in '%s'" % (extendingPackage.Name, extendingVariant.Name, basePackage.Name)
-        super(VariantExtensionNotSupportedException, self).__init__(extendingPackage.XMLElement, msg)
-
-
-class VariantNotMarkedAsExtendingException(XmlException2):
-    def __init__(self, previousVariant, extendingVariant):
-        msg = "The variant '%s' in package '%s' is not marked for extend, but it would be extending '%s'" % (extendingVariant.Name, extendingVariant.IntroducedByPackageName, previousVariant.ExtensionInfo)
-        super(VariantNotMarkedAsExtendingException, self).__init__(previousVariant.XMLElement, msg)
-
-class ExtendingVariantCanNotIntroduceNewOptionsException(XmlException2):
-    def __init__(self, extendingPackage, extendingVariant, basePackage, baseVariant, newOptions):
-        msg = "Package '%s' variant: '%s' can not extend the options defined by '%s' with '%s'" % (extendingPackage.Name, extendingVariant.Name, basePackage.Name, ", ".join(Util.ExtractNames(newOptions)))
-        super(ExtendingVariantCanNotIntroduceNewOptionsException, self).__init__(extendingPackage.XMLElement, msg)
-
-class VariantNameCollisionException(XmlException2):
-    def __init__(self, extendingPackage, extendingVariant, basePackage, baseVariant):
-        msg = "Package '%s' variant: '%s' names collides with '%s' variant '%s'" % (extendingPackage.Name, extendingVariant.Name, basePackage.Name, baseVariant.Name)
-        super(VariantNameCollisionException, self).__init__(extendingPackage.XMLElement, msg)
-
-class VariantExtensionCanNotOverwriteExistingExternalDependencyException(XmlException2):
-    def __init__(self, previous, introducedByPackageName, extending, extensionInfo):
-        msg = "The variant option '%s' in package '%s' can overwrite a existing external dependency from '%s'" % (extending.Name, introducedByPackageName, extensionInfo)
-        super(VariantExtensionCanNotOverwriteExistingExternalDependencyException, self).__init__(previous.XMLElement, msg)
-
-
-class VariantExtensionCanNotOverwriteExistingCPPDefineException(XmlException2):
-    def __init__(self, previous, introducedByPackageName, extending, extensionInfo):
-        msg = "The variant option '%s' in package '%s' can overwrite a existing CPPDefine from '%s'" % (extending.Name, introducedByPackageName, extensionInfo)
-        super(VariantExtensionCanNotOverwriteExistingCPPDefineException, self).__init__(previous.XMLElement, msg)
-
-
-
-class FeatureUseDuplicatedException(XmlException2):
-    def __init__(self, package, name):
-        msg = "Feature name '%s' in package '%s' already defined" % (name, package.Name)
-        super(FeatureUseDuplicatedException, self).__init__(package.XMLElement, msg)
-
-
-class FeatureNameCollisionException(XmlException2):
-    def __init__(self, package1, name1, package2, name2):
-        msg = "Feature name '%s' in package '%s' collides with feature name '%s' from package '%s'" % (name1, package1.Name, name2, package2.Name)
-        super(FeatureNameCollisionException, self).__init__(package1.XMLElement, msg)
-
-class XmlFormatException(Exception):
-  """Indicate that a error exist in the config xml
-  """
 
 class CircularDependencyException(Exception):
-  """ E
-  """
+    """ E
+    """
+
 
 class CircularDependencyInDependentModuleException(Exception):
-  """ E
-  """
+    """ E
+    """
 
-class ImportTemplateNotFoundException(XmlException2):
-    def __init__(self, xmlElement, templateName):
-        msg = "'%s' tries to import unknown template '%s'" % (xmlElement.tag, templateName)
-        super(ImportTemplateNotFoundException, self).__init__(xmlElement, msg)
-
-class DependencyNotFoundException(Exception):
-    def __init__(self, xmlGenFile, depName):
-        Exception.__init__(self, "'%s' has a dependency to a unknown package '%s'" % (xmlGenFile.Name, depName))
-
-class InvalidDependencyException(Exception):
-    def __init__(self, xmlGenFile, depName):
-        Exception.__init__(self, "'%s' has a invalid dependency to package '%s'" % (xmlGenFile.Name, depName))
 
 class NotImplementedException(Exception):
-  """ E
-  """
+    """ E
+    """
+
 
 class UnsupportedException(Exception):
-  """ E
-  """
+    """ E
+    """
+
+
+class DuplicatedNewProjectTemplatesRootPath(Exception):
+    """ E
+    """
+    def __init__(self, name: str, configFileName1: str, configFileName2: str) -> None:
+        msg = "Root path '{0}' listed multiple times in {1} and {2}".format(name, configFileName1, configFileName2)
+        super(DuplicatedNewProjectTemplatesRootPath, self).__init__(msg)
+
 
 class DuplicatedConfigRootPath(Exception):
     """ E
     """
-    def __init__(self, name, configFileName):
-        msg = "Root path '%s' listed multiple times in %s" % (name, configFileName)
+    def __init__(self, name: str, configFileName: str) -> None:
+        msg = "Root path '{0}' listed multiple times in {1}".format(name, configFileName)
         super(DuplicatedConfigRootPath, self).__init__(msg)
+
 
 class DuplicatedConfigPackageLocation(Exception):
     """ E
     """
-    def __init__(self, name, configFileName):
-        msg = "Package location '%s' listed multiple times in %s" % (name, configFileName)
+    def __init__(self, name: str, configFileName: str) -> None:
+        msg = "Package location '{0}' listed multiple times in {1}".format(name, configFileName)
         super(DuplicatedConfigPackageLocation, self).__init__(msg)
 
 
 class DuplicatedConfigContentBuilder(Exception):
     """ E
     """
-    def __init__(self, name, configFileName):
-        msg = "ContentBuilder '%s' listed multiple times in %s" % (name, configFileName)
+    def __init__(self, name: str, configFileName: str) -> None:
+        msg = "ContentBuilder '{0}' listed multiple times in {1}".format(name, configFileName)
         super(DuplicatedConfigContentBuilder, self).__init__(msg)
+
+
+class IncompleteVariableFoundException(Exception):
+    """ E
+    """
+    def __init__(self, message: str, tag: Optional[object]) -> None:
+        msg = "String '{0}' contains '${{' but is missing a terminating '}}'.".format(message)
+        super(IncompleteVariableFoundException, self).__init__(msg)
+        self.Tag = tag
+
+
+class IncompleteEnvironmentVariableFoundException(Exception):
+    """ E
+    """
+    def __init__(self, message: str, tag: Optional[object]) -> None:
+        msg = "String '{0}' contains '$(' but is missing a terminating ')'.".format(message)
+        super(IncompleteEnvironmentVariableFoundException, self).__init__(msg)
+        self.Tag = tag
+
+
+class EnvironmentVariableInMiddleOfStringException(Exception):
+    """ E
+    """
+    def __init__(self, message: str, tag: Optional[object]) -> None:
+        msg = "Environment variables can not be located in the middle of a string '{0}'".format(message)
+        super(EnvironmentVariableInMiddleOfStringException, self).__init__(msg)
+        self.Tag = tag
+
+
+class CombinedEnvironmentVariableAndPathException(Exception):
+    """ E
+    """
+    def __init__(self, message: str, tag: Optional[object]) -> None:
+        msg = "String '{0}' contains a environment variable mixed with a path.".format(message)
+        super(CombinedEnvironmentVariableAndPathException, self).__init__(msg)
+        self.Tag = tag
+
+
+class CombinedVariableAndPathException(Exception):
+    """ E
+    """
+    def __init__(self, message: str, tag: Optional[object]) -> None:
+        msg = "String '{0}' contains a variable mixed with a path.".format(message)
+        super(CombinedVariableAndPathException, self).__init__(msg)
+        self.Tag = tag
+
+
+class VariableInMiddleOfStringException(Exception):
+    """ E
+    """
+    def __init__(self, message: str, tag: Optional[object]) -> None:
+        msg = "Variables can not be located in the middle of a string '{0}'".format(message)
+        super(VariableInMiddleOfStringException, self).__init__(msg)
+        self.Tag = tag
+
+
+class VariableNotDefinedException(Exception):
+    """ E
+    """
+    def __init__(self, variableName: str, variableDict: Dict[str, Optional[object]]) -> None:
+        msg = "Variable '{0}' is not defined, possible variable names [{1}]".format(variableName, ", ".join(list(variableDict.keys())))
+        super(VariableNotDefinedException, self).__init__(msg)
+
+
+class DependencyNotFoundException(Exception):
+    def __init__(self, packageName: str, depName: str, candidateList: Optional[List[str]] = None, additionalMessage: str = "") -> None:
+        if candidateList is None or len(candidateList) <= 0:
+            message = "'{0}' has a dependency to a unknown package '{1}'.".format(packageName, depName)
+        else:
+            message = "'{0}' has a dependency to a unknown package '{1}' did you mean {2}.".format(packageName, depName, candidateList)
+        if len(additionalMessage) > 0:
+            message += " {0}".format(additionalMessage)
+        super(DependencyNotFoundException, self).__init__(message)
+
+# If this exception fires it means the package loader has a bug
+class PackageLoaderFailedToLocatePackageException(DependencyNotFoundException):
+    def __init__(self, packageName: str, depName: str) -> None:
+        msg = "*INTERNAL_ERROR* the package exist, but the package loader failed to locate it."
+        super(PackageLoaderFailedToLocatePackageException, self).__init__(packageName, depName, additionalMessage=msg)
+
+
+class InvalidDependencyException(Exception):
+    def __init__(self, packageName: str, depName: str) -> None:
+        super(InvalidDependencyException, self).__init__("'{0}' has a invalid dependency to package '{1}'".format(packageName, depName))

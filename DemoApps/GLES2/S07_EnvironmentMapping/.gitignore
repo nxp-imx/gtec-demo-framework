@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES2.S07_EnvironmentMapping
 GLES2.S07_EnvironmentMapping.VC.VC.opendb
 GLES2.S07_EnvironmentMapping.VC.db
 GLES2.S07_EnvironmentMapping.aps
@@ -18,10 +19,18 @@ GLES2.S07_EnvironmentMapping.v12.suo
 GLES2.S07_EnvironmentMapping.vcxproj
 GLES2.S07_EnvironmentMapping.vcxproj.filters
 GLES2.S07_EnvironmentMapping.vcxproj.user
+GLES2.S07_EnvironmentMapping_FB
+GLES2.S07_EnvironmentMapping_Wayland
+GLES2.S07_EnvironmentMapping_X11
 GNUmakefile
 GNUmakefile_Yocto
+S07_EnvironmentMapping
 S07_EnvironmentMapping_FB
+S07_EnvironmentMapping_FB_d
 S07_EnvironmentMapping_Wayland
+S07_EnvironmentMapping_Wayland_d
 S07_EnvironmentMapping_X11
+S07_EnvironmentMapping_X11_d
+S07_EnvironmentMapping_d
 build/
 resource.h

@@ -45,8 +45,8 @@
 namespace Fsl
 {
 
-  template<typename TNativeBatch, typename TTexture>
-  GenericBatch2D<TNativeBatch, TTexture>::GenericBatch2D(const native_batch_type& nativeBatchType, const Point2& screenResolution)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GenericBatch2D(const native_batch_type& nativeBatchType, const Point2& screenResolution)
     : m_native(nativeBatchType)
     , m_vertices(GenericBatch2D_DEFAULT_CAPACITY * VERTICES_PER_QUAD)
     , m_drawRecords(GenericBatch2D_DEFAULT_CAPACITY)
@@ -62,21 +62,21 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  GenericBatch2D<TNativeBatch, TTexture>::~GenericBatch2D()
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::~GenericBatch2D()
   {
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::SetScreenResolution(const Point2& resolution)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::SetScreenResolution(const Point2& resolution)
   {
     m_screenRect = Rectangle(0, 0, resolution.X, resolution.Y);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Begin()
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Begin()
   {
     if (m_inBegin)
       throw UsageErrorException("Already inside a begin/end block");
@@ -87,8 +87,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Begin(const BlendState blendState)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Begin(const BlendState blendState)
   {
     if (m_inBegin)
       throw UsageErrorException("Already inside a begin/end block");
@@ -99,8 +99,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Begin(const BlendState blendState, const bool restoreState)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Begin(const BlendState blendState, const bool restoreState)
   {
     if (m_inBegin)
       throw UsageErrorException("Already inside a begin/end block");
@@ -112,8 +112,8 @@ namespace Fsl
 
 
   //! @brief If in a begin/end block this switches the blend state to the requested state
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::ChangeTo(const BlendState blendState)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::ChangeTo(const BlendState blendState)
   {
     if (!m_inBegin)
     {
@@ -130,8 +130,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::End()
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::End()
   {
     if (! m_inBegin)
       throw UsageErrorException("Not in a begin/end block");
@@ -141,23 +141,23 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color)
   {
     Vector2 dst(dstPosition.X + srcTexture.Info.TrimMargin.Left(), dstPosition.Y + srcTexture.Info.TrimMargin.Top());
     Draw(srcTexture.Texture, dst, srcTexture.Info.TrimmedRect, color);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color)
   {
     Draw(srcTexture, dstPosition, Rectangle(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Rectangle& dstRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Rectangle& dstRectangle, const Color& color)
   {
     if (dstRectangle.Width() > 0 && dstRectangle.Height() > 0)
     {
@@ -167,15 +167,15 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Rectangle& dstRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Rectangle& dstRectangle, const Color& color)
   {
     Draw(srcTexture, dstRectangle, Rectangle(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Rect& dstRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Rect& dstRectangle, const Color& color)
   {
     if (dstRectangle.Width() > 0 && dstRectangle.Height() > 0)
     {
@@ -185,15 +185,15 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Rect& dstRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Rect& dstRectangle, const Color& color)
   {
     Draw(srcTexture, dstRectangle, Rectangle(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color)
   {
     Vector2 origin;
     Rectangle srcRect = srcRectangle;
@@ -205,8 +205,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -237,8 +237,8 @@ namespace Fsl
     const float srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
     const float u2 = clippedSrcRect.Right() / srcWidth;
-    const float v1 = 1.0f - (clippedSrcRect.Top() / srcHeight);
-    const float v2 = 1.0f - (clippedSrcRect.Bottom() / srcHeight);
+    const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
+    const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
     m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
     m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
@@ -254,8 +254,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Rectangle& dstRectangle, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Rectangle& dstRectangle, const Rectangle& srcRectangle, const Color& color)
   {
     if (dstRectangle.Width() > 0 && dstRectangle.Height() > 0)
     {
@@ -265,8 +265,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Rectangle& dstRectangle, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Rectangle& dstRectangle, const Rectangle& srcRectangle, const Color& color)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -299,8 +299,8 @@ namespace Fsl
     const float srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
     const float u2 = clippedSrcRect.Right() / srcWidth;
-    const float v1 = 1.0f - (clippedSrcRect.Top() / srcHeight);
-    const float v2 = 1.0f - (clippedSrcRect.Bottom() / srcHeight);
+    const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
+    const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
     m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
     m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
@@ -317,8 +317,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color)
   {
     if (dstRectangle.Width() > 0 && dstRectangle.Height() > 0)
     {
@@ -328,8 +328,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -362,8 +362,8 @@ namespace Fsl
     const float srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
     const float u2 = clippedSrcRect.Right() / srcWidth;
-    const float v1 = 1.0f - (clippedSrcRect.Top() / srcHeight);
-    const float v2 = 1.0f - (clippedSrcRect.Bottom() / srcHeight);
+    const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
+    const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
     m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
     m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
@@ -380,38 +380,38 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     Vector2 originMod(origin.X - srcTexture.Info.TrimMargin.Left(), origin.Y - srcTexture.Info.TrimMargin.Top());
     Draw(srcTexture.Texture, dstPosition, srcTexture.Info.TrimmedRect, color, originMod, scale);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     Draw(srcTexture, dstPosition, Rectangle(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, origin, scale);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
   {
     Vector2 originMod(origin.X - srcTexture.Info.TrimMargin.Left(), origin.Y - srcTexture.Info.TrimMargin.Top());
     Draw(srcTexture.Texture, dstPosition, srcTexture.Info.TrimmedRect, color, rotation, originMod, scale);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
   {
     Draw(srcTexture, dstPosition, Rectangle(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color, rotation, origin, scale);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     Vector2 originMod = origin;
     Rectangle srcRect = srcRectangle;
@@ -422,8 +422,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -461,8 +461,8 @@ namespace Fsl
     const float srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
     const float u2 = clippedSrcRect.Right() / srcWidth;
-    const float v1 = 1.0f - (clippedSrcRect.Top() / srcHeight);
-    const float v2 = 1.0f - (clippedSrcRect.Bottom() / srcHeight);
+    const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
+    const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
     m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
     m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
@@ -478,8 +478,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
   {
     Vector2 originMod = origin;
     Rectangle srcRect = srcRectangle;
@@ -490,8 +490,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -559,8 +559,8 @@ namespace Fsl
     const float srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
     const float u2 = clippedSrcRect.Right() / srcWidth;
-    const float v1 = 1.0f - (clippedSrcRect.Top() / srcHeight);
-    const float v2 = 1.0f - (clippedSrcRect.Bottom() / srcHeight);
+    const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
+    const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
     m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
     m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
@@ -576,8 +576,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Color& color)
   {
     if (pDstPositions == nullptr)
       throw std::invalid_argument("pDstPositions is invalid");
@@ -597,15 +597,15 @@ namespace Fsl
 
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Color& color)
   {
     Draw(srcTexture, pDstPositions, dstPositionsLength, Rectangle(0, 0, srcTexture.Extent.Width, srcTexture.Extent.Height), color);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const atlas_texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const atlas_texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Rectangle& srcRectangle, const Color& color)
   {
     if (pDstPositions == nullptr)
       throw std::invalid_argument("pDstPositions or dstPositions length is invalid");
@@ -627,8 +627,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Draw(const texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Rectangle& srcRectangle, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Draw(const texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Rectangle& srcRectangle, const Color& color)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -660,8 +660,8 @@ namespace Fsl
     const float srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
     const float u2 = clippedSrcRect.Right() / srcWidth;
-    const float v1 = 1.0f - (clippedSrcRect.Top() / srcHeight);
-    const float v2 = 1.0f - (clippedSrcRect.Bottom() / srcHeight);
+    const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
+    const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
     const Vector2* pDstPosition = pDstPositions;
     const Vector2*const pDstPositionEnd = pDstPositions + dstPositionsLength;
@@ -689,8 +689,8 @@ namespace Fsl
     AddToDrawRecords(srcTexture, dstPositionsLength);
   }
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const psz, const Vector2& dstPosition, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const psz, const Vector2& dstPosition, const Color& color)
   {
     if (psz == nullptr)
       throw std::invalid_argument("psz can not be null");
@@ -699,15 +699,15 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition, const Color& color)
   {
     DrawString(srcTexture, font, str.c_str(), 0, static_cast<int32_t>(str.size()), dstPosition, color);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const pStr, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const pStr, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -754,8 +754,8 @@ namespace Fsl
 
         const float u1 = srcRect.Left() / srcWidth;
         const float u2 = srcRect.Right() / srcWidth;
-        const float v1 = 1.0f - (srcRect.Top() / srcHeight);
-        const float v2 = 1.0f - (srcRect.Bottom() / srcHeight);
+        const float v1 = TVFormatter::Format(srcRect.Top() / srcHeight);
+        const float v2 = TVFormatter::Format(srcRect.Bottom() / srcHeight);
 
         m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
         m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
@@ -774,8 +774,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color)
   {
     if (startIndex < 0 || length < 0 || std::size_t(startIndex + length) > str.size())
       throw std::invalid_argument("startIndex or length is invalid");
@@ -784,8 +784,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const psz, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const psz, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     if (psz == nullptr)
       throw std::invalid_argument("psz can not be null");
@@ -794,15 +794,15 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     DrawString(srcTexture, font, str.c_str(), 0, static_cast<int32_t>(str.size()), dstPosition, color, origin, scale);
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const pStr, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const pStr, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     if (!m_inBegin)
       throw UsageErrorException("Draw can only occur inside a begin/end block");
@@ -855,8 +855,8 @@ namespace Fsl
 
         const float u1 = srcRect.Left() / srcWidth;
         const float u2 = srcRect.Right() / srcWidth;
-        const float v1 = 1.0f - (srcRect.Top() / srcHeight);
-        const float v2 = 1.0f - (srcRect.Bottom() / srcHeight);
+        const float v1 = TVFormatter::Format(srcRect.Top() / srcHeight);
+        const float v2 = TVFormatter::Format(srcRect.Bottom() / srcHeight);
 
         m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
         m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
@@ -875,8 +875,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
   {
     if (startIndex < 0 || length < 0 || std::size_t(startIndex + length) > str.size())
       throw std::invalid_argument("startIndex or length is invalid");
@@ -885,8 +885,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DebugDrawRectangle(const atlas_texture_type& srcFillTexture, const Rectangle& dstRect, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawRectangle(const atlas_texture_type& srcFillTexture, const Rectangle& dstRect, const Color& color)
   {
     const auto texSize = srcFillTexture.Info.OriginalSize;
     const Rectangle srcRect(texSize.X / 2, texSize.Y / 2, 1, 1);
@@ -905,8 +905,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DebugDrawRectangle(const texture_type& srcFillTexture, const Rectangle& dstRect, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawRectangle(const texture_type& srcFillTexture, const Rectangle& dstRect, const Color& color)
   {
     const auto texExtent = srcFillTexture.Extent;
     const Rectangle srcRect(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
@@ -925,8 +925,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DebugDrawRectangle(const atlas_texture_type& srcFillTexture, const Rect& dstRect, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawRectangle(const atlas_texture_type& srcFillTexture, const Rect& dstRect, const Color& color)
   {
     const auto texSize = srcFillTexture.Info.OriginalSize;
     const Rectangle srcRect(texSize.X / 2, texSize.Y / 2, 1, 1);
@@ -945,8 +945,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DebugDrawRectangle(const texture_type& srcFillTexture, const Rect& dstRect, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawRectangle(const texture_type& srcFillTexture, const Rect& dstRect, const Color& color)
   {
     const auto texExtent = srcFillTexture.Extent;
     const Rectangle srcRect(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
@@ -964,8 +964,8 @@ namespace Fsl
     Draw(srcFillTexture, dstRectangle, srcRect, color);
   }
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DebugDrawLine(const atlas_texture_type& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const atlas_texture_type& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color)
   {
     const auto texSize = srcFillTexture.Info.OriginalSize;
     const Rectangle srcRect(texSize.X / 2, texSize.Y / 2, 1, 1);
@@ -979,8 +979,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::DebugDrawLine(const texture_type& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DebugDrawLine(const texture_type& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color)
   {
     const auto texExtent = srcFillTexture.Extent;
     const Rectangle srcRect(texExtent.Width / 2, texExtent.Height / 2, 1, 1);
@@ -995,8 +995,8 @@ namespace Fsl
 
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::GrowCapacity()
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GrowCapacity()
   {
     const std::size_t growBy = static_cast<std::size_t>(EXPAND_QUAD_GROWTH);
     const std::size_t growQuadBy = growBy * static_cast<std::size_t>(VERTICES_PER_QUAD);
@@ -1005,8 +1005,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::GrowCapacity(const std::size_t newMinimumCapacity)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GrowCapacity(const std::size_t newMinimumCapacity)
   {
     assert(newMinimumCapacity > m_drawRecords.size());
 
@@ -1017,15 +1017,15 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::FlushQuads()
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::FlushQuads()
   {
     const Point2 screenResolution(m_screenRect.Width(), m_screenRect.Height());
     m_native->Begin(screenResolution, m_blendState, m_restoreState);
     std::size_t vertexStartIndex = 0;
     for (int32_t i = 0; i < m_drawRecordIndex; ++i)
     {
-      m_native->DrawQuads(m_vertices.data() + vertexStartIndex, m_drawRecords[i].QuadCount, m_drawRecords[i].NativeTexture.Handle);
+      m_native->DrawQuads(m_vertices.data() + vertexStartIndex, m_drawRecords[i].QuadCount, m_drawRecords[i].NativeTexture);
       // release the texture pointer so we don't keep it alive by accident
       m_drawRecords[i].NativeTexture.Reset();
       vertexStartIndex += m_drawRecords[i].QuadCount * VERTICES_PER_QUAD;
@@ -1037,8 +1037,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::AddToDrawRecords(const texture_type& srcNativeTexture)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::AddToDrawRecords(const texture_type& srcNativeTexture)
   {
     // Only add a new draw record if the 'draw-state' changed
     if (m_drawRecordIndex > 0 && srcNativeTexture == m_drawRecords[m_drawRecordIndex - 1].NativeTexture)
@@ -1054,8 +1054,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::AddToDrawRecords(const texture_type& srcNativeTexture, const uint32_t quadCount)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::AddToDrawRecords(const texture_type& srcNativeTexture, const uint32_t quadCount)
   {
     // Only add a new draw record if the 'draw-state' changed
     if (m_drawRecordIndex > 0 && srcNativeTexture == m_drawRecords[m_drawRecordIndex - 1].NativeTexture)
@@ -1071,8 +1071,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  bool GenericBatch2D<TNativeBatch, TTexture>::AdjustSourceRect(Rectangle& rSrcRect, const AtlasTextureInfo& texInfo, Vector2& rOrigin)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  bool GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::AdjustSourceRect(Rectangle& rSrcRect, const AtlasTextureInfo& texInfo, Vector2& rOrigin)
   {
     rSrcRect.Add(texInfo.Offset);
     const int32_t rectRight = rSrcRect.Right();
@@ -1114,8 +1114,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::EnsurePosScratchpadCapacity(const uint32_t minCapacity)
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::EnsurePosScratchpadCapacity(const uint32_t minCapacity)
   {
     const std::size_t newMinCapacity = minCapacity;
     if (newMinCapacity < m_posScratchpad.size())
@@ -1124,8 +1124,8 @@ namespace Fsl
   }
 
 
-  template<typename TNativeBatch, typename TTexture>
-  void GenericBatch2D<TNativeBatch, TTexture>::Rotate2D(Vector2& rPoint0, Vector2& rPoint1, Vector2& rPoint2, Vector2& rPoint3, const float rotation) const
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter>
+  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::Rotate2D(Vector2& rPoint0, Vector2& rPoint1, Vector2& rPoint2, Vector2& rPoint3, const float rotation) const
   {
     const float cosR = std::cos(rotation);
     const float sinR = std::sin(rotation);

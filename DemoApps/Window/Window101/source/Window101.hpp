@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/DemoAppWindow.hpp>
+#include <FslDemoApp/Window/DemoAppWindow.hpp>
 
 namespace Fsl
 {

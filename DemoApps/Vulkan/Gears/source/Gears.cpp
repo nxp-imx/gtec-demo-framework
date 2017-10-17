@@ -18,10 +18,9 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <RapidVulkan/Check.hpp>
 #include <array>
 #include <cstring>
 #include <glm/glm.hpp>
@@ -30,6 +29,7 @@
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace

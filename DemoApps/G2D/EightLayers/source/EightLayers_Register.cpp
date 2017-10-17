@@ -29,9 +29,15 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppG2D/Setup/RegisterDemoAppG2D.hpp>
+#include <FslDemoApp/G2D/Setup/RegisterDemoApp.hpp>
 #include "EightLayers.hpp"
 #include "OptionParser.hpp"
 
-// Configure the demo environment to run this demo app in a G2D host environment
-FSL_REGISTER_G2D_DEMO_EX(EightLayers, OptionParser);
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a G2D host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppRegister::G2D::Register<EightLayers, OptionParser>(rSetup, "G2D.EightLayers");
+  }
+}

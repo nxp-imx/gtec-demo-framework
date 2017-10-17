@@ -8,6 +8,7 @@ FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
 GNUmakefile_yocto
+Vulkan.VulkanComputeMandelbrot
 Vulkan.VulkanComputeMandelbrot.VC.VC.opendb
 Vulkan.VulkanComputeMandelbrot.VC.db
 Vulkan.VulkanComputeMandelbrot.aps
@@ -21,9 +22,17 @@ Vulkan.VulkanComputeMandelbrot.v12.suo
 Vulkan.VulkanComputeMandelbrot.vcxproj
 Vulkan.VulkanComputeMandelbrot.vcxproj.filters
 Vulkan.VulkanComputeMandelbrot.vcxproj.user
+Vulkan.VulkanComputeMandelbrot_FB
+Vulkan.VulkanComputeMandelbrot_Wayland
+Vulkan.VulkanComputeMandelbrot_X11
+VulkanComputeMandelbrot
 VulkanComputeMandelbrot_FB
+VulkanComputeMandelbrot_FB_d
 VulkanComputeMandelbrot_Wayland
+VulkanComputeMandelbrot_Wayland_d
 VulkanComputeMandelbrot_X11
+VulkanComputeMandelbrot_X11_d
+VulkanComputeMandelbrot_d
 build/
 mandelbrot.bmp
 resource.h

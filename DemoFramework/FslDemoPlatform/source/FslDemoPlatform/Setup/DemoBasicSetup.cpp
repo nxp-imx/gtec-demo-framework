@@ -30,13 +30,11 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Setup/DemoBasicSetup.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalServiceDeque.hpp>
 
 namespace Fsl
 {
-  DemoBasicSetup::DemoBasicSetup(const std::shared_ptr<ThreadLocalServiceDeque>& serviceList, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose)
-    : ServiceList(serviceList)
-    , Host(hostSetup)
+  DemoBasicSetup::DemoBasicSetup(const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose)
+    : Host(hostSetup)
     , App(appSetup)
     , Verbose(verbose)
   {

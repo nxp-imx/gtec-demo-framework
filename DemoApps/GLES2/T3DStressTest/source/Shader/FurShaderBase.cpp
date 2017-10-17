@@ -30,9 +30,9 @@
 ****************************************************************************************************************************************************/
 
 #include "FurShaderBase.hpp"
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
-#include <FslGraphicsGLES2/GLValues.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <algorithm>
 #include <cassert>
 

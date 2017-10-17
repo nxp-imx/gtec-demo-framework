@@ -28,22 +28,21 @@
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample02)
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWindowExperimental/VulkanWindowDemoApp.hpp>
-#include <FslGraphicsVulkan1_0/Buffer.hpp>
-#include <FslGraphicsVulkan1_0/CommandBuffer.hpp>
-#include <FslGraphicsVulkan1_0/CommandPool.hpp>
-#include <FslGraphicsVulkan1_0/Device.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/Framebuffer.hpp>
-#include <FslGraphicsVulkan1_0/Instance.hpp>
-#include <FslGraphicsVulkan1_0/ImageView.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
-#include <FslGraphicsVulkan1_0/RenderPass.hpp>
-#include <FslGraphicsVulkan1_0/Semaphore.hpp>
-#include <FslGraphicsVulkan1_0/ShaderModule.hpp>
-#include <FslGraphicsVulkan1_0/Extend/SwapchainKHREx.hpp>
-#include <VulkanExperimental/DeviceQueue.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowDemoApp.hpp>
+#include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
+#include <RapidVulkan/Buffer.hpp>
+#include <RapidVulkan/CommandBuffer.hpp>
+#include <RapidVulkan/CommandPool.hpp>
+#include <RapidVulkan/Device.hpp>
+#include <RapidVulkan/Memory.hpp>
+#include <RapidVulkan/Framebuffer.hpp>
+#include <RapidVulkan/Instance.hpp>
+#include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
+#include <RapidVulkan/RenderPass.hpp>
+#include <RapidVulkan/Semaphore.hpp>
+#include <RapidVulkan/ShaderModule.hpp>
 #include <vector>
 
 namespace Fsl
@@ -51,22 +50,22 @@ namespace Fsl
   class VulkanTriangle : public VulkanWindowDemoApp
   {
     // m_surface
-    Vulkan::CommandPool m_commandPool;
-    Vulkan::Buffer m_vertexBuffer;
-    Vulkan::Memory m_deviceMemoryVertexBuffer;
-    Vulkan::ShaderModule m_vertexShaderModule;
-    Vulkan::ShaderModule m_fragmentShaderModule;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::CommandPool m_commandPool;
+    RapidVulkan::Buffer m_vertexBuffer;
+    RapidVulkan::Memory m_deviceMemoryVertexBuffer;
+    RapidVulkan::ShaderModule m_vertexShaderModule;
+    RapidVulkan::ShaderModule m_fragmentShaderModule;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
 
-    Vulkan::SwapchainKHREx m_swapchain;
-    std::vector<Vulkan::ImageView> m_swapchainImageView;
-    std::vector<Vulkan::Framebuffer> m_framebuffer;
-    std::vector<Vulkan::CommandBuffer> m_cmdBuffer;
-    Vulkan::RenderPass m_renderPass;
-    Vulkan::GraphicsPipeline m_pipeline;
+    Vulkan::VUSwapchainKHR m_swapchain;
+    std::vector<RapidVulkan::ImageView> m_swapchainImageView;
+    std::vector<RapidVulkan::Framebuffer> m_framebuffer;
+    std::vector<RapidVulkan::CommandBuffer> m_cmdBuffer;
+    RapidVulkan::RenderPass m_renderPass;
+    RapidVulkan::GraphicsPipeline m_pipeline;
 
-    Vulkan::Semaphore m_imageAcquiredSemaphore;
-    Vulkan::Semaphore m_renderingCompleteSemaphore;
+    RapidVulkan::Semaphore m_imageAcquiredSemaphore;
+    RapidVulkan::Semaphore m_renderingCompleteSemaphore;
 
   public:
     VulkanTriangle(const DemoAppConfig& config);

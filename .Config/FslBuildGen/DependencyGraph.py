@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,50 +31,55 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.Exceptions import *
+from typing import Dict
+from typing import List
+from typing import Optional
+from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Packages.Package import Package
 
 class DependencyGraphNode:
-    def __init__(self, package):
-        self.Name = package.Name
-        self.From = []
-        self.To = []
-        self.Package = package
+    def __init__(self, package: Package) -> None:
+        self.Name = package.Name  # type: str
+        self.From = []  # type: List['DependencyGraphNode']
+        self.To = []  # type: List['DependencyGraphNode']
+        self.Package = package  # type: Package
 
-    def AddEdge(self, toNode):
+    def AddEdge(self, toNode: 'DependencyGraphNode') -> None:
         if not toNode in self.To:
             self.To.append(toNode)
             toNode.From.append(self)
 
-    def RemoveToEdges(self):
+    def RemoveToEdges(self) -> None:
         for node in self.To:
             node.From.remove(self)
 
-    def RemoveFromEdges(self):
+    def RemoveFromEdges(self) -> None:
         for node in self.From:
             node.To.remove(self)
 
 
 class DependencyGraph:
-    def __init__(self, package): #, exploreVariants):
+    def __init__(self, package: Optional[Package]) -> None: #, exploreVariants):
         #self.ExploreVariants = exploreVariants
 
-        self.UniqueNodeDict = {}
-        if package != None:
+        self.UniqueNodeDict = {}  # type: Dict[Package, DependencyGraphNode]
+        self.Nodes = []  # type: List[DependencyGraphNode]
+
+        if package is not None:
             self.AddNode(package)
             self.Finalize()
-        else:
-            self.Nodes = []
 
-    def Get(self, package):
+
+    def Get(self, package: Package) -> Optional[DependencyGraphNode]:
         for node in self.Nodes:
             if node.Package == package:
                 return node
         return None
 
-    def RemoveNodesWithNoDependencies(self):
+    def RemoveNodesWithNoDependencies(self) -> List[DependencyGraphNode]:
         """ This is useful for finding the build order
         """
-        removeList = []
+        removeList = []  # type: List[DependencyGraphNode]
         for node in self.Nodes:
             if len(node.To) <= 0:
                 removeList.append(node)
@@ -84,14 +89,16 @@ class DependencyGraph:
             self.Nodes.remove(node)
         return removeList
 
-    def GetNodesWithNoIncomingDependencies(self):
-        resultList = []
+
+    def GetNodesWithNoIncomingDependencies(self) -> List[DependencyGraphNode]:
+        resultList = []  # type: List[DependencyGraphNode]
         for node in self.Nodes:
             if len(node.From) <= 0:
                 resultList.append(node)
         return resultList
 
-    def RemoveNodesWithNoIncomingDependencies(self):
+
+    def RemoveNodesWithNoIncomingDependencies(self) -> List[DependencyGraphNode]:
         """ This is useful for finding the dependency order
         """
         removeList = self.GetNodesWithNoIncomingDependencies()
@@ -100,7 +107,8 @@ class DependencyGraph:
             self.Nodes.remove(node)
         return removeList
 
-    def AddNode(self, package):
+
+    def AddNode(self, package: Package) -> None:
         if not package in self.UniqueNodeDict:
             self.UniqueNodeDict[package] = DependencyGraphNode(package)
             for dep in package.ResolvedDirectDependencies:
@@ -110,18 +118,19 @@ class DependencyGraph:
             #        self.AddNode(dep.Package)
 
 
-    def AddNodeAndEdges(self, package):
+    def AddNodeAndEdges(self, package: Package) -> None:
         if not package in self.UniqueNodeDict:
             newNode = DependencyGraphNode(package)
             for dep in package.ResolvedDirectDependencies:
                 if not dep.Package in self.UniqueNodeDict:
-                    raise UsageErrorException("Unknown dependency to: '%s'" % (dep.Name));
+                    raise UsageErrorException("Unknown dependency to: '{0}'".format(dep.Name))
                 newNode.AddEdge(self.UniqueNodeDict[dep.Package])
             self.UniqueNodeDict[package] = newNode
             self.Nodes.append(newNode)
 
-    def Finalize(self):
+
+    def Finalize(self) -> None:
         self.Nodes = list(self.UniqueNodeDict.values())
-        for key, value in self.UniqueNodeDict.items():
+        for key, value in list(self.UniqueNodeDict.items()):
             for dep in key.ResolvedDirectDependencies:
                 value.AddEdge(self.UniqueNodeDict[dep.Package])

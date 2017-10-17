@@ -34,10 +34,10 @@
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
-#include <FslGraphicsGLES3/GLValues.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>

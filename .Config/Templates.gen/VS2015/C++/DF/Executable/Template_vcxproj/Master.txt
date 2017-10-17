@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+##ADD_PROJECT_CONFIGURATIONS##
+  </ItemGroup>##ADD_PROJECT_REFERENCES##
+  <ItemGroup>
+##ADD_INCLUDE_FILES##
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h" />
+##ADD_SOURCE_FILES##
+  </ItemGroup>##ADD_CUSTOM_BUILD_FILES##
+  <ItemGroup>
+    <Manifest Include="##PACKAGE_TARGET_NAME##.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="##PACKAGE_TARGET_NAME##.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="FslSDKIcon.ico" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{##PACKAGE_PLATFORM_PROJECT_ID##}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>##PACKAGE_TARGET_NAME##</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+##ADD_CONFIGURATIONS##
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+##ADD_PROPERTY_SHEETS##
+  <PropertyGroup Label="UserMacros" />
+##ADD_PROPERTY_GROUPS##
+##SNIPPET8##
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>##ADD_EXTENAL_FILES_TO_OUTPUT##
+</Project>

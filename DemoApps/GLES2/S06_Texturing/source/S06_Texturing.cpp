@@ -30,8 +30,8 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "S06_Texturing.hpp"
 #include <GLES2/gl2.h>

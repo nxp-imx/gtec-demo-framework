@@ -32,7 +32,7 @@
 #include "ImageData.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstring>

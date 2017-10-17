@@ -2,8 +2,11 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- Change the type here depending on how its integrated -->
   <ExternalLibrary Name="OpenVX1_1">
-    <UsesFeature Name="OpenVX1.1"/>
-    <CPPDefine Name="FSL_FEATURE_OPENVX1_1" Access="Public"/> 
+    <Default.Platform.Supported Value="false"/>
+
+    <Requirement Name="OpenVX1.1" Type="feature" Extends="OpenVX" Version="1.1"/>
+    <Define Name="FSL_FEATURE_OPENVX1_1" Access="Public"/> 
     <Dependency Name="OpenVX"/>
+    <!-- We currently have no platform that supports OpenVX1.1 -->
   </ExternalLibrary>
 </FslBuildGen>

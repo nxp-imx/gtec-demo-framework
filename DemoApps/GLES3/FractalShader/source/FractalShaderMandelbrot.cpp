@@ -29,13 +29,13 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/DemoTime.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include "FractalShaderMandelbrot.hpp"
-#include <FractalShaderShared/OptionParser.hpp>
+#include <Shared/FractalShader/OptionParser.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <GLES3/gl3.h>

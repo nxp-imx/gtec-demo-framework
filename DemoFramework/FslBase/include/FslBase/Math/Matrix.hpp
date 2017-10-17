@@ -85,6 +85,7 @@ namespace Fsl
       const float m41, const float m42, const float m43, const float m44);
 
     //! @brief A optimization constructor that doesn't initialize the matrix so when this is called the content of the matrix in undefined!!!
+    // coverity[uninit_member]
     Matrix(const OptimizationFlag flag) {};
 
     //! @brief Creates a new Matrix which contains sum of two matrices.

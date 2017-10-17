@@ -30,21 +30,19 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslDemoHost/ADemoHost.hpp>
-#include <FslDemoHost/DemoAppManager.hpp>
-#include <FslDemoHost/IDemoHostFactory.hpp>
-#include <FslDemoHost/Service/Graphics/IGraphicsServiceControl.hpp>
-#include <FslDemoHost/Service/Host/IHostInfoControl.hpp>
-#include <FslDemoHost/Service/ServiceProviderImpl.hpp>
-#include <FslDemoHost/Service/ServiceRegistryImpl.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalServiceRegistryImpl.hpp>
-#include <FslDemoHost/Service/Test/ITestService.hpp>
-#include <FslDemoHost/Service/NativeWindowEvents/INativeWindowEventSender.hpp>
-#include <FslNativeWindow/NativeWindowEventQueue.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoHost/Base/ADemoHost.hpp>
+#include <FslDemoHost/Base/DemoAppManager.hpp>
+#include <FslDemoHost/Base/IDemoHostFactory.hpp>
+#include <FslDemoHost/Base/Service/Graphics/IGraphicsServiceControl.hpp>
+#include <FslDemoHost/Base/Service/Host/IHostInfoControl.hpp>
+#include <FslDemoHost/Base/Service/Test/ITestService.hpp>
+#include <FslDemoHost/Base/Service/NativeWindowEvents/INativeWindowEventSender.hpp>
 #include <FslDemoPlatform/DemoHostManager.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/IMMDCStatsService.hpp>
+#include <FslService/Impl/Threading/IServiceHostLooper.hpp>
+#include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
 #include <cassert>
 
 #if 0
@@ -70,7 +68,10 @@ namespace Fsl
     , m_state(State::Idle)
     , m_nativeWindowEventSender()
     , m_exitAfterFrame(demoHostManagerOptionParser->GetExitAfterFrame())
+    , m_exitAfterDuration(demoHostManagerOptionParser->GetDurationExitConfig())
     , m_windowSizeIsDirty(true)
+    , m_timer()
+    , m_exitTime(std::chrono::microseconds(m_timer.GetTime()) + std::chrono::microseconds(m_exitAfterDuration.Duration))
   {
     // Acquire the various services
     ServiceProvider serviceProvider(demoSetup.ServiceProvider);
@@ -83,15 +84,14 @@ namespace Fsl
 
     // Acquire and configure the test service
     m_testService = serviceProvider.Get<ITestService>();
-    m_testService->SetScreenshotFrequency(demoHostManagerOptionParser->GetScreenshotFrequency());
-    m_testService->SetScreenshotNameScheme(demoHostManagerOptionParser->GetScreenshotNameScheme());
+    m_testService->SetScreenshotConfig(demoHostManagerOptionParser->GetScreenshotConfig());
 
     // Get the demo host up and running
     CmdRestart();
 
     VERBOSE_LOG("Starting demoAppManager");
     // Lets prepare the app manager.
-    const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, m_demoHost->GetScreenResolution(), serviceProvider);
+    const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, demoSetup.ExceptionFormatter, m_demoHost->GetScreenResolution(), serviceProvider, demoSetup.App.AppSetup.CustomAppConfig);
     m_demoAppManager = std::make_shared<DemoAppManager>(demoSetup.App.AppSetup, demoAppConfig, demoHostManagerOptionParser->IsStatsEnabled(), demoHostManagerOptionParser->GetLogStatsMode(), demoHostManagerOptionParser->IsAppFirewallEnabled(), demoHostManagerOptionParser->IsContentMonitorEnabled(), demoHostManagerOptionParser->IsBasic2DPreallocEnabled(), demoHostManagerOptionParser->GetForceUpdateTime());
 
     VERBOSE_LOG("Processing messages");
@@ -116,7 +116,7 @@ namespace Fsl
   }
 
 
-  int DemoHostManager::Run()
+  int DemoHostManager::Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper)
   {
     VERBOSE_LOG("Running");
     Point2 screenResolution = m_demoHost->GetScreenResolution();
@@ -124,9 +124,10 @@ namespace Fsl
     // Event loop
     while (m_demoHost->ProcessNativeMessages(m_state == State::Suspended) && !m_demoAppManager->HasExitRequest())
     {
+
       ProcessMessages();
       // Allow the services to react to the incoming messages before we process the app
-      m_demoSetup.ServiceProvider->Update();
+      serviceHostLooper->ProcessMessages();
 
       if (m_state == State::Activated)
       {
@@ -151,6 +152,11 @@ namespace Fsl
               {
                 --m_exitAfterFrame;
                 if (m_exitAfterFrame <= 0)
+                  m_demoAppManager->RequestExit();
+              }
+              if (m_exitAfterDuration.Enabled)
+              {
+                if( std::chrono::microseconds(m_timer.GetTime()) >= m_exitTime )
                   m_demoAppManager->RequestExit();
               }
             }

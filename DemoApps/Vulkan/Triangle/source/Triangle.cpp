@@ -17,15 +17,18 @@
 #include "Triangle.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
+#include <RapidVulkan/Check.hpp>
 #include <array>
 #include <cstring>
+
+using namespace RapidVulkan;
 
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
 
   namespace
   {
@@ -67,7 +70,7 @@ namespace Fsl
 
     // End the command buffer and submit it to the queue
     // Uses a fence to ensure command buffer has finished executing before deleting it
-    void DoFlushCommandBuffer(CommandBuffer& rCommandBuffer, DeviceQueue& rQueue)
+    void DoFlushCommandBuffer(CommandBuffer& rCommandBuffer, VUDeviceQueueRecord& rQueue)
     {
       assert(rCommandBuffer.IsValid());
 
@@ -97,6 +100,7 @@ namespace Fsl
 
   Triangle::Triangle(const DemoAppConfig& config)
     : VulkanWillemsDemoApp(config)
+    , m_descriptorSet(VK_NULL_HANDLE)
   {
     m_zoom = -2.5f;
   }
@@ -125,10 +129,10 @@ namespace Fsl
 
 
   // Create the depth (and stencil) buffer attachments used by our framebuffers
-  // Note: Override of virtual function in the base class and called from within VulkanExampleBase::prepare
+  // Note: Override of virtual function in the base class and called from within VulkanExampleBase::Prepare
   void Triangle::SetupDepthStencil(const VkFormat depthFormat)
   {
-    using namespace MemoryTypeHelper;
+    using namespace MemoryTypeUtil;
 
     // NOTE: this code is almost identical to the method we are overriding.
 
@@ -162,7 +166,7 @@ namespace Fsl
 
     m_depthStencil.Mem.Reset(m_device.Get(), memAlloc);
 
-    FSLGRAPHICSVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_depthStencil.Image.Get(), m_depthStencil.Mem.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_depthStencil.Image.Get(), m_depthStencil.Mem.Get(), 0));
 
     // Create a view for the depth stencil image
     // Images aren't directly accessed in Vulkan, but rather through views described by a subresource range
@@ -392,7 +396,7 @@ namespace Fsl
   // Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
   void Triangle::PrepareVertices(const bool useStagingBuffers)
   {
-    using namespace MemoryTypeHelper;
+    using namespace MemoryTypeUtil;
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
 
     // A note on memory management in Vulkan in general:
@@ -435,8 +439,8 @@ namespace Fsl
 
       struct StagingBuffer
       {
-        Vulkan::Memory Memory;
-        Vulkan::Buffer Buffer;
+        RapidVulkan::Memory Memory;
+        RapidVulkan::Buffer Buffer;
       };
 
       struct StagingBuffers
@@ -463,17 +467,17 @@ namespace Fsl
       memAlloc.allocationSize = memReqs.size;
       // Request a host visible memory type that can be used to copy our data do
       // Also request it to be coherent, so that writes are visible to the GPU right after unmapping the buffer
-      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);;
+      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
       stagingBuffers.Vertices.Memory.Reset(m_device.Get(), memAlloc);
 
       // Map and copy
-      FSLGRAPHICSVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingBuffers.Vertices.Memory.Get(), 0, memAlloc.allocationSize, 0, &data));
+      RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingBuffers.Vertices.Memory.Get(), 0, memAlloc.allocationSize, 0, &data));
       {
         std::memcpy(data, vertexBuffer.data(), vertexBufferSize);
       }
       vkUnmapMemory(m_device.Get(), stagingBuffers.Vertices.Memory.Get());
-      FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffers.Vertices.Buffer.Get(), stagingBuffers.Vertices.Memory.Get(), 0));
+      RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffers.Vertices.Buffer.Get(), stagingBuffers.Vertices.Memory.Get(), 0));
 
       // Create a device local buffer to which the (host local) vertex data will be copied and which will be used for rendering
       vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -483,7 +487,7 @@ namespace Fsl
       memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
       m_vertices.Memory.Reset(m_device.Get(), memAlloc);
-      FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_vertices.Buffer.Get(), m_vertices.Memory.Get(), 0));
+      RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_vertices.Buffer.Get(), m_vertices.Memory.Get(), 0));
 
       // Index buffer
       VkBufferCreateInfo indexbufferInfo{};
@@ -498,12 +502,12 @@ namespace Fsl
 
       stagingBuffers.Indices.Memory.Reset(m_device.Get(), memAlloc);
 
-      FSLGRAPHICSVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingBuffers.Indices.Memory.Get(), 0, indexBufferSize, 0, &data));
+      RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingBuffers.Indices.Memory.Get(), 0, indexBufferSize, 0, &data));
       {
         std::memcpy(data, indexBuffer.data(), indexBufferSize);
       }
       vkUnmapMemory(m_device.Get(), stagingBuffers.Indices.Memory.Get());
-      FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffers.Indices.Buffer.Get(), stagingBuffers.Indices.Memory.Get(), 0));
+      RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffers.Indices.Buffer.Get(), stagingBuffers.Indices.Memory.Get(), 0));
 
       // Create destination buffer with device only visibility
       indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -512,7 +516,7 @@ namespace Fsl
       memAlloc.allocationSize = memReqs.size;
       memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
       m_indices.Memory.Reset(m_device.Get(), memAlloc);
-      FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_indices.Buffer.Get(), m_indices.Memory.Get(), 0));
+      RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_indices.Buffer.Get(), m_indices.Memory.Get(), 0));
 
       //VkCommandBufferBeginInfo cmdBufferBeginInfo{};
       //cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -551,15 +555,15 @@ namespace Fsl
     //  vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
     //  // Copy vertex data to a buffer visible to the host
-    //  FSLGRAPHICSVULKAN_CHECK(vkCreateBuffer(device, &vertexBufferInfo, nullptr, &vertices.buffer));
+    //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &vertexBufferInfo, nullptr, &vertices.buffer));
     //  vkGetBufferMemoryRequirements(device, vertices.buffer, &memReqs);
     //  memAlloc.allocationSize = memReqs.size;
     //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-    //  FSLGRAPHICSVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &vertices.memory));
-    //  FSLGRAPHICSVULKAN_CHECK(vkMapMemory(device, vertices.memory, 0, memAlloc.allocationSize, 0, &data));
+    //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &vertices.memory));
+    //  RAPIDVULKAN_CHECK(vkMapMemory(device, vertices.memory, 0, memAlloc.allocationSize, 0, &data));
     //  memcpy(data, vertexBuffer.data(), vertexBufferSize);
     //  vkUnmapMemory(device, vertices.memory);
-    //  FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(device, vertices.buffer, vertices.memory, 0));
+    //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, vertices.buffer, vertices.memory, 0));
 
     //  // Index buffer
     //  VkBufferCreateInfo indexbufferInfo = {};
@@ -568,15 +572,15 @@ namespace Fsl
     //  indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
     //  // Copy index data to a buffer visible to the host
-    //  FSLGRAPHICSVULKAN_CHECK(vkCreateBuffer(device, &indexbufferInfo, nullptr, &indices.buffer));
+    //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &indexbufferInfo, nullptr, &indices.buffer));
     //  vkGetBufferMemoryRequirements(device, indices.buffer, &memReqs);
     //  memAlloc.allocationSize = memReqs.size;
     //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-    //  FSLGRAPHICSVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &indices.memory));
-    //  FSLGRAPHICSVULKAN_CHECK(vkMapMemory(device, indices.memory, 0, indexBufferSize, 0, &data));
+    //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &indices.memory));
+    //  RAPIDVULKAN_CHECK(vkMapMemory(device, indices.memory, 0, indexBufferSize, 0, &data));
     //  memcpy(data, indexBuffer.data(), indexBufferSize);
     //  vkUnmapMemory(device, indices.memory);
-    //  FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(device, indices.buffer, indices.memory, 0));
+    //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, indices.buffer, indices.memory, 0));
     }
 
     // Vertex input binding
@@ -613,7 +617,7 @@ namespace Fsl
 
   void Triangle::PrepareUniformBuffers()
   {
-    using namespace MemoryTypeHelper;
+    using namespace MemoryTypeUtil;
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
 
     // Prepare and initialize a uniform buffer block containing shader uniforms
@@ -646,7 +650,7 @@ namespace Fsl
     // Allocate memory for the uniform buffer
     m_uniformDataVS.Memory.Reset(m_device.Get(), allocInfo);
     // Bind memory to buffer
-    FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_uniformDataVS.Buffer.Get(), m_uniformDataVS.Memory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_uniformDataVS.Buffer.Get(), m_uniformDataVS.Memory.Get(), 0));
 
     // Store information in the uniform's descriptor that is used by the descriptor set
     m_uniformDataVS.Descriptor.buffer = m_uniformDataVS.Buffer.Get();
@@ -673,7 +677,7 @@ namespace Fsl
 
     // Map uniform buffer and update it
     uint8_t *pData;
-    FSLGRAPHICSVULKAN_CHECK(vkMapMemory(m_device.Get(), m_uniformDataVS.Memory.Get(), 0, sizeof(m_uboVS), 0, reinterpret_cast<void**>(&pData)));
+    RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), m_uniformDataVS.Memory.Get(), 0, sizeof(m_uboVS), 0, reinterpret_cast<void**>(&pData)));
     {
       std::memcpy(pData, &m_uboVS, sizeof(m_uboVS));
       // Unmap after data has been copied
@@ -859,7 +863,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayout.GetPointer();
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
 
     // Update the descriptor set determining the shader binding points
     // For every binding point used in a shader there needs to be one
@@ -912,7 +916,7 @@ namespace Fsl
       // Set target frame buffer
       renderPassBeginInfo.framebuffer = m_frameBuffers[i].Get();
 
-      FSLGRAPHICSVULKAN_CHECK(vkBeginCommandBuffer(m_drawCmdBuffers[i], &cmdBufInfo));
+      RAPIDVULKAN_CHECK(vkBeginCommandBuffer(m_drawCmdBuffers[i], &cmdBufInfo));
 
       // Start the first sub pass specified in our default render pass setup by the base class
       // This will clear the color and depth attachment
@@ -955,7 +959,7 @@ namespace Fsl
       // Ending the render pass will add an implicit barrier transitioning the frame buffer color attachment to
       // VK_IMAGE_LAYOUT_PRESENT_SRC_KHR for presenting it to the windowing system
 
-      FSLGRAPHICSVULKAN_CHECK(vkEndCommandBuffer(m_drawCmdBuffers[i]));
+      RAPIDVULKAN_CHECK(vkEndCommandBuffer(m_drawCmdBuffers[i]));
     }
   }
 }

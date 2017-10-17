@@ -62,13 +62,13 @@ namespace Fsl
   }
 
 
-  bool ImageLibraryServiceAndroid::TryRead(Bitmap& rBitmap, const IO::Path& path, const PixelFormat pixelFormatHint, const BitmapOrigin originHint)
+  bool ImageLibraryServiceAndroid::TryRead(Bitmap& rBitmap, const IO::Path& path, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
     return JNIUtil::GetInstance()->TryLoadImage(rBitmap, path.ToUTF8String());
   }
 
 
-  bool ImageLibraryServiceAndroid::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint)
+  bool ImageLibraryServiceAndroid::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
     return false;
   }

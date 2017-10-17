@@ -42,6 +42,7 @@ namespace Fsl
   RawBitmap::RawBitmap()
     : m_pContent(nullptr)
     , m_extent()
+    , m_stride(0)
     , m_pixelFormat(PixelFormat::Undefined)
     , m_origin(BitmapOrigin::UpperLeft)
   {

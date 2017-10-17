@@ -41,8 +41,8 @@
 * Draws a Particle system
 */
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "E7_0_ParticleSystem.hpp"
 #include <GLES3/gl3.h>

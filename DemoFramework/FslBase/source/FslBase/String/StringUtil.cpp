@@ -30,14 +30,39 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringUtil.hpp>
+#include <algorithm>
 #include <cassert>
 #include <limits>
 
 namespace Fsl
 {
+  bool StringUtil::Contains(const std::string& src, const char ch)
+  {
+    return std::find(src.begin(), src.end(), ch) != src.end();
+  }
+
+
+  bool StringUtil::Contains(const std::string& src, const std::string& str)
+  {
+    return std::search(src.begin(), src.end(), str.begin(), str.end()) != src.end();
+  }
+
+
+  bool StringUtil::StartsWith(const std::string& src, const char ch)
+  {
+    return (src.size() > 0 ? src.front() == ch : false);
+  }
+
+
   bool StringUtil::StartsWith(const std::string& source, const std::string& value)
   {
     return (source.compare(0, value.size(), value) == 0);
+  }
+
+
+  bool StringUtil::EndsWith(const std::string& src, const char ch)
+  {
+    return (src.size() > 0 ? src.back() == ch : false);
   }
 
 
@@ -60,6 +85,19 @@ namespace Fsl
     const std::size_t index = source.find(ch, fromIndex);
     assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
     return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
+  }
+
+
+  int32_t StringUtil::LastIndexOf(const std::string& src, const char ch)
+  {
+    const size_t index = src.rfind(ch);
+    return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
+  }
+
+
+  void StringUtil::Replace(std::string& src, const char from, const char to)
+  {
+    std::replace(src.begin(), src.end(), from, to);
   }
 
 

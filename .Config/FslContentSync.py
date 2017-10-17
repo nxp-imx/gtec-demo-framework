@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #****************************************************************************************************************************************************
@@ -42,7 +42,6 @@ import shutil
 import sys
 #import time
 
-g_isPython3 = sys.version_info >= (3,)
 g_isVerbose = False
 g_isInfo = False
 GLOBAL_SEP = '\\'
@@ -59,7 +58,7 @@ def GetCacheFormatVersion2():
     return '2'
 
 def GetCacheFormatVersion():
-    return '3' if g_isPython3 else GetCacheFormatVersion2()
+    return '3'
 
 
 def ShowTitleIfNecessary():
@@ -86,7 +85,7 @@ def EnsureUTF8(value):
         return None
     try:
         # in python 3 all strings are unicode
-        return str(value) if g_isPython3 else unicode(value.encode('utf-8'))
+        return str(value)
     except ValueError:
         return value
 
@@ -117,13 +116,7 @@ def WriteFileIfChanged(filename, content):
 def FileModificationDate(filename):
     t = os.path.getmtime(filename)
     time = datetime.datetime.utcfromtimestamp(t)
-
-    if g_isPython3:
-        return time.isoformat()
-    # Fallback for python2
-    # Since shutil.copy2 cant copy the timestamps with full precission under python2.7
-    # we use a work around that just removes a lot of the precission
-    return "{:0>4d}-{:0>2d}-{:0>2d} {:0>2d}:{:0>2d}:{:0>2d}:{:0>2d}".format(time.year, time.month, time.day, time.hour, time.minute, time.second, time.microsecond / 100000)
+    return time.isoformat()
 
 def ToUnixStylePath(path):
     return path.replace("\\", "/")
@@ -446,12 +439,12 @@ def BuildSyncState(folder, cachedSyncState, allowCaching):
 
 
     # Tag the sync state with information about which files were removed compared the the last time we synced
-    for entry in cachedSyncState.Entries.values():
+    for entry in list(cachedSyncState.Entries.values()):
         if not entry.Name in syncState.Entries:
             syncState.AddRemoved(entry)
 
     # Tag the sync state with information about which dirs were removed compared the the last time we synced
-    for entry in cachedSyncState.Dirs.values():
+    for entry in list(cachedSyncState.Dirs.values()):
         if not entry.Name in syncState.Dirs:
             syncState.AddRemoved(entry)
 
@@ -508,12 +501,12 @@ def PrepareDirSync(syncStateFrom, syncStateTo):
     # Build delete list
     deleteList = []
     createList = []
-    for entry in syncStateTo.Dirs.values():
+    for entry in list(syncStateTo.Dirs.values()):
         if syncStateFrom.GetDirState(entry) is None:
             deleteList.append(entry)
 
     # locate all the entries that were modified or missing
-    for entry in syncStateFrom.Dirs.values():
+    for entry in list(syncStateFrom.Dirs.values()):
         toContentState = syncStateTo.GetDirState(entry)
         if not toContentState or not toContentState.IsSameState(entry):
             createList.append(entry)
@@ -534,12 +527,12 @@ def PrepareFileSync(syncStateFrom, syncStateTo):
     # Build delete list
     deleteList = []
     copyList = []
-    for entry in syncStateTo.Entries.values():
+    for entry in list(syncStateTo.Entries.values()):
         if syncStateFrom.GetFileState(entry) is None:
             deleteList.append(entry)
 
     # locate all the entries that were modified or missing
-    for entry in syncStateFrom.Entries.values():
+    for entry in list(syncStateFrom.Entries.values()):
         toContentState = syncStateTo.GetFileState(entry)
         if not toContentState or not toContentState.IsSameState(entry):
             copyList.append(entry)
@@ -554,7 +547,7 @@ def PrepareFileSync(syncStateFrom, syncStateTo):
 def ScanForNewOrModifiedFiles(syncStateTo, allowForce):
     newFiles = []
 
-    for fileEntry in syncStateTo.Entries.values():
+    for fileEntry in list(syncStateTo.Entries.values()):
         if fileEntry.CacheState != CacheState.Unmodified:
             newFiles.append(fileEntry)
 
@@ -599,7 +592,7 @@ def ToFilenameValidationIssueList(entries):
 
 def ValidateSyncState(syncState):
     validationErrors = []
-    for entry in syncState.Entries.values():
+    for entry in list(syncState.Entries.values()):
         if entry.CacheState != CacheState.Unmodified:
             validationErrors.append(entry)
 
@@ -610,7 +603,7 @@ def ValidateSyncState(syncState):
             errorMessage += "\n* the following files failed validation:{0}".format(ToFilenameValidationIssueList(validationErrors))
 
         if len(syncState.Removed) != 0:
-            errorMessage += "\n* the following files are missing:{0}".format(ToFilenameListString(syncState.Removed.keys()))
+            errorMessage += "\n* the following files are missing:{0}".format(ToFilenameListString(list(syncState.Removed.keys())))
 
     if errorMessage != None:
         raise Exception(errorMessage)
@@ -724,7 +717,7 @@ def Main():
         ShowTitleIfNecessary()
         if debugFromFolder != None and debugToFolder != None:
             print("A error occurred while syncronizing from {0} to {1}".format(debugFromFolder, debugToFolder))
-        print("ERROR: {0}".format(str(ex)))
+        print(("ERROR: {0}".format(str(ex))))
         if g_isVerbose:
             raise
         sys.exit(1)

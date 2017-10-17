@@ -32,15 +32,15 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslDemoApp/DemoTime.hpp>
-#include <FslDemoApp/Service/Events/Basic/KeyEvent.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseButtonEvent.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseMoveEvent.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseWheelEvent.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslSimpleUI/Layout/Layout.hpp>
-#include <FslSimpleUIApp/UIDemoAppExtension.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include "OptionParser.hpp"
 
 namespace Fsl

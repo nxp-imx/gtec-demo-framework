@@ -4,8 +4,11 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+DisplacementMapping
+DisplacementMapping_d
 FslSDKIcon.ico
 GNUmakefile
+Vulkan.DisplacementMapping
 Vulkan.DisplacementMapping.VC.VC.opendb
 Vulkan.DisplacementMapping.VC.db
 Vulkan.DisplacementMapping.aps

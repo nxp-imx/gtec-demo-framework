@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppConsole/DemoAppConsole.hpp>
+#include <FslDemoApp/Console/DemoAppConsole.hpp>
 
 namespace Fsl
 {

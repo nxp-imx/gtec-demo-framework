@@ -33,23 +33,25 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
-#include <FslUtilOpenCL1_1/Check.hpp>
-#include <FslUtilOpenCL1_1/Program.hpp>
-#include <FslUtilOpenCL1_1/OpenCLHelper.hpp>
-#include <FslUtilOpenCL1_1/Context.hpp>
-#include <FslUtilOpenCL1_1/CommandQueue.hpp>
-#include <FslUtilOpenCL1_1/OpenCLHelper.hpp>
-#include <FslUtilOpenCL1_1/Buffer.hpp>
-#include <FslUtilOpenCL1_1/Kernel.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <RapidOpenCL1/Check.hpp>
+#include <RapidOpenCL1/Program.hpp>
+#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <RapidOpenCL1/Context.hpp>
+#include <RapidOpenCL1/CommandQueue.hpp>
+#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <RapidOpenCL1/Buffer.hpp>
+#include <RapidOpenCL1/Kernel.hpp>
 #include <vector>
 #include <GLES3/gl3.h>
 
+using namespace RapidOpenCL1;
+
 namespace Fsl
 {
-  using namespace OpenCL;
   using namespace GLES3;
+  using namespace OpenCL;
 
   namespace
   {
@@ -95,7 +97,7 @@ namespace Fsl
       {
         const auto buildInfo = OpenCLHelper::GetProgramBuildInfoString(program.Get(), deviceId, CL_PROGRAM_BUILD_LOG);
         FSLLOG(buildInfo);
-        FSLUTILOPENCL_CHECK(error);
+        RAPIDOPENCL_CHECK(error);
       }
       return program;
     }
@@ -104,9 +106,9 @@ namespace Fsl
     void ProcessBitmapUsingOpenCL(Bitmap& rBitmap, const std::string& strProgram)
     {
       cl_platform_id platformId;
-      FSLUTILOPENCL_CHECK(clGetPlatformIDs(1, &platformId, nullptr));
+      RAPIDOPENCL_CHECK(clGetPlatformIDs(1, &platformId, nullptr));
       cl_device_id deviceId;
-      FSLUTILOPENCL_CHECK(clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 1, &deviceId, nullptr));
+      RAPIDOPENCL_CHECK(clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 1, &deviceId, nullptr));
 
       cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, reinterpret_cast<cl_context_properties>(platformId), 0 };
       Context context(properties, 1, &deviceId, nullptr, nullptr);
@@ -138,9 +140,9 @@ namespace Fsl
         const std::size_t global[2] = { rawBitmap.Width(), rawBitmap.Height() };
         const int dimension = 2;
         std::size_t local[dimension] = { 16, 8 };
-        FSLUTILOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), gaussMemInput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
-        FSLUTILOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global, local, 0, nullptr, nullptr));
-        FSLUTILOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), gaussMemOutput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), gaussMemInput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global, local, 0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), gaussMemOutput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
       }
     }
 

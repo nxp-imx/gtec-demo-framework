@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/NativeBatch2D.hpp>
+#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 
 namespace Fsl

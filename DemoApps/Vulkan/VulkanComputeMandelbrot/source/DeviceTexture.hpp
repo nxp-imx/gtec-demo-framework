@@ -33,9 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Noncopyable.hpp>
-#include <FslGraphicsVulkan1_0/Extend/BufferEx.hpp>
-#include <FslGraphicsVulkan1_0/Extend/DeviceMemoryEx.hpp>
-#include <FslGraphicsVulkan1_0/Extend/ImageEx.hpp>
+#include <FslUtil/Vulkan1_0/Extend/BufferEx.hpp>
+#include <FslUtil/Vulkan1_0/Extend/DeviceMemoryEx.hpp>
+#include <FslUtil/Vulkan1_0/Extend/ImageEx.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl

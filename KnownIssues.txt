@@ -26,13 +26,6 @@ G2D
 - No input support.
 
 
-OpenCV 2.4:
------------
-- OpenCV 2.4 support is deprecated.
-- It will most likely only work on windows.
-- If you use a debug build on windows then the VS2013 debug runtime libs are required.
-
-
 OpenCL
 ------
 - Early access. Everything is subject to changes.

@@ -32,8 +32,8 @@
 #define GL_GLEXT_PROTOTYPES 1
 #endif
 #include <FslBase/Log/Log.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "VIVDirectTextureMultiSampling.hpp"
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>

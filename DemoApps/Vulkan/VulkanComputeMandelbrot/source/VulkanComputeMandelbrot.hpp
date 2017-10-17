@@ -27,23 +27,23 @@
 // Based on a sample by Norbert Nopper from VKTS Examples
 // Recreated as a DemoFramework freestyle console sample by Freescale (2016)
 
-#include <FslDemoAppConsole/DemoAppConsole.hpp>
-#include <FslGraphicsVulkan1_0/Buffer.hpp>
-#include <FslGraphicsVulkan1_0/CommandPool.hpp>
-#include <FslGraphicsVulkan1_0/CommandBuffer.hpp>
-#include <FslGraphicsVulkan1_0/ComputePipeline.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSets.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/Device.hpp>
-#include <FslGraphicsVulkan1_0/Fence.hpp>
-#include <FslGraphicsVulkan1_0/Instance.hpp>
-#include <FslGraphicsVulkan1_0/Image.hpp>
-#include <FslGraphicsVulkan1_0/ImageView.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
-#include <FslGraphicsVulkan1_0/ShaderModule.hpp>
-#include <VulkanExperimental/DeviceQueue.hpp>
-#include <VulkanExperimental/PhysicalDeviceEx.hpp>
+#include <FslDemoApp/Console/DemoAppConsole.hpp>
+#include <FslUtil/Vulkan1_0/Extend/PhysicalDeviceRecord.hpp>
+#include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
+#include <RapidVulkan/Buffer.hpp>
+#include <RapidVulkan/CommandPool.hpp>
+#include <RapidVulkan/CommandBuffer.hpp>
+#include <RapidVulkan/ComputePipeline.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/DescriptorSets.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/Device.hpp>
+#include <RapidVulkan/Fence.hpp>
+#include <RapidVulkan/Instance.hpp>
+#include <RapidVulkan/Image.hpp>
+#include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
+#include <RapidVulkan/ShaderModule.hpp>
 #include "DeviceBuffer.hpp"
 #include "DeviceTexture.hpp"
 #include "ImageData.hpp"
@@ -52,21 +52,21 @@ namespace Fsl
 {
   class VulkanComputeMandelbrot : public DemoAppConsole
   {
-    Vulkan::Instance m_instance;
-    PhysicalDeviceEx m_physicalDevice;
-    Vulkan::Device m_device;
-    DeviceQueue m_deviceQueue;
-    Vulkan::Fence m_fence;
-    Vulkan::ShaderModule m_computeShaderModule;
-    Vulkan::CommandPool m_commandPool;
+    RapidVulkan::Instance m_instance;
+    Vulkan::PhysicalDeviceRecord m_physicalDevice;
+    RapidVulkan::Device m_device;
+    Vulkan::VUDeviceQueueRecord m_deviceQueue;
+    RapidVulkan::Fence m_fence;
+    RapidVulkan::ShaderModule m_computeShaderModule;
+    RapidVulkan::CommandPool m_commandPool;
     DeviceTexture m_currentTexture;
-    Vulkan::ImageView m_imageView;
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::DescriptorPool m_descriptorPool;
-    Vulkan::DescriptorSets m_descriptorSets;
-    Vulkan::PipelineLayout m_pipelineLayout;
-    Vulkan::ComputePipeline m_pipeline;
-    Vulkan::CommandBuffer m_commandBuffer;
+    RapidVulkan::ImageView m_imageView;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorSets m_descriptorSets;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::ComputePipeline m_pipeline;
+    RapidVulkan::CommandBuffer m_commandBuffer;
 
     struct UpdateState
     {

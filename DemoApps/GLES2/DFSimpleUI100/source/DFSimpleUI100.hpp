@@ -31,13 +31,13 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES2/DemoAppGLES2.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
-#include <FslGraphicsGLES2/GLTexture.hpp>
+#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLTexture.hpp>
 
-#include <FslSimpleUIApp/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Control/ImageButton.hpp>
-#include <FslSimpleUI/Control/Label.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Control/ImageButton.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
 
 namespace Fsl
 {

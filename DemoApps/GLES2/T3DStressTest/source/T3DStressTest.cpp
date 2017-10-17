@@ -33,10 +33,10 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
-#include <FslGraphics_Draft/Procedural/MeshBuilder.hpp>
-#include <FslGraphics_Draft/Procedural/SegmentedQuadGenerator.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <FslGraphics3D/Procedural/MeshBuilder.hpp>
+#include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>

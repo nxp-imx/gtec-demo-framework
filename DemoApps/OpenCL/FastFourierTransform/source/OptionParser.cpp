@@ -56,7 +56,7 @@ namespace Fsl
   }
 
   OptionParser::OptionParser()
-    : m_length(0)
+    : m_length(16)
   {
   }
 
@@ -69,7 +69,7 @@ namespace Fsl
 
   void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
-    rOptions.push_back(PositionalOption("Length", OptionArgument::OptionRequired, CommandId::Length, "FFT length."));
+    rOptions.push_back(Option("Length", OptionArgument::OptionRequired, CommandId::Length, "FFT length."));
   }
 
 

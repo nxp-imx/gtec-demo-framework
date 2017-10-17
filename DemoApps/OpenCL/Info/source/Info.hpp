@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppOpenCL/DemoAppOpenCL.hpp>
+#include <FslDemoApp/OpenCL/DemoAppOpenCL.hpp>
 
 namespace Fsl
 {

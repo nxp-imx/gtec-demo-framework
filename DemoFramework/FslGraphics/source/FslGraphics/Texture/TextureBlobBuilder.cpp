@@ -94,6 +94,7 @@ namespace Fsl
     other.m_contentSize = 0;
   }
 
+
   TextureBlobBuilder::TextureBlobBuilder()
     : m_textureType(TextureType::Undefined)
     , m_extent()
@@ -102,6 +103,7 @@ namespace Fsl
     , m_bitmapOrigin(BitmapOrigin::Undefined)
     , m_blobs()
     , m_totalTexels(0)
+    , m_contentSize(0)
   {
   }
 

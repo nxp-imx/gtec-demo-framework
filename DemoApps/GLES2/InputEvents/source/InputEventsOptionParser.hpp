@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/ADemoOptionParser.hpp>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 
 namespace Fsl
 {

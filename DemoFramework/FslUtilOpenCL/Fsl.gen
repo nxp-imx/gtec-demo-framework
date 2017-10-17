@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <ExternalLibrary Name="FslUtilOpenCL">
-    <Dependency Name="OpenCL"/>
-    <Dependency Name="FslBase"/>
-    <ExternalDependency Name="FslUtilOpenCL_Headers" Include="$(FSL_GRAPHICS_SDK)/DemoFramework/FslUtilOpenCL/include" Access="Public"  Type="Headers"/>
-  </ExternalLibrary>
-</FslBuildGen>

@@ -32,9 +32,9 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslDemoApp/DemoTime.hpp>
-#include <FslDemoApp/Service/Events/Basic/KeyEvent.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 
 namespace Fsl
 {

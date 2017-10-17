@@ -11,13 +11,14 @@
 // Based on a example called 'Mesh instancing' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
 #include <glm/vec3.hpp>
+#include "OptionParserEx.hpp"
 
 namespace Fsl
 {
@@ -44,8 +45,8 @@ namespace Fsl
     // Contains the instanced data
     struct InstanceBuffer
     {
-      Vulkan::Buffer Buffer;
-      Vulkan::Memory Memory;
+      RapidVulkan::Buffer Buffer;
+      RapidVulkan::Memory Memory;
       uint32_t Size = 0;
       VkDescriptorBufferInfo Descriptor{};
     };
@@ -71,19 +72,20 @@ namespace Fsl
 
     struct Pipelines
     {
-      Vulkan::GraphicsPipeline Solid;
+      RapidVulkan::GraphicsPipeline Solid;
     };
 
+    std::shared_ptr<OptionParserEx> m_optionParser;
     Textures m_textures;
     Meshes m_meshes;
     InstanceBuffer m_instanceBuffer;
     Vertices m_vertices;
     UboVS m_uboVS;
     UniformData m_uniformData;
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
     Pipelines m_pipelines;
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
     // We use the native type here since this is managed by a pool
     VkDescriptorSet m_descriptorSet;
 

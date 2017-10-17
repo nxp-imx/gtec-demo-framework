@@ -31,10 +31,10 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Control/ContentControlBase.hpp>
-#include <FslSimpleUI/Control/Label.hpp>
-#include <FslSimpleUI/Control/Slider.hpp>
-#include <FslSimpleUI/Control/ValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/ContentControlBase.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/Slider.hpp>
+#include <FslSimpleUI/Base/Control/ValueLabel.hpp>
 
 namespace Fsl
 {

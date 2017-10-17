@@ -144,7 +144,8 @@ namespace Fsl
       if (!hasMax || tMaxZ < tMax)
       {
         tMax = tMaxZ;
-        hasMax = true;
+        // Disabled since no one checks it below
+        //hasMax = true;
       }
     }
 

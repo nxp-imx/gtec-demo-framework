@@ -29,8 +29,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslGraphics/Color.hpp>
 #include "DFNativeBatch2D.hpp"
@@ -97,7 +97,7 @@ namespace Fsl
 
     const Point2 nativeTexSize = m_nativeTexture.GetSize();
 
-    // GLES3 native texture handle
+    // GLES2 native texture handle
     m_nativeBatch->Draw(GLES2::GLTextureInfo(m_nativeTexture.Get(), m_nativeTexture.GetSize()), Rectangle(res.X - 256, offsetY+256, 256, 256), Color::White());
 
     // GLES2 native texture

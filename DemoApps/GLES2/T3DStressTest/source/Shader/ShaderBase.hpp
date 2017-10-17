@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <GLES2/gl2.h>
 #include <string>
 #include "ShaderVertexConfig.hpp"

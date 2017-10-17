@@ -30,12 +30,12 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Setup/DemoSetup.hpp>
-#include <FslDemoHost/Service/ServiceRegistryImpl.hpp>
 
 namespace Fsl
 {
-  DemoSetup::DemoSetup(const std::shared_ptr<ServiceProviderImpl>& serviceProvider, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose)
-    : ServiceProvider(serviceProvider)
+  DemoSetup::DemoSetup(const ExceptionMessageFormatter& exceptionFormatter, const std::shared_ptr<IServiceProvider>& serviceProvider, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose)
+    : ExceptionFormatter(exceptionFormatter)
+    , ServiceProvider(serviceProvider)
     , Host(hostSetup)
     , App(appSetup)
     , Verbose(verbose)

@@ -32,7 +32,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 #include "ImageLibraryServiceAndroid.hpp"
 
 namespace Fsl

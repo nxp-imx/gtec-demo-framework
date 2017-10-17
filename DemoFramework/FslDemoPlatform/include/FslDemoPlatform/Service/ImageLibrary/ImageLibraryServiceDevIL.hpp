@@ -32,9 +32,9 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalService.hpp>
-#include <FslDemoApp/Service/ImageLibrary/IImageLibraryService.hpp>
-#include <FslDemoApp/Service/ServiceProvider.hpp>
+#include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
 namespace Fsl
 {
@@ -51,8 +51,8 @@ namespace Fsl
     // From IImageLibraryService
     virtual std::string GetName() const override;
     virtual void ExtractSupportedImageFormats(std::deque<ImageFormat>& rFormats) override;
-    virtual bool TryRead(Bitmap& rBitmap, const IO::Path& path, const PixelFormat pixelFormatHint, const BitmapOrigin originHint) override;
-    virtual bool TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint) override;
+    virtual bool TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint) override;
+    virtual bool TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint) override;
     virtual bool TryWrite(const IO::Path& path, const Bitmap& bitmap, const ImageFormat imageFormat, const bool allowOverwrite) override;
   private:
   };

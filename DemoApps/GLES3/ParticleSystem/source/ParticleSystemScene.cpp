@@ -29,7 +29,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
@@ -37,20 +37,20 @@
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
-#include <FslGraphicsGLES3/GLUtil.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
-#include <FslGraphicsGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUI/IWindowManager.hpp>
-#include <FslSimpleUI/WindowContext.hpp>
-#include <FslSimpleUI/Control/CheckBox.hpp>
-#include <FslSimpleUI/Control/Label.hpp>
-#include <FslSimpleUI/Control/SliderAndValueLabel.hpp>
-#include <FslSimpleUI/Control/ValueLabel.hpp>
-#include <FslSimpleUI/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/Event/WindowSelectEvent.hpp>
-#include <FslSimpleUI/Layout/FillLayout.hpp>
-#include <FslSimpleUI/Layout/StackLayout.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Base/Control/CheckBox.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/ValueLabel.hpp>
+#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include "ParticleSystemScene.hpp"
 #include "PS/Draw/ParticleDrawPointsGLES3.hpp"
 #include "PS/Draw/ParticleDrawQuadsGLES3.hpp"

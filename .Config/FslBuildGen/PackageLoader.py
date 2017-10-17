@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,206 +31,153 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-from FslBuildGen.XmlStuff import XmlGenFile
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+import os
+from FslBuildGen import IOUtil
+from FslBuildGen import PluginSharedValues
+from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import ScanMethod
+from FslBuildGen.Exceptions import DependencyNotFoundException
+from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
+from FslBuildGen.Log import Log
+from FslBuildGen.Packages.Exceptions import PackageHasMultipleDefinitions2Exception
 from FslBuildGen.PackageCachedLocation import PackageCachedLocation
 from FslBuildGen.PackageFile import PackageFile
-from FslBuildGen import PluginConfig;
-from FslBuildGen import IOUtil
+from FslBuildGen.PackageFinder import PackageFinder
 from FslBuildGen.PackageTemplateLoader import PackageTemplateLoader
+from FslBuildGen.ToolConfig import ToolConfigPackageConfiguration
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
-import os
+from FslBuildGen.Xml.Exceptions import XmlInvalidPackageNameException
+from FslBuildGen.Xml.Exceptions import XmlInvalidSubPackageNameException
+from FslBuildGen.Xml.XmlGenFile import XmlGenFile
+
+def _CreateXmlGenFile(config: Config, defaultPackageLanguage: int) -> XmlGenFile:
+    return XmlGenFile(config, defaultPackageLanguage)
 
 
 class PackageLoader(object):
-    def __init__(self, config, files, platform):
+    def __init__(self, config: Config, files: List[str], platform: GeneratorPluginBase) -> None:
         super(PackageLoader, self).__init__()
+        self.BasicConfig = config
 
+        genFilename = config.GenFileName  # type: str
+        packageConfigDict = config.ToolConfig.PackageConfiguration  # type: Dict[str, ToolConfigPackageConfiguration]
+        packageLocations = [] if not config.Type in packageConfigDict else packageConfigDict[config.Type].Locations  # type: List[ToolConfigPackageLocation]
+        factoryFunction = _CreateXmlGenFile
 
         templateLocationCache = self.__CacheTemplateLocations(config)
-        self.PackageTemplateLoader = PackageTemplateLoader(templateLocationCache)
+        self.PackageTemplateLoader = PackageTemplateLoader(config, templateLocationCache)
+        self.PackageFinder = PackageFinder(config, platform, config.Type, packageConfigDict, genFilename, config.IsTestMode)
 
-        files = self.__LocateInputFiles(config, files);
+        inputFiles = self.PackageFinder.LocateInputFiles(files)  # type: List[PackageFile]
 
         config.LogPrint("- Parsing")
+        try:
+            config.PushIndent()
 
-        if config.IsSDKBuild:
-            files = self.__PreloadPackages(config, files)
+            # Preload all known package files from the cache if the package configuration requested it.
+            if config.Type in packageConfigDict and packageConfigDict[config.Type].Preload:
+                inputFiles = self.PackageFinder.GetKnownPackageFiles(inputFiles)
 
-        packageDict = {}
-        genFiles = []
-        # Load the initial package files
-        self.__LoadFiles(config, files, packageDict, genFiles, config.ToolConfig.DefaultPackageLanguage)
+            # sort the input files to ensure a predictable 'initial' order
+            inputFiles.sort(key=lambda s: s.AbsoluteDirPath.lower())
 
-        locationCache = self.__CachePackageLocations(config)
-
-        searchForPackages = True
-        newGenFiles = genFiles
-        while searchForPackages:
-            missingPackages = self.__DiscoverMissingPackages(config, platform, packageDict, newGenFiles)
-            if len(missingPackages) > 0:
-                newFiles = self.__LocateMissingPackages(locationCache, missingPackages, config.GenFileName)
-                newGenFiles = []
-                self.__LoadFiles(config, newFiles, packageDict, newGenFiles, config.ToolConfig.DefaultPackageLanguage)
-                genFiles += newGenFiles
-            else:
-                searchForPackages = False
-
-        self.GenFiles = genFiles
+            packageDict = {} # type: Dict[str, List[XmlGenFile]]
+            genFiles = []  # type: List[XmlGenFile]
+            # Load the initial package files
+            self.__LoadFiles(config, inputFiles, packageDict, genFiles, config.ToolConfig.DefaultPackageLanguage, factoryFunction)
 
 
-    def __LocateInputFiles(self, config, files):
-        oldFiles = files
-        files = []
-        for file in oldFiles:
-            location = self.__LocateInputFileLocation(config, file)
-            files.append(PackageFile(file, location))
-        return files
+            searchForPackages = True
+            newGenFiles = genFiles
+            while searchForPackages:
+                missingPackages = self.__DiscoverMissingPackages(config, platform, packageDict, newGenFiles)
+                if len(missingPackages) > 0:
+                    newFiles = self.PackageFinder.LocateMissingPackages(missingPackages)
+                    newGenFiles = []
+                    self.__LoadFiles(config, newFiles, packageDict, newGenFiles, config.ToolConfig.DefaultPackageLanguage, factoryFunction)
+                    genFiles += newGenFiles
+                else:
+                    searchForPackages = False
 
-    def __LocateInputFileLocation(self, config, file):
-        print(file)
-        for packageConfiguration in config.ToolConfig.PackageConfiguration.values():
-            for location in packageConfiguration.Locations:
-                if file.startswith(IOUtil.NormalizePath(location.ResolvedPath) + '/'):
-                   return location
-        raise Exception("Could not find package location");
+            self.SourceFiles = files
+            self.GenFiles = genFiles
+        finally:
+            config.PopIndent()
 
 
-
-    def __CacheTemplateLocations(self, config):
+    def __CacheTemplateLocations(self, config: Config) -> Dict[str, str]:
         """ Build a dict of all *.gen files found in the template import directories """
-        dict = {}
+        resDict = {} # type: Dict[str, str]
         for location in config.TemplateImportDirectories:
             files = IOUtil.GetFilesAt(location.ResolvedPath, True)
             for entry in files:
                 if entry.endswith(".gen"):
-                    dict[IOUtil.GetFileNameWithoutExtension(entry)] = IOUtil.Join(location.ResolvedPath, entry)
-        return dict
+                    resDict[IOUtil.GetFileNameWithoutExtension(entry)] = IOUtil.Join(location.ResolvedPath, entry)
+        return resDict
 
 
-    def __CachePackageLocations(self, config):
-        dict = {}
-        packageConfiguration = config.ToolConfig.PackageConfiguration[config.Type]
-        for location in packageConfiguration.Locations:
-            dirs = IOUtil.GetDirectoriesAt(location.ResolvedPath, False)
-            for entry in dirs:
-                fullPath = IOUtil.Join(location.ResolvedPath, entry)
-                if not self.__IsBlackListed(location, fullPath):
-                    dict[entry] = PackageCachedLocation(fullPath, location)
-        return dict
-
-
-    def __LocateMissingPackages(self, locationCache, missing, genFileName):
-        files = []
-        for entry in sorted(missing.keys()):
-            found = False
-            packageCachedLocation = None
-            if entry in locationCache:
-                packageCachedLocation = locationCache[entry]
-            elif '.' in entry:
-                subNames = entry.split('.')
-                if subNames[0] in locationCache:
-                    packageCachedLocation = self.__LocateMissingSubPackage(locationCache[subNames[0]], subNames)
-
-            if packageCachedLocation != None:
-                fullPathPackageFile = IOUtil.Join(packageCachedLocation.Path, genFileName)
-                if os.path.isfile(fullPathPackageFile):
-                    files.append(PackageFile(fullPathPackageFile, packageCachedLocation.Location))
-                    found = True
-
-            if not found:
-                raise DependencyNotFoundException(missing[entry], entry)
-        return files
-
-
-    def __LocateMissingSubPackage(self, packageLocation, subNames):
-        fullPath = packageLocation.Path
-        subIndex = 1
-        subNameCount = len(subNames)
-        while(subIndex < subNameCount):        
-            dirs = IOUtil.GetDirectoriesAt(fullPath, False)
-            if not subNames[subIndex] in dirs:
-                return None
-            fullPath = IOUtil.Join(fullPath, subNames[subIndex])
-            subIndex = subIndex + 1
-        if subIndex != subNameCount:
-            return None
-        location = ToolConfigPackageLocation(None, packageLocation.Location.BasedOn, None, fullPath)
-        return PackageCachedLocation(fullPath, location)
-
-
-    def __PreloadPackages(self, config, theFiles):
-        # Get all the files associated with the typeId then merge it with the supplied file list
-        files = self.__GetFiles(config)
-        dict = {}
-        for entry in files:
-            dict[entry.FileName] = entry;
-
-        for packageFile in theFiles:
-            if not packageFile.FileName in dict:
-                files.append(packageFile)
-        files.sort(key=lambda s: s.FileName.lower())
-        return files
-
-
-    def __IsBlackListed(self, location, path):
-        for entry in location.Blacklist:
-            entryName = entry.Name + '/'
-            if path.startswith(entryName):
-                return True
-        return False
-
-    def __LocatePackages(self, location, genFileName):
-        files = []
-        dirs = IOUtil.GetDirectoriesAt(location.ResolvedPath, False)
-        for dir in dirs:
-            packageFile = IOUtil.Join(dir, genFileName)
-            fullPathPackageFile = IOUtil.Join(location.ResolvedPath, packageFile)
-            if os.path.isfile(fullPathPackageFile) and not self.__IsBlackListed(location, packageFile):
-                files.append(PackageFile(fullPathPackageFile, location))
-        return files
-
-
-    def __GetFiles(self, config):
-        packageConfiguration = config.ToolConfig.PackageConfiguration[config.Type]
-        files = []
-        for location in packageConfiguration.Locations:
-            files += self.__LocatePackages(location, config.GenFileName)
-        return files
-
-
-    def __DiscoverMissingPackages(self, config, activePlatform, packageDict, genFiles):
-        missingPackages = {}
+    def __DiscoverMissingPackages(self, config: Config, activePlatform: GeneratorPluginBase,
+                                  packageDict: Dict[str, List[XmlGenFile]], genFiles: List[XmlGenFile]) -> Dict[str, XmlGenFile]:
+        """ Create a dict where the key is the name of the missing package and the value is the xmlGenFile that first requested it """
+        missingPackages = {}  # type: Dict[str, XmlGenFile]
         for entry in genFiles:
             for dep in entry.DirectDependencies:
                 if not dep.Name in packageDict:
                     if not dep.Name in missingPackages:
                         missingPackages[dep.Name] = entry
                     if config.Verbosity > 1:
-                        config.LogPrint("  .. %s missing %s" % (entry.Name, dep.Name));
-            for platform in entry.Platforms.values():
-                if activePlatform.Id == PluginConfig.PLATFORM_ID_ALL or platform.Name == activePlatform.Name:
+                        config.LogPrint(".. {0} missing {1}".format(entry.Name, dep.Name))
+            for platform in list(entry.Platforms.values()):
+                if activePlatform.Id == PluginSharedValues.PLATFORM_ID_ALL or platform.Name == activePlatform.Name:
                     for dep in platform.DirectDependencies:
                         if not dep.Name in packageDict:
                             if not dep.Name in missingPackages:
                                 missingPackages[dep.Name] = entry
-                            if config.Verbosity > 1:
-                                config.LogPrint("  .. Platform %s package %s missing %s" % (platform.Name, entry.Name, dep.Name));
+                                if config.Verbosity >= 2 and config.Verbosity < 4:
+                                    config.LogPrint(".. Platform {0} package {1} missing {2}".format(platform.Name, entry.Name, dep.Name))
+                            if config.Verbosity >= 4:
+                                config.LogPrint(".. Platform {0} package {1} missing {2}".format(platform.Name, entry.Name, dep.Name))
         return missingPackages
 
 
-    def __LoadFiles(self, config, files, packageDict, genFiles, defaultPackageLanguage):
+    def __LoadFiles(self, config: Config,
+                    files: List[PackageFile],
+                    rPackageDict: Dict[str, List[XmlGenFile]],
+                    rGenFiles: List[XmlGenFile],
+                    defaultPackageLanguage: int,
+                    factoryFunction: Callable[[Config, int], XmlGenFile]) -> None:
         for file in files:
-            config.LogPrint("  '%s'" % (file.FileName))
-            xml = XmlGenFile(defaultPackageLanguage)
+            config.LogPrint("'{0}'".format(file.AbsoluteFilePath))
+            xml = factoryFunction(config, defaultPackageLanguage)
             xml.Load(config, self.PackageTemplateLoader, file)
-            genFiles.insert(0, xml)
-            if not xml.Name in packageDict:
-                packageDict[xml.Name] = [xml]
+            self.__ValidatePackage(config, file, xml)
+            rGenFiles.insert(0, xml)
+            if not xml.Name in rPackageDict:
+                rPackageDict[xml.Name] = [xml]
             else:
-                packageDict[xml.Name].append(xml)
+                rPackageDict[xml.Name].append(xml)
 
-        for packageList in packageDict.values():
+        for packageList in list(rPackageDict.values()):
             if len(packageList) > 1:
-                raise PackageHasMultipleDefinitionsException(packageList)
+                raise PackageHasMultipleDefinitions2Exception(packageList)
+
+
+    def __ValidatePackage(self, log: Log, sourceFile: PackageFile, xmlGenFile: XmlGenFile) -> None:
+        """ Do some basic package consistency checks """
+        self.__ValidatePackageName(log, sourceFile, xmlGenFile)
+
+
+    def __ValidatePackageName(self, log: Log, sourceFile: PackageFile, xmlGenFile: XmlGenFile) -> None:
+        """ Validate that the package name is fully equal to the containing directory names """
+        pathBasedPackageName = sourceFile.PackageName
+        if xmlGenFile.Name != pathBasedPackageName:
+            if '.' in pathBasedPackageName:
+                raise XmlInvalidSubPackageNameException(xmlGenFile.XMLElement, pathBasedPackageName, xmlGenFile.Name, sourceFile.AbsoluteFilePath, sourceFile.PackageRootLocation.ResolvedPath)
+            raise XmlInvalidPackageNameException(xmlGenFile.XMLElement, pathBasedPackageName, xmlGenFile.Name, sourceFile.AbsoluteFilePath, sourceFile.PackageRootLocation.ResolvedPath)
+

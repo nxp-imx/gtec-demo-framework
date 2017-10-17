@@ -31,9 +31,10 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslUtilOpenCL1_1/Check.hpp>
-#include <FslUtilOpenCL1_1/Context.hpp>
-#include <FslUtilOpenCL1_1/OpenCLHelper.hpp>
+#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <RapidOpenCL1/Check.hpp>
+#include <RapidOpenCL1/Context.hpp>
+#include <RapidOpenCL1/DebugStrings.hpp>
 #include "Info.hpp"
 #include "LogHelp.hpp"
 #include "LogDeviceInfo1_0.hpp"
@@ -48,6 +49,8 @@
 #include "LogPlatformInfo2_1.hpp"
 #include <array>
 #include <CL/cl.h>
+
+using namespace RapidOpenCL1;
 
 namespace Fsl
 {
@@ -65,12 +68,15 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
+          FSLLOG(rLog.Indent << "Platform version: 1.0");
           LogPlatformInfo1_0(rLog, platformId);
           break;
         case 1:
+          FSLLOG(rLog.Indent << "Platform version: 1.1");
           LogPlatformInfo1_1(rLog, platformId);
           break;
         case 2:
+          FSLLOG(rLog.Indent << "Platform version: 1.2");
           LogPlatformInfo1_2(rLog, platformId);
           break;
         default:
@@ -82,9 +88,11 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
+          FSLLOG(rLog.Indent << "Platform version: 2.0");
           LogPlatformInfo2_0(rLog, platformId);
           break;
         case 1:
+          FSLLOG(rLog.Indent << "Platform version: 2.1");
           LogPlatformInfo2_1(rLog, platformId);
           break;
         default:
@@ -126,12 +134,15 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
+          FSLLOG(rLog.Indent << "Device version: 1.0");
           LogDeviceInfo1_0(rLog, deviceId);
           break;
         case 1:
+          FSLLOG(rLog.Indent << "Device version: 1.1");
           LogDeviceInfo1_1(rLog, deviceId);
           break;
         case 2:
+          FSLLOG(rLog.Indent << "Device version: 1.2");
           LogDeviceInfo1_2(rLog, deviceId);
           break;
         default:
@@ -143,9 +154,11 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
+          FSLLOG(rLog.Indent << "Device version: 2.0");
           LogDeviceInfo2_0(rLog, deviceId);
           break;
         case 1:
+          FSLLOG(rLog.Indent << "Device version: 2.1");
           LogDeviceInfo2_1(rLog, deviceId);
           break;
         default:
@@ -250,7 +263,5 @@ namespace Fsl
     FSLLOG("");
 
     LogDetailedInformation(log, platformIds);
-
-
   }
 }

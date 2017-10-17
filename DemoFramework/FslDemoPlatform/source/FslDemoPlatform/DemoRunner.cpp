@@ -34,24 +34,24 @@
 #include <deque>
 #include <iostream>
 #include <signal.h>
+#include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/ADemoOptionParser.hpp>
-#include <FslDemoHost/ADemoHostOptionParser.hpp>
-#include <FslDemoHost/IDemoHost.hpp>
-#include <FslDemoHost/IDemoHostFactory.hpp>
-#include <FslDemoHost/Service/ServiceOptionParserDeque.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalServiceDeque.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalServiceHost.hpp>
-#include <FslDemoHost/Service/Options/IOptionsServiceControl.hpp>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
+#include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
+#include <FslDemoHost/Base/IDemoHost.hpp>
+#include <FslDemoHost/Base/IDemoHostFactory.hpp>
+#include <FslDemoHost/Base/Service/Options/IOptionsServiceControl.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include <FslDemoPlatform/DemoHostManager.hpp>
 #include <FslDemoPlatform/Setup/DemoBasicSetup.hpp>
 #include <FslDemoPlatform/Setup/DemoSetupManager.hpp>
 #include "DemoSignalHandler.hpp"
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
-#include <FslDemoHost/Service/ServiceProviderImpl.hpp>
+#include <FslService/Impl/ServiceFramework.hpp>
+#include <FslService/Impl/ServiceOptionParserDeque.hpp>
+#include <FslService/Impl/Threading/IServiceHostLooper.hpp>
 #include <cstring>
 
 namespace Fsl
@@ -78,7 +78,7 @@ namespace Fsl
       return false;
     }
 
-    bool ParseInputArguments(int argc, char* argv[], const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
+    OptionParser::Result TryParseInputArguments(int argc, char* argv[], const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
     {
       std::deque<OptionParser::ParserRecord> inputParsers;
       if (demoHostManagerOptionParser)
@@ -104,30 +104,20 @@ namespace Fsl
       catch (const std::exception& ex)
       {
         FSLLOG("ERROR: Input argument parsing failed with: " << ex.what());
-        return false;
+        return OptionParser::Result::Failed;
       }
       catch (...)
       {
         FSLLOG("ERROR: A critical error occurred during input argument parsing.");
-        return false;
+        return OptionParser::Result::Failed;
       }
 
     }
 
-    std::shared_ptr<ServiceProviderImpl> StartServices(DemoBasicSetup& rDemoBasicSetup)
+
+    void RegisterOptionParsersInOptionsService(const std::shared_ptr<IServiceProvider>& theServiceProvider, const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
     {
-      if (!rDemoBasicSetup.ServiceList)
-        throw UsageErrorException("The service list is empty");
-
-      ThreadLocalServiceHost serviceHost(*rDemoBasicSetup.ServiceList);
-      rDemoBasicSetup.ServiceList.reset();
-      return serviceHost.GetProvider();
-    }
-
-
-    void RegisterOptionParsersInOptionsService(const std::shared_ptr<ServiceProviderImpl>& serviceProviderImpl, const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
-    {
-      ServiceProvider serviceProvider(serviceProviderImpl);
+      ServiceProvider serviceProvider(theServiceProvider);
       auto optionService = serviceProvider.Get<IOptionsServiceControl>();
 
       if (demoHostManagerOptionParser)
@@ -144,25 +134,40 @@ namespace Fsl
     }
 
 
-    int RunNow(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig)
+    int RunNow(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
     {
       // Early parsing to enable verbosity
       const bool verbose = CheckVerboseFlag(argc, argv);
 
+      if (verbose)
+        Fsl::Logger::SetLogLevel(LogType::Verbose);
+
       bool enableFirewallRequest = false;
 
+      std::unique_ptr<ServiceFramework> serviceFramework(new ServiceFramework());
+
       // basic setup
-      auto demoBasicSetup = DemoSetupManager::GetSetup(demoRunnerConfig.SetupManagerConfig, verbose, enableFirewallRequest);
+      auto demoBasicSetup = DemoSetupManager::GetSetup(demoRunnerConfig.SetupManagerConfig, rExceptionMessageFormatter, serviceFramework->GetServiceRegistry(), verbose, enableFirewallRequest);
       const auto demoHostManagerOptionParser = std::make_shared<DemoHostManagerOptionParser>();
 
       if (enableFirewallRequest)
         demoHostManagerOptionParser->RequestEnableAppFirewall();
 
-      if (!ParseInputArguments(argc, argv, demoBasicSetup, demoHostManagerOptionParser))
-        return EXIT_FAILURE;
+      { // Lock the service registry and extract the service option parsers
+        assert(!demoBasicSetup.Host.ServiceOptionParsers);
+        demoBasicSetup.Host.ServiceOptionParsers = std::make_shared<ServiceOptionParserDeque>();
+        serviceFramework->PrepareServices(*demoBasicSetup.Host.ServiceOptionParsers);
+      }
+
+      const auto parseResult = TryParseInputArguments(argc, argv, demoBasicSetup, demoHostManagerOptionParser);
+      if (parseResult != OptionParser::Result::OK)
+        return parseResult == OptionParser::Result::Failed ? EXIT_FAILURE : EXIT_SUCCESS;
 
       // Start the services, after the command line parameters have been processed
-      auto serviceProvider = StartServices(demoBasicSetup);
+      serviceFramework->LaunchGlobalServices();
+      serviceFramework->LaunchThreads();
+
+      auto serviceProvider = serviceFramework->GetServiceProvider();
       // This really should not happen, but just check anyway
       if (!serviceProvider)
       {
@@ -172,17 +177,15 @@ namespace Fsl
 
       RegisterOptionParsersInOptionsService(serviceProvider, demoBasicSetup, demoHostManagerOptionParser);
 
-      DemoSetup demoSetup(serviceProvider, demoBasicSetup.Host, demoBasicSetup.App, demoBasicSetup.Verbose);
+      DemoSetup demoSetup(rExceptionMessageFormatter, serviceProvider, demoBasicSetup.Host, demoBasicSetup.App, demoBasicSetup.Verbose);
       std::unique_ptr<DemoHostManager> demoHostManager;
       try
       {
         // Set the supplied native window tag.
         demoSetup.Host.OptionParser->SetNativeWindowTag(demoRunnerConfig.NativeWindowTag);
 
-
         // Initialize the demo
         demoHostManager.reset(new DemoHostManager(demoSetup, demoHostManagerOptionParser));
-
       }
       catch (const std::exception& ex)
       {
@@ -195,8 +198,14 @@ namespace Fsl
         return EXIT_FAILURE;
       }
 
+      auto serviceLooper = serviceFramework->GetServiceHostLooper();
       // Run the demo
-      return demoHostManager->Run();
+      auto returnValue = demoHostManager->Run(serviceLooper);
+
+      // Kill the threads and give the looper one last chance to process messages
+      serviceFramework.reset();
+      serviceLooper->ProcessMessages();
+      return returnValue;
     }
 
   }
@@ -210,14 +219,22 @@ namespace Fsl
       signal(SIGTERM, DemoFrameworkSignalHandler);
     }
 
+    ExceptionMessageFormatter exceptionMessageFormatter;
     try
     {
-
-      return RunNow(argc, argv, demoRunnerConfig);
+      return RunNow(argc, argv, demoRunnerConfig, exceptionMessageFormatter);
     }
     catch (const std::exception& ex)
     {
-      FSLLOG("ERROR: " << ex.what());
+      std::string message;
+      if (exceptionMessageFormatter.TryFormatException(ex, message))
+      {
+        FSLLOG("ERROR: " << message);
+      }
+      else
+      {
+        FSLLOG("ERROR: " << ex.what());
+      }
       return EXIT_FAILURE;
     }
     catch (...)

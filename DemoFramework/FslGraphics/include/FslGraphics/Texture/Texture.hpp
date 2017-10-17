@@ -31,6 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/BlobRecord.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Extent3D.hpp>
@@ -40,7 +41,7 @@
 #include <FslGraphics/Texture/RawTextureEx.hpp>
 #include <FslGraphics/Texture/TextureInfo.hpp>
 #include <FslGraphics/Texture/TextureType.hpp>
-
+#include <cstdlib>
 #include <vector>
 
 namespace Fsl
@@ -93,8 +94,19 @@ namespace Fsl
     //! @param builder a valid builder with information about the layout of the content in the pContent buffer.
     Texture(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
 
+    //! @brief Create a empty 2D texture of the given extent, pixelFormat and bitmap origin.
+    //! @note  This is a easy way to populate this with a empty 2D texture
+    Texture(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+
+    //! @brief Create a empty 2D texture of the given extent, pixelFormat and bitmap origin.
+    //! @note  This is a easy way to populate this with a 2D texture
+    Texture(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+
 
     ~Texture();
+
+    //! @brief Release the internal content array into the supplied vector, then reset this class
+    void ReleaseInto(std::vector<uint8_t>& rContentTarget);
 
     //! @brief Destroys the texture and resets the object to its default state.
     void Reset();
@@ -119,6 +131,14 @@ namespace Fsl
     //! @param builder a valid builder with information about the layout of the content in the pContent buffer.
     void Reset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
 
+    //! @brief Destroys the texture and creates a empty 2D texture of the given extent, pixelFormat and bitmap origin.
+    //! @note  This is a easy way to populate this with a empty 2D texture
+    void Reset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+
+    //! @brief Destroys the texture and creates a empty 2D texture of the given extent, pixelFormat and bitmap origin.
+    //! @note  This is a easy way to populate this with a 2D texture
+    void Reset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+
     //! @brief Check if this object contains a valid resource
     bool IsValid() const
     {
@@ -130,6 +150,9 @@ namespace Fsl
 
     //! @brief The extent of the texture
     Extent3D GetExtent(const std::size_t level = 0) const;
+
+    //! @brief The stride of the texture at level
+    std::size_t GetStride(const std::size_t level = 0) const;
 
     //! @brief The total number of faces (1 for normal textures, 6 for cube maps)
     uint32_t GetFaces() const;
@@ -163,6 +186,24 @@ namespace Fsl
 
     uint32_t GetByteSize() const;
 
+    //! @brief Set the uint8_t at the the given position.
+    //! @param x = the x byte position to read (NOT PIXEL).
+    //! @param y = the y position (this is equal to a pixel Y position).
+    //! @param z = the z position (this is equal to a pixel Z position).
+    //! @param value = the byte value to write.
+    //! @note Writing outside the bitmap will do nothing (a warning will be logged in debug builds)
+    void SetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer,
+                  const uint32_t x, const uint32_t y, const uint32_t z,
+                  const uint8_t value, const bool ignoreOrigin = false);
+
+    //! @brief read the uint8_t at the the given position.
+    //! @param x = the x byte position to read (NOT PIXEL).
+    //! @param y = the y position (this is equal to a pixel Y position).
+    //! @param z = the z position (this is equal to a pixel Z position).
+    //! @note Reading outside the bitmap will do nothing (a warning will be logged in debug builds)
+    uint8_t GetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer,
+                     const uint32_t x, const uint32_t y, const uint32_t z,
+                     const bool ignoreOrigin = false) const;
 
     //! @brief Swap compatible blobs
     //! @param level = the level to perform the swap at (since it has to be compatible blobs they must reside on the same level)
@@ -206,17 +247,28 @@ namespace Fsl
 
       ~ScopedDirectAccess()
       {
-        if (m_pTexture1 != nullptr)
-          m_pTexture1->Unlock();
-        else if (m_pTexture2 != nullptr)
+        try
         {
-          m_pTexture2->UnlockEx(*m_pRawTextureEx);
+          if (m_pTexture1 != nullptr)
+            m_pTexture1->Unlock();
+          else if (m_pTexture2 != nullptr)
+          {
+            m_pTexture2->UnlockEx(*m_pRawTextureEx);
+          }
         }
+        catch (const std::exception&)
+        {
+          FSLBASICLOG_ERROR("ScopeDirectAccess unlock failed and destructor can not throw so aborting.");
+          std::abort();
+        }
+
       }
     };
   private:
     void DoReset(const void*const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder);
     void DoReset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
+    void DoReset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    void DoReset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
     RawTexture Lock() const;
     RawTextureEx LockEx();

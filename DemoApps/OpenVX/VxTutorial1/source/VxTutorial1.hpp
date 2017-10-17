@@ -31,14 +31,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppOpenVX/DemoAppOpenVX.hpp>
-#include <FslUtilOpenVX1_0_1/Context.hpp>
+#include <FslDemoApp/OpenVX/DemoAppOpenVX.hpp>
+#include <RapidOpenVX/Context.hpp>
 
 namespace Fsl
 {
   class VxTutorial1 : public DemoAppOpenVX
   {
-    OpenVX::Context m_context;
+    RapidOpenVX::Context m_context;
   public:
     VxTutorial1(const DemoAppConfig& config);
     ~VxTutorial1();

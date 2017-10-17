@@ -38,24 +38,24 @@
 #ifdef FSL_ENABLE_ASSIMP
 #include <FslAssimp/SceneImporter.hpp>
 #endif
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
-#include <FslGraphicsGLES3/GLUtil.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
-#include <FslGraphics3D/GenericMesh.hpp>
-#include <FslGraphics3D/GenericScene.hpp>
-#include <FslGraphics3D/MeshConverter.hpp>
-#include <FslSceneFormat/BasicSceneFormat.hpp>
+#include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/BasicScene/GenericScene.hpp>
+#include <FslGraphics3D/BasicScene/MeshConverter.hpp>
+#include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslBase/IO/File.hpp>
 #include <algorithm>
 #include "LoadedScene.hpp"
@@ -114,6 +114,7 @@ namespace Fsl
 
   LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t id)
     : AScene(config, options)
+    , m_screenResolution()
   {
     SetCullEnabled(false);
     m_material.Specular = options->GetMatSpecular();

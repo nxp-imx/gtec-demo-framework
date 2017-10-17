@@ -36,10 +36,24 @@
 
 namespace Fsl
 {
-  class ImageFormatUtil
+  namespace ImageFormatUtil
   {
-  public:
-    static ImageFormat TryDetectImageFormatFromExtension(const IO::Path& path);
+    //! @brief Try to guess the image format from the supplied extension
+    //! @note accepts both ".png" and "png"
+    ImageFormat TryDetectImageFormat(const std::string& extension);
+
+    //! @brief Try to guess the image format from the supplied extension
+    //! @note accepts both ".png" and "png"
+    ImageFormat TryDetectImageFormat(const IO::Path& extension);
+
+    //! @brief Given a path try to extract the extension and identify the image format
+    ImageFormat TryDetectImageFormatFromExtension(const IO::Path& path);
+
+    //! @brief Get the default extension for the image format
+    const char* GetDefaultExtension(const ImageFormat imageFormat);
+
+    //! @brief Check if the image format is generally considered lossless
+    const bool IsLossless(const ImageFormat imageFormat);
   };
 }
 

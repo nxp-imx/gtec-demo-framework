@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES3.ParticleSystem
 GLES3.ParticleSystem.VC.VC.opendb
 GLES3.ParticleSystem.VC.db
 GLES3.ParticleSystem.aps
@@ -18,10 +19,18 @@ GLES3.ParticleSystem.v12.suo
 GLES3.ParticleSystem.vcxproj
 GLES3.ParticleSystem.vcxproj.filters
 GLES3.ParticleSystem.vcxproj.user
+GLES3.ParticleSystem_FB
+GLES3.ParticleSystem_Wayland
+GLES3.ParticleSystem_X11
 GNUmakefile
 GNUmakefile_Yocto
+ParticleSystem
 ParticleSystem_FB
+ParticleSystem_FB_d
 ParticleSystem_Wayland
+ParticleSystem_Wayland_d
 ParticleSystem_X11
+ParticleSystem_X11_d
+ParticleSystem_d
 build/
 resource.h

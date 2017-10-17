@@ -21,5 +21,7 @@ OpenVX.VxTutorial1.vcxproj
 OpenVX.VxTutorial1.vcxproj.filters
 OpenVX.VxTutorial1.vcxproj.user
 Test_sobel.bmp
+VxTutorial1
+VxTutorial1_d
 build/
 resource.h

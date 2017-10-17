@@ -47,19 +47,19 @@ namespace Fsl
     element_type Height;
     element_type Depth;
 
-    Extent3D()
+    constexpr Extent3D()
       : Width(0)
       , Height(0)
       , Depth(0)
     {
     }
 
-    Extent3D(const element_type width, const element_type height)
+    constexpr Extent3D(const element_type width, const element_type height)
       : Extent3D(width, height, 1)
     {
     }
 
-    Extent3D(const element_type width, const element_type height, const element_type depth)
+    constexpr Extent3D(const element_type width, const element_type height, const element_type depth)
       : Width(width)
       , Height(height)
       , Depth(depth)

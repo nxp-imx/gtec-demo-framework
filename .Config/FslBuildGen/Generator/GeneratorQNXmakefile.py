@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,23 +31,25 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import List
+from typing import Tuple
 import os
 import os.path
-from FslBuildGen import IOUtil, MakeFileHelper, Util
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-
-def Contains(list, name):
-    for entry in list:
-        if entry.Name == name:
-            return True
-    return False
+from FslBuildGen import IOUtil
+from FslBuildGen import MakeFileHelper
+from FslBuildGen import Util
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import ExternalDependencyType
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Exceptions import InternalErrorException
+from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 
 # FIX:
 # - This generator does not support Variants
 
-class GeneratorQNXmakefile(object):
-    def __init__(self, config, packages, dstMakeFilename, templateExe, templateLib):
+class GeneratorQNXmakefile(GeneratorBase):
+    def __init__(self, config: Config, packages: List[Package], dstMakeFilename: str, templateExe: str, templateLib: str) -> None:
         super(GeneratorQNXmakefile, self).__init__()
         self.BldTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "build.sh"))
         self.TemplateMakefileCPU = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "QNXmakefileCPU"))
@@ -58,20 +60,18 @@ class GeneratorQNXmakefile(object):
             if not package.ResolvedPlatformNotSupported:
                 if package.Type == PackageType.Executable or package.Type == PackageType.Library:
                     self.__GenerateFolderStructure(config, package)
-            elif package.Type == PackageType.Executable:
-                config.LogPrint("WARNING: Package %s marked as not supported" % (package.Name))
+            #elif package.Type == PackageType.Executable:
+            #    config.LogPrint("WARNING: Package %s marked as not supported" % (package.Name))
 
 
-    def GetPackageGitIgnoreDict(self):
-        """ Return a dictionary of packages and a list of strings that should be added to git ignore for it """
-        return {}
-
-
-    def __GenerateFolderStructure(self, config, package):
+    def __GenerateFolderStructure(self, config: Config, package: Package) -> None:
         #don't generate anything for unsuported packages
-        unsupportedPlatformList =  package.GetUnsupportedPlatformList()
-        if Contains(unsupportedPlatformList, "QNX"):
+        if package.ResolvedPlatformNotSupported:
             return
+        if (package.AbsolutePath is None or package.ResolvedBuildPath is None or
+            package.ResolvedBuildAllIncludeDirs is None or
+            package.ResolvedBuildSourceFiles is None or package.ShortName is None):
+           raise Exception("Invalid package")
 
         # Use a standard build path
         buildBasePath = IOUtil.Join(package.AbsolutePath, package.ResolvedBuildPath)
@@ -79,7 +79,7 @@ class GeneratorQNXmakefile(object):
         relativePathBuildArm = IOUtil.Join(package.ResolvedBuildPath, newDir)
         buildArmPath = IOUtil.Join(buildBasePath, newDir)
         buildPath = buildBasePath
-        relativePathBuild = ""
+        #relativePathBuild = ""
 
         newDir = "a-le-v7"
         relativePathBuildLib = IOUtil.Join(relativePathBuildArm, newDir)
@@ -94,7 +94,7 @@ class GeneratorQNXmakefile(object):
             relativePathBuild = IOUtil.Join(relativePathBuildArm, newDir)
             buildPath = IOUtil.Join(buildArmPath, newDir)
         else:
-            raise InternalErrorException("Unknown package type: " % (package.Name));
+            raise InternalErrorException("Unknown package type: {0}".format(package.Name))
 
         if not config.DisableWrite:
             # create folder structure
@@ -121,11 +121,11 @@ class GeneratorQNXmakefile(object):
 
         #add "$(project_root)/" to local includes like "include", keep others as they are ("$(FSL_GRAPHICS_SDK)/a/b/")
         updatedIncludedirs = []
-        for dir in package.ResolvedBuildAllIncludeDirs:
-            if not os.path.dirname(dir):
-                updatedIncludedirs.append("$(project_root)/" + dir)
+        for includeDir in package.ResolvedBuildAllIncludeDirs:
+            if not os.path.dirname(includeDir):
+                updatedIncludedirs.append("$(project_root)/" + includeDir)
             else:
-                updatedIncludedirs.append(dir)
+                updatedIncludedirs.append(includeDir)
         includes = self.__FormatListToString("EXTRA_INCVPATH += ", updatedIncludedirs)
         content = content.replace("##EXTRA_INCVPATHS##", includes)
 
@@ -156,7 +156,7 @@ class GeneratorQNXmakefile(object):
         libDirs = self.__FormatListToString("EXTRA_LIBVPATH += ", libDirsList)
         content = content.replace("##EXTRA_LIBVPATHS##", libDirs)
 
-        sl = self.__GetStaticLibs(package);
+        sl = self.__GetStaticLibs(package)
         content = content.replace("##STATIC_LIBS##", sl)
 
         name = package.ShortName if package.Type == PackageType.Executable else package.Name
@@ -164,11 +164,11 @@ class GeneratorQNXmakefile(object):
         content = content.replace("##NAME##", name)
 
         # Local CPP defines
-        cppLocalDefines = Util.ExtractNames(package.ResolvedBuildAllPrivateCPPDefines)
-        cppLocalDefines += Util.ExtractNames(package.ResolvedBuildAllPublicCPPDefines)
-        cppLocalDefineNames = MakeFileHelper.CreateList(cppLocalDefines)
+        localDefines = Util.ExtractNames(package.ResolvedBuildAllPrivateDefines)
+        localDefines += Util.ExtractNames(package.ResolvedBuildAllPublicDefines)
+        localDefineNames = MakeFileHelper.CreateList(localDefines)
 
-        content = content.replace("##PACKAGE_CPP_FLAGS##", cppLocalDefineNames)
+        content = content.replace("##PACKAGE_DEFINES##", localDefineNames)
 
         #if package.Type == PackageType.Executable:
         #libraryDependencies = self.__GetLibraryDependencies(config, package)
@@ -182,64 +182,74 @@ class GeneratorQNXmakefile(object):
         if package.Type == PackageType.Executable:
             self.__GenerateBuildScript(config, package, self.BldTemplate, buildBasePath)
 
-    def __ExtractUniqueDirectoriesFromList(self, fileList):
-        dirList = []
+
+    def __ExtractUniqueDirectoriesFromList(self, fileList: List[str]) -> List[str]:
+        dirList = []  # type: List[str]
         if len(fileList) > 0:
             for entry in fileList:
-                dir = os.path.dirname(entry)
-                if dir not in dirList:
-                    dirList.append(dir)
+                dirName = os.path.dirname(entry)
+                if dirName not in dirList:
+                    dirList.append(dirName)
 
         return dirList
 
-    #returns one-line string with the list of dependency packages
-    def __GetStaticLibs(self, package):
+
+    def __GetStaticLibs(self, package: Package) -> str:
+        """ returns one-line string with the list of dependency packages """
         libs = ""
         buildOrder = list(package.ResolvedBuildOrder)
         #buildOrder.reverse() # GCC apparently needs the list to be in reverse order
         for entry in buildOrder:
             if entry.Type == PackageType.Library:
-                if entry.Name <> package.Name: #TODO FIXME HACK ??
+                if entry.Name != package.Name: #TODO FIXME HACK ??
                     libs = entry.Name + " " + libs
         return libs
 
-    #return list of unique directories for dependencies. folders are SDK-root based
-    def __GetStaticLibsPaths(self, config, package, relativePathBuildLib):
-        libDirs = []
+
+    def __GetStaticLibsPaths(self, config: Config, package: Package, relativePathBuildLib: str) -> List[str]:
+        """ return list of unique directories for dependencies. folders are SDK-root based """
+        libDirs = []  # type: List[str]
         for entry in package.ResolvedBuildOrder:
             if entry.Type == PackageType.Library:
-                if entry.AbsolutePath <> package.AbsolutePath: #skip package own directory
+                if entry.AbsolutePath != package.AbsolutePath and entry.AbsolutePath is not None: #skip package own directory
                     # FIX: for proper variant support use "package.ResolvedMakeObjectPath" instead of the line below
-                    fullPath =  IOUtil.Join(entry.AbsolutePath, relativePathBuildLib)
+                    fullPath = IOUtil.Join(entry.AbsolutePath, relativePathBuildLib)
                     fullPathSDK = config.ToPath(fullPath) # convert to SDK-based path
                     if fullPathSDK not in libDirs: #append only unique paths
                         libDirs.append(fullPathSDK)
         return libDirs
 
-    def __FormatListToString(self, linePrefix, incList):
+
+    def __FormatListToString(self, linePrefix: str, incList: List[str]) -> str:
         listStr = ""
         if len(incList) > 0:
             for inc in incList:
                 listStr = listStr + linePrefix + inc + "\n"
         return listStr
 
-    def __GenerateBuildScript(self, config, package, template, buildBasePath):
-        str = ""
+
+    def __GenerateBuildScript(self, config: Config, package: Package, template: str, buildBasePath: str) -> None:
+        if package.AbsolutePath is None or package.ResolvedBuildPath is None:
+            raise Exception("Invalid package")
+
+        strContent = ""
         for depPackage in package.ResolvedBuildOrder:
             if not depPackage.IsVirtual:
+                if depPackage.AbsolutePath is None or depPackage.ResolvedBuildPath is None:
+                    raise Exception("Invalid package")
                 path = IOUtil.Join(depPackage.AbsolutePath, depPackage.ResolvedBuildPath)
                 path = config.ToBashPath(path)
-                str += "pushd " + path + " > /dev/null\n"
-                str += 'make "$@"\n'
-                str += "popd > /dev/null\n"
+                strContent += "pushd " + path + " > /dev/null\n"
+                strContent += 'make "$@"\n'
+                strContent += "popd > /dev/null\n"
         path = IOUtil.Join(package.AbsolutePath, package.ResolvedBuildPath)
         path = config.ToBashPath(path)
-        str += 'pushd '+ path +' > /dev/null\n'
-        str += 'make "$@"\n'
-        str += "popd > /dev/null\n"
+        strContent += 'pushd '+ path +' > /dev/null\n'
+        strContent += 'make "$@"\n'
+        strContent += "popd > /dev/null\n"
 
         build = template
-        build = build.replace("##PACKAGE_BUILD_COMMANDS##", str)
+        build = build.replace("##PACKAGE_BUILD_COMMANDS##", strContent)
 
 
         # This file has been superseded by the 'FslBuild.py' script
@@ -251,22 +261,14 @@ class GeneratorQNXmakefile(object):
             IOUtil.WriteFileIfChanged(dstFile, build)
             IOUtil.SetFileExecutable(dstFile)
 
-    def __GetExternalLibraryDependencies(self, package):
-        libsAndPaths = []
+    def __GetExternalLibraryDependencies(self, package: Package) -> List[Tuple[str, str]]:
+        libsAndPaths = []  # type: List[Tuple[str, str]]
         buildOrder = list(package.ResolvedBuildOrder)
         for entry in buildOrder:
             depList = Util.FilterByType(entry.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib)
             for dep in depList:
                 libName = dep.Name
                 libPath = dep.Location
-                libsAndPaths.append([libName, libPath])
+                libsAndPaths.append((libName, libPath))
 
         return libsAndPaths
-
-
-    def __ExtractInclude(self, entries):
-        list = []
-        for entry in entries:
-            if entry.Include != None:
-                list.append(entry.Include)
-        return list

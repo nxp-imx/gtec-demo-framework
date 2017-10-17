@@ -33,9 +33,9 @@
 
 #include "MeshRender.hpp"
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics_Draft/Procedural/BasicMesh.hpp>
-#include <FslGraphicsGLES2/GLVertexBuffer.hpp>
-#include <FslGraphicsGLES2/GLIndexBuffer.hpp>
+#include <FslGraphics3D/Procedural/BasicMesh.hpp>
+#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES2/GLIndexBuffer.hpp>
 
 namespace Fsl
 {

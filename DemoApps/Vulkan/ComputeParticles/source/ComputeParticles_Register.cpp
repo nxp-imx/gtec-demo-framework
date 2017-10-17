@@ -29,10 +29,19 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/Setup/RegisterDemoApp.hpp>
-#include <VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <VulkanWindowExperimental/OptionParser.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
 #include "ComputeParticles.hpp"
+#include "OptionParserEx.hpp"
 
 // Configure the demo environment to run this demo app in a Window host environment
-FSL_REGISTER_WINDOW_DEMO_EX(ComputeParticles, DemoAppHostConfigWindow(AllocateVulkanWindowSystem), OptionParser);
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a Window host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem);
+
+    DemoAppRegister::Window::Register<ComputeParticles, OptionParserEx>(rSetup, "Vulkan.ComputeParticles", config);
+  }
+}

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,41 +31,57 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Dict
+from typing import List
+from typing import Tuple
 import itertools
-from FslBuildGen.DataTypes import *
+from FslBuildGen.DataTypes import VariantType
+from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Packages.Package import PackagePlatformVariant
 
 class VariantHelper(object):
-    def __init__(self, package):
+    def __init__(self, package: Package) -> None:
         self.Package = package
-        allVariants = package.ResolvedAllVariantDict.values()
+        allVariants = list(package.ResolvedAllVariantDict.values())
         self.VariantTypeDict = self.__FilterVariants(allVariants)
+
 
         if VariantType.Normal in self.VariantTypeDict:
             self.NormalVariants = self.VariantTypeDict[VariantType.Normal]
             # We sort this to enforce a normalized 'ordering' of the variants
             self.NormalVariants.sort(key=lambda s: s.Name.lower())
             # build a list like this [ variant0-option-list, variant1-option-list ]
-            optionsPerVariantList = []
+            optionsPerVariantList = []  # type: List[List[str]]
             for variant in self.NormalVariants:
-                variantOptionList = []
+                variantOptionList = []  # type: List[str]
                 for option in variant.Options:
                     variantOptionList.append(option.Name)
                 optionsPerVariantList.append(variantOptionList)
             #Cartesian product of all possible configurations (yes variants are dangerous)
-            self.CartesianProduct = list(itertools.product(*optionsPerVariantList))
+            self.CartesianProduct = list(itertools.product(*optionsPerVariantList))  # type: List[Tuple[str, ...]]
             #self.CartesianProduct = self.__SortCartesianProduct(cartesianProduct)
         else:
             self.CartesianProduct = []
             self.NormalVariants = []
 
+        # The normal variant format string each variant is inserted as a ${VARIANT_NAME} in the string
+        self.ResolvedNormalVariantNameHint = self.__GetNormalVariantsVariableFormatString()  # type: str
 
-    def __FilterVariants(self, variants):
-        dict = {}
+
+    def __GetNormalVariantsVariableFormatString(self) -> str:
+        variantVariableNameList = []
+        for variantName in self.NormalVariants:
+            variantVariableNameList.append("${{{0}}}".format(variantName))
+        return "".join(variantVariableNameList)
+
+
+    def __FilterVariants(self, variants: List[PackagePlatformVariant]) -> Dict[int, List[PackagePlatformVariant]]:
+        resDict = {}  # type: Dict[int, List[PackagePlatformVariant]]
         for entry in variants:
-            if not entry.Type in dict:
-                dict[entry.Type] = []
-            dict[entry.Type].append(entry)
-        return dict
+            if not entry.Type in resDict:
+                resDict[entry.Type] = []
+            resDict[entry.Type].append(entry)
+        return resDict
 
     #def __SortCartesianProduct(self, cartesianProduct):
 

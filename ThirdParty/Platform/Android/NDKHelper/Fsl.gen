@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Platform.Android.NDKHelper">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Android" Supported="true">
+      <ExternalDependency Name="ndk_helper" Type="StaticLib"/>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

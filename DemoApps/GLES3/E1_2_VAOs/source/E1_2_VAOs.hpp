@@ -6,9 +6,9 @@
 * Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
 */
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLTexture.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
 
 namespace Fsl
 {

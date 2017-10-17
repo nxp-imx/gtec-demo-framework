@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalSingletonServiceFactoryBase.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsService.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsServiceOptionParser.hpp>
 

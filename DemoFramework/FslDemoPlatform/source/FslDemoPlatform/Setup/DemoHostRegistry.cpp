@@ -31,7 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
-#include <FslDemoApp/Host/DemoHostFeature.hpp>
+#include <FslDemoApp/Base/Host/DemoHostFeature.hpp>
 #include <algorithm>
 #include <sstream>
 

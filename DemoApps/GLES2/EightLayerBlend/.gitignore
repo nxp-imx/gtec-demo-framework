@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+EightLayerBlend
 EightLayerBlend_FB
+EightLayerBlend_FB_d
 EightLayerBlend_Wayland
+EightLayerBlend_Wayland_d
 EightLayerBlend_X11
+EightLayerBlend_X11_d
+EightLayerBlend_d
 FslSDKIcon.ico
+GLES2.EightLayerBlend
 GLES2.EightLayerBlend.VC.VC.opendb
 GLES2.EightLayerBlend.VC.db
 GLES2.EightLayerBlend.aps
@@ -21,6 +27,9 @@ GLES2.EightLayerBlend.v12.suo
 GLES2.EightLayerBlend.vcxproj
 GLES2.EightLayerBlend.vcxproj.filters
 GLES2.EightLayerBlend.vcxproj.user
+GLES2.EightLayerBlend_FB
+GLES2.EightLayerBlend_Wayland
+GLES2.EightLayerBlend_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

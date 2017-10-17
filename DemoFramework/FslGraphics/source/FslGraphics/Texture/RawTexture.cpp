@@ -37,6 +37,16 @@
 
 namespace Fsl
 {
+  namespace
+  {
+    constexpr Extent3D DoGetExtent(const Extent3D& maxExtent, const std::size_t level)
+    {
+      return level == 0 ? maxExtent : Extent3D(maxExtent.Width >> level, maxExtent.Height >> level, maxExtent.Depth >> level);
+    }
+  }
+
+
+
   RawTexture::RawTexture()
     : m_textureType(TextureType::Undefined)
     , m_pContent(nullptr)
@@ -94,6 +104,18 @@ namespace Fsl
 #endif
   }
 
+
+  std::size_t RawTexture::GetStride(const std::size_t level) const
+  {
+    if (!IsValid())
+      throw UsageErrorException("GetTextureBlob called on invalid object");
+    if (level >= m_textureInfo.Levels)
+      throw std::invalid_argument("argument out of bounds");
+
+    const auto extent = DoGetExtent(m_extent, level);
+    return PixelFormatUtil::CalcMinimumStride(extent.Width, m_pixelFormat);
+  }
+
   Extent3D RawTexture::GetExtent(const std::size_t level) const
   {
     if (!IsValid())
@@ -101,7 +123,7 @@ namespace Fsl
     if (level >= m_textureInfo.Levels)
       throw std::invalid_argument("argument out of bounds");
 
-    return level == 0 ? m_extent : Extent3D(m_extent.Width >> level, m_extent.Height >> level, m_extent.Depth >> level);
+    return DoGetExtent(m_extent, level);
   }
 
 

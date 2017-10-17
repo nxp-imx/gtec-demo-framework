@@ -13,10 +13,9 @@
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
-#include <FslGraphicsVulkan1_0/Buffer.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
 #include <vector>
 #include <glm/glm.hpp>
 

@@ -4,7 +4,10 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+EightLayers
+EightLayers_d
 FslSDKIcon.ico
+G2D.EightLayers
 G2D.EightLayers.VC.VC.opendb
 G2D.EightLayers.VC.db
 G2D.EightLayers.aps

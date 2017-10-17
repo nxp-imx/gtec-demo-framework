@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,48 +31,67 @@
 #
 #****************************************************************************************************************************************************
 
-import os
-import sys
-from FslBuildGen import IOUtil, PlatformUtil, Util
-from FslBuildGen.DataTypes import *
+from typing import Dict
+from typing import Optional
+import datetime
+from FslBuildGen import IOUtil
+from FslBuildGen import PlatformUtil
+from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.DataTypes import BuildPlatformType
+from FslBuildGen.DataTypes import SubPackageSupport
+from FslBuildGen.Log import Log
+from FslBuildGen.SharedGeneration import ToolEnvironmentVariableName
+from FslBuildGen.ToolConfig import ToolConfig
 
+class BaseConfig(BasicConfig):
+    def __init__(self, log: Log, toolConfig: ToolConfig) -> None:
+        super(BaseConfig, self).__init__(log)
 
-class Config(object):
-    def __init__(self, toolConfig, verbosity, type, variantsDict, allowDevelopmentPlugins):
-        super(Config, self).__init__()
-        self.Verbosity = verbosity
-        self.IsVerbose = verbosity > 0
-        sdkPath = IOUtil.GetEnvironmentVariableForDirectory('FSL_GRAPHICS_SDK')
-        sdkPathAndroidProjectDir = IOUtil.GetEnvironmentVariableForAbsolutePath('FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR')
+        if toolConfig is None:
+            raise Exception("Missing param")
 
-        if toolConfig == None:
-            raise Exception("Missing param");
+        sdkPath = IOUtil.GetEnvironmentVariableForDirectory(ToolEnvironmentVariableName.FSL_GRAPHICS_SDK)  # type: str
+        sdkPathAndroidProjectDir = IOUtil.GetEnvironmentVariableForAbsolutePath(ToolEnvironmentVariableName.FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR)  # type: str
+        dateNow = datetime.datetime.now()
+        self.CurrentYearString = "{0}".format(dateNow.year)  # type: str
 
-        self.IsTestMode = False
-        self.Type = type;
-        self.ToolConfig = toolConfig
-        self.SDKPath = sdkPath
-        self.SDKPathAndroidProjectDir = sdkPathAndroidProjectDir
-        #self.SDKConfigPath = IOUtil.Join(sdkPath, ".Config")
+        self.SDKPath = sdkPath  # type: str
+        self.SDKPathAndroidProjectDir = sdkPathAndroidProjectDir  # type: str
         self.SDKConfigTemplatePath = toolConfig.TemplateFolder.ResolvedPath
         self.TemplateImportDirectories = toolConfig.TemplateImportDirectories
-        self.IsQuery = True if type == 'query' else False
-        self.IsSDKBuild = True if type == 'sdk' or self.IsQuery else False
+        self.ToolConfig = toolConfig  # type: ToolConfig
+
+        if not IOUtil.IsDirectory(self.SDKConfigTemplatePath):
+            raise EnvironmentError("Config template path '{0}' does not point to a directory".format(self.SDKConfigTemplatePath))
+
+
+class Config(BaseConfig):
+    def __init__(self, log: Log,
+                 toolConfig: ToolConfig, srcType: str,
+                 variantsDict: Optional[Dict[str, str]], allowDevelopmentPlugins: bool) -> None:
+        super(Config, self).__init__(log, toolConfig)
+
+
+        self.IsTestMode = False
+        self.Type = srcType
+        #self.SDKConfigPath = IOUtil.Join(sdkPath, ".Config")
+        self.IsQuery = True if srcType == 'query' else False  # type: bool
+        self.IsSDKBuild = True if srcType == 'sdk' or self.IsQuery else False  # type: bool
         self.TestPath = toolConfig.UnitTestPath
         self.DisableWrite = self.IsQuery
-        self.DisableQueryWrite = False
+        self.DisableQueryWrite = False  # type: bool
         self.SubPackageSupport = SubPackageSupport.Enabled #SubPackageSupport.ExecutableOnly if toolConfig.DefaultPackageLanguage != PackageLanguage.CSharp else SubPackageSupport.Enabled
-        self.GroupException = True
+        self.GroupException = True  # type: bool
         # Variant extension is getting closer to working, so lets enable it
-        self.AllowVariantExtension = True
+        self.AllowVariantExtension = True  # type: bool
         self.GenFileName = toolConfig.GenFileName
 
         self.AllowDevelopmentPlugins = allowDevelopmentPlugins
 
-        self.DisableIncludeDirCheck = False
-        self.DisableSourceDirCheck = False
-        self.IgnoreNotSupported = False
-        self.IsDryRun = False
+        self.DisableIncludeDirCheck = False  # type: bool
+        self.DisableSourceDirCheck = False  # type: bool
+        self.IgnoreNotSupported = False  # type: bool
+        self.IsDryRun = False  # type: bool
         self.VariantsDict = variantsDict if variantsDict else {}
 
         if self.IsQuery:
@@ -80,66 +99,84 @@ class Config(object):
 
         #if not os.path.isdir(self.SDKConfigPath):
         #    raise EnvironmentError("Config path '%s' does not point to a directory" % (self.SDKConfigPath))
-        if not os.path.isdir(self.SDKConfigTemplatePath):
-            raise EnvironmentError("Config template path '%s' does not point to a directory" % (self.SDKConfigTemplatePath))
 
         buildPlatformType = PlatformUtil.DetectBuildPlatformType()
         if buildPlatformType == BuildPlatformType.Windows:
+            self.__ResolvedLegacyToCurrentOSPathMethod = self.TryLegacyToDosPath
+            self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod = self.TryLegacyToDosPathDirectConversion
             self.__ResolvedToCurrentOSPathMethod = self.ToDosPath
             self.__ResolvedToCurrentOSPathDirectConversionMethod = self.ToDosPathDirectConversion
         else:
+            self.__ResolvedLegacyToCurrentOSPathMethod = self.TryLegacyToBashPath
+            self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod = self.TryLegacyToBashPathDirectConversion
             self.__ResolvedToCurrentOSPathMethod = self.ToBashPath
             self.__ResolvedToCurrentOSPathDirectConversionMethod = self.ToBashPathDirectConversion
 
 
-    def ForceDisableAllWrite(self):
+    def ForceDisableAllWrite(self) -> None:
         self.DisableWrite = True
         self.DisableQueryWrite = True
         self.IsDryRun = True
 
-    def ToPath(self, path):
+
+    def TryLegacyToPath(self, path: Optional[str]) -> Optional[str]:
+        return self.ToolConfig.TryLegacyToPath(path)
+
+    def ToPath(self, path: str) -> str:
         return self.ToolConfig.ToPath(path)
 
-    def ToBashPath(self, path):
+
+    def TryLegacyToBashPath(self, path: Optional[str]) -> Optional[str]:
+        return self.ToolConfig.TryLegacyToBashPath(path)
+
+
+    def ToBashPath(self, path: str) -> str:
         return self.ToolConfig.ToBashPath(path)
 
-    def ToBashPathDirectConversion(self, path):
+
+    def TryLegacyToBashPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
+        return self.ToolConfig.TryLegacyToBashPathDirectConversion(path)
+
+
+    def ToBashPathDirectConversion(self, path: str) -> str:
         return self.ToolConfig.ToBashPathDirectConversion(path)
 
-    def ToDosPath(self, path):
+
+    def TryLegacyToDosPath(self, path: Optional[str]) -> Optional[str]:
+        return self.ToolConfig.TryLegacyToDosPath(path)
+
+
+    def ToDosPath(self, path: str) -> str:
         return self.ToolConfig.ToDosPath(path)
 
-    def ToDosPathDirectConversion(self, path):
+
+    def TryLegacyToDosPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
+        return self.ToolConfig.TryLegacyToDosPathDirectConversion(path)
+
+
+    def ToDosPathDirectConversion(self, path: str) -> str:
         return self.ToolConfig.ToDosPathDirectConversion(path)
 
-    def ToCurrentOSPath(self, path):
-        """ Resolve the path to how it would look on the current OS """
-        return self.__ResolvedToCurrentOSPathMethod(path)
 
-    def ToCurrentOSPathDirectConversion(self, path):
+    def TryLegacyToCurrentOSPath(self, path: Optional[str]) -> Optional[str]:
+        """ Resolve the path to how it would look on the current OS """
+        return self.__ResolvedLegacyToCurrentOSPathMethod(path)
+
+
+    def ToCurrentOSPathDirectConversion(self, path: str) -> str:
         """ Resolve the path to how it would look on the current OS """
         return self.__ResolvedToCurrentOSPathDirectConversionMethod(path)
 
-    def SetTestMode(self):
+    def TryToCurrentOSPathDirectConversion(self, path: Optional[str]) -> Optional[str]:
+        """ Resolve the path to how it would look on the current OS """
+        return self.__ResolvedLegacyToCurrentOSPathDirectConversionMethod(path)
+
+
+    def SetTestMode(self) -> None:
         self.IsTestMode = True
         self.DisableIncludeDirCheck = True
         self.DisableSourceDirCheck = True
 
-    def GetBuildDir(self):
+
+    def GetBuildDir(self) -> str:
         return "build"
-
-    def GetTemplateCopyPath(self, platform):
-        return IOUtil.Join(self.SDKConfigTemplatePath, "%s/Copy" % (platform));
-
-    def GetTemplateModifyPath(self, platform):
-        return IOUtil.Join(self.SDKConfigTemplatePath, "%s/Modify" % (platform));
-
-    def LogPrint(self, str):
-        if self.IsVerbose:
-            print(str)
-            sys.stdout.flush()
-
-    def DoPrint(self, str):
-        print(str)
-        sys.stdout.flush()
-

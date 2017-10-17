@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES3.S02_ColoredTriangle
 GLES3.S02_ColoredTriangle.VC.VC.opendb
 GLES3.S02_ColoredTriangle.VC.db
 GLES3.S02_ColoredTriangle.aps
@@ -18,10 +19,18 @@ GLES3.S02_ColoredTriangle.v12.suo
 GLES3.S02_ColoredTriangle.vcxproj
 GLES3.S02_ColoredTriangle.vcxproj.filters
 GLES3.S02_ColoredTriangle.vcxproj.user
+GLES3.S02_ColoredTriangle_FB
+GLES3.S02_ColoredTriangle_Wayland
+GLES3.S02_ColoredTriangle_X11
 GNUmakefile
 GNUmakefile_Yocto
+S02_ColoredTriangle
 S02_ColoredTriangle_FB
+S02_ColoredTriangle_FB_d
 S02_ColoredTriangle_Wayland
+S02_ColoredTriangle_Wayland_d
 S02_ColoredTriangle_X11
+S02_ColoredTriangle_X11_d
+S02_ColoredTriangle_d
 build/
 resource.h

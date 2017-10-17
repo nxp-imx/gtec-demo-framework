@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES2.S01_SimpleTriangle
 GLES2.S01_SimpleTriangle.VC.VC.opendb
 GLES2.S01_SimpleTriangle.VC.db
 GLES2.S01_SimpleTriangle.aps
@@ -18,10 +19,18 @@ GLES2.S01_SimpleTriangle.v12.suo
 GLES2.S01_SimpleTriangle.vcxproj
 GLES2.S01_SimpleTriangle.vcxproj.filters
 GLES2.S01_SimpleTriangle.vcxproj.user
+GLES2.S01_SimpleTriangle_FB
+GLES2.S01_SimpleTriangle_Wayland
+GLES2.S01_SimpleTriangle_X11
 GNUmakefile
 GNUmakefile_Yocto
+S01_SimpleTriangle
 S01_SimpleTriangle_FB
+S01_SimpleTriangle_FB_d
 S01_SimpleTriangle_Wayland
+S01_SimpleTriangle_Wayland_d
 S01_SimpleTriangle_X11
+S01_SimpleTriangle_X11_d
+S01_SimpleTriangle_d
 build/
 resource.h

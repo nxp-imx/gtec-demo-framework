@@ -28,18 +28,16 @@
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslDemoHostWindow/Service/WindowHost/IWindowHostInfo.hpp>
-#include <FslNativeWindowVulkan/IVulkanNativeWindow.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
-#include <VulkanExperimental/VulkanUtil.hpp>
-#include <VulkanWindowExperimental/VulkanWindowSystem.hpp>
-#include <VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
+#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
 #include "VulkanTriangle.hpp"
-#include <VulkanWindowExperimental/OptionParser.hpp>
+#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
 #include <vulkan/vulkan.h>
 #include <array>
 #include <cstring>
@@ -82,7 +80,16 @@ namespace Fsl
 
   VulkanTriangle::~VulkanTriangle()
   {
-    FSLLOG("VulkanTriangle app destroying");
+    try
+    {
+      // Wait for everything to be idle before we try to free it
+      FSLLOG("VulkanTriangle app destroying");
+    }
+    catch (const std::exception& ex)
+    {
+      // We log and swallow it since destructors are not allowed to throw
+      FSLLOG_ERROR("Exception during destruction: " << ex.what());
+    }
   }
 
 
@@ -180,14 +187,14 @@ namespace Fsl
     VkMemoryRequirements memoryRequirements = m_vertexBuffer.GetBufferMemoryRequirements();
 
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
-    const auto memoryTypeIndex = MemoryTypeHelper::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    const auto memoryTypeIndex = MemoryTypeUtil::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
     m_deviceMemoryVertexBuffer.Reset(m_device.Get(), memoryRequirements.size, memoryTypeIndex);
 
     void* mappedData;
 
     // TODO: (Improvement) Use a scoped map memory command since it would be exception safe
-    FSLGRAPHICSVULKAN_CHECK(vkMapMemory(m_deviceMemoryVertexBuffer.GetDevice(), m_deviceMemoryVertexBuffer.Get(), 0, sizeof(vertices), 0, &mappedData));
+    RAPIDVULKAN_CHECK(vkMapMemory(m_deviceMemoryVertexBuffer.GetDevice(), m_deviceMemoryVertexBuffer.Get(), 0, sizeof(vertices), 0, &mappedData));
     {
       std::memcpy(mappedData, vertices, sizeof(vertices));
 
@@ -199,12 +206,12 @@ namespace Fsl
         mappedMemoryRange.offset = 0;
         mappedMemoryRange.size = sizeof(vertices);
 
-        FSLGRAPHICSVULKAN_CHECK(vkFlushMappedMemoryRanges(m_deviceMemoryVertexBuffer.GetDevice(), 1, &mappedMemoryRange));
+        RAPIDVULKAN_CHECK(vkFlushMappedMemoryRanges(m_deviceMemoryVertexBuffer.GetDevice(), 1, &mappedMemoryRange));
       }
     }
     vkUnmapMemory(m_deviceMemoryVertexBuffer.GetDevice(), m_deviceMemoryVertexBuffer.Get());
 
-    FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_vertexBuffer.Get(), m_deviceMemoryVertexBuffer.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_vertexBuffer.Get(), m_deviceMemoryVertexBuffer.Get(), 0));
   }
 
 
@@ -226,7 +233,9 @@ namespace Fsl
 
   void VulkanTriangle::BuildResources()
   {
-    m_swapchain = VulkanUtil::CreateSwapchain(m_physicalDevice.Device, m_device.Get(), 0, m_surface, VKTS_NUMBER_BUFFERS, 1, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get());
+    m_swapchain = SwapchainKHRUtil::CreateSwapchain(m_physicalDevice.Device, m_device.Get(), 0, m_surface, VKTS_NUMBER_BUFFERS, 1,
+                                                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr,
+                                                    VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get());
 
     uint32_t swapchainImagesCount = m_swapchain.GetImageCount();
     if (swapchainImagesCount == 0)

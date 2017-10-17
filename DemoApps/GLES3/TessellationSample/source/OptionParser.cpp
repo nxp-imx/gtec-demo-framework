@@ -93,7 +93,7 @@ namespace Fsl
 
   OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char*const pszOptArg)
   {
-    float floatArrayValuesMax4[4];
+    float floatArrayValuesMax4[4]{};
     float floatValue;
     int intValue;
 
@@ -121,7 +121,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     case CommandId::MatSpecular:
     {
-      auto res = StringParseUtil::ParseArray(floatArrayValuesMax4, sizeof(floatArrayValuesMax4), pszOptArg);
+      auto res = StringParseUtil::ParseArray(floatArrayValuesMax4, sizeof(floatArrayValuesMax4) / sizeof(float), pszOptArg);
       if ( res.ArrayEntries != 3 )
         return OptionParseResult::Failed;
       m_matSpecular = Vector3(floatArrayValuesMax4[0], floatArrayValuesMax4[1], floatArrayValuesMax4[2]);

@@ -13,8 +13,8 @@
 */
 
 #include <FslBase/Math/Matrix.hpp>
-#include <FslDemoAppGLES2/DemoAppGLES2.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
+#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
 
 namespace Fsl
 {

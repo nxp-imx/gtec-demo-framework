@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppVG/DemoAppVG.hpp>
+#include <FslDemoApp/OpenVG/DemoAppVG.hpp>
 #include "VG/openvg.h"
 #include "VG/vgu.h"
 

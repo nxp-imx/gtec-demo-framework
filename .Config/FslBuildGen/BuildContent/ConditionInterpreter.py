@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,8 +31,11 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Any
+from typing import List
 import ast
 import copy
+#import sys
 
 # We use the python AST to do a safe condition evaluation
 # Example
@@ -51,34 +54,34 @@ import copy
 #          Load
 
 class LocalNodeVisitor(ast.NodeVisitor):
-    def __init__(self, contentProcessorName, source):
+    def __init__(self, contentProcessorName: str, source: str) -> None:
         self.ContentProcessorName = contentProcessorName
         self.Source = source
-        self.Indent  = 0
+        self.Indent = 0
 
-    def CheckNodeType(self, node):
-        if not (type(node) is ast.Expression or 
-                type(node) is ast.BoolOp or 
-                type(node) is ast.UnaryOp or 
-                type(node) is ast.Not or
-                type(node) is ast.Or or 
-                type(node) is ast.And or 
-                type(node) is ast.Name or
-                type(node) is ast.Load):
+    def CheckNodeType(self, node: Any) -> None:
+        if not (isinstance(node, ast.Expression) or
+                isinstance(node, ast.BoolOp) or
+                isinstance(node, ast.UnaryOp) or
+                isinstance(node, ast.Not) or
+                isinstance(node, ast.Or) or
+                isinstance(node, ast.And) or
+                isinstance(node, ast.Name) or
+                isinstance(node, ast.Load)):
             if hasattr(node, 'col_offset'):
                 if hasattr(node, 'id'):
-                    raise Exception("FeatureRequirements contain unsupported node type '%s' at '%s (x:%s)' in content builder '%s' feature requirement: '%s'" % (type(node).__name__, node.id, node.col_offset, self.ContentProcessorName, self.Source));
+                    raise Exception("FeatureRequirements contain unsupported node type '{0}' at '{1} (x:{2})' in content builder '{3}' feature requirement: '{4}'".format(type(node).__name__, node.id, node.col_offset, self.ContentProcessorName, self.Source))
                 else:
-                    raise Exception("FeatureRequirements contain unsupported node type '%s' at (x:%s) in content builder '%s' feature requirement: '%s'" % (type(node).__name__, node.col_offset, self.ContentProcessorName, self.Source));
+                    raise Exception("FeatureRequirements contain unsupported node type '%s' at (x:%s) in content builder '%s' feature requirement: '%s'" % (type(node).__name__, node.col_offset, self.ContentProcessorName, self.Source))
             else:
-                raise Exception("FeatureRequirements contain unsupported node type '%s' in content builder '%s' feature requirement: '%s'" % (type(node).__name__, self.ContentProcessorName, self.Source));
+                raise Exception("FeatureRequirements contain unsupported node type '%s' in content builder '%s' feature requirement: '%s'" % (type(node).__name__, self.ContentProcessorName, self.Source))
 
 
 class ConditionNodeVisitor(LocalNodeVisitor):
-    def __init__(self, contentProcessorName, source):
+    def __init__(self, contentProcessorName: str, source: str) -> None:
         super(ConditionNodeVisitor, self).__init__(contentProcessorName, source)
 
-    def generic_visit(self, node):
+    def generic_visit(self, node: Any) -> None:
         self.CheckNodeType(node)
         #print(" "* (self.Indent*2) + type(node).__name__)
         self.Indent = self.Indent + 1
@@ -87,16 +90,22 @@ class ConditionNodeVisitor(LocalNodeVisitor):
 
 
 class ConditionInterpreterNodeTransformer(ast.NodeTransformer):
-    def __init__(self, featureIds):
+    def __init__(self, featureIds: List[str]) -> None:
         self.__FeatureIds = featureIds
 
-    def visit_Name(self, node):
-        featureInList = node.id.lower() in self.__FeatureIds
-        return ast.copy_location(ast.Num(featureInList), node)
+    def visit_Name(self, node: Any) -> Any:
+        featureInList = node.id.lower() in self.__FeatureIds # type: bool
+        # workaround the issue that ast.Num no longer accepts a bool in python3 and
+        # ast.Constant is python 3.6+
+        val = ast.Num(1 if featureInList else 0)
+#        if sys.version_info < (3, 6):
+ #       else:
+ #           val = ast.Constant(featureInList)
+        return ast.copy_location(val, node)
 
 
 class ConditionInterpreter(object):
-    def __init__(self, contentProcessorName, featureRequirements):
+    def __init__(self, contentProcessorName: str, featureRequirements: str) -> None:
         self.__ContentProcessorName = contentProcessorName
         self.__FeatureRequirements = featureRequirements
 
@@ -106,17 +115,17 @@ class ConditionInterpreter(object):
         nodeVisitor.visit(astRootNode)
         self.__RootNode = astRootNode
 
-    def __Parse(self, featureRequirements):
+    def __Parse(self, featureRequirements: str) -> ast.Module:
         try:
             return ast.parse(featureRequirements, mode='eval')
         except SyntaxError as ex:
-            raise Exception("FeatureRequirements %s in ContentBuilder '%s' at 'x:%s' in '%s' " % (ex.msg, self.__ContentProcessorName, ex.offset, ex.text.strip()));
+            raise Exception("FeatureRequirements {0} in ContentBuilder '{1}' at 'x:{2}' in '{3}' ".format(ex.msg, self.__ContentProcessorName, ex.offset, str(ex.text).strip()))
 
-    def CheckFeatureRequirements(self, featuresIds):
+    def CheckFeatureRequirements(self, featuresIds: List[str]) -> bool:
         astRootNode = copy.deepcopy(self.__RootNode)
         nodeTransformer = ConditionInterpreterNodeTransformer(featuresIds)
         nodeTransformer.visit(astRootNode)
         fixed = ast.fix_missing_locations(astRootNode)
         codeobj = compile(astRootNode, '<string>', mode='eval')
         # this should be safe as the root ast tree object has been verified to only contain things we expect
-        return eval(codeobj)
+        return eval(codeobj) is True

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.freescale.##PREFIXED_PROJECT_NAME_L##.##PACKAGE_TARGET_NAME##"
         minSdkVersion ##FSL_PACKAGE_MIN_ANDROID_SDK_VERSION##

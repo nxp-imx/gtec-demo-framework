@@ -13,11 +13,11 @@
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
 #include <memory>
 #include "VulkanGear.hpp"
 
@@ -34,15 +34,15 @@ namespace Fsl
 
     struct Pipelines
     {
-      Vulkan::GraphicsPipeline Solid;
+      RapidVulkan::GraphicsPipeline Solid;
     };
 
     std::vector<std::unique_ptr<VulkanGear> > m_gears;
     Vertices m_vertices;
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
     Pipelines m_pipelines;
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
 
   public:
     Gears(const DemoAppConfig& config);

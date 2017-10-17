@@ -2,21 +2,21 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- This is the generic OpenCL library, no version promises are made -->
   <ExternalLibrary Name="OpenCL">
-    <UsesFeature Name="OpenCL"/>
-    <UsesFeature Name="EarlyAccess"/>
-    <CPPDefine Name="FSL_FEATURE_OPENCL" Access="Public"/> 
-    <Platform Name="Android" NotSupported="true"/>
-    <Platform Name="QNX" NotSupported="true"/>
-    <Platform Name="Ubuntu">
-      <ExternalDependency Name="OpenCL" Include="$(AMDAPPSDKROOT)/include" Access="Public" Location="$(AMDAPPSDKROOT)/lib/x86_64" Type="StaticLib"/>
+    <Default.Platform.Supported Value="false"/>
+
+    <Requirement Name="OpenCL" Type="feature" Version="1"/>
+    <Requirement Name="EarlyAccess" Type="feature"/>
+    <Define Name="FSL_FEATURE_OPENCL" Access="Public"/> 
+    <Platform Name="Ubuntu" Supported="true">
+      <Dependency Name="Recipe.AmdAppSDK_2_9"/>
     </Platform>
-    <Platform Name="Yocto">
+    <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="OpenCL" Access="Public" Type="StaticLib"/>
     </Platform>    
-    <Platform Name="Windows">
-      <ExternalDependency Name="openCL.lib" Include="$(AMDAPPSDKROOT)/include" Access="Public" Location="$(AMDAPPSDKROOT)/lib/x86_64" Type="StaticLib"/>
+    <Platform Name="Windows" Supported="true">
+      <Dependency Name="Recipe.AmdAppSDK_3_0"/>
     </Platform>    
-    <Platform Name="CMake">
+    <Platform Name="CMake" Supported="true">
       <ExternalDependency Name="OpenCL" Type="Find"/>
     </Platform>    
   </ExternalLibrary>

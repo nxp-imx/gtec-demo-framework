@@ -12,8 +12,8 @@
  *
  */
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
 
 namespace Fsl
 {

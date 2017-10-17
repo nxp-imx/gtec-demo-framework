@@ -371,9 +371,13 @@ namespace Fsl
     {
       for (uint32_t x = 0; x < srcWidthM3; x += 3)
       {
-        pDst[x + 0] = pSrc[x + 2];
-        pDst[x + 1] = pSrc[x + 1];
-        pDst[x + 2] = pSrc[x + 0];
+        const auto c0 = pSrc[x + 2];
+        const auto c1 = pSrc[x + 1];
+        const auto c2 = pSrc[x + 0];
+
+        pDst[x + 0] = c0;
+        pDst[x + 1] = c1;
+        pDst[x + 2] = c2;
       }
       pSrc += srcStride;
       pDst += dstStride;
@@ -418,9 +422,12 @@ namespace Fsl
     {
       for (uint32_t x = 0; x < srcWidth; ++x)
       {
-        pDst[(x * 3) + 0] = pSrc[(x * 3) + srcIdx0];
-        pDst[(x * 3) + 1] = pSrc[(x * 3) + srcIdx1];
-        pDst[(x * 3) + 2] = pSrc[(x * 3) + srcIdx2];
+        const auto c0 = pSrc[(x * 3) + srcIdx0];
+        const auto c1 = pSrc[(x * 3) + srcIdx1];
+        const auto c2 = pSrc[(x * 3) + srcIdx2];
+        pDst[(x * 3) + 0] = c0;
+        pDst[(x * 3) + 1] = c1;
+        pDst[(x * 3) + 2] = c2;
       }
       pSrc += srcStride;
       pDst += dstStride;

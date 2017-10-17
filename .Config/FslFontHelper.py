@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #****************************************************************************************************************************************************
@@ -47,20 +47,20 @@ __g_allowDevelopmentPlugins = False
 
 
 def GetTitle():
-    return 'FslFontHelper V0.1.1 alpha'
+    return 'FslFontHelper V0.2.0 alpha'
 
 
 def ShowTitleIfNecessary():
     global __g_verbosityLevel
     if __g_verbosityLevel > 0:
-        print(GetTitle())
+        print((GetTitle()))
 
 
 def GetEntryByName(list, name):
     for entry in list:
         if entry.Name == name:
             return entry
-    raise Exception("Unknown plugin '%s'" % (name))
+    raise Exception("Unknown plugin '{0}'".format(name))
 
 
 def Process(formatPlugins, inputFilename, outputFilename, formatName):
@@ -97,7 +97,7 @@ def EarlyArgumentParser():
         __g_debugEnabled = True if args.debug else False;
         __g_allowDevelopmentPlugins = True if args.dev else False;
     except (Exception) as ex:
-        print("ERROR: %s" % ex.message)
+        print("ERROR: {0}".format(ex.message))
         if __g_debugEnabled:
             raise
         else:
@@ -136,7 +136,7 @@ def Main():
         Process(plugins, args.inputFile, args.outputFile, args.format)
     except (Exception) as ex:
         ShowTitleIfNecessary()
-        print("ERROR: %s" % ex.message)
+        print("ERROR: {0}".format(ex.message))
         if __g_debugEnabled:
             raise
     return

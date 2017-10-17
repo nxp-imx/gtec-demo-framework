@@ -4,7 +4,10 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+DFGraphicsBasic2D
+DFGraphicsBasic2D_d
 FslSDKIcon.ico
+G2D.DFGraphicsBasic2D
 G2D.DFGraphicsBasic2D.VC.VC.opendb
 G2D.DFGraphicsBasic2D.VC.db
 G2D.DFGraphicsBasic2D.aps

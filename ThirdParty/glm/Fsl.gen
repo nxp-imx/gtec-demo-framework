@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <HeaderLibrary Name="glm">
-    <CPPDefine Name="GLM_FORCE_DEPTH_ZERO_TO_ONE" Access="Public"/>
-    <CPPDefine Name="GLM_FORCE_RADIANS" Access="Public"/>
+  <HeaderLibrary Name="glm" AllowCheck="false">
+    <Define Name="GLM_FORCE_DEPTH_ZERO_TO_ONE" Access="Public"/>
+    <Define Name="GLM_FORCE_RADIANS" Access="Public"/>
     <Platform Name="Windows" ProjectId="02392DC7-CAB6-4A9E-A5EA-E06203848EA4"/>
-    <Platform Name="QNX" NotSupported="true"/>
+    <Platform Name="QNX" Supported="false"/>
   </HeaderLibrary>
 </FslBuildGen>

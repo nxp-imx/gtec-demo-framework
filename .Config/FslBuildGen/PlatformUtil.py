@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,54 +31,57 @@
 #
 #****************************************************************************************************************************************************
 
+import os
 from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import BuildPlatformType
-from FslBuildGen.PackageConfig import *
-#from FslBuildGen.PluginConfig import PLATFORM_ID_ALL
-import os
-import sys
+from FslBuildGen.PackageConfig import PlatformNameString
+#from FslBuildGen import PluginSharedValues
 
-__g_posixPlatforms = [PLATFORM_ANDROID, PLATFORM_UBUNTU, PLATFORM_YOCTO, PLATFORM_QNX]
-__g_ntPlatforms = [PLATFORM_ANDROID, PLATFORM_WINDOWS]
+__g_posixPlatforms = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.QNX]
+__g_ntPlatforms = [PlatformNameString.ANDROID, PlatformNameString.WINDOWS]
 
 
-def AddExtraGenerators(platform):
+def AddExtraGenerators(platform: str) -> None:
     if DetectBuildPlatformType() != BuildPlatformType.Windows:
         return
     __g_ntPlatforms.append(platform)
 
 
-def DetectBuildPlatform():
+def DetectBuildPlatform() -> str:
     sdkPlatformName = IOUtil.TryGetEnvironmentVariable('FSL_PLATFORM_NAME')
     if os.name == 'posix':
         if not sdkPlatformName:
-            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set");
-        if not sdkPlatformName in __g_posixPlatforms:
-            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these %s" % (__g_posixPlatforms));
+            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set")
+        if sdkPlatformName not in __g_posixPlatforms:
+            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these {0}".format(__g_posixPlatforms))
     elif os.name == 'nt':
         if not sdkPlatformName:
-            return PLATFORM_WINDOWS
-        if not sdkPlatformName in __g_ntPlatforms:
-            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these %s" % (__g_ntPlatforms));
+            return PlatformNameString.WINDOWS
+        if sdkPlatformName not in __g_ntPlatforms:
+            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these {0}".format(__g_ntPlatforms))
     else:
-        raise EnvironmentError("Unsupported build environment");
+        raise EnvironmentError("Unsupported build environment")
     return sdkPlatformName
 
 
-def DetectBuildPlatformType():
+def DetectBuildPlatformType() -> int:
     if os.name == 'posix':
         return BuildPlatformType.Unix
     elif os.name == 'nt':
         return BuildPlatformType.Windows
-    else:
-        return BuildPlatformType.Unknown
+    return BuildPlatformType.Unknown
 
 
-def CheckBuildPlatform(platform):
+def TryCheckBuildPlatform(platform: str) -> bool:
     buildPlatformType = DetectBuildPlatformType()
     if buildPlatformType == BuildPlatformType.Unix and platform in __g_posixPlatforms:
-        return
+        return True
     elif buildPlatformType == BuildPlatformType.Windows and platform in __g_ntPlatforms:
+        return True
+    return False
+
+
+def CheckBuildPlatform(platform: str) -> None:
+    if TryCheckBuildPlatform(platform):
         return
-    else:
-        raise EnvironmentError("Unsupported build environment for '%s'" % (platform));
+    raise EnvironmentError("Unsupported build environment for '{0}'".format(platform))

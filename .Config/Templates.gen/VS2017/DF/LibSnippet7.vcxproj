@@ -1,8 +1,0 @@
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x64'">
-    <OutDir>$(SolutionDir)\build\##PLATFORM_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</OutDir>
-    <IntDir>build\##PLATFORM_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x64'">
-    <OutDir>$(SolutionDir)\build\##PLATFORM_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</OutDir>
-    <IntDir>build\##PLATFORM_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\</IntDir>
-  </PropertyGroup>

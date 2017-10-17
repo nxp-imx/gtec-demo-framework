@@ -31,7 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include "DFGraphicsBasic2D.hpp"
 #include <VG/openvg.h>
 #include <iostream>

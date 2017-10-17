@@ -31,10 +31,10 @@
 
 #include "DFSimpleUI100.hpp"
 #include <FslBase/Log/Log.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
-#include <FslSimpleUI/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Layout/FillLayout.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <GLES2/gl2.h>
 
 namespace Fsl

@@ -32,8 +32,8 @@
 #include "MeshRenderBasic.hpp"
 #include "Shader/ShaderBase.hpp"
 #include <cassert>
-#include <FslGraphicsGLES2/GLUtil.hpp>
-#include <FslGraphicsGLES2/GLValues.hpp>
+#include <FslUtil/OpenGLES2/GLUtil.hpp>
+#include <FslUtil/OpenGLES2/GLValues.hpp>
 
 namespace Fsl
 {

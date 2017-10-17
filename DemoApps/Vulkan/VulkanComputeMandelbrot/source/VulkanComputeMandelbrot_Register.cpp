@@ -29,9 +29,15 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppConsole/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Console/Setup/RegisterDemoApp.hpp>
 #include "VulkanComputeMandelbrot.hpp"
 #include "OptionParser.hpp"
 
-// Configure the demo environment to run this demo app in a Console host environment
-FSL_REGISTER_CONSOLE_DEMO_EX(VulkanComputeMandelbrot, OptionParser);
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a Console host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppRegister::Console::Register<VulkanComputeMandelbrot, OptionParser>(rSetup, "Vulkan.VulkanComputeMandelbrot");
+  }
+}

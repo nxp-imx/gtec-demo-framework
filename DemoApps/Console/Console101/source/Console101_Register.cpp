@@ -29,8 +29,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppConsole/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Console/Setup/RegisterDemoApp.hpp>
 #include "Console101.hpp"
 
-// Configure the demo environment to run this demo app in a Console host environment
-FSL_REGISTER_CONSOLE_DEMO(Console101);
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a Console host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppRegister::Console::Register<Console101>(rSetup, "Console.Console101");
+  }
+}

@@ -1,0 +1,41 @@
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>##DEBUG_OPTIMIZATION_TYPE##</Optimization>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_CONSOLE;_DEBUG;##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>##DEBUG_OPTIMIZATION_OPTIONS##
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>##PACKAGE_EXTERNAL_LINK_DEBUG_LIBRARY_DEPENDENCIES##
+    </Link>
+    <PreBuildEvent>
+      <Command>FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Validate</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_CONSOLE;NDEBUG;##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>##PACKAGE_EXTERNAL_LINK_LIBRARY_DEPENDENCIES##
+    </Link>
+    <PreBuildEvent>
+      <Command>FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Validate</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>

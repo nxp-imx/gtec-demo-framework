@@ -32,8 +32,8 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Matrix.hpp>
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslSimpleUIApp/UIDemoAppExtension.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include "AScene.hpp"
 
 namespace Fsl

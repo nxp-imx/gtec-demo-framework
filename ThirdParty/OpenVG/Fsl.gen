@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="OpenVG">
-    <UsesFeature Name="OpenVG"/>
-    <Platform Name="Android">
+    <Default.Platform.Supported Value="false"/>
+
+    <Requirement Name="OpenVG" Type="feature"/>
+    <!--Platform Name="Android" Supported="true"-->
       <!-- Android SDK does not support OpenVG -->
       <!-- ExternalDependency Name="OpenVG" Type="StaticLib" /-->
-    </Platform>
-    <Platform Name="QNX" NotSupported="true"/>
-    <Platform Name="Ubuntu">
+    <!--/Platform-->
+    <Platform Name="Ubuntu" Supported="true">
       <ExternalDependency Name="OpenVG" Type="StaticLib"/>
     </Platform>
-    <Platform Name="Yocto">
+    <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="OpenVG" Type="StaticLib"/>
     </Platform>
-    <Platform Name="Windows">
-      <ExternalDependency Name="libOpenVG.lib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/openvg1.1-ri/include" Access="Public" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/openvg1.1-ri/lib" Type="StaticLib"/>
+    <Platform Name="Windows" Supported="true">
+      <Dependency Name="Recipe.openvg_ri"/>
       <!--ExternalDependency Name="ShivaVG.lib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/ShivaVG-0.2.1/include" Access="Public" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/ShivaVG-0.2.1/projects/visualc8/Debug/Bin" Type="StaticLib"/-->
     </Platform>
   </ExternalLibrary>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,21 +31,24 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen import IOUtil, Config, PlatformUtil
-from FslBuildGen.DataTypes import BuildPlatformType
+from typing import Iterable
+from typing import List
+from FslBuildGen import IOUtil
+from FslBuildGen.Config import Config
 from FslBuildGen.BuildContent.ConditionInterpreter import ConditionInterpreter
-from FslBuildGen.BuildContent.ToolFinder import *
+from FslBuildGen.BuildContent.PathRecord import PathRecord
 
 
 class ContentProcessor(object):
-    def __init__(self, name, featureRequirements, fileExtensionSet):
+    def __init__(self, name: str, featureRequirements: str, fileExtensionSet: Iterable[str]) -> None:
         super(ContentProcessor, self).__init__()
         self.Name = name
         self.FileExtensionSet = fileExtensionSet
-        self.__FeatureConditionInterpreter = ConditionInterpreter(name, featureRequirements);
+        self.__FeatureConditionInterpreter = ConditionInterpreter(name, featureRequirements)
 
-    def GetTempFileName(self, contentPath, contentFile):
-        fileName = IOUtil.GetFileName(contentFile) + ".tmp"
+
+    def GetTempFileName(self, contentPath: str, contentFileRecord: PathRecord) -> str:
+        fileName = IOUtil.GetFileName(contentFileRecord.RelativePath) + ".tmp"
         tempFileName = IOUtil.Join(contentPath, fileName)
         while IOUtil.IsFile(tempFileName):
             fileName = '_' + fileName
@@ -53,18 +56,20 @@ class ContentProcessor(object):
         return tempFileName
 
 
-    def GetOutputFileName(self, config, contentBuildPath, contentOutputPath, contentFile, removeExtension):
-        relativePathToContentFile = contentFile[len(contentBuildPath)+1:]
+    def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
+        relativePathToContentFile = contentFileRecord.RelativePath
         if removeExtension:
             extension = IOUtil.GetFileNameExtension(relativePathToContentFile)
             relativePathToContentFile = relativePathToContentFile[:-len(extension)]
         return IOUtil.Join(contentOutputPath, relativePathToContentFile)
 
 
-    def EnsureDirectoryExist(self, config, outputFileName):
+
+    def EnsureDirectoryExist(self, config: Config, outputFileName: str) -> None:
         outputDirectory = IOUtil.GetDirectoryName(outputFileName)
         if not config.DisableWrite:
             IOUtil.SafeMakeDirs(outputDirectory)
 
-    def CheckFeatureRequirements(self, featuresIds):
+
+    def CheckFeatureRequirements(self, featuresIds: List[str]) -> bool:
         return self.__FeatureConditionInterpreter.CheckFeatureRequirements(featuresIds)

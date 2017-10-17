@@ -32,15 +32,17 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include "FastFourierTransform.hpp"
-#include <FslUtilOpenCL1_1/Check.hpp>
-#include <FslUtilOpenCL1_1/ProgramEx.hpp>
-#include <FslUtilOpenCL1_1/OpenCLHelper.hpp>
-#include <FslUtilOpenCL1_1/Values.hpp>
+#include <FslUtil/OpenCL1_1/ProgramEx.hpp>
+#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <RapidOpenCL1/Check.hpp>
+#include <RapidOpenCL1/Values.hpp>
 #include <CL/cl.h>
 #include <cassert>
 #include <iomanip>
 #include <sstream>
 #include "OptionParser.hpp"
+
+using namespace RapidOpenCL1;
 
 namespace Fsl
 {
@@ -202,7 +204,7 @@ namespace Fsl
 
     void CopyToDevice(const CommandQueue& commandQueue, const cl_mem mem, float* const hostPtr, const unsigned size)
     {
-      FSLUTILOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), mem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, nullptr));
+      RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), mem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, nullptr));
     }
 
 
@@ -210,12 +212,12 @@ namespace Fsl
     {
       if (pGpuDone == nullptr)
       {
-        FSLUTILOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, nullptr));
       }
       else
       {
         cl_event hEvent;
-        FSLUTILOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, &hEvent));
+        RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, &hEvent));
         // Hand off the event to a managed object
         pGpuDone->Reset(hEvent);
       }
@@ -225,7 +227,7 @@ namespace Fsl
     cl_uint GetDeviceCount(const cl_context context)
     {
       std::size_t nDeviceBytes;
-      FSLUTILOPENCL_CHECK(clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, nullptr, &nDeviceBytes));
+      RAPIDOPENCL_CHECK(clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, nullptr, &nDeviceBytes));
       return ((cl_uint)nDeviceBytes / sizeof(cl_device_id));
     }
 
@@ -240,7 +242,7 @@ namespace Fsl
       FSLLOG("# of Devices Available = " << devices.size());
 
       cl_uint numComputeUnits;
-      FSLUTILOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
+      RAPIDOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
 
       FSLLOG("# of Compute Units = " << numComputeUnits);
       return numComputeUnits;
@@ -328,7 +330,7 @@ namespace Fsl
       FSLLOG("# compute units = " << ciComputeUnitsCount);
 
       FSLLOG("Getting device id...");
-      FSLUTILOPENCL_CHECK(clGetContextInfo(m_context.Get(), CL_CONTEXT_DEVICES, sizeof(cl_device_id), &m_deviceId, nullptr));
+      RAPIDOPENCL_CHECK(clGetContextInfo(m_context.Get(), CL_CONTEXT_DEVICES, sizeof(cl_device_id), &m_deviceId, nullptr));
 
       FSLLOG("Creating Command Queue...");
       m_commandQueue.Reset(m_context.Get(), m_deviceId, CL_QUEUE_PROFILING_ENABLE);
@@ -437,7 +439,7 @@ namespace Fsl
         FSLLOG("running kernel " << kk << " (p=" << g_p[kk] << ")...");
 
         cl_event hEvent;
-        FSLUTILOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[kk].Get(), 1, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &hEvent));
+        RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[kk].Get(), 1, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &hEvent));
         // Hand the event over to a managed object
         m_gpuExecution[kk].Reset(hEvent);
 
@@ -453,7 +455,7 @@ namespace Fsl
         FSLLOG("running kernel " << idx << " (p=" << g_p[kk] << ")...");
 
         cl_event hEvent;
-        FSLUTILOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[idx].Get(), 1, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &hEvent));
+        RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[idx].Get(), 1, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &hEvent));
         // Hand the event over to a managed object
         m_gpuExecution[idx].Reset(hEvent);
 
@@ -467,7 +469,7 @@ namespace Fsl
 
     // wait for copy event
     const cl_event hGPUDone = m_gpuDone.Get();
-    FSLUTILOPENCL_CHECK(clWaitForEvents(1, &hGPUDone));
+    RAPIDOPENCL_CHECK(clWaitForEvents(1, &hGPUDone));
     PrintGpuTime((2 == rad) ? log2n : (log2n >> 1));
 
     FSLLOG("Successful.");

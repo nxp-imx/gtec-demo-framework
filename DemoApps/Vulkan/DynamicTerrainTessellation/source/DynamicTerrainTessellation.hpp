@@ -11,14 +11,14 @@
 // Based on a example called 'DynamicTerrainTesselation' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
-#include <VulkanWillemsDemoAppExperimental/Frustrum.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/QueryPool.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/Frustrum.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
+#include <RapidVulkan/QueryPool.hpp>
 
 namespace Fsl
 {
@@ -39,8 +39,8 @@ namespace Fsl
     // Pipeline statistics
     struct QueryResult
     {
-      Vulkan::Buffer Buffer;
-      Vulkan::Memory Memory;
+      RapidVulkan::Buffer Buffer;
+      RapidVulkan::Memory Memory;
     };
 
     struct Vertices
@@ -84,21 +84,21 @@ namespace Fsl
 
     struct DescriptorSetLayouts
     {
-      Vulkan::DescriptorSetLayout Terrain;
-      Vulkan::DescriptorSetLayout Skysphere;
+      RapidVulkan::DescriptorSetLayout Terrain;
+      RapidVulkan::DescriptorSetLayout Skysphere;
     };
 
     struct PipelineLayouts
     {
-      Vulkan::PipelineLayout Terrain;
-      Vulkan::PipelineLayout Skysphere;
+      RapidVulkan::PipelineLayout Terrain;
+      RapidVulkan::PipelineLayout Skysphere;
     };
 
     struct Pipelines
     {
-      Vulkan::GraphicsPipeline Terrain;
-      Vulkan::GraphicsPipeline Wireframe;
-      Vulkan::GraphicsPipeline Skysphere;
+      RapidVulkan::GraphicsPipeline Terrain;
+      RapidVulkan::GraphicsPipeline Wireframe;
+      RapidVulkan::GraphicsPipeline Skysphere;
     };
 
     struct DescriptorSets
@@ -106,13 +106,19 @@ namespace Fsl
       // We use the native type here since this is managed by a pool
       VkDescriptorSet Terrain;
       VkDescriptorSet Skysphere;
+
+      DescriptorSets()
+        : Terrain(VK_NULL_HANDLE)
+        , Skysphere(VK_NULL_HANDLE)
+      {
+      }
     };
 
 
     Meshes m_meshes;
     Textures m_textures;
     QueryResult m_queryResult;
-    Vulkan::QueryPool m_queryPool;
+    RapidVulkan::QueryPool m_queryPool;
     uint64_t m_pipelineStats[2];
     Vertices m_vertices;
     UniformData m_uniformData;
@@ -123,7 +129,7 @@ namespace Fsl
     DescriptorSetLayouts m_descriptorSetLayouts;
     PipelineLayouts m_pipelineLayouts;
     Pipelines m_pipelines;
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
     DescriptorSets m_descriptorSets;
 
     bool m_tessellation;

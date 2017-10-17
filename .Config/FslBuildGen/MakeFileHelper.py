@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,23 +31,21 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import List
 
-def CreateList(entries):
+def CreateList(entries: List[str]) -> str:
     if entries != None and len(entries) > 0:
         return "\\\n  " + " \\\n  ".join(entries)
-    else:
-        return ""
+    return ""
 
 
-def CreateList2(entries):
+def CreateList2(entries: List[str]) -> str:
     if entries != None and len(entries) > 0:
         return " \\\n  ".join(entries)
-    else:
-        return ""
+    return ""
 
 
-def CreateDefineList(entries):
+def CreateDefineList(entries: List[str]) -> str:
     if len(entries) > 0:
         return "\\\n  -D" + " \\\n  -D".join(entries)
-    else:
-        return ""
+    return ""

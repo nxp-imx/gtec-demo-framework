@@ -33,11 +33,11 @@
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslDemoApp/Service/Events/Basic/KeyEvent.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseButtonEvent.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseMoveEvent.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseWheelEvent.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <cassert>
 #include <limits>
 

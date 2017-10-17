@@ -29,11 +29,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include "TessellationPNTriangles.hpp"
-#include <VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <VulkanWindowExperimental/OptionParser.hpp>
-#include <FslDemoAppVulkan/Config/DemoAppHostConfigVulkanEx.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
+#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
+#include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 
 namespace Fsl
 {
@@ -49,10 +49,18 @@ namespace Fsl
 
         AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TessellationShader, FeatureRequirement::Mandatory);
         AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Mandatory);
+
+        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
+        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
       }
     };
   }
-}
 
-// Configure the demo environment to run this demo app in a Window host environment
-FSL_REGISTER_WINDOW_DEMO_EX(TessellationPNTriangles, DemoAppHostConfigWindow(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>()), OptionParser);
+  // Configure the demo environment to run this demo app in a Window host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+
+    DemoAppRegister::Window::Register<TessellationPNTriangles, OptionParser>(rSetup, "Vulkan.TessellationPNTriangles", config);
+  }
+}

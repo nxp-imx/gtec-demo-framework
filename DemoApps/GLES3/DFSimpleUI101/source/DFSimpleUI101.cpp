@@ -29,8 +29,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "DFSimpleUI101.hpp"
 #include <GLES3/gl3.h>
 

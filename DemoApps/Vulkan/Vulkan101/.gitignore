@@ -17,6 +17,7 @@ FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
 GNUmakefile_yocto
+Vulkan.Vulkan101
 Vulkan.Vulkan101.VC.VC.opendb
 Vulkan.Vulkan101.VC.db
 Vulkan.Vulkan101.aps
@@ -30,9 +31,17 @@ Vulkan.Vulkan101.v12.suo
 Vulkan.Vulkan101.vcxproj
 Vulkan.Vulkan101.vcxproj.filters
 Vulkan.Vulkan101.vcxproj.user
+Vulkan.Vulkan101_FB
+Vulkan.Vulkan101_Wayland
+Vulkan.Vulkan101_X11
+Vulkan101
 Vulkan101_FB
+Vulkan101_FB_d
 Vulkan101_Wayland
+Vulkan101_Wayland_d
 Vulkan101_X11
+Vulkan101_X11_d
+Vulkan101_d
 bin/
 build.sh
 build/

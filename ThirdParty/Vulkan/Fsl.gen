@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="Vulkan">
-    <UsesFeature Name="Vulkan"/>
-    <UsesFeature Name="EarlyAccess"/>
+    <Requirement Name="Vulkan" Type="feature" Version="1"/>
+    <Requirement Name="EarlyAccess" Type="feature"/>
     <Dependency Name="WindowSystem"/>
-    <CPPDefine Name="FSL_FEATURE_VULKAN1_0" Access="Public"/>
+    <Define Name="FSL_FEATURE_VULKAN1_0" Access="Public"/>
     <Platform Name="Android">
-      <CPPDefine Name="VK_USE_PLATFORM_ANDROID_KHR" Access="Public"/>
+      <Define Name="VK_USE_PLATFORM_ANDROID_KHR" Access="Public"/>
       <ExternalDependency Name="vulkan" Type="StaticLib"/>
       <!-- Workaround, as JNIHelper needs GLES. We need to handle JNIHelper differently -->
       <ExternalDependency Name="GLESv3" Type="StaticLib"/>
     </Platform>
-    <Platform Name="QNX" NotSupported="true"/>
+    <Platform Name="QNX" Supported="false"/>
     <Platform Name="Ubuntu">
-      <CPPDefine Name="VK_USE_PLATFORM_XLIB_KHR" Access="Public"/>
+      <Define Name="VK_USE_PLATFORM_XLIB_KHR" Access="Public"/>
       <ExternalDependency Name="vulkan" Include="$(VULKAN_SDK)/include" Access="Public" Type="StaticLib"/>
     </Platform>
     <Platform Name="Windows">
-      <CPPDefine Name="VK_USE_PLATFORM_WIN32_KHR" Access="Public"/>
-      <ExternalDependency Name="vulkan-1.lib" Include="$(VK_SDK_PATH)/Include" Access="Public" Location="$(VK_SDK_PATH)/Lib" Type="StaticLib"/>
+      <Dependency Name="Recipe.Vulkan"/>
+      <Define Name="VK_USE_PLATFORM_WIN32_KHR" Access="Public"/>
     </Platform>
     <Platform Name="Yocto">
       <ExternalDependency Name="vulkan" Type="StaticLib"/>
       <Variant Name="WindowSystem" Extend="true">
         <Option Name="FB" />
-        <Option Name="Wayland" NotSupported="True"/>
-        <Option Name="X11" NotSupported="True"/>
+        <Option Name="Wayland" Supported="false"/>
+        <Option Name="X11" Supported="false"/>
       </Variant>
     </Platform>
     <Platform Name="CMake">

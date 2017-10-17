@@ -34,8 +34,8 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
-#include <FslGraphicsGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
 #include <cassert>

@@ -31,8 +31,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Setup/DemoHostSetup.hpp>
-#include <FslDemoHost/Setup/DemoHostAppSetup.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostSetup.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
 
 namespace Fsl
 {
@@ -40,12 +40,11 @@ namespace Fsl
 
   struct DemoBasicSetup
   {
-    std::shared_ptr<ThreadLocalServiceDeque> ServiceList;
     DemoHostSetup Host;
     DemoHostAppSetup App;
     bool Verbose;
 
-    DemoBasicSetup(const std::shared_ptr<ThreadLocalServiceDeque>& serviceList, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose);
+    DemoBasicSetup(const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose);
     ~DemoBasicSetup();
   };
 }

@@ -29,12 +29,12 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "FractalShader.hpp"
 #include "FractalShaderJulia.hpp"
 #include "FractalShaderMandelbrot.hpp"
-#include <FractalShaderShared/OptionParser.hpp>
+#include <Shared/FractalShader/OptionParser.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <GLES3/gl3.h>
 #include <iostream>

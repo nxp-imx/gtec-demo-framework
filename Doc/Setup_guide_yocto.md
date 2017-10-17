@@ -1,14 +1,21 @@
 Prerequisites
 =============
-- Python 2.7
+- Python 3.4+
 
   It should be part of the default Ubuntu install.
+  If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
+  To install the typing library in Python **3.4** run:
+  ```bash
+  sudo apt-get install python3-pip
+  sudo pip3 install typing
+  ```
 
 - A working yocto build
   For example follow one of these:
   - http://git.freescale.com/git/cgit.cgi/imx/fsl-arm-yocto-bsp.git/
   - https://community.freescale.com/docs/DOC-94866 
-  - This [guide](Preparing a Yocto build)
+  - Or read from here: [Preparing a Yocto build]
+
 For this guide we will assume you are using a X11 image.     
   
 - Download the source from git.
@@ -19,27 +26,18 @@ Preparing a Yocto build
 -----------------------
 
 Before you build one of these yocto images you need to
-1. Unpack the `meta-gtec.tar.gz` file found in the demoframework root directory to `<fsl_yocto_bsp>/sources`
-   Example:
-    ```bash
-    tar -xvzf meta-gtec.tar.gz -C ~/fsl-release-bsp/sources
-    ```
-2. Run the yocto build setup (X11 example). 
+1. Run the yocto build setup (X11 example). 
     ```bash
     MACHINE=imx6qpsabresd source fsl-setup-release.sh -b build-x11 -e x11
     ```
-3. Edit the `<build directory>/conf/bblayers.conf` file and add the line:
+2. Bake
     ```bash
-    BBLAYERS += " ${BSPDIR}/sources/meta-gtec "
+    bitbake fsl-image-gui
+    bitbake meta-toolchain
+    bitbake meta-ide-support
     ```
-4. Edit the `<build directory>/conf/local.conf` file and add the lines:
-    ```bash
-    CORE_IMAGE_EXTRA_INSTALL += "assimp "
-    CORE_IMAGE_EXTRA_INSTALL += "devil "
-    ```
-5. Beware that running the `MACHINE` command overwrites the changes done in step 2+3!!!
 
-You can now build one of the images below (or a custom one)
+    You can now build one of the images below (or a custom one)
        
 ### x11 yocto image 
 
@@ -49,7 +47,7 @@ a. Perform step 1
     ```bash
     MACHINE=imx6qpsabresd source fsl-setup-release.sh -b build-x11 -e x11
     ```
-b. Perform step 3+4
+b. Perform step 2
     ```bash
     bitbake fsl-image-gui
     bitbake meta-toolchain
@@ -74,7 +72,7 @@ a. Perform step 1
     ```bash
     MACHINE=imx6qpsabresd source fsl-setup-release.sh -b build-fb -e fb
     ```
-b. Perform step 3+4
+b. Perform step 2
     ```bash
     bitbake fsl-image-gui
     bitbake meta-toolchain
@@ -97,7 +95,7 @@ a. Perform step 1
     ```bash
     MACHINE=imx6qpsabresd source fsl-setup-release.sh -b build-wayland -e wayland
     ```
-b. Perform step 3+4
+b. Perform step 2
     ```bash
     bitbake fsl-image-gui
     bitbake meta-toolchain
@@ -120,7 +118,7 @@ Yocto environment setup
 2. Prepare the yocto build environment
     ```bash
     pushd ~/fsl-release-bsp/build-x11/tmp
-    source environment-setup-cortexa9hf-vfp-neon-poky-linux-gnueabi
+    source environment-setup-cortexa9hf-neon-poky-linux-gnueabi
     export ROOTFS=~/unpacked-rootfs/build-x11
     export FSL_PLATFORM_NAME=Yocto
     popd
@@ -144,9 +142,9 @@ Simple setup
 To Compile all samples
 ----------------------
 1. Make sure that you performed the [simple setup].
-2. Compile everything (a good rule of thumb for '-j N' is number of cpu cores * 2)
+2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
-    FslBuild.py --Variants [WindowSystem=X11] -t sdk -- -j 2
+    FslBuild.py --Variants [WindowSystem=X11] -t sdk --BuildThreads 2
     ```
     WindowSystem can be set to either: FB, Wayland or x11
 
@@ -159,9 +157,9 @@ In this example we will utilize the `GLES2.S06_Texturing` app.
     ```bash
     cd DemoApps/GLES2/S06_Texturing
     ```
-3. Compile the project (a good rule of thumb for '-j N' is number of cpu cores * 2)
+3. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
-    FslBuild.py --Variants [WindowSystem=X11] -- -j 2
+    FslBuild.py --Variants [WindowSystem=X11] --BuildThreads 2
     ```
       
     WindowSystem can be set to either: FB, Wayland or x11
@@ -182,9 +180,9 @@ To create a new GLES2 demo project named 'CoolNewDemo'
     ```bash
     cd CoolNewDemo
     ```
-5. Compile the project (a good rule of thumb for '-j N' is number of cpu cores * 2)
+5. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
-    FslBuild.py --Variants [WindowSystem=X11] -- -j 2
+    FslBuild.py --Variants [WindowSystem=X11] --BuildThreads 2
     ```
       
     WindowSystem can be set to either: FB, Wayland or x11
@@ -251,8 +249,8 @@ The easiest way to get it is to install the linux [vulkan SDK](https://vulkan.lu
 7. Run the normal setup.
 
 
-Building OpenCV 2.4 demo framework apps
----------------------------------------
+Building OpenCV demo framework apps
+-----------------------------------
 1. Edit the `<build directory>/conf/local.conf` file and add the line:
     ```
     CORE_IMAGE_EXTRA_INSTALL += "libopencv-core-dev libopencv-highgui-dev"

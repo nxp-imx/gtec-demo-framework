@@ -42,9 +42,9 @@ extern "C" static const unsigned __int64 epoch = ((unsigned __int64) 11644473600
  */
 extern "C" int gettimeofday(struct timeval * tp, struct timezone * tzp)
 {
-    FILETIME    file_time;
-    SYSTEMTIME  system_time;
-    ULARGE_INTEGER ularge;
+    FILETIME    file_time{};
+    SYSTEMTIME  system_time{};
+    ULARGE_INTEGER ularge{};
 
     GetSystemTime(&system_time);
     SystemTimeToFileTime(&system_time, &file_time);

@@ -33,7 +33,7 @@
 #include "MeshRenderNormals.hpp"
 #include "Shader/ShaderBase.hpp"
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
-#include <FslGraphics_Draft/Procedural/VertexUtil.hpp>
+#include <FslGraphics3D/Procedural/VertexUtil.hpp>
 #include <cassert>
 #include <limits>
 

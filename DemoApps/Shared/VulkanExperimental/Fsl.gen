@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="VulkanExperimental">
-    <Dependency Name="FslGraphicsVulkan1_0"/>
-    <Platform Name="Windows" ProjectId="7613F93A-4450-4208-8EF4-A0619DB4ADBE"/>
-  </Library>
-</FslBuildGen>

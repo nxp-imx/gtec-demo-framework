@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES3.S06_Texturing
 GLES3.S06_Texturing.VC.VC.opendb
 GLES3.S06_Texturing.VC.db
 GLES3.S06_Texturing.aps
@@ -18,10 +19,18 @@ GLES3.S06_Texturing.v12.suo
 GLES3.S06_Texturing.vcxproj
 GLES3.S06_Texturing.vcxproj.filters
 GLES3.S06_Texturing.vcxproj.user
+GLES3.S06_Texturing_FB
+GLES3.S06_Texturing_Wayland
+GLES3.S06_Texturing_X11
 GNUmakefile
 GNUmakefile_Yocto
+S06_Texturing
 S06_Texturing_FB
+S06_Texturing_FB_d
 S06_Texturing_Wayland
+S06_Texturing_Wayland_d
 S06_Texturing_X11
+S06_Texturing_X11_d
+S06_Texturing_d
 build/
 resource.h

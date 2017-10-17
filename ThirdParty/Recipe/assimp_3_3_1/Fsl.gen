@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.assimp_3_3_1">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Windows" Supported="true">
+      <Dependency Name="Recipe.zlib_1_2_11"/>
+
+      <ExperimentalRecipe Name="assimp-3.3.1">
+        <Pipeline>
+          <Download URL="https://github.com/assimp/assimp/archive/v3.3.1.tar.gz" To="assimp-3.3.1.tar.gz" Hash="d385c3f90876241343f09e45f4e5033a6a05861b971c63d1f6d512371ffdc7bf"/> 
+          <Unpack File="assimp-3.3.1.tar.gz" OutputPath="assimp-3.3.1"/>
+          <CMakeBuild Project="Assimp" Target="install" Configuration="debug;release" Options="-DASSIMP_BUILD_ASSIMP_VIEW=OFF -DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/assimp-vc140-mt.lib"/>
+          <AddDLL Name="bin/assimp-vc140-mt.dll"/>
+          <Path Name="include/assimp/Importer.hpp" Method="IsFile"/>
+          <Path Name="include/assimp/mesh.h" Method="IsFile"/>
+          <Path Name="include/assimp/scene.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

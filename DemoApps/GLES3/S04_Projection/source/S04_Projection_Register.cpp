@@ -29,24 +29,32 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES3/Setup/RegisterDemoAppGLES3.hpp>
+#include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "S04_Projection.hpp"
 
-namespace
+namespace Fsl
 {
-  static const EGLint g_eglConfigAttribs[] =
+  namespace
   {
-    EGL_SAMPLES, 0,
-    EGL_RED_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
-    EGL_ALPHA_SIZE, 0, // chose the smallest possible
-    EGL_DEPTH_SIZE, 24,
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE,
-  };
-}
+    static const EGLint g_eglConfigAttribs[] =
+    {
+      EGL_SAMPLES, 0,
+      EGL_RED_SIZE, 8,
+      EGL_GREEN_SIZE, 8,
+      EGL_BLUE_SIZE, 8,
+      EGL_ALPHA_SIZE, 0, // chose the smallest possible
+      EGL_DEPTH_SIZE, 24,
+      EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+      EGL_NONE,
+    };
+  }
 
-// Configure the demo environment to run this demo app in a OpenGLES3 host environment
-FSL_REGISTER_OPENGLES3_DEMO(S04_Projection, DemoAppHostConfigEGL(g_eglConfigAttribs));
+  // Configure the demo environment to run this demo app in a OpenGLES3 host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+
+    DemoAppRegister::GLES3::Register<S04_Projection>(rSetup, "GLES3.S04_Projection", config);
+  }
+}

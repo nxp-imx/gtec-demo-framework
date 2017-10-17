@@ -10,8 +10,8 @@
 */
 
 #include <FslBase/Math/Matrix.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "S02_ColoredTriangle.hpp"
 #include <GLES2/gl2.h>
 
@@ -20,7 +20,7 @@ namespace Fsl
   namespace
   {
     // Define vertice for a triangle
-    float g_vertexPositions[] =
+    const float g_vertexPositions[] =
     {
       0.0f, 100.0f, 0.0f,
       -100.0f, -100.0f, 0.0f,
@@ -30,7 +30,7 @@ namespace Fsl
       100.0f, -100.0, 0.0f
     };
 
-    float g_vertexColors[] =
+    const float g_vertexColors[] =
     {
       1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Red
       0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f // Green
@@ -39,6 +39,7 @@ namespace Fsl
     // The index in these variables should match the g_pszShaderAttributeArray ordering
     const GLuint g_hVertexLoc = 0;
     const GLuint g_hColorLoc = 1;
+
     const char*const g_pszShaderAttributeArray[] =
     {
       "g_vPosition",
@@ -66,7 +67,7 @@ namespace Fsl
     GL_CHECK(glUseProgram(hProgram));
 
     // Set the Clear Color Value
-    glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+    GL_CHECK(glClearColor(0.0f, 0.0f, 0.5f, 1.0f));
 
     // If enabled, do depth comparisons and update the depth buffer
     GL_CHECK(glEnable(GL_DEPTH_TEST));
@@ -89,12 +90,11 @@ namespace Fsl
     const Point2 currentSize = GetScreenResolution();
     glViewport(0, 0, currentSize.X, currentSize.Y);
 
-    const Matrix matProj = Matrix::CreatePerspective(float(currentSize.X), float(currentSize.Y), 1.0f, 1000.0f);
-    const Matrix matModelView = Matrix::CreateTranslation(0, 0, -1);
-
-
     // Clear the color-buffer and depth-buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    const Matrix matProj = Matrix::CreatePerspective(float(currentSize.X), float(currentSize.Y), 1.0f, 1000.0f);
+    const Matrix matModelView = Matrix::CreateTranslation(0, 0, -1);
 
     // Set the shader program
     glUseProgram(m_program.Get());

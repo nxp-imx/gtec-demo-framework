@@ -1,0 +1,7 @@
+if(NOT DEFINED ENV{##ROOT_ENVIRONEMNT_VARIABLE_NAME##})
+    message(FATAL_ERROR "The ##ROOT_ENVIRONEMNT_VARIABLE_NAME## environment variable is not defined")
+    # some more commands
+else()
+  set(##ROOT_ENVIRONEMNT_VARIABLE_NAME## "$ENV{##ROOT_ENVIRONEMNT_VARIABLE_NAME##}")
+  string(REPLACE "\\" "/" ##ROOT_ENVIRONEMNT_VARIABLE_NAME## ${##ROOT_ENVIRONEMNT_VARIABLE_NAME##})
+endif()

@@ -29,8 +29,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "DFSimpleUI101.hpp"
 #include <GLES2/gl2.h>
 

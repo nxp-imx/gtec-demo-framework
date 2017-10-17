@@ -32,7 +32,7 @@
 #include "TwoPassShaders.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include "GausianHelper.hpp"
 #include <cassert>
 

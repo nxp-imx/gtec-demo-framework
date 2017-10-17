@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,18 +31,19 @@
 #
 #****************************************************************************************************************************************************
 
-import itertools
-import os
-import os.path
-from FslBuildGen.Generator.VariantHelper import VariantHelper
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from FslBuildGen import IOUtil
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Generator import CMakeGeneratorUtil
-from FslBuildGen import IOUtil, MakeFileHelper, Util
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-from FslBuildGen.SharedGeneration import *
-from FslBuildGen.PackageBuildReport import *
+from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 
-def GetVCBuildConfigurationName(entry):
+
+def GetVCBuildConfigurationName(entry: List[str]) -> str:
     return "-".join(entry)
 
 # Status
@@ -55,20 +56,20 @@ def GetVCBuildConfigurationName(entry):
 # - FslBuild things dont work
 # - Using the 'root' CMakeLists.txt is kind of a 'work around' to allow us to re-use libraries
 #   It would have been better to have a unique build file for each package with its own 'build' dir
-#   However that would be more complex to implement and might make it impossible to have 'all' 
+#   However that would be more complex to implement and might make it impossible to have 'all'
 #   package dependencies added as sub-projects in the IDE.
 # - Install target does not work due to the way external libs are handled :(
 # - Platform dependent defines can not be specified (its all or nothing at the moment)
 # - Version tags and handling?
 # Note:
 # - The package headers might not completely follow the FslBuildGen standards
-#   Meaning some packages might have access to more than their Fsl.gen file 
+#   Meaning some packages might have access to more than their Fsl.gen file
 #   allows them access to
 
 
 # This generator does not work if there are multiple source roots :(
-class GeneratorCMake(object):
-    def __init__(self, config, packages, platformName):
+class GeneratorCMake(GeneratorBase):
+    def __init__(self, config: Config, packages: List[Package], platformName: str) -> None:
         super(GeneratorCMake, self).__init__()
         strTemplatePath = "CMake"
         extTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Ext", False)
@@ -87,12 +88,13 @@ class GeneratorCMake(object):
                 self.__GenerateCMakeFile(config, package, platformName, rootTemplate)
 
 
-    def GetPackageGitIgnoreDict(self):
-        """ Return a dictionary of packages and a list of strings that should be added to git ignore for it """
-        return {}
+    def __GenerateCMakeFile(self, config: Config, package: Package, platformName: str,
+                            template: CMakeGeneratorUtil.CodeTemplateCMake) -> None:
+        if package.IsVirtual:
+            return
+        if package.AbsolutePath is None or package.ResolvedBuildPath is None:
+            raise Exception("Invalid package")
 
-
-    def __GenerateCMakeFile(self, config, package, platformName, template):
         packageName = CMakeGeneratorUtil.GetPackageName(package)
 
         addSubDirectoriesDirectDependencies = ""
@@ -135,30 +137,35 @@ class GeneratorCMake(object):
             IOUtil.WriteFileIfChanged(dstFileCMakeFile, buildCMakeFile)
 
 
-    def __Join(self, list):
-        if not list or len(list) <= 0:
+    def __Join(self, srcList: Optional[List[str]]) -> str:
+        if srcList is None or len(srcList) <= 0:
             return ''
-        return "\n  " + "\n  ".join(list)
+        return "\n  " + "\n  ".join(srcList)
 
 
-    def __BuildAddSubDirectoriesForDirectDependencies(self, config, package, template):       
+    def __BuildAddSubDirectoriesForDirectDependencies(self, config: Config, package: Package,
+                                                      template: CMakeGeneratorUtil.CodeTemplateCMake) -> str:
         if len(package.ResolvedBuildOrder) <= 0:
             return ""
-        content = "" 
+        if package.AbsolutePath is None:
+            raise Exception("Invalid package")
+        content = ""
         for entry in package.ResolvedBuildOrder:
             if entry != package:
+                if entry.AbsolutePath is None:
+                    raise Exception("Invalid package")
                 path = CMakeGeneratorUtil.GetRelativePath(config, package.AbsolutePath, entry.AbsolutePath)
                 content += template.PackageDependencyAddSubdirectories.replace("##PACKAGE_PATH##", path)
         return content
 
 
-    #def __BuildFindExternalDependencies(self, config, package, template):       
+    #def __BuildFindExternalDependencies(self, config, package, template):
 
     #    dictExternal = {}
     #    for subPackage in package.ResolvedBuildOrder:
     #        for externalDep in subPackage.ResolvedDirectExternalDependencies:
     #            dictExternal[externalDep.Name] = externalDep
-        
+
     #    externalDeps = []
     #    for externalDep in dictExternal.values():
     #        if externalDep.Type == ExternalDependencyType.Find:
@@ -166,8 +173,8 @@ class GeneratorCMake(object):
 
     #    if len(externalDeps) <= 0:
     #        return ""
-    
-        
+
+
     #    snippet = template.PackageDependencyFindPackage
     #    content = ""
     #    for externalDep in externalDeps:

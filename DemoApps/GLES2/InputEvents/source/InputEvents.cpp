@@ -30,11 +30,11 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
-#include <FslDemoApp/Service/Mouse/IMouse.hpp>
-#include <FslDemoApp/Service/Keyboard/IKeyboard.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
+#include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "InputEvents.hpp"
 #include "InputEventsOptionParser.hpp"
 #include <GLES2/gl2.h>
@@ -51,6 +51,8 @@ namespace Fsl
   InputEvents::InputEvents(const DemoAppConfig& config)
     : DemoAppGLES2(config)
     , m_basic2D(config.DemoServiceProvider.Get<IGraphicsService>()->GetBasic2D())
+    , m_gamepads(config.DemoServiceProvider.Get<IGamepads>())
+    , m_gamepadStates()
   {
     const std::shared_ptr<InputEventsOptionParser> options = config.GetOptions<InputEventsOptionParser>();
 
@@ -58,6 +60,11 @@ namespace Fsl
     //std::shared_ptr<IMouse> mouse = config.DemoServiceProvider.Get<IMouse>();
     // Alternative way to access the keyboard state
     //std::shared_ptr<IKeyboard> keyboard = config.DemoServiceProvider.Get<IKeyboard>();
+
+    const auto maxGamepads = m_gamepads->GetCount();
+    m_gamepadStates.resize(maxGamepads);
+    FSLLOG("Max gamepads: " << maxGamepads);
+    UpdateGamepadStates();
   }
 
 
@@ -109,6 +116,7 @@ namespace Fsl
 
   void InputEvents::Update(const DemoTime& demoTime)
   {
+    UpdateGamepadStates();
   }
 
 
@@ -138,7 +146,28 @@ namespace Fsl
 
       m_basic2D->End();
     }
+  }
 
+
+  void InputEvents::UpdateGamepadStates()
+  {
+    for (uint32_t i = 0; i < m_gamepadStates.size(); ++i)
+    {
+      auto newState = m_gamepads->GetState(i);
+
+      if (newState != m_gamepadStates[i])
+      {
+        m_gamepadStates[i] = newState;
+
+        FSLLOG("Id: " << i
+                << " IsConnected: " << newState.IsConnected
+                << " Buttons: " << newState.Buttons.State
+                << " LeftTrigger: " << static_cast<uint32_t>(newState.LeftTrigger.Value)
+                << " RightTrigger: " << static_cast<uint32_t>(newState.RightTrigger.Value)
+                << " LeftThumb: " << newState.LeftThumb.X << "," << newState.LeftThumb.Y
+                << " RightThumb: " << newState.RightThumb.X << "," << newState.RightThumb.Y);
+      }
+    }
   }
 
 }

@@ -29,9 +29,9 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include "GridScene.hpp"
 #include "GridRender/GridRenderVBGeometry1.hpp"

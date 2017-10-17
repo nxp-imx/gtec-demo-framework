@@ -131,7 +131,7 @@ namespace Fsl
         if (value == HUGE_VAL && errno == ERANGE)
           throw OverflowException("The number is outside than the expected value range");
 
-        if (pEnd != (pszSrc + endIndex))
+        if (pEnd != (pszSrc + length))
           throw FormatException("number not in the correct format");
 
         return value;
@@ -282,6 +282,7 @@ namespace Fsl
 
   std::size_t StringParseUtil::Parse(bool& rResult, const char*const psz, const std::size_t startIndex, const std::size_t length)
   {
+    rResult = false;
     if (psz == nullptr)
       throw std::invalid_argument("psz can not be null");
 
@@ -312,6 +313,8 @@ namespace Fsl
       rResult = false;
       charactersConsumed = 5;
     }
+    else
+      throw std::invalid_argument("not a valid 'bool' string");
     return charactersConsumed;
   }
 
@@ -401,7 +404,7 @@ namespace Fsl
 
   std::size_t StringParseUtil::Parse(Point2& rResult, const char*const psz, const std::size_t startIndex, const std::size_t length)
   {
-    int32_t values[2];
+    int32_t values[2]{};
     StringParseArrayResult res = ParseArray(values, 2, psz, startIndex, length);
     if (res.ArrayEntries != 2)
       throw FormatException("Point2 not in the correct format");
@@ -412,7 +415,7 @@ namespace Fsl
 
   std::size_t StringParseUtil::Parse(Rectangle& rResult, const char*const psz, const std::size_t startIndex, const std::size_t length)
   {
-    int32_t values[4];
+    int32_t values[4]{};
     StringParseArrayResult res = ParseArray(values, 4, psz, startIndex, length);
     if (res.ArrayEntries != 4)
       throw FormatException("Rectangle not in the correct format");
@@ -677,6 +680,28 @@ namespace Fsl
     }
     else
       return false;
+  }
+
+  std::size_t StringParseUtil::ParseTime(std::chrono::seconds& rResult, const char*const psz)
+  {
+    if (psz == nullptr)
+      throw std::invalid_argument("psz can not be null");
+
+    // 012345678
+    // HH:MM:SS
+    const std::size_t expectedLength = 8;
+    if (strlen(psz) != expectedLength || psz[2] != ':' || psz[5] != ':')
+      throw FormatException("time not in the expected HH:MM:SS format");
+
+    const uint32_t hh = ParseUInt32(psz, 0, 2);
+    const uint32_t mm = ParseUInt32(psz, 3, 2);
+    const uint32_t ss = ParseUInt32(psz, 6, 2);
+
+    if ( ss > 60 || mm > 60 || hh > 24 )
+      throw FormatException("number not in the correct format");
+
+    rResult = std::chrono::seconds((hh * 60 * 60) + (mm * 60) + ss);
+    return expectedLength;
   }
 
 }

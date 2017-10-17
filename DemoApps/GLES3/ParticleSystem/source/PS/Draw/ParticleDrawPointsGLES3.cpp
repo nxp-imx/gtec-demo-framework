@@ -33,7 +33,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <algorithm>
 #include <cassert>
 #include "../ParticleDrawContext.hpp"

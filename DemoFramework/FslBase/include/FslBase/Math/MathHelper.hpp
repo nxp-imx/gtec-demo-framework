@@ -117,7 +117,7 @@ namespace Fsl
 
 
     //! @brief Calc the shortest distance between two angles in radians.
-    extern float DistBetweenAngles(const float from, const float to);
+    float DistBetweenAngles(const float from, const float to);
 
 
     //! @brief Performs a Hermite spline interpolation.
@@ -236,19 +236,19 @@ namespace Fsl
 
     //! @brief Find the nearest power of two value that is greater or equal the input value (>=)
     //! @param value must be >= 0;
-    extern int ToPowerOfTwo(const int value);
+    int ToPowerOfTwo(const int value);
 
 
     //! @brief Reduces a given angle to a value between PI and -PI.
     //! @param angle The angle to reduce, in radians.
     //! @return The new angle, in radians.
-    extern float WrapAngle(const float angle);
+    float WrapAngle(const float angle);
 
 
     //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
     //! @param unitSize the size of the unit (x > 0 && y > 0)
     //! @param unitCount the total number of units > 0
-    extern Point2 CalcOptimalSize(const Point2& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag::Enum restrictionFlags);
+    Point2 CalcOptimalSize(const Point2& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag::Enum restrictionFlags);
   };
 }
 

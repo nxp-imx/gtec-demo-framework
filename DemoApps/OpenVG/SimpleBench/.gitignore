@@ -7,6 +7,7 @@ Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+OpenVG.SimpleBench
 OpenVG.SimpleBench.VC.VC.opendb
 OpenVG.SimpleBench.VC.db
 OpenVG.SimpleBench.aps
@@ -20,8 +21,16 @@ OpenVG.SimpleBench.v12.suo
 OpenVG.SimpleBench.vcxproj
 OpenVG.SimpleBench.vcxproj.filters
 OpenVG.SimpleBench.vcxproj.user
+OpenVG.SimpleBench_FB
+OpenVG.SimpleBench_Wayland
+OpenVG.SimpleBench_X11
+SimpleBench
 SimpleBench_FB
+SimpleBench_FB_d
 SimpleBench_Wayland
+SimpleBench_Wayland_d
 SimpleBench_X11
+SimpleBench_X11_d
+SimpleBench_d
 build/
 resource.h

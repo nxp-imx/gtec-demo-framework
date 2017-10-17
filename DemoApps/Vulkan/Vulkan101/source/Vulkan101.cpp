@@ -30,8 +30,8 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <RapidVulkan/Check.hpp>
 #include "Vulkan101.hpp"
 //#include <vulkan/vulkan.h>
 

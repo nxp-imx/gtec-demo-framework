@@ -33,7 +33,7 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsService.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsServiceOptionParser.hpp>
-#include <FslDemoApp/Service/Host/IHostInfo.hpp>
+#include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <cassert>
 
 #ifdef FSL_PLATFORM_YOCTO

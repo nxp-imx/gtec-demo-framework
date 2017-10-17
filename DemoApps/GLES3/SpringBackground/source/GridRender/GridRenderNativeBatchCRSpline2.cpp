@@ -31,7 +31,7 @@
 
 #include "GridRenderNativeBatchCRSpline2.hpp"
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslGraphicsGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
 #include <cassert>
 
 namespace Fsl

@@ -29,14 +29,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslGraphicsGLES2/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES2/NativeTexture2D.hpp>
 #include "GausianHelper.hpp"
 #include "BlurredScene.hpp"
 

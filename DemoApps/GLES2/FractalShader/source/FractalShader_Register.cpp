@@ -29,26 +29,34 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES2/Setup/RegisterDemoAppGLES2.hpp>
+#include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "FractalShader.hpp"
-#include <FractalShaderShared/OptionParser.hpp>
+#include <Shared/FractalShader/OptionParser.hpp>
 
-namespace
+namespace Fsl
 {
-  // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-  static const EGLint g_eglConfigAttribs[] =
+  namespace
   {
-    EGL_SAMPLES, 0,
-    EGL_RED_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
-    EGL_ALPHA_SIZE, 0,  // chose the smallest possible
-    EGL_DEPTH_SIZE, 0, // Prefer no depth buffer
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-    EGL_NONE
-  };
-}
+    // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
+    static const EGLint g_eglConfigAttribs[] =
+    {
+      EGL_SAMPLES, 0,
+      EGL_RED_SIZE, 8,
+      EGL_GREEN_SIZE, 8,
+      EGL_BLUE_SIZE, 8,
+      EGL_ALPHA_SIZE, 0,  // chose the smallest possible
+      EGL_DEPTH_SIZE, 0, // Prefer no depth buffer
+      EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+      EGL_NONE
+    };
+  }
 
-// Configure the demo environment to run this demo app in a OpenGLES2 host environment
-FSL_REGISTER_OPENGLES2_DEMO_EX(FractalShader, DemoAppHostConfigEGL(g_eglConfigAttribs), OptionParser);
+  // Configure the demo environment to run this demo app in a OpenGLES2 host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+
+    DemoAppRegister::GLES2::Register<FractalShader, OptionParser>(rSetup, "GLES2.FractalShader", config);
+  }
+}

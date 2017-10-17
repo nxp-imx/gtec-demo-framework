@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+DFNativeBatch2D
 DFNativeBatch2D_FB
+DFNativeBatch2D_FB_d
 DFNativeBatch2D_Wayland
+DFNativeBatch2D_Wayland_d
 DFNativeBatch2D_X11
+DFNativeBatch2D_X11_d
+DFNativeBatch2D_d
 FslSDKIcon.ico
+GLES3.DFNativeBatch2D
 GLES3.DFNativeBatch2D.VC.VC.opendb
 GLES3.DFNativeBatch2D.VC.db
 GLES3.DFNativeBatch2D.aps
@@ -21,6 +27,9 @@ GLES3.DFNativeBatch2D.v12.suo
 GLES3.DFNativeBatch2D.vcxproj
 GLES3.DFNativeBatch2D.vcxproj.filters
 GLES3.DFNativeBatch2D.vcxproj.user
+GLES3.DFNativeBatch2D_FB
+GLES3.DFNativeBatch2D_Wayland
+GLES3.DFNativeBatch2D_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslGraphicsGLES3_1">
-    <Dependency Name="GLES3_1"/>
-    <Dependency Name="FslGraphicsGLES3"/>
-    <CPPDefine Name="GL_GLEXT_PROTOTYPES" Access="Public"/>
-    <Platform Name="Windows" ProjectId="AF2BC0B4-A1FE-4707-9958-163542BFD5D8"/>
-  </Library>
-</FslBuildGen>

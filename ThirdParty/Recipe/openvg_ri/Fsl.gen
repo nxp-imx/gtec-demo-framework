@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.openvg_ri">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="openvg-ri">
+        <Pipeline>
+          <GitClone URL="https://github.com/luismreis/openvg-ri.git" Hash="952aaf2699729203731e8a28eefacd2d47366d50"/>
+          <Clone>
+            <Copy From="{RECIPE_PATH}/CMakeLists.txt" To="CMakeLists.txt"/>
+            <Copy From="{RECIPE_PATH}/DummyEGL.cpp" To="DummyEGL.cpp"/>
+            <GitApply From="{RECIPE_PATH}/X64patch.patch"/>
+          </Clone>
+          <CMakeBuild Project="libOpenVG" Target="install" Configuration="release" OutputPath="_Install"/>
+        </Pipeline>  
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libOpenVG.lib"/>
+          <AddDLL Name="bin/libOpenVG.dll"/>
+          <Path Name="include/EGL/egl.h" Method="IsFile"/>
+          <Path Name="include/VG/openvg.h" Method="IsFile"/>
+          <Path Name="include/VG/vgext.h" Method="IsFile"/>
+          <Path Name="include/VG/vgplatform.h" Method="IsFile"/>
+          <Path Name="include/VG/vgu.h" Method="IsFile"/>
+          <Path Name="lib/libEGL.lib" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

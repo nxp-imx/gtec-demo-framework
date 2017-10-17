@@ -4,8 +4,11 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+DynamicTerrainTessellation
+DynamicTerrainTessellation_d
 FslSDKIcon.ico
 GNUmakefile
+Vulkan.DynamicTerrainTessellation
 Vulkan.DynamicTerrainTessellation.VC.VC.opendb
 Vulkan.DynamicTerrainTessellation.VC.db
 Vulkan.DynamicTerrainTessellation.aps

@@ -34,8 +34,8 @@
 #include <assimp/mesh.h>
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
-#include <FslGraphics3D/MeshAllocatorFunc.hpp>
-#include <FslGraphics3D/MeshAllocator.hpp>
+#include <FslGraphics3D/BasicScene/MeshAllocatorFunc.hpp>
+#include <FslGraphics3D/BasicScene/MeshAllocator.hpp>
 #include <memory>
 
 namespace Fsl

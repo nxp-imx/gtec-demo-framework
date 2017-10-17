@@ -34,7 +34,7 @@
 
 #include "MeshRender.hpp"
 #include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics_Draft/Procedural/BasicMesh.hpp>
+#include <FslGraphics3D/Procedural/BasicMesh.hpp>
 #include <vector>
 
 namespace Fsl

@@ -1,0 +1,27 @@
+diff --git a/ri/include/VG/openvg.h b/ri/include/VG/openvg.h
+index 456a8bb..b54c392 100644
+--- a/ri/include/VG/openvg.h
++++ b/ri/include/VG/openvg.h
+@@ -56,7 +56,7 @@ extern "C" {
+ #define VG_MAX_ENUM 0x7FFFFFFF
+ #endif
+ 
+-typedef VGuint VGHandle;
++typedef uintptr_t VGHandle;
+ 
+ typedef VGHandle VGPath;
+ typedef VGHandle VGImage;
+diff --git a/ri/include/VG/vgplatform.h b/ri/include/VG/vgplatform.h
+index aa9896e..96997ff 100644
+--- a/ri/include/VG/vgplatform.h
++++ b/ri/include/VG/vgplatform.h
+@@ -38,6 +38,9 @@
+ extern "C" {
+ #endif
+ 
++#include <stdint.h>
++
++
+ #ifndef VG_API_CALL 
+ #if defined(OPENVG_STATIC_LIBRARY)
+ #	define VG_API_CALL

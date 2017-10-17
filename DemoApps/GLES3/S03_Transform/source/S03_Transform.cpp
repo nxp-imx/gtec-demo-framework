@@ -30,8 +30,8 @@
 *****************************************************************************/
 
 #include <FslBase/Math/Matrix.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "S03_Transform.hpp"
 #include <GLES3/gl3.h>
 #include <iostream>
@@ -43,26 +43,28 @@ namespace Fsl
     // Triangle Vertex positions.
     const GLfloat g_vertices[3][2] =
     {
-        { -0.5f, -0.5f },
-        { 0.0f, 0.5f },
-        { 0.5f, -0.5f }
+      { -0.5f, -0.5f },
+      { 0.0f, 0.5f },
+      { 0.5f, -0.5f }
     };
 
     // Triangle Vertex colors.
     const GLfloat g_color[3][3] =
     {
-        { 1.0f, 0.0f, 0.0f },
-        { 0.0f, 1.0f, 0.0f },
-        { 0.0f, 0.0f, 1.0f }
+      { 1.0f, 0.0f, 0.0f },
+      { 0.0f, 1.0f, 0.0f },
+      { 0.0f, 0.0f, 1.0f }
     };
   }
 
-    const char*const g_pszShaderAttributeArray[] =
-    {
-      "my_Vertex",
-      "my_Color",
-      nullptr
-    };
+
+  const char*const g_pszShaderAttributeArray[] =
+  {
+    "my_Vertex",
+    "my_Color",
+    nullptr
+  };
+
 
   S03_Transform::S03_Transform(const DemoAppConfig& config)
     : DemoAppGLES3(config)
@@ -109,6 +111,8 @@ namespace Fsl
   {
     // Set up rotation matrix rotating by angle around y axis.
     m_matTransform = Matrix::CreateRotationY(m_angle);
+
+    // Use demoTime.DeltaTime to make the animation frame rate independent.
     m_angle += 0.8f * demoTime.DeltaTime;
   }
 

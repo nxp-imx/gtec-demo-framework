@@ -6,8 +6,8 @@
 * Draws n number of cubes using instanced draw calls.
 */
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
 
 #define NUM_INSTANCES   100
 

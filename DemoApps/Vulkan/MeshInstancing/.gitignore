@@ -6,6 +6,16 @@ CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
+GNUmakefile_Yocto
+MeshInstancing
+MeshInstancing_FB
+MeshInstancing_FB_d
+MeshInstancing_Wayland
+MeshInstancing_Wayland_d
+MeshInstancing_X11
+MeshInstancing_X11_d
+MeshInstancing_d
+Vulkan.MeshInstancing
 Vulkan.MeshInstancing.VC.VC.opendb
 Vulkan.MeshInstancing.VC.db
 Vulkan.MeshInstancing.aps
@@ -19,5 +29,8 @@ Vulkan.MeshInstancing.v12.suo
 Vulkan.MeshInstancing.vcxproj
 Vulkan.MeshInstancing.vcxproj.filters
 Vulkan.MeshInstancing.vcxproj.user
+Vulkan.MeshInstancing_FB
+Vulkan.MeshInstancing_Wayland
+Vulkan.MeshInstancing_X11
 build/
 resource.h

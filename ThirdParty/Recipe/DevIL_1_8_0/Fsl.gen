@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.DevIL_1_8_0">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="DevIL-1.8.0">
+        <Pipeline>
+          <Download URL="http://downloads.sourceforge.net/openil/DevIL-Windows-SDK-1.8.0.zip" Hash="343ea17b75975eb1659a018838af8270b0896bdcfb11ec4da8915814805f0a14"/>
+          <Unpack File="DevIL-Windows-SDK-1.8.0.zip" OutputPath="DevIL Windows SDK"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/x64/unicode/Release/DevIL.lib"/>
+          <AddLib Name="lib/x64/unicode/Release/ILU.lib"/>
+          <AddLib Name="lib/x64/unicode/Release/ILUT.lib"/>
+          <AddDLL Name="lib/x64/unicode/Release/DevIL.dll"/>
+          <AddDLL Name="lib/x64/unicode/Release/ILU.dll"/>
+          <AddDLL Name="lib/x64/unicode/Release/ILUT.dll"/>
+          <Path Name="include/IL/il.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

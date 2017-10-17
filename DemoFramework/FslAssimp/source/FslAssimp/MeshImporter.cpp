@@ -31,7 +31,7 @@
 
 #include <FslAssimp/MeshImporter.hpp>
 #include <FslAssimp/MeshHelper.hpp>
-#include <FslGraphics3D/Mesh.hpp>
+#include <FslGraphics3D/BasicScene/Mesh.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>

@@ -33,7 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <memory>
 #include <vector>
 #include "Config.hpp"

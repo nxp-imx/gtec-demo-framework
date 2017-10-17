@@ -33,16 +33,16 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslDemoApp/Service/ServiceProvider.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslDemoApp/DemoTime.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
-#include <FslGraphicsGLES2/GLVertexBuffer.hpp>
-#include <FslGraphicsGLES2/NativeBatch2D.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES2/NativeBatch2D.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
 #include <deque>
 #include <memory>
 #include "AScene.hpp"

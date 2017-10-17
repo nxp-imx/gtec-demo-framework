@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,15 +31,26 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Union
 import os
 import os.path
-from FslBuildGen import IOUtil, Util
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-from subprocess import call
+import subprocess
+from FslBuildGen import IOUtil
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import AccessType
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Packages.Package import PackageDependency
+from FslBuildGen.Packages.Package import PackageExternalDependency
+#from FslBuildGen.Exceptions import *
 
-class GeneratorDot(object):
-    def __init__(self, config, packages, platformName):
+class GeneratorDot(GeneratorBase):
+    def __init__(self, config: Config, packages: List[Package], platformName: str) -> None:
         super(GeneratorDot, self).__init__()
 
         self.UseVariantNames = True
@@ -52,10 +63,11 @@ class GeneratorDot(object):
             if len(packageList) <= 0:
                 packageList = packages
 
-        #dotFile = self.CreateDirectDependencies(config, packageList, platformName);
-        #dotFile = self.CreateAllDependencies(config, packageList, platformName);
-        #dotFile = self.CreateSimpleDependencies(config, packageList, platformName);
-        dotFile = self.CreateSimpleDependencies2(config, packageList, platformName);
+
+        #dotFile = self.CreateDirectDependencies(config, packageList, platformName)
+        #dotFile = self.CreateAllDependencies(config, packageList, platformName)
+        #dotFile = self.CreateSimpleDependencies(config, packageList, platformName)
+        dotFile = self.CreateSimpleDependencies2(config, packageList, platformName)
 
         content = "\n".join(dotFile)
 
@@ -66,20 +78,15 @@ class GeneratorDot(object):
 
         # "dot -Tpng -o test.png Dependencies_Yocto.dot"
         try:
-            call(["dot", "-Tpng", "-o%s" % outputFile, tmpFile])
+            subprocess.call(["dot", "-Tpng", "-o%s" % outputFile, tmpFile])
             os.remove(tmpFile)
         except Exception as ex:
-            print("WARNING: Failed to execute dot, is it part of the path?");
+            print("WARNING: Failed to execute dot, is it part of the path?")
             os.remove(tmpFile)
             raise
 
 
-    def GetPackageGitIgnoreDict(self):
-        """ Return a dictionary of packages and a list of strings that should be added to git ignore for it """
-        return {}
-
-
-    def CreateDirectDependencies(self, config, packages, platformName):
+    def CreateDirectDependencies(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
         dotFile = []
         dotFile.append('digraph xmlTest')
         dotFile.append('{')
@@ -90,18 +97,23 @@ class GeneratorDot(object):
         laterPrivate = []
         laterLink = []
 
+        #groups = {}
+
         for package in packages:
             if not package.Name.startswith('SYS_'):
-                for dep in package.ResolvedDirectDependencies:
-                    if dep.Access == AccessType.Link:
-                        laterLink.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
-                    elif dep.Access == AccessType.Private:
-                        laterPrivate.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
+                if package.ResolvedDirectDependencies is None:
+                    raise Exception("Invalid package")
+
+                for dep1 in package.ResolvedDirectDependencies:
+                    if dep1.Access == AccessType.Link:
+                        laterLink.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
+                    elif dep1.Access == AccessType.Private:
+                        laterPrivate.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
                     else:
-                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
+                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
                 if self.ShowExternals:
-                    for dep in package.ResolvedDirectExternalDependencies:
-                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), dep.Name))
+                    for dep2 in package.ResolvedDirectExternalDependencies:
+                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), dep2.Name))
 
         if len(laterPrivate):
             dotFile.append('  edge [color="#2F4F4F", style=dashed]')
@@ -114,10 +126,10 @@ class GeneratorDot(object):
                 dotFile.append(entry)
 
         dotFile.append('}')
-        return dotFile;
+        return dotFile
 
 
-    def CreateAllDependencies(self, config, packages, platformName):
+    def CreateAllDependencies(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
         dotFile = []
         dotFile.append('digraph xmlTest')
         dotFile.append('{')
@@ -130,16 +142,16 @@ class GeneratorDot(object):
 
         for package in packages:
             if not package.Name.startswith('SYS_'):
-                for dep in package.ResolvedAllDependencies:
-                    if dep.Access == AccessType.Link:
-                        laterLink.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
-                    elif dep.Access == AccessType.Private:
-                        laterPrivate.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
+                for dep1 in package.ResolvedAllDependencies:
+                    if dep1.Access == AccessType.Link:
+                        laterLink.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
+                    elif dep1.Access == AccessType.Private:
+                        laterPrivate.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
                     else:
-                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
+                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
                 if self.ShowExternals:
-                    for dep in package.ResolvedDirectExternalDependencies:
-                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), dep.Name))
+                    for dep2 in package.ResolvedDirectExternalDependencies:
+                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), dep2.Name))
 
         if len(laterPrivate):
             dotFile.append('  edge [color="#2F4F4F", style=dashed]')
@@ -152,10 +164,10 @@ class GeneratorDot(object):
                 dotFile.append(entry)
 
         dotFile.append('}')
-        return dotFile;
+        return dotFile
 
 
-    def CreateSimpleDependencies(self, config, packages, platformName):
+    def CreateSimpleDependencies(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
         dotFile = []
         dotFile.append('digraph xmlTest')
         dotFile.append('{')
@@ -165,39 +177,76 @@ class GeneratorDot(object):
 
         for package in packages:
             if not package.Name.startswith('SYS_'):
-                for dep in package.ResolvedAllDependencies:
-                    if not self.IsAvailableFromDependentPackage(dep, package):
-                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
+                for dep1 in package.ResolvedAllDependencies:
+                    if not self.IsAvailableFromDependentPackage(dep1, package):
+                        dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
                 if self.ShowExternals:
-                    for dep in package.ResolvedDirectExternalDependencies:
-                        if not self.IsExternalAvailableFromDependentPackage(dep, package.ResolvedDirectDependencies):
-                            dotFile.append('  "%s" -> "ext: %s"' % (self.GetName(package), dep.Name))
+                    for dep2 in package.ResolvedDirectExternalDependencies:
+                        if not self.IsExternalAvailableFromDependentPackage(dep2, package.ResolvedDirectDependencies):
+                            dotFile.append('  "%s" -> "ext: %s"' % (self.GetName(package), dep2.Name))
 
         dotFile.append('}')
-        return dotFile;
+        return dotFile
 
-    def IsAvailableFromDependentPackage(self, dep, package):
+
+    def IsAvailableFromDependentPackage(self, dep: PackageDependency, package: Package) -> bool:
         for entry in package.ResolvedAllDependencies:
             if entry.Name != dep.Name:
                 if self.ExistIn(entry.Package.ResolvedAllDependencies, dep.Name):
-                    return True;
-        return False;
+                    return True
+        return False
 
 
-    def IsExternalAvailableFromDependentPackage(self, dep, otherDeps):
+    def IsExternalAvailableFromDependentPackage(self, dep: PackageExternalDependency, otherDeps: List[PackageDependency]) -> bool:
         for entry in otherDeps:
             if self.ExistIn(entry.Package.ResolvedDirectExternalDependencies, dep.Name):
-                return True;
-        return False;
+                return True
+        return False
 
 
-    def ExistIn(self, dependencies, name):
-        for dep in dependencies:
-            if dep.Name == name:
-                return True;
-        return False;
+    # Was multiple defined, enabled the last one as that is the one the code has been calling
+    #def ExistIn(self, dependencies, name):
+    #    for dep in dependencies:
+    #        if dep.Name == name:
+    #            return True;
+    #    return False;
 
-    def CreateSimpleDependencies2(self, config, packages, platformName):
+
+    def GetRootNamespace(self, config: Config, namespace: Optional[str]) -> str:
+        if namespace is None:
+            return ''
+        if not '.' in namespace:
+            return namespace
+        return namespace[0:namespace.find('.')]
+
+
+    def GetRootName(self, config: Config, package: Package) -> str:
+        if package.Namespace is None or package.AbsoluteBuildPath is None:
+            raise Exception("Invalid package")
+        if not '.' in package.Namespace:
+            if 'ThirdParty' in package.AbsoluteBuildPath:
+                return 'ThirdParty'
+            return ""
+        return ""
+
+
+    def GroupPackages(self, config: Config, packages: List[Package]) -> Dict[str, List[Package]]:
+        groupDict = {}  # type: Dict[str, List[Package]]
+        for package in packages:
+            rootNamespace = self.GetRootNamespace(config, package.Namespace)
+            #rootNamespace = self.GetRootName(config, package)
+            if rootNamespace not in groupDict:
+                groupDict[rootNamespace] = []
+            groupDict[rootNamespace].append(package)
+
+        for entry in list(groupDict.values()):
+            entry.sort(key=lambda s: s.Name.lower())
+        return groupDict
+
+
+    def CreateSimpleDependencies2(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
+        #groups = self.GroupPackages(config, packages)
+
         dotFile = []
         dotFile.append('digraph xmlTest')
         dotFile.append('{')
@@ -208,20 +257,35 @@ class GeneratorDot(object):
         laterPrivate = []
         laterLink = []
 
+        #laterGroups = []
+        #for key, group in groups.iteritems():
+        #    if len(key) > 0 and len(group) > 1:
+        #        laterGroups.append('  subgraph cluster_{0} {{'.format(key))
+        #        #laterGroups.append('      style=filled;')
+        #        #laterGroups.append('      color=lightgrey;')
+        #        laterGroups.append('      node [style=filled];')
+        #        for package in group:
+        #            laterGroups.append('      "{0}";'.format(self.GetName(package)))
+        #        laterGroups.append('      label = "{0}";'.format(key))
+        #        laterGroups.append('  }')
+
+        #if len(laterGroups):
+        #    dotFile = dotFile + laterGroups
+
         for package in packages:
             if not package.Name.startswith('SYS_'):
-                for dep in package.ResolvedDirectDependencies:
-                    if dep.Access == AccessType.Private:
-                        laterPrivate.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
-                    elif dep.Access == AccessType.Link:
-                        laterLink.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
+                for dep1 in package.ResolvedDirectDependencies:
+                    if dep1.Access == AccessType.Private:
+                        laterPrivate.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
+                    elif dep1.Access == AccessType.Link:
+                        laterLink.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
                     else:
-                        if not self.IsAvailableFromDependentPackage2(dep, package):
-                            dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep.Package)))
+                        if not self.IsAvailableFromDependentPackage2(dep1, package):
+                            dotFile.append('  "%s" -> "%s"' % (self.GetName(package), self.GetName(dep1.Package)))
                 if self.ShowExternals:
-                    for dep in package.ResolvedDirectExternalDependencies:
-                        if not self.IsExternalAvailableFromDependentPackage(dep, package.ResolvedDirectDependencies):
-                            dotFile.append('  "%s" -> "ext: %s"' % (self.GetName(package), dep.Name))
+                    for dep2 in package.ResolvedDirectExternalDependencies:
+                        if not self.IsExternalAvailableFromDependentPackage(dep2, package.ResolvedDirectDependencies):
+                            dotFile.append('  "%s" -> "ext: %s"' % (self.GetName(package), dep2.Name))
 
         if len(laterPrivate):
             dotFile.append('  edge [color="#2F4F4F", style=dashed]')
@@ -234,41 +298,42 @@ class GeneratorDot(object):
                 dotFile.append(entry)
 
         dotFile.append('}')
-        return dotFile;
+        return dotFile
 
 
-    def IsAvailableFromDependentPackage2(self, dep, package):
+    def IsAvailableFromDependentPackage2(self, dep: PackageDependency, package: Package) -> bool:
         for entry in package.ResolvedAllDependencies:
             if entry.Name != dep.Name and entry.Access == AccessType.Public:
                 if self.ExistIn(entry.Package.ResolvedAllDependencies, dep.Name):
-                    return True;
-        return False;
+                    return True
+        return False
 
 
-    def ExistIn(self, dependencies, name):
+    def ExistIn(self, dependencies: Union[List[PackageDependency], List[PackageExternalDependency]], name: str) -> bool:
         for dep in dependencies:
             if dep.Name == name and dep.Access == AccessType.Public:
-                return True;
-        return False;
+                return True
+        return False
 
-    def GetName(self, package):
-      if self.UseVariantNames:
-        return package.Name + package.ResolvedVariantName
-      return Package.Name
+    def GetName(self, package: Package) -> str:
+        if self.UseVariantNames:
+            if package.ResolvedMakeVariantNameHint is None:
+                raise Exception("Invalid package")
+            return package.Name + package.ResolvedMakeVariantNameHint
+        return package.Name
 
-    def FilterBasedOnExecutableDemand(self, packages):
-        executablePackages = []
+
+    def FilterBasedOnExecutableDemand(self, packages: List[Package]) -> List[Package]:
+        executablePackages = []  # type: List[Package]
         for package in packages:
-         if package.Type == PackageType.Executable:
-             executablePackages.append(package)
+            if package.Type == PackageType.Executable:
+                executablePackages.append(package)
 
-        packageList = [] + executablePackages
-        interestingPackages = set()
+        packageList = list(executablePackages)
+        interestingPackages = set()  # type: Set[str]
         for package in executablePackages:
             for dep in package.ResolvedAllDependencies:
                 if not dep.Name in interestingPackages:
                     interestingPackages.add(dep.Name)
                     packageList.append(dep.Package)
         return packageList
-
-

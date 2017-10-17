@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,68 +31,38 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Dict
+from typing import List
+from typing import Set
 import itertools
 from FslBuildGen import IOUtil
+from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
+from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
+from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
+from FslBuildGen.Generator.VariantNameHelper import VariantNameHelper
+from FslBuildGen.Log import Log
+from FslBuildGen.Packages.Package import Package
 
-def __SafeAddEntry(gitIgnoreDict, package, entry):
-    if not package.Name in gitIgnoreDict:
-        gitIgnoreDict[package.Name] = set()
-    gitIgnoreDict[package.Name].add(entry)
 
-def AddPathIfInPackageRoot(gitIgnoreDict, package, pathToFile):
+def SafeAddEntry(rGitIgnoreDict: Dict[str, Set[str]], package: Package, entry: str) -> None:
+    if not package.Name in rGitIgnoreDict:
+        rGitIgnoreDict[package.Name] = set()
+    rGitIgnoreDict[package.Name].add(entry)
+
+
+def AddPathIfInPackageRoot(rGitIgnoreDict: Dict[str, Set[str]], package: Package, pathToFile: str) -> None:
     pathDir = IOUtil.GetDirectoryName(pathToFile)
     if pathDir == package.AbsolutePath:
         fileName = IOUtil.GetFileName(pathToFile)
-        __SafeAddEntry(gitIgnoreDict, package, fileName)
+        SafeAddEntry(rGitIgnoreDict, package, fileName)
 
 
-def __ExtractVariantNamesAndOrder(package, variantFormattingString):
-    variants = variantFormattingString.split("$")
-    nameList = []
-    for entry in variants:
-        if entry.startswith("("):
-            index = entry.find(')')
-            if index < 0:
-                raise Exception("Failed to parse the variant name formatting string: %s" % (variantFormattingString) )
-            name = entry[1:index]
-            nameList.append(name)
-    return nameList
-
-def __ToKey(entry):
-    return "$(%s)" % (entry)
-
-
-def __BuildAllVariantStrings(package, variantFormattingString, variantNames):
-    lists = []
-    for name in variantNames:
-        if not name in package.ResolvedAllVariantDict:
-            raise Exception("Failed to locate the variant")
-        variant = package.ResolvedAllVariantDict[name]
-        lists.append(list(variant.OptionDict.keys()))
-    cartesianProduct = list(itertools.product(*lists))
-
-    finalNames = []
-    for variantCombination in cartesianProduct:
-        result = variantFormattingString
-        for index, entry in enumerate(variantCombination):
-            asKey =__ToKey(variantNames[index])
-            result = result.replace(asKey, entry)
-        finalNames.append(result)
-
-    return finalNames
-
-
-def AddVariantExecuteableNames(gitIgnoreSet, package):
-    fileName = package.Name
-    if len(package.ResolvedVariantName) <= 0:
-        __SafeAddEntry(gitIgnoreSet, package, fileName)
+def AddFromBuildReport(rGitIgnoreDict: Dict[str, Set[str]], package: Package,
+                       executableReport: GeneratorExecutableReport,
+                       variableReport: GeneratorVariableReport) -> None:
+    if executableReport is None or variableReport is None:
         return
 
-    variantFormattingString = package.ResolvedVariantName
-    variantNames = __ExtractVariantNamesAndOrder(package, variantFormattingString)
-    variantStrings = __BuildAllVariantStrings(package, variantFormattingString, variantNames)
-    for entry in variantStrings:
-        exeFileName = fileName+entry
-        __SafeAddEntry(gitIgnoreSet, package, exeFileName)
-
-
+    allKnownExeFiles = ReportVariableFormatter.GetAllKnownCombinations(executableReport.ExeFormatString, variableReport)
+    for filename in allKnownExeFiles:
+        SafeAddEntry(rGitIgnoreDict, package, filename)

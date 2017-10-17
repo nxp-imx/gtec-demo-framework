@@ -11,26 +11,24 @@
 // Based on a example called 'Texture' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
-#include <FslGraphicsVulkan1_0/Buffer.hpp>
-#include <FslGraphicsVulkan1_0/CommandBuffer.hpp>
-#include <FslGraphicsVulkan1_0/CommandPool.hpp>
-#include <FslGraphicsVulkan1_0/Device.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSet.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/Framebuffer.hpp>
-#include <FslGraphicsVulkan1_0/Instance.hpp>
-#include <FslGraphicsVulkan1_0/ImageView.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
-#include <FslGraphicsVulkan1_0/RenderPass.hpp>
-#include <FslGraphicsVulkan1_0/Sampler.hpp>
-#include <FslGraphicsVulkan1_0/Semaphore.hpp>
-#include <FslGraphicsVulkan1_0/ShaderModule.hpp>
-#include <FslGraphicsVulkan1_0/Extend/SwapchainKHREx.hpp>
-#include <VulkanExperimental/DeviceQueue.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
+#include <RapidVulkan/Buffer.hpp>
+#include <RapidVulkan/CommandBuffer.hpp>
+#include <RapidVulkan/CommandPool.hpp>
+#include <RapidVulkan/Device.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSet.hpp>
+#include <RapidVulkan/Memory.hpp>
+#include <RapidVulkan/Framebuffer.hpp>
+#include <RapidVulkan/Instance.hpp>
+#include <RapidVulkan/ImageView.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
+#include <RapidVulkan/RenderPass.hpp>
+#include <RapidVulkan/Sampler.hpp>
+#include <RapidVulkan/Semaphore.hpp>
+#include <RapidVulkan/ShaderModule.hpp>
 #include <deque>
 #include <vector>
 #include <glm/matrix.hpp>
@@ -41,8 +39,8 @@ namespace Fsl
 {
   struct BufferData
   {
-    Vulkan::Buffer Buffer;
-    Vulkan::Memory Memory;
+    RapidVulkan::Buffer Buffer;
+    RapidVulkan::Memory Memory;
     VkDescriptorBufferInfo Descriptor;
     VkDeviceSize Size;
     VkDeviceSize Alignment;
@@ -60,6 +58,8 @@ namespace Fsl
       , Size(0)
       , Alignment(0)
       , pMapped(nullptr)
+      , usageFlags(0)
+      , memoryPropertyFlags(0)
     {
     }
   };
@@ -98,18 +98,20 @@ namespace Fsl
 
     struct TextureData
     {
-      Vulkan::Sampler Sampler;
-      Vulkan::Image Image;
+      RapidVulkan::Sampler Sampler;
+      RapidVulkan::Image Image;
       VkImageLayout ImageLayout;
-      Vulkan::Memory DeviceMemory;
-      Vulkan::ImageView View;
+      RapidVulkan::Memory DeviceMemory;
+      RapidVulkan::ImageView View;
       VkDescriptorImageInfo Descriptor;
       uint32_t Width;
       uint32_t Height;
       uint32_t MipLevels;
 
       TextureData()
-        : Width(0)
+        : ImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
+        , Descriptor{}
+        , Width(0)
         , Height(0)
         , MipLevels(0)
       {
@@ -128,12 +130,12 @@ namespace Fsl
     TextureData m_texture;
 
     // SetupDescriptorSetLayout
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
     // PreparePipelines
-    Vulkan::GraphicsPipeline m_graphicsPipeline;
+    RapidVulkan::GraphicsPipeline m_graphicsPipeline;
     // SetupDescriptorPool
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
     // SetupDescriptorSet
     // We use the native type here since this is managed by a pool
     VkDescriptorSet m_descriptorSet;

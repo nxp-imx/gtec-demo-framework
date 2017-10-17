@@ -32,7 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/System/HighResolutionTimer.hpp>
-#include <FslDemoAppVG/DemoAppVG.hpp>
+#include <FslDemoApp/OpenVG/DemoAppVG.hpp>
 #include <deque>
 #include "IBench.hpp"
 

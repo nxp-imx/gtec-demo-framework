@@ -29,14 +29,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FractalShaderShared/ShaderUtil.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/DemoTime.hpp>
+#include <Shared/FractalShader/ShaderUtil.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "FractalShaderJulia.hpp"
-#include <FractalShaderShared/OptionParser.hpp>
+#include <Shared/FractalShader/OptionParser.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <GLES2/gl2.h>
 #include <iostream>

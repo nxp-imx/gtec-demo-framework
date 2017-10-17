@@ -31,24 +31,28 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <memory>
 #include <FslBase/ITag.hpp>
 #include <FslBase/Noncopyable.hpp>
 #include <FslBase/Getopt/IOptionParser.hpp>
-#include <FslNativeWindow/NativeWindowConfig.hpp>
-#include <FslDemoHost/Service/Test/TestScreenshotNameScheme.hpp>
-#include <FslDemoHost/LogStatsMode.hpp>
+#include <FslDemoPlatform/DurationExitConfig.hpp>
+#include <FslGraphics/ImageFormat.hpp>
+#include <FslNativeWindow/Base/NativeWindowConfig.hpp>
+#include <FslDemoHost/Base/Service/Test/TestScreenshotConfig.hpp>
+#include <FslDemoHost/Base/LogStatsMode.hpp>
+#include <chrono>
+#include <memory>
 
 namespace Fsl
 {
+
   class DemoHostManagerOptionParser
     : public IOptionParser
     , private Noncopyable
   {
     int32_t m_exitAfterFrame;
-    uint32_t m_screenshotFrequency;
+    DurationExitConfig m_exitAfterDuration;
+    TestScreenshotConfig m_screenshotConfig;
     uint32_t m_forceUpdateTime;
-    TestScreenshotNameScheme m_screenshotNameScheme;
     LogStatsMode m_logStatsMode;
     bool m_stats;
     bool m_appFirewall;
@@ -57,18 +61,29 @@ namespace Fsl
   public:
     DemoHostManagerOptionParser();
 
+    virtual std::string GetName() const override
+    {
+      return std::string("DemoHostManagerOptionParser");
+    }
+
     virtual void ArgumentSetup(std::deque<Option>& rOptions) override;
     virtual OptionParseResult::Enum Parse(const int32_t cmdId, const char*const pszOptArg) override;
     virtual bool ParsingComplete() override;
 
     //! Returns a negative value if we should render a unlimited amount of frames.
     int32_t GetExitAfterFrame() const;
+
+    //! Return the current duration exit config
+    DurationExitConfig GetDurationExitConfig() const
+    {
+      return m_exitAfterDuration;
+    }
+
     //! Returns zero if forced timing is disabled
     uint32_t GetForceUpdateTime() const;
-    //! Returns zero if screenshot is disabled
-    uint32_t GetScreenshotFrequency() const;
-    //! Get the screenshot name scheme
-    TestScreenshotNameScheme GetScreenshotNameScheme() const;
+
+    //! Get the screenshot config
+    TestScreenshotConfig GetScreenshotConfig() const;
 
     //! @brief Get the current log stats mode
     LogStatsMode GetLogStatsMode() const;
@@ -83,6 +98,11 @@ namespace Fsl
     bool IsContentMonitorEnabled() const;
 
     void RequestEnableAppFirewall();
+  private:
+    OptionParseResult::Enum ParseDurationExitConfig(const char*const pszOptArg);
+    OptionParseResult::Enum ParseScreenshotImageFormat(const char*const pszOptArg);
+    OptionParseResult::Enum ParseScreenshotNamePrefix(const char*const pszOptArg);
+    OptionParseResult::Enum ParseScreenshotNameScheme(const char*const pszOptArg);
   };
 }
 

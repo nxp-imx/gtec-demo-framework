@@ -4,8 +4,8 @@
 * Primitive restart operation
 */
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "E4_0_PRestart.hpp"
 #include <GLES3/gl3.h>
 #include <iostream>

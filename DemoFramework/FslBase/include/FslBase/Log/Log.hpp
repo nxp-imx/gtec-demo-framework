@@ -126,9 +126,15 @@
   { \
     if( Fsl::Logger::GetLogLevel() >= Fsl::LogType::Error ) \
     { \
-      std::stringstream sTREAM; \
-      sTREAM << "ERROR: " << lINE; \
-      Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      try \
+      { \
+        std::stringstream sTREAM; \
+        sTREAM << "ERROR: " << lINE; \
+        Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      } \
+      catch (const std::exception&) \
+      { \
+      } \
     } \
   }
 
@@ -137,9 +143,15 @@
   { \
     if ((cOND) && Fsl::Logger::GetLogLevel() >= Fsl::LogType::Error) \
     { \
-      std::stringstream sTREAM; \
-      sTREAM << "ERROR: " << lINE; \
-      Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      try \
+      { \
+        std::stringstream sTREAM; \
+        sTREAM << "ERROR: " << lINE; \
+        Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      } \
+      catch (const std::exception&) \
+      { \
+      } \
     } \
   }
 
@@ -149,9 +161,15 @@
   { \
     if( Fsl::Logger::GetLogLevel() >= (tYPE) ) \
     { \
-      std::stringstream sTREAM; \
-      sTREAM << lINE; \
-      Fsl::Logger::WriteLine((tYPE), sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      try \
+      { \
+        std::stringstream sTREAM; \
+        sTREAM << lINE; \
+        Fsl::Logger::WriteLine((tYPE), sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      } \
+      catch (const std::exception&) \
+      { \
+      } \
     } \
   }
 
@@ -160,9 +178,15 @@
   { \
     if ((cOND) && Fsl::Logger::GetLogLevel() >= (tYPE)) \
     { \
-      std::stringstream sTREAM; \
-      sTREAM << lINE; \
-      Fsl::Logger::WriteLine((tYPE), sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      try \
+      { \
+        std::stringstream sTREAM; \
+        sTREAM << lINE; \
+        Fsl::Logger::WriteLine((tYPE), sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      } \
+      catch (const std::exception&) \
+      { \
+      } \
     } \
   }
 

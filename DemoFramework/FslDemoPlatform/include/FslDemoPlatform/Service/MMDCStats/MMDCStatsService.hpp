@@ -32,12 +32,12 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Service/ServiceProvider.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalService.hpp>
-#include <FslDemoPlatform/Service/MMDCStats/IMMDCStatsService.hpp>
-#include <FslDemoApp/Service/Profiler/IProfilerService.hpp>
-#include <FslDemoApp/Service/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
+#include <FslDemoApp/Base/Service/Profiler/ScopedProfilerCustomCounterHandle.hpp>
+#include <FslDemoPlatform/Service/MMDCStats/IMMDCStatsService.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <memory>
 
 namespace Fsl

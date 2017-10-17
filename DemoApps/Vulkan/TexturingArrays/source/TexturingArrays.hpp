@@ -11,12 +11,12 @@
 // Based on a example called 'Texture Arrays' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
 
 namespace Fsl
 {
@@ -76,7 +76,7 @@ namespace Fsl
 
     struct Pipelines
     {
-      Vulkan::GraphicsPipeline Solid;
+      RapidVulkan::GraphicsPipeline Solid;
     };
 
 
@@ -85,10 +85,10 @@ namespace Fsl
     Meshes m_meshes;
     UboVS m_uboVS;
     UniformData m_uniformData;
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
     Pipelines m_pipelines;
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
     // We use the native type here since this is managed by a pool
     VkDescriptorSet m_descriptorSet;
 

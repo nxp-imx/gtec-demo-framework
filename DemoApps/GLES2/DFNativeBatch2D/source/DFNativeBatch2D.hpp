@@ -31,12 +31,12 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
-#include <FslDemoAppGLES2/DemoAppGLES2.hpp>
-#include <FslGraphicsGLES2/GLTexture.hpp>
-#include <FslGraphicsGLES2/NativeBatch2D.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslUtil/OpenGLES2/GLTexture.hpp>
+#include <FslUtil/OpenGLES2/NativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <DFNativeBatch2DShared/TextureAtlasScene.hpp>
+#include <Shared/DFNativeBatch2D/TextureAtlasScene.hpp>
 
 namespace Fsl
 {

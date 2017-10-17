@@ -29,8 +29,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslGraphics/Color.hpp>
 #include "DFNativeBatch2D.hpp"

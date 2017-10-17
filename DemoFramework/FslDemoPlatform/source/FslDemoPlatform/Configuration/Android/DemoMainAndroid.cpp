@@ -41,7 +41,7 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/ITag.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslNativeWindowPlatform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
+#include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include "NDKHelper.h"
 #include "JNIUtil.hpp"

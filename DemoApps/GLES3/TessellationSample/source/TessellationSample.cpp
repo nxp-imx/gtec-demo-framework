@@ -31,23 +31,23 @@
 
 #include "TessellationSample.hpp"
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
-#include <FslGraphicsGLES3/GLUtil.hpp>
-#include <FslSimpleUI/IWindowManager.hpp>
-#include <FslSimpleUI/WindowContext.hpp>
-#include <FslSimpleUI/Control/CheckBox.hpp>
-#include <FslSimpleUI/Control/Label.hpp>
-#include <FslSimpleUI/Control/LabelButton.hpp>
-#include <FslSimpleUI/Control/Slider.hpp>
-#include <FslSimpleUI/Layout/FillLayout.hpp>
-#include <FslSimpleUI/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/Event/WindowSelectEvent.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Base/Control/CheckBox.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/LabelButton.hpp>
+#include <FslSimpleUI/Base/Control/Slider.hpp>
+#include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
 #include <GLES3/gl31.h>

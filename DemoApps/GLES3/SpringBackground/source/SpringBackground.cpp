@@ -29,11 +29,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseButtonEvent.hpp>
-#include <FslDemoApp/Service/Events/Basic/MouseMoveEvent.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include "SpringBackground.hpp"
 #include "OptionParser.hpp"

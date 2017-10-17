@@ -29,9 +29,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppOpenVX/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/OpenVX/Setup/RegisterDemoApp.hpp>
 #include "VxTutorial1.hpp"
 
-
-// Configure the demo environment to run this demo app in a OpenVX host environment
-FSL_REGISTER_OPENVX_DEMO(VxTutorial1);
+namespace Fsl
+{
+  // Configure the demo environment to run this demo app in a OpenVX host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppRegister::OpenVX::Register<VxTutorial1>(rSetup, "OpenVX.VxTutorial1");
+  }
+}

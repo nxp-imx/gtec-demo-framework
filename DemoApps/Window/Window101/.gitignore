@@ -7,6 +7,7 @@ Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+Window.Window101
 Window.Window101.VC.VC.opendb
 Window.Window101.VC.db
 Window.Window101.aps
@@ -20,8 +21,16 @@ Window.Window101.v12.suo
 Window.Window101.vcxproj
 Window.Window101.vcxproj.filters
 Window.Window101.vcxproj.user
+Window.Window101_FB
+Window.Window101_Wayland
+Window.Window101_X11
+Window101
 Window101_FB
+Window101_FB_d
 Window101_Wayland
+Window101_Wayland_d
 Window101_X11
+Window101_X11_d
+Window101_d
 build/
 resource.h

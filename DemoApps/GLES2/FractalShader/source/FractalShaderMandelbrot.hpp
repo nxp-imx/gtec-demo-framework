@@ -31,11 +31,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FractalShaderShared/IScene.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
-#include <FslGraphicsGLES2/GLTexture.hpp>
-#include <FslGraphicsGLES2/GLVertexBuffer.hpp>
+#include <Shared/FractalShader/IScene.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLTexture.hpp>
+#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 

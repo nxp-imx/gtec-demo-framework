@@ -39,10 +39,17 @@
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/IO/BMPUtil.hpp>
+#include <FslGraphics/Texture/Texture.hpp>
+#include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslDemoPlatform/Service/ImageLibrary/ImageLibraryServiceDevIL.hpp>
 #include <cassert>
 #include <sstream>
+#include <utility>
 #include <IL/il.h>
+#ifdef _WIN32
+#include <FslBase/System/Platform/PlatformWin32.hpp>
+#endif
+
 #ifdef _WIN32
 #include <FslBase/System/Platform/PlatformWin32.hpp>
 #endif
@@ -67,7 +74,6 @@ namespace Fsl
         , Type(type)
       {
       }
-
 
       bool operator==(const DevILPixelFormat& rhs) const
       {
@@ -106,6 +112,11 @@ namespace Fsl
         if (format.Type == IL_UNSIGNED_BYTE)
         {
           rPixelFormat = PixelFormat::R8G8B8_UINT;
+          return true;
+        }
+        else if(format.Type == IL_FLOAT)
+        {
+          rPixelFormat = PixelFormat::R32G32B32_SFLOAT;
           return true;
         }
         break;
@@ -202,6 +213,8 @@ namespace Fsl
         return DevILPixelFormat(IL_RGBA, IL_UNSIGNED_BYTE);
       case PixelFormatLayout::B8G8R8A8:
         return DevILPixelFormat(IL_BGRA, IL_UNSIGNED_BYTE);
+      case PixelFormatLayout::R32G32B32:
+        return DevILPixelFormat(IL_RGB, IL_FLOAT);
       case PixelFormatLayout::R32G32B32A32:
         return DevILPixelFormat(IL_RGBA, IL_FLOAT);
       case PixelFormatLayout::R16G16B16A16:
@@ -228,15 +241,33 @@ namespace Fsl
     };
 
 
-    bool LoadILImage(Bitmap& rBitmap, const IO::Path& path, const DevILPixelFormat& pixelFormatHint, const bool convertFormat, BitmapOrigin bitmapOrigin)
+    void ResetObject(Bitmap& rBitmap, std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
     {
+      rBitmap.Reset(std::move(content), extent, pixelFormat, bitmapOrigin);
+    }
+
+
+    void ResetObject(Texture& rTexture, std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin)
+    {
+      rTexture.Reset(std::move(content), extent, pixelFormat, bitmapOrigin);
+    }
+
+
+    template<typename TImageContainer>
+    bool LoadILImage(TImageContainer& rImageContainer, const IO::Path& path, const PixelFormat pixelFormatHint,
+                     const BitmapOrigin bitmapOrigin, const PixelChannelOrder preferredChannelOrderHint)
+    {
+      bool doFormatConversion = pixelFormatHint != PixelFormat::Undefined;
+      DevILPixelFormat targetFormat;
+      if (doFormatConversion)
+        targetFormat = Convert(pixelFormatHint);
+
       // Check if we should try a format conversion or not
       // the conversion is just a hint and if we don't support it we should just not do any conversion
-      bool doFormatConversion = convertFormat;
       if (doFormatConversion)
       {
         PixelFormat tmpFormat;
-        if (!TryConvert(pixelFormatHint, tmpFormat))
+        if (!TryConvert(targetFormat, tmpFormat))
           doFormatConversion = false;
       }
 
@@ -272,17 +303,28 @@ namespace Fsl
       const int imageType = ilGetInteger(IL_IMAGE_TYPE);
       DevILPixelFormat currentPixelFormat(imageFormat, imageType);
 
-      if (doFormatConversion && currentPixelFormat != pixelFormatHint)
+      if (pixelFormatHint == PixelFormat::Undefined && preferredChannelOrderHint != PixelChannelOrder::Undefined )
+      {
+        const PixelFormat activePixelFormat = Convert(currentPixelFormat);
+        const auto preferredPixelFormat = PixelFormatUtil::Transform(activePixelFormat, preferredChannelOrderHint);
+        if (activePixelFormat != preferredPixelFormat)
+        {
+          PixelFormat tmpFormat;
+          targetFormat = Convert(preferredPixelFormat);
+          doFormatConversion = TryConvert(targetFormat, tmpFormat);
+        }
+      }
+
+      if (doFormatConversion && currentPixelFormat != targetFormat)
       {
         // The ilCopyPixels crash when using IL_ALPHA this prevents that
-        if ( pixelFormatHint.Format != IL_ALPHA )
-          currentPixelFormat = pixelFormatHint;
+        if (targetFormat.Format != IL_ALPHA )
+          currentPixelFormat = targetFormat;
       }
 
 
       // Extract the image.
       {
-        // TODO: Remove the temporary content array by copying it into the bitmap directly instead
         const PixelFormat activePixelFormat = Convert(currentPixelFormat);
         const DevILPixelFormat activeImageFormat = Convert(activePixelFormat);
         const int bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(activePixelFormat);
@@ -291,7 +333,8 @@ namespace Fsl
 
         std::vector<uint8_t> content(width * height * bytesPerPixel);
         ilCopyPixels(0, 0, 0, width, height, 1, activeImageFormat.Format, activeImageFormat.Type, content.data());
-        rBitmap.Reset(content.data(), Extent2D(width, height), activePixelFormat, bitmapOrigin);
+
+        ResetObject(rImageContainer, std::move(content), Extent2D(width, height), activePixelFormat, bitmapOrigin);
       }
 
       devilError = ilGetError();
@@ -299,6 +342,31 @@ namespace Fsl
       // Log any error that occurs
       FSLLOG_WARNING_IF(devilError != IL_NO_ERROR, "devIL image conversion not successfull (" << devilError << ").\n");
       return (devilError == IL_NO_ERROR);
+    }
+
+
+    template<typename TImageContainer>
+    bool TryReadNow(TImageContainer& rImageContainer, const IO::Path& path, const PixelFormat pixelFormatHint, const BitmapOrigin originHint,
+                    const PixelChannelOrder preferredChannelOrderHint, BitmapOrigin& rLastOrigin)
+    {
+      try
+      {
+        BitmapOrigin origin = originHint;
+        if (originHint != rLastOrigin)
+        {
+          rLastOrigin = originHint;
+          const ILenum devOrigin = Convert(origin);
+          ilOriginFunc(devOrigin);
+        }
+
+
+        return LoadILImage(rImageContainer, path, pixelFormatHint, origin, preferredChannelOrderHint);
+      }
+      catch (std::exception&ex)
+      {
+        FSLLOG_WARNING("devIL image conversion not successfull (" << ex.what() << ").\n");
+        return false;
+      }
     }
   }
 
@@ -338,39 +406,20 @@ namespace Fsl
     rFormats.push_back(ImageFormat::Bmp);
     rFormats.push_back(ImageFormat::Png);
     rFormats.push_back(ImageFormat::Jpeg);
+    rFormats.push_back(ImageFormat::Hdr);
+    rFormats.push_back(ImageFormat::Tga);
   }
 
 
-  bool ImageLibraryServiceDevIL::TryRead(Bitmap& rBitmap, const IO::Path& path, const PixelFormat pixelFormatHint, const BitmapOrigin originHint)
+  bool ImageLibraryServiceDevIL::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
-    try
-    {
-      BitmapOrigin origin = originHint;
-      if (originHint != m_lastOrigin)
-      {
-        m_lastOrigin = originHint;
-        const ILenum devOrigin = Convert(origin);
-        ilOriginFunc(devOrigin);
-      }
-
-      const bool convertFormat = pixelFormatHint != PixelFormat::Undefined;
-      DevILPixelFormat format;
-      if (convertFormat)
-        format = Convert(pixelFormatHint);
-
-      return LoadILImage(rBitmap, path, format, convertFormat, origin);
-    }
-    catch (std::exception&ex)
-    {
-      FSLLOG_WARNING("devIL image conversion not successfull (" << ex.what() << ").\n");
-      return false;
-    }
+    return TryReadNow(rBitmap, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint, m_lastOrigin);
   }
 
 
-  bool ImageLibraryServiceDevIL::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint)
+  bool ImageLibraryServiceDevIL::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
-    return false;
+    return TryReadNow(rTexture, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint, m_lastOrigin);
   }
 
 

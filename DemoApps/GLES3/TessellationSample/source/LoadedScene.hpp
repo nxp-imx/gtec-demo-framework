@@ -46,7 +46,6 @@ namespace Fsl
     : public AScene
   {
     Point2 m_screenResolution;
-    float m_fieldOfView;
   public:
     LoadedScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t id);
     ~LoadedScene();

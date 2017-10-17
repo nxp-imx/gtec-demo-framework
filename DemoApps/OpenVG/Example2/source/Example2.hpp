@@ -31,8 +31,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppVG/DemoAppVG.hpp>
-#include <FslGraphicsVG/VGPathBuffer.hpp>
+#include <FslDemoApp/OpenVG/DemoAppVG.hpp>
+#include <FslUtil/OpenVG/VGPathBuffer.hpp>
 #include "VG/openvg.h"
 #include "VG/vgu.h"
 

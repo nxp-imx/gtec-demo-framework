@@ -30,8 +30,8 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "OpenCL101.hpp"
 #include <GLES3/gl3.h>
 #include <CL/cl.h>

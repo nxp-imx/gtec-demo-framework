@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -32,63 +32,70 @@
 #****************************************************************************************************************************************************
 
 import errno
-import sys
+import io
 import os
-import stat
 import os.path
-from FslBuildGen.Exceptions import *
-from FslBuildGen import Util
+import shutil
+import stat
+import sys
+from typing import Any
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
+#from FslBuildGen.Exceptions import *
+#from FslBuildGen import Util
 
-def ReadFile(filename):
+def ReadFile(filename: str, newline: Optional[str] = None) -> str:
     content = None
-    with open(filename, "r") as theFile:
-        content = theFile.read()
+    with io.open(filename, "r", newline=newline) as theFile:
+        content = str(theFile.read())
     return content
 
 
-def TryReadFile(filename):
+def TryReadFile(filename: str) -> Optional[str]:
     try:
         return ReadFile(filename)
     except IOError:
         return None
 
 
-def WriteFile(filename, content):
-    with open(filename, "w") as theFile:
+def WriteFile(filename: str, content: str, newline: Optional[str] = None) -> None:
+    with io.open(filename, "w", newline=newline) as theFile:
         theFile.write(content)
 
 
-def WriteFileIfChanged(filename, content):
+def WriteFileIfChanged(filename: str, content: str, newline: Optional[str] = None) -> None:
     existingContent = None
     if os.path.exists(filename):
         if os.path.isfile(filename):
             existingContent = ReadFile(filename)
         else:
-            raise IOError("'%s' exist but it's not a file" % (filename))
+            raise IOError("'{0}' exist but it's not a file".format(filename))
     if content != existingContent:
-        WriteFile(filename, content)
+        WriteFile(filename, content, newline=newline)
 
 
-def ReadBinaryFile(filename):
+def ReadBinaryFile(filename: str) -> bytes:
     content = None
     with open(filename, "rb") as theFile:
         content = theFile.read()
     return content
 
 
-def TryReadBinaryFile(filename):
+def TryReadBinaryFile(filename: str) -> Optional[bytes]:
     try:
         return ReadBinaryFile(filename)
     except IOError:
         return None
 
 
-def WriteBinaryFile(filename, content):
+def WriteBinaryFile(filename: str, content: bytes) -> None:
     with open(filename, "wb") as theFile:
         theFile.write(content)
 
 
-def WriteBinaryFileIfChanged(filename, content):
+def WriteBinaryFileIfChanged(filename: str, content: bytes) -> None:
     existingContent = None
     if os.path.exists(filename):
         if os.path.isfile(filename):
@@ -98,62 +105,92 @@ def WriteBinaryFileIfChanged(filename, content):
     if content != existingContent:
         WriteBinaryFile(filename, content)
 
-def SetFileExecutable(filename):
+
+def SetFileExecutable(filename: str) -> None:
     st = os.stat(filename)
     os.chmod(filename, st.st_mode | stat.S_IEXEC)
     st = os.stat(filename)
 
 
-def IsFile(filename):
+def Exists(path: str) -> bool:
+    return os.path.exists(path)
+
+
+def IsFile(filename: str) -> bool:
     return os.path.isfile(filename)
 
 
-def IsDirectory(path):
+def IsDirectory(path: str) -> bool:
     return os.path.isdir(path)
 
 
-def RemoveFile(filename):
+def RemoveFile(filename: str) -> None:
     try:
         os.remove(filename)
     except OSError:
         pass
 
 
-def TryGetEnvironmentVariable(name):
-    return Util.EnsureUTF8(os.environ.get(name))
+def IsAbsolutePath(sourcePath: str) -> bool:
+    return os.path.isabs(sourcePath)
 
 
-def GetEnvironmentVariableForAbsolutePath(name):
+def RemoveAllContent(pathDir: str, directoryMustExist: bool = True) -> None:
+    """ Removes all files and directories from the given directory """
+    if not IsDirectory(pathDir):
+        if directoryMustExist:
+            raise Exception("Usage error '{0}' is not a directory".format(pathDir))
+        return
+
+    for item in os.listdir(pathDir):
+        fullPath = os.path.join(pathDir, item)
+        if IsFile(fullPath):
+            os.remove(fullPath)
+        elif IsDirectory(fullPath):
+            shutil.rmtree(fullPath)
+
+
+def TryGetEnvironmentVariable(name: str) -> Optional[str]:
+    return os.environ.get(name)
+
+def GetEnvironmentVariable(name: str) -> Optional[str]:
+    result = os.environ.get(name)
+    if result is None:
+        raise EnvironmentError("'{0}' environment variable not set".format(name))
+    return result
+
+
+def GetEnvironmentVariableForAbsolutePath(name: str) -> str:
     path = TryGetEnvironmentVariable(name)
-    if path == None:
-        raise EnvironmentError("%s environment variable not set" % name)
+    if path is None:
+        raise EnvironmentError("'{0}' environment variable not set".format(name))
     path = NormalizePath(path)
-    if path == None:
-        raise EnvironmentError("%s environment variable not set" % name)
+    if path is None:
+        raise EnvironmentError("'{0}' environment variable not set".format(name))
     if not os.path.isabs(path):
-        raise EnvironmentError("%s environment path '%s' is not absolute" % (name, path))
+        raise EnvironmentError("'{0}' environment path '{1}' is not absolute".format(name, path))
     if path.endswith("/"):
-        raise EnvironmentError("%s environment path not allowed to end with '/' or '\'" % (name, path))
+        raise EnvironmentError("'{0}' environment path '{1}' not allowed to end with '/' or '\'".format(name, path))
     return path
 
 
-def GetEnvironmentVariableForDirectory(name):
+def GetEnvironmentVariableForDirectory(name: str) -> str:
     path = TryGetEnvironmentVariable(name)
-    if path == None:
-        raise EnvironmentError("%s environment variable not set" % name)
+    if path is None:
+        raise EnvironmentError("{0} environment variable not set".format(name))
     path = NormalizePath(path)
-    if path == None:
-        raise EnvironmentError("%s environment variable not set" % name)
+    if path is None:
+        raise EnvironmentError("{0} environment variable not set".format(name))
+    if not os.path.isabs(path):
+        raise EnvironmentError("{0} environment path '{1}' is not absolute".format(name, path))
+    if path.endswith("/"):
+        raise EnvironmentError("{0} environment path '{1}' not allowed to end with '/' or '\'".format(name, path))
     if not os.path.isdir(path):
-        raise EnvironmentError("%s environment variable does not point to a valid directory" % name)
-    if not os.path.isabs(path):
-        raise EnvironmentError("%s environment path '%s' is not absolute" % (name, path))
-    if path.endswith("/"):
-        raise EnvironmentError("%s environment path not allowed to end with '/' or '\'" % (name, path))
+        raise EnvironmentError("The {0} environment variable content '{1}' does not point to a valid directory".format(name, path))
     return path
 
 
-def SafeMakeDirs(path):
+def SafeMakeDirs(path: str) -> None:
     try:
         os.makedirs(path)
     except OSError as exc: # Python >2.5
@@ -162,8 +199,32 @@ def SafeMakeDirs(path):
         else:
             raise
 
+# TODO: find the correct type for the excinfo
+def __OnRMError(func: object, path: str, excinfo: Any) -> None:
+    # Deal with read only files
+    if IsFile(path):
+        os.chmod(path, stat.S_IWRITE)
+        os.remove(path)
+    elif IsDirectory(path):
+        os.chmod(path, stat.S_IWRITE)
+        os.removedirs(path)
+    else:
+        raise excinfo[0](excinfo[1]).with_traceback(excinfo[2])
 
-def CopySmallFile(srcFilename, dstFilename):
+
+def SafeRemoveDirectoryTree(path: str, logExceptionAsWarningButContinue: bool = False) -> None:
+    """ Beware this also removes read only files """
+    try:
+        if IsDirectory(path):
+            shutil.rmtree(path, onerror=__OnRMError)
+    except Exception as ex:
+        if not logExceptionAsWarningButContinue:
+            raise
+        print(("WARNING: Could not remove the directory at '{0}' because {1}".format(path, str(ex))))
+
+
+
+def CopySmallFile(srcFilename: str, dstFilename: str) -> None:
     srcContent = None
     dstContent = None
     if os.path.exists(srcFilename):
@@ -178,71 +239,80 @@ def CopySmallFile(srcFilename, dstFilename):
         else:
             raise IOError("'%s' exist but it's not a file" % (dstFilename))
 
-    if srcContent == None:
-            raise IOError("'%s' not found" % (srcFilename))
+    if srcContent is None:
+        raise IOError("'%s' not found" % (srcFilename))
 
     if srcContent != dstContent:
-        if dstContent == None:
-            dstDirName = os.path.dirname(dstFilename);
+        if dstContent is None:
+            dstDirName = os.path.dirname(dstFilename)
             if not os.path.exists(dstDirName):
                 SafeMakeDirs(dstDirName)
         WriteBinaryFileIfChanged(dstFilename, srcContent)
 
 
-def ToUnixStylePath(path):
-    if path == None:
+
+def ToUnixStylePath(path: str) -> str:
+    # Workaround the fact that paths on windows sometimes come with a uppercase drive letter and sometimes a lowercase
+    if len(path) > 2 and (path[1] == ':' and (path[0] >= 'a' and path[0] <= 'z')):
+        path = path[0].upper() + path[1:]
+    return path.replace("\\", "/")
+
+
+def TryToUnixStylePath(path: Optional[str]) -> Optional[str]:
+    if path is None:
         return None
     return path.replace("\\", "/")
 
 
-def NormalizePath(path):
+def NormalizePath(path: str) -> str:
     return ToUnixStylePath(os.path.normpath(path))
 
 
-def Join(path1, path2):
+def Join(path1: str, path2: str) -> str:
     return ToUnixStylePath(os.path.join(path1, path2))
 
 
-def GetFileName(path):
+def GetFileName(path: str) -> str:
     return os.path.basename(path)
 
-def GetFileNameWithoutExtension(path):
+
+def GetFileNameWithoutExtension(path: str) -> str:
     return os.path.splitext(os.path.basename(path))[0]
 
-def GetFileNameExtension(path):
+
+def GetFileNameExtension(path: str) -> str:
     return os.path.splitext(os.path.basename(path))[1]
 
 
-def GetFilePaths(directory, filter):
+def GetFilePaths(directory: str, endswithFilter: Optional[Union[str, Tuple[str, ...]]]) -> List[str]:
     """
     This function will generate the file names in a directory
     tree by walking the tree either top-down or bottom-up. For each
     directory in the tree rooted at directory top (including top itself),
     it yields a 3-tuple (dirpath, dirnames, filenames).
     """
-    file_paths = []  # List which will store all of the full filepaths.
+    filePaths = []  # type: List[str]   # List which will store all of the full filepaths.
 
     try:
         # Walk the tree.
         for root, directories, files in os.walk(directory):
             for filename in files:
-                if filter == None or filename.endswith(filter):
+                if endswithFilter is None or filename.endswith(endswithFilter):
                     # Join the two strings in order to form the full filepath.
                     filepath = os.path.join(root, filename)
-                    file_paths.append(ToUnixStylePath(filepath))  # Add it to the list.
-    except StopIteration as exc: # Python >2.5
-        return file_paths
-    return file_paths
+                    filePaths.append(ToUnixStylePath(filepath))  # Add it to the list.
+    except StopIteration: # Python >2.5
+        pass
+    return filePaths
 
 
-def GetFilesAt(directory, absolutePaths):
+def GetFilesAt(directory: str, absolutePaths: bool) -> List[str]:
     if absolutePaths:
-        return [ Join(directory,f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory,f)) ]
-    else:
-        return [ f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory,f)) ]
+        return [Join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
 
 
-def GetDirectoriesAt(directory, absolutePaths):
+def GetDirectoriesAt(directory: str, absolutePaths: bool) -> List[str]:
     """
     This function will generate the file names in a directory
     tree by walking the tree either top-down or bottom-up. For each
@@ -250,10 +320,10 @@ def GetDirectoriesAt(directory, absolutePaths):
     it yields a 3-tuple (dirpath, dirnames, filenames).
     """
 
-    file_paths = []  # List which will store all of the full filepaths.
+    #file_paths: List[str] = []  # List which will store all of the full filepaths.
 
     # Walk the tree.
-    res = []
+    res = []  # type: List[str]
     try:
         root, directories, files = next(os.walk(directory))
 
@@ -262,33 +332,34 @@ def GetDirectoriesAt(directory, absolutePaths):
             if absolutePaths:
                 dirpath = os.path.join(root, path)
             res.append(ToUnixStylePath(dirpath))
-    except StopIteration as exc: # Python >2.5
+    except StopIteration: # Python >2.5
         pass
     return res
 
 
-def GetExecutablePath():
+def GetExecutablePath() -> str:
     return NormalizePath(os.path.dirname(sys.argv[0]))
 
 
-def GetDirectoryName(path):
-    return NormalizePath(os.path.dirname(path))
+def GetDirectoryName(path: str) -> str:
+    directoryName = NormalizePath(os.path.dirname(path))
+    return directoryName if directoryName != '.' else ''
 
 
-def TryFindFileInCurrentOrParentDir(path, filename):
+def TryFindFileInCurrentOrParentDir(path: str, filename: str) -> Optional[str]:
     oldPath = None
     while path != oldPath:
         fullPath = os.path.join(path, filename)
-        if os.path.isfile(fullPath): 
+        if os.path.isfile(fullPath):
             return NormalizePath(fullPath)
         oldPath = path
         path = os.path.dirname(path)
     return None
 
 
-def FindExecutable(program):
+def TryFindExecutable(program: str) -> Optional[str]:
     """ Try to locate the given executable """
-    def IsExe(fpath):
+    def IsExe(fpath: str) -> bool:
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
     fpath, fname = os.path.split(program)
@@ -304,7 +375,7 @@ def FindExecutable(program):
     return None
 
 
-def FindFileInPath(filename):
+def TryFindFileInPath(filename: str) -> Optional[str]:
     fpath, fname = os.path.split(filename)
     if fpath:
         if os.path.isfile(filename):
@@ -316,3 +387,7 @@ def FindFileInPath(filename):
             if os.path.isfile(exeFile):
                 return exeFile
     return None
+
+
+def GetCurrentWorkingDirectory() -> str:
+    return NormalizePath(os.getcwd())

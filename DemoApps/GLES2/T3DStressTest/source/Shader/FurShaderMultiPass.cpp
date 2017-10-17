@@ -30,8 +30,8 @@
 ****************************************************************************************************************************************************/
 
 #include "FurShaderMultiPass.hpp"
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <algorithm>
 #include <cassert>
 

@@ -33,10 +33,10 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslGraphics_Draft/Procedural/BasicMesh.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLTexture.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslGraphics3D/Procedural/BasicMesh.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include "Config.hpp"
 #include "MeshRenderBasic.hpp"
 #include "MeshRenderNormals.hpp"

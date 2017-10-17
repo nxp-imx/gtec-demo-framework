@@ -1,23 +1,23 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python3
 #****************************************************************************************************************************************************
 #* BSD 3-Clause License
 #*
 #* Copyright (c) 2015, Mana Battery
 #* All rights reserved.
-#*
+#* 
 #* Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-#*
+#* 
 #* 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-#* 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+#* 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the 
 #*    documentation and/or other materials provided with the distribution.
-#* 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+#* 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this 
 #*    software without specific prior written permission.
-#*
-#* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-#* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-#* CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-#* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-#* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+#* 
+#* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+#* THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR 
+#* CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+#* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+#* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 #* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #****************************************************************************************************************************************************
 
@@ -105,14 +105,14 @@ class FormatPluginBinaryTA2(FormatPlugin):
         listDirs = []
         listFiles = []
         # Offset the indices by one so that 'zero' can mean the root
-        self.__BuildPathList(listDirs, listFiles, dict, 0, 1, "")
+        self.__BuildPathList(listDirs, listFiles, dict, 0, 1, "") 
         #print listDirs
         return [listDirs, listFiles]
 
 
     def __BuildPathList(self, listDirs, listFiles, dict, parentIndex, startIndex, parentName):
         totalIndex = startIndex
-        for item in dict.iteritems():
+        for item in dict.items():
             if len(item[1]) == 0:
                 listFiles.append([parentIndex, item[0], parentName])
             else:
@@ -120,7 +120,7 @@ class FormatPluginBinaryTA2(FormatPlugin):
                 totalIndex = totalIndex + 1
 
         count2 = startIndex
-        for items in dict.iteritems():
+        for items in dict.items():
             if len(items[1]) > 0:
                 totalIndex = self.__BuildPathList(listDirs, listFiles, items[1], count2, totalIndex, parentName + items[0] + "/" )
                 count2 = count2 + 1

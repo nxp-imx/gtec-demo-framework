@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES2.OpenCV101
 GLES2.OpenCV101.VC.VC.opendb
 GLES2.OpenCV101.VC.db
 GLES2.OpenCV101.aps
@@ -18,10 +19,15 @@ GLES2.OpenCV101.v12.suo
 GLES2.OpenCV101.vcxproj
 GLES2.OpenCV101.vcxproj.filters
 GLES2.OpenCV101.vcxproj.user
+GLES2.OpenCV101_FB
+GLES2.OpenCV101_Wayland
+GLES2.OpenCV101_X11
 GNUmakefile
 GNUmakefile_Yocto
+OpenCV101
 OpenCV101_FB
 OpenCV101_Wayland
 OpenCV101_X11
+OpenCV101_d
 build/
 resource.h

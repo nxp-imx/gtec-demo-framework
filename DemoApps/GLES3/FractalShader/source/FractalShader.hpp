@@ -31,8 +31,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FractalShaderShared/IScene.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <Shared/FractalShader/IScene.hpp>
 
 namespace Fsl
 {

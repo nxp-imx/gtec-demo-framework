@@ -49,6 +49,7 @@ namespace Fsl
 
       FileData()
         : IsDataValid(false)
+        , AttributeData{}
       {
       }
 
@@ -96,7 +97,7 @@ namespace Fsl
       {
         const std::wstring searchPath = PlatformWin32::Widen(path.ToUTF8String()) + L"/*";
 
-        WIN32_FIND_DATA fd;
+        WIN32_FIND_DATA fd{};
         HANDLE hFind = ::FindFirstFile(searchPath.c_str(), &fd);
         if (hFind != INVALID_HANDLE_VALUE)
         {

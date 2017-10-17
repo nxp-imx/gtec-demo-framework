@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="GLES3">
-    <UsesFeature Name="OpenGLES3"/>
+    <Requirement Name="OpenGLES3" Type="feature" Version="3" Extends="OpenGLES"/>
     <Dependency Name="GLES"/>
     <!--
     <Platform Name="Windows">
@@ -16,7 +16,7 @@
     <Platform Name="Android">
       <ExternalDependency Name="GLESv3" Type="StaticLib"/>
     </Platform>
-    <Platform Name="QNX" NotSupported="true"/>
+    <Platform Name="QNX" Supported="false"/>
     <Platform Name="CMake">
       <ExternalDependency Name="OpenGLES" Type="Find"/>
     </Platform>

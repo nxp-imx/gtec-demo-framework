@@ -31,13 +31,13 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FractalShaderShared/IScene.hpp>
-#include <FractalShaderShared/Config.hpp>
-#include <FractalShaderShared/JuliaHelper.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLTexture.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
+#include <Shared/FractalShader/IScene.hpp>
+#include <Shared/FractalShader/Config.hpp>
+#include <Shared/FractalShader/JuliaHelper.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 

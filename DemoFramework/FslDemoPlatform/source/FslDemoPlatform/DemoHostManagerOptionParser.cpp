@@ -29,10 +29,13 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <iostream>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
+#include <FslBase/Log/Log.hpp>
+#include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
+#include <iostream>
 
 namespace Fsl
 {
@@ -43,7 +46,10 @@ namespace Fsl
       enum Enum
       {
         ExitAfterFrame = DEMO_HOSTMANAGER_OPTION_BASE_INTERNAL,
+        ExitAfterDuration,
         ScreenshotFrequency,
+        ScreenshotFormat,
+        ScreenshotNamePrefix,
         LogStats,
         LogStatsMode,
         Stats,
@@ -54,13 +60,20 @@ namespace Fsl
         ForceUpdateTime
       };
     };
+
+    enum DurationFormat
+    {
+      Invalid,
+      Milliseconds,
+      Seconds
+    };
   }
 
   DemoHostManagerOptionParser::DemoHostManagerOptionParser()
     : m_exitAfterFrame(-1)
-    , m_screenshotFrequency(0)
+    , m_exitAfterDuration()
+    , m_screenshotConfig(TestScreenshotNameScheme::FrameNumber, ImageFormat::Png, 0, "Screenshot")
     , m_forceUpdateTime(0)
-    , m_screenshotNameScheme(TestScreenshotNameScheme::FrameNumber)
     , m_logStatsMode(LogStatsMode::Disabled)
     , m_stats(false)
     , m_appFirewall(false)
@@ -73,13 +86,16 @@ namespace Fsl
   void DemoHostManagerOptionParser::ArgumentSetup(std::deque<Option>& rOptions)
   {
     rOptions.push_back(Option("ExitAfterFrame", OptionArgument::OptionRequired, CommandId::ExitAfterFrame, "Exit after the given number of frames has been rendered"));
-    rOptions.push_back(Option("ScreenshotFrequency", OptionArgument::OptionRequired, CommandId::ScreenshotFrequency, "Create a screenshot at the given frame frequency"));
+    rOptions.push_back(Option("ExitAfterDuration", OptionArgument::OptionRequired, CommandId::ExitAfterDuration, "Exit after the given duration has passed. The value can be specified in seconds or milliseconds. For example 10s or 10ms."));
     rOptions.push_back(Option("LogStats", OptionArgument::OptionNone, CommandId::LogStats, "Log basic rendering stats (this is equal to setting LogStatsMode to latest)"));
     rOptions.push_back(Option("LogStatsMode", OptionArgument::OptionRequired, CommandId::LogStatsMode, "Set the log stats mode, more advanced version of LogStats. Can be disabled, latest, average"));
     rOptions.push_back(Option("Stats", OptionArgument::OptionNone, CommandId::Stats, "Display basic frame profiling stats"));
     rOptions.push_back(Option("AppFirewall", OptionArgument::OptionNone, CommandId::AppFirewall, "Enable the app firewall, reporting crashes on-screen instead of exiting"));
     rOptions.push_back(Option("EnableBasic2DPrealloc", OptionArgument::OptionRequired, CommandId::EnableBasic2DPrealloc, "Enable/disable basic2d preallocation (Stats is enabled this is forced true)", OptionGroup::Hidden));
-    rOptions.push_back(Option("ScreenshotNameScheme", OptionArgument::OptionRequired, CommandId::ScreenshotNameScheme, "Chose the screenshot name scheme (0=frame number, 1=sequence number)", OptionGroup::Hidden));
+    rOptions.push_back(Option("ScreenshotFrequency", OptionArgument::OptionRequired, CommandId::ScreenshotFrequency, "Create a screenshot at the given frame frequency"));
+    rOptions.push_back(Option("ScreenshotFormat", OptionArgument::OptionRequired, CommandId::ScreenshotFormat, "Chose the format for the screenshot: bmp, jpg, png or tga (defaults to png)"));
+    rOptions.push_back(Option("ScreenshotNamePrefix", OptionArgument::OptionRequired, CommandId::ScreenshotNamePrefix, "Chose the screenshot name prefix (defaults to 'Screenshot')"));
+    rOptions.push_back(Option("ScreenshotNameScheme", OptionArgument::OptionRequired, CommandId::ScreenshotNameScheme, "Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)"));
     rOptions.push_back(Option("ContentMonitor", OptionArgument::OptionNone, CommandId::ContentMonitor, "Monitor the Content directory for changes and restart the app on changes. WARNING: Might not work on all platforms and it might impact app performance (experimental)"));
     rOptions.push_back(Option("ForceUpdateTime", OptionArgument::OptionRequired, CommandId::ForceUpdateTime, "Force the update time to be the given value in microseconds (can be useful when taking a lot of screen-shots). If 0 this option is disabled"));
   }
@@ -87,7 +103,6 @@ namespace Fsl
 
   OptionParseResult::Enum DemoHostManagerOptionParser::Parse(const int32_t cmdId, const char*const pszOptArg)
   {
-    int32_t intValue;
     Rectangle rectValue;
     bool boolValue;
     switch (cmdId)
@@ -95,22 +110,17 @@ namespace Fsl
     case CommandId::ExitAfterFrame:
       StringParseUtil::Parse(m_exitAfterFrame, pszOptArg);
       return OptionParseResult::Parsed;
+    case CommandId::ExitAfterDuration:
+      return ParseDurationExitConfig(pszOptArg);
     case CommandId::ScreenshotFrequency:
-      StringParseUtil::Parse(m_screenshotFrequency, pszOptArg);
+      StringParseUtil::Parse(m_screenshotConfig.Frequency, pszOptArg);
       return OptionParseResult::Parsed;
+    case CommandId::ScreenshotFormat:
+      return ParseScreenshotImageFormat(pszOptArg);
     case CommandId::ScreenshotNameScheme:
-      StringParseUtil::Parse(intValue, pszOptArg);
-      if( intValue == 0 )
-      {
-        m_screenshotNameScheme = TestScreenshotNameScheme::FrameNumber;
-        return OptionParseResult::Parsed;
-      }
-      else if (intValue == 1)
-      {
-        m_screenshotNameScheme = TestScreenshotNameScheme::Sequential;
-        return OptionParseResult::Parsed;
-      }
-      return OptionParseResult::Failed;
+      return ParseScreenshotNameScheme(pszOptArg);
+    case CommandId::ScreenshotNamePrefix:
+      return ParseScreenshotNamePrefix(pszOptArg);
     case CommandId::ForceUpdateTime:
       StringParseUtil::Parse(m_forceUpdateTime, pszOptArg);
       return OptionParseResult::Parsed;
@@ -171,15 +181,9 @@ namespace Fsl
   }
 
 
-  uint32_t DemoHostManagerOptionParser::GetScreenshotFrequency() const
+  TestScreenshotConfig DemoHostManagerOptionParser::GetScreenshotConfig() const
   {
-    return m_screenshotFrequency;
-  }
-
-
-  TestScreenshotNameScheme DemoHostManagerOptionParser::GetScreenshotNameScheme() const
-  {
-    return m_screenshotNameScheme;
+    return m_screenshotConfig;
   }
 
 
@@ -219,4 +223,115 @@ namespace Fsl
     m_appFirewall = true;
   }
 
+
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseDurationExitConfig(const char*const pszOptArg)
+  {
+    std::string input(pszOptArg);
+
+    // First we identify the time duration format
+    DurationFormat durationFormat = DurationFormat::Invalid;
+    if (StringUtil::EndsWith(input, "ms"))
+    {
+      durationFormat = DurationFormat::Milliseconds;
+      input.erase(input.size() - 2, 2);
+    }
+    else if (StringUtil::EndsWith(input, "s"))
+    {
+      durationFormat = DurationFormat::Seconds;
+      input.erase(input.size() - 1, 1);
+    }
+
+    if (durationFormat == DurationFormat::Invalid || input.size() < 1)
+    {
+      FSLLOG("Unsupported duration string '" << input << "' expected a duration value like this 10s or 10ms");
+      return OptionParseResult::Failed;
+    }
+
+    int32_t durationValue;
+    StringParseUtil::Parse(durationValue, input.c_str());
+
+    switch (durationFormat)
+    {
+    case DurationFormat::Milliseconds:
+      m_exitAfterDuration = DurationExitConfig(true, std::chrono::milliseconds(durationValue));
+      break;
+    case DurationFormat::Seconds:
+      m_exitAfterDuration = DurationExitConfig(true, std::chrono::seconds(durationValue));
+      break;
+    default:
+      return OptionParseResult::Failed;
+    }
+
+    return OptionParseResult::Parsed;
+  }
+
+
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotImageFormat(const char*const pszOptArg)
+  {
+    ImageFormat format = ImageFormatUtil::TryDetectImageFormat(std::string(pszOptArg));
+    if (format == ImageFormat::Undefined)
+    {
+      FSLLOG("Unsupported image format '" << pszOptArg << "' expected 'bmp', 'jpg', 'png' or 'tga'");
+      return OptionParseResult::Failed;
+    }
+    switch (format)
+    {
+    case ImageFormat::Bmp:
+    // case ImageFormat::Hdr:
+    case ImageFormat::Jpeg:
+    case ImageFormat::Png:
+    case ImageFormat::Tga:
+      m_screenshotConfig.Format = format;
+      break;
+    default:
+      FSLLOG("Unsupported image format '" << pszOptArg << "' expected 'bmp', 'jpg', 'png' or 'tga'");
+      return OptionParseResult::Failed;
+    }
+    return OptionParseResult::Parsed;
+  }
+
+
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotNamePrefix(const char*const pszOptArg)
+  {
+    try
+    {
+      IO::Path path(pszOptArg);
+      if (IO::Path::GetFileName(path) != path)
+      {
+        FSLLOG_ERROR("The prefix can only contain a filename prefix, not a path '" << path.ToUTF8String() << "'");
+        return OptionParseResult::Failed;
+      }
+      m_screenshotConfig.FilenamePrefix = path.ToUTF8String();
+      return OptionParseResult::Parsed;
+    }
+    catch (const std::exception& ex)
+    {
+      FSLLOG_ERROR("Failed to parse screenshot name with error: " << ex.what());
+      return OptionParseResult::Failed;
+    }
+  }
+
+
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotNameScheme(const char*const pszOptArg)
+  {
+    std::string input(pszOptArg);
+
+    if (input == "frame")
+    {
+      m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::FrameNumber;
+      return OptionParseResult::Parsed;
+    }
+    else if (input == "sequential")
+    {
+      m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::Sequential;
+      return OptionParseResult::Parsed;
+    }
+    else if (input == "exact")
+    {
+      m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::Exact;
+      return OptionParseResult::Parsed;
+    }
+    FSLLOG_ERROR("Unsupported ScreenshotNameScheme '" << input << "' expected 'frame', 'sequential 'or 'exact'.");
+    return OptionParseResult::Failed;
+  }
 }

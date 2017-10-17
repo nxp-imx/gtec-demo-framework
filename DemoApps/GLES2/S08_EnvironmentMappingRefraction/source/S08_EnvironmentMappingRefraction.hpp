@@ -31,14 +31,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES2/DemoAppGLES2.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
-#include <FslGraphicsGLES2/GLTexture.hpp>
-#include <FslGraphicsGLES2/GLVertexBuffer.hpp>
-#include <FslGraphicsGLES2/GLIndexBuffer.hpp>
+#include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLTexture.hpp>
+#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES2/GLIndexBuffer.hpp>
 
-#include <EnvironmentMappingShared/EnvState.hpp>
-#include <EnvironmentMappingShared/EnvShaderInfo.hpp>
+#include <Shared/EnvironmentMapping/EnvState.hpp>
+#include <Shared/EnvironmentMapping/EnvShaderInfo.hpp>
 #include <vector>
 
 namespace Fsl

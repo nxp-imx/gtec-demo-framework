@@ -17,5 +17,4 @@ echo VULKAN_SDK=$VULKAN_SDK
 # Start building
 export FSL_GRAPHICS_SDK=$WORKSPACE
 source prepare.sh  
-FslBuildCheck.py -u [Vulkan] -vv
-FslBuild.py -t sdk -vv --BuildTime --UseFeatures [EGL,OpenGLES2,OpenCL,OpenCL1.1,OpenCL1.2,Vulkan,EarlyAccess] -- -j 4
+FslBuild.py -t sdk -vv --BuildTime --UseFeatures [EGL,EarlyAccess,OpenCL,OpenCL1.1,OpenCL1.2,OpenCV,OpenCV3,OpenGLES2,OpenVX,OpenVX1.0.1,OpenVX1.1,Vulkan] --BuildThreads 4

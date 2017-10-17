@@ -22,7 +22,7 @@ SOURCES=##PACKAGE_SOURCE_FILES##
 
 INCLUDE_DIRS=##PACKAGE_INCLUDE_DIRS##
 
-CPP_DEFINE_FLAG_NAMES=##PACKAGE_CPP_FLAGS##
+CPP_DEFINE_FLAG_NAMES=##PACKAGE_DEFINES##
 
 # Stuff below is basically the same for all builds
 
@@ -96,7 +96,7 @@ clean:
 
 install: all
 	@echo ok
-  
+
 # Pattern Rule
 # $@ for the pattern-matched target
 # $< for the pattern-matched dependency

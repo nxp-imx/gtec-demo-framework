@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2014 Freescale Semiconductor, Inc.
@@ -31,20 +31,15 @@
 #
 #****************************************************************************************************************************************************
 
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-from FslBuildGen.XmlStuff import XmlGenFile
+from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
-from FslBuildGen import IOUtil
-import os
 
 class PackageCachedLocation(object):
-    def __init__(self, path, location):
+    def __init__(self, path: str, location: ToolConfigPackageLocation) -> None:
         super(PackageCachedLocation, self).__init__()
 
-        if not type(location) is ToolConfigPackageLocation:
-            raise UsageErrorException()
+        if not isinstance(location, ToolConfigPackageLocation):
+            raise UsageErrorException("the supplied location was not of the type ToolConfigPackageLocation")
 
         self.Path = path
         self.Location = location
-

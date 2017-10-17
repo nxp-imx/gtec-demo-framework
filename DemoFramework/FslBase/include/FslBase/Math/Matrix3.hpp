@@ -66,6 +66,7 @@ namespace Fsl
             const float m31, const float m32, const float m33);
 
     //! @brief A optimization constructor that doesn't initialize the matrix so when this is called the content of the matrix in undefined!!!
+    // coverity[uninit_member]
     Matrix3(const OptimizationFlag flag) {};
 
     //! @brief Direct access to the matrix array

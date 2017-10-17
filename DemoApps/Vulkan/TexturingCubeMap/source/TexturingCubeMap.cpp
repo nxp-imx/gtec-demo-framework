@@ -15,23 +15,23 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanTool.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <array>
 #include <cstring>
 #include <iomanip>
 
+using namespace RapidVulkan;
+
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
@@ -77,9 +77,9 @@ namespace Fsl
     PrepareUniformBuffers();
 
     // m_cubeMap = m_textureLoader->LoadCubemap("textures/cubemap_yokohama.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
-    if ( m_deviceFeatures.textureCompressionBC )
+    if (m_deviceActiveFeatures.textureCompressionBC )
       m_cubeMap = LoadCubemap("textures/cubemap_yokohama_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK, false);
-    else if (m_deviceFeatures.textureCompressionETC2)
+    else if (m_deviceActiveFeatures.textureCompressionETC2)
       m_cubeMap = LoadCubemap("textures/cubemap_yokohama_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK, false);
     else
       throw NotSupportedException("No supported compression format");
@@ -193,12 +193,12 @@ namespace Fsl
       {
       case VirtualKey::UpArrow:
       case VirtualKey::Add:
-      case VirtualKey::GamePadButtonR1:
+      case VirtualKey::GamePadButtonRightShoulder:
         ChangeLodBias(0.1f);
         break;
       case VirtualKey::DownArrow:
       case VirtualKey::Subtract:
-      case VirtualKey::GamePadButtonL1:
+      case VirtualKey::GamePadButtonLeftShoulder:
         ChangeLodBias(-0.1f);
         break;
       case VirtualKey::S:
@@ -321,9 +321,12 @@ namespace Fsl
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    void* pData;
+    void* pData = nullptr;
     m_uniformData.ObjectVS.Memory.MapMemory(0, sizeof(m_uboVS), 0, &pData);
     {
+      if (pData == nullptr)
+        throw std::runtime_error("failed to map memory");
+
       std::memcpy(pData, &m_uboVS, sizeof(m_uboVS));
     }
     m_uniformData.ObjectVS.Memory.UnmapMemory();
@@ -348,8 +351,7 @@ namespace Fsl
 
   VulkanTexture TexturingCubeMap::LoadCubemap(const std::string& filename, const VkFormat format, const bool forceLinearTiling)
   {
-    Texture texCube;
-    GetContentManager()->Read(texCube, filename);
+    Texture texCube = GetContentManager()->ReadTexture(filename);
 
     assert(texCube.GetFaces() == 6);
 
@@ -365,7 +367,7 @@ namespace Fsl
     bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    Vulkan::Buffer stagingBuffer(m_device.Get(), bufferCreateInfo);
+    RapidVulkan::Buffer stagingBuffer(m_device.Get(), bufferCreateInfo);
 
     // Get memory requirements for the staging buffer (alignment, memory type bits)
     VkMemoryRequirements memReqs = stagingBuffer.GetBufferMemoryRequirements();
@@ -377,14 +379,16 @@ namespace Fsl
     // Get memory type index for a host visible buffer
     memAllocInfo.memoryTypeIndex = m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    Vulkan::Memory stagingMemory(m_device.Get(), memAllocInfo);
+    RapidVulkan::Memory stagingMemory(m_device.Get(), memAllocInfo);
 
-    FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
 
     // Copy texture data into staging buffer
-    void* pData;
+    void* pData = nullptr;
     stagingMemory.MapMemory(0, memReqs.size, 0, &pData);
     {
+      if (pData == nullptr)
+        throw std::runtime_error("Failed to map memory");
       RawTexture rawTexture;
       Texture::ScopedDirectAccess directAccess(texCube, rawTexture);
       assert(rawTexture.GetContentByteSize() <= memReqs.size);
@@ -420,7 +424,7 @@ namespace Fsl
     memAllocInfo.memoryTypeIndex = m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     Memory texMemory(m_device.Get(), memAllocInfo);
-    FSLGRAPHICSVULKAN_CHECK(vkBindImageMemory(m_device.Get(), texImage.Get(), texMemory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), texImage.Get(), texMemory.Get(), 0));
 
     CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 
@@ -454,19 +458,19 @@ namespace Fsl
     subresourceRange.levelCount = texCube.GetLevels();
     subresourceRange.layerCount = texCube.GetFaces();
 
-    VulkanTool::SetImageLayout(copyCmd, texImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+    CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
     // Copy the cube map faces from the staging buffer to the optimal tiled image
     vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), texImage.Get(),
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
 
     const auto texImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     // Change texture image layout to shader read after all faces have been copied
-    VulkanTool::SetImageLayout(copyCmd, texImage, VK_IMAGE_ASPECT_COLOR_BIT,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texImageLayout, subresourceRange);
+    CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT,
+                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texImageLayout, subresourceRange);
 
     FlushCommandBuffer(copyCmd, m_deviceQueue.Queue, true);
 
@@ -486,7 +490,7 @@ namespace Fsl
     sampler.maxLod = static_cast<float>(texCube.GetLevels());
     sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
     sampler.maxAnisotropy = 1.0f;
-    if (m_vulkanDevice.GetFeatures().samplerAnisotropy)
+    if (m_deviceActiveFeatures.samplerAnisotropy)
     {
       sampler.maxAnisotropy = m_vulkanDevice.GetProperties().limits.maxSamplerAnisotropy;
       sampler.anisotropyEnable = VK_TRUE;
@@ -685,7 +689,7 @@ namespace Fsl
     allocInfo.pSetLayouts = m_descriptorSetLayout.GetPointer();
 
     // 3D object descriptor set
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Object));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Object));
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets(2);
     // Binding 0 : Vertex shader uniform buffer
@@ -709,7 +713,7 @@ namespace Fsl
     vkUpdateDescriptorSets(m_device.Get(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 
     // Sky box descriptor set
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Skybox));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Skybox));
 
     // Binding 0 : Vertex shader uniform buffer
     writeDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

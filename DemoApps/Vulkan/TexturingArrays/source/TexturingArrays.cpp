@@ -14,22 +14,22 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanTool.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <array>
 #include <cstring>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+using namespace RapidVulkan;
+
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
@@ -40,6 +40,7 @@ namespace Fsl
 
   TexturingArrays::TexturingArrays(const DemoAppConfig& config)
     : VulkanWillemsDemoApp(config)
+    , m_descriptorSet(VK_NULL_HANDLE)
   {
     m_zoom = -15.0f;
     m_rotationSpeed = 0.25f;
@@ -195,12 +196,12 @@ namespace Fsl
 
   void TexturingArrays::LoadTextures()
   {
-    if (m_deviceFeatures.textureCompressionBC)
+    if (m_deviceActiveFeatures.textureCompressionBC)
     {
       //m_textureArray = m_textureLoader->LoadTextureArray("textures/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
       m_textureArray = LoadTextureArray("textures/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
     }
-    else if (m_deviceFeatures.textureCompressionETC2)
+    else if (m_deviceActiveFeatures.textureCompressionETC2)
     {
       m_textureArray = LoadTextureArray("textures/texturearray_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
     }
@@ -244,12 +245,14 @@ namespace Fsl
 
     Memory stagingMemory(m_device.Get(), memAllocInfo);
 
-    FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
 
     // Copy texture data into staging buffer
-    void* pData;
+    void* pData = nullptr;
     stagingMemory.MapMemory(0, memReqs.size, 0, &pData);
     {
+      if (pData == nullptr)
+        throw std::runtime_error("failed to map memory");
       RawTexture rawTexture;
       Texture::ScopedDirectAccess directAccess(textureArray, rawTexture);
       std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetContentByteSize());
@@ -331,7 +334,7 @@ namespace Fsl
     memAllocInfo.memoryTypeIndex = m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     Memory texMemory(m_device.Get(), memAllocInfo);
-    FSLGRAPHICSVULKAN_CHECK(vkBindImageMemory(m_device.Get(), texImage.Get(), texMemory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), texImage.Get(), texMemory.Get(), 0));
 
     const VkImageLayout texImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     {
@@ -345,19 +348,19 @@ namespace Fsl
       subresourceRange.levelCount = 1;
       subresourceRange.layerCount = textureArray.GetLayers();
 
-      VulkanTool::SetImageLayout(copyCmd, texImage,
-        VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(),
+                                        VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
       // Copy the cube map faces from the staging buffer to the optimal tiled image
       vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), texImage.Get(),
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
+                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                             static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
 
       // Change texture image layout to shader read after all faces have been copied
-      VulkanTool::SetImageLayout(copyCmd, texImage,
-        VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-        texImageLayout, subresourceRange);
+      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(),
+                                        VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                        texImageLayout, subresourceRange);
 
       FlushCommandBuffer(copyCmd, m_deviceQueue.Queue, true);
     }
@@ -373,7 +376,7 @@ namespace Fsl
     sampler.addressModeV = sampler.addressModeU;
     sampler.addressModeW = sampler.addressModeU;
     sampler.mipLodBias = 0.0f;
-    sampler.maxAnisotropy = 8;
+    sampler.maxAnisotropy = m_deviceActiveFeatures.samplerAnisotropy ? 8.0f : 1.0f;
     sampler.compareOp = VK_COMPARE_OP_NEVER;
     sampler.minLod = 0.0f;
     sampler.maxLod = 0.0f;
@@ -461,12 +464,15 @@ namespace Fsl
     }
 
     // Update instanced part of the uniform buffer
-    void* pData;
+    void* pData = nullptr;
     uint32_t dataOffset = sizeof(m_uboVS.Matrices);
     uint32_t dataSize = layerCount * sizeof(UboInstanceData);
 
     m_uniformData.VertexShader.Memory.MapMemory(dataOffset, dataSize, 0, &pData);
     {
+      if (pData == nullptr)
+        throw std::runtime_error("vkMapMemory returned nullptr");
+
       std::memcpy(pData, m_uboVS.Instance.data(), dataSize);
     }
     m_uniformData.VertexShader.Memory.UnmapMemory();
@@ -492,7 +498,7 @@ namespace Fsl
 
     // Only update the matrices part of the uniform buffer
     {
-      void* pData;
+      void* pData = nullptr;
       m_uniformData.VertexShader.Memory.MapMemory(0, sizeof(m_uboVS.Matrices), 0, &pData);
       std::memcpy(pData, &m_uboVS.Matrices, sizeof(m_uboVS.Matrices));
       m_uniformData.VertexShader.Memory.UnmapMemory();
@@ -646,7 +652,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayout.GetPointer();
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets(2);
     // Binding 0 : Vertex shader uniform buffer

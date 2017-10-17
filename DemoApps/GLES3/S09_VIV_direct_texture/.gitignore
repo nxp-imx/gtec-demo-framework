@@ -18,10 +18,16 @@ GLES3.S09_VIV_direct_texture.v12.suo
 GLES3.S09_VIV_direct_texture.vcxproj
 GLES3.S09_VIV_direct_texture.vcxproj.filters
 GLES3.S09_VIV_direct_texture.vcxproj.user
+GLES3.S09_VIV_direct_texture_FB
+GLES3.S09_VIV_direct_texture_Wayland
+GLES3.S09_VIV_direct_texture_X11
 GNUmakefile
 GNUmakefile_Yocto
 S09_VIV_direct_texture_FB
+S09_VIV_direct_texture_FB_d
 S09_VIV_direct_texture_Wayland
+S09_VIV_direct_texture_Wayland_d
 S09_VIV_direct_texture_X11
+S09_VIV_direct_texture_X11_d
 build/
 resource.h

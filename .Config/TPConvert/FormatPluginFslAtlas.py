@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #****************************************************************************************************************************************************
 # Copyright (c) 2015 Freescale Semiconductor, Inc.
 # All rights reserved.
@@ -61,7 +61,7 @@ class FormatPluginFslAtlas(FormatPlugin):
         list.append('')
         list.append('namespace Fsl')
         list.append('{')
-        list.append('  class %s : public ITextureAtlas' % (className))
+        list.append('  class %s : public ITextureAtlas' % (className)) 
         list.append('  {')
         list.append('  public:')
         list.append('    virtual std::string GetName() const;')

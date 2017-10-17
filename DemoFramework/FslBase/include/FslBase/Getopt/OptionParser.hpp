@@ -58,10 +58,17 @@ namespace Fsl
       }
     };
 
-    static bool Parse(int argc, char** argv, const char*const pszHelpCaption);
-    static bool Parse(int argc, char** argv, IOptionParser& inputOptionParser, const char*const pszHelpCaption);
-    static bool Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers, const char*const pszHelpCaption);
-    static bool Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers, const char*const pszHelpCaption);
+    enum class Result
+    {
+      Failed = 0,
+      OK = 1,
+      Exit = 2,
+    };
+
+    static Result Parse(int argc, char** argv, const char*const pszHelpCaption);
+    static Result Parse(int argc, char** argv, IOptionParser& inputOptionParser, const char*const pszHelpCaption);
+    static Result Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers, const char*const pszHelpCaption);
+    static Result Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers, const char*const pszHelpCaption);
   };
 }
 

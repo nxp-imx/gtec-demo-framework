@@ -14,21 +14,22 @@
 #include "VulkanGear.hpp"
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
+#include <RapidVulkan/Check.hpp>
 #include <cmath>
 #include <cstring>
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 
+using namespace RapidVulkan;
+
 namespace Fsl
 {
-  using namespace Vulkan;
-
   VulkanGear::VulkanGear(Willems::VulkanDevice* pVulkanDevice)
     : m_pVulkanDevice(pVulkanDevice)
+    , DescriptorSet(VK_NULL_HANDLE)
   {
-  };
+  }
 
 
   VulkanGear::~VulkanGear()
@@ -245,7 +246,7 @@ namespace Fsl
     m_ubo.LightPos.z = cos(glm::radians(timer)) * 8.0f;
 
     { //Transfer
-      void* pData;
+      void* pData = nullptr;
       m_uniformData.Memory.MapMemory(0, sizeof(m_ubo), 0, &pData);
       std::memcpy(pData, &m_ubo, sizeof(m_ubo));
       m_uniformData.Memory.UnmapMemory();
@@ -262,7 +263,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = &descriptorSetLayout;
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_pVulkanDevice->GetDevice(), &allocInfo, &DescriptorSet));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_pVulkanDevice->GetDevice(), &allocInfo, &DescriptorSet));
 
     // Binding 0 : Vertex shader uniform buffer
     VkWriteDescriptorSet writeDescriptorSet{};
@@ -327,7 +328,7 @@ namespace Fsl
 
     m_uniformData.Memory.Reset(m_pVulkanDevice->GetDevice(), allocInfo);
 
-    FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_pVulkanDevice->GetDevice(), m_uniformData.GetBuffer(), m_uniformData.GetMemory(), 0));
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(m_pVulkanDevice->GetDevice(), m_uniformData.GetBuffer(), m_uniformData.GetMemory(), 0));
 
     m_uniformData.Descriptor = VkDescriptorBufferInfo{};
     m_uniformData.Descriptor.buffer = m_uniformData.GetBuffer();

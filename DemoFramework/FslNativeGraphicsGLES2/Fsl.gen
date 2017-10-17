@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslNativeGraphicsGLES2">
-    <Dependency Name="FslDemoPlatform"/>
-    <Dependency Name="FslGraphicsGLES2" Access="Private"/>
-    <Platform Name="Windows" ProjectId="9E8EEAF1-973E-46F6-8603-A4191BF41232"/>
-  </Library>
-</FslBuildGen>

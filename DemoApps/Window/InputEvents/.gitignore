@@ -7,9 +7,15 @@ Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+InputEvents
 InputEvents_FB
+InputEvents_FB_d
 InputEvents_Wayland
+InputEvents_Wayland_d
 InputEvents_X11
+InputEvents_X11_d
+InputEvents_d
+Window.InputEvents
 Window.InputEvents.VC.VC.opendb
 Window.InputEvents.VC.db
 Window.InputEvents.aps
@@ -23,5 +29,8 @@ Window.InputEvents.v12.suo
 Window.InputEvents.vcxproj
 Window.InputEvents.vcxproj.filters
 Window.InputEvents.vcxproj.user
+Window.InputEvents_FB
+Window.InputEvents_Wayland
+Window.InputEvents_X11
 build/
 resource.h

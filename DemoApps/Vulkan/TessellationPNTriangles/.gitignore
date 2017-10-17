@@ -6,6 +6,9 @@ CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
+TessellationPNTriangles
+TessellationPNTriangles_d
+Vulkan.TessellationPNTriangles
 Vulkan.TessellationPNTriangles.VC.VC.opendb
 Vulkan.TessellationPNTriangles.VC.db
 Vulkan.TessellationPNTriangles.aps

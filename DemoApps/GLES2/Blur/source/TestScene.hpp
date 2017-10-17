@@ -33,12 +33,11 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslDemoApp/Service/ServiceProvider.hpp>
-#include <FslDemoApp/DemoAppConfig.hpp>
-#include <FslDemoApp/DemoTime.hpp>
-#include <FslGraphicsGLES2/GLProgram.hpp>
-#include <FslGraphicsGLES2/GLTexture.hpp>
-#include <FslGraphicsGLES2/GLVertexBuffer.hpp>
+#include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslUtil/OpenGLES2/GLProgram.hpp>
+#include <FslUtil/OpenGLES2/GLTexture.hpp>
+#include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
 #include <memory>
 #include "AScene.hpp"
 

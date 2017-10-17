@@ -32,37 +32,118 @@
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <cassert>
+#include <cstring>
 #include <cctype>
 
 namespace Fsl
 {
-  ImageFormat ImageFormatUtil::TryDetectImageFormatFromExtension(const IO::Path& path)
+  namespace ImageFormatUtil
   {
-    std::string extension = IO::Path::GetExtension(path).ToAsciiString();
-
-    static_assert('a' > 'A', "We expect ASCII");
-
-    // This should be ok as we are working on ASCII chars
-    for (auto & rC : extension)
+    namespace
     {
-      if (rC >= 'A' && rC <= 'Z')
-        rC += ('a' - 'A');
+      inline ImageFormat TryDetectImageFormat(const char*const pSrc, const std::size_t srcLength)
+      {
+        if( pSrc == nullptr || srcLength >= 5 || srcLength == 0)
+          return ImageFormat::Undefined;
+
+        static_assert('a' > 'A', "We expect ASCII");
+
+        char ext[6]{};
+
+        // This should be ok as we are working on ASCII chars
+        for (std::size_t i = 0; i < srcLength; ++i)
+        {
+          char ch = pSrc[i];
+          if (ch >= 'A' && ch <= 'Z')
+            ch += ('a' - 'A');
+          ext[i] = ch;
+        }
+
+        // Skip the leading '.' if it exists
+        const char* pszExt = ext[0] == '.' ? ext + 1 : ext;
+
+        if (strcmp(pszExt, "jpg") == 0 || strcmp(pszExt, "jpeg") == 0)
+          return ImageFormat::Jpeg;
+        else if (strcmp(pszExt, "png") == 0)
+          return ImageFormat::Png;
+        else if (strcmp(pszExt, "dds") == 0)
+          return ImageFormat::DDS;
+        else if (strcmp(pszExt, "bmp") == 0)
+          return ImageFormat::Bmp;
+        else if (strcmp(pszExt, "hdr") == 0)
+          return ImageFormat::Hdr;
+        else if (strcmp(pszExt, "ktx") == 0)
+          return ImageFormat::KTX;
+        else if (strcmp(pszExt, "tga") == 0)
+          return ImageFormat::Tga;
+        return ImageFormat::Undefined;
+      }
+
     }
 
-    if(extension == ".jpg" || extension == ".jpeg")
-      return ImageFormat::Jpeg;
-    else if (extension == ".png")
-      return ImageFormat::Png;
-    else if (extension == ".dds")
-      return ImageFormat::DDS;
-    else if (extension == ".bmp")
-      return ImageFormat::Bmp;
-    else if (extension == ".hdr")
-      return ImageFormat::Hdr;
-    else if (extension == ".ktx")
-      return ImageFormat::KTX;
-    else if (extension == ".tga")
-      return ImageFormat::Tga;
-    return ImageFormat::Undefined;
+    ImageFormat TryDetectImageFormat(const std::string& extension)
+    {
+      const auto size = extension.size();
+      return TryDetectImageFormat(extension.c_str(), size);
+    }
+
+
+    ImageFormat TryDetectImageFormat(const IO::Path& extension)
+    {
+      return TryDetectImageFormat(extension.ToAsciiString());
+    }
+
+
+    ImageFormat TryDetectImageFormatFromExtension(const IO::Path& path)
+    {
+      auto extension = IO::Path::GetExtension(path);
+      if (extension.GetByteSize() <= 0)
+        return ImageFormat::Undefined;
+
+      return TryDetectImageFormat(extension.ToAsciiString());
+    }
+
+
+    const char* GetDefaultExtension(const ImageFormat imageFormat)
+    {
+      switch (imageFormat)
+      {
+      case ImageFormat::Bmp:
+        return ".bmp";
+      case ImageFormat::DDS:
+        return ".dds";
+      case ImageFormat::Hdr:
+        return ".hdr";
+      case ImageFormat::KTX:
+        return ".ktx";
+      case ImageFormat::Png:
+        return ".png";
+      case ImageFormat::Jpeg:
+        return ".jpg";
+      case ImageFormat::Tga:
+        return ".tga";
+      default:
+        throw NotSupportedException("Unsupported image format");
+      }
+    }
+
+    const bool IsLossless(const ImageFormat imageFormat)
+    {
+      switch (imageFormat)
+      {
+      case ImageFormat::Bmp:
+      case ImageFormat::DDS:
+      case ImageFormat::Hdr:
+      case ImageFormat::KTX:
+      case ImageFormat::Png:
+      case ImageFormat::Tga:
+        return true;
+      case ImageFormat::Jpeg:
+        return false;
+      default:
+        throw NotSupportedException("Unsupported image format");
+      }
+    }
+
   }
 }

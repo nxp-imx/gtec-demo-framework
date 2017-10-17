@@ -34,8 +34,8 @@
 #include <deque>
 #include <memory>
 #include <FslBase/Noncopyable.hpp>
-#include <FslDemoApp/Setup/IDemoAppRegistry.hpp>
-#include <FslDemoHost/Setup/DemoHostAppSetup.hpp>
+#include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
 
 namespace Fsl
 {

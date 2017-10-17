@@ -30,9 +30,10 @@
 *
 ****************************************************************************************************************************************************/
 
-//#include <FslDemoHostEGL/EGLDemoHostSetup.hpp>
-#include <FslDemoHost/Service/ServicePriorityList.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+//#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
+#include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
+#include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 //#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
 //#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
 //#include <FslNativeGraphicsVG/NativeGraphicsServiceVG.hpp>
@@ -53,7 +54,8 @@ namespace Fsl
     //eglHostFeatures.push_back(DemoHostFeatureName::OpenVG);
     //registry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
 #ifdef FSL_ENABLE_DEVIL
-    serviceRegistry.Register<ImageLibraryServiceDevILFactory>(ServicePriorityList::ImageLibraryService());
+    const auto imageServiceGroup = serviceRegistry.GetServiceGroupByName(ServiceGroupName::Image());
+    serviceRegistry.Register<ImageLibraryServiceDevILFactory>(ServicePriorityList::ImageLibraryService(), imageServiceGroup);
 #endif
 
 #ifdef FSL_PLATFORM_YOCTO

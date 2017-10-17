@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES3.S04_Projection
 GLES3.S04_Projection.VC.VC.opendb
 GLES3.S04_Projection.VC.db
 GLES3.S04_Projection.aps
@@ -18,10 +19,18 @@ GLES3.S04_Projection.v12.suo
 GLES3.S04_Projection.vcxproj
 GLES3.S04_Projection.vcxproj.filters
 GLES3.S04_Projection.vcxproj.user
+GLES3.S04_Projection_FB
+GLES3.S04_Projection_Wayland
+GLES3.S04_Projection_X11
 GNUmakefile
 GNUmakefile_Yocto
+S04_Projection
 S04_Projection_FB
+S04_Projection_FB_d
 S04_Projection_Wayland
+S04_Projection_Wayland_d
 S04_Projection_X11
+S04_Projection_X11_d
+S04_Projection_d
 build/
 resource.h

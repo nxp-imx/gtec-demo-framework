@@ -2,8 +2,13 @@ Prerequisites
 =============
 - [Visual Studio 2015](https://www.visualstudio.com/vs/community/)
   (community or better)
-- [Python 2.7.x](https://www.python.org/ftp/python/2.7.13/python-2.7.13.msi)
+- [Python 3.4+](https://www.python.org/ftp/python/3.6.2/python-3.6.2-amd64.exe)
   To be able run python scripts.
+  If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
+  To install the typing library in Python **3.4** run:
+  ```bash
+  python3 -m pip install typing
+  ```
   
 - One of these:
   - [Arm Mali OpenGL ES Emulator 3.0.2.g694a9 (64 bit)](https://developer.arm.com/products/software-development-tools/graphics-development-tools/opengl-es-emulator/downloads)
@@ -23,7 +28,10 @@ It's also a good idea to read the introduction to the [FslBuild toolchain](./Fsl
 Simple setup
 ============
 1. Start a windows console (cmd.exe) in the DemoFramework folder
-2. Run the `prepare.bat` file located in the root of the framework folder to
+2. Run the visual studio ```vcvarsall.bat x64``` to prepare your command line compiler environment for x64 compilation.
+   - For VS2015 its often located here: ```C:\Program Files(x86)\Microsoft Visual Studio\14.0\VC\vcvarsall.bat" x64```
+   - For VS2017 its often located here: ```C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64```
+3. Run the `prepare.bat` file located in the root of the framework folder to
    configure the necessary environment variables and paths.
    Please beware that the `prepare.bat` file requires the current working 
    directory to be the root of your demoframework folder to function 
@@ -89,34 +97,22 @@ FslBuildGen.py script in the project root folder to regenerate the various
 build files.
 
 
-Building OpenCV 2.4.11 demo framework apps:
--------------------------------------------
-1. See [Setup OpenCV 2.4.11]
-2. Run `prepare.bat` as usual.
-3. Add a dependency to OpenCV to your "fsl.gen" file like this
-    ```xml
-    <Dependency Name="OpenCV2_4"/>
-    ```
-   See [DemoApps/GLES3/OpenCV101/Fsl.gen](../DemoApps/GLES3/OpenCV101/Fsl.gen) for how its done.
-4. Run `FslBuildGen.py` to regenerate the project files.   
-
-
-Building OpenCV 3.1 demo framework apps:
+Building OpenCV 3.2 demo framework apps:
 ----------------------------------------
-1. See [Setup OpenCV 3.1]
+1. See [Setup OpenCV 3.2]
 2. Run `prepare.bat` as usual.
 3. Add a dependency to OpenCV to your "fsl.gen" file like this
     ```xml
-    <Dependency Name="OpenCV3_1"/>
+    <Dependency Name="OpenCV3"/>
     ```
-   See DemoApps/GLES3/OpenCV101_V3_1/Fsl.gen for how its done.
+   See DemoApps/GLES3/OpenCV101/Fsl.gen for how its done.
 4. Run `FslBuildGen.py` to regenerate the project files.   
 
 
 Building OpenCL demo framework apps:
 ------------------------------------
 1. Download and install the desired OpenCL sdk from Amd
-   - [Amd (AMD APP SDK 3.0)](http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/)
+   - [Amd (AMD APP SDK 3.0)](http://developer.amd.com/amd-accelerated-parallel-processing-app-sdk/)
 2. Generate a new project add a dependency to OpenCL by adding 
     ```xml
     <Dependency Name="OpenCL"/>
@@ -140,26 +136,18 @@ Building OpenVX demo framework apps:
 4. Start the project
 
 
-Setup OpenCV 2.4.11
--------------------
-1. Install the 2.4.11 sdk files.
-2. Configure the environment variable OPENCV2_4_DIR to point to the sdk location like this
-    ```bash
-    set OPENCV2_4_DIR=c:\_sdk\OpenCV-2.4.11\build
-    ```
-
-Setup OpenCV 3.1
+Setup OpenCV 3.2
 ----------------
-1. Install the 3.1 sdk files.
+1. Install the 3.2 sdk files.
 2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
     ```bash
-    set OPENCV_DIR=c:\_sdk\OpenCV-3.1.\build
+    set OPENCV_DIR=c:\_sdk\OpenCV-3.2.\build
     ```
 
 
 Setup OpenVX
 ------------
-1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV3.1)
+1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV3.2)
 
    
 ### Legacy Git note:
@@ -192,10 +180,10 @@ AMD SDK Setup
 1. Make sure you have cmake 
 
    You can get it here: https://cmake.org/download/
-2. [Amd (AMD APP SDK 3.0)](http://developer.amd.com/tools-and-sdks/opencl-zone/amd-accelerated-parallel-processing-app-sdk/)
-3. Make sure your OpenCV_DIR environment variable points to the OpenCV 3.1 build directory
+2. [Amd (AMD APP SDK 3.0)](http://developer.amd.com/amd-accelerated-parallel-processing-app-sdk/)
+3. Make sure your OPENCV_DIR environment variable points to the OpenCV 3.2 build directory
     ```bash
-    set OpenCV_DIR=c:\sdk\OpenCV-3.1\build
+    set OPENCV_DIR=c:\sdk\OpenCV-3.2\build
     ```
 4. Download the AMD OpenVX sdk code
     ```bash

@@ -33,8 +33,8 @@
 
 #include "IParticleDraw.hpp"
 #include "../Particle.hpp"
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <array>
 #include <memory>
 #include <vector>

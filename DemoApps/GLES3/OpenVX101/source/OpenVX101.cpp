@@ -30,20 +30,20 @@
 ****************************************************************************************************************************************************/
 
 #include "OpenVX101.hpp"
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
-#include <FslUtilOpenVX1_0_1/Check.hpp>
-#include <FslUtilOpenVX1_0_1/Context.hpp>
-#include <FslUtilOpenVX1_0_1/Exceptions.hpp>
-#include <FslUtilOpenVX1_0_1/Image.hpp>
+#include <RapidOpenVX/Check.hpp>
+#include <RapidOpenVX/Context.hpp>
+#include <RapidOpenVX/Exceptions.hpp>
+#include <RapidOpenVX/Image.hpp>
 #include <GLES3/gl3.h>
 #include <VX/vx.h>
 #include <VX/vxu.h>
 
 namespace Fsl
 {
-  using namespace OpenVX;
+  using namespace RapidOpenVX;
   using namespace GLES3;
 
   namespace
@@ -58,7 +58,7 @@ namespace Fsl
       vx_rectangle_t imageRect = { 0, 0, imageWidth, imageHeight };
       vx_imagepatch_addressing_t imageInfo = VX_IMAGEPATCH_ADDR_INIT;
       void* pImageAddress = nullptr;
-      FSLUTILOPENVX_CHECK(vxAccessImagePatch(rImage.Get(), &imageRect, 0, &imageInfo, &pImageAddress, VX_WRITE_ONLY));
+      RAPIDOPENVX_CHECK(vxAccessImagePatch(rImage.Get(), &imageRect, 0, &imageInfo, &pImageAddress, VX_WRITE_ONLY));
 
       if ((1 != imageInfo.step_y) || (1 != imageInfo.step_x) || (imageHeight != imageInfo.dim_y) || (imageWidth != imageInfo.dim_x))
         throw std::runtime_error("vx procedure error");
@@ -80,7 +80,7 @@ namespace Fsl
         }
       }
 
-      FSLUTILOPENVX_CHECK(vxCommitImagePatch(rImage.Get(), &imageRect, 0, &imageInfo, pImageAddress));
+      RAPIDOPENVX_CHECK(vxCommitImagePatch(rImage.Get(), &imageRect, 0, &imageInfo, pImageAddress));
     }
 
 
@@ -97,8 +97,8 @@ namespace Fsl
       vx_imagepatch_addressing_t imageInfo2 = VX_IMAGEPATCH_ADDR_INIT;
       void* pImageAddress1 = nullptr;
       void* pImageAddress2 = nullptr;
-      FSLUTILOPENVX_CHECK(vxAccessImagePatch(srcImage1.Get(), &imageRect, 0, &imageInfo1, &pImageAddress1, VX_READ_ONLY));
-      FSLUTILOPENVX_CHECK(vxAccessImagePatch(srcImage2.Get(), &imageRect, 0, &imageInfo2, &pImageAddress2, VX_READ_ONLY));
+      RAPIDOPENVX_CHECK(vxAccessImagePatch(srcImage1.Get(), &imageRect, 0, &imageInfo1, &pImageAddress1, VX_READ_ONLY));
+      RAPIDOPENVX_CHECK(vxAccessImagePatch(srcImage2.Get(), &imageRect, 0, &imageInfo2, &pImageAddress2, VX_READ_ONLY));
 
       if ((imageInfo2.dim_y != imageInfo1.dim_y) || (imageInfo2.dim_x != imageInfo1.dim_x) ||
           (imageInfo2.step_y != imageInfo1.step_y) || (imageInfo2.step_x != imageInfo1.step_x) ||
@@ -129,8 +129,8 @@ namespace Fsl
         }
       }
 
-      FSLUTILOPENVX_CHECK(vxCommitImagePatch(srcImage1.Get(), nullptr, 0, &imageInfo1, pImageAddress1));
-      FSLUTILOPENVX_CHECK(vxCommitImagePatch(srcImage2.Get(), nullptr, 0, &imageInfo2, pImageAddress2));
+      RAPIDOPENVX_CHECK(vxCommitImagePatch(srcImage1.Get(), nullptr, 0, &imageInfo1, pImageAddress1));
+      RAPIDOPENVX_CHECK(vxCommitImagePatch(srcImage2.Get(), nullptr, 0, &imageInfo2, pImageAddress2));
     }
 
 
@@ -149,7 +149,7 @@ namespace Fsl
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(std::dynamic_pointer_cast<GLES3::NativeBatch2D>(m_graphics->GetNativeBatch2D()))
   {
-    OpenVX::Context context(ResetMode::Create);
+    RapidOpenVX::Context context(ResetMode::Create);
 
     // Read the image data
     Bitmap bitmap;
@@ -167,7 +167,7 @@ namespace Fsl
     CopyImageFromCPUToGPU(image0, bitmap);
 
     // process image
-    FSLUTILOPENVX_CHECK(vxuSobel3x3(context.Get(), image0.Get(), image1.Get(), image2.Get()));
+    RAPIDOPENVX_CHECK(vxuSobel3x3(context.Get(), image0.Get(), image1.Get(), image2.Get()));
 
     CopyImagesFromGPUToCPU(bitmap, image1, image2);
 

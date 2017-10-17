@@ -33,7 +33,6 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Noncopyable.hpp>
-#include <FslBase/System/HighResolutionTimer.hpp>
 
 namespace Fsl
 {

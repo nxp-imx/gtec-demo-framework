@@ -34,13 +34,10 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -50,6 +47,7 @@
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
@@ -68,6 +66,7 @@ namespace Fsl
 
   DisplacementMapping::DisplacementMapping(const DemoAppConfig& config)
     : VulkanWillemsMeshDemoApp(config)
+    , m_descriptorSet(VK_NULL_HANDLE)
     , m_displacement(true)
     , m_splitScreen(true)
   {
@@ -77,9 +76,9 @@ namespace Fsl
     m_title = "Vulkan Example - Tessellation shader displacement mapping";
 
     // Support for tessellation shaders is optional, so check first
-    if (!m_deviceFeatures.tessellationShader)
+    if (!m_deviceActiveFeatures.tessellationShader)
       throw NotSupportedException("Selected GPU does not support tessellation shaders!");
-    if (!m_deviceFeatures.fillModeNonSolid)
+    if (!m_deviceActiveFeatures.fillModeNonSolid)
     {
       FSLLOG("Disabling split screen");
       m_splitScreen = false;
@@ -212,12 +211,12 @@ namespace Fsl
       {
       case VirtualKey::UpArrow:
       case VirtualKey::Add:
-      case VirtualKey::GamePadButtonR1:
+      case VirtualKey::GamePadButtonRightShoulder:
         ChangeTessellationStrength(0.025f);
         break;
       case VirtualKey::DownArrow:
       case VirtualKey::Subtract:
-      case VirtualKey::GamePadButtonL1:
+      case VirtualKey::GamePadButtonLeftShoulder:
         ChangeTessellationStrength(-0.025f);
         break;
       case VirtualKey::D:
@@ -264,12 +263,12 @@ namespace Fsl
 
   void DisplacementMapping::LoadTextures()
   {
-    if (m_deviceFeatures.textureCompressionBC)
+    if (m_deviceActiveFeatures.textureCompressionBC)
     {
       FSLLOG("Using BC compression");
       m_textures.ColorHeightMap = m_textureLoader->LoadTexture("textures/pattern_36_bc3.ktx");
     }
-    else if (m_deviceFeatures.textureCompressionETC2)
+    else if (m_deviceActiveFeatures.textureCompressionETC2)
     {
       FSLLOG("Using ETC2 compression");
       m_textures.ColorHeightMap = m_textureLoader->LoadTexture("textures/pattern_36_etc2.ktx");
@@ -514,7 +513,7 @@ namespace Fsl
     m_pipelines.Solid.Reset(m_device.Get(), m_pipelineCache.Get(), pipelineCreateInfo);
 
     // Wireframe pipeline
-    if (m_deviceFeatures.fillModeNonSolid)
+    if (m_deviceActiveFeatures.fillModeNonSolid)
     {
       std::vector<VkDynamicState> dynamicStateEnables2 =
       {
@@ -568,7 +567,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayout.GetPointer();
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
 
     // Color and height map image descriptor
     VkDescriptorImageInfo texDescriptor{};

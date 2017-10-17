@@ -30,9 +30,9 @@
 ****************************************************************************************************************************************************/
 
 #include "Window101.hpp"
-#include <FslDemoHostWindow/Service/WindowHost/IWindowHostInfo.hpp>
-#include <FslNativeWindow/INativeWindow.hpp>
-#include <FslNativeWindow/INativeWindowSystem.hpp>
+#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslNativeWindow/Base/INativeWindow.hpp>
+#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Point2.hpp>

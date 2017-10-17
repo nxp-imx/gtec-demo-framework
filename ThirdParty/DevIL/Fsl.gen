@@ -2,12 +2,12 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- Change the type here depending on how its integrated -->
   <ExternalLibrary Name="DevIL">
-    <CPPDefine Name="FSL_ENABLE_DEVIL" Access="Public"/> 
+    <Define Name="FSL_ENABLE_DEVIL" Access="Public"/> 
     <Platform Name="Ubuntu">
      <ExternalDependency Name="IL" Type="StaticLib"/>
     </Platform>
-    <Platform Name="QNX">
-      <ExternalDependency Name="devil" Type="StaticLib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/include" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/lib" Access="Public"/>
+    <Platform Name="QNX" Supported="false">
+      <!--ExternalDependency Name="devil" Type="StaticLib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/include" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/lib" Access="Public"/-->
       <!-- ExternalDependency Name="devil" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/include" Access="Public" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/lib" Type="StaticLib"/>
       <ExternalDependency Name="png" Access="Private" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/lpng-arm-v7-qnx" Type="StaticLib"/>
       <ExternalDependency Name="jpeg" Access="Private" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/jpeg-arm-v7-qnx" Type="StaticLib"/>
@@ -17,7 +17,7 @@
       <ExternalDependency Name="IL" Type="StaticLib"/>
     </Platform>    
     <Platform Name="Windows">
-      <ExternalDependency Name="DevIL.lib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/DevIL-SDK-x64-1.8.0/include" Access="Public" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/DevIL-SDK-x64-1.8.0/lib/x64/unicode/Release" Type="StaticLib"/>
+      <Dependency Name="Recipe.DevIL_1_8_0"/>
     </Platform>    
   </ExternalLibrary>
 </FslBuildGen>

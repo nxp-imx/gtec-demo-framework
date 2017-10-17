@@ -11,31 +11,35 @@
 // Based on a example called 'ComputeParticles' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
+#include "ComputeParticles.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/ToString.hpp>
-#include <VulkanWillemsDemoAppExperimental/Config.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include "ComputeParticles.hpp"
+#include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <array>
 #include <cstddef>
 #include <cstring>
 #include <random>
 
+using namespace RapidVulkan;
+
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
   {
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
-
   }
 
 
   ComputeParticles::ComputeParticles(const DemoAppConfig& config)
     : VulkanWillemsDemoApp(config)
+    , m_optionParser(config.GetOptions<OptionParserEx>())
+    , m_compute(m_optionParser->GetParticleCount())
   {
     m_enableTextOverlay = true;
     m_title = "Vulkan Example - Compute shader particle system";
@@ -82,7 +86,7 @@ namespace Fsl
 
   void ComputeParticles::GetOverlayText(VulkanTextOverlay& rTextOverlay)
   {
-    rTextOverlay.AddText("Particles: " + ToString(PARTICLE_COUNT), 5.0f, 85.0f, VulkanTextOverlay::TextAlign::Left);
+    rTextOverlay.AddText("Particles: " + ToString(m_optionParser->GetParticleCount()), 5.0f, 85.0f, VulkanTextOverlay::TextAlign::Left);
   }
 
 
@@ -139,7 +143,7 @@ namespace Fsl
       computeSubmitInfo.commandBufferCount = 1;
       computeSubmitInfo.pCommandBuffers = m_compute.CommandBuffer.GetPointer();
 
-      FSLGRAPHICSVULKAN_CHECK(vkQueueSubmit(m_compute.Queue, 1, &computeSubmitInfo, m_compute.Fence.Get()));
+      RAPIDVULKAN_CHECK(vkQueueSubmit(m_compute.Queue, 1, &computeSubmitInfo, m_compute.Fence.Get()));
     }
 
     if (m_animate)
@@ -221,7 +225,7 @@ namespace Fsl
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics.PipelineLayout.Get(), 0, 1, &m_graphics.DescriptorSet, 0, nullptr);
 
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_compute.StorageBuffer.GetBufferPointer(), offsets);
-          vkCmdDraw(m_drawCmdBuffers[i], PARTICLE_COUNT, 1, 0, 0);
+          vkCmdDraw(m_drawCmdBuffers[i], m_optionParser->GetParticleCount(), 1, 0, 0);
         }
         vkCmdEndRenderPass(m_drawCmdBuffers[i]);
       }
@@ -246,7 +250,7 @@ namespace Fsl
     std::uniform_real_distribution<float> rDistribution(-1.0f, 1.0f);
 
     // Initial particle positions
-    std::vector<Particle> particleBuffer(PARTICLE_COUNT);
+    std::vector<Particle> particleBuffer(m_optionParser->GetParticleCount());
     for (auto& particle : particleBuffer)
     {
       particle.Pos = glm::vec2(rDistribution(rGenerator), rDistribution(rGenerator));
@@ -672,7 +676,7 @@ namespace Fsl
       vkCmdBindDescriptorSets(m_compute.CommandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_compute.PipelineLayout.Get(), 0, 1, &m_compute.DescriptorSet, 0, 0);
 
       // Dispatch the compute job
-      vkCmdDispatch(m_compute.CommandBuffer.Get(), PARTICLE_COUNT / 16, 1, 1);
+      vkCmdDispatch(m_compute.CommandBuffer.Get(), m_optionParser->GetParticleCount() / 16, 1, 1);
 
       // Add memory barrier to ensure that compute shader has finished writing to the buffer
       // Without this the (rendering) vertex shader may display incomplete results (partial data from last frame)

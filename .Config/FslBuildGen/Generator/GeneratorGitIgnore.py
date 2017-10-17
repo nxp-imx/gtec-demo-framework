@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,19 +31,22 @@
 #
 #****************************************************************************************************************************************************
 
-import os
-import os.path
-from FslBuildGen import IOUtil, Util
-from FslBuildGen.DataTypes import *
-from FslBuildGen.Exceptions import *
-from subprocess import call
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from FslBuildGen import IOUtil
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Packages.Package import Package
 
-class GeneratorGitIgnore(object):
-    def __init__(self, config, packages, platformName, activeGenerator):
+class GeneratorGitIgnore(GeneratorBase):
+    def __init__(self, config: Config, packages: List[Package], platformName: str, activeGenerator: GeneratorBase) -> None:
         super(GeneratorGitIgnore, self).__init__()
 
-        libTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_lib.txt"))
-        exeTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_exe.txt"))
+        libTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_lib.txt"))
+        exeTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_exe.txt"))
 
         generatorIgnoreDict = activeGenerator.GetPackageGitIgnoreDict()
 
@@ -53,21 +56,23 @@ class GeneratorGitIgnore(object):
             elif package.Type == PackageType.Executable:
                 self.__GenerateLibraryBuildFile(config, package, platformName, exeTemplate, generatorIgnoreDict)
 
-    def GetPackageGitIgnoreDict(self):
-        """ Return a dictionary of packages and a list of strings that should be added to git ignore for it """
-        return {}
 
-    def __GenerateLibraryBuildFile(self, config, package, platformName, template, generatorIgnoreDict):
+    def __GenerateLibraryBuildFile(self, config: Config, package: Package,
+                                   platformName: str, template: Optional[str],
+                                   generatorIgnoreDict: Dict[str, Set[str]]) -> None:
+        if template is None or package.AbsolutePath is None:
+            return
         template = template.replace("##PROJECT_NAME##", package.Name)
         targetFilePath = IOUtil.Join(package.AbsolutePath, ".gitignore")
-        targetContent = IOUtil.TryReadBinaryFile(targetFilePath)
-        fileLineBreakStyle = self.__DetectLineBreakStyle(targetContent)
+
+
+        targetContent = IOUtil.TryReadFile(targetFilePath)
 
         targetArray = self.__ToArray(targetContent)
         templateArray = self.__ToArray(template)
 
-        targetArray = filter(None, targetArray)
-        templateArray = filter(None, templateArray)
+        targetArray = [_f for _f in targetArray if _f]
+        templateArray = [_f for _f in templateArray if _f]
 
         # Add the missing dependencies
         for entry in templateArray:
@@ -96,22 +101,14 @@ class GeneratorGitIgnore(object):
         # sort the content to ensure that there are minimal changes
         targetArray.sort()
 
-        finalContent = fileLineBreakStyle.join(targetArray) + fileLineBreakStyle
+        finalContent = "\n".join(targetArray) + '\n'
 
         if not config.DisableWrite:
-            IOUtil.WriteBinaryFileIfChanged(targetFilePath, finalContent)
+            IOUtil.WriteFileIfChanged(targetFilePath, finalContent)
 
 
-    def __DetectLineBreakStyle(self, content):
-        if content == None:
-            return os.linesep
-        elif '\r\n' in content:
-            return '\r\n'
-        else:
-            return '\n'
-
-    def __ToArray(self, content):
-        if content == None:
+    def __ToArray(self, content: Optional[str]) -> List[str]:
+        if content is None:
             return []
         content = content.replace('\r', '')
         return content.split('\n')

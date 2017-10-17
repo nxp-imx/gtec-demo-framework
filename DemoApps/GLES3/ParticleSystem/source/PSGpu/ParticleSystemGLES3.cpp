@@ -32,9 +32,9 @@
 #include "ParticleSystemGLES3.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/DemoTime.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
 #include <GLES3/gl31.h>

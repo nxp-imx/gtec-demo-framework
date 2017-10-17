@@ -1,36 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGenConfig Version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FslBuildGenConfig.xsd">
+<FslBuildGenConfig Version="2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="FslBuildGenConfig.xsd">
   <GenFile Name="Fsl.gen"/>
   <TemplateFolder Name="$(FSL_GRAPHICS_SDK)/.Config/Templates.gen"/>
-  <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
   <AddTemplateImportDirectory Name="$(FSL_GRAPHICS_SDK)/.Config/Import.gen"/>
-  <PackageConfiguration Name="default">
-    <!-- ThirdParty -->
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/ThirdParty"/>
-    <!-- Framework packages -->
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoFramework"/>
-    <!-- DemoApp shared libs -->
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/Shared"/>
-  </PackageConfiguration>
-  <PackageConfiguration Name="sdk">
-    <!-- ThirdParty -->
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/ThirdParty"/>
-    <!-- Framework packages -->
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoFramework"/>
-    <!-- App packages packages -->
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/Console"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/G2D"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/GLES2"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/GLES3"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/OpenCL"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/OpenCV"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/OpenVG"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/OpenVX"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/Vulkan"/>
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/Window"/>
-    <!-- DemoApp shared libs -->
-    <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps/Shared"/>
-  </PackageConfiguration>
+  <AddNewProjectTemplatesRootDirectory Name="$(FSL_GRAPHICS_SDK)/.Config/Templates.gen/NewProject"/>
   <ContentBuilderConfiguration>
     <!-- 
         FeatureRequirements can contain a 'python' like condition statement where the 

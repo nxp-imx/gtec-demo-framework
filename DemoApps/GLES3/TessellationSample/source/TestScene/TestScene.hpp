@@ -34,7 +34,7 @@
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <vector>
 #include "../AScene.hpp"
 

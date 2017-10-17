@@ -2,9 +2,9 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- Change the type here depending on how its integrated -->
   <ExternalLibrary Name="G2D">
-    <UsesFeature Name="G2D"/>
-    <UsesFeature Name="EarlyAccess"/>
-    <Platform Name="QNX" NotSupported="true"/>
+    <Requirement Name="G2D" Type="feature"/>
+    <Requirement Name="EarlyAccess" Type="feature"/>
+    <Platform Name="QNX" Supported="true"/>
     <Platform Name="Yocto">
       <ExternalDependency Name="g2d" Type="StaticLib"/>
     </Platform>    

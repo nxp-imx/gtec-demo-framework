@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="GLES2">
-    <UsesFeature Name="OpenGLES2"/>
+    <Requirement Name="OpenGLES2" Type="feature" Extends="OpenGLES" Version="2"/>
     <Dependency Name="GLES"/>
     <!--
     <Platform Name="Windows">

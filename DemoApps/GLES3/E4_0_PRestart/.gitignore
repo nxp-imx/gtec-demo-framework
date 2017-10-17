@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+E4_0_PRestart
 E4_0_PRestart_FB
+E4_0_PRestart_FB_d
 E4_0_PRestart_Wayland
+E4_0_PRestart_Wayland_d
 E4_0_PRestart_X11
+E4_0_PRestart_X11_d
+E4_0_PRestart_d
 FslSDKIcon.ico
+GLES3.E4_0_PRestart
 GLES3.E4_0_PRestart.VC.VC.opendb
 GLES3.E4_0_PRestart.VC.db
 GLES3.E4_0_PRestart.aps
@@ -21,6 +27,9 @@ GLES3.E4_0_PRestart.v12.suo
 GLES3.E4_0_PRestart.vcxproj
 GLES3.E4_0_PRestart.vcxproj.filters
 GLES3.E4_0_PRestart.vcxproj.user
+GLES3.E4_0_PRestart_FB
+GLES3.E4_0_PRestart_Wayland
+GLES3.E4_0_PRestart_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

@@ -1,3 +1,0 @@
-    <ProjectReference Include="##PACKAGE_DEPENDENCY_PROJECT_PATH##">
-      <Project>{##PACKAGE_DEPENDENCY_PROJECTID##}</Project>
-    </ProjectReference>

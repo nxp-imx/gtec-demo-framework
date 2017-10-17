@@ -5,9 +5,9 @@
 */
 
 #include <FslBase/Math/Vector3.hpp>
-#include <FslGraphicsGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "D1_1_VBOs.hpp"
 #include <GLES3/gl3.h>
 #include <iostream>

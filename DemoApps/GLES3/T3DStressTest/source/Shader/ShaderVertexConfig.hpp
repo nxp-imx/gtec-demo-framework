@@ -32,7 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <GLES3/gl3.h>
-#include <FslGraphicsGLES3/GLValues.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
 
 namespace Fsl
 {

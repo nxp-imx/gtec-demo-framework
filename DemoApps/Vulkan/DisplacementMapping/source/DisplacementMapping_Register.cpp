@@ -29,11 +29,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include "DisplacementMapping.hpp"
-#include <VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <VulkanWindowExperimental/OptionParser.hpp>
-#include <FslDemoAppVulkan/Config/DemoAppHostConfigVulkanEx.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
+#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
+#include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 
 namespace Fsl
 {
@@ -51,9 +51,17 @@ namespace Fsl
         AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Optional);
         AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
         AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
+        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
+        // AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::MultiViewport, FeatureRequirement::Mandatory);
       }
     };
   }
+
+  // Configure the demo environment to run this demo app in a Window host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+
+    DemoAppRegister::Window::Register<DisplacementMapping, OptionParser>(rSetup, "Vulkan.DisplacementMapping", config);
+  }
 }
-// Configure the demo environment to run this demo app in a Window host environment
-FSL_REGISTER_WINDOW_DEMO_EX(DisplacementMapping, DemoAppHostConfigWindow(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>()), OptionParser);

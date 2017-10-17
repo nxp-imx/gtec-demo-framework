@@ -165,7 +165,9 @@ namespace Fsl
             jint* pPixels = env->GetIntArrayElements(javaPixelArray, 0);
             try
             {
-              rBitmap.Reset(pPixels, Extent2D(bitmapWidth, bitmapHeight), PixelFormat::B8G8R8A8_UINT);
+              const Extent2D bitmapExtent(bitmapWidth, bitmapHeight);
+              const std::size_t cbBitmap = std::size_t(4) * bitmapExtent.Width * bitmapExtent.Height;
+              rBitmap.Reset(pPixels, cbBitmap, bitmapExtent, PixelFormat::B8G8R8A8_UINT);
               loadCompleted = true;
             }
             catch(const std::exception& ex)

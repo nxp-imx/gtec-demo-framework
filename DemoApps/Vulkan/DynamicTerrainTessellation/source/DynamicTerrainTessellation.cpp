@@ -17,14 +17,11 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/Sampler.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <RapidVulkan/Memory.hpp>
+#include <RapidVulkan/Sampler.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -33,10 +30,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+using namespace RapidVulkan;
 
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
@@ -147,12 +146,12 @@ namespace Fsl
       {
       case VirtualKey::UpArrow:
       case VirtualKey::Add:
-      case VirtualKey::GamePadButtonR1:
+      case VirtualKey::GamePadButtonRightShoulder:
         ChangeTessellationFactor(0.05f);
         break;
       case VirtualKey::DownArrow:
       case VirtualKey::Subtract:
-      case VirtualKey::GamePadButtonL1:
+      case VirtualKey::GamePadButtonLeftShoulder:
         ChangeTessellationFactor(-0.05f);
         break;
       case VirtualKey::F:
@@ -291,7 +290,7 @@ namespace Fsl
           vkCmdEndRenderPass(m_drawCmdBuffers[i]);
         }
 
-        FSLGRAPHICSVULKAN_CHECK(vkEndCommandBuffer(m_drawCmdBuffers[i]));
+        RAPIDVULKAN_CHECK(vkEndCommandBuffer(m_drawCmdBuffers[i]));
       }
     }
   }
@@ -378,6 +377,7 @@ namespace Fsl
     samplerInfo.compareOp = VK_COMPARE_OP_NEVER;
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = static_cast<float>(m_textures.HeightMap.GetLevels());
+    samplerInfo.maxAnisotropy = 1.0f;
     samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
     Sampler heightSampler(m_device.Get(), samplerInfo);
@@ -399,7 +399,7 @@ namespace Fsl
     samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
     if (m_deviceFeatures.samplerAnisotropy)
     {
-      samplerInfo.maxAnisotropy = 4.0f;
+      samplerInfo.maxAnisotropy = m_deviceActiveFeatures.samplerAnisotropy ? 4.0f : 1.0f;
       samplerInfo.anisotropyEnable = VK_TRUE;
     }
     Sampler terrainSampler(m_device.Get(), samplerInfo);
@@ -499,8 +499,8 @@ namespace Fsl
 
     struct Buffers
     {
-      Vulkan::Buffer Buffer;
-      Vulkan::Memory Memory;
+      RapidVulkan::Buffer Buffer;
+      RapidVulkan::Memory Memory;
     };
 
     Buffers vertexStaging, indexStaging, terrainVertices, terrainIndices;
@@ -575,7 +575,7 @@ namespace Fsl
     memAlloc.memoryTypeIndex = m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
     m_queryResult.Memory.Reset(m_device.Get(), memAlloc);
 
-    FSLGRAPHICSVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_queryResult.Buffer.Get(), m_queryResult.Memory.Get(), 0));
+    RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_queryResult.Buffer.Get(), m_queryResult.Memory.Get(), 0));
 
     // Create query pool
     VkQueryPoolCreateInfo queryPoolInfo{};
@@ -907,7 +907,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayouts.Terrain.GetPointer();
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Terrain));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Terrain));
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets(3);
     // Binding 0 : Shared tessellation shader ubo
@@ -944,7 +944,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayouts.Skysphere.GetPointer();
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Skysphere));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSets.Skysphere));
 
     writeDescriptorSets.clear();
     writeDescriptorSets.resize(2);

@@ -1,0 +1,1 @@
+Auto-generated OpenCL 1 C++11 RAII classes by RAIIGen V0.4.0 (https://github.com/Unarmed1000/RAIIGen)

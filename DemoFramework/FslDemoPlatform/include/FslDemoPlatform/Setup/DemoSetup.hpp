@@ -31,21 +31,23 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Setup/DemoHostSetup.hpp>
-#include <FslDemoHost/Setup/DemoHostAppSetup.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostSetup.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
+#include <FslBase/ExceptionMessageFormatter.hpp>
 
 namespace Fsl
 {
-  class ServiceProviderImpl;
+  class IServiceProvider;
 
   struct DemoSetup
   {
-    std::shared_ptr<ServiceProviderImpl> ServiceProvider;
+    ExceptionMessageFormatter ExceptionFormatter;
+    std::shared_ptr<IServiceProvider> ServiceProvider;
     DemoHostSetup Host;
     DemoHostAppSetup App;
     bool Verbose;
 
-    DemoSetup(const std::shared_ptr<ServiceProviderImpl>& serviceProvider, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose);
+    DemoSetup(const ExceptionMessageFormatter& exceptionFormatter, const std::shared_ptr<IServiceProvider>& serviceProvider, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose);
     ~DemoSetup();
   };
 }

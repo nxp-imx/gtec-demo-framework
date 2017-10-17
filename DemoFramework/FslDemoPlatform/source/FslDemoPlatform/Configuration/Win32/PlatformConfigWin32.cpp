@@ -30,9 +30,10 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Service/ServicePriorityList.hpp>
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalSingletonServiceFactoryTemplate.hpp>
-//#include <FslDemoHostEGL/EGLDemoHostSetup.hpp>
+#include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
+#include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+//#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 
 #include <FslDemoPlatform/Service/ImageLibrary/ImageLibraryServiceDevILFactory.hpp>
 //#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
@@ -43,7 +44,6 @@
 #include "../PlatformConfig.hpp"
 
 #include <memory>
-
 namespace Fsl
 {
 
@@ -57,7 +57,8 @@ namespace Fsl
     //registry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
 
 #ifdef FSL_ENABLE_DEVIL
-    serviceRegistry.Register<ImageLibraryServiceDevILFactory>(ServicePriorityList::ImageLibraryService());
+    const auto imageServiceGroup = serviceRegistry.GetServiceGroupByName(ServiceGroupName::Image());
+    serviceRegistry.Register<ImageLibraryServiceDevILFactory>(ServicePriorityList::ImageLibraryService(), imageServiceGroup);
 #endif
 
 

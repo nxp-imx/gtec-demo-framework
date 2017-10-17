@@ -31,9 +31,9 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Service/ThreadLocal/ThreadLocalService.hpp>
-#include <FslDemoHost/Service/DemoPlatformControl/IDemoPlatformControl.hpp>
-#include <FslDemoApp/Service/ServiceProvider.hpp>
+#include <FslDemoHost/Base/Service/DemoPlatformControl/IDemoPlatformControl.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
+#include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
 namespace Fsl
 {

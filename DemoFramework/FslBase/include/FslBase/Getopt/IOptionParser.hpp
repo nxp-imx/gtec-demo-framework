@@ -45,6 +45,9 @@ namespace Fsl
   public:
     virtual ~IOptionParser() {}
 
+    //! @brief Return the name of this option parser
+    virtual std::string GetName() const = 0;
+
     //! @brief Configure the input arguments
     //! @param rOptions [in] Options.
     virtual void ArgumentSetup(std::deque<Option>& rOptions) = 0;

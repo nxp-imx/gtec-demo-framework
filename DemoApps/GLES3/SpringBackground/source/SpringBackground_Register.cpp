@@ -29,23 +29,38 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES3/Setup/RegisterDemoAppGLES3.hpp>
+#include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "SpringBackground.hpp"
 #include "OptionParser.hpp"
 
-namespace
+namespace Fsl
 {
-  // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-  static const EGLint g_eglConfigAttribs[] =
+  namespace
   {
-    EGL_NONE
-  };
-}
+    // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
+    static const EGLint g_eglConfigAttribs[] =
+    {
+      EGL_NONE
+    };
+  }
 
-// Configure the demo environment to run this demo app in a OpenGLES3 host environment
+
 #ifndef FSL_ENABLE_OPENGLES3_1
-FSL_REGISTER_OPENGLES3_DEMO_EX(SpringBackground, DemoAppHostConfigEGL(g_eglConfigAttribs), OptionParser);
+  // Configure the demo environment to run this demo app in a OpenGLES3 host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+
+    DemoAppRegister::GLES3::Register<SpringBackground, OptionParser>(rSetup, "GLES3.SpringBackground", config);
+  }
 #else
-FSL_REGISTER_OPENGLES3_X_DEMO_EX(SpringBackground, 1, DemoAppHostConfigEGL(g_eglConfigAttribs), OptionParser);
+  // Configure the demo environment to run this demo app in a OpenGLES3.1 host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+
+    DemoAppRegister::GLES3::Register<SpringBackground, OptionParser>(rSetup, "GLES3.SpringBackground", config, 1);
+  }
 #endif
+}

@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+E3_0_InstancingSimple
 E3_0_InstancingSimple_FB
+E3_0_InstancingSimple_FB_d
 E3_0_InstancingSimple_Wayland
+E3_0_InstancingSimple_Wayland_d
 E3_0_InstancingSimple_X11
+E3_0_InstancingSimple_X11_d
+E3_0_InstancingSimple_d
 FslSDKIcon.ico
+GLES3.E3_0_InstancingSimple
 GLES3.E3_0_InstancingSimple.VC.VC.opendb
 GLES3.E3_0_InstancingSimple.VC.db
 GLES3.E3_0_InstancingSimple.aps
@@ -21,6 +27,9 @@ GLES3.E3_0_InstancingSimple.v12.suo
 GLES3.E3_0_InstancingSimple.vcxproj
 GLES3.E3_0_InstancingSimple.vcxproj.filters
 GLES3.E3_0_InstancingSimple.vcxproj.user
+GLES3.E3_0_InstancingSimple_FB
+GLES3.E3_0_InstancingSimple_Wayland
+GLES3.E3_0_InstancingSimple_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

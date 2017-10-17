@@ -17,16 +17,16 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 
-#include <VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
-#include <FslGraphicsVulkan1_0/Buffer.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSet.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/Fence.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
-#include <FslGraphicsVulkan1_0/Semaphore.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
+#include <RapidVulkan/Buffer.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSet.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/Fence.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/Memory.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
+#include <RapidVulkan/Semaphore.hpp>
 
 namespace Fsl
 {
@@ -35,8 +35,8 @@ namespace Fsl
     // Vertex buffer and attributes
     struct VertexBuffer
     {
-      Vulkan::Memory Memory;                              // Handle to the device memory for this buffer
-      Vulkan::Buffer Buffer;                                // Handle to the Vulkan buffer object that the memory is bound to
+      RapidVulkan::Memory Memory;                              // Handle to the device memory for this buffer
+      RapidVulkan::Buffer Buffer;                                // Handle to the Vulkan buffer object that the memory is bound to
       VkPipelineVertexInputStateCreateInfo InputState;
       VkVertexInputBindingDescription InputBinding;
       std::vector<VkVertexInputAttributeDescription> InputAttributes;
@@ -54,8 +54,8 @@ namespace Fsl
     // Index buffer
     struct IndexBuffer
     {
-      Vulkan::Memory Memory;
-      Vulkan::Buffer Buffer;
+      RapidVulkan::Memory Memory;
+      RapidVulkan::Buffer Buffer;
       uint32_t Count;
 
       IndexBuffer()
@@ -87,16 +87,16 @@ namespace Fsl
     // Uniform block object
     struct UniformDataVS
     {
-      Vulkan::Memory Memory;
-      Vulkan::Buffer Buffer;
+      RapidVulkan::Memory Memory;
+      RapidVulkan::Buffer Buffer;
       VkDescriptorBufferInfo Descriptor;
     } ;
 
 
     // PrepareSynchronizationPrimitives
-    Vulkan::Semaphore m_presentCompleteSemaphore;
-    Vulkan::Semaphore m_renderCompleteSemaphore;
-    std::vector<Vulkan::Fence> m_waitFences;
+    RapidVulkan::Semaphore m_presentCompleteSemaphore;
+    RapidVulkan::Semaphore m_renderCompleteSemaphore;
+    std::vector<RapidVulkan::Fence> m_waitFences;
     // PrepareVertices
     VertexBuffer m_vertices;
     IndexBuffer m_indices;
@@ -104,12 +104,12 @@ namespace Fsl
     UboVS m_uboVS;
     UniformDataVS m_uniformDataVS;
     // SetupDescriptorSetLayout
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
     // PreparePipelines
-    Vulkan::GraphicsPipeline m_pipeline;
+    RapidVulkan::GraphicsPipeline m_pipeline;
     // SetupDescriptorPool
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
     // SetupDescriptorSet
     // We use the native type here since this is managed by a pool
     VkDescriptorSet m_descriptorSet;

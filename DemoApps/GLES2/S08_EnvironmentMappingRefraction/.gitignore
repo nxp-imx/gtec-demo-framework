@@ -5,6 +5,7 @@ Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
+GLES2.S08_EnvironmentMappingRefraction
 GLES2.S08_EnvironmentMappingRefraction.VC.VC.opendb
 GLES2.S08_EnvironmentMappingRefraction.VC.db
 GLES2.S08_EnvironmentMappingRefraction.aps
@@ -18,10 +19,18 @@ GLES2.S08_EnvironmentMappingRefraction.v12.suo
 GLES2.S08_EnvironmentMappingRefraction.vcxproj
 GLES2.S08_EnvironmentMappingRefraction.vcxproj.filters
 GLES2.S08_EnvironmentMappingRefraction.vcxproj.user
+GLES2.S08_EnvironmentMappingRefraction_FB
+GLES2.S08_EnvironmentMappingRefraction_Wayland
+GLES2.S08_EnvironmentMappingRefraction_X11
 GNUmakefile
 GNUmakefile_Yocto
+S08_EnvironmentMappingRefraction
 S08_EnvironmentMappingRefraction_FB
+S08_EnvironmentMappingRefraction_FB_d
 S08_EnvironmentMappingRefraction_Wayland
+S08_EnvironmentMappingRefraction_Wayland_d
 S08_EnvironmentMappingRefraction_X11
+S08_EnvironmentMappingRefraction_X11_d
+S08_EnvironmentMappingRefraction_d
 build/
 resource.h

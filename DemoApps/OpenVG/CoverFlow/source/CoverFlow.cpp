@@ -30,7 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphicsVG/VGCheck.hpp>
+#include <FslUtil/OpenVG/VGCheck.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include "CoverFlow.hpp"
 #include "CoverAlbumBitmap.hpp"

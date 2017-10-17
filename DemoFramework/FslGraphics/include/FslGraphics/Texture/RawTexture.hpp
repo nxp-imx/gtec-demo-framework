@@ -93,7 +93,10 @@ namespace Fsl
       return m_contentByteSize;
     }
 
-    //! The height of the texture in pixels
+    //! The stride at the given level (not valid for compressed textures)
+    std::size_t GetStride(const std::size_t level = 0) const;
+
+    //! The widtha and height of the texture in pixels
     Extent3D GetExtent(const std::size_t level = 0) const;
 
     //! @brief Get the number of faces (one for normal textures, six for cube maps)

@@ -31,7 +31,7 @@
 
 #include "MeshRenderVB.hpp"
 #include "Shader/ShaderBase.hpp"
-#include <FslGraphicsGLES3/GLUtil.hpp>
+#include <FslUtil/OpenGLES3/GLUtil.hpp>
 
 namespace Fsl
 {

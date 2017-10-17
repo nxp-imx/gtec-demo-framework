@@ -35,13 +35,17 @@
 #include <FslDemoPlatform/Setup/DemoBasicSetup.hpp>
 #include <FslDemoPlatform/Setup/DemoSetupManagerConfig.hpp>
 
-
 namespace Fsl
 {
+  class ExceptionMessageFormatter;
+  class IServiceRegistry;
+
   class DemoSetupManager : private Noncopyable
   {
   public:
-    static DemoBasicSetup GetSetup(const DemoSetupManagerConfig& config, const bool verbose, bool& rEnableFirewallRequest);
+    static DemoBasicSetup GetSetup(const DemoSetupManagerConfig& config, ExceptionMessageFormatter& rExceptionMessageFormatter,
+                                   const std::weak_ptr<IServiceRegistry> weakServiceRegistry,
+                                   const bool verbose, bool& rEnableFirewallRequest);
   };
 }
 

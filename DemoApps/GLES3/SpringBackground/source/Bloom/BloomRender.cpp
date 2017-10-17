@@ -29,15 +29,15 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/Exceptions.hpp>
-#include <FslGraphicsGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "BloomRender.hpp"
 #include <GLES3/gl3.h>
 #include <iostream>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
-#include <FslDemoApp/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include "GaussianShaderBuilder.hpp"
@@ -268,7 +268,7 @@ namespace Fsl
       m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0.0f), Color::White());
       dstX += m_fbBlur32A.GetSize().X;
       m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0.0f), Color::White());
-      dstX += m_fbBlur16A.GetSize().X;
+      //dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
     }
   }

@@ -4,10 +4,16 @@ Android.mk
 Android/
 CMakeLists.txt
 Content/_ContentSyncCache.fsl
+FractalShader
 FractalShader_FB
+FractalShader_FB_d
 FractalShader_Wayland
+FractalShader_Wayland_d
 FractalShader_X11
+FractalShader_X11_d
+FractalShader_d
 FslSDKIcon.ico
+GLES2.FractalShader
 GLES2.FractalShader.VC.VC.opendb
 GLES2.FractalShader.VC.db
 GLES2.FractalShader.aps
@@ -21,6 +27,9 @@ GLES2.FractalShader.v12.suo
 GLES2.FractalShader.vcxproj
 GLES2.FractalShader.vcxproj.filters
 GLES2.FractalShader.vcxproj.user
+GLES2.FractalShader_FB
+GLES2.FractalShader_Wayland
+GLES2.FractalShader_X11
 GNUmakefile
 GNUmakefile_Yocto
 build/

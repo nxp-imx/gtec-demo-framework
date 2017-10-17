@@ -35,6 +35,7 @@
 #include <FslBase/Getopt/Option.hpp>
 #include <deque>
 #include <memory>
+#include "OptionRecord.hpp"
 
 // Forward declare the arg class.
 namespace TCLAP
@@ -63,7 +64,7 @@ namespace Fsl
     std::deque<ArgRecord> m_args;
     std::size_t m_index;
   public:
-    OptionParserTCLAP(int argc, char** argv, const std::deque<Option>& options);
+    OptionParserTCLAP(int argc, char** argv, const std::deque<OptionRecord>& options);
     ~OptionParserTCLAP();
 
     bool Next(int& rValue, std::string& rStrOptArg);

@@ -18,9 +18,15 @@ Texture.v12.suo
 Texture.vcxproj
 Texture.vcxproj.filters
 Texture.vcxproj.user
+Texturing
 Texturing_FB
+Texturing_FB_d
 Texturing_Wayland
+Texturing_Wayland_d
 Texturing_X11
+Texturing_X11_d
+Texturing_d
+Vulkan.Texturing
 Vulkan.Texturing.VC.VC.opendb
 Vulkan.Texturing.VC.db
 Vulkan.Texturing.aps
@@ -34,5 +40,8 @@ Vulkan.Texturing.v12.suo
 Vulkan.Texturing.vcxproj
 Vulkan.Texturing.vcxproj.filters
 Vulkan.Texturing.vcxproj.user
+Vulkan.Texturing_FB
+Vulkan.Texturing_Wayland
+Vulkan.Texturing_X11
 build/
 resource.h

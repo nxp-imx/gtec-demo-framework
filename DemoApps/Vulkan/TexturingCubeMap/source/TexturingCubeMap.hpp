@@ -11,14 +11,14 @@
 // Based on a example called '(Texture mapping) Cube maps' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
-#include <VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineCache.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineCache.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
 #include <glm/glm.hpp>
 
 namespace Fsl
@@ -63,8 +63,8 @@ namespace Fsl
 
     struct Pipelines
     {
-      Vulkan::GraphicsPipeline Skybox;
-      Vulkan::GraphicsPipeline Reflect;
+      RapidVulkan::GraphicsPipeline Skybox;
+      RapidVulkan::GraphicsPipeline Reflect;
     };
 
     struct DescriptorSet
@@ -89,11 +89,11 @@ namespace Fsl
 
     Willems::VulkanTexture m_cubeMap;
 
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
 
     Pipelines m_pipelines;
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
     DescriptorSet m_descriptorSets;
 
   public:

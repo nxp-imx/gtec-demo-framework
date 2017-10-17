@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="Console.%AG_PROJECT_NAME%" NoInclude="true">
-    <ImportTemplate Name="DemoAppConsole"/>
-    <Platform Name="Android" NotSupported="true"/>  
-    <Platform Name="Windows" ProjectId="%AG_VS_PROJECT_ID%"/>
-  </Executable>
-</FslBuildGen>

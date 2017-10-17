@@ -7,9 +7,15 @@ Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
 GNUmakefile_Yocto
+VulkanTriangle
 VulkanTriangle_FB
+VulkanTriangle_FB_d
 VulkanTriangle_Wayland
+VulkanTriangle_Wayland_d
 VulkanTriangle_X11
+VulkanTriangle_X11_d
+VulkanTriangle_d
+Window.VulkanTriangle
 Window.VulkanTriangle.VC.VC.opendb
 Window.VulkanTriangle.VC.db
 Window.VulkanTriangle.aps
@@ -23,5 +29,8 @@ Window.VulkanTriangle.v12.suo
 Window.VulkanTriangle.vcxproj
 Window.VulkanTriangle.vcxproj.filters
 Window.VulkanTriangle.vcxproj.user
+Window.VulkanTriangle_FB
+Window.VulkanTriangle_Wayland
+Window.VulkanTriangle_X11
 build/
 resource.h

@@ -34,10 +34,10 @@
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Matrix.hpp>
-#include <FslDemoApp/Service/Content/IContentManager.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
-#include <FslGraphicsGLES3_1/GLProgramPipeline.hpp>
-#include <FslGraphicsGLES3_1/GLShaderProgram.hpp>
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES3_1/GLProgramPipeline.hpp>
+#include <FslUtil/OpenGLES3_1/GLShaderProgram.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include "../IGridRender.hpp"
 #include <array>

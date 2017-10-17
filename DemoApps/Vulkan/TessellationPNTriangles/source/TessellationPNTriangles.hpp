@@ -14,12 +14,12 @@
 // Based on a example called 'PN-Triangles' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
-#include <VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorPool.hpp>
-#include <FslGraphicsVulkan1_0/DescriptorSetLayout.hpp>
-#include <FslGraphicsVulkan1_0/GraphicsPipeline.hpp>
-#include <FslGraphicsVulkan1_0/PipelineLayout.hpp>
+#include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanWillemsMeshDemoApp.hpp>
+#include <Shared/VulkanWillemsDemoAppExperimental/VulkanUniformData.hpp>
+#include <RapidVulkan/DescriptorPool.hpp>
+#include <RapidVulkan/DescriptorSetLayout.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
 
 namespace Fsl
 {
@@ -64,10 +64,10 @@ namespace Fsl
 
     struct Pipelines
     {
-      Vulkan::GraphicsPipeline Solid;
-      Vulkan::GraphicsPipeline Wire;
-      Vulkan::GraphicsPipeline SolidPassThrough;
-      Vulkan::GraphicsPipeline WirePassThrough;
+      RapidVulkan::GraphicsPipeline Solid;
+      RapidVulkan::GraphicsPipeline Wire;
+      RapidVulkan::GraphicsPipeline SolidPassThrough;
+      RapidVulkan::GraphicsPipeline WirePassThrough;
     };
 
     Textures m_textures;
@@ -80,18 +80,18 @@ namespace Fsl
     UboTC m_uboTC;
     UboTE m_uboTE;
 
-    Vulkan::DescriptorSetLayout m_descriptorSetLayout;
-    Vulkan::PipelineLayout m_pipelineLayout;
+    RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
+    RapidVulkan::PipelineLayout m_pipelineLayout;
 
     Pipelines m_pipelines;
 
-    Vulkan::DescriptorPool m_descriptorPool;
+    RapidVulkan::DescriptorPool m_descriptorPool;
 
     // We use the native type here since this is managed by a pool
     VkDescriptorSet m_descriptorSet;
 
-    Vulkan::GraphicsPipeline* m_pPipelineLeft;
-    Vulkan::GraphicsPipeline* m_pPipelineRight;
+    RapidVulkan::GraphicsPipeline* m_pPipelineLeft;
+    RapidVulkan::GraphicsPipeline* m_pPipelineRight;
     bool m_splitScreen;
   public:
     TessellationPNTriangles(const DemoAppConfig& config);

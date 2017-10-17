@@ -10,19 +10,16 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "MeshInstancing.hpp"
-#include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
-#include <FslGraphicsVulkan1_0/Exceptions.hpp>
-#include <FslGraphicsVulkan1_0/Extend/Convert.hpp>
-#include <FslGraphicsVulkan1_0/Check.hpp>
-#include <FslGraphicsVulkan1_0/ConvertUtil.hpp>
-#include <FslGraphicsVulkan1_0/Memory.hpp>
-#include <FslGraphicsVulkan1_0/MemoryTypeHelper.hpp>
-#include <FslGraphicsVulkan1_0/VulkanHelper.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <RapidVulkan/Check.hpp>
+#include <RapidVulkan/Memory.hpp>
 #include <array>
 #include <cstring>
 #include <cmath>
@@ -31,21 +28,18 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+using namespace RapidVulkan;
+
 namespace Fsl
 {
   using namespace Vulkan;
+  using namespace Vulkan::ConvertUtil;
   using namespace Willems;
 
   namespace
   {
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
     const uint32_t INSTANCE_BUFFER_BIND_ID = 1;
-
-#ifdef __ANDROID__
-    const uint32_t INSTANCE_COUNT = 1024;
-#else
-    const uint32_t INSTANCE_COUNT = 2048;
-#endif
 
 
     // Vertex layout for this example
@@ -61,6 +55,8 @@ namespace Fsl
 
   MeshInstancing::MeshInstancing(const DemoAppConfig& config)
     : VulkanWillemsMeshDemoApp(config)
+    , m_optionParser(config.GetOptions<OptionParserEx>())
+    , m_descriptorSet(VK_NULL_HANDLE)
   {
     m_zoom = -12.0f;
     m_rotationSpeed = 0.25f;
@@ -95,7 +91,7 @@ namespace Fsl
 
   void MeshInstancing::GetOverlayText(VulkanTextOverlay& rTextOverlay)
   {
-    rTextOverlay.AddText("Rendering " + ToString(INSTANCE_COUNT) + " instances", 5.0f, 85.0f, VulkanTextOverlay::TextAlign::Left);
+    rTextOverlay.AddText("Rendering " + ToString(m_optionParser->GetInstanceCount()) + " instances", 5.0f, 85.0f, VulkanTextOverlay::TextAlign::Left);
   }
 
 
@@ -155,7 +151,7 @@ namespace Fsl
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Example.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
         // Render instances
-        vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Example.GetIndexCount(), INSTANCE_COUNT, 0, 0, 0);
+        vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Example.GetIndexCount(), m_optionParser->GetInstanceCount(), 0, 0, 0);
 
         vkCmdEndRenderPass(m_drawCmdBuffers[i]);
       }
@@ -220,12 +216,12 @@ namespace Fsl
 
   void MeshInstancing::PrepareInstanceData()
   {
-    std::vector<InstanceData> instanceData(INSTANCE_COUNT);
+    std::vector<InstanceData> instanceData(m_optionParser->GetInstanceCount());
     std::mt19937 rndGenerator(static_cast<std::mt19937::result_type>(time(nullptr)));
     std::uniform_real_distribution<double> uniformDist(0.0, 1.0);
     std::uniform_int_distribution<uint32_t> uniformTexDist(0, m_textures.ColorMap.GetLayers()-1);
 
-    for (std::size_t i = 0; i < INSTANCE_COUNT; ++i)
+    for (std::size_t i = 0; i < m_optionParser->GetInstanceCount(); ++i)
     {
       instanceData[i].rot = glm::vec3(MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator));
       const float theta = static_cast<float>(2.0 * MathHelper::PI * uniformDist(rndGenerator));
@@ -243,8 +239,8 @@ namespace Fsl
     // This results in better performance
     struct
     {
-      Vulkan::Buffer Buffer;
-      Vulkan::Memory Memory;
+      RapidVulkan::Buffer Buffer;
+      RapidVulkan::Memory Memory;
     } stagingBuffer;
 
     CreateBuffer(stagingBuffer.Buffer, stagingBuffer.Memory,
@@ -531,7 +527,7 @@ namespace Fsl
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = m_descriptorSetLayout.GetPointer();
 
-    FSLGRAPHICSVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
+    RAPIDVULKAN_CHECK(vkAllocateDescriptorSets(m_device.Get(), &allocInfo, &m_descriptorSet));
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets(2);
     // Binding 0 : Vertex shader uniform buffer

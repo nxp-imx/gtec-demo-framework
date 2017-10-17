@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <Library Name="FslUtil.OpenCL1_2">
+    <Dependency Name="OpenCL1_2"/>
+    <Dependency Name="FslUtil.OpenCL"/>
+    <Dependency Name="FslBase"/>
+    <Dependency Name="RapidOpenCL1"/>
+    <Platform Name="Windows" ProjectId="D4DBE931-86C3-4896-A8B5-DAB47FC87728"/>
+  </Library>
+</FslBuildGen>

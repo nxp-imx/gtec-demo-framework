@@ -31,11 +31,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppGLES3/DemoAppGLES3.hpp>
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLTexture.hpp>
-#include <FslGraphicsGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUIApp/UIDemoAppExtension.hpp>
+#include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <deque>
 
 namespace Fsl

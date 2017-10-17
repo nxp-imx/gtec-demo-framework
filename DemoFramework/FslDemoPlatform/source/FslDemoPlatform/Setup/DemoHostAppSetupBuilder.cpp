@@ -31,9 +31,9 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
-#include <FslDemoApp/Host/DemoAppHostConfigEGL.hpp>
-#include <FslDemoApp/Host/DemoAppHostConfigVulkan.hpp>
-#include <FslDemoApp/Host/DemoAppHostConfigWindow.hpp>
+#include <FslDemoApp/Base/Host/DemoAppHostConfigEGL.hpp>
+#include <FslDemoApp/Base/Host/DemoAppHostConfigVulkan.hpp>
+#include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 
 
 namespace Fsl

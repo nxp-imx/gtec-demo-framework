@@ -29,10 +29,42 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoAppWindow/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include "MeshInstancing.hpp"
-#include <VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <VulkanWindowExperimental/OptionParser.hpp>
+#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
+#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
+#include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
+#include "OptionParserEx.hpp"
 
-// Configure the demo environment to run this demo app in a Window host environment
-FSL_REGISTER_WINDOW_DEMO_EX(MeshInstancing, DemoAppHostConfigWindow(AllocateVulkanWindowSystem), OptionParser);
+namespace Fsl
+{
+  namespace
+  {
+    class VulkanConfig : public DemoAppHostConfigVulkanEx
+    {
+    public:
+      VulkanConfig()
+        : DemoAppHostConfigVulkanEx(VulkanDemoAppMode::Freestyle)
+      {
+        using namespace Vulkan;
+
+        //AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TessellationShader, FeatureRequirement::Mandatory);
+        //AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::PipelineStatisticsQuery, FeatureRequirement::Optional);
+        //AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::PipelineStatisticsQuery, FeatureRequirement::Mandatory);
+        //AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Optional);
+
+        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
+        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
+      }
+    };
+  }
+
+
+  // Configure the demo environment to run this demo app in a Window host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  {
+    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+
+    DemoAppRegister::Window::Register<MeshInstancing, OptionParserEx>(rSetup, "Vulkan.MeshInstancing", config);
+  }
+}

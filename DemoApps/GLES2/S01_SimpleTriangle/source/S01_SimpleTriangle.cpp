@@ -10,17 +10,18 @@
 */
 
 #include <FslBase/Math/Matrix.hpp>
-#include <FslGraphicsGLES2/Exceptions.hpp>
-#include <FslGraphicsGLES2/GLCheck.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "S01_SimpleTriangle.hpp"
 #include <GLES2/gl2.h>
+
 
 namespace Fsl
 {
   namespace
   {
     // Define vertice for a triangle
-    float g_vertexPositions[] =
+    const float g_vertexPositions[] =
     {
       0.0f, 100.0f, 0.0f,
       -100.0f, -100.0f, 0.0f,
@@ -30,8 +31,13 @@ namespace Fsl
       100.0f, -100.0, 0.0f
     };
 
-    // This has to be zero since its the first attrib we supply to the GLProgram
+    // The index in these variables should match the g_pszShaderAttributeArray ordering
     const GLuint g_hVertexLoc = 0;
+    const char*const g_pszShaderAttributeArray[] =
+    {
+      "g_vPosition",
+      nullptr
+    };
   }
 
   S01_SimpleTriangle::S01_SimpleTriangle(const DemoAppConfig& config)
@@ -41,7 +47,7 @@ namespace Fsl
     , m_hProjMatrixLoc(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), "g_vPosition");
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
 
     const GLuint hProgram = m_program.Get();
 
@@ -53,7 +59,7 @@ namespace Fsl
     GL_CHECK(glUseProgram(hProgram));
 
     // Set the Clear Color Value
-    glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
+    GL_CHECK(glClearColor(0.0f, 0.0f, 0.5f, 1.0f));
 
     // If enabled, do depth comparisons and update the depth buffer
     GL_CHECK(glEnable(GL_DEPTH_TEST));

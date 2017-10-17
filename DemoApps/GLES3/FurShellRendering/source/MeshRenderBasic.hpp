@@ -33,7 +33,7 @@
 
 #include "MeshRender.hpp"
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics_Draft/Procedural/BasicMesh.hpp>
+#include <FslGraphics3D/Procedural/BasicMesh.hpp>
 
 namespace Fsl
 {

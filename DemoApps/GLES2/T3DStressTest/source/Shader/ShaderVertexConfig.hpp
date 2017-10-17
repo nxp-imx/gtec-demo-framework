@@ -32,7 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <GLES2/gl2.h>
-#include <FslGraphicsGLES2/GLValues.hpp>
+#include <FslUtil/OpenGLES2/GLValues.hpp>
 
 namespace Fsl
 {

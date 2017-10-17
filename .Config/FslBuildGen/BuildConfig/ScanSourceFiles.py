@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+﻿#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -31,46 +31,54 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import List
+from typing import Optional
 import os
-import os.path;
+import os.path
 from FslBuildGen import IOUtil
+from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import CheckType
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Packages.Package import Package
 
-__g_includeExtensionList = [ ".h", ".hpp" ]
-__g_sourceExtensionList = [ ".cpp", ".c" ]
-__g_shaderExtensionList = [ ".frag", ".vert", ".geom", ".tesc", ".tese" ];
+__g_includeExtensionList = [".h", ".hpp"]
+__g_sourceExtensionList = [".cpp", ".c"]
+__g_shaderExtensionList = [".frag", ".vert", ".geom", ".tesc", ".tese"]
 
 __g_thirdParty = '/ThirdParty/'
 
 class SourceFile(object):
-    def __init__(self, package, fileName):
+    def __init__(self, package: Package, fileName: str) -> None:
         super(SourceFile, self).__init__()
         self.Package = package
         self.FileName = fileName
         self.Content = IOUtil.ReadFile(fileName)
         lines = self.Content.split('\n')
         self.LinesOriginal = [line.rstrip() for line in lines]
-        self.BasePath =self. __DetermineFileBasePath(package, fileName)
+        self.BasePath = self.__TryDetermineFileBasePath(package, fileName) # type: Optional[str]
         self.LinesModded = list(self.LinesOriginal)
         self.__NormalizeTrailingEndingLines(self.LinesModded)
         if len(self.LinesModded[len(self.LinesModded)-1]) != 0:
-            raise Exception("Not ending with a empty line");
+            raise Exception("Not ending with a empty line")
 
-    def __DetermineFileBasePath(self, package, fileName):
+
+    def __TryDetermineFileBasePath(self, package: Package, fileName: str) -> Optional[str]:
         if package.AbsoluteIncludePath and fileName.startswith(package.AbsoluteIncludePath):
             return package.AbsoluteIncludePath
         elif package.AbsoluteSourcePath and fileName.startswith(package.AbsoluteSourcePath):
             return package.AbsoluteSourcePath
         return None
 
-    def __CountTrailingEmpty(self, input):
-        numEmptyLines = len(input)-1
+
+    def __CountTrailingEmpty(self, inputList: List[str]) -> int:
+        numEmptyLines = len(inputList)-1
         i = numEmptyLines
-        while len(input[i]) == 0:
+        while len(inputList[i]) == 0:
             i = i - 1
         return numEmptyLines - i
 
-    def __NormalizeTrailingEndingLines(self, listToMod):
+
+    def __NormalizeTrailingEndingLines(self, listToMod: List[str]) -> None:
         count = self.__CountTrailingEmpty(listToMod)
         if count == 1:
             return
@@ -108,41 +116,41 @@ class SourceFile(object):
 #                if not ValidateShaderVersionTag(file, shortFile):
 #                    print("Failed: %s", os.path.normpath(file))
 
-def __Decode(s):
+def __Decode(s: str) -> bytes:
     try:
-        return s.decode("utf-8-sig")
+        return s.encode("utf-8-sig")
     except UnicodeDecodeError:
         pass
-    return s.decode("latin-1") # will always work
+    return s.encode("latin-1")
 
 
-def __Decoded(s):
-    str = __Decode(s)
-    return str.encode("utf-8")
+def __Decoded(s: str) -> str:
+    decodedStr = __Decode(s)
+    return decodedStr.decode("utf-8")
 
 
-def __GenerateIncludeGuardName(package, fileName):
+def __GenerateIncludeGuardName(package: Package, fileName: str) -> str:
     segments = fileName.split('/')
 
     name = ''
     for i in range(1, len(segments)-1):
         name += segments[i].upper() + '_'
 
-    finalName = segments[len(segments)-1];
+    finalName = segments[len(segments)-1]
     if package.Type == PackageType.Executable:
         finalName = "%s_%s" % (package.Name, finalName)
 
     return name + finalName.replace('.', '_').upper()
 
 
-def __ValidateIncludeGuard(config, sourceFile, shortFile, repairEnabled):
+def __ValidateIncludeGuard(config: Config, sourceFile: SourceFile, shortFile: str, repairEnabled: bool) -> bool:
     if len(sourceFile.LinesModded) < 2:
         return False
 
     currentLine0 = sourceFile.LinesModded[0].strip()
     currentLine1 = sourceFile.LinesModded[1].strip()
 
-    guard = __GenerateIncludeGuardName(sourceFile.Package, shortFile);
+    guard = __GenerateIncludeGuardName(sourceFile.Package, shortFile)
     line0Valid = "#ifndef %s" % (guard)
     line1Valid = "#define %s" % (guard)
     if currentLine0 == line0Valid and currentLine1 == line1Valid:
@@ -161,7 +169,7 @@ def __ValidateIncludeGuard(config, sourceFile, shortFile, repairEnabled):
         if repairEnabled:
             config.LogPrint("Because of this repair was not attempted.")
         return False
-    
+
     # validate that the #ifndef and define works on the same string
     userDef0 = currentLine0[len(prefix0):].strip()
     userDef1 = currentLine1[len(prefix1):].strip()
@@ -188,34 +196,37 @@ def __ValidateIncludeGuard(config, sourceFile, shortFile, repairEnabled):
     config.DoPrint("Include guard corrected")
 
     # We are allowed to repair the content, so lets do that
-    sourceFile.LinesModded[0] = line0Valid;
-    sourceFile.LinesModded[1] = line1Valid;
+    sourceFile.LinesModded[0] = line0Valid
+    sourceFile.LinesModded[1] = line1Valid
     return False
 
 
-def __IsAscii(str):
+def __IsAscii(srcStr: str) -> bool:
     """ Check if a string only contains ASCII characters """
     try:
-        str.decode('ascii')
+        srcStr.encode('ascii')
         return True
     except UnicodeDecodeError:
         return False
+    except UnicodeEncodeError:
+        return False
 
-def __IndexOfNonAscii(str, startIndex=0):
-    for index in range(startIndex, len(str)):
-        if ord(str[index]) >= 128:
+
+def __IndexOfNonAscii(srcStr: str, startIndex: int = 0) -> int:
+    for index in range(startIndex, len(srcStr)):
+        if ord(srcStr[index]) >= 128:
             return index
     return -1
 
 
-def __CheckASCII(config, sourceFile, repairEnabled):
-    errorCount = 0;
+def __CheckASCII(config: Config, sourceFile: SourceFile, repairEnabled: bool) -> bool:
+    errorCount = 0
     for index, line in enumerate(sourceFile.LinesOriginal):
         if not __IsAscii(line):
             posX = __IndexOfNonAscii(line, 0)
             while posX >= 0:
                 ch = hex(ord(line[posX])) if index >= 0 else '-failed-'
-                config.DoPrint("Non ASCII character '%s' encountered at X:%s, Y:%s in '%s'" % (ch, posX+1, index+1,  os.path.normpath(sourceFile.FileName)))
+                config.DoPrint("Non ASCII character '{0}' encountered at X:{1}, Y:{2} in '{3}'".format(ch, posX+1, index+1, os.path.normpath(sourceFile.FileName)))
                 errorCount = errorCount + 1
                 #if repairEnabled:
                 #    line[posX] = ' '  # disabled because its too dangerous
@@ -223,25 +234,25 @@ def __CheckASCII(config, sourceFile, repairEnabled):
     return errorCount == 0
 
 
-def __IsValidExtension(fileName, validExtensions):
-     fileNameId = fileName.lower()
-     for entry in validExtensions:
-         if fileNameId.endswith(entry):
-             return True
-     return False
+def __IsValidExtension(fileName: str, validExtensions: List[str]) -> bool:
+    fileNameId = fileName.lower()
+    for entry in validExtensions:
+        if fileNameId.endswith(entry):
+            return True
+    return False
 
 
-
-def __CheckIncludeGuard(config, sourceFile, repairEnabled):
+def __CheckIncludeGuard(config: Config, sourceFile: SourceFile, repairEnabled: bool) -> bool:
     if not sourceFile.BasePath:
         return True
 
-    pathLen = len(sourceFile.BasePath);
-    shortFile = sourceFile.FileName[pathLen:].replace('\\','/');
+    pathLen = len(sourceFile.BasePath)
+    shortFile = sourceFile.FileName[pathLen:].replace('\\', '/')
     return __ValidateIncludeGuard(config, sourceFile, shortFile, repairEnabled)
 
-def __CheckTabs(config, sourceFile, repairEnabled, thirdpartyExceptionDir):
-    if __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir != None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
+
+def __CheckTabs(config: Config, sourceFile: SourceFile, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
+    if __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
         return True
 
     tabCount = 0
@@ -254,7 +265,7 @@ def __CheckTabs(config, sourceFile, repairEnabled, thirdpartyExceptionDir):
     return False
 
 
-def __Repair(config, sourceFile, asciiRepair):
+def __Repair(config: Config, sourceFile: SourceFile, asciiRepair: bool) -> None:
 
     strContent = "\n".join(sourceFile.LinesModded)
     if asciiRepair:
@@ -265,16 +276,17 @@ def __Repair(config, sourceFile, asciiRepair):
         if not config.DisableWrite:
             IOUtil.WriteFile(sourceFile.FileName, strContent)
 
-        
-def __ProcessIncludeFile(config, package, fullPath, repairEnabled, thirdpartyExceptionDir):
+
+def __ProcessIncludeFile(config: Config, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
     noErrors = True
     asciiRepair = False
     sourceFile = SourceFile(package, fullPath)
-    if not __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir != None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
+    if not __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
         if not __CheckIncludeGuard(config, sourceFile, repairEnabled):
             noErrors = False
     if not __CheckASCII(config, sourceFile, repairEnabled):
-        asciiRepair = True
+        # The ASCII repair is not safe, so dont do it
+        #asciiRepair = True
         noErrors = False
     if not __CheckTabs(config, sourceFile, repairEnabled, thirdpartyExceptionDir):
         noErrors = False
@@ -283,12 +295,13 @@ def __ProcessIncludeFile(config, package, fullPath, repairEnabled, thirdpartyExc
     return noErrors
 
 
-def __ProcessSourceFile(config, package, fullPath, repairEnabled, thirdpartyExceptionDir):
+def __ProcessSourceFile(config: Config, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
     noErrors = True
     asciiRepair = False
     sourceFile = SourceFile(package, fullPath)
     if not __CheckASCII(config, sourceFile, repairEnabled):
-        asciiRepair = True
+        # The ASCII repair is not safe, so dont do it
+        #asciiRepair = True
         noErrors = False
     if not __CheckTabs(config, sourceFile, repairEnabled, thirdpartyExceptionDir):
         noErrors = False
@@ -297,9 +310,14 @@ def __ProcessSourceFile(config, package, fullPath, repairEnabled, thirdpartyExce
     return noErrors
 
 
-def __ScanFiles(config, package, repairEnabled, thirdpartyExceptionDir):
+def __ScanFiles(config: Config, package: Package, repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int) -> bool:
     if not package.ResolvedBuildAllIncludeFiles:
         return True
+    if not package.AllowCheck and checkType == CheckType.Normal:
+        return True
+
+    if package.AbsolutePath is None or package.ResolvedBuildSourceFiles is None:
+        raise Exception("Invalid package")
 
     noErrors = True
     for fileName in package.ResolvedBuildAllIncludeFiles:
@@ -308,6 +326,7 @@ def __ScanFiles(config, package, repairEnabled, thirdpartyExceptionDir):
         if __IsValidExtension(fileName, __g_includeExtensionList):
             if not __ProcessIncludeFile(config, package, fullPath, repairEnabled, thirdpartyExceptionDir):
                 noErrors = False
+
 
     for fileName in package.ResolvedBuildSourceFiles:
         fullPath = IOUtil.Join(package.AbsolutePath, fileName)
@@ -320,12 +339,11 @@ def __ScanFiles(config, package, repairEnabled, thirdpartyExceptionDir):
     return noErrors
 
 
-def Scan(config, packages, repairEnabled, thirdpartyExceptionDir):
+def Scan(config: Config, packages: List[Package], repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int) -> None:
     """ Run through all source files that are part of the packages and check for common errors """
     noErrors = True
     for package in packages:
-        noErrors = __ScanFiles(config, package, repairEnabled, thirdpartyExceptionDir)
+        noErrors = __ScanFiles(config, package, repairEnabled, thirdpartyExceptionDir, checkType)
 
     if not noErrors and not repairEnabled:
-        config.DoPrint("BEWARE: If you have made a backup of your files you can try to auto correct the errors with '--Repair' but do so at your own peril");
-
+        config.DoPrint("BEWARE: If you have made a backup of your files you can try to auto correct the errors with '--Repair' but do so at your own peril")

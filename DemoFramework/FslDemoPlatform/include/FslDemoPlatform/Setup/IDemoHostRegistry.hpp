@@ -32,8 +32,8 @@
 ****************************************************************************************************************************************************/
 
 #include <deque>
-#include <FslDemoApp/Host/DemoHostFeatureName.hpp>
-#include <FslDemoHost/Setup/DemoHostSetup.hpp>
+#include <FslDemoApp/Base/Host/DemoHostFeatureName.hpp>
+#include <FslDemoHost/Base/Setup/DemoHostSetup.hpp>
 
 namespace Fsl
 {

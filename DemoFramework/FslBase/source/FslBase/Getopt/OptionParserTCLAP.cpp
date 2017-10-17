@@ -39,35 +39,37 @@ namespace Fsl
   namespace
   {
 
-    void ToTCLAPArguments(std::deque<OptionParserTCLAP::ArgRecord>& rArgs, const std::deque<Option>& combinedOptions, TCLAP::CmdLine& rCmd)
+    void ToTCLAPArguments(std::deque<OptionParserTCLAP::ArgRecord>& rArgs, const std::deque<OptionRecord>& combinedOptions, TCLAP::CmdLine& rCmd)
     {
       int dstIdx = 0;
-      std::deque<Option>::const_iterator srcItr = combinedOptions.begin();
+      std::deque<OptionRecord>::const_iterator srcItr = combinedOptions.begin();
       while (srcItr != combinedOptions.end())
       {
         // This slices the extended Option classes (which is what we want)
         std::shared_ptr<TCLAP::Arg> arg;
 
-        switch(srcItr->HasArg)
+        const Option& sourceOption = srcItr->SourceOption;
+
+        switch(srcItr->SourceOption.HasArg)
         {
         case OptionArgument::OptionNone:
-          arg = std::make_shared<TCLAP::SwitchArg>(srcItr->ShortName, srcItr->Name, srcItr->Description, rCmd, false);
+          arg = std::make_shared<TCLAP::SwitchArg>(sourceOption.ShortName, sourceOption.Name, sourceOption.Description, rCmd, false);
           break;
         //case OptionArgument::OptionOptional:
-          //arg = std::make_shared<TCLAP::ValueArg<std::string> >(srcItr->ShortName, srcItr->Name, srcItr->Description, false, DEFAULT_STR, "", rCmd);
+          //arg = std::make_shared<TCLAP::ValueArg<std::string> >(sourceOption.ShortName, sourceOption.Name, sourceOption.Description, false, DEFAULT_STR, "", rCmd);
           //  break;
         case OptionArgument::OptionRequired:
-          if ( ! srcItr->IsPositional )
-            arg = std::make_shared<TCLAP::ValueArg<std::string> >(srcItr->ShortName, srcItr->Name, srcItr->Description, false, DEFAULT_STR, "", rCmd);
+          if ( !sourceOption.IsPositional )
+            arg = std::make_shared<TCLAP::ValueArg<std::string> >(sourceOption.ShortName, sourceOption.Name, sourceOption.Description, false, DEFAULT_STR, "", rCmd);
           else
           {
-            const bool isRequired = srcItr->HasArg == OptionArgument::OptionRequired;
-            arg = std::make_shared<TCLAP::UnlabeledValueArg<std::string> >(srcItr->Name, srcItr->Description, isRequired, DEFAULT_STR, "", rCmd);
+            const bool isRequired = sourceOption.HasArg == OptionArgument::OptionRequired;
+            arg = std::make_shared<TCLAP::UnlabeledValueArg<std::string> >(sourceOption.Name, sourceOption.Description, isRequired, DEFAULT_STR, "", rCmd);
           }
           break;
         }
 
-        rArgs.push_back(OptionParserTCLAP::ArgRecord(srcItr->CmdId, arg));
+        rArgs.push_back(OptionParserTCLAP::ArgRecord(sourceOption.CmdId, arg));
         ++srcItr;
         ++dstIdx;
       }
@@ -93,7 +95,7 @@ namespace Fsl
   }
 
 
-  OptionParserTCLAP::OptionParserTCLAP(int argc, char** argv, const std::deque<Option>& options)
+  OptionParserTCLAP::OptionParserTCLAP(int argc, char** argv, const std::deque<OptionRecord>& options)
     : m_index(0)
   {
     try

@@ -33,7 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/BoxF.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 
 namespace Fsl
 {

@@ -61,6 +61,26 @@ namespace Fsl
     }
   };
 
+  namespace GenericBatch2DFormat
+  {
+    struct Normal
+    {
+      inline static float Format(const float v)
+      {
+        return v;
+      }
+    };
+
+    struct Flipped
+    {
+      inline static float Format(const float v)
+      {
+        return 1.0f - v;
+      }
+    };
+  }
+
+
   const uint32_t GenericBatch2D_DEFAULT_CAPACITY = 2048;
 
   //! @brief A really simple API independent way to draw some graphics
@@ -68,7 +88,7 @@ namespace Fsl
   //!        the bottom right corner is equal to the display width-1,height-1
   //! @note  This API provides a form of batched immediate mode, so it will be slower than properly
   //         optimized graphics, but its faster to get something running and good for debugging.
-  template<typename TNativeBatch, typename TTexture>
+  template<typename TNativeBatch, typename TTexture, typename TVFormatter=GenericBatch2DFormat::Flipped>
   class GenericBatch2D
   {
     static const uint32_t VERTICES_PER_QUAD = 4;

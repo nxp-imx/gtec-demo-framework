@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+﻿#!/usr/bin/env python3
 #****************************************************************************************************************************************************
 #* BSD 3-Clause License
 #*
@@ -37,7 +37,7 @@ __g_allowDevelopmentPlugins = False
 
 
 def GetTitle():
-    return 'TPConvert V0.1.5 alpha'
+    return 'TPConvert V0.2.0 alpha'
 
 
 def ShowTitleIfNecessary():
@@ -87,7 +87,7 @@ def EarlyArgumentParser():
         __g_debugEnabled = True if args.debug else False;
         __g_allowDevelopmentPlugins = True if args.dev else False;
     except (Exception) as ex:
-        print("ERROR: %s" % ex.message)
+        print("ERROR: {0}".format(ex.message))
         if __g_debugEnabled:
             raise
         else:
@@ -126,12 +126,12 @@ def Main():
         Process(plugins, args.inputFile, args.outputFile, args.format)
     except (IOError) as ex:
         ShowTitleIfNecessary()
-        print("ERROR: %s" % ex.strerror)
+        print("ERROR: {0}".format(ex.strerror))
         if __g_debugEnabled:
             raise
     except (Exception) as ex:
         ShowTitleIfNecessary()
-        print("ERROR: %s" % ex.message)
+        print("ERROR: {0}".format(ex.message))
         if __g_debugEnabled:
             raise
     return

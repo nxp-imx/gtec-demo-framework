@@ -53,8 +53,11 @@ namespace Fsl
     Particle()
       : Position()
       , Velocity()
-      , Energy(0)
-      , StartEnergy(0)
+      , Energy(0.0f)
+      , Size(0.0f)
+      , StartEnergy(0.0f)
+      , StartSize(0.0f)
+      , EndSize(0.0f)
       , TextureId(0)
     {
     }

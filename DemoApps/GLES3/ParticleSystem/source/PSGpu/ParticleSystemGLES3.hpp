@@ -31,11 +31,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslGraphicsGLES3/GLProgram.hpp>
-#include <FslGraphicsGLES3/GLTexture.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
-#include <FslGraphicsGLES3_1/GLProgramPipeline.hpp>
-#include <FslGraphicsGLES3_1/GLShaderProgram.hpp>
+#include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES3_1/GLProgramPipeline.hpp>
+#include <FslUtil/OpenGLES3_1/GLShaderProgram.hpp>
 
 #include <cstddef>
 #include <memory>

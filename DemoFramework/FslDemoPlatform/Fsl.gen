@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslDemoPlatform">
+    <Dependency Name="stb"/>
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
-    <Dependency Name="FslDemoApp"/>
-    <Dependency Name="FslDemoHost"/>
+    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslDemoHost.Base"/>
     <Platform Name="Android">
-      <Dependency Name="FslGraphicsEGL"/>
-      <Dependency Name="FslNativeWindowPlatform"/>
-      <ExternalDependency Name="android_native_app_glue" Type="StaticLib"/>
-      <ExternalDependency Name="ndk_helper" Type="StaticLib"/>
+      <Dependency Name="FslUtil.EGL"/>
+      <Dependency Name="FslNativeWindow.Platform"/>
+      <Dependency Name="Platform.Android.Glue"/>
+      <Dependency Name="Platform.Android.NDKHelper"/>
       <Dependency Name="gli"/>
     </Platform>
     <Platform Name="Ubuntu">

@@ -38,8 +38,8 @@
 #include "Spring.hpp"
 #include "IGridRender.hpp"
 #include <vector>
-#include <FslGraphicsGLES3/NativeBatch2D.hpp>
-#include <FslGraphicsGLES3/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 
 namespace Fsl

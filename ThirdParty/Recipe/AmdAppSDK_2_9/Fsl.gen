@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.AmdAppSDK_2_9">
+    <Default.Platform.Supported Value="false"/>
+    
+    <Platform Name="Ubuntu" Supported="true">
+      <ExperimentalRecipe Name="AmdAppSDK-2.9" ExternalInstallDirectory="$(AMDAPPSDKROOT)">
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/x86_64/libOpenCL.so" Help="This is the OpenCL implementation loaded by the OpenCL library."/>
+          <Path Name="include/CL/cl.h" Method="IsFile" Help="The main OpenCL header file."/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+
+  </ExternalLibrary>
+</FslBuildGen>

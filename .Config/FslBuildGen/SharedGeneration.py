@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #****************************************************************************************************************************************************
 # Copyright (c) 2016 Freescale Semiconductor, Inc.
@@ -36,7 +36,24 @@ GEN_BUILD_ENV_VARIANT_SETTING = "FSLBUILD_VARIANT_"
 #             So the code generation engine needs to know if the 'feature' config needs the variant info or not :/
 GEN_BUILD_ENV_FEATURE_SETTING = "FSLBUILD_FEATURE_"
 
-GEN_MAGIC_VARIANT = "config"
+class ToolEnvironmentVariableName(object):
+    FSL_GRAPHICS_SDK = "FSL_GRAPHICS_SDK"
+    FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR = "FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR"
+
+class ToolAddedVariantConfigOption(object):
+    Debug = "Debug"
+    Release = "Release"
+
+
+class ToolAddedVariant(object):
+    CONFIG = "config"
+
+class ToolAddedVariantOptions(object):
+    CONFIG = [ToolAddedVariantConfigOption.Debug, ToolAddedVariantConfigOption.Release]
+
+
+# Represents 'automatic' variants added by the tool
+
 
 GEN_MAGIC_VARIANT_ANDROID_ABI = "ANDROID_ABI"
 
