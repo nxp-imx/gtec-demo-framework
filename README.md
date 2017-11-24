@@ -1,4 +1,4 @@
-﻿# DemoFramework
+﻿# DemoFramework 5.0.0 RC1
 
 A multi-platform framework for fast and easy demo development.
 
@@ -43,7 +43,7 @@ since the exact same demo/benchmark code run on all of them.
   * [Technical overview](#Technical-overview)
 * [Building](#Building)
   * [Reasoning](#Reasoning)
-  * [Build system per platform:](#Build-system-per-platform:)
+  * [Build system per platform](#Build-system-per-platform:)
   * [Scripts](#Scripts)
 * [Demo application details](#Demo-application-details)
   * [Method overview](#Method-overview)
@@ -180,7 +180,7 @@ samples up to date than our current solution.
 It's worth mentioning that its entirely possible generate 'CMakeLists.txt' with this system, in fact we do just that internally for the
 android gradle+cmake build.
 
-## Build system per platform:
+## Build system per platform
 
 Operating System | Build system
 --- | ---
