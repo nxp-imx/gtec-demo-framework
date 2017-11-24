@@ -1,4 +1,4 @@
-﻿# DemoFramework 5.0.0 RC1
+# DemoFramework 5.0.0 RC1
 
 A multi-platform framework for fast and easy demo development.
 
@@ -14,12 +14,6 @@ since the exact same demo/benchmark code run on all of them.
 
 ## Supported app templates:
 
-<img src="Doc/Images/EGL/EGL_100px_June16.png" height="50px">
-<img src="Doc/Images/OpenGL_ES/OpenGL-ES_100px_May16.png" height="50px">
-<img src="Doc/Images/OpenVG/OpenVG_100px_June16.png" height="50px">
-<img src="Doc/Images/OpenVX/OpenVX_100px_June16.png" height="50px">
-<img src="Doc/Images/Vulkan/Vulkan_100px_Dec16.png" height="50px">
-
 * Console. A freestyle project that runs in a console like environment.
 * G2D (early access)
 * OpenCL (early access)
@@ -30,6 +24,8 @@ since the exact same demo/benchmark code run on all of them.
 * Vulkan (early access)
 * Window. A freestyle project that runs in a window based environment.
 
+<img src="Doc/Images/EGL/EGL_100px_June16.png" height="50px"> <img src="Doc/Images/OpenGL_ES/OpenGL-ES_100px_May16.png" height="50px"> <img src="Doc/Images/OpenVG/OpenVG_100px_June16.png" height="50px"> <img src="Doc/Images/OpenVX/OpenVX_100px_June16.png" height="50px"> <img src="Doc/Images/Vulkan/Vulkan_100px_Dec16.png" height="50px"> 
+
 ## Supported operating systems
 
 * Android NDK
@@ -39,34 +35,34 @@ since the exact same demo/benchmark code run on all of them.
 
 # Table of contents
 <!-- #AG_TOC_BEGIN# -->
-* [Introduction](#Introduction)
-  * [Technical overview](#Technical-overview)
-* [Building](#Building)
-  * [Reasoning](#Reasoning)
-  * [Build system per platform](#Build-system-per-platform:)
-  * [Scripts](#Scripts)
-* [Demo application details](#Demo-application-details)
-  * [Method overview](#Method-overview)
-  * [Execution order of methods during a frame](#Execution-order-of-methods-during-a-frame)
-  * [Content loading](#Content-loading)
-  * [Demo registration](#Demo-registration)
-  * [Dealing with screen resolution changes](#Dealing-with-screen-resolution-changes)
-  * [Exit](#Exit)
-* [Demo playback](#Demo-playback)
-  * [Command line arguments](#Command-line-arguments)
-  * [Default keyboard mappings.](#Default-keyboard-mappings.)
-  * [Demo single stepping / pause.](#Demo-single-stepping-/-pause.)
-* [Demo applications](#Demo-applications)
-  * [Console](#Console)
-  * [G2D](#G2D)
-  * [GLES2](#GLES2)
-  * [GLES3](#GLES3)
-  * [OpenCL](#OpenCL)
-  * [OpenCV](#OpenCV)
-  * [OpenVG](#OpenVG)
-  * [OpenVX](#OpenVX)
-  * [Vulkan](#Vulkan)
-  * [Window](#Window)
+* [Introduction](#introduction)
+  * [Technical overview](#technical-overview)
+* [Building](#building)
+  * [Reasoning](#reasoning)
+  * [Build system per platform](#build-system-per-platform)
+  * [Scripts](#scripts)
+* [Demo application details](#demo-application-details)
+  * [Method overview](#method-overview)
+  * [Execution order of methods during a frame](#execution-order-of-methods-during-a-frame)
+  * [Content loading](#content-loading)
+  * [Demo registration](#demo-registration)
+  * [Dealing with screen resolution changes](#dealing-with-screen-resolution-changes)
+  * [Exit](#exit)
+* [Demo playback](#demo-playback)
+  * [Command line arguments](#command-line-arguments)
+  * [Default keyboard mappings.](#default-keyboard-mappings.)
+  * [Demo single stepping / pause.](#demo-single-stepping-/-pause.)
+* [Demo applications](#demo-applications)
+  * [Console](#console)
+  * [G2D](#g2d)
+  * [GLES2](#gles2)
+  * [GLES3](#gles3)
+  * [OpenCL](#opencl)
+  * [OpenCV](#opencv)
+  * [OpenVG](#openvg)
+  * [OpenVX](#openvx)
+  * [Vulkan](#vulkan)
+  * [Window](#window)
 <!-- #AG_TOC_END# -->
 
 # Introduction
