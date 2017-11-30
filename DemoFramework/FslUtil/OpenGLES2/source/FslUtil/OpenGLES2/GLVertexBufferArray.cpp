@@ -36,6 +36,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
@@ -175,6 +176,34 @@ namespace Fsl
       }
 
 
+    }
+
+
+    GLVertexBufferArray& GLVertexBufferArray::operator=(GLVertexBufferArray&& other)
+    {
+      if (this != &other)
+      {
+        GLBufferArray::operator=(std::move(other));
+
+        // Claim ownership here
+        m_vertexElements = std::move(other.m_vertexElements);
+        m_originalVertexElementCount = other.m_originalVertexElementCount;
+
+        // Remove the data from other
+        other.m_originalVertexElementCount = 0;
+      }
+      return *this;
+    }
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLVertexBufferArray::GLVertexBufferArray(GLVertexBufferArray&& other)
+      : GLBufferArray(std::move(other))
+      , m_vertexElements(std::move(other.m_vertexElements))
+      , m_originalVertexElementCount(other.m_originalVertexElementCount)
+    {
+      // Remove the data from other
+      other.m_originalVertexElementCount = 0;
     }
 
 

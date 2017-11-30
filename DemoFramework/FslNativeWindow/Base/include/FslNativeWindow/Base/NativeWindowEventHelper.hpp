@@ -90,6 +90,12 @@ namespace Fsl
     //! @brief Decode a input mouse wheel event
     static void DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, Point2& rPosition);
 
+    //! @brief Create a raw input mouse move event
+    static NativeWindowEvent EncodeInputRawMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
+
+    //! @brief Decode a raw input mouse move event
+    static void DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags);
+
     //! @brief Encode a position in a int32 (the x,y coordinates are expected to fit in a int16_t each)
     static int32_t EncodePosition(const Point2& position);
 

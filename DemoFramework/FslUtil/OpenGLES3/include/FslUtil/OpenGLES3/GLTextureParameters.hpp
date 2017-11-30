@@ -34,6 +34,7 @@
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <GLES3/gl3.h>
+#include <cassert>
 
 namespace Fsl
 {
@@ -48,9 +49,24 @@ namespace Fsl
       GLenum WrapT;
 
       //! @brief Set it to the default values -> MinFilter: GL_NEAREST, MagFilter = GL_NEAREST, WrapS = GL_REPEAT, WrapT = GL_REPEAT
-      GLTextureParameters();
+      GLTextureParameters()
+        : MinFilter(GL_NEAREST)
+        , MagFilter(GL_NEAREST)
+        , WrapS(GL_REPEAT)
+        , WrapT(GL_REPEAT)
+      {
+      }
 
-      GLTextureParameters(const GLenum minFilter, const GLenum magFilter, const GLenum wrapS, const GLenum wrapT);
+
+      GLTextureParameters(const GLenum minFilter, const GLenum magFilter, const GLenum wrapS, const GLenum wrapT)
+        : MinFilter(minFilter)
+        , MagFilter(magFilter)
+        , WrapS(wrapS)
+        , WrapT(wrapT)
+      {
+        assert(IsValid());
+      }
+
 
       //! @brief Check if the content is considered valid
       bool IsValid() const;

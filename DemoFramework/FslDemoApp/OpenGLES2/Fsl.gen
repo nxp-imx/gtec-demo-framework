@@ -4,7 +4,7 @@
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslUtil.OpenGLES2"/>
     <Dependency Name="FslDemoService.NativeGraphics.OpenGLES2" Access="Private"/>
-    <Dependency Name="FslDemoHost.EGL" Access="Private"/>
+    <Dependency Name="FslDemoHost.OpenGLES2" Access="Private"/>
     <Dependency Name="FslDemoPlatform" Access="Link"/>
     <Platform Name="Windows" ProjectId="6C2E7202-2CD5-4CE7-BE1E-FEF8C3441D7D"/>
   </Library>

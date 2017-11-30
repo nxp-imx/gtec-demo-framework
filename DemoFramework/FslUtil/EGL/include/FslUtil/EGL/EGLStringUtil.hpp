@@ -33,6 +33,7 @@
 
 #include <EGL/egl.h>
 #include <string>
+#include <vector>
 
 namespace Fsl
 {
@@ -41,6 +42,10 @@ namespace Fsl
   public:
     //! @brief Convert the enum value to a human readable string (useful for debugging)
     static std::string GetConfigEnumToString(const EGLenum value);
+
+
+    //! @brief Query EGL for a list of all extensions
+    static std::vector<std::string> GetExtensions(const EGLDisplay display);
   };
 }
 

@@ -34,6 +34,7 @@
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/RawMouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 #include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/Mouse/MouseService.hpp>
@@ -44,6 +45,7 @@ namespace Fsl
     : ThreadLocalService(serviceProvider)
     , m_buttonState(0)
     , m_position()
+    , m_rawPosition()
     , m_eventPoster()
   {
   }
@@ -66,7 +68,9 @@ namespace Fsl
 
   MouseState MouseService::GetState()
   {
-    return MouseState(m_buttonState, m_position);
+    const auto rawPosition = m_rawPosition;
+    m_rawPosition = Point2();
+    return MouseState(m_buttonState, m_position, rawPosition);
   }
 
 
@@ -82,6 +86,9 @@ namespace Fsl
       break;
     case NativeWindowEventType::InputMouseWheel:
       OnMouseWheel(event);
+      break;
+    case NativeWindowEventType::InputRawMouseMove:
+      OnRawMouseMove(event);
       break;
     default:
       break;
@@ -127,7 +134,7 @@ namespace Fsl
       mouseButtonFlags = m_buttonState;
 
     m_eventPoster->Post(MouseMoveEvent(m_position, mouseButtonFlags));
-    // FSLLOG("X: " << m_mouseState.Position.X << " Y: " << m_mouseState.Position.Y);
+    // FSLLOG("X: " << m_position.X << " Y: " << m_position.Y);
   }
 
 
@@ -139,4 +146,19 @@ namespace Fsl
     m_eventPoster->Post(MouseWheelEvent(delta, m_position));
   }
 
+
+  void MouseService::OnRawMouseMove(const NativeWindowEvent& event)
+  {
+    Point2 newRawPosition;
+    VirtualMouseButtonFlags mouseButtonFlags;
+    NativeWindowEventHelper::DecodeInputRawMouseMoveEvent(event, newRawPosition, mouseButtonFlags);
+
+    //if (mouseButtonFlags.IsUndefined())
+    //  mouseButtonFlags = m_buttonState;
+
+    m_eventPoster->Post(RawMouseMoveEvent(newRawPosition, mouseButtonFlags));
+    //FSLLOG("RawX: " << m_rawPosition.X << " RawY: " << m_rawPosition.Y);
+
+    m_rawPosition += newRawPosition;
+  }
 }

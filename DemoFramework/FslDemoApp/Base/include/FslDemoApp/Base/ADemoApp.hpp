@@ -42,6 +42,7 @@
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/RawMouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
 #include <memory>
 
@@ -64,6 +65,7 @@ namespace Fsl
     virtual void _PreUpdate(const DemoTime& demoTime) override;
     virtual void _FixedUpdate(const DemoTime& demoTime) override;
     virtual void _Update(const DemoTime& demoTime) override;
+    virtual void _PostUpdate(const DemoTime& demoTime) override;
     virtual void _Draw(const DemoTime& demoTime) override;
   protected:
     virtual void OnKeyEvent(const KeyEvent& event) {}
@@ -71,11 +73,13 @@ namespace Fsl
     virtual void OnMouseMoveEvent(const MouseMoveEvent& event) {}
     virtual void OnMouseWheelEvent(const MouseWheelEvent& event) {}
     virtual void OnTimeStateEvent(const TimeStateEvent& event) {}
+    virtual void OnRawMouseMoveEvent(const RawMouseMoveEvent& event) {}
     // Overload these methods instead of the original IDemoApp ones!
     virtual void Resized(const Point2& size) {}
     virtual void PreUpdate(const DemoTime& demoTime) {}
     virtual void FixedUpdate(const DemoTime& demoTime) {}
     virtual void Update(const DemoTime& demoTime) {}
+    virtual void PostUpdate(const DemoTime& demoTime) {}
     virtual void Draw(const DemoTime& demoTime) {}
 
     //! @brief Register a demo app extension

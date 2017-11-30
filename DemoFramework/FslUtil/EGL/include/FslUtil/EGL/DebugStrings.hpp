@@ -1,5 +1,7 @@
+#ifndef FSLUTIL_EGL_DEBUGSTRINGS_HPP
+#define FSLUTIL_EGL_DEBUGSTRINGS_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -12,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -29,56 +31,18 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "WindowHostService.hpp"
+#include <EGL/egl.h>
 
 namespace Fsl
 {
-  WindowHostService::WindowHostService(const ServiceProvider& serviceProvider)
-    : ThreadLocalService(serviceProvider)
+  namespace EGL
   {
-
-  }
-
-
-  WindowHostService::~WindowHostService()
-  {
-
-  }
-
-
-  void WindowHostService::SetWindowSystem(const std::weak_ptr<INativeWindowSystem>& windowSystem)
-  {
-    m_windowSystem = windowSystem;
-  }
-
-
-  void WindowHostService::AddWindow(const std::weak_ptr<INativeWindow>& window)
-  {
-    RemoveExpiredWindows(m_windows);
-    m_windows.push_back(window);
-  }
-
-
-  std::weak_ptr<INativeWindowSystem> WindowHostService::GetWindowSystem() const
-  {
-    return m_windowSystem;
-  }
-
-
-  std::deque<std::weak_ptr<INativeWindow> > WindowHostService::GetWindows() const
-  {
-    RemoveExpiredWindows(m_windows);
-    return m_windows;
-  }
-
-
-  void WindowHostService::RemoveExpiredWindows(std::deque<std::weak_ptr<INativeWindow> >& rWindows)
-  {
-    for (auto itr = rWindows.begin(); itr != rWindows.end(); ++itr)
+    namespace Debug
     {
-      if (itr->expired())
-        itr = rWindows.erase(itr);
-    }
+      //! @brief Convert the error code to a string
+      extern const char* ErrorCodeToString(const EGLenum errorCode);
+    };
   }
-
 }
+
+#endif

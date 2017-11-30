@@ -75,4 +75,19 @@ namespace Fsl
     m_isMinimumMinorVersionSet = true;
   }
 
+
+  void DemoAppHostConfigEGL::AddExtensionRequest(const ExtensionType type, const std::string& name, const ExtensionPrecense precense)
+  {
+    m_extensionRequests.push_back(ExtensionRequestRecord(type, name, precense));
+  }
+
+
+  void DemoAppHostConfigEGL::ExtractExtensionRequests(std::deque<ExtensionRequestRecord>& rTarget, const ExtensionType extensionType)
+  {
+    for (const auto& entry : m_extensionRequests)
+    {
+      if (entry.Type == extensionType)
+        rTarget.push_back(entry);
+    }
+  }
 }

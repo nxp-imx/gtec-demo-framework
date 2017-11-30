@@ -46,8 +46,10 @@ namespace Fsl
     MouseMove = 3,
     //! The basic event represents a MouseWheelEvent
     MouseWheel = 4,
+    //! The basic event represents a RawMouseMoveEvent
+    RawMouseMove = 5,
     //! The basic event represents a TimeStateEvent
-    TimeState = 5,
+    TimeState = 6,
     //! A placeholder for now
     ComplexEvent = 0x8000
   };

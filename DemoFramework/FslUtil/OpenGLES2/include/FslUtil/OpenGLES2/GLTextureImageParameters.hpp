@@ -1,7 +1,7 @@
-#ifndef FSLDEMOHOST_WINDOW_SERVICE_WINDOWHOST_IWINDOWHOSTINFO_HPP
-#define FSLDEMOHOST_WINDOW_SERVICE_WINDOWHOST_IWINDOWHOSTINFO_HPP
+#ifndef FSLUTIL_OPENGLES2_GLTEXTUREIMAGEPARAMETERS_HPP
+#define FSLUTIL_OPENGLES2_GLTEXTUREIMAGEPARAMETERS_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,25 +31,36 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <deque>
-#include <memory>
+// Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
+#include <FslUtil/OpenGLES2/Common.hpp>
+
+#include <GLES2/gl2.h>
 
 namespace Fsl
 {
-  class INativeWindow;
-  class INativeWindowSystem;
-
-  class IWindowHostInfo
+  namespace GLES2
   {
-  public:
-    virtual ~IWindowHostInfo() {}
+    struct GLTextureImageParameters
+    {
+      GLint InternalFormat;
+      GLenum Format;
+      GLenum Type;
 
-    //! @brief Get the active window system
-    virtual std::weak_ptr<INativeWindowSystem> GetWindowSystem() const = 0;
+      constexpr GLTextureImageParameters()
+        : InternalFormat(0)
+        , Format(0)
+        , Type(0)
+      {
+      }
 
-    //! @brief Get all the active windows
-    virtual std::deque<std::weak_ptr<INativeWindow> > GetWindows() const = 0;
-  };
+      constexpr GLTextureImageParameters(const GLint internalFormat, const GLenum format, const GLenum type)
+        : InternalFormat(internalFormat)
+        , Format(format)
+        , Type(type)
+      {
+      }
+    };
+  }
 }
 
 #endif

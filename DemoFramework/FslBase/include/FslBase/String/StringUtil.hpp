@@ -33,49 +33,55 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <string>
+#include <vector>
 
 namespace Fsl
 {
 
   //! @brief This is a work in progress class
-  class StringUtil
+  namespace StringUtil
   {
-  public:
-    static bool Contains(const std::string& src, const char ch);
-    static bool Contains(const std::string& src, const std::string& str);
+    bool Contains(const std::string& src, const char ch);
+    bool Contains(const std::string& src, const std::string& str);
 
     //! @brief Check if the 'source' string starts with the character
-    static bool StartsWith(const std::string& src, const char ch);
+    bool StartsWith(const std::string& src, const char ch);
 
     //! @brief Check if the 'source' string starts with the 'value'
-    static bool StartsWith(const std::string& source, const std::string& value);
+    bool StartsWith(const std::string& source, const std::string& value);
 
     //! @brief Check if the 'source' string ends with the character
-    static bool EndsWith(const std::string& src, const char ch);
+    bool EndsWith(const std::string& src, const char ch);
 
     //! @brief Check if the 'source' string ends with the 'value'
-    static bool EndsWith(const std::string& source, const std::string& value);
+    bool EndsWith(const std::string& source, const std::string& value);
 
 
     //! @brief Index of the first occurrence of the char 'ch' in 'source'
     //! @return the index or less than zero if not found
-    static int32_t IndexOf(const std::string& source, const char ch);
+    int32_t IndexOf(const std::string& source, const char ch);
 
 
     //! @brief Index of the first occurrence of the char 'ch' in 'source'
     //! @return the index or less than zero if not found
-    static int32_t IndexOf(const std::string& source, const char ch, const int32_t fromIndex);
+    int32_t IndexOf(const std::string& source, const char ch, const int32_t fromIndex);
 
-    static int32_t LastIndexOf(const std::string& src, const char ch);
+    int32_t LastIndexOf(const std::string& src, const char ch);
 
     //! @brief Replace all instances of the 'from' character with the 'to' character
-    static void Replace(std::string& src, const char from, const char to);
+    void Replace(std::string& rSrc, const char from, const char to);
 
     //! @brief Replace all instances of the old value in str with the new value
-    static void Replace(std::string& str, const std::string& oldValue, const std::string& newValue);
+    void Replace(std::string& rStr, const std::string& oldValue, const std::string& newValue);
 
     //! @brief Replace all instances of the old value in str with the new value
     //static std::string Replace(const std::string& str, const std::string& oldValue, const std::string& newValue);
+
+    //! @brief Split the 'str' at delimiterChar
+    //! @param str = source string
+    //! @param delimeterChar = the char to split at
+    //! @param allowEmpty = if this is true then empty strings are allowed
+    std::vector<std::string> Split(const std::string& str, const char delimiterChar, const bool removeEmpty);
   };
 }
 

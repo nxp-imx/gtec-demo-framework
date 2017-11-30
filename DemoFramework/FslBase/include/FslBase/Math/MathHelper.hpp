@@ -74,7 +74,7 @@ namespace Fsl
     //! @param amount1 The normalized barycentric (areal) coordinate b2, equal to the weighting factor for vertex 2, the coordinate of which is specified in value2.
     //! @param amount2 The normalized barycentric (areal) coordinate b3, equal to the weighting factor for vertex 3, the coordinate of which is specified in value3.
     //! @return Cartesian coordinate of the specified point with respect to the axis being used.
-    inline float Barycentric(const float value1, const float value2, const float value3, const float amount1, const float amount2)
+    constexpr inline float Barycentric(const float value1, const float value2, const float value3, const float amount1, const float amount2)
     {
       return value1 + (value2 - value1) * amount1 + (value3 - value1) * amount2;
     }
@@ -152,14 +152,14 @@ namespace Fsl
     //! @brief Determines if value is powered by two.
     //! @param value A value.
     //! @return true if value is powered by two; otherwise false.
-    inline static bool IsPowerOfTwo(const int value)
+    constexpr inline static bool IsPowerOfTwo(const int value)
     {
       return (value > 0) && ((value & (value - 1)) == 0);
     }
 
 
     //! @brief Linearly interpolates between two values.
-    inline float Lerp(const float value1, const float value2, const float amount)
+    constexpr inline float Lerp(const float value1, const float value2, const float amount)
     {
       return value1 + ((value2 - value1) * amount);
     }
@@ -182,7 +182,7 @@ namespace Fsl
     //!         For an in depth explanation of the issue, see below references:
     //!         Relevant Wikipedia Article: https://en.wikipedia.org/wiki/Linear_interpolation#Programming_language_support
     //!         Relevant StackOverflow Answer: http://stackoverflow.com/questions/4353525/floating-point-linear-interpolation#answer-23716956
-    inline float LerpPrecise(const float value1, const float value2, const float amount)
+    constexpr inline float LerpPrecise(const float value1, const float value2, const float amount)
     {
       return ((1 - amount) * value1) + (value2 * amount);
     }
@@ -192,7 +192,7 @@ namespace Fsl
     //!         -1 = value is less than zero.
     //!          0 = value is equal to zero.
     //!          1 = value is greater than zero.
-    inline int Sign(const float value)
+    constexpr inline int Sign(const float value)
     {
       // Reference: 4.7 [conv.integral] / 4: If the source type is bool... true is converted to one.
       return (0.0f < value) - (value < 0.0f);
@@ -217,7 +217,7 @@ namespace Fsl
     //! @brief Converts radians to degrees.
     //! @param radians The angle in radians.
     //! @return The angle in degrees.
-    inline float ToDegrees(const float radians)
+    constexpr inline float ToDegrees(const float radians)
     {
       // We use doubles to not loose precision
       return static_cast<float>(radians * 57.295779513082320876798154814105);
@@ -227,7 +227,7 @@ namespace Fsl
     //! @brief Converts degrees to radians.
     //! @param degrees The angle in degrees.
     //! @return The angle in radians.
-    inline float ToRadians(const float degrees)
+    constexpr inline float ToRadians(const float degrees)
     {
       // We use doubles to not loose precision
       return static_cast<float>(degrees * 0.017453292519943295769236907684886);

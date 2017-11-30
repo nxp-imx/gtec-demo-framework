@@ -39,7 +39,7 @@ namespace Fsl
       contentManager->Read(posZ, IO::Path::Combine(cubeDirName, "PosZ.jpg"), PixelFormat::R8G8B8_UNORM);
       contentManager->Read(negZ, IO::Path::Combine(cubeDirName, "NegZ.jpg"), PixelFormat::R8G8B8_UNORM);
 
-      GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+      GLTextureParameters params(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
       rTexture.SetData(posX, negX, posY, negY, posZ, negZ, params, TextureFlags::GenerateMipMaps);
     }
 

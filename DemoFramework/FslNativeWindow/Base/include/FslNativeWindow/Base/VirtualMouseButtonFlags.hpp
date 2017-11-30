@@ -114,6 +114,14 @@ namespace Fsl
       return (Flags & VirtualMouseButton::Undefined) != 0;
     }
 
+    void SetFlag(const VirtualMouseButton::Enum flags, const bool enabled)
+    {
+      if (enabled)
+        Flags |= static_cast<uint32_t>(flags);
+      else
+        Flags = (flags & (~static_cast<uint32_t>(flags)));
+    }
+
   };
 }
 

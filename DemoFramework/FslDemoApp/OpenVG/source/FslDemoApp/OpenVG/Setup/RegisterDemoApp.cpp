@@ -37,10 +37,14 @@
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 #include <FslDemoHost/EGL/Service/EGLHost/EGLHostServiceFactory.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoService/NativeGraphics/OpenVG/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
+#include <FslUtil/EGL/DebugStrings.hpp>
+#include <sstream>
 
 namespace Fsl
 {
@@ -54,8 +58,31 @@ namespace Fsl
       rSetup.TheHostRegistry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<OpenVG::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<EGLHostServiceFactory>(ServicePriorityList::EGLHostService());
+      rSetup.TheServiceRegistry.Register<WindowHostServiceFactory>(ServicePriorityList::WindowHostService());
 
       return DemoHostFeature(DemoHostFeatureName::OpenVG, DemoHostFeatureUtil::EncodeOpenVGVersion(1));
+    }
+
+
+    inline bool TryFormatEGLGraphicsException(const std::exception& ex, std::string& rMessage)
+    {
+      auto pException = dynamic_cast<const EGLGraphicsException*>(&ex);
+      if (pException == nullptr)
+      {
+        rMessage = std::string();
+        return false;
+      }
+
+      const auto errorCode = pException->GetError();
+      std::stringstream stream;
+      stream << pException->what() << " failed with error code " << EGL::Debug::ErrorCodeToString(static_cast<EGLenum>(errorCode)) << " (" << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
+      rMessage = stream.str();
+      return true;
+    }
+
+    bool TryFormatException(const std::exception& ex, std::string& rMessage)
+    {
+      return TryFormatEGLGraphicsException(ex, rMessage);
     }
   }
 
@@ -65,6 +92,8 @@ namespace Fsl
     {
       void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig)
       {
+        // Register a formatter for common OpenGLES3 exceptions (from the libs we utilize)
+        rSetup.CustomExceptionFormatter.Add(TryFormatException);
         const DemoHostFeature feature = CommenSetup(rSetup);
         rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, demoHostEGLConfig);
       }

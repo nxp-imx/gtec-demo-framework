@@ -112,10 +112,10 @@ namespace Fsl
   {
     RegisterExtension(m_uiExtension);
 
-    if (!GLUtil::HasExtension("EXT_tessellation_shader"))
-      throw NotSupportedException("EXT_tessellation_shader extension not supported");
-    if (!GLUtil::HasExtension("EXT_geometry_shader"))
-      throw NotSupportedException("EXT_geometry_shader extension not supported");
+    if (!GLUtil::HasExtension("GL_EXT_tessellation_shader"))
+      throw NotSupportedException("GL_EXT_tessellation_shader extension not supported");
+    if (!GLUtil::HasExtension("GL_EXT_geometry_shader"))
+      throw NotSupportedException("GL_EXT_geometry_shader extension not supported");
 
     auto options = config.GetOptions<OptionParser>();
 
@@ -242,7 +242,7 @@ namespace Fsl
       m_checkDisplacement->Toggle();
       break;
     case VirtualKey::Q:
-      m_uiExtension->GetWindowManager()->ScheduleClose(m_fillLayout);
+      //m_uiExtension->GetWindowManager()->ScheduleClose(m_fillLayout);
       break;
     default:
       break;

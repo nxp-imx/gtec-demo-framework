@@ -54,13 +54,13 @@ namespace Fsl
     virtual IO::Path GetContentPath() const override;
     virtual BitmapOrigin GetPreferredBitmapOrigin() const override;
     virtual bool Exists(const IO::Path& relativePath) const override;
-    virtual int32_t GetLength(const IO::Path& relativePath) const override;
+    virtual uint64_t GetLength(const IO::Path& relativePath) const override;
     virtual std::string ReadAllText(const IO::Path& relativePath) const override;
     virtual void ReadAllBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath) const override;
-    virtual int32_t ReadAllBytes(void* pDstArray, const int32_t cbDstArray, const IO::Path& relativePath) const override;
+    virtual uint64_t ReadAllBytes(void* pDstArray, const uint64_t cbDstArray, const IO::Path& relativePath) const override;
     virtual std::vector<uint8_t> ReadBytes(const IO::Path& relativePath) const override;
-    virtual void ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const int32_t fileOffset, const int32_t bytesToRead) const override;
-    virtual int32_t ReadBytes(void* pDstArray, const int32_t cbDstArray, const int32_t dstStartIndex, const IO::Path& relativePath, const int32_t fileOffset, const int32_t bytesToRead) const override;
+    virtual void ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const override;
+    virtual uint64_t ReadBytes(void* pDstArray, const uint64_t cbDstArray, const uint64_t dstStartIndex, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const override;
     virtual void Read(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined, const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined, const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const override;
     virtual void Read(Texture& rTexture, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined, const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined, const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const override;
     virtual void Read(BasicTextureAtlas& rTextureAtlas, const IO::Path& relativePath) const override;

@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import List
+import shutil
 from FslBuildGen import IOUtil
 from FslBuildGen.Config import Config
 from FslBuildGen.Log import Log
@@ -44,6 +45,7 @@ from FslBuildGen.BuildContent.PathVariables import PathVariables
 from FslBuildGen.BuildContent.Processor.ContentBuildCommandFile import ContentBuildCommandFile
 from FslBuildGen.BuildContent.Processor.Commands import Command
 from FslBuildGen.BuildContent.Processor.Commands import CommandContentBuildSync
+from FslBuildGen.BuildContent.Processor.SourceContent import SourceContent
 from FslBuildGen.BuildContent.Sync import BuildState
 from FslBuildGen.BuildContent.Sync.Content import Content
 from FslBuildGen.ToolConfig import ToolConfigContentBuilderConfiguration
@@ -69,7 +71,8 @@ class Builder(object):
         commandFilename = IOUtil.Join(contentBuildPath, "Content.json")
         commandFile = ContentBuildCommandFile(config, commandFilename, configPathVariables)
 
-        extraContentBuildFiles = self.__GetExtraContentBuildSyncFiles(config, commandFile.Commands)
+        # We don't include the files at 'Content' (contentOutputPath)
+        sourceContent = SourceContent(config, contentOutputPath, contentBuildPath, commandFile, False, commandFilename)
 
         contentProcessors = []  # type: List[BasicContentProcessor]
 #        contentProcessors = [VulkanContentProcessor()]
@@ -79,30 +82,20 @@ class Builder(object):
         absoluteCacheFileName = IOUtil.Join(packageBuildPath, "_ContentBuildCache.fsl")
         absoluteOutputCacheFileName = IOUtil.Join(packageBuildPath, "_ContentBuildCacheOutput.fsl")
 
-        srcContent = Content(config, contentBuildPath, extraContentBuildFiles)
-        srcContent.RemoveFileByResolvedSourcePath(commandFilename)
-        syncState = BuildState.GenerateSyncState(config, absoluteCacheFileName, srcContent, True)
+        srcsSyncState = BuildState.GenerateSyncState(config, absoluteCacheFileName, sourceContent.AllContentSource, True)
         outputSyncState = BuildState.GenerateOutputSyncState(config, absoluteOutputCacheFileName, contentOutputPath, True)
 
-        if len(srcContent.Files) <= 0:
+        if sourceContent.IsEmpty:
             config.LogPrint("No files found")
             return
 
         if not config.DisableWrite:
             IOUtil.SafeMakeDirs(contentOutputPath)
 
-        self.__ProcessFiles(config, contentBuildPath, contentOutputPath, toolFinder, contentProcessors, srcContent, syncState, outputSyncState)
-        syncState.Save()
+        self.__ProcessSyncFiles(config, contentBuildPath, contentOutputPath, sourceContent.ContentSource, srcsSyncState, outputSyncState)
+        self.__ProcessContentFiles(config, contentBuildPath, contentOutputPath, toolFinder, contentProcessors, sourceContent.ContentBuildSource, srcsSyncState, outputSyncState)
+        srcsSyncState.Save()
         outputSyncState.Save()
-
-
-    def __GetExtraContentBuildSyncFiles(self, log: Log, commands: List[Command]) -> List[PathRecord]:
-        files = []  # type: List[PathRecord]
-        for command in commands:
-            if isinstance(command, CommandContentBuildSync):
-                for entry in command.Files:
-                    files.append(PathRecord(log, entry.SourceRoot, entry.RelativePath))
-        return files
 
 
     def __AddBasicContentProcessors(self, config: Config, toolFinder: ToolFinder, contentBuilderConfiguration: ToolConfigContentBuilderConfiguration) -> List[BasicContentProcessor]:
@@ -125,14 +118,54 @@ class Builder(object):
         return contentFile
 
 
-    def __ProcessFiles(self, config: Config,
-                       contentBuildPath: str,
-                       contentOutputPath: str,
-                       toolFinder: ToolFinder,
-                       contentProcessors: List[BasicContentProcessor],
-                       srcContent: Content,
-                       syncState: BuildState.SyncState,
-                       outputSyncState: BuildState.SyncState) -> None:
+    def __ProcessSyncFiles(self, log: Log,
+                           contentBuildPath: str,
+                           contentOutputPath: str,
+                           srcContent: Content,
+                           syncState: BuildState.SyncState,
+                           outputSyncState: BuildState.SyncState) -> None:
+        dstRoot = ContentRootRecord(log, contentOutputPath)
+        for contentFile in srcContent.Files:
+            # Generate the output file record
+            outputFileName = contentFile.RelativePath
+            outputFileRecord = PathRecord(log, dstRoot, outputFileName)
+
+            ## Query the sync state of the content file
+            syncStateFileName = self.__GetSyncStateFileName(contentFile.SourceRoot.ResolvedPath, contentFile.RelativePath)
+            contentState = syncState.GetFileStateByFileName(syncStateFileName)
+            buildResource = not contentState or contentState.CacheState != BuildState.CacheState.Unmodified
+            if not buildResource:
+                # It was unmodified, so we need to examine the state of the output file to
+                # determine if its safe to skip the building
+                syncStateOutputFileName = self.__GetSyncStateFileName(contentOutputPath, outputFileName)
+                outputContentState = outputSyncState.GetFileStateByFileName(syncStateOutputFileName)
+                buildResource = not outputContentState or outputContentState.CacheState != BuildState.CacheState.Unmodified
+
+            if buildResource:
+                try:
+                    log.LogPrintVerbose(2, "Copying '{0}' to '{1}'".format(contentFile.ResolvedPath, outputFileRecord.ResolvedPath))
+                    dstDirPath = IOUtil.GetDirectoryName(outputFileRecord.ResolvedPath)
+                    IOUtil.SafeMakeDirs(dstDirPath)
+                    shutil.copy(contentFile.ResolvedPath, outputFileRecord.ResolvedPath)
+                except:
+                    # Save if a exception occured to prevent reprocessing the working files
+                    outputSyncState.Save()
+                    syncState.Save()
+                    raise
+
+                # Add a entry for the output file
+                outputFileState = outputSyncState.BuildContentState(log, outputFileRecord, True, True)
+                outputSyncState.Add(outputFileState)
+
+
+    def __ProcessContentFiles(self, config: Config,
+                              contentBuildPath: str,
+                              contentOutputPath: str,
+                              toolFinder: ToolFinder,
+                              contentProcessors: List[BasicContentProcessor],
+                              srcContent: Content,
+                              syncState: BuildState.SyncState,
+                              outputSyncState: BuildState.SyncState) -> None:
         dstRoot = ContentRootRecord(config, contentOutputPath)
         for contentFile in srcContent.Files:
             processors = self.__FindProcessors(contentProcessors, contentFile.ResolvedPath)

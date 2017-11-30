@@ -88,17 +88,17 @@ namespace Fsl
   }
 
 
-  int32_t PersistentDataManagerService::GetLength(const IO::Path& relativePath) const
+  uint64_t PersistentDataManagerService::GetLength(const IO::Path& relativePath) const
   {
     const IO::Path absPath(ToAbsolutePath(m_persistentDataPath, relativePath));
-    const int64_t length = IO::File::GetLength(absPath);
-    if (length > std::numeric_limits<int32_t>::max())
+    const auto length = IO::File::GetLength(absPath);
+    if (length > std::numeric_limits<uint32_t>::max())
     {
       std::stringstream strstream;
-      strstream << "File '" << absPath.ToAsciiString() << "' was larger than 2GB, which is unsupported";
+      strstream << "File '" << absPath.ToAsciiString() << "' was larger than 4GB, which is unsupported";
       throw IOException(strstream.str());
     }
-    return static_cast<int32_t>(length);
+    return length;
   }
 
 
@@ -116,24 +116,24 @@ namespace Fsl
   }
 
 
-  int32_t PersistentDataManagerService::ReadAllBytes(void* pDstArray, const int32_t cbDstArray, const IO::Path& relativePath) const
+  uint64_t PersistentDataManagerService::ReadAllBytes(void* pDstArray, const uint64_t cbDstArray, const IO::Path& relativePath) const
   {
     const IO::Path absPath(ToAbsolutePath(m_persistentDataPath, relativePath));
-    return (int32_t)IO::File::ReadAllBytes(pDstArray, cbDstArray, absPath);
+    return IO::File::ReadAllBytes(pDstArray, cbDstArray, absPath);
   }
 
 
-  void PersistentDataManagerService::ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const int32_t fileOffset, const int32_t bytesToRead) const
+  void PersistentDataManagerService::ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const
   {
     const IO::Path absPath(ToAbsolutePath(m_persistentDataPath, relativePath));
     IO::File::ReadBytes(rTargetArray, absPath, fileOffset, bytesToRead);
   }
 
 
-  int32_t PersistentDataManagerService::ReadBytes(void* pDstArray, const int32_t cbDstArray, const int32_t dstStartIndex, const IO::Path& relativePath, const int32_t fileOffset, const int32_t bytesToRead) const
+  uint64_t PersistentDataManagerService::ReadBytes(void* pDstArray, const uint64_t cbDstArray, const uint64_t dstStartIndex, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const
   {
     const IO::Path absPath(ToAbsolutePath(m_persistentDataPath, relativePath));
-    return (int32_t)IO::File::ReadBytes(pDstArray, cbDstArray, dstStartIndex, absPath, fileOffset, bytesToRead);
+    return IO::File::ReadBytes(pDstArray, cbDstArray, dstStartIndex, absPath, fileOffset, bytesToRead);
   }
 
 

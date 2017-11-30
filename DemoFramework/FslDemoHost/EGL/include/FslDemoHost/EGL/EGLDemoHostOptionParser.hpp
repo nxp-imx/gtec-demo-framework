@@ -39,6 +39,7 @@ namespace Fsl
   class EGLDemoHostOptionParser : public ADemoHostOptionParser
   {
     bool m_logConfig;
+    bool m_logExtensions;
     std::deque<EGLint> m_configAttributes;
   public:
     EGLDemoHostOptionParser();
@@ -48,6 +49,7 @@ namespace Fsl
     virtual bool ParsingComplete();
 
     bool IsLogConfigEnabled() const;
+    bool IsLogExtensionsEnabled() const;
     void ExtractConfigAttributes(std::deque<EGLint>& rConfigAttributes);
   };
 }

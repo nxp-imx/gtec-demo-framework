@@ -31,42 +31,34 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslUtil/EGL/Exceptions.hpp>
+#include <FslUtil/EGL/CheckError.hpp>
+#include <FslUtil/EGL/DebugStrings.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <sstream>
 #include <EGL/egl.h>
 
 #define EGL_CHECK_FOR_ERROR() \
   { \
-    EGLint eglError = eglGetError(); \
-    if (eglError != EGL_SUCCESS) \
-    { \
-      std::stringstream stream; \
-      stream << "Failed with error code " << eglError << " at " << __FILE__ << "(" << __LINE__ << ")" ; \
-      throw Fsl::EGLGraphicsException(stream.str(), eglError, __FILE__, __LINE__); \
-    } \
+    Fsl::EGL::CheckError(eglGetError(), __FILE__, __LINE__); \
   }
 
 
+// TODO: implement a better version of this macro as it can give unexpected behavior
 #define EGL_CHECK(X) \
   X; \
   { \
-    EGLint eglError = eglGetError(); \
-    if (eglError != EGL_SUCCESS) \
-    { \
-      std::stringstream stream; \
-      stream << #X << " failed with error code " << eglError << " at " << __FILE__ << "(" << __LINE__ << ")" ; \
-      throw Fsl::EGLGraphicsException(stream.str(), eglError, __FILE__, __LINE__); \
-    } \
+    Fsl::EGL::CheckError(eglGetError(), #X, __FILE__, __LINE__); \
   }
 
+
+// TODO: implement a better version of this macro as it can give unexpected behavior
 #define EGL_LOG_ERROR(X) \
   X; \
   { \
-    EGLint eglError = eglGetError(); \
-    if (eglError != EGL_SUCCESS) \
+    const auto rESULT = eglGetError(); \
+    if (rESULT != EGL_SUCCESS) \
     { \
-      FSLLOG_ERROR(#X << " failed with error code " << eglError << " at " << __FILE__ << "(" << __LINE__ << ")"); \
+      FSLLOG_ERROR(#X << " failed with error code " << Fsl::EGL::Debug::ErrorCodeToString(rESULT) << " (" << static_cast<int>(rESULT) << ") at " << __FILE__ << "(" << __LINE__ << ")"); \
     } \
   }
 

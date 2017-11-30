@@ -1,4 +1,4 @@
-# DemoFramework 5.0.0 RC1
+# DemoFramework 5.0.0
 
 A multi-platform framework for fast and easy demo development.
 
@@ -1083,6 +1083,12 @@ The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
 <img src="DemoApps/GLES3/OpenVX101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
 </a>
 
+
+### [OpenVX101Legacy](DemoApps/GLES3/OpenVX101Legacy)
+<a href="DemoApps/GLES3/OpenVX101Legacy">
+<img src="DemoApps/GLES3/OpenVX101Legacy/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
 Demonstrates how to use OpenVX from inside a OpenGLES3 project.
 
 It runs a sobel edge operation over a bitmap and then maps it to a texture to be displayed.
@@ -1378,6 +1384,16 @@ This will often showcase the worst case power consumption.
 ## OpenVX
 
 ### [VxTutorial1](DemoApps/OpenVX/VxTutorial1)
+<a href="DemoApps/OpenVX/VxTutorial1">
+<img src="DemoApps/OpenVX/VxTutorial1/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+
+### [VxTutorial1Legacy](DemoApps/OpenVX/VxTutorial1Legacy)
+<a href="DemoApps/OpenVX/VxTutorial1Legacy">
+<img src="DemoApps/OpenVX/VxTutorial1Legacy/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
 Brief code showcasing how to use OpenVX to run a sobel filter on an image.
 The image first needs to be copied to GPU space to process it and then it is copied again to CPU space to generate a bmp file of the result.
 

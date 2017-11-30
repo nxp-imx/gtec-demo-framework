@@ -31,6 +31,7 @@
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Math/Rectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <wayland-client.h>
@@ -720,6 +721,7 @@ namespace Fsl
       swindow.fullscreen = 0;
     }
 
+    FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowX11: Creating window: {Width = " << swindow.window_size.width << " Height = " << swindow.window_size.height << " fullscreen: " << swindow.fullscreen << " }");
 
 
     CreateWlSurface();

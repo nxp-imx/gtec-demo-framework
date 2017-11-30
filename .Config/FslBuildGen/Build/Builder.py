@@ -286,7 +286,7 @@ class Builder(object):
                 self.Log.LogPrintWarning("The build command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(buildCommand), result, currentWorkingDirectory))
                 sys.exit(result)
         except FileNotFoundError:
-                self.Log.LogPrintWarning("The build command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
+                self.Log.DoPrintWarning("The build command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
                 raise
 
         if runCommands:

@@ -60,10 +60,10 @@ namespace Fsl
   }
 
   OptionParser::OptionParser()
-    : m_nearPlaneMouseEnabled(true)
-    , m_farPlaneMouseEnabled(true)
-    , m_orientedBoundingBoxEnabled(true)
-    , m_axisAlignedBoundingBoxEnabled(true)
+    : m_nearPlaneMouseEnabled(false)
+    , m_farPlaneMouseEnabled(false)
+    , m_orientedBoundingBoxEnabled(false)
+    , m_axisAlignedBoundingBoxEnabled(false)
     , m_randomSeedEnabled(false)
     , m_objectCount(32)
   {
@@ -82,7 +82,7 @@ namespace Fsl
     rOptions.push_back(Option("FarPlaneMouse", OptionArgument::OptionRequired, CommandId::FarPlaneMouse, "Draw the far plane mouse intersection on/off"));
     rOptions.push_back(Option("OBB", OptionArgument::OptionRequired, CommandId::OrientedBoundingBox, "Draw the Oriented Bounding Boxes on/off"));
     rOptions.push_back(Option("AABB", OptionArgument::OptionRequired, CommandId::AxisAlignedBoundingBox, "Draw the Axis Aligned Bounding Boxes on/off"));
-    rOptions.push_back(Option("RandomSeed", OptionArgument::OptionNone, CommandId::RandomSeed, "Use a random seed for the scene generation insted of a fixed one"));
+    rOptions.push_back(Option("RandomSeed", OptionArgument::OptionNone, CommandId::RandomSeed, "Use a random seed for the scene generation instead of a fixed one"));
     rOptions.push_back(Option("Objects", OptionArgument::OptionRequired, CommandId::Objects, "Specify the number of objects to generate"));
   }
 

@@ -47,14 +47,41 @@ namespace Fsl
     struct GLIndexBufferArrayEntry : public GLBufferArrayEntry
     {
       GLenum Type;
-      GLIndexBufferArrayEntry();
-
+      GLIndexBufferArrayEntry()
+        : Type(0)
+      {
+      }
     };
 
     class GLIndexBufferArray : public GLBufferArray
     {
       GLenum m_type;
     public:
+      //! @brief Move assignment operator
+      GLIndexBufferArray& operator=(GLIndexBufferArray&& other)
+      {
+        if (this != &other)
+        {
+          GLBufferArray::operator=(std::move(other));
+
+          // Claim ownership here
+          m_type = other.m_type;
+          // Remove the data from other
+          other.m_type = 0;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLIndexBufferArray(GLIndexBufferArray&& other)
+        : GLBufferArray(std::move(other))
+        , m_type(other.m_type)
+      {
+        // Remove the data from other
+        other.m_type = 0;
+      }
+
       //! @brief Create a uninitialized index buffer
       GLIndexBufferArray();
 

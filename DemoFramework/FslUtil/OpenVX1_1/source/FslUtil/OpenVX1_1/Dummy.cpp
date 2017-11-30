@@ -38,8 +38,7 @@ namespace Fsl
     void Dummy()
     {
     }
-  }   
+  }
 }
 
 #endif
-

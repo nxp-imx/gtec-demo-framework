@@ -44,33 +44,35 @@ from FslBuildGen.BuildContent.Processor.ContentFileRecord import ContentFileReco
 
 
 class Content(object):
-    def __init__(self, log: Log, sourcePath: str, additionalFiles: Optional[List[PathRecord]] = None) -> None:
+    def __init__(self, log: Log, sourcePath: str, includeSourcePathContent: bool, additionalFiles: Optional[List[PathRecord]] = None) -> None:
         super(Content, self).__init__()
 
-        dirs, files = self.__GetDirAndFilePaths(sourcePath)
-
         folderRoot = ContentRootRecord(log, sourcePath)
-        #rootDict = {}
-        #rootDict[folderRoot.Id] = folderRoot
-
-    #    if additionalFiles != None:
-    #        for entry in additionalFiles:
-    #            if not entry.SourceRoot.Id in rootDict:
-    #                rootDict[entry.SourceRoot.Id] = entry.SourceRoot
-    #            files.append(entry)
-
-        # We sort it so that the longest paths come first meaning we will always find the most exact match first
-        # if searching from the front to the end of the list and comparing to 'startswith'
-        #uniqueRootNames = list(rootDict.values())
-        #uniqueRootNames.sort(key=lambda s: -len(s.Id))
 
         pathDirRecords = []  # type: List[PathRecord]
-        for dirEntry in dirs:
-            pathDirRecords.append(PathRecord(log, folderRoot, dirEntry[len(folderRoot.ResolvedPath)+1:]))
-
         pathFileRecords = []  # type: List[PathRecord]
-        for file in files:
-            pathFileRecords.append(PathRecord(log, folderRoot, file[len(folderRoot.ResolvedPath)+1:]))
+        if includeSourcePathContent:
+            dirs, files = self.__GetDirAndFilePaths(sourcePath)
+
+            #rootDict = {}
+            #rootDict[folderRoot.Id] = folderRoot
+
+        #    if additionalFiles != None:
+        #        for entry in additionalFiles:
+        #            if not entry.SourceRoot.Id in rootDict:
+        #                rootDict[entry.SourceRoot.Id] = entry.SourceRoot
+        #            files.append(entry)
+
+            # We sort it so that the longest paths come first meaning we will always find the most exact match first
+            # if searching from the front to the end of the list and comparing to 'startswith'
+            #uniqueRootNames = list(rootDict.values())
+            #uniqueRootNames.sort(key=lambda s: -len(s.Id))
+
+            for dirEntry in dirs:
+                pathDirRecords.append(PathRecord(log, folderRoot, dirEntry[len(folderRoot.ResolvedPath)+1:]))
+
+            for file in files:
+                pathFileRecords.append(PathRecord(log, folderRoot, file[len(folderRoot.ResolvedPath)+1:]))
 
         self.__AppendAdditional(log, pathDirRecords, pathFileRecords, additionalFiles)
 

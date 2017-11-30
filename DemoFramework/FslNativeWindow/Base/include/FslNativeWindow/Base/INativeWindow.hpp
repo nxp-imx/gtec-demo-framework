@@ -50,6 +50,10 @@ namespace Fsl
     //! @brief Get the size of the client area (the actual area where we are drawing pixels)
     //! @return true if the size could be retrieved, else false
     virtual bool TryGetSize(Point2& rSize) const = 0;
+
+    //! @brief Try to enable mouse capture for the given window.
+    //! @return true if the request succeeded.
+    virtual bool TryCaptureMouse(const bool enableCapture) = 0;
   };
 }
 

@@ -31,6 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
+#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>

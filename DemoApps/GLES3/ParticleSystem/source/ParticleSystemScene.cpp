@@ -162,7 +162,7 @@ namespace Fsl
 
     SetParticleSystem(m_particleSystemType, true);
 
-    m_allowAdvancedTechniques = GLUtil::HasExtension("EXT_geometry_shader");
+    m_allowAdvancedTechniques = GLUtil::HasExtension("GL_EXT_geometry_shader");
 
     if (m_allowAdvancedTechniques)
     {
@@ -176,12 +176,12 @@ namespace Fsl
     auto contentManager = GetContentManager();
 
     { // Load the textures
-      GLTextureParameters textureParams;
+      GLTextureParameters textureParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       Bitmap bitmap;
       contentManager->Read(bitmap, "Particle.png", PixelFormat::R8G8B8A8_UNORM);
-      m_texParticle.Reset(bitmap, textureParams);
+      m_texParticle.Reset(bitmap, textureParams, TextureFlags::GenerateMipMaps);
       contentManager->Read(bitmap, "ParticleSnow.png", PixelFormat::R8G8B8_UNORM);
-      m_texParticleSnow.Reset(bitmap, textureParams);
+      m_texParticleSnow.Reset(bitmap, textureParams, TextureFlags::GenerateMipMaps);
       contentManager->Read(bitmap, "GTEC.png", PixelFormat::R8G8B8_UNORM);
       m_texCube.Reset(bitmap, textureParams, TextureFlags::GenerateMipMaps);
     }

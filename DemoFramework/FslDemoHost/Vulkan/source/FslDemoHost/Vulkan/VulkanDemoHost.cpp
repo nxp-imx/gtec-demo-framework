@@ -230,7 +230,9 @@ namespace Fsl
     , m_framebuffers()
     , m_commandBuffers()
   {
-    const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
+    const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), demoHostConfig.GetVerbosityLevel(),
+                                                          m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
+
     m_windowSystem = VulkanNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
 
     const DemoHostAppSetup hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
@@ -240,7 +242,8 @@ namespace Fsl
 
     m_activeApi = hostAppSetup.DemoHostFeatures->front();
 
-    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(), m_options->GetNativeWindowConfig()));
+    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
+                                                    m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel()));
 
     Init();
   }
@@ -558,7 +561,7 @@ namespace Fsl
     swapchainCreateInfo.flags = 0;
     swapchainCreateInfo.surface = m_window->GetVulkanSurface();
     // FIMXE
-    swapchainCreateInfo.minImageCount = 2;
+    swapchainCreateInfo.minImageCount =(surfaceCapabilities.maxImageCount > 1)? 2 :surfaceCapabilities.maxImageCount;
     swapchainCreateInfo.imageFormat = format;
     swapchainCreateInfo.imageColorSpace = imageColorSpace;
     swapchainCreateInfo.imageExtent = surfaceCapabilities.currentExtent;

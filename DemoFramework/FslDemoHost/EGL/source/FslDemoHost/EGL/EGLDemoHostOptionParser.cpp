@@ -48,7 +48,8 @@ namespace Fsl
         GreenSize,
         BlueSize,
         AlphaSize,
-        DepthSize
+        DepthSize,
+        LogExtensions
       };
     };
 
@@ -68,6 +69,7 @@ namespace Fsl
 
   EGLDemoHostOptionParser::EGLDemoHostOptionParser()
     : m_logConfig(false)
+    , m_logExtensions(false)
     , m_configAttributes()
   {
   }
@@ -83,6 +85,7 @@ namespace Fsl
     rOptions.push_back(Option("EGLBlueSize", OptionArgument::OptionRequired, CommandId::BlueSize, "Force EGL_BLUE_SIZE to the given value", OptionGroup::Host));
     rOptions.push_back(Option("EGLAlphaSize", OptionArgument::OptionRequired, CommandId::AlphaSize, "Force EGL_ALPHA_SIZE to the given value", OptionGroup::Host));
     rOptions.push_back(Option("EGLDepthSize", OptionArgument::OptionRequired, CommandId::DepthSize, "Force EGL_DEPTH_SIZE to the given value", OptionGroup::Host));
+    rOptions.push_back(Option("EGLLogExtensions", OptionArgument::OptionNone, CommandId::LogExtensions, "Output the EGL extensions to the log", OptionGroup::Host));
   }
 
 
@@ -104,6 +107,9 @@ namespace Fsl
       return AddSize(m_configAttributes, EGL_ALPHA_SIZE, pszOptArg, "EGLAlphaSize can not be negative");
     case CommandId::DepthSize:
       return AddSize(m_configAttributes, EGL_DEPTH_SIZE, pszOptArg, "EGLDepthSize can not be negative");
+    case CommandId::LogExtensions:
+      m_logExtensions = true;
+      return OptionParseResult::Parsed;
     default:
       return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
     }
@@ -119,6 +125,12 @@ namespace Fsl
   bool EGLDemoHostOptionParser::IsLogConfigEnabled() const
   {
     return m_logConfig;
+  }
+
+
+  bool EGLDemoHostOptionParser::IsLogExtensionsEnabled() const
+  {
+    return m_logExtensions;
   }
 
 

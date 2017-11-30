@@ -35,6 +35,8 @@
 #include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/DemoAppControlService.hpp>
 #include <FslDemoHost/Base/Service/DemoPlatformControl/IDemoPlatformControl.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -43,6 +45,7 @@ namespace Fsl
     : ThreadLocalService(serviceProvider)
     , m_eventPoster(serviceProvider.Get<IEventPoster>())
     , m_platformControl(serviceProvider.Get<IDemoPlatformControl>())
+    , m_windowHostInfo(serviceProvider.TryGet<IWindowHostInfo>())
     , m_defaultExitCode(defaultExitCode)
     , m_hasScreenshotRequest(false)
     , m_hasAppRestartResetRequest(false)
@@ -50,6 +53,7 @@ namespace Fsl
     , m_hasExitRequest(false)
     , m_exitCode(defaultExitCode)
     , m_timestepMode(TimeStepMode::Normal)
+    , m_captureModeEnabled(false)
   {
   }
 
@@ -160,6 +164,48 @@ namespace Fsl
   TimeStepMode DemoAppControlService::GetTimeStepMode() const
   {
     return m_timestepMode;
+  }
+
+  bool DemoAppControlService::TryEnableMouseCaptureMode(const bool enabled)
+  {
+    if (!m_windowHostInfo)
+      return false;
+
+    const auto windows = m_windowHostInfo->GetWindows();
+    if (windows.size() <= 0)
+    {
+      FSLLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any active windows");
+      return false;
+    }
+    else if (windows.size() > 1)
+    {
+      FSLLOG_DEBUG_WARNING("TryEnableMouseCaptureMode only support one window");
+      return false;
+    }
+    const auto activeWindow = windows.front().lock();
+    if (!activeWindow)
+    {
+      FSLLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any un-expired windows");
+      return false;
+    }
+
+    return activeWindow->TryCaptureMouse(enabled);
+  }
+
+
+  void DemoAppControlService::EnableMouseCaptureMode(const bool enabled)
+  {
+    if (! m_windowHostInfo)
+      throw NotSupportedException("EnableMouseCaptureMode not supported by DemoHost");
+
+    if (!TryEnableMouseCaptureMode(enabled))
+      throw NotSupportedException("EnableMouseCaptureMode failed");
+  }
+
+
+  bool DemoAppControlService::GetMouseCaptureMode()
+  {
+    return m_captureModeEnabled;
   }
 
 

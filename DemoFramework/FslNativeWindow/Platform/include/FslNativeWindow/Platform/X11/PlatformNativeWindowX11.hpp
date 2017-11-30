@@ -58,6 +58,10 @@ namespace Fsl
 
     virtual bool TryGetDPI(Vector2& rDPI) const override;
     virtual bool TryGetSize(Point2& rSize) const override;
+    virtual bool TryCaptureMouse(const bool enableCapture) override
+    {
+      return false;
+    }
 
     void OnConfigureNotify(const XConfigureEvent& event, const std::shared_ptr<INativeWindowEventQueue>& eventQueue);
     void OnRRScreenChangeNotify(XEvent* pEvent, const std::shared_ptr<INativeWindowEventQueue>& eventQueue);

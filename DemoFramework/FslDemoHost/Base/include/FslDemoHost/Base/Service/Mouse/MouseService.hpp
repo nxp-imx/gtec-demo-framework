@@ -49,6 +49,7 @@ namespace Fsl
   {
     VirtualMouseButtonFlags m_buttonState;
     Point2 m_position;
+    Point2 m_rawPosition;
     std::shared_ptr<IEventPoster> m_eventPoster;
   public:
     MouseService(const ServiceProvider& serviceProvider);
@@ -65,6 +66,7 @@ namespace Fsl
     void OnMouseButton(const NativeWindowEvent& event);
     void OnMouseMove(const NativeWindowEvent& event);
     void OnMouseWheel(const NativeWindowEvent& event);
+    void OnRawMouseMove(const NativeWindowEvent& event);
   };
 }
 

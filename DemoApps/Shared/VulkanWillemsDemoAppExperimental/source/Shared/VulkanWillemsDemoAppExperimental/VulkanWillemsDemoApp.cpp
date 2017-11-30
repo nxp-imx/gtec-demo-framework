@@ -15,7 +15,6 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>

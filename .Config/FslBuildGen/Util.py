@@ -76,9 +76,14 @@ def RemoveEnvironmentVariablePadding(environmentVariableName: str) -> str:
 # TODO: add a proper type to entries. It is a type that contains the Type attribute of type typeValue
 def FilterByType(entries: List[Any], typeValue: Any) -> List[Any]: #: ExternalDependencyType):
     res = []
-    for entry in entries:
-        if entry.Type == typeValue:
-            res.append(entry)
+    if isinstance(typeValue, (list, set)):
+        for entry in entries:
+            if entry.Type in typeValue:
+                res.append(entry)
+    else:
+        for entry in entries:
+            if entry.Type == typeValue:
+                res.append(entry)
     return res
 
 

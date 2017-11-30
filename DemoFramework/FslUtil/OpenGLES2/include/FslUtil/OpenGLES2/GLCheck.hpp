@@ -33,20 +33,13 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES2/Common.hpp>
+#include <FslUtil/OpenGLES2/CheckError.hpp>
+#include <FslUtil/OpenGLES2/DebugStrings.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <sstream>
 
-#define GL_CHECK_FOR_ERROR() \
-  { \
-    GLenum rESULT = glGetError(); \
-    if (rESULT != GL_NO_ERROR) \
-    { \
-      std::stringstream sTREAM; \
-      sTREAM << "Failed with error code " << rESULT << " at " << __FILE__ << "(" << __LINE__ << ")"; \
-      throw Fsl::GLES2::GLESGraphicsException(sTREAM.str(), rESULT, __FILE__, __LINE__); \
-    } \
-  }
+#define GL_CHECK_FOR_ERROR()  Fsl::GLES2::CheckError(glGetError(), __FILE__, __LINE__)
 
 
 // Call method X and then check glGetError to see if a error occurred and if it did then throw a Fsl::GLESGraphicsException
@@ -54,13 +47,7 @@
 #define GL_CHECK(X) \
   X; \
   { \
-    GLenum rESULT = glGetError(); \
-    if (rESULT != GL_NO_ERROR) \
-    { \
-      std::stringstream sTREAM; \
-      sTREAM << #X << " failed with error code " << rESULT << " at " << __FILE__ << "(" << __LINE__ << ")"; \
-      throw Fsl::GLES2::GLESGraphicsException(sTREAM.str(), rESULT, __FILE__, __LINE__); \
-    } \
+    Fsl::GLES2::CheckError(glGetError(), #X, __FILE__, __LINE__); \
   }
 
 
@@ -72,7 +59,7 @@
     GLenum rESULT = glGetError(); \
     if (rESULT != GL_NO_ERROR) \
     { \
-      FSLLOG_ERROR(#X << " failed with error code " << rESULT << " at " << __FILE__ << "(" << __LINE__ << ")"); \
+      FSLLOG_ERROR(#X << " failed with error code " << Fsl::GLES2::Debug::ErrorCodeToString(static_cast<GLenum>(rESULT)) << " (" << rESULT  << ") at " << __FILE__ << "(" << __LINE__ << ")"); \
       return; \
     } \
    }
@@ -84,7 +71,7 @@
     GLenum rESULT = glGetError(); \
     if (rESULT != GL_NO_ERROR) \
     { \
-      FSLLOG_ERROR(#X << " failed with error code " << rESULT << " at " << __FILE__ << "(" << __LINE__ << ")"); \
+      FSLLOG_ERROR(#X << " failed with error code " << Fsl::GLES2::Debug::ErrorCodeToString(static_cast<GLenum>(rESULT)) << " (" << rESULT  << ") at " << __FILE__ << "(" << __LINE__ << ")"); \
     } \
   }
 

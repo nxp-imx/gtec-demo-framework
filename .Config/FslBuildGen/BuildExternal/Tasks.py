@@ -40,6 +40,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 from FslBuildGen import IOUtil
+from FslBuildGen import PackageConfig
 from FslBuildGen.BuildExternal.FileUnpacker import FileUnpack
 from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
@@ -105,7 +106,10 @@ class GitBaseTask(BasicTask):
 
 
     def __ConfigureForPlatform(self, generatorContext: GeneratorContext) -> None:
-        self.GitCommand = 'git.exe'
+        if generatorContext.Platform.Name == PackageConfig.PlatformNameString.WINDOWS:
+            self.GitCommand = 'git.exe'
+        else:
+            self.GitCommand = 'git'
 
 
 class GitCloneTask(GitBaseTask):
@@ -206,6 +210,8 @@ class CMakeBuilderMake(CMakeBuilder):
 
         self.BasicConfig.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
         buildCommand = ['make', '-f', projectFile]
+        if target == CMakeTargetType.Install:
+            buildCommand.append('install')
         result = subprocess.call(buildCommand, cwd=path)
         if result != 0:
             raise Exception("make failed {0}".format(buildCommand))

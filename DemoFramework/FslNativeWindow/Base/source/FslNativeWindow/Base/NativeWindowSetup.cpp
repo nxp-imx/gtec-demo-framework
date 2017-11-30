@@ -33,10 +33,12 @@
 
 namespace Fsl
 {
-  NativeWindowSetup::NativeWindowSetup(const std::string& applicationName, const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const NativeWindowConfig& config)
+  NativeWindowSetup::NativeWindowSetup(const std::string& applicationName, const std::weak_ptr<INativeWindowEventQueue>& eventQueue,
+                                       const NativeWindowConfig& config, const uint32_t verbosityLevel)
     : m_applicationName(applicationName)
     , m_eventQueue(eventQueue)
     , m_config(config)
+    , m_verbosityLevel(verbosityLevel)
   {
   }
 

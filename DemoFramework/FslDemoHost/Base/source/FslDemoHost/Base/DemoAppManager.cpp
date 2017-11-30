@@ -238,8 +238,8 @@ namespace Fsl
       }
 
 
-
       m_demoApp->_Update(demoTimeUpdate);
+      m_demoApp->_PostUpdate(demoTimeUpdate);
 
       m_timeStatsAfterUpdate = m_timer.GetTime();
 

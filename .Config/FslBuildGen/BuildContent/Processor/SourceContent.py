@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import List
+from typing import Optional
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildContent.Processor.Commands import CommandContentBuildSync
@@ -40,7 +41,9 @@ from FslBuildGen.BuildContent.Processor.ContentBuildCommandFile import ContentBu
 from FslBuildGen.BuildContent.Sync.Content import Content
 
 class SourceContent(object):
-    def __init__(self, log: Log, contentPath: str, contentSourcePath: str, contentBuildCommandFile: ContentBuildCommandFile) -> None:
+    def __init__(self, log: Log, contentPath: str, contentSourcePath: str, contentBuildCommandFile: ContentBuildCommandFile,
+                 includeContentPathContent: bool,
+                 removeCommandFilename: Optional[str] = None) -> None:
         super(SourceContent, self).__init__()
 
         contentSourceFiles = []  # type: List[PathRecord]
@@ -55,5 +58,12 @@ class SourceContent(object):
             else:
                 log.LogPrint("WARNING: Unknown command type: {0}".format(command))
 
-        self.ContentSourceFiles = Content(log, contentPath, contentSourceFiles).Files
-        self.ContentBuildSourceFiles = Content(log, contentSourcePath, contentBuildSourceFiles).Files
+        self.ContentSource = Content(log, contentPath, includeContentPathContent, contentSourceFiles)
+        self.ContentBuildSource = Content(log, contentSourcePath, True, contentBuildSourceFiles)
+        self.AllContentSource = Content(log, contentSourcePath, True, contentBuildSourceFiles + contentSourceFiles)
+
+        if removeCommandFilename is not None:
+            self.ContentBuildSource.RemoveFileByResolvedSourcePath(removeCommandFilename)
+            self.AllContentSource.RemoveFileByResolvedSourcePath(removeCommandFilename)
+
+        self.IsEmpty = len(self.ContentSource.Files) <= 0 and len(self.ContentBuildSource.Files) <= 0

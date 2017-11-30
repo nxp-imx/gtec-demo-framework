@@ -28,7 +28,7 @@
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>

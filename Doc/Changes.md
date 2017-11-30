@@ -1,5 +1,14 @@
 Latest version:
 ---------------
+* **Breaking change**: IContentManger, IPersistentDataManager and IO::File now uses uint64_t to represent file sizes and relevant types.
+* Enabled OpenVX1.1 on ubuntu using the Khronos OpenVX 1.1 sample implementation.
+* Switched to OpenVX1.1 on windows using the Khronos OpenVX 1.1 sample implementation.
+* Enabled OpenVX1.1 on Yocto builds.
+* Converted all OpenVX legacy application to OpenVX 1.1.
+* All OpenVX 1.0.1 apps was postfixed with Legacy in their name.
+* IDemoAppControl now has the ability to enable/disable mouse capture for the platforms 
+  that support it.
+* RawMouseMovement introduced. Platform support is limited to Windows at the moment.
 * Updated GLM to 0.9.8.5 from 0.9.8.4
 * **Breaking change**: All 'shared' demo app libraries renamed to take advantage of sub package support.
 

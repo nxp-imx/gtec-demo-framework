@@ -65,7 +65,7 @@ class CMakeBuildType(object):
 
 
 def DetermineCMakeCommand(platformName: str) -> str:
-    if platformName == PackageConfig.PlatformNameString.UBUNTU:
+    if platformName == PackageConfig.PlatformNameString.UBUNTU or platformName == PackageConfig.PlatformNameString.YOCTO or platformName == PackageConfig.PlatformNameString.QNX:
         return 'cmake'
     elif platformName == PackageConfig.PlatformNameString.WINDOWS:
         return 'cmake.exe'

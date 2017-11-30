@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <HeaderLibrary Name="FslDemoHost.OpenGLES2">
+    <Dependency Name="FslDemoHost.EGL"/>
+    <Dependency Name="FslUtil.OpenGLES2"/>
+    <Platform Name="Windows" ProjectId="E048AB8B-8FC7-4613-88C5-E95D5BE1F42F"/>
+  </HeaderLibrary>
+</FslBuildGen>

@@ -45,10 +45,13 @@ namespace Fsl
     MouseState();
     MouseState(const uint32_t buttonState);
     MouseState(const uint32_t buttonState, const Point2& position);
+    MouseState(const uint32_t buttonState, const Point2& position, const Point2& rawPosition);
     MouseState(const VirtualMouseButtonFlags& mouseButtonFlags);
     MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position);
+    MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position, const Point2& rawPosition);
 
     Point2 Position;
+    Point2 RawPosition;
 
     bool IsLeftButtonPressed() const;
     bool IsMiddleButtonPressed() const;

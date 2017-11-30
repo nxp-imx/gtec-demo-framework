@@ -43,18 +43,54 @@ namespace Fsl
 {
   namespace GLES3
   {
-
-    class GLShader : private Noncopyable
+    class GLShader
     {
       GLint m_shaderType;
       GLuint m_handle;
     public:
+      GLShader(const GLShader&) = delete;
+      GLShader& operator=(const GLShader&) = delete;
+
+      //! @brief Move assignment operator
+      GLShader& operator=(GLShader&& other)
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          if (IsValid())
+            Reset();
+
+          // Claim ownership here
+          m_shaderType = other.m_shaderType;
+          m_handle = other.m_handle;
+
+          // Remove the data from other
+          other.m_shaderType = 0;
+          other.m_handle = GLValues::INVALID_HANDLE;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLShader(GLShader&& other)
+        : m_shaderType(other.m_shaderType)
+        , m_handle(other.m_handle)
+      {
+        // Remove the data from other
+        other.m_shaderType = 0;
+        other.m_handle = GLValues::INVALID_HANDLE;
+      }
+
       GLShader();
       GLShader(const GLint shaderType, const std::string& strShaderCode);
       ~GLShader();
 
       //! @brief Check if this contains a valid gl handle.
-      bool IsValid() const { return m_handle != GLValues::INVALID_HANDLE; }
+      bool IsValid() const
+      {
+        return m_handle != GLValues::INVALID_HANDLE;
+      }
 
       void Reset();
       void Reset(const GLint shaderType, const std::string& strShaderCode);
@@ -75,7 +111,7 @@ namespace Fsl
       //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
       FSL_ATTR_DEPRECATED GLuint GetHandle() const
       {
-        return m_handle;
+        return Get();
       }
     };
 

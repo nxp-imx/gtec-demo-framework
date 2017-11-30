@@ -88,6 +88,11 @@ namespace Fsl
   }
 
 
+  void AConsoleDemoApp::_PostUpdate(const DemoTime& demoTime)
+  {
+  }
+
+
   void AConsoleDemoApp::_Draw(const DemoTime& demoTime)
   {
     Run();

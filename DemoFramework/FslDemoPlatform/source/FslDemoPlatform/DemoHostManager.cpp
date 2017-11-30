@@ -219,8 +219,11 @@ namespace Fsl
     m_graphicsService->Reset();
     m_demoHost.reset();
 
-    const DemoHostConfig demoHostConfig(m_demoSetup.Host.OptionParser, m_eventQueue, m_demoSetup.App, m_demoSetup.ServiceProvider);
+    const uint32_t verbosityLevel = m_demoSetup.Verbose ? 1 : 0;
+    const DemoHostConfig demoHostConfig(m_demoSetup.Host.OptionParser, m_eventQueue, m_demoSetup.App, m_demoSetup.ServiceProvider, verbosityLevel);
     m_demoHost = m_demoSetup.Host.Factory->Allocate(demoHostConfig);
+    // Allow a bit of post construction processing
+    m_demoHost->OnConstructed();
 
     VERBOSE_LOG("Demo host started");
     const auto activeAPI = m_demoHost->GetActiveAPI();

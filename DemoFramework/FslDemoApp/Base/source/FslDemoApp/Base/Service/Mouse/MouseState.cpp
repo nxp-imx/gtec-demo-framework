@@ -38,6 +38,7 @@ namespace Fsl
   MouseState::MouseState()
     : m_mouseButtonFlags(0)
     , Position()
+    , RawPosition()
   {
   }
 
@@ -45,6 +46,7 @@ namespace Fsl
   MouseState::MouseState(const uint32_t buttonState)
     : m_mouseButtonFlags(buttonState)
     , Position()
+    , RawPosition()
   {
   }
 
@@ -52,18 +54,39 @@ namespace Fsl
   MouseState::MouseState(const uint32_t buttonState, const Point2& position)
     : m_mouseButtonFlags(buttonState)
     , Position(position)
+    , RawPosition()
   {
   }
+
+
+  MouseState::MouseState(const uint32_t buttonState, const Point2& position, const Point2& rawPosition)
+    : m_mouseButtonFlags(buttonState)
+    , Position(position)
+    , RawPosition(rawPosition)
+  {
+  }
+
 
   MouseState::MouseState(const VirtualMouseButtonFlags& mouseButtonFlags)
     : m_mouseButtonFlags(mouseButtonFlags)
     , Position()
+    , RawPosition()
   {
   }
+
 
   MouseState::MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position)
     : m_mouseButtonFlags(mouseButtonFlags)
     , Position(position)
+    , RawPosition()
+  {
+  }
+
+
+  MouseState::MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position, const Point2& rawPosition)
+    : m_mouseButtonFlags(mouseButtonFlags)
+    , Position(position)
+    , RawPosition(rawPosition)
   {
   }
 

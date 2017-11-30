@@ -50,6 +50,13 @@ namespace Fsl
       std::vector<GLVertexElement> m_vertexElements;
       uint32_t m_originalVertexElementCount;
     public:
+      //! @brief Move assignment operator
+      GLVertexBufferArray& operator=(GLVertexBufferArray&& other);
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLVertexBufferArray(GLVertexBufferArray&& other);
+
       //! @brief Create a empty array
       GLVertexBufferArray();
 

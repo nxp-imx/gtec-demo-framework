@@ -51,6 +51,7 @@ namespace Fsl
     virtual void _PreUpdate(const DemoTime& demoTime) = 0;
     virtual void _FixedUpdate(const DemoTime& demoTime) = 0;
     virtual void _Update(const DemoTime& demoTime) = 0;
+    virtual void _PostUpdate(const DemoTime& demoTime) = 0;
     virtual void _Draw(const DemoTime& demoTime) = 0;
   };
 }

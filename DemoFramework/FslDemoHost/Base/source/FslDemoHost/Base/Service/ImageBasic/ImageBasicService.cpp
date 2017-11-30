@@ -33,6 +33,7 @@
 #include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/IO/Path.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -238,13 +239,13 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("Read only takes absolute paths: " << absolutePath.ToUTF8String());
+      FSLLOG_DEBUG_WARNING("Read only takes absolute paths: " << absolutePath);
       return false;
     }
 
     if (!IO::File::Exists(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("File not found: " << absolutePath.ToUTF8String());
+      FSLLOG_DEBUG_WARNING("File not found: " << absolutePath);
       return false;
     }
 
@@ -267,7 +268,7 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("TryWrite only takes absolute paths: " << absolutePath.ToUTF8String());
+      FSLLOG_DEBUG_WARNING("TryWrite only takes absolute paths: " << absolutePath);
       return false;
     }
 
@@ -291,7 +292,7 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("TryWriteExactImage only takes absolute paths: " << absolutePath.ToUTF8String());
+      FSLLOG_DEBUG_WARNING("TryWriteExactImage only takes absolute paths: " << absolutePath);
       return false;
     }
 

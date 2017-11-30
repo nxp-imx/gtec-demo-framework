@@ -13,7 +13,6 @@
 #include "Texturing.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>

@@ -164,9 +164,12 @@ class GeneratorGNUmakefile(GeneratorBase):
             extLibraryDependencies = self.__GetExternalLibraryDependencies(package)
             strExtLibraryDependencies = MakeFileHelper.CreateList(extLibraryDependencies)
             build = build.replace("##PACKAGE_EXTERNAL_LIBRARY_DEPENDENCIES##", strExtLibraryDependencies)
-            extLibraryPaths = self.__GetExternalLibraryPaths(package)
+            extLibraryPaths = self.__GetExternalLibraryPaths(package, [ExternalDependencyType.StaticLib, ExternalDependencyType.DLL])
             strExtLibraryPaths = MakeFileHelper.CreateList(extLibraryPaths)
             build = build.replace("##PACKAGE_EXTERNAL_LIBRARY_PATHS##", strExtLibraryPaths)
+            extDllPaths = self.__GetExternalLibraryPaths(package, [ExternalDependencyType.DLL])
+            strExtDllPaths = MakeFileHelper.CreateList(extDllPaths)
+            build = build.replace("##PACKAGE_EXTERNAL_DLL_PATHS##", strExtDllPaths)
             executableReport = GeneratorGNUmakefileUtil.TryGenerateExecutableReport(config, generatorName, package)
             if executableReport is not None:
                 variableReport = GeneratorGNUmakefileUtil.GenerateVariableReport(config, generatorName, package)
@@ -262,7 +265,7 @@ class GeneratorGNUmakefile(GeneratorBase):
         buildOrder = list(package.ResolvedBuildOrder)
         buildOrder.reverse()
         for entry in buildOrder:
-            externalList = Util.ExtractNames(Util.FilterByType(entry.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib))
+            externalList = Util.ExtractNames(Util.FilterByType(entry.ResolvedDirectExternalDependencies, [ExternalDependencyType.StaticLib, ExternalDependencyType.DLL]))
             externalList.reverse()
             if len(externalList) > 0:
                 externalList = self.__ApplyExternalLibNameCorrection(externalList)
@@ -279,14 +282,13 @@ class GeneratorGNUmakefile(GeneratorBase):
             newList.append(libName)
         return newList
 
-
-    def __GetExternalLibraryPaths(self, package: Package) -> List[str]:
+    def __GetExternalLibraryPaths(self, package: Package, dependencyTypeFilter: List[int]) -> List[str]:
         # GCC apparently needs the list to be in reverse order
         buildOrder = list(package.ResolvedBuildOrder)
         buildOrder.reverse()
         additionalLibraryDirectories = set()  # type: Set[str]
         for currentPackage in buildOrder:
-            extDeps = Util.FilterByType(currentPackage.ResolvedDirectExternalDependencies, ExternalDependencyType.StaticLib)  # type: List[PackageExternalDependency]
+            extDeps = Util.FilterByType(currentPackage.ResolvedDirectExternalDependencies, dependencyTypeFilter)  # type: List[PackageExternalDependency]
             for entry in extDeps:
                 if entry.Location is not None:
                     additionalLibraryDirectories.add(entry.Location)

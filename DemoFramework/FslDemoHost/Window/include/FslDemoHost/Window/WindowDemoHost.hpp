@@ -42,8 +42,8 @@ namespace Fsl
   class DemoHostCustomWindowSystem;
   class INativeWindow;
   class INativeWindowSystem;
+  class IWindowHostInfoControl;
   class WindowDemoHostOptionParser;
-  class WindowHostService;
 
   class WindowDemoHost
     : public ADemoHost
@@ -52,7 +52,7 @@ namespace Fsl
     bool m_isActivated;
     DemoHostFeature m_activeApi;
     std::shared_ptr<WindowDemoHostOptionParser> m_options;
-    std::shared_ptr<WindowHostService> m_windowHostService;
+    std::shared_ptr<IWindowHostInfoControl> m_windowHostInfoControl;
     std::unique_ptr<NativeWindowSetup> m_nativeWindowSetup;
     std::shared_ptr<DemoHostCustomWindowSystem> m_customWindowSystem;
     std::shared_ptr<INativeWindowSystem> m_windowSystem;

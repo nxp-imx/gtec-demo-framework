@@ -51,6 +51,11 @@ namespace Fsl
 
     virtual bool TryGetDPI(Vector2& rDPI) const override;
     virtual bool TryGetSize(Point2& rSize) const override;
+    virtual bool TryCaptureMouse(const bool enableCapture) override
+    {
+      return false;
+    }
+
   private:
     void WaitForWindowReady();
   };

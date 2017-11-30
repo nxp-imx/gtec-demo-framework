@@ -70,6 +70,11 @@ namespace Fsl
     //! Use NativeWindowEventHelper::EncodeInputMouseWheelEvent to create a NativeWindowEvent.
     //! Use NativeWindowEventHelper::DecodeInputMouseWheelEvent to decode a NativeWindowEvent.
     InputMouseWheel,
+
+    //! A raw mouse move event
+    //! Use NativeWindowEventHelper::EncodeInputRawMouseMoveEvent to create a NativeWindowEvent.
+    //! Use NativeWindowEventHelper::DecodeInputRawMouseMoveEvent to decode a NativeWindowEvent.
+    InputRawMouseMove,
     //!
     //!
     //InputTouch,

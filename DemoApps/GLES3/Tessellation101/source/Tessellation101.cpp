@@ -65,10 +65,10 @@ namespace Fsl
     , m_tessLevelInner(2.0)
     , m_tessLevelOuter(2.0)
   {
-    if (!GLUtil::HasExtension("EXT_tessellation_shader"))
-      throw NotSupportedException("EXT_tessellation_shader extension not supported");
-    if (!GLUtil::HasExtension("EXT_geometry_shader"))
-      throw NotSupportedException("EXT_geometry_shader extension not supported");
+    if (!GLUtil::HasExtension("GL_EXT_tessellation_shader"))
+      throw NotSupportedException("GL_EXT_tessellation_shader extension not supported");
+    if (!GLUtil::HasExtension("GL_EXT_geometry_shader"))
+      throw NotSupportedException("GL_EXT_geometry_shader extension not supported");
 
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
 

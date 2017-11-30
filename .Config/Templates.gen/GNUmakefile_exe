@@ -31,6 +31,8 @@ USER_EXTLIB_DEPS=##PACKAGE_EXTERNAL_LIBRARY_DEPENDENCIES##
 
 USER_EXTLIB_PATHS=##PACKAGE_EXTERNAL_LIBRARY_PATHS##
 
+USER_EXTDLL_PATHS=##PACKAGE_EXTERNAL_DLL_PATHS##
+
 # Stuff below is basically the same for all builds
 
 SHELL = /bin/sh
@@ -76,6 +78,7 @@ INCLUDE_DIR_PARAMS=$(foreach d,$(INCLUDE_DIRS),-I$d)
 CPP_DEFINE_FLAG_PARAMS=$(foreach d,$(CPP_DEFINE_FLAG_NAMES),-D$d)
 USER_EXTLIB_DEPS_PARAMS=$(foreach d,$(USER_EXTLIB_DEPS),-l$d)
 USER_EXTLIB_PATHS_PARAMS=$(foreach d,$(USER_EXTLIB_PATHS),-Wl,--library-path=$d)
+USER_EXTDLL_PATHS_PARAMS=$(foreach d,$(USER_EXTDLL_PATHS),-Wl,-rpath=$d)
 
 REQUIRED_CXX_FLAGS = -Wall -Wtype-limits -Wuninitialized -fPIC -DPIC -std=c++11 -g $(CPP_DEFINE_FLAG_PARAMS) -pthread -DFSL_PLATFORM_UBUNTU
 
@@ -86,7 +89,7 @@ all: $(TARGET)
 
 # $@ for the pattern-matched target
 $(TARGET): $(OBJECTS) $(USER_LIB_DEPS)
-	$(CXX) -o $@ $(LDFLAGS) -pthread $(OBJECTS) $(USER_LIB_DEPS) $(USER_EXTLIB_DEPS_PARAMS) $(USER_EXTLIB_PATHS_PARAMS)
+	$(CXX) -o $@ $(LDFLAGS) -pthread $(OBJECTS) $(USER_LIB_DEPS) $(USER_EXTLIB_DEPS_PARAMS) $(USER_EXTLIB_PATHS_PARAMS) $(USER_EXTDLL_PATHS_PARAMS)
 
   
 # Simple rule used for "cleaning" the build environment.

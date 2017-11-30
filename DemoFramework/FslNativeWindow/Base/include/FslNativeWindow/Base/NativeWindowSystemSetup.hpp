@@ -42,14 +42,18 @@ namespace Fsl
   class NativeWindowSystemSetup
   {
     std::weak_ptr<INativeWindowEventQueue> m_eventQueue;
+    uint32_t m_verbosityLevel;
     NativeWindowConfig m_config;
     std::shared_ptr<ITag> m_tag;
   public:
-    NativeWindowSystemSetup(const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const NativeWindowConfig& config, const std::shared_ptr<ITag>& tag);
+    NativeWindowSystemSetup(const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const uint32_t verbosityLevel,
+                            const NativeWindowConfig& config, const std::shared_ptr<ITag>& tag);
     ~NativeWindowSystemSetup();
 
     //! @brief Get the event queue if present
     std::weak_ptr<INativeWindowEventQueue> GetEventQueue() const;
+
+    uint32_t GetVerbosityLevel() const;
 
     //! @brief Get the associated tag if any
     std::shared_ptr<ITag> GetTag() const;

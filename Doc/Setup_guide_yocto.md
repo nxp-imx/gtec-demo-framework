@@ -1,7 +1,76 @@
-Prerequisites
-=============
-- Python 3.4+
+# Yocto build guide
 
+First you need to decide how you are going to be building for Yocto
+- [Building using a prebuild Yocto SDK]
+- [Building using a full Yocto build]
+
+
+# Building using a prebuild Yocto SDK
+Building using a prebuild Yocto SDK and a prebuild sd-card image.
+This tend to be the fastest way to get started.
+
+## Prerequisites
+- Ubuntu 16.04
+- Python 3.5 (this is standard in Ubuntu 16.04)
+- A prebuild sdk for your board typically called something like ```toolchain.sh```
+- A prebuild sd-card image for your board typically called ```BoardName.rootfs.sdcard.bz2```
+- Git 
+  ```bash
+  sudo apt-get install git
+  ```
+
+For this guide we will assume you are using a FB image.     
+  
+- Download the DemoFramework source using git.
+
+It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
+
+
+## Preparing a Yocto SDK build
+1. Start a terminal (ctrl+alt t)
+2. Install the sdk:
+  ```bash
+  ./fsl-imx-internal-xwayland-glibc-x86_64-fsl-image-gui-aarch64-toolchain-4.9.51-mx8-beta.sh
+  ```
+  Chose where to install it, you can use the default location or a location of your choice.
+  For this example we use "~/sdk/4.9.51-mx8-beta".
+  When the setup is complete it will list the configuration script you need to run to configure the sdk environment.
+  Something like this
+  ```bash
+  Each time you wish to use the SDK in a new shell session, you need to source the environment setup script e.g.
+  $ . ~/sdk/4.9.51-mx8-beta/environment-setup-aarch64-poky-linux
+  ```
+3. Your SDK is now installed.
+
+## Yocto SDK environment setup
+1. Start a terminal (ctrl+alt t)
+2. Prepare the yocto build environment by running the config command you got during the sdk install
+    ```bash
+    . ~/sdk/4.9.51-mx8-beta/environment-setup-aarch64-poky-linux
+    ```
+3. You should now be ready to build using the demo framework. However if you experience issues with the ```prepare.sh``` script you
+   can help it out by defining the platform name and the location of the root fs
+    ```bash
+    export FSL_PLATFORM_NAME=Yocto
+    export ROOTFS=~/sdk/4.9.51-mx8-beta/sysroots/aarch64-poky-linux
+    ```
+   Another possible error you can encounter is that the FslBuild.py scripts fail to include the 'typing' library.
+   This can happen because the SDK comes with a too old Python3 version or a incomplete Python3.5 version. 
+   As a workaround for that you could delete the Python3 binaries from the SDK which will cause it to use the system Python3 version instead.
+
+## Ready to build
+You are now ready to start building Yocto apps using the demo framework, 
+please continue the guide at [Using the demo framework].
+
+
+
+# Building using a full Yocto build
+Building using a full manually build Yocto build.
+This process provides the most flexible solution but it also takes significantly longer to build the initial Yocto sdcard and toolchain.
+
+## Prerequisites
+- The Ubuntu version required by the BSP release.
+- Python 3.4+
   It should be part of the default Ubuntu install.
   If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
   To install the typing library in Python **3.4** run:
@@ -16,14 +85,13 @@ Prerequisites
   - https://community.freescale.com/docs/DOC-94866 
   - Or read from here: [Preparing a Yocto build]
 
-For this guide we will assume you are using a X11 image.     
+For this guide we will assume you are using a FB image.     
   
-- Download the source from git.
+- Download the DemoFramework source using git.
 
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
 
-Preparing a Yocto build
------------------------
+## Preparing a Yocto build
 
 Before you build one of these yocto images you need to
 1. Run the yocto build setup (X11 example). 
@@ -112,8 +180,7 @@ runqemu-extract-sdk ~/fsl-release-bsp/build-wayland/tmp/deploy/images/imx6qpsabr
 ```
 
 
-Yocto environment setup
-=======================
+## Yocto environment setup
 1. Start a terminal (ctrl+alt t)
 2. Prepare the yocto build environment
     ```bash
@@ -123,11 +190,18 @@ Yocto environment setup
     export FSL_PLATFORM_NAME=Yocto
     popd
     ```
+
+## Ready to build
+You are now ready to start building Yocto apps using the demo framework, 
+please continue the guide at [Using the demo framework].
      
 
-Simple setup
-------------
-1. Make sure that you performed the [Yocto environment setup].
+# Using the demo framework
+
+## Simple setup
+1. Make sure that you performed the Yocto environment setup for your chosen Yocto environemnt.
+   - SDK build [Yocto SDK environment setup]
+   - Custom build [Yocto environment setup].
 2. cd to the demoframework folder
 3. Run the `prepare.sh` file located in the root of the framework folder to
     configure the necessary environment variables and paths.
@@ -137,20 +211,28 @@ Simple setup
     ```bash
     source prepare.sh
     ```
+    Also verify that the script detect that you are doing a Yocto build by outputting
+    ```bash
+    PlatformName: Yocto
+    ```
+    If it doesn't you can override the platform auto detection by setting the environment variable
+    ```bash
+    export FSL_PLATFORM_NAME=Yocto
+    ```
+    Before running the prepare.sh script.
  
- 
-To Compile all samples
-----------------------
+
+
+## To Compile all samples
 1. Make sure that you performed the [simple setup].
 2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
-    FslBuild.py --Variants [WindowSystem=X11] -t sdk --BuildThreads 2
+    FslBuild.py --Variants [WindowSystem=FB] -t sdk --BuildThreads 2
     ```
     WindowSystem can be set to either: FB, Wayland or x11
 
      
-To Compile and run an existing sample application 
--------------------------------------------------
+## To Compile and run an existing sample application 
 In this example we will utilize the `GLES2.S06_Texturing` app.
 1. Make sure that you performed the [simple setup].
 2. Change directory to the sample directory:
@@ -159,14 +241,13 @@ In this example we will utilize the `GLES2.S06_Texturing` app.
     ```
 3. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
-    FslBuild.py --Variants [WindowSystem=X11] --BuildThreads 2
+    FslBuild.py --Variants [WindowSystem=FB] --BuildThreads 2
     ```
       
     WindowSystem can be set to either: FB, Wayland or x11
 
 
-To create a new GLES2 demo project named 'CoolNewDemo'
-------------------------------------------------------
+## To create a new GLES2 demo project named 'CoolNewDemo'
 1. Make sure that you performed the [simple setup]
 2. Change directory to the GLES2 sample directory:
     ```bash
@@ -182,7 +263,7 @@ To create a new GLES2 demo project named 'CoolNewDemo'
     ```
 5. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
-    FslBuild.py --Variants [WindowSystem=X11] --BuildThreads 2
+    FslBuild.py --Variants [WindowSystem=FB] --BuildThreads 2
     ```
       
     WindowSystem can be set to either: FB, Wayland or x11
@@ -194,7 +275,7 @@ However this requires that you didn't change any dependencies or add files.
 
 To do this run 
     ```bash
-    make -f GNUmakefile_Yocto -j 2 WindowSystem=X11
+    make -f GNUmakefile_Yocto -j 2 WindowSystem=FB
     ```
 
 If you add source files to a project or change the Fsl.gen file then run the 
@@ -214,9 +295,28 @@ automatically adds files and regenerate build files as needed.
     FslBuild.py --ListFeatures
     ```
 
+## Copying DemoFramework apps to the sdcard
 
-Building Vulkan demo framework apps
------------------------------------
+### Basic copy
+1. Mount the SDK card in ubuntu.
+2. Manually copy the build Exectuable and its content directory to the sdcard
+3. Unmount the sdcard
+
+### Using install
+1. Mount the SDK card in ubuntu.
+2. Build using 
+   ```bash
+   FslBuild.py -- install
+   ``` 
+   This will cause the app to install itself and its content to the the demo framework root under a directory called bin.
+   This directory can then be copied manually to the sdcard.
+   Beware that 'install' can be used for all build commands, so you could build all apps and then just copy the bin directory.
+  
+3. Manually copy the build Exectuable and its content directory to the sdcard
+3. Unmount the sdcard
+
+
+## Building Vulkan demo framework apps
 
 To build vulkan demoes you need access to the glslangValidator tool which is used to compile shaders into SPIR-V format.
 The easiest way to get it is to install the linux [vulkan SDK](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html).
@@ -249,8 +349,7 @@ The easiest way to get it is to install the linux [vulkan SDK](https://vulkan.lu
 7. Run the normal setup.
 
 
-Building OpenCV demo framework apps
------------------------------------
+## Building OpenCV demo framework apps
 1. Edit the `<build directory>/conf/local.conf` file and add the line:
     ```
     CORE_IMAGE_EXTRA_INSTALL += "libopencv-core-dev libopencv-highgui-dev"

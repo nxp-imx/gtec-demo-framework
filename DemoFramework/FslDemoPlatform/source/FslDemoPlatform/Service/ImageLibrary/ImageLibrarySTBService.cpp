@@ -31,12 +31,16 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Service/ImageLibrary/ImageLibrarySTBService.hpp>
+#include <FslBase/Math/Extent2D.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
+#include <FslGraphics/ImageFormatUtil.hpp>
 #include <limits>
 #include <stb/stb_image_write.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 
 namespace Fsl
 {
@@ -156,11 +160,48 @@ namespace Fsl
     rFormats.push_back(ImageFormat::Jpeg);
     rFormats.push_back(ImageFormat::Png);
     rFormats.push_back(ImageFormat::Tga);
+    rFormats.push_back(ImageFormat::Hdr);
   }
 
 
   bool ImageLibrarySTBService::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
+    //const auto imageFormat = ImageFormatUtil::TryDetectImageFormatFromExtension(absolutePath);
+    //if(imageFormat == ImageFormat::Hdr)
+    //{
+    //  int width = 0;
+    //  int height = 0;
+    //  int channels = 0;
+    //  auto pImageData = stbi_loadf(absolutePath.ToUTF8String().c_str(), &width, &height, &channels, 0);
+    //  if (pImageData == nullptr || width < 0 || height < 0 || (channels != 3 && channels != 4))
+    //  {
+    //    if (pImageData != nullptr)
+    //    {
+    //      stbi_image_free(pImageData);
+    //      pImageData = nullptr;
+    //    }
+    //    return false;
+    //  }
+
+    //  try
+    //  {
+    //    const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R32G32B32_SFLOAT : PixelFormat::R32G32B32A32_SFLOAT);
+    //    Extent2D extent(width, height);
+    //    const std::size_t cbContent = (4 * channels) * extent.Width * extent.Height;
+
+    //    rBitmap.Reset(pImageData, cbContent, extent, pixelFormat);
+
+    //    // Free the image data
+    //    stbi_image_free(pImageData);
+    //    pImageData = nullptr;
+    //    return true;
+    //  }
+    //  catch (const std::exception&)
+    //  {
+    //    stbi_image_free(pImageData);
+    //    pImageData = nullptr;
+    //  }
+    //}
     return false;
   }
 

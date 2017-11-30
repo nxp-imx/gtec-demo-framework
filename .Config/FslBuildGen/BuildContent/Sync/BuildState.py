@@ -42,6 +42,7 @@ from FslBuildGen import IOUtil
 from FslBuildGen.BuildContent.Sync.Content import Content
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.Config import Config
+from FslBuildGen.Log import Log
 
 
 g_isVerbose = False
@@ -212,7 +213,7 @@ class SyncState(object):
         IOUtil.WriteFileIfChanged(path, "".join(result))
 
 
-    def BuildContentState(self, config: Config,
+    def BuildContentState(self, log: Log,
                           pathFileRecord: PathRecord,
                           allowCaching: bool, allowNew: bool,
                           cachedSyncState: Optional['SyncState'] = None) -> ContentState:
@@ -224,9 +225,9 @@ class SyncState(object):
         cachedState = cachedSyncState.GetFileState(fileState) if cachedSyncState else None
         if allowCaching and cachedState and fileState.Length == cachedState.Length and fileState.ModifiedDate == cachedState.ModifiedDate:
             fileState.Checksum = cachedState.Checksum
-            config.LogPrint("Using cached checksum for '{0}'".format(fileState.Name))
+            log.LogPrint("Using cached checksum for '{0}'".format(fileState.Name))
         else:
-            config.LogPrint("Calculating checksum for '{0}'".format(fileState.Name))
+            log.LogPrint("Calculating checksum for '{0}'".format(fileState.Name))
             fileState.Checksum = self.__HashFile(pathFileRecord.ResolvedPath)
         # Mark the entry as being new
         if not cachedState and allowNew:
@@ -304,5 +305,5 @@ def GenerateSyncState(config: Config, absoluteCacheFileName: str, content: Conte
 
 
 def GenerateOutputSyncState(config: Config, absoluteCacheFileName: str, path: str, allowCache: bool) -> SyncState:
-    content = Content(config, path)
+    content = Content(config, path, True)
     return __BuildSyncState(config, absoluteCacheFileName, content, None, allowCache, True, True)

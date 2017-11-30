@@ -111,6 +111,8 @@ namespace Fsl
 
   ObjectSelection::ObjectSelection(const DemoAppConfig& config)
     : DemoAppGLES3(config)
+    , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
+    , m_mouseCaptureEnabled(false)
     , m_menuUI(config)
     , m_camera()
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
@@ -147,7 +149,7 @@ namespace Fsl
 
     {
       auto texture = contentManager->ReadTexture("SeamlessFur.png", PixelFormat::R8G8B8A8_UNORM);
-      GLTextureParameters texParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
+      GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       m_texture.Reset(texture, texParams, TextureFlags::GenerateMipMaps);
 
       texture = contentManager->ReadTexture("MarbleChessboard.jpg", PixelFormat::R8G8B8A8_UNORM);
@@ -193,6 +195,12 @@ namespace Fsl
       //  m_camera.BeginDrag(event.GetPosition());
       //else if (m_camera.IsDragging())
       //  m_camera.EndDrag(event.GetPosition());
+      const bool mouseCapture = event.IsPressed();
+      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        m_mouseCaptureEnabled = mouseCapture;
+      else
+        m_mouseCaptureEnabled = false;
+      //FSLLOG("Captured: " << m_mouseCaptureEnabled);
       event.Handled();
       break;
     }
@@ -266,8 +274,19 @@ namespace Fsl
       //FSLLOG("2D: X: " << mouseState.Position.X << " Y: " << mouseState.Position.Y  << " 3D: X: " << m_mousePositionFar.X << " Y: " << m_mousePositionFar.Y << " Z: " << m_mousePositionFar.Z);
 
 
-      const bool rotateCamera = mouseState.IsRightButtonPressed();
-      m_camera.RotateViaPosition(rotateCamera, mouseState.Position);
+      if (!m_mouseCaptureEnabled)
+      {
+        const bool rotateCamera = mouseState.IsRightButtonPressed();
+        m_camera.RotateViaPosition(rotateCamera, mouseState.Position);
+      }
+      else
+      {
+        if (mouseState.IsRightButtonPressed())
+        {
+          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          m_camera.Rotate(rawPosition);
+        }
+      }
     }
 
     {

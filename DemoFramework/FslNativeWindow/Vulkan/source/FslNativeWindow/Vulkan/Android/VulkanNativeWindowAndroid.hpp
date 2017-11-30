@@ -62,6 +62,11 @@ namespace Fsl
       return PlatformNativeWindowAndroid::TryGetSize(rSize);
     }
 
+    virtual bool TryCaptureMouse(const bool enableCapture) override
+    {
+      return PlatformNativeWindowAndroid::TryCaptureMouse(enableCapture);
+    }
+
     virtual PlatformNativeWindowType GetWindowType() const override;
   };
 

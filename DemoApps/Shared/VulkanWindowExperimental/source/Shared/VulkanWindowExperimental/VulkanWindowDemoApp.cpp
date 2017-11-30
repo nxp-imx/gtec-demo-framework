@@ -36,7 +36,7 @@
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
-#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslUtil/Vulkan1_0/Misc/PhysicalDeviceFeatureUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>

@@ -42,6 +42,7 @@ namespace Fsl
     ADemoHost(const DemoHostConfig& demoHostConfig);
     ~ADemoHost();
 
+    virtual void OnConstructed() override {};
     virtual void OnActivate() override {};
     virtual void OnDeactivate() override {};
     virtual void OnSuspend() override {};

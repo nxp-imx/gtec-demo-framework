@@ -34,6 +34,8 @@
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
+#include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
+#include <vector>
 
 namespace Fsl
 {
@@ -41,15 +43,34 @@ namespace Fsl
   class PlatformNativeWindowWin32 : public PlatformNativeWindow
   {
     std::shared_ptr<DPIHelperWin32> m_dpiHelper;
+    std::vector<uint8_t> m_rawInputScratchpad;
+    VirtualMouseButtonFlags m_rawMouseButtonFlags;
     Point2 m_cachedDPIValue;
+    bool m_mouseCaptureEnabled;
+    bool m_mouseInternalCaptureEnabled;
+    bool m_mouseIsCaptured;
+    bool m_mouseCursorIsClipped;
+    bool m_mouseHideCursorEnabled;
+    bool m_mouseIsCursorHidden;
   public:
     PlatformNativeWindowWin32(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams);
     virtual ~PlatformNativeWindowWin32();
 
     virtual bool TryGetDPI(Vector2& rDPI) const override;
     virtual bool TryGetSize(Point2& rSize) const override;
+    virtual bool TryCaptureMouse(const bool enableCapture) override;
 
     void OnDPIChanged(const Point2& value);
+
+    void OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const LPARAM lParam);
+    void OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const Point2& position);
+    void OnWindowCaptureChanged(const HWND newCaptureHwnd);
+
+    void SYS_SetMouseCapture(const bool enableCapture);
+
+    void ResolveMouseCapture();
+    void ResolveMouseCursorClip();
+    void ResolveMouseCursorVisible();
   };
 }
 

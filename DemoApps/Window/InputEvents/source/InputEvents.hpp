@@ -49,6 +49,7 @@ namespace Fsl
     virtual void OnMouseButtonEvent(const MouseButtonEvent& event);
     virtual void OnMouseMoveEvent(const MouseMoveEvent& event);
     virtual void OnMouseWheelEvent(const MouseWheelEvent& event);
+    virtual void OnRawMouseMoveEvent(const RawMouseMoveEvent& event);
   protected:
     virtual void Update(const DemoTime& demoTime) override;
     virtual void Draw(const DemoTime& demoTime) override;

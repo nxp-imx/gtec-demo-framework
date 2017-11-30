@@ -36,17 +36,45 @@
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
 #include <FslBase/Attributes.hpp>
-#include <FslBase/Noncopyable.hpp>
 
 namespace Fsl
 {
   namespace GLES3
   {
-
-    class GLVertexArray : private Noncopyable
+    class GLVertexArray
     {
       GLuint m_handle;
     public:
+      GLVertexArray(const GLVertexArray&) = delete;
+      GLVertexArray& operator=(const GLVertexArray&) = delete;
+
+      //! @brief Move assignment operator
+      GLVertexArray& operator=(GLVertexArray&& other)
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          if (IsValid())
+            Reset();
+
+          // Claim ownership here
+          m_handle = other.m_handle;
+
+          // Remove the data from other
+          other.m_handle = GLValues::INVALID_HANDLE;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLVertexArray(GLVertexArray&& other)
+        : m_handle(other.m_handle)
+      {
+        // Remove the data from other
+        other.m_handle = GLValues::INVALID_HANDLE;
+      }
+
       //! @brief Create a uninitialized VertexArray
       GLVertexArray();
 

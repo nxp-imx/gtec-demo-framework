@@ -366,6 +366,12 @@ class XmlGenFile(XmlCommonFslBuild):
         for platform in list(self.Platforms.values()):
             platformNameDict = copy.copy(nameDict)
             self.__ValidateNames(platformNameDict, platform.DirectDependencies, errorMsg)
+
+        errorMsg = "ExternalDependency defined multiple times '%s'"
+        nameDict.clear()
+        self.__ValidateNames(nameDict, self.ExternalDependencies, errorMsg)
+        for platform in list(self.Platforms.values()):
+            platformNameDict = copy.copy(nameDict)
             self.__ValidateNames(platformNameDict, platform.ExternalDependencies, errorMsg)
 
 

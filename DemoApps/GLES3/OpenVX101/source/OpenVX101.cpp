@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -30,6 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include "OpenVX101.hpp"
+#include <FslBase/Log/Log.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
@@ -40,6 +41,7 @@
 #include <GLES3/gl3.h>
 #include <VX/vx.h>
 #include <VX/vxu.h>
+#include <cmath>
 
 namespace Fsl
 {
@@ -57,8 +59,9 @@ namespace Fsl
 
       vx_rectangle_t imageRect = { 0, 0, imageWidth, imageHeight };
       vx_imagepatch_addressing_t imageInfo = VX_IMAGEPATCH_ADDR_INIT;
+      vx_map_id mapId;
       void* pImageAddress = nullptr;
-      RAPIDOPENVX_CHECK(vxAccessImagePatch(rImage.Get(), &imageRect, 0, &imageInfo, &pImageAddress, VX_WRITE_ONLY));
+      RAPIDOPENVX_CHECK(vxMapImagePatch(rImage.Get(), &imageRect, 0, &mapId, &imageInfo, &pImageAddress, VX_WRITE_ONLY, VX_MEMORY_TYPE_HOST, 0));
 
       if ((1 != imageInfo.step_y) || (1 != imageInfo.step_x) || (imageHeight != imageInfo.dim_y) || (imageWidth != imageInfo.dim_x))
         throw std::runtime_error("vx procedure error");
@@ -80,7 +83,7 @@ namespace Fsl
         }
       }
 
-      RAPIDOPENVX_CHECK(vxCommitImagePatch(rImage.Get(), &imageRect, 0, &imageInfo, pImageAddress));
+      RAPIDOPENVX_CHECK(vxUnmapImagePatch(rImage.Get(), mapId));
     }
 
 
@@ -95,10 +98,12 @@ namespace Fsl
       // transfer image from gpu to cpu
       vx_imagepatch_addressing_t imageInfo1 = VX_IMAGEPATCH_ADDR_INIT;
       vx_imagepatch_addressing_t imageInfo2 = VX_IMAGEPATCH_ADDR_INIT;
+      vx_map_id mapId1;
+      vx_map_id mapId2;
       void* pImageAddress1 = nullptr;
       void* pImageAddress2 = nullptr;
-      RAPIDOPENVX_CHECK(vxAccessImagePatch(srcImage1.Get(), &imageRect, 0, &imageInfo1, &pImageAddress1, VX_READ_ONLY));
-      RAPIDOPENVX_CHECK(vxAccessImagePatch(srcImage2.Get(), &imageRect, 0, &imageInfo2, &pImageAddress2, VX_READ_ONLY));
+      RAPIDOPENVX_CHECK(vxMapImagePatch(srcImage1.Get(), &imageRect, 0, &mapId1, &imageInfo1, &pImageAddress1, VX_READ_ONLY, VX_MEMORY_TYPE_HOST, 0));
+      RAPIDOPENVX_CHECK(vxMapImagePatch(srcImage2.Get(), &imageRect, 0, &mapId2, &imageInfo2, &pImageAddress2, VX_READ_ONLY, VX_MEMORY_TYPE_HOST, 0));
 
       if ((imageInfo2.dim_y != imageInfo1.dim_y) || (imageInfo2.dim_x != imageInfo1.dim_x) ||
           (imageInfo2.step_y != imageInfo1.step_y) || (imageInfo2.step_x != imageInfo1.step_x) ||
@@ -129,8 +134,8 @@ namespace Fsl
         }
       }
 
-      RAPIDOPENVX_CHECK(vxCommitImagePatch(srcImage1.Get(), nullptr, 0, &imageInfo1, pImageAddress1));
-      RAPIDOPENVX_CHECK(vxCommitImagePatch(srcImage2.Get(), nullptr, 0, &imageInfo2, pImageAddress2));
+      RAPIDOPENVX_CHECK(vxUnmapImagePatch(srcImage1.Get(), mapId1));
+      RAPIDOPENVX_CHECK(vxUnmapImagePatch(srcImage2.Get(), mapId2));
     }
 
 

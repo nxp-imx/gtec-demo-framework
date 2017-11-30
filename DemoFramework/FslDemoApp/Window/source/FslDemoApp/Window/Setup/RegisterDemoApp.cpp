@@ -35,7 +35,7 @@
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
-#include <FslDemoHost/Window/Service/WindowHost/WindowHostServiceFactory.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Window/WindowDemoHostSetup.hpp>
 #include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>

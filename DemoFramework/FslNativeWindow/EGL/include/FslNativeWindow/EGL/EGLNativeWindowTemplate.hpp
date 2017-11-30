@@ -68,6 +68,10 @@ namespace Fsl
       return TNativeWindow::TryGetSize(rSize);
     }
 
+    virtual bool TryCaptureMouse(const bool enableCapture) override
+    {
+      return TNativeWindow::TryCaptureMouse(enableCapture);
+    }
   };
 }
 

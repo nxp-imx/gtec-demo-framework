@@ -30,6 +30,9 @@
 ****************************************************************************************************************************************************/
 
 #include <FslUtil/EGL/EGLStringUtil.hpp>
+#include <FslUtil/EGL/EGLCheck.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
+#include <FslBase/String/StringUtil.hpp>
 #include <sstream>
 #include <iomanip>
 
@@ -126,5 +129,17 @@ namespace Fsl
       sstream << std::hex << std::setfill('0') << std::setw(4) << value;
       return sstream.str();
     }
+  }
+
+
+  std::vector<std::string> EGLStringUtil::GetExtensions(const EGLDisplay display)
+  {
+    const auto pszExtensions = eglQueryString(display, EGL_EXTENSIONS);
+    EGL_CHECK_FOR_ERROR();
+    if (pszExtensions == nullptr)
+      throw std::runtime_error("Failed to retrieve EGL extensions");
+
+    const std::string strExtensions(pszExtensions);
+    return StringUtil::Split(strExtensions, ' ', true);
   }
 }

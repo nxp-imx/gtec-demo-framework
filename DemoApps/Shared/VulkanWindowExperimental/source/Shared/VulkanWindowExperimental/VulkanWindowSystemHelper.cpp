@@ -30,7 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
-#include <FslDemoHost/Window/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 
 namespace Fsl
 {

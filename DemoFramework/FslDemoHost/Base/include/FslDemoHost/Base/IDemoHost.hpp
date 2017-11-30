@@ -43,6 +43,8 @@ namespace Fsl
     virtual ~IDemoHost() {};
 
 
+    //! @brief Called just after the demo host have been constructed to allow it to do a bit of post processing on a valid host object
+    virtual void OnConstructed() = 0;
     //! @brief Called when the demo host is activated (the currently active host)
     virtual void OnActivate() = 0;
     //! @brief Called when the demo host is deactivated

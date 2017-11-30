@@ -212,7 +212,7 @@ class GeneratorPluginWindows(GeneratorPlugin):
         #if self.Name != PackageConfig.PlatformNameString.WINDOWS:
         #    self.__PatchVisualStudioPackageIds(config, packageLoader, packageResolver)
 
-        if platformContext.RecipePathBuilder is None or platformContext.RecipePathBuilder.InstallRootPath is None:
+        if platformContext.RecipePathBuilder is None:
             raise Exception("Invalid package")
 
         activeThirdPartyLibsDir = platformContext.RecipePathBuilder.InstallRootPath

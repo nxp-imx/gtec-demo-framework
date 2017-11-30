@@ -33,6 +33,8 @@
 
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
 #include <FslDemoApp/Base/Host/ConfigControl.hpp>
+#include <FslDemoApp/Base/Host/ExtensionRequestRecord.hpp>
+#include <deque>
 
 namespace Fsl
 {
@@ -43,6 +45,7 @@ namespace Fsl
     ConfigControl m_configControl;
     bool m_isMinimumMinorVersionSet;
     int32_t m_minimumMiniorVersion;
+    std::deque<ExtensionRequestRecord> m_extensionRequests;
   public:
     DemoAppHostConfigEGL(const int32_t* pEglConfigAttribs, const ConfigControl configControl = Fsl::ConfigControl::Default);
 
@@ -52,6 +55,17 @@ namespace Fsl
     bool IsMinimumMiniorVersionSet() const;
     int32_t GetMinimumMiniorVersion() const;
     void SetMinimumMiniorVersion(const int32_t minimumLesserVersion);
+
+    //! @brief Add a extension request that the host will validate.
+    //! @note  Beware it will only check for the precense of the extension not activate it in any way.
+    void AddExtensionRequest(const ExtensionType type, const std::string& name, const ExtensionPrecense precense);
+
+    std::deque<ExtensionRequestRecord> GetExtensionRequests() const
+    {
+      return m_extensionRequests;
+    }
+
+    void ExtractExtensionRequests(std::deque<ExtensionRequestRecord>& rTarget, const ExtensionType extensionType);
   };
 }
 

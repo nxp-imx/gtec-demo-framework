@@ -1,7 +1,7 @@
-#ifndef FSLDEMOHOST_WINDOW_SERVICE_WINDOWHOST_WINDOWHOSTSERVICEFACTORY_HPP
-#define FSLDEMOHOST_WINDOW_SERVICE_WINDOWHOST_WINDOWHOSTSERVICEFACTORY_HPP
+#ifndef FSLDEMOAPP_BASE_HOST_EXTENSIONREQUESTRECORD_HPP
+#define FSLDEMOAPP_BASE_HOST_EXTENSIONREQUESTRECORD_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,26 +31,32 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+#include <FslDemoApp/Base/Host/ExtensionType.hpp>
+#include <FslDemoApp/Base/Host/ExtensionPrecense.hpp>
+#include <string>
 
 namespace Fsl
 {
-  class WindowHostServiceFactory : public IThreadLocalSingletonServiceFactory
+  struct ExtensionRequestRecord
   {
-  public:
-    WindowHostServiceFactory();
+    ExtensionType Type;
+    std::string Name;
+    ExtensionPrecense Precense;
 
-    virtual std::shared_ptr<AServiceOptionParser> GetOptionParser() const
+    ExtensionRequestRecord()
+      : Type(ExtensionType::Invalid)
+      , Name()
+      , Precense(ExtensionPrecense::Invalid)
     {
-      return std::shared_ptr<AServiceOptionParser>();
     }
 
-    virtual ServiceCaps::Flags GetFlags() const;
-    virtual void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const;
-    virtual std::shared_ptr<IService> Allocate(ServiceProvider& provider);
+    ExtensionRequestRecord(const ExtensionType& type, const std::string& name, const ExtensionPrecense& precense)
+      : Type(type)
+      , Name(name)
+      , Precense(precense)
+    {
+    }
   };
-
-
 }
 
 #endif

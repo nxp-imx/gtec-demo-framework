@@ -50,6 +50,16 @@ namespace Fsl
       GLenum m_target;
       uint32_t m_elementStride;
     public:
+      GLBufferArray(const GLBufferArray&) = delete;
+      GLBufferArray& operator=(const GLBufferArray&) = delete;
+
+      //! @brief Move assignment operator
+      GLBufferArray& operator=(GLBufferArray&& other);
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLBufferArray(GLBufferArray&& other);
+
       //! @brief Create a empty buffer array
       GLBufferArray();
 
@@ -58,6 +68,11 @@ namespace Fsl
       GLBufferArray(const std::size_t capacity, const GLenum target, const uint32_t elementStride);
 
       ~GLBufferArray();
+
+      bool IsValid() const
+      {
+        return m_target != 0;
+      }
 
       GLenum GetTarget() const
       {

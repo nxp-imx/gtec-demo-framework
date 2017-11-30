@@ -36,6 +36,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
@@ -123,6 +124,7 @@ namespace Fsl
       inline void EnableAttribArray(const std::vector<GLVertexElement>& vertexElement, const std::size_t elementIndex, const GLuint attribIndex, const uint32_t vertexStride)
       {
         assert(elementIndex < vertexElement.size());
+
         glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized, vertexStride, vertexElement[elementIndex].Pointer);
         glEnableVertexAttribArray(attribIndex);
         // if this is a matrix element we need to enable the rest of the components
@@ -159,6 +161,7 @@ namespace Fsl
       inline void EnableAttribPointer(const std::vector<GLVertexElement>& vertexElement, const uint32_t elementIndex, const GLuint attribIndex, const uint32_t vertexStride)
       {
         assert(elementIndex < vertexElement.size());
+
         glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized, vertexStride, vertexElement[elementIndex].Pointer);
         // if this is a matrix element we need to enable the rest of the components
         if (vertexElement[elementIndex].Source.Format == VertexElementFormat::Matrix4x4)
@@ -173,6 +176,34 @@ namespace Fsl
       }
 
 
+    }
+
+
+    GLVertexBufferArray& GLVertexBufferArray::operator=(GLVertexBufferArray&& other)
+    {
+      if (this != &other)
+      {
+        GLBufferArray::operator=(std::move(other));
+
+        // Claim ownership here
+        m_vertexElements = std::move(other.m_vertexElements);
+        m_originalVertexElementCount = other.m_originalVertexElementCount;
+
+        // Remove the data from other
+        other.m_originalVertexElementCount = 0;
+      }
+      return *this;
+    }
+
+    //! @brief Move constructor
+    //! Transfer ownership from other to this
+    GLVertexBufferArray::GLVertexBufferArray(GLVertexBufferArray&& other)
+      : GLBufferArray(std::move(other))
+      , m_vertexElements(std::move(other.m_vertexElements))
+      , m_originalVertexElementCount(other.m_originalVertexElementCount)
+    {
+      // Remove the data from other
+      other.m_originalVertexElementCount = 0;
     }
 
 

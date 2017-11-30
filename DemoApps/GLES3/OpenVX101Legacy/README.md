@@ -1,5 +1,5 @@
 <!-- #AG_DEMOAPP_HEADER_BEGIN# -->
-# OpenVX101
+# OpenVX101Legacy
 <img src="./Example.jpg" height="135px" style="float:right">
 
 <!-- #AG_DEMOAPP_HEADER_END# -->

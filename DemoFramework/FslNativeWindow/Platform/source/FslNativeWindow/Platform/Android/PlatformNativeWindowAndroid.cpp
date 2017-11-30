@@ -39,6 +39,7 @@
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Math/Rectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <iostream>

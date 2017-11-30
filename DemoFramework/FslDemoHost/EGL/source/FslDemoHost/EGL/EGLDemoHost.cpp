@@ -33,6 +33,7 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoHost/Base/Service/Image/IImageServiceControl.hpp>
 #include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfoControl.hpp>
 #include <FslDemoHost/EGL/EGLDemoHost.hpp>
 #include <FslDemoHost/EGL/EGLDemoHostOptionParser.hpp>
 #include <FslNativeWindow/EGL/EGLNativeWindowSystemFactory.hpp>
@@ -298,6 +299,40 @@ namespace Fsl
       }
     }
 
+    void DoCheckExtensions(const EGLDisplay display, const std::deque<ExtensionRequestRecord>& extensionRequests)
+    {
+      const auto extensions = EGLStringUtil::GetExtensions(display);
+      for (const auto& request : extensionRequests)
+      {
+        if (request.Type == ExtensionType::EGL && std::find(extensions.begin(), extensions.end(), request.Name) == extensions.end())
+        {
+          // Request not found, lets check how severe it is
+          switch (request.Precense)
+          {
+          case ExtensionPrecense::Mandatory:
+            throw std::runtime_error(std::string("Required EGL extension '") + request.Name + "' not found");
+          case ExtensionPrecense::Optional:
+            FSLLOG_DEBUG("Optional EGL extension '" << request.Name << "' not available.");
+            break;
+          default:
+            throw NotSupportedException("Unsupported ExtensionPrecense");
+          }
+        }
+      }
+    }
+
+
+    void DoLogExtensions(const EGLDisplay display)
+    {
+      const auto extensions = EGLStringUtil::GetExtensions(display);
+      FSLLOG("EGL Extensions");
+      for (const auto& entry : extensions)
+      {
+        FSLLOG("- " << entry);
+      }
+    }
+
+
     void DoLogConfig(const std::vector<EGLint>& finalConfigAttribs)
     {
       // start at 1 so that the size check is simpler
@@ -412,6 +447,7 @@ namespace Fsl
     , m_nativeWindowSetup()
     , m_windowSystem()
     , m_window()
+    , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
     , m_hostService(demoHostConfig.GetServiceProvider().Get<EGLHostService>())
     , m_hDisplay(EGL_NO_DISPLAY)
     , m_hSurface(EGL_NO_SURFACE)
@@ -424,16 +460,24 @@ namespace Fsl
     , m_enableGLES(false)
     , m_enableVG(false)
     , m_logSelectedConfig(false)
+    , m_logExtensions(false)
+    , m_apiInit(false)
     , m_activeApi(DemoHostFeatureName::OpenGLES, 0)
   {
-    const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
+    const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), m_demoHostConfig.GetVerbosityLevel(),
+                                                          m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
+
     m_windowSystem = EGLNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
+    // Set the window system in the host service so that any services or app that is interested will be able to access it
+    m_windowHostInfoControl->SetWindowSystem(m_windowSystem);
 
     const DemoHostAppSetup hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
     // Retrieve the custom config
     const auto appHostConfig = hostAppSetup.GetDemoAppHostConfig<DemoAppHostConfigEGL>();
 
     m_configControl = appHostConfig->GetConfigControl();
+
+    m_extensionRequests = appHostConfig->GetExtensionRequests();
 
     // Check that its a OpenGLES demo app
     m_featureConfig = ExamineFeatureRequest(hostAppSetup.DemoHostFeatures);
@@ -465,12 +509,11 @@ namespace Fsl
       DoLogConfig(m_finalConfigAttribs);
       m_logSelectedConfig = true;
     }
+    m_logExtensions = m_options->IsLogExtensionsEnabled();
 
     // Prepare the native window setup
-    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(), m_options->GetNativeWindowConfig()));
-
-    // Prepare everything
-    Init();
+    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
+                                                    m_options->GetNativeWindowConfig(), m_demoHostConfig.GetVerbosityLevel()));
   }
 
 
@@ -478,6 +521,7 @@ namespace Fsl
   {
     try
     {
+      m_windowHostInfoControl->ClearWindowSystem();
       LOCAL_LOG("Destroying");
       Shutdown();
       LOCAL_LOG("Destroyed");
@@ -487,6 +531,13 @@ namespace Fsl
       FSLLOG_ERROR("EGLDemoHost destructor can not throw so aborting. " << ex.what())
       std::abort();
     }
+  }
+
+
+  void EGLDemoHost::OnConstructed()
+  {
+    // Prepare everything
+    Init();
   }
 
 
@@ -568,6 +619,10 @@ namespace Fsl
 
       // Create the main surface and context
       InitSurfaceAndContext();
+
+      //! Give extending classes a chance to react
+      m_apiInit = true;
+      OnAPIInitialized();
     }
     catch (const std::exception&)
     {
@@ -581,6 +636,14 @@ namespace Fsl
   void EGLDemoHost::Shutdown()
   {
     LOCAL_LOG("Shutdown");
+
+    // Give extending classes a chance to react
+    if (m_apiInit)
+    {
+      m_apiInit = false;
+      OnAPIShutdown();
+    }
+
     ShutdownSurfaceAndContext();
     ShutdownEGL();
   }
@@ -627,12 +690,18 @@ namespace Fsl
 
       if (m_logSelectedConfig)
         DoLogConfigComparison(m_hDisplay, m_hConfig, m_finalConfigAttribs);
+      if (m_logExtensions)
+        DoLogExtensions(m_hDisplay);
+
+      // Do EGL extension check
+      DoCheckExtensions(m_hDisplay, m_extensionRequests);
 
       LOCAL_LOG("Creating native window");
 
       // Prepare the native window
       const NativeEGLSetup nativeEglSetup(hDisplay, m_hDisplay, m_hConfig);
       m_window = m_windowSystem->CreateNativeWindow(*m_nativeWindowSetup, nativeEglSetup);
+      m_windowHostInfoControl->AddWindow(m_window);
     }
     catch (const std::exception&)
     {
@@ -779,6 +848,7 @@ namespace Fsl
       LOCAL_LOG("Destroying window");
       m_hostService->SetDisplay(EGL_NO_DISPLAY);
       // Release the native window
+      m_windowHostInfoControl->RemoveWindow(m_window);
       m_window.reset();
 
       m_hConfig = EMPTY_VALUE_EGLCONFIG;

@@ -54,6 +54,12 @@ class FileUnpack(object):
 
 
     @staticmethod
+    def UnpackTarBz2File(srcPath: str, dstPath: str) -> None:
+        with tarfile.open(srcPath, "r:bz2") as archive:
+            archive.extractall(dstPath)
+
+
+    @staticmethod
     def UnpackFile(filename: str, dstPath: str) -> None:
         fileNameId = filename.lower()
         if fileNameId.endswith(".zip"):
@@ -62,5 +68,7 @@ class FileUnpack(object):
             FileUnpack.UnpackTarFile(filename, dstPath)
         elif fileNameId.endswith(".tar.gz") or fileNameId.endswith(".tgz"):
             FileUnpack.UnpackTarGZFile(filename, dstPath)
+        elif fileNameId.endswith(".tar.bz2"):
+            FileUnpack.UnpackTarBz2File(filename, dstPath)
         else:
             raise Exception("Unsupported archive format '{0}'".format(filename))

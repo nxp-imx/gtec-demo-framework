@@ -41,6 +41,7 @@ from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen import Util
 from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageLanguage
@@ -94,7 +95,7 @@ class LocalMagicBuildVariantOption:
 
 
 class GeneratorVC(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], platformName: str, vsVersion: int, activeThirdPartyLibsDir: str) -> None:
+    def __init__(self, config: Config, packages: List[Package], platformName: str, vsVersion: int, activeThirdPartyLibsDir: Optional[str]) -> None:
         super(GeneratorVC, self).__init__()
         self.__ActiveThirdPartyLibsDir = activeThirdPartyLibsDir
 
@@ -237,7 +238,7 @@ class GeneratorVC(GeneratorBase):
         addConfigs = ""
         buildNuGetPackageConfigFile = None
         if package.PackageLanguage == PackageLanguage.CSharp:
-            assemblyReferences = self.__GetAssemblyReferences(config, package, template.AssemblyReferenceSimple, template.AssemblyReferenceComplex)
+            assemblyReferences = self.__GetAssemblyReferences(config, package, template.AssemblyReferenceSimple, template.AssemblyReferenceComplex, template.AssemblyReferenceComplex_Private)
             build = build.replace("##ADD_ASSEMBLY_REFERENCES##", assemblyReferences)
             buildNuGetPackageConfigFile = self.__TryGenerateNuGetPackageConfig(config, package, template.NuGetPackageConfig)
             if buildNuGetPackageConfigFile is not None:
@@ -953,11 +954,20 @@ class GeneratorVC(GeneratorBase):
 
     def __GetExternalAssemblyDependencies(self, package: Package) -> List[PackageExternalDependency]:
         externalAssemblyDeps = Util.FilterByType(package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
-        for entry in package.ResolvedDirectDependencies:
-            if entry.Package.IsVirtual:
+
+        for entry in package.ResolvedAllDependencies:
+            if entry.Package.IsVirtual and entry.Access == AccessType.Public:
                 externalList = Util.FilterByType(entry.Package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
                 externalAssemblyDeps += externalList
-        return externalAssemblyDeps
+
+        for entry in package.ResolvedDirectDependencies:
+            if entry.Package.IsVirtual and entry.Access != AccessType.Public:
+                externalList = Util.FilterByType(entry.Package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
+                externalAssemblyDeps += externalList
+
+        uniqueEntries = {entry.Name: entry for entry in externalAssemblyDeps}
+
+        return list(uniqueEntries.values())
 
 
     def __GetAssemblyName(self, entry: PackageExternalDependency) -> str:
@@ -973,15 +983,16 @@ class GeneratorVC(GeneratorBase):
         return name
 
 
-    def __GetAssemblyReferences(self, config: Config, package: Package, snippetSimple: Optional[str], snippetComplex: Optional[str]) -> str:
+    def __GetAssemblyReferences(self, config: Config, package: Package, snippetSimple: Optional[str], snippetComplex: Optional[str], snippetComplexPrivate: Optional[str]) -> str:
         assemblyList = self.__GetExternalAssemblyDependencies(package)  # type: List[PackageExternalDependency]
         if len(assemblyList) <= 0:
             return ""
-        if snippetSimple is None or snippetComplex is None:
+        if snippetSimple is None or snippetComplex is None or snippetComplexPrivate is None:
             raise Exception("We have external assembly refernces but no valid code snippet to insert.")
 
         result = ""
         for entry in assemblyList:
+            strPrivate = "" if entry.Access == AccessType.Public else snippetComplexPrivate
             content = "\n"
             if entry.HintPath is not None:
                 content += snippetComplex
@@ -989,6 +1000,7 @@ class GeneratorVC(GeneratorBase):
             else:
                 content += snippetSimple
             content = content.replace("##PACKAGE_DEPENDENCY_INCLUDE##", self.__GetAssemblyName(entry))
+            content = content.replace("##PACKAGE_DEPENDENCY_PRIVATE##", strPrivate)
             result += content
         return result
 

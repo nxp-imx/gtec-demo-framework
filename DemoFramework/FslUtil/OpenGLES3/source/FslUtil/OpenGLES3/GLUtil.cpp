@@ -31,6 +31,7 @@
 
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslBase/String/StringUtil.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
@@ -43,6 +44,17 @@ namespace Fsl
 {
   namespace GLES3
   {
+    std::vector<std::string> GLUtil::GetExtensions()
+    {
+      const char* pszExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+      if (pszExtensions == nullptr)
+      {
+        GL_CHECK_FOR_ERROR();
+        throw std::runtime_error("Failed to retrieve extension list");
+      }
+      return StringUtil::Split(pszExtensions, ' ', true);
+    }
+
 
     bool GLUtil::HasExtension(const char*const pszExtensionName)
     {
@@ -53,16 +65,26 @@ namespace Fsl
       if (pszExtensions == nullptr)
         return false;
 
-      const char* pszCharLocation = strstr(pszExtensions, pszExtensionName);
-      if (pszCharLocation == nullptr)
-        return false;
+      const auto lenExtensionName = strlen(pszExtensionName);
 
-      if (pszCharLocation != pszExtensions && *(pszCharLocation - 1) == ' ')
-        return false;
+      const char* pszCurrentLocation = pszExtensions;
+      while (pszCurrentLocation != nullptr)
+      {
+        const char* pszCharLocation = strstr(pszCurrentLocation, pszExtensionName);
+        if (pszCharLocation == nullptr)
+          return false;
 
-      auto len = strlen(pszExtensionName);
-      const char endChar = *(pszCharLocation + len);
-      return (endChar == ' ' || endChar == 0);
+        // If this isn't the first entry, then the previous character must be a space
+        if (pszCharLocation == pszExtensions || *(pszCharLocation - 1) == ' ')
+        {
+          const char endChar = *(pszCharLocation + lenExtensionName);
+          if (endChar == ' ' || endChar == 0)
+            return true;
+        }
+        // Not a exact match -> so exit
+        pszCurrentLocation = pszCharLocation + 1;
+      }
+      return false;
     }
 
     // This works for ES3+, but has shown itself to be less reliable than the old way of checking

@@ -38,6 +38,7 @@
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Math/Rectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <X11/extensions/Xrandr.h>
@@ -541,10 +542,12 @@ namespace Fsl
 
     if (nativeWindowConfig.GetWindowMode() != WindowMode::Window)
     {
-      windowWidth  = windowATTR.width ;
+      windowWidth  = windowATTR.width;
       windowHeight = windowATTR.height;
       windowX = 0;
       windowY = 0;
+
+      FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowX11: Creating fullscreen window: {X = " << windowX << " Y = " << windowY << " Width = " << windowWidth << " Height = " << windowHeight << "}");
     }
     else
     {
@@ -553,6 +556,8 @@ namespace Fsl
       windowHeight = windowRectangle.Height();
       windowX = windowRectangle.X();
       windowY = windowRectangle.Y();
+
+      FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowX11: Creating window: " << windowRectangle);
     }
 
     m_colormap = XCreateColormap(m_platformDisplay, rootwindow, m_pVisual->visual, AllocNone);

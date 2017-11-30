@@ -37,6 +37,8 @@
 #include <FslGraphics/PrimitiveType.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <GLES3/gl3.h>
+#include <string>
+#include <vector>
 
 namespace Fsl
 {
@@ -47,6 +49,8 @@ namespace Fsl
     class GLUtil
     {
     public:
+      //! @brief Get a list of all extensions
+      static std::vector<std::string> GetExtensions();
 
       //! @brief Check if the given OpenGLES extension is available
       //! @note Do not expect mind blowing performance from this!

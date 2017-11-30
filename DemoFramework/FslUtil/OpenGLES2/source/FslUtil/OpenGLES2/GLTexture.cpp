@@ -154,14 +154,20 @@ namespace Fsl
     }
 
 
-    GLTexture::GLTexture(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX,
+                         const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
+                         const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ,
+                         const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
       : GLTexture()
     {
       Reset(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ, textureParameters, textureFlags);
     }
 
 
-    GLTexture::GLTexture(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY, const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX,
+                         const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
+                         const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ,
+                         const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
       : GLTexture()
     {
       Reset(RawCubeBitmap(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ), textureParameters, textureFlags);
@@ -233,14 +239,20 @@ namespace Fsl
     }
 
 
-    void GLTexture::Reset(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX,
+                          const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
+                          const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ,
+                          const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
     {
       Reset();
       SetData(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ, textureParameters, textureFlags);
     }
 
 
-    void GLTexture::Reset(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY, const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX,
+                          const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
+                          const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ,
+                          const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
     {
       Reset();
       SetData(RawCubeBitmap(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ), textureParameters, textureFlags);
@@ -330,7 +342,10 @@ namespace Fsl
     }
 
 
-    void GLTexture::SetData(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX,
+                            const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
+                            const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ,
+                            const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
     {
       RawBitmap rawBitmapPosX, rawBitmapNegX, rawBitmapPosY, rawBitmapNegY, rawBitmapPosZ, rawBitmapNegZ;
       Bitmap::ScopedDirectAccess scopedAccessXP(bitmapPosX, rawBitmapPosX);
@@ -343,7 +358,10 @@ namespace Fsl
     }
 
 
-    void GLTexture::SetData(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY, const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX,
+                            const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
+                            const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ,
+                            const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
     {
       SetData(RawCubeBitmap(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ), textureParameters, textureFlags);
     }

@@ -38,25 +38,6 @@ namespace Fsl
 {
   namespace GLES2
   {
-    GLTextureParameters::GLTextureParameters()
-      : MinFilter(GL_NEAREST)
-      , MagFilter(GL_NEAREST)
-      , WrapS(GL_REPEAT)
-      , WrapT(GL_REPEAT)
-    {
-    }
-
-
-    GLTextureParameters::GLTextureParameters(const GLenum minFilter, const GLenum magFilter, const GLenum wrapS, const GLenum wrapT)
-      : MinFilter(minFilter)
-      , MagFilter(magFilter)
-      , WrapS(wrapS)
-      , WrapT(wrapT)
-    {
-      assert(IsValid());
-    }
-
-
     bool GLTextureParameters::IsValid() const
     {
       const bool b1 = (MinFilter == GL_NEAREST || MinFilter == GL_LINEAR || MinFilter == GL_NEAREST_MIPMAP_NEAREST ||

@@ -29,32 +29,52 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Window/Service/WindowHost/WindowHostServiceFactory.hpp>
-#include "WindowHostService.hpp"
+#include <FslUtil/OpenGLES3/DebugStrings.hpp>
 
 namespace Fsl
 {
-  WindowHostServiceFactory::WindowHostServiceFactory()
+  namespace GLES3
   {
+    namespace Debug
+    {
+      extern const char* ErrorCodeToString(const GLenum errorCode)
+      {
+        switch (errorCode)
+        {
+        case GL_NO_ERROR:
+          return "GL_NO_ERROR";
+        case GL_INVALID_ENUM:
+          return "GL_INVALID_ENUM";
+        case GL_INVALID_VALUE:
+          return "GL_INVALID_VALUE";
+        case GL_INVALID_OPERATION:
+          return "GL_INVALID_OPERATION";
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+          return "GL_INVALID_FRAMEBUFFER_OPERATION";
+        case GL_OUT_OF_MEMORY:
+          return "GL_OUT_OF_MEMORY";
+
+        // Other useful enum values
+        case GL_FRAMEBUFFER_COMPLETE:
+          return "GL_FRAMEBUFFER_COMPLETE";
+        case GL_FRAMEBUFFER_UNDEFINED:
+          return "GL_FRAMEBUFFER_UNDEFINED";
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+          return "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+          return "GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+          return "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+        case GL_FRAMEBUFFER_UNSUPPORTED:
+          return "GL_FRAMEBUFFER_UNSUPPORTED";
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+          return "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+        default:
+          return "Unknown";
+        }
+      }
+
+    };
 
   }
-
-  ServiceCaps::Flags WindowHostServiceFactory::GetFlags() const
-  {
-    return ServiceCaps::Default;
-  }
-
-
-  void WindowHostServiceFactory::FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const
-  {
-    rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(WindowHostService)));
-    rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(IWindowHostInfo)));
-  }
-
-
-  std::shared_ptr<IService> WindowHostServiceFactory::Allocate(ServiceProvider& provider)
-  {
-    return std::make_shared<WindowHostService>(provider);
-  }
-
 }

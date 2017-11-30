@@ -127,8 +127,7 @@ def _LoadPackageConfigurations(basicConfig: BasicConfig, projectElem: ET.Element
         # if no locations has been supplied then we assume the root folder of the project file
         #if entry.Name == 'default' and len(entry.Locations) <= 0:
         if len(entry.Locations) <= 0:
-            xmlConfigPackageLocation = XmlConfigPackageLocation(basicConfig, FakeXmlElementFactory.Create("FakeElement"))
-            xmlConfigPackageLocation.Name = MagicStrings.ProjectRoot
+            xmlConfigPackageLocation = XmlConfigPackageLocation(basicConfig, FakeXmlElementFactory.CreateWithName("PackageLocation", MagicStrings.ProjectRoot))
             entry.Locations = [xmlConfigPackageLocation]
     return xmlPackageConfigurations
 

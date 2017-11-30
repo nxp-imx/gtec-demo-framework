@@ -56,12 +56,12 @@ namespace Fsl
     {
       std::size_t Convert(const std::streamoff value)
       {
-        return static_cast<size_t>(value);
+        return static_cast<std::size_t>(value);
       }
 
-      std::size_t ConvertInt64(const int64_t value)
+      std::size_t Convert(const uint64_t value)
       {
-        return static_cast<size_t>(value);
+        return static_cast<std::size_t>(value);
       }
 
 
@@ -188,7 +188,7 @@ namespace Fsl
     }
 
 
-    int64_t File::GetLength(const Path& path)
+    uint64_t File::GetLength(const Path& path)
     {
       std::ifstream file(PATH_GET_NAME(path), std::ios::ate | std::ios::binary);
       if (!file.good())
@@ -219,15 +219,13 @@ namespace Fsl
     }
 
 
-    int64_t File::ReadAllBytes(void* pDstArray, const int64_t cbDstArray, const Path& path)
+    uint64_t File::ReadAllBytes(void* pDstArray, const uint64_t cbDstArray, const Path& path)
     {
       if (pDstArray == nullptr)
         throw std::invalid_argument("pDstArray can not be null");
-      if (cbDstArray < 0)
-        throw std::invalid_argument("cbDstArray can not be negative");
 
 
-      const std::size_t cbDstArrayEx = ConvertInt64(cbDstArray);
+      const std::size_t cbDstArrayEx = Convert(cbDstArray);
 
       try
       {
@@ -259,15 +257,10 @@ namespace Fsl
     }
 
 
-    void File::ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& path, const int64_t fileOffset, const int64_t bytesToRead)
+    void File::ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& path, const uint64_t fileOffset, const uint64_t bytesToRead)
     {
-      if (fileOffset < 0 )
-        throw std::invalid_argument("fileOffset can not be negative");
-      if (bytesToRead < 0)
-        throw std::invalid_argument("bytesToRead can not be negative");
-
-      const std::size_t fileOffsetEx = ConvertInt64(fileOffset);
-      const std::size_t bytesToReadEx = ConvertInt64(bytesToRead);
+      const std::size_t fileOffsetEx = Convert(fileOffset);
+      const std::size_t bytesToReadEx = Convert(bytesToRead);
 
       try
       {
@@ -291,18 +284,10 @@ namespace Fsl
     }
 
 
-    int64_t File::ReadBytes(void* pDstArray, const int64_t cbDstArray, const int64_t dstStartIndex, const IO::Path& path, const int64_t fileOffset, const int64_t bytesToRead)
+    uint64_t File::ReadBytes(void* pDstArray, const uint64_t cbDstArray, const uint64_t dstStartIndex, const IO::Path& path, const uint64_t fileOffset, const uint64_t bytesToRead)
     {
       if (pDstArray == nullptr)
         throw std::invalid_argument("pDstArray can not be null");
-      if (cbDstArray < 0)
-        throw std::invalid_argument("cbDstArray can not be negative");
-      if (dstStartIndex < 0)
-        throw std::invalid_argument("dstStartIndex can not be negative");
-      if (fileOffset < 0)
-        throw std::invalid_argument("fileOffset can not be negative");
-      if (bytesToRead < 0)
-        throw std::invalid_argument("bytesToRead can not be negative");
 
       if (dstStartIndex > cbDstArray && !(dstStartIndex == 0 && cbDstArray == 0))
         throw std::invalid_argument("dstStartIndex can not greater or equal to cbDstArray");
@@ -310,8 +295,8 @@ namespace Fsl
       if (bytesToRead > (cbDstArray - dstStartIndex) )
         throw std::invalid_argument("the requested number of bytes can not fit in the supplied dstArray at the given location");
 
-      const std::size_t fileOffsetEx = ConvertInt64(fileOffset);
-      const std::size_t bytesToReadEx = ConvertInt64(bytesToRead);
+      const std::size_t fileOffsetEx = Convert(fileOffset);
+      const std::size_t bytesToReadEx = Convert(bytesToRead);
 
       try
       {

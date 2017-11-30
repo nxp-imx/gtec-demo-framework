@@ -34,6 +34,7 @@
 #include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfoControl.hpp>
 #include <FslDemoHost/Window/WindowDemoHost.hpp>
 #include <FslDemoHost/Window/WindowDemoHostOptionParser.hpp>
 #include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
@@ -45,7 +46,6 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "Service/WindowHost/WindowHostService.hpp"
 
 #if 0
 #define LOCAL_LOG(X) FSLLOG("VulkanDemoHost: " << X)
@@ -67,7 +67,7 @@ namespace Fsl
     , m_isActivated(true)
     , m_activeApi(DemoHostFeatureName::Window, 0)
     , m_options(demoHostConfig.GetOptions<WindowDemoHostOptionParser>())
-    , m_windowHostService(demoHostConfig.GetServiceProvider().Get<WindowHostService>())
+    , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
     , m_nativeWindowSetup()
     , m_customWindowSystem()
     , m_windowSystem()
@@ -81,19 +81,21 @@ namespace Fsl
 
 
     // Prepare the native window setup
-    const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
+    const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), demoHostConfig.GetVerbosityLevel(),
+                                                          m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
 
     if (customWindowSystemAllocator)
     {
-      const DemoHostCustomWindowSystemSetup customSetup(demoHostConfig.GetServiceProvider(), nativeWindowSystemSetup, demoAppHostConfigWindow->TryGetCustomDemoAppHostConfigBase());
+      const DemoHostCustomWindowSystemSetup customSetup(demoHostConfig.GetServiceProvider(), nativeWindowSystemSetup,
+                                                        demoAppHostConfigWindow->TryGetCustomDemoAppHostConfigBase());
       m_customWindowSystem = customWindowSystemAllocator(customSetup);
       m_windowSystem = m_customWindowSystem;
     }
     if (!m_windowSystem)
       m_windowSystem = PlatformNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
 
-    // Set the window system in the host service so that the app will be able to get access to it
-    m_windowHostService->SetWindowSystem(m_windowSystem);
+    // Set the window system in the host service so that any services or app that is interested will be able to access it
+    m_windowHostInfoControl->SetWindowSystem(m_windowSystem);
 
 
     const DemoHostAppSetup hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
@@ -102,13 +104,15 @@ namespace Fsl
 
     m_activeApi = hostAppSetup.DemoHostFeatures->front();
 
-    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(), m_options->GetNativeWindowConfig()));
+    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
+                                                    m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel()));
     Init();
   }
 
 
   WindowDemoHost::~WindowDemoHost()
   {
+    m_windowHostInfoControl->ClearWindowSystem();
     Shutdown();
   }
 
@@ -186,7 +190,7 @@ namespace Fsl
     try
     {
       m_window = m_windowSystem->CreateNativeWindow(*m_nativeWindowSetup);
-      m_windowHostService->AddWindow(m_window);
+      m_windowHostInfoControl->AddWindow(m_window);
     }
     catch (const std::exception&)
     {
@@ -200,6 +204,7 @@ namespace Fsl
   void WindowDemoHost::Shutdown()
   {
     LOCAL_LOG("Shutdown");
+    m_windowHostInfoControl->RemoveWindow(m_window);
     m_window.reset();
   }
 

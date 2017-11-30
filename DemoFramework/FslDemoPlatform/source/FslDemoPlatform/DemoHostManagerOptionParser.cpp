@@ -33,6 +33,7 @@
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/IO/Path.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <iostream>
@@ -298,7 +299,7 @@ namespace Fsl
       IO::Path path(pszOptArg);
       if (IO::Path::GetFileName(path) != path)
       {
-        FSLLOG_ERROR("The prefix can only contain a filename prefix, not a path '" << path.ToUTF8String() << "'");
+        FSLLOG_ERROR("The prefix can only contain a filename prefix, not a path '" << path << "'");
         return OptionParseResult::Failed;
       }
       m_screenshotConfig.FilenamePrefix = path.ToUTF8String();

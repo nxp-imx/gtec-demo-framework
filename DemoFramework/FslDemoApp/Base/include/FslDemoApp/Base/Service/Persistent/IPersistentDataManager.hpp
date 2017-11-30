@@ -56,7 +56,7 @@ namespace Fsl
 
     //! @brief Get the length of the persistent file.
     //! @throws IOException if the file isn't found.
-    virtual int32_t GetLength(const IO::Path& relativePath) const = 0;
+    virtual uint64_t GetLength(const IO::Path& relativePath) const = 0;
 
     //! @brief Read the entire content of the given file into a string.
     //! @param relativePath the relative path to load the content from
@@ -78,7 +78,7 @@ namespace Fsl
     //!        (the path is expected to be relative and will be concatenated with the GetPersistentDataPath automatically)
     //! @return the number of bytes that was read.
     //! @throws IOException if the file isn't found or something goes wrong reading it.
-    virtual int32_t ReadAllBytes(void* pDstArray, const int32_t cbDstArray, const IO::Path& relativePath) const = 0;
+    virtual uint64_t ReadAllBytes(void* pDstArray, const uint64_t cbDstArray, const IO::Path& relativePath) const = 0;
 
     //! @brief Read the requested content of the given file into a binary array.
     //! @param rTargetArray the array to load the content into. The array will be resized to fit the file content
@@ -87,7 +87,7 @@ namespace Fsl
     //! @param fileOffset the offset from the beginning of the file where the read should occur (if less than zero or greater than the length of the file this throws a exception)
     //! @param bytesToRead the number of bytes to read (if the end of file is encountered the read operation will fail with a exception)
     //! @throws IOException if the file isn't found or something goes wrong reading it.
-    virtual void ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const int32_t fileOffset, const int32_t bytesToRead) const = 0;
+    virtual void ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const = 0;
 
     //! @brief Read the entire content of the given file into a binary array.
     //! @param pDstArray the array to load the content into (if == nullptr a exception will be thrown)
@@ -99,7 +99,7 @@ namespace Fsl
     //! @param bytesToRead the number of bytes to read (if the end of file is encountered the read operation will fail with a exception)
     //! @return the number of bytes that was read.
     //! @throws IOException if the file isn't found or something goes wrong reading it.
-    virtual int32_t ReadBytes(void* pDstArray, const int32_t cbDstArray, const int32_t dstStartIndex, const IO::Path& relativePath, const int32_t fileOffset, const int32_t bytesToRead) const = 0;
+    virtual uint64_t ReadBytes(void* pDstArray, const uint64_t cbDstArray, const uint64_t dstStartIndex, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const = 0;
 
     //! @brief Read the content of the file as a bitmap.
     //! @param relativePath the relative path to load the content from
@@ -163,7 +163,7 @@ namespace Fsl
     //! @param pContent the array to write to a file. (if == nullptr a exception will be thrown)
     //! @param cbContent the size of the pContent array in bytes.
     //! @throws IOException if the file isn't found or something goes wrong writing it.
-    //virtual void WriteFile(const IO::Path& relativePath, const void*const pContent, const int32_t cbContent) = 0;
+    //virtual void WriteFile(const IO::Path& relativePath, const void*const pContent, const uint64_t cbContent) = 0;
 
     //! @brief Try to read the entire content of the given file into a string.
     //! @param relativePath the relative path to load the content from

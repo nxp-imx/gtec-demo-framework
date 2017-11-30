@@ -39,6 +39,8 @@ namespace Fsl
 {
   class IEventPoster;
   class IDemoPlatformControl;
+  class IWindowHostInfo;
+  class INativeWindow;
 
   class DemoAppControlService
     : public ThreadLocalService
@@ -46,6 +48,7 @@ namespace Fsl
   {
     std::shared_ptr<IEventPoster> m_eventPoster;
     std::shared_ptr<IDemoPlatformControl> m_platformControl;
+    std::shared_ptr<IWindowHostInfo> m_windowHostInfo;
     int m_defaultExitCode;
     bool m_hasScreenshotRequest;
     bool m_hasAppRestartResetRequest;
@@ -53,6 +56,7 @@ namespace Fsl
     mutable bool m_hasExitRequest;
     int m_exitCode;
     TimeStepMode m_timestepMode;
+    bool m_captureModeEnabled;
   public:
     DemoAppControlService(const ServiceProvider& serviceProvider, const int defaultExitCode);
     ~DemoAppControlService();
@@ -72,6 +76,9 @@ namespace Fsl
     virtual int GetExitCode() const override;
     virtual void SetTimeStepMode(const TimeStepMode timeStepMode) override;
     virtual TimeStepMode GetTimeStepMode() const override;
+    virtual bool TryEnableMouseCaptureMode(const bool enabled) override;
+    virtual void EnableMouseCaptureMode(const bool enabled) override;
+    virtual bool GetMouseCaptureMode() override;
 
     // From IDemoAppControlServiceEx
     virtual void ClearScreenshotRequestRequest() override;

@@ -314,8 +314,8 @@ class PackageResolver(object):
             if not package.IsVirtual:
                 sourceContent = self.__ProcesssContentCommandFile(basicConfig, package)
 
-                package.ResolvedBuildContentFiles = self.__ResolveContent(sourceContent.ContentSourceFiles)
-                package.ResolvedBuildContentSourceFiles = self.__ResolveContent(sourceContent.ContentBuildSourceFiles)
+                package.ResolvedBuildContentFiles = self.__ResolveContent(sourceContent.ContentSource.Files)
+                package.ResolvedBuildContentSourceFiles = self.__ResolveContent(sourceContent.ContentBuildSource.Files)
 
             else:
                 package.ResolvedBuildContentFiles = []
@@ -328,7 +328,7 @@ class PackageResolver(object):
         pathVariables = PathVariables(config, package.AbsoluteBuildPath, package.AbsoluteContentSourcePath, package.AbsoluteContentPath)
         commandFilename = IOUtil.Join(package.AbsoluteContentSourcePath, "Content.json")
         commands = ContentBuildCommandFile(config, commandFilename, pathVariables)
-        return SourceContent(config, package.AbsoluteContentPath, package.AbsoluteContentSourcePath, commands)
+        return SourceContent(config, package.AbsoluteContentPath, package.AbsoluteContentSourcePath, commands, True)
 
 
     def __ResolveContent(self, files: List[PathRecord]) -> List[str]:

@@ -35,12 +35,18 @@
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
-#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoHost/EGL/Service/EGLHost/EGLHostServiceFactory.hpp>
+#include <FslDemoHost/OpenGLES2/DemoHostSetupOpenGLES2.hpp>
 #include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+#include <FslUtil/EGL/Exceptions.hpp>
+#include <FslUtil/EGL/DebugStrings.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/DebugStrings.hpp>
+#include <sstream>
 
 namespace Fsl
 {
@@ -51,11 +57,52 @@ namespace Fsl
       // Use the EGLDemoHost for OpenGLES
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
       eglHostFeatures.push_back(DemoHostFeatureName::OpenGLES);
-      rSetup.TheHostRegistry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
+      rSetup.TheHostRegistry.Register(eglHostFeatures, DemoHostSetupOpenGLES2::Get());
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<GLES2::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<EGLHostServiceFactory>(ServicePriorityList::EGLHostService());
+      rSetup.TheServiceRegistry.Register<WindowHostServiceFactory>(ServicePriorityList::WindowHostService());
 
       return DemoHostFeature(DemoHostFeatureName::OpenGLES, DemoHostFeatureUtil::EncodeOpenGLESVersion(2));
+    }
+
+    inline bool TryFormatGLESGraphicsException(const std::exception& ex, std::string& rMessage)
+    {
+      auto pException = dynamic_cast<const GLES2::GLESGraphicsException*>(&ex);
+      if (pException == nullptr)
+      {
+        rMessage = std::string();
+        return false;
+      }
+
+      const auto errorCode = pException->GetError();
+      std::stringstream stream;
+      stream << pException->what() << " failed with error code " << GLES2::Debug::ErrorCodeToString(static_cast<GLenum>(errorCode)) << " (" << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
+      rMessage = stream.str();
+      return true;
+    }
+
+
+    inline bool TryFormatEGLGraphicsException(const std::exception& ex, std::string& rMessage)
+    {
+      auto pException = dynamic_cast<const EGLGraphicsException*>(&ex);
+      if (pException == nullptr)
+      {
+        rMessage = std::string();
+        return false;
+      }
+
+      const auto errorCode = pException->GetError();
+      std::stringstream stream;
+      stream << pException->what() << " failed with error code " << EGL::Debug::ErrorCodeToString(static_cast<EGLenum>(errorCode)) << " (" << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
+      rMessage = stream.str();
+      return true;
+    }
+
+    bool TryFormatException(const std::exception& ex, std::string& rMessage)
+    {
+      if (TryFormatGLESGraphicsException(ex, rMessage))
+        return true;
+      return TryFormatEGLGraphicsException(ex, rMessage);
     }
   }
 
@@ -65,6 +112,9 @@ namespace Fsl
     {
       void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig)
       {
+        // Register a formatter for common OpenGLES2 exceptions (from the libs we utilize)
+        rSetup.CustomExceptionFormatter.Add(TryFormatException);
+
         const DemoHostFeature feature = CommenSetup(rSetup);
         rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, demoHostEGLConfig);
       }

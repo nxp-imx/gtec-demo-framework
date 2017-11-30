@@ -44,7 +44,7 @@
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
-
+#include <utility>
 
 namespace Fsl
 {
@@ -54,16 +54,25 @@ namespace Fsl
   {
     std::shared_ptr<AtlasFont> PrepareDefaultFont(const std::shared_ptr<IContentManager>& contentManager, const std::shared_ptr<INativeGraphics> nativeGraphics, const UTF8String& fontName, BasicTextureAtlas& rFontAtlas)
     {
-      const std::string strFontname = fontName.ToUTF8String();
-      const std::string strFontnameAtlas = strFontname + ".bta";
-      const std::string strFontnameKerning = strFontname + ".fbk";
-      const std::string strFontnameTexture = strFontname + ".png";
+      const auto defaultPath = "UI";
+      const auto strFontname = fontName.ToUTF8String();
+      IO::Path pathFontnameAtlas(strFontname + ".bta");
+      IO::Path pathFontnameKerning(strFontname + ".fbk");
+      IO::Path pathFontnameTexture(strFontname + ".png");
+
+      IO::Path tempPath = IO::Path::Combine(defaultPath, pathFontnameAtlas);
+      if (contentManager->Exists(tempPath))
+      {
+        pathFontnameAtlas = std::move(tempPath);
+        pathFontnameKerning = IO::Path::Combine(defaultPath, pathFontnameKerning);
+        pathFontnameTexture = IO::Path::Combine(defaultPath, pathFontnameTexture);
+      }
 
       BasicFontKerning fontKerning;
       Bitmap fontBitmap;
-      contentManager->Read(rFontAtlas, strFontnameAtlas);
-      contentManager->Read(fontKerning, strFontnameKerning);
-      contentManager->Read(fontBitmap, strFontnameTexture, PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(rFontAtlas, pathFontnameAtlas);
+      contentManager->Read(fontKerning, pathFontnameKerning);
+      contentManager->Read(fontBitmap, pathFontnameTexture, PixelFormat::R8G8B8A8_UNORM);
 
       // Prepare the texture
       Texture2D atlasTexture(nativeGraphics, fontBitmap, Texture2DFilterHint::Smooth);
@@ -128,8 +137,9 @@ namespace Fsl
   }
 
 
-  void UIDemoAppExtension::Update(const DemoTime& demoTime)
+  void UIDemoAppExtension::PostUpdate(const DemoTime& demoTime)
   {
+    // We call the UIManager in post update to allow the app to modify the UI in its update method
     m_uiManager.Update(demoTime);
   }
 

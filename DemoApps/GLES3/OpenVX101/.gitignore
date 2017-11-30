@@ -18,10 +18,5 @@ GLES3.OpenVX101.v12.suo
 GLES3.OpenVX101.vcxproj
 GLES3.OpenVX101.vcxproj.filters
 GLES3.OpenVX101.vcxproj.user
-GNUmakefile
-GNUmakefile_Yocto
-OpenVX101_FB
-OpenVX101_Wayland
-OpenVX101_X11
 build/
 resource.h

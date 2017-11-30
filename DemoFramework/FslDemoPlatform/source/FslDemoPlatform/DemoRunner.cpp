@@ -189,7 +189,15 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG("ERROR: demo setup failed with: " << ex.what());
+        std::string message;
+        if (rExceptionMessageFormatter.TryFormatException(ex, message))
+        {
+          FSLLOG("ERROR: " << message);
+        }
+        else
+        {
+          FSLLOG("ERROR: demo setup failed with: " << ex.what());
+        }
         return EXIT_FAILURE;
       }
       catch (...)

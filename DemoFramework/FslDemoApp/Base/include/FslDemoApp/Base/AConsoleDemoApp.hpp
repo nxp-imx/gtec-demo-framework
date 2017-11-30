@@ -63,6 +63,7 @@ namespace Fsl
     virtual void _PreUpdate(const DemoTime& demoTime) override;
     virtual void _FixedUpdate(const DemoTime& demoTime) override;
     virtual void _Update(const DemoTime& demoTime) override;
+    virtual void _PostUpdate(const DemoTime& demoTime) override;
     virtual void _Draw(const DemoTime& demoTime) override;
   protected:
     virtual void Run() {};

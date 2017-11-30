@@ -114,6 +114,21 @@ namespace Fsl
       }
     };
 
+    struct PredMethodOnRawMouseMoveEvent
+    {
+      const RawMouseMoveEvent& m_rParam0;
+      PredMethodOnRawMouseMoveEvent(const RawMouseMoveEvent& rParam0)
+        : m_rParam0(rParam0)
+      {
+      }
+
+      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
+      {
+        assert(value);
+        value->OnRawMouseMoveEvent(m_rParam0);
+      }
+    };
+
     struct PredMethodOnTimeStateEvent
     {
       const TimeStateEvent& m_rParam0;
@@ -139,6 +154,18 @@ namespace Fsl
       }
     };
 
+    struct PredMethodPreUpdate
+    {
+      DemoTime m_param0;
+      PredMethodPreUpdate(const DemoTime& param0) : m_param0(param0) {}
+
+      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
+      {
+        assert(value);
+        value->PreUpdate(m_param0);
+      }
+    };
+
     struct PredMethodFixedUpdate
     {
       DemoTime m_param0;
@@ -160,6 +187,18 @@ namespace Fsl
       {
         assert(value);
         value->Update(m_param0);
+      }
+    };
+
+    struct PredMethodPostUpdate
+    {
+      DemoTime m_param0;
+      PredMethodPostUpdate(const DemoTime& param0) : m_param0(param0) {}
+
+      inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
+      {
+        assert(value);
+        value->PostUpdate(m_param0);
       }
     };
 
@@ -281,6 +320,14 @@ namespace Fsl
         OnMouseWheelEvent(mouseEvent);
         break;
       }
+      case EventType::RawMouseMove:
+      {
+        RawMouseMoveEvent mouseEvent(*pBasicEvent);
+        // Call all registered extensions
+        CallExtensions(m_extensions, PredMethodOnRawMouseMoveEvent(mouseEvent));
+        OnRawMouseMoveEvent(mouseEvent);
+        break;
+      }
       case EventType::TimeState:
       {
         TimeStateEvent timeStateEvent(*pBasicEvent);
@@ -313,7 +360,7 @@ namespace Fsl
   void ADemoApp::_PreUpdate(const DemoTime& demoTime)
   {
     // Call all registered extensions
-    //CallExtensions(m_extensions, PredMethodPreUpdate(demoTime));
+    CallExtensions(m_extensions, PredMethodPreUpdate(demoTime));
 
     // Done this way to prevent common mistakes where people forget to call the base class
     PreUpdate(demoTime);
@@ -336,6 +383,18 @@ namespace Fsl
 
     // Done this way to prevent common mistakes where people forget to call the base class
     Update(demoTime);
+  }
+
+
+  void ADemoApp::_PostUpdate(const DemoTime& demoTime)
+  {
+    // Done this way to prevent common mistakes where people forget to call the base class
+    PostUpdate(demoTime);
+
+    // Here we call the extensions after the app, which allows for example a UI extension to do things after the app has finished
+
+    // Call all registered extensions
+    CallExtensions(m_extensions, PredMethodPostUpdate(demoTime));
   }
 
 

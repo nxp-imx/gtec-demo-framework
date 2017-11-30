@@ -32,6 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/BasicLogger.hpp>
 #include <FslNativeWindow/Base/NativeWindowConfig.hpp>
 #include <string>
 
@@ -44,8 +45,10 @@ namespace Fsl
     std::string m_applicationName;
     std::weak_ptr<INativeWindowEventQueue> m_eventQueue;
     NativeWindowConfig m_config;
+    uint32_t m_verbosityLevel;
   public:
-    NativeWindowSetup(const std::string& applicationName, const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const NativeWindowConfig& config);
+    NativeWindowSetup(const std::string& applicationName, const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const NativeWindowConfig& config,
+                      const uint32_t verbosityLevel);
     ~NativeWindowSetup();
 
     //! @brief Get the event queue if present
@@ -57,6 +60,11 @@ namespace Fsl
     const std::string& GetApplicationName() const
     {
       return m_applicationName;
+    }
+
+    uint32_t GetVerbosityLevel() const
+    {
+      return m_verbosityLevel;
     }
   };
 

@@ -63,6 +63,10 @@ namespace Fsl
       return PlatformNativeWindowWayland::TryGetSize(rSize);
     }
 
+    virtual bool TryCaptureMouse(const bool enableCapture) override
+    {
+      return PlatformNativeWindowWayland::TryCaptureMouse(enableCapture);
+    }
 
     virtual PlatformNativeWindowType GetWindowType() const override;
   };

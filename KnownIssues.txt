@@ -35,6 +35,7 @@ OpenCL
 OpenVX
 ------
 - Early access. Everything is subject to changes.
+- Windows and Ubuntu uses the Khronos OpenVX 1.1 sample implementation.
 - Limited platform support
 
 

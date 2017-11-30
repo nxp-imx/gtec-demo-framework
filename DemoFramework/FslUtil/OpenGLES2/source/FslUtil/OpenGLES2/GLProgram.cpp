@@ -152,6 +152,12 @@ namespace Fsl
     }
 
 
+    GLProgram::GLProgram(const GLuint handle)
+      : m_handle(handle)
+    {
+    }
+
+
     GLProgram::GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader, const std::deque<std::string>& attributes)
       : m_handle(Build(vertexShader, fragmentShader, attributes))
     {
@@ -195,6 +201,13 @@ namespace Fsl
         glDeleteProgram(m_handle);
         m_handle = GLValues::INVALID_HANDLE;
       }
+    }
+
+
+    void GLProgram::Reset(GLuint handle)
+    {
+      Reset();
+      m_handle = handle;
     }
 
 

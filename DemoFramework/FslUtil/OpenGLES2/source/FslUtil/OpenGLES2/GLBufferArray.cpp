@@ -35,11 +35,45 @@
 #include <FslUtil/OpenGLES2/GLBufferArray.hpp>
 
 #include <algorithm>
+#include <cassert>
+#include <utility>
 
 namespace Fsl
 {
   namespace GLES2
   {
+    GLBufferArray& GLBufferArray::operator=(GLBufferArray&& other)
+    {
+      if (this != &other)
+      {
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        if (IsValid())
+          Reset();
+
+        // Claim ownership here
+        m_array = std::move(other.m_array);
+        m_target = other.m_target;
+        m_elementStride = other.m_elementStride;
+
+        // Remove the data from other
+        other.m_target = 0;
+        other.m_elementStride = 0;
+      }
+      return *this;
+    }
+
+
+    GLBufferArray::GLBufferArray(GLBufferArray&& other)
+      : m_array(other.m_array)
+      , m_target(other.m_target)
+      , m_elementStride(other.m_elementStride)
+    {
+      // Remove the data from other
+      other.m_target = 0;
+      other.m_elementStride = 0;
+    }
+
+
     GLBufferArray::GLBufferArray()
       : m_array()
       , m_target(0)
@@ -174,6 +208,8 @@ namespace Fsl
 
     void GLBufferArray::DoResize(const std::size_t capacity, const GLenum target, const uint32_t elementStride)
     {
+      assert(target != 0);
+
       if (capacity != m_array.size())
       {
         if (m_array.size() < capacity)

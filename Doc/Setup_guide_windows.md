@@ -174,30 +174,3 @@ Building OpenVX demo framework apps
 3. Run `FslBuildGen.py` to regenerate the project files.   
 4. Start the project
 
-
-AMD SDK Setup
--------------
-1. Make sure you have cmake 
-
-   You can get it here: https://cmake.org/download/
-2. [Amd (AMD APP SDK 3.0)](http://developer.amd.com/amd-accelerated-parallel-processing-app-sdk/)
-3. Make sure your OPENCV_DIR environment variable points to the OpenCV 3.2 build directory
-    ```bash
-    set OPENCV_DIR=c:\sdk\OpenCV-3.2\build
-    ```
-4. Download the AMD OpenVX sdk code
-    ```bash
-    git clone https://github.com/GPUOpen-ProfessionalCompute-Libraries/amdovx-core.git
-    ```
-5. Make sure that OpenVX finds the AMD OpenCL implementation and the OpenCV directory
-    ```bash
-    cmake-gui.exe 
-    ```
-   Point it to the cmake directory you cloned the OpenVX files to then use the 'advanced' checkbox to see the make environment
-6. Generate the build files for Visual Studio 12 (2013) (x86) using cmake
-7. Open the `%FSL_AMD_OPENVX_PATH%\openvx.sln` project file and 
-   build the release version of OpenVX.
-   - If you dont have a supported AMD gpu set the build flag ENABLE_OPENCL=0 before you build!
-8 Copy the build files into the correct locations under %FSL_GRAPHICS_SDK%\ThirdParty\Precompiled\amdovx-core-0.9-beta1
-9. Do the normal setup
-10. You can now build OpenVX apps

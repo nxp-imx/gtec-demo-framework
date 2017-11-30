@@ -36,8 +36,7 @@
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLShader.hpp>
 #include <FslBase/Attributes.hpp>
-#include <FslBase/Noncopyable.hpp>
-#include <GLES3/gl3.h>
+#include <GLES2/gl2.h>
 #include <deque>
 #include <functional>
 #include <string>
@@ -46,10 +45,40 @@ namespace Fsl
 {
   namespace GLES3
   {
-    class GLProgram : private Noncopyable
+    class GLProgram
     {
       GLuint m_handle;
     public:
+      GLProgram(const GLProgram&) = delete;
+      GLProgram& operator=(const GLProgram&) = delete;
+
+      //! @brief Move assignment operator
+      GLProgram& operator=(GLProgram&& other)
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          if (IsValid())
+            Reset();
+
+          // Claim ownership here
+          m_handle = other.m_handle;
+
+          // Remove the data from other
+          other.m_handle = GLValues::INVALID_HANDLE;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLProgram(GLProgram&& other)
+        : m_handle(other.m_handle)
+      {
+        // Remove the data from other
+        other.m_handle = GLValues::INVALID_HANDLE;
+      }
+
       //! @brief Create a uninitialized program, use Reset to configure it
       GLProgram();
 

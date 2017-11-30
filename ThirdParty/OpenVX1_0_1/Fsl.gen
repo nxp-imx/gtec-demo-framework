@@ -8,8 +8,5 @@
     
     <Dependency Name="OpenVX"/>
     <Define Name="FSL_FEATURE_OPENVX1_0_1" Access="Public"/>
-
-    <Platform Name="Ubuntu" Supported="false"/>
-    <Platform Name="Windows" Supported="true"/>
   </ExternalLibrary>
 </FslBuildGen>

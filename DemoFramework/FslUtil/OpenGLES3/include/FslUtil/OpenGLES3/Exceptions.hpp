@@ -42,20 +42,60 @@ namespace Fsl
     class GLESGraphicsException : public GraphicsException
     {
       int m_error;
-      std::string m_file;
-      int m_line;
+      std::string m_filename;
+      int m_lineNumber;
     public:
-      GLESGraphicsException(const std::string& str, int error, const char*const pszFile, const int line)
+      explicit GLESGraphicsException(const std::string& str)
+        : GraphicsException(str)
+        , m_filename()
+        , m_lineNumber(0)
+      {
+      }
+
+      GLESGraphicsException(const std::string& str, int error)
         : GraphicsException(str)
         , m_error(error)
-        , m_file(pszFile)
-        , m_line(line)
+        , m_filename()
+        , m_lineNumber(0)
+      {
+      }
+
+      GLESGraphicsException(const std::string& str, int error, const char*const pszFilename, const int line)
+        : GraphicsException(str)
+        , m_error(error)
+        , m_filename(pszFilename)
+        , m_lineNumber(line)
+      {
+      }
+
+      GLESGraphicsException(const std::string& str, int error, const std::string& filename, const int line)
+        : GraphicsException(str)
+        , m_error(error)
+        , m_filename(filename)
+        , m_lineNumber(line)
       {
       }
 
       virtual ~GLESGraphicsException() throw()
       {
       }
+
+      int GetError() const
+      {
+        return m_error;
+      }
+
+
+      const std::string& GetFilename() const
+      {
+        return m_filename;
+      }
+
+      int GetLineNumber() const
+      {
+        return m_lineNumber;
+      }
+
     };
   }
 }

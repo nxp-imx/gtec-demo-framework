@@ -119,6 +119,7 @@ def TocEntryName(line: str) -> str:
 def TocEntryLink(line: str) -> str:
     line = line.strip()
     line = line.replace(' ', '-')
+    line = line.lower()
     return line
 
 

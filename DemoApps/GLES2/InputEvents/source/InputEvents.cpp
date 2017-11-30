@@ -114,6 +114,16 @@ namespace Fsl
   }
 
 
+  void InputEvents::OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
+  {
+    std::stringstream stream;
+    stream << "OnRawMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y;
+    auto str = stream.str();
+    FSLLOG(str);
+    m_console.push_back(str);
+  }
+
+
   void InputEvents::Update(const DemoTime& demoTime)
   {
     UpdateGamepadStates();

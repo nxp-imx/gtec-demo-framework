@@ -36,7 +36,6 @@
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl31.h>
 #include <FslBase/Attributes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <string>
 
 namespace Fsl
@@ -45,10 +44,40 @@ namespace Fsl
   {
     class GLShaderProgram;
 
-    class GLProgramPipeline : private Noncopyable
+    class GLProgramPipeline
     {
       GLuint m_handle;
     public:
+      GLProgramPipeline(const GLProgramPipeline&) = delete;
+      GLProgramPipeline& operator=(const GLProgramPipeline&) = delete;
+
+      //! @brief Move assignment operator
+      GLProgramPipeline& operator=(GLProgramPipeline&& other)
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          if (IsValid())
+            Reset();
+
+          // Claim ownership here
+          m_handle = other.m_handle;
+
+          // Remove the data from other
+          other.m_handle = GLValues::INVALID_HANDLE;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      GLProgramPipeline(GLProgramPipeline&& other)
+        : m_handle(other.m_handle)
+      {
+        // Remove the data from other
+        other.m_handle = GLValues::INVALID_HANDLE;
+      }
+
       //! @brief Reset to a uninitialized state.
       GLProgramPipeline();
       //! @brief Reset to a initialized state.

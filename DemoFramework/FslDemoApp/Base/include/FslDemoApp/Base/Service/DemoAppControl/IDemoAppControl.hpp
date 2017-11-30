@@ -69,6 +69,19 @@ namespace Fsl
 
     virtual void SetTimeStepMode(const TimeStepMode timeStepMode) = 0;
     virtual TimeStepMode GetTimeStepMode() const = 0;
+
+    //! @brief Enable enable/disable mouse capture
+    //! @return true if the set succeeded, false if it failed
+    //! @note  When mouse capture is enabled the mouse pointer is also hidden automatically.
+    virtual bool TryEnableMouseCaptureMode(const bool enabled) = 0;
+
+    //! @brief Enable enable/disable mouse capture
+    //! @note  When mouse capture is enabled the mouse pointer is also hidden automatically.
+    //! @throws NotSupportedException if mouse capture is unsupported on this platform.
+    virtual void EnableMouseCaptureMode(const bool enabled) = 0;
+
+    //! @return true if mouse capture is enabled else false
+    virtual bool GetMouseCaptureMode() = 0;
   };
 }
 

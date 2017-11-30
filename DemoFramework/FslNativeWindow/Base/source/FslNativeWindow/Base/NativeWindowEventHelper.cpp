@@ -151,6 +151,23 @@ namespace Fsl
   }
 
 
+  NativeWindowEvent NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& buttonFlags)
+  {
+    const int32_t arg1 = position.X;
+    const int32_t arg2 = position.Y;
+    const int32_t arg3 = EncodeVirtualMouseButtonFlags(buttonFlags);
+    return NativeWindowEvent(NativeWindowEventType::InputRawMouseMove, arg1, arg2, arg3);
+  }
+
+
+  void NativeWindowEventHelper::DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags)
+  {
+    assert(event.Type == NativeWindowEventType::InputRawMouseMove);
+    rPosition = Point2(event.Arg1, event.Arg2);
+    rFlags = DecodeVirtualMouseButtonFlags(event.Arg3);
+  }
+
+
   int32_t NativeWindowEventHelper::EncodePosition(const Point2& position)
   {
     if (position.X < std::numeric_limits<int16_t>::min() || position.X > std::numeric_limits<int16_t>::max())

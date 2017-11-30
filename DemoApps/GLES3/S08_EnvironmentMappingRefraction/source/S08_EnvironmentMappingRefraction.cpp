@@ -69,8 +69,8 @@ namespace Fsl
     {
       Texture tex;
       content->Read(tex, "cubemap.dds", PixelFormat::R8G8B8_UNORM);
-      GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
-      m_cubeTexture.Reset(tex, params, TextureFlags::GenerateMipMaps);
+      GLTextureParameters3 params(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+      m_cubeTexture.Reset(tex, params);
     }
 
     // Prepare the shader programs

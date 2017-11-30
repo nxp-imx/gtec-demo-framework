@@ -114,6 +114,11 @@ namespace Fsl
           rPixelFormat = PixelFormat::R8G8B8_UINT;
           return true;
         }
+        else if (format.Type == IL_HALF)
+        {
+          rPixelFormat = PixelFormat::R16G16B16_SFLOAT;
+          return true;
+        }
         else if(format.Type == IL_FLOAT)
         {
           rPixelFormat = PixelFormat::R32G32B32_SFLOAT;
@@ -217,10 +222,12 @@ namespace Fsl
         return DevILPixelFormat(IL_RGB, IL_FLOAT);
       case PixelFormatLayout::R32G32B32A32:
         return DevILPixelFormat(IL_RGBA, IL_FLOAT);
+      case PixelFormatLayout::R16G16B16:
+        return DevILPixelFormat(IL_RGB, IL_HALF);
       case PixelFormatLayout::R16G16B16A16:
         return DevILPixelFormat(IL_RGBA, IL_HALF);
       default:
-        throw UnsupportedPixelFormatException(format);
+          throw UnsupportedPixelFormatException(format);
       }
     }
 

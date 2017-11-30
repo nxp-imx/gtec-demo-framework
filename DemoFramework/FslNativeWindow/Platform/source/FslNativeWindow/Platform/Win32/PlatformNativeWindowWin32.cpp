@@ -40,6 +40,7 @@
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Math/Rectangle.hpp>
 #include <FslBase/System/Platform/PlatformWin32.hpp>
 #include <algorithm>
 #include <cassert>
@@ -51,16 +52,69 @@
 #include <Winuser.h>
 #include "DPIHelperWin32.hpp"
 
+#if 0
+#define VERBOSE_LOG(X) FSLLOG(X)
+#define VERBOSE_LOG_IF(cONDITION,X) FSLLOG_IF(cONDITION, X)
+#else
+#define VERBOSE_LOG(X) {}
+#define VERBOSE_LOG_IF(cONDITION,X) {}
+#endif
+
+#ifndef HID_USAGE_PAGE_GENERIC
+#define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
+#endif
+#ifndef HID_USAGE_GENERIC_MOUSE
+#define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
+#endif
+
 namespace Fsl
 {
   namespace
   {
+    const bool USE_FORCE_ACTIVATED = true;   // For now we always force activation (meaning we dont lose deactivate on windows focus loss)
+
     inline void UpdateButton(uint32_t& rButtonFlags, const uint16_t wButtons, const uint16_t xinputFlag, const VirtualGamepadButton virtualFlag)
     {
       if ((wButtons & xinputFlag) == xinputFlag)
         rButtonFlags |= static_cast<uint32_t>(virtualFlag);
       else
         rButtonFlags &= ~static_cast<uint32_t>(virtualFlag);
+    }
+
+    inline int32_t CapValue(const long value, const char*const pszDebugHelp)
+    {
+      if (value > std::numeric_limits<int32_t>::max())
+      {
+        FSLLOG_DEBUG_WARNING("Raw input, capping " << pszDebugHelp << " value to fit in a int32_t (max)");
+        return std::numeric_limits<int32_t>::max();
+      }
+      else if (value < std::numeric_limits<int32_t>::min())
+      {
+        FSLLOG_DEBUG_WARNING("Raw input, capping " << pszDebugHelp << " value to fit in a int32_t (min)");
+        return std::numeric_limits<int32_t>::min();
+      }
+      else
+        return static_cast<int32_t>(value);
+    }
+
+    inline bool TryToScreenSpace(HWND hwnd, RECT& rRect)
+    {
+      POINT point;
+      point.x = rRect.left;
+      point.y = rRect.top;
+      if (!ClientToScreen(hwnd, &point))
+        return false;
+      rRect.left = point.x;
+      rRect.top = point.y;
+
+      point.x = rRect.right;
+      point.y = rRect.bottom;
+      if (!ClientToScreen(hwnd, &point))
+        return false;
+
+      rRect.right = point.x;
+      rRect.bottom = point.y;
+      return true;
     }
   }
 
@@ -250,29 +304,34 @@ namespace Fsl
 
     std::weak_ptr<INativeWindowEventQueue> m_eventQueue;
     bool m_forceActivated;
-    int m_activated = 0;
-    bool m_isMouseCaptured;
+    bool m_activated;
     uint32_t m_mouseButtonState;
     std::deque<WindowRecord> m_activeWindows;
   public:
 
     PlatformNativeWindowSystemWin32State(const std::weak_ptr<INativeWindowEventQueue>& eventQueue)
       : m_eventQueue(eventQueue)
-      , m_forceActivated(true)  // For now we always force activation (meaning we dont lose deactivate on windows focus loss)
-      , m_activated(0)
-      , m_isMouseCaptured(false)
+      , m_forceActivated(USE_FORCE_ACTIVATED)
+      , m_activated(false)
       , m_mouseButtonState(0)
     {
     }
 
+    void SetUseForceActivated(const bool useForceActivated)
+    {
+      m_forceActivated = useForceActivated;
+    }
 
     void AddWindow(const std::weak_ptr<PlatformNativeWindowWin32>& window)
     {
       // Garbage collect all dead windows
-      for (auto itr = m_activeWindows.begin(); itr != m_activeWindows.end(); ++itr)
+      auto itr = m_activeWindows.begin();
+      while(itr != m_activeWindows.end())
       {
         if (itr->Window.expired())
           itr = m_activeWindows.erase(itr);
+        else
+          ++itr;
       }
 
       m_activeWindows.push_back(WindowRecord(window));
@@ -320,10 +379,11 @@ namespace Fsl
       else
         m_mouseButtonState &= ~button;
 
-      if (m_mouseButtonState != 0)
-        SetCapture(hWnd);
-      else
-        ReleaseCapture();
+      auto window = TryGetWindow(hWnd);
+      if (window)
+      {
+        window->SYS_SetMouseCapture(m_mouseButtonState != 0);
+      }
       return 0;
     }
 
@@ -331,9 +391,10 @@ namespace Fsl
     LRESULT OnMouseMove(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
       const Point2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-      const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseMoveEvent(position);
-      eventQueue->PostEvent(event);
-      //FSLLOG("MOVE: X: " << position.X << " Y: " << position.Y);
+
+      auto window = TryGetWindow(hWnd);
+      if (window)
+        window->OnMouseMove(eventQueue, position);
       return 0;
     }
 
@@ -361,6 +422,18 @@ namespace Fsl
       return 0;
     }
 
+
+    void OnRawInput(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
+    {
+      if (!m_activated)
+        return;
+
+      auto window = TryGetWindow(hWnd);
+      if (window)
+        window->OnRawInput(eventQueue, lParam);
+    }
+
+
     LRESULT OnActivateMessage(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
       const int hiWord = ((wParam >> 16) & 0xFFFF);
@@ -379,12 +452,14 @@ namespace Fsl
       //  eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowSuspendEvent(false));
 
       // Ensure that we only send state changes
-      const int activated = (lowWord != 0 || m_forceActivated ? 1 : 0);
+      const bool activated = (lowWord != 0 || m_forceActivated);
       if (activated != m_activated)
       {
         m_activated = activated;
-        eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowActivationEvent(activated != 0));
+        eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowActivationEvent(activated));
       }
+
+
 
       // When the window is minimized we send the suspend message
       //if (isMinimize && lowWord == 0)
@@ -400,7 +475,6 @@ namespace Fsl
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowResizedEvent());
       return 0;
     }
-
 
     LRESULT OnDPICHanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
     {
@@ -423,6 +497,13 @@ namespace Fsl
       // Render the window contents again
       //RedrawWindow(hWnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
       return 1;
+    }
+
+    void OnWindowCaptureChanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
+    {
+      auto window = TryGetWindow(hWnd);
+      if (window)
+        window->OnWindowCaptureChanged((HWND)lParam);
     }
   };
 
@@ -469,10 +550,16 @@ namespace Fsl
             return windowSystemState->OnMouseMove(hWnd, eventQueue, wParam, lParam);
           case WM_MOUSEWHEEL:
             return windowSystemState->OnMouseWheel(hWnd, eventQueue, wParam, lParam);
+          case WM_INPUT:
+            windowSystemState->OnRawInput(hWnd, eventQueue, wParam, lParam);
+            break;
           case WM_SIZE:
             return windowSystemState->OnSize(hWnd, eventQueue, wParam, lParam);
           case WM_DPICHANGED:
             return windowSystemState->OnDPICHanged(hWnd, wParam, lParam);
+          case WM_CAPTURECHANGED:
+            windowSystemState->OnWindowCaptureChanged(hWnd, wParam, lParam);
+            break;
           case WM_QUIT:
           case WM_QUERYENDSESSION:
           default:
@@ -512,7 +599,7 @@ namespace Fsl
       {
       }
 
-      MonitorRecord(HMONITOR hMonitor, Rectangle rect)
+      MonitorRecord(HMONITOR hMonitor, const Rectangle& rect)
         : Handle(hMonitor)
         , Rect(rect)
       {
@@ -694,6 +781,14 @@ namespace Fsl
   PlatformNativeWindowWin32::PlatformNativeWindowWin32(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
     : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
     , m_dpiHelper(platformWindowParams.DpiHelper)
+    , m_rawInputScratchpad()
+    , m_rawMouseButtonFlags()
+    , m_mouseCaptureEnabled(false)
+    , m_mouseInternalCaptureEnabled(false)
+    , m_mouseIsCaptured(false)
+    , m_mouseCursorIsClipped(false)
+    , m_mouseHideCursorEnabled(false)
+    , m_mouseIsCursorHidden(false)
   {
     const NativeWindowConfig nativeWindowConfig = nativeWindowSetup.GetConfig();
     WNDCLASS wc;
@@ -723,9 +818,12 @@ namespace Fsl
 
         dwStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
         bFullscreen = true;
+
+        FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating fullscreen window: " << targetRectangle);
       }
       break;
     case WindowMode::Window:
+      FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating window: " << targetRectangle);
       break;
     default:
       FSLLOG("WARNING: Unknown window mode");
@@ -781,6 +879,16 @@ namespace Fsl
       FSLLOG_DEBUG_WARNING("Failed to cache DPI value, using default");
       m_cachedDPIValue = Point2(MAGIC_DEFAULT_DPI, MAGIC_DEFAULT_DPI);
     }
+
+    // Register for raw input
+    {
+      RAWINPUTDEVICE rid[1]{};
+      rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+      rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
+      rid[0].dwFlags = RIDEV_INPUTSINK;
+      rid[0].hwndTarget = m_platformWindow;
+      RegisterRawInputDevices(rid, 1, sizeof(RAWINPUTDEVICE));
+    }
   }
 
 
@@ -814,6 +922,26 @@ namespace Fsl
   }
 
 
+  bool PlatformNativeWindowWin32::TryCaptureMouse(const bool enableCapture)
+  {
+    if (m_mouseCaptureEnabled == enableCapture)
+      return true;
+
+    m_mouseCaptureEnabled = enableCapture;
+    m_mouseHideCursorEnabled = enableCapture;
+    VERBOSE_LOG("* CaptureMouse: " << enableCapture);
+
+    auto windowSystemState = g_windowSystemState.lock();
+    if (windowSystemState)
+      windowSystemState->SetUseForceActivated(enableCapture ? false : USE_FORCE_ACTIVATED);
+
+
+    ResolveMouseCapture();
+    return true;
+  }
+
+
+
   void PlatformNativeWindowWin32::OnDPIChanged(const Point2& value)
   {
     if (value == m_cachedDPIValue)
@@ -824,6 +952,188 @@ namespace Fsl
     auto eventQueue = TryGetEventQueue();
     if ( eventQueue )
       eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowDPIChanged());
+  }
+
+
+  void PlatformNativeWindowWin32::OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const LPARAM lParam)
+  {
+    const HRAWINPUT hRawInput = (HRAWINPUT)lParam;
+
+    UINT requiredSize;
+    if (GetRawInputData(hRawInput, RID_INPUT, nullptr, &requiredSize, sizeof(RAWINPUTHEADER)) != 0)
+      return;
+
+    if (requiredSize > m_rawInputScratchpad.size())
+      m_rawInputScratchpad.resize(requiredSize);
+
+    const auto bytesWritten = GetRawInputData(hRawInput, RID_INPUT, m_rawInputScratchpad.data(), &requiredSize, sizeof(RAWINPUTHEADER));
+    if (bytesWritten != sizeof(RAWINPUT))
+      return;
+
+    const auto pRawInput = reinterpret_cast<const RAWINPUT*>(m_rawInputScratchpad.data());
+    if (pRawInput->header.dwType == RIM_TYPEMOUSE)
+    {
+      const int32_t deltaX = CapValue(pRawInput->data.mouse.lLastX, "x");
+      const int32_t deltaY = CapValue(pRawInput->data.mouse.lLastY, "y");
+
+      uint32_t buttonFlags = 0;
+      if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_LEFT_BUTTON_DOWN)
+        m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Left, true);
+      else if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_LEFT_BUTTON_UP)
+        m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Left, false);
+
+      if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_MIDDLE_BUTTON_DOWN)
+        m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Middle, true);
+      else if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_MIDDLE_BUTTON_UP)
+        m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Middle, false);
+
+      if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_RIGHT_BUTTON_DOWN)
+        m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Right, true);
+      else if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_RIGHT_BUTTON_UP)
+        m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Right, false);
+
+      Point2 position(deltaX, deltaY);
+      const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(position, m_rawMouseButtonFlags);
+      eventQueue->PostEvent(event);
+    }
+  }
+
+
+  void PlatformNativeWindowWin32::OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const Point2& position)
+  {
+    const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseMoveEvent(position);
+    eventQueue->PostEvent(event);
+    //FSLLOG("MOVE: X: " << position.X << " Y: " << position.Y);
+
+    if (!m_mouseCaptureEnabled)
+      return;
+
+    ResolveMouseCapture();
+  }
+
+
+  void PlatformNativeWindowWin32::OnWindowCaptureChanged(const HWND newCaptureHwnd)
+  {
+    VERBOSE_LOG("- OnWindowCaptureChanged");
+    VERBOSE_LOG_IF(m_mouseIsCaptured && newCaptureHwnd != m_platformWindow, "* Mouse captured force lost");
+
+
+    m_mouseIsCaptured = (newCaptureHwnd == m_platformWindow);
+    if (m_mouseIsCaptured)
+      return;
+
+    if (m_mouseCursorIsClipped)
+    {
+      m_mouseCursorIsClipped = false;
+      VERBOSE_LOG("* Cursor not clipped to window");
+    }
+
+    if (m_mouseIsCursorHidden)
+    {
+      m_mouseIsCursorHidden = false;
+      ShowCursor(true);
+      VERBOSE_LOG("* Showing cursor");
+    }
+  }
+
+
+  void PlatformNativeWindowWin32::SYS_SetMouseCapture(const bool enableCapture)
+  {
+    m_mouseInternalCaptureEnabled = enableCapture;
+    ResolveMouseCapture();
+  }
+
+
+  void PlatformNativeWindowWin32::ResolveMouseCapture()
+  {
+    const bool enableCapture = m_mouseCaptureEnabled || m_mouseInternalCaptureEnabled;
+
+    if (m_mouseIsCaptured == enableCapture &&
+        m_mouseCursorIsClipped == m_mouseCaptureEnabled &&
+        m_mouseHideCursorEnabled == m_mouseIsCursorHidden)
+    {
+      return;
+    }
+
+    if (GetForegroundWindow() != m_platformWindow)
+      return;
+
+
+    ResolveMouseCursorClip();
+    ResolveMouseCursorVisible();
+
+    if (m_mouseIsCaptured == enableCapture)
+      return;
+    VERBOSE_LOG("- ResolveMouseCapture");
+
+
+    if (enableCapture)
+    {
+      SetCapture(m_platformWindow);
+      VERBOSE_LOG("* Mouse captured");
+      m_mouseIsCaptured = true;
+    }
+    else
+    {
+      ReleaseCapture();
+      VERBOSE_LOG("* Mouse capture released");
+      m_mouseIsCaptured = false;
+    }
+  }
+
+  void PlatformNativeWindowWin32::ResolveMouseCursorClip()
+  {
+    if (m_mouseCursorIsClipped == m_mouseCaptureEnabled)
+      return;
+
+
+    VERBOSE_LOG("- ResolveMouseCursorClip");
+
+    if (m_mouseCaptureEnabled)
+    {
+      RECT rect{};
+      if (!GetClientRect(m_platformWindow, &rect))
+      {
+        FSLLOG_DEBUG_WARNING("Failed to get client rect");
+        return;
+      }
+
+      // clamp the mouse to the center pixel of the window
+      rect.left = (rect.right - rect.left) / 2;
+      rect.top = (rect.bottom - rect.top) / 2;
+      rect.right = rect.left;
+      rect.bottom = rect.top;
+      //SetCursorPos(rect.left, rect.top);
+
+      if (!TryToScreenSpace(m_platformWindow, rect) || !ClipCursor(&rect))
+      {
+        FSLLOG_DEBUG_WARNING("Failed to ClipCursor to window");
+        return;
+      }
+      m_mouseCursorIsClipped = true;
+      VERBOSE_LOG("* Cursor clipped to window");
+    }
+    else
+    {
+      ClipCursor(nullptr);
+      m_mouseCursorIsClipped = false;
+      VERBOSE_LOG("* Cursor not clipped to window");
+    }
+  }
+
+
+  void PlatformNativeWindowWin32::ResolveMouseCursorVisible()
+  {
+    if (m_mouseHideCursorEnabled == m_mouseIsCursorHidden)
+      return;
+
+    VERBOSE_LOG("- ResolveMouseCursorVisible");
+
+    VERBOSE_LOG_IF(m_mouseHideCursorEnabled, "* Hiding cursor");
+    VERBOSE_LOG_IF(!m_mouseHideCursorEnabled, "* Showing cursor");
+
+    ShowCursor(!m_mouseHideCursorEnabled);
+    m_mouseIsCursorHidden = m_mouseHideCursorEnabled;
   }
 
 }

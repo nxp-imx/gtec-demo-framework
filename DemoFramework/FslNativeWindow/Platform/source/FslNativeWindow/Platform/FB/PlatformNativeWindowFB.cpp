@@ -36,6 +36,7 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Math/Rectangle.hpp>
 #include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>

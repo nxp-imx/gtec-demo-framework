@@ -76,15 +76,21 @@ namespace Fsl
 
     virtual void OnMouseButtonEvent(const MouseButtonEvent& event) override;
     virtual void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-    virtual void Update(const DemoTime& demoTime) override;
+    virtual void PostUpdate(const DemoTime& demoTime) override;
 
     void Draw();
 
     //! @brief Get access to the window context
-    std::shared_ptr<UI::WindowContext> GetContext() const { return m_context; }
+    std::shared_ptr<UI::WindowContext> GetContext() const
+    {
+      return m_context;
+    }
 
     //! @brief Get the window manager
-    std::shared_ptr<UI::IWindowManager> GetWindowManager() const { return m_uiManager.GetWindowManager(); }
+    std::shared_ptr<UI::IWindowManager> GetWindowManager() const
+    {
+      return m_uiManager.GetWindowManager();
+    }
 
     //! @brief Retrieve a atlas texture from the default texture atlas
     AtlasTexture2D GetAtlasTexture2D(const UTF8String& filename) const;

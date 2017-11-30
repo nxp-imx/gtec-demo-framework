@@ -34,6 +34,7 @@
 #include <deque>
 #include <vector>
 #include <FslDemoApp/Base/Host/ConfigControl.hpp>
+#include <FslDemoApp/Base/Host/ExtensionRequestRecord.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
 #include <EGL/egl.h>
@@ -42,6 +43,7 @@ namespace Fsl
 {
   class IEGLNativeWindow;
   class IEGLNativeWindowSystem;
+  class IWindowHostInfoControl;
   class EGLHostService;
   class EGLDemoHostOptionParser;
 
@@ -79,6 +81,7 @@ namespace Fsl
     std::unique_ptr<NativeWindowSetup> m_nativeWindowSetup;
     std::shared_ptr<IEGLNativeWindowSystem> m_windowSystem;
     std::shared_ptr<IEGLNativeWindow> m_window;
+    std::shared_ptr<IWindowHostInfoControl> m_windowHostInfoControl;
     std::shared_ptr<EGLHostService> m_hostService;
     EGLDisplay m_hDisplay;
     EGLSurface m_hSurface;
@@ -87,23 +90,46 @@ namespace Fsl
     bool m_isActivated;
     std::shared_ptr<EGLDemoHostOptionParser> m_options;
     ConfigControl m_configControl;
+    std::deque<ExtensionRequestRecord> m_extensionRequests;
     EGLDemoHostFeatureConfig m_featureConfig;
     bool m_enableGLES;
     bool m_enableVG;
     bool m_logSelectedConfig;
+    bool m_logExtensions;
+    bool m_apiInit;
     DemoHostFeature m_activeApi;
   public:
     EGLDemoHost(const DemoHostConfig& demoHostConfig);
     ~EGLDemoHost();
 
-    virtual void OnActivate();
-    virtual void OnDeactivate();
-    virtual void OnSuspend();
-    virtual void OnResume();
-    virtual DemoHostFeature GetActiveAPI() const;
-    virtual Point2 GetScreenResolution() const;
-    virtual bool SwapBuffers();
-    virtual bool ProcessNativeMessages(const bool allowBlock);
+    virtual void OnConstructed() override;
+    virtual void OnActivate() override;
+    virtual void OnDeactivate() override;
+    virtual void OnSuspend() override;
+    virtual void OnResume() override;
+    virtual DemoHostFeature GetActiveAPI() const override;
+    virtual Point2 GetScreenResolution() const override;
+    virtual bool SwapBuffers() override;
+    virtual bool ProcessNativeMessages(const bool allowBlock) override;
+  protected:
+    bool IsLogExtensionsEnabled() const
+    {
+      return m_logExtensions;
+    }
+
+    const std::deque<ExtensionRequestRecord>& GetExtensionRequests() const
+    {
+      return m_extensionRequests;
+    }
+
+    //! @brief Called when the DemoHost API initialization has been completed
+    virtual void OnAPIInitialized()
+    {
+    }
+    //! @brief Called just before the API is being shutdown
+    virtual void OnAPIShutdown()
+    {
+    }
   private:
     void Init();
     void Shutdown();

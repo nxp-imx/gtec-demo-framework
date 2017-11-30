@@ -66,37 +66,31 @@ namespace Fsl
 
   void InputEvents::OnKeyEvent(const KeyEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnKeyEvent key: " << event.GetKey() << " pressed: " << event.IsPressed();
-    auto str = stream.str();
-    FSLLOG(str);
+    FSLLOG("OnKeyEvent key: " << event.GetKey() << " pressed: " << event.IsPressed());
   }
 
 
   void InputEvents::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnMouseButtonEvent key: " << event.GetButton() << " pressed: " << event.IsPressed() << " position: " << event.GetPosition().X << "," << event.GetPosition().Y;
-    auto str = stream.str();
-    FSLLOG(str);
+    FSLLOG("OnMouseButtonEvent key: " << event.GetButton() << " pressed: " << event.IsPressed() << " position: " << event.GetPosition().X << "," << event.GetPosition().Y);
   }
 
 
   void InputEvents::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y;
-    auto str = stream.str();
-    FSLLOG(str);
+    FSLLOG("OnMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y);
   }
 
 
   void InputEvents::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnMouseWheelEvent delta: " << event.GetDelta() << " position: " << event.GetPosition().X << "," << event.GetPosition().Y;
-    auto str = stream.str();
-    FSLLOG(str);
+    FSLLOG("OnMouseWheelEvent delta: " << event.GetDelta() << " position: " << event.GetPosition().X << "," << event.GetPosition().Y);
+  }
+
+
+  void InputEvents::OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
+  {
+    FSLLOG("OnRawMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y);
   }
 
 

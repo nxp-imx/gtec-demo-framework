@@ -106,6 +106,8 @@ namespace Fsl
       }
     };
 
+    std::shared_ptr<IDemoAppControl> m_demoAppControl;
+    bool m_mouseCaptureEnabled;
     MenuUI m_menuUI;
     Graphics3D::FirstPersonCamera m_camera;
     std::shared_ptr<IKeyboard> m_keyboard;
