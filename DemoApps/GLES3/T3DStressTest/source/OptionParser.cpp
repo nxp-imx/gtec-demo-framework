@@ -47,20 +47,11 @@ namespace Fsl
     {
       enum Enum
       {
-        Vertices = DEMO_APP_OPTION_BASE,
+        RenderMode = DEMO_APP_OPTION_BASE,
+        Vertices,
         TextureResolution,
         HighShaderPrecision,
         Lights,
-        //T3DS_dcic_roi,
-        //T3DS_dcic_period,
-        //T3DS_dcic_time_offset,
-        //T3DS_target_rect,
-        //T3DS_freeze_on_error,
-        //T3DS_direct_render,
-        //T3DS_gpio_group,
-        //T3DS_gpio_bit,
-        //T3DS_IOMUXC_SW_MUX_CTL_PAD,
-        //T3DS_IOMUXC_SW_MUX_CTL_PAD_value,
         ToggleMinMax,
         Layers,
         ForceFinish,
@@ -101,6 +92,7 @@ namespace Fsl
 
   void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
+    rOptions.push_back(Option("RenderMode", OptionArgument::OptionRequired, CommandId::RenderMode, "The render mode: 0=Multi-pass, 1=ES3 instancing (default)."));
     rOptions.push_back(Option("Vertices", OptionArgument::OptionRequired, CommandId::Vertices, "Number of vertices in geometry used"));
     rOptions.push_back(Option("TextureResolution", OptionArgument::OptionRequired, CommandId::TextureResolution, "This controls the resolution of both noise and color textures, applied on both axis"));
     rOptions.push_back(Option("HighShaderPrecision", OptionArgument::OptionRequired, CommandId::HighShaderPrecision, "Shader arithmetic precision. \nfalse = low, \ntrue = high"));
@@ -145,6 +137,11 @@ namespace Fsl
 
     switch (cmdId)
     {
+    case CommandId::RenderMode:
+      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+        return OptionParseResult::Failed;
+      m_config.SetRenderMode(static_cast<RenderMode>(intValue));
+      return OptionParseResult::Parsed;
     case CommandId::Vertices:
       if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
         return OptionParseResult::Failed;

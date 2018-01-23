@@ -45,6 +45,7 @@ namespace Fsl
     virtual ~MeshRender();
     virtual void Bind(const ShaderBase& shader) = 0;
     virtual void Draw() = 0;
+    virtual void DrawInstanced(const int layerCount) = 0;
     virtual void Unbind() = 0;
   };
 

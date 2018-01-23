@@ -45,6 +45,7 @@ namespace Fsl
   class FurShaderBase : public ShaderBase
   {
     int m_lightCount;
+    GLint m_locInstanceDistance;
     GLint m_locWorld;
     GLint m_locView;
     GLint m_locProjection;
@@ -62,6 +63,9 @@ namespace Fsl
   public:
     FurShaderBase(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount);
     FurShaderBase(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath, const int lightCount);
+
+    // Only used by instance shaders
+    void SetInstanceDistance(const float distance);
 
     void SetWorld(const Matrix& matrix);
     void SetView(const Matrix& matrix);

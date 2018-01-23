@@ -1,7 +1,7 @@
-#ifndef GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
-#define GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
+#ifndef OPENVX_SOFTISP_SOFTISP_HPP
+#define OPENVX_SOFTISP_SOFTISP_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,26 +31,39 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
-#include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics3D/Procedural/BasicMesh.hpp>
-#include <vector>
+#include <FslDemoApp/OpenVX/DemoAppOpenVX.hpp>
+#include <RapidOpenVX/Context.hpp>
+#include <RapidOpenVX/Graph.hpp>
+#include <RapidOpenVX/Image.hpp>
+#include <RapidOpenVX/Distribution.hpp>
+#include <VX/vx.h>
+#include <VX/vx_ext_program.h>
+#include <VX/vx_helper.h>
+#include <VX/vxu.h>
+#include "UserNodes.hpp"
 
 namespace Fsl
 {
-  // Render the model vertex normals
-  class MeshRenderNormals : public MeshRender
+  class SoftISP : public DemoAppOpenVX
   {
-    std::vector<VertexPosition> m_vertices;
+    RapidOpenVX::Context m_context;
+    RapidOpenVX::Graph m_graph;
+    const std::size_t m_imgWid = 1920;
+    const std::size_t m_imgHei = 1080;
+    const std::size_t m_imgSize = 1920 * 1080;
+
+    std::vector<RapidOpenVX::Image> m_imagesObj;
+    std::vector<RapidOpenVX::Distribution> m_dist;
+    bool m_save;
+
   public:
-    MeshRenderNormals(const Procedural::BasicMesh& mesh);
-    ~MeshRenderNormals();
-
-    virtual void Bind(const ShaderBase& shader) override;
-    virtual void Draw() override;
-    virtual void DrawInstanced(const int layerCount) override;
-    virtual void Unbind() override;
+    SoftISP(const DemoAppConfig& config);
+    ~SoftISP();
+  protected:
+    virtual void Run() override;
+    void AllocateMemory(const vx_context context);
+    void CopyToBMP(Bitmap &bitmap, const IO::Path& fileName, const RapidOpenVX::Image &image);
   };
-
 }
+
 #endif

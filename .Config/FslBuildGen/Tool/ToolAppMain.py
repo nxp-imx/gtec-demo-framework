@@ -64,7 +64,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersionString = "2.2.9"
+CurrentVersionString = "2.3.0"
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:

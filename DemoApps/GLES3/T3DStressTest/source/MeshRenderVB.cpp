@@ -64,11 +64,17 @@ namespace Fsl
     glDrawElements(m_primitiveType, m_ib.GetCapacity(), m_ib.GetType(), (void*)0);
   }
 
+  void MeshRenderVB::DrawInstanced(const int layerCount)
+  {
+    glDrawElementsInstanced(m_primitiveType, m_ib.GetCapacity(), m_ib.GetType(), (void*)0, layerCount);
+  }
+
   void MeshRenderVB::Unbind()
   {
     m_vb.DisableAttribArrays(m_link, 3);
     glBindBuffer(m_vb.GetTarget(), 0);
     glBindBuffer(m_ib.GetTarget(), 0);
   }
+
 
 }

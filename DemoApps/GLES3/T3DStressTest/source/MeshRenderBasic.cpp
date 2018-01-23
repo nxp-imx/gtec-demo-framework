@@ -116,6 +116,11 @@ namespace Fsl
     glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_pIndices);
   }
 
+  void MeshRenderBasic::DrawInstanced(const int layerCount)
+  {
+    glDrawElementsInstanced(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_pIndices, layerCount);
+  }
+
   void MeshRenderBasic::Unbind()
   {
   }

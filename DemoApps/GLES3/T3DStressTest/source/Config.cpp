@@ -41,7 +41,8 @@ namespace Fsl
 {
 
   Config::Config()
-    : m_layerCount(150)
+    : m_renderMode(RenderMode::ES3Instanced)
+    , m_layerCount(150)
     , m_hairLength(4.0f)
     , m_hairDensity(0.8f)
     , m_furTextureDimensions(512)  // WARNING: this must be a pow2 number (1,2,4,8....)
@@ -59,6 +60,18 @@ namespace Fsl
     , m_toggleMinMax(false)
     , m_forceFinishEachFrame(true)
   {
+  }
+
+
+  RenderMode Config::GetRenderMode() const
+  {
+    return m_renderMode;
+  }
+
+
+  void Config::SetRenderMode(const RenderMode mode)
+  {
+    m_renderMode = mode;
   }
 
 
@@ -118,7 +131,7 @@ namespace Fsl
 
   void Config::SetInstanceCount(const int value)
   {
-    m_instanceCount = std::max(value, 1);
+    m_instanceCount = std::max(value, 2);
   }
 
 

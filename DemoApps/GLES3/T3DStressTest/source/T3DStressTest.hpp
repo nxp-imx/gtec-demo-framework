@@ -42,6 +42,7 @@
 #include "MeshRenderNormals.hpp"
 #include "MeshRenderVB.hpp"
 #include "Shader/FurShaderMultiPass.hpp"
+#include "Shader/FurShaderInstanced.hpp"
 #include "Shader/WhiteShader.hpp"
 
 namespace Fsl
@@ -75,8 +76,9 @@ namespace Fsl
     GLES3::GLTexture m_tex1;
     GLES3::GLTexture m_tex2;
 
-    FurShaderMultiPass m_shader1;
-    WhiteShader m_shader2;
+    FurShaderMultiPass m_shaderMultiPass;
+    FurShaderInstanced m_shaderInstanced;
+    WhiteShader m_shaderWhite;
 
     int m_xAngle;
     int m_yAngle;

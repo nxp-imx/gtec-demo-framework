@@ -94,6 +94,8 @@ class CodeTemplateVC(object):
         self.VariantProjectConfiguration = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "VariantProjectConfiguration.txt"))
         self.ProjectReferences = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "ProjectReferences.txt"))
         self.ProjectReferences_1 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "ProjectReferences_1.txt"))
+        self.PackageReferences = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences.txt"))
+        self.PackageReferences_1 = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "PackageReferences_1.txt"))
         self.AssemblyReferenceSimple = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceSimple.txt"))
         self.AssemblyReferenceComplex = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceComplex.txt"))
         self.AssemblyReferenceComplex_Private = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceComplex_Private.txt"))

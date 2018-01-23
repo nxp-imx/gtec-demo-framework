@@ -51,9 +51,10 @@ namespace Fsl
   public:
     MeshRenderVB(const Procedural::BasicMesh& mesh);
 
-    virtual void Bind(const ShaderBase& shader);
-    virtual void Draw();
-    virtual void Unbind();
+    virtual void Bind(const ShaderBase& shader) override;
+    virtual void Draw() override;
+    virtual void DrawInstanced(const int layerCount) override;
+    virtual void Unbind() override;
   };
 
 }

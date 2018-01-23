@@ -32,6 +32,7 @@
 
 #include "MeshRenderNormals.hpp"
 #include "Shader/ShaderBase.hpp"
+#include <FslBase/Log/Log.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include <FslGraphics3D/Procedural/VertexUtil.hpp>
 #include <cassert>
@@ -64,6 +65,14 @@ namespace Fsl
 
   void MeshRenderNormals::Draw()
   {
+    assert(m_vertices.size() <= static_cast<std::size_t>(std::numeric_limits<GLsizei>::max()));
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_vertices.size()));
+  }
+
+  void MeshRenderNormals::DrawInstanced(const int layerCount)
+  {
+    FSLLOG_DEBUG_WARNING("MeshRenderNormals::DrawInstanced Ignoring layerCount");
+
     assert(m_vertices.size() <= static_cast<std::size_t>(std::numeric_limits<GLsizei>::max()));
     glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_vertices.size()));
   }

@@ -77,8 +77,9 @@ namespace Fsl
     , m_meshStuff()
     , m_tex1()
     , m_tex2()
-    , m_shader1(*GetContentManager(), "", m_config.GetUseHighShaderPrecision(), m_config.GetLightCount())
-    , m_shader2(*GetContentManager())
+    , m_shaderMultiPass(*GetContentManager(), "", m_config.GetUseHighShaderPrecision(), m_config.GetLightCount())
+    , m_shaderInstanced(*GetContentManager(), "Instanced", m_config.GetUseHighShaderPrecision(), m_config.GetLightCount())
+    , m_shaderWhite(*GetContentManager())
     , m_xAngle(0)
     , m_yAngle(0)
     , m_zAngle(0)
@@ -133,12 +134,6 @@ namespace Fsl
       m_meshStuff.reset(new MeshStuff(mesh));
     }
 
-    // Setup the texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_tex1.Get());
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_tex2.Get());
 
     Vector3 lightDirection(-0.0f, -0.0f, -1.0f);
     lightDirection.Normalize();
@@ -147,13 +142,22 @@ namespace Fsl
     //Vector3 ambientColor(0.5f, 0.5f, 0.5f);
 
     { // Prepare the shader
-      ShaderBase::ScopedUse shaderScope(m_shader1);
-      m_shader1.SetTexture0(0);
-      m_shader1.SetTexture1(1);
-      m_shader1.SetMaxHairLength(m_config.GetHairLength());
-      m_shader1.SetLightDirection(0, lightDirection);
-      m_shader1.SetLightColor(0, lightColor);
-      m_shader1.SetLightAmbientColor(ambientColor);
+      ShaderBase::ScopedUse shaderScope(m_shaderMultiPass);
+      m_shaderMultiPass.SetTexture0(0);
+      m_shaderMultiPass.SetTexture1(1);
+      m_shaderMultiPass.SetMaxHairLength(m_config.GetHairLength());
+      m_shaderMultiPass.SetLightDirection(0, lightDirection);
+      m_shaderMultiPass.SetLightColor(0, lightColor);
+      m_shaderMultiPass.SetLightAmbientColor(ambientColor);
+    }
+    { // Prepare the shader
+      ShaderBase::ScopedUse shaderScope(m_shaderInstanced);
+      m_shaderInstanced.SetTexture0(0);
+      m_shaderInstanced.SetTexture1(1);
+      m_shaderInstanced.SetMaxHairLength(m_config.GetHairLength());
+      m_shaderInstanced.SetLightDirection(0, lightDirection);
+      m_shaderInstanced.SetLightColor(0, lightColor);
+      m_shaderInstanced.SetLightAmbientColor(ambientColor);
     }
 
     glEnable(GL_CULL_FACE);
@@ -212,6 +216,14 @@ namespace Fsl
 
   void T3DStressTest::Draw(const DemoTime& demoTime)
   {
+    // Setup the texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_tex1.Get());
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_tex2.Get());
+
+
     bool bypassRender = false;
     if (m_config.GetToggleMinMax() == true)
     {
@@ -229,40 +241,59 @@ namespace Fsl
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
       // Draw the fur mesh
+      if( m_config.GetRenderMode() == RenderMode::ES3MultiPass )
       {
-        ShaderBase::ScopedUse shaderScope(m_shader1);
+        ShaderBase::ScopedUse shaderScope(m_shaderMultiPass);
 
-        m_shader1.SetWorld(m_world);
-        m_shader1.SetView(m_view);
-        m_shader1.SetProjection(m_perspective);
-        m_shader1.SetDisplacement(m_displacement);
+        m_shaderMultiPass.SetWorld(m_world);
+        m_shaderMultiPass.SetView(m_view);
+        m_shaderMultiPass.SetProjection(m_perspective);
+        m_shaderMultiPass.SetDisplacement(m_displacement);
 
         float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / (m_config.GetLayerCount() - 1) : 1);
         float layer = 0.0f;
 
         MeshRender& render = m_meshStuff->Render;
-        render.Bind(m_shader1);
+        render.Bind(m_shaderMultiPass);
         const int layerCount = m_config.GetLayerCount();
         for (int i = 0; i < layerCount; ++i)
         {
-          m_shader1.SetCurrentLayer(layer);
+          m_shaderMultiPass.SetCurrentLayer(layer);
 
           render.Draw();
           layer += layerAdd;
         }
         render.Unbind();
       }
+      else
+      {
+        assert(m_config.GetRenderMode() == RenderMode::ES3Instanced);
+        ShaderBase::ScopedUse shaderScope(m_shaderInstanced);
+
+        m_shaderInstanced.SetWorld(m_world);
+        m_shaderInstanced.SetView(m_view);
+        m_shaderInstanced.SetProjection(m_perspective);
+        m_shaderInstanced.SetDisplacement(m_displacement);
+
+        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / (m_config.GetLayerCount() - 1) : 1);
+        m_shaderInstanced.SetInstanceDistance(layerAdd);
+
+        MeshRender& render = m_meshStuff->Render;
+        render.Bind(m_shaderInstanced);
+        render.DrawInstanced(m_config.GetLayerCount());
+        render.Unbind();
+      }
 
       // Draw normals
       if (m_config.GetShowNormals())
       {
-        ShaderBase::ScopedUse shaderScope(m_shader2);
+        ShaderBase::ScopedUse shaderScope(m_shaderWhite);
 
-        m_shader2.SetWorldViewProjection(m_MVP);
+        m_shaderWhite.SetWorldViewProjection(m_MVP);
 
         MeshRender& render = m_meshStuff->RenderNormals;
 
-        render.Bind(m_shader2);
+        render.Bind(m_shaderWhite);
         render.Draw();
         render.Unbind();
       }

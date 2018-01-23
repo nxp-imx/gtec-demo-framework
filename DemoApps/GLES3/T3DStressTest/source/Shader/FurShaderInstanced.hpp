@@ -1,7 +1,7 @@
-#ifndef GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
-#define GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
+#ifndef SHADER_GLES3_T3DSTRESSTEST_FURSHADERINSTANCED_HPP
+#define SHADER_GLES3_T3DSTRESSTEST_FURSHADERINSTANCED_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,26 +31,20 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
-#include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics3D/Procedural/BasicMesh.hpp>
-#include <vector>
+#include "FurShaderBase.hpp"
 
 namespace Fsl
 {
-  // Render the model vertex normals
-  class MeshRenderNormals : public MeshRender
+  class IContentManager;
+
+  class FurShaderInstanced : public FurShaderBase
   {
-    std::vector<VertexPosition> m_vertices;
+    GLint m_locCurrentLayer;
   public:
-    MeshRenderNormals(const Procedural::BasicMesh& mesh);
-    ~MeshRenderNormals();
+    FurShaderInstanced(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount);
 
-    virtual void Bind(const ShaderBase& shader) override;
-    virtual void Draw() override;
-    virtual void DrawInstanced(const int layerCount) override;
-    virtual void Unbind() override;
+    void SetCurrentLayer(const float layer);
   };
-
 }
+
 #endif

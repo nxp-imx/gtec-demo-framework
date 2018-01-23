@@ -24,7 +24,7 @@ since the exact same demo/benchmark code run on all of them.
 * Vulkan (early access)
 * Window. A freestyle project that runs in a window based environment.
 
-<img src="Doc/Images/EGL/EGL_100px_June16.png" height="50px"> <img src="Doc/Images/OpenGL_ES/OpenGL-ES_100px_May16.png" height="50px"> <img src="Doc/Images/OpenVG/OpenVG_100px_June16.png" height="50px"> <img src="Doc/Images/OpenVX/OpenVX_100px_June16.png" height="50px"> <img src="Doc/Images/Vulkan/Vulkan_100px_Dec16.png" height="50px"> 
+<img src="Doc/Images/EGL/EGL_100px_June16.png" height="50px"> <img src="Doc/Images/OpenGL_ES/OpenGL-ES_100px_May16.png" height="50px"> <img src="Doc/Images/OpenVG/OpenVG_100px_June16.png" height="50px"> <img src="Doc/Images/OpenVX/OpenVX_100px_June16.png" height="50px"> <img src="Doc/Images/Vulkan/Vulkan_100px_Dec16.png" height="50px">
 
 ## Supported operating systems
 
@@ -1268,6 +1268,20 @@ Simple OpenCL Application that allows you to obtain your system's complete OpenC
 Information related to CL kernel compilers, number of buffers supported, extensions available and more.
 
 
+### [SoftISP](DemoApps/OpenCL/SoftISP)
+<a href="DemoApps/OpenCL/SoftISP">
+<img src="DemoApps/OpenCL/SoftISP/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+It is a software-based image signal processing(SoftISP)  application optimized by GPU.
+ SoftISP Roles:
+ - Bad Pixel Correction
+ - White Balance
+ - Histogram Equalization
+ - High-quality Demosaicing
+ - High-quality Noise Reduction
+
+
 
 ## OpenCV
 
@@ -1382,6 +1396,20 @@ This will often showcase the worst case power consumption.
 
 
 ## OpenVX
+
+### [SoftISP](DemoApps/OpenVX/SoftISP)
+<a href="DemoApps/OpenVX/SoftISP">
+<img src="DemoApps/OpenVX/SoftISP/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+It is a software-based image signal processing(SoftISP)  application optimized by GPU.
+ SoftISP Roles:
+ - Bad Pixel Correction
+ - White Balance
+ - Histogram Equalization
+ - High-quality Demosaicing
+ - High-quality Noise Reduction
+
 
 ### [VxTutorial1](DemoApps/OpenVX/VxTutorial1)
 <a href="DemoApps/OpenVX/VxTutorial1">

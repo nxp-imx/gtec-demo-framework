@@ -1,7 +1,5 @@
-#ifndef GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
-#define GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +12,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,26 +29,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
-#include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics3D/Procedural/BasicMesh.hpp>
-#include <vector>
+#include <FslDemoApp/OpenVX/Setup/RegisterDemoApp.hpp>
+#include "SoftISP.hpp"
 
 namespace Fsl
 {
-  // Render the model vertex normals
-  class MeshRenderNormals : public MeshRender
+  // Configure the demo environment to run this demo app in a OpenVX host environment
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    std::vector<VertexPosition> m_vertices;
-  public:
-    MeshRenderNormals(const Procedural::BasicMesh& mesh);
-    ~MeshRenderNormals();
-
-    virtual void Bind(const ShaderBase& shader) override;
-    virtual void Draw() override;
-    virtual void DrawInstanced(const int layerCount) override;
-    virtual void Unbind() override;
-  };
-
+    DemoAppRegister::OpenVX::Register<SoftISP>(rSetup, "OpenVX.SoftISP");
+  }
 }
-#endif

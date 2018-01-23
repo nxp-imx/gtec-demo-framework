@@ -102,8 +102,9 @@ class ExternalDependencyType:
     Headers = 3
     # C# specific
     Assembly = 4
+    PackageReference = 5
     # CMake specific
-    Find = 5
+    Find = 6
 
     @staticmethod
     def ToString(value: int) -> str:
@@ -115,6 +116,8 @@ class ExternalDependencyType:
             return 'Headers'
         elif value == ExternalDependencyType.Assembly:
             return 'Assembly'
+        elif value == ExternalDependencyType.PackageReference:
+            return 'PackageReference'
         elif value == ExternalDependencyType.Find:
             return 'Find'
         raise Exception("Unknown ExternalDependencyType: {0}".format(value))
@@ -129,6 +132,8 @@ class ExternalDependencyType:
             return ExternalDependencyType.Headers
         elif value == 'Assembly':
             return ExternalDependencyType.Assembly
+        elif value == 'PackageReference':
+            return ExternalDependencyType.PackageReference
         elif value == 'Find':
             return ExternalDependencyType.Find
         return None

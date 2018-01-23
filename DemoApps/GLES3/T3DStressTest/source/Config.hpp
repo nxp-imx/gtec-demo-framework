@@ -31,10 +31,14 @@
 *
 ****************************************************************************************************************************************************/
 
+#include "RenderMode.hpp"
+
 namespace Fsl
 {
   class Config
   {
+    RenderMode m_renderMode;
+
     // The number of layers to use for rendering the fur
     int m_layerCount;
     // The length of the hairs
@@ -71,6 +75,10 @@ namespace Fsl
     bool m_forceFinishEachFrame;
   public:
     Config();
+
+    RenderMode GetRenderMode() const;
+    void SetRenderMode(const RenderMode mode);
+
     int GetLayerCount() const;
     void SetLayerCount(const int value);
     float GetHairLength() const;

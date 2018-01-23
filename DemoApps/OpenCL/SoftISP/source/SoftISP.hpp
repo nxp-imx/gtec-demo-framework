@@ -1,7 +1,7 @@
-#ifndef GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
-#define GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
+#ifndef OPENCL_SOFTISP_SOFTISP_HPP
+#define OPENCL_SOFTISP_SOFTISP_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,26 +31,58 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
-#include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics3D/Procedural/BasicMesh.hpp>
+#include <FslDemoApp/OpenCL/DemoAppOpenCL.hpp>
+#include <FslUtil/OpenCL1_2/ContextEx.hpp>
+#include <RapidOpenCL1/Buffer.hpp>
+#include <RapidOpenCL1/CommandQueue.hpp>
+#include <RapidOpenCL1/Kernel.hpp>
+#include <RapidOpenCL1/UserEvent.hpp>
 #include <vector>
 
 namespace Fsl
 {
-  // Render the model vertex normals
-  class MeshRenderNormals : public MeshRender
+  class SoftISP : public DemoAppOpenCL
   {
-    std::vector<VertexPosition> m_vertices;
+    OpenCL::ContextEx m_context;
+    cl_device_id m_deviceId;
+    RapidOpenCL1::CommandQueue m_commandQueue;
+    const std::size_t m_BINS = 256;
+    const std::size_t m_imgWid = 1920;
+    const std::size_t m_imgHei = 1080;
+    const std::size_t m_imgSize = 1920 * 1080;
+
+    std::vector<uint8_t> m_dst0;
+    std::vector<uint8_t> m_dst1;
+    std::vector<uint8_t> m_dst2;
+    std::vector<uint8_t> m_dst3;
+    std::vector<uint8_t> m_dst4;
+    std::vector<uint8_t> m_dst5;
+    std::vector<uint8_t> m_YBuf;
+    std::vector<uint8_t> m_YBufOut;
+    std::vector<uint8_t> m_UVBuf;
+    int m_pixelValueR;
+    int m_pixelValueG;
+    int m_pixelValueB;
+    std::vector<int> m_inDistR;
+    std::vector<int> m_inDistG;
+    std::vector<int> m_inDistB;
+    std::vector<int> m_outDistR;
+    std::vector<int> m_outDistG;
+    std::vector<int> m_outDistB;
+    bool m_save;
+
+    std::vector<RapidOpenCL1::Buffer> m_deviceImg;
+    std::vector<RapidOpenCL1::Buffer> m_pixelValue;
+    std::vector<RapidOpenCL1::Buffer> m_deviceDist;
+
   public:
-    MeshRenderNormals(const Procedural::BasicMesh& mesh);
-    ~MeshRenderNormals();
-
-    virtual void Bind(const ShaderBase& shader) override;
-    virtual void Draw() override;
-    virtual void DrawInstanced(const int layerCount) override;
-    virtual void Unbind() override;
+    SoftISP(const DemoAppConfig& config);
+    ~SoftISP();
+  protected:
+    virtual void Run() override;
+    void AllocateMemory(const cl_context context, const std::size_t size);
+    void CopyToBMP(Bitmap& bitmap, const IO::Path& fileName, const void* ptr);
   };
-
 }
+
 #endif

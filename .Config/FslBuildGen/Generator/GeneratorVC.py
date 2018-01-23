@@ -81,6 +81,9 @@ from FslBuildGen.Xml.Exceptions import XmlFormatException
 #    Normal = 0
 #    LinuxTools = 1
 
+class VSPackageManager:
+    NuGet = "NuGet"
+
 class LocalMagicFilenames:
     BuildProject = "BuildProject.bat"
     StartProject = ".StartProject.bat"
@@ -198,6 +201,13 @@ class GeneratorVC(GeneratorBase):
         if len(libDepVC) > 0:
             libDepVC = template.ProjectReferences.replace("##SNIPPET##", libDepVC)
 
+        packageDepVC = ""
+        if template.PackageReferences is not None and template.PackageReferences_1 is not None:
+            packageDepVC = self.__GenerateVCPackageReferences(template.PackageReferences_1, config, package, template.ProjectExtension)
+            if len(packageDepVC) > 0:
+                packageDepVC = template.PackageReferences.replace("##SNIPPET##", packageDepVC)
+
+
         resolvedBuildAllIncludeFiles = self.__GetPackageResolvedBuildAllIncludeFiles(config.GenFileName, package)
         includeFiles = self.__CreateVisualStudioStyleFileList(template.AddHeaderFile, resolvedBuildAllIncludeFiles)
         sourceFiles = self.__CreateVisualStudioStyleFileList(template.AddSourceFile, package.ResolvedBuildSourceFiles)
@@ -218,6 +228,7 @@ class GeneratorVC(GeneratorBase):
         build = template.Master
         build = build.replace("##ADD_PROJECT_CONFIGURATIONS##", projectionConfigurations)
         build = build.replace("##ADD_PROJECT_REFERENCES##", libDepVC)
+        build = build.replace("##ADD_PACKAGE_REFERENCES##", packageDepVC)
         build = build.replace("##ADD_INCLUDE_FILES##", includeFiles)
         build = build.replace("##ADD_SOURCE_FILES##", sourceFiles)
         build = build.replace("##ADD_CONFIGURATIONS##", variantConfigurations)
@@ -885,6 +896,24 @@ class GeneratorVC(GeneratorBase):
         return "\n".join(res)
 
 
+    def __GenerateVCPackageReferences(self, snippet: str, config: Config, package: Package, projectExtension: str) -> str:
+        packageReferences = self.__GetExternalDependenciesByType(package, ExternalDependencyType.PackageReference)
+        if len(packageReferences) <= 0:
+            return ""
+        packageReferences.sort(key=lambda s: s.Name.lower())
+
+        res = []
+        for entry in packageReferences:
+            if entry.Name is None:
+                raise Exception("PackageReference name can not be null")
+            if entry.Version is None:
+                raise Exception("PackageReference version can not be null")
+            strContent = snippet.replace("##PACKAGE_NAME##", entry.Name)
+            strContent = strContent.replace("##PACKAGE_VERSION##", entry.Version)
+            res.append(strContent)
+        return "\n".join(res)
+
+
     def __GenerateVCExternalLinkDependencies(self, snippet1: str, snippet2: str,
                                              package: Package,
                                              variantExtDeps: List[PackageExternalDependency],
@@ -953,19 +982,23 @@ class GeneratorVC(GeneratorBase):
 
 
     def __GetExternalAssemblyDependencies(self, package: Package) -> List[PackageExternalDependency]:
-        externalAssemblyDeps = Util.FilterByType(package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
+        return self.__GetExternalDependenciesByType(package, ExternalDependencyType.Assembly)
+
+
+    def __GetExternalDependenciesByType(self, package: Package, extDepType: int) -> List[PackageExternalDependency]:
+        foundDeps = Util.FilterByType(package.ResolvedDirectExternalDependencies, extDepType)
 
         for entry in package.ResolvedAllDependencies:
             if entry.Package.IsVirtual and entry.Access == AccessType.Public:
-                externalList = Util.FilterByType(entry.Package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
-                externalAssemblyDeps += externalList
+                externalList = Util.FilterByType(entry.Package.ResolvedDirectExternalDependencies, extDepType)
+                foundDeps += externalList
 
         for entry in package.ResolvedDirectDependencies:
             if entry.Package.IsVirtual and entry.Access != AccessType.Public:
-                externalList = Util.FilterByType(entry.Package.ResolvedDirectExternalDependencies, ExternalDependencyType.Assembly)
-                externalAssemblyDeps += externalList
+                externalList = Util.FilterByType(entry.Package.ResolvedDirectExternalDependencies, extDepType)
+                foundDeps += externalList
 
-        uniqueEntries = {entry.Name: entry for entry in externalAssemblyDeps}
+        uniqueEntries = {entry.Name: entry for entry in foundDeps}
 
         return list(uniqueEntries.values())
 
@@ -987,6 +1020,12 @@ class GeneratorVC(GeneratorBase):
         assemblyList = self.__GetExternalAssemblyDependencies(package)  # type: List[PackageExternalDependency]
         if len(assemblyList) <= 0:
             return ""
+
+        # Prefilter
+        #assemblyList = [entry for entry in assemblyList if entry.PackageManager is not None and entry.PackageManager.Name == VSPackageManager.NuGet]
+        #if len(assemblyList) <= 0:
+        #    return ""
+
         if snippetSimple is None or snippetComplex is None or snippetComplexPrivate is None:
             raise Exception("We have external assembly refernces but no valid code snippet to insert.")
 
@@ -1010,7 +1049,7 @@ class GeneratorVC(GeneratorBase):
 
         externalDependencies = []
         for entry in externalAssemblyList:
-            if entry.PackageManager is not None and entry.PackageManager.Name == "NuGet":
+            if entry.PackageManager is not None and entry.PackageManager.Name == VSPackageManager.NuGet:
                 externalDependencies.append(entry)
 
         if len(externalDependencies) <= 0:

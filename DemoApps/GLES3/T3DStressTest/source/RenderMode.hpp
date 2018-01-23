@@ -1,5 +1,5 @@
-#ifndef GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
-#define GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
+#ifndef GLES3_T3DSTRESSTEST_RENDERMODE_HPP
+#define GLES3_T3DSTRESSTEST_RENDERMODE_HPP
 /****************************************************************************************************************************************************
 * Copyright (c) 2014 Freescale Semiconductor, Inc.
 * All rights reserved.
@@ -31,26 +31,13 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
-#include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics3D/Procedural/BasicMesh.hpp>
-#include <vector>
-
 namespace Fsl
 {
-  // Render the model vertex normals
-  class MeshRenderNormals : public MeshRender
+  enum class RenderMode
   {
-    std::vector<VertexPosition> m_vertices;
-  public:
-    MeshRenderNormals(const Procedural::BasicMesh& mesh);
-    ~MeshRenderNormals();
-
-    virtual void Bind(const ShaderBase& shader) override;
-    virtual void Draw() override;
-    virtual void DrawInstanced(const int layerCount) override;
-    virtual void Unbind() override;
+    ES3MultiPass = 0,
+    ES3Instanced = 1,
   };
-
 }
+
 #endif

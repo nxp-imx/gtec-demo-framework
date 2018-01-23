@@ -1,7 +1,5 @@
-#ifndef GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
-#define GLES3_T3DSTRESSTEST_MESHRENDERNORMALS_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +12,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,26 +29,32 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "MeshRender.hpp"
-#include <FslGraphics/Vertices/VertexPosition.hpp>
-#include <FslGraphics3D/Procedural/BasicMesh.hpp>
-#include <vector>
+#include "FurShaderInstanced.hpp"
+#include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <algorithm>
+#include <cassert>
+
 
 namespace Fsl
 {
-  // Render the model vertex normals
-  class MeshRenderNormals : public MeshRender
-  {
-    std::vector<VertexPosition> m_vertices;
-  public:
-    MeshRenderNormals(const Procedural::BasicMesh& mesh);
-    ~MeshRenderNormals();
+  using namespace GLES3;
 
-    virtual void Bind(const ShaderBase& shader) override;
-    virtual void Draw() override;
-    virtual void DrawInstanced(const int layerCount) override;
-    virtual void Unbind() override;
-  };
+  FurShaderInstanced::FurShaderInstanced(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
+    : FurShaderBase(contentManager, shaderPath, useHighPrecision, lightCount)
+    , m_locCurrentLayer(GLValues::INVALID_LOCATION)
+  {
+    const GLuint hProgram = Get();
+
+    // Get uniform locations
+    m_locCurrentLayer = GL_CHECK(glGetUniformLocation(hProgram, "CurrentLayer"));
+  }
+
+
+  void FurShaderInstanced::SetCurrentLayer(const float layer)
+  {
+    assert(IsLoaded());
+    glUniform1f(m_locCurrentLayer, layer);
+  }
 
 }
-#endif

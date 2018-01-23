@@ -70,6 +70,7 @@ namespace Fsl
   FurShaderBase::FurShaderBase(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
     : ShaderBase(contentManager.ReadAllText(GetVert(shaderPath, useHighPrecision)), contentManager.ReadAllText(GetFrag(shaderPath, useHighPrecision, lightCount)))
     , m_lightCount(lightCount)
+    , m_locInstanceDistance(GLValues::INVALID_LOCATION)
     , m_locWorld(GLValues::INVALID_LOCATION)
     , m_locView(GLValues::INVALID_LOCATION)
     , m_locProjection(GLValues::INVALID_LOCATION)
@@ -89,6 +90,7 @@ namespace Fsl
   FurShaderBase::FurShaderBase(const IContentManager& contentManager, const IO::Path& vertShaderPath, const IO::Path& fragShaderPath, const int lightCount)
     : ShaderBase(contentManager.ReadAllText(vertShaderPath), contentManager.ReadAllText(fragShaderPath))
     , m_lightCount(lightCount)
+    , m_locInstanceDistance(GLValues::INVALID_LOCATION)
     , m_locWorld(GLValues::INVALID_LOCATION)
     , m_locView(GLValues::INVALID_LOCATION)
     , m_locProjection(GLValues::INVALID_LOCATION)
@@ -104,6 +106,17 @@ namespace Fsl
     Construct(lightCount);
   }
 
+
+  void FurShaderBase::SetInstanceDistance(const float distance)
+  {
+    if (m_locInstanceDistance == GLValues::INVALID_LOCATION)
+    {
+      FSLLOG_WARNING("InstanceDistance not available, so request was ignored");
+      return;
+    }
+    assert(IsLoaded());
+    glUniform1f(m_locInstanceDistance, distance);
+  }
 
   void FurShaderBase::SetWorld(const Matrix& matrix)
   {
@@ -222,6 +235,7 @@ namespace Fsl
     m_shaderConfig.TexCoord = GL_CHECK(glGetAttribLocation(hProgram, "TexCoord"));
 
     // Get uniform locations
+    m_locInstanceDistance = GL_CHECK(glGetUniformLocation(hProgram, "InstanceDistance"));
     m_locWorld = GL_CHECK(glGetUniformLocation(hProgram, "World"));
     m_locView = GL_CHECK(glGetUniformLocation(hProgram, "View"));
     m_locProjection = GL_CHECK(glGetUniformLocation(hProgram, "Projection"));
