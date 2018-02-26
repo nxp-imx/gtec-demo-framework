@@ -32,8 +32,8 @@
 // OpenVX 1.1 project
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <RapidOpenVX/Check.hpp>
 #include "UserNodes.hpp"
-#include "Kernels_VXC.hpp"
 
 #define VX_KERNEL_NAME_BADPIXEL   "com.nxp.extension.badpixel"
 #define VX_KERNEL_ENUM_BADPIXEL   100
@@ -59,9 +59,10 @@
 namespace Fsl
 {
 
-  UserNodes::UserNodes()
-    : m_denoiseEn(0)
+  UserNodes::UserNodes(const std::shared_ptr<IContentManager>& contentManager)
+    : m_contentManager(contentManager)
   {
+    m_denoiseEn = false;
   }
 
 
@@ -1768,11 +1769,18 @@ namespace Fsl
     vx_kernel kernelObj = nullptr;
 
     vx_program programObj = nullptr;
-    const vx_char* programSrc[] = { vxcKernelSource };
-    vx_size programLen = strlen(vxcKernelSource);
+    std::string programStr = m_contentManager->ReadAllText("kernels_vxc.vx");
+    const vx_char* programSrc[] = { programStr.c_str() };
+    vx_size programLen = programStr.size();
 
     programObj = vxCreateProgramWithSource(ContextVX, 1, programSrc, &programLen);
-    vxBuildProgram(programObj, "-cl-viv-vx-extension");
+    RAPIDOPENVX_CHECK(vxGetStatus((vx_reference)programObj));
+    
+    IO::Path contentPath = m_contentManager->GetContentPath();
+    std::string buildOptionStr = "-cl-viv-vx-extension -I ";
+    buildOptionStr += contentPath.ToUTF8String();
+    const vx_char* buildOptions = buildOptionStr.c_str();
+    RAPIDOPENVX_CHECK(vxBuildProgram(programObj, buildOptions));
 
     std::size_t kernelNum = 0;
     if (m_denoiseEn)

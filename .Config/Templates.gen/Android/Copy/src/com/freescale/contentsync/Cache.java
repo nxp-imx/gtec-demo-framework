@@ -30,6 +30,8 @@
 ****************************************************************************************************************************************************/
 package com.freescale.contentsync;
 
+import android.util.Log;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +40,10 @@ import java.util.ArrayList;
 
 public class Cache {
 
+	static final String TAG = "com.freescale.contentsync";
+
 	private static final String HEADER = "# FslContentSync cache file";
-	private static final String HEADER_FORMAT = "# Format: 1";
+	private static final String HEADER_FORMAT = "# Format: 3";
 	
 	public ArrayList<CacheEntry> Files = new ArrayList<CacheEntry>();
 	public ArrayList<CacheEntry> Dirs = new ArrayList<CacheEntry>();
@@ -84,8 +88,11 @@ public class Cache {
 		String[] lines = content.split("\n");
 
 		if( ! ValidateHeader(lines) )
+		{
+			PrintWarning("Cache has invalid header");
 			return;
-		
+		}
+
 		for (int i = 0; i < lines.length; i++) {
 			String line = lines[i];
 			if (!line.startsWith("#")) {
@@ -104,5 +111,10 @@ public class Cache {
 			}
 		}
 	}
+
+	private static void PrintWarning(String str) {
+		Log.w(TAG, str);
+	}
+
 
 }

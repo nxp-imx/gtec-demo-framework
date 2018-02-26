@@ -133,13 +133,6 @@ namespace Fsl
       m_meshStuff.reset(new MeshStuff(mesh));
     }
 
-    // Setup the texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_tex1.Get());
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_tex2.Get());
-
     Vector3 lightDirection(-0.0f, -0.0f, -1.0f);
     lightDirection.Normalize();
     Vector3 lightColor(0.9f, 0.9f, 0.9f);
@@ -155,21 +148,6 @@ namespace Fsl
       m_shader1.SetLightColor(0, lightColor);
       m_shader1.SetLightAmbientColor(ambientColor);
     }
-
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CCW);
-    //  glEnable(GL_FRONT_AND_BACK);
-    //glDisable(GL_CULL_FACE);
-
-    if (m_config.GetEnableDepthTest())
-      glEnable(GL_DEPTH_TEST);
-    else
-      glDisable(GL_DEPTH_TEST);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   }
 
 
@@ -212,6 +190,28 @@ namespace Fsl
 
   void T3DStressTest::Draw(const DemoTime& demoTime)
   {
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
+    //  glEnable(GL_FRONT_AND_BACK);
+    //glDisable(GL_CULL_FACE);
+
+    if (m_config.GetEnableDepthTest())
+      glEnable(GL_DEPTH_TEST);
+    else
+      glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+    // Setup the texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_tex1.Get());
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_tex2.Get());
+
     bool bypassRender = false;
     if (m_config.GetToggleMinMax() == true)
     {

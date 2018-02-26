@@ -61,12 +61,14 @@ def DetermineMinSDKVersion(package: Package) -> AndroidSDKVersion:
         return AndroidSDKVersion(24)
     elif "OpenGLES3.1" in namesOnly:
         return AndroidSDKVersion(21)
-    return AndroidSDKVersion(18)
+    return AndroidSDKVersion(21)
 
 
 def DetermineMinGLESVersion(package: Package) -> str:
     namesOnly = [entry.Name for entry in package.ResolvedAllUsedFeatures]
-    if "OpenGLES3.1" in namesOnly:
+    if "OpenGLES3.2" in namesOnly:
+        return "0x00030002"
+    elif "OpenGLES3.1" in namesOnly:
         return "0x00030001"
     elif "OpenGLES3" in namesOnly:
         return "0x00030000"

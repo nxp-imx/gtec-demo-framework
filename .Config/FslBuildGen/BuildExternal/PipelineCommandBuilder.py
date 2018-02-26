@@ -57,6 +57,7 @@ from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineFetchCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineFetchCommandDownload
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineFetchCommandGitClone
+from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineFetchCommandSource
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommandUnpack
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommandCMakeBuild
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommandClone
@@ -68,18 +69,18 @@ from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineJoinCommandUn
 
 
 class PipelineTasks:
-    def __init__(self, log: Log, generatorContext: GeneratorContext, checkBuildCommands: bool) -> None:
+    def __init__(self, log: Log, generatorContext: GeneratorContext, checkBuildCommands: bool, buildThreads: int) -> None:
         self.__Log = log
         # Add the task objects
-        self.TaskCMakeAndBuild = self.__TryAllocateCMakeAndBuildTask(generatorContext, checkBuildCommands)
+        self.TaskCMakeAndBuild = self.__TryAllocateCMakeAndBuildTask(generatorContext, checkBuildCommands, buildThreads)
         self.TaskGitClone = self.__TryAllocateGitCloneTask(generatorContext, checkBuildCommands)
         self.TaskGitApply = self.__TryAllocateGitApplyTask(generatorContext, checkBuildCommands)
         self.TaskDownload = DownloadTask(generatorContext)
         self.TaskUnpackAndRename = UnpackAndRenameTask(generatorContext)
 
-    def __TryAllocateCMakeAndBuildTask(self, generatorContext: GeneratorContext, checkBuildCommands: bool) -> Optional[CMakeAndBuildTask]:
+    def __TryAllocateCMakeAndBuildTask(self, generatorContext: GeneratorContext, checkBuildCommands: bool, buildThreads: int) -> Optional[CMakeAndBuildTask]:
         try:
-            return CMakeAndBuildTask(generatorContext)
+            return CMakeAndBuildTask(generatorContext, buildThreads)
         except Exception as ex:
             if checkBuildCommands:
                 raise
@@ -503,14 +504,14 @@ class PipelineCommandInstall(PipelineCommand):
 
 
 class PipelineCommandBuilder(object):
-    def __init__(self, generatorContext: GeneratorContext, checkBuildCommands: bool) -> None:
+    def __init__(self, generatorContext: GeneratorContext, checkBuildCommands: bool, buildThreads: int) -> None:
         super(PipelineCommandBuilder, self).__init__()
         self.__Log = generatorContext.Log
         self.__BasicConfig = generatorContext.BasicConfig
         self.__AllowDownloads = generatorContext.AllowDownloads
 
         # Add the task objects
-        self.PipelineTasks = PipelineTasks(self.__Log, generatorContext, checkBuildCommands)
+        self.PipelineTasks = PipelineTasks(self.__Log, generatorContext, checkBuildCommands, buildThreads)
 
         # TODO: enable this once we fixed the path issue (beware code moved to path builder now)
         #if not self.TaskCMakeAndBuild is None:
@@ -594,6 +595,10 @@ class PipelineCommandBuilder(object):
             if not isinstance(sourceCommand, XmlRecipePipelineFetchCommandGitClone):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineFetchCommandGitClone")
             return self.__CreateCommandGitClone(sourceCommand, srcRootPath)
+        elif sourceCommand.CommandType == BuildRecipePipelineCommand.Source:
+            if not isinstance(sourceCommand, XmlRecipePipelineFetchCommandSource):
+                raise Exception("Internal error, sourceCommand was not XmlRecipePipelineFetchCommandSource")
+            return self.__CreateCommandSource(sourceCommand, srcRootPath)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.Unpack:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandUnpack):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandUnpack")
@@ -649,3 +654,13 @@ class PipelineCommandBuilder(object):
         dstPath = IOUtil.Join(self.__PathBuilder.DownloadCacheRootPath, self.__SourceRecipe.Name)
         info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, dstPath, allowDownloads=self.__AllowDownloads)
         return PipelineCommandGitClone(self.__BasicConfig, sourceCommand, info)
+
+
+    def __CreateCommandSource(self, sourceCommand: XmlRecipePipelineFetchCommandSource, srcRootPath: str) -> PipelineCommand:
+        if self.__SourcePackage is None or self.__SourceRecipe is None:
+            raise Exception("Invalid state")
+
+        # We basically setup a NOP command that points to the source package location which will allow the pipeline to work with that
+        info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, srcRootPath, allowDownloads=self.__AllowDownloads)
+        return PipelineCommandNOP(self.__BasicConfig, sourceCommand, info)
+

@@ -46,10 +46,10 @@ namespace Fsl
 {
   class UserNodes
   {
-
+    std::shared_ptr<IContentManager> m_contentManager;
   public:
     bool m_denoiseEn;
-    UserNodes();
+    UserNodes(const std::shared_ptr<IContentManager>& contentManager);
     ~UserNodes();
     vx_status vxPublishNodeKernels(vx_context context);
     vx_node nxpDebayerNode(vx_graph graph, vx_image in, vx_image out);
@@ -101,7 +101,6 @@ namespace Fsl
     static vx_status vxYUV2RGBAOutputValidator(vx_node node, vx_uint32 index, vx_meta_format metaObj);
     static vx_status vxYUV2RGBAValidator(vx_node node, const vx_reference parameters[], vx_uint32 num, vx_meta_format metas[]);
     static vx_status vxYUV2RGBAInitializer(vx_node nodObj, const vx_reference *paramObj, vx_uint32 paraNum);
-
   };
 
 }

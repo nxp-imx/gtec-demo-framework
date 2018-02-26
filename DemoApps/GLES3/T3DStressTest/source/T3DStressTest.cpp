@@ -97,7 +97,7 @@ namespace Fsl
 
     { // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
       Bitmap bitmap;
-      GetContentManager()->Read(bitmap, "Seamless.jpg");
+      GetContentManager()->Read(bitmap, "Seamless.jpg", PixelFormat::R8G8B8A8_UNORM);
       GLTextureParameters texParams1(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       m_tex1.SetData(bitmap, texParams1);
     }
@@ -159,21 +159,6 @@ namespace Fsl
       m_shaderInstanced.SetLightColor(0, lightColor);
       m_shaderInstanced.SetLightAmbientColor(ambientColor);
     }
-
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CCW);
-    //  glEnable(GL_FRONT_AND_BACK);
-    //glDisable(GL_CULL_FACE);
-
-    if (m_config.GetEnableDepthTest())
-      glEnable(GL_DEPTH_TEST);
-    else
-      glDisable(GL_DEPTH_TEST);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   }
 
 
@@ -216,13 +201,27 @@ namespace Fsl
 
   void T3DStressTest::Draw(const DemoTime& demoTime)
   {
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
+    //  glEnable(GL_FRONT_AND_BACK);
+    //glDisable(GL_CULL_FACE);
+
+    if (m_config.GetEnableDepthTest())
+      glEnable(GL_DEPTH_TEST);
+    else
+      glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
     // Setup the texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_tex1.Get());
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_tex2.Get());
-
 
     bool bypassRender = false;
     if (m_config.GetToggleMinMax() == true)

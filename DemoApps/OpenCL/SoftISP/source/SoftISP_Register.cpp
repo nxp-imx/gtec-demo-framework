@@ -31,12 +31,13 @@
 
 #include <FslDemoApp/OpenCL/Setup/RegisterDemoApp.hpp>
 #include "SoftISP.hpp"
+#include "OptionParser.hpp"
 
 namespace Fsl
 {
   // Configure the demo environment to run this demo app in a OpenCL host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppRegister::OpenCL::Register<SoftISP>(rSetup, "OpenCL.SoftISP");
+    DemoAppRegister::OpenCL::Register<SoftISP, OptionParser>(rSetup, "OpenCL.SoftISP");
   }
 }

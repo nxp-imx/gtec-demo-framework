@@ -31,6 +31,7 @@
 
 // OpenVX 1.1 project
 #include "SoftISP.hpp"
+#include "OptionParser.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <RapidOpenVX/Check.hpp>
@@ -58,6 +59,9 @@ namespace Fsl
     , m_context(ResetMode::Create)
     , m_save(true)
   {
+    auto optionParser = config.GetOptions<OptionParser>();
+    m_denoiseStatus = optionParser->GetDenoiseStatus();
+    FSLLOG("Denoise status: " << m_denoiseStatus);
   }
 
 
@@ -68,7 +72,8 @@ namespace Fsl
 
   void SoftISP::Run()
   {
-    UserNodes nodes;
+    UserNodes nodes(GetContentManager());
+    nodes.m_denoiseEn = m_denoiseStatus;
     vx_rectangle_t rect = { 0, 0, 0, 0 };
     vx_map_id map_id;
     vx_imagepatch_addressing_t imgInfo = VX_IMAGEPATCH_ADDR_INIT;
@@ -77,7 +82,7 @@ namespace Fsl
 
     rect.end_x = m_imgWid;
     rect.end_y = m_imgHei;
-    nodes.vxPublishNodeKernels(m_context.Get());
+    RAPIDOPENVX_CHECK(nodes.vxPublishNodeKernels(m_context.Get()));
     AllocateMemory(m_context.Get());
 
     m_graph.Reset(m_context.Get());
@@ -121,7 +126,7 @@ namespace Fsl
       RAPIDOPENVX_CHECK(nodes.nxpYUV2RGBANode(m_graph.Get(), m_imagesObj[5].Get(), m_imagesObj[7].Get(), m_imagesObj[8].Get()));
     }
 
-    FSLLOG(vxVerifyGraph(m_graph.Get()));
+    RAPIDOPENVX_CHECK(vxVerifyGraph(m_graph.Get()));
     RAPIDOPENVX_CHECK(vxProcessGraph(m_graph.Get()));
 
     vx_perf_t perf;

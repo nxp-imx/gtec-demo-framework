@@ -1,4 +1,4 @@
-# DemoFramework 5.0.1
+# DemoFramework 5.0.2
 
 A multi-platform framework for fast and easy demo development.
 

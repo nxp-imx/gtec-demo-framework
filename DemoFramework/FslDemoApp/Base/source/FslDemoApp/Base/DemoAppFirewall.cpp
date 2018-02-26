@@ -205,6 +205,28 @@ namespace Fsl
   }
 
 
+  void DemoAppFirewall::_PostUpdate(const DemoTime& demoTime)
+  {
+    if (!m_app)
+    {
+      ADemoApp::_PostUpdate(demoTime);
+      return;
+    }
+
+    try
+    {
+      m_app->_PostUpdate(demoTime);
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      FSLLOG_ERROR("App._PostUpdate threw exception: " << message);
+      SafeDispose();
+      BuildErrorString("App._PostUpdate threw exception:", message);
+    }
+  }
+
   void DemoAppFirewall::_Draw(const DemoTime& demoTime)
   {
     if (!m_app)

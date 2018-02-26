@@ -427,7 +427,7 @@ def BuildPackagesInOrder(config: Config,
 
     validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor)
     missingPackagesInBuildOrder = __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder)
-    builder = PipelineCommandBuilder(generatorContext, builderSettings.CheckBuildCommands)
+    builder = PipelineCommandBuilder(generatorContext, builderSettings.CheckBuildCommands, builderSettings.BuildThreads)
     recipeRecords = __CreatePipelines(basicConfig, builder, missingPackagesInBuildOrder)
 
     for recipeRecord in recipeRecords:

@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
+from typing import List
 from typing import Optional
 import argparse
 from FslBuildGen import Main as MainFlow
@@ -61,6 +62,7 @@ class DefaultValue(object):
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
     PreDeleteBuild = True
     PostDeleteBuild = True
+    VoidBuild = False
 
 
 class LocalToolConfig(ToolAppConfig):
@@ -73,6 +75,7 @@ class LocalToolConfig(ToolAppConfig):
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
         self.PreDeleteBuild = DefaultValue.PreDeleteBuild
         self.PostDeleteBuild = DefaultValue.PostDeleteBuild
+        self.VoidBuild = DefaultValue.VoidBuild
 
 
 def GetDefaultLocalConfig() -> LocalToolConfig:
@@ -97,6 +100,7 @@ class ToolFlowBuildExternal(AToolAppFlow):
         localToolConfig.PackageConfigurationType = args.type
         localToolConfig.PreDeleteBuild = not args.DontPreDeleteBuild
         localToolConfig.PostDeleteBuild = not args.DontPostDeleteBuild
+        localToolConfig.VoidBuild = args.VoidBuild
 
         self.Process(currentDirPath, toolConfig, localToolConfig)
 
@@ -108,7 +112,11 @@ class ToolFlowBuildExternal(AToolAppFlow):
         packageFilters = localToolConfig.BuildPackageFilters
 
         platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
-        theFiles = MainFlow.DoGetFiles(config, currentDirPath)
+        theFiles = [] # type: List[str]
+        if not localToolConfig.VoidBuild:
+            theFiles = MainFlow.DoGetFiles(config, currentDirPath)
+        else:
+            self.Log.LogPrintVerbose(1, "Doing a void build")
         generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #packages = DoExperimentalGetRecipes(generatorContext, config, [])
@@ -120,6 +128,7 @@ class ToolFlowBuildExternal(AToolAppFlow):
         builderConfig.Settings.PostDeleteBuild = localToolConfig.PostDeleteBuild
         builderConfig.Settings.CheckBuildCommands = localToolConfig.CheckBuildCommands
         builderConfig.Settings.ForceClaimInstallArea = localToolConfig.ForceClaimInstallArea
+        builderConfig.Settings.BuildThreads = localToolConfig.BuildThreads
 
         RecipeBuilder.BuildPackages(config, generatorContext, builderConfig, packages)
 
@@ -149,6 +158,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True
         argConfig.SupportBuildTime = True
+        argConfig.AddBuildThreads = True
         return argConfig
 
 
@@ -157,6 +167,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--DontPreDeleteBuild', action='store_true', help='The build temporary directory will not be deleted before starting a build. Only use this if you know what you are doing')
         parser.add_argument('--DontPostDeleteBuild', action='store_true', help='On successfull build dont delete the build directory')
         parser.add_argument('--CheckBuildCommands', action='store_true', help='Check that all build commands are available')
+        parser.add_argument('--VoidBuild', action='store_true', help='Build a empty package (a void package)')
 
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:

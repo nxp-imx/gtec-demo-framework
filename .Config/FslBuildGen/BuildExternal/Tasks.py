@@ -46,6 +46,8 @@ from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import CMakeTargetType
+from FslBuildGen.DataTypes import BuildThreads
+from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
 
 
 class BasicTask(object):
@@ -187,29 +189,34 @@ class UnpackAndRenameTask(BasicTask):
 
 
 class CMakeBuilder(object):
-    def __init__(self, generatorContext: GeneratorContext) -> None:
+    def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
         super(CMakeBuilder, self).__init__()
         self.Context = generatorContext
         self.BasicConfig = generatorContext.BasicConfig
         # Builders like ninja and make only contains a single configuration
         self.IsSingleConfiguration = False
 #        #self.__ConfigureForPlatform(generatorContext)
+        self.BuilderThreadArguments = [] # type: List[str]
+        PlatformBuildUtil.AddBuildThreads(generatorContext.Log, self.BuilderThreadArguments, generatorContext.Platform.Name, buildThreads)
+
 
     def Execute(self, path: str, target: int, cmakeProjectName: str, configuration: int) -> None:
         pass
 
 
 class CMakeBuilderMake(CMakeBuilder):
-    def __init__(self, generatorContext: GeneratorContext) -> None:
-        super(CMakeBuilderMake, self).__init__(generatorContext)
+    def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
+        super(CMakeBuilderMake, self).__init__(generatorContext, buildThreads)
         # The cmake make files only support one configuration
         self.IsSingleConfiguration = True
+
 
     def Execute(self, path: str, target: int, cmakeProjectName: str, configuration: int) -> None:
         projectFile = "Makefile"
 
         self.BasicConfig.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
         buildCommand = ['make', '-f', projectFile]
+        buildCommand += self.BuilderThreadArguments
         if target == CMakeTargetType.Install:
             buildCommand.append('install')
         result = subprocess.call(buildCommand, cwd=path)
@@ -218,8 +225,8 @@ class CMakeBuilderMake(CMakeBuilder):
 
 
 class CMakeBuilderMSBuild(CMakeBuilder):
-    #def __init__(self, generatorContext: GeneratorContext) -> None:
-    #    super(CMakeBuilderMSBuild, self).__init__(generatorContext)
+    #def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
+    #    super(CMakeBuilderMSBuild, self).__init__(generatorContext, buildThreads)
 
     # msbuild INSTALL.vcxproj /p:Configuration=Debug
     # msbuild INSTALL.vcxproj /p:Configuration=Release
@@ -229,6 +236,7 @@ class CMakeBuilderMSBuild(CMakeBuilder):
         self.BasicConfig.LogPrint("* Running msbuild at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, configurationString))
         configurationString = "/p:Configuration={0}".format(configurationString)
         buildCommand = ['msbuild.exe', projectFile, configurationString]
+        buildCommand += self.BuilderThreadArguments
         result = subprocess.call(buildCommand, cwd=path)
         if result != 0:
             raise Exception("msbuild failed {0}".format(buildCommand))
@@ -251,9 +259,9 @@ class CMakeBuilderMSBuild(CMakeBuilder):
 
 
 class CMakeAndBuildTask(BasicTask):
-    def __init__(self, generatorContext: GeneratorContext) -> None:
+    def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
         super(CMakeAndBuildTask, self).__init__(generatorContext)
-        self.__ConfigureForPlatform(generatorContext)
+        self.__ConfigureForPlatform(generatorContext, buildThreads)
 
     # cmake -G "Visual Studio 14 2015 Win64"
     # -DCMAKE_INSTALL_PREFIX="e:\Work\Down\Windows\final\zlib-1.2.11"
@@ -306,16 +314,16 @@ class CMakeAndBuildTask(BasicTask):
         return "CMAKE_BUILD_TYPE={0}".format(buildType)
 
 
-    def __ConfigureForPlatform(self, generatorContext: GeneratorContext) -> None:
+    def __ConfigureForPlatform(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
         self.CMakeCommand = CMakeTypes.DetermineCMakeCommand(generatorContext.Platform.Name)
         self.CMakeGeneratorName = CMakeTypes.DetermineCMakeGenerator(generatorContext.Platform)
         self.CompilerShortId = CMakeTypes.GetCompilerShortIdFromGeneratorName(self.CMakeGeneratorName)
-        self.Builder = self.__DetermineBuilder(self.CMakeGeneratorName, generatorContext)
+        self.Builder = self.__DetermineBuilder(self.CMakeGeneratorName, generatorContext, buildThreads)
 
 
-    def __DetermineBuilder(self, generatorName: str, generatorContext: GeneratorContext) -> CMakeBuilder:
+    def __DetermineBuilder(self, generatorName: str, generatorContext: GeneratorContext, buildThreads: int) -> CMakeBuilder:
         if generatorName == CMakeTypes.CMakeGeneratorName.UnixMakeFile:
-            return CMakeBuilderMake(generatorContext)
+            return CMakeBuilderMake(generatorContext, buildThreads)
         elif generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2017_X64:
-            return CMakeBuilderMSBuild(generatorContext)
+            return CMakeBuilderMSBuild(generatorContext, buildThreads)
         raise Exception("No Builder defined for the cmake generator '{0}' on platform '{1}'".format(generatorName, generatorContext.PlatformName))

@@ -34,6 +34,7 @@
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <algorithm>
 #include <cassert>
 
 namespace Fsl
@@ -81,7 +82,7 @@ namespace Fsl
         swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         swapchainCreateInfo.flags = flags;
         swapchainCreateInfo.surface = surface;
-        swapchainCreateInfo.minImageCount = minImageCount;
+        swapchainCreateInfo.minImageCount = std::min(minImageCount, surfaceCapabilities.maxImageCount);
         swapchainCreateInfo.imageFormat = imageFormat;
         swapchainCreateInfo.imageColorSpace = imageColorSpace;
         swapchainCreateInfo.imageExtent = surfaceCapabilities.currentExtent;
@@ -96,6 +97,7 @@ namespace Fsl
         swapchainCreateInfo.clipped = clipped;
         swapchainCreateInfo.oldSwapchain = oldSwapchain;
 
+        FSLLOG_WARNING_IF(minImageCount > surfaceCapabilities.maxImageCount, "CreateSwapchain minImageCount was limited to " << surfaceCapabilities.maxImageCount << " instead of " << minImageCount << " due to device limits");
         return VUSwapchainKHR(device, swapchainCreateInfo);
       }
 

@@ -47,7 +47,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 #from FslBuildGen import PackageConfig
 
 g_validJoinCommands = ["Copy", "Unpack", "GitApply"]
-g_validFetchCommands = ["GitClone", "Download"]
+g_validFetchCommands = ["GitClone", "Download", "Source"]
 g_validCommands = ["Unpack", "CMakeBuild"]
 g_validValidateCommands = ["EnvironmentVariable", "Path", "FindFileInPath", "AddHeaders", "AddLib", "AddDLL"]
 
@@ -271,6 +271,11 @@ class XmlRecipePipelineFetchCommandDownload(XmlRecipePipelineFetchCommand):
         self.Hash = self._TryReadAttrib(xmlElement, 'Hash')
 
 
+class XmlRecipePipelineFetchCommandSource(XmlRecipePipelineFetchCommand):
+    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
+        super(XmlRecipePipelineFetchCommandSource, self).__init__(basicConfig, xmlElement, "Source", BuildRecipePipelineCommand.Source, allowJoinCommandList=False)
+
+
 class XmlRecipePipelineBuildCommand(XmlRecipePipelineCommand):
     pass
 
@@ -308,11 +313,14 @@ class XmlRecipePipelineCommandClone(XmlRecipePipelineBuildCommand):
         super(XmlRecipePipelineCommandClone, self).__init__(basicConfig, xmlElement, "Clone", BuildRecipePipelineCommand.Clone)
 
 
+
 def _TryAllocatePipelineFetchCommand(basicConfig: BasicConfig, xmlElement: ET.Element) -> Optional[XmlRecipePipelineFetchCommand]:
     if xmlElement.tag == 'GitClone':
         return XmlRecipePipelineFetchCommandGitClone(basicConfig, xmlElement)
     elif xmlElement.tag == 'Download':
         return XmlRecipePipelineFetchCommandDownload(basicConfig, xmlElement)
+    elif xmlElement.tag == 'Source':
+        return XmlRecipePipelineFetchCommandSource(basicConfig, xmlElement)
     return None
 
 

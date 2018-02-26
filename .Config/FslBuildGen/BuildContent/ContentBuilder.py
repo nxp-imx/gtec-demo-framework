@@ -132,13 +132,13 @@ class Builder(object):
 
             ## Query the sync state of the content file
             syncStateFileName = self.__GetSyncStateFileName(contentFile.SourceRoot.ResolvedPath, contentFile.RelativePath)
-            contentState = syncState.GetFileStateByFileName(syncStateFileName)
+            contentState = syncState.TryGetFileStateByFileName(syncStateFileName)
             buildResource = not contentState or contentState.CacheState != BuildState.CacheState.Unmodified
             if not buildResource:
                 # It was unmodified, so we need to examine the state of the output file to
                 # determine if its safe to skip the building
                 syncStateOutputFileName = self.__GetSyncStateFileName(contentOutputPath, outputFileName)
-                outputContentState = outputSyncState.GetFileStateByFileName(syncStateOutputFileName)
+                outputContentState = outputSyncState.TryGetFileStateByFileName(syncStateOutputFileName)
                 buildResource = not outputContentState or outputContentState.CacheState != BuildState.CacheState.Unmodified
 
             if buildResource:
@@ -179,26 +179,30 @@ class Builder(object):
 
                 # Query the sync state of the content file
                 syncStateFileName = self.__GetSyncStateFileName(contentBuildPath, contentFile.RelativePath)
-                contentState = syncState.GetFileStateByFileName(syncStateFileName)
-                buildResource = not contentState or contentState.CacheState != BuildState.CacheState.Unmodified
-                if not buildResource:
+                contentState = syncState.TryGetFileStateByFileName(syncStateFileName)
+                buildResource = contentState is None or contentState.CacheState != BuildState.CacheState.Unmodified
+                if buildResource is not None:
                     # It was unmodified, so we need to examine the state of the output file to
                     # determine if its safe to skip the building
                     syncStateOutputFileName = self.__GetSyncStateFileName(contentOutputPath, outputFileName)
-                    outputContentState = outputSyncState.GetFileStateByFileName(syncStateOutputFileName)
-                    buildResource = not outputContentState or outputContentState.CacheState != BuildState.CacheState.Unmodified
+                    outputContentState = outputSyncState.TryGetFileStateByFileName(syncStateOutputFileName)
+                    buildResource = (outputContentState is None or outputContentState.CacheState != BuildState.CacheState.Unmodified or
+                                     (contentState is None or contentState.Checksum != outputContentState.TagChecksum))
 
                 if buildResource:
                     try:
                         processors[0].Process(config, contentBuildPath, contentOutputPath, contentFile, toolFinder)
                     except:
-                        # Save if a exception occured to prevent reprocessing the working files
+                        # Save if a exception occured to prevent reprocessing the working files, but we invalidate
                         outputSyncState.Save()
                         syncState.Save()
                         raise
 
                     # Add a entry for the output file
                     outputFileState = outputSyncState.BuildContentState(config, outputFileRecord, True, True)
+                    # Tag it with the source file checksum so we have another way to detect changes
+                    if contentState is not None:
+                        outputFileState.TagChecksum = contentState.Checksum;
                     outputSyncState.Add(outputFileState)
 
 
@@ -213,7 +217,7 @@ def Build(config: Config, currentPath: str, featureList: List[str]) -> None:
     contentBuildPath = IOUtil.Join(currentPath, contentBuildDir)
     contentOutputPath = IOUtil.Join(currentPath, contentOutputDir)
     if not IOUtil.IsDirectory(contentBuildPath):
-        config.LogPrint("No '%s' directory present at '%s' so there is no content to process." % (contentBuildDir, currentPath))
+        config.LogPrintVerbose(1, "No '{0}' directory present at '{1}' so there is no content to process.".format(contentBuildDir, currentPath))
         return
 
     packageBuildPath = IOUtil.Join(currentPath, config.GetBuildDir())

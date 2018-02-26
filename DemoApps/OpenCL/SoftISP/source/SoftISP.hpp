@@ -46,6 +46,7 @@ namespace Fsl
     OpenCL::ContextEx m_context;
     cl_device_id m_deviceId;
     RapidOpenCL1::CommandQueue m_commandQueue;
+    bool m_denoiseEn;
     const std::size_t m_BINS = 256;
     const std::size_t m_imgWid = 1920;
     const std::size_t m_imgHei = 1080;

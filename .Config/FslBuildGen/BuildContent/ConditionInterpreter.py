@@ -128,4 +128,4 @@ class ConditionInterpreter(object):
         fixed = ast.fix_missing_locations(astRootNode)
         codeobj = compile(astRootNode, '<string>', mode='eval')
         # this should be safe as the root ast tree object has been verified to only contain things we expect
-        return eval(codeobj) is True
+        return True if eval(codeobj) == 1 else False

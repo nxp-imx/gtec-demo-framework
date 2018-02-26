@@ -1,7 +1,7 @@
-#ifndef FSLDEMOAPP_BASE_DEMOAPPFIREWALL_HPP
-#define FSLDEMOAPP_BASE_DEMOAPPFIREWALL_HPP
+#ifndef OPENCL_FASTFOURIERTRANSFORM_OPTIONPARSER_HPP
+#define OPENCL_FASTFOURIERTRANSFORM_OPTIONPARSER_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,38 +31,23 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/ADemoApp.hpp>
-#include <FslDemoApp/Base/DemoAppConfig.hpp>
-#include <memory>
-#include <string>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 
 namespace Fsl
 {
-  class Basic2D;
-  class IDemoAppFactory;
-  class KeyEvent;
-
-  class DemoAppFirewall : public ADemoApp
+  class OptionParser : public ADemoOptionParser
   {
-    std::shared_ptr<IDemoApp> m_app;
-    std::string m_errorString;
-    std::shared_ptr<Basic2D> m_basic2D;
+    bool m_denoiseStatus;
   public:
-    DemoAppFirewall(const DemoAppConfig& demoAppConfig, const std::shared_ptr<IDemoAppFactory>& appFactory);
-    ~DemoAppFirewall();
+    OptionParser();
+    ~OptionParser();
 
-    virtual void _PostConstruct() override;
-    virtual void _OnEvent(IEvent*const pEvent) override;
-    virtual void _Resized(const Point2& size) override;
-    virtual void _PreUpdate(const DemoTime& demoTime) override;
-    virtual void _FixedUpdate(const DemoTime& demoTime) override;
-    virtual void _Update(const DemoTime& demoTime) override;
-    virtual void _PostUpdate(const DemoTime& demoTime) override;
-    virtual void _Draw(const DemoTime& demoTime) override;
-  private:
-    void SafeDispose();
-    void BuildErrorString(const std::string& desc, const std::exception& ex);
-    void BuildErrorString(const std::string& desc, const std::string& message);
+    bool GetDenoiseStatus() const { return m_denoiseStatus; }
+
+  protected:
+    virtual void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    virtual OptionParseResult::Enum OnParse(const int32_t cmdId, const char*const pszOptArg) override;
+    virtual bool OnParsingComplete() override;
   };
 }
 

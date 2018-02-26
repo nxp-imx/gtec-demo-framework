@@ -378,9 +378,10 @@ class BuildRecipePipelineCommand:
     Unpack = 3
     CMakeBuild = 4
     Clone = 5
-    JoinCopy = 6
-    JoinUnpack = 7
-    JoinGitApply = 8
+    Source = 6
+    JoinCopy = 7
+    JoinUnpack = 8
+    JoinGitApply = 9
 
 
 class BuildRecipeValidateCommand:

@@ -162,7 +162,7 @@ class ToolFlowBuildGen(AToolAppFlow):
                             self.Log.PopIndent()
         elif not localToolConfig.DontBuildRecipes:
             if not isinstance(packages, dict):
-                self.__DoBuildRecipes(config, generatorContext, packages, localToolConfig.ForceClaimInstallArea)
+                self.__DoBuildRecipes(config, generatorContext, packages, localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads)
             else:
                 for platformName, platformResult in packages.items():
                     platformPackageList = platformResult[0]
@@ -172,7 +172,7 @@ class ToolFlowBuildGen(AToolAppFlow):
                         tempGeneratorContext = GeneratorContext(config, config.ToolConfig.Experimental, tempPlatformGeneratorPlugin)
                         try:
                             self.Log.PushIndent()
-                            self.__DoBuildRecipes(config, tempGeneratorContext, platformPackageList,  localToolConfig.ForceClaimInstallArea)
+                            self.__DoBuildRecipes(config, tempGeneratorContext, platformPackageList,  localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads)
                         finally:
                             self.Log.PopIndent()
 
@@ -188,9 +188,11 @@ class ToolFlowBuildGen(AToolAppFlow):
 
     def __DoBuildRecipes(self, config: Config, generatorContext: GeneratorContext,
                          packages: List[Package],
-                         forceClaimInstallArea: bool) -> None:
+                         forceClaimInstallArea: bool,
+                         buildThreads: int) -> None:
         builderConfig = BuilderConfig()
         builderConfig.Settings.ForceClaimInstallArea = forceClaimInstallArea
+        builderConfig.Settings.BuildThreads = buildThreads
         RecipeBuilder.BuildPackages(config, generatorContext, builderConfig, packages)
 
 
@@ -210,6 +212,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True
         argConfig.SupportBuildTime = True
+        argConfig.AddBuildThreads = True
         argConfig.AddBuildVariants = True
         argConfig.AddBuildFiltering = True
         return argConfig

@@ -629,7 +629,7 @@ __kernel void bilateral( __global uchar* input_image, __global uchar* output_ima
 						1.000, 0.722, 0.556, 0.500, 0.556, 0.722, 1.000};
 
     uchar m_pixel;
-    uchar16 lineA, lineB, lineC, lineD, lineE, lineF, lineG;
+    uchar16 lineA, lineB, lineC, lineD;
     uchar8 tmp[7], lineP, rangeWeight0, out;
     float8 rangeWeight1 = 0, rangeWeight2 = 0, spaceWeight = 0, weight = 0, sumWeight = 0;
     float8 tmpPixel = 0, tmpOut = 0;
@@ -638,9 +638,6 @@ __kernel void bilateral( __global uchar* input_image, __global uchar* output_ima
     lineB = vload16(0, input_image + (y - 2) * WIDTH + x * 8 - 3);
     lineC = vload16(0, input_image + (y - 1)  * WIDTH + x * 8 - 3);
     lineD = vload16(0, input_image + (y + 0)  * WIDTH + x * 8 - 3);
-    lineE = vload16(0, input_image + (y + 1)  * WIDTH + x * 8 - 3);
-    lineF = vload16(0, input_image + (y + 2)  * WIDTH + x * 8 - 3);
-    lineG = vload16(0, input_image + (y + 3)  * WIDTH + x * 8 - 3);
     
     lineP = lineD.s3456789a;
     tmp[0] = lineA.s01234567;
@@ -715,13 +712,16 @@ __kernel void bilateral( __global uchar* input_image, __global uchar* output_ima
 		tmpOut += tmpPixel * weight;
 	}
 	
-	tmp[0] = lineE.s01234567;
-	tmp[1] = lineE.s12345678;
-	tmp[2] = lineE.s23456789;
-	tmp[3] = lineE.s3456789a;
-	tmp[4] = lineE.s456789ab;
-	tmp[5] = lineE.s56789abc;
-	tmp[6] = lineE.s6789abcd;
+	lineA = vload16(0, input_image + (y + 1)  * WIDTH + x * 8 - 3);
+    lineB = vload16(0, input_image + (y + 2)  * WIDTH + x * 8 - 3);
+    lineC = vload16(0, input_image + (y + 3)  * WIDTH + x * 8 - 3);
+	tmp[0] = lineA.s01234567;
+	tmp[1] = lineA.s12345678;
+	tmp[2] = lineA.s23456789;
+	tmp[3] = lineA.s3456789a;
+	tmp[4] = lineA.s456789ab;
+	tmp[5] = lineA.s56789abc;
+	tmp[6] = lineA.s6789abcd;
 	for(int i = 0; i < 7; i++){
 		rangeWeight0 = abs_diff(tmp[i], lineP);
 		rangeWeight1 = convert_float8(rangeWeight0);
@@ -733,13 +733,13 @@ __kernel void bilateral( __global uchar* input_image, __global uchar* output_ima
 		tmpOut += tmpPixel * weight;
 	}
 	
-	tmp[0] = lineF.s01234567;
-	tmp[1] = lineF.s12345678;
-	tmp[2] = lineF.s23456789;
-	tmp[3] = lineF.s3456789a;
-	tmp[4] = lineF.s456789ab;
-	tmp[5] = lineF.s56789abc;
-	tmp[6] = lineF.s6789abcd;
+	tmp[0] = lineB.s01234567;
+	tmp[1] = lineB.s12345678;
+	tmp[2] = lineB.s23456789;
+	tmp[3] = lineB.s3456789a;
+	tmp[4] = lineB.s456789ab;
+	tmp[5] = lineB.s56789abc;
+	tmp[6] = lineB.s6789abcd;
 	for(int i = 0; i < 7; i++){
 		rangeWeight0 = abs_diff(tmp[i], lineP);
 		rangeWeight1 = convert_float8(rangeWeight0);
@@ -751,13 +751,13 @@ __kernel void bilateral( __global uchar* input_image, __global uchar* output_ima
 		tmpOut += tmpPixel * weight;
 	}
 	
-	tmp[0] = lineG.s01234567;
-	tmp[1] = lineG.s12345678;
-	tmp[2] = lineG.s23456789;
-	tmp[3] = lineG.s3456789a;
-	tmp[4] = lineG.s456789ab;
-	tmp[5] = lineG.s56789abc;
-	tmp[6] = lineG.s6789abcd;
+	tmp[0] = lineC.s01234567;
+	tmp[1] = lineC.s12345678;
+	tmp[2] = lineC.s23456789;
+	tmp[3] = lineC.s3456789a;
+	tmp[4] = lineC.s456789ab;
+	tmp[5] = lineC.s56789abc;
+	tmp[6] = lineC.s6789abcd;
 	for(int i = 0; i < 7; i++){
 		rangeWeight0 = abs_diff(tmp[i], lineP);
 		rangeWeight1 = convert_float8(rangeWeight0);

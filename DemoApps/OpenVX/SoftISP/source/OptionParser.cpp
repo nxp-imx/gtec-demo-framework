@@ -1,7 +1,5 @@
-#ifndef FSLDEMOAPP_BASE_DEMOAPPFIREWALL_HPP
-#define FSLDEMOAPP_BASE_DEMOAPPFIREWALL_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
+* Copyright 2017 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +12,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -31,39 +29,67 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/ADemoApp.hpp>
-#include <FslDemoApp/Base/DemoAppConfig.hpp>
-#include <memory>
-#include <string>
+#include "OptionParser.hpp"
+#include <FslBase/BasicTypes.hpp>
+#include <FslBase/Log/Log.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/String/StringParseUtil.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <algorithm>
+#include <cmath>
+#include <cstring>
 
 namespace Fsl
 {
-  class Basic2D;
-  class IDemoAppFactory;
-  class KeyEvent;
-
-  class DemoAppFirewall : public ADemoApp
+  namespace
   {
-    std::shared_ptr<IDemoApp> m_app;
-    std::string m_errorString;
-    std::shared_ptr<Basic2D> m_basic2D;
-  public:
-    DemoAppFirewall(const DemoAppConfig& demoAppConfig, const std::shared_ptr<IDemoAppFactory>& appFactory);
-    ~DemoAppFirewall();
+    struct CommandId
+    {
+      enum Enum
+      {
+        DenoiseStatus = DEMO_APP_OPTION_BASE,
+      };
 
-    virtual void _PostConstruct() override;
-    virtual void _OnEvent(IEvent*const pEvent) override;
-    virtual void _Resized(const Point2& size) override;
-    virtual void _PreUpdate(const DemoTime& demoTime) override;
-    virtual void _FixedUpdate(const DemoTime& demoTime) override;
-    virtual void _Update(const DemoTime& demoTime) override;
-    virtual void _PostUpdate(const DemoTime& demoTime) override;
-    virtual void _Draw(const DemoTime& demoTime) override;
-  private:
-    void SafeDispose();
-    void BuildErrorString(const std::string& desc, const std::exception& ex);
-    void BuildErrorString(const std::string& desc, const std::string& message);
-  };
+    };
+
+  }
+
+  OptionParser::OptionParser()
+    : m_denoiseStatus(false)
+  {
+  }
+
+
+  OptionParser::~OptionParser()
+  {
+
+  }
+
+
+  void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
+  {
+    rOptions.push_back(Option("Enable", OptionArgument::OptionNone, CommandId::DenoiseStatus, "Enable denoise function."));
+  }
+
+
+  OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char*const pszOptArg)
+  {
+    switch (cmdId)
+    {
+    case CommandId::DenoiseStatus:
+      m_denoiseStatus = true;
+      return OptionParseResult::Parsed;
+    default:
+      return OptionParseResult::NotHandled;
+    }
+  }
+
+
+  bool OptionParser::OnParsingComplete()
+  {
+    // If you return false, the app exits.
+    return true;
+  }
+
 }
-
-#endif

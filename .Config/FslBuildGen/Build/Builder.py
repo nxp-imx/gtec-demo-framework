@@ -49,6 +49,7 @@ from FslBuildGen import PackageListUtil
 from FslBuildGen import PlatformUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.BuildConfigRecord import BuildConfigRecord
+from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.Build.Filter import RequirementFilter
@@ -90,24 +91,10 @@ class LocalPlatformBuildContext(object):
     def __init__(self, log: Log, generatorOriginalName: str, buildCommand: int, buildThreads: int) -> None:
         self.Log = log
         self.AdditionalBuildArguments = [] # type: List[str]
-        self.__AddBuildThreads(self.AdditionalBuildArguments, generatorOriginalName, buildThreads)
+        PlatformBuildUtil.AddBuildThreads(log, self.AdditionalBuildArguments, generatorOriginalName, buildThreads)
         if buildCommand == CommandType.Clean:
             self.__HandleCleanBuilds(self.AdditionalBuildArguments, generatorOriginalName)
 
-    def __AddBuildThreads(self, rArgumentList: List[str], generatorOriginalName: str, buildThreads: int) -> None:
-        platformName = generatorOriginalName
-        if platformName == PlatformNameString.QNX or platformName == PlatformNameString.YOCTO or platformName == PlatformNameString.UBUNTU:
-            self.__AppendMakeThreads(rArgumentList, buildThreads)
-        elif platformName == PlatformNameString.WINDOWS:
-            if buildThreads == BuildThreads.Auto:
-                self.Log.LogPrint("Builder using BuildThreads: auto")
-                rArgumentList += ['/maxcpucount']
-            elif buildThreads != BuildThreads.NotDefined and buildThreads > 0:
-                self.Log.LogPrint("Builder using BuildThreads: {0}'".format(buildThreads))
-                rArgumentList += ['/maxcpucount:{0}'.format(buildThreads)]
-        else:
-            if buildThreads != BuildThreads.NotDefined:
-                self.Log.LogPrintWarning("The builder ignored 'BuildThreads'")
 
     def __HandleCleanBuilds(self, rArgumentList: List[str], generatorOriginalName: str) -> None:
         platformName = generatorOriginalName
@@ -117,15 +104,6 @@ class LocalPlatformBuildContext(object):
             rArgumentList += ['/t:Clean']
         else:
             self.Log.LogPrintWarning("The builder ignored --Command: clean")
-
-
-    def __AppendMakeThreads(self, rBuildCommandList: List[str], buildThreads: int) -> None:
-        if buildThreads == BuildThreads.Auto:
-             buildThreads = multiprocessing.cpu_count()
-
-        if buildThreads != BuildThreads.NotDefined and buildThreads > 0:
-            self.Log.LogPrint("Builder using BuildThreads: {0}'".format(buildThreads))
-            rBuildCommandList += ['-j', str(buildThreads)]
 
 
 class LocalBuildContext(object):
@@ -166,6 +144,7 @@ class Builder(object):
         # We run the recipe builder on the resolvedBuildOrder since it all required packages, not just the ones we need to build as libs and executables
         builderSettings = BuilderSettings()
         builderSettings.ForceClaimInstallArea = forceClaimInstallArea
+        builderSettings.BuildThreads = buildConfig.BuildThreads
         RecipeBuilder.BuildPackagesInOrder(config, generatorContext, resolvedBuildOrder, builderSettings)
 
 

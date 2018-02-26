@@ -1,0 +1,827 @@
+/****************************************************************************************************************************************************
+* Copyright 2017 NXP
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+*    * Redistributions of source code must retain the above copyright notice,
+*      this list of conditions and the following disclaimer.
+*
+*    * Redistributions in binary form must reproduce the above copyright notice,
+*      this list of conditions and the following disclaimer in the documentation
+*      and/or other materials provided with the distribution.
+*
+*    * Neither the name of the NXP. nor the names of
+*      its contributors may be used to endorse or promote products derived from
+*      this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+****************************************************************************************************************************************************/
+
+#include "cl_viv_vx_ext.h" 
+__kernel void whitebalance 
+  ( 
+  __read_only image2d_t   in_image, 
+  vx_distribution alpha,
+      vx_distribution  beta,
+  __write_only image2d_t  out_image 
+  ) 
+{ 
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1)); 
+  int2 coord_out = coord_in; 
+  vxc_uchar16 lineA, lineB;
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineB, in_image, coord_in, 0x20, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  int pixelEven, pixelOdd, temp;
+  vxc_uchar16 pixelOut;
+  float alpha_v = (float)(*(alpha.ptr))/(*(alpha.ptr + 1));
+  float beta_v = (float)(*(beta.ptr))/(*(beta.ptr + 1));
+  pixelEven = convert_int(lineA.s0);
+  temp = alpha_v*pixelEven;
+  if(temp > 255)
+    pixelOut.s0 = convert_uchar(255);
+  else
+    pixelOut.s0 = convert_uchar(temp);
+  pixelOut.s1 = lineA.s1;
+  VXC_OP4_NoDest(img_store, out_image, coord_out, pixelOut, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0)); 
+  coord_out.y ++; 
+  pixelOdd = convert_int(lineB.s1);
+  temp = beta_v*pixelOdd;
+  if(temp > 255)
+    pixelOut.s1 = convert_uchar(255);
+  else
+    pixelOut.s1 = convert_uchar(temp);
+  pixelOut.s0 = lineB.s0;
+  VXC_OP4_NoDest(img_store, out_image, coord_out, pixelOut, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0)); 
+}
+__kernel void histogram
+(
+  read_only image2d_t   in_image,
+      vx_distribution     in_distR,
+      vx_distribution     in_distG,
+      vx_distribution     in_distB
+)
+{
+      int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+  vxc_uchar16 zero = 0, lineA, lineB;
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineB, in_image, coord_in, 0x20, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  uchar pixelEven, pixelOdd;
+  pixelEven = convert_uchar(lineA.s0);
+  if(pixelEven >= in_distR.offset)
+  {
+    if(pixelEven < (in_distR.offset + in_distR.rang))
+    {
+      int i = (convert_uint(pixelEven) - in_distR.offset) / in_distR.window_r;
+      atomic_inc(in_distR.ptr + i);
+    }
+  }
+  pixelEven = convert_uchar(lineA.s1);
+  if(pixelEven >= in_distG.offset)
+  {
+    if(pixelEven < (in_distG.offset + in_distG.rang))
+    {
+      int i = (convert_uint(pixelEven) - in_distG.offset) / in_distG.window_r;
+      atomic_inc(in_distG.ptr + i);
+    }
+  }
+  pixelOdd = convert_uchar(lineB.s0);
+  if(pixelOdd >= in_distG.offset)
+  {
+    if(pixelOdd < (in_distG.offset + in_distG.rang))
+    {
+      int i = (convert_uint(pixelOdd) - in_distG.offset) / in_distG.window_r;
+      atomic_inc(in_distG.ptr + i);
+    }
+  }
+  pixelOdd = convert_uchar(lineB.s1);
+  if(pixelOdd >= in_distB.offset)
+  {
+    if(pixelOdd < (in_distB.offset + in_distB.rang))
+    {
+      int i = (convert_uint(pixelOdd) - in_distB.offset) / in_distB.window_r;
+      atomic_inc(in_distB.ptr + i);
+    }
+  }
+}
+#define imgWid 1920
+#define imgHei 1080
+__kernel void EqualizeHist0
+(
+  vx_distribution   in_distR,
+      vx_distribution   in_distG,
+      vx_distribution   in_distB,
+      vx_distribution   out_distR,
+      vx_distribution   out_distG,
+      vx_distribution   out_distB,
+      vx_distribution alpha,
+      vx_distribution  beta
+)
+{
+  int global_id = get_global_id(1) * get_global_size(0) + get_global_id(0);
+  int gid = get_group_id(1)* get_num_groups(0) + get_group_id(0);
+  int total = imgWid * imgHei;
+  int pixel_value_R = 0,pixel_value_G = 0, pixel_value_B = 0;
+if (global_id==0){
+  float scaler, scaleg, scaleb;
+  int sumr = 0;
+        int ir = 0;
+        while (!(*(in_distR.ptr + ir)))
+            ++ir;
+        if ((total>>2) == (*(in_distR.ptr + ir))){
+              scaler = 1;
+              *(out_distR.ptr + ir) = ir;
+              pixel_value_R = ir*(total>>2);
+        }
+        else{
+          pixel_value_R = ir*(*(in_distR.ptr + ir));
+    scaler = 255.f / (total/4 - *(in_distR.ptr + ir));
+    *(out_distR.ptr + ir) = 0;
+    ir++;
+            for (; ir < 256; ir++){
+              pixel_value_R += ir*(*(in_distR.ptr + ir));
+                  sumr += *(in_distR.ptr + ir);
+                  *(out_distR.ptr + ir) = (int)convert_uchar_sat_rte(convert_float(sumr) * scaler);
+                  //*(out_distR.ptr + ir) = convert_int_sat_rte(convert_float(sumr) * scaler);
+            }
+  }
+  int sumg = 0;
+        int ig = 0;
+        while (!(*(in_distG.ptr + ig)))
+            ++ig;
+        if (total>>1 == *(in_distG.ptr + ig)){
+              scaleg = 1;
+              *(out_distG.ptr + ig) = ig;
+              pixel_value_G = ig*(total>>1);
+        }
+        else{
+          pixel_value_G = ig*(*(in_distG.ptr + ig));
+    scaleg = 255.f / (total/2 - *(in_distG.ptr + ig));
+    *(out_distG.ptr + ig) = 0;
+    ig++;
+              for (; ig < 256; ig++){
+                pixel_value_G += ig*(*(in_distG.ptr + ig));
+                  sumg += *(in_distG.ptr + ig);
+                  *(out_distG.ptr + ig) = (int)convert_uchar_sat_rte(convert_float(sumg) * scaleg);
+                  //*(out_distG.ptr + ig) = convert_int_sat_rte(convert_float(sumg) * scaleg);
+              }
+  }
+  int sumb = 0;
+        int ib = 0;
+        while (!(*(in_distB.ptr + ib)))
+            ++ib;
+        if ((total>>2) == *(in_distB.ptr + ib)){
+              scaleb = 1;
+                *(out_distB.ptr + ib) = ib;
+                pixel_value_B = ib*(total>>2);
+        }
+        else{
+          pixel_value_B = ib*(*(in_distB.ptr + ib));
+    scaleb = 255.f / (total/4 - *(in_distB.ptr + ib));
+    *(out_distB.ptr + ib) = 0;
+    ib++;
+              for (; ib < 256; ib++){ 
+                pixel_value_B += ib*(*(in_distB.ptr + ib));
+                  sumb += *(in_distB.ptr + ib);
+                  *(out_distB.ptr + ib) = (int)convert_uchar_sat_rte(convert_float(sumb) * scaleb);
+                  //*(out_distB.ptr + ib) = convert_int_sat_rte(convert_float(sumb) * scaleb);
+              }
+  }
+}
+barrier(CLK_LOCAL_MEM_FENCE);
+if (global_id==0){
+  int R_ave = pixel_value_R/(total>>2);
+  int G_ave = pixel_value_G/(total>>1);
+  int B_ave = pixel_value_B/(total>>2);
+  //*(alpha.ptr) = G_ave/R_ave;
+  //*(beta.ptr ) = G_ave/B_ave;
+  *(alpha.ptr) = G_ave;
+  *(alpha.ptr + 1) = R_ave;
+  *(beta.ptr ) = G_ave;
+  *(beta.ptr + 1) = B_ave;
+}
+}
+__kernel void EqualizeHist
+(
+  __read_only image2d_t   in_image,
+  vx_distribution   in_distR,
+      vx_distribution   in_distG,
+      vx_distribution   in_distB,
+      __write_only image2d_t  out_image 
+)
+{
+      int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+      int2 coord_out = coord_in; 
+  vxc_uchar16 zero = 0, lineA, lineB;
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineB, in_image, coord_in, 0x20, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  int pixelEven, pixelOdd;
+  vxc_uchar16 pixelOut;
+  pixelEven = convert_int(lineA.s0);
+  pixelOdd = convert_int(lineA.s1);
+  //pixelOut.s0 = convert_uchar(pixelEven);
+  //pixelOut.s1 = convert_uchar(pixelOdd);
+  pixelOut.s0 = convert_uchar(*(in_distR.ptr + pixelEven));
+  pixelOut.s1 = convert_uchar(*(in_distG.ptr + pixelOdd));
+  VXC_OP4_NoDest(img_store, out_image, coord_out, pixelOut, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0)); 
+  coord_out.y ++; 
+  pixelEven = convert_int(lineB.s0);
+  pixelOdd = convert_int(lineB.s1);
+  //pixelOut.s0 = convert_uchar(pixelEven);
+  //pixelOut.s1 = convert_uchar(pixelOdd);
+  pixelOut.s0 = convert_uchar(*(in_distG.ptr + pixelEven));
+  pixelOut.s1 = convert_uchar(*(in_distB.ptr + pixelOdd));
+  VXC_OP4_NoDest(img_store, out_image, coord_out, pixelOut, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0)); 
+}
+ _viv_uniform VXC_512Bits EE_EO_AccTwoLines; 
+_viv_uniform VXC_512Bits EO_OO_AccTwoLines; 
+_viv_uniform VXC_512Bits EE_EO_AccOneLine; 
+_viv_uniform VXC_512Bits EO_OO_AccOneLine; 
+_viv_uniform VXC_512Bits EE_EO_PackBGR; 
+_viv_uniform VXC_512Bits EO_OO_PackBGR; 
+_viv_uniform VXC_512Bits BGR_2_BGRA;
+__kernel void debayer 
+  ( 
+  __read_only image2d_t   in_image, 
+  __write_only image2d_t  out_image 
+  ) 
+{ 
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1)); 
+  int2 coord_out = coord_in; 
+  //coord_out.x = coord_out.x * 3; 
+  coord_out.x = coord_out.x * 4; 
+  coord_in.xy = coord_in.xy - 2; 
+ 
+  vxc_uchar16 bgr_register, bgra_register; 
+  vxc_uchar16 lineA, lineB, lineC, lineD; 
+  vxc_uchar16 one = 1;
+  vxc_short8 acc_0, acc_1, acc_2, dst; 
+ 
+  //process EE EO  
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineB, in_image, coord_in, 0x20, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineC, in_image, coord_in, 0x40, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp4x8, acc_0, lineA, lineB, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EE_EO_AccTwoLines); 
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0x60, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineD, in_image, coord_in, 0x80, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp4x8, acc_1, lineC, lineC, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EE_EO_AccOneLine); 
+  VXC_OP4(dp4x8, acc_2, lineD, lineA, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EE_EO_AccTwoLines); 
+  VXC_OP4(iadd, dst, acc_0, acc_1, acc_2, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, bgr_register, dst, lineC, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), EE_EO_PackBGR); 
+  VXC_OP4(dp2x16, bgra_register, bgr_register, one, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), BGR_2_BGRA); 
+  //VXC_OP4_NoDest(img_store, out_image, coord_out, bgr_register, VXC_MODIFIER(0, 11, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4_NoDest(img_store, out_image, coord_out, bgra_register, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  coord_out.y ++; 
+ 
+  //process OE OO  
+  VXC_OP4(dp4x8, acc_0, lineB, lineC, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EO_OO_AccTwoLines); 
+  VXC_OP4(img_load, lineB, in_image, coord_in, 0xa0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp4x8, acc_2, lineA, lineA, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EO_OO_AccOneLine); 
+  VXC_OP4(dp4x8, acc_1, lineB, lineD, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EO_OO_AccTwoLines); 
+  VXC_OP4(iadd, dst, acc_0, acc_1, acc_2, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, bgr_register, dst, lineA, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), EO_OO_PackBGR); 
+  //VXC_OP4_NoDest(img_store, out_image, coord_out, bgr_register, VXC_MODIFIER(0, 11, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, bgra_register, bgr_register, one, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), BGR_2_BGRA); 
+  VXC_OP4_NoDest(img_store, out_image, coord_out, bgra_register, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  coord_out.y ++; 
+ 
+  //process EE EO  
+  VXC_OP4(dp4x8, acc_0, lineC, lineA, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EE_EO_AccTwoLines); 
+  VXC_OP4(img_load, lineC, in_image, coord_in, 0xc0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp4x8, acc_1, lineD, lineD, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EE_EO_AccOneLine); 
+  VXC_OP4(dp4x8, acc_2, lineC, lineB, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EE_EO_AccTwoLines); 
+  VXC_OP4(iadd, dst, acc_0, acc_1, acc_2, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, bgr_register, dst, lineD, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), EE_EO_PackBGR); 
+  //VXC_OP4_NoDest(img_store, out_image, coord_out, bgr_register, VXC_MODIFIER(0, 11, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, bgra_register, bgr_register, one, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), BGR_2_BGRA); 
+  VXC_OP4_NoDest(img_store, out_image, coord_out, bgra_register, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  coord_out.y ++; 
+ 
+  //process OE OO  
+  VXC_OP4(dp4x8, acc_0, lineA, lineD, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EO_OO_AccTwoLines); 
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0xe0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp4x8, acc_2, lineB, lineB, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EO_OO_AccOneLine); 
+  VXC_OP4(dp4x8, acc_1, lineA, lineC, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0), EO_OO_AccTwoLines); 
+  VXC_OP4(iadd, dst, acc_0, acc_1, acc_2, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, bgr_register, dst, lineB, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), EO_OO_PackBGR); 
+  //VXC_OP4_NoDest(img_store, out_image, coord_out, bgr_register, VXC_MODIFIER(0, 11, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, bgra_register, bgr_register, one, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 1), BGR_2_BGRA); 
+  VXC_OP4_NoDest(img_store, out_image, coord_out, bgra_register, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+}
+_viv_uniform VXC_512Bits RR0_RR2_OneLines; 
+_viv_uniform VXC_512Bits RR1_OneLines; 
+_viv_uniform VXC_512Bits Acc1_TwoLines; 
+_viv_uniform VXC_512Bits Acc2_TwoLines; 
+_viv_uniform VXC_512Bits Select_M; 
+_viv_uniform VXC_512Bits RM_Max_Min;
+_viv_uniform VXC_512Bits Sum_Div_128;
+_viv_uniform VXC_512Bits Sum_Div_32;
+_viv_uniform VXC_512Bits Sum_Div_8;
+
+_viv_uniform VXC_512Bits BB0_BB2_OneLines; 
+_viv_uniform VXC_512Bits BB1_OneLines; 
+_viv_uniform VXC_512Bits RG_GG0_GG2_OneLines; 
+_viv_uniform VXC_512Bits RG_GG1_OneLines; 
+_viv_uniform VXC_512Bits GB_GG0_GG2_OneLines; 
+_viv_uniform VXC_512Bits GB_GG1_OneLines; 
+__kernel void badpixel 
+  ( 
+  __read_only image2d_t   in_image, 
+  __write_only image2d_t  out_image
+  ) 
+{ 
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1)); 
+  int2 coord_out = coord_in; 
+  coord_in.xy = coord_in.xy - 2; 
+ 
+  vxc_uchar16 lineA, lineB, lineC, lineD, lineE, lineF; 
+  vxc_uchar16 RR0, RR1, RR2, tmpMax, tmpMin, maxV, minV, diffV;
+  vxc_uchar16 highValue, lowValue, avgR, avgG, avgB;
+  vxc_uchar16 GG0, GG1, GG2;
+  vxc_uchar16 outVector, tmpOut;
+  vxc_uchar16 BB0, BB1, BB2;
+  vxc_ushort8 acc1, acc2, tmpsum1, tmpsum2;
+  vxc_uchar16 sum1, sum2, sum3;
+ 
+  //Process line odd: R G 
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineB, in_image, coord_in, 0x20, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineC, in_image, coord_in, 0x40, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineD, in_image, coord_in, 0x60, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineE, in_image, coord_in, 0x80, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(img_load, lineF, in_image, coord_in, 0xa0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4(dp2x16, RR0, lineA, lineA, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), RR0_RR2_OneLines);
+  VXC_OP4(dp2x16, RR2, lineE, lineE, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), RR0_RR2_OneLines);
+  VXC_OP4(dp2x16, RR1, lineC, lineC, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), RR1_OneLines);
+  tmpMax = viv_intrinsic_vxmc_Filter_uc(RR0, RR1, RR2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Max, 0));
+  tmpMin = viv_intrinsic_vxmc_Filter_uc(RR0, RR1, RR2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Min, 0));
+  VXC_OP4(dp2x16, maxV, tmpMax, tmpMax, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp2x16, minV, tmpMin, tmpMin, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp4x8, acc1, RR0, RR1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc1_TwoLines); 
+  VXC_OP4(dp4x8, acc2, RR2, RR1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc2_TwoLines); 
+  VXC_OP4(dp4x8, tmpsum1, acc1, maxV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp4x8, tmpsum2, acc2, minV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp2x16, sum1, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_128); 
+  VXC_OP4(dp2x16, sum2, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_32); 
+  VXC_OP4(dp2x16, sum3, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_8); 
+  VXC_OP4(iadd, avgR, sum1, sum2, sum3, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP3(abs_diff, diffV, maxV, minV, VXC_MODIFIER_FILTER(0, 4, 0, VXC_FM_Min, 0));
+  VXC_OP3(iadd, highValue, avgR, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  VXC_OP3(abs_diff, lowValue, avgR, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  tmpOut.lo = lineC.s2468ace0;
+  outVector.s02468ace = (tmpOut.lo > highValue.lo || tmpOut.lo < lowValue.lo) ? avgR.lo : tmpOut.lo;
+  
+  
+  VXC_OP4(dp2x16, GG0, lineB, lineA, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), RG_GG0_GG2_OneLines);
+  VXC_OP4(dp2x16, GG2, lineD, lineE, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), RG_GG0_GG2_OneLines);
+  VXC_OP4(dp2x16, GG1, lineC, lineC, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), RG_GG1_OneLines);
+  tmpMax = viv_intrinsic_vxmc_Filter_uc(GG0, GG1, GG2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Max, 0));
+  tmpMin = viv_intrinsic_vxmc_Filter_uc(GG0, GG1, GG2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Min, 0));
+  VXC_OP4(dp2x16, maxV, tmpMax, tmpMax, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp2x16, minV, tmpMin, tmpMin, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp4x8, acc1, GG0, GG1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc1_TwoLines); 
+  VXC_OP4(dp4x8, acc2, GG2, GG1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc2_TwoLines); 
+  VXC_OP4(dp4x8, tmpsum1, acc1, maxV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp4x8, tmpsum2, acc2, minV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp2x16, sum1, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_128); 
+  VXC_OP4(dp2x16, sum2, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_32); 
+  VXC_OP4(dp2x16, sum3, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_8); 
+  VXC_OP4(iadd, avgG, sum1, sum2, sum3, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP3(abs_diff, diffV, maxV, minV, VXC_MODIFIER_FILTER(0, 4, 0, VXC_FM_Min, 0));
+  VXC_OP3(iadd, highValue, avgG, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  VXC_OP3(abs_diff, lowValue, avgG, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  tmpOut.lo = lineC.s3579bdf1;
+  outVector.s13579bdf = (tmpOut.lo > highValue.lo || tmpOut.lo < lowValue.lo) ? avgG.lo : tmpOut.lo;
+  VXC_OP4_NoDest(img_store, out_image, coord_out, outVector, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0)); 
+  coord_out.y++;
+  
+  
+  VXC_OP4(dp2x16, GG0, lineC, lineB, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), GB_GG0_GG2_OneLines);
+  VXC_OP4(dp2x16, GG2, lineE, lineF, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), GB_GG0_GG2_OneLines);
+  VXC_OP4(dp2x16, GG1, lineD, lineD, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), GB_GG1_OneLines);
+  tmpMax = viv_intrinsic_vxmc_Filter_uc(GG0, GG1, GG2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Max, 0));
+  tmpMin = viv_intrinsic_vxmc_Filter_uc(GG0, GG1, GG2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Min, 0));
+  VXC_OP4(dp2x16, maxV, tmpMax, tmpMax, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp2x16, minV, tmpMin, tmpMin, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp4x8, acc1, GG0, GG1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc1_TwoLines); 
+  VXC_OP4(dp4x8, acc2, GG2, GG1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc2_TwoLines); 
+  VXC_OP4(dp4x8, tmpsum1, acc1, maxV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp4x8, tmpsum2, acc2, minV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp2x16, sum1, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_128); 
+  VXC_OP4(dp2x16, sum2, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_32); 
+  VXC_OP4(dp2x16, sum3, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_8); 
+  VXC_OP4(iadd, avgG, sum1, sum2, sum3, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP3(abs_diff, diffV, maxV, minV, VXC_MODIFIER_FILTER(0, 4, 0, VXC_FM_Min, 0));
+  VXC_OP3(iadd, highValue, avgG, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  VXC_OP3(abs_diff, lowValue, avgG, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  tmpOut.lo = lineD.s2468ace0;
+  outVector.s02468ace = (tmpOut.lo > highValue.lo || tmpOut.lo < lowValue.lo) ? avgG.lo : tmpOut.lo;
+  
+  VXC_OP4(dp2x16, BB0, lineB, lineA, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), BB0_BB2_OneLines);
+  VXC_OP4(dp2x16, BB2, lineD, lineE, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), BB0_BB2_OneLines);
+  VXC_OP4(dp2x16, BB1, lineC, lineC, VXC_MODIFIER(0, 14, 0, VXC_RM_TowardZero, 0), BB1_OneLines);
+  tmpMax = viv_intrinsic_vxmc_Filter_uc(BB0, BB1, BB2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Max, 0));
+  tmpMin = viv_intrinsic_vxmc_Filter_uc(BB0, BB1, BB2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Min, 0));
+  VXC_OP4(dp2x16, maxV, tmpMax, tmpMax, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp2x16, minV, tmpMin, tmpMin, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Select_M); 
+  VXC_OP4(dp4x8, acc1, BB0, BB1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc1_TwoLines); 
+  VXC_OP4(dp4x8, acc2, BB2, BB1, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Acc2_TwoLines); 
+  VXC_OP4(dp4x8, tmpsum1, acc1, maxV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp4x8, tmpsum2, acc2, minV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), RM_Max_Min); 
+  VXC_OP4(dp2x16, sum1, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_128); 
+  VXC_OP4(dp2x16, sum2, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_32); 
+  VXC_OP4(dp2x16, sum3, tmpsum1, tmpsum2, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0), Sum_Div_8); 
+  VXC_OP4(iadd, avgB, sum1, sum2, sum3, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP3(abs_diff, diffV, maxV, minV, VXC_MODIFIER_FILTER(0, 4, 0, VXC_FM_Min, 0));
+  VXC_OP3(iadd, highValue, avgB, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  VXC_OP3(abs_diff, lowValue, avgB, diffV, VXC_MODIFIER(0, 4, 0, VXC_RM_TowardZero, 0));
+  tmpOut.lo = lineD.s3579bdf1;
+  outVector.s13579bdf = (tmpOut.lo > highValue.lo || tmpOut.lo < lowValue.lo) ? avgB.lo : tmpOut.lo;
+  VXC_OP4_NoDest(img_store, out_image, coord_out, outVector, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0)); 
+}
+_viv_uniform VXC_512Bits RGBA2Y_UV; 
+_viv_uniform VXC_512Bits Y_UV2RGBA; 
+__kernel void rgba2yuv
+  ( 
+  __read_only image2d_t   in_image, 
+  __write_only image2d_t  out_image, 
+  __write_only image2d_t  out_image_y 
+  ) 
+{ 
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1)); 
+  int2 coord_out = coord_in; 
+  int2 coord_out_color = coord_in; 
+  coord_out_color.x = coord_out_color.x * 3;
+  coord_in.x = coord_in.x * 4;
+  vxc_uchar16 lineA;
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  //lineA = read_imageui(in_image, coord_in);
+  float4 tmp1, tmp2, tmp3, tmp4;
+  VXC_OP4(dp4x4, tmp1, lineA, lineA, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), RGBA2Y_UV); 
+  vxc_uchar4 outY;
+  vxc_uchar16 outColor;
+  outY.x = convert_uchar_rtz(tmp1.x);
+  outColor.s0 = convert_uchar_rtz(tmp1.y);
+  outColor.s1 = convert_uchar_rtz(tmp1.z);
+  outColor.s2 = 255;
+  
+  vxc_uchar16 lineB;
+  lineB = lineA.s456789abcdef0123;
+  VXC_OP4(dp4x4, tmp2, lineB, lineB, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), RGBA2Y_UV); 
+  outY.y = convert_uchar_rtz(tmp2.x);
+  outColor.s3 = convert_uchar_rtz(tmp2.y);
+  outColor.s4 = convert_uchar_rtz(tmp2.z);
+  outColor.s5 = 255;
+  
+  vxc_uchar16 lineC;
+  lineC = lineA.s89abcdef01234567;
+  VXC_OP4(dp4x4, tmp3, lineC, lineC, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), RGBA2Y_UV); 
+  outY.z = convert_uchar_rtz(tmp3.x);
+  outColor.s6 = convert_uchar_rtz(tmp3.y);
+  outColor.s7 = convert_uchar_rtz(tmp3.z);
+  outColor.s8 = 255;
+  
+  vxc_uchar16 lineD;
+  lineD = lineA.scdef0123456789ab;
+  VXC_OP4(dp4x4, tmp4, lineD, lineD, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), RGBA2Y_UV); 
+  outY.w = convert_uchar_rtz(tmp4.x);
+  outColor.s9 = convert_uchar_rtz(tmp4.y);
+  outColor.sa = convert_uchar_rtz(tmp4.z);
+  outColor.sb = 255;
+  
+  VXC_OP4_NoDest(img_store, out_image, coord_out_color, outColor, VXC_MODIFIER(0, 11, 0, VXC_RM_TowardZero, 0)); 
+  VXC_OP4_NoDest(img_store, out_image_y, coord_out, outY, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0)); 
+  //write_imageui(out_image, coord_out, lineA);
+}
+__kernel void yuv2rgba
+  ( 
+  __read_only image2d_t   in_image, 
+  __read_only image2d_t   in_image_y, 
+  __write_only image2d_t  out_image 
+  ) 
+{ 
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1)); 
+  int2 coord_out = coord_in; 
+  int2 coord_in_uv = coord_in; 
+  coord_in_uv.x = coord_in_uv.x * 3;
+  coord_out.x = coord_out.x * 4;
+  vxc_uchar16 lineA0, lineB0;
+  VXC_OP4(img_load, lineA0, in_image, coord_in_uv, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineB0, in_image_y, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  vxc_float4 tmp1, tmp2, tmp3, tmp4;
+  
+  VXC_OP4(dp4x4, tmp1, lineA0, lineB0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), Y_UV2RGBA); 
+  vxc_uchar16 outColor;
+  outColor.s0 = convert_uchar_rtz(tmp1.x);
+  outColor.s1 = convert_uchar_rtz(tmp1.y);
+  outColor.s2 = convert_uchar_rtz(tmp1.z);
+  outColor.s3 = 255;
+  
+  vxc_uchar16 lineA1, lineB1;
+  lineA1 = lineA0.s3456789abcdef012;
+  lineB1 =  lineB0.s123456789abcdef0;
+  VXC_OP4(dp4x4, tmp2, lineA1, lineB1, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), Y_UV2RGBA); 
+  outColor.s4 = convert_uchar_rtz(tmp2.x);
+  outColor.s5 = convert_uchar_rtz(tmp2.y);
+  outColor.s6 = convert_uchar_rtz(tmp2.z);
+  outColor.s7 = 255;
+  
+  vxc_uchar16 lineA2, lineB2;
+  lineA2 = lineA0.s6789abcdef012345;
+  lineB2 =  lineB0.s23456789abcdef01;
+  VXC_OP4(dp4x4, tmp3, lineA2, lineB2, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), Y_UV2RGBA); 
+  outColor.s8 = convert_uchar_rtz(tmp3.x);
+  outColor.s9 = convert_uchar_rtz(tmp3.y);
+  outColor.sa = convert_uchar_rtz(tmp3.z);
+  outColor.sb = 255;
+  
+  vxc_uchar16 lineA3, lineB3;
+  lineA3 = lineA0.s9abcdef012345678;
+  lineB3 =  lineB0.s3456789abcdef012;
+  VXC_OP4(dp4x4, tmp4, lineA3, lineB3, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0), Y_UV2RGBA); 
+  outColor.sc = convert_uchar_rtz(tmp4.x);
+  outColor.sd = convert_uchar_rtz(tmp4.y);
+  outColor.se = convert_uchar_rtz(tmp4.z);
+  outColor.sf = 255;
+  
+  VXC_OP4_NoDest(img_store, out_image, coord_out, outColor, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0)); 
+}
+#define SIGMA 32 //>>11
+__kernel void bilateral
+  ( 
+  __read_only image2d_t   in_image, 
+  __write_only image2d_t  out_image 
+  ) 
+{ 
+  
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1)); 
+  int2 coord_out = coord_in; 
+  coord_in.xy = coord_in.xy - 3; 
+  float med1[7][7] = {1.000, 0.722, 0.556, 0.500, 0.556, 0.722, 1.000,
+            0.722, 0.444, 0.278, 0.222, 0.278, 0.444, 0.722,
+            0.556, 0.278, 0.111, 0.056, 0.111, 0.278, 0.556,
+            0.500, 0.222, 0.056, 0.000, 0.056, 0.222, 0.500,
+            0.556, 0.278, 0.111, 0.056, 0.111, 0.278, 0.556,
+            0.722, 0.444, 0.278, 0.222, 0.278, 0.444, 0.722,
+            1.000, 0.722, 0.556, 0.500, 0.556, 0.722, 1.000};
+  vxc_uchar16 lineA, lineB, lineC, lineD, lineE, lineF, lineG;
+  VXC_OP4(img_load, lineA, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineB, in_image, coord_in, 0x20, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineC, in_image, coord_in, 0X40, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineD, in_image, coord_in, 0x60, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineE, in_image, coord_in, 0x80, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineF, in_image, coord_in, 0xa0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  VXC_OP4(img_load, lineG, in_image, coord_in, 0xc0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+  vxc_uchar8 zero = 0;
+  vxc_uchar8 tmp[7], lineP, rangeWeight0 = 0, out, test;
+  float8  rangeWeight1 = 0, spaceWeight = 0, weight = 0, sumWeight = 0;
+  float8 tmpPixel = 0, tmpOut = 0;
+  uchar8 test1;
+  float8 test0, test2;
+  lineP = lineD.s3456789a;
+  tmp[0] = lineA.s01234567;
+  tmp[1] = lineA.s12345678;
+  tmp[2] = lineA.s23456789;
+  tmp[3] = lineA.s3456789a;
+  tmp[4] = lineA.s456789ab;
+  tmp[5] = lineA.s56789abc;
+  tmp[6] = lineA.s6789abcd;
+  for(int i = 0; i < 7; i++){
+    VXC_OP3(abs_diff, rangeWeight0, tmp[i], lineP, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0));
+    test0.s0 = convert_float(rangeWeight0.s0);
+    test0.s1 = convert_float(rangeWeight0.s1);
+    test0.s2 = convert_float(rangeWeight0.s2);
+    test0.s3 = convert_float(rangeWeight0.s3);
+    test0.s4 = convert_float(rangeWeight0.s4);
+    test0.s5 = convert_float(rangeWeight0.s5);
+    test0.s6 = convert_float(rangeWeight0.s6);
+    test0.s7 = convert_float(rangeWeight0.s7);
+    rangeWeight1 = test0 * test0 / (32 * 32 * 2);
+    spaceWeight = (float8)med1[0][i];
+    weight = exp(-(rangeWeight1 + spaceWeight));
+    sumWeight += weight;
+    tmpPixel.s0 = convert_float(tmp[i].s0);
+    tmpPixel.s1 = convert_float(tmp[i].s1);
+    tmpPixel.s2 = convert_float(tmp[i].s2);
+    tmpPixel.s3 = convert_float(tmp[i].s3);
+    tmpPixel.s4 = convert_float(tmp[i].s4);
+    tmpPixel.s5 = convert_float(tmp[i].s5);
+    tmpPixel.s6 = convert_float(tmp[i].s6);
+    tmpPixel.s7 = convert_float(tmp[i].s7);
+    tmpOut += tmpPixel * weight;
+  }
+  
+  tmp[0] = lineB.s01234567;
+  tmp[1] = lineB.s12345678;
+  tmp[2] = lineB.s23456789;
+  tmp[3] = lineB.s3456789a;
+  tmp[4] = lineB.s456789ab;
+  tmp[5] = lineB.s56789abc;
+  tmp[6] = lineB.s6789abcd;
+  for(int i = 0; i < 7; i++){
+    VXC_OP3(abs_diff, rangeWeight0, tmp[i], lineP, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0));
+    test0.s0 = convert_float(rangeWeight0.s0);
+    test0.s1 = convert_float(rangeWeight0.s1);
+    test0.s2 = convert_float(rangeWeight0.s2);
+    test0.s3 = convert_float(rangeWeight0.s3);
+    test0.s4 = convert_float(rangeWeight0.s4);
+    test0.s5 = convert_float(rangeWeight0.s5);
+    test0.s6 = convert_float(rangeWeight0.s6);
+    test0.s7 = convert_float(rangeWeight0.s7);
+    rangeWeight1 = test0 * test0 / (32 * 32 * 2);
+    spaceWeight = (float8)med1[1][i];
+    weight = exp(-(rangeWeight1 + spaceWeight));
+    sumWeight += weight;
+    tmpPixel.s0 = convert_float(tmp[i].s0);
+    tmpPixel.s1 = convert_float(tmp[i].s1);
+    tmpPixel.s2 = convert_float(tmp[i].s2);
+    tmpPixel.s3 = convert_float(tmp[i].s3);
+    tmpPixel.s4 = convert_float(tmp[i].s4);
+    tmpPixel.s5 = convert_float(tmp[i].s5);
+    tmpPixel.s6 = convert_float(tmp[i].s6);
+    tmpPixel.s7 = convert_float(tmp[i].s7);
+    tmpOut += tmpPixel * weight;
+  }
+  
+  tmp[0] = lineC.s01234567;
+  tmp[1] = lineC.s12345678;
+  tmp[2] = lineC.s23456789;
+  tmp[3] = lineC.s3456789a;
+  tmp[4] = lineC.s456789ab;
+  tmp[5] = lineC.s56789abc;
+  tmp[6] = lineC.s6789abcd;
+  for(int i = 0; i < 7; i++){
+    VXC_OP3(abs_diff, rangeWeight0, tmp[i], lineP, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0));
+    test0.s0 = convert_float(rangeWeight0.s0);
+    test0.s1 = convert_float(rangeWeight0.s1);
+    test0.s2 = convert_float(rangeWeight0.s2);
+    test0.s3 = convert_float(rangeWeight0.s3);
+    test0.s4 = convert_float(rangeWeight0.s4);
+    test0.s5 = convert_float(rangeWeight0.s5);
+    test0.s6 = convert_float(rangeWeight0.s6);
+    test0.s7 = convert_float(rangeWeight0.s7);
+    rangeWeight1 = test0 * test0 / (32 * 32 * 2);
+    spaceWeight = (float8)med1[2][i];
+    weight = exp(-(rangeWeight1 + spaceWeight));
+    sumWeight += weight;
+    tmpPixel.s0 = convert_float(tmp[i].s0);
+    tmpPixel.s1 = convert_float(tmp[i].s1);
+    tmpPixel.s2 = convert_float(tmp[i].s2);
+    tmpPixel.s3 = convert_float(tmp[i].s3);
+    tmpPixel.s4 = convert_float(tmp[i].s4);
+    tmpPixel.s5 = convert_float(tmp[i].s5);
+    tmpPixel.s6 = convert_float(tmp[i].s6);
+    tmpPixel.s7 = convert_float(tmp[i].s7);
+    tmpOut += tmpPixel * weight;
+  }
+  
+  tmp[0] = lineD.s01234567;
+  tmp[1] = lineD.s12345678;
+  tmp[2] = lineD.s23456789;
+  tmp[3] = lineD.s3456789a;
+  tmp[4] = lineD.s456789ab;
+  tmp[5] = lineD.s56789abc;
+  tmp[6] = lineD.s6789abcd;
+  for(int i = 0; i < 7; i++){
+    VXC_OP3(abs_diff, rangeWeight0, tmp[i], lineP, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0));
+    test0.s0 = convert_float(rangeWeight0.s0);
+    test0.s1 = convert_float(rangeWeight0.s1);
+    test0.s2 = convert_float(rangeWeight0.s2);
+    test0.s3 = convert_float(rangeWeight0.s3);
+    test0.s4 = convert_float(rangeWeight0.s4);
+    test0.s5 = convert_float(rangeWeight0.s5);
+    test0.s6 = convert_float(rangeWeight0.s6);
+    test0.s7 = convert_float(rangeWeight0.s7);
+    rangeWeight1 = test0 * test0 / (32 * 32 * 2);
+    spaceWeight = (float8)med1[3][i];
+    weight = exp(-(rangeWeight1 + spaceWeight));
+    sumWeight += weight;
+    tmpPixel.s0 = convert_float(tmp[i].s0);
+    tmpPixel.s1 = convert_float(tmp[i].s1);
+    tmpPixel.s2 = convert_float(tmp[i].s2);
+    tmpPixel.s3 = convert_float(tmp[i].s3);
+    tmpPixel.s4 = convert_float(tmp[i].s4);
+    tmpPixel.s5 = convert_float(tmp[i].s5);
+    tmpPixel.s6 = convert_float(tmp[i].s6);
+    tmpPixel.s7 = convert_float(tmp[i].s7);
+    tmpOut += tmpPixel * weight;
+  }
+  
+  tmp[0] = lineE.s01234567;
+  tmp[1] = lineE.s12345678;
+  tmp[2] = lineE.s23456789;
+  tmp[3] = lineE.s3456789a;
+  tmp[4] = lineE.s456789ab;
+  tmp[5] = lineE.s56789abc;
+  tmp[6] = lineE.s6789abcd;
+  for(int i = 0; i < 7; i++){
+    VXC_OP3(abs_diff, rangeWeight0, tmp[i], lineP, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0));
+    test0.s0 = convert_float(rangeWeight0.s0);
+    test0.s1 = convert_float(rangeWeight0.s1);
+    test0.s2 = convert_float(rangeWeight0.s2);
+    test0.s3 = convert_float(rangeWeight0.s3);
+    test0.s4 = convert_float(rangeWeight0.s4);
+    test0.s5 = convert_float(rangeWeight0.s5);
+    test0.s6 = convert_float(rangeWeight0.s6);
+    test0.s7 = convert_float(rangeWeight0.s7);
+    rangeWeight1 = test0 * test0 / (32 * 32 * 2);
+    spaceWeight = (float8)med1[4][i];
+    weight = exp(-(rangeWeight1 + spaceWeight));
+    sumWeight += weight;
+    tmpPixel.s0 = convert_float(tmp[i].s0);
+    tmpPixel.s1 = convert_float(tmp[i].s1);
+    tmpPixel.s2 = convert_float(tmp[i].s2);
+    tmpPixel.s3 = convert_float(tmp[i].s3);
+    tmpPixel.s4 = convert_float(tmp[i].s4);
+    tmpPixel.s5 = convert_float(tmp[i].s5);
+    tmpPixel.s6 = convert_float(tmp[i].s6);
+    tmpPixel.s7 = convert_float(tmp[i].s7);
+    tmpOut += tmpPixel * weight;
+  }
+  
+  tmp[0] = lineF.s01234567;
+  tmp[1] = lineF.s12345678;
+  tmp[2] = lineF.s23456789;
+  tmp[3] = lineF.s3456789a;
+  tmp[4] = lineF.s456789ab;
+  tmp[5] = lineF.s56789abc;
+  tmp[6] = lineF.s6789abcd;
+  for(int i = 0; i < 7; i++){
+    VXC_OP3(abs_diff, rangeWeight0, tmp[i], lineP, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0));
+    test0.s0 = convert_float(rangeWeight0.s0);
+    test0.s1 = convert_float(rangeWeight0.s1);
+    test0.s2 = convert_float(rangeWeight0.s2);
+    test0.s3 = convert_float(rangeWeight0.s3);
+    test0.s4 = convert_float(rangeWeight0.s4);
+    test0.s5 = convert_float(rangeWeight0.s5);
+    test0.s6 = convert_float(rangeWeight0.s6);
+    test0.s7 = convert_float(rangeWeight0.s7);
+    rangeWeight1 = test0 * test0 / (32 * 32 * 2);
+    spaceWeight = (float8)med1[5][i];
+    weight = exp(-(rangeWeight1 + spaceWeight));
+    sumWeight += weight;
+    tmpPixel.s0 = convert_float(tmp[i].s0);
+    tmpPixel.s1 = convert_float(tmp[i].s1);
+    tmpPixel.s2 = convert_float(tmp[i].s2);
+    tmpPixel.s3 = convert_float(tmp[i].s3);
+    tmpPixel.s4 = convert_float(tmp[i].s4);
+    tmpPixel.s5 = convert_float(tmp[i].s5);
+    tmpPixel.s6 = convert_float(tmp[i].s6);
+    tmpPixel.s7 = convert_float(tmp[i].s7);
+    tmpOut += tmpPixel * weight;
+  }
+  
+  tmp[0] = lineG.s01234567;
+  tmp[1] = lineG.s12345678;
+  tmp[2] = lineG.s23456789;
+  tmp[3] = lineG.s3456789a;
+  tmp[4] = lineG.s456789ab;
+  tmp[5] = lineG.s56789abc;
+  tmp[6] = lineG.s6789abcd;
+  for(int i = 0; i < 7; i++){
+    VXC_OP3(abs_diff, rangeWeight0, tmp[i], lineP, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0));
+    test0.s0 = convert_float(rangeWeight0.s0);
+    test0.s1 = convert_float(rangeWeight0.s1);
+    test0.s2 = convert_float(rangeWeight0.s2);
+    test0.s3 = convert_float(rangeWeight0.s3);
+    test0.s4 = convert_float(rangeWeight0.s4);
+    test0.s5 = convert_float(rangeWeight0.s5);
+    test0.s6 = convert_float(rangeWeight0.s6);
+    test0.s7 = convert_float(rangeWeight0.s7);
+    rangeWeight1 = test0 * test0 / (32 * 32 * 2);
+    spaceWeight = (float8)med1[6][i];
+    weight = exp(-(rangeWeight1 + spaceWeight));
+    sumWeight += weight;
+    tmpPixel.s0 = convert_float(tmp[i].s0);
+    tmpPixel.s1 = convert_float(tmp[i].s1);
+    tmpPixel.s2 = convert_float(tmp[i].s2);
+    tmpPixel.s3 = convert_float(tmp[i].s3);
+    tmpPixel.s4 = convert_float(tmp[i].s4);
+    tmpPixel.s5 = convert_float(tmp[i].s5);
+    tmpPixel.s6 = convert_float(tmp[i].s6);
+    tmpPixel.s7 = convert_float(tmp[i].s7);
+    tmpOut += tmpPixel * weight;
+  }
+  tmpOut = tmpOut / sumWeight;
+  out.s0 = convert_uchar(tmpOut.s0);
+  out.s1 = convert_uchar(tmpOut.s1);
+  out.s2 = convert_uchar(tmpOut.s2);
+  out.s3 = convert_uchar(tmpOut.s3);
+  out.s4 = convert_uchar(tmpOut.s4);
+  out.s5 = convert_uchar(tmpOut.s5);
+  out.s6 = convert_uchar(tmpOut.s6);
+  out.s7 = convert_uchar(tmpOut.s7);
+  VXC_OP4_NoDest(img_store, out_image, coord_out, out, VXC_MODIFIER(0, 7, 0, VXC_RM_TowardZero, 0)); 
+}
+

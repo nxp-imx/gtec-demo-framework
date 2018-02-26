@@ -31,12 +31,13 @@
 
 #include <FslDemoApp/OpenVX/Setup/RegisterDemoApp.hpp>
 #include "SoftISP.hpp"
+#include "OptionParser.hpp"
 
 namespace Fsl
 {
   // Configure the demo environment to run this demo app in a OpenVX host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppRegister::OpenVX::Register<SoftISP>(rSetup, "OpenVX.SoftISP");
+    DemoAppRegister::OpenVX::Register<SoftISP, OptionParser>(rSetup, "OpenVX.SoftISP");
   }
 }

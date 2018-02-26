@@ -57,7 +57,7 @@ class CacheState:
 
 
 def __GetCacheFormatVersion() -> str:
-    return '1'
+    return '2'
 
 
 def GetCacheHeader() -> str:
@@ -75,6 +75,7 @@ class ContentState(object):
         self.Length = 0
         self.ModifiedDate = ""
         self.Checksum = ""
+        self.TagChecksum = "0"
         self.CacheState = CacheState.New
         self.ModificationComment = ""
 
@@ -92,6 +93,8 @@ class ContentState(object):
             res = self.__AddToString(res, "ModifiedDate: {0} != {1}".format(self.ModifiedDate, entry.ModifiedDate))
         if self.Checksum != entry.Checksum:
             res = self.__AddToString(res, "Checksum: {0} != {1}".format(self.Checksum, entry.Checksum))
+        if self.TagChecksum != entry.TagChecksum:
+            res = self.__AddToString(res, "TagChecksum: {0} != {1}".format(self.TagChecksum, entry.TagChecksum))
         return res
 
 
@@ -127,18 +130,18 @@ class SyncState(object):
 
 
 
-    def GetDirState(self, syncState: ContentState) -> Optional[ContentState]:
+    def TryGetDirState(self, syncState: ContentState) -> Optional[ContentState]:
         if syncState.Name in self.Dirs:
             return self.Dirs[syncState.Name]
         return None
 
 
-    def GetFileState(self, syncState: ContentState) -> Optional[ContentState]:
+    def TryGetFileState(self, syncState: ContentState) -> Optional[ContentState]:
         if syncState.Name in self.Entries:
             return self.Entries[syncState.Name]
         return None
 
-    def GetFileStateByFileName(self, fileName: str) -> Optional[ContentState]:
+    def TryGetFileStateByFileName(self, fileName: str) -> Optional[ContentState]:
         if fileName in self.Entries:
             return self.Entries[fileName]
         return None
@@ -166,11 +169,14 @@ class SyncState(object):
         entries = []  # type: List[ContentState]
         dirs = []
         lines = content.splitlines(False)
+        if len(lines) < 3:
+            config.LogPrint("WARNING: Cache at '{0}' is invalid, ignoring it.".format(path))
+            return
         for line in lines:
             line = line.strip()
             if not line.startswith('#'):
                 elements = line.split(GLOBAL_SEP)
-                if len(elements) != 4:
+                if len(elements) != 5:
                     config.LogPrint("Cache entry invalid, ignoring cache")
                     return
                 contentState = ContentState()
@@ -178,6 +184,7 @@ class SyncState(object):
                 contentState.Length = int(elements[1])
                 contentState.ModifiedDate = elements[2]
                 contentState.Checksum = elements[3]
+                contentState.TagChecksum = elements[4]
                 if contentState.Length >= 0:
                     entries.append(contentState)
                 else:
@@ -201,14 +208,14 @@ class SyncState(object):
         sortedList.sort()
         for name in sortedList:
             entry = self.Dirs[name]
-            strContent = "%s%s%s%s%s%s%s\n" % (entry.Name, GLOBAL_SEP, entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum)
+            strContent = "{0}{1}{2}{3}{4}{5}{6}{7}{8}\n".format(entry.Name, GLOBAL_SEP, entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum, GLOBAL_SEP, entry.TagChecksum)
             result.append(strContent)
 
         sortedList = list(self.Entries.keys())
         sortedList.sort()
         for name in sortedList:
             entry = self.Entries[name]
-            strContent = "%s%s%s%s%s%s%s\n" % (entry.Name, GLOBAL_SEP, entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum)
+            strContent = "{0}{1}{2}{3}{4}{5}{6}{7}{8}\n".format(entry.Name, GLOBAL_SEP, entry.Length, GLOBAL_SEP, entry.ModifiedDate, GLOBAL_SEP, entry.Checksum, GLOBAL_SEP, entry.TagChecksum)
             result.append(strContent)
         IOUtil.WriteFileIfChanged(path, "".join(result))
 
@@ -221,18 +228,21 @@ class SyncState(object):
         fileState.Name = pathFileRecord.RelativePath
         fileState.Length = os.path.getsize(pathFileRecord.ResolvedPath)
         fileState.ModifiedDate = self.__FileModificationDate(pathFileRecord.ResolvedPath)
+        fileState.TagChecksum = '0'
 
-        cachedState = cachedSyncState.GetFileState(fileState) if cachedSyncState else None
-        if allowCaching and cachedState and fileState.Length == cachedState.Length and fileState.ModifiedDate == cachedState.ModifiedDate:
+        cachedState = cachedSyncState.TryGetFileState(fileState) if cachedSyncState is not None else None
+        if allowCaching and cachedState is not None and fileState.Length == cachedState.Length and fileState.ModifiedDate == cachedState.ModifiedDate:
             fileState.Checksum = cachedState.Checksum
+            fileState.TagChecksum = cachedState.TagChecksum
             log.LogPrint("Using cached checksum for '{0}'".format(fileState.Name))
         else:
             log.LogPrint("Calculating checksum for '{0}'".format(fileState.Name))
             fileState.Checksum = self.__HashFile(pathFileRecord.ResolvedPath)
         # Mark the entry as being new
-        if not cachedState and allowNew:
+        #if (cachedState is None or CacheState.New) and allowNew:
+        if cachedState is None and allowNew:
             fileState.CacheState = CacheState.New
-        elif cachedState and not fileState.IsSameState(cachedState):
+        elif cachedState is not None and not fileState.IsSameState(cachedState):
             fileState.CacheState = CacheState.Modified
             fileState.ModificationComment = fileState.GetDifferenceString(cachedState)
         else:
@@ -274,8 +284,9 @@ def __BuildSyncState(config: Config, absoluteCacheFileName: str,
         dirState.Length = -1
         dirState.ModifiedDate = "0"
         dirState.Checksum = "0"
-        cachedState = cachedSyncState.GetDirState(dirState)
-        if not cachedState and allowNew:
+        dirState.TagChecksum = "0"
+        cachedState = cachedSyncState.TryGetDirState(dirState)
+        if cachedState is None and allowNew:
             dirState.CacheState = CacheState.New
         if addNewFilesAndDirs or dirState.CacheState != CacheState.New:
             syncState.AddDir(dirState)

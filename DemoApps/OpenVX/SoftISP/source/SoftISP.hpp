@@ -55,6 +55,7 @@ namespace Fsl
     std::vector<RapidOpenVX::Image> m_imagesObj;
     std::vector<RapidOpenVX::Distribution> m_dist;
     bool m_save;
+    bool m_denoiseStatus;
 
   public:
     SoftISP(const DemoAppConfig& config);
