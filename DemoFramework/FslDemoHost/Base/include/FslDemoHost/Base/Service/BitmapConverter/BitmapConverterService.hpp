@@ -32,6 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
+#include <FslDemoApp/Base/Service/ImageConverterLibrary/IImageConverterLibraryService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <deque>
@@ -43,6 +44,8 @@ namespace Fsl
     : public ThreadLocalService
     , public IBitmapConverter
   {
+    std::deque<std::shared_ptr<IImageConverterLibraryService> > m_converterLibraries;
+
   public:
     BitmapConverterService(const ServiceProvider& serviceProvider);
     ~BitmapConverterService();
@@ -55,8 +58,6 @@ namespace Fsl
 
     //virtual bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) override;
     //virtual void Convert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) override;
-  private:
-    bool TryConvertPixelFormat(Bitmap& rBitmap, const PixelFormat desiredPixelFormat);
   };
 }
 

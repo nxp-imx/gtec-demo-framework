@@ -33,18 +33,15 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Point2.hpp>
+#include <FslBase/String/StringCompat.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
-#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <cmath>
-
-#if defined(__QNXNTO__)
-#include <stdio.h>
-#endif
 
 namespace Fsl
 {
@@ -61,11 +58,6 @@ namespace Fsl
   }
 
 
-#ifdef _WIN32
-#pragma warning( push )
-// Disable the warning about unsafe method under windows (unfortunately visual studio does not support snprintf)
-#pragma warning( disable : 4996)
-#endif
   DemoAppProfilerOverlay::CustomRecord::CustomRecord(const ProfilerCustomCounterHandle& handle, const ProfilerCustomCounterDesc& desc, const std::shared_ptr<DemoAppProfilerGraph>& graph)
     : Handle(handle)
     , Name(desc.Name)
@@ -79,11 +71,8 @@ namespace Fsl
 
     const int32_t maxDigits = std::max(digits1, digits2);
 
-    std::sprintf(FormatString, "%%%dd", maxDigits);
+    StringCompat::sprintf_s(FormatString.data(), FormatString.size(), "%%%dd", maxDigits);
   }
-#ifdef _WIN32
-#pragma warning( pop )
-#endif
 
 
   DemoAppProfilerOverlay::DemoAppProfilerOverlay(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig)
@@ -97,7 +86,7 @@ namespace Fsl
     , m_customCounters()
   {
     m_profilerService = demoAppConfig.DemoServiceProvider.Get<IProfilerService>();
-    m_graphicsService = demoAppConfig.DemoServiceProvider.Get<IGraphicsService>();
+    m_graphicsService = demoAppConfig.DemoServiceProvider.TryGet<IGraphicsService>();
   }
 
 
@@ -107,17 +96,11 @@ namespace Fsl
   }
 
 
-#ifdef _WIN32
-// Disable the warning about unsafe method under windows (unfortunately visual studio does not support snprintf)
-#pragma warning( push )
-#pragma warning( disable : 4996)
-#endif
-
   void DemoAppProfilerOverlay::Draw(const Point2& screenResolution)
   {
     MaintainCachedCustomEntries();
 
-    std::shared_ptr<Basic2D> basic2D = m_basic2D.lock();
+    std::shared_ptr<IBasic2D> basic2D = m_basic2D.lock();
     if (!basic2D && m_graphicsService)
     {
       m_basic2D = m_graphicsService->GetBasic2D();
@@ -138,14 +121,15 @@ namespace Fsl
 
       if (showFPS || showMicro)
       {
-        char tmp[256];
+        const int TMP_BUFFER_SIZE = 256;
+        char tmp[TMP_BUFFER_SIZE];
         int numChars = 0;
         if (showFPS && showMicro)
-          numChars = sprintf(tmp, "%.1fFPS %.1fms", frameTime.GetFramePerSecond(), frameTime.TotalTime / 1000.0f);
+          numChars = StringCompat::sprintf_s(tmp, TMP_BUFFER_SIZE, "%.1fFPS %.1fms", frameTime.GetFramePerSecond(), frameTime.TotalTime / 1000.0f);
         else if (showFPS)
-          numChars = sprintf(tmp, "%.1fFPS", frameTime.GetFramePerSecond());
+          numChars = StringCompat::sprintf_s(tmp, TMP_BUFFER_SIZE, "%.1fFPS", frameTime.GetFramePerSecond());
         else if (showMicro)
-          numChars = sprintf(tmp, "%.1fms", frameTime.TotalTime / 1000.0f);
+          numChars = StringCompat::sprintf_s(tmp, TMP_BUFFER_SIZE, "%.1fms", frameTime.TotalTime / 1000.0f);
 
         const Point2 fontSize = basic2D->FontSize();
         Vector2 dstPos(0.0f, static_cast<float>(screenResolution.Y - fontSize.Y));
@@ -158,7 +142,7 @@ namespace Fsl
           std::list<CustomRecord>::const_iterator itr = m_customCounters.begin();
           while (itr != m_customCounters.end())
           {
-            numChars = sprintf(tmp, itr->FormatString, m_profilerService->Get(itr->Handle));
+            numChars = StringCompat::sprintf_s(tmp, TMP_BUFFER_SIZE, itr->FormatString.data(), m_profilerService->Get(itr->Handle));
             if (numChars > 0)
             {
               basic2D->DrawString(tmp, dstPos);
@@ -184,9 +168,6 @@ namespace Fsl
     }
   }
 
-#ifdef _WIN32
-#pragma warning( pop )
-#endif
 
   void DemoAppProfilerOverlay::MaintainCachedCustomEntries()
   {
@@ -244,7 +225,7 @@ namespace Fsl
   }
 
 
-  void DemoAppProfilerOverlay::UpdateAndDrawCustomCounters(const std::shared_ptr<Basic2D>& basic2D, const Vector2& dstPos)
+  void DemoAppProfilerOverlay::UpdateAndDrawCustomCounters(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPos)
   {
     std::list<CustomRecord>::const_iterator itr = m_customCounters.begin();
     while (itr != m_customCounters.end())

@@ -20,6 +20,8 @@ package com.freescale.##PREFIXED_PROJECT_NAME_L##;
 
 import com.freescale.##PREFIXED_PROJECT_NAME_L##.R;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.NativeActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -53,16 +55,18 @@ public class DemoNativeActivity extends NativeActivity {
 
     }
 
+    @TargetApi(19)    
     protected void onResume() {
         super.onResume();
 
         //Hide toolbar
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if(SDK_INT >= 11 && SDK_INT < 14)
-        {
-            getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_HIDDEN);
-        }
-        else if(SDK_INT >= 14 && SDK_INT < 19)
+        //if(SDK_INT >= 11 && SDK_INT < 14)
+        //{
+        //    getWindow().getDecorView().setSystemUiVisibility(View.STATUS_BAR_HIDDEN);
+        //}
+        //else if(SDK_INT >= 14 && SDK_INT < 19)
+		if(SDK_INT >= 14 && SDK_INT < 19)
         {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LOW_PROFILE);
         }
@@ -74,6 +78,7 @@ public class DemoNativeActivity extends NativeActivity {
     }
     // Our popup window, you will call it from your C/C++ code later
 
+    @TargetApi(19)    
     void setImmersiveSticky() {
         View decorView = getWindow().getDecorView();
         decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -88,6 +93,7 @@ public class DemoNativeActivity extends NativeActivity {
     PopupWindow _popupWindow;
     TextView _label;
 
+    @SuppressLint("InflateParams")
     public void showUI()
     {
         if( _popupWindow != null )
@@ -113,7 +119,7 @@ public class DemoNativeActivity extends NativeActivity {
                 _activity.setContentView(mainLayout, params);
 
                 // Show our UI over NativeActivity window
-                _popupWindow.showAtLocation(mainLayout, Gravity.TOP | Gravity.LEFT, 10, 10);
+                _popupWindow.showAtLocation(mainLayout, Gravity.TOP | Gravity.START, 10, 10);
                 _popupWindow.update();
 
                 _label = (TextView)popupView.findViewById(R.id.textViewFPS);
@@ -124,10 +130,6 @@ public class DemoNativeActivity extends NativeActivity {
     protected void onPause()
     {
         super.onPause();
-        if (_popupWindow != null) {
-            _popupWindow.dismiss();
-            _popupWindow = null;
-        }
     }
 
     public void updateFPS(final float fFPS)

@@ -53,7 +53,9 @@ namespace Fsl
     VulkanWindowSystem(const DemoHostCustomWindowSystemSetup& setup);
     ~VulkanWindowSystem();
 
-    virtual std::shared_ptr<INativeWindow> CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams = nullptr) override;
+    virtual std::shared_ptr<INativeWindow> CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                              const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams = nullptr) override;
+
 
     VkInstance GetInstance() const
     {

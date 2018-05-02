@@ -34,7 +34,7 @@
 #include "DynamicTerrainTessellation.hpp"
 #include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
 #include <Shared/VulkanWindowExperimental/OptionParser.hpp>
-#include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 
 namespace Fsl
 {

@@ -39,7 +39,7 @@
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslGraphics3D/BasicScene/Camera/FirstPersonCamera.hpp>
+#include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>

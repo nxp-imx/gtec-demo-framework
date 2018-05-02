@@ -33,12 +33,13 @@
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
+#include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 #include <FslDemoHost/EGL/Service/EGLHost/EGLHostServiceFactory.hpp>
-#include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
-#include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/OpenVG/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
@@ -50,12 +51,15 @@ namespace Fsl
 {
   namespace
   {
+    typedef ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl> GraphicsServiceFactory;
+
     const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       // Use the EGLDemoHost for OpenVG
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
       eglHostFeatures.push_back(DemoHostFeatureName::OpenVG);
       rSetup.TheHostRegistry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
+      rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<OpenVG::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<EGLHostServiceFactory>(ServicePriorityList::EGLHostService());
       rSetup.TheServiceRegistry.Register<WindowHostServiceFactory>(ServicePriorityList::WindowHostService());
@@ -92,10 +96,11 @@ namespace Fsl
     {
       void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig)
       {
-        // Register a formatter for common OpenGLES3 exceptions (from the libs we utilize)
+        // Register a formatter for common OpenVG exceptions (from the libs we utilize)
         rSetup.CustomExceptionFormatter.Add(TryFormatException);
         const DemoHostFeature feature = CommenSetup(rSetup);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, demoHostEGLConfig);
+        const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostEGLConfig);
+        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
       }
     }
   }

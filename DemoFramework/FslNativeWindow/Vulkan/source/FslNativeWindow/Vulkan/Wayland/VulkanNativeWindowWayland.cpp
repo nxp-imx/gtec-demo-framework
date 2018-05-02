@@ -68,11 +68,11 @@ namespace Fsl
     : AVulkanNativeWindow(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
     , PlatformNativeWindowWayland(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
   {
-    VkXlibSurfaceCreateInfoKHR surfaceCreateInfo{};
+    VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo{};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
     surfaceCreateInfo.flags = 0;
-    surfaceCreateInfo.display = nativeDisplay;
-    surfaceCreateInfo.surface = nativeWindow;
+    surfaceCreateInfo.display = GetPlatformDisplay();
+    surfaceCreateInfo.surface = GetWaylandSurface();
 
     RAPIDVULKAN_CHECK(vkCreateWaylandSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_surface));
   }

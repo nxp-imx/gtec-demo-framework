@@ -108,10 +108,11 @@ A build recipe consists of a optional Pipeline and a mandatory ValidationInstall
 
 In a build pipeline the very first step will always be a *Fetch* command which can be either:
 
-| Fetch command | Description                            |
-|---------------|----------------------------------------|
-| Download      | Download a file using the given URL    |
-| GitClone      | Clone a repository using the given URL |
+| Fetch command | Description                                   |
+|---------------|-----------------------------------------------|
+| Download      | Download a file using the given URL           |
+| GitClone      | Clone a repository using the given URL        |
+| Source        | Fetch from the local directory of the package |
 
 The result of the fetch command will be stored in a 'cache' area so it can be reused in case of build errors.
 
@@ -119,11 +120,12 @@ The result of the fetch command will be stored in a 'cache' area so it can be re
 
 After the fetch step comes 0-n build steps.
 
-| Command       | Description                                        |
-|---------------|----------------------------------------------------|
-| Clone         | Copies the content of the input folder             |
-| CMakeAndBuild | Runs CMake and its platform associated builder     |
-| Unpack        | Unpack a specific file (.zip, .tar, .tar.gz, .tgz) |
+| Command       | Description                                             |
+|---------------|---------------------------------------------------------|
+| Copy          | Copies the content of the input folder                  |
+| CMakeAndBuild | Runs CMake and its platform associated builder          |
+| Combine       | Runs multiple CMake and its platform associated builder |
+| Unpack        | Unpack a specific file (.zip, .tar, .tar.gz, .tgz)      |
 
 Each of these commands also take a optional 'join command list' that is executed before we 
 hand over the result to the next step in the pipeline.
@@ -131,6 +133,7 @@ hand over the result to the next step in the pipeline.
 | Join command  | Description                                        |
 |---------------|----------------------------------------------------|
 | Copy          | Copy a file or directory                           |
+| Delete        | Delete a file or directory                         |
 | GitApply      | Apply a git patch file                             |
 
 ## Install section
@@ -140,15 +143,16 @@ The installation section is responsible for defining
 - some basic installation validation checks.
 
 
-| Command             | Description                                                             |
-|---------------------|-------------------------------------------------------------------------|
-| AddHeaders          | Defines where the 'header' files can be found                           |
-| AddLib              | Define a library file that can be linked against                        |
-| AddDLL              | Define a DLL file that should be copied to the executable output folder |
-| EnvironmentVariable | Can be used to check if a environment variable is defined               |
-| Path                | Can be used to check if a path exist.                                   |
-| FindFileInPath      | Can be used to check if a file can be found in the current path         |
- 
+| Command                  | Description                                                                                                                     |
+|--------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| AddHeaders               | Defines where the 'header' files can be found                                                                                   |
+| AddLib                   | Define a library file that can be linked against                                                                                |
+| AddDLL                   | Define a DLL file that should be copied to the executable output folder                                                         |
+| AddTool                  | ToolRecipe only. Define a tool that can be used by the build pipeline                                                           |
+| EnvironmentVariable      | Can be used to check if a environment variable is defined                                                                       |
+| Path                     | Can be used to check if a path exist.                                                                                           |
+| FindFileInPath           | Can be used to check if a file can be found in the current path                                                                 |
+| FindExectuableFileInPath | Can be used to check if a executable file can be found in the current path (this is platform aware and will add .exe if needed) |
 
 
 # Package recipe examples
@@ -200,6 +204,7 @@ The recipe below, downloads the zlib source, unpacks it and the builds it using 
 # ReadonlyCache
 
 This is a experimental feature intended to help people that utilize multiple SDK installations or run build bots.
+Using it will improve build time as it can skip downloading of source.
 **Beware** this feature is still experimental!
 
 The environment variable: ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR``` can be set to point to a shared caching directory. 
@@ -212,6 +217,17 @@ All scripts will only read from the directory so no concurrency issues should ex
 For now we only support reusing the .DownloadCache directory, but future updates will ensure that any already build package will
 be re-used too.
 
+## Populate the cache
+
+The simplest way to get the files for the cache is to run 
+
+```bash
+FslBuildExternal.py -t sdk -v
+```
+
+This will download and build all externals to the FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR directory. 
+Once that is done the files can be manually copied to the Readonly cache area. Just make sure nothing is using any of the 
+two directories when you do the copy, this is especially important for build bots etc.
 
 # Appendix: Recipe pipeline commands
 

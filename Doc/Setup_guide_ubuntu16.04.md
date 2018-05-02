@@ -33,9 +33,7 @@ Prerequisites
   ```
     
 - Assimp (Open Asset Import Library)
-  ```bash
-  sudo apt-get install libassimp-dev
-  ```
+  Is now downloaded and build from source when needed. So its no longer necessary to run "sudo apt-get install libassimp-dev".
     
 - Download the source from git.
 

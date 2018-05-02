@@ -33,21 +33,33 @@
 
 from typing import Optional
 from FslBuildGen.Log import Log
+from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.Context.Context import Context
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
 from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
 from FslBuildGen.Location.PathBuilder import PathBuilder
+from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 
 class PlatformContext(Context):
-    def __init__(self, log: Log, platformName: str, 
+    def __init__(self, log: Log, platformName: str,
                  generatorName: str,
                  compilerGeneratorName: str, recipeBuilderSetup: Optional[RecipeBuilderSetup]) -> None:
-        super(PlatformContext, self).__init__(log)
+        super().__init__(log)
 
+        self.HostPlatformName = self.__DetermineHostPlatformName(platformName)
         self.PlatformName = platformName # type: str
         self.GeneratorName = generatorName # type: str
         self.GeneratorCompilerName = compilerGeneratorName # type: str
         self.VariableProcessor = VariableProcessor(log)
         self.PathBuilder = PathBuilder(log, self.VariableProcessor, platformName)
         self.RecipePathBuilder = RecipePathBuilder(log, self.VariableProcessor, recipeBuilderSetup, platformName, compilerGeneratorName)
+
+
+    def __DetermineHostPlatformName(self, platformName: str) -> str:
+        if platformName != PlatformNameString.ANDROID:
+            return platformName
+        if PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows:
+            return PlatformNameString.WINDOWS
+        return PlatformNameString.UBUNTU

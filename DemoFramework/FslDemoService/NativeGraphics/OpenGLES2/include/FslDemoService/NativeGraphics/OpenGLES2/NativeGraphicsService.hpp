@@ -32,7 +32,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/NativeGraphics/INativeGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 
@@ -49,7 +49,10 @@ namespace Fsl
       ~NativeGraphicsService();
 
       // From INativeGraphics
-      virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override;
+      virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+                                                                const TextureFlags& textureFlags) override;
+      virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                const TextureFlags& textureFlags) override;
       // From INativeGraphicsService
       virtual bool IsSupported(const DemoHostFeature& activeAPI) const override;
       virtual void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) override;

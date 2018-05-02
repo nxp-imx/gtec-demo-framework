@@ -35,7 +35,7 @@
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include <FslGraphics3D/BasicScene/Camera/ArcballCamera.hpp>
+#include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLFrameBuffer.hpp>
 #include <FslUtil/OpenGLES2/NativeBatch2D.hpp>

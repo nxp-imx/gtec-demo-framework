@@ -1,0 +1,3 @@
+    <CustomBuild Include="##FILENAME##">
+      <Filter>Shader Files</Filter>
+    </CustomBuild>

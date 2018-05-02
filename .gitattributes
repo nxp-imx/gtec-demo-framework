@@ -4,6 +4,11 @@
 * text=auto
 
 ###############################################################################
+# bash scripts should use unix format to allow us to copy it between hosts
+###############################################################################
+*.sh       text eol=lf
+
+###############################################################################
 # Set default behavior for command prompt diff.
 #
 # This is need for earlier builds of msysgit that does not have it on by

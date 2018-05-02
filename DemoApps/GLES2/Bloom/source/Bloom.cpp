@@ -37,7 +37,7 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
@@ -69,6 +69,8 @@ namespace Fsl
       "VertexTexCoord",
       nullptr
     };
+
+    const GLTextureImageParameters g_defaultFBImageParams(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
   }
 
   // Bloom as described here
@@ -85,18 +87,17 @@ namespace Fsl
     , m_rotationSpeed(0, -0.6f, 0)
     , m_storedStartRotation()
     , m_scene()
-    , m_fbBlur16A(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur16B(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur32A(Point2(SIZE_32, SIZE_32), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur32B(Point2(SIZE_32, SIZE_32), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur64A(Point2(SIZE_64, SIZE_64), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur64B(Point2(SIZE_64, SIZE_64), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur128A(Point2(SIZE_128, SIZE_128), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur128B(Point2(SIZE_128, SIZE_128), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur256A(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbBlur256B(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
-    , m_fbRender256(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565, GL_DEPTH_COMPONENT16)
-    //, m_fbRender256(Point2(256, 256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB10_A2, GL_DEPTH_COMPONENT16)
+    , m_fbBlur16A(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur16B(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur32A(Point2(SIZE_32, SIZE_32), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur32B(Point2(SIZE_32, SIZE_32), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur64A(Point2(SIZE_64, SIZE_64), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur64B(Point2(SIZE_64, SIZE_64), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur128A(Point2(SIZE_128, SIZE_128), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur128B(Point2(SIZE_128, SIZE_128), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur256A(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbBlur256B(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
+    , m_fbRender256(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams, GL_DEPTH_COMPONENT16)
     , m_locBlurHTexSize(GLValues::INVALID_LOCATION)
     , m_locBlurVTexSize(GLValues::INVALID_LOCATION)
     , m_locBloomTexture256(GLValues::INVALID_LOCATION)

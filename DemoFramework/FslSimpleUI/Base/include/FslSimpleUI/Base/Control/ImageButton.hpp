@@ -51,16 +51,28 @@ namespace Fsl
     public:
       ImageButton(const std::shared_ptr<WindowContext>& context);
 
-      const AtlasTexture2D& GetContent() const { return m_content; }
+      const AtlasTexture2D& GetContent() const
+      {
+        return m_content;
+      }
       void SetContent(const AtlasTexture2D& value);
 
-      ItemScalePolicy GetScalePolicy() const { return m_scalePolicy; }
+      ItemScalePolicy GetScalePolicy() const
+      {
+        return m_scalePolicy;
+      }
       void SetScalePolicy(const ItemScalePolicy value);
 
-      Color GetColorUp() const { return m_colorUp; }
+      Color GetColorUp() const
+
+      { return m_colorUp;
+      }
       void SetColorUp(const Color& value);
 
-      Color GetColorDown() const { return m_colorDown; }
+      Color GetColorDown() const
+      {
+        return m_colorDown;
+      }
       void SetColorDown(const Color& value);
 
       virtual void WinDraw(const UIDrawContext& context) override;

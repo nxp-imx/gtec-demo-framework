@@ -40,6 +40,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/String/ToString.hpp>
+#include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/Getopt/OptionParser.hpp>
@@ -99,6 +100,7 @@ namespace Fsl
       rCombinedOptions.push_back(OptionRecord(source, Option("h", "help", OptionArgument::OptionNone, 'h', "Display options")));
       rCombinedOptions.push_back(OptionRecord(source, Option("ghelp", OptionArgument::OptionRequired, 1, "Display option groups: all, demo or host")));
       rCombinedOptions.push_back(OptionRecord(source, Option("v", "verbose", OptionArgument::OptionNone, 'v', "Enable verbose output")));
+      //rCombinedOptions.push_back(OptionRecord(source, Option("VerbosityLevel", OptionArgument::OptionRequired, 3, "Set a specific verbosity level")));
       rCombinedOptions.push_back(OptionRecord(source, Option("System.Arguments.Save", OptionArgument::OptionRequired, 2, "Save all command line arguments to the given file name.", OptionGroup::Hidden)));
       //rCombinedOptions.push_back(Option("Test1", OptionArgument::Required, nullptr, 10, "test required arg"));
       //rCombinedOptions.push_back(Option("Test2", OptionArgument::Optional, nullptr, 11, "test required arg"));
@@ -355,14 +357,14 @@ namespace Fsl
   }
 
 
-  OptionParser::Result OptionParser::Parse(int argc, char** argv, const char*const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const char*const pszHelpCaption)
   {
     std::deque<ParserRecord> inputOptionParsers;
     return Parse(argc, argv, inputOptionParsers, pszHelpCaption);
   }
 
 
-  OptionParser::Result OptionParser::Parse(int argc, char** argv, IOptionParser& inputOptionParser, const char*const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, IOptionParser& inputOptionParser, const char*const pszHelpCaption)
   {
     std::deque<ParserRecord> inputOptionParsers;
     inputOptionParsers.push_back(ParserRecord(&inputOptionParser, 0));
@@ -370,7 +372,7 @@ namespace Fsl
   }
 
 
-  OptionParser::Result OptionParser::Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers, const char*const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers, const char*const pszHelpCaption)
   {
     std::deque<ParserRecord> inputOptionParsersEx;
     for (auto itr = inputOptionParsers.begin(); itr != inputOptionParsers.end(); ++itr)
@@ -379,11 +381,12 @@ namespace Fsl
   }
 
 
-  OptionParser::Result OptionParser::Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers, const char*const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers, const char*const pszHelpCaption)
   {
     std::deque<OptionRecord> combinedOptions;
     ArgumentSetup(inputOptionParsers, combinedOptions);
 
+    uint32_t verbosityLevel = 0;
     bool bForceExit = false;
     int32_t showHelpOptionGroupFlags = 0;
     int optionErrors = 0;
@@ -396,7 +399,7 @@ namespace Fsl
         switch (value)
         {
         case 'v': // verbose
-          // FIX: enable verbose mode
+          ++verbosityLevel;
           break;
         case 'h':
           showHelpOptionGroupFlags |= (0x7FFFFFFF & (~OptionGroup::Hidden));
@@ -409,6 +412,9 @@ namespace Fsl
           if (!TrySaveArgumentsToJsonFile(strOptArg, combinedOptions))
             ++optionErrors;
           break;
+        //case 3:
+        //  StringParseUtil::Parse(verbosityLevel, strOptArg.c_str());
+        //  break;
         default:
           {
             // Parse the unknown option off to the supplied parsers
@@ -452,9 +458,9 @@ namespace Fsl
       ShowHelp(pszHelpCaption, combinedOptions, showHelpOptionGroupFlags);
 
     if (optionErrors != 0)
-      return Result::Failed;
+      return ParseResult(Result::Failed, verbosityLevel);
 
-    return !bForceExit && showHelpOptionGroupFlags == 0 ? Result::OK : Result::Exit;
+    return ParseResult(!bForceExit && showHelpOptionGroupFlags == 0 ? Result::OK : Result::Exit, verbosityLevel);
   }
 
 

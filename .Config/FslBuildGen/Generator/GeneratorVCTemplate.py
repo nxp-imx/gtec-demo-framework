@@ -75,9 +75,11 @@ class CodeTemplateVC(object):
         strTemplatePath = IOUtil.Join(strVSPath, subDirectory)
         strTemplateSolutionPath = IOUtil.Join(strTemplatePath, "Template_sln")
         strTemplateProjectPath = IOUtil.Join(strTemplatePath, "Template_{0}".format(template.Template.ProjectExtension))
+        strTemplateFilterPath = IOUtil.Join(strTemplatePath, "Template_filters")
 
         strTemplateNuGetPackageConfigPath = IOUtil.Join(strTemplatePath, "Template_packages_config")
 
+        self.FilterExtension = "vcxproj.filters"
         self.SolutionExtension = "sln"
         self.ProjectExtension = template.Template.ProjectExtension
 
@@ -107,10 +109,18 @@ class CodeTemplateVC(object):
         self.VariantCompilerSettings = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "VariantCompilerSettings.txt"))
         self.VariantCompilerSettings_1 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "VariantCompilerSettings_1.txt"))
         self.VariantCompilerSettings_2 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "VariantCompilerSettings_2.txt"))
+        self.WindowsTargetPlatformVersion = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "WindowsTargetPlatformVersion.txt"), "")
         externalFileToOutput = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "ExternalFileToOutput.txt"))
         self.ExternalFileToOutput = "" if externalFileToOutput is None else externalFileToOutput
         self.Snippet9 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "CustomBuildFiles.txt"))
         self.Snippet9_1 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "CustomBuildFiles_1.txt"))
+
+        # Filter master file
+        self.FilterMaster = IOUtil.TryReadFile(IOUtil.Join(strTemplateFilterPath, "master.txt"))
+        self.FilterItemGroup = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "itemgroup.txt"), "")
+        self.FilterItemHeader = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "item_header.txt"), "")
+        self.FilterItemShader = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "item_shader.txt"), "")
+        self.FilterItemSource = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "item_source.txt"), "")
 
         self.DebugOptimizations = {}  # type: Dict[int, TemplateOptimizationSetting]
         self.__LoadOptimization(self.DebugOptimizations, OptimizationType.Disabled, strVSPath, "DEBUG", "disabled")

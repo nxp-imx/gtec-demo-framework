@@ -44,7 +44,6 @@
 #include <FslDemoHost/Base/Service/DemoAppControl/DemoAppControlServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/Events/EventsService.hpp>
 #include <FslDemoHost/Base/Service/Gamepad/GamepadsService.hpp>
-#include <FslDemoHost/Base/Service/Graphics/GraphicsService.hpp>
 #include <FslDemoHost/Base/Service/Host/HostInfoService.hpp>
 #include <FslDemoHost/Base/Service/Image/ImageService.hpp>
 #include <FslDemoHost/Base/Service/ImageBasic/ImageBasicService.hpp>
@@ -57,6 +56,7 @@
 #include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/Test/TestService.hpp>
 #include <FslDemoPlatform/Service/DemoPlatformControl/DemoPlatformControl.hpp>
+#include <FslDemoPlatform/Service/ImageConverterLibrary/ImageConverterLibraryBasicService.hpp>
 #include <FslService/Impl/ServiceOptionParserDeque.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceFactory.hpp>
@@ -74,6 +74,9 @@
 #ifdef FSL_FEATURE_STB
 #include <FslDemoPlatform/Service/ImageLibrary/ImageLibrarySTBService.hpp>
 #endif
+#ifdef FSL_FEATURE_HALF
+#include <FslDemoPlatform/Service/ImageConverterLibrary/ImageConverterLibraryFP16Service.hpp>
+#endif
 
 namespace Fsl
 {
@@ -86,7 +89,6 @@ namespace Fsl
   typedef ThreadLocalSingletonServiceFactoryTemplate<ImageBasicService, IImageBasicService> ImageBasicServiceFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate<DemoPlatformControl, IDemoPlatformControl> PlatformControlFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<EventsService, IEventService, IEventPoster> EventsFactory;
-  typedef ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl> GraphicsServiceFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate<KeyboardService, IKeyboard> KeyboardFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate<MouseService, IMouse> MouseFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<NativeWindowEventsService, INativeWindowEvents, INativeWindowEventSender> NativeWindowEventsFactory;
@@ -95,6 +97,8 @@ namespace Fsl
   typedef ThreadLocalSingletonServiceFactoryTemplate<ContentMonitorService, IContentMonitor> ContentMonitorServiceFactory;
   typedef ThreadLocalSingletonServiceFactoryTemplate2<HostInfoService, IHostInfo, IHostInfoControl> HostInfoServiceFactory;
 
+  typedef ThreadLocalSingletonServiceFactoryTemplate<ImageConverterLibraryBasicService, IImageConverterLibraryService> ImageConverterLibraryBasicServiceFactory;
+
 
 #ifdef FSL_FEATURE_GLI
   typedef ThreadLocalSingletonServiceFactoryTemplate<ImageLibraryGLIService, IImageLibraryService> ImageLibraryServiceGLIFactory;
@@ -102,9 +106,14 @@ namespace Fsl
 #ifdef FSL_FEATURE_STB
   typedef ThreadLocalSingletonServiceFactoryTemplate<ImageLibrarySTBService, IImageLibraryService> ImageLibraryServiceSTBFactory;
 #endif
+#ifdef FSL_FEATURE_HALF
+  typedef ThreadLocalSingletonServiceFactoryTemplate<ImageConverterLibraryFP16Service, IImageConverterLibraryService> ImageConverterLibraryFP16ServiceFactory;
+#endif
 
 
-  DemoBasicSetup DemoSetupManager::GetSetup(const DemoSetupManagerConfig& config, ExceptionMessageFormatter& rExceptionMessageFormatter, const std::weak_ptr<IServiceRegistry> weakServiceRegistry, const bool verbose, bool& rEnableFirewallRequest)
+  DemoBasicSetup DemoSetupManager::GetSetup(const DemoSetupManagerConfig& config, ExceptionMessageFormatter& rExceptionMessageFormatter,
+                                            const std::weak_ptr<IServiceRegistry> weakServiceRegistry, const uint32_t verbosityLevel,
+                                            bool& rEnableFirewallRequest)
   {
     ServiceRegistry serviceRegistry(weakServiceRegistry);
 
@@ -127,7 +136,9 @@ namespace Fsl
       FSLLOG2(LogType::Verbose, "AsyncImage service enabled");
       // Setup all image loading and conversion to run in a separate thread
       imageServiceGroup = serviceRegistry.CreateServiceGroup(ServiceGroupName::Image());
-      serviceRegistry.Register(AsynchronousServiceFactory(std::make_shared<AsyncImageServiceProxyFactory>(), std::make_shared<AsyncImageServiceImplFactory>()), ServicePriorityList::AsyncImageService(), imageServiceGroup);
+      serviceRegistry.Register(AsynchronousServiceFactory(std::make_shared<AsyncImageServiceProxyFactory>(),
+                                                          std::make_shared<AsyncImageServiceImplFactory>()),
+                                                          ServicePriorityList::AsyncImageService(), imageServiceGroup);
     }
     else
     {
@@ -145,6 +156,12 @@ namespace Fsl
 
     // The image service always run on the main thread
     serviceRegistry.Register<ImageServiceFactory>(ServicePriorityList::ImageService());
+
+    serviceRegistry.Register<ImageConverterLibraryBasicServiceFactory>(ServicePriorityList::ImageConverterLibraryService(), imageServiceGroup);
+#ifdef FSL_FEATURE_HALF
+    serviceRegistry.Register<ImageConverterLibraryFP16ServiceFactory>(ServicePriorityList::ImageConverterLibraryService(), imageServiceGroup);
+#endif
+
     serviceRegistry.Register<BitmapConverterServiceFactory>(ServicePriorityList::BitmapConverterService(), imageServiceGroup);
     serviceRegistry.Register<ImageBasicServiceFactory>(ServicePriorityList::ImageBasicService(), imageServiceGroup);
 #ifdef FSL_FEATURE_GLI
@@ -154,7 +171,6 @@ namespace Fsl
     serviceRegistry.Register<ImageLibraryServiceSTBFactory>(ServicePriorityList::ImageLibraryService(), imageServiceGroup);
 #endif
     serviceRegistry.Register<HostInfoServiceFactory>(ServicePriorityList::HostInfo());
-    serviceRegistry.Register<GraphicsServiceFactory>();
     serviceRegistry.Register<GamepadsFactory>();
     serviceRegistry.Register<KeyboardFactory>();
     serviceRegistry.Register<MouseFactory>();
@@ -175,6 +191,6 @@ namespace Fsl
 
     DemoHostSetup hostSetup = hostRegistry.GetSetup(*(appSetup.DemoHostFeatures));
 
-    return DemoBasicSetup(hostSetup, appSetup, verbose);
+    return DemoBasicSetup(hostSetup, appSetup, verbosityLevel);
   }
 }

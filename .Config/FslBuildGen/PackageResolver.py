@@ -41,6 +41,7 @@ from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
 from FslBuildGen import Util
+from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildContent.PathVariables import PathVariables
 from FslBuildGen.BuildContent.Processor.ContentBuildCommandFile import ContentBuildCommandFile
@@ -48,6 +49,7 @@ from FslBuildGen.BuildContent.Processor.SourceContent import SourceContent
 #from FslBuildGen.BuildContent.Sync.Content import Content
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
+from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
 #from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.PlatformContext import PlatformContext
@@ -77,6 +79,7 @@ from FslBuildGen.Packages.Package import PackageExternalDependency
 from FslBuildGen.Packages.Package import PackagePlatformVariant
 from FslBuildGen.Packages.Package import PackagePlatformVariantOption
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
+from FslBuildGen.Vars.Variable import Variable
 from FslBuildGen.Xml.Exceptions import XmlMissingWindowsVisualStudioProjectIdException
 from FslBuildGen.Xml.XmlGenFileExternalDependency import FakeXmlGenFileExternalDependencyHeaders
 from FslBuildGen.Xml.XmlGenFileExternalDependency import FakeXmlGenFileExternalDependencyStaticLib
@@ -87,7 +90,6 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileVariantOption
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddHeaders
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddLib
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddDLL
-
 
 class PackageResolvedInclude(object):
     def __init__(self, path: str, fromPackageAccess: int) -> None:
@@ -135,7 +137,7 @@ class PackageResolver(object):
 
             self.__AutoHeaderCounter = 0  # type: int
             config.LogPrintVerbose(4, "- Platform")
-            self.__ResolvePlatform(platformContext.PlatformName, packages, config.IgnoreNotSupported)
+            self.__ResolvePlatform(platformContext.PlatformName, platformContext.HostPlatformName, packages, config.IgnoreNotSupported)
             config.LogPrintVerbose(4, "- requirements")
             self.__ResolveBuildRequirements(config, platformContext.PlatformName, finalResolveOrder)
             config.LogPrintVerbose(4, "- not supported")
@@ -145,6 +147,8 @@ class PackageResolver(object):
                 config.LogPrintVerbose(4, "- Recipe")
                 # - Can trigger environment variables missing
                 self.__ResolveExperimentalRecipe(platformContext, finalResolveOrder, autoAddRecipeExternals)
+                config.LogPrintVerbose(4, "- tool dependencies")
+                self.__ResolveBuildToolDependencies(platformContext, finalResolveOrder)
                 config.LogPrintVerbose(4, "- Direct externals")
                 # - Can trigger environment variables missing
                 self.__ResolveDirectExternalDependencies(config, platformContext, finalResolveOrder, autoAddRecipeExternals)
@@ -181,10 +185,16 @@ class PackageResolver(object):
                                     finalResolveOrder: List[Package],
                                     resolveInstallPath: bool = True) -> None:
         for package in finalResolveOrder:
-            package.ResolvedDirectExperimentalRecipe = package.TryGetExperimentaleRecipe(platformContext.PlatformName)
-            if not package.ResolvedDirectExperimentalRecipe is None:
+            platformName = platformContext.PlatformName if package.Type != PackageType.ToolRecipe else platformContext.HostPlatformName
+            package.ResolvedDirectExperimentalRecipe = package.TryGetExperimentaleRecipe(platformName)
+            if package.ResolvedDirectExperimentalRecipe is not None:
                 # Resolve the experimental recipe internally
                 self.__ResolveExperimentalRecipeEntry(platformContext, package, package.ResolvedDirectExperimentalRecipe, resolveInstallPath)
+
+                if package.Type != PackageType.ToolRecipe and package.ResolvedPlatform is not None and package.ResolvedPlatform.Name == PackageConfig.PlatformNameString.ANDROID:
+                    if PackageRecipeUtil.ContainsBuildCMake(package.ResolvedDirectExperimentalRecipe):
+                        package.ResolvedRecipeVariants = AndroidUtil.GetKnownABIList(False)
+
 
             package.ResolvedExperimentalRecipeBuildOrder = [entry for entry in package.ResolvedBuildOrder if not entry.ResolvedDirectExperimentalRecipe is None]
 
@@ -192,6 +202,22 @@ class PackageResolver(object):
     def __ResolveExperimentalRecipeEntry(self, platformContext: PlatformContext, package: Package,
                                          rRecipe: PackageExperimentalRecipe, resolveInstallPath: bool) -> None:
         rRecipe.ResolvedInstallPath = platformContext.RecipePathBuilder.TryGetInstallPath(rRecipe.XmlSource) if resolveInstallPath else "NotResolved"
+
+
+    def __ResolveBuildToolDependencies(self,
+                                       platformContext: PlatformContext,
+                                       finalResolveOrder: List[Package]) -> None:
+        for package in finalResolveOrder:
+            package.ResolvedToolDependencyOrder = self.__ResolveBuildToolDependencyList(package.ResolvedExperimentalRecipeBuildOrder)
+
+
+    def __ResolveBuildToolDependencyList(self, resolvedBuildOrder: List[Package]) -> List[Package]:
+        dependencyDirList = []
+        for package in resolvedBuildOrder:
+            if package.Type == PackageType.ToolRecipe:
+                if package.ResolvedDirectExperimentalRecipe is not None and package.ResolvedDirectExperimentalRecipe.ResolvedInstallPath is not None:
+                    dependencyDirList.append(package)
+        return dependencyDirList
 
 
     def __ResolveMakeConfig(self, config: Config, packages: List[Package]) -> None:
@@ -597,7 +623,10 @@ class PackageResolver(object):
         if sourceRecipe.ResolvedInstallPath is None:
             raise Exception("sourceRecipe is missing the expected ResolvedInstallPath")
 
-        absoluteLocation = IOUtil.Join(sourceRecipe.ResolvedInstallPath, command.Name)
+        sourcePath = sourceRecipe.ResolvedInstallPath
+        if package.Type == PackageType.ExternalLibrary and len(package.ResolvedRecipeVariants) > 0:
+            sourcePath = IOUtil.Join(sourcePath, Variable.RecipeVariant)
+        absoluteLocation = IOUtil.Join(sourcePath, command.Name)
 
         self.__AutoHeaderCounter = self.__AutoHeaderCounter + 1
         fakeEntry = FakeXmlGenFileExternalDependencyHeaders(basicConfig, "AutoHeaders{0}".format(self.__AutoHeaderCounter), absoluteLocation, AccessType.Public)
@@ -886,10 +915,12 @@ class PackageResolver(object):
         return usedSet
 
 
-    def __ResolvePlatform(self, platformName: str, packages: List[Package], ignoreNotSupported: bool) -> None:
+    def __ResolvePlatform(self, platformName: str, hostPlatformName: str, packages: List[Package], ignoreNotSupported: bool) -> None:
         for package in packages:
-            package.ResolvedPlatformName = platformName
-            package.ResolvedPlatform = package.GetPlatform(platformName)
+            # ToolRecipe's resolve using the hostPlatformName as we use this for 'cross compiling' for now
+            currentPlatformName = platformName if package.Type != PackageType.ToolRecipe else hostPlatformName
+            package.ResolvedPlatformName = currentPlatformName
+            package.ResolvedPlatform = package.GetPlatform(currentPlatformName)
             if not ignoreNotSupported:
                 if package.ResolvedPlatform is not None:
                     # use the flag set in the xml
@@ -900,8 +931,7 @@ class PackageResolver(object):
             else:
                 package.ResolvedPlatformDirectSupported = True
 
-        if platformName == PackageConfig.PlatformNameString.WINDOWS:
-            for package in packages:
+            if currentPlatformName == PackageConfig.PlatformNameString.WINDOWS:
                 if package.Type == PackageType.Library or package.Type == PackageType.Executable: # or package.Type == PackageType.ExeLibCombo:
                     if package.ResolvedPlatform is not None:
                         if package.ResolvedPlatform.ProjectId is None:  # split into separate line to make MyPy happy

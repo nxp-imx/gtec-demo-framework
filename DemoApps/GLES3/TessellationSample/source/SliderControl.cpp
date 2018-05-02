@@ -67,9 +67,9 @@ namespace Fsl
     layout->SetAlignmentX(ItemAlignment::Stretch);
     layout->SetAlignmentY(ItemAlignment::Center);
     layout->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    layout->Children.Add(m_labelText);
-    layout->Children.Add(m_slider);
-    layout->Children.Add(m_labelValue);
+    layout->AddChild(m_labelText);
+    layout->AddChild(m_slider);
+    layout->AddChild(m_labelValue);
 
     layout->PushLayoutLength(LayoutLength(widthF1, LayoutUnitType::Fixed));
     layout->PushLayoutLength(LayoutLength(widthF2, LayoutUnitType::Fixed));

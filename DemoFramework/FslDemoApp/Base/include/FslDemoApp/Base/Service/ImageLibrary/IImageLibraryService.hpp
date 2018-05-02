@@ -45,9 +45,8 @@ namespace Fsl
   class Bitmap;
   class Texture;
 
-  //! @brief The image service is a optional service.
-  //! @note While its optional its always present on platforms that support the full demo framework.
-  //!       Future incarnations of this should improve the save interface so its possible to query the supported image formats and
+  //! @brief A image service is a optional service and there can be multiple image library services.
+  //! @note Future incarnations of this should improve the save interface so its possible to query the supported image formats and
   //        the pixel formats and bitmap origin that these formats support.
   class IImageLibraryService
   {

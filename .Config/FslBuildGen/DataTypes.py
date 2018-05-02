@@ -58,7 +58,9 @@ class PackageType:
             return "ExternalLibrary"
         elif value == PackageType.HeaderLibrary:
             return "HeaderLibrary"
-        raise UnknownTypeException()
+        elif value == PackageType.ToolRecipe:
+            return "ToolRecipe"
+        raise UnknownTypeException("Unknown PackageType: {0}".format(value))
 
     @staticmethod
     def FromString(value: str) -> int:
@@ -72,11 +74,13 @@ class PackageType:
             return PackageType.ExternalLibrary
         elif value == "HeaderLibrary":
             return PackageType.HeaderLibrary
+        elif value == "ToolRecipe":
+            return PackageType.ToolRecipe
         raise Exception("Unknown PackageType: {0}".format(value))
 
     @staticmethod
     def AllStrings() -> List[str]:
-        return ["TopLevel", "Library", "Executable", "ExternalLibrary", "HeaderLibrary"]
+        return ["TopLevel", "Library", "Executable", "ExternalLibrary", "HeaderLibrary", "ToolRecipe"]
 
 
 # Beware that code relies on the more accessible accesstype being smaller value (so public < private < link)
@@ -377,11 +381,13 @@ class BuildRecipePipelineCommand:
     GitClone = 2
     Unpack = 3
     CMakeBuild = 4
-    Clone = 5
-    Source = 6
-    JoinCopy = 7
-    JoinUnpack = 8
-    JoinGitApply = 9
+    Source = 5
+    Combine = 6
+    Copy = 7
+    JoinCopy = 8
+    JoinUnpack = 9
+    JoinGitApply = 10
+    JoinDelete = 11
 
 
 class BuildRecipeValidateCommand:
@@ -389,9 +395,11 @@ class BuildRecipeValidateCommand:
     EnvironmentVariable = 1
     Path = 2
     FindFileInPath = 3
-    AddHeaders = 4
-    AddLib = 5
-    AddDLL = 6
+    FindExecutableFileInPath = 4
+    AddHeaders = 5
+    AddLib = 6
+    AddDLL = 7
+    AddTool = 8
 
 
 class BuildRecipeValidateMethod:
@@ -457,3 +465,6 @@ class BoolStringHelper(object):
         elif value == "false":
             return False
         return None
+
+class PackageString(object):
+    PLATFORM_WILDCARD = '*'

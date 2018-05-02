@@ -41,9 +41,15 @@ extern "C"
 
 typedef uint64_t useconds_t;
 
+#ifdef __cplusplus
+inline int usleep(useconds_t usec) { return 0; }
+inline unsigned int sleep(unsigned int seconds) { return 0;  }
+inline int close(int fd) { return 0; }
+#else
 int usleep(useconds_t usec) { return 0; }
-unsigned int sleep(unsigned int seconds) { return 0;  }
+unsigned int sleep(unsigned int seconds) { return 0; }
 int close(int fd) { return 0; }
+#endif
 
 
 #ifdef __cplusplus

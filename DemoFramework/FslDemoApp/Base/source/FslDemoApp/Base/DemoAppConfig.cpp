@@ -34,7 +34,8 @@
 namespace Fsl
 {
 
-  DemoAppConfig::DemoAppConfig(const std::shared_ptr<ADemoOptionParser>& demoOptionParser, const ExceptionMessageFormatter& exceptionFormatter, const Point2& screenResolution, const ServiceProvider& serviceProvider, const CustomDemoAppConfig& customConfig)
+  DemoAppConfig::DemoAppConfig(const std::shared_ptr<ADemoOptionParser>& demoOptionParser, const ExceptionMessageFormatter& exceptionFormatter,
+                               const Point2& screenResolution, const ServiceProvider& serviceProvider, const CustomDemoAppConfig& customConfig)
     : m_optionParser(demoOptionParser)
     , ExceptionFormatter(exceptionFormatter)
     , ScreenResolution(screenResolution)

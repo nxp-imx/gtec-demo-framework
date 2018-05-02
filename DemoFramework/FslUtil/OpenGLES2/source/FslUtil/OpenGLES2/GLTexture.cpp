@@ -1,4 +1,4 @@
-/****************************************************************************************************************************************************
+  /****************************************************************************************************************************************************
 * Copyright (c) 2014 Freescale Semiconductor, Inc.
 * All rights reserved.
 *
@@ -544,10 +544,11 @@ namespace Fsl
           }
         }
 
-        if (textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) || texture.GetLevels() == 1)
+        if (textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) && texture.GetLevels() == 1)
         {
           GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
         }
+        FSLLOG_DEBUG_WARNING_IF(textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) && texture.GetLevels() != 1, "ignoring request to generate mip maps as the texture has multiple levels");
 
         GL_CHECK(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, textureParameters.MinFilter));
         GL_CHECK(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, textureParameters.MagFilter));

@@ -144,29 +144,6 @@ namespace Fsl
       m_allowBackfaceCull = false;
       break;
     case 2:
-      strFileName = "Torus1/Scene_flat.fbx";
-      break;
-    case 3:
-      strFileName = "Torus1/Scene_smooth.fbx";
-      break;
-    case 4:
-      strFileName = "Torus2/Scene_flat.fbx";
-      break;
-    case 5:
-      strFileName = "Torus2/Scene_smooth.fbx";
-      break;
-    case 6:
-      strFileName = "Nff/Cube.nff";
-      break;
-    case 7:
-      strFileName = "Nff/Sphere.nff";
-      m_rotationSpeed.X = 0;
-      m_rotationSpeed.Z = 0;
-      break;
-    case 8:
-      strFileName = "Nff/Tetrahedron.nff";
-      break;
-    case 9:
       strFileName = "FuturisticCar/Futuristic_Car.3ds";
       strTextureFileName = "FuturisticCar/Futuristic_Car_C.jpg";
       strTextureNormalFileName = "FuturisticCar/Futuristic_Car_N.jpg";
@@ -176,6 +153,29 @@ namespace Fsl
       m_rotationSpeed.Z = 0;
       scaleMod = 1.75f;
       m_camera.SetRotation(Matrix::CreateRotationX(MathHelper::ToRadians(15)));
+      break;
+    case 3:
+      strFileName = "Torus1/Scene_flat.fbx";
+      break;
+    case 4:
+      strFileName = "Torus1/Scene_smooth.fbx";
+      break;
+    case 5:
+      strFileName = "Torus2/Scene_flat.fbx";
+      break;
+    case 6:
+      strFileName = "Torus2/Scene_smooth.fbx";
+      break;
+    case 7:
+      strFileName = "Nff/Cube.nff";
+      break;
+    case 8:
+      strFileName = "Nff/Sphere.nff";
+      m_rotationSpeed.X = 0;
+      m_rotationSpeed.Z = 0;
+      break;
+    case 9:
+      strFileName = "Nff/Tetrahedron.nff";
       break;
     default:
       throw NotSupportedException("Scene not supported");

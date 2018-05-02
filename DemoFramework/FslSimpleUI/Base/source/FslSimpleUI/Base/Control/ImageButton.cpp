@@ -56,41 +56,41 @@ namespace Fsl
 
     void ImageButton::SetContent(const AtlasTexture2D& value)
     {
-      if (value != m_content)
-      {
-        m_content = value;
-        PropertyUpdated(PropertyType::Content);
-      }
+      if (value == m_content)
+        return;
+
+      m_content = value;
+      PropertyUpdated(PropertyType::Content);
     }
 
 
     void ImageButton::SetScalePolicy(const ItemScalePolicy value)
     {
-      if (value != m_scalePolicy)
-      {
-        m_scalePolicy = value;
-        PropertyUpdated(PropertyType::ScalePolicy);
-      }
+      if (value == m_scalePolicy)
+        return;
+
+      m_scalePolicy = value;
+      PropertyUpdated(PropertyType::ScalePolicy);
     }
 
 
     void ImageButton::SetColorUp(const Color& value)
     {
-      if (value != m_colorUp)
-      {
-        m_colorUp = value;
-        PropertyUpdated(PropertyType::Other);
-      }
+      if (value == m_colorUp)
+        return;
+
+      m_colorUp = value;
+      PropertyUpdated(PropertyType::Other);
     }
 
 
     void ImageButton::SetColorDown(const Color& value)
     {
-      if (value != m_colorDown)
-      {
-        m_colorDown = value;
-        PropertyUpdated(PropertyType::Other);
-      }
+      if (value == m_colorDown)
+        return;
+
+      m_colorDown = value;
+      PropertyUpdated(PropertyType::Other);
     }
 
 

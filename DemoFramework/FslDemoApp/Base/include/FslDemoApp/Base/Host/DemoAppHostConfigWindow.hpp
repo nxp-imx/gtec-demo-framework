@@ -33,7 +33,7 @@
 
 #include <FslBase/ITag.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
-#include <FslDemoApp/Base/Host/ConfigControl.hpp>
+#include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystem.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemAllocationFunction.hpp>
 #include <memory>

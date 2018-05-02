@@ -37,6 +37,8 @@
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/TextureFlags.hpp>
+#include <FslGraphics/Texture/Texture.hpp>
+#include <FslGraphics/Texture/RawTexture.hpp>
 #include <memory>
 
 namespace Fsl
@@ -48,16 +50,27 @@ namespace Fsl
   {
     std::shared_ptr<INativeTexture2D> m_native;
     Point2 m_size;
+    PixelFormat m_pixelFormat;
   public:
 
     //! @brief Create a uninitialized texture (use SetData to add texture data to it)
     Texture2D();
 
     //! @brief Create a initialized texture
-    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint);
+    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
+              const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Create a initialized texture
-    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint);
+    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+              const TextureFlags& textureFlags = TextureFlags());
+
+    //! @brief Create a initialized texture
+    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& bitmap, const Texture2DFilterHint filterHint,
+              const TextureFlags& textureFlags = TextureFlags());
+
+    //! @brief Create a initialized texture
+    Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& bitmap, const Texture2DFilterHint filterHint,
+              const TextureFlags& textureFlags = TextureFlags());
 
     ~Texture2D();
 
@@ -68,16 +81,20 @@ namespace Fsl
     void Reset();
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
-    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint);
+    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
+               const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
-    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint);
+    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+               const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
-    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags);
+    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& bitmap, const Texture2DFilterHint filterHint,
+               const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
-    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags);
+    void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& bitmap, const Texture2DFilterHint filterHint,
+               const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Set the data of the texture
     //void SetData(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint);
@@ -88,11 +105,14 @@ namespace Fsl
     //! @brief Get the texture size.
     Point2 GetSize() const;
 
+    PixelFormat GetPixelFormat() const;
+
     //! @brief Acquire the native texture (returns null if none exist)
     std::shared_ptr<INativeTexture2D> TryGetNative() const;
 
     //! @brief Acquire the native texture (throws if none exist)
     std::shared_ptr<INativeTexture2D> GetNative() const;
+
 
     bool operator==(const Texture2D& rhs) const { return m_native == rhs.m_native && m_size == rhs.m_size; }
     bool operator!=(const Texture2D& rhs) const { return !(*this == rhs); }

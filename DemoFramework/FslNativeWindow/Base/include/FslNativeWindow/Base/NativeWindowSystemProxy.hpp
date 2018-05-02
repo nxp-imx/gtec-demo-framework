@@ -48,6 +48,7 @@ namespace Fsl
 
     virtual std::shared_ptr<INativeWindow> CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams = nullptr) override;
     virtual bool ProcessMessages(const NativeWindowProcessMessagesArgs& args) override;
+    virtual bool IsDisplayHDRCompatible(const int32_t displayId) const override;
 
   };
 }

@@ -446,6 +446,33 @@ namespace Fsl
   }
 
 
+  PixelFormat PixelFormatUtil::TryFindPixelFormat(const uint32_t formatBits)
+  {
+    // Strip the FormatId and try to locate a format that is equal to the rest of the bits
+    const uint32_t searchBits = (formatBits & (~static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)));
+    bool found = false;
+    uint32_t i = 0;
+    while(i < static_cast<uint32_t>(PixelFormat::ENUM_ID_RANGE_SIZE) && ! found)
+    {
+      found = searchBits == (static_cast<uint32_t>(g_pixelFormats[i]) & (~static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)));
+      ++i;
+    }
+    // -1 since we ++ after the flag is set
+    const auto foundIndex = i - 1;
+    while (i < static_cast<uint32_t>(PixelFormat::ENUM_ID_RANGE_SIZE))
+    {
+      if (searchBits == (static_cast<uint32_t>(g_pixelFormats[i]) & (~static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID))))
+      {
+        FSLLOG_DEBUG_WARNING("Multiple candidates found");
+        return PixelFormat::Undefined;
+      }
+      ++i;
+    }
+    // If we found a format then return it else return undefined
+    return found ? g_pixelFormats[foundIndex] : PixelFormat::Undefined;
+  }
+
+
   PixelFormat PixelFormatUtil::TryTransform(const PixelFormat pixelFormat, const PixelFormatFlags::Enum numericFormat)
   {
     if (pixelFormat == PixelFormat::Undefined)

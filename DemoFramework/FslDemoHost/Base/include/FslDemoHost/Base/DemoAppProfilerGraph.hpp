@@ -39,7 +39,7 @@
 
 namespace Fsl
 {
-  class Basic2D;
+  class IBasic2D;
   struct Color;
   struct Vector2;
 
@@ -55,7 +55,7 @@ namespace Fsl
 
     Point2 GetSize() const;
     void Add(const int32_t latestValue);
-    void Draw(const std::shared_ptr<Basic2D>& basic2D, const Vector2& dstPosition, const Color& color);
+    void Draw(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPosition, const Color& color);
 
   };
 }

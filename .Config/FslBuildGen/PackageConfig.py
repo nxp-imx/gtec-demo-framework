@@ -45,4 +45,14 @@ class PlatformNameString(object):
     # Special
     CMAKE = "CMake"
 
+class PlatformNameIdString(object):
+    INVALID = PlatformNameString.INVALID.lower()
+    ANDROID = PlatformNameString.ANDROID.lower()
+    UBUNTU = PlatformNameString.UBUNTU.lower()
+    YOCTO = PlatformNameString.YOCTO.lower()
+    WINDOWS = PlatformNameString.WINDOWS.lower()
+    QNX = PlatformNameString.QNX.lower()
+    # Special
+    CMAKE = PlatformNameString.CMAKE.lower()
+
 APPROVED_PLATFORM_NAMES = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.WINDOWS, PlatformNameString.QNX, PlatformNameString.CMAKE]

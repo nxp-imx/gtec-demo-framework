@@ -38,13 +38,14 @@ from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
+from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
 
 class GeneratorContext(PlatformContext):
     def __init__(self, basicConfig: BasicConfig, experimental: Optional[ToolConfigExperimental], generator: GeneratorPlugin) -> None:
         cmakeGenerator = CMakeTypes.TryDetermineCMakeGenerator(generator)
         cmakeGeneratorShortName = None
-        if not cmakeGenerator is None:
+        if cmakeGenerator is not None:
             cmakeGeneratorShortName = CMakeTypes.TryGetCompilerShortIdFromGeneratorName(cmakeGenerator)
 
         shortCompilerName = "NotDefined" if cmakeGeneratorShortName is None else cmakeGeneratorShortName

@@ -32,7 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include "GausianHelper.hpp"
@@ -48,6 +48,8 @@ namespace Fsl
 
   namespace
   {
+    const GLTextureImageParameters g_framebufferImageParams(GL_RGB565, GL_RGB, GL_UNSIGNED_BYTE);
+
     int UpdateKernelLength(const int32_t kernelLength)
     {
       int32_t moddedKernelLength = std::max(kernelLength, 5);
@@ -62,8 +64,8 @@ namespace Fsl
     : ABlurredDraw("Reference two pass linear")
     , m_batch2D(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
     , m_screenResolution(config.ScreenResolution)
-    , m_framebufferOrg(m_screenResolution, GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565, GL_DEPTH_COMPONENT16)
-    , m_framebufferBlur(Point2(m_screenResolution.X / 2, m_screenResolution.Y), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565)
+    , m_framebufferOrg(m_screenResolution, GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams, GL_DEPTH_COMPONENT16)
+    , m_framebufferBlur(Point2(m_screenResolution.X / 2, m_screenResolution.Y), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams)
     , m_shaders()
   {
     if (!m_batch2D)

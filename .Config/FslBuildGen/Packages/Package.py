@@ -35,11 +35,13 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+import copy
 from FslBuildGen import IOUtil
 from FslBuildGen import Util
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
+from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.Exceptions import UsageErrorException
@@ -51,7 +53,11 @@ from FslBuildGen.Packages.PackageElement import PackageElement
 from FslBuildGen.Packages.PackagePlatform import PackagePlatform
 from FslBuildGen.Packages.PackagePlatformExternalDependency import PackagePlatformExternalDependency
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
+from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.PackageConfig import APPROVED_PLATFORM_NAMES
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Xml.Exceptions import XmlException2
+from FslBuildGen.Xml.XmlBase2 import FakeXmlGenFileDependency
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 from FslBuildGen.Xml.XmlGenFileDefine import XmlGenFileDefine
@@ -111,6 +117,7 @@ class Package(object):
         super(Package, self).__init__()
         self._BasicConfig = config
         self.GenFile = genFile
+        self.SourceFileHash = genFile.SourceFileHash
         self.XMLElement = genFile.XMLElement
         self.TemplateType = genFile.TemplateType
         self.AllowCheck = genFile.AllowCheck
@@ -126,9 +133,9 @@ class Package(object):
         self.Type = genFile.Type
         self.IsVirtual = genFile.IsVirtual
         self.PlatformDefaultSupportedValue = genFile.PlatformDefaultSupportedValue
-        self.__DirectDependencies = genFile.DirectDependencies
+        #self.__DirectDependencies = genFile.DirectDependencies
         self.DirectDefines = genFile.DirectDefines
-        self.Platforms = genFile.Platforms
+        self.Platforms = self.__BuildPlatformsDict(genFile.Platforms)
         self.AbsolutePath = genFile.AbsolutePath
         self.AbsoluteIncludePath = genFile.AbsoluteIncludePath
         self.AbsoluteSourcePath = genFile.AbsoluteSourcePath
@@ -155,6 +162,9 @@ class Package(object):
         self.ResolvedBuildOrder = []  # type: List['Package']
         # This is basically the 'resolved build order of the package' filtered down to packages that contain a experimental recipe.
         self.ResolvedExperimentalRecipeBuildOrder = []  # type: List['Package']
+        self.ResolvedToolDependencyOrder = []  # type: List['Package']
+        # The known recipe variants, currently used for android ABI's
+        self.ResolvedRecipeVariants = []       # type: List[str]
         self.ResolvedBuildSourceFiles = None  # type: Optional[List[str]]
         # The content files in this package
         self.ResolvedBuildContentFiles = None  # type: Optional[List[str]]
@@ -234,6 +244,24 @@ class Package(object):
         # This is up the the build generator to set, it will be a PackageGeneratorReport object or None if the builder doesn't support it
         self.ResolvedBuildPath = None # type: Optional[str]
 
+    def __BuildPlatformsDict(self, platforms: Dict[str, XmlGenFilePlatform]) -> Dict[str, XmlGenFilePlatform]:
+        platformDict = {} # type: Dict[str, XmlGenFilePlatform]
+
+        # filter out any unwanted platform names
+        for key, value in platforms.items():
+            if key in APPROVED_PLATFORM_NAMES:
+                platformDict[key] = value
+
+        # create fake entries as needed
+        for platformName in APPROVED_PLATFORM_NAMES:
+            if not platformName in platformDict:
+                fakeXmlGenFilePlatform = FakeXmlGenFilePlatform(self._BasicConfig, platformName, self.GenFile.SystemDefaultValues, self.GenFile.SystemSubPackageSupport)
+                if self.Type == PackageType.TopLevel:
+                    fakeXmlGenFilePlatform.ProjectId = 'EDC12D73-5B32-4E45-8E2E-DFC82FAD5DF4'
+                platformDict[platformName] = fakeXmlGenFilePlatform
+        return platformDict
+
+
     def ContainsRecipe(self) -> bool:
         if self.ResolvedPlatformName is None:
             raise Exception("Package has not been resolved")
@@ -259,56 +287,62 @@ class Package(object):
 
     def GetUnsupportedPlatformList(self) -> List[XmlGenFilePlatform]:
         unsupportedList = []  # type: List[XmlGenFilePlatform]
-        for entry in list(self.GenFile.Platforms.values()):
+        for entry in list(self.Platforms.values()):
             if not entry.Supported:
                 unsupportedList.append(entry)
         return unsupportedList
 
 
     def GetPlatform(self, platformName: str) -> PackagePlatform:
-        if platformName in self.GenFile.Platforms:
-            return PackagePlatform(platformName, self.GenFile.Platforms[platformName])
-        fakeXmlGenFilePlatform = FakeXmlGenFilePlatform(self._BasicConfig, platformName, self.GenFile.SystemDefaultValues, self.GenFile.SystemSubPackageSupport)
-        return PackagePlatform(platformName, fakeXmlGenFilePlatform)
+        if platformName in self.Platforms:
+            return PackagePlatform(platformName, self.Platforms[platformName])
+        raise Exception("Unknown platform name: '{0}'".format(platformName))
 
 
     def GetDirectDependencies(self, platformName: str) -> List[XmlGenFileDependency]:
-        if not platformName in self.GenFile.Platforms:
-            return self.GenFile.DirectDependencies
-        return self.GenFile.DirectDependencies + self.GenFile.Platforms[platformName].DirectDependencies
+        directDependencies = self.GenFile.DirectDependencies
+        if (self.Type == PackageType.ExternalLibrary and
+            platformName == PlatformNameString.ANDROID and
+            PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows and
+            self.__TryGetExperimentaleRecipe(platformName) is not None):
+            directDependencies += [ FakeXmlGenFileDependency(self._BasicConfig, "Recipe.BuildTool.ninja", AccessType.Public) ]
+        if not platformName in self.Platforms:
+            return directDependencies
+
+        return directDependencies + self.Platforms[platformName].DirectDependencies
 
 
     def GetExternalDependencies(self, platformName: str) -> List[XmlGenFileExternalDependency]:
-        if not platformName in self.GenFile.Platforms:
+        if not platformName in self.Platforms:
             return self.GenFile.ExternalDependencies
-        return self.GenFile.ExternalDependencies + self.GenFile.Platforms[platformName].ExternalDependencies
+        return self.GenFile.ExternalDependencies + self.Platforms[platformName].ExternalDependencies
 
 
     def GetVariants(self, platformName: str) -> List[XmlGenFileVariant]:
-        if not platformName in self.GenFile.Platforms:
+        if not platformName in self.Platforms:
             return []
-        return self.GenFile.Platforms[platformName].Variants
+        return self.Platforms[platformName].Variants
 
 
     def GetDirectDefines(self, platformName: str) -> List[XmlGenFileDefine]:
-        if not platformName in self.GenFile.Platforms:
+        if not platformName in self.Platforms:
             return self.GenFile.DirectDefines
-        return self.GenFile.DirectDefines + self.GenFile.Platforms[platformName].DirectDefines
+        return self.GenFile.DirectDefines + self.Platforms[platformName].DirectDefines
 
 
     def GetDirectRequirements(self, platformName: str) -> List[XmlGenFileRequirement]:
-        if not platformName in self.GenFile.Platforms:
+        if not platformName in self.Platforms:
             return self.GenFile.DirectRequirements
-        return self.GenFile.DirectRequirements + self.GenFile.Platforms[platformName].DirectRequirements
+        return self.GenFile.DirectRequirements + self.Platforms[platformName].DirectRequirements
 
 
     def __TryGetExperimentaleRecipe(self, platformName: str) -> Optional[XmlExperimentalRecipe]:
         xmlExperimentalRecipe = None  # type: Optional[XmlExperimentalRecipe]
-        if not platformName in self.GenFile.Platforms:
+        if not platformName in self.Platforms:
             xmlExperimentalRecipe = self.GenFile.DirectExperimentalRecipe
         else:
             # Platform recipe overrides generic
-            platformObject = self.GenFile.Platforms[platformName]
+            platformObject = self.Platforms[platformName]
             if platformObject.DirectExperimentalRecipe is None:
                 xmlExperimentalRecipe = self.GenFile.DirectExperimentalRecipe
             else:

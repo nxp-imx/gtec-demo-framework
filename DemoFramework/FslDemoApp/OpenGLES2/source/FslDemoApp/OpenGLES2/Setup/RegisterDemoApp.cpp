@@ -33,12 +33,13 @@
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
+#include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/EGL/Service/EGLHost/EGLHostServiceFactory.hpp>
 #include <FslDemoHost/OpenGLES2/DemoHostSetupOpenGLES2.hpp>
-#include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
@@ -52,12 +53,15 @@ namespace Fsl
 {
   namespace
   {
+    typedef ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl> GraphicsServiceFactory;
+
     const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       // Use the EGLDemoHost for OpenGLES
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
       eglHostFeatures.push_back(DemoHostFeatureName::OpenGLES);
       rSetup.TheHostRegistry.Register(eglHostFeatures, DemoHostSetupOpenGLES2::Get());
+      rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<GLES2::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<EGLHostServiceFactory>(ServicePriorityList::EGLHostService());
       rSetup.TheServiceRegistry.Register<WindowHostServiceFactory>(ServicePriorityList::WindowHostService());
@@ -116,7 +120,8 @@ namespace Fsl
         rSetup.CustomExceptionFormatter.Add(TryFormatException);
 
         const DemoHostFeature feature = CommenSetup(rSetup);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, demoHostEGLConfig);
+        const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostEGLConfig);
+        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
       }
     }
   }

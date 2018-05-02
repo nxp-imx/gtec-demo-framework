@@ -38,12 +38,14 @@ from typing import Set
 from typing import Tuple
 from typing import Union
 import copy
+import hashlib
 import os
 import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageLanguage
+from FslBuildGen.DataTypes import PackageString
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import SubPackageSupport
 from FslBuildGen.Exceptions import FileNotFoundException
@@ -51,6 +53,7 @@ from FslBuildGen.Exceptions import PackageMissingRequiredIncludeDirectoryExcepti
 from FslBuildGen.Exceptions import PackageMissingRequiredSourceDirectoryException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.PackageConfig import APPROVED_PLATFORM_NAMES
 from FslBuildGen.PackageFile import PackageFile
 from FslBuildGen.PackageTemplateLoader import PackageTemplateLoader
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
@@ -84,6 +87,7 @@ class XmlGenFile(XmlCommonFslBuild):
     def __init__(self, config: Config, defaultPackageLanguage: int) -> None:
         super(XmlGenFile, self).__init__(config, FakeXmlElementFactory.CreateWithName("FakeGenFile", "FSLBUILD_INVALID_INITIAL_VALUE"), SubPackageSupportConfig(PackageType.TopLevel, SubPackageSupport.Disabled))
         self.SourceFilename = None # type: Optional[str]
+        self.SourceFileHash = ""   # type: str
         self.Name = ''
         self.ShortName = None  # type: Optional[str]
         self.Namespace = None  # type: Optional[str]
@@ -93,7 +97,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.DirectDependencies = []  # type: List[XmlGenFileDependency]
         self.DirectRequirements = []  # type: List[XmlGenFileRequirement]
         self.DirectDefines = []
-        self.DirectExperimentalRecipe = None
+        self.DirectExperimentalRecipe = None    # type: Optional[XmlExperimentalRecipe]
         self.Platforms = {}  # type: Dict[str, XmlGenFilePlatform]
         self.AbsolutePath = None  # type: Optional[str]
         self.AbsoluteIncludePath = None  # type: Optional[str]
@@ -123,11 +127,11 @@ class XmlGenFile(XmlCommonFslBuild):
         self.SourceFilename = filename
         self.PackageLocation = packageFile.PackageRootLocation
 
-        tree = ET.parse(filename)
-        elem = tree.getroot()
+        fileContent = IOUtil.ReadFile(filename)
+        self.SourceFileHash = self.__CalcContentHash(fileContent)
+        elem = ET.fromstring(fileContent)
         if elem.tag != 'FslBuildGen':
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGen'")
-
 
         elem, theType = self.__FindPackageElementAndType(elem)
 
@@ -154,6 +158,12 @@ class XmlGenFile(XmlCommonFslBuild):
 
         requirements = self._GetXMLRequirements(elem)
         allowRecipes = self.__DoesTypeAllowRecipes(theType)
+
+        # Add recipe and dependencies
+        self.DirectExperimentalRecipe = self._TryGetExperimentalRecipe(elem, packageName, allowRecipes)
+        if self.DirectExperimentalRecipe is not None:
+            self.DirectDependencies += self.__AddExperimentalRecipeDependencies(self.DirectDependencies, [], self.DirectExperimentalRecipe)
+
         platforms = self.__GetXMLPlatforms(elem, packageName, self.DirectDependencies, allowRecipes, defaultValues)
         self.BuildCustomization = self.__GetBuildCustomizations(elem, packageName)
 
@@ -189,6 +199,11 @@ class XmlGenFile(XmlCommonFslBuild):
         self.__ResolvePaths(config, filename, allowNoInclude)
         # FIX: check for clashes with platform addition
         #      check for platform variant name clashes
+
+    def __CalcContentHash(self, content: str) -> str:
+        encodedContent = content.encode()
+        hashObject = hashlib.sha1(encodedContent)
+        return hashObject.hexdigest()
 
     def __DoesTypeAllowRecipes(self, packageType: int) -> bool:
         return packageType == PackageType.ExternalLibrary or packageType == PackageType.ToolRecipe
@@ -250,6 +265,14 @@ class XmlGenFile(XmlCommonFslBuild):
                 if xmlPlatform.Name in platforms:
                     raise PlatformAlreadyDefinedException(xmlPlatform.XMLElement, xmlPlatform.Name) #, platforms[xmlPlatform.Name])
                 platforms[xmlPlatform.Name] = xmlPlatform
+
+        # Handle wildcard platforms
+        for platformName in APPROVED_PLATFORM_NAMES:
+            if not platformName in platforms and PackageString.PLATFORM_WILDCARD in platforms:
+                clone = copy.deepcopy(platforms[PackageString.PLATFORM_WILDCARD])
+                clone.SYS_SetName(platformName)
+                platforms[platformName] = clone
+
         return platforms
 
 
@@ -267,8 +290,9 @@ class XmlGenFile(XmlCommonFslBuild):
         dependencies = set()  # type: Set[str]
         if not pipeline is None and not pipeline.CommandList is None:
             for command in pipeline.CommandList:
-                if command.BuildToolPackageName is not None:
-                    dependencies.add(command.BuildToolPackageName)
+                if command.BuildToolPackageNames is not None:
+                    for buildToolPackageName in command.BuildToolPackageNames:
+                        dependencies.add(buildToolPackageName)
         return dependencies
 
 

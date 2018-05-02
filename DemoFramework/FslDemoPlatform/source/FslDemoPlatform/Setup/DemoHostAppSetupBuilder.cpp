@@ -31,9 +31,6 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
-#include <FslDemoApp/Base/Host/DemoAppHostConfigEGL.hpp>
-#include <FslDemoApp/Base/Host/DemoAppHostConfigVulkan.hpp>
-#include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 
 
 namespace Fsl
@@ -69,78 +66,28 @@ namespace Fsl
   }
 
 
-  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigEGL& demoHostConfig)
+  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const std::shared_ptr<DemoAppHostConfig>& demoHostConfig)
   {
     // Force limit for now
     if (m_records.size() != 0)
       throw UsageErrorException("One and only one demo app can be registered!");
 
-    const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostConfig);
     const auto demoHostFeatureDeque = std::make_shared<DemoHostAppSetup::DemoHostFeatureDeque>();
     demoHostFeatureDeque->push_back(demoHostFeature);
-    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, appHostConfig));
+    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, demoHostConfig));
   }
 
-  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigEGL& demoHostConfig)
+
+  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const std::shared_ptr<DemoAppHostConfig>& demoHostConfig)
   {
     // Force limit for now
     if (m_records.size() != 0)
       throw UsageErrorException("One and only one demo app can be registered!");
 
-    const auto appHostConfig = std::make_shared<DemoAppHostConfigEGL>(demoHostConfig);
     const auto demoHostFeatureDeque = std::make_shared<DemoHostAppSetup::DemoHostFeatureDeque>(demoHostFeatures);
-    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, appHostConfig));
+    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, demoHostConfig));
   }
 
-
-  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigVulkan& demoHostConfig)
-  {
-    // Force limit for now
-    if (m_records.size() != 0)
-      throw UsageErrorException("One and only one demo app can be registered!");
-
-    const auto appHostConfig = std::make_shared<DemoAppHostConfigVulkan>(demoHostConfig);
-    const auto demoHostFeatureDeque = std::make_shared<DemoHostAppSetup::DemoHostFeatureDeque>();
-    demoHostFeatureDeque->push_back(demoHostFeature);
-    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, appHostConfig));
-  }
-
-
-  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigVulkan& demoHostConfig)
-  {
-    // Force limit for now
-    if (m_records.size() != 0)
-      throw UsageErrorException("One and only one demo app can be registered!");
-
-    const auto appHostConfig = std::make_shared<DemoAppHostConfigVulkan>(demoHostConfig);
-    const auto demoHostFeatureDeque = std::make_shared<DemoHostAppSetup::DemoHostFeatureDeque>(demoHostFeatures);
-    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, appHostConfig));
-  }
-
-
-  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigWindow& demoHostConfig)
-  {
-    // Force limit for now
-    if (m_records.size() != 0)
-      throw UsageErrorException("One and only one demo app can be registered!");
-
-    const auto appHostConfig = std::make_shared<DemoAppHostConfigWindow>(demoHostConfig);
-    const auto demoHostFeatureDeque = std::make_shared<DemoHostAppSetup::DemoHostFeatureDeque>();
-    demoHostFeatureDeque->push_back(demoHostFeature);
-    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, appHostConfig));
-  }
-
-
-  void DemoHostAppSetupBuilder::Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigWindow& demoHostConfig)
-  {
-    // Force limit for now
-    if (m_records.size() != 0)
-      throw UsageErrorException("One and only one demo app can be registered!");
-
-    const auto appHostConfig = std::make_shared<DemoAppHostConfigWindow>(demoHostConfig);
-    const auto demoHostFeatureDeque = std::make_shared<DemoHostAppSetup::DemoHostFeatureDeque>(demoHostFeatures);
-    m_records.push_back(DemoHostAppSetup(demoAppSetup, demoHostFeatureDeque, appHostConfig));
-  }
 
   DemoHostAppSetup DemoHostAppSetupBuilder::GetSetup() const
   {

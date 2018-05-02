@@ -31,14 +31,14 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
-    class StackLayout : public Layout
+    class StackLayout : public SimpleLayout
     {
       LayoutOrientation m_orientation;
       float m_spacing;

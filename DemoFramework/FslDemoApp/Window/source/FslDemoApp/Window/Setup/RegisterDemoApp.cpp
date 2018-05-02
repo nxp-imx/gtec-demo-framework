@@ -33,12 +33,11 @@
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
-#include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
+#include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Window/WindowDemoHostSetup.hpp>
-#include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 
@@ -51,7 +50,6 @@ namespace Fsl
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::Window);
       rSetup.TheHostRegistry.Register(hostFeatures, WindowDemoHostSetup::Get());
-      rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<Stub::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
       rSetup.TheServiceRegistry.Register<WindowHostServiceFactory>(ServicePriorityList::WindowHostService());
 
       return DemoHostFeature(DemoHostFeatureName::Window, DemoHostFeatureUtil::EncodeVersion(1));
@@ -65,7 +63,8 @@ namespace Fsl
       void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigWindow& demoHostConfig)
       {
         const DemoHostFeature feature = CommenSetup(rSetup);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, demoHostConfig);
+        const auto appHostConfig = std::make_shared<DemoAppHostConfigWindow>(demoHostConfig);
+        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
       }
     }
   }

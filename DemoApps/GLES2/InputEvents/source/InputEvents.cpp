@@ -30,7 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>

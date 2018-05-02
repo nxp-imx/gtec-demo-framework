@@ -91,6 +91,8 @@ namespace Fsl
       return (GetBasicEncodedLayout(pixelFormatLayout) == PixelFormatLayoutFlags::ENCODED_LAYOUT0 && GetEncodedLayout0Packed(pixelFormatLayout) == PixelFormatLayoutFlags::Packed);
     }
 
+    static uint32_t GetChannelCount(const PixelFormatLayout pixelFormatLayout);
+
     // *** bit extraction helper methods ***
 
     // @brief Extract the basic encoded layout (can only differentiate between layout0 and 1, not any extended encodings)
@@ -120,6 +122,7 @@ namespace Fsl
     //! @param layout if layout == PixelFormatLayout::Undefined this returns PixelFormatLayout::Undefined
     //! @param preferredChannelOrder if preferredChannelOrder == PixelChannelOrder::Undefined this returns layout
     static PixelFormatLayout Transform(const PixelFormatLayout layout, const PixelChannelOrder preferredChannelOrder);
+
   };
 }
 

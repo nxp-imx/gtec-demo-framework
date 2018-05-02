@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/NativeGraphics/INativeGraphicsBasic2D.hpp>
+#include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslUtil/OpenVG/VGFontBuffer.hpp>
 #include <FslUtil/OpenVG/VGImageBuffer.hpp>
 

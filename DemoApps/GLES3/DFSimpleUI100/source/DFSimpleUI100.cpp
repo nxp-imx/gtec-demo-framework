@@ -75,10 +75,10 @@ namespace Fsl
     playerStack->SetLayoutOrientation(LayoutOrientation::Horizontal);
     playerStack->SetAlignmentX(ItemAlignment::Center);
     playerStack->SetAlignmentY(ItemAlignment::Far);
-    playerStack->Children.Add(m_btnBack);
-    playerStack->Children.Add(m_btnPlay);
-    playerStack->Children.Add(m_btnStop);
-    playerStack->Children.Add(m_btnNext);
+    playerStack->AddChild(m_btnBack);
+    playerStack->AddChild(m_btnPlay);
+    playerStack->AddChild(m_btnStop);
+    playerStack->AddChild(m_btnNext);
 
     // Create a label to write stuff into when a button is pressed
     m_label = std::make_shared<Label>(context);
@@ -88,8 +88,8 @@ namespace Fsl
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
     auto fillLayout = std::make_shared<FillLayout>(context);
-    fillLayout->Children.Add(playerStack);
-    fillLayout->Children.Add(m_label);
+    fillLayout->AddChild(playerStack);
+    fillLayout->AddChild(m_label);
 
     // Finally add everything to the window manager (to ensure its seen)
     context->WindowManager->Add(fillLayout);

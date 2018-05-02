@@ -45,9 +45,10 @@ namespace Fsl
     std::shared_ptr<IServiceProvider> ServiceProvider;
     DemoHostSetup Host;
     DemoHostAppSetup App;
-    bool Verbose;
+    uint32_t VerbosityLevel;
 
-    DemoSetup(const ExceptionMessageFormatter& exceptionFormatter, const std::shared_ptr<IServiceProvider>& serviceProvider, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose);
+    DemoSetup(const ExceptionMessageFormatter& exceptionFormatter, const std::shared_ptr<IServiceProvider>& serviceProvider,
+              const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const uint32_t verbosityLevel);
     ~DemoSetup();
   };
 }

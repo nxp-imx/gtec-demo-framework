@@ -50,12 +50,8 @@ namespace Fsl
     // From IDemoAppRegistry
     virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature) override;
     virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures) override;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigEGL& demoHostConfig) override;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigEGL& demoHostConfig) override;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigVulkan& demoHostConfig) override;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigVulkan& demoHostConfig) override;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigWindow& demoHostConfig) override;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigWindow& demoHostConfig) override;
+    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const std::shared_ptr<DemoAppHostConfig>& demoHostConfig) override;
+    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const std::shared_ptr<DemoAppHostConfig>& demoHostConfig) override;
 
     DemoHostAppSetup GetSetup() const;
   };

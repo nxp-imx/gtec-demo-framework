@@ -1,7 +1,0 @@
-.StartProject.bat
-build/
-CMakeLists.txt
-gli.sln
-gli.vcxproj
-gli.vcxproj.user
-

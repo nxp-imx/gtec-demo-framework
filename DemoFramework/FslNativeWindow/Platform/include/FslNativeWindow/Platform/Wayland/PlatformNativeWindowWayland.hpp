@@ -39,10 +39,15 @@ namespace Fsl
   class PlatformNativeWindowWayland : public PlatformNativeWindow
   {
     std::function<void(void *)> g_destroyWindowCallback;
+    wl_surface * m_platformSurface;
   public:
     PlatformNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams);
     virtual ~PlatformNativeWindowWayland();
 
+    wl_surface * GetWaylandSurface()
+    {
+      return m_platformSurface;
+    }
     virtual bool TryGetDPI(Vector2& rDPI) const override;
     virtual bool TryGetSize(Point2& rSize) const override;
     virtual bool TryCaptureMouse(const bool enableCapture) override

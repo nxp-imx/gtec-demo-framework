@@ -33,6 +33,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES2/Common.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <FslUtil/OpenGLES2/GLShader.hpp>
 #include <FslBase/Attributes.hpp>
@@ -82,7 +83,7 @@ namespace Fsl
       GLProgram();
 
       //! @brief Let this GLProgram object assume control over the given program handle.
-      GLProgram(const GLuint handle);
+      explicit GLProgram(const GLuint handle);
 
       //! @brief Create a program from the supplied vertex, fragment shader and attribute list.
       GLProgram(const GLShader& vertexShader, const GLShader& fragmentShader, const std::deque<std::string>& attributes);
@@ -136,6 +137,37 @@ namespace Fsl
       {
         return m_handle;
       }
+
+      //! @brief Get the uniform location or throw a exception if not found
+      GLint GetUniformLocation(const char*const pszName) const
+      {
+        const auto result = glGetUniformLocation(m_handle, pszName);
+        if (result != -1)
+          return result;
+        throw GraphicsException(std::string("Failed to get uniform location: ") + (pszName != nullptr ? pszName : "nullptr"));
+      }
+
+      //! @brief Try to get the uniform location
+      GLint TryGetUniformLocation(const char*const pszName) const
+      {
+        return glGetUniformLocation(m_handle, pszName);
+      }
+
+
+      GLint GetAttribLocation(const char*const pszName) const
+      {
+        const auto result = glGetAttribLocation(m_handle, pszName);
+        if (result != -1)
+          return result;
+        throw GraphicsException(std::string("Failed to get attrib location: ") + (pszName != nullptr ? pszName : "nullptr"));
+      }
+
+
+      GLint TryGetAttribLocation(const char*const pszName) const
+      {
+        return glGetAttribLocation(m_handle, pszName);
+      }
+
     };
   }
 }

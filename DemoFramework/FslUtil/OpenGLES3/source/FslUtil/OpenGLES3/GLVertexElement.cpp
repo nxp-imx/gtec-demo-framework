@@ -50,6 +50,39 @@ namespace Fsl
         case VertexElementFormat::Vector4:
         case VertexElementFormat::Matrix4x4:
           return GL_FLOAT;
+        case VertexElementFormat::X8_UINT:
+        case VertexElementFormat::X8_UNORM:
+        case VertexElementFormat::X8Y8_UINT:
+        case VertexElementFormat::X8Y8_UNORM:
+        case VertexElementFormat::X8Y8Z8_UINT:
+        case VertexElementFormat::X8Y8Z8_UNORM:
+        case VertexElementFormat::X8Y8Z8W8_UINT:
+        case VertexElementFormat::X8Y8Z8W8_UNORM:
+          return GL_UNSIGNED_BYTE;
+        default:
+          throw NotSupportedException("Unknown VertexElementFormat");
+        }
+      }
+
+      GLboolean IsNormalized(const VertexElementFormat format)
+      {
+        switch (format)
+        {
+        case VertexElementFormat::Single:
+        case VertexElementFormat::Vector2:
+        case VertexElementFormat::Vector3:
+        case VertexElementFormat::Vector4:
+        case VertexElementFormat::Matrix4x4:
+        case VertexElementFormat::X8Y8Z8W8_UINT:
+        case VertexElementFormat::X8_UINT:
+        case VertexElementFormat::X8Y8_UINT:
+        case VertexElementFormat::X8Y8Z8_UINT:
+          return GL_FALSE;
+        case VertexElementFormat::X8_UNORM:
+        case VertexElementFormat::X8Y8_UNORM:
+        case VertexElementFormat::X8Y8Z8_UNORM:
+        case VertexElementFormat::X8Y8Z8W8_UNORM:
+          return GL_TRUE;
         default:
           throw NotSupportedException("Unknown VertexElementFormat");
         }
@@ -71,7 +104,7 @@ namespace Fsl
       : Source(source)
       , Size(VertexElementFormatUtil::GetElementCount(source.Format))
       , Type(ConvertToNativeType(source.Format))
-      , Normalized(GL_FALSE)
+      , Normalized(IsNormalized(source.Format))
       , Pointer((const GLvoid*)intptr_t(source.Offset))
       , ExtendedIndex(0)
     {
@@ -83,7 +116,7 @@ namespace Fsl
       Source = source;
       Size = VertexElementFormatUtil::GetElementCount(source.Format);
       Type = ConvertToNativeType(source.Format);
-      Normalized = GL_FALSE;
+      Normalized = IsNormalized(source.Format);
       Pointer = (const GLvoid*)intptr_t(source.Offset);
       ExtendedIndex = 0;
     }
@@ -94,7 +127,7 @@ namespace Fsl
       Source = source;
       Size = VertexElementFormatUtil::GetElementCount(internalFormat);
       Type = ConvertToNativeType(internalFormat);
-      Normalized = GL_FALSE;
+      Normalized = IsNormalized(source.Format);
       Pointer = (const GLvoid*)intptr_t(source.Offset + offsetAdd);
       ExtendedIndex = 0;
     }

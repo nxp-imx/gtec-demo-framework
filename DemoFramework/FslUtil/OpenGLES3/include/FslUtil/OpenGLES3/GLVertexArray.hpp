@@ -109,10 +109,10 @@ namespace Fsl
       }
 
       //! @brief Bind the vertex array
-      void Bind();
+      void Bind() const;
 
       //! @brief Unbind the vertex array
-      void Unbind();
+      void Unbind() const;
     };
   }
 }

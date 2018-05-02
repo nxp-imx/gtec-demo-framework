@@ -45,7 +45,6 @@ import pstats
 from datetime import timedelta
 from FslBuildGen import IOUtil
 from FslBuildGen import ParseUtil
-from FslBuildGen import PlatformUtil
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen import Util
@@ -54,6 +53,7 @@ from FslBuildGen.Config import BaseConfig
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.Log import Log
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.LowLevelToolConfig import LowLevelToolConfig
@@ -64,7 +64,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersionString = "2.3.6"
+CurrentVersionString = "2.5.7"
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:

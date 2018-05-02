@@ -42,7 +42,7 @@
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBufferArray.hpp>
 #include <vector>
-#include <FslGraphics3D/BasicScene/Camera/ArcballCamera.hpp>
+#include <FslGraphics3D/Camera/ArcballCamera.hpp>
 
 namespace Fsl
 {

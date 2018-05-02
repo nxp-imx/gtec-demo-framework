@@ -34,13 +34,13 @@
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/IDemoHostFactory.hpp>
-#include <FslDemoHost/Base/Service/Graphics/IGraphicsServiceControl.hpp>
 #include <FslDemoHost/Base/Service/Host/IHostInfoControl.hpp>
 #include <FslDemoHost/Base/Service/Test/ITestService.hpp>
 #include <FslDemoHost/Base/Service/NativeWindowEvents/INativeWindowEventSender.hpp>
 #include <FslDemoPlatform/DemoHostManager.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/IMMDCStatsService.hpp>
+#include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
 #include <FslService/Impl/Threading/IServiceHostLooper.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
 #include <cassert>
@@ -52,7 +52,7 @@
 #endif
 
 #if 1
-#define VERBOSE_LOG(X) FSLLOG_IF( m_demoSetup.Verbose, "DemoHostManager: " << X)
+#define VERBOSE_LOG(X) FSLLOG_IF( m_demoSetup.VerbosityLevel > 0, "DemoHostManager: " << X)
 #else
 #define VERBOSE_LOG(X) {}
 #endif
@@ -75,7 +75,7 @@ namespace Fsl
   {
     // Acquire the various services
     ServiceProvider serviceProvider(demoSetup.ServiceProvider);
-    m_graphicsService = serviceProvider.Get<IGraphicsServiceControl>();
+    m_graphicsService = serviceProvider.TryGet<IGraphicsServiceControl>();
     m_nativeWindowEventSender = serviceProvider.Get<INativeWindowEventSender>();
     m_hostInfoControl = serviceProvider.Get<IHostInfoControl>();
 
@@ -91,8 +91,14 @@ namespace Fsl
 
     VERBOSE_LOG("Starting demoAppManager");
     // Lets prepare the app manager.
-    const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, demoSetup.ExceptionFormatter, m_demoHost->GetScreenResolution(), serviceProvider, demoSetup.App.AppSetup.CustomAppConfig);
-    m_demoAppManager = std::make_shared<DemoAppManager>(demoSetup.App.AppSetup, demoAppConfig, demoHostManagerOptionParser->IsStatsEnabled(), demoHostManagerOptionParser->GetLogStatsMode(), demoHostManagerOptionParser->IsAppFirewallEnabled(), demoHostManagerOptionParser->IsContentMonitorEnabled(), demoHostManagerOptionParser->IsBasic2DPreallocEnabled(), demoHostManagerOptionParser->GetForceUpdateTime());
+    const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, demoSetup.ExceptionFormatter, m_demoHost->GetScreenResolution(),
+                                      serviceProvider, demoSetup.App.AppSetup.CustomAppConfig);
+    m_demoAppManager = std::make_shared<DemoAppManager>(demoSetup.App.AppSetup, demoAppConfig, demoHostManagerOptionParser->IsStatsEnabled(),
+                                                        demoHostManagerOptionParser->GetLogStatsMode(),
+                                                        demoHostManagerOptionParser->IsAppFirewallEnabled(),
+                                                        demoHostManagerOptionParser->IsContentMonitorEnabled(),
+                                                        demoHostManagerOptionParser->IsBasic2DPreallocEnabled(),
+                                                        demoHostManagerOptionParser->GetForceUpdateTime());
 
     VERBOSE_LOG("Processing messages");
 
@@ -108,8 +114,9 @@ namespace Fsl
     // Close the app first
     m_demoAppManager.reset();
 
-    // Kill the graphics service resources
-    m_graphicsService->Reset();
+    // Kill the graphics service resources if present
+    if(m_graphicsService)
+      m_graphicsService->Reset();
 
     // then the demo host
     m_demoHost.reset();
@@ -216,10 +223,11 @@ namespace Fsl
     if (m_demoAppManager)
       m_demoAppManager->Suspend(true);
 
-    m_graphicsService->Reset();
+    if(m_graphicsService)
+      m_graphicsService->Reset();
     m_demoHost.reset();
 
-    const uint32_t verbosityLevel = m_demoSetup.Verbose ? 1 : 0;
+    const uint32_t verbosityLevel = m_demoSetup.VerbosityLevel;
     const DemoHostConfig demoHostConfig(m_demoSetup.Host.OptionParser, m_eventQueue, m_demoSetup.App, m_demoSetup.ServiceProvider, verbosityLevel);
     m_demoHost = m_demoSetup.Host.Factory->Allocate(demoHostConfig);
     // Allow a bit of post construction processing
@@ -228,7 +236,8 @@ namespace Fsl
     VERBOSE_LOG("Demo host started");
     const auto activeAPI = m_demoHost->GetActiveAPI();
     m_hostInfoControl->SetActiveAPI(activeAPI);
-    m_graphicsService->Configure(activeAPI);
+    if(m_graphicsService)
+      m_graphicsService->Configure(activeAPI);
     VERBOSE_LOG("Graphics service configured");
 
     if (m_demoAppManager)

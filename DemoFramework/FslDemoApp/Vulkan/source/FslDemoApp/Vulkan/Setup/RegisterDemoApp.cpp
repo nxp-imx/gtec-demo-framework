@@ -33,30 +33,53 @@
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
 //#include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
-#include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
+//#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+//#include <FslUtil/Vulkan1_0/DebugStrings.hpp>
+#include <sstream>
 
 namespace Fsl
 {
   namespace
   {
+    typedef ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl> GraphicsServiceFactory;
+
     const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       // Use the VulkanDemoHost for Vulkan
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::Vulkan);
       rSetup.TheHostRegistry.Register(hostFeatures, VulkanDemoHostSetup::Get());
+      rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
       rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<Vulkan::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
       // rSetup.TheServiceRegistry.Register<VulkanHostServiceFactory>(ServicePriorityList::VulkanHostService());
 
       return DemoHostFeature(DemoHostFeatureName::Vulkan, DemoHostFeatureUtil::EncodeVersion(1,0));
     }
+
+    //inline bool TryFormatException(const std::exception& ex, std::string& rMessage)
+    //{
+    //  auto pException = dynamic_cast<const GLES2::GLESGraphicsException*>(&ex);
+    //  if (pException == nullptr)
+    //  {
+    //    rMessage = std::string();
+    //    return false;
+    //  }
+
+    //  const auto errorCode = pException->GetError();
+    //  std::stringstream stream;
+    //  stream << pException->what() << " failed with error code " << GLES2::Debug::ErrorCodeToString(static_cast<GLenum>(errorCode)) << " (" << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
+    //  rMessage = stream.str();
+    //  return true;
+    //}
   }
 
   namespace DemoAppRegister
@@ -65,8 +88,12 @@ namespace Fsl
     {
       void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigVulkan& demoHostConfig)
       {
+        // Register a formatter for common Vulkan exceptions (from the libs we utilize)
+        //rSetup.CustomExceptionFormatter.Add(TryFormatException);
+
         const DemoHostFeature feature = CommenSetup(rSetup);
-        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, demoHostConfig);
+        const auto appHostConfig = std::make_shared<DemoAppHostConfigVulkan>(demoHostConfig);
+        rSetup.TheDemoAppRegistry.Register(demoAppSetup, feature, appHostConfig);
       }
     }
   }

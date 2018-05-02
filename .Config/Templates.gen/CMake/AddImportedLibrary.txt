@@ -1,0 +1,4 @@
+add_library(##LIBRARY_NAME## ##LIBRARY_TYPE## IMPORTED)
+set_target_properties(##LIBRARY_NAME##
+                      PROPERTIES IMPORTED_LOCATION
+                      ##LIBRARY_PATH##)

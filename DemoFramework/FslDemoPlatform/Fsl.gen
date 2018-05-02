@@ -9,9 +9,12 @@
     <Platform Name="Android">
       <Dependency Name="FslUtil.EGL"/>
       <Dependency Name="FslNativeWindow.Platform"/>
-      <Dependency Name="Platform.Android.Glue"/>
-      <Dependency Name="Platform.Android.NDKHelper"/>
+      <Dependency Name="Platform.Android.Glue" Access="Private"/>
+      <Dependency Name="Platform.Android.NDKHelper" Access="Private"/>
+      <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
       <Dependency Name="gli"/>
+      <!-- For now we only enable this on android, once proper download is enabled on all platforms we can enable it everywhere -->
+      <Dependency Name="Recipe.half_1_12_0" Access="Private"/>
     </Platform>
     <Platform Name="Ubuntu">
       <Dependency Name="DevIL" Access="Private"/>

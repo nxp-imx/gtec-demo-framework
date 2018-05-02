@@ -33,11 +33,10 @@
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
-#include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
+#include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Console/ConsoleDemoHostSetup.hpp>
-#include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 #include <FslBase/ExceptionMessageFormatter.hpp>
@@ -54,7 +53,6 @@ namespace Fsl
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::OpenVX);
       rSetup.TheHostRegistry.Register(hostFeatures, ConsoleDemoHostSetup::Get());
-      rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<Stub::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
 
       return DemoHostFeature(DemoHostFeatureName::OpenVX, DemoHostFeatureUtil::EncodeVersion(1));
     }

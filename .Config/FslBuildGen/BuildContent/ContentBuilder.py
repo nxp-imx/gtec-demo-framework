@@ -133,7 +133,7 @@ class Builder(object):
             ## Query the sync state of the content file
             syncStateFileName = self.__GetSyncStateFileName(contentFile.SourceRoot.ResolvedPath, contentFile.RelativePath)
             contentState = syncState.TryGetFileStateByFileName(syncStateFileName)
-            buildResource = not contentState or contentState.CacheState != BuildState.CacheState.Unmodified
+            buildResource = contentState is None or contentState.CacheState != BuildState.CacheState.Unmodified
             if not buildResource:
                 # It was unmodified, so we need to examine the state of the output file to
                 # determine if its safe to skip the building

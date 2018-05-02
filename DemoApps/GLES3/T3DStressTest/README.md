@@ -21,6 +21,7 @@ Argument                       |Description                                     
 --HighShaderPrecision \<arg>   |Shader arithmetic precision. false = low, true = high                                                                                                                |Demo
 --Layers \<arg>                |number of shell texture layers used for fur rendering                                                                                                                |Demo
 --Lights \<arg>                |number of light sources used in fragment shader calculations                                                                                                         |Demo
+--RenderMode \<arg>            |The render mode: 0=Multi-pass, 1=ES3 instancing (default).                                                                                                           |Demo
 --TextureResolution \<arg>     |This controls the resolution of both noise and color textures, applied on both axis                                                                                  |Demo
 --ToggleMinMax \<arg>          |Decides whether the test should switch between 0 and configured load every 5 seconds                                                                                 |Demo
 --Vertices \<arg>              |Number of vertices in geometry used                                                                                                                                  |Demo
@@ -30,6 +31,7 @@ Argument                       |Description                                     
 --EGLDepthSize \<arg>          |Force EGL_DEPTH_SIZE to the given value                                                                                                                              |DemoHost
 --EGLGreenSize \<arg>          |Force EGL_GREEN_SIZE to the given value                                                                                                                              |DemoHost
 --EGLLogConfig                 |Output the EGL config to the log                                                                                                                                     |DemoHost
+--EGLLogConfigs \<arg>         |Output the supported configurations to the log. 0=Off, 1=All, 2=HDR. Don't confuse this with LogConfig.                                                              |DemoHost
 --EGLLogExtensions             |Output the EGL extensions to the log                                                                                                                                 |DemoHost
 --EGLRedSize \<arg>            |Force EGL_RED_SIZE to the given value                                                                                                                                |DemoHost
 --Window \<arg>                |Window mode [left,top,width,height]                                                                                                                                  |DemoHost

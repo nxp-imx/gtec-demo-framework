@@ -46,7 +46,6 @@ import subprocess
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageUtil
 from FslBuildGen import PackageListUtil
-from FslBuildGen import PlatformUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.BuildConfigRecord import BuildConfigRecord
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
@@ -81,6 +80,7 @@ from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackagePlatformVariant
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 from FslBuildGen.PackageFilters import PackageFilters
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_VARIANT_SETTING
 from FslBuildGen.SharedGeneration import ToolAddedVariant

@@ -150,6 +150,7 @@ namespace Fsl
 
     try
     {
+      // NOTE: gli does not seem to have a origin concept so we have no way of knowing the 'origin' of the content
       rBitmap.Reset(tex.data(), cbTexL0, Extent2D(extentL0.x, extentL0.y), pixelFormat, static_cast<uint32_t>(strideL0), BitmapOrigin::UpperLeft);
     }
     catch (const std::exception&)

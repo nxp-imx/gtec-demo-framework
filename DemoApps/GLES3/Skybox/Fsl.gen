@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.Skybox" NoInclude="true">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="Shared.OpenGLES3.CubeMapping"/>
+    <Platform Name="Windows" ProjectId="50017B39-41EB-4FD5-8858-342B1C25C79B"/>
+  </Executable>
+</FslBuildGen>

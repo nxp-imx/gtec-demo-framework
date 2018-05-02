@@ -38,6 +38,8 @@ from FslBuildGen import Util
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import ExternalDependencyType
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.LibUtil import LibUtil
 from FslBuildGen.Packages.Package import Package
 
 class CMakePathType(object):
@@ -68,7 +70,7 @@ class CodeTemplateCMake(object):
         super(CodeTemplateCMake, self).__init__()
         self.TemplatePath = strTemplatePath
         self.AbsoluteTemplatePath = IOUtil.Join(config.SDKConfigTemplatePath, strTemplatePath)
-        self.Master = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "%sCMakeLists.txt" % (filePrefix)))
+        self.Master = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "{0}CMakeLists.txt".format(filePrefix)))
         self.PackageTargetIncludeDirectories = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "Package_TargetIncludeDirectories.txt"))
         self.PackageTargetIncludeDirEntry = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "Package_TargetIncludeDirEntry.txt"))
         self.PackageDependencyAddSubdirectories = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "PackageDependency_add_subdirectories.txt"))
@@ -77,10 +79,10 @@ class CodeTemplateCMake(object):
         self.PackageDependencyFindPackage = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "PackageDependency_find_package.txt"))
         self.SnippetDefaultTargetCompileOptions = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "Snippet_DefaultTargetCompileOptions.txt"))
         self.SnippetDefaultTargetCompileFeatures = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "Snippet_DefaultTargetCompileFeatures.txt"))
-
+        self.AddImportedLibrary = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "AddImportedLibrary.txt"))
 
         if filePrefix == 'Ext':
-            self.PackageTargetIncludeDirectories = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "%sPackage_TargetIncludeDirectories.txt" % (filePrefix)))
+            self.PackageTargetIncludeDirectories = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "{0}Package_TargetIncludeDirectories.txt".format(filePrefix)))
         else:
             self.PackageTargetIncludeDirectories = IOUtil.ReadFile(IOUtil.Join(self.AbsoluteTemplatePath, "Package_TargetIncludeDirectories.txt"))
 
@@ -142,7 +144,7 @@ def BuildFindDirectExternalDependencies(config: Config, package: Package, templa
     snippet = templatePackageDependencyFindPackage
     content = ""
     for externalDep in externalDeps:
-        findParams = "%s REQUIRED" % (externalDep.Name)
+        findParams = "{0} REQUIRED".format(externalDep.Name)
         contentEntry = snippet
         contentEntry = contentEntry.replace("##FIND_PARAMS##", findParams)
         content += contentEntry
@@ -159,23 +161,27 @@ def BuildTargetLinkLibrariesForDirectDependencies(config: Config,
     if package.ResolvedDirectDependencies is None:
         raise Exception("Invalid package")
 
+    isExternalLibrary = package.Type == PackageType.ExternalLibrary
+
     deps = ""
     for entry1 in package.ResolvedDirectDependencies:
-        deps += "\n  %s %s" % (GetAccessTypeString(package, entry1.Access, False), GetPackageName(entry1.Package))
-#        deps += "\n  %s %s" % (GetAccessTypeString(package, entry1.Access), GetAliasPackageName(entry1.Package))
+        if entry1.Package.Type != PackageType.ToolRecipe:
+            deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry1.Access, False), GetPackageName(entry1.Package))
+#           deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry1.Access), GetAliasPackageName(entry1.Package))
 
     # FIX: handle debug libraries
     for entry2 in package.ResolvedDirectExternalDependencies:
-        if entry2.Name not in ignoreLibs:
+        libraryName = LibUtil.ToUnixLibName(entry2.Name)
+        if libraryName not in ignoreLibs:
             if entry2.Type == ExternalDependencyType.StaticLib:
-                location = entry2.Location if entry2.Location else ""
-                fullPathLinkDir = Util.ChangeToCMakeEnvVariables(IOUtil.Join(location, entry2.Name))
+                location = entry2.Location if entry2.Location and not isExternalLibrary else ""
+                fullPathLinkDir = Util.ChangeToCMakeEnvVariables(IOUtil.Join(location, libraryName))
                 deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry2.Access, False), fullPathLinkDir)
             if entry2.Type == ExternalDependencyType.Find:
-                linkName = "${%s_LIBRARY}" % (entry2.Name)
+                linkName = "${%s_LIBRARY}" % (libraryName)
                 deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry2.Access, False), linkName)
         else:
-            config.LogPrint("INFO: Force ignored '{0}'".format(entry2.Name))
+            config.LogPrintVerbose(2, "INFO: Force ignored '{0}'".format(libraryName))
 
     if len(deps) <= 0:
         return ""
@@ -221,6 +227,7 @@ def BuildTargetIncludeDirectories(config: Config, package: Package,
                                   templatePackageTargetIncludeDirectories: str,
                                   templatePackageTargetIncludeDirEntry: str,
                                   pathType: int = CMakePathType.Relative) -> str:
+    isExternalLibrary = package.Type == PackageType.ExternalLibrary
     publicIncludeDir = ""
     if package.AbsoluteIncludePath:
         pubIncPath = __GetPackageIncludePath(config, package, package.AbsoluteIncludePath, pathType)
@@ -235,7 +242,7 @@ def BuildTargetIncludeDirectories(config: Config, package: Package,
     for directExternalDeps in package.ResolvedDirectExternalDependencies:
         if directExternalDeps.Type != ExternalDependencyType.Find:
             currentIncDir = directExternalDeps.Include
-            if currentIncDir:
+            if currentIncDir is not None:
                 if package.AbsolutePath is None:
                     raise Exception("Invalid package")
                 packageRootPath = config.ToPath(package.AbsolutePath)
@@ -243,7 +250,13 @@ def BuildTargetIncludeDirectories(config: Config, package: Package,
                     relativeCurrentIncDir = currentIncDir[len(packageRootPath)+1:] if pathType == CMakePathType.LocalRelative else Util.ChangeToCMakeVariables(currentIncDir)
                     add = "\n" + __GenerateDirEntryString(GetAccessTypeString(package, directExternalDeps.Access), relativeCurrentIncDir, templatePackageTargetIncludeDirEntry)
                 else:
-                    add = "\n  {0} {1}".format(GetAccessTypeString(package, directExternalDeps.Access), Util.ChangeToCMakeEnvVariables(currentIncDir))
+                    relativeCurrentIncDir = config.ToPath(currentIncDir)
+                    if relativeCurrentIncDir is None:
+                        add = "\n  {0} {1}".format(GetAccessTypeString(package, directExternalDeps.Access), Util.ChangeToCMakeEnvVariables(currentIncDir))
+                    else:
+                        if pathType != CMakePathType.LocalRelative:
+                            relativeCurrentIncDir = Util.ChangeToCMakeVariables(relativeCurrentIncDir)
+                        add = "\n" + __GenerateDirEntryString(GetAccessTypeString(package, directExternalDeps.Access), relativeCurrentIncDir, templatePackageTargetIncludeDirEntry)
                 if directExternalDeps.Access == AccessType.Public:
                     publicIncludeDir += add
                 else:

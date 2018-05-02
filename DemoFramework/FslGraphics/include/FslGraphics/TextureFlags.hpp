@@ -39,6 +39,9 @@ namespace Fsl
   {
     enum Enum
     {
+      // A empty flag
+      NotDefined = 0x00,
+
       GenerateMipMaps = 0x01,
       //! If this is true any bitmap origin is allowed on create
       AllowAnyBitmapOrigin = 0x02,

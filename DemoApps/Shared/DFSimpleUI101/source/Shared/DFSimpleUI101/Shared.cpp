@@ -34,7 +34,7 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasFont.hpp>
@@ -136,12 +136,12 @@ namespace Fsl
     stackLayout->SetAlignmentX(ItemAlignment::Center);
     stackLayout->SetAlignmentY(ItemAlignment::Center);
     stackLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    stackLayout->Children.Add(stackLayout1);
-    //stackLayout->Children.Add(stackLayout2);
-    //stackLayout->Children.Add(m_complexButton);
-    stackLayout->Children.Add(background);
-    stackLayout->Children.Add(stackLayout3);
-    stackLayout->Children.Add(stackLayout4);
+    stackLayout->AddChild(stackLayout1);
+    //stackLayout->AddChild(stackLayout2);
+    //stackLayout->AddChild(m_complexButton);
+    stackLayout->AddChild(background);
+    stackLayout->AddChild(stackLayout3);
+    stackLayout->AddChild(stackLayout4);
 
 
     // Create labels for the corners
@@ -158,15 +158,15 @@ namespace Fsl
 
     // Create the root layout and add it to the window manager
     m_fillLayout.reset(new FillLayout(m_context));
-    m_fillLayout->Children.Add(labelCorner1);
-    m_fillLayout->Children.Add(labelCorner2);
-    m_fillLayout->Children.Add(labelCorner3);
-    m_fillLayout->Children.Add(labelCorner4);
-    m_fillLayout->Children.Add(labelCenter1);
-    m_fillLayout->Children.Add(labelCenter2);
-    m_fillLayout->Children.Add(labelCenter3);
-    m_fillLayout->Children.Add(labelCenter4);
-    m_fillLayout->Children.Add(stackLayout);
+    m_fillLayout->AddChild(labelCorner1);
+    m_fillLayout->AddChild(labelCorner2);
+    m_fillLayout->AddChild(labelCorner3);
+    m_fillLayout->AddChild(labelCorner4);
+    m_fillLayout->AddChild(labelCenter1);
+    m_fillLayout->AddChild(labelCenter2);
+    m_fillLayout->AddChild(labelCenter3);
+    m_fillLayout->AddChild(labelCenter4);
+    m_fillLayout->AddChild(stackLayout);
 
     // Register the root layout with the window manager
     winMgr->Add(m_fillLayout);
@@ -277,12 +277,12 @@ namespace Fsl
     // Create a stack layout and add various items to it
     std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
     stackLayout->SetAlignmentY(ItemAlignment::Center);
-    stackLayout->Children.Add(label1);
-    stackLayout->Children.Add(label2);
-    stackLayout->Children.Add(label3);
-    stackLayout->Children.Add(labelSmall);
-    stackLayout->Children.Add(m_button1);
-    stackLayout->Children.Add(m_button2);
+    stackLayout->AddChild(label1);
+    stackLayout->AddChild(label2);
+    stackLayout->AddChild(label3);
+    stackLayout->AddChild(labelSmall);
+    stackLayout->AddChild(m_button1);
+    stackLayout->AddChild(m_button2);
     return stackLayout;
   }
 
@@ -334,14 +334,14 @@ namespace Fsl
     // Create a stack layout and add various items to it
     std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
     stackLayout->SetAlignmentY(ItemAlignment::Center);
-    stackLayout->Children.Add(label);
-    stackLayout->Children.Add(image1);
-    stackLayout->Children.Add(image2);
-    stackLayout->Children.Add(image3);
-    stackLayout->Children.Add(image4N);
-    stackLayout->Children.Add(image4C);
-    stackLayout->Children.Add(image4F);
-    stackLayout->Children.Add(image4S);
+    stackLayout->AddChild(label);
+    stackLayout->AddChild(image1);
+    stackLayout->AddChild(image2);
+    stackLayout->AddChild(image3);
+    stackLayout->AddChild(image4N);
+    stackLayout->AddChild(image4C);
+    stackLayout->AddChild(image4F);
+    stackLayout->AddChild(image4S);
     return stackLayout;
   }
 
@@ -399,12 +399,12 @@ namespace Fsl
     // Create a stack layout and add various items to it
     std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
     stackLayout->SetAlignmentY(ItemAlignment::Near);
-    stackLayout->Children.Add(labelSliders);
-    stackLayout->Children.Add(m_slider1);
-    stackLayout->Children.Add(m_slider2);
-    stackLayout->Children.Add(slider3);
-    stackLayout->Children.Add(slider4);
-    stackLayout->Children.Add(slider5);
+    stackLayout->AddChild(labelSliders);
+    stackLayout->AddChild(m_slider1);
+    stackLayout->AddChild(m_slider2);
+    stackLayout->AddChild(slider3);
+    stackLayout->AddChild(slider4);
+    stackLayout->AddChild(slider5);
     return stackLayout;
   }
 
@@ -437,9 +437,9 @@ namespace Fsl
     // Create a stack layout and add various items to it
     std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
     stackLayout->SetAlignmentY(ItemAlignment::Near);
-    stackLayout->Children.Add(labelSliders);
-    stackLayout->Children.Add(checkBox1);
-    stackLayout->Children.Add(checkBox2);
+    stackLayout->AddChild(labelSliders);
+    stackLayout->AddChild(checkBox1);
+    stackLayout->AddChild(checkBox2);
     return stackLayout;
   }
 

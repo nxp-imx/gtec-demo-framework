@@ -1,5 +1,5 @@
   <ItemGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x64'">
-    <Content Include="##FILE_PATH##">
+    <Content Include="##DEBUG_FILE_PATH##">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

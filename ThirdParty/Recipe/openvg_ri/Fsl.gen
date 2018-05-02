@@ -7,11 +7,12 @@
       <ExperimentalRecipe Name="openvg-ri">
         <Pipeline>
           <GitClone URL="https://github.com/luismreis/openvg-ri.git" Hash="952aaf2699729203731e8a28eefacd2d47366d50"/>
-          <Clone>
+          <Copy>
             <Copy From="{RECIPE_PATH}/CMakeLists.txt" To="CMakeLists.txt"/>
             <Copy From="{RECIPE_PATH}/DummyEGL.cpp" To="DummyEGL.cpp"/>
             <GitApply From="{RECIPE_PATH}/X64patch.patch"/>
-          </Clone>
+            <Delete Path=".git"/>
+          </Copy>
           <CMakeBuild Project="libOpenVG" Target="install" Configuration="release" OutputPath="_Install"/>
         </Pipeline>  
         <Installation>

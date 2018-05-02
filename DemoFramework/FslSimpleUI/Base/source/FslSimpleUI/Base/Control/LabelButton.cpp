@@ -59,11 +59,11 @@ namespace Fsl
 
     void LabelButton::SetContent(const std::string& value)
     {
-      if (value != m_content)
-      {
-        m_content = value;
-        PropertyUpdated(PropertyType::Content);
-      }
+      if (value == m_content)
+        return;
+
+      m_content = value;
+      PropertyUpdated(PropertyType::Content);
     }
 
 

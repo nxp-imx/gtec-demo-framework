@@ -34,6 +34,7 @@
 from typing import cast
 from typing import Dict
 from typing import List
+from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen.Exceptions import DependencyNotFoundException
 from FslBuildGen.Exceptions import PackageHasMultipleDefinitionsException
@@ -133,7 +134,6 @@ class PackageFinder(object):
                 return self.__LocateMissingPackage (packageName, missingDict, False)
             raise PackageLoaderFailedToLocatePackageException(missingDict[packageName].Name, packageName)
 
-
     def GetKnownPackageFiles(self, theFiles: List[PackageFile]) -> List[PackageFile]:
         """ Get all the files associated with the typeId then merge it with the supplied file list.
 
@@ -145,3 +145,17 @@ class PackageFinder(object):
             result.append(PackageFile(cast(str, packageLocation.FoundPackageFilePath), packageLocation.PackageName, packageLocation.SourceLocation))
 
         return result
+
+
+    def TryLocatePackageFileByName(self, packageName: str) -> Optional[PackageFile]:
+        foundLocation = self.PackageLocationCache.TryLocatePackage(packageName)
+        if foundLocation is None:
+            return None
+        return PackageFile(cast(str, foundLocation.FoundPackageFilePath), packageName, foundLocation.SourceLocation)
+
+
+    def LocatePackageFileByName(self, packageName: str) -> PackageFile:
+        found = self.TryLocatePackageFileByName(packageName)
+        if found is None:
+            raise Exception("Could not locate package {0}".format(packageName))
+        return found

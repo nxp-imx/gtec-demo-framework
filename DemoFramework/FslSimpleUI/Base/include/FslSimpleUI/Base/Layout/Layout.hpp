@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_LAYOUT_LAYOUT_HPP
 #define FSLSIMPLEUI_BASE_LAYOUT_LAYOUT_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
+* Copyright 2018 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -32,7 +32,6 @@
 ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <FslSimpleUI/Base/BaseWindowCollection.hpp>
 
 namespace Fsl
 {
@@ -43,11 +42,9 @@ namespace Fsl
     public:
       Layout(const std::shared_ptr<WindowContext>& context);
 
-      BaseWindowCollection Children;
-
-      virtual void WinInit() override;
-    protected:
-      const std::deque<BaseWindowCollection::Record>& DirectChildAccess() const { return Children.DirectAccess(); }
+      virtual void ClearChildren() = 0;
+      virtual void AddChild(const std::shared_ptr<BaseWindow>& window) = 0;
+      virtual void RemoveChild(const std::shared_ptr<BaseWindow>& window) = 0;
     };
   }
 }

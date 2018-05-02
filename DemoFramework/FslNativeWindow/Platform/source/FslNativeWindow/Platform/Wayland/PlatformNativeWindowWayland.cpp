@@ -664,7 +664,9 @@ namespace Fsl
       wl_compositor_destroy(display->compositor);
 
     if (-1 == (wl_display_flush(display->display)))
-      throw GraphicsException("wl_display_flush Failure");
+    {
+      FSLLOG_WARNING("wl_display_flush Failure");
+    }
 
     wl_display_disconnect(display->display);
   }
@@ -725,6 +727,7 @@ namespace Fsl
 
 
     CreateWlSurface();
+    m_platformSurface = swindow.surface;
 
     void * nativeWindowHolder = nullptr;
     if( platformWindowParams.CreateWaylandWindow )

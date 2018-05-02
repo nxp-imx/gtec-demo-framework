@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.OpenGLES3.HDR.BasicScene">
+    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslUtil.OpenGLES3"/>
+    <Platform Name="Windows" ProjectId="8FF36DFC-04D3-49AA-ADFF-9A5580CD4836"/>
+  </Library>
+</FslBuildGen>

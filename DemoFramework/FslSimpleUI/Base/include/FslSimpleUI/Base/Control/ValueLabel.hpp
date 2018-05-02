@@ -43,13 +43,22 @@ namespace Fsl
     class ValueLabel : public LabelBase
     {
       int32_t m_content;
+      std::string m_contentCache;
     public:
       ValueLabel(const std::shared_ptr<WindowContext>& context);
 
-      int32_t GetContent() const { return m_content; }
+      int32_t GetContent() const
+      {
+        return m_content;
+      }
       void SetContent(const int32_t value);
 
       Vector2 MeasureRenderedValue(const int32_t value);
+    protected:
+      virtual const std::string& DoGetContent() const override
+      {
+        return m_contentCache;
+      }
     };
   }
 }

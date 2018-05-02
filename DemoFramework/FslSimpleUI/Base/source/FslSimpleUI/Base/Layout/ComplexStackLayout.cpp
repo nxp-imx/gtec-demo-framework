@@ -29,9 +29,10 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/LayoutHelper.hpp>
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
+#include <FslSimpleUI/Base/LayoutHelper.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <cassert>
@@ -44,11 +45,20 @@ namespace Fsl
 {
   namespace UI
   {
+    // FIX: this should not use the simple layout
     ComplexStackLayout::ComplexStackLayout(const std::shared_ptr<WindowContext>& context)
       : Layout(context)
       , m_orientation(LayoutOrientation::Vertical)
       , m_spacing(0)
     {
+    }
+
+
+    void ComplexStackLayout::WinInit()
+    {
+      Layout::WinInit();
+
+      m_children.SYS_WinInit(this, GetContext()->WindowManager);
     }
 
 
@@ -107,13 +117,13 @@ namespace Fsl
       Vector2 resultSize;
       if (m_orientation == LayoutOrientation::Horizontal)
       {
-        resultSize = CalcFixedStarSizeHorizontal(m_finalLayout, finalSize);
-        ArrangeHorizontal(m_finalLayout, finalSize.Y);
+        resultSize = CalcFixedStarSizeHorizontal(finalSize);
+        ArrangeHorizontal(finalSize.Y);
       }
       else
       {
-        resultSize = CalcFixedStarSizeVertical(m_finalLayout, finalSize);
-        ArrangeVertical(m_finalLayout, finalSize.X);
+        resultSize = CalcFixedStarSizeVertical(finalSize);
+        ArrangeVertical(finalSize.X);
       }
       return resultSize;
     }
@@ -129,8 +139,7 @@ namespace Fsl
       {
         // Fake that we have unlimited space in X and keep Y constrained.
         const Vector2 fakeAvailableSize(LayoutHelper::InfiniteSpace, availableSize.Y);
-        auto entries = DirectChildAccess();
-        for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+        for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
         {
           LayoutLength layoutLength;
           if (layoutLengthItr != m_layoutLength.end())
@@ -165,7 +174,7 @@ namespace Fsl
           if (desiredSize.Y > minSize.Y)
             minSize.Y = desiredSize.Y;
         }
-        if (entries.size() >= 1)
+        if (!m_children.empty())
           minSize.X -= m_spacing;
       }
       else
@@ -173,8 +182,7 @@ namespace Fsl
 
         // Fake that we have unlimited space in Y and keep X constrained.
         const Vector2 fakeAvailableSize(availableSize.X, LayoutHelper::InfiniteSpace);
-        auto entries = DirectChildAccess();
-        for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+        for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
         {
           LayoutLength layoutLength;
           if (layoutLengthItr != m_layoutLength.end())
@@ -209,7 +217,7 @@ namespace Fsl
           if (desiredSize.X > minSize.X)
             minSize.X = desiredSize.X;
         }
-        if (entries.size() >= 1)
+        if (!m_children.empty())
           minSize.Y -= m_spacing;
       }
 
@@ -221,17 +229,14 @@ namespace Fsl
     }
 
 
-    Vector2 ComplexStackLayout::CalcFixedStarSizeHorizontal(std::deque<FinalLayout>& rLayoutDefinition, const Vector2& finalSize)
+    Vector2 ComplexStackLayout::CalcFixedStarSizeHorizontal(const Vector2& finalSize)
     {
       auto layoutLengthItr = m_layoutLength.begin();
-      rLayoutDefinition.clear();
 
       // Run through each element and give it the space it desired in Y, but only finalSize.X in X
-      auto entries = DirectChildAccess();
-      FinalLayout finalLayout;
       float totalStars = 0;
       float totalSize = 0;
-      for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
         LayoutLength layoutLength;
         if (layoutLengthItr != m_layoutLength.end())
@@ -243,33 +248,32 @@ namespace Fsl
         switch (layoutLength.UnitType())
         {
         case LayoutUnitType::Auto:
-          finalLayout.Size = itr->Window->DesiredSize().X;
-          totalSize += finalLayout.Size;
+          itr->Size = itr->Window->DesiredSize().X;
+          totalSize += itr->Size;
           break;
         case LayoutUnitType::Fixed:
-          finalLayout.Size = layoutLength.Value();
-          totalSize += finalLayout.Size;
+          itr->Size = layoutLength.Value();
+          totalSize += itr->Size;
           break;
         case LayoutUnitType::Star:
         {
           totalStars += layoutLength.Value();
-          finalLayout.Size = layoutLength.Value();
+          itr->Size = layoutLength.Value();
           break;
         }
         default:
           FSLLOG_WARNING("Unsupported LayoutUnitType: " << (int32_t)layoutLength.UnitType());
           break;
         }
-        finalLayout.UnitType = layoutLength.UnitType();
-        rLayoutDefinition.push_back(finalLayout);
+        itr->UnitType = layoutLength.UnitType();
         totalSize += m_spacing;
       }
-      if (entries.size() >= 1)
+      if (!m_children.empty())
         totalSize -= m_spacing;
 
       // We now know the total size and total stars
       const float sizeLeft = std::max(finalSize.X - totalSize, 0.0f);
-      FinalizeStarSizes(rLayoutDefinition, sizeLeft, totalStars);
+      FinalizeStarSizes(sizeLeft, totalStars);
       if (finalSize.X >= totalSize && totalStars > 0)
         totalSize = finalSize.X;
       return Vector2(totalSize, finalSize.Y);
@@ -277,17 +281,14 @@ namespace Fsl
 
 
 
-    Vector2 ComplexStackLayout::CalcFixedStarSizeVertical(std::deque<FinalLayout>& rLayoutDefinition, const Vector2& finalSize)
+    Vector2 ComplexStackLayout::CalcFixedStarSizeVertical(const Vector2& finalSize)
     {
       auto layoutLengthItr = m_layoutLength.begin();
-      rLayoutDefinition.clear();
 
       // Run through each element and give it the space it desired in Y, but only finalSize.X in X
-      auto entries = DirectChildAccess();
-      FinalLayout finalLayout;
       float totalStars = 0;
       float totalSize = 0;
-      for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
         LayoutLength layoutLength;
         if (layoutLengthItr != m_layoutLength.end())
@@ -299,42 +300,41 @@ namespace Fsl
         switch (layoutLength.UnitType())
         {
         case LayoutUnitType::Auto:
-          finalLayout.Size = itr->Window->DesiredSize().Y;
+          itr->Size = itr->Window->DesiredSize().Y;
           break;
         case LayoutUnitType::Fixed:
-          finalLayout.Size = layoutLength.Value();
+          itr->Size = layoutLength.Value();
           break;
         case LayoutUnitType::Star:
         {
           totalStars += layoutLength.Value();
-          finalLayout.Size = layoutLength.Value();
+          itr->Size = layoutLength.Value();
           break;
         }
         default:
           FSLLOG_WARNING("Unsupported LayoutUnitType: " << (int32_t)layoutLength.UnitType());
           break;
         }
-        finalLayout.UnitType = layoutLength.UnitType();
-        rLayoutDefinition.push_back(finalLayout);
+        itr->UnitType = layoutLength.UnitType();
         totalSize += m_spacing;
       }
-      if (entries.size() >= 1)
+      if (!m_children.empty())
         totalSize -= m_spacing;
 
       // We now know the total size and total stars
       const float sizeLeft = std::max(finalSize.Y - totalSize, 0.0f);
-      FinalizeStarSizes(rLayoutDefinition, sizeLeft, totalStars);
+      FinalizeStarSizes(sizeLeft, totalStars);
       if (finalSize.X >= totalSize && totalStars > 0)
         totalSize = finalSize.Y;
       return Vector2(finalSize.X, totalSize);
     }
 
 
-    void ComplexStackLayout::FinalizeStarSizes(std::deque<FinalLayout>& rLayoutDefinition, const float spaceLeft, const float totalStars)
+    void ComplexStackLayout::FinalizeStarSizes(const float spaceLeft, const float totalStars)
     {
       // Assign size to the star areas
       float position = 0;
-      for (auto itr = rLayoutDefinition.begin(); itr != rLayoutDefinition.end(); ++itr)
+      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
         if (itr->UnitType == LayoutUnitType::Star)
           itr->Size = (totalStars / itr->Size) * spaceLeft;
@@ -344,31 +344,22 @@ namespace Fsl
     }
 
 
-    void ComplexStackLayout::ArrangeHorizontal(const std::deque<FinalLayout>& layoutDefinition, const float finalSizeY)
+    void ComplexStackLayout::ArrangeHorizontal(const float finalSizeY)
     {
       // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
-      auto entries = DirectChildAccess();
-      assert(entries.size() == layoutDefinition.size());
-      auto itrLayout = layoutDefinition.begin();
-      for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
-        itr->Window->Arrange(Rect(itrLayout->Position, 0, itrLayout->Size, finalSizeY));
-        ++itrLayout;
+        itr->Window->Arrange(Rect(itr->Position, 0, itr->Size, finalSizeY));
       }
     }
 
 
-
-    void ComplexStackLayout::ArrangeVertical(const std::deque<FinalLayout>& layoutDefinition, const float finalSizeX)
+    void ComplexStackLayout::ArrangeVertical(const float finalSizeX)
     {
       // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
-      auto entries = DirectChildAccess();
-      assert(entries.size() == layoutDefinition.size());
-      auto itrLayout = layoutDefinition.begin();
-      for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
-        itr->Window->Arrange(Rect(0, itrLayout->Position, finalSizeX, itrLayout->Size));
-        ++itrLayout;
+        itr->Window->Arrange(Rect(0, itr->Position, finalSizeX, itr->Size));
       }
     }
   }

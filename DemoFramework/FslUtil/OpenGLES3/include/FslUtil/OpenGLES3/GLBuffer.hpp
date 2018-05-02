@@ -109,7 +109,7 @@ namespace Fsl
       ~GLBuffer();
 
       //! @brief If a buffer is allocated this will releases it.
-      void Reset();
+      virtual void Reset();
 
       //! @brief Check if this buffer contains a valid gl handle.
       bool IsValid() const

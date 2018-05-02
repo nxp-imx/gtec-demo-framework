@@ -39,7 +39,7 @@
 #include <FslAssimp/SceneImporter.hpp>
 #endif
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>

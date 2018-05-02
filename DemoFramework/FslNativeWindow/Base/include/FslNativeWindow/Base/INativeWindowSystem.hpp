@@ -49,6 +49,9 @@ namespace Fsl
     //! @param pPlatformCustomWindowAllocationParams is defined by the caller and is a way for to send data to the custom window allocation method if need be
     virtual std::shared_ptr<INativeWindow> CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams = nullptr) = 0;
     virtual bool ProcessMessages(const NativeWindowProcessMessagesArgs& args) = 0;
+
+    //! @brief Check if the display is considered HDR compatible
+    virtual bool IsDisplayHDRCompatible(const int32_t displayId) const = 0;
   };
 }
 

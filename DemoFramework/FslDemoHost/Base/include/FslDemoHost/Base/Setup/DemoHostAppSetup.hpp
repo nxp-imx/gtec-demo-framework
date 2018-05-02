@@ -35,8 +35,8 @@
 #include <memory>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeature.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 
 namespace Fsl
 {
@@ -48,7 +48,8 @@ namespace Fsl
     std::shared_ptr<DemoHostFeatureDeque> DemoHostFeatures;
     std::shared_ptr<DemoAppHostConfig> AppHostConfig;
 
-    DemoHostAppSetup(const DemoAppSetup& demoAppSetup, const std::shared_ptr<DemoHostFeatureDeque>& demoHostFeatures, const std::shared_ptr<DemoAppHostConfig>& demoAppHostConfig);
+    DemoHostAppSetup(const DemoAppSetup& demoAppSetup, const std::shared_ptr<DemoHostFeatureDeque>& demoHostFeatures,
+                     const std::shared_ptr<DemoAppHostConfig>& demoAppHostConfig);
 
     template<typename T>
     const std::shared_ptr<T> GetDemoAppHostConfig() const

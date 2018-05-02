@@ -53,6 +53,9 @@ namespace Fsl
     {
       return m_platformDisplay;
     }
+
+    // @note If you override this then 'dont' call the this version
+    virtual bool IsDisplayHDRCompatible(const int32_t displayId) const override;
   };
 }
 

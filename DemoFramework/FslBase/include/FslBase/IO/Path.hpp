@@ -131,10 +131,17 @@ namespace Fsl
         return m_content.IndexOf(ch, fromIndex);
       }
 
-      std::string ToUTF8String() const { return m_content.ToUTF8String(); };
+      std::string ToUTF8String() const
+      {
+        return m_content.ToUTF8String();
+      };
+
       std::string ToAsciiString() const;
 
-      int32_t GetByteSize() const { return m_content.GetByteSize(); }
+      int32_t GetByteSize() const
+      {
+        return m_content.GetByteSize();
+      }
 
       //Path ToLowerInvariant() const;
       //Path ToUpperInvariant() const;

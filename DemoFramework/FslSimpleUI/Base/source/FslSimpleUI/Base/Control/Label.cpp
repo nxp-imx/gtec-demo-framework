@@ -30,6 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <cassert>
@@ -42,6 +43,16 @@ namespace Fsl
     Label::Label(const std::shared_ptr<WindowContext>& context)
       : LabelBase(context)
     {
+    }
+
+
+    void Label::SetContent(const std::string& value)
+    {
+      if (value == m_content)
+        return;
+
+      m_content = value;
+      PropertyUpdated(PropertyType::Content);
     }
   }
 }

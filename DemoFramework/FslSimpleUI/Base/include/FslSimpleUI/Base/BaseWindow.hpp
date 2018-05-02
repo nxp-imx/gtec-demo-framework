@@ -82,21 +82,37 @@ namespace Fsl
       //! @warning This method is not allowed to throw a exception!!!!!
       //! @return true if the window was marked as dirty, false if it was already dirty.
       virtual bool WinMarkLayoutAsDirty();
-      virtual WindowFlags WinGetFlags() const { return m_flags; }
-      virtual Rect WinGetContentRect() const { return m_layoutCache.ContentRect; }
+      virtual WindowFlags WinGetFlags() const
+      {
+        return m_flags;
+      }
+
+      virtual Rect WinGetContentRect() const
+      {
+        return m_layoutCache.ContentRect;
+      }
+
       virtual void WinHandleEvent(const RoutedEvent& routedEvent);
 
-      virtual void WinUpdate(const DemoTime& demoTime) {};
+      virtual void WinUpdate(const DemoTime& demoTime)
+      {
+      }
+
       //! @brief Called by the UITree to request a draw operation.
       //! @param drawContext the UIDrawContext.
-      virtual void WinDraw(const UIDrawContext& context) {};
+      virtual void WinDraw(const UIDrawContext& context)
+      {
+      }
 
       void Arrange(const Rect& finalRect);
       void Measure(const Vector2& availableSize);
 
       //! @brief Get the current width
       //! @return the width or a negative value if auto sizing is used
-      float GetWidth() const { return m_size.X; }
+      float GetWidth() const
+      {
+        return m_size.X;
+      }
 
       //! @brief Set the current Width
       //! @param value the new width (set it to a negative value to use auto sizing)
@@ -108,7 +124,10 @@ namespace Fsl
 
       //! @brief Get the current height
       //! @return the height or a negative value if auto sizing is used
-      float GetHeight() const { return m_size.Y; }
+      float GetHeight() const
+      {
+        return m_size.Y;
+      }
 
       //! @brief Set the current height
       //! @param value the new height (set it to a negative value to use auto sizing)
@@ -118,18 +137,35 @@ namespace Fsl
       //! @param value the new height (set it to a negative value to use auto sizing)
       void SetHeight(const int32_t value);
 
-      ThicknessF GetMargin() const { return m_margin; }
+      ThicknessF GetMargin() const
+      {
+        return m_margin;
+      }
       void SetMargin(const ThicknessF& value);
 
-      ItemAlignment GetAlignmentX() const { return m_alignmentX; }
+      ItemAlignment GetAlignmentX() const
+      {
+        return m_alignmentX;
+      }
       void SetAlignmentX(const ItemAlignment& value);
-      ItemAlignment GetAlignmentY() const { return m_alignmentY; };
+
+      ItemAlignment GetAlignmentY() const
+      {
+        return m_alignmentY;
+      };
       void SetAlignmentY(const ItemAlignment& value);
 
       //! @brief Get the layout desired size.
-      const Vector2& DesiredSize() const { return m_layoutCache.DesiredSize; }
+      const Vector2& DesiredSize() const
+      {
+        return m_layoutCache.DesiredSize;
+      }
+
       //! @brief Get the layout render size.
-      const Vector2& RenderSize() const { return m_layoutCache.RenderSize; }
+      const Vector2& RenderSize() const
+      {
+        return m_layoutCache.RenderSize;
+      }
 
       //! @brief Transform a screen point to be relative to this window
       Vector2 PointFromScreen(const Vector2& screenPoint) const;
@@ -141,11 +177,17 @@ namespace Fsl
       Vector2 PointTo(const IWindowId*const pToWin, const Vector2& point) const;
 
       //! @brief Get the user tag value
-      std::shared_ptr<ITag> GetTag() const { return m_tag; }
+      std::shared_ptr<ITag> GetTag() const
+      {
+        return m_tag;
+      }
 
       //! @brief Set the user tag value
       //! @note allows you to associate a custom value with this window
-      void SetTag(const std::shared_ptr<ITag>& value) { m_tag = value; }
+      void SetTag(const std::shared_ptr<ITag>& value)
+      {
+        m_tag = value;
+      }
 
     protected:
       virtual void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override { }
@@ -153,8 +195,11 @@ namespace Fsl
       virtual void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override { }
       virtual void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override { }
 
+      bool IsReadyToSendEvents();
+
       //! @brief Send a event
       void SendEvent(const std::shared_ptr<WindowEvent>& event);
+      //bool TrySendEvent(const std::shared_ptr<WindowEvent>& event);
 
       const std::shared_ptr<WindowContext>& GetContext() const
       {
@@ -169,14 +214,32 @@ namespace Fsl
       }
 
       //! @brief Check if the layout is dirty
-      inline bool IsLayoutDirty() const { return m_flags.IsEnabled(BaseWindowFlags::LayoutDirty); };
+      inline bool IsLayoutDirty() const
+      {
+        return m_flags.IsEnabled(BaseWindowFlags::LayoutDirty);
+      };
 
       void Enable(const WindowFlags& flags);
 
-      inline void MarkLayoutArrangeBegin() { m_flags.Enable(BaseWindowFlags::InLayoutArrange); }
-      inline void MarkLayoutArrangeEnd() { m_flags.Disable(BaseWindowFlags::InLayoutArrange); }
-      inline void MarkLayoutMeasureBegin() { m_flags.Enable(BaseWindowFlags::InLayoutMeasure); }
-      inline void MarkLayoutMeasureEnd() { m_flags.Disable(BaseWindowFlags::InLayoutMeasure); }
+      inline void MarkLayoutArrangeBegin()
+      {
+        m_flags.Enable(BaseWindowFlags::InLayoutArrange);
+      }
+
+      inline void MarkLayoutArrangeEnd()
+      {
+        m_flags.Disable(BaseWindowFlags::InLayoutArrange);
+      }
+
+      inline void MarkLayoutMeasureBegin()
+      {
+        m_flags.Enable(BaseWindowFlags::InLayoutMeasure);
+      }
+
+      inline void MarkLayoutMeasureEnd()
+      {
+        m_flags.Disable(BaseWindowFlags::InLayoutMeasure);
+      }
 
       //! @brief position child windows and determine their size according to the given size.
       //! @return the actual size used.
@@ -184,7 +247,10 @@ namespace Fsl
       //! @note If you wish to customize the arrange pass of the layout process you should override this method.
       //!       A overridden method is responsible for calling Arrange on each visible child window and pass the final desiredSize and
       //!       position to each child window.
-      virtual Vector2 ArrangeOverride(const Vector2& finalSize) { return finalSize; }
+      virtual Vector2 ArrangeOverride(const Vector2& finalSize)
+      {
+        return finalSize;
+      }
 
       //! @brief Measure this window and its children.
       //! @param availableSize The available size that this window can give to child windows. Infinity can be
@@ -201,7 +267,10 @@ namespace Fsl
       //!       indicate that the child element wants more space. This might be handled in your own implementation by
       //!       introducing a scrollable region, by resizing the parent control, by establishing some manner of stacked order,
       //!       or any number of solutions for measuring or arranging content.
-      virtual Vector2 MeasureOverride(const Vector2& availableSize) { return Vector2::Zero(); }
+      virtual Vector2 MeasureOverride(const Vector2& availableSize)
+      {
+        return Vector2::Zero();
+      }
 
       //! @brief Call this when a property has been updated, to allow the controls to react on it.
       void PropertyUpdated(const PropertyTypeFlags& flags);
@@ -211,8 +280,13 @@ namespace Fsl
 
       //! @brief Control the layout dirty flag
       void SetLayoutDirty(const bool isDirty);
+    public:
 
-      friend class BaseWindowCollection;
+      //! @brief Do not call this, intended for internal UI framework use only
+      void SYS_MarkLayoutDirty()
+      {
+        SetLayoutDirty(true);
+      }
     };
   }
 }

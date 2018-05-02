@@ -5,7 +5,7 @@
     <Dependency Name="FslDemoHost.Window"/>
     <Dependency Name="FslUtil.Vulkan1_0"/>
     <Dependency Name="FslNativeWindow.Vulkan"/>
-    <Dependency Name="FslDemoApp.Vulkan.Config"/>
+    <Dependency Name="FslDemoHost.Vulkan.Config"/>
     <Platform Name="Windows" ProjectId="5224CE80-41DE-47BD-912A-216C8D5251BE"/>
   </Library>
 </FslBuildGen>

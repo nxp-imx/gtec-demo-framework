@@ -59,6 +59,8 @@ namespace Fsl
       //! @brief Send a event from the supplied source
       void SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId*const pSource);
       void SendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source);
+      //bool TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId*const pSource);
+      //bool TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source);
     };
   }
 }

@@ -32,7 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
-#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslDemoApp/Base/Service/Gamepad/IGamepads.hpp>
 #include <deque>
 #include <string>
@@ -42,7 +42,7 @@ namespace Fsl
 {
   class InputEvents : public DemoAppGLES2
   {
-    std::shared_ptr<Basic2D> m_basic2D;
+    std::shared_ptr<IBasic2D> m_basic2D;
     std::deque<std::string> m_console;
     std::shared_ptr<IGamepads> m_gamepads;
     std::vector<GamepadState> m_gamepadStates;

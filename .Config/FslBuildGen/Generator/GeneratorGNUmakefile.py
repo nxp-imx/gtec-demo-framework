@@ -51,6 +51,7 @@ from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExec
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
+from FslBuildGen.LibUtil import LibUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.Packages.Package import Package
@@ -275,10 +276,7 @@ class GeneratorGNUmakefile(GeneratorBase):
     def __ApplyExternalLibNameCorrection(self, libraryNameList: List[str]) -> List[str]:
         newList = []
         for libName in libraryNameList:
-            if libName.endswith('.so'):
-                libName = libName[:-3]
-            if libName.startswith('lib'):
-                libName = libName[3:]
+            libName = LibUtil.ToUnixLibName(libName)
             newList.append(libName)
         return newList
 

@@ -38,10 +38,20 @@ namespace Fsl
 {
   class EGLDemoHostOptionParser : public ADemoHostOptionParser
   {
+  public:
+    enum class ConfigLogMode
+    {
+      Off = 0,
+      All = 1,
+      HDR = 2
+    };
+  private:
     bool m_logConfig;
     bool m_logExtensions;
+    ConfigLogMode m_configLogMode;
     std::deque<EGLint> m_configAttributes;
   public:
+
     EGLDemoHostOptionParser();
 
     virtual void ArgumentSetup(std::deque<Option>& rOptions);
@@ -50,6 +60,10 @@ namespace Fsl
 
     bool IsLogConfigEnabled() const;
     bool IsLogExtensionsEnabled() const;
+    ConfigLogMode GetConfigLogMode() const
+    {
+      return m_configLogMode;
+    }
     void ExtractConfigAttributes(std::deque<EGLint>& rConfigAttributes);
   };
 }

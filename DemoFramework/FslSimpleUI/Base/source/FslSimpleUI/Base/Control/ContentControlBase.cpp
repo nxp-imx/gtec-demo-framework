@@ -54,6 +54,8 @@ namespace Fsl
     void ContentControlBase::WinInit()
     {
       assert(!m_isInitialized);
+      BaseWindow::WinInit();
+
       m_isInitialized = true;
       if (m_content)
         GetContext()->WindowManager->AddChild(this, m_content);
@@ -72,24 +74,24 @@ namespace Fsl
 
     void ContentControlBase::DoSetContent(const std::shared_ptr<BaseWindow>& value)
     {
-      if (value != m_content)
+      if (value == m_content)
+        return;
+
+      auto winMgr = GetContext()->WindowManager;
+
+      // Remove the old content if any
+      if (m_content)
       {
-        auto winMgr = GetContext()->WindowManager;
-
-        // Remove the old content if any
-        if (m_content)
-        {
-          winMgr->ScheduleClose(m_content);
-          m_content.reset();
-        }
-
-        m_content = value;
-
-        if (m_content && m_isInitialized)
-          winMgr->AddChild(this, m_content);
-
-        PropertyUpdated(PropertyType::Content);
+        winMgr->ScheduleClose(m_content);
+        m_content.reset();
       }
+
+      m_content = value;
+
+      if (m_content && m_isInitialized)
+        winMgr->AddChild(this, m_content);
+
+      PropertyUpdated(PropertyType::Content);
     }
 
 

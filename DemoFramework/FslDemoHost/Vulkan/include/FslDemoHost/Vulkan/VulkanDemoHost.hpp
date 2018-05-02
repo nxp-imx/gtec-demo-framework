@@ -34,7 +34,7 @@
 #include <vulkan/vulkan.h>
 #include <deque>
 #include <vector>
-#include <FslDemoApp/Base/Host/ConfigControl.hpp>
+#include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
 #include <RapidVulkan/CommandPool.hpp>

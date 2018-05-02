@@ -548,9 +548,28 @@ namespace Fsl
 
   void Bitmap::SetCompatiblePixelFormat(const PixelFormat compatiblePixelFormat)
   {
+    if (m_isLocked)
+      throw UsageErrorException("The bitmap is already locked");
+
     if (PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat) != PixelFormatUtil::GetPixelFormatLayout(compatiblePixelFormat))
       throw UsageErrorException("The supplied pixel format was not compatible");
     m_pixelFormat = compatiblePixelFormat;
+  }
+
+
+  bool Bitmap::TrySetCompatiblePixelFormatFlag(const PixelFormatFlags::Enum flag)
+  {
+    if (m_isLocked)
+    {
+      FSLLOG_DEBUG_WARNING("The bitmap is already locked");
+      return false;
+    }
+
+    const auto newPixelFormat = PixelFormatUtil::TrySetCompatiblePixelFormatFlag(m_pixelFormat, flag);
+    if (newPixelFormat == PixelFormat::Undefined)
+      return false;
+    m_pixelFormat = newPixelFormat;
+    return true;
   }
 
 

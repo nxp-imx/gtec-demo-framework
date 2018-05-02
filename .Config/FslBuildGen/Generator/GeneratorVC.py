@@ -47,6 +47,7 @@ from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import VariantType
+from FslBuildGen.DataTypes import VisualStudioVersion
 from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Generator.ExceptionsVC import PackageDuplicatedWindowsVisualStudioProjectIdException
@@ -56,6 +57,7 @@ from FslBuildGen.Generator.GeneratorVCTemplate import CodeTemplateProjectBatFile
 from FslBuildGen.Generator.GeneratorVCTemplate import GeneratorVCTemplate
 from FslBuildGen.Generator.GeneratorVCTemplate import NuGetPackageConfigSnippets
 from FslBuildGen.Generator.GeneratorVCTemplateManager import GeneratorVCTemplateManager
+from FslBuildGen.Generator.WindowsRegistryHelper import WindowsRegistryHelper
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
 from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
@@ -102,6 +104,8 @@ class GeneratorVC(GeneratorBase):
         super(GeneratorVC, self).__init__()
         self.__ActiveThirdPartyLibsDir = activeThirdPartyLibsDir
 
+        windows10SDKVersion = self.__DetectVS10SDKVersion(config, vsVersion)
+
         packageLanguage = config.ToolConfig.DefaultPackageLanguage
         templateManger = GeneratorVCTemplateManager(config, config.ToolConfig.TemplateFolder, vsVersion)
         # for now we assume all packages are using the same language
@@ -115,17 +119,29 @@ class GeneratorVC(GeneratorBase):
         self.__CheckProjectIds(packages)
 
         for package in packages:
+            #if package.Type == PackageType.TopLevel:
+            #    self.__GenerateLibraryBuildFile(config, package, platformName, template.GetLibraryTemplate(package), template.GetBatTemplate(), vsVersion, windows10SDKVersion)
             if package.Type == PackageType.Library:
-                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetLibraryTemplate(package), template.GetBatTemplate(), vsVersion)
+                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetLibraryTemplate(package),
+                                                template.GetBatTemplate(), vsVersion, windows10SDKVersion)
             elif package.Type == PackageType.Executable:
-                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetExecutableTemplate(package), template.GetBatTemplate(), vsVersion)
+                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetExecutableTemplate(package),
+                                                template.GetBatTemplate(), vsVersion, windows10SDKVersion)
             elif package.Type == PackageType.HeaderLibrary:
                 headerLibTemplate = template.TryGetHeaderLibraryTemplate()
                 if headerLibTemplate is not None:
-                    self.__GenerateLibraryBuildFile(config, package, platformName, headerLibTemplate, template.GetBatTemplate(), vsVersion)
+                    self.__GenerateLibraryBuildFile(config, package, platformName, headerLibTemplate,
+                                                    template.GetBatTemplate(), vsVersion, windows10SDKVersion)
 
         self.__ValidateProjectIds(packages)
 
+    def __DetectVS10SDKVersion(self, log: Log, vsVersion: int) -> Optional[str]:
+        if vsVersion != VisualStudioVersion.VS2017:
+            return None
+        windows10SDKVersion = GeneratorVCUtil.TryGetWindows10SDKVersion(log)
+        if windows10SDKVersion is not None:
+            log.LogPrintVerbose(1, "  Detected windows10 SDK version: '{0}'".format(windows10SDKVersion))
+        return windows10SDKVersion
 
     def __CheckProjectIds(self, packages: List[Package]) -> None:
         for package in packages:
@@ -157,7 +173,8 @@ class GeneratorVC(GeneratorBase):
                                    platformName: str,
                                    template : CodeTemplateVC,
                                    batTemplate: CodeTemplateProjectBatFiles,
-                                   vsVersion: int) -> None:
+                                   vsVersion: int,
+                                   windows10SDKVersion: Optional[str]) -> None:
 
         if package.ResolvedPlatform is None or package.ResolvedPlatform.ProjectId is None:
             raise XmlFormatException("Missing project id for windows platform for package {0}".format(package.Name))
@@ -222,6 +239,8 @@ class GeneratorVC(GeneratorBase):
 
         externalFilesToOutput = self.__GenerateExternalFilesToOutput(config, variantHelper, template.ExternalFileToOutput, package)
 
+        strWindowsTargetPlatformVersion = self.__GenerateWindowsTargetPlatformVersion(template.WindowsTargetPlatformVersion, windows10SDKVersion)
+
         featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
         strFeatureList = ",".join(featureList)
 
@@ -244,6 +263,7 @@ class GeneratorVC(GeneratorBase):
         build = build.replace("##CURRENT_YEAR##", strCurrentYear)
         build = build.replace("##PACKAGE_CREATION_YEAR##", strPackageCreationYear)
         build = build.replace("##PACKAGE_COMPANY_NAME##", strPackageCompanyName)
+        build = build.replace("##WINDOWS_TARGET_PLATFORM_VERSION##", strWindowsTargetPlatformVersion)
 
         addConfigGroup = ""
         addConfigs = ""
@@ -263,6 +283,7 @@ class GeneratorVC(GeneratorBase):
         #build = build.replace("##VARIANT##", "")
         buildVC = build
 
+        filterFile = self.__TryGenerateFilterFile(config, package, template, targetName)
 
         # generate bat file
         startProjectFile = self.__TryGenerateProjectBatFile(config, package, batTemplate.TemplateStartBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, platformName, False)
@@ -277,6 +298,7 @@ class GeneratorVC(GeneratorBase):
         #dstName = 'test'
         dstFileSLN = IOUtil.Join(package.AbsolutePath, dstName + ".{0}".format(template.SolutionExtension))
         dstFileVC = IOUtil.Join(package.AbsolutePath, dstName + ".{0}".format(template.ProjectExtension))
+        dstFileFilter = IOUtil.Join(package.AbsolutePath, dstName + ".{0}".format(template.FilterExtension))
 
         dstFileNuGetConfig = IOUtil.Join(package.AbsolutePath, "packages.config")
 
@@ -289,6 +311,8 @@ class GeneratorVC(GeneratorBase):
             IOUtil.SafeMakeDirs(buildBasePath)
             IOUtil.WriteFileIfChanged(dstFileSLN, buildSLN)
             IOUtil.WriteFileIfChanged(dstFileVC, buildVC)
+            if filterFile is not None:
+                IOUtil.WriteFileIfChanged(dstFileFilter, filterFile)
 
             if startProjectFile is not None:
                 IOUtil.WriteFileIfChanged(dstFileStartProject, startProjectFile)
@@ -303,6 +327,40 @@ class GeneratorVC(GeneratorBase):
         templateFileProcessor = TemplateFileProcessor(config, platformName)
         templateFileProcessor.Environment.Set("##FEATURE_LIST##", strFeatureList)
         templateFileProcessor.Process(config, template.TemplateFileRecordManager, package.AbsolutePath, package)
+
+    def __TryGenerateFilterFile(self, log: Log, package: Package, template: CodeTemplateVC, packageTargetName: str) -> Optional[str]:
+        if template.FilterMaster is None:
+            return None
+
+        headerFiles = package.ResolvedBuildAllIncludeFiles
+        sourceFiles = package.ResolvedBuildSourceFiles
+        shaderFiles = package.ResolvedBuildContentSourceFiles
+        itemGroupHeader = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemHeader, headerFiles)
+        itemGroupSource = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemSource, sourceFiles)
+        itemGroupShader = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemShader, shaderFiles)
+
+        content = template.FilterMaster
+        content = content.replace("##PACKAGE_TARGET_NAME##", packageTargetName)
+        content = content.replace("##ITEM_GROUP_HEADER##", itemGroupHeader)
+        content = content.replace("##ITEM_GROUP_SOURCE##", itemGroupSource)
+        content = content.replace("##ITEM_GROUP_SHADER##", itemGroupShader)
+        return content
+
+    def __GenerateItemGroup(self, groupSnippet: str, snippet: str, files: Optional[List[str]]) -> str:
+        if files is None or len(files) <= 0:
+            return ""
+        groupContent = "\n" + groupSnippet
+        content = ""
+        for entry in files:
+            itemContent = snippet
+            content += "\n" + itemContent.replace("##FILENAME##", entry)
+        groupContent = groupContent.replace("##ITEMS##", content)
+        return groupContent
+
+    def __GenerateWindowsTargetPlatformVersion(self, snippet: str, windows10SDKVersion: Optional[str]) -> str:
+        if windows10SDKVersion is None:
+            return ""
+        return "\n" + snippet.replace("##WINDOWS_TARGET_PLATFORM_VERSION##", windows10SDKVersion)
 
 
     def __GenerateExternalFilesToOutput(self, config: Config, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
@@ -1192,3 +1250,40 @@ class GeneratorVCUtil(object):
         buildReport = GeneratorVCUtil.TryGenerateBuildReport(log, generatorName, package, variantHelper)
         executableReport = GeneratorVCUtil.TryGenerateExecutableReport(log, generatorName, package, variantHelper)
         return PackageGeneratorReport(buildReport, executableReport, variableReport)
+
+
+    @staticmethod
+    def TryGetRegistryKey(roots: List[str], value: str) -> Optional[str]:
+        for rootEntry in roots:
+            result = WindowsRegistryHelper.TryReadRegistryLocalMachineStringValue(rootEntry, value)
+            if result is not None:
+                return result
+            result = WindowsRegistryHelper.TryReadRegistryCurrentUserStringValue(rootEntry, value)
+            if result is not None:
+                return result
+        return None
+
+
+    @staticmethod
+    def TryGetWindows10SDKVersion(log: Log) -> Optional[str]:
+        # Based on vcvarsqueryregistry.bat from VS2015
+        try:
+            roots = [
+                r"SOFTWARE\Wow6432Node\Microsoft\Windows Kits\Installed Roots",
+                r"SOFTWARE\Microsoft\Windows Kits\Installed Roots"
+            ]
+            win10Root = GeneratorVCUtil.TryGetRegistryKey(roots, "KitsRoot10")
+            if win10Root is None:
+                log.LogPrintVerbose(2, "Could not find registry key for KitsRoot10")
+                return None
+
+            includePath = IOUtil.Join(win10Root, "include")
+            directories = IOUtil.GetDirectoriesAt(includePath, False)
+            if len(directories) <= 0:
+                log.LogPrintVerbose(2, "No sdks found at '{0}'".format(includePath))
+                return None
+            directories.sort()
+            return directories[len(directories)-1]
+        except Exception as ex:
+            log.LogPrintVerbose(1, "Exception {0}".format(ex))
+            return None

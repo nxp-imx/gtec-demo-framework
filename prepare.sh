@@ -12,6 +12,10 @@ if [ ! -n "${FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR+1}" ]; then
 export FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR=$FSL_GRAPHICS_SDK/Android
 fi
 
+if [ -n "${VULKAN_SDK+1}" ]; then
+echo VULKAN_SDK=$VULKAN_SDK
+fi
+
 if [ ! -n "${FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR+1}" ]; then
 export FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR=$FSL_GRAPHICS_SDK/.Thirdparty
 echo WARNING: Environment variable FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR was not defined, so we force defined it.

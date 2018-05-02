@@ -47,10 +47,16 @@ namespace Fsl
     public:
       Texture2DImage(const std::shared_ptr<WindowContext>& context);
 
-      const Texture2D& GetContent() const { return m_content; }
+      const Texture2D& GetContent() const
+      {
+        return m_content;
+      }
       void SetContent(const Texture2D& value);
 
-      ItemScalePolicy GetScalePolicy() const { return m_scalePolicy; }
+      ItemScalePolicy GetScalePolicy() const
+      {
+        return m_scalePolicy;
+      }
       void SetScalePolicy(const ItemScalePolicy value);
 
       virtual void WinDraw(const UIDrawContext& context) override;

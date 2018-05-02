@@ -22,6 +22,7 @@ Argument                       |Description                                     
 --EGLDepthSize \<arg>          |Force EGL_DEPTH_SIZE to the given value                                                                                                                              |DemoHost
 --EGLGreenSize \<arg>          |Force EGL_GREEN_SIZE to the given value                                                                                                                              |DemoHost
 --EGLLogConfig                 |Output the EGL config to the log                                                                                                                                     |DemoHost
+--EGLLogConfigs \<arg>         |Output the supported configurations to the log. 0=Off, 1=All, 2=HDR. Don't confuse this with LogConfig.                                                              |DemoHost
 --EGLLogExtensions             |Output the EGL extensions to the log                                                                                                                                 |DemoHost
 --EGLRedSize \<arg>            |Force EGL_RED_SIZE to the given value                                                                                                                                |DemoHost
 --Window \<arg>                |Window mode [left,top,width,height]                                                                                                                                  |DemoHost

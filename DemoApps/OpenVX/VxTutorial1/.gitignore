@@ -6,6 +6,7 @@ CMakeLists.txt
 Content/_ContentSyncCache.fsl
 FslSDKIcon.ico
 GNUmakefile
+GNUmakefile_Yocto
 OpenVX.VxTutorial1.VC.VC.opendb
 OpenVX.VxTutorial1.VC.db
 OpenVX.VxTutorial1.aps

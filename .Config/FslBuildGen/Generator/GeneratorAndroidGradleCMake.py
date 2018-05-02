@@ -31,12 +31,18 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import cast
 from typing import Callable
 from typing import List
 from typing import Optional
 import os
 from FslBuildGen import IOUtil
+from FslBuildGen.AndroidUtil import AndroidUtil
+from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
+from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
 from FslBuildGen.Config import Config
+from FslBuildGen.DataTypes import BuildRecipePipelineCommand
+from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator import AndroidGeneratorUtil
 from FslBuildGen.Generator import CMakeGeneratorUtil
@@ -45,6 +51,7 @@ from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildRepo
 from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
+from FslBuildGen.LibUtil import LibUtil
 from FslBuildGen.Log import Log
 #from FslBuildGen.Exceptions import *
 from FslBuildGen.Packages.Package import Package
@@ -54,6 +61,10 @@ from FslBuildGen.SharedGeneration import ToolAddedVariant
 from FslBuildGen.SharedGeneration import ToolEnvironmentVariableName
 from FslBuildGen.Template.TemplateFileRecordManager import TemplateFileRecordManager
 from FslBuildGen.Template.TemplateFileProcessor import TemplateFileProcessor
+from FslBuildGen.Vars.Variable import Variable
+from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipePipelineCommand
+from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddLib
+
 #from FslBuildGen.PackageGeneratorReport import *
 
 
@@ -74,15 +85,28 @@ def GetVCBuildConfigurationName(entry: List[str]) -> str:
 
 class AndroidGradleCMakeSnippets(object):
     def __init__(self, templatePath: str) -> None:
-        super(AndroidGradleCMakeSnippets, self).__init__()
+        super().__init__()
         fileEnvironmentBasedRootVariable = IOUtil.Join(templatePath, "CMakeAndroid/DefineEnvironmentBasedRootVariable.txt")
         self.DefineEnvironmentBasedRootVariable = IOUtil.ReadFile(fileEnvironmentBasedRootVariable)
+
+
+class AndroidCMakeLibRecord(object):
+    def __init__(self, name: str, path: str) -> None:
+        super().__init__()
+        self.Name = name
+        self.Path = path
+
+class AndroidCMakeLib(object):
+    def __init__(self, path: str, staticLibs: List[AndroidCMakeLibRecord]) -> None:
+        super().__init__()
+        self.Path = path
+        self.StaticLibs = staticLibs
 
 
 # This generator does not work if there are multiple source roots :(
 class GeneratorAndroidGradleCMake(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], platformName: str, androidABIList: List[str]) -> None:
-        super(GeneratorAndroidGradleCMake, self).__init__()
+        super().__init__()
 
         if config.SDKPathAndroidProjectDir is None:
             raise EnvironmentError("Android environment variable {0} not defined".format(ToolEnvironmentVariableName.FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR))
@@ -113,14 +137,15 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                 androidProjectCMakeDir = IOUtil.Join(androidProjectDir, ".FslCMake")
 
                 for package in mainPackage.ResolvedBuildOrder:
-                    if package.Type == PackageType.ExternalLibrary or package.Type == PackageType.HeaderLibrary:
-                        self.__GenerateCMakeFile(config, package, platformName, extTemplate, androidProjectDir, androidProjectCMakeDir)
-                    elif package.Type == PackageType.Library:
-                        self.__GenerateCMakeFile(config, package, platformName, libTemplate, androidProjectDir, androidProjectCMakeDir)
-                    elif package.Type == PackageType.Executable:
-                        self.__GenerateExecutable(config, package, platformName, exeTemplate, templateFileRecordManager, templateFileProcessor,
-                                                  appPackageTemplateInfo, androidProjectDir, androidProjectCMakeDir,
-                                                  exeFileList, androidABIList, cmakePackageRootVariables)
+                    if not package.ResolvedPlatformNotSupported:
+                        if package.Type == PackageType.ExternalLibrary or package.Type == PackageType.HeaderLibrary:
+                            self.__GenerateCMakeFile(config, package, platformName, extTemplate, androidProjectDir, androidProjectCMakeDir)
+                        elif package.Type == PackageType.Library:
+                            self.__GenerateCMakeFile(config, package, platformName, libTemplate, androidProjectDir, androidProjectCMakeDir)
+                        elif package.Type == PackageType.Executable:
+                            self.__GenerateExecutable(config, package, platformName, exeTemplate, templateFileRecordManager, templateFileProcessor,
+                                                      appPackageTemplateInfo, androidProjectDir, androidProjectCMakeDir,
+                                                      exeFileList, androidABIList, cmakePackageRootVariables)
 
         # For now we only support doing 'exe' builds using full source for everything (like the old builder)
         if totalExeCount <= 0:
@@ -157,6 +182,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                             template: CMakeGeneratorUtil.CodeTemplateCMake,
                             androidProjectDir: str,
                             androidProjectCMakeDir: str) -> None:
+
         pathType = CMakeGeneratorUtil.CMakePathType.Relative
 
         packageName = CMakeGeneratorUtil.GetPackageName(package)
@@ -166,6 +192,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
 
         aliasPackageName = CMakeGeneratorUtil.GetAliasName(packageName)
         targetIncludeDirectories = CMakeGeneratorUtil.BuildTargetIncludeDirectories(config, package, template.PackageTargetIncludeDirectories, template.PackageTargetIncludeDirEntry, pathType)
+        targetIncludeDirectories = targetIncludeDirectories.replace(Variable.RecipeVariant, "${ANDROID_ABI}")
+
         includeFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildAllIncludeFiles)
         sourceFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildSourceFiles)
         linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(config, package, template.PackageDependencyTargetLinkLibraries, ignoreLibs)
@@ -228,7 +256,9 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                              androidABIList: List[str],
                              cmakePackageRootVariables: str) -> None:
         # copy files that need to be modified
-        dstFilenameModifier = self.__GetDstFilenameModifier(config, androidProjectDir, package, appPackageTemplateInfo, template, androidProjectCMakeDir, androidABIList, templateFileProcessor, cmakePackageRootVariables)
+        dstFilenameModifier = self.__GetDstFilenameModifier(config, androidProjectDir, package, appPackageTemplateInfo,
+                                                            template, androidProjectCMakeDir, androidABIList,
+                                                            templateFileProcessor, cmakePackageRootVariables)
 
 
         templateFileProcessor.Process(config, templateFileRecordManager, androidProjectDir, package, dstFilenameModifier)
@@ -250,8 +280,8 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                                  androidABIList: List[str],
                                  templateFileProcessor: TemplateFileProcessor,
                                  cmakePackageRootVariables: str) -> Callable[[str], str]:
-        androidHome = IOUtil.GetEnvironmentVariableForDirectory("ANDROID_HOME")
-        androidNDK = IOUtil.GetEnvironmentVariableForDirectory("ANDROID_NDK")
+        androidHome = AndroidUtil.GetSDKPath()
+        androidNDK = AndroidUtil.GetNDKPath()
         androidNDKForProp = self.__ToPropPath(androidNDK)
         androidHomeForProp = self.__ToPropPath(androidHome)
 
@@ -264,13 +294,28 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         cmakePackageExeLib = CMakeGeneratorUtil.GetAliasName(packageName)
         cmakePackageFindDirectExternalDependencies = CMakeGeneratorUtil.BuildFindDirectExternalDependencies(config, package, template.PackageDependencyFindPackage)
         cmakePackageDirectDependenciesAndSubDirectories = self.__BuildCMakeAddSubDirectoriesForDirectDependencies(config, package, template, androidProjectCMakeDir)
-        cmakeAssimpLib = self.__FindAssimpLib(package)
-        cmakeAssimpSubDir = ""
-        if len(cmakeAssimpLib) > 0:
-            cmakeAssimpSubDir = "add_subdirectory(${FSL_GRAPHICS_SDK}/ThirdParty/AssimpSource ${CMAKE_BINARY_DIR}/AssimpSource)"
 
-        templateFileProcessor.Environment.Set("##CMAKE_ASSIMP_LIB##", cmakeAssimpLib)
-        templateFileProcessor.Environment.Set("##CMAKE_ASSIMP_SUBDIR##", cmakeAssimpSubDir)
+        addCMakeLibsList = self.__AddCMakeLibs(package)
+
+        thirdPartyLibsList = []  # type: List[str]
+        for entry in addCMakeLibsList:
+            for staticLib in entry.StaticLibs:
+                thirdPartyLibsList.append(staticLib.Name)
+
+        thirdPartyAddLibs = ""
+        for entry in addCMakeLibsList:
+            for staticLib in entry.StaticLibs:
+                content = template.AddImportedLibrary
+                content = content.replace("##LIBRARY_NAME##", staticLib.Name)
+                content = content.replace("##LIBRARY_TYPE##", "STATIC")
+                content = content.replace("##LIBRARY_PATH##", staticLib.Path)
+                thirdPartyAddLibs += "\n" + content
+
+        # thirdPartyLibs is a space seperated list of third party lib names
+        thirdPartyLibs = " ".join(thirdPartyLibsList)
+
+        templateFileProcessor.Environment.Set("##CMAKE_THIRD_PARTY_LIBS##", thirdPartyLibs)
+        templateFileProcessor.Environment.Set("##CMAKE_THIRD_PARTY_ADD_LIBS##", thirdPartyAddLibs)
         templateFileProcessor.Environment.Set("##CMAKE_PACKAGE_DIRECT_DEPENDENCIES_ADD_SUBDIRECTORIES##", cmakePackageDirectDependenciesAndSubDirectories)
         templateFileProcessor.Environment.Set("##CMAKE_PACKAGE_FIND_DIRECT_EXTERNAL_DEPENDENCIES##", cmakePackageFindDirectExternalDependencies)
         templateFileProcessor.Environment.Set("##CMAKE_PACKAGE_EXE_LIB##", cmakePackageExeLib)
@@ -298,12 +343,13 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         content = ""
         snippet = template.PackageDependencyAddSubdirectories
         for depPackage in package.ResolvedBuildOrder:
-            #sdkPackagePath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, depPackage.AbsolutePath)
-            sdkPackagePath = self.__GetPackageCMakeDir(androidProjectCMakeDir, depPackage)
-            # We take advantage of the fact that the full package name is unique
-            cmakeBinPackagePath = "${CMAKE_BINARY_DIR}/%s" % (depPackage.Name)
-            path = "%s %s" % (sdkPackagePath, cmakeBinPackagePath)
-            content += snippet.replace("##PACKAGE_PATH##", path)
+            if depPackage.Type != PackageType.ToolRecipe:
+                #sdkPackagePath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, depPackage.AbsolutePath)
+                sdkPackagePath = self.__GetPackageCMakeDir(androidProjectCMakeDir, depPackage)
+                # We take advantage of the fact that the full package name is unique
+                cmakeBinPackagePath = "${{CMAKE_BINARY_DIR}}/{0}".format(depPackage.Name)
+                path = "{0} {1}".format(sdkPackagePath, cmakeBinPackagePath)
+                content += snippet.replace("##PACKAGE_PATH##", path)
         return content
 
 
@@ -330,13 +376,13 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
 
 
     def __CheckFeatureVulkanVsABI(self, package: Package, androidABIList: List[str]) -> None:
-        # AndroidABIOption.ArmeAbi does not currently work with Vulkan
-        if not AndroidABIOption.ArmeAbi in androidABIList:
+        # AndroidABIOption.DeprecatedArmeAbi does not currently work with Vulkan
+        if not AndroidABIOption.DeprecatedArmeAbi in androidABIList:
             return
 
         for feature in package.ResolvedAllUsedFeatures:
             if feature.Id == "vulkan":
-                raise Exception("Android ABI '%s' does not currently work with Vulkan, please select another using the %s variant." % (AndroidABIOption.ArmeAbi, GEN_MAGIC_VARIANT_ANDROID_ABI))
+                raise Exception("Android ABI '{0}' does not currently work with Vulkan, please select another using the {1} variant.".format(AndroidABIOption.DeprecatedArmeAbi, GEN_MAGIC_VARIANT_ANDROID_ABI))
 
     # Assimp support
     # - armeabi
@@ -347,13 +393,13 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
     # - mips,
     # - mips64
     def __CheckAssimpVsABI(self, package: Package, androidABIList: List[str]) -> None:
-        # AndroidABIOption.ArmeAbi does not currently work with Vulkan
-        if not AndroidABIOption.ArmeAbi in androidABIList and not AndroidABIOption.Mips in androidABIList and not AndroidABIOption.Mips64 in androidABIList:
+        # AndroidABIOption.DeprecatedArmeAbi does not currently work with Vulkan
+        if not AndroidABIOption.DeprecatedArmeAbi in androidABIList and not AndroidABIOption.DeprecatedMips in androidABIList and not AndroidABIOption.DeprecatedMips64 in androidABIList:
             return
 
         for depPackage in package.ResolvedBuildOrder:
             if depPackage.Name.lower() == "assimp":
-                raise Exception("Android ABI '%s' does not currently work with Assimp, please select another using the %s variant." % ([AndroidABIOption.ArmeAbi, AndroidABIOption.Mips, AndroidABIOption.Mips64], GEN_MAGIC_VARIANT_ANDROID_ABI))
+                raise Exception("Android ABI '{0}' does not currently work with Assimp, please select another using the {1} variant.".format([AndroidABIOption.DeprecatedArmeAbi, AndroidABIOption.DeprecatedMips, AndroidABIOption.DeprecatedMips64], GEN_MAGIC_VARIANT_ANDROID_ABI))
 
 
     def __CheckABI(self, package: Package, androidABIList: List[str]) -> None:
@@ -362,22 +408,22 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
 
 
     def __patchABIList(self, config: Config, package: Package, androidABIList: List[str]) -> List[str]:
-        if not AndroidABIOption.ArmeAbi in androidABIList and not AndroidABIOption.Mips in androidABIList and not AndroidABIOption.Mips64 in androidABIList:
+        if not AndroidABIOption.DeprecatedArmeAbi in androidABIList and not AndroidABIOption.DeprecatedMips in androidABIList and not AndroidABIOption.DeprecatedMips64 in androidABIList:
             return androidABIList
 
         removed = []
         result = list(androidABIList)
         for depPackage in package.ResolvedBuildOrder:
             if depPackage.Name.lower() == "assimp":
-                if AndroidABIOption.ArmeAbi in androidABIList:
-                    result.remove(AndroidABIOption.ArmeAbi)
-                    removed.append(AndroidABIOption.ArmeAbi)
-                if AndroidABIOption.Mips in androidABIList:
-                    result.remove(AndroidABIOption.Mips)
-                    removed.append(AndroidABIOption.Mips)
-                if AndroidABIOption.Mips64 in androidABIList:
-                    result.remove(AndroidABIOption.Mips64)
-                    removed.append(AndroidABIOption.Mips64)
+                if AndroidABIOption.DeprecatedArmeAbi in androidABIList:
+                    result.remove(AndroidABIOption.DeprecatedArmeAbi)
+                    removed.append(AndroidABIOption.DeprecatedArmeAbi)
+                if AndroidABIOption.DeprecatedMips in androidABIList:
+                    result.remove(AndroidABIOption.DeprecatedMips)
+                    removed.append(AndroidABIOption.DeprecatedMips)
+                if AndroidABIOption.DeprecatedMips64 in androidABIList:
+                    result.remove(AndroidABIOption.DeprecatedMips64)
+                    removed.append(AndroidABIOption.DeprecatedMips64)
 
         # If all would be removed by this patch, dont remove anything and let the checker catch incompatibility issue so its reported
         if len(result) <= 0:
@@ -389,16 +435,40 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
 
 
     def __CreateGradleAndroidABIList(self, androidABIList: List[str]) -> str:
-        result = ["'%s'" % (abi) for abi in androidABIList]
+        result = ["'{0}'".format(abi) for abi in androidABIList]
         return ", ".join(result)
 
 
-    def __FindAssimpLib(self, package: Package) -> str:
+    def __AddCMakeLibs(self, package: Package) -> List[AndroidCMakeLib]:
+        result = []   # type: List[AndroidCMakeLib]
         for depPackage in package.ResolvedBuildOrder:
-            if depPackage.Name.lower() == 'assimp':
-                return "assimp"
+            recipe = depPackage.ResolvedDirectExperimentalRecipe
+            addCommand = self.__TryAddAsCMakeLib(recipe, depPackage)
+            if addCommand is not None:
+                result.append(addCommand)
+        return result
 
-        return ""
+
+    def __TryAddAsCMakeLib(self, recipe: Optional[PackageExperimentalRecipe], package: Package) -> Optional[AndroidCMakeLib]:
+        if recipe is None or recipe.ResolvedInstallPath is None or recipe.Pipeline is None:
+            return None
+        if not PackageRecipeUtil.CommandListContainsBuildCMake(recipe.Pipeline.CommandList):
+            return None
+
+        path = "{0}".format(recipe.ResolvedInstallPath)
+        staticLibs = [] # type: List[AndroidCMakeLibRecord]
+        if recipe.ValidateInstallation is not None and recipe.ValidateInstallation.CommandList is not None:
+            for command in recipe.ValidateInstallation.CommandList:
+                if command.CommandType == BuildRecipeValidateCommand.AddLib:
+                    commandEx = cast(XmlRecipeValidateCommandAddLib, command)
+                    libName = LibUtil.ToUnixLibName(IOUtil.GetFileName(commandEx.Name))
+                    libPath = IOUtil.Join(path, "${ANDROID_ABI}")
+                    libPath = IOUtil.Join(libPath, commandEx.Name)
+                    staticLibs.append(AndroidCMakeLibRecord(libName, libPath))
+#                elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
+#                    dynamicLibs.append(LibUtil.ToUnixLibName(IOUtil.GetFileName(command.Name)))
+
+        return AndroidCMakeLib(path, staticLibs)
 
 
 class GeneratorAndroidGradleCMakeUtil(object):

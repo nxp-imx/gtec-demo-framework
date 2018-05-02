@@ -53,7 +53,7 @@ struct android_app;
 void android_main(android_app* state)
 {
   // Prevent this method from being stripped
-  app_dummy();
+  // app_dummy();
 
   if( state == nullptr )
   {

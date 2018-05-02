@@ -30,7 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <Shared/FractalShader/JuliaHelper.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector4.hpp>
@@ -44,8 +44,9 @@
 
 namespace Fsl
 {
-  JuliaHelper::JuliaHelper(const Config& config, const ServiceProvider& serviceProvider)
+  JuliaHelper::JuliaHelper(const BasicConfig& config, const AnimationMode animationMode, const ServiceProvider& serviceProvider, const bool allowBanner)
     : m_config(config)
+    , m_animationMode(animationMode)
     , m_basic2D(serviceProvider.Get<IGraphicsService>()->GetBasic2D())
     , m_nativeBatch2D(serviceProvider.Get<IGraphicsService>()->GetNativeBatch2D())
     , m_atlasTexBanner()
@@ -55,21 +56,23 @@ namespace Fsl
     , m_location()
     , m_angle(0.0f)
   {
-    const std::shared_ptr<IContentManager> contentManager = serviceProvider.Get<IContentManager>();
-    { // Get the banner atlas texture
-      MainAtlas textureAtlas;
-      AtlasTextureInfo texInfo = TextureAtlasHelper::GetAtlasTextureInfo(textureAtlas, "Banner_Julia");
-      Bitmap bitmap;
-      contentManager->Read(bitmap, textureAtlas.GetName(), PixelFormat::R8G8B8A8_UNORM);
-      Texture2D texAtlas(serviceProvider.Get<IGraphicsService>()->GetNativeGraphics(), bitmap, Texture2DFilterHint::Smooth);
-      m_atlasTexBanner.Reset(texAtlas, texInfo);
+    if (allowBanner)
+    {
+      const std::shared_ptr<IContentManager> contentManager = serviceProvider.Get<IContentManager>();
+      { // Get the banner atlas texture
+        MainAtlas textureAtlas;
+        AtlasTextureInfo texInfo = TextureAtlasHelper::GetAtlasTextureInfo(textureAtlas, "Banner_Julia");
+        Bitmap bitmap;
+        contentManager->Read(bitmap, textureAtlas.GetName(), PixelFormat::R8G8B8A8_UNORM);
+        Texture2D texAtlas(serviceProvider.Get<IGraphicsService>()->GetNativeGraphics(), bitmap, Texture2DFilterHint::Smooth);
+        m_atlasTexBanner.Reset(texAtlas, texInfo);
+      }
     }
-
   }
 
   void JuliaHelper::Update(const DemoTime& demoTime)
   {
-    switch (m_config.TheAnimationMode)
+    switch (m_animationMode)
     {
     case AnimationMode::ConstantLoad:
       UpdateConstantLoad(demoTime);
@@ -269,9 +272,12 @@ namespace Fsl
 
   void JuliaHelper::Draw(const Point2& screenResolution)
   {
-    m_nativeBatch2D->Begin();
-    m_nativeBatch2D->Draw(m_atlasTexBanner, Vector2(), Color::White());
-    m_nativeBatch2D->End();
+    if (m_atlasTexBanner.IsValid())
+    {
+      m_nativeBatch2D->Begin();
+      m_nativeBatch2D->Draw(m_atlasTexBanner, Vector2(), Color::White());
+      m_nativeBatch2D->End();
+    }
 
     if (m_config.Show)
     {

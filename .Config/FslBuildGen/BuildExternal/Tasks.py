@@ -32,8 +32,10 @@
 #****************************************************************************************************************************************************
 
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
+import os
 import subprocess
 import time
 import urllib.request
@@ -41,20 +43,25 @@ import urllib.parse
 import urllib.error
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
+from FslBuildGen.DataTypes import BuildPlatformType
+from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
 from FslBuildGen.BuildExternal.FileUnpacker import FileUnpack
 from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import CMakeTargetType
 from FslBuildGen.DataTypes import BuildThreads
-from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
+#from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.PackageToolFinder import PackageToolFinder
+from FslBuildGen.PlatformUtil import PlatformUtil
 
 
 class BasicTask(object):
     def __init__(self, generatorContext: GeneratorContext) -> None:
-        super(BasicTask, self).__init__()
+        super().__init__()
         self.Context = generatorContext
         self.BasicConfig = generatorContext.BasicConfig
+        #self._IsAndroid = generatorContext.PlatformName == PlatformNameString.ANDROID
 
     def LogPrint(self, message: str) -> None:
         self.BasicConfig.LogPrint(message)
@@ -70,7 +77,7 @@ class BasicTask(object):
 
 class DownloadTask(BasicTask):
     #def __init__(self, generatorContext: GeneratorContext) -> None:
-    #    super(DownloadTask, self).__init__(generatorContext)
+    #    super().__init__(generatorContext)
 
     @staticmethod
     def __DownloadReport(fnLogPrint: Callable[[str], None], startTime: float, shortFileName: str,
@@ -103,20 +110,17 @@ class DownloadTask(BasicTask):
 
 class GitBaseTask(BasicTask):
     def __init__(self, generatorContext: GeneratorContext) -> None:
-        super(GitBaseTask, self).__init__(generatorContext)
+        super().__init__(generatorContext)
         self.__ConfigureForPlatform(generatorContext)
 
 
     def __ConfigureForPlatform(self, generatorContext: GeneratorContext) -> None:
-        if generatorContext.Platform.Name == PackageConfig.PlatformNameString.WINDOWS:
-            self.GitCommand = 'git.exe'
-        else:
-            self.GitCommand = 'git'
+        self.GitCommand = PlatformUtil.GetExecutableName('git', generatorContext.Platform.Name)
 
 
 class GitCloneTask(GitBaseTask):
     def __init__(self, generatorContext: GeneratorContext) -> None:
-        super(GitCloneTask, self).__init__(generatorContext)
+        super().__init__(generatorContext)
 
 
     def RunGitClone(self, sourcePath: str, branch: str, targetPath: str) -> None:
@@ -161,13 +165,14 @@ class GitCloneTask(GitBaseTask):
 
 class GitApplyTask(GitBaseTask):
     def __init__(self, generatorContext: GeneratorContext) -> None:
-        super(GitApplyTask, self).__init__(generatorContext)
+        super().__init__(generatorContext)
 
 
     def RunGitApply(self, sourcePatchFile: str, targetPath: str) -> None:
         self.LogPrint("Running git apply {0} in {1}".format(sourcePatchFile, targetPath))
-
         buildCommand = [self.GitCommand, 'apply', sourcePatchFile, "--whitespace=fix"]
+        if self.BasicConfig.Verbosity > 0:
+            buildCommand.append("-v")
         result = subprocess.call(buildCommand, cwd=targetPath)
         if result != 0:
             raise Exception("git apply failed {0}".format(buildCommand))
@@ -175,7 +180,7 @@ class GitApplyTask(GitBaseTask):
 
 class UnpackAndRenameTask(BasicTask):
     #def __init__(self, generatorContext: GeneratorContext) -> None:
-    #    super(UnpackAndRenameTask, self).__init__(generatorContext)
+    #    super().__init__(generatorContext)
 
     def RunUnpack(self, packedFilePath: str, dstPath: str) -> None:
         if not IOUtil.IsDirectory(dstPath):
@@ -190,28 +195,63 @@ class UnpackAndRenameTask(BasicTask):
 
 class CMakeBuilder(object):
     def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
-        super(CMakeBuilder, self).__init__()
+        super().__init__()
         self.Context = generatorContext
         self.BasicConfig = generatorContext.BasicConfig
         # Builders like ninja and make only contains a single configuration
         self.IsSingleConfiguration = False
 #        #self.__ConfigureForPlatform(generatorContext)
         self.BuilderThreadArguments = [] # type: List[str]
-        PlatformBuildUtil.AddBuildThreads(generatorContext.Log, self.BuilderThreadArguments, generatorContext.Platform.Name, buildThreads)
+        PlatformBuildUtil.AddBuildThreads(generatorContext.Log, self.BuilderThreadArguments, generatorContext.PlatformName, buildThreads, True)
 
 
-    def Execute(self, path: str, target: int, cmakeProjectName: str, configuration: int) -> None:
+    def Execute(self, toolFinder: PackageToolFinder, path: str, target: int, cmakeProjectName: str, configuration: int, buildEnv: Dict[str,str]) -> None:
         pass
+
+class CMakeBuilderDummy(CMakeBuilder):
+    def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
+        super().__init__(generatorContext, buildThreads)
+        self.IsSingleConfiguration = False
+    def Execute(self, toolFinder: PackageToolFinder, path: str, target: int, cmakeProjectName: str, configuration: int, buildEnv: Dict[str,str]) -> None:
+        raise Exception("This builder's Execute method is not supposed to be called")
+
+
+class CMakeBuilderNinja(CMakeBuilder):
+    def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
+        super().__init__(generatorContext, buildThreads)
+        self.IsSingleConfiguration = True
+        self.__CommandName = PlatformUtil.GetPlatformDependentExecuteableName("ninja", PlatformUtil.DetectBuildPlatformType())
+
+    def Execute(self, toolFinder: PackageToolFinder, path: str, target: int, cmakeProjectName: str, configuration: int, buildEnv: Dict[str,str]) -> None:
+        projectFile = "rules.ninja"
+
+        toolPackage = toolFinder.GetToolPackageByToolName('ninja')
+        commandName = IOUtil.Join(toolPackage.AbsoluteToolPath, self.__CommandName)
+
+        self.BasicConfig.LogPrint("* Running ninja at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
+        buildCommand = [commandName]
+        if target == CMakeTargetType.Install:
+            buildCommand.append('install')
+
+        buildCommand += self.BuilderThreadArguments
+
+        try:
+            result = subprocess.call(buildCommand, cwd=path, env=buildEnv)
+            if result != 0:
+                raise Exception("ninja failed with {0} command {1}".format(result, buildCommand))
+        except Exception:
+            self.BasicConfig.LogPrint("* ninja failed '{0}'".format(buildCommand))
+            raise
 
 
 class CMakeBuilderMake(CMakeBuilder):
     def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
-        super(CMakeBuilderMake, self).__init__(generatorContext, buildThreads)
+        super().__init__(generatorContext, buildThreads)
         # The cmake make files only support one configuration
         self.IsSingleConfiguration = True
 
 
-    def Execute(self, path: str, target: int, cmakeProjectName: str, configuration: int) -> None:
+    def Execute(self, toolFinder: PackageToolFinder, path: str, target: int, cmakeProjectName: str, configuration: int, buildEnv: Dict[str,str]) -> None:
         projectFile = "Makefile"
 
         self.BasicConfig.LogPrint("* Running make at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, BuildVariantConfig.ToString(configuration)))
@@ -219,27 +259,35 @@ class CMakeBuilderMake(CMakeBuilder):
         buildCommand += self.BuilderThreadArguments
         if target == CMakeTargetType.Install:
             buildCommand.append('install')
-        result = subprocess.call(buildCommand, cwd=path)
-        if result != 0:
-            raise Exception("make failed {0}".format(buildCommand))
+        try:
+            result = subprocess.call(buildCommand, cwd=path, env=buildEnv)
+            if result != 0:
+                raise Exception("make failed {0}".format(buildCommand))
+        except Exception:
+            self.BasicConfig.LogPrint("* make failed '{0}'".format(buildCommand))
+            raise
 
 
 class CMakeBuilderMSBuild(CMakeBuilder):
     #def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
-    #    super(CMakeBuilderMSBuild, self).__init__(generatorContext, buildThreads)
+    #    super().__init__(generatorContext, buildThreads)
 
     # msbuild INSTALL.vcxproj /p:Configuration=Debug
     # msbuild INSTALL.vcxproj /p:Configuration=Release
-    def Execute(self, path: str, target: int, cmakeProjectName: str, configuration: int) -> None:
+    def Execute(self, toolFinder: PackageToolFinder, path: str, target: int, cmakeProjectName: str, configuration: int, buildEnv: Dict[str,str]) -> None:
         projectFile = self.__GetMSBuildFilename(target, cmakeProjectName)
         configurationString = self.__GetMSBuildBuildVariantConfigString(configuration)
         self.BasicConfig.LogPrint("* Running msbuild at '{0}' for project '{1}' and configuration '{2}'".format(path, projectFile, configurationString))
         configurationString = "/p:Configuration={0}".format(configurationString)
         buildCommand = ['msbuild.exe', projectFile, configurationString]
         buildCommand += self.BuilderThreadArguments
-        result = subprocess.call(buildCommand, cwd=path)
-        if result != 0:
-            raise Exception("msbuild failed {0}".format(buildCommand))
+        try:
+            result = subprocess.call(buildCommand, cwd=path, env=buildEnv)
+            if result != 0:
+                raise Exception("msbuild failed {0}".format(buildCommand))
+        except Exception:
+            self.BasicConfig.LogPrint("* msbuild failed '{0}'".format(buildCommand))
+            raise
 
 
     def __GetMSBuildFilename(self, target: int, cmakeProjectName: str) -> str:
@@ -260,13 +308,15 @@ class CMakeBuilderMSBuild(CMakeBuilder):
 
 class CMakeAndBuildTask(BasicTask):
     def __init__(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
-        super(CMakeAndBuildTask, self).__init__(generatorContext)
+        super().__init__(generatorContext)
         self.__ConfigureForPlatform(generatorContext, buildThreads)
 
     # cmake -G "Visual Studio 14 2015 Win64"
     # -DCMAKE_INSTALL_PREFIX="e:\Work\Down\Windows\final\zlib-1.2.11"
-    def RunCMakeAndBuild(self, sourcePath: str, installPath: str, tempBuildPath: str, target: int, cmakeProjectName: str, configurationList: List[int], cmakeOptionList: List[str]) -> None:
-        if IOUtil.IsDirectory(installPath):
+    def RunCMakeAndBuild(self, toolFinder: PackageToolFinder, sourcePath: str, installPath: str, tempBuildPath: str, target: int,
+                         cmakeProjectName: str, configurationList: List[int], cmakeOptionList: List[str],
+                         allowSkip: bool) -> None:
+        if allowSkip and IOUtil.IsDirectory(installPath):
             self.LogPrint("Running cmake and build on source '{0}' and installing to '{1}' was skipped since install directory exist.".format(sourcePath, installPath))
             return
 
@@ -274,15 +324,14 @@ class CMakeAndBuildTask(BasicTask):
         try:
             self.CreateDirectory(tempBuildPath)
 
-            if not self.Builder.IsSingleConfiguration:
-                self.RunCMake(tempBuildPath, sourcePath, installPath, cmakeOptionList)
+            # Add platform specific commands
+            if len(self.CMakeArguments) > 0:
+                cmakeOptionList += self.CMakeArguments
 
-                for config in configurationList:
-                    self.Builder.Execute(tempBuildPath, target, cmakeProjectName, config)
-            else:
-                for config in configurationList:
-                    self.RunCMake(tempBuildPath, sourcePath, installPath, cmakeOptionList, config)
-                    self.Builder.Execute(tempBuildPath, target, cmakeProjectName, config)
+            buildEnv = os.environ.copy()  # type: Dict[str, str]
+            self.__ApplyPath(buildEnv, toolFinder.ToolPaths)
+
+            self.__DoBuildNow(toolFinder, sourcePath, installPath, tempBuildPath, target, cmakeProjectName, configurationList, cmakeOptionList, buildEnv)
         except Exception:
             # A error occurred remove the install dir
             self.LogPrint("* A error occurred removing '{0}' to be safe.".format(installPath))
@@ -290,21 +339,49 @@ class CMakeAndBuildTask(BasicTask):
             raise
 
 
-    def RunCMake(self, path: str, sourcePath: str, cmakeInstallPrefix: str, cmakeOptionList: List[str], buildVariantConfig: Optional[int] = None) -> None:
+    def __DoBuildNow(self, toolFinder: PackageToolFinder, sourcePath: str, installPath: str, tempBuildPath: str, target: int,
+                      cmakeProjectName: str, configurationList: List[int], cmakeOptionList: List[str],
+                      buildEnv: Dict[str, str]) -> None:
+
+        if not self.Builder.IsSingleConfiguration:
+            self.RunCMake(tempBuildPath, sourcePath, installPath, cmakeOptionList, buildEnv)
+
+            for config in configurationList:
+                self.Builder.Execute(toolFinder, tempBuildPath, target, cmakeProjectName, config, buildEnv)
+        else:
+            for config in configurationList:
+                self.RunCMake(tempBuildPath, sourcePath, installPath, cmakeOptionList, buildEnv, config)
+                self.Builder.Execute(toolFinder, tempBuildPath, target, cmakeProjectName, config, buildEnv)
+
+
+    def RunCMake(self, path: str, sourcePath: str, cmakeInstallPrefix: str, cmakeOptionList: List[str],
+                 buildEnv: Dict[str, str], buildVariantConfig: Optional[int] = None) -> None:
         defineCMakeInstallPrefix = "-DCMAKE_INSTALL_PREFIX={0}".format(cmakeInstallPrefix)
 
         defineBuildType = self.__TryGetBuildTypeString(buildVariantConfig)
 
         self.LogPrint("* Running cmake at '{0}' for source '{1}' with prefix {2} and options {3}".format(path, sourcePath, defineCMakeInstallPrefix, cmakeOptionList))
-        buildCommand = [self.CMakeCommand, '-G', self.CMakeGeneratorName, defineCMakeInstallPrefix, sourcePath]
+        buildCommand = [self.CMakeCommand, '-G', self.CMakeFinalGeneratorName, defineCMakeInstallPrefix, sourcePath]
         if not defineBuildType is None:
             buildCommand.append("-D{0}".format(defineBuildType))
 
-        if cmakeOptionList != None:
+        if len(cmakeOptionList) > 0:
             buildCommand += cmakeOptionList
-        result = subprocess.call(buildCommand, cwd=path)
+
+        result = subprocess.call(buildCommand, cwd=path, env=buildEnv)
         if result != 0:
             raise Exception("CMake failed {0}".format(buildCommand))
+
+    #def __AddToolDependencies()
+
+    def __ApplyPath(self, env: Dict[str, str], paths: List[str]) -> None:
+        if len(paths) <= 0:
+            return
+        res = ";{0}".format(";".join(paths))
+        if 'PATH' in env:
+            env['PATH'] += res
+        else:
+            env['PATH'] = res
 
 
     def __TryGetBuildTypeString(self, buildVariantConfig: Optional[int]) -> Optional[str]:
@@ -318,7 +395,9 @@ class CMakeAndBuildTask(BasicTask):
         self.CMakeCommand = CMakeTypes.DetermineCMakeCommand(generatorContext.Platform.Name)
         self.CMakeGeneratorName = CMakeTypes.DetermineCMakeGenerator(generatorContext.Platform)
         self.CompilerShortId = CMakeTypes.GetCompilerShortIdFromGeneratorName(self.CMakeGeneratorName)
+        self.CMakeArguments = CMakeTypes.DeterminePlatformArguments(generatorContext.Platform.Name)
         self.Builder = self.__DetermineBuilder(self.CMakeGeneratorName, generatorContext, buildThreads)
+        self.CMakeFinalGeneratorName = CMakeTypes.DetermineFinalCMakeGenerator(self.CMakeGeneratorName)
 
 
     def __DetermineBuilder(self, generatorName: str, generatorContext: GeneratorContext, buildThreads: int) -> CMakeBuilder:
@@ -326,4 +405,9 @@ class CMakeAndBuildTask(BasicTask):
             return CMakeBuilderMake(generatorContext, buildThreads)
         elif generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2017_X64:
             return CMakeBuilderMSBuild(generatorContext, buildThreads)
+        elif generatorName == CMakeTypes.CMakeGeneratorName.Android:
+            if PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows:
+                return CMakeBuilderNinja(generatorContext, buildThreads)
+            else:
+                return CMakeBuilderMake(generatorContext, buildThreads)
         raise Exception("No Builder defined for the cmake generator '{0}' on platform '{1}'".format(generatorName, generatorContext.PlatformName))

@@ -48,8 +48,8 @@ namespace Fsl
 
     LabelBase::LabelBase(const std::shared_ptr<WindowContext>& context)
       : BaseWindow(context)
-      , m_content()
       , m_font(context->DefaultFont)
+      , m_fontColor(Color::White())
     {
       Enable(WindowFlags(WindowFlags::DrawEnabled));
     }
@@ -67,12 +67,23 @@ namespace Fsl
       }
     }
 
+    void LabelBase::SetFontColor(const Color& color)
+    {
+      if (color == m_fontColor)
+        return;
+
+      m_fontColor = color;
+      //PropertyUpdated(PropertyType::Other);
+    }
+
+
 
     void LabelBase::WinDraw(const UIDrawContext& context)
     {
       BaseWindow::WinDraw(context);
 
-      if (m_content.size() == 0)
+      const auto content = DoGetContent();
+      if (content.empty())
         return;
 
       const auto batch = GetContext()->Batch2D;
@@ -80,17 +91,7 @@ namespace Fsl
       const auto pFont = m_font.get();
       assert(pFont != nullptr);
       batch->ChangeTo(BlendState::AlphaBlend);
-      batch->DrawString(pFont->GetAtlasTexture(), pFont->GetAtlasBitmapFont(), m_content, context.TargetRect.TopLeft(), Color::White());
-    }
-
-
-    void LabelBase::DoSetContent(const std::string& value)
-    {
-      if (value != m_content)
-      {
-        m_content = value;
-        PropertyUpdated(PropertyType::Content);
-      }
+      batch->DrawString(pFont->GetAtlasTexture(), pFont->GetAtlasBitmapFont(), content, context.TargetRect.TopLeft(), m_fontColor);
     }
 
 
@@ -102,8 +103,9 @@ namespace Fsl
 
     Vector2 LabelBase::MeasureOverride(const Vector2& availableSize)
     {
+      const auto content = DoGetContent();
       auto fontInfo = m_font->GetAtlasBitmapFont();
-      auto measured = fontInfo.MeasureString(m_content.c_str(), 0, m_content.size());
+      auto measured = fontInfo.MeasureString(content.c_str(), 0, content.size());
       return Vector2(measured.X, fontInfo.LineSpacing());
     }
 

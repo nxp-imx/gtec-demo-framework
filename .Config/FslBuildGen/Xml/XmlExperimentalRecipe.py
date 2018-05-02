@@ -46,23 +46,24 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 #from FslBuildGen.Xml.XmlBase2 import XmlBase2
 #from FslBuildGen import PackageConfig
 
-g_validJoinCommands = ["Copy", "Unpack", "GitApply"]
+g_validJoinCommands = ["Copy", "Unpack", "GitApply", "Delete"]
 g_validFetchCommands = ["GitClone", "Download", "Source"]
-g_validCommands = ["Unpack", "CMakeBuild"]
-g_validValidateCommands = ["EnvironmentVariable", "Path", "FindFileInPath", "AddHeaders", "AddLib", "AddDLL"]
+g_validCommands = ["Unpack", "CMakeBuild", "Combine", "Copy"]
+g_validValidateCommands = ["EnvironmentVariable", "Path", "FindFileInPath", "FindExecutableFileInPath", "AddHeaders", "AddLib", "AddDLL", "AddTool"]
+g_validValidCombineCommands = ["CMakeBuild"]
 
 g_CMAKE_PACKAGE_NAME = "Recipe.BuildTool.CMake"
 g_GIT_PACKAGE_NAME = "Recipe.BuildTool.Git"
 
 class XmlRecipeFileDependency(XmlBase):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeFileDependency, self).__init__(basicConfig, xmlElement)
+        super().__init__(basicConfig, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
 
 
 class XmlRecipeValidateCommand(XmlBase):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, commandName: str, commandType: int) -> None:
-        super(XmlRecipeValidateCommand, self).__init__(basicConfig, xmlElement)
+        super().__init__(basicConfig, xmlElement)
         self.CommandName = commandName
         self.CommandType = commandType
         self.Help = self._TryReadAttrib(xmlElement, 'Help')
@@ -70,7 +71,7 @@ class XmlRecipeValidateCommand(XmlBase):
 
 class XmlRecipeValidateCommandEnvironmentVariable(XmlRecipeValidateCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeValidateCommandEnvironmentVariable, self).__init__(basicConfig, xmlElement, "EnvironmentVariable", BuildRecipeValidateCommand.EnvironmentVariable)
+        super().__init__(basicConfig, xmlElement, "EnvironmentVariable", BuildRecipeValidateCommand.EnvironmentVariable)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
         method = self._ReadAttrib(xmlElement, 'Method')
         self.AllowEndSlash = self._ReadBoolAttrib(xmlElement, 'AllowEndSlash', False)  # type: bool
@@ -80,7 +81,7 @@ class XmlRecipeValidateCommandEnvironmentVariable(XmlRecipeValidateCommand):
 
 class XmlRecipeValidateCommandPath(XmlRecipeValidateCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeValidateCommandPath, self).__init__(basicConfig, xmlElement, "Path", BuildRecipeValidateCommand.Path)
+        super().__init__(basicConfig, xmlElement, "Path", BuildRecipeValidateCommand.Path)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         method = self._ReadAttrib(xmlElement, 'Method')
 
@@ -92,9 +93,28 @@ class XmlRecipeValidateCommandPath(XmlRecipeValidateCommand):
             raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
 
 
+
 class XmlRecipeValidateCommandFindFileInPath(XmlRecipeValidateCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeValidateCommandFindFileInPath, self).__init__(basicConfig, xmlElement, "FindFileInPath", BuildRecipeValidateCommand.FindFileInPath)
+        super().__init__(basicConfig, xmlElement, "FindFileInPath", BuildRecipeValidateCommand.FindFileInPath)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self.ExpectedPath = self._TryReadAttrib(xmlElement, 'ExpectedPath')
+
+        if '\\' in self.Name or '/' in self.Name:
+            raise Exception("A filename can not contain backslash '\\' or slash '/': '{0}'".format(self.Name))
+
+        if not self.ExpectedPath is None:
+            if '\\' in self.ExpectedPath:
+                raise Exception("A path can not contain backslash '\\': '{0}'".format(self.ExpectedPath))
+            if self.ExpectedPath.startswith('/'):
+                raise Exception("A path can not start with a slash '/': '{0}'".format(self.ExpectedPath))
+            if self.ExpectedPath.endswith('/'):
+                raise Exception("A path can not end with a slash '/': '{0}'".format(self.ExpectedPath))
+
+
+class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand):
+    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
+        super().__init__(basicConfig, xmlElement, "FindFileInPath", BuildRecipeValidateCommand.FindExecutableFileInPath)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.ExpectedPath = self._TryReadAttrib(xmlElement, 'ExpectedPath')
 
@@ -112,7 +132,7 @@ class XmlRecipeValidateCommandFindFileInPath(XmlRecipeValidateCommand):
 
 class XmlRecipeValidateCommandAddHeaders(XmlRecipeValidateCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeValidateCommandAddHeaders, self).__init__(basicConfig, xmlElement, "AddHeaders", BuildRecipeValidateCommand.AddHeaders)
+        super().__init__(basicConfig, xmlElement, "AddHeaders", BuildRecipeValidateCommand.AddHeaders)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
 
         if '\\' in self.Name:
@@ -123,7 +143,7 @@ class XmlRecipeValidateCommandAddHeaders(XmlRecipeValidateCommand):
 
 class XmlRecipeValidateCommandAddLib(XmlRecipeValidateCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeValidateCommandAddLib, self).__init__(basicConfig, xmlElement, "AddLib", BuildRecipeValidateCommand.AddLib)
+        super().__init__(basicConfig, xmlElement, "AddLib", BuildRecipeValidateCommand.AddLib)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type:str
         self.DebugName = self._ReadAttrib(xmlElement, 'DebugName', self.Name)  # type:str
 
@@ -139,7 +159,7 @@ class XmlRecipeValidateCommandAddLib(XmlRecipeValidateCommand):
 
 class XmlRecipeValidateCommandAddDLL(XmlRecipeValidateCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeValidateCommandAddDLL, self).__init__(basicConfig, xmlElement, "AddDLL", BuildRecipeValidateCommand.AddDLL)
+        super().__init__(basicConfig, xmlElement, "AddDLL", BuildRecipeValidateCommand.AddDLL)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type:str
         self.DebugName = self._ReadAttrib(xmlElement, 'DebugName', self.Name)  # type:str
 
@@ -153,9 +173,18 @@ class XmlRecipeValidateCommandAddDLL(XmlRecipeValidateCommand):
             raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
 
 
+class XmlRecipeValidateCommandAddTool(XmlRecipeValidateCommand):
+    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
+        super().__init__(basicConfig, xmlElement, "AddTool", BuildRecipeValidateCommand.AddTool)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type:str
+        if '\\' in self.Name:
+            raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
+        if self.Name.endswith('/'):
+            raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
+
 class XmlRecipeInstallation(XmlBase):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipeInstallation, self).__init__(basicConfig, xmlElement)
+        super().__init__(basicConfig, xmlElement)
         self.CommandList = self.__GetCommandList(basicConfig, xmlElement)
 
     def __GetCommandList(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> List[XmlRecipeValidateCommand]:
@@ -168,12 +197,16 @@ class XmlRecipeInstallation(XmlBase):
                     elements.append(XmlRecipeValidateCommandPath(basicConfig, child))
                 elif child.tag == 'FindFileInPath':
                     elements.append(XmlRecipeValidateCommandFindFileInPath(basicConfig, child))
+                elif child.tag == 'FindExecutableFileInPath':
+                    elements.append(XmlRecipeValidateCommandFindExecutableFileInPath(basicConfig, child))
                 elif child.tag == 'AddHeaders':
                     elements.append(XmlRecipeValidateCommandAddHeaders(basicConfig, child))
                 elif child.tag == 'AddLib':
                     elements.append(XmlRecipeValidateCommandAddLib(basicConfig, child))
                 elif child.tag == 'AddDLL':
                     elements.append(XmlRecipeValidateCommandAddDLL(basicConfig, child))
+                elif child.tag == 'AddTool':
+                    elements.append(XmlRecipeValidateCommandAddTool(basicConfig, child))
                 else:
                     raise Exception("Unknown validation command element '{0}' found. Valid commands: {1}".format(child.tag, g_validValidateCommands))
         return elements
@@ -181,43 +214,50 @@ class XmlRecipeInstallation(XmlBase):
 
 class XmlRecipePipelineBasicCommand(XmlBase):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, commandName: str, commandType: int, buildToolPackageName: Optional[str] = None) -> None:
-        super(XmlRecipePipelineBasicCommand, self).__init__(basicConfig, xmlElement)
+        super().__init__(basicConfig, xmlElement)
         self.CommandName = commandName  # type: str
         self.CommandType = commandType  # type: int
-        self.BuildToolPackageName = buildToolPackageName  # type: Optional[str]
+        self.BuildToolPackageNames = None if buildToolPackageName is None else [buildToolPackageName] # type: Optional[List[str]]
 
 
 class XmlRecipePipelineJoinCommand(XmlRecipePipelineBasicCommand):
     pass
     #def __init__(self, basicConfig, xmlElement: ET.Element, commandName, commandType, buildToolPackageName=None) -> None:
-    #    super(XmlRecipePipelineJoinCommand, self).__init__(basicConfig, xmlElement, commandName, commandType, buildToolPackageName)
+    #    super().__init__(basicConfig, xmlElement, commandName, commandType, buildToolPackageName)
 
 
 
 class XmlRecipePipelineJoinCommandCopy(XmlRecipePipelineJoinCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineJoinCommandCopy, self).__init__(basicConfig, xmlElement, "Copy", BuildRecipePipelineCommand.JoinCopy)
+        super().__init__(basicConfig, xmlElement, "Copy", BuildRecipePipelineCommand.JoinCopy)
         self.From = self._ReadAttrib(xmlElement, 'From')
         self.To = self._ReadAttrib(xmlElement, 'To')
+        self.Overwrite = self._ReadBoolAttrib(xmlElement, 'Overwrite', False)
+
+
+class XmlRecipePipelineJoinCommandDelete(XmlRecipePipelineJoinCommand):
+    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
+        super().__init__(basicConfig, xmlElement, "Delete", BuildRecipePipelineCommand.JoinDelete)
+        self.Path = self._ReadAttrib(xmlElement, 'Path')
 
 
 class XmlRecipePipelineJoinCommandUnpack(XmlRecipePipelineJoinCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineJoinCommandUnpack, self).__init__(basicConfig, xmlElement, "Unpack", BuildRecipePipelineCommand.JoinUnpack)
+        super().__init__(basicConfig, xmlElement, "Unpack", BuildRecipePipelineCommand.JoinUnpack)
         self.From = self._ReadAttrib(xmlElement, 'From')
         self.To = self._ReadAttrib(xmlElement, 'To', '')
 
 
 class XmlRecipePipelineJoinCommandGitApply(XmlRecipePipelineJoinCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineJoinCommandGitApply, self).__init__(basicConfig, xmlElement, "GitApply", BuildRecipePipelineCommand.JoinGitApply, buildToolPackageName=g_GIT_PACKAGE_NAME)
+        super().__init__(basicConfig, xmlElement, "GitApply", BuildRecipePipelineCommand.JoinGitApply, buildToolPackageName=g_GIT_PACKAGE_NAME)
         self.From = self._ReadAttrib(xmlElement, 'From')
 
 
 class XmlRecipePipelineCommand(XmlRecipePipelineBasicCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, commandName: str, commandType: int,
                  outputPathAllowed: bool = True, buildToolPackageName: Optional[str] = None, allowJoinCommandList: bool = True) -> None:
-        super(XmlRecipePipelineCommand, self).__init__(basicConfig, xmlElement, commandName, commandType, buildToolPackageName)
+        super().__init__(basicConfig, xmlElement, commandName, commandType, buildToolPackageName)
         self.JoinCommandList = self.__GetJoinCommandList(basicConfig, xmlElement) if allowJoinCommandList else []
         self.OutputPath = None  # type: Optional[str]
         if outputPathAllowed:
@@ -234,6 +274,8 @@ class XmlRecipePipelineCommand(XmlRecipePipelineBasicCommand):
                     elements.append(XmlRecipePipelineJoinCommandUnpack(basicConfig, child))
                 elif child.tag == 'GitApply':
                     elements.append(XmlRecipePipelineJoinCommandGitApply(basicConfig, child))
+                elif child.tag == 'Delete':
+                    elements.append(XmlRecipePipelineJoinCommandDelete(basicConfig, child))
                 else:
                     raise Exception("Unknown join command element '{0}' found in command {1}. Valid join commands: {2}".format(child.tag, self.CommandName, g_validJoinCommands))
 
@@ -248,13 +290,13 @@ class XmlRecipePipelineFetchCommand(XmlRecipePipelineCommand):
                  outputPathAllowed: bool = True,
                  buildToolPackageName: Optional[str] = None,
                  allowJoinCommandList: bool = True) -> None:
-        super(XmlRecipePipelineFetchCommand, self).__init__(basicConfig, xmlElement, commandName, commandType, outputPathAllowed, buildToolPackageName, allowJoinCommandList)
+        super().__init__(basicConfig, xmlElement, commandName, commandType, outputPathAllowed, buildToolPackageName, allowJoinCommandList)
         self.Hash = None  # type: Optional[str]
 
 
 class XmlRecipePipelineFetchCommandGitClone(XmlRecipePipelineFetchCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineFetchCommandGitClone, self).__init__(basicConfig, xmlElement, "GitClone", BuildRecipePipelineCommand.GitClone, buildToolPackageName=g_GIT_PACKAGE_NAME, allowJoinCommandList=False)
+        super().__init__(basicConfig, xmlElement, "GitClone", BuildRecipePipelineCommand.GitClone, buildToolPackageName=g_GIT_PACKAGE_NAME, allowJoinCommandList=False)
         self.URL = self._ReadAttrib(xmlElement, 'URL')
         self.Tag = self._ReadAttrib(xmlElement, 'Tag', '')
         self.Hash = self._TryReadAttrib(xmlElement, 'Hash')
@@ -265,7 +307,7 @@ class XmlRecipePipelineFetchCommandGitClone(XmlRecipePipelineFetchCommand):
 
 class XmlRecipePipelineFetchCommandDownload(XmlRecipePipelineFetchCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineFetchCommandDownload, self).__init__(basicConfig, xmlElement, "Download", BuildRecipePipelineCommand.Download, allowJoinCommandList=False)
+        super().__init__(basicConfig, xmlElement, "Download", BuildRecipePipelineCommand.Download, allowJoinCommandList=False)
         self.URL = self._ReadAttrib(xmlElement, 'URL')
         self.To = self._TryReadAttrib(xmlElement, 'To')
         self.Hash = self._TryReadAttrib(xmlElement, 'Hash')
@@ -273,7 +315,7 @@ class XmlRecipePipelineFetchCommandDownload(XmlRecipePipelineFetchCommand):
 
 class XmlRecipePipelineFetchCommandSource(XmlRecipePipelineFetchCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineFetchCommandSource, self).__init__(basicConfig, xmlElement, "Source", BuildRecipePipelineCommand.Source, allowJoinCommandList=False)
+        super().__init__(basicConfig, xmlElement, "Source", BuildRecipePipelineCommand.Source, allowJoinCommandList=False)
 
 
 class XmlRecipePipelineBuildCommand(XmlRecipePipelineCommand):
@@ -282,13 +324,14 @@ class XmlRecipePipelineBuildCommand(XmlRecipePipelineCommand):
 
 class XmlRecipePipelineCommandUnpack(XmlRecipePipelineBuildCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineCommandUnpack, self).__init__(basicConfig, xmlElement, "Unpack", BuildRecipePipelineCommand.Unpack)
+        super().__init__(basicConfig, xmlElement, "Unpack", BuildRecipePipelineCommand.Unpack)
         self.File = self._ReadAttrib(xmlElement, 'File')
 
 
 class XmlRecipePipelineCommandCMakeBuild(XmlRecipePipelineBuildCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineCommandCMakeBuild, self).__init__(basicConfig, xmlElement, "CMakeBuild", BuildRecipePipelineCommand.CMakeBuild, False, buildToolPackageName=g_CMAKE_PACKAGE_NAME)
+        super().__init__(basicConfig, xmlElement, "CMakeBuild", BuildRecipePipelineCommand.CMakeBuild, False, buildToolPackageName=g_CMAKE_PACKAGE_NAME)
+        self.Source = self._TryReadAttrib(xmlElement, 'Source')
         self.Project = self._ReadAttrib(xmlElement, 'Project')
         target = self._ReadAttrib(xmlElement, 'Target')
         configuration = self._ReadAttrib(xmlElement, 'Configuration')
@@ -308,10 +351,39 @@ class XmlRecipePipelineCommandCMakeBuild(XmlRecipePipelineBuildCommand):
         return configurationList
 
 
-class XmlRecipePipelineCommandClone(XmlRecipePipelineBuildCommand):
+class XmlRecipePipelineCommandCombine(XmlRecipePipelineBuildCommand):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipelineCommandClone, self).__init__(basicConfig, xmlElement, "Clone", BuildRecipePipelineCommand.Clone)
+        super().__init__(basicConfig, xmlElement, "Combine", BuildRecipePipelineCommand.Combine, False, allowJoinCommandList=False)
+        self.OutputPath = self._TryReadAttrib(xmlElement, 'OutputPath')
+        self.CommandList = self.__GetCombineCommandList(basicConfig, xmlElement)
+        if len(self.CommandList) <= 0:
+            raise Exception("A Combine command must contain at least one commands")
+        self.BuildToolPackageNames = []
+        for command in self.CommandList:
+            if command.BuildToolPackageNames is not None:
+                for buildToolPackageName in command.BuildToolPackageNames:
+                    if not buildToolPackageName in self.BuildToolPackageNames:
+                        self.BuildToolPackageNames.append(buildToolPackageName)
 
+
+    def __GetCombineCommandList(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> List[XmlRecipePipelineBuildCommand]:
+        elements = []  # type: List[XmlRecipePipelineBuildCommand]
+        if xmlElement != None:
+            isFirstCommand = True
+            for child in xmlElement:
+                command = _TryAllocatePipelineCombineCommand(basicConfig, child)
+                if command is not None:
+                    elements.append(command)
+                else:
+                    if not child.tag in g_validValidCombineCommands:
+                        raise Exception("Unknown element '{0}' found in combine command list. Valid commands: {1}".format(child.tag, g_validValidCombineCommands))
+                isFirstCommand = False
+        return elements
+
+
+class XmlRecipePipelineCommandCopy(XmlRecipePipelineBuildCommand):
+    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
+        super().__init__(basicConfig, xmlElement, "Copy", BuildRecipePipelineCommand.Copy)
 
 
 def _TryAllocatePipelineFetchCommand(basicConfig: BasicConfig, xmlElement: ET.Element) -> Optional[XmlRecipePipelineFetchCommand]:
@@ -324,19 +396,27 @@ def _TryAllocatePipelineFetchCommand(basicConfig: BasicConfig, xmlElement: ET.El
     return None
 
 
-def _TryAllocatePippelineCommand(basicConfig: BasicConfig, xmlElement: ET.Element) -> Optional[XmlRecipePipelineBuildCommand]:
+def _TryAllocatePipelineCommand(basicConfig: BasicConfig, xmlElement: ET.Element) -> Optional[XmlRecipePipelineBuildCommand]:
     if xmlElement.tag == 'Unpack':
         return XmlRecipePipelineCommandUnpack(basicConfig, xmlElement)
     elif xmlElement.tag == 'CMakeBuild':
         return XmlRecipePipelineCommandCMakeBuild(basicConfig, xmlElement)
-    elif xmlElement.tag == 'Clone':
-        return XmlRecipePipelineCommandClone(basicConfig, xmlElement)
+    elif xmlElement.tag == 'Combine':
+        return XmlRecipePipelineCommandCombine(basicConfig, xmlElement)
+    elif xmlElement.tag == 'Copy':
+        return XmlRecipePipelineCommandCopy(basicConfig, xmlElement)
+    return None
+
+
+def _TryAllocatePipelineCombineCommand(basicConfig: BasicConfig, xmlElement: ET.Element) -> Optional[XmlRecipePipelineBuildCommand]:
+    if xmlElement.tag == 'CMakeBuild':
+        return XmlRecipePipelineCommandCMakeBuild(basicConfig, xmlElement)
     return None
 
 
 class XmlRecipePipeline(XmlBase):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlRecipePipeline, self).__init__(basicConfig, xmlElement)
+        super().__init__(basicConfig, xmlElement)
         #self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.CommandList = self.__GetCommandList(basicConfig, xmlElement)
 
@@ -346,7 +426,7 @@ class XmlRecipePipeline(XmlBase):
         if xmlElement != None:
             isFirstCommand = True
             for child in xmlElement:
-                command = _TryAllocatePippelineCommand(basicConfig, child) if not isFirstCommand else _TryAllocatePipelineFetchCommand(basicConfig, child)
+                command = _TryAllocatePipelineCommand(basicConfig, child) if not isFirstCommand else _TryAllocatePipelineFetchCommand(basicConfig, child)
                 if command is not None:
                     elements.append(command)
                 else:
@@ -356,7 +436,7 @@ class XmlRecipePipeline(XmlBase):
                         else:
                             raise Exception("Unknown element '{0}' found in pipeline command list, this should never happen".format(child.tag))
                     else:
-                        if child.tag in child.tag in g_validFetchCommands:
+                        if child.tag in g_validFetchCommands:
                             raise Exception("A pipeline can only start with a fetch element '{0}'".format(child.tag))
                         else:
                             raise Exception("Unknown element '{0}' found in pipeline command list. Valid commands: {1}".format(child.tag, g_validCommands))
@@ -366,7 +446,7 @@ class XmlRecipePipeline(XmlBase):
 
 class XmlExperimentalRecipe(XmlBase):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, defaultName: str) -> None:
-        super(XmlExperimentalRecipe, self).__init__(basicConfig, xmlElement)
+        super().__init__(basicConfig, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name', defaultName)
         self.Pipeline = self.__TryGetPipeline(xmlElement)
         self.ValidateInstallation = self.__TryGetValidateInstallation(basicConfig, xmlElement)

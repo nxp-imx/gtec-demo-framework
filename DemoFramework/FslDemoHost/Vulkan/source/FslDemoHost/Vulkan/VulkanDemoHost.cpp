@@ -31,7 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHost.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostOptionParser.hpp>
 #include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemFactory.hpp>

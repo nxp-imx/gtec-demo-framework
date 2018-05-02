@@ -50,7 +50,8 @@ namespace Fsl
         DrawEnabled = WindowFlags::DrawEnabled,
         InBatchPropertyUpdate = (0x01 << BitShiftBaseWindowFlags),
         InLayoutArrange = (0x02 << BitShiftBaseWindowFlags),
-        InLayoutMeasure = (0x04 << BitShiftBaseWindowFlags)
+        InLayoutMeasure = (0x04 << BitShiftBaseWindowFlags),
+        CachedEventReady = (0x08 << BitShiftBaseWindowFlags)
       };
 
       uint32_t Value;

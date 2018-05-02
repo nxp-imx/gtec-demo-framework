@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/NativeBatch2D.hpp>

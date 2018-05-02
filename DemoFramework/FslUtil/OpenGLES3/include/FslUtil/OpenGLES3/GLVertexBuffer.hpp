@@ -105,6 +105,13 @@ namespace Fsl
         Reset(pVertices, elementCount, usage);
       }
 
+      virtual void Reset() override
+      {
+        m_vertexElements.clear();
+        m_originalVertexElementCount = 0;
+        GLBuffer::Reset();
+      }
+
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer internally)
       void Reset(const void*const pVertices, const std::size_t elementCount, const VertexDeclaration& vertexDeclaration, const GLenum usage);

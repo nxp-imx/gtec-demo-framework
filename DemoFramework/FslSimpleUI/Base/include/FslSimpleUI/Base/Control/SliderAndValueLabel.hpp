@@ -76,6 +76,9 @@ namespace Fsl
 
     protected:
       virtual void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
+      virtual Vector2 MeasureOverride(const Vector2& availableSize) override;
+    private:
+      void UpdateLinkedContent();
       void FixLayout();
     };
   }

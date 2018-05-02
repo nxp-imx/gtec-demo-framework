@@ -80,7 +80,7 @@ namespace Fsl
 
       // Dynamically patch the fragment shader with the desired iteration count
       std::string fragmentShader = contentManager->ReadAllText(fragmentShaderFile);
-      StringUtil::Replace(fragmentShader, "##MAX_ITERATIONS##", ToString(cfg.Iterations));
+      StringUtil::Replace(fragmentShader, "##MAX_ITERATIONS##", ToString(cfg.IterationsM));
       m_program.Reset(contentManager->ReadAllText("Shader.vert"), fragmentShader);
     }
 

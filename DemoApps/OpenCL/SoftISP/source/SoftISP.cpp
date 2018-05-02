@@ -119,7 +119,7 @@ namespace Fsl
     , m_pixelValueB(0)
     , m_save(true)
   {
-  	
+
     auto optionParser = config.GetOptions<OptionParser>();
     m_denoiseEn = optionParser->GetDenoiseStatus();
     FSLLOG("Denoise status: " << m_denoiseEn);
@@ -282,23 +282,23 @@ namespace Fsl
     time = GetExecutionTime(hEvent);
     FSLLOG("Kernel execution time on GPU (kernel: debayer): " << time << " ms");
 
-	if(m_denoiseEn)
+    if(m_denoiseEn)
     {
-	  RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[7].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
-	  RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-	  time = GetExecutionTime(hEvent);
-	  FSLLOG("Kernel execution time on GPU (kernel: rgba2yuyv): " << time << " ms");
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[7].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      FSLLOG("Kernel execution time on GPU (kernel: rgba2yuyv): " << time << " ms");
 
       RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[8].Get(), 2, nullptr, globalWorkSizeDenoise, localWorkSize32, 0, nullptr, &hEvent));
-	  RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-	  time = GetExecutionTime(hEvent);
-	  FSLLOG("Kernel execution time on GPU (kernel: bilateral): " << time << " ms");
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      FSLLOG("Kernel execution time on GPU (kernel: bilateral): " << time << " ms");
 
-	  RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[9].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
-	  RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-	  time = GetExecutionTime(hEvent);
-	  FSLLOG("Kernel execution time on GPU (kernel: yuyv2rgba): " << time << " ms");
-	}
+      RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[9].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      FSLLOG("Kernel execution time on GPU (kernel: yuyv2rgba): " << time << " ms");
+    }
 
     if (m_save)
     {
@@ -319,12 +319,12 @@ namespace Fsl
       ConvertToRGBA(kernels[6], m_deviceImg[3], m_deviceImg[4], m_commandQueue, m_dst4.data());
       fileName = "3-Equalization.bmp";
       CopyToBMP(bitmap, fileName, m_dst4.data());
-	  if(m_denoiseEn)
-	  {
+      if(m_denoiseEn)
+      {
         RAPIDOPENCL_CHECK(clEnqueueReadBuffer(m_commandQueue.Get(), m_deviceImg[8].Get(), CL_FALSE, 0, sizeof(cl_char) * m_imgSize * 4, m_dst5.data(), 0, nullptr, nullptr));
         fileName = "4-RemoveNoise.bmp";
-	    CopyToBMP(bitmap, fileName, m_dst5.data());
-	  }
+        CopyToBMP(bitmap, fileName, m_dst5.data());
+      }
     }
   }
 
@@ -358,10 +358,10 @@ namespace Fsl
     m_deviceImg[4].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 4, m_dst4.data());
     if(m_denoiseEn)
     {
-	  m_deviceImg[5].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_YBuf.data());
-	  m_deviceImg[6].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 2, m_UVBuf.data());
-	  m_deviceImg[7].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_YBufOut.data());
-	  m_deviceImg[8].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 4, m_dst5.data());
+      m_deviceImg[5].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_YBuf.data());
+      m_deviceImg[6].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 2, m_UVBuf.data());
+      m_deviceImg[7].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size, m_YBufOut.data());
+      m_deviceImg[8].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_char) * size * 4, m_dst5.data());
     }
 
     m_pixelValue[0].Reset(context, defaultFlags | CL_MEM_READ_WRITE, sizeof(cl_int), &m_pixelValueR);

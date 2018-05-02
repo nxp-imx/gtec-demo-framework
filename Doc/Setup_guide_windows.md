@@ -1,6 +1,6 @@
 Prerequisites
 =============
-- [Visual Studio 2015](https://www.visualstudio.com/vs/community/)
+- [Visual Studio 2017](https://www.visualstudio.com/vs/community/)
   (community or better)
 - [Python 3.4+](https://www.python.org/ftp/python/3.6.2/python-3.6.2-amd64.exe)
   To be able run python scripts.
@@ -29,7 +29,6 @@ Simple setup
 ============
 1. Start a windows console (cmd.exe) in the DemoFramework folder
 2. Run the visual studio ```vcvarsall.bat x64``` to prepare your command line compiler environment for x64 compilation.
-   - For VS2015 its often located here: ```C:\Program Files(x86)\Microsoft Visual Studio\14.0\VC\vcvarsall.bat" x64```
    - For VS2017 its often located here: ```C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x64```
 3. Run the `prepare.bat` file located in the root of the framework folder to
    configure the necessary environment variables and paths.

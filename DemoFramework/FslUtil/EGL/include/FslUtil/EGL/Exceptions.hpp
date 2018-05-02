@@ -44,6 +44,7 @@ namespace Fsl
   public:
     explicit EGLGraphicsException(const std::string& str)
       : GraphicsException(str)
+      , m_error(0)
       , m_filename()
       , m_lineNumber(0)
     {

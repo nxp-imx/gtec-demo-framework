@@ -32,6 +32,7 @@
 package com.freescale.##PREFIXED_PROJECT_NAME_L##;
 
 import javax.microedition.khronos.opengles.GL10;
+import java.util.Arrays;
 
 import android.app.Application;
 import android.content.Context;
@@ -44,11 +45,14 @@ import android.graphics.Matrix;
 import android.opengl.GLUtils;
 import android.util.Log;
 import android.widget.Toast;
+import android.os.Build;
 
 public class DemoApplication extends Application {
     public void onCreate(){
+        super.onCreate();	
         Log.w("native-activity", "onCreate");
-
+        Log.w("native-activity", "Supported ABIS: " + Arrays.toString(Build.SUPPORTED_ABIS));
+        
         final PackageManager pm = getApplicationContext().getPackageManager();
         ApplicationInfo ai;
         try {

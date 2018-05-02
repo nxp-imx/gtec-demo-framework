@@ -14,7 +14,7 @@ SoftISP Roles:
  - Histogram Equalization
  - High-quality Demosaicing
  - High-quality Noise Reduction
- 
+
 Input Image:
  - Bayer format raw data with color filter array of BG/GR
  - Resolution: 1920x1080
@@ -25,7 +25,7 @@ Output Image:
  - "2-WhiteBalance.bmp": Input image -> Bad Pixel Correction -> White Balance -> Demosaicing
  - "3-Equalization.bmp": Input image -> Bad Pixel Correction -> Histogram Equalization -> Demosaicing
  - "4-RemoveNoise.bmp": Input image -> Bad Pixel Correction -> Histogram Equalization -> Demosaicing -> Noise Reduction
- 
+
 Inspired by:
  - http://ieeexplore.ieee.org/abstract/document/6419046/
  - https://courses.cs.washington.edu/courses/cse467/08au/labs/l5/whiteBalance.pdf

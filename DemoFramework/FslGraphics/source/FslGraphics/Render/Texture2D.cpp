@@ -38,25 +38,41 @@ namespace Fsl
   Texture2D::Texture2D()
     : m_native()
     , m_size()
+    , m_pixelFormat(PixelFormat::Undefined)
   {
   }
 
 
-  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint)
-    : m_native()
-    , m_size()
+  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap,
+                       const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    : Texture2D()
   {
-    Reset(nativeGraphics, bitmap, filterHint);
+    Reset(nativeGraphics, bitmap, filterHint, textureFlags);
   }
 
 
-  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint)
-    : m_native()
-    , m_size()
+  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap,
+                       const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    : Texture2D()
   {
-    Reset(nativeGraphics, bitmap, filterHint);
+    Reset(nativeGraphics, bitmap, filterHint, textureFlags);
   }
 
+
+  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& texture,
+                       const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    : Texture2D()
+  {
+    Reset(nativeGraphics, texture, filterHint, textureFlags);
+  }
+
+
+  Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture,
+    const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    : Texture2D()
+  {
+    Reset(nativeGraphics, texture, filterHint, textureFlags);
+  }
 
   Texture2D::~Texture2D()
   {
@@ -73,22 +89,12 @@ namespace Fsl
   {
     m_native.reset();
     m_size = Point2();
+    m_pixelFormat = PixelFormat::Undefined;
   }
 
 
-  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint)
-  {
-    Reset(nativeGraphics, bitmap, filterHint, TextureFlags());
-  }
-
-
-  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint)
-  {
-    Reset(nativeGraphics, bitmap, filterHint, TextureFlags());
-  }
-
-
-  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap,
+                        const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
   {
     RawBitmap rawBitmap;
     Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
@@ -96,7 +102,8 @@ namespace Fsl
   }
 
 
-  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap,
+                        const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
   {
     if (!nativeGraphics)
       throw std::invalid_argument("nativeGraphics can not be null");
@@ -109,8 +116,35 @@ namespace Fsl
 
     m_native = nativeGraphics->CreateTexture2D(bitmap, filterHint, textureFlags);
     m_size = Point2(bitmap.Width(), bitmap.Height());
+    m_pixelFormat = bitmap.GetPixelFormat();
   }
 
+
+  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& texture,
+                        const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  {
+    RawTexture rawTexture;
+    Texture::ScopedDirectAccess directAccess(texture, rawTexture);
+    Reset(nativeGraphics, rawTexture, filterHint, textureFlags);
+  }
+
+
+  void Texture2D::Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture,
+                        const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  {
+    if (!nativeGraphics)
+      throw std::invalid_argument("nativeGraphics can not be null");
+    if (!texture.IsValid())
+      throw std::invalid_argument("bitmap is invalid");
+    if (texture.GetExtent().Width < 1 || texture.GetExtent().Height < 1)
+      throw std::invalid_argument("bitmap size is invalid");
+
+    Reset();
+
+    m_native = nativeGraphics->CreateTexture2D(texture, filterHint, textureFlags);
+    m_size = Point2(texture.GetExtent().Width, texture.GetExtent().Height);
+    m_pixelFormat = texture.GetPixelFormat();
+  }
 
   //void Texture2D::SetData(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint)
   //{
@@ -139,6 +173,11 @@ namespace Fsl
   Point2 Texture2D::GetSize() const
   {
     return m_size;
+  }
+
+  PixelFormat Texture2D::GetPixelFormat() const
+  {
+    return m_pixelFormat;
   }
 
 

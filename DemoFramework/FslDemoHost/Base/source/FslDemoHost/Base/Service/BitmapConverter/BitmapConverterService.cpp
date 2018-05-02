@@ -36,12 +36,42 @@
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureUtil.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
 
 namespace Fsl
 {
+  namespace
+  {
+    bool TryConvertLibraries(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+      const std::deque<std::shared_ptr<IImageConverterLibraryService> >& converterLibraries)
+    {
+      for (auto& converter : converterLibraries)
+      {
+        if (converter->TryConvert(rBitmap, rBitmap, desiredPixelFormat, desiredOrigin))
+          return true;
+      }
+      return false;
+    }
+
+    bool TryConvertLibraries(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+      const std::deque<std::shared_ptr<IImageConverterLibraryService> >& converterLibraries)
+    {
+      for (auto& converter : converterLibraries)
+      {
+        if (converter->TryConvert(rTexture, rTexture, desiredPixelFormat, desiredOrigin))
+          return true;
+      }
+      return false;
+    }
+  }
+
+
   BitmapConverterService::BitmapConverterService(const ServiceProvider& serviceProvider)
     : ThreadLocalService(serviceProvider)
+    , m_converterLibraries()
   {
+    // Extract the converter libraries so we can use the available ones
+    serviceProvider.Get<IImageConverterLibraryService>(m_converterLibraries);
   }
 
 
@@ -52,7 +82,7 @@ namespace Fsl
 
   bool BitmapConverterService::TryConvert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin)
   {
-    if (!TryConvertPixelFormat(rBitmap, desiredPixelFormat))
+    if (!TryConvertLibraries(rBitmap, desiredPixelFormat, desiredOrigin, m_converterLibraries))
       return false;
 
     if (desiredOrigin != BitmapOrigin::Undefined && rBitmap.GetOrigin() != desiredOrigin)
@@ -66,56 +96,25 @@ namespace Fsl
   void BitmapConverterService::Convert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin)
   {
     if (!TryConvert(rBitmap, desiredPixelFormat, desiredOrigin))
-      throw GraphicsException("Unsupported pixel format");
+      throw GraphicsException("Unsupported pixel format or origin");
   }
 
 
   bool BitmapConverterService::TryConvert(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin)
   {
-    return TextureUtil::TryConvert(rTexture, desiredPixelFormat, desiredOrigin);
+    if (!TryConvertLibraries(rTexture, desiredPixelFormat, desiredOrigin, m_converterLibraries))
+      return false;
+    return TextureUtil::TryChangeOrigin(rTexture, desiredOrigin);
   }
 
 
   void BitmapConverterService::Convert(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin)
   {
-    return TextureUtil::Convert(rTexture, desiredPixelFormat, desiredOrigin);
+    if (!TryConvertLibraries(rTexture, desiredPixelFormat, desiredOrigin, m_converterLibraries))
+      throw GraphicsException("Unsupported pixel format");
+
+    if( ! TextureUtil::TryChangeOrigin(rTexture, desiredOrigin) )
+      throw GraphicsException("Unsupported origin");
   }
 
-
-
-  //bool BitmapConverterService::TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat)
-  //{
-  //  // Detect in-place conversions requests and handle them separately
-  //  if (&rDstBitmap == &srcBitmap)
-  //    return TryConvert(rDstBitmap, desiredPixelFormat);
-
-  //  for (auto itr = m_converters.begin(); itr != m_converters.end(); ++itr)
-  //  {
-  //    if ((*itr)->TryConvert(rDstBitmap, srcBitmap, desiredPixelFormat))
-  //      return true;
-  //  }
-  //  return false;
-  //}
-
-
-  bool BitmapConverterService::TryConvertPixelFormat(Bitmap& rBitmap, const PixelFormat desiredPixelFormat)
-  {
-    if (desiredPixelFormat == PixelFormat::Undefined || rBitmap.GetPixelFormat() == desiredPixelFormat)
-      return true;
-
-    // For now use the limited converter from FslGraphics
-    return BitmapUtil::TryConvert(rBitmap, desiredPixelFormat);
-
-
-    //{ // Lets see if we can convert using a temporary object
-    //  Bitmap tmp(rBitmap.Width(), rBitmap.Height(), desiredPixelFormat, rBitmap.GetOrigin());
-    //  if (TryConvert(tmp, rBitmap, desiredPixelFormat))
-    //  {
-    //    // Overwrite the existing bitmap with the temporary one
-    //    rBitmap = tmp;
-    //    return true;
-    //  }
-    //}
-    //return false;
-  }
 }

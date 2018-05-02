@@ -106,7 +106,6 @@ Requirements:
       - 'OpenGLES3.2' V3.2 (introduced by package: GLES3_2)
 - 'OpenVG' (introduced by package: OpenVG)
 - 'OpenVX' (introduced by package: OpenVX)
-  - 'OpenVX1.0.1' V1.0.1 (introduced by package: OpenVX1_0_1)
   - 'OpenVX1.1' V1.1 (introduced by package: OpenVX1_1)
 - 'Vulkan' V1 (introduced by package: Vulkan)
 ```

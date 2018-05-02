@@ -51,7 +51,10 @@ namespace Fsl
       virtual void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
 
       //! @brief Check if the button is down at the moment
-      bool IsDown() const { return m_isDown; }
+      bool IsDown() const
+      {
+        return m_isDown;
+      }
 
       //! @brief Called when the button is pressed
       virtual void Down() {};

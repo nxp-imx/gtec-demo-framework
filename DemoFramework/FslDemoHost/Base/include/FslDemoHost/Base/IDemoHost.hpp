@@ -33,7 +33,7 @@
 
 #include <FslBase/Noncopyable.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeature.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 
 namespace Fsl
 {

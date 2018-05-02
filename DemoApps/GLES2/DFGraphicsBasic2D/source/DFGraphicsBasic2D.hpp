@@ -32,7 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
-#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <Shared/DFGraphicsBasic2D/Shared.hpp>
 
 namespace Fsl

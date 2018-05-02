@@ -59,10 +59,10 @@ GEN_MAGIC_VARIANT_ANDROID_ABI = "ANDROID_ABI"
 
 class AndroidABIOption:
     All = "all"
-    ArmeAbi = "armeabi"
     ArmeAbiV7a = "armeabi-v7a"
     Arm64V8a = "arm64-v8a"
     X86 = "x86"
     X86_64 = "x86_64"
-    Mips = "mips"
-    Mips64 = "mips64"
+    DeprecatedArmeAbi = "armeabi"  # Deprecated in r16.
+    DeprecatedMips = "mips"        # Deprecated in r16.
+    DeprecatedMips64 = "mips64"    # Deprecated in r16.

@@ -63,7 +63,7 @@
       <ExternalDependency Name="opencv_superres" Access="Public" Type="StaticLib"/>
       <ExternalDependency Name="opencv_surface_matching" Access="Public" Type="StaticLib"/>
       <ExternalDependency Name="opencv_text" Access="Public" Type="StaticLib"/>
-      <ExternalDependency Name="opencv_ts" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_ts" Access="Public" Type="StaticLib"/-->
       <ExternalDependency Name="opencv_video" Access="Public" Type="StaticLib"/>
       <ExternalDependency Name="opencv_videoio" Access="Public" Type="StaticLib"/>
       <ExternalDependency Name="opencv_videostab" Access="Public" Type="StaticLib"/>

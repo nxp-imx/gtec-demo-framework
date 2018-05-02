@@ -58,6 +58,55 @@ namespace Fsl
 {
   namespace
   {
+    const char* GetDevILErrorString(ILenum error)
+    {
+      switch (error)
+      {
+      case IL_NO_ERROR:
+        return "IL_NO_ERROR";
+      case IL_INVALID_ENUM:
+        return "IL_INVALID_ENUM";
+      case IL_OUT_OF_MEMORY:
+        return "IL_OUT_OF_MEMORY";
+      case IL_FORMAT_NOT_SUPPORTED:
+        return "IL_FORMAT_NOT_SUPPORTED";
+      case IL_INTERNAL_ERROR:
+        return "IL_INTERNAL_ERROR";
+      case IL_INVALID_VALUE:
+        return "IL_INVALID_VALUE";
+      case IL_ILLEGAL_OPERATION:
+        return "IL_ILLEGAL_OPERATION";
+      case IL_ILLEGAL_FILE_VALUE:
+        return "IL_ILLEGAL_FILE_VALUE";
+      case IL_INVALID_FILE_HEADER:
+        return "IL_INVALID_FILE_HEADER";
+      case IL_INVALID_PARAM:
+        return "IL_INVALID_PARAM";
+      case IL_COULD_NOT_OPEN_FILE:
+        return "IL_COULD_NOT_OPEN_FILE";
+      case IL_INVALID_EXTENSION:
+        return "IL_INVALID_EXTENSION";
+      case IL_FILE_ALREADY_EXISTS:
+        return "IL_FILE_ALREADY_EXISTS";
+      case IL_OUT_FORMAT_SAME:
+        return "IL_OUT_FORMAT_SAME";
+      case IL_STACK_OVERFLOW:
+        return "IL_STACK_OVERFLOW";
+      case IL_STACK_UNDERFLOW:
+        return "IL_STACK_UNDERFLOW";
+      case IL_INVALID_CONVERSION:
+        return "IL_INVALID_CONVERSION";
+      case IL_BAD_DIMENSIONS:
+        return "IL_BAD_DIMENSIONS";
+      case IL_FILE_READ_ERROR:
+      //case IL_FILE_WRITE_ERROR:
+        return "IL_FILE_READ_ERROR/IL_FILE_WRITE_ERROR";
+      default:
+        return "unknown";
+      }
+    }
+
+
     struct DevILPixelFormat
     {
       ILint Format;
@@ -293,10 +342,10 @@ namespace Fsl
       ilLoadImage(path.ToAsciiString().c_str());
 #endif
 
-      ILuint devilError = ilGetError();
+      ILenum devilError = ilGetError();
       if (devilError != IL_NO_ERROR)
       {
-        FSLLOG_WARNING("devIL image loading not successfull.\n");
+        FSLLOG_WARNING("devIL image loading of '" << path.ToUTF8String() << "' not successfull: " << GetDevILErrorString(devilError) << " (" << devilError << ").");
         return false;
       }
 
@@ -347,7 +396,7 @@ namespace Fsl
       devilError = ilGetError();
 
       // Log any error that occurs
-      FSLLOG_WARNING_IF(devilError != IL_NO_ERROR, "devIL image conversion not successfull (" << devilError << ").\n");
+      FSLLOG_WARNING_IF(devilError != IL_NO_ERROR, "devIL image conversion not successfull: " << GetDevILErrorString(devilError) << " (" << devilError << ").\n");
       return (devilError == IL_NO_ERROR);
     }
 
@@ -411,9 +460,11 @@ namespace Fsl
   void ImageLibraryServiceDevIL::ExtractSupportedImageFormats(std::deque<ImageFormat>& rFormats)
   {
     rFormats.push_back(ImageFormat::Bmp);
-    rFormats.push_back(ImageFormat::Png);
-    rFormats.push_back(ImageFormat::Jpeg);
+    rFormats.push_back(ImageFormat::DDS);
+    //rFormats.push_back(ImageFormat::Exr);
     rFormats.push_back(ImageFormat::Hdr);
+    rFormats.push_back(ImageFormat::Jpeg);
+    rFormats.push_back(ImageFormat::Png);
     rFormats.push_back(ImageFormat::Tga);
   }
 

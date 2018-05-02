@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.HDR02_FBBasicToneMapping" NoInclude="true">
+    <Requirement Name="GL_EXT_color_buffer_float" Type="extension" Extends="OpenGLES3"/>
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="Shared.OpenGLES3.HDR.BasicScene"/>
+    <Platform Name="Windows" ProjectId="0E37D2EF-A953-41BB-91B0-CB3370C4E487"/>
+  </Executable>
+</FslBuildGen>

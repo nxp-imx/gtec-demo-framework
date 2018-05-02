@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.tclap_1_2_2">
+    <ExperimentalRecipe Name="tclap-1.2.2">
+      <Pipeline>
+        <Download URL="https://sourceforge.net/projects/tclap/files/tclap-1.2.2.tar.gz" Hash="f5013be7fcaafc69ba0ce2d1710f693f61e9c336b6292ae4f57554f59fde5837"/>
+        <Unpack File="tclap-1.2.2.tar.gz" OutputPath="tclap-1.2.2">
+          <Delete Path="config"/>
+          <Delete Path="docs"/>
+          <Delete Path="examples"/>
+          <Delete Path="msc"/>
+          <Delete Path="tests"/>
+        </Unpack>
+      </Pipeline>
+      <Installation>
+        <AddHeaders Name="include"/>
+        <Path Name="include/tclap/CmdLine.h" Method="IsFile"/>
+      </Installation>
+    </ExperimentalRecipe>
+  </ExternalLibrary>
+</FslBuildGen>

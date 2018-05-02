@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <HeaderLibrary Name="tclap1_2_1">
-    <Platform Name="Windows" ProjectId="C33ECED5-7E1B-496C-98E9-155525BF90B6"/>
-  </HeaderLibrary>
-</FslBuildGen>

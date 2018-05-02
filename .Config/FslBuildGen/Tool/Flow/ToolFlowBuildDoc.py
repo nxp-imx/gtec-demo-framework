@@ -43,7 +43,6 @@ import subprocess
 from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
 #from FslBuildGen import ParseUtil
-from FslBuildGen import PlatformUtil
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.BasicConfig import BasicConfig
@@ -54,6 +53,7 @@ from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig

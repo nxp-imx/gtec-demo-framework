@@ -34,6 +34,7 @@
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutLength.hpp>
+#include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
 #include <deque>
 
 namespace Fsl
@@ -42,31 +43,57 @@ namespace Fsl
   {
     class ComplexStackLayout : public Layout
     {
-      struct FinalLayout
+      struct FinalLayout : GenericWindowCollectionRecordBase
       {
         LayoutUnitType UnitType;
         float Position;
         float Size;
 
-        FinalLayout()
-          : UnitType(LayoutUnitType::Auto)
+        FinalLayout(const std::shared_ptr<BaseWindow>& window)
+          : GenericWindowCollectionRecordBase(window)
+          , UnitType(LayoutUnitType::Auto)
           , Position(0)
           , Size()
         {
         }
       };
 
+      using collection_type = GenericWindowCollection<FinalLayout>;
+      collection_type m_children;
+
       LayoutOrientation m_orientation;
       std::deque<LayoutLength> m_layoutLength;
-      std::deque<FinalLayout> m_finalLayout;
       float m_spacing;
 
     public:
       ComplexStackLayout(const std::shared_ptr<WindowContext>& context);
+      virtual void WinInit() override;
 
-      LayoutOrientation GetLayoutOrientation() const { return m_orientation; }
+      virtual void ClearChildren() override
+      {
+        m_children.Clear();
+      }
+
+      virtual void AddChild(const std::shared_ptr<BaseWindow>& window) override
+      {
+        m_children.Add(window);
+      }
+
+      virtual void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
+      {
+        m_children.Remove(window);
+      }
+
+      LayoutOrientation GetLayoutOrientation() const
+      {
+        return m_orientation;
+      }
       void SetLayoutOrientation(const LayoutOrientation& value);
-      float GetSpacing() const { return m_spacing; }
+
+      float GetSpacing() const
+      {
+        return m_spacing;
+      }
       void SetSpacing(const float& value);
 
       void ClearLayoutLengths();
@@ -76,11 +103,11 @@ namespace Fsl
       virtual Vector2 ArrangeOverride(const Vector2& finalSize) override;
       virtual Vector2 MeasureOverride(const Vector2& availableSize) override;
     private:
-      Vector2 CalcFixedStarSizeHorizontal(std::deque<FinalLayout>& rLayoutDefinition, const Vector2& finalSize);
-      Vector2 CalcFixedStarSizeVertical(std::deque<FinalLayout>& rLayoutDefinition, const Vector2& finalSize);
-      void FinalizeStarSizes(std::deque<FinalLayout>& rLayoutDefinition, const float spaceLeft, const float totalStars);
-      void ArrangeHorizontal(const std::deque<FinalLayout>& layoutDefinition, const float finalSizeY);
-      void ArrangeVertical(const std::deque<FinalLayout>& layoutDefinition, const float finalSizeX);
+      Vector2 CalcFixedStarSizeHorizontal(const Vector2& finalSize);
+      Vector2 CalcFixedStarSizeVertical(const Vector2& finalSize);
+      void FinalizeStarSizes(const float spaceLeft, const float totalStars);
+      void ArrangeHorizontal(const float finalSizeY);
+      void ArrangeVertical(const float finalSizeX);
     };
   }
 }

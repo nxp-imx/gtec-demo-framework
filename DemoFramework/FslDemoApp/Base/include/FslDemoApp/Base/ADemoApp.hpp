@@ -87,8 +87,16 @@ namespace Fsl
     void UnregisterExtension(const std::shared_ptr<DemoAppExtension>& extension);
 
     //! @brief Get the current screen resolution
-    Point2 GetScreenResolution() const;
-    Extent2D GetScreenExtent() const;
+    Point2 GetScreenResolution() const
+    {
+      return m_demoAppConfig.ScreenResolution;
+    }
+
+    Extent2D GetScreenExtent() const
+    {
+      return Extent2D(m_demoAppConfig.ScreenResolution);
+    }
+
     //! @brief Get access to the demo app control interface
     std::shared_ptr<IDemoAppControl> GetDemoAppControl() const;
     //! @brief Access the content manager;

@@ -48,13 +48,22 @@ namespace Fsl
     public:
       Background9Slice(const std::shared_ptr<WindowContext>& context);
 
-      const AtlasTexture2D& GetBackground() const { return m_background; }
+      const AtlasTexture2D& GetBackground() const
+      {
+        return m_background;
+      }
       void SetBackground(const AtlasTexture2D& value);
 
-      const NineSlice GetNineSlice() const { return m_nineSlice; }
+      const NineSlice GetNineSlice() const
+      {
+        return m_nineSlice;
+      }
       void SetNineSlice(const NineSlice& value);
 
-      const ThicknessF& GetMinimumBackgroundMargin() const { return m_minimumBackgroundMargin; }
+      const ThicknessF& GetMinimumBackgroundMargin() const
+      {
+        return m_minimumBackgroundMargin;
+      }
       void SetMinimumBackgroundMargin(const ThicknessF& value);
 
       virtual void WinDraw(const UIDrawContext& context) override;

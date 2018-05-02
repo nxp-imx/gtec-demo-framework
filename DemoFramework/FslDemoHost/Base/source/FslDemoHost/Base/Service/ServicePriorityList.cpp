@@ -35,58 +35,63 @@ namespace Fsl
 {
   const Priority ServicePriorityList::BitmapConverterService()
   {
-    return Priority::Max() - 1;
+    return Priority::Max() - 10;
+  }
+
+  const Priority ServicePriorityList::ImageConverterLibraryService()
+  {
+    return Priority::Max() - 9;
   }
 
   const Priority ServicePriorityList::EGLHostService()
   {
-    return Priority::Max() - 4;
+    return Priority::Max() - 40;
   }
 
   const Priority ServicePriorityList::WindowHostService()
   {
-    return Priority::Max() - 3;
+    return Priority::Max() - 30;
   }
 
   const Priority ServicePriorityList::VulkanHostService()
   {
-    return Priority::Max() - 3;
+    return Priority::Max() - 30;
   }
 
   const Priority ServicePriorityList::NativeGraphicsService()
   {
-    return Priority::Max() - 4;
+    return Priority::Max() - 40;
   }
 
   const Priority ServicePriorityList::ImageLibraryService()
   {
-    return Priority::Max() - 2;
+    return Priority::Max() - 20;
   }
 
   const Priority ServicePriorityList::ImageBasicService()
   {
-    return Priority::Max() - 3;
+    return Priority::Max() - 30;
   }
 
   const Priority ServicePriorityList::AsyncImageService()
   {
-    return Priority::Max() - 4;
+    return Priority::Max() - 40;
   }
 
   const Priority ServicePriorityList::ImageService()
   {
-    return Priority::Max() - 5;
+    return Priority::Max() - 50;
   }
 
   const Priority ServicePriorityList::EventsService()
   {
-    return Priority::Max() - 2;
+    return Priority::Max() - 20;
   }
 
 
   const Priority ServicePriorityList::NativeWindowEventsService()
   {
-    return Priority::Max() - 1;
+    return Priority::Max() - 10;
   }
 
 
@@ -98,13 +103,13 @@ namespace Fsl
 
   const Priority ServicePriorityList::PlatformControlService()
   {
-    return Priority::Max() - 1;
+    return Priority::Max() - 10;
   }
 
 
   const Priority ServicePriorityList::ProfilerService()
   {
-    return Priority::Max() - 1;
+    return Priority::Max() - 10;
   }
 
 

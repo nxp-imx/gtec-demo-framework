@@ -79,7 +79,7 @@ namespace Fsl
     }
 
 
-    void GLVertexArray::Bind()
+    void GLVertexArray::Bind() const
     {
       if (!IsValid())
         throw UsageErrorException("Can't bind a invalid vertex array");
@@ -88,7 +88,7 @@ namespace Fsl
     }
 
 
-    void GLVertexArray::Unbind()
+    void GLVertexArray::Unbind() const
     {
       glBindVertexArray(0);
     }

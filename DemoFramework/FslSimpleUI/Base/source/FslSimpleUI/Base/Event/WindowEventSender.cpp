@@ -73,5 +73,35 @@ namespace Fsl
 
       m_windowEventQueue->Push(theEvent, m_treeNodeLocator->Get(source));
     }
+
+
+    //bool WindowEventSender::TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const IWindowId*const pSource)
+    //{
+    //  if (!theEvent)
+    //    return false;
+    //  if (pSource == nullptr)
+    //    return false;
+
+    //  auto node = m_treeNodeLocator->TryGet(pSource);
+    //  if (!node)
+    //    return false;
+
+    //  return m_windowEventQueue->TryPush(theEvent, node);
+    //}
+
+
+    //bool WindowEventSender::TrySendEvent(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<IWindowId>& source)
+    //{
+    //  if (!theEvent)
+    //    return false;
+    //  if (!source)
+    //    return false;
+
+    //  auto node = m_treeNodeLocator->TryGet(source);
+    //  if (!node)
+    //    return false;
+
+    //  return m_windowEventQueue->TryPush(theEvent, node);
+    //}
   }
 }

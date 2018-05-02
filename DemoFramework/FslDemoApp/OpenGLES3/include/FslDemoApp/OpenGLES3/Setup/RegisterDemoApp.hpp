@@ -35,9 +35,9 @@
 #error Graphics.ES3 support has not been enabled (define FSL_ENABLE_GRAPHICS_ES3) to enable it
 #endif
 
-#include <FslDemoApp/Base/Host/DemoAppHostConfigEGL.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp>
 
 
 namespace Fsl
@@ -64,25 +64,46 @@ namespace Fsl
   {
     namespace GLES3
     {
-      extern void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig, const OpenGLESMinorVersion minorVersion);
+      extern void Register(HostDemoAppSetup& rSetup, const DemoAppSetup& demoAppSetup, const DemoAppHostConfigEGL& demoHostEGLConfig,
+                           const OpenGLESMinorVersion minorVersion);
 
       //! Register a demo app without a option parser
       template<typename TAppClass>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config, const OpenGLESMinorVersion minorVersion = 0, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                    const OpenGLESMinorVersion minorVersion = 0,
+                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass> >();
         const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
         Register(rSetup, demoAppSetup, config, minorVersion);
       }
 
+
       //! Register a demo app with a option parser
       template<typename TAppClass, typename TOptionParser>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config, const OpenGLESMinorVersion minorVersion = 0, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                    const OpenGLESMinorVersion minorVersion = 0, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass> >();
         auto appOptionParser = std::make_shared<TOptionParser>();
         const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
         Register(rSetup, demoAppSetup, config, minorVersion);
+      }
+
+      //! Register a demo app with a option parser
+      template<typename TAppClass>
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                    const CustomDemoAppConfig& customDemoAppConfig)
+      {
+        Register<TAppClass>(rSetup, applicationName, config, 0, customDemoAppConfig);
+      }
+
+      //! Register a demo app with a option parser
+      template<typename TAppClass, typename TOptionParser>
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                    const CustomDemoAppConfig& customDemoAppConfig)
+      {
+        Register<TAppClass, TOptionParser>(rSetup, applicationName, config, 0, customDemoAppConfig);
       }
     }
   };

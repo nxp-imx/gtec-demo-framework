@@ -217,6 +217,14 @@ namespace Fsl
     //! @note This only changes the 'PixelFormat' type it does not modify any pixels. So if you call this beware of this!
     void SetCompatiblePixelFormat(const PixelFormat compatiblePixelFormat, const bool allowBytePerPixelCompatible=false);
 
+    //! @brief Try to modify the pixel format flag.
+    //! @return true if the format was changed or false if it failed
+    //! @note This only changes to format flag not the actual data
+    bool TrySetCompatiblePixelFormatFlag(const PixelFormatFlags::Enum flag);
+
+    //! @brief This does not change the texture content it just changes the origin reported by this object.
+    void OverrideOrigin(const BitmapOrigin bitmapOrigin);
+
     //! Provides direct access to the texture during its lifetime.
     class ScopedDirectAccess
     {

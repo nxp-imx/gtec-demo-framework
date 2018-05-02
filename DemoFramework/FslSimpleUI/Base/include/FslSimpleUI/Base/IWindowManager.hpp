@@ -73,6 +73,11 @@ namespace Fsl
       //! @brief Check if the given window exist.
       //! @param window">The window to check (null never exist)  </param>
       //! @return true if the window exists (windows that are scheduled for close but not yet closed will also return true).
+      virtual bool Exists(const BaseWindow*const pWindow) const = 0;
+
+      //! @brief Check if the given window exist.
+      //! @param window">The window to check (null never exist)  </param>
+      //! @return true if the window exists (windows that are scheduled for close but not yet closed will also return true).
       virtual bool Exists(const std::shared_ptr<BaseWindow>& window) const = 0;
 
       //! @brief Check if the window is a member of the tree.

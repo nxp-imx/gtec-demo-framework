@@ -62,8 +62,9 @@ class LocalInvalidValues(object):
 class XmlConfigFileAddRootDirectory(XmlBase):
     def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
         super(XmlConfigFileAddRootDirectory, self).__init__(basicConfig, xmlElement)
-        self.Name = XmlBase._ReadAttrib(self, xmlElement, 'Name')
+        self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.Id = self.Name.lower()
+        self.Create = self._ReadBoolAttrib(xmlElement, 'Create', False)
 
 
 class XmlConfigCompilerConfiguration(XmlBase):

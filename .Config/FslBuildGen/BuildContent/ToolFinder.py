@@ -32,9 +32,9 @@
 #****************************************************************************************************************************************************
 
 from FslBuildGen import IOUtil
-from FslBuildGen import PlatformUtil
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.Log import Log
+from FslBuildGen.PlatformUtil import PlatformUtil
 
 
 class ToolFinder(object):
@@ -43,17 +43,13 @@ class ToolFinder(object):
         self.BuildPlatform = PlatformUtil.DetectBuildPlatformType()
         self.VulkanShaderCompiler = self.GetPlatformDependentExecuteableName("glslangValidator")
 
-
     def GetPlatformDependentExecuteableName(self, exeName: str) -> str:
-        if self.BuildPlatform == BuildPlatformType.Windows:
-            return exeName + ".exe"
-        return exeName
-
+        return PlatformUtil.GetPlatformDependentExecuteableName(exeName, self.BuildPlatform)
 
     def CheckVulkanShaderCompiler(self) -> None:
         if IOUtil.TryFindExecutable(self.VulkanShaderCompiler) is None:
-            raise EnvironmentError("Could not locate the Vulkan shader compiler: '%s'" % (self.VulkanShaderCompiler))
+            raise EnvironmentError("Could not locate the Vulkan shader compiler: '{0}'".format(self.VulkanShaderCompiler))
 
     def CheckToolCommand(self, toolCommand: str, toolDescription: str) -> None:
         if IOUtil.TryFindExecutable(toolCommand) is None:
-            raise EnvironmentError("Could not locate the content builder '%s' (%s)" % (toolCommand, toolDescription))
+            raise EnvironmentError("Could not locate the content builder '{0}' ({1})".format(toolCommand, toolDescription))

@@ -37,7 +37,6 @@ from typing import Optional
 import argparse
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
-#from FslBuildGen import PlatformUtil
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues

@@ -47,6 +47,7 @@ from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Exceptions import PackageHasMultipleDefinitions2Exception
 from FslBuildGen.PackageCachedLocation import PackageCachedLocation
+from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFile import PackageFile
 from FslBuildGen.PackageFinder import PackageFinder
 from FslBuildGen.PackageTemplateLoader import PackageTemplateLoader
@@ -84,6 +85,9 @@ class PackageLoader(object):
             if config.Type in packageConfigDict and packageConfigDict[config.Type].Preload:
                 inputFiles = self.PackageFinder.GetKnownPackageFiles(inputFiles)
 
+            if platform.Name == PlatformNameString.ANDROID and not self.__ContainsPackage(inputFiles, "Recipe.BuildTool.ninja"):
+                inputFiles.append(self.PackageFinder.LocatePackageFileByName("Recipe.BuildTool.ninja"))
+
             # sort the input files to ensure a predictable 'initial' order
             inputFiles.sort(key=lambda s: s.AbsoluteDirPath.lower())
 
@@ -110,6 +114,11 @@ class PackageLoader(object):
         finally:
             config.PopIndent()
 
+    def __ContainsPackage(self, packageFiles: List[PackageFile], packageName: str) -> bool:
+        for entry in packageFiles:
+            if entry.PackageName == packageName:
+                return True
+        return False
 
     def __CacheTemplateLocations(self, config: Config) -> Dict[str, str]:
         """ Build a dict of all *.gen files found in the template import directories """

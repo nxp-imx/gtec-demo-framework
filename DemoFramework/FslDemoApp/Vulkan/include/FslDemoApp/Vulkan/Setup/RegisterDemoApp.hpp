@@ -35,9 +35,9 @@
 #error Graphics.Vulkan support has not been enabled (define FSL_FEATURE_VULKAN1_0) to enable it
 #endif
 
-#include <FslDemoApp/Base/Host/DemoAppHostConfigVulkan.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 
 namespace Fsl
 {
@@ -49,7 +49,8 @@ namespace Fsl
 
       //! Register a demo app without a option parser
       template<typename TAppClass>
-      static void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigVulkan& config, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigVulkan& config,
+                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass> >();
         const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
@@ -58,7 +59,8 @@ namespace Fsl
 
       //! Register a demo app with a option parser
       template<typename TAppClass, typename TOptionParser>
-      static void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigVulkan& config, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigVulkan& config,
+                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass> >();
         auto appOptionParser = std::make_shared<TOptionParser>();

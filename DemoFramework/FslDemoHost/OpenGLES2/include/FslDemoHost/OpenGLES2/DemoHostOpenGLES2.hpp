@@ -40,6 +40,7 @@
 #include <FslDemoHost/EGL/EGLDemoHost.hpp>
 #include <FslUtil/OpenGLES2/GLUtil.hpp>
 #include <GLES2/gl2.h>
+#include <algorithm>
 
 namespace Fsl
 {
@@ -69,7 +70,8 @@ namespace Fsl
   private:
     void DoLogExtensions()
     {
-      const auto extensions = GLES2::GLUtil::GetExtensions();
+      auto extensions = GLES2::GLUtil::GetExtensions();
+      std::sort(extensions.begin(), extensions.end());
       FSLLOG("OpenGL ES2 Extensions");
       for (const auto& entry : extensions)
       {

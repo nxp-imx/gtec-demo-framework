@@ -32,7 +32,7 @@
 ****************************************************************************************************************************************************/
 
 #include <FslBase/Noncopyable.hpp>
-#include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
+#include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <deque>
 #include <memory>
 

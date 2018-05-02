@@ -113,7 +113,9 @@ namespace Fsl
       {
         m_isChecked = value;
         PropertyUpdated(PropertyType::Content);
-        SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0));
+
+        if (IsReadyToSendEvents())
+          SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0));
       }
     }
 

@@ -521,6 +521,31 @@ namespace Fsl
     m_pixelFormat = compatiblePixelFormat;
   }
 
+  bool Texture::TrySetCompatiblePixelFormatFlag(const PixelFormatFlags::Enum flag)
+  {
+    if (m_isLocked)
+    {
+      FSLLOG_DEBUG_WARNING("The texture is already locked");
+      return false;
+    }
+
+    const auto newPixelFormat = PixelFormatUtil::TrySetCompatiblePixelFormatFlag(m_pixelFormat, flag);
+    if (newPixelFormat == PixelFormat::Undefined)
+      return false;
+    m_pixelFormat = newPixelFormat;
+    return true;
+  }
+
+  void Texture::OverrideOrigin(const BitmapOrigin bitmapOrigin)
+  {
+    if (m_isLocked)
+      throw UsageErrorException("The texture is already locked");
+    if (bitmapOrigin == BitmapOrigin::Undefined)
+      throw std::invalid_argument("bitmapOrigin can not be undefined");
+
+    m_bitmapOrigin = bitmapOrigin;
+  }
+
 
   void Texture::DoReset(const void*const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder)
   {

@@ -5,12 +5,13 @@
     <Dependency Name="FslGraphics"/>
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoHost.Base"/>
+    <Dependency Name="FslDemoHost.EGL.Config"/>
     <Dependency Name="FslUtil.EGL"/>
     <Dependency Name="FslNativeWindow.EGL" Access="Private"/>
     
     <Platform Name="Android">
-      <Dependency Name="Platform.Android.Glue"/>
-      <Dependency Name="Platform.Android.NDKHelper"/>
+      <Dependency Name="Platform.Android.Glue" Access="Private"/>
+      <Dependency Name="Platform.Android.NDKHelper" Access="Private"/>
       <!--PublicFlag Name="FSL_USE_ANDROID_GLCONTEXT"/-->
     </Platform>
     <Platform Name="Windows" ProjectId="0E96433D-79BC-4410-A92B-3FA7D39ADA82"/>

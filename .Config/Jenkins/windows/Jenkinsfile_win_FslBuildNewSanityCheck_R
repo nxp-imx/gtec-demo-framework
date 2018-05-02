@@ -1,0 +1,44 @@
+#!/usr/bin/env groovy
+pipeline
+{
+    agent
+    {
+      label 'windows'
+    }
+    options
+    {
+      buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+    stages
+    {
+        stage('Build')
+        {
+            steps
+            {
+                bat '.Config/Jenkins/windows/Review_DF_WinArm_FslBuildNewSanityCheck.bat'
+                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'MSBuild']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+            }
+        }
+        stage('Test')
+        {
+            steps
+            {
+                echo 'make check'
+            }
+        }
+        stage('Deploy')
+        {
+            steps
+            {
+                echo 'make publish'
+            }
+        }
+        stage('Cleanup')
+        {
+            steps
+            {
+                bat 'git clean -xdf'
+            }
+        }
+    }
+}

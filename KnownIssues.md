@@ -1,0 +1,63 @@
+Yocto
+-----
+- If you are using a old version of the SDK build tools to build you might get a error like:
+  "ERROR: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:645)>"
+  This is because the build tools are missing some required certificates. 
+  To solve this either upgrade to a new release of the build tools or delete the the python3.5 files from the build tools installation
+  For example: Delete all python3.5 files from /opt/fsl-imx-internal-xwayland/4.9.51-mx8-beta/sysroots/x86_64-pokysdk-linux/usr/bin.
+  Alternatively you can manually download the files and store them in the download cache, 
+  making the tools skip the download process (see "Doc\BuildingExternals.md" for more info). 
+- Assimp was updated from 3 to 4. So if you use a old version of the build tools and a new sd-card release 
+  The executable will be build to use version 3 and the sd-card contains version 4 causing the sample to fail.
+  The solution is to make sure your build tools and sd-card version of the library match.
+  
+Android
+-------
+- Android does not handle unicode file names inside the 'assets' folder, 
+  so do not utilize unicode for filenames stored in Content.
+
+
+Windows
+-------
+- The generated project files do not detect changes to the build environment automatically.
+  So its your job to run FslBuildGen when you change it!
+- If a new shader is added to Content.bld and no files has been modified the content builder
+  does not get run by visual studio.
+
+
+G2D
+---
+- Early access. Everything is subject to changes.
+- Experimental support and it only works under Yocto.
+- DFGraphicsBasic2D shows a black screen because its using stub implementations to render.
+- '--Stats' shows nothing because its using stub implementations to render.
+- Screenshot functionality does not work.
+- NativeGraphicsBasic2D is mostly a stub.
+- NativeTexture2D is a stub.
+- NativeBatch2D is a stub.
+- The screen resolution used by the demoframework is invalid (it thinks the size is 0,0).
+- No input support.
+
+
+OpenCL
+------
+- Early access. Everything is subject to changes.
+- Limited platform support
+
+
+OpenVX
+------
+- Early access. Everything is subject to changes.
+- Windows and Ubuntu uses the Khronos OpenVX 1.1 sample implementation.
+- Limited platform support
+
+
+Vulkan
+------
+- Early access. Everything is subject to changes.
+- DemoAppVulkan is a complete work in progress.
+- Limited platform support
+- Ubuntu X11 is in theory supported but has not been tested yet.
+- Qnx support is disabled.
+- Yocto support is available for WindowSystem=FB, WindowSystem=Wayland only.
+- Requires 1.0.42.2 or newer or windows

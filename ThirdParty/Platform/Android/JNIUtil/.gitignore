@@ -1,0 +1,16 @@
+.StartProject.bat
+.vs
+Android.mk
+CMakeLists.txt
+Platform.Android.JNIUtil.VC.VC.opendb
+Platform.Android.JNIUtil.VC.db
+Platform.Android.JNIUtil.manifest
+Platform.Android.JNIUtil.opensdf
+Platform.Android.JNIUtil.sdf
+Platform.Android.JNIUtil.sln
+Platform.Android.JNIUtil.v12.sdf
+Platform.Android.JNIUtil.v12.suo
+Platform.Android.JNIUtil.vcxproj
+Platform.Android.JNIUtil.vcxproj.filters
+Platform.Android.JNIUtil.vcxproj.user
+build/

@@ -65,10 +65,28 @@ namespace Fsl
       Exit = 2,
     };
 
-    static Result Parse(int argc, char** argv, const char*const pszHelpCaption);
-    static Result Parse(int argc, char** argv, IOptionParser& inputOptionParser, const char*const pszHelpCaption);
-    static Result Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers, const char*const pszHelpCaption);
-    static Result Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers, const char*const pszHelpCaption);
+    struct ParseResult
+    {
+      Result Status;
+      uint32_t VerbosityLevel;
+
+      ParseResult()
+        : Status(Result::Failed)
+        , VerbosityLevel(0)
+      {
+      }
+
+      ParseResult(const Result result, const uint32_t verbosityLevel)
+        : Status(result)
+        , VerbosityLevel(verbosityLevel)
+      {
+      }
+    };
+
+    static ParseResult Parse(int argc, char** argv, const char*const pszHelpCaption);
+    static ParseResult Parse(int argc, char** argv, IOptionParser& inputOptionParser, const char*const pszHelpCaption);
+    static ParseResult Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers, const char*const pszHelpCaption);
+    static ParseResult Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers, const char*const pszHelpCaption);
   };
 }
 

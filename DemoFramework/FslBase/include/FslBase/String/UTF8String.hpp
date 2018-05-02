@@ -70,7 +70,10 @@ namespace Fsl
     int32_t IndexOf(const char ch, const std::size_t fromIndex = 0) const;
     int32_t LastIndexOf(const char ch) const;
 
-    const std::string& ToUTF8String() const { return m_content; }
+    const std::string& ToUTF8String() const
+    {
+      return m_content;
+    }
     std::string ToAsciiString() const;
 
     void Reset(const char*const psz, const std::size_t startIndex, const std::size_t length);

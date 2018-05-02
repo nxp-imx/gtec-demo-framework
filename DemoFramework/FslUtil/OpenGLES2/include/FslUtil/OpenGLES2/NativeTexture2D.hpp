@@ -47,6 +47,7 @@ namespace Fsl
       GLTexture m_impl;
     public:
       NativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags);
+      NativeTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags);
 
       //! @brief Get the native texture handle
       GLuint Get() const

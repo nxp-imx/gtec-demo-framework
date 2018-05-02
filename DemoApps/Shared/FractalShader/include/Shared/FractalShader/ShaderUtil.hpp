@@ -41,7 +41,7 @@ namespace Fsl
   class ShaderUtil
   {
   public:
-    static std::string GetFragmentShader(const Config& m_config, const std::shared_ptr<IContentManager>& contentManager, const int32_t openGLESVersion);
+    static std::string GetFragmentShader(const BasicConfig& m_config, const std::shared_ptr<IContentManager>& contentManager, const int32_t openGLESVersion);
   };
 }
 

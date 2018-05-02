@@ -46,10 +46,16 @@ namespace Fsl
     public:
       Image(const std::shared_ptr<WindowContext>& context);
 
-      const AtlasTexture2D& GetContent() const { return m_content; }
+      const AtlasTexture2D& GetContent() const
+      {
+        return m_content;
+      }
       void SetContent(const AtlasTexture2D& value);
 
-      ItemScalePolicy GetScalePolicy() const { return m_scalePolicy; }
+      ItemScalePolicy GetScalePolicy() const
+      {
+        return m_scalePolicy;
+      }
       void SetScalePolicy(const ItemScalePolicy value);
 
       virtual void WinDraw(const UIDrawContext& context) override;

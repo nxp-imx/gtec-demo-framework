@@ -36,8 +36,8 @@
 #endif
 
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoAppHostConfigEGL.hpp>
 #include <FslDemoApp/Base/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp>
 
 
 namespace Fsl
@@ -50,7 +50,8 @@ namespace Fsl
 
       //! Register a demo app without a option parser
       template<typename TAppClass>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass> >();
         const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
@@ -60,14 +61,15 @@ namespace Fsl
 
       //! Register a demo app with a option parser
       template<typename TAppClass, typename TOptionParser>
-      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+      void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
+                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass> >();
         auto appOptionParser = std::make_shared<TOptionParser>();
         const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory, appOptionParser);
         Register(rSetup, demoAppSetup, config);
       }
-    };
+    }
   }
 }
 

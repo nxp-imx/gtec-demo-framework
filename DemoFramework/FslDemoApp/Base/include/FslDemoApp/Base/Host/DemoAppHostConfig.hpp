@@ -53,6 +53,11 @@ namespace Fsl
 
     virtual ~DemoAppHostConfig() {}
 
+    void SetUserTag(const std::shared_ptr<ITag>& userTag)
+    {
+      m_userTag = userTag;
+    }
+
     std::shared_ptr<ITag> GetUserTag() const
     {
       return m_userTag;

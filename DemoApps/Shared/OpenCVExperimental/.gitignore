@@ -3,6 +3,7 @@
 Android.mk
 CMakeLists.txt
 GNUmakefile
+GNUmakefile_Yocto
 OpenCVExperimental.VC.VC.opendb
 OpenCVExperimental.VC.db
 OpenCVExperimental.manifest

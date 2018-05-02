@@ -35,7 +35,7 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>

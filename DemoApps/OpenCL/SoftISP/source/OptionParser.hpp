@@ -1,5 +1,5 @@
-#ifndef OPENCL_FASTFOURIERTRANSFORM_OPTIONPARSER_HPP
-#define OPENCL_FASTFOURIERTRANSFORM_OPTIONPARSER_HPP
+#ifndef OPENCL_SOFTISP_OPTIONPARSER_HPP
+#define OPENCL_SOFTISP_OPTIONPARSER_HPP
 /****************************************************************************************************************************************************
 * Copyright 2017 NXP
 * All rights reserved.

@@ -37,10 +37,11 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <array>
 
 namespace Fsl
 {
-  class Basic2D;
+  class IBasic2D;
   struct DemoAppSetup;
   class DemoAppConfig;
   class IGraphicsService;
@@ -56,7 +57,8 @@ namespace Fsl
       std::string Name;
       Color TheColor;
       std::shared_ptr<DemoAppProfilerGraph> Graph;
-      char FormatString[10+3];  // 10 so we can hold the largest positive int32_t and +3 for '%','d' and terminating zero
+      // 10 so we can hold the largest positive int32_t and +3 for '%','d' and terminating zero;
+      std::array<char, 10+3> FormatString;
 
       CustomRecord()
         : Handle()
@@ -74,7 +76,7 @@ namespace Fsl
 
     std::shared_ptr<IProfilerService> m_profilerService;
     std::shared_ptr<IGraphicsService> m_graphicsService;
-    std::weak_ptr<Basic2D> m_basic2D;
+    std::weak_ptr<IBasic2D> m_basic2D;
 
     DemoAppProfilerGraph m_graphTotal;
     DemoAppProfilerGraph m_graphUpdate;
@@ -90,7 +92,7 @@ namespace Fsl
   private:
     void MaintainCachedCustomEntries();
     bool IsNewHandle(const ProfilerCustomCounterHandle& handle) const;
-    void UpdateAndDrawCustomCounters(const std::shared_ptr<Basic2D>& basic2D, const Vector2& dstPosGraph);
+    void UpdateAndDrawCustomCounters(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPosGraph);
   };
 }
 

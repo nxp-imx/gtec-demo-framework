@@ -32,14 +32,12 @@
 ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeature.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 #include <deque>
 
 namespace Fsl
 {
-  class DemoAppHostConfigEGL;
-  class DemoAppHostConfigVulkan;
-  class DemoAppHostConfigWindow;
+  class DemoAppHostConfig;
 
   // Can be used to
   // 1. supply the various configuration data
@@ -52,15 +50,8 @@ namespace Fsl
     //! @brief Register a app
     virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature) = 0;
     virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures) = 0;
-    //! @brief Register a EGL based app
-    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigEGL& demoHostConfig) = 0;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigEGL& demoHostConfig) = 0;
-    //! @brief Register a Vulkan based app
-    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigVulkan& demoHostConfig) = 0;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigVulkan& demoHostConfig) = 0;
-    //! @brief Register a Window based app
-    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const DemoAppHostConfigWindow& demoHostConfig) = 0;
-    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const DemoAppHostConfigWindow& demoHostConfig) = 0;
+    virtual void Register(const DemoAppSetup& demoAppSetup, const DemoHostFeature& demoHostFeature, const std::shared_ptr<DemoAppHostConfig>& demoHostConfig) = 0;
+    virtual void Register(const DemoAppSetup& demoAppSetup, const std::deque<DemoHostFeature>& demoHostFeatures, const std::shared_ptr<DemoAppHostConfig>& demoHostConfig) = 0;
   };
 }
 

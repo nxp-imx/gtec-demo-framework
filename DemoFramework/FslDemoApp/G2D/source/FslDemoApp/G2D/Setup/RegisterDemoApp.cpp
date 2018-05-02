@@ -33,11 +33,10 @@
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
-#include <FslDemoPlatform/Setup/IDemoHostRegistry.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Stub/StubDemoHostSetup.hpp>
-#include <FslDemoService/NativeGraphics/G2D/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 
@@ -51,7 +50,6 @@ namespace Fsl
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
       eglHostFeatures.push_back(DemoHostFeatureName::G2D);
       rSetup.TheHostRegistry.Register(eglHostFeatures, StubDemoHostSetup::Get());
-      rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<G2D::NativeGraphicsService, INativeGraphicsService> >(ServicePriorityList::NativeGraphicsService());
 
       return DemoHostFeature(DemoHostFeatureName::G2D, DemoHostFeatureUtil::EncodeG2DVersion(1));
     }

@@ -174,7 +174,7 @@ def GetEnvironmentVariableForAbsolutePath(name: str) -> str:
     return path
 
 
-def GetEnvironmentVariableForDirectory(name: str) -> str:
+def GetEnvironmentVariableForDirectory(name: str, mustExist: bool = True) -> str:
     path = TryGetEnvironmentVariable(name)
     if path is None:
         raise EnvironmentError("{0} environment variable not set".format(name))
@@ -185,7 +185,7 @@ def GetEnvironmentVariableForDirectory(name: str) -> str:
         raise EnvironmentError("{0} environment path '{1}' is not absolute".format(name, path))
     if path.endswith("/"):
         raise EnvironmentError("{0} environment path '{1}' not allowed to end with '/' or '\'".format(name, path))
-    if not os.path.isdir(path):
+    if mustExist and not os.path.isdir(path):
         raise EnvironmentError("The {0} environment variable content '{1}' does not point to a valid directory".format(name, path))
     return path
 

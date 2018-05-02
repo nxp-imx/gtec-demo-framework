@@ -49,7 +49,8 @@ namespace Fsl
         BlueSize,
         AlphaSize,
         DepthSize,
-        LogExtensions
+        LogExtensions,
+        LogConfigs
       };
     };
 
@@ -70,6 +71,7 @@ namespace Fsl
   EGLDemoHostOptionParser::EGLDemoHostOptionParser()
     : m_logConfig(false)
     , m_logExtensions(false)
+    , m_configLogMode(ConfigLogMode::Off)
     , m_configAttributes()
   {
   }
@@ -86,6 +88,7 @@ namespace Fsl
     rOptions.push_back(Option("EGLAlphaSize", OptionArgument::OptionRequired, CommandId::AlphaSize, "Force EGL_ALPHA_SIZE to the given value", OptionGroup::Host));
     rOptions.push_back(Option("EGLDepthSize", OptionArgument::OptionRequired, CommandId::DepthSize, "Force EGL_DEPTH_SIZE to the given value", OptionGroup::Host));
     rOptions.push_back(Option("EGLLogExtensions", OptionArgument::OptionNone, CommandId::LogExtensions, "Output the EGL extensions to the log", OptionGroup::Host));
+    rOptions.push_back(Option("EGLLogConfigs", OptionArgument::OptionRequired, CommandId::LogConfigs, "Output the supported configurations to the log. 0=Off, 1=All, 2=HDR. Don't confuse this with LogConfig.", OptionGroup::Host));
   }
 
 
@@ -110,6 +113,26 @@ namespace Fsl
     case CommandId::LogExtensions:
       m_logExtensions = true;
       return OptionParseResult::Parsed;
+    case CommandId::LogConfigs:
+    {
+      uint32_t value;
+      StringParseUtil::Parse(value, pszOptArg);
+      switch (value)
+      {
+      case 0:
+        m_configLogMode = ConfigLogMode::Off;
+        break;
+      case 1:
+        m_configLogMode = ConfigLogMode::All;
+        break;
+      case 2:
+        m_configLogMode = ConfigLogMode::HDR;
+        break;
+      default:
+        throw NotSupportedException("LogConfigs supports values in the range 0-2");
+      }
+      return OptionParseResult::Parsed;
+    }
     default:
       return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
     }

@@ -84,11 +84,17 @@ namespace Fsl
       return m_system.ProcessMessages(args);
     }
 
+    virtual bool IsDisplayHDRCompatible(const int32_t displayId) const override
+    {
+      return m_system.IsDisplayHDRCompatible(displayId);
+    }
+
     // From IEGLNativeWindowSystem
     virtual EGLNativeDisplayType GetDisplayType() const override
     {
       return m_displayType;
     }
+
 
     virtual std::shared_ptr<IEGLNativeWindow> CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const NativeEGLSetup& nativeEglSetup) override
     {

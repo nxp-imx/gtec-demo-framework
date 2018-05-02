@@ -33,12 +33,13 @@
 
 namespace Fsl
 {
-  DemoSetup::DemoSetup(const ExceptionMessageFormatter& exceptionFormatter, const std::shared_ptr<IServiceProvider>& serviceProvider, const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose)
+  DemoSetup::DemoSetup(const ExceptionMessageFormatter& exceptionFormatter, const std::shared_ptr<IServiceProvider>& serviceProvider,
+                       const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const uint32_t verbosityLevel)
     : ExceptionFormatter(exceptionFormatter)
     , ServiceProvider(serviceProvider)
     , Host(hostSetup)
     , App(appSetup)
-    , Verbose(verbose)
+    , VerbosityLevel(verbosityLevel)
   {
   }
 

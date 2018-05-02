@@ -41,7 +41,6 @@ import os
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildContent.Sync.Content import Content
 from FslBuildGen.BuildContent.PathRecord import PathRecord
-from FslBuildGen.Config import Config
 from FslBuildGen.Log import Log
 
 
@@ -68,14 +67,26 @@ def GetCacheVersionString() -> str:
     return "# Format: %s\n" % (__GetCacheFormatVersion())
 
 
-class ContentState(object):
+class BasicContentState(object):
     def __init__(self) -> None:
-        super(ContentState, self).__init__()
+        super(BasicContentState, self).__init__()
         self.Name = ""
         self.Length = 0
         self.ModifiedDate = ""
         self.Checksum = ""
         self.TagChecksum = "0"
+
+    def Set(self, name: str, length: int, modifiedDate: str, checksum: str, tagChecksum: str) -> None:
+        self.Name = name
+        self.Length = length
+        self.ModifiedDate = modifiedDate
+        self.Checksum = checksum
+        self.TagChecksum = tagChecksum
+
+
+class ContentState(BasicContentState):
+    def __init__(self) -> None:
+        super(ContentState, self).__init__()
         self.CacheState = CacheState.New
         self.ModificationComment = ""
 
@@ -102,13 +113,37 @@ class ContentState(object):
         return strNew if len(srcStr) == 0 else "{0}, {1}".format(srcStr, strNew)
 
 
+def CreateDirEntry(path: str) -> ContentState:
+    dirState = ContentState()
+    dirState.Name = path
+    dirState.Length = -1
+    dirState.ModifiedDate = "0"
+    dirState.Checksum = "0"
+    dirState.TagChecksum = "0"
+    return dirState
+
+
+class BasicContent(object):
+    def __init__(self) -> None:
+        super(BasicContent, self).__init__()
+        self.Directories = []  # type: List[str]
+        self.Files = []  # type: List[BasicContentState]
+
+    def AddFile(self, name: str, length: int, modifiedDate: str, checksum: str, tagChecksum: str) -> None:
+        fileState = BasicContentState()
+        fileState.Set(name, length, modifiedDate, checksum, tagChecksum)
+        self.Files.append(fileState)
+
 class SyncState(object):
     def __init__(self, absoluteCacheFileName: str) -> None:
         super(SyncState, self).__init__()
         self.AbsoluteCacheFileName = absoluteCacheFileName
-        self.Dirs = {}  # type: Dict[str, ContentState]
-        self.Entries = {}  # type: Dict[str, ContentState]
-        self.Removed = {}  # type: Dict[str, ContentState]
+        self.__Clear()
+
+    def __Clear(self) -> None:
+        self.Dirs = {}      # type: Dict[str, ContentState]
+        self.Entries = {}   # type: Dict[str, ContentState]
+        self.Removed = {}   # type: Dict[str, ContentState]
         self.IsNew = True
 
     def __FileModificationDate(self, filename: str) -> str:
@@ -147,11 +182,11 @@ class SyncState(object):
         return None
 
 
-    def Load(self, config: Config) -> None:
-        self.__Load(config, self.AbsoluteCacheFileName)
+    def Load(self, log: Log) -> None:
+        self.__Load(log, self.AbsoluteCacheFileName)
 
 
-    def __Load(self, config: Config, path: str) -> None:
+    def __Load(self, log: Log, path: str) -> None:
         if not os.path.exists(path):
             return
         content = IOUtil.ReadFile(path)
@@ -163,21 +198,21 @@ class SyncState(object):
         cacheHeader = GetCacheHeader()
         # if the file starts with a invalid header, we ignore it
         if not content.startswith(cacheHeader):
-            config.LogPrint("Cache header invalid, ignoring cache")
+            log.LogPrint("Cache header invalid, ignoring cache")
             return
 
         entries = []  # type: List[ContentState]
         dirs = []
         lines = content.splitlines(False)
         if len(lines) < 3:
-            config.LogPrint("WARNING: Cache at '{0}' is invalid, ignoring it.".format(path))
+            log.LogPrintWarning("Cache at '{0}' is invalid, ignoring it.".format(path))
             return
         for line in lines:
             line = line.strip()
             if not line.startswith('#'):
                 elements = line.split(GLOBAL_SEP)
                 if len(elements) != 5:
-                    config.LogPrint("Cache entry invalid, ignoring cache")
+                    log.LogPrint("Cache entry invalid, ignoring cache")
                     return
                 contentState = ContentState()
                 contentState.Name = elements[0]
@@ -199,6 +234,47 @@ class SyncState(object):
 
     def Save(self) -> None:
         self.__Save(self.AbsoluteCacheFileName)
+
+    def ExtractContent(self) -> BasicContent:
+        res = BasicContent()
+
+        # Directories
+        sortedList = list(self.Dirs.keys())
+        sortedList.sort()
+        for name in sortedList:
+            res.Directories.append(name)
+
+        # Files
+        sortedList = list(self.Entries.keys())
+        sortedList.sort()
+        for name in sortedList:
+            entry = self.Entries[name]
+            state = BasicContentState()
+            state.Name = entry.Name
+            state.Length = entry.Length
+            state.ModifiedDate = entry.ModifiedDate
+            state.Checksum = entry.Checksum
+            state.TagChecksum = entry.TagChecksum
+            res.Files.append(state)
+        return res
+
+
+    def RestoreContent(self, content: BasicContent) -> None:
+        self.__Clear()
+        self.IsNew = False
+        # Directories
+        for entry in content.Directories:
+            dirEntry = CreateDirEntry(entry)
+            self.AddDir(dirEntry)
+        # Files
+        for contentFileEntry in content.Files:
+            fileEntry = ContentState()
+            fileEntry.Name = contentFileEntry.Name
+            fileEntry.Length = contentFileEntry.Length
+            fileEntry.ModifiedDate = contentFileEntry.ModifiedDate
+            fileEntry.Checksum = contentFileEntry.Checksum
+            fileEntry.TagChecksum = contentFileEntry.TagChecksum
+            self.Add(fileEntry)
 
 
     def __Save(self, path: str) -> None:
@@ -234,9 +310,9 @@ class SyncState(object):
         if allowCaching and cachedState is not None and fileState.Length == cachedState.Length and fileState.ModifiedDate == cachedState.ModifiedDate:
             fileState.Checksum = cachedState.Checksum
             fileState.TagChecksum = cachedState.TagChecksum
-            log.LogPrint("Using cached checksum for '{0}'".format(fileState.Name))
+            log.LogPrintVerbose(2, "Using cached checksum for '{0}'".format(fileState.Name))
         else:
-            log.LogPrint("Calculating checksum for '{0}'".format(fileState.Name))
+            log.LogPrintVerbose(2, "Calculating checksum for '{0}'".format(fileState.Name))
             fileState.Checksum = self.__HashFile(pathFileRecord.ResolvedPath)
         # Mark the entry as being new
         #if (cachedState is None or CacheState.New) and allowNew:
@@ -261,31 +337,29 @@ class SyncState(object):
 
 
 
-def __BuildSyncState(config: Config, absoluteCacheFileName: str,
+
+
+def __BuildSyncState(log: Log, absoluteCacheFileName: str,
                      content: Content,
                      cachedSyncState: Optional[SyncState],
-                     allowCaching: bool, allowNew: bool, addNewFilesAndDirs: bool) -> SyncState:
+                     allowCaching: bool, allowNew: bool, addNewFilesAndDirs: bool,
+                     allowCacheLoad: bool) -> SyncState:
     """ absoluteCacheFileName must be a absolute filename """
     content.RemoveFileByResolvedSourcePath(absoluteCacheFileName)
 
-    if cachedSyncState is None:
-        config.LogPrint("Examining content of '{0}'".format(content.PrimaryFolder))
+    if cachedSyncState is None and allowCacheLoad:
+        log.LogPrintVerbose(2, "Examining content of '{0}'".format(content.PrimaryFolder))
         cachedSyncState = SyncState(absoluteCacheFileName)
-        cachedSyncState.Load(config)
+        cachedSyncState.Load(log)
     else:
-        config.LogPrint("Rescanning content of '{0}'".format(content.PrimaryFolder))
+        log.LogPrintVerbose(2, "Rescanning content of '{0}'".format(content.PrimaryFolder))
 
 
     syncState = SyncState(absoluteCacheFileName)
 
     for pathDirRecord in content.Dirs:
-        dirState = ContentState()
-        dirState.Name = pathDirRecord.RelativePath
-        dirState.Length = -1
-        dirState.ModifiedDate = "0"
-        dirState.Checksum = "0"
-        dirState.TagChecksum = "0"
-        cachedState = cachedSyncState.TryGetDirState(dirState)
+        dirState = CreateDirEntry(pathDirRecord.RelativePath)
+        cachedState = cachedSyncState.TryGetDirState(dirState) if cachedSyncState is not None else None
         if cachedState is None and allowNew:
             dirState.CacheState = CacheState.New
         if addNewFilesAndDirs or dirState.CacheState != CacheState.New:
@@ -293,28 +367,33 @@ def __BuildSyncState(config: Config, absoluteCacheFileName: str,
 
 
     for pathFileRecord in content.Files:
-        fileState = syncState.BuildContentState(config, pathFileRecord, allowCaching, allowNew, cachedSyncState)
+        fileState = syncState.BuildContentState(log, pathFileRecord, allowCaching, allowNew, cachedSyncState)
         if addNewFilesAndDirs or fileState.CacheState != CacheState.New:
             syncState.Add(fileState)
 
 
     # Tag the sync state with information about which files were removed compared the the last time we synced
-    for entry in list(cachedSyncState.Entries.values()):
-        if not entry.Name in syncState.Entries:
-            syncState.AddRemoved(entry)
+    if cachedSyncState is not None:
+        for entry in list(cachedSyncState.Entries.values()):
+            if not entry.Name in syncState.Entries:
+                syncState.AddRemoved(entry)
 
-    # Tag the sync state with information about which dirs were removed compared the the last time we synced
-    for entry in list(cachedSyncState.Dirs.values()):
-        if not entry.Name in syncState.Dirs:
-            syncState.AddRemoved(entry)
+        # Tag the sync state with information about which dirs were removed compared the the last time we synced
+        for entry in list(cachedSyncState.Dirs.values()):
+            if not entry.Name in syncState.Dirs:
+                syncState.AddRemoved(entry)
     return syncState
 
 
 
-def GenerateSyncState(config: Config, absoluteCacheFileName: str, content: Content, allowCache: bool) -> SyncState:
-    return __BuildSyncState(config, absoluteCacheFileName, content, None, allowCache, True, True)
+def GenerateSyncState(log: Log, absoluteCacheFileName: str, content: Content, allowCache: bool) -> SyncState:
+    return __BuildSyncState(log, absoluteCacheFileName, content, None, allowCache, True, True, True)
 
 
-def GenerateOutputSyncState(config: Config, absoluteCacheFileName: str, path: str, allowCache: bool) -> SyncState:
-    content = Content(config, path, True)
-    return __BuildSyncState(config, absoluteCacheFileName, content, None, allowCache, True, True)
+def GenerateSyncState2(log: Log, absoluteCacheFileName: str, content: Content, cachedSyncState: Optional[SyncState], allowCache: bool) -> SyncState:
+    return __BuildSyncState(log, absoluteCacheFileName, content, cachedSyncState, allowCache, True, True, False)
+
+
+def GenerateOutputSyncState(log: Log, absoluteCacheFileName: str, path: str, allowCache: bool) -> SyncState:
+    content = Content(log, path, True)
+    return __BuildSyncState(log, absoluteCacheFileName, content, None, allowCache, True, True, True)

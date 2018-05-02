@@ -40,7 +40,7 @@
 #include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
 #include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/DemoAppManagerEventListener.hpp>
-#include <FslDemoHost/Base/Service/Graphics/IGraphicsServiceControl.hpp>
+#include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <cassert>
 //#include <iostream>
@@ -85,7 +85,7 @@ namespace Fsl
   {
     m_expectedFrameTime = m_frameTimeConfig;
     m_demoAppControl = m_demoAppConfig.DemoServiceProvider.Get<IDemoAppControlEx>();
-    m_graphicsService = m_demoAppConfig.DemoServiceProvider.Get<IGraphicsServiceControl>();
+    m_graphicsService = m_demoAppConfig.DemoServiceProvider.TryGet<IGraphicsServiceControl>();
     m_profilerServiceControl = m_demoAppConfig.DemoServiceProvider.Get<IProfilerServiceControl>();
     m_profilerService = m_demoAppConfig.DemoServiceProvider.Get<IProfilerService>();
 
@@ -150,7 +150,8 @@ namespace Fsl
     if (screenResolution != m_demoAppConfig.ScreenResolution)
     {
       m_demoAppConfig.ScreenResolution = screenResolution;
-      m_graphicsService->SetScreenResolution(screenResolution, true);
+      if (m_graphicsService)
+        m_graphicsService->SetScreenResolution(screenResolution, true);
       m_demoApp->_Resized(m_demoAppConfig.ScreenResolution);
     }
 
@@ -360,7 +361,8 @@ namespace Fsl
     // Handle delayed app initialization
     if (! m_demoApp)
     {
-      m_graphicsService->SetScreenResolution(screenResolution, m_preallocateBasic2D);
+      if(m_graphicsService)
+        m_graphicsService->SetScreenResolution(screenResolution, m_preallocateBasic2D);
       m_demoAppConfig.ScreenResolution = screenResolution;
       if ( ! applyFirewall )
         m_demoApp = m_demoAppSetup.Factory->Allocate(m_demoAppConfig);

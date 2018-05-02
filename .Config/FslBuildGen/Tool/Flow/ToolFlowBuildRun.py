@@ -40,7 +40,6 @@ import subprocess
 import sys
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageListUtil
-#from FslBuildGen import PlatformUtil
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues

@@ -51,4 +51,9 @@ namespace Fsl
     return m_windowSystem->ProcessMessages(args);
   }
 
+  bool NativeWindowSystemProxy::IsDisplayHDRCompatible(const int32_t displayId) const
+  {
+    return m_windowSystem->IsDisplayHDRCompatible(displayId);
+  }
+
 }

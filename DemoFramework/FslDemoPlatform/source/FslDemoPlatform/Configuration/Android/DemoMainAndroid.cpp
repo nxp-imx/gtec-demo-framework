@@ -44,7 +44,7 @@
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include "NDKHelper.h"
-#include "JNIUtil.hpp"
+#include <Platform/Android/JNIUtil/JNIUtil.hpp>
 
 
 #define SYNC_CLASS_NAME "com/freescale/demoplatform/DemoHelper"

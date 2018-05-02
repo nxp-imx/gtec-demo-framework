@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <HeaderLibrary Name="RapidOpenCL1" AllowCheck="false">
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="RapidOpenCL1">
     <Dependency Name="FslBase"/>
     <Dependency Name="OpenCL"/>
     <Define Name="FSL_DEMOFRAMEWORK" Access="Public"/>
-    <Platform Name="Windows" ProjectId="6ECDC3B7-B3AD-4ABE-BBC9-85645210E572"/>
-  </HeaderLibrary>
+    <Dependency Name="Recipe.RapidOpenCL_1_1_0_0"/>
+  </ExternalLibrary>
 </FslBuildGen>

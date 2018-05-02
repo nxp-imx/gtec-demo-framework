@@ -47,6 +47,7 @@
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
+#include <Platform/Android/JNIUtil/JNIUtil.hpp>
 
 #if 0
 #define LOCAL_LOG(X) FSLLOG("PlatformNativeWindowAndroid: " << X)
@@ -667,17 +668,22 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
+                                                  const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
     {
       return std::make_shared<PlatformNativeWindowAndroid>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
   }
 
 
-  PlatformNativeWindowSystemAndroid::PlatformNativeWindowSystemAndroid(const NativeWindowSystemSetup& setup, const PlatformNativeWindowAllocationFunction& allocateWindowFunction, const PlatformNativeWindowSystemParams& systemParams)
+  PlatformNativeWindowSystemAndroid::PlatformNativeWindowSystemAndroid(const NativeWindowSystemSetup& setup,
+                                                                       const PlatformNativeWindowAllocationFunction& allocateWindowFunction,
+                                                                       const PlatformNativeWindowSystemParams& systemParams)
     : PlatformNativeWindowSystem(setup, nullptr)
     , m_allocationFunction(allocateWindowFunction ? allocateWindowFunction : AllocateWindow)
     , m_pAppState(nullptr)
+    , m_isDisplayHDRCompatibleCached(false)
+    , m_isDisplayHDRCompatible(false)
   {
     auto eventQueue = setup.GetEventQueue().lock();
     g_eventQueue = eventQueue;
@@ -704,7 +710,8 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<INativeWindow> PlatformNativeWindowSystemAndroid::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  std::shared_ptr<INativeWindow> PlatformNativeWindowSystemAndroid::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                                                       const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
   {
     return m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, m_pAppState, nullptr), pPlatformCustomWindowAllocationParams);
   }
@@ -716,6 +723,17 @@ namespace Fsl
   }
 
 
+  bool PlatformNativeWindowSystemAndroid::IsDisplayHDRCompatible(const int32_t displayId) const
+  {
+    if (!m_isDisplayHDRCompatibleCached)
+    {
+      m_isDisplayHDRCompatible = JNIUtil::GetInstance()->IsDisplayHDRCompatible();
+      m_isDisplayHDRCompatibleCached = true;
+    }
+
+    return m_isDisplayHDRCompatible;
+  }
+
   android_app* PlatformNativeWindowSystemAndroid::GetAndroidAppState() const
   {
     return m_pAppState;
@@ -723,7 +741,9 @@ namespace Fsl
 
 
 
-  PlatformNativeWindowAndroid::PlatformNativeWindowAndroid(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  PlatformNativeWindowAndroid::PlatformNativeWindowAndroid(const NativeWindowSetup& nativeWindowSetup,
+                                                           const PlatformNativeWindowParams& windowParams,
+                                                           const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
     : PlatformNativeWindow(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
     , m_eventQueue(nativeWindowSetup.GetEventQueue())
     , m_pAppState(windowParams.AppState)
@@ -741,7 +761,6 @@ namespace Fsl
     m_platformWindow = g_hWindow;
 
 
-
     if( windowParams.OnWindowCreated )
     {
       LOCAL_LOG("NativeWindow onWindowCreated");
@@ -750,6 +769,8 @@ namespace Fsl
 
     LOCAL_LOG("NativeWindow show UI");
     ShowUI(windowParams.AppState);
+    LOCAL_LOG("NativeWindow ready");
+
     LOCAL_LOG("NativeWindow ready");
   }
 

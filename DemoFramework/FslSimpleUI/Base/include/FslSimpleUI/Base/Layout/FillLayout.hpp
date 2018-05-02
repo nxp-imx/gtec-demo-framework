@@ -31,13 +31,13 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
-    class FillLayout : public Layout
+    class FillLayout : public SimpleLayout
     {
     public:
       FillLayout(const std::shared_ptr<WindowContext>& context);

@@ -35,53 +35,80 @@ import os
 from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.PackageConfig import PlatformNameIdString
 #from FslBuildGen import PluginSharedValues
 
-__g_posixPlatforms = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.QNX]
-__g_ntPlatforms = [PlatformNameString.ANDROID, PlatformNameString.WINDOWS]
+g_posixPlatforms = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.QNX]
+g_ntPlatforms = [PlatformNameString.ANDROID, PlatformNameString.WINDOWS]
+
+g_posixPlatformIds = [name.lower() for name in g_posixPlatforms]
+g_ntPlatformIds = [name.lower() for name in g_ntPlatforms]
+
+class PlatformUtil(object):
+    @staticmethod
+    def AddExtraGenerators(platform: str) -> None:
+        if PlatformUtil.DetectBuildPlatformType() != BuildPlatformType.Windows:
+            return
+        global g_ntPlatforms
+        g_ntPlatforms.append(platform)
+
+    @staticmethod
+    def DetectBuildPlatform() -> str:
+        sdkPlatformName = IOUtil.TryGetEnvironmentVariable('FSL_PLATFORM_NAME')
+        if os.name == 'posix':
+            if not sdkPlatformName:
+                raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set")
+            if sdkPlatformName not in g_posixPlatforms:
+                raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these {0}".format(g_posixPlatforms))
+        elif os.name == 'nt':
+            if not sdkPlatformName:
+                return PlatformNameString.WINDOWS
+            if sdkPlatformName not in g_ntPlatforms:
+                raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these {0}".format(g_ntPlatforms))
+        else:
+            raise EnvironmentError("Unsupported build environment")
+        return sdkPlatformName
 
 
-def AddExtraGenerators(platform: str) -> None:
-    if DetectBuildPlatformType() != BuildPlatformType.Windows:
-        return
-    __g_ntPlatforms.append(platform)
+    @staticmethod
+    def DetectBuildPlatformType() -> int:
+        if os.name == 'posix':
+            return BuildPlatformType.Unix
+        elif os.name == 'nt':
+            return BuildPlatformType.Windows
+        return BuildPlatformType.Unknown
 
 
-def DetectBuildPlatform() -> str:
-    sdkPlatformName = IOUtil.TryGetEnvironmentVariable('FSL_PLATFORM_NAME')
-    if os.name == 'posix':
-        if not sdkPlatformName:
-            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set")
-        if sdkPlatformName not in __g_posixPlatforms:
-            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these {0}".format(__g_posixPlatforms))
-    elif os.name == 'nt':
-        if not sdkPlatformName:
-            return PlatformNameString.WINDOWS
-        if sdkPlatformName not in __g_ntPlatforms:
-            raise EnvironmentError("Please make sure that the environment variable FSL_PLATFORM_NAME is set to one of these {0}".format(__g_ntPlatforms))
-    else:
-        raise EnvironmentError("Unsupported build environment")
-    return sdkPlatformName
+    @staticmethod
+    def TryCheckBuildPlatform(platform: str) -> bool:
+        platformId = platform.lower()
+        buildPlatformType = PlatformUtil.DetectBuildPlatformType()
+        if buildPlatformType == BuildPlatformType.Unix and platformId in g_posixPlatformIds:
+            return True
+        elif buildPlatformType == BuildPlatformType.Windows and platformId in g_ntPlatformIds:
+            return True
+        return False
 
 
-def DetectBuildPlatformType() -> int:
-    if os.name == 'posix':
-        return BuildPlatformType.Unix
-    elif os.name == 'nt':
-        return BuildPlatformType.Windows
-    return BuildPlatformType.Unknown
+    @staticmethod
+    def CheckBuildPlatform(platform: str) -> None:
+        if PlatformUtil.TryCheckBuildPlatform(platform):
+            return
+        raise EnvironmentError("Unsupported build environment for '{0}'".format(platform))
 
 
-def TryCheckBuildPlatform(platform: str) -> bool:
-    buildPlatformType = DetectBuildPlatformType()
-    if buildPlatformType == BuildPlatformType.Unix and platform in __g_posixPlatforms:
-        return True
-    elif buildPlatformType == BuildPlatformType.Windows and platform in __g_ntPlatforms:
-        return True
-    return False
+    @staticmethod
+    def GetPlatformDependentExecuteableName(exeName: str, buildPlatformType: int) -> str:
+        exeName = IOUtil.GetFileNameWithoutExtension(exeName)
+        if buildPlatformType == BuildPlatformType.Windows:
+            return exeName + ".exe"
+        return exeName
 
+    @staticmethod
+    def GetExecutableName(exeName: str, platformName: str) -> str:
+        exeName = IOUtil.GetFileNameWithoutExtension(exeName)
+        platformId = platformName.lower()
+        if platformId == PlatformNameIdString.WINDOWS:
+            return exeName + '.exe'
+        return exeName
 
-def CheckBuildPlatform(platform: str) -> None:
-    if TryCheckBuildPlatform(platform):
-        return
-    raise EnvironmentError("Unsupported build environment for '{0}'".format(platform))

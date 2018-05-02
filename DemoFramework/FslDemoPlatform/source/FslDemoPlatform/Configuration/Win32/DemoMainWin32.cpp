@@ -63,8 +63,7 @@ namespace
   }
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
   //_CrtSetBreakAlloc(280);
 
   // Get the current thread handle

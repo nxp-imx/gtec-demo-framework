@@ -50,7 +50,7 @@ def GetVCBuildConfigurationName(entry: List[str]) -> str:
 # - External libs with special debug libraries are not handled
 # - Content is not located corectly in VS since the 'current work directory' is 'wrong'
 # - The manifest for DPI on windows is not added.
-# - Icon resourcres on windows are not added
+# - Icon resources on windows are not added
 # - Variants are not handled
 # - Build content is not done
 # - FslBuild things dont work
@@ -151,7 +151,7 @@ class GeneratorCMake(GeneratorBase):
             raise Exception("Invalid package")
         content = ""
         for entry in package.ResolvedBuildOrder:
-            if entry != package:
+            if entry != package and entry.Type != PackageType.ToolRecipe:
                 if entry.AbsolutePath is None:
                     raise Exception("Invalid package")
                 path = CMakeGeneratorUtil.GetRelativePath(config, package.AbsolutePath, entry.AbsolutePath)

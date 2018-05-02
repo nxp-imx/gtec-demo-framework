@@ -49,10 +49,16 @@ namespace Fsl
       virtual void WinInit() override;
 
     protected:
-      ThicknessF DoGetPadding() const { return m_padding; }
+      ThicknessF DoGetPadding() const
+      {
+        return m_padding;
+      }
       void DoSetPadding(const ThicknessF& value);
 
-      std::shared_ptr<BaseWindow> DoGetContent() const { return m_content; }
+      std::shared_ptr<BaseWindow> DoGetContent() const
+      {
+        return m_content;
+      }
       void DoSetContent(const std::shared_ptr<BaseWindow>& value);
 
       virtual Vector2 ArrangeOverride(const Vector2& finalSize) override;

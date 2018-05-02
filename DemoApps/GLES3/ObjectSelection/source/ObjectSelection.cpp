@@ -290,7 +290,7 @@ namespace Fsl
     }
 
     {
-      const float movementSpeed = 1.0f;
+      const float movementSpeed = 32.0f * demoTime.DeltaTime;
       auto keyboardState = m_keyboard->GetState();
 
       if (keyboardState.IsKeyDown(VirtualKey::W))

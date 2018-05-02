@@ -38,7 +38,6 @@ namespace Fsl
 {
   namespace GLES2
   {
-
     NativeTexture2D::NativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
       : m_impl()
     {
@@ -47,5 +46,13 @@ namespace Fsl
       m_impl.SetData(bitmap, params, textureFlags);
     }
 
+
+    NativeTexture2D::NativeTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+      : m_impl()
+    {
+      const GLenum filter = (filterHint == Texture2DFilterHint::Nearest ? GL_NEAREST : GL_LINEAR);
+      GLTextureParameters params(filter, filter, GL_REPEAT, GL_REPEAT);
+      m_impl.SetData(texture, params, textureFlags);
+    }
   }
 }

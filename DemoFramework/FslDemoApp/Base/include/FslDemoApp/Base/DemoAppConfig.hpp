@@ -62,7 +62,8 @@ namespace Fsl
     //! The custom configuration that can be supplied during app registration (beware some of the values have been used when you get this)
     CustomDemoAppConfig CustomConfig;
 
-    DemoAppConfig(const std::shared_ptr<ADemoOptionParser>& demoOptionParser, const ExceptionMessageFormatter& exceptionFormatter, const Point2& screenResolution, const ServiceProvider& serviceProvider, const CustomDemoAppConfig& customConfig);
+    DemoAppConfig(const std::shared_ptr<ADemoOptionParser>& demoOptionParser, const ExceptionMessageFormatter& exceptionFormatter,
+                  const Point2& screenResolution, const ServiceProvider& serviceProvider, const CustomDemoAppConfig& customConfig);
     ~DemoAppConfig();
 
 

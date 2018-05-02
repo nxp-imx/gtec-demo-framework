@@ -51,7 +51,9 @@ namespace Fsl
 {
   namespace
   {
-    bool TryLoadViaImageService(const std::shared_ptr<IImageLibraryService>& imageLibraryService, Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin usedOriginHint, const PixelChannelOrder preferredChannelOrderHint)
+    bool TryLoadViaImageService(const std::shared_ptr<IImageLibraryService>& imageLibraryService, Bitmap& rBitmap, const IO::Path& absolutePath,
+                                const PixelFormat desiredPixelFormat, const BitmapOrigin usedOriginHint,
+                                const PixelChannelOrder preferredChannelOrderHint)
     {
       if (!imageLibraryService)
         return false;
@@ -61,7 +63,9 @@ namespace Fsl
     }
 
 
-    bool TryLoadViaImageService(const std::shared_ptr<IImageLibraryService>& imageLibraryService, Texture& rTexture, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin usedOriginHint, const PixelChannelOrder preferredChannelOrderHint)
+    bool TryLoadViaImageService(const std::shared_ptr<IImageLibraryService>& imageLibraryService, Texture& rTexture, const IO::Path& absolutePath,
+                                const PixelFormat desiredPixelFormat, const BitmapOrigin usedOriginHint,
+                                const PixelChannelOrder preferredChannelOrderHint)
     {
       if (!imageLibraryService)
         return false;
@@ -79,7 +83,7 @@ namespace Fsl
     serviceProvider.Get<IImageLibraryService>(m_imageLibraryServices);
 
     // Sort the library services by name to ensure that we have a consistent order
-    auto funcByNameComp = [](const std::shared_ptr<IImageLibraryService>& lhs, const std::shared_ptr<IImageLibraryService>& rhs) {return lhs->GetName() < rhs->GetName(); };
+    auto funcByNameComp = [](const std::shared_ptr<IImageLibraryService>& lhs, const std::shared_ptr<IImageLibraryService>& rhs) {return lhs->GetName() > rhs->GetName(); };
     std::sort(m_imageLibraryServices.begin(), m_imageLibraryServices.end(), funcByNameComp);
 
     // Query all libs for their supported extensions (note its optional for them to provide this list)
@@ -90,9 +94,15 @@ namespace Fsl
       (*itr)->ExtractSupportedImageFormats(formats);
       for (auto itrFormat = formats.begin(); itrFormat != formats.end(); ++itrFormat)
       {
-        if (m_formatToImageLibrary.find(*itrFormat) == m_formatToImageLibrary.end())
+        auto itrFind = m_formatToImageLibrary.find(*itrFormat);
+        if(itrFind == m_formatToImageLibrary.end())
         {
-          m_formatToImageLibrary[*itrFormat] = *itr;
+          m_formatToImageLibrary[*itrFormat] = std::make_shared<ImageLibraryDeque>();
+          m_formatToImageLibrary[*itrFormat]->push_back(*itr);
+        }
+        else
+        {
+          itrFind->second->push_back(*itr);
         }
       }
     }
@@ -121,7 +131,15 @@ namespace Fsl
     {
       const auto itrFind = m_formatToImageLibrary.find(imageFormatBasedOnExt);
       if (itrFind != m_formatToImageLibrary.end())
-        isLoaded = TryLoadViaImageService(itrFind->second, rBitmap, absolutePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
+      {
+        auto itrCurrent = itrFind->second->begin();
+        const auto itrCurrentEnd = itrFind->second->end();
+        while (itrCurrent != itrCurrentEnd && !isLoaded)
+        {
+          isLoaded = TryLoadViaImageService(*itrCurrent, rBitmap, absolutePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
+          ++itrCurrent;
+        }
+      }
     }
 
     // No such luck, so lets just try all the registered image services
@@ -141,6 +159,10 @@ namespace Fsl
 
     if (rBitmap.GetPixelFormat() != usedDesiredPixelFormat || rBitmap.GetOrigin() != desiredOrigin)
       m_bitmapConverter->Convert(rBitmap, usedDesiredPixelFormat, desiredOrigin);
+
+    // When loading a undefined pixel format we prefer the unorm variant
+    if (desiredPixelFormat == PixelFormat::Undefined)
+      rBitmap.TrySetCompatiblePixelFormatFlag(PixelFormatFlags::NF_UNorm);
   }
 
 
@@ -162,7 +184,15 @@ namespace Fsl
     {
       const auto itrFind = m_formatToImageLibrary.find(imageFormatBasedOnExt);
       if (itrFind != m_formatToImageLibrary.end())
-        isLoaded = TryLoadViaImageService(itrFind->second, rTexture, absolutePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
+      {
+        auto itrCurrent = itrFind->second->begin();
+        const auto itrCurrentEnd = itrFind->second->end();
+        while (itrCurrent != itrCurrentEnd && !isLoaded)
+        {
+          isLoaded = TryLoadViaImageService(*itrCurrent, rTexture, absolutePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
+          ++itrCurrent;
+        }
+      }
     }
 
     // No such luck, so lets just try all the registered image services
@@ -190,6 +220,10 @@ namespace Fsl
 
     if (rTexture.GetPixelFormat() != usedDesiredPixelFormat || rTexture.GetBitmapOrigin() != desiredOrigin)
       m_bitmapConverter->Convert(rTexture, usedDesiredPixelFormat, desiredOrigin);
+
+    // When loading a undefined pixel format we prefer the unorm variant
+    if (desiredPixelFormat == PixelFormat::Undefined)
+      rTexture.TrySetCompatiblePixelFormatFlag(PixelFormatFlags::NF_UNorm);
   }
 
 
@@ -315,8 +349,17 @@ namespace Fsl
   {
     // If there is a image service available for the format
     const auto itrFind = m_formatToImageLibrary.find(imageFormat);
-    if (itrFind != m_formatToImageLibrary.end() && itrFind->second->TryWrite(absPath, bitmap, imageFormat, true))
-      return;
+    if (itrFind != m_formatToImageLibrary.end())
+    {
+      auto itrCurrent = itrFind->second->begin();
+      const auto itrCurrentEnd = itrFind->second->end();
+      while (itrCurrent != itrCurrentEnd)
+      {
+        if ((*itrCurrent)->TryWrite(absPath, bitmap, imageFormat, true))
+          return;
+        ++itrCurrent;
+      }
+    }
 
     // No such luck, so lets just try all the registered image service
     for (auto itr = m_imageLibraryServices.begin(); itr != m_imageLibraryServices.end(); ++itr)
@@ -352,8 +395,17 @@ namespace Fsl
 
     // If there is a image service available for the format
     const auto itrFind = m_formatToImageLibrary.find(imageFormat);
-    if (itrFind != m_formatToImageLibrary.end() && itrFind->second->TryWrite(absPath, bitmap, imageFormat, true))
-      return;
+    if (itrFind != m_formatToImageLibrary.end())
+    {
+      auto itrCurrent = itrFind->second->begin();
+      const auto itrCurrentEnd = itrFind->second->end();
+      while (itrCurrent != itrCurrentEnd)
+      {
+        if ((*itrCurrent)->TryWrite(absPath, bitmap, imageFormat, true))
+          return;
+      }
+    }
+
 
     // No such luck, so lets just try all the registered image service
     for (auto itr = m_imageLibraryServices.begin(); itr != m_imageLibraryServices.end(); ++itr)

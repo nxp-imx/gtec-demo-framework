@@ -3,9 +3,11 @@
   <Library Name="FslDemoApp.OpenGLES3">
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslUtil.OpenGLES3"/>
-    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3" Access="Private"/>
+    <Dependency Name="FslDemoHost.EGL.Config"/>
     <Dependency Name="FslDemoHost.OpenGLES3" Access="Private"/>
     <Dependency Name="FslDemoPlatform" Access="Link"/>
+    <Dependency Name="FslDemoService.Graphics.Impl" Access="Private"/>
+    <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3" Access="Private"/>
     <Platform Name="Windows" ProjectId="934EFA83-1168-4D5C-906E-9D554F814855"/>
   </Library>
 </FslBuildGen>

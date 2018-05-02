@@ -1,5 +1,5 @@
-#ifndef FSLUTIL_OPENVX1_0_1_DUMMY_HPP
-#define FSLUTIL_OPENVX1_0_1_DUMMY_HPP
+#ifndef FSLUTIL_OPENVX1_1_DUMMY_HPP
+#define FSLUTIL_OPENVX1_1_DUMMY_HPP
 /****************************************************************************************************************************************************
 * Copyright 2017 NXP
 * All rights reserved.

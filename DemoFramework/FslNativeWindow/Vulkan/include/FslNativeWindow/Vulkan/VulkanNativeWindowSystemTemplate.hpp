@@ -85,6 +85,12 @@ namespace Fsl
     {
       return m_system.ProcessMessages(args);
     }
+
+    //! @brief Check if the display is considered HDR compatible
+    virtual bool IsDisplayHDRCompatible(const int32_t displayId) const override
+    {
+      return m_system.IsDisplayHDRCompatible(displayId);
+    }
   };
 }
 

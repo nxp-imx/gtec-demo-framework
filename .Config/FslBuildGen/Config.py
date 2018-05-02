@@ -35,11 +35,11 @@ from typing import Dict
 from typing import Optional
 import datetime
 from FslBuildGen import IOUtil
-from FslBuildGen import PlatformUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.DataTypes import SubPackageSupport
 from FslBuildGen.Log import Log
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.SharedGeneration import ToolEnvironmentVariableName
 from FslBuildGen.ToolConfig import ToolConfig
 

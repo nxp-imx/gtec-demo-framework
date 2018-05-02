@@ -33,9 +33,9 @@
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
 #include <FslDemoHost/Base/Service/Test/TestService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <cassert>
 #include <iomanip>
@@ -56,7 +56,7 @@ namespace Fsl
   {
     m_demoAppControlService = serviceProvider.Get<IDemoAppControlEx>();
     m_persistentDataManager = serviceProvider.Get<IPersistentDataManager>();
-    m_graphicsService = serviceProvider.Get<IGraphicsService>();
+    m_graphicsService = serviceProvider.TryGet<IGraphicsService>();
   }
 
 
@@ -102,7 +102,7 @@ namespace Fsl
     const bool saveNow = (m_config.Frequency > 0 && (m_frameCounter % m_config.Frequency) == 0);
     const bool hasRequest = m_demoAppControlService->HasScreenshotRequest();
 
-    if ( saveNow || hasRequest )
+    if ( (saveNow || hasRequest) && m_graphicsService )
     {
       // Reset the update timer since the screenshot functionality is slow
       // We do this to allow a perfect timed capture of the frames

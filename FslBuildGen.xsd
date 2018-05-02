@@ -347,6 +347,7 @@
 
 
   <xs:complexType name="_T_PipelineJoinCommandUnpack">
+    <xs:group ref="_G_PipelineJoinCommandList"/>
     <xs:attribute name="File" type="xs:string" use="required"/>
   </xs:complexType>
 
@@ -354,20 +355,21 @@
   <xs:complexType name="_T_PipelineJoinCommandCopy">
     <xs:attribute name="From" type="xs:string" use="required"/>
     <xs:attribute name="To" type="xs:string" use="required"/>
+    <xs:attribute name="Overwrite" type="_TP_Bool" use="optional"/>
   </xs:complexType>
 
+  <xs:complexType name="_T_PipelineJoinCommandDelete">
+    <xs:attribute name="Path" type="xs:string" use="required"/>
+  </xs:complexType>
 
   <xs:complexType name="_T_PipelineCommandUnpack">
     <xs:attribute name="File" type="xs:string" use="required"/>
     <xs:attribute name="OutputPath" type="xs:string" use="optional"/>
   </xs:complexType>
 
-
   <xs:complexType name="_T_PipelineJoinCommandGitApply">
     <xs:attribute name="From" type="xs:string" use="required"/>
   </xs:complexType>
-
-
 
   <xs:complexType name="_T_PipelineFetchCommandDownload">
     <xs:attribute name="URL" type="xs:string" use="required"/>
@@ -376,15 +378,16 @@
     <xs:attribute name="OutputPath" type="xs:string" use="optional"/>
   </xs:complexType>
 
-
   <xs:complexType name="_T_PipelineFetchCommandGitClone">
     <xs:attribute name="URL" type="xs:string" use="required"/>
     <xs:attribute name="Tag" type="xs:string" use="optional"/>
+    <xs:attribute name="Hash" type="xs:string" use="optional"/>
   </xs:complexType>
 
 
   <xs:complexType name="_T_PipelineCommandCMakeBuild">
     <xs:group ref="_G_PipelineJoinCommandList"/>
+    <xs:attribute name="Source" type="xs:string" use="optional"/>
     <xs:attribute name="Project" type="xs:string" use="required"/>
     <xs:attribute name="Target" type="_TP_CMakeTarget" use="required"/>
     <xs:attribute name="Configuration" type="xs:string" use="required"/>
@@ -392,17 +395,21 @@
     <xs:attribute name="OutputPath" type="xs:string" use="required"/>
   </xs:complexType>
 
+  <xs:complexType name="_T_PipelineCommandCombine">
+    <xs:group ref="_G_PipelineCommandCombineCommandList"/>
+    <xs:attribute name="OutputPath" type="xs:string" use="optional"/>
+  </xs:complexType>
 
-  <xs:complexType name="_T_PipelineCommandClone">
+  <xs:complexType name="_T_PipelineCommandCopy">
     <xs:group ref="_G_PipelineJoinCommandList"/>
     <xs:attribute name="OutputPath" type="xs:string" use="optional"/>
   </xs:complexType>
-  
 
   <xs:group name="_G_PipelineJoinCommands">
     <xs:choice>
       <xs:element name="Unpack" type="_T_PipelineJoinCommandUnpack"/>
       <xs:element name="Copy" type="_T_PipelineJoinCommandCopy"/>
+      <xs:element name="Delete" type="_T_PipelineJoinCommandDelete"/>
       <xs:element name="GitApply" type="_T_PipelineJoinCommandGitApply"/>
     </xs:choice>
   </xs:group>
@@ -411,6 +418,20 @@
   <xs:group name="_G_PipelineJoinCommandList">
     <xs:sequence>
       <xs:group ref="_G_PipelineJoinCommands" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:group name="_G_PipelineCommandCombineCommands">
+    <xs:choice>
+      <xs:element name="CMakeBuild" type="_T_PipelineCommandCMakeBuild"/>
+    </xs:choice>
+  </xs:group>
+  
+
+  <xs:group name="_G_PipelineCommandCombineCommandList">
+    <xs:sequence>
+      <xs:group ref="_G_PipelineCommandCombineCommands" minOccurs="1" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:group>
 
@@ -427,7 +448,8 @@
     <xs:choice>
       <xs:element name="Unpack" type="_T_PipelineCommandUnpack"/>
       <xs:element name="CMakeBuild" type="_T_PipelineCommandCMakeBuild"/>
-      <xs:element name="Clone" type="_T_PipelineCommandClone"/>
+      <xs:element name="Combine" type="_T_PipelineCommandCombine"/>
+      <xs:element name="Copy" type="_T_PipelineCommandCopy"/>
     </xs:choice>
   </xs:group>
 
@@ -494,6 +516,15 @@
     <xs:attribute name="Help" type="xs:string" use="optional"/>
   </xs:complexType>
 
+  <xs:complexType name="_T_ValidateCommandFindExecutableFileInPath">
+    <xs:annotation>
+      <xs:documentation>Check if a executable file can be found in the path. The executable name will be stripped of any extension and the platform default executable extension will be added</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="ExpectedPath" type="xs:string" use="optional"/>
+    <xs:attribute name="Help" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
   <xs:complexType name="_T_ValidateCommandAddHeaders">
     <xs:annotation>
       <xs:documentation>Automatically ensures the headers is added as a external dependency and checks if the directory exist.</xs:documentation>
@@ -520,14 +551,24 @@
     <xs:attribute name="Help" type="xs:string" use="optional"/>
   </xs:complexType>
 
+  <xs:complexType name="_T_ValidateCommandAddTool">
+    <xs:annotation>
+      <xs:documentation>Automatically ensures the tool is added as a tool available to the FslBuild toolchain.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Help" type="xs:string" use="optional"/>
+  </xs:complexType>
+  
   <xs:group name="_G_ValidateCommand">
     <xs:choice>
       <xs:element name="EnvironmentVariable" type="_T_ValidateCommandEnvironmentVariable"/>
       <xs:element name="Path" type="_T_ValidateCommandPath"/>
       <xs:element name="FindFileInPath" type="_T_ValidateCommandFindFileInPath"/>
+      <xs:element name="FindExecutableFileInPath" type="_T_ValidateCommandFindExecutableFileInPath"/>
       <xs:element name="AddHeaders" type="_T_ValidateCommandAddHeaders"/>
       <xs:element name="AddLib" type="_T_ValidateCommandAddLib"/>
       <xs:element name="AddDLL" type="_T_ValidateCommandAddDLL"/>
+      <xs:element name="AddTool" type="_T_ValidateCommandAddTool"/>
     </xs:choice>
   </xs:group>
 
@@ -627,6 +668,7 @@
       <xs:group ref="_G_DependencyElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DefineElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_ExperimentalRecipeElement" minOccurs="0" maxOccurs="1"/>
       <xs:group ref="_G_PlatformExternalElement" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:group>

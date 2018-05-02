@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslDemoService.Graphics.Impl">
+    <Dependency Name="FslGraphics"/>
+    <Dependency Name="FslDemoService.Graphics"/>
+    <Dependency Name="FslService.Impl"/>
+    <Dependency Name="FslDemoService.Graphics.Control"/>
+    <Dependency Name="FslDemoService.NativeGraphics.Base"/>
+    <Platform Name="Windows" ProjectId="64076416-E615-4AF6-97C3-5650EED21C30"/>
+  </Library>
+</FslBuildGen>

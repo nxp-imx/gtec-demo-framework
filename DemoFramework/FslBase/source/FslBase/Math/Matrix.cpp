@@ -458,24 +458,24 @@ namespace Fsl
 
   void Matrix::CreateLookAt(Matrix& rResult, const Vector3& cameraPosition, const Vector3& cameraTarget, const Vector3& cameraUpVector)
   {
-    const Vector3 vector3_1 = Vector3::Normalize(cameraPosition - cameraTarget);
-    const Vector3 vector3_2 = Vector3::Normalize(Vector3::Cross(cameraUpVector, vector3_1));
-    const Vector3 vector1 = Vector3::Cross(vector3_1, vector3_2);
-    rResult.m[_M11] = vector3_2.X;
-    rResult.m[_M12] = vector1.X;
-    rResult.m[_M13] = vector3_1.X;
+    const Vector3 f = Vector3::Normalize(cameraPosition - cameraTarget);
+    const Vector3 s = Vector3::Normalize(Vector3::Cross(cameraUpVector, f));
+    const Vector3 u = Vector3::Cross(f, s);
+    rResult.m[_M11] = s.X;
+    rResult.m[_M12] = u.X;
+    rResult.m[_M13] = f.X;
     rResult.m[_M14] = 0.0f;
-    rResult.m[_M21] = vector3_2.Y;
-    rResult.m[_M22] = vector1.Y;
-    rResult.m[_M23] = vector3_1.Y;
+    rResult.m[_M21] = s.Y;
+    rResult.m[_M22] = u.Y;
+    rResult.m[_M23] = f.Y;
     rResult.m[_M24] = 0.0f;
-    rResult.m[_M31] = vector3_2.Z;
-    rResult.m[_M32] = vector1.Z;
-    rResult.m[_M33] = vector3_1.Z;
+    rResult.m[_M31] = s.Z;
+    rResult.m[_M32] = u.Z;
+    rResult.m[_M33] = f.Z;
     rResult.m[_M34] = 0.0f;
-    rResult.m[_M41] = -Vector3::Dot(vector3_2, cameraPosition);
-    rResult.m[_M42] = -Vector3::Dot(vector1, cameraPosition);
-    rResult.m[_M43] = -Vector3::Dot(vector3_1, cameraPosition);
+    rResult.m[_M41] = -Vector3::Dot(s, cameraPosition);
+    rResult.m[_M42] = -Vector3::Dot(u, cameraPosition);
+    rResult.m[_M43] = -Vector3::Dot(f, cameraPosition);
     rResult.m[_M44] = 1.0f;
   }
 

@@ -1,0 +1,22 @@
+diff --git a/glm/simd/platform.h b/glm/simd/platform.h
+index a5510beb..b54d8a34 100644
+--- a/glm/simd/platform.h
++++ b/glm/simd/platform.h
+@@ -111,6 +111,7 @@
+ #define GLM_COMPILER_GCC70			0x02000A00
+ #define GLM_COMPILER_GCC71			0x02000B00
+ #define GLM_COMPILER_GCC72			0x02000C00
++#define GLM_COMPILER_GCC7X			0x02000C01
+ #define GLM_COMPILER_GCC80			0x02000D00
+ 
+ // CUDA
+@@ -283,6 +284,8 @@
+ #		define GLM_COMPILER (GLM_COMPILER_GCC71)
+ #	elif (__GNUC__ == 7) && (__GNUC_MINOR__ == 2)
+ #		define GLM_COMPILER (GLM_COMPILER_GCC72)
++#	elif (__GNUC__ == 7)
++#		define GLM_COMPILER (GLM_COMPILER_GCC7X)
+ #	elif (__GNUC__ >= 8)
+ #		define GLM_COMPILER (GLM_COMPILER_GCC80)
+ #	else
+ 

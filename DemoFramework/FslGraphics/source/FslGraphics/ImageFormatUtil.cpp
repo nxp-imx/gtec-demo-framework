@@ -72,6 +72,8 @@ namespace Fsl
           return ImageFormat::Bmp;
         else if (strcmp(pszExt, "hdr") == 0)
           return ImageFormat::Hdr;
+        else if (strcmp(pszExt, "exr") == 0)
+          return ImageFormat::Exr;
         else if (strcmp(pszExt, "ktx") == 0)
           return ImageFormat::KTX;
         else if (strcmp(pszExt, "tga") == 0)
@@ -112,6 +114,8 @@ namespace Fsl
         return ".bmp";
       case ImageFormat::DDS:
         return ".dds";
+      case ImageFormat::Exr:
+        return ".exr";
       case ImageFormat::Hdr:
         return ".hdr";
       case ImageFormat::KTX:
@@ -134,6 +138,7 @@ namespace Fsl
       case ImageFormat::Bmp:
       case ImageFormat::DDS:
       case ImageFormat::Hdr:
+      case ImageFormat::Exr:  // This is probably oversimplified as exr can be lossy
       case ImageFormat::KTX:
       case ImageFormat::Png:
       case ImageFormat::Tga:

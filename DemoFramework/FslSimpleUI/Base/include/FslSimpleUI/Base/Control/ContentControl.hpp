@@ -44,11 +44,23 @@ namespace Fsl
       ContentControl(const std::shared_ptr<WindowContext>& context);
 
 
-      ThicknessF GetPadding() const { return DoGetPadding(); }
-      void SetPadding(const ThicknessF& value) { DoSetPadding(value); }
+      ThicknessF GetPadding() const
+      {
+        return DoGetPadding();
+      }
+      void SetPadding(const ThicknessF& value)
+      {
+        DoSetPadding(value);
+      }
 
-      std::shared_ptr<BaseWindow> GetContent() const { return DoGetContent(); }
-      void SetContent(const std::shared_ptr<BaseWindow>& value) { DoSetContent(value); }
+      std::shared_ptr<BaseWindow> GetContent() const
+      {
+        return DoGetContent();
+      }
+      void SetContent(const std::shared_ptr<BaseWindow>& value)
+      {
+        DoSetContent(value);
+      }
     };
   }
 }

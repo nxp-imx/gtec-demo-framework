@@ -36,7 +36,7 @@
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
-#include <FslGraphics3D/BasicScene/Camera/ArcballCamera.hpp>
+#include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBufferArray.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBufferArray.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>

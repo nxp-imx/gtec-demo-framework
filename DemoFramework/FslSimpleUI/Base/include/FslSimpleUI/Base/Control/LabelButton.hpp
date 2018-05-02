@@ -50,16 +50,28 @@ namespace Fsl
     public:
       LabelButton(const std::shared_ptr<WindowContext>& context);
 
-      const std::string& GetContent() const { return m_content; }
+      const std::string& GetContent() const
+      {
+        return m_content;
+      }
       void SetContent(const std::string& value);
 
-      const std::shared_ptr<AtlasFont>& GetFont() const { return m_font; }
+      const std::shared_ptr<AtlasFont>& GetFont() const
+      {
+        return m_font;
+      }
       void SetFont(const std::shared_ptr<AtlasFont>& value);
 
-      Color GetColorUp() const { return m_colorUp; }
+      Color GetColorUp() const
+      {
+        return m_colorUp;
+      }
       void SetColorUp(const Color& value);
 
-      Color GetColorDown() const { return m_colorDown; }
+      Color GetColorDown() const
+      {
+        return m_colorDown;
+      }
       void SetColorDown(const Color& value);
 
       virtual void WinDraw(const UIDrawContext& context) override;

@@ -67,6 +67,20 @@ namespace Fsl
     }
 
 
+    //bool WindowEventQueue::TryPush(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source)
+    //{
+    //  if (!theEvent || !source)
+    //  {
+    //    FSLLOG_DEBUG_WARNING("params can not be null");
+    //    return false;
+    //  }
+
+
+    //  assert(m_queue);
+    //  m_queue->push_back(WindowEventQueueRecord(WindowEventQueueRecordType::Event, source, source, theEvent));
+    //  return true;
+    //}
+
     void WindowEventQueue::Swap(std::unique_ptr<queue_type>& rEmptyQueue)
     {
       if (!rEmptyQueue)

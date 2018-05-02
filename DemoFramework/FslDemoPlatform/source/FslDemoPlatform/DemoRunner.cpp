@@ -38,6 +38,7 @@
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
 #include <FslDemoHost/Base/IDemoHost.hpp>
@@ -53,32 +54,58 @@
 #include <FslService/Impl/ServiceOptionParserDeque.hpp>
 #include <FslService/Impl/Threading/IServiceHostLooper.hpp>
 #include <cstring>
+#include <vector>
 
 namespace Fsl
 {
   namespace
   {
-    const char* g_title = "Freescale DemoFramework";
+    const char* g_title = "DemoFramework";
+    // since a C++ string is const char* we do a char array here
+    char g_normalVerbosityArgument[] = { '-', 'v', 0 };
 
-    bool CheckVerboseFlag(int argc, char* argv[])
+    bool TryParseVerbosityLevel(const char* pszArgument, uint32_t& rCount)
     {
-      if (argc < 0 || argv == nullptr)
-        return false;
-
-      for (int i = 0; i < argc; ++i)
+      assert(pszArgument != nullptr);
+      const char* pszSrc = pszArgument;
+      rCount = 0;
+      while (*pszSrc != 0 && *pszSrc == 'v')
       {
-        if (argv[i] != nullptr)
-        {
-          if (strcmp(argv[i], "-v") == 0)
-            return true;
-          else if (strcmp(argv[i], "--verbose") == 0)
-            return true;
-        }
+        ++rCount;
+        ++pszSrc;
       }
-      return false;
+      return (*pszSrc == 0);
     }
 
-    OptionParser::Result TryParseInputArguments(int argc, char* argv[], const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
+    // We need the verbosity level checked early
+    uint32_t CheckVerbosityLevel(std::vector<char*>& rArguments)
+    {
+      uint32_t verbosityLevel = 0;
+      for (std::size_t i = 0; i < rArguments.size(); ++i)
+      {
+        if (rArguments[i] != nullptr)
+        {
+          if (strncmp(rArguments[i], "-v", 2) == 0)
+          {
+            uint32_t count; // +1 to skip the leading '-'
+            if (TryParseVerbosityLevel(rArguments[i] + 1, count))
+            {
+              verbosityLevel += count;
+              if (verbosityLevel > 1)
+              {
+                // The other option parse we use dont support the '-vvvv' style to replace the fancy one with a normal verbose
+                rArguments[i] = g_normalVerbosityArgument;
+              }
+            }
+          }
+          else if (strcmp(rArguments[i], "--verbose") == 0)
+            ++verbosityLevel;
+        }
+      }
+      return verbosityLevel;
+    }
+
+    OptionParser::ParseResult TryParseInputArguments(std::vector<char*>& rArguments, const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
     {
       std::deque<OptionParser::ParserRecord> inputParsers;
       if (demoHostManagerOptionParser)
@@ -99,17 +126,19 @@ namespace Fsl
 
       try
       {
+        int argc = static_cast<int>(rArguments.size());
+        char** argv = rArguments.data();
         return OptionParser::Parse(argc, argv, inputParsers, g_title);
       }
       catch (const std::exception& ex)
       {
         FSLLOG("ERROR: Input argument parsing failed with: " << ex.what());
-        return OptionParser::Result::Failed;
+        return OptionParser::ParseResult(OptionParser::Result::Failed, 0);
       }
       catch (...)
       {
         FSLLOG("ERROR: A critical error occurred during input argument parsing.");
-        return OptionParser::Result::Failed;
+        return OptionParser::ParseResult(OptionParser::Result::Failed, 0);
       }
 
     }
@@ -134,10 +163,11 @@ namespace Fsl
     }
 
 
-    int RunNow(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
+    int RunNow(std::vector<char*>& rArguments, const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
     {
       // Early parsing to enable verbosity
-      const bool verbose = CheckVerboseFlag(argc, argv);
+      const uint32_t verbosityLevel = CheckVerbosityLevel(rArguments);
+      const bool verbose = verbosityLevel > 0;
 
       if (verbose)
         Fsl::Logger::SetLogLevel(LogType::Verbose);
@@ -147,7 +177,8 @@ namespace Fsl
       std::unique_ptr<ServiceFramework> serviceFramework(new ServiceFramework());
 
       // basic setup
-      auto demoBasicSetup = DemoSetupManager::GetSetup(demoRunnerConfig.SetupManagerConfig, rExceptionMessageFormatter, serviceFramework->GetServiceRegistry(), verbose, enableFirewallRequest);
+      auto demoBasicSetup = DemoSetupManager::GetSetup(demoRunnerConfig.SetupManagerConfig, rExceptionMessageFormatter,
+                                                       serviceFramework->GetServiceRegistry(), verbosityLevel, enableFirewallRequest);
       const auto demoHostManagerOptionParser = std::make_shared<DemoHostManagerOptionParser>();
 
       if (enableFirewallRequest)
@@ -159,9 +190,9 @@ namespace Fsl
         serviceFramework->PrepareServices(*demoBasicSetup.Host.ServiceOptionParsers);
       }
 
-      const auto parseResult = TryParseInputArguments(argc, argv, demoBasicSetup, demoHostManagerOptionParser);
-      if (parseResult != OptionParser::Result::OK)
-        return parseResult == OptionParser::Result::Failed ? EXIT_FAILURE : EXIT_SUCCESS;
+      const auto parseResult = TryParseInputArguments(rArguments, demoBasicSetup, demoHostManagerOptionParser);
+      if (parseResult.Status != OptionParser::Result::OK)
+        return parseResult.Status == OptionParser::Result::Failed ? EXIT_FAILURE : EXIT_SUCCESS;
 
       // Start the services, after the command line parameters have been processed
       serviceFramework->LaunchGlobalServices();
@@ -177,7 +208,7 @@ namespace Fsl
 
       RegisterOptionParsersInOptionsService(serviceProvider, demoBasicSetup, demoHostManagerOptionParser);
 
-      DemoSetup demoSetup(rExceptionMessageFormatter, serviceProvider, demoBasicSetup.Host, demoBasicSetup.App, demoBasicSetup.Verbose);
+      DemoSetup demoSetup(rExceptionMessageFormatter, serviceProvider, demoBasicSetup.Host, demoBasicSetup.App, demoBasicSetup.VerbosityLevel);
       std::unique_ptr<DemoHostManager> demoHostManager;
       try
       {
@@ -216,6 +247,16 @@ namespace Fsl
       return returnValue;
     }
 
+
+    int RunNow(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig, ExceptionMessageFormatter& rExceptionMessageFormatter)
+    {
+      const std::size_t argumentCount = (argc >= 0 && argv != nullptr) ? static_cast<std::size_t>(argc) : 0;
+      std::vector<char*> arguments(argumentCount);
+      for (std::size_t i = 0; i < argumentCount; ++i)
+        arguments[i] = argv[i];
+
+      return RunNow(arguments, demoRunnerConfig, rExceptionMessageFormatter);
+    }
   }
 
   int RunDemo(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig)

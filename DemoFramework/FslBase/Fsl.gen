@@ -2,7 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslBase">
     <Define Name="FSL_FEATURE_FSLBASE" Access="Public"/>
-    <Dependency Name="tclap1_2_1" Access="Private"/>
+    <Dependency Name="tclap_1_2" Access="Private"/>
     <Platform Name="Windows" ProjectId="A2028A7B-F410-4034-9B31-A3C5DDE3E560"/>
   </Library>
 </FslBuildGen>

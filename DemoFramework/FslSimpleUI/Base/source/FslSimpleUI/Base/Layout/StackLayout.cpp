@@ -45,7 +45,7 @@ namespace Fsl
   {
 
     StackLayout::StackLayout(const std::shared_ptr<WindowContext>& context)
-      : Layout(context)
+      : SimpleLayout(context)
       , m_orientation(LayoutOrientation::Vertical)
       , m_spacing(0)
     {
@@ -79,14 +79,13 @@ namespace Fsl
         // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
         float pos = 0;
         float elementDesiredX;
-        auto entries = DirectChildAccess();
-        for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+        for (auto itr = begin(); itr != end(); ++itr)
         {
           elementDesiredX = itr->Window->DesiredSize().X;
           itr->Window->Arrange(Rect(pos, 0, elementDesiredX, finalSize.Y));
           pos += elementDesiredX + m_spacing;
         }
-        if (entries.size() >= 1)
+        if (!empty())
           pos -= m_spacing;
         return Vector2(pos, finalSize.Y);
       }
@@ -95,14 +94,13 @@ namespace Fsl
         // Run through each element and give it the space it desired in Y, but only finalSize.X in X
         float pos = 0;
         float elementDesiredY;
-        auto entries = DirectChildAccess();
-        for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+        for (auto itr = begin(); itr != end(); ++itr)
         {
           elementDesiredY = itr->Window->DesiredSize().Y;
           itr->Window->Arrange(Rect(0, pos, finalSize.X, elementDesiredY));
           pos += elementDesiredY + m_spacing;
         }
-        if (entries.size() >= 1)
+        if (!empty())
           pos -= m_spacing;
         return Vector2(finalSize.X, pos);
       }
@@ -118,8 +116,7 @@ namespace Fsl
       {
         // Fake that we have unlimited space in X and keep Y constrained.
         const Vector2 fakeAvailableSize(LayoutHelper::InfiniteSpace, availableSize.Y);
-        auto entries = DirectChildAccess();
-        for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+        for (auto itr = begin(); itr != end(); ++itr)
         {
           itr->Window->Measure(fakeAvailableSize);
           desiredSize = itr->Window->DesiredSize();
@@ -127,15 +124,14 @@ namespace Fsl
           if (desiredSize.Y > minSize.Y)
             minSize.Y = desiredSize.Y;
         }
-        if (entries.size() >= 1)
+        if (! empty())
           minSize.X -= m_spacing;
       }
       else
       {
         // Fake that we have unlimited space in Y and keep X constrained.
         const Vector2 fakeAvailableSize(availableSize.X, LayoutHelper::InfiniteSpace);
-        auto entries = DirectChildAccess();
-        for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+        for (auto itr = begin(); itr != end(); ++itr)
         {
           itr->Window->Measure(fakeAvailableSize);
           desiredSize = itr->Window->DesiredSize();
@@ -143,7 +139,7 @@ namespace Fsl
           if (desiredSize.X > minSize.X)
             minSize.X = desiredSize.X;
         }
-        if (entries.size() >= 1)
+        if (! empty())
           minSize.Y -= m_spacing;
       }
 

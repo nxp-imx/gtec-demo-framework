@@ -20,7 +20,14 @@ GLES3.OpenCVMatToUI.vcxproj
 GLES3.OpenCVMatToUI.vcxproj.filters
 GLES3.OpenCVMatToUI.vcxproj.user
 GNUmakefile
+GNUmakefile_Yocto
 OpenCVMatToUI
+OpenCVMatToUI_FB
+OpenCVMatToUI_FB_d
+OpenCVMatToUI_Wayland
+OpenCVMatToUI_Wayland_d
+OpenCVMatToUI_X11
+OpenCVMatToUI_X11_d
 OpenCVMatToUI_d
 build/
 resource.h

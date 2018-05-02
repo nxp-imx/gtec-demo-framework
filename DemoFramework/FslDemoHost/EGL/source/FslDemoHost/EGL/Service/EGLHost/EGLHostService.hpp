@@ -33,7 +33,7 @@
 
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
-#include <FslDemoHost/EGL/Service/EGLHost/IEGLHostInfo.hpp>
+#include <FslDemoHost/EGL/Config/Service/IEGLHostInfo.hpp>
 #include <EGL/egl.h>
 
 namespace Fsl

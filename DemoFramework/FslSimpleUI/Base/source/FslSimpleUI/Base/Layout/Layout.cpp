@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
+* Copyright 2018 NXP
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
 *      this list of conditions and the following disclaimer in the documentation
 *      and/or other materials provided with the distribution.
 *
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+*    * Neither the name of the NXP. nor the names of
 *      its contributors may be used to endorse or promote products derived from
 *      this software without specific prior written permission.
 *
@@ -30,25 +30,16 @@
 ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Layout/Layout.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslBase/Exceptions.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
-
     Layout::Layout(const std::shared_ptr<WindowContext>& context)
       : BaseWindow(context)
-      , Children()
     {
+      // Enable the WinInit callback required by window collections that all layouts utilize
       Enable(WindowFlags::WinInit);
-    }
-
-
-    void Layout::WinInit()
-    {
-      Children.SYS_WinInit(this, GetContext()->WindowManager);
     }
   }
 }

@@ -48,9 +48,11 @@ namespace Fsl
     : public ThreadLocalService
     , public IImageBasicService
   {
+    using ImageLibraryDeque = std::deque<std::shared_ptr<IImageLibraryService> >;
+
     std::shared_ptr<IBitmapConverter> m_bitmapConverter;
-    std::deque<std::shared_ptr<IImageLibraryService> > m_imageLibraryServices;
-    std::map<ImageFormat, std::shared_ptr<IImageLibraryService> > m_formatToImageLibrary;
+    ImageLibraryDeque m_imageLibraryServices;
+    std::map<ImageFormat, std::shared_ptr<ImageLibraryDeque>> m_formatToImageLibrary;
   public:
     ImageBasicService(const ServiceProvider& serviceProvider);
     ~ImageBasicService();

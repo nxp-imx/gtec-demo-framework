@@ -48,7 +48,6 @@ import shutil
 import uuid
 from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
-from FslBuildGen import PlatformUtil
 from FslBuildGen.Generator import PluginConfig
 #from FslBuildGen import PackageListUtil
 #from FslBuildGen import ParseUtil
@@ -66,6 +65,7 @@ from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.Flow import ToolFlowBuild
@@ -92,7 +92,7 @@ g_projectSource = "source"
 g_allowOverwriteOption = '--AllowOverwrite'
 
 class GlobalStrings:
-    SanityCheckProjectName = "FslBuildNewTemplateSanityCheck"
+    SanityCheckProjectName = "SC__"
 
 
 class ArgumentError(Exception):

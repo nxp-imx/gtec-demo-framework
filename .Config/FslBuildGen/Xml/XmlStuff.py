@@ -46,6 +46,7 @@ from FslBuildGen.DataTypes import OptimizationType
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import PackageRequirementTypeString
+from FslBuildGen.DataTypes import PackageString
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import SubPackageSupport
 from FslBuildGen.DataTypes import VariantType
@@ -82,7 +83,6 @@ from FslBuildGen.Xml.XmlBase2 import XmlBase2
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 from FslBuildGen.Xml.XmlGenFileDependency import XmlGenFileDependency
 from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
-
 
 class DefaultValueName(object):
     DEFAULT_PLATFORM_Supported = "Default.Platform.Supported"
@@ -194,7 +194,7 @@ class XmlGenFilePlatform(XmlBase2):
 
         #self.DirectVariantDependencyUnion = self.__CreateVariantDependencyUnion(variants)
 
-        if not self.Name in PackageConfig.APPROVED_PLATFORM_NAMES:
+        if not self.Name in PackageConfig.APPROVED_PLATFORM_NAMES and self.Name != PackageString.PLATFORM_WILDCARD:
             raise XmlUnsupportedPlatformException(xmlElement, self.Name)
         # Wrong place to check this.
         # We need to know what type the project file is and we also need to know
@@ -210,6 +210,9 @@ class XmlGenFilePlatform(XmlBase2):
     #                for dep in option.DirectDependencies:
     #                    print("Variant dep: '%s'" % dep.Name)
     #    return res
+
+    def SYS_SetName(self, name: str) -> None:
+        self.Name = name
 
 
 class FakeXmlGenFilePlatform(XmlGenFilePlatform):

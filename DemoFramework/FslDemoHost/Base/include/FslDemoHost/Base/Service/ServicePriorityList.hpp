@@ -41,6 +41,7 @@ namespace Fsl
   {
   public:
     static const Priority BitmapConverterService();
+    static const Priority ImageConverterLibraryService();
     static const Priority EGLHostService();
     static const Priority WindowHostService();
     static const Priority VulkanHostService();

@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
 #include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
-#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDemoApp/Base/Service/Exceptions.hpp>
@@ -46,8 +46,14 @@ namespace Fsl
     : ADemoApp(demoAppConfig)
     , m_app()
     , m_errorString()
-    , m_basic2D(demoAppConfig.DemoServiceProvider.Get<IGraphicsService>()->GetBasic2D())
+    , m_basic2D()
   {
+    { // Allocate basic 2D if available
+      auto graphicsService = demoAppConfig.DemoServiceProvider.TryGet<IGraphicsService>();
+      if (graphicsService)
+        m_basic2D = graphicsService->GetBasic2D();
+    }
+
     try
     {
       m_app = appFactory->Allocate(demoAppConfig);
@@ -232,9 +238,16 @@ namespace Fsl
     if (!m_app)
     {
       ADemoApp::_Draw(demoTime);
-      m_basic2D->Begin();
-      m_basic2D->DrawString(m_errorString, Vector2::Zero());
-      m_basic2D->End();
+      if (m_basic2D)
+      {
+        m_basic2D->Begin();
+        m_basic2D->DrawString(m_errorString, Vector2::Zero());
+        m_basic2D->End();
+      }
+      else
+      {
+        FSLLOG(m_errorString);
+      }
       return;
     }
 

@@ -53,19 +53,34 @@ namespace Fsl
     public:
       CheckBox(const std::shared_ptr<WindowContext>& context);
 
-      const std::shared_ptr<AtlasFont>& GetFont() const { return m_font; }
+      const std::shared_ptr<AtlasFont>& GetFont() const
+      {
+        return m_font;
+      }
       void SetFont(const std::shared_ptr<AtlasFont>& value);
 
-      const std::string& GetText() const { return m_text; }
+      const std::string& GetText() const
+      {
+        return m_text;
+      }
       void SetText(const std::string& value);
 
-      const AtlasTexture2D& GetCheckedTexture() const { return m_texChecked; }
+      const AtlasTexture2D& GetCheckedTexture() const
+      {
+        return m_texChecked;
+      }
       void SetCheckedTexture(const AtlasTexture2D& value);
 
-      const AtlasTexture2D& GetUncheckedTexture() const { return m_texUnchecked; }
+      const AtlasTexture2D& GetUncheckedTexture() const
+      {
+        return m_texUnchecked;
+      }
       void SetUncheckedTexture(const AtlasTexture2D& value);
 
-      bool IsChecked() const { return m_isChecked; }
+      bool IsChecked() const
+      {
+        return m_isChecked;
+      }
       void SetIsChecked(const bool value);
 
       void Toggle();

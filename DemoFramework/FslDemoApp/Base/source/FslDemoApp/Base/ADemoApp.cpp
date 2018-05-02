@@ -408,17 +408,6 @@ namespace Fsl
   }
 
 
-  Point2 ADemoApp::GetScreenResolution() const
-  {
-    return m_demoAppConfig.ScreenResolution;
-  }
-
-
-  Extent2D ADemoApp::GetScreenExtent() const
-  {
-    return Extent2D(m_demoAppConfig.ScreenResolution);
-  }
-
 
   std::shared_ptr<IDemoAppControl> ADemoApp::GetDemoAppControl() const
   {

@@ -32,7 +32,7 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include "VerletIntegration101.hpp"
 #include <GLES3/gl3.h>
 #include <iostream>

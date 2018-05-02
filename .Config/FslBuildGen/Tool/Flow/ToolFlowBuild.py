@@ -39,7 +39,6 @@ from FslBuildGen.Generator import GeneratorPlugin
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
 from FslBuildGen import ParseUtil
-from FslBuildGen import PlatformUtil
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
@@ -49,6 +48,7 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageFilters import PackageFilters
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext

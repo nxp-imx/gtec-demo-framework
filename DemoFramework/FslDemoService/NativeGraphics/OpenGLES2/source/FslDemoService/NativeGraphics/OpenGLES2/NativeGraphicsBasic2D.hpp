@@ -31,7 +31,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Base/Service/NativeGraphics/INativeGraphicsBasic2D.hpp>
+#include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslUtil/OpenGLES2/GLBatch2D.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 

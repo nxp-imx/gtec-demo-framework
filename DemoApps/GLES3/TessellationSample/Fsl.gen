@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES3.TessellationSample" NoInclude="true">
-    <Requirement Name="EXT_geometry_shader" Type="extension" Extends="OpenGLES3.1"/>
-    <Requirement Name="EXT_tessellation_shader" Type="extension" Extends="OpenGLES3.1"/>
+    <Requirement Name="GL_EXT_geometry_shader" Type="extension" Extends="OpenGLES3.1"/>
+    <Requirement Name="GL_EXT_tessellation_shader" Type="extension" Extends="OpenGLES3.1"/>
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslUtil.OpenGLES3_1"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="FslGraphics3D.Procedural"/>
     <Dependency Name="FslGraphics3D.SceneFormat"/>
     <Dependency Name="FslSimpleUI.App"/>

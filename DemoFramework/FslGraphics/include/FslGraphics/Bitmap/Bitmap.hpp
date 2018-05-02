@@ -259,6 +259,11 @@ namespace Fsl
     //! @note This only changes the 'PixelFormat' type it does not modify any bitmap pixels. So if you call this beware of this!
     void SetCompatiblePixelFormat(const PixelFormat compatiblePixelFormat);
 
+    //! @brief Try to modify the pixel format flag.
+    //! @return true if the format was changed or false if it failed
+    //! @note This only changes to format flag not the actual data
+    bool TrySetCompatiblePixelFormatFlag(const PixelFormatFlags::Enum flag);
+
     //! Provides direct access to the scoped bitmap during its lifetime.
     class ScopedDirectAccess
     {

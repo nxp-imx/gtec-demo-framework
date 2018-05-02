@@ -46,7 +46,7 @@ from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Log import Log
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
-from FslBuildGen.Generator.Report.GeneratorVariableReport import VariableReport
+from FslBuildGen.Generator.Report.VariableReport import VariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement

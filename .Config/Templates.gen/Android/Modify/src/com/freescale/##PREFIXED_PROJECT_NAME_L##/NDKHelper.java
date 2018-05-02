@@ -23,6 +23,7 @@ import java.io.FileInputStream;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
@@ -31,14 +32,15 @@ import android.graphics.Matrix;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.opengl.GLUtils;
+import android.os.Build;
 import android.util.Log;
 
+@TargetApi(Build.VERSION_CODES.GINGERBREAD)
 public class NDKHelper
 {
     private static Context context;
 
-    public static void setContext(Context c)
-    {
+    public static void setContext(Context c) {
         Log.i("NDKHelper", "setContext:" + c);
         context = c;
     }
@@ -48,16 +50,15 @@ public class NDKHelper
     // Java helper is useful decoding PNG, TIFF etc rather than linking libPng
     // etc separately
     //
-    private int nextPOT(int i)
-    {
+    private int nextPOT(int i) {
         int pot = 1;
         while (pot < i)
             pot <<= 1;
         return pot;
     }
 
-    private Bitmap scaleBitmap(Bitmap bitmapToScale, float newWidth, float newHeight)
-    {
+    private Bitmap scaleBitmap(Bitmap bitmapToScale, float newWidth,
+                               float newHeight) {
         if (bitmapToScale == null)
             return null;
         // get the original width and height
@@ -70,27 +71,23 @@ public class NDKHelper
         matrix.postScale(newWidth / width, newHeight / height);
 
         // recreate the new Bitmap and set it back
-        return Bitmap.createBitmap(bitmapToScale, 0, 0, bitmapToScale.getWidth(),
-                bitmapToScale.getHeight(), matrix, true);
+        return Bitmap.createBitmap(bitmapToScale, 0, 0,
+                bitmapToScale.getWidth(), bitmapToScale.getHeight(), matrix,
+                true);
     }
 
-    public boolean loadTexture(String path)
-    {
+    public boolean loadTexture(String path) {
         Bitmap bitmap = null;
-        try
-        {
+        try {
             String str = path;
-            if (!path.startsWith("/"))
-            {
+            if (!path.startsWith("/")) {
                 str = "/" + path;
             }
 
             File file = new File(context.getExternalFilesDir(null), str);
-            if (file.canRead())
-            {
+            if (file.canRead()) {
                 bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-            } else
-            {
+            } else  {
                 bitmap = BitmapFactory.decodeStream(context.getResources().getAssets()
                         .open(path));
             }
@@ -102,102 +99,90 @@ public class NDKHelper
             // bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
             // bitmap.getHeight(), matrix, true);
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             Log.w("NDKHelper", "Coundn't load a file:" + path);
             return false;
         }
 
-        if (bitmap != null)
-        {
+        if (bitmap != null) {
             GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
         }
         return true;
 
     }
 
-    public Bitmap openBitmap(String path, boolean iScalePOT)
-    {
+    public Bitmap openBitmap(String path, boolean iScalePOT) {
         Bitmap bitmap = null;
-        try
-        {
+        try {
             bitmap = BitmapFactory.decodeStream(context.getResources().getAssets()
                     .open(path));
-            if (iScalePOT)
-            {
+            if (iScalePOT) {
                 int originalWidth = getBitmapWidth(bitmap);
                 int originalHeight = getBitmapHeight(bitmap);
                 int width = nextPOT(originalWidth);
                 int height = nextPOT(originalHeight);
-                if (originalWidth != width || originalHeight != height)
-                {
+                if (originalWidth != width || originalHeight != height) {
                     // Scale it
                     bitmap = scaleBitmap(bitmap, width, height);
                 }
             }
 
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             Log.w("NDKHelper", "Coundn't load a file:" + path);
         }
 
         return bitmap;
     }
 
-    public int getBitmapWidth(Bitmap bmp)
-    {
+    public int getBitmapWidth(Bitmap bmp) {
         return bmp.getWidth();
     }
 
-    public int getBitmapHeight(Bitmap bmp)
-    {
+    public int getBitmapHeight(Bitmap bmp) {
         return bmp.getHeight();
     }
 
-    public void getBitmapPixels(Bitmap bmp, int[] pixels)
-    {
+    public void getBitmapPixels(Bitmap bmp, int[] pixels) {
         int w = bmp.getWidth();
         int h = bmp.getHeight();
         bmp.getPixels(pixels, 0, w, 0, 0, w, h);
     }
 
-    public void closeBitmap(Bitmap bmp)
-    {
+    public void closeBitmap(Bitmap bmp) {
         bmp.recycle();
     }
 
-    public static String getNativeLibraryDirectory(Context appContext)
-    {
+    public static String getNativeLibraryDirectory(Context appContext) {
         ApplicationInfo ai = context.getApplicationInfo();
 
         Log.w("NDKHelper", "ai.nativeLibraryDir:" + ai.nativeLibraryDir);
 
         if ((ai.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
-                || (ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0)
-        {
+                || (ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
             return ai.nativeLibraryDir;
         }
         return "/system/lib/";
     }
 
-    public int getNativeAudioBufferSize()
-    {
+
+    //
+    // Audio related helpers
+    //
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    public int getNativeAudioBufferSize() {
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT >= 17)
-        {
+        if (SDK_INT >= 17) {
             AudioManager am = (AudioManager) context
                     .getSystemService(Context.AUDIO_SERVICE);
             String framesPerBuffer = am
                     .getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER);
             return Integer.parseInt(framesPerBuffer);
-        } else
-        {
+        } else {
             return 0;
         }
     }
 
-    public int getNativeAudioSampleRate()
-    {
+    public int getNativeAudioSampleRate() {
         return AudioTrack.getNativeOutputSampleRate(AudioManager.STREAM_SYSTEM);
 
     }

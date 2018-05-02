@@ -40,12 +40,11 @@ namespace Fsl
   class EGLStringUtil
   {
   public:
-    //! @brief Convert the enum value to a human readable string (useful for debugging)
-    static std::string GetConfigEnumToString(const EGLenum value);
+    //! @brief Convert the attribute enum value to a human readable string (useful for debugging)
+    static std::string GetConfigEnumToString(const EGLenum attribute);
 
-
-    //! @brief Query EGL for a list of all extensions
-    static std::vector<std::string> GetExtensions(const EGLDisplay display);
+    //! @brief Convert the attribute value to a human readable string (useful for debugging)
+    static std::string GetConfigAttribToString(const EGLenum attribute, const EGLint value);
   };
 }
 

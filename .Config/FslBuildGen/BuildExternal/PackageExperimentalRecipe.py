@@ -34,6 +34,7 @@
 from typing import Optional
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildExternal.DataTypes import RecipeType
+from FslBuildGen.DataTypes import BuildRecipePipelineCommand
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 
 
@@ -45,6 +46,10 @@ class PackageExperimentalRecipe(object):
         self.Type = self.__DetermineRecipeType(xmlExperimentalRecipe)
         self.Pipeline = xmlExperimentalRecipe.Pipeline if self.Type == RecipeType.Build else None
         self.ValidateInstallation = xmlExperimentalRecipe.ValidateInstallation
+        self.IsLocalSourceBuild = False
+        if (self.Pipeline is not None and len(self.Pipeline.CommandList) > 0 and
+            self.Pipeline.CommandList[0].CommandType == BuildRecipePipelineCommand.Source):
+            self.IsLocalSourceBuild = True
 
         # The installation path of the package
         self.ResolvedInstallPath = None  # type: Optional[str]
@@ -53,7 +58,6 @@ class PackageExperimentalRecipe(object):
             log.DoPrintWarning("No installation or validation available for package '{0}' recipe '{1}'".format(packageName, self.Name))
         if self.ValidateInstallation is None:
             log.DoPrintWarning("No installation validation available for package '{0}' recipe '{1}'".format(packageName, self.Name))
-
 
     def __DetermineRecipeType(self, xmlExperimentalRecipe: XmlExperimentalRecipe) -> int:
         if not xmlExperimentalRecipe.ExternalInstallDirectory is None:
@@ -64,3 +68,5 @@ class PackageExperimentalRecipe(object):
             return RecipeType.External
         return RecipeType.Undefined
         #raise Exception("Could not determine recipe type of recipe '{0}'".format(xmlExperimentalRecipe.Name))
+
+

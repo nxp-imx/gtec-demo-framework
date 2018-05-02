@@ -33,14 +33,15 @@
 
 #include <deque>
 #include <vector>
-#include <FslDemoApp/Base/Host/ConfigControl.hpp>
-#include <FslDemoApp/Base/Host/ExtensionRequestRecord.hpp>
+#include <FslDemoApp/Shared/Host/ConfigControl.hpp>
+#include <FslDemoApp/Shared/Host/ExtensionRequestRecord.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
 #include <EGL/egl.h>
 
 namespace Fsl
 {
+  class DemoAppHostConfigEGL;
   class IEGLNativeWindow;
   class IEGLNativeWindowSystem;
   class IWindowHostInfoControl;
@@ -73,7 +74,7 @@ namespace Fsl
     : public ADemoHost
   {
     DemoHostConfig m_demoHostConfig;
-    std::deque<EGLint> m_appAglConfigAttribs;
+    std::deque<EGLint> m_appEglConfigAttribs;
     std::vector<EGLint> m_finalConfigAttribs;
     int m_eglContextClientVersionMajor;
     int m_eglContextClientVersionMinor;
@@ -89,6 +90,7 @@ namespace Fsl
     EGLConfig m_hConfig;
     bool m_isActivated;
     std::shared_ptr<EGLDemoHostOptionParser> m_options;
+    std::shared_ptr<DemoAppHostConfigEGL> m_appHostConfig;
     ConfigControl m_configControl;
     std::deque<ExtensionRequestRecord> m_extensionRequests;
     EGLDemoHostFeatureConfig m_featureConfig;
@@ -134,7 +136,8 @@ namespace Fsl
     void Init();
     void Shutdown();
     void InitEGL();
-    bool InitEGLTryConfigFallback(const ConfigControl configControl, const std::deque<EGLint>& appAglConfigAttribs);
+    bool TryInitEGLHDRConfig(const std::deque<EGLint>& appAglConfigAttribs);
+    bool TryInitEGLTryConfigFallback(const ConfigControl configControl, const std::deque<EGLint>& appAglConfigAttribs);
     void ShutdownEGL();
     void InitSurfaceAndContext();
     void ShutdownSurfaceAndContext();

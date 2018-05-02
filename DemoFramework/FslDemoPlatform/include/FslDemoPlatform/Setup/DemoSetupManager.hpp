@@ -45,7 +45,7 @@ namespace Fsl
   public:
     static DemoBasicSetup GetSetup(const DemoSetupManagerConfig& config, ExceptionMessageFormatter& rExceptionMessageFormatter,
                                    const std::weak_ptr<IServiceRegistry> weakServiceRegistry,
-                                   const bool verbose, bool& rEnableFirewallRequest);
+                                   const uint32_t verbosityLevel, bool& rEnableFirewallRequest);
   };
 }
 

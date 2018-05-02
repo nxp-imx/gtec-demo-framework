@@ -31,10 +31,11 @@
 package com.freescale.demoplatform;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 import com.freescale.contentsync.OneWaySync;
 
@@ -86,6 +87,23 @@ public class DemoHelper {
   public void Close(Bitmap bitmap) {
      m_imageService.Close(bitmap);
   }    
-  
 
+  // From API 24 we can use Display.HdrCapabilities for more advanced capability checks
+  // https://developer.android.com/reference/android/view/Display.HdrCapabilities.html
+  public boolean IsDisplayHDRCompatible() throws IOException {
+    try {
+      java.lang.Process p = Runtime.getRuntime().exec("getprop sys.hwc.hdr.supported");
+      BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+      String valueStr = in.readLine();
+      final int value = Integer.parseInt(valueStr);
+      // If the value is 1 the connected sink is HDR-compatible.
+      if (value == 1)
+        return true;
+    } 
+    catch (IOException e) 
+    {
+      e.printStackTrace();
+    }
+    return false;    
+  }
 }

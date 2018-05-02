@@ -35,11 +35,13 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
+#include <FslUtil/Vulkan1_0/Log/All.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <algorithm>
 #include <vector>
 
-#if 1
+#if 0
 #define LOCAL_LOG(X) FSLLOG("VulkanNativeWindowFB: " << X)
 #else
 #define LOCAL_LOG(X) {}
@@ -144,12 +146,93 @@ namespace Fsl
     }
 
 
-    VkDisplaySurfaceCreateInfoKHR Prepare(const NativeWindowSetup& nativeWindowSetup, const VkPhysicalDevice physicalDevice)
+    inline void Log(const VkDisplayPropertiesKHR& displayProperties)
+    {
+      FSLLOG("- Name: " << (displayProperties.displayName != nullptr ? displayProperties.displayName : ""));
+      FSLLOG("- PhysicalDimensions: " << displayProperties.physicalDimensions);
+      FSLLOG("- PhysicalResolution: " << displayProperties.physicalResolution);
+      FSLLOG("- PhysicalResolution: " << static_cast<uint32_t>(displayProperties.supportedTransforms));
+      FSLLOG("- PlaneReorderPossible: " << (displayProperties.planeReorderPossible == VK_TRUE ? "true" : "false"));
+      FSLLOG("- persistentContent: " << (displayProperties.persistentContent == VK_TRUE ? "true" : "false"));
+    }
+
+
+    inline void Log(const VkDisplayModeParametersKHR& parameters)
+    {
+      FSLLOG("- VisibleRegion: " << parameters.visibleRegion);
+      FSLLOG("- RefreshRate: " << parameters.refreshRate);
+    }
+
+
+    void Log(const std::vector<VkDisplayPropertiesKHR>& properties)
+    {
+      FSLLOG("Found " << properties.size() << " display properties");
+      std::size_t index = 0;
+      for (const auto properties : properties)
+      {
+        FSLLOG("- Display index: " << index);
+        Log(properties);
+        ++index;
+      }
+    }
+
+    void Log(const VkDisplayModePropertiesKHR& displayModeProperties)
+    {
+      Log(displayModeProperties.parameters);
+    }
+
+
+    void Log(const std::vector<VkDisplayModePropertiesKHR>& displayModeProperties)
+    {
+      FSLLOG("Found " << displayModeProperties.size() << " display mode properties");
+      std::size_t index = 0;
+      for (const auto properties : displayModeProperties)
+      {
+        FSLLOG("- Index: " << index);
+        Log(properties);
+        ++index;
+      }
+    }
+
+
+    void Log(const std::vector<VkDisplayModePropertiesKHR>& displayModeProperties, const VkDisplayModeKHR displayMode)
+    {
+      auto itrFind = std::find_if(displayModeProperties.begin(), displayModeProperties.end(),
+                                  [displayMode](const VkDisplayModePropertiesKHR& val) { return (val.displayMode == displayMode); });
+      if (itrFind != displayModeProperties.end())
+      {
+        FSLLOG("Selected");
+        Log(*itrFind);
+      }
+      else
+      {
+        FSLLOG_WARNING("Could not find the displayModeProperties");
+      }
+    }
+
+
+    void Log(const std::vector<VkDisplayPlanePropertiesKHR>& deviceDisplayPlaneProperties)
+    {
+      FSLLOG("Found " << deviceDisplayPlaneProperties.size() << " display plane properties");
+      std::size_t index = 0;
+      for (const auto properties : deviceDisplayPlaneProperties)
+      {
+        FSLLOG("- Index: " << index);
+        FSLLOG("- CurrentStackIndex: " << properties.currentStackIndex);
+        ++index;
+      }
+    }
+
+    VkDisplaySurfaceCreateInfoKHR Prepare(const NativeWindowSetup& nativeWindowSetup, const VkPhysicalDevice physicalDevice,
+                                          const uint32_t verbosityLevel)
     {
       // Get information about the physical displays
       const auto displayProperties = PhysicalDeviceKHRUtil::GetPhysicalDeviceDisplayPropertiesKHR(physicalDevice);
       if( displayProperties.size() <= 0 )
         throw NotSupportedException("No physical displays found");
+
+      if (verbosityLevel >= 2)
+        Log(displayProperties);
 
       // Force the user requested display id to be in range
       const auto config = nativeWindowSetup.GetConfig();
@@ -160,28 +243,50 @@ namespace Fsl
         displayId = 0;
       }
 
+      if (verbosityLevel >= 1)
+      {
+        FSLLOG("User requested display index (id): "  << displayId);
+        if (verbosityLevel >= 2)
+          Log(displayProperties[displayId]);
+      }
+
       // Get display mode properties for the chosen display
       const auto displayModeProperties = PhysicalDeviceKHRUtil::GetDisplayModePropertiesKHR(physicalDevice, displayProperties[displayId].display);
       if( displayProperties.size() <= 0 )
         throw NotSupportedException(std::string("Display: ") + ToString(displayId) + " did not support any modes");
+
+      if (verbosityLevel >= 2)
+        Log(displayModeProperties);
 
       // Try to find a display mode that matches the native resolution
       const VkDisplayModeKHR displayMode = TryFindTheBestDisplayModeMatch(displayProperties[displayId], displayModeProperties);
       if( displayMode == VK_NULL_HANDLE )
         throw NotSupportedException("Could not find a matching display mode");
 
+      if (verbosityLevel >= 1)
+        Log(displayModeProperties, displayMode);
+
       // Try to find a plane index that supports our display
       auto imageExtent =  displayProperties[displayId].physicalResolution;
       const auto deviceDisplayPlaneProperties = PhysicalDeviceKHRUtil::GetPhysicalDeviceDisplayPlanePropertiesKHR(physicalDevice);
+
+      if (verbosityLevel >= 2)
+        Log(deviceDisplayPlaneProperties);
+
       uint32_t planeIndex;
       if( ! TryFindSupportedPlaneIndex(physicalDevice, displayProperties[displayId].display, displayMode, imageExtent, deviceDisplayPlaneProperties, planeIndex) )
       {
-        LOCAL_LOG("No plane found. Falling back to plane with current resolution.");
+        FSLLOG("No plane found. Falling back to plane with current resolution.");
         planeIndex = 0;
         //currentDisplay = deviceDisplayPlaneProperties[planeIndex].currentDisplay;
         VkDisplayPlaneCapabilitiesKHR displayPlaneCapabilities;
         RAPIDVULKAN_CHECK(vkGetDisplayPlaneCapabilitiesKHR(physicalDevice, displayMode, planeIndex, &displayPlaneCapabilities));
         imageExtent = displayPlaneCapabilities.maxDstExtent;
+      }
+
+      if (verbosityLevel >= 1)
+      {
+        FSLLOG("Selected planeIndex: " << planeIndex);
       }
 
       VkDisplaySurfaceCreateInfoKHR surfaceCreateInfo{};
@@ -208,7 +313,7 @@ namespace Fsl
     : AVulkanNativeWindow(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
     , PlatformNativeWindowFB(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
   {
-    auto surfaceCreateInfo = Prepare(nativeWindowSetup, m_physicalDevice);
+    auto surfaceCreateInfo = Prepare(nativeWindowSetup, m_physicalDevice, nativeWindowSetup.GetVerbosityLevel());
     RAPIDVULKAN_CHECK(vkCreateDisplayPlaneSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_surface));
   }
 

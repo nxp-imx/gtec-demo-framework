@@ -33,7 +33,7 @@
 
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
 #include <FslDemoApp/Base/Service/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <vector>
@@ -43,7 +43,7 @@ namespace Fsl
   class Shared
   {
     std::shared_ptr<IProfilerService> m_profilerService;
-    std::shared_ptr<Basic2D> m_basic2D;
+    std::shared_ptr<IBasic2D> m_basic2D;
     std::vector<Vector2> m_controlPoints;
     std::vector<Vector2> m_points;
     float m_x1Ang;

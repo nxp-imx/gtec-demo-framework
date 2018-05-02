@@ -267,6 +267,8 @@ namespace Fsl
     //! @note all WindowManager modifications to tree need to be queued into the command queue
     void UITree::AddChild(const BaseWindow*const parentWindow, const std::shared_ptr<BaseWindow>& window)
     {
+      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Children should not be added during layout");
+
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
       if (parentWindow == nullptr || !window)
@@ -309,6 +311,15 @@ namespace Fsl
       AddChild(parentWindow.get(), window);
     }
 
+    bool UITree::Exists(const BaseWindow*const pWindow) const
+    {
+      if (pWindow == nullptr)
+      {
+        FSLLOG_DEBUG_WARNING("A null window will always return false");
+        return false;
+      }
+      return (m_dict.find(pWindow) != m_dict.end());
+    }
 
     bool UITree::Exists(const std::shared_ptr<BaseWindow>& window) const
     {
@@ -349,6 +360,8 @@ namespace Fsl
     //! @note all WindowManager modifications to tree need to be queued into the command queue
     void UITree::ScheduleClose(const std::shared_ptr<BaseWindow>& window)
     {
+      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Windows should not be closed during layout");
+
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
       if (!window)
@@ -371,6 +384,8 @@ namespace Fsl
     //! @note all WindowManager modifications to tree need to be queued into the command queue
     void UITree::ScheduleCloseAllChildren(const std::shared_ptr<BaseWindow>& parentWindow)
     {
+      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Windows should not be closed during layout");
+
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
       if (!parentWindow)
@@ -390,6 +405,8 @@ namespace Fsl
 
     bool UITree::TrySetWindowFlags(const BaseWindow*const pWindow, const WindowFlags& flags)
     {
+      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Windows flags should not be touched during layout");
+
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
       if (pWindow == nullptr)
@@ -439,18 +456,41 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<TreeNode> UITree::Get(const IWindowId*const pWindowId) const
+    std::shared_ptr<TreeNode> UITree::TryGet(const IWindowId*const pWindowId) const
     {
       // ScopedContextChange scopedContextChange(this, Context::Internal);  --> Nothing here does callbacks, so no need for a context change
       auto itr = m_dict.find(pWindowId);
       if (itr == m_dict.end())
-        throw NotFoundException("pWindowId is not part of the tree");
+        return std::shared_ptr<TreeNode>();
       return itr->second;
+    }
+
+
+    std::shared_ptr<TreeNode> UITree::TryGet(const std::shared_ptr<IWindowId>& windowId) const
+    {
+      if (! windowId)
+      {
+        FSLLOG_DEBUG_WARNING("Tried to acquire a null window");
+        return std::shared_ptr<TreeNode>();
+      }
+      return Get(windowId.get());
+    }
+
+    std::shared_ptr<TreeNode> UITree::Get(const IWindowId*const pWindowId) const
+    {
+      // ScopedContextChange scopedContextChange(this, Context::Internal);  --> Nothing here does callbacks, so no need for a context change
+      auto node = TryGet(pWindowId);
+      if (! node)
+        throw NotFoundException("pWindowId is not part of the tree");
+      return node;
     }
 
 
     std::shared_ptr<TreeNode> UITree::Get(const std::shared_ptr<IWindowId>& windowId) const
     {
+      if( ! windowId )
+        throw std::invalid_argument("windowId can not be null");
+
       return Get(windowId.get());
     }
 
@@ -504,6 +544,8 @@ namespace Fsl
 
     void UITree::PerformLayout()
     {
+      ScopedContextChange scopedContextChange(this, Context::InternalLayout);
+
       if (m_layoutIsDirty)
       {
         m_layoutIsDirty = false;

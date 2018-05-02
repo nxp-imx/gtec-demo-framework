@@ -68,8 +68,10 @@ namespace Fsl
       , m_cursorPadding()
       , m_nineSlice()
     {
+      // We need to be draw enabled, accept click input and receive a notification on init
       Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput));
     }
+
 
     bool Slider::IsIdle() const
     {
@@ -270,8 +272,8 @@ namespace Fsl
 
     void Slider::RecalcPercentage()
     {
-      const int delta = m_maxValue - m_minValue;
-      const int value = m_value - m_minValue;
+      const auto delta = m_maxValue - m_minValue;
+      const auto value = m_value - m_minValue;
       m_percentage = delta != 0 ? value / static_cast<float>(delta) : 0.0f;
     }
 
@@ -284,10 +286,10 @@ namespace Fsl
         DoSetValue(m_maxValue, 1);
       else
       {
-        float value = position - m_renderXMin;
-        float percentage = value / (m_renderXMax - m_renderXMin);
+        const float value = position - m_renderXMin;
+        const float percentage = value / (m_renderXMax - m_renderXMin);
         // +1 to offer the full range to all values as both min and max is included
-        int delta = (m_maxValue - m_minValue) + 1;
+        const auto delta = (m_maxValue - m_minValue) + 1;
         DoSetValue(std::min(std::max(static_cast<int32_t>((delta)* percentage) + m_minValue, m_minValue), m_maxValue), 1);
       }
     }
@@ -301,7 +303,8 @@ namespace Fsl
         m_value = cappedValue;
         RecalcPercentage();
         PropertyUpdated(PropertyType::Other);
-        SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0, m_value, reason));
+        if (IsReadyToSendEvents())
+          SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0, m_value, reason));
       }
 
     }

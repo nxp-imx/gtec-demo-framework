@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
-#include <FslGraphics3D/BasicScene/Camera/ArcballCamera.hpp>
+#include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>

@@ -353,11 +353,29 @@ namespace Fsl
       return m_context->WindowManager->PointFromScreen(pToWin, screenPoint);
     }
 
+    bool BaseWindow::IsReadyToSendEvents()
+    {
+      if (m_flags.IsEnabled(BaseWindowFlags::CachedEventReady))
+        return true;
+
+      if (!m_context->WindowManager->Exists(this))
+        return false;
+
+      m_flags.Set(BaseWindowFlags::CachedEventReady, true);
+      return true;
+    }
+
 
     void BaseWindow::SendEvent(const std::shared_ptr<WindowEvent>& event)
     {
       m_context->EventSender->SendEvent(event, this);
     }
+
+    // Disabled for now as its easy to forget to release the event back to the pool on failure
+    //bool BaseWindow::TrySendEvent(const std::shared_ptr<WindowEvent>& event)
+    //{
+    //  return m_context->EventSender->TrySendEvent(event, this);
+    //}
 
 
     const std::shared_ptr<WindowEventPool>& BaseWindow::GetEventPool() const

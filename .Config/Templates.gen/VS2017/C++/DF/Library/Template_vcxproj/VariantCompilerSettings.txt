@@ -7,7 +7,9 @@
       <PreprocessorDefinitions>_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_LIB;_DEBUG;##PACKAGE_DEFINES##%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <MinimalRebuild>false</MinimalRebuild>##DEBUG_OPTIMIZATION_OPTIONS##
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp14</LanguageStandard>##DEBUG_OPTIMIZATION_OPTIONS##
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -26,6 +28,8 @@
       <AdditionalIncludeDirectories>##PACKAGE_INCLUDE_DIRS##</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

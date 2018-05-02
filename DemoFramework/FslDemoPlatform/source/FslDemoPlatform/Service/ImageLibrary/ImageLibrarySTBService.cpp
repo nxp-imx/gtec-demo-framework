@@ -38,9 +38,9 @@
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <limits>
-#include <stb/stb_image_write.h>
+#include <stb_image_write.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+#include <stb_image.h>
 
 namespace Fsl
 {
@@ -134,6 +134,79 @@ namespace Fsl
         return PixelFormat::Undefined;
       }
     }
+
+    template<typename T>
+    class ScopedSTBImage
+    {
+
+    public:
+      T* pContent;
+
+      ScopedSTBImage(T* pImageData)
+        : pContent(pImageData)
+      {
+      }
+
+      ~ScopedSTBImage()
+      {
+        if (pContent != nullptr)
+        {
+          stbi_image_free(pContent);
+          pContent = nullptr;
+        }
+      }
+    };
+
+    bool TryReadHDR(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
+    {
+      int width = 0;
+      int height = 0;
+      int channels = 0;
+
+      ScopedSTBImage<float> imageData(stbi_loadf(absolutePath.ToUTF8String().c_str(), &width, &height, &channels, 0));
+      if (imageData.pContent == nullptr || width < 0 || height < 0 || (channels != 3 && channels != 4))
+        return false;
+
+      try
+      {
+        const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R32G32B32_SFLOAT : PixelFormat::R32G32B32A32_SFLOAT);
+        Extent2D extent(width, height);
+        const std::size_t cbContent = (sizeof(float) * channels) * extent.Width * extent.Height;
+
+        rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
+        return true;
+      }
+      catch (const std::exception&)
+      {
+        return false;
+      }
+    }
+
+
+    bool TryReadPNG(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
+    {
+      int width = 0;
+      int height = 0;
+      int channels = 0;
+
+      ScopedSTBImage<uint8_t> imageData(stbi_load(absolutePath.ToUTF8String().c_str(), &width, &height, &channels, 0));
+      if (imageData.pContent == nullptr || width < 0 || height < 0 || (channels != 3 && channels != 4))
+        return false;
+
+      try
+      {
+        const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R8G8B8_UINT : PixelFormat::R8G8B8A8_UINT);
+        Extent2D extent(width, height);
+        const std::size_t cbContent = channels * extent.Width * extent.Height;
+
+        rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
+        return true;
+      }
+      catch (const std::exception&)
+      {
+        return false;
+      }
+    }
   }
 
   ImageLibrarySTBService::ImageLibrarySTBService(const ServiceProvider& serviceProvider)
@@ -166,42 +239,16 @@ namespace Fsl
 
   bool ImageLibrarySTBService::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
-    //const auto imageFormat = ImageFormatUtil::TryDetectImageFormatFromExtension(absolutePath);
-    //if(imageFormat == ImageFormat::Hdr)
-    //{
-    //  int width = 0;
-    //  int height = 0;
-    //  int channels = 0;
-    //  auto pImageData = stbi_loadf(absolutePath.ToUTF8String().c_str(), &width, &height, &channels, 0);
-    //  if (pImageData == nullptr || width < 0 || height < 0 || (channels != 3 && channels != 4))
-    //  {
-    //    if (pImageData != nullptr)
-    //    {
-    //      stbi_image_free(pImageData);
-    //      pImageData = nullptr;
-    //    }
-    //    return false;
-    //  }
-
-    //  try
-    //  {
-    //    const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R32G32B32_SFLOAT : PixelFormat::R32G32B32A32_SFLOAT);
-    //    Extent2D extent(width, height);
-    //    const std::size_t cbContent = (4 * channels) * extent.Width * extent.Height;
-
-    //    rBitmap.Reset(pImageData, cbContent, extent, pixelFormat);
-
-    //    // Free the image data
-    //    stbi_image_free(pImageData);
-    //    pImageData = nullptr;
-    //    return true;
-    //  }
-    //  catch (const std::exception&)
-    //  {
-    //    stbi_image_free(pImageData);
-    //    pImageData = nullptr;
-    //  }
-    //}
+    const auto imageFormat = ImageFormatUtil::TryDetectImageFormatFromExtension(absolutePath);
+    switch (imageFormat)
+    {
+    case ImageFormat::Hdr:
+      return TryReadHDR(rBitmap, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint);
+    case ImageFormat::Png:
+      return TryReadPNG(rBitmap, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint);
+    default:
+      return false;
+    }
     return false;
   }
 
@@ -261,8 +308,8 @@ namespace Fsl
     {
     case ImageFormat::Bmp:
       return stbi_write_bmp(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
-      //case ImageFormat::Hdr:
-      //  return stbi_write_hdr(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
+    //case ImageFormat::Hdr:
+    //  return stbi_write_hdr(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
     case ImageFormat::Jpeg:
       return stbi_write_jpg(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content(), DEFAULT_JPG_QUALITY) != 0;
     case ImageFormat::Png:

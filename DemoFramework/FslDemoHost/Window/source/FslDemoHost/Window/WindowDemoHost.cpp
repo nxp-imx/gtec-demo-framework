@@ -31,9 +31,9 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfoControl.hpp>
 #include <FslDemoHost/Window/WindowDemoHost.hpp>
 #include <FslDemoHost/Window/WindowDemoHostOptionParser.hpp>

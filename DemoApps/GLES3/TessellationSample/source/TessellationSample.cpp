@@ -31,7 +31,7 @@
 
 #include "TessellationSample.hpp"
 #include <FslBase/Log/Log.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Render/AtlasFont.hpp>
@@ -82,7 +82,7 @@ namespace Fsl
       record.Scene = std::make_shared<T>(config, options, id);
       record.Button.reset(new LabelButton(context));
       record.Button->SetContent(name);
-      stack.Children.Add(record.Button);
+      stack.AddChild(record.Button);
       return record;
     }
   }
@@ -112,14 +112,7 @@ namespace Fsl
   {
     RegisterExtension(m_uiExtension);
 
-    if (!GLUtil::HasExtension("GL_EXT_tessellation_shader"))
-      throw NotSupportedException("GL_EXT_tessellation_shader extension not supported");
-    if (!GLUtil::HasExtension("GL_EXT_geometry_shader"))
-      throw NotSupportedException("GL_EXT_geometry_shader extension not supported");
-
     auto options = config.GetOptions<OptionParser>();
-
-
 
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
     BuildUI(contentManager);
@@ -352,15 +345,15 @@ namespace Fsl
     stackLayout->SetLayoutOrientation(LayoutOrientation::Vertical);
     stackLayout->SetAlignmentX(ItemAlignment::Near);
     stackLayout->SetAlignmentY(ItemAlignment::Far);
-    stackLayout->Children.Add(m_checkDisplacement);
-    stackLayout->Children.Add(m_checkWireframe);
-    stackLayout->Children.Add(m_checkTexture);
-    stackLayout->Children.Add(m_checkRotate);
-    stackLayout->Children.Add(m_sliderTInner);
-    stackLayout->Children.Add(m_sliderTOuter);
-    stackLayout->Children.Add(m_sliderTDispFactor);
-    stackLayout->Children.Add(m_sliderTDispMod);
-    stackLayout->Children.Add(m_sliderShininess);
+    stackLayout->AddChild(m_checkDisplacement);
+    stackLayout->AddChild(m_checkWireframe);
+    stackLayout->AddChild(m_checkTexture);
+    stackLayout->AddChild(m_checkRotate);
+    stackLayout->AddChild(m_sliderTInner);
+    stackLayout->AddChild(m_sliderTOuter);
+    stackLayout->AddChild(m_sliderTDispFactor);
+    stackLayout->AddChild(m_sliderTDispMod);
+    stackLayout->AddChild(m_sliderShininess);
 
     m_caption.reset(new Label(m_context));
     m_caption->SetAlignmentX(ItemAlignment::Near);
@@ -371,9 +364,9 @@ namespace Fsl
     m_buttonStack->SetAlignmentY(ItemAlignment::Near);
 
     m_fillLayout.reset(new FillLayout(m_context));
-    m_fillLayout->Children.Add(m_caption);
-    m_fillLayout->Children.Add(stackLayout);
-    m_fillLayout->Children.Add(m_buttonStack);
+    m_fillLayout->AddChild(m_caption);
+    m_fillLayout->AddChild(stackLayout);
+    m_fillLayout->AddChild(m_buttonStack);
 
 
     // Add the fill layout to the window manager to ensure it is visible

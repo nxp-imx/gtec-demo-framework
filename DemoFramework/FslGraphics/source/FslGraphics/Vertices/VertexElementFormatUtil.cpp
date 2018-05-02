@@ -48,6 +48,18 @@ namespace Fsl
       return sizeof(float) * 4;
     case VertexElementFormat::Matrix4x4:
       return sizeof(float) * 4 * 4;
+    case VertexElementFormat::X8_UNORM:
+    case VertexElementFormat::X8_UINT:
+      return sizeof(uint8_t) * 1;
+    case VertexElementFormat::X8Y8_UNORM:
+    case VertexElementFormat::X8Y8_UINT:
+      return sizeof(uint8_t) * 2;
+    case VertexElementFormat::X8Y8Z8_UNORM:
+    case VertexElementFormat::X8Y8Z8_UINT:
+      return sizeof(uint8_t) * 3;
+    case VertexElementFormat::X8Y8Z8W8_UNORM:
+    case VertexElementFormat::X8Y8Z8W8_UINT:
+      return sizeof(uint8_t) * 4;
     default:
       throw NotSupportedException("Unknown VertexElementFormat");
     }
@@ -67,6 +79,18 @@ namespace Fsl
       return 4;
     case VertexElementFormat::Matrix4x4:
       return 4 * 4;
+    case VertexElementFormat::X8_UNORM:
+    case VertexElementFormat::X8_UINT:
+      return 1;
+    case VertexElementFormat::X8Y8_UNORM:
+    case VertexElementFormat::X8Y8_UINT:
+      return 2;
+    case VertexElementFormat::X8Y8Z8_UNORM:
+    case VertexElementFormat::X8Y8Z8_UINT:
+      return 3;
+    case VertexElementFormat::X8Y8Z8W8_UNORM:
+    case VertexElementFormat::X8Y8Z8W8_UINT:
+      return 4;
     default:
       throw NotSupportedException("Unknown VertexElementFormat");
     }

@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import List
+from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 
@@ -52,7 +53,7 @@ class AndroidSDKVersion(object):
 
 
 def GetTargetSDKVersion(package: Package) -> AndroidSDKVersion:
-    return AndroidSDKVersion(24)
+    return AndroidSDKVersion(AndroidUtil.GetTargetSDKVersion())
 
 
 def DetermineMinSDKVersion(package: Package) -> AndroidSDKVersion:
@@ -60,8 +61,8 @@ def DetermineMinSDKVersion(package: Package) -> AndroidSDKVersion:
     if "Vulkan" in namesOnly:
         return AndroidSDKVersion(24)
     elif "OpenGLES3.1" in namesOnly:
-        return AndroidSDKVersion(21)
-    return AndroidSDKVersion(21)
+        return AndroidSDKVersion(AndroidUtil.GetMinimumSDKVersion())
+    return AndroidSDKVersion(AndroidUtil.GetMinimumSDKVersion())
 
 
 def DetermineMinGLESVersion(package: Package) -> str:

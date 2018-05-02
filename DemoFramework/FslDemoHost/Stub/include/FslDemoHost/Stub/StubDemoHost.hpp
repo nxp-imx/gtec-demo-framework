@@ -33,7 +33,7 @@
 
 #include <deque>
 #include <vector>
-#include <FslDemoApp/Base/Host/ConfigControl.hpp>
+#include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
 
 namespace Fsl

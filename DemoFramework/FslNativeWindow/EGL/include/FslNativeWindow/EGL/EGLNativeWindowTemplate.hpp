@@ -50,7 +50,6 @@ namespace Fsl
         throw NotSupportedException("NativeEGLSetup pointer expected");
     }
 
-
     virtual EGLNativeWindowType GetWindowType() const override
     {
       return (EGLNativeWindowType)TNativeWindow::GetPlatformWindow();

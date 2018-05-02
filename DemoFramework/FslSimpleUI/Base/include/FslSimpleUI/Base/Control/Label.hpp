@@ -43,11 +43,22 @@ namespace Fsl
 
     class Label : public LabelBase
     {
+      std::string m_content;
     public:
       Label(const std::shared_ptr<WindowContext>& context);
 
-      const std::string& GetContent() const { return DoGetContent(); }
-      void SetContent(const std::string& value) { DoSetContent(value); }
+      const std::string& GetContent() const
+      {
+        return DoGetContent();
+      }
+
+      void SetContent(const std::string& value);
+
+    protected:
+      virtual const std::string& DoGetContent() const override
+      {
+        return m_content;
+      }
     };
   }
 }

@@ -46,10 +46,12 @@ class ToolConfigRootDirectory(object):
                  dynamicRootName: Optional[str] = None,
                  dynamicPath: Optional[str] = None) -> None:
         super(ToolConfigRootDirectory, self).__init__()
+        dirMustExist = True
         if basedUponXML is not None:
             self.BasedOn = basedUponXML  # type: Union[XmlConfigFileAddRootDirectory, 'ToolConfigRootDirectory']
             self.Name = basedUponXML.Name # type: str
             self.DynamicName = basedUponXML.Name # type: str
+            dirMustExist = not basedUponXML.Create
         else:
             if dynamicSourceRootDir is None:
                 raise Exception("dynamicSourceRootDir can not be none")
@@ -69,7 +71,13 @@ class ToolConfigRootDirectory(object):
         if env is None:
             raise Exception("Root dirs are expected to contain environment variables '{0}'".format(self.DynamicName))
 
-        resolvedPath = IOUtil.GetEnvironmentVariableForDirectory(env) + remainingPath
+        resolvedPath = IOUtil.GetEnvironmentVariableForDirectory(env, dirMustExist)
+        if not IOUtil.Exists(resolvedPath):
+            IOUtil.SafeMakeDirs(resolvedPath)
+        if not IOUtil.IsDirectory(resolvedPath):
+            raise EnvironmentError("The {0} environment variable content '{1}' does not point to a valid directory".format(env, resolvedPath))
+
+        resolvedPath = resolvedPath + remainingPath
         self.BashName = '${0}{1}'.format(env, remainingPath)  # type: str
         self.DosName = '%{0}%{1}'.format(env, remainingPath)  # type: str
         self.ResolvedPath = IOUtil.ToUnixStylePath(resolvedPath)  # type: str

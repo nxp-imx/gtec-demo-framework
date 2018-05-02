@@ -4,17 +4,17 @@
   <ExternalLibrary Name="Assimp">
     <Define Name="FSL_ENABLE_ASSIMP" Access="Public"/> 
     <Platform Name="Android">
-      <ExternalDependency Name="assimp" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/AssimpSource/include" Access="Public" Type="StaticLib"/>
-    </Platform>  
-    <Platform Name="Ubuntu">
-     <ExternalDependency Name="assimp" Type="StaticLib"/>
+      <Dependency Name="Recipe.assimp_4_1_0"/>
     </Platform>  
     <Platform Name="QNX" Supported="false"/>
+    <Platform Name="Ubuntu">
+      <Dependency Name="Recipe.assimp_4_1_0"/>
+    </Platform>  
     <Platform Name="Yocto">
       <ExternalDependency Name="assimp" Type="StaticLib"/>
     </Platform>    
     <Platform Name="Windows">
-      <Dependency Name="Recipe.assimp_3_3_1"/>
+      <Dependency Name="Recipe.assimp_4_1_0"/>
     </Platform>    
   </ExternalLibrary>
 </FslBuildGen>

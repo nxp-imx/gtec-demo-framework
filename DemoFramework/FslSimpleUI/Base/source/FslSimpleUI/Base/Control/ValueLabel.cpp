@@ -30,8 +30,10 @@
 ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Control/ValueLabel.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/String/StringCompat.hpp>
 #include <cassert>
 #include <cstdio>
 
@@ -48,6 +50,12 @@ namespace Fsl
       // 000000000011
       // 123456789012
       const int BUFFER_SIZE = 12;
+
+      bool TryFormatToString(char* pDst, const std::size_t dstSize, const int32_t value)
+      {
+        int charsWritten = StringCompat::sprintf_s(pDst, dstSize, "%d", value);
+        return (charsWritten > 0 && static_cast<std::size_t>(charsWritten) < dstSize);
+      }
     }
 
 
@@ -59,36 +67,26 @@ namespace Fsl
 
     void ValueLabel::SetContent(const int32_t value)
     {
-      if (value != m_content)
-      {
-        m_content = value;
-        // convert to a string
-        char tmp[BUFFER_SIZE];
-#ifdef _WIN32
-        int charsWritten = sprintf_s(tmp, BUFFER_SIZE, "%d", m_content);
-#else
-        int charsWritten = snprintf(tmp, BUFFER_SIZE, "%d", m_content);
-#endif
-        if (charsWritten < 0 || charsWritten >= BUFFER_SIZE)
-          throw std::invalid_argument("number conversion failed");
+      if (value == m_content)
+        return;
 
-        DoSetContent(tmp);
-      }
+      m_content = value;
+      // convert to a string
+      char tmp[BUFFER_SIZE];
+      if (!TryFormatToString(tmp, BUFFER_SIZE, m_content))
+        tmp[0] = 0;
+
+      m_contentCache = tmp;
+      PropertyUpdated(PropertyType::Content);
     }
-
 
 
     Vector2 ValueLabel::MeasureRenderedValue(const int32_t value)
     {
       // convert to a string
       char tmp[BUFFER_SIZE];
-#ifdef _WIN32
-      int charsWritten = sprintf_s(tmp, BUFFER_SIZE, "%d", value);
-#else
-      int charsWritten = snprintf(tmp, BUFFER_SIZE, "%d", value);
-#endif
-      if (charsWritten < 0 || charsWritten >= BUFFER_SIZE)
-        throw std::invalid_argument("number conversion failed");
+      if (!TryFormatToString(tmp, BUFFER_SIZE, value))
+        return Vector2();
       return DoMeasureRenderedString(tmp);
     }
   }

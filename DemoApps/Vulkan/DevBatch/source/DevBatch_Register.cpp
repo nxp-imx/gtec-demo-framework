@@ -29,7 +29,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 #include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
 #include <Shared/VulkanWindowExperimental/OptionParser.hpp>

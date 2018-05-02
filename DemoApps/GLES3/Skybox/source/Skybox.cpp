@@ -1,0 +1,209 @@
+/****************************************************************************************************************************************************
+* Copyright 2018 NXP
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+*    * Redistributions of source code must retain the above copyright notice,
+*      this list of conditions and the following disclaimer.
+*
+*    * Redistributions in binary form must reproduce the above copyright notice,
+*      this list of conditions and the following disclaimer in the documentation
+*      and/or other materials provided with the distribution.
+*
+*    * Neither the name of the NXP. nor the names of
+*      its contributors may be used to endorse or promote products derived from
+*      this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*
+****************************************************************************************************************************************************/
+
+#include "Skybox.hpp"
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Log/Log.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
+#include <GLES3/gl3.h>
+#include <Shared/OpenGLES3/CubeMapping/SkyboxVertices.hpp>
+#include <Shared/OpenGLES3/CubeMapping/TextureUtil.hpp>
+#include <array>
+#include "OptionParser.hpp"
+
+namespace Fsl
+{
+  using namespace GLES3;
+
+  namespace
+  {
+    const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
+    const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, -4.0f);
+  }
+
+
+  Skybox::Skybox(const DemoAppConfig& config)
+    : DemoAppGLES3(config)
+    , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
+    , m_mouse(config.DemoServiceProvider.Get<IMouse>())
+    , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
+    , m_mouseCaptureEnabled(false)
+    , m_cubemapTexture()
+    , m_skyboxProgram()
+    , m_skyboxMesh()
+    , m_matrixProjection(Matrix::GetIdentity())
+    , m_rotationSpeed(5.4f, 0.0f)
+  {
+    const auto options = config.GetOptions<OptionParser>();
+
+    m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+
+
+    const auto contentManager = GetContentManager();
+
+    std::string texture = options->GetScene() == SceneState::Scene1 ? "Yokohama3" : "Test";
+
+    m_cubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, texture, PixelFormat::R8G8B8A8_UNORM);
+    m_skyboxProgram.Reset(contentManager->ReadAllText("skybox.vert"), contentManager->ReadAllText("skybox.frag"));
+    m_skyboxMesh.Reset(m_skyboxProgram.Program);
+
+    const auto screenResolution = GetScreenResolution();
+    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 1000.0f);
+
+    GL_CHECK_FOR_ERROR();
+  }
+
+
+  Skybox::~Skybox()
+  {
+
+  }
+
+
+  void Skybox::OnMouseButtonEvent(const MouseButtonEvent& event)
+  {
+    if (event.IsHandled())
+      return;
+
+    switch (event.GetButton())
+    {
+    case VirtualMouseButton::Right:
+    {
+      const bool mouseCapture = event.IsPressed();
+      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+        m_mouseCaptureEnabled = mouseCapture;
+      else
+        m_mouseCaptureEnabled = false;
+      event.Handled();
+      break;
+    }
+    case VirtualMouseButton::Middle:
+      if (event.IsPressed())
+      {
+        m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
+        event.Handled();
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
+
+  void Skybox::Update(const DemoTime& demoTime)
+  {
+    if (! m_mouseCaptureEnabled)
+    {
+      m_camera.RotateByRadians(m_rotationSpeed * demoTime.DeltaTime);
+    }
+    UpdateCameraControlInput(demoTime, m_keyboard->GetState());
+  }
+
+
+  void Skybox::Draw(const DemoTime& demoTime)
+  {
+    glDisable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    DrawScene(m_skyboxProgram, m_skyboxMesh, m_cubemapTexture, m_camera.GetViewMatrix(), m_matrixProjection);
+  }
+
+
+  void Skybox::DrawScene(const SkyboxProgram& programInfo, const SkyboxMesh& mesh, const GLES3::GLTexture& texture,
+                         const Matrix& matrixView, const Matrix& matrixProjection)
+  {
+    const auto& program = programInfo.Program;
+    const auto& location = programInfo.Location;
+
+    // Set the shader program
+    glUseProgram(program.Get());
+
+    // Load the matrices
+    assert(location.ViewMatrix != GLValues::INVALID_LOCATION);
+    assert(location.ProjMatrix != GLValues::INVALID_LOCATION);
+    assert(location.SkyboxSampler != GLValues::INVALID_LOCATION);
+
+    glUniformMatrix4fv(location.ViewMatrix, 1, 0, matrixView.DirectAccess());
+    glUniformMatrix4fv(location.ProjMatrix, 1, 0, matrixProjection.DirectAccess());
+
+    // Bind the vertex array
+    mesh.VertexArray.Bind();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture.Get());
+    glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetCapacity());
+    //glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    mesh.VertexArray.Unbind();
+
+    glUseProgram(0);
+  }
+
+
+  void Skybox::UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState)
+  {
+    { // Mouse camera rotation
+      const auto mouseState = m_mouse->GetState();
+
+      if (!m_mouseCaptureEnabled)
+      {
+        const bool rotateCamera = mouseState.IsRightButtonPressed();
+        m_camera.RotateViaPosition(rotateCamera, mouseState.Position);
+      }
+      else
+      {
+        if (mouseState.IsRightButtonPressed())
+        {
+          const auto rawPosition = Vector2(mouseState.RawPosition.X, -mouseState.RawPosition.Y);
+          m_camera.Rotate(rawPosition);
+        }
+      }
+    }
+
+    // Keyboard camera movement
+    const float movementSpeed = 2.0f * demoTime.DeltaTime;
+    if (keyboardState.IsKeyDown(VirtualKey::W))
+      m_camera.MoveForward(movementSpeed);
+    if (keyboardState.IsKeyDown(VirtualKey::S))
+      m_camera.MoveBackwards(movementSpeed);
+    if (keyboardState.IsKeyDown(VirtualKey::A))
+      m_camera.MoveLeft(movementSpeed);
+    if (keyboardState.IsKeyDown(VirtualKey::D))
+      m_camera.MoveRight(movementSpeed);
+  }
+}

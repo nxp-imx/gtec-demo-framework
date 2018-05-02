@@ -1,5 +1,31 @@
 Latest version:
 ---------------
+* **Breaking change** Isolated the Graphics service from FslDemoHost.Base to FslDemoService/Graphics to 
+  allow better dependency control. This allowed us to remove the Graphics service from Console type demos 
+  removing their dependency on the Graphics, NativeGraphics and NativeWindow packages which they did not need.
+* **Breaking change** Reduced dependencies for the NativeGraphics service.
+* Android build now requires Android Studio 3.1 and the Android NDK16b or newer.
+* Vulkan enabled for the Yocto Wayland backend.
+* All ThirdParty code is now downloaded as needed instead of being included in the repo.
+* Assimp 4.1.0 is now support on Android.
+* Upgraded Assimp from 3.3.1 to 4.1.0 on Windows and Ubuntu, Yocto is still using 4.
+* Removed assimp 3.3.1 source used for Android builds and disabled assimp support for Android
+* Windows builds now default to Visual Studio 2017 projects
+* **Breaking change**: OpenVX1_0_1 support removed.
+* **Breaking change**: GLES3::GLFrameBuffer constructor and reset parameters modified (old not updated code will give a compile error).
+* **Breaking change**: GLES2::GLFrameBuffer constructor and reset parameters modified (old not updated code will give a compile error).
+* **Breaking change**: Renamed UI::Layout to UI::SimpleLayout in preparation for supporting more complex layouts.
+* **Breaking change**: Moved FslDemoHost/EGL/Service/EGLHost/IEGLHostInfo.hpp to FslDemoHost/EGL/Config/Service/IEGLHostInfo.hpp so that all apps can use it without additional dependencies.
+* Fixed Android ContentCache loader so it works with format 3 used from forward 5.0.0
+* **Breaking change**: EGLStringUtil::GetExtensions moved to EGLUtil::GetExtensions to match the OpenGL ES versions.
+* **Breaking change**: IDemoAppRegistry interface simplified, some of its old responsibility was moved to the registation code.
+* **Breaking change**: Moved FslDemoApp/Base/Host/DemoAppHostConfigEGL.hpp to FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp
+  to standardize the location and allow it to utilize EGL types.
+* **Breaking change**: Moved FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp to FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp
+  to standardize the location.
+* **Breaking change**: Corrected extension names in fsl.gen files from EXT_geometry_shader to GL_EXT_geometry_shader
+* **Breaking change**: Corrected extension names in fsl.gen files from EXT_tessellation_shader to GL_EXT_tessellation_shader
+* **Breaking change**: The Camera helper classes was moved from FslGraphics3D.BasicScene to FslGraphics3D.Camera.
 * **Breaking change**: IContentManger, IPersistentDataManager and IO::File now uses uint64_t to represent file sizes and relevant types.
 * Enabled OpenVX1.1 on ubuntu using the Khronos OpenVX 1.1 sample implementation.
 * Switched to OpenVX1.1 on windows using the Khronos OpenVX 1.1 sample implementation.

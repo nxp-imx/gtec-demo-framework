@@ -35,15 +35,19 @@
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <cfloat>
+#include <cmath>
 
 namespace Fsl
 {
   class EqualHelper
   {
   public:
+    // Check if two floats are considered equal
+    // This works best for relatively small values
     inline static bool IsAlmostEqual(const float lhs, const float rhs)
     {
-      return lhs == rhs;
+      return (lhs != rhs ? std::fabs(lhs - rhs) <= FLT_EPSILON : true);
     }
 
 

@@ -1,0 +1,3 @@
+    <ClCompile Include="##FILENAME##">
+      <Filter>Source Files</Filter>
+    </ClCompile>

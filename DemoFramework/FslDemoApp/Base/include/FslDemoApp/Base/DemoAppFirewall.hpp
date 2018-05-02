@@ -38,7 +38,7 @@
 
 namespace Fsl
 {
-  class Basic2D;
+  class IBasic2D;
   class IDemoAppFactory;
   class KeyEvent;
 
@@ -46,7 +46,7 @@ namespace Fsl
   {
     std::shared_ptr<IDemoApp> m_app;
     std::string m_errorString;
-    std::shared_ptr<Basic2D> m_basic2D;
+    std::shared_ptr<IBasic2D> m_basic2D;
   public:
     DemoAppFirewall(const DemoAppConfig& demoAppConfig, const std::shared_ptr<IDemoAppFactory>& appFactory);
     ~DemoAppFirewall();

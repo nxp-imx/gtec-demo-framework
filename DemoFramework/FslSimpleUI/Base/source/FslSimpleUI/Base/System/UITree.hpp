@@ -113,7 +113,8 @@ namespace Fsl
       enum class Context
       {
         System,
-        Internal
+        Internal,
+        InternalLayout
       };
 
       const std::shared_ptr<ModuleCallbackRegistry> m_moduleCallbackRegistry;
@@ -161,6 +162,7 @@ namespace Fsl
       virtual void Add(const std::shared_ptr<BaseWindow>& window) override;
       virtual void AddChild(const BaseWindow*const parentWindow, const std::shared_ptr<BaseWindow>& window) override;
       virtual void AddChild(const std::shared_ptr<BaseWindow>& parentWindow, const std::shared_ptr<BaseWindow>& window) override;
+      virtual bool Exists(const BaseWindow*const pWindow) const override;
       virtual bool Exists(const std::shared_ptr<BaseWindow>& window) const override;
       virtual bool IsMemberOfTree(const std::shared_ptr<BaseWindow>& tree, const std::shared_ptr<BaseWindow>& window) const override;
       virtual bool IsMemberOfTree(const std::shared_ptr<BaseWindow>& tree, const std::shared_ptr<BaseWindow>& window, const bool considerTreeRootAMember) const override;
@@ -175,6 +177,8 @@ namespace Fsl
       // From ITreeNodeLocator
       virtual std::shared_ptr<TreeNode> Get(const IWindowId*const pWindowId) const override;
       virtual std::shared_ptr<TreeNode> Get(const std::shared_ptr<IWindowId>& windowId) const override;
+      virtual std::shared_ptr<TreeNode> TryGet(const IWindowId*const pWindowId) const override;
+      virtual std::shared_ptr<TreeNode> TryGet(const std::shared_ptr<IWindowId>& windowId) const override;
 
       // From ITreeNodeClickInputTargetLocator
       virtual std::shared_ptr<TreeNode> TryGet(const Vector2& hitPosition) const override;

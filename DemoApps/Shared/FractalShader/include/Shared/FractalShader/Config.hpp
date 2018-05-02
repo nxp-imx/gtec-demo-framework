@@ -37,103 +37,89 @@
 namespace Fsl
 {
 
-  struct Quality
+  enum class Quality
   {
-    enum Enum
-    {
-      Low,
-      Medium,
-      High,
-      COUNT
-    };
+    Low,
+    Medium,
+    High,
+    VeryHigh,
+    COUNT
   };
 
-  struct RenderMode
+  enum class RenderMode
   {
-    enum Enum
-    {
-      Gray,
-      Col,
-      Smooth,
-      //Tex,
-      COUNT
-    };
+    Gray,
+    Col,
+    Smooth,
+    //Tex,
+    COUNT
   };
 
 
-  struct AnimationMode
+  enum class AnimationMode
   {
-    enum Enum
-    {
-      ConstantLoad = 0,
-      ConstantLoad2 = 1,
-      ConstantLoad3 = 2,
-      ComplexMove = 3,
-      SlowAndComplex = 4,
-      DSin = 5,
-      Stopped = 6,
-      COUNT
-    };
+    ConstantLoad = 0,
+    ConstantLoad2 = 1,
+    ConstantLoad3 = 2,
+    ComplexMove = 3,
+    SlowAndComplex = 4,
+    DSin = 5,
+    Stopped = 6,
+    COUNT
   };
 
-
-  class Config
+  class BasicConfig
   {
   public:
-    Quality::Enum TheQuality;
-    RenderMode::Enum TheRenderMode;
-    int32_t Scene;
-    int32_t Iterations;
-    AnimationMode::Enum TheAnimationMode;
+    Quality TheQuality;
+    RenderMode TheRenderMode;
+    int32_t IterationsJ;
+    int32_t IterationsM;
     bool ForceUnroll;
     bool Show;
 
-    Config()
+    BasicConfig()
       : TheQuality(Quality::Medium)
       , TheRenderMode(RenderMode::Col)
-      , Scene(0)
-      , Iterations(20)
-      , TheAnimationMode(AnimationMode::ComplexMove)
+      , IterationsJ(20)
+      , IterationsM(20)
       , ForceUnroll(false)
       , Show(false)
     {
 
     }
-
-
     void SetIterations(const int32_t value)
+    {
+      SetIterationsJ(value);
+      SetIterationsM(value);
+    }
+
+    void SetIterationsJ(const int32_t value)
     {
       if (value < 1)
         throw std::invalid_argument("invalid iteration limit");
-      Iterations = value;
+      IterationsJ = value;
     }
 
-    void SetScene(const int32_t value)
+    void SetIterationsM(const int32_t value)
     {
-      if (value < 0 || value >= 2)
-        throw std::invalid_argument("Unknown scene");
-      Scene = value;
+      if (value < 1)
+        throw std::invalid_argument("invalid iteration limit");
+      IterationsM = value;
     }
 
-    void SetRenderMode(const RenderMode::Enum value)
+    void SetRenderMode(const RenderMode value)
     {
-      if (value < 0 || value >= RenderMode::COUNT)
+      if (static_cast<int>(value) < 0 || value >= RenderMode::COUNT)
         throw std::invalid_argument("Unknown RenderMode");
 
       TheRenderMode = value;
     }
 
-    void SetAnimationMode(const AnimationMode::Enum value)
-    {
-      if (value < 0 || value >= AnimationMode::COUNT)
-        throw std::invalid_argument("Unknown AnimationMode");
 
-      TheAnimationMode = value;
-    }
-
-    void SetQuality(const Quality::Enum value)
+    void SetQuality(const Quality value)
     {
-      if (value < 0 || value >= Quality::COUNT)
+      if (static_cast<int>(value) < 0 || value >= Quality::COUNT)
         throw std::invalid_argument("Unknown Quality");
 
       TheQuality = value;
@@ -147,6 +133,39 @@ namespace Fsl
     void SetShow(const bool value)
     {
       Show = value;
+    }
+
+  };
+
+  class Config : public BasicConfig
+  {
+  public:
+    int32_t Scene;
+    AnimationMode TheAnimationMode;
+
+    Config()
+      : BasicConfig()
+      , Scene(0)
+      , TheAnimationMode(AnimationMode::ComplexMove)
+    {
+    }
+
+
+
+    void SetScene(const int32_t value)
+    {
+      if (value < 0 || value >= 2)
+        throw std::invalid_argument("Unknown scene");
+      Scene = value;
+    }
+
+
+    void SetAnimationMode(const AnimationMode value)
+    {
+      if (static_cast<int>(value) < 0 || value >= AnimationMode::COUNT)
+        throw std::invalid_argument("Unknown AnimationMode");
+
+      TheAnimationMode = value;
     }
 
   };

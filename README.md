@@ -1,4 +1,4 @@
-# DemoFramework 5.0.2
+# DemoFramework 5.1.0
 
 A multi-platform framework for fast and easy demo development.
 
@@ -105,13 +105,13 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 
 ## Reasoning
 
-While writing this we currently have twenty-five OpenGL ES 2 samples, thirty-eight OpenGL ES 3.x samples,
-thirteen Vulkan samples, eight OpenVG samples, two G2D samples, two OpenCL samples, three OpenCV samples,
-one OpenVX sample and four other samples. Which is *96 sample applications*.
+While writing this we currently have twenty-five OpenGL ES 2 samples, fifty-three OpenGL ES 3.x samples,
+fourteen Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+two OpenVX sample and four other samples. Which is *113 sample applications*.
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 96 * 4 = *384 build files* for the samples alone.
-Maintaining 384 or even just 96 build files would be an extremely time consuming and error prone process.
+maintain 113 * 4 = *452 build files* for the samples alone.
+Maintaining 452 or even just 114 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -806,6 +806,10 @@ downscaling the original image to multiple smaller render-targets and then blurr
 using a relative small kernel and then finally rescaling the result to the original size.
 
 
+### [ColorspaceInfo](DemoApps/GLES3/ColorspaceInfo)
+Checks for the presence of known EGL color space extensions and outputs information about them to the console.
+
+
 ### [D1_1_VBOs](DemoApps/GLES3/D1_1_VBOs)
 <a href="DemoApps/GLES3/D1_1_VBOs">
 <img src="DemoApps/GLES3/D1_1_VBOs/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
@@ -962,6 +966,14 @@ It defines an initial point where the particles will be tightly packed and then,
 .
 
 
+### [EquirectangularToCubemap](DemoApps/GLES3/EquirectangularToCubemap)
+<a href="DemoApps/GLES3/EquirectangularToCubemap">
+<img src="DemoApps/GLES3/EquirectangularToCubemap/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Convert a [equirectangular map](https://en.wikipedia.org/wiki/Equirectangular_projection) to a cubemap using OpenGL ES3.
+
+
 ### [FractalShader](DemoApps/GLES3/FractalShader)
 <a href="DemoApps/GLES3/FractalShader">
 <img src="DemoApps/GLES3/FractalShader/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
@@ -983,6 +995,61 @@ Illustrates how to render fur over several primitives.
 The fur is rendered on a layered approach using a seamless texture as a base and then creating a density bitmap.
 
 .
+
+
+### [GammaCorrection](DemoApps/GLES3/GammaCorrection)
+<a href="DemoApps/GLES3/GammaCorrection">
+<img src="DemoApps/GLES3/GammaCorrection/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+A simple example of how to do gamma correction it shows the difference that SRGB textures and gamma correction makes to the output by comparing
+it to the uncorrected rendering methods.
+
+
+### [HDR01_BasicToneMapping](DemoApps/GLES3/HDR01_BasicToneMapping)
+<a href="DemoApps/GLES3/HDR01_BasicToneMapping">
+<img src="DemoApps/GLES3/HDR01_BasicToneMapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+As normal framebuffer values are clamped between 0.0 and 1.0 it means that any light value above 1.0 gets clamped.
+Because of this its not really possible to differentiate really bright lights from normal lights.
+To take advantage of the light information that normally gets discarded we use a tone mapping algorithm to try and
+preserve it. This demo applies the tonemapping right away in the lighting shader so no temporary floating point framebuffer is needed.
+
+
+### [HDR02_FBBasicToneMapping](DemoApps/GLES3/HDR02_FBBasicToneMapping)
+<a href="DemoApps/GLES3/HDR02_FBBasicToneMapping">
+<img src="DemoApps/GLES3/HDR02_FBBasicToneMapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+As normal framebuffer values are clamped between 0.0 and 1.0 it means that any light value above 1.0 gets clamped.
+Because of this its not really possible to differentiate really bright lights from normal lights.
+To take advantage of the light information that normally gets discarded we use a tone mapping algorithm to try and
+preserve it. This demo applies the tonemapping as a postprocessing step on the fully lit scene,
+so a temporary floating point framebuffer is needed.
+
+This sample outputs to a LDR screen.
+
+
+### [HDR03_SkyboxTonemapping](DemoApps/GLES3/HDR03_SkyboxTonemapping)
+<a href="DemoApps/GLES3/HDR03_SkyboxTonemapping">
+<img src="DemoApps/GLES3/HDR03_SkyboxTonemapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Render a HDR skybox and apply various tonemapping algorithms to it.
+
+This sample outputs to a LDR screen.
+
+
+### [HDR04_HDRFramebuffer](DemoApps/GLES3/HDR04_HDRFramebuffer)
+<a href="DemoApps/GLES3/HDR04_HDRFramebuffer">
+<img src="DemoApps/GLES3/HDR04_HDRFramebuffer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Demonstrates how to enable HDRFramebuffer mode if available.
+The render a test scene using a pattern that makes it easy to detect if the display actually enabled HDR mode.
+
+This sample outputs to a HDR screen if supported.
 
 
 ### [ModelLoaderBasics](DemoApps/GLES3/ModelLoaderBasics)
@@ -1007,6 +1074,17 @@ Expands the ModelLoaderBasics example with:
 - A arcball camera
 - Multiple different scenes (Knight, Dragon, Car, etc)
 - More advanced shaders for directional per pixel specular light with support for gloss and normal maps.
+
+
+### [MultipleViewportsFractalShader](DemoApps/GLES3/MultipleViewportsFractalShader)
+<a href="DemoApps/GLES3/MultipleViewportsFractalShader">
+<img src="DemoApps/GLES3/MultipleViewportsFractalShader/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Demonstrates how to utilize multiple viewports.
+It reuses the fractal shaders from the FractalShader demo to render the julia and mandelbrot sets.
+
+No texture and no overdraw, minimal bandwidth requirements.
 
 
 ### [ObjectSelection](DemoApps/GLES3/ObjectSelection)
@@ -1082,18 +1160,6 @@ The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
 <a href="DemoApps/GLES3/OpenVX101">
 <img src="DemoApps/GLES3/OpenVX101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
 </a>
-
-
-### [OpenVX101Legacy](DemoApps/GLES3/OpenVX101Legacy)
-<a href="DemoApps/GLES3/OpenVX101Legacy">
-<img src="DemoApps/GLES3/OpenVX101Legacy/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
-</a>
-
-Demonstrates how to use OpenVX from inside a OpenGLES3 project.
-
-It runs a sobel edge operation over a bitmap and then maps it to a texture to be displayed.
-
-.
 
 
 ### [ParticleSystem](DemoApps/GLES3/ParticleSystem)
@@ -1196,6 +1262,23 @@ into a Texture utility class which is then used to used to create a OpenGL ES cu
 This sample shows how to use the Verisilicon extensions to create a texture without having the need to copy the image data to GL.
 
 
+### [Scissor101](DemoApps/GLES3/Scissor101)
+<a href="DemoApps/GLES3/Scissor101">
+<img src="DemoApps/GLES3/Scissor101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+A simple example of how glScissor works.
+This sample also allows you to force set a invalid scissor rect from the command line.
+
+
+### [Skybox](DemoApps/GLES3/Skybox)
+<a href="DemoApps/GLES3/Skybox">
+<img src="DemoApps/GLES3/Skybox/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Render a simple skybox using a cubemap.
+
+
 ### [SpringBackground](DemoApps/GLES3/SpringBackground)
 <a href="DemoApps/GLES3/SpringBackground">
 <img src="DemoApps/GLES3/SpringBackground/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
@@ -1207,6 +1290,15 @@ It is then demonstrated how to render the grid using:
 - The DemoFramework native batch (Basic or Catmull-Rom splines)
 - Linestrips in a VertexBuffer (Catmull-Rom splines)
 - Linestrips in a VertexBuffer but using the geometry shader to make quads (Catmull-Rom splines)
+
+
+### [SRGBFramebuffer](DemoApps/GLES3/SRGBFramebuffer)
+<a href="DemoApps/GLES3/SRGBFramebuffer">
+<img src="DemoApps/GLES3/SRGBFramebuffer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Enables a SRGB Framebuffer if the extension EGL_KHR_gl_colorspace is available.
+If unavailable it does normal gamma correction in the shader.
 
 
 ### [T3DStressTest](DemoApps/GLES3/T3DStressTest)
@@ -1241,6 +1333,15 @@ Shows how to load scenes via Assimp and then render them using
 - tessellation using the geometry shader.
 
 
+### [TextureCompression](DemoApps/GLES3/TextureCompression)
+<a href="DemoApps/GLES3/TextureCompression">
+<img src="DemoApps/GLES3/TextureCompression/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Load and render some ETC2 compressed textures.
+It also outputs information about the found compression extensions.
+
+
 ### [VerletIntegration101](DemoApps/GLES3/VerletIntegration101)
 <a href="DemoApps/GLES3/VerletIntegration101">
 <img src="DemoApps/GLES3/VerletIntegration101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
@@ -1273,13 +1374,8 @@ Information related to CL kernel compilers, number of buffers supported, extensi
 <img src="DemoApps/OpenCL/SoftISP/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
 </a>
 
-It is a software-based image signal processing(SoftISP)  application optimized by GPU.
- SoftISP Roles:
- - Bad Pixel Correction
- - White Balance
- - Histogram Equalization
- - High-quality Demosaicing
- - High-quality Noise Reduction
+It is a software-based image signal processing(SoftISP) application optimized by GPU. SoftISP --Options
+"Enable" Enable high quality noise reduction node
 
 
 
@@ -1402,28 +1498,14 @@ This will often showcase the worst case power consumption.
 <img src="DemoApps/OpenVX/SoftISP/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
 </a>
 
-It is a software-based image signal processing(SoftISP)  application optimized by GPU.
- SoftISP Roles:
- - Bad Pixel Correction
- - White Balance
- - Histogram Equalization
- - High-quality Demosaicing
- - High-quality Noise Reduction
+It is a software-based image signal processing(SoftISP) application optimized by GPU. SoftISP --Options
+"Enable" Enable high quality noise reduction node
 
 
 ### [VxTutorial1](DemoApps/OpenVX/VxTutorial1)
 <a href="DemoApps/OpenVX/VxTutorial1">
 <img src="DemoApps/OpenVX/VxTutorial1/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
 </a>
-
-
-### [VxTutorial1Legacy](DemoApps/OpenVX/VxTutorial1Legacy)
-<a href="DemoApps/OpenVX/VxTutorial1Legacy">
-<img src="DemoApps/OpenVX/VxTutorial1Legacy/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
-</a>
-
-Brief code showcasing how to use OpenVX to run a sobel filter on an image.
-The image first needs to be copied to GPU space to process it and then it is copied again to CPU space to generate a bmp file of the result.
 
 
 
@@ -1587,6 +1669,12 @@ Based on a sample by Norbert Nopper from VKTS Examples [VKTS_Sample08](https://g
 Recreated as a DemoFramework freestyle console sample in 2016.
 
 .
+
+
+### [VulkanInfo](DemoApps/Vulkan/VulkanInfo)
+Commandline tool to dump vulkan system information to the console.
+
+This is a easy way to quickly query the hardware capabilities as reported by vulkan.
 
 
 

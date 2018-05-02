@@ -30,7 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include <Shared/DFGraphicsBasic2D/Shared.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <sstream>

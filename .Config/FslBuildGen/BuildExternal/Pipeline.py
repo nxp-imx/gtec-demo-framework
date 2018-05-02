@@ -39,7 +39,9 @@ from FslBuildGen.BuildExternal.DataTypes import RecipeType
 from FslBuildGen.BuildExternal.PipelineCommandBuilder import PipelineCommandBuilder
 from FslBuildGen.BuildExternal.PipelineCommandBuilder import PipelineCommand
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
+from FslBuildGen.DataTypes import BuildRecipePipelineCommand
 from FslBuildGen.Packages.Package import Package
+from FslBuildGen.PackageConfig import PlatformNameString
 
 class Pipeline(object):
     def __init__(self, log: Log, builder: PipelineCommandBuilder, sourcePackage: Package, sourceRecipe: PackageExperimentalRecipe) -> None:
@@ -57,11 +59,26 @@ class Pipeline(object):
         if sourceRecipe.Pipeline is None:
             raise Exception("Invalid recipe")
 
-        builder.Begin(sourcePackage, sourceRecipe)
-        for sourceCommand in sourceRecipe.Pipeline.CommandList:
-            builder.Add(sourceCommand)
-        return builder.End()
+        #isAndroidBuild = (sourcePackage.ResolvedPlatform is not None and sourcePackage.ResolvedPlatform.Name == PlatformNameString.ANDROID)
 
+        builder.Begin(sourcePackage, sourceRecipe)
+        #if not isAndroidBuild:
+        for sourceCommand in sourceRecipe.Pipeline.CommandList:
+            builder.Add(sourceCommand, False)
+        #else:
+        #    # We handle cmake differently in android builds for now
+        #    # This is until we get a proper solution that will allow us to prebuild libraries
+        #    for index, sourceCommand in enumerate(sourceRecipe.Pipeline.CommandList):
+        #        skip = False
+        #        if sourceCommand.CommandType == BuildRecipePipelineCommand.CMakeBuild:
+        #            # Validate our pipeline assumptions that allow CMakeBuild to work on android
+        #            if index != (len(sourceRecipe.Pipeline.CommandList)-1):
+        #                raise Exception("CMakeBuild can only be the last entry in a android package {0} recipe".format(sourcePackage.Name))
+        #            elif sourceCommand.JoinCommandList is not None and len(sourceCommand.JoinCommandList) > 0:
+        #                raise Exception("CMakeBuild in a android package {0} recipe can not contian join commands".format(sourcePackage.Name))
+        #            skip = True
+        #        builder.Add(sourceCommand, skip)
+        return builder.End()
 
 class RecipeRecord(object):
     def __init__(self, log: Log, builder: PipelineCommandBuilder, sourcePackage: Package) -> None:

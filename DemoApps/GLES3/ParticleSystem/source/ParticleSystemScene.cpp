@@ -29,7 +29,7 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
@@ -487,8 +487,8 @@ namespace Fsl
 
     std::shared_ptr<StackLayout> stackLayout(new StackLayout(context));
     stackLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    stackLayout->Children.Add(labelParticles);
-    stackLayout->Children.Add(m_valueLabelParticleCount);
+    stackLayout->AddChild(labelParticles);
+    stackLayout->AddChild(m_valueLabelParticleCount);
 
     m_sliderEmit.reset(new SliderAndValueLabel(context));
     m_sliderEmit->SetValueLimits(0, 20000);
@@ -501,8 +501,8 @@ namespace Fsl
 
     std::shared_ptr<StackLayout> outerStack(new StackLayout(context));
     outerStack->SetLayoutOrientation(LayoutOrientation::Vertical);
-    outerStack->Children.Add(stackLayout);
-    outerStack->Children.Add(m_sliderEmit);
+    outerStack->AddChild(stackLayout);
+    outerStack->AddChild(m_sliderEmit);
 
 
     {
@@ -541,32 +541,32 @@ namespace Fsl
         std::shared_ptr<Label> labelParticles2(new Label(context));
         labelParticles2->SetContent("GPUParticles: ");
         stackLayoutQ->SetLayoutOrientation(LayoutOrientation::Horizontal);
-        stackLayoutQ->Children.Add(labelParticles2);
-        stackLayoutQ->Children.Add(m_valueLabelGPUParticleCount);
+        stackLayoutQ->AddChild(labelParticles2);
+        stackLayoutQ->AddChild(m_valueLabelGPUParticleCount);
       }
 
       std::shared_ptr<StackLayout> comboStack(new StackLayout(context));
       comboStack->SetLayoutOrientation(LayoutOrientation::Vertical);
       if (m_particleSystemPoints)
-        comboStack->Children.Add(m_particleSystemPoints);
+        comboStack->AddChild(m_particleSystemPoints);
       if (m_particleSystemQuads)
-        comboStack->Children.Add(m_particleSystemQuads);
+        comboStack->AddChild(m_particleSystemQuads);
       if (m_particleSystemGeometryShader)
-        comboStack->Children.Add(m_particleSystemGeometryShader);
+        comboStack->AddChild(m_particleSystemGeometryShader);
       if (m_cbParticleSystemGPU1)
-        comboStack->Children.Add(m_cbParticleSystemGPU1);
+        comboStack->AddChild(m_cbParticleSystemGPU1);
       if (m_cbParticleSystemGPU2)
-        comboStack->Children.Add(m_cbParticleSystemGPU2);
+        comboStack->AddChild(m_cbParticleSystemGPU2);
       if (stackLayoutQ)
-        comboStack->Children.Add(stackLayoutQ);
+        comboStack->AddChild(stackLayoutQ);
 
-      outerStack->Children.Add(comboStack);
+      outerStack->AddChild(comboStack);
     }
 
 
 
     std::shared_ptr<FillLayout> layout(new FillLayout(context));
-    layout->Children.Add(outerStack);
+    layout->AddChild(outerStack);
 
     // Add the fill layout to the window manager to ensure it is visible
     context->WindowManager->Add(layout);

@@ -33,7 +33,14 @@ GLES3.OpenCVNativeBatch.vcxproj
 GLES3.OpenCVNativeBatch.vcxproj.filters
 GLES3.OpenCVNativeBatch.vcxproj.user
 GNUmakefile
+GNUmakefile_Yocto
 OpenCVMatToNativeBatch
+OpenCVMatToNativeBatch_FB
+OpenCVMatToNativeBatch_FB_d
+OpenCVMatToNativeBatch_Wayland
+OpenCVMatToNativeBatch_Wayland_d
+OpenCVMatToNativeBatch_X11
+OpenCVMatToNativeBatch_X11_d
 OpenCVMatToNativeBatch_d
 build/
 resource.h

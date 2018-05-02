@@ -40,16 +40,19 @@ from FslBuildGen.PackageConfig import PlatformNameString
 
 class PlatformBuildUtil(object):
     @staticmethod
-    def AddBuildThreads(log: Log, rArgumentList: List[str], generatorOriginalName: str, buildThreads: int) -> None:
+    def AddBuildThreads(log: Log, rArgumentList: List[str], generatorOriginalName: str, buildThreads: int, external: bool = False) -> None:
         platformName = generatorOriginalName
-        if platformName == PlatformNameString.QNX or platformName == PlatformNameString.YOCTO or platformName == PlatformNameString.UBUNTU:
+        if (platformName == PlatformNameString.QNX or
+            platformName == PlatformNameString.YOCTO or
+            platformName == PlatformNameString.UBUNTU or
+            (external and platformName == PlatformNameString.ANDROID)):
             PlatformBuildUtil.__AppendMakeThreads(log, rArgumentList, buildThreads)
         elif platformName == PlatformNameString.WINDOWS:
             if buildThreads == BuildThreads.Auto:
                 log.LogPrint("Builder using BuildThreads: auto")
                 rArgumentList += ['/maxcpucount']
             elif buildThreads != BuildThreads.NotDefined and buildThreads > 0:
-                log.LogPrint("Builder using BuildThreads: {0}'".format(buildThreads))
+                log.LogPrint("Builder using BuildThreads: {0}".format(buildThreads))
                 rArgumentList += ['/maxcpucount:{0}'.format(buildThreads)]
         else:
             if buildThreads != BuildThreads.NotDefined:
@@ -61,6 +64,6 @@ class PlatformBuildUtil(object):
              buildThreads = multiprocessing.cpu_count()
 
         if buildThreads != BuildThreads.NotDefined and buildThreads > 0:
-            log.LogPrint("Builder using BuildThreads: {0}'".format(buildThreads))
+            log.LogPrint("Builder using BuildThreads: {0}".format(buildThreads))
             rBuildCommandList += ['-j', str(buildThreads)]
 

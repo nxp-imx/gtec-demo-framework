@@ -39,7 +39,8 @@ namespace Fsl
   namespace UI
   {
 
-    WindowContext::WindowContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender, const std::shared_ptr<INativeBatch2D>& batch2D, const std::shared_ptr<AtlasFont>& defaultFont)
+    WindowContext::WindowContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender,
+                                 const std::shared_ptr<INativeBatch2D>& batch2D, const std::shared_ptr<AtlasFont>& defaultFont)
       : WindowManager(windowManager)
       , EventSender(eventSender)
       , Batch2D(batch2D)

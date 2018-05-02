@@ -38,15 +38,20 @@ import os
 from FslBuildGen import IOUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
-from FslBuildGen.DataTypes import BuildRecipeValidateCommand, BuildRecipeValidateMethod
+from FslBuildGen.DataTypes import BuildRecipeValidateCommand
+from FslBuildGen.DataTypes import BuildRecipeValidateMethod
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Packages.Package import Package
+from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
+from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeInstallation
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddHeaders
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddLib
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddDLL
+from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddTool
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandEnvironmentVariable
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindFileInPath
+from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindExecutableFileInPath
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandPath
 
 class InstallationStatus(object):
@@ -87,7 +92,7 @@ class ValidationEngine(object):
             raise Exception("Can't validate a package '{0}' that doesnt contain a source recipe".format(sourcePackage.Name))
 
         errorRecordList = []  # type: List[ErrorRecord]
-        status = self.__GetInstallationStatus(errorRecordList, sourceRecipe)
+        status = self.__GetInstallationStatus(errorRecordList, sourceRecipe, sourcePackage.ResolvedRecipeVariants)
         if status == InstallationStatus.Installed or status == InstallationStatus.Undefined:
             return
 
@@ -112,7 +117,7 @@ class ValidationEngine(object):
 
         errorRecordList = [] if rErrorRecordList is None else rErrorRecordList
 
-        status = self.__GetInstallationStatus(errorRecordList, sourceRecipe)
+        status = self.__GetInstallationStatus(errorRecordList, sourceRecipe, sourcePackage.ResolvedRecipeVariants)
         if status == InstallationStatus.Installed or status == InstallationStatus.Undefined:
             return status
 
@@ -143,7 +148,7 @@ class ValidationEngine(object):
         raise Exception("Unsupported error classification: {0}".format(errorClassification))
 
 
-    def __GetInstallationStatus(self, rErrorRecordList: List[ErrorRecord], sourceRecipe: PackageExperimentalRecipe) -> int:
+    def __GetInstallationStatus(self, rErrorRecordList: List[ErrorRecord], sourceRecipe: PackageExperimentalRecipe, recipeVariants: List[str]) -> int:
         if sourceRecipe.ValidateInstallation is None:
             self.__BasicConfig.LogPrintVerbose(3, "WARNING: no intallation validation available for recipe '{0}'".format(sourceRecipe.Name))
             return InstallationStatus.Undefined
@@ -154,51 +159,72 @@ class ValidationEngine(object):
             else:
                 self.__BasicConfig.LogPrint("WARNING: No installation validation commands available for '{0}'".format(sourceRecipe.Name))
 
-        self.__DoValidateInstallation(rErrorRecordList, sourceRecipe)
+        self.__DoValidateInstallation(rErrorRecordList, sourceRecipe, recipeVariants)
 
         return self.__GetStatusFromErrorRecords(rErrorRecordList)
 
 
-    def __DoValidateInstallation(self, rErrorRecordList: List[ErrorRecord], sourceRecipe: PackageExperimentalRecipe) -> None:
+    def __DoValidateInstallation(self, rErrorRecordList: List[ErrorRecord], sourceRecipe: PackageExperimentalRecipe, recipeVariants: List[str]) -> None:
+        self.__BasicConfig.PushIndent()
         try:
             installationPath = sourceRecipe.ResolvedInstallPath
             validateInstallation = sourceRecipe.ValidateInstallation
             if validateInstallation is None:
                 raise Exception("Invalid recipe")
 
-            self.__BasicConfig.PushIndent()
-            for command in validateInstallation.CommandList:
-                result = False
-                if command.CommandType == BuildRecipeValidateCommand.EnvironmentVariable:
-                    if not isinstance(command, XmlRecipeValidateCommandEnvironmentVariable):
-                        raise Exception("Invalid command")
-                    result = self.__ValidateEnvironmentVariable(rErrorRecordList, command)
-                elif command.CommandType == BuildRecipeValidateCommand.Path:
-                    if not isinstance(command, XmlRecipeValidateCommandPath):
-                        raise Exception("Invalid command")
-                    result = self.__ValidatePath(rErrorRecordList, installationPath, command)
-                elif command.CommandType == BuildRecipeValidateCommand.FindFileInPath:
-                    if not isinstance(command, XmlRecipeValidateCommandFindFileInPath):
-                        raise Exception("Invalid command")
-                    result = self.__ValidateFindFileInPath(rErrorRecordList, installationPath, command)
-                elif command.CommandType == BuildRecipeValidateCommand.AddHeaders:
-                    if not isinstance(command, XmlRecipeValidateCommandAddHeaders):
-                        raise Exception("Invalid command")
-                    result = self.__ValidateAddHeaders(rErrorRecordList, installationPath, command)
-                elif command.CommandType == BuildRecipeValidateCommand.AddLib:
-                    if not isinstance(command, XmlRecipeValidateCommandAddLib):
-                        raise Exception("Invalid command")
-                    result = self.__ValidateAddLib(rErrorRecordList, installationPath, command)
-                elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
-                    if not isinstance(command, XmlRecipeValidateCommandAddDLL):
-                        raise Exception("Invalid command")
-                    result = self.__ValidateAddDLL(rErrorRecordList, installationPath, command)
-                else:
-                    raise Exception("Unknown validation command '{0}'".format(command.CommandName))
-                if not result and not command.Help is None:
-                    rErrorRecordList.append(ErrorRecord(ErrorClassification.Help, "  {0}".format(command.Help)))
+            if len(recipeVariants) <= 0:
+                self.__DoValidate(rErrorRecordList, installationPath, validateInstallation)
+            else:
+                for entry in recipeVariants:
+                    installationPathCopy = IOUtil.Join(installationPath, entry) if installationPath is not None else None
+                    self.__BasicConfig.LogPrint("Recipe variant: {0}".format(entry))
+                    self.__BasicConfig.PushIndent()
+                    try:
+                        self.__DoValidate(rErrorRecordList, installationPathCopy, validateInstallation)
+                    finally:
+                        self.__BasicConfig.PopIndent()
         finally:
             self.__BasicConfig.PopIndent()
+
+    def __DoValidate(self, rErrorRecordList: List[ErrorRecord], installationPath: Optional[str], validateInstallation: XmlRecipeInstallation) -> None:
+        for command in validateInstallation.CommandList:
+            result = False
+            if command.CommandType == BuildRecipeValidateCommand.EnvironmentVariable:
+                if not isinstance(command, XmlRecipeValidateCommandEnvironmentVariable):
+                    raise Exception("Invalid command")
+                result = self.__ValidateEnvironmentVariable(rErrorRecordList, command)
+            elif command.CommandType == BuildRecipeValidateCommand.Path:
+                if not isinstance(command, XmlRecipeValidateCommandPath):
+                    raise Exception("Invalid command")
+                result = self.__ValidatePath(rErrorRecordList, installationPath, command)
+            elif command.CommandType == BuildRecipeValidateCommand.FindFileInPath:
+                if not isinstance(command, XmlRecipeValidateCommandFindFileInPath):
+                    raise Exception("Invalid command")
+                result = self.__ValidateFindFileInPath(rErrorRecordList, installationPath, command)
+            elif command.CommandType == BuildRecipeValidateCommand.FindExecutableFileInPath:
+                if not isinstance(command, XmlRecipeValidateCommandFindExecutableFileInPath):
+                    raise Exception("Invalid command")
+                result = self.__ValidateFindExecutableFileInPath(rErrorRecordList, installationPath, command)
+            elif command.CommandType == BuildRecipeValidateCommand.AddHeaders:
+                if not isinstance(command, XmlRecipeValidateCommandAddHeaders):
+                    raise Exception("Invalid command")
+                result = self.__ValidateAddHeaders(rErrorRecordList, installationPath, command)
+            elif command.CommandType == BuildRecipeValidateCommand.AddLib:
+                if not isinstance(command, XmlRecipeValidateCommandAddLib):
+                    raise Exception("Invalid command")
+                result = self.__ValidateAddLib(rErrorRecordList, installationPath, command)
+            elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
+                if not isinstance(command, XmlRecipeValidateCommandAddDLL):
+                    raise Exception("Invalid command")
+                result = self.__ValidateAddDLL(rErrorRecordList, installationPath, command)
+            elif command.CommandType == BuildRecipeValidateCommand.AddTool:
+                if not isinstance(command, XmlRecipeValidateCommandAddTool):
+                    raise Exception("Invalid command")
+                result = self.__ValidateAddTool(rErrorRecordList, installationPath, command)
+            else:
+                raise Exception("Unknown validation command '{0}'".format(command.CommandName))
+            if not result and not command.Help is None:
+                rErrorRecordList.append(ErrorRecord(ErrorClassification.Help, "  {0}".format(command.Help)))
 
 
     def __ValidateEnvironmentVariable(self, rErrorRecordList: List[ErrorRecord], command: XmlRecipeValidateCommandEnvironmentVariable) -> bool:
@@ -224,12 +250,30 @@ class ValidationEngine(object):
     def __ValidateFindFileInPath(self, rErrorRecordList: List[ErrorRecord],
                                  installationPath: Optional[str],
                                  command: XmlRecipeValidateCommandFindFileInPath) -> bool:
-        result, value = self.__DoFindFileInPath(rErrorRecordList, installationPath, command)
+        result, value = self.__DoFindFileInPath(rErrorRecordList, installationPath, command.Name, command.ExpectedPath)
         if self.__BasicConfig.Verbosity >= 1:
             if command.ExpectedPath is None:
                 self.__BasicConfig.LogPrint("Validating file '{0}' is in path: {1}".format(command.Name, result))
             else:
                 self.__BasicConfig.LogPrint("Validating file '{0}' is in path at '{1}': {2}".format(command.Name, command.ExpectedPath, result))
+            if not value is None and self.__BasicConfig.Verbosity >= 2:
+                self.__BasicConfig.LogPrint("  '{0}'".format(value))
+        return result
+
+
+    def __ValidateFindExecutableFileInPath(self, rErrorRecordList: List[ErrorRecord],
+                                           installationPath: Optional[str],
+                                           command: XmlRecipeValidateCommandFindExecutableFileInPath) -> bool:
+
+        # Patch filename with the platform dependent name
+        filename = IOUtil.GetFileNameWithoutExtension(command.Name)
+        platformFilename = PlatformUtil.GetPlatformDependentExecuteableName(filename, PlatformUtil.DetectBuildPlatformType())
+        result, value = self.__DoFindFileInPath(rErrorRecordList, installationPath, platformFilename, command.ExpectedPath)
+        if self.__BasicConfig.Verbosity >= 1:
+            if command.ExpectedPath is None:
+                self.__BasicConfig.LogPrint("Validating executable file '{0}' is in path: {1}".format(command.Name, result))
+            else:
+                self.__BasicConfig.LogPrint("Validating executable file '{0}' is in path at '{1}': {2}".format(command.Name, command.ExpectedPath, result))
             if not value is None and self.__BasicConfig.Verbosity >= 2:
                 self.__BasicConfig.LogPrint("  '{0}'".format(value))
         return result
@@ -280,6 +324,19 @@ class ValidationEngine(object):
                 if self.__BasicConfig.Verbosity >= 2:
                     self.__BasicConfig.LogPrint("  '{0}'".format(value2))
         return result and result2
+
+
+
+    def __ValidateAddTool(self, rErrorRecordList: List[ErrorRecord],
+                         installationPath: Optional[str],
+                         command: XmlRecipeValidateCommandAddTool) -> bool:
+        toolName = PlatformUtil.GetPlatformDependentExecuteableName(command.Name, PlatformUtil.DetectBuildPlatformType())
+        result, value = self.__DoValidateFile(rErrorRecordList, installationPath, toolName, False)
+        if self.__BasicConfig.Verbosity >= 1:
+            self.__BasicConfig.LogPrint("Validating AddTool '{0}': {1}".format(command.Name, result))
+            if self.__BasicConfig.Verbosity >= 2:
+                self.__BasicConfig.LogPrint("  '{0}'".format(value))
+        return result
 
 
     def __DoValidateEnvironmentVariable(self, rErrorRecordList: List[ErrorRecord],
@@ -349,13 +406,14 @@ class ValidationEngine(object):
 
     def __DoFindFileInPath(self, rErrorRecordList: List[ErrorRecord],
                            installationPath: Optional[str],
-                           command: XmlRecipeValidateCommandFindFileInPath) -> Tuple[bool, Optional[str]]:
+                           commandFileName: str,
+                           commandExpectedPath: Optional[str]) -> Tuple[bool, Optional[str]]:
         if self.__BasicConfig.Verbosity >= 4:
-            self.__BasicConfig.LogPrint("FindFileInPath: '{0}'".format(command.Name))
+            self.__BasicConfig.LogPrint("FindFileInPath: '{0}'".format(commandFileName))
 
-        path = IOUtil.TryFindFileInPath(command.Name)
+        path = IOUtil.TryFindFileInPath(commandFileName)
         if path is None:
-            rErrorRecordList.append(ErrorRecord(ErrorClassification.Environment, "File '{0}' could not be found in path.".format(command.Name)))
+            rErrorRecordList.append(ErrorRecord(ErrorClassification.Environment, "File '{0}' could not be found in path.".format(commandFileName)))
             return False, path
 
         if self.__BasicConfig.Verbosity >= 4:
@@ -363,13 +421,13 @@ class ValidationEngine(object):
 
         path = IOUtil.NormalizePath(path)
 
-        if command.ExpectedPath is not None:
-            result, expectedPath = self.__TryResolvePath(rErrorRecordList, installationPath, command.ExpectedPath)
+        if commandExpectedPath is not None:
+            result, expectedPath = self.__TryResolvePath(rErrorRecordList, installationPath, commandExpectedPath)
             if not result or expectedPath is None:
                 return False, path
-            expectedPath = IOUtil.Join(expectedPath, command.Name)
+            expectedPath = IOUtil.Join(expectedPath, commandFileName)
             if path != expectedPath:
-                rErrorRecordList.append(ErrorRecord(ErrorClassification.Environment, "File '{0}' was not found at the expected path '{1}' which resolves to '{2}' but at '{3}' instead".format(command.Name, command.ExpectedPath, expectedPath, path)))
+                rErrorRecordList.append(ErrorRecord(ErrorClassification.Environment, "File '{0}' was not found at the expected path '{1}' which resolves to '{2}' but at '{3}' instead".format(commandFileName, commandExpectedPath, expectedPath, path)))
                 if expectedPath.lower() == path.lower():
                     rErrorRecordList.append(ErrorRecord(ErrorClassification.Help, "Please beware that '{0}'=='{1}' if you ignore character case".format(expectedPath, path)))
                 return False, path

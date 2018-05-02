@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.SRGBFramebuffer" NoInclude="true">
+    <!-- Extension is not mandatory -->
+    <!--Requirement Name="EGL_KHR_gl_colorspace" Type="extension" Extends="EGL"/-->
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="FslUtil.EGL"/>
+    <Platform Name="Windows" ProjectId="764467F3-BE8B-4355-88B1-FF5877A768E1"/>
+  </Executable>
+</FslBuildGen>

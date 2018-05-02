@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.RapidOpenVX_1_1_0">
+    <Dependency Name="OpenVX"/>
+    <ExperimentalRecipe Name="RapidOpenVX-1.1.0">
+      <Pipeline>
+        <Download URL="https://github.com/Unarmed1000/RapidOpenVX/archive/1.1.0.0.tar.gz" To="RapidOpenVX-1.1.0.0.tar.gz" Hash="1170545494b572c9201052196aaf80975b8eb70c57265ef958f335d1ac7d95f1"/>
+        <Unpack File="RapidOpenVX-1.1.0.0.tar.gz" OutputPath="RapidOpenVX-1.1.0.0"/>
+      </Pipeline>
+      <Installation>
+        <AddHeaders Name="include"/>
+        <Path Name="include/RapidOpenVX/Check.hpp" Method="IsFile"/>
+        <Path Name="include/RapidOpenVX/CheckError.hpp" Method="IsFile"/>
+        <Path Name="include/RapidOpenVX/Context.hpp" Method="IsFile"/>
+      </Installation>
+    </ExperimentalRecipe>
+  </ExternalLibrary>
+</FslBuildGen>

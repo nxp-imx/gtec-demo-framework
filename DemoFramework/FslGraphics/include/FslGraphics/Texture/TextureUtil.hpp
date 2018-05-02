@@ -55,6 +55,9 @@ namespace Fsl
 
     static Extent3D GetExtentForLevel(const Extent3D& extent, const uint32_t level);
     static uint32_t CalcTotalTexels(const Extent3D& extent, const TextureInfo& textureInfo);
+
+    //! @brief Try to change the origin of the texture
+    static bool TryChangeOrigin(Texture& rTexture, const BitmapOrigin desiredOrigin);
   };
 }
 

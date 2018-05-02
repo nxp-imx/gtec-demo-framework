@@ -203,11 +203,11 @@ namespace Fsl
     internalStack->SetLayoutOrientation(LayoutOrientation::Vertical);
     internalStack->SetAlignmentX(ItemAlignment::Near);
     internalStack->SetAlignmentY(ItemAlignment::Far);
-    internalStack->Children.Add(m_mainMenuStack);
-    internalStack->Children.Add(m_btnMenu);
+    internalStack->AddChild(m_mainMenuStack);
+    internalStack->AddChild(m_btnMenu);
 
     m_rootLayout = std::make_shared<FillLayout>(context);
-    m_rootLayout->Children.Add(internalStack);
+    m_rootLayout->AddChild(internalStack);
 
     // Finally add everything to the window manager (to ensure its seen)
     context->WindowManager->Add(m_rootLayout);
@@ -233,7 +233,7 @@ namespace Fsl
     m_layoutMenu->SetLayoutOrientation(LayoutOrientation::Vertical);
     m_layoutMenu->SetAlignmentX(ItemAlignment::Near);
     m_layoutMenu->SetAlignmentY(ItemAlignment::Near);
-    m_mainMenuStack->Children.Add(m_layoutMenu);
+    m_mainMenuStack->AddChild(m_layoutMenu);
 
     m_cbMenuRotate = std::make_shared<CheckBox>(context);
     m_cbMenuRotate->SetText("Rotate");
@@ -292,28 +292,28 @@ namespace Fsl
     //label1->SetWidth((200)
     //auto stack1 = std::make_shared<StackLayout>(context);
     //stack1->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    //stack1->Children.Add(label1);
-    //stack1->Children.Add(m_sliderBlur);
+    //stack1->AddChild(label1);
+    //stack1->AddChild(m_sliderBlur);
 
     //auto label2 = std::make_shared<Label>(context);
     //label2->SetContent("Blend");
     //auto stack2 = std::make_shared<StackLayout>(context);
     //stack2->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    //stack2->Children.Add(label2);
-    //stack2->Children.Add(m_sliderBlend);
+    //stack2->AddChild(label2);
+    //stack2->AddChild(m_sliderBlend);
 
-    m_layoutMenu->Children.Add(m_cbMenuRotate);
-    m_layoutMenu->Children.Add(m_cbMenuBlur);
-    m_layoutMenu->Children.Add(m_cbMenuBright);
-    m_layoutMenu->Children.Add(m_cbMenuFinalScene);
-    m_layoutMenu->Children.Add(m_cbMenuFinalBloom);
-    m_layoutMenu->Children.Add(m_cbMenuShowBuffers);
-    m_layoutMenu->Children.Add(m_cbScaleInputSequentially);
+    m_layoutMenu->AddChild(m_cbMenuRotate);
+    m_layoutMenu->AddChild(m_cbMenuBlur);
+    m_layoutMenu->AddChild(m_cbMenuBright);
+    m_layoutMenu->AddChild(m_cbMenuFinalScene);
+    m_layoutMenu->AddChild(m_cbMenuFinalBloom);
+    m_layoutMenu->AddChild(m_cbMenuShowBuffers);
+    m_layoutMenu->AddChild(m_cbScaleInputSequentially);
 
-    m_layoutMenu->Children.Add(m_sliderBlur);
-    m_layoutMenu->Children.Add(m_sliderBlend);
-    //m_layoutMenu->Children.Add(stack1);
-    //m_layoutMenu->Children.Add(stack2);
+    m_layoutMenu->AddChild(m_sliderBlur);
+    m_layoutMenu->AddChild(m_sliderBlend);
+    //m_layoutMenu->AddChild(stack1);
+    //m_layoutMenu->AddChild(stack2);
 
     UpdateControls();
   }
@@ -401,7 +401,7 @@ namespace Fsl
       return;
 
     // Close the menu window
-    m_mainMenuStack->Children.Remove(m_layoutMenu);
+    m_mainMenuStack->RemoveChild(m_layoutMenu);
     m_layoutMenu.reset();
 
     // Clear all points to controls from the main menu

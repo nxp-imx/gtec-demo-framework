@@ -34,7 +34,7 @@
 #include "NativeTexture2D.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 
 namespace Fsl
@@ -53,7 +53,15 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+                                                                             const TextureFlags& textureFlags)
+    {
+      return std::shared_ptr<INativeTexture2D>();
+    }
+
+
+    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                             const TextureFlags& textureFlags)
     {
       return std::shared_ptr<INativeTexture2D>();
     }

@@ -43,12 +43,15 @@ namespace Fsl
   {
     PlatformNativeWindowAllocationFunction m_allocationFunction;
     android_app* m_pAppState;
+    mutable bool m_isDisplayHDRCompatibleCached;
+    mutable bool m_isDisplayHDRCompatible;
   public:
     PlatformNativeWindowSystemAndroid(const NativeWindowSystemSetup& setup, const PlatformNativeWindowAllocationFunction& allocateWindowFunction = nullptr, const PlatformNativeWindowSystemParams& systemParams = PlatformNativeWindowSystemParams());
     virtual ~PlatformNativeWindowSystemAndroid();
 
     virtual std::shared_ptr<INativeWindow> CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams = nullptr) override;
     virtual bool ProcessMessages(const NativeWindowProcessMessagesArgs& args) override;
+    virtual bool IsDisplayHDRCompatible(const int32_t displayId) const override;
 
     android_app* GetAndroidAppState() const;
   };

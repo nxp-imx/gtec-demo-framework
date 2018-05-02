@@ -74,22 +74,22 @@ namespace Fsl
 
 
     //! @brief Save bitmap to file
-    //! @note Only supportes bitmaps in PixelFormat::B8G8R8A8_UINT format all other formats will
+    //! @note Only supportes bitmaps in PixelFormatLayout::B8G8R8A8 format all other formats will
     //        throw a UnsupportedPixelFormatException.
     static void Save(const IO::Path& strFilename, const Bitmap& bitmap);
 
     //! @brief Save bitmap to file
-    //! @note Only supportes bitmaps in PixelFormat::B8G8R8A8_UINT format all other formats will
+    //! @note Only supportes bitmaps in PixelFormatLayout::B8G8R8A8 format all other formats will
     //        throw a UnsupportedPixelFormatException.
     static void Save(const IO::Path& strFilename, const RawBitmap& bitmap);
 
     //! @brief Save bitmap to file
-    //! @note Only supportes bitmaps in PixelFormat::B8G8R8A8_UINT format all other formats will
+    //! @note Only supportes bitmaps in PixelFormatLayout::B8G8R8A8 format all other formats will
     //        throw a UnsupportedPixelFormatException.
     static void Save(std::ofstream& stream, const Bitmap& bitmap);
 
     //! @brief Save bitmap to file
-    //! @note Only supportes bitmaps in PixelFormat::B8G8R8A8_UINT format all other formats will
+    //! @note Only supportes bitmaps in PixelFormatLayout::B8G8R8A8 format all other formats will
     //        throw a UnsupportedPixelFormatException.
     static void Save(std::ofstream& stream, const RawBitmap& bitmap);
   };

@@ -33,10 +33,10 @@
 
 namespace Fsl
 {
-  DemoBasicSetup::DemoBasicSetup(const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const bool verbose)
+  DemoBasicSetup::DemoBasicSetup(const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const uint32_t verbosityLevel)
     : Host(hostSetup)
     , App(appSetup)
-    , Verbose(verbose)
+    , VerbosityLevel(verbosityLevel)
   {
   }
 

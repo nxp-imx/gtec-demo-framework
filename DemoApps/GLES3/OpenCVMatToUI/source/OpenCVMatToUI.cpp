@@ -84,8 +84,8 @@ namespace Fsl
 
       auto stack = std::make_shared<UI::StackLayout>(context);
       stack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
-      stack->Children.Add(image);
-      stack->Children.Add(label);
+      stack->AddChild(image);
+      stack->AddChild(label);
       return stack;
     }
 
@@ -106,15 +106,15 @@ namespace Fsl
       auto colorsStackLayout = std::make_shared<UI::StackLayout>(context);
       colorsStackLayout->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
       colorsStackLayout->SetAlignmentY(UI::ItemAlignment::Center);
-      colorsStackLayout->Children.Add(label);
-      colorsStackLayout->Children.Add(controlRed);
-      colorsStackLayout->Children.Add(controlGreen);
-      colorsStackLayout->Children.Add(controlBlue);
+      colorsStackLayout->AddChild(label);
+      colorsStackLayout->AddChild(controlRed);
+      colorsStackLayout->AddChild(controlGreen);
+      colorsStackLayout->AddChild(controlBlue);
 
       auto rowStackLayout = std::make_shared<UI::StackLayout>(context);
       rowStackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
-      rowStackLayout->Children.Add(image1);
-      rowStackLayout->Children.Add(colorsStackLayout);
+      rowStackLayout->AddChild(image1);
+      rowStackLayout->AddChild(colorsStackLayout);
       return rowStackLayout;
     }
   }
@@ -217,13 +217,13 @@ namespace Fsl
     stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
     stackLayout->SetAlignmentX(UI::ItemAlignment::Center);
     stackLayout->SetAlignmentY(UI::ItemAlignment::Center);
-    stackLayout->Children.Add(group1);
-    stackLayout->Children.Add(group2);
+    stackLayout->AddChild(group1);
+    stackLayout->AddChild(group2);
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
     auto fillLayout = std::make_shared<UI::FillLayout>(context);
-    fillLayout->Children.Add(stackLayout);
+    fillLayout->AddChild(stackLayout);
 
     // Finally add everything to the window manager (to ensure its seen)
     context->WindowManager->Add(fillLayout);

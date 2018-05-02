@@ -31,6 +31,7 @@
 
 #include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <FslBase/Log/Log.hpp>
 
 namespace Fsl
 {

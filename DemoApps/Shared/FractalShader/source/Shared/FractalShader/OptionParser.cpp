@@ -116,7 +116,7 @@ namespace Fsl
       if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
         return OptionParseResult::Failed;
       m_modified.Flag(ModifiedFlags::RenderMode);
-      m_config.SetRenderMode(static_cast<RenderMode::Enum>(intValue));
+      m_config.SetRenderMode(static_cast<RenderMode>(intValue));
       return OptionParseResult::Parsed;
     case CommandId::Iterations:
       if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
@@ -136,7 +136,7 @@ namespace Fsl
       if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
         return OptionParseResult::Failed;
       m_modified.Flag(ModifiedFlags::AnimationMode);
-      m_config.SetAnimationMode(static_cast<AnimationMode::Enum>(intValue));
+      m_config.SetAnimationMode(static_cast<AnimationMode>(intValue));
       return OptionParseResult::Parsed;
     case CommandId::DemoMode:
       m_demoMode = true;

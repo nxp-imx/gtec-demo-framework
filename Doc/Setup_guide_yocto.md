@@ -324,17 +324,17 @@ The easiest way to get it is to install the linux [vulkan SDK](https://vulkan.lu
 1. Download the vulkan sdk from https://vulkan.lunarg.com/sdk/home
 2. Make the downloaded file executable
     ```bash
-    chmod ugo+x vulkansdk-linux-x86_64-1.0.30.0.run
+    chmod ugo+x vulkansdk-linux-x86_64-1.0.68.0.run
     ```
 3. Move the downloaded file to a sdk dir
     ```bash
     mkdir ~/vulkan
-    mv vulkansdk-linux-x86_64-1.0.30.0.run ~/vulkan
+    mv vulkansdk-linux-x86_64-1.0.68.0.run ~/vulkan
     ```
 4. Run it
     ```bash
     cd ~/vulkan
-    ./vulkansdk-linux-x86_64-1.0.30.0.run
+    ./vulkansdk-linux-x86_64-1.0.68.0.run
     ```
 5. Install the necessary packages
     ```bash
@@ -342,7 +342,7 @@ The easiest way to get it is to install the linux [vulkan SDK](https://vulkan.lu
     ```
 6. Setup the vulkan environment
     ```bash
-      pushd ~/vulkan/VulkanSDK/1.0.30.0
+      pushd ~/vulkan/VulkanSDK/1.0.68.0
       source setup-env.sh
       popd
     ```

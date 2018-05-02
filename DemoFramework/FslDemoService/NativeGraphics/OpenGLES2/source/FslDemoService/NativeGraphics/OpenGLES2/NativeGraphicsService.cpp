@@ -33,7 +33,7 @@
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsService.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslDemoApp/Base/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include "NativeGraphicsBasic2D.hpp"
 #include <FslUtil/OpenGLES2/GLUtil.hpp>
 #include <FslUtil/OpenGLES2/NativeTexture2D.hpp>
@@ -55,9 +55,17 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+                                                                             const TextureFlags& textureFlags)
     {
       return std::make_shared<NativeTexture2D>(bitmap, filterHint, textureFlags);
+    }
+
+
+    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                             const TextureFlags& textureFlags)
+    {
+      return std::make_shared<NativeTexture2D>(texture, filterHint, textureFlags);
     }
 
 

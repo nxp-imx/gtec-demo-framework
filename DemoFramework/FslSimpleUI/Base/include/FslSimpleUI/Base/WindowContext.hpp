@@ -51,7 +51,8 @@ namespace Fsl
       const std::shared_ptr<INativeBatch2D> Batch2D;
       const std::shared_ptr<AtlasFont> DefaultFont;
 
-      WindowContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender, const std::shared_ptr<INativeBatch2D>& batch2D, const std::shared_ptr<AtlasFont>& defaultFont);
+      WindowContext(const std::shared_ptr<IWindowManager>& windowManager, const std::shared_ptr<WindowEventSender>& eventSender,
+                    const std::shared_ptr<INativeBatch2D>& batch2D, const std::shared_ptr<AtlasFont>& defaultFont);
       ~WindowContext();
     };
   }

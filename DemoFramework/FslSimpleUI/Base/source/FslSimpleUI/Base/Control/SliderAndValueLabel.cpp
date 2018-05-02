@@ -65,8 +65,8 @@ namespace Fsl
       m_layout->SetAlignmentX(ItemAlignment::Stretch);
       m_layout->SetAlignmentY(ItemAlignment::Center);
       m_layout->SetLayoutOrientation(LayoutOrientation::Horizontal);
-      m_layout->Children.Add(m_slider);
-      m_layout->Children.Add(m_label);
+      m_layout->AddChild(m_slider);
+      m_layout->AddChild(m_label);
 
       DoSetContent(m_layout);
       FixLayout();
@@ -169,7 +169,7 @@ namespace Fsl
 
     void SliderAndValueLabel::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
     {
-      FixLayout();
+      UpdateLinkedContent();
       if (!theEvent->IsHandled())
       {
         // A bit nasty to have to ask the window manager to do it but at least we dont have to use the shared_from_this pattern then
@@ -179,10 +179,22 @@ namespace Fsl
     }
 
 
-    void SliderAndValueLabel::FixLayout()
+    Vector2 SliderAndValueLabel::MeasureOverride(const Vector2& availableSize)
+    {
+      UpdateLinkedContent();
+      FixLayout();
+      return ContentControlBase::MeasureOverride(availableSize);
+    }
+
+
+    void SliderAndValueLabel::UpdateLinkedContent()
     {
       m_label->SetContent(m_slider->GetValue());
+    }
 
+
+    void SliderAndValueLabel::FixLayout()
+    {
       const auto minValue = m_slider->GetMinValue();
       const auto maxValue = m_slider->GetMaxValue();
 

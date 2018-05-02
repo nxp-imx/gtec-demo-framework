@@ -32,7 +32,7 @@
 
 #include "ImageLibraryServiceAndroid.hpp"
 #include <FslBase/Exceptions.hpp>
-#include "JNIUtil.hpp"
+#include <Platform/Android/JNIUtil/JNIUtil.hpp>
 
 namespace Fsl
 {

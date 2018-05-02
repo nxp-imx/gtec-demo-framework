@@ -31,7 +31,7 @@
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
 #include <FslBase/Math/MathHelper.hpp>
@@ -332,11 +332,11 @@ namespace Fsl
     internalStack->SetLayoutOrientation(LayoutOrientation::Vertical);
     internalStack->SetAlignmentX(ItemAlignment::Near);
     internalStack->SetAlignmentY(ItemAlignment::Far);
-    internalStack->Children.Add(m_mainMenuStack);
-    internalStack->Children.Add(m_btnMenu);
+    internalStack->AddChild(m_mainMenuStack);
+    internalStack->AddChild(m_btnMenu);
 
     m_rootLayout = std::make_shared<FillLayout>(context);
-    m_rootLayout->Children.Add(internalStack);
+    m_rootLayout->AddChild(internalStack);
 
     // Finally add everything to the window manager (to ensure its seen)
     context->WindowManager->Add(m_rootLayout);
@@ -373,7 +373,7 @@ namespace Fsl
     m_layoutMenu->SetLayoutOrientation(LayoutOrientation::Vertical);
     m_layoutMenu->SetAlignmentX(ItemAlignment::Near);
     m_layoutMenu->SetAlignmentY(ItemAlignment::Near);
-    m_mainMenuStack->Children.Add(m_layoutMenu);
+    m_mainMenuStack->AddChild(m_layoutMenu);
 
 
     auto stack = std::make_shared<StackLayout>(context);
@@ -394,12 +394,12 @@ namespace Fsl
     m_cbBloom->SetCheckedTexture(texCheckBoxC);
     m_cbBloom->SetUncheckedTexture(texCheckBoxU);
 
-    stack->Children.Add(m_btnRenderTypePrev);
-    stack->Children.Add(m_btnRenderTypeNext);
-    stack->Children.Add(m_menuLabelRenderType);
+    stack->AddChild(m_btnRenderTypePrev);
+    stack->AddChild(m_btnRenderTypeNext);
+    stack->AddChild(m_menuLabelRenderType);
 
-    m_layoutMenu->Children.Add(m_cbBloom);
-    m_layoutMenu->Children.Add(stack);
+    m_layoutMenu->AddChild(m_cbBloom);
+    m_layoutMenu->AddChild(stack);
     UpdateControls();
   }
 
@@ -410,7 +410,7 @@ namespace Fsl
       return;
 
     // Close the menu window
-    m_mainMenuStack->Children.Remove(m_layoutMenu);
+    m_mainMenuStack->RemoveChild(m_layoutMenu);
     m_layoutMenu.reset();
 
     m_btnRenderTypePrev.reset();

@@ -2,6 +2,7 @@
 <FslBuildGenProjectRoot Version="1">
   <Project Name="DemoFramework" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" ToolConfigFile=".Config/FslBuildGen.xml">
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
+    <AddRootDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)" Create="true"/>
     <PackageConfiguration Name="default">
       <!-- ThirdParty -->
       <PackageLocation Name="$(FSL_GRAPHICS_SDK)/ThirdParty"/>
@@ -18,12 +19,13 @@
       <!-- App packages -->
       <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps" ScanMethod="OneSubDirectory"/>
     </PackageConfiguration>
-    <CompilerConfiguration Name="VisualStudio" Platform="Windows" DefaultVersion="2015"/>
+    <CompilerConfiguration Name="VisualStudio" Platform="Windows" DefaultVersion="2017"/>
     <Experimental AllowDownloads="true" DisableDownloadEnv="FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DISABLE_DOWNLOAD">
       <!-- Define the name of the default third party installation directory. -->
       <!-- This will be the directory where we install/build any thirdparty source that is needed -->
       <DefaultThirdPartyInstallDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)"/>
       <DefaultThirdPartyInstallReadonlyCacheDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR)"/>
+      <!--Android NDKToolchain="clang" StlType="c++_shared"/-->
     </Experimental>
   </Project>
 </FslBuildGenProjectRoot>

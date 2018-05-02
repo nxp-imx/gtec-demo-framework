@@ -34,7 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
@@ -47,8 +47,10 @@ namespace Fsl
 
   class JuliaHelper
   {
-    Config m_config;
-    std::shared_ptr<Basic2D> m_basic2D;
+    BasicConfig m_config;
+    AnimationMode m_animationMode;
+
+    std::shared_ptr<IBasic2D> m_basic2D;
     std::shared_ptr<INativeBatch2D> m_nativeBatch2D;
     AtlasTexture2D m_atlasTexBanner;
     Vector2 m_angle1;
@@ -58,7 +60,7 @@ namespace Fsl
 
     float m_angle;
   public:
-    JuliaHelper(const Config& config, const ServiceProvider& serviceProvider);
+    JuliaHelper(const BasicConfig& config, const AnimationMode animationMode, const ServiceProvider& serviceProvider, const bool allowBanner=true);
     Vector2 GetLocation() const { return m_location; }
 
     void Update(const DemoTime& demoTime);

@@ -15,7 +15,7 @@
 
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <Shared/EnvironmentMapping/SphereMeshCreator.hpp>
 #include <cassert>

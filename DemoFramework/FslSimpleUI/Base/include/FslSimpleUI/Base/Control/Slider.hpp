@@ -71,26 +71,50 @@ namespace Fsl
       //! @brief Check if the slider is being dragged or not (a idle slider is not being dragged)
       bool IsIdle() const;
 
-      const AtlasTexture2D& GetBackgroundTexture() const { return m_texBackground; }
+      const AtlasTexture2D& GetBackgroundTexture() const
+      {
+        return m_texBackground;
+      }
       void SetBackgroundTexture(const AtlasTexture2D& value);
 
-      const AtlasTexture2D& GetCursorTexture() const { return m_texCursor; }
+      const AtlasTexture2D& GetCursorTexture() const
+      {
+        return m_texCursor;
+      }
       void SetCursorTexture(const AtlasTexture2D& value);
 
-      int32_t GetValue() const { return m_value; }
+      int32_t GetValue() const
+      {
+        return m_value;
+      }
       void SetValue(const int32_t& value);
 
-      int32_t GetMinValue() const { return m_minValue; }
-      int32_t GetMaxValue() const { return m_maxValue; }
+      int32_t GetMinValue() const
+      {
+        return m_minValue;
+      }
+      int32_t GetMaxValue() const
+      {
+        return m_maxValue;
+      }
       bool SetValueLimits(const int32_t& min, const int32_t& max);
 
-      const ThicknessF& GetBackgroundPadding() const { return m_backgroundPadding; }
+      const ThicknessF& GetBackgroundPadding() const
+      {
+        return m_backgroundPadding;
+      }
       void SetBackgroundPadding(const ThicknessF& value);
 
-      const ThicknessF& GetCursorPadding() const { return m_cursorPadding; }
+      const ThicknessF& GetCursorPadding() const
+      {
+        return m_cursorPadding;
+      }
       void SetCursorPadding(const ThicknessF& value);
 
-      const NineSlice GetNineSlice() const { return m_nineSlice; }
+      const NineSlice GetNineSlice() const
+      {
+        return m_nineSlice;
+      }
       void SetNineSlice(const NineSlice& value);
 
       virtual void WinDraw(const UIDrawContext& context) override;

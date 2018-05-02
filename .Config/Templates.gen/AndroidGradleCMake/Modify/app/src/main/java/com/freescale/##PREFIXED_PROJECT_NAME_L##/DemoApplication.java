@@ -49,6 +49,7 @@ import android.os.Build;
 
 public class DemoApplication extends Application {
     public void onCreate(){
+        super.onCreate();	
         Log.w("native-activity", "onCreate");
         Log.w("native-activity", "Supported ABIS: " + Arrays.toString(Build.SUPPORTED_ABIS));
         

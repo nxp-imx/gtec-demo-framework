@@ -32,7 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
-#include <FslDemoApp/Base/Service/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include "GausianHelper.hpp"
@@ -47,19 +47,23 @@ namespace Fsl
 {
   using namespace GLES2;
 
-
-  int UpdateScaledKernelLength(const int32_t kernelLength)
+  namespace
   {
-    int32_t moddedKernelLength = std::max(kernelLength, 5);
-    int32_t newKernelLength = ((moddedKernelLength / 4) * 4) + 1;
-    return (newKernelLength < moddedKernelLength ? newKernelLength + 4 : newKernelLength);
-  }
+    const GLTextureImageParameters g_framebufferImageParams(GL_RGB565, GL_RGB, GL_UNSIGNED_BYTE);
 
-  int UpdateKernelLength(const int32_t kernelLength)
-  {
-    int32_t moddedKernelLength = UpdateScaledKernelLength(kernelLength / 2);
-    moddedKernelLength = (moddedKernelLength * 2) + 1;
-    return moddedKernelLength;
+    int UpdateScaledKernelLength(const int32_t kernelLength)
+    {
+      int32_t moddedKernelLength = std::max(kernelLength, 5);
+      int32_t newKernelLength = ((moddedKernelLength / 4) * 4) + 1;
+      return (newKernelLength < moddedKernelLength ? newKernelLength + 4 : newKernelLength);
+    }
+
+    int UpdateKernelLength(const int32_t kernelLength)
+    {
+      int32_t moddedKernelLength = UpdateScaledKernelLength(kernelLength / 2);
+      moddedKernelLength = (moddedKernelLength * 2) + 1;
+      return moddedKernelLength;
+    }
   }
 
   //! Uses the two pass linear technique and further reduces the bandwidth requirement by
@@ -71,7 +75,7 @@ namespace Fsl
     : ABlurredDraw("Two pass linear scaled")
     , m_batch2D(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
     , m_screenResolution(config.ScreenResolution)
-    , m_framebufferOrg(Point2(m_screenResolution.X, m_screenResolution.Y), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565, GL_DEPTH_COMPONENT16)
+    , m_framebufferOrg(Point2(m_screenResolution.X, m_screenResolution.Y), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams, GL_DEPTH_COMPONENT16)
     , m_framebufferBlur1()
     , m_framebufferBlur2()
     , m_shaders()
@@ -95,8 +99,8 @@ namespace Fsl
     blurFBWidth += ((blurFBWidth % 16) != 0 ? (16 - (blurFBWidth % 16)) : 0);
     int addedPixels = blurFBWidth - quadWidth;
 
-    m_framebufferBlur1.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565);
-    m_framebufferBlur2.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), GL_RGB565);
+    m_framebufferBlur1.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
+    m_framebufferBlur2.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
 
 
     // Prepare the shaders

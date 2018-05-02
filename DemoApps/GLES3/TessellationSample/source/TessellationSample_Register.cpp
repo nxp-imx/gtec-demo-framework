@@ -50,6 +50,9 @@ namespace Fsl
   {
     DemoAppHostConfigEGL config(g_eglConfigAttribs);
 
+    config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_EXT_tessellation_shader", ExtensionPrecense::Mandatory);
+    config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_EXT_geometry_shader", ExtensionPrecense::Mandatory);
+
     DemoAppRegister::GLES3::Register<TessellationSample, OptionParser>(rSetup, "GLES3.TessellationSample", config, 1);
   }
 }

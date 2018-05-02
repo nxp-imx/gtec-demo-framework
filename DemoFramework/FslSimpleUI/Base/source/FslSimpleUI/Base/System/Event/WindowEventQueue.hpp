@@ -60,6 +60,7 @@ namespace Fsl
       inline bool IsEmpty() const { return m_queue->empty(); }
 
       void Push(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source);
+      //bool TryPush(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& source);
 
       //! @brief Swap the used queue with the provided empty queue, return the previously used queue
       void Swap(std::unique_ptr<queue_type>& rEmptyQueue);

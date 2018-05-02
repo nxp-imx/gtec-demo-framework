@@ -40,10 +40,13 @@ from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.SharedGeneration import ToolAddedVariant
 from FslBuildGen.SharedGeneration import ToolAddedVariantOptions
+from FslBuildGen.Generator.Report.VariableDict import VariableDict
+from FslBuildGen.Generator.Report.VariableReport import VariableReport
+
 
 class VariableOptionListCanNotBeEmptyException(Exception):
     def __init__(self, name: str) -> None:
-        super().__init__("The variable '{0}' can haev a empty option list".format(name))
+        super().__init__("The variable '{0}' can have a empty option list".format(name))
 
 
 class VariableAlreadyDefinedException(Exception):
@@ -93,16 +96,7 @@ class InvalidVariableOptionIndexException(InvalidVariableOptionException):
 #        super().__init__("Linking variable '{0}' to '{1}' would create a circular dependency which is not allowed: {2}".format(nameFrom, nameTo, linkDesc))
 
 
-
-class VariableReport(object):
-    def __init__(self, name: str, options: List[str], linkTargetName: Optional[str]) -> None:
-        super().__init__()
-        self.Name = name                # type: str
-        self.Options = options          # type: List[str]
-        self.LinkTargetName = linkTargetName    # type: Optional[str]
-
-
-class GeneratorVariableReport(object):
+class GeneratorVariableReport(VariableDict):
     def __init__(self, log: Optional[Log] = None, allowAutoVariablesOverride: bool = False) -> None:
         """
              allowAutoVariablesOverride if true then the automatic defined variables can be overridden with a add call,
@@ -111,7 +105,6 @@ class GeneratorVariableReport(object):
         super().__init__()
         self.__Log = log
         self.__Order = []           # type: List[str]
-        self.__Dict = {}            # type: Dict[str, VariableReport]
         self.__DefaultOption = {}   # type: Dict[str, int]
         self.__AllowAutoVariablesOverride = allowAutoVariablesOverride
 
@@ -120,21 +113,11 @@ class GeneratorVariableReport(object):
 
     def GetVariableReportList(self) -> List[VariableReport]:
         """ Get the variable report for all registered variables in the same order as they where registered """
-        return [self.__Dict[name] for name in self.__Order]
+        return [self.GetVariableReport(name) for name in self.__Order]
 
 
     def SYS_GetDefaultOptions(self) -> Dict[str, int]:
         return self.__DefaultOption
-
-
-    def TryGetVariableReport(self, variableName: str) -> Optional[VariableReport]:
-        return None if variableName not in self.__Dict else self.__Dict[variableName]
-
-
-    def GetVariableReport(self, variableName: str) -> VariableReport:
-        if variableName not in self.__Dict:
-            raise Exception("The variable '{0}' is unknown".format(variableName))
-        return self.__Dict[variableName]
 
 
     def __HasSameOptions(self, variableOptionList1: List[str], variableOptionList2: List[str]) -> bool:
@@ -150,27 +133,28 @@ class GeneratorVariableReport(object):
         if len(variableOptionList) <= 0:
             raise VariableOptionListCanNotBeEmptyException(variableName)
 
-        if variableName in self.__Dict:
+        dict = self._GetDict()
+        if variableName in dict:
             if self.__AllowAutoVariablesOverride and variableName == ToolAddedVariant.CONFIG:
-                currentDef = self.__Dict[variableName]
+                currentDef = dict[variableName]
                 if not self.__HasSameOptions(variableOptionList, currentDef.Options):
                    if self.__Log is not None:
                        self.__Log.LogPrintWarning("Overriding the auto variable '{0}' and the option list is different. New: {1}, old: {2}".format(variableName, variableOptionList, currentDef.Options))
-                   self.__Dict[variableName] = VariableReport(variableName, variableOptionList, currentDef.LinkTargetName)
+                   dict[variableName] = VariableReport(variableName, variableOptionList, currentDef.LinkTargetName)
                 return
             raise VariableAlreadyDefinedException("The variable '{0}' has already been added".format(variableName))
 
         if linkedVariableName is not None:
             if linkedVariableName == variableName:
                 raise LinkToSelfNotAllowedException(variableName)
-            if linkedVariableName not in self.__Dict:
+            if linkedVariableName not in dict:
                 raise LinkedVariableNotFoundException(linkedVariableName)
-            linkedOptionList = self.__Dict[linkedVariableName].Options
+            linkedOptionList = dict[linkedVariableName].Options
             if len(linkedOptionList) != len(variableOptionList):
                 raise VariableDoesNotContainTheSameAmountOfOptionsAsTheLinkedTargetException(variableName, str(variableOptionList), linkedVariableName, str(linkedOptionList))
 
         self.__Order.append(variableName)
-        self.__Dict[variableName] = VariableReport(variableName, variableOptionList, linkedVariableName)
+        dict[variableName] = VariableReport(variableName, variableOptionList, linkedVariableName)
 
 
     def TryGetDefaultOptionIndex(self, variableName: str) -> Optional[int]:
@@ -178,10 +162,11 @@ class GeneratorVariableReport(object):
 
 
     def SetDefaultOption(self, variableName: str, variableOption: str) -> None:
-        if variableName not in self.__Dict:
+        dict = self._GetDict()
+        if variableName not in dict:
             raise VariableNotFoundException(variableName)
 
-        variableReport = self.__Dict[variableName]
+        variableReport = dict[variableName]
         if variableReport.LinkTargetName is not None:
             raise LinkedVariableCanNotHaveDefaultValueException(variableName, variableReport.LinkTargetName)
 
@@ -192,10 +177,11 @@ class GeneratorVariableReport(object):
 
 
     def SetDefaultOptionIndex(self, variableName: str, variableOptionIndex: int) -> None:
-        if variableName not in self.__Dict:
+        dict = self._GetDict()
+        if variableName not in dict:
             raise VariableNotFoundException(variableName)
 
-        variableReport = self.__Dict[variableName]
+        variableReport = dict[variableName]
         if variableReport.LinkTargetName is not None:
             raise LinkedVariableCanNotHaveDefaultValueException(variableName, variableReport.LinkTargetName)
 

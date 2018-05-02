@@ -31,7 +31,7 @@
 
 #include <FslDemoHost/Base/DemoAppProfilerGraph.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslDemoApp/Base/Service/Graphics/Basic2D.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -65,7 +65,7 @@ namespace Fsl
   }
 
 
-  void DemoAppProfilerGraph::Draw(const std::shared_ptr<Basic2D>& basic2D, const Vector2& dstPosition, const Color& color)
+  void DemoAppProfilerGraph::Draw(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPosition, const Color& color)
   {
     std::deque<int32_t>::const_iterator itr = m_entries.begin();
     int32_t count = 0;

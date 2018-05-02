@@ -353,7 +353,7 @@ class ToolConfig(object):
                 return rootDir.Name + "/" + Util.UTF8ToAscii(path)
             elif path == rootDir.ResolvedPath:
                 return rootDir.Name + "/"
-        raise UsageErrorException("ERROR: the folder '{0}' does not reside inside one of the root dirs".format(path))
+        raise UsageErrorException("the folder '{0}' does not reside inside one of the root dirs".format(path))
 
 
 
@@ -377,7 +377,7 @@ class ToolConfig(object):
                 return rootDir.BashName + "/" + Util.UTF8ToAscii(path)
             elif path == rootDir.ResolvedPath:
                 return rootDir.Name + "/"
-        raise UsageErrorException("ERROR: the folder '{0}' does not reside inside one of the root dirs".format(path))
+        raise UsageErrorException("the folder '{0}' does not reside inside one of the root dirs".format(path))
 
 
 
@@ -414,7 +414,7 @@ class ToolConfig(object):
             elif path == rootDir.ResolvedPath:
                 tmp = rootDir.Name + "/"
                 return tmp.replace('/', '\\')
-        raise UsageErrorException("ERROR: the folder '{0}' does not reside inside one of the root dirs".format(path))
+        raise UsageErrorException("the folder '{0}' does not reside inside one of the root dirs".format(path))
 
 
     def TryLegacyToDosPath(self, path: Optional[str]) -> Optional[str]:

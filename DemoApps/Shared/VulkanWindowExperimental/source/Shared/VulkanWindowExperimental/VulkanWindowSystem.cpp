@@ -37,7 +37,7 @@
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
 #include <FslDemoApp/Base/Service/Options/IOptions.hpp>
 #include <FslDemoApp/Base/Service/Options/Options.hpp>
-#include <FslDemoApp/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 #include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemFactory.hpp>
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>

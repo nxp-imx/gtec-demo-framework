@@ -40,6 +40,7 @@ namespace Fsl
     // DirectDraw Surface file format
     // https://msdn.microsoft.com/en-us/library/windows/desktop/bb943990%28v=vs.85%29.aspx
     DDS,
+    Exr,
     Hdr,
     // Khronos Texture
     // https://www.khronos.org/opengles/sdk/tools/KTX/

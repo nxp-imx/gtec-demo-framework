@@ -8,6 +8,8 @@ set(CMAKE_MODULE_PATH
     ${FSL_GRAPHICS_SDK}/.Config/cmake
     )
 
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
 # Disabled due to win7 x64 problems
 # find python
 #find_package(PythonInterp)
@@ -23,7 +25,7 @@ set(CMAKE_MODULE_PATH
 #endif()
 
 # Searches for a specified prebuilt library and stores the path as a
-# variable. Because system libraries are included in the search path by
+# variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
 # you want to add. CMake verifies that the library exists before
 # completing its build.
@@ -53,15 +55,16 @@ include_directories(${ANDROID_NDK}/sources/android/ndk_helper)
 ##CMAKE_PACKAGE_FIND_DIRECT_EXTERNAL_DEPENDENCIES##
 ##CMAKE_PACKAGE_DIRECT_DEPENDENCIES_ADD_SUBDIRECTORIES##
 
-##CMAKE_ASSIMP_SUBDIR##
+##CMAKE_THIRD_PARTY_ADD_LIBS##
 
 # Add the 'android executable' shared lib
 add_library(DemoNativeActivity SHARED src/main/cpp/DemoNativeActivity.cpp )
 
 # Specifies libraries CMake should link to your target library. You
-# can link multiple libraries, such as libraries you define in the
+# can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
-target_link_libraries(DemoNativeActivity PUBLIC android app-glue ndk_helper ${log-lib} ##CMAKE_ASSIMP_LIB## ##CMAKE_PACKAGE_EXE_LIB##)
+
+target_link_libraries(DemoNativeActivity PUBLIC android app-glue ndk_helper ${log-lib} z ##CMAKE_THIRD_PARTY_LIBS## ##CMAKE_PACKAGE_EXE_LIB##)
 
 
 

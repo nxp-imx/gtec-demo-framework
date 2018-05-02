@@ -41,7 +41,7 @@ namespace Fsl
   namespace UI
   {
     FillLayout::FillLayout(const std::shared_ptr<WindowContext>& context)
-      : Layout(context)
+      : SimpleLayout(context)
     {
     }
 
@@ -52,8 +52,7 @@ namespace Fsl
         throw UsageErrorException("FillLayout can not be used in infinity sized layouts");
 
 
-      auto entries = DirectChildAccess();
-      for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+      for (auto itr = begin(); itr != end(); ++itr)
         itr->Window->Arrange(Rect(0, 0, finalSize.X, finalSize.Y));
       return finalSize;
     }
@@ -64,8 +63,7 @@ namespace Fsl
       if (isinf(availableSize.X) || isinf(availableSize.Y))
         throw UsageErrorException("FillLayout can not be used in infinity sized layouts");
 
-      auto entries = DirectChildAccess();
-      for (auto itr = entries.begin(); itr != entries.end(); ++itr)
+      for (auto itr = begin(); itr != end(); ++itr)
         itr->Window->Measure(availableSize);
       return availableSize;
     }

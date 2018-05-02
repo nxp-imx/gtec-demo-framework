@@ -37,6 +37,7 @@ from typing import Optional
 from FslBuildGen import PackageConfig
 from FslBuildGen import PackageListUtil
 from FslBuildGen import PluginSharedValues
+from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.DataTypes import BuildVariantType
@@ -70,25 +71,10 @@ from FslBuildGen.SharedGeneration import GEN_MAGIC_VARIANT_ANDROID_ABI
 class GeneratorPluginAndroid(GeneratorPlugin):
     def __init__(self) -> None:
         super(GeneratorPluginAndroid, self).__init__(PackageConfig.PlatformNameString.ANDROID)
-        options = [
-            AndroidABIOption.All,
-            #AndroidABIOption.ArmeAbi, (does not support exception_ptr)
-            AndroidABIOption.ArmeAbiV7a,
-            AndroidABIOption.Arm64V8a,
-            AndroidABIOption.X86,
-            AndroidABIOption.X86_64,
-            AndroidABIOption.Mips,
-            AndroidABIOption.Mips64
-        ]
+        options = AndroidUtil.GetKnownABIList(True)
         self.VariantAndroidABI = GeneratorVariant(GEN_MAGIC_VARIANT_ANDROID_ABI, options, "##OPTIONS##", BuildVariantType.Static)
-        self.OptionAndroidABI_all = self.__GetARMABIAllList(self.VariantAndroidABI.Options, AndroidABIOption.All)
+        self.OptionAndroidABI_all = AndroidUtil.GetKnownABIList(False)
         self.AddGeneratorVariant(self.VariantAndroidABI)
-
-
-    def __GetARMABIAllList(self, options: List[str], blacklisted: str) -> List[str]:
-        options = list(options)
-        options.remove(blacklisted)
-        return options
 
 
     def __ContainsFeature(self, allFeatures: List[PackageRequirement], featureId: str) -> bool:
@@ -112,9 +98,9 @@ class GeneratorPluginAndroid(GeneratorPlugin):
                 androidABIList = [androidABI]
         # remove unsupported ABI's if there are others available to build
         if self.__ContainsFeature(topLevelPackage.ResolvedAllUsedFeatures, "vulkan"):
-            if len(androidABIList) > 1 and AndroidABIOption.ArmeAbi in androidABIList:
-                config.LogPrint("INFO: Vulkan does not support ANDROID_ABI '%s' removing the ABI and building the rest" % (AndroidABIOption.ArmeAbi))
-                androidABIList.remove(AndroidABIOption.ArmeAbi)
+            if len(androidABIList) > 1 and AndroidABIOption.DeprecatedArmeAbi in androidABIList:
+                config.LogPrint("INFO: Vulkan does not support ANDROID_ABI '{0}' removing the ABI and building the rest".format(AndroidABIOption.DeprecatedArmeAbi))
+                androidABIList.remove(AndroidABIOption.DeprecatedArmeAbi)
 
         generator = GeneratorAndroidGradleCMake(config, packages, self.Name, androidABIList)
         return self.GenerateDone(config, packages, self.Name, generator)

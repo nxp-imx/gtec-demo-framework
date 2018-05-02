@@ -289,18 +289,7 @@ namespace Fsl
       return false;
 
     // Check if we need to modify the origin
-    if (desiredOrigin != BitmapOrigin::Undefined && rTexture.GetBitmapOrigin() != desiredOrigin)
-    {
-      if (PixelFormatUtil::IsCompressed(rTexture.GetPixelFormat()))
-      {
-        // Can't modify compressed texture
-        return false;
-      }
-
-      if (!TryFlipUncompressedInPlace(rTexture, desiredOrigin))
-        return false;
-    }
-    return true;
+    return TryChangeOrigin(rTexture, desiredOrigin);
   }
 
 
@@ -342,4 +331,21 @@ namespace Fsl
     totalTexels *= textureInfo.Layers * textureInfo.Faces;
     return totalTexels;
   }
+
+
+  bool TextureUtil::TryChangeOrigin(Texture& rTexture, const BitmapOrigin desiredOrigin)
+  {
+    // Check if we need to modify the origin, if not quick exit
+    if (desiredOrigin == BitmapOrigin::Undefined || rTexture.GetBitmapOrigin() == desiredOrigin)
+      return true;
+
+    if (PixelFormatUtil::IsCompressed(rTexture.GetPixelFormat()))
+    {
+      // Can't modify compressed texture
+      return false;
+    }
+
+    return TryFlipUncompressedInPlace(rTexture, desiredOrigin);
+  }
+
 }
