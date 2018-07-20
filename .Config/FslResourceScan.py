@@ -31,6 +31,12 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
 import argparse
 import hashlib
 import io
@@ -47,19 +53,19 @@ __g_Image = "Image"
 __g_Model = "Model"
 __g_Video = "Video"
 __g_extensions = [
-    ('.bmp', __g_Image), 
-    ('.dds', __g_Image), 
+    ('.bmp', __g_Image),
+    ('.dds', __g_Image),
     ('.hdr', __g_Image),
     ('.jpg', __g_Image),
     ('.ktx', __g_Image),
     ('.png', __g_Image),
-    ('.psd', __g_Image), 
+    ('.psd', __g_Image),
     ('.tga', __g_Image),
     ('.tiff', __g_Image),
     ('.3ds', __g_Model),
-    ('.fbx', __g_Model), 
+    ('.fbx', __g_Model),
     ('.fsf', __g_Model),
-    ('.obj', __g_Model), 
+    ('.obj', __g_Model),
     ('.nff', __g_Model),
     # video
     ('.avi', __g_Video),
@@ -69,7 +75,7 @@ __g_extensions = [
     ('.mpeg', __g_Video),
     ('.mkv', __g_Video),
     ]
-__g_ignore = "example.jpg"
+__g_ignore = ["example.jpg"]
 
 __g_ignoreDir = [
     ".Config/Templates.gen/Android/Copy/res/drawable-hdpi",
@@ -87,93 +93,105 @@ __g_ignoreDir = [
     ]
 
 class Config(object):
-    def __init__(self, verbosityLevel):
-        super(Config, self).__init__()
+    def __init__(self, verbosityLevel: int) -> None:
+        super().__init__()
         self.VerbosityLevel = verbosityLevel
         self.IsVerbose = verbosityLevel > 0
 
-    def LogPrint(self, str):
+    def LogPrint(self, strMessage: str) -> None:
         if self.IsVerbose:
-            print(str)
+            print(strMessage)
             sys.stdout.flush()
 
 
 class JsonLicense(object):
-    def __init__(self, sourceDict = {}):
-        super(JsonLicense, self).__init__()
+    def __init__(self, sourceDict: Dict[str,str] = {}) -> None:
+        super().__init__()
         self.Origin = ""
         self.License = ""
+        self.Comment = ""
         self.Url = ""
         self.Tags = ""
-        self.TagsIdList = []
+        self.TagsIdList = []  # type: List[str]
         self.SourceDict = sourceDict
 
-    def SetTags(self, tags):
+    def SetTags(self, tags: str) -> None:
         self.Tags = tags
         self.TagsIdList = [entry.lower() for entry in tags.split(';') if len(entry) > 0]
 
-    def Compare(self, license):
+    def Compare(self, license: 'JsonLicense') -> bool:
         return self.Origin == license.Origin and  self.License == license.License and self.Url == license.Url and self.Tags == license.Tags and self.SourceDict == license.SourceDict
 
 
-def GetExtensionList(extensions):
+def GetExtensionList(extensions: List[Tuple[str,str]]) -> List[str]:
     return [extension[0] for extension in extensions]
 
 
-def GetTitle():
-    return 'FslResourceScan V0.1.0 alpha'
+def GetTitle() -> str:
+    return 'FslResourceScan V0.1.2 alpha'
 
 
-def ShowTitleIfNecessary():
+def ShowTitleIfNecessary() -> None:
     global __g_verbosityLevel
     if __g_verbosityLevel > 0:
         print((GetTitle()))
 
 
-def ReadBinaryFile(filename):
+def ReadFile(filename: str, newline: Optional[str] = None) -> str:
+    content = None
+    with io.open(filename, "r", newline=newline) as theFile:
+        content = str(theFile.read())
+    return content
+
+def ReadBinaryFile(filename: str) -> bytes:
     content = None
     with open(filename, "rb") as theFile:
         content = theFile.read()
     return content
 
 
-def WriteFile(filename, content):
+def WriteFile(filename: str, content: str) -> None:
     with open(filename, "w") as theFile:
         theFile.write(content)
 
 
-def ReadJsonFile(filename):
-    content = ReadBinaryFile(filename)
+def ReadJsonFile(filename: str) -> Any: # nasty any return
+    content = ReadFile(filename)
     return json.loads(content)
 
 
-def WriteJsonFile(filename, dict):
+def WriteJsonFile(filename: str, dict: Dict[str,str]) -> None:
     with io.open(filename, 'w', encoding='utf-8') as currentFile:
         currentFile.write(str(json.dumps(dict, ensure_ascii=False, indent=2)))
 
-def ToUnixStylePath(path):
-    if path == None:
+
+def TryToUnixStylePath(path: str) -> Optional[str]:
+    if path is None:
         return None
     return path.replace("\\", "/")
 
 
-def GetDirectoryName(path):
+def ToUnixStylePath(path: str) -> str:
+    return path.replace("\\", "/")
+
+
+def GetDirectoryName(path: str) -> str:
     return ToUnixStylePath(os.path.dirname(path))
 
 
-def Join(path1, path2):
+def Join(path1: str, path2: str) -> str:
     return ToUnixStylePath(os.path.join(path1, path2))
 
 class Resource(object):
-    def __init__(self, sourcePath, relativeSkipChars):
-        super(Resource, self).__init__()
+    def __init__(self, sourcePath: str, relativeSkipChars: int) -> None:
+        super().__init__()
         self.SourcePath = sourcePath
-        self.SourceDirectory = GetDirectoryName(sourcePath)    
-        self.License = None
+        self.SourceDirectory = GetDirectoryName(sourcePath)
+        self.License = None  # type: Optional[JsonLicense]
         self.RelativePath = sourcePath[relativeSkipChars:]
 
 
-def ScanForFiles(path, extensionList, ignoreFiles):    
+def ScanForFiles(path: str, extensionList: List[str], ignoreFiles: List[str]) -> List[str]:
     foundFiles = []
     for root, dirs, files in os.walk(path):
         for file in files:
@@ -185,7 +203,7 @@ def ScanForFiles(path, extensionList, ignoreFiles):
     return foundFiles
 
 
-def HashFile(filename, blocksize=65536):
+def HashFile(filename: str, blocksize: int =65536) -> str:
     hasher = hashlib.sha256()
     with open(filename, "rb") as theFile:
         buf = theFile.read(blocksize)
@@ -195,19 +213,8 @@ def HashFile(filename, blocksize=65536):
         return hasher.hexdigest()
 
 
-def BuildFileContentHashDict(config, files):
-    dictHash = {}
-    for file in files:
-        hash = HashFile(file)
-        if hash in dictHash:
-            dictHash[hash].append(file)
-        else:
-            dictHash[hash] = [file]
-    return dictHash
-
-
-def BuildFileLengthDict(files):
-    dict = {}
+def BuildFileLengthDict(files: List[str]) -> Dict[int,List[str]]:
+    dict = {}  # type: Dict[int,List[str]]
     for file in files:
         fileLength = os.stat(file).st_size
         if fileLength in dict:
@@ -217,8 +224,8 @@ def BuildFileLengthDict(files):
     return dict
 
 
-def BuildFileContentHashDict(files):
-    dict = {}
+def BuildFileContentHashDict(files: List[str]) -> Dict[str, List[str]]:
+    dict = {} # type: Dict[str, List[str]]
     for file in files:
         hash = HashFile(file)
         if hash in dict:
@@ -228,7 +235,7 @@ def BuildFileContentHashDict(files):
     return dict
 
 
-def BuildDuplicatedList(fileName, files):
+def BuildDuplicatedList(fileName: str, files: List[str]) -> List[str]:
     srcFilename = files[0]
     srcContentSet = set(ReadBinaryFile(srcFilename))
     matchingFiles = [fileName]
@@ -239,30 +246,30 @@ def BuildDuplicatedList(fileName, files):
     return matchingFiles
 
 
-def BuildDuplicatedDict(config, files, uniqueFiles):
-    dict = {}
+def BuildDuplicatedDict(config: Config, files: List[str], uniqueFiles: List[str]) -> Dict[str, List[str]]:
+    dict = {} # type: Dict[str, List[str]]
     while(len(files) > 1):
         srcFile = files[0]
         remainingFiles = files[1:]
-        matchingFiles = BuildDuplicatedList(srcFile, remainingFiles) 
+        matchingFiles = BuildDuplicatedList(srcFile, remainingFiles)
         if len(matchingFiles) > 1:
             dict[srcFile] = matchingFiles
         else:
-            uniqueFiles.append(key)
-        
+            uniqueFiles.append(srcFile)
+
         # Remove all non duplicated files
         files.remove(srcFile)
         files = []
         for file in remainingFiles:
             if not file in matchingFiles:
-                files.append(file)    
+                files.append(file)
     return dict
 
 
-def BuildUniqueFileDictByContent(config, files, uniqueFiles):
+def BuildUniqueFileDictByContent(config: Config, files: List[str], uniqueFiles: List[str]) -> Dict[str, List[str]]:
     # we start by sorting files by their hash
     # this should limit the amount of files that have to be byte compared quite a bit
-    duplicationDict = {}
+    duplicationDict = {} # type: Dict[str, List[str]]
     dictHash = BuildFileContentHashDict(files)
     for fileList in list(dictHash.values()):
         if len(fileList) > 1:
@@ -273,13 +280,13 @@ def BuildUniqueFileDictByContent(config, files, uniqueFiles):
     return duplicationDict
 
 
-def BuildUniqueFileDict(config, files, uniqueFiles):
+def BuildUniqueFileDict(config: Config, files: List[str], uniqueFiles: List[str]) -> Dict[str, List[str]]:
     # we start by sorting files by their size
     # this should limit the amount of files that have to be byte compared quite a bit
     dictFileLength = BuildFileLengthDict(files)
 
     #config.LogPrint("Initial bins {0}".format(len(dictFileLength)))
-    
+
     duplicationDict = {}
     for fileList in list(dictFileLength.values()):
         if len(fileList) > 1:
@@ -290,26 +297,26 @@ def BuildUniqueFileDict(config, files, uniqueFiles):
     return duplicationDict
 
 
-def GetFileExtension(filename):
+def GetFileExtension(filename: str) -> str:
     filename, fileExtension = os.path.splitext(filename)
     return fileExtension
 
 
-def BuildExtensionDict(extensions):
-    dict = {}
+def BuildExtensionDict(extensions: List[Tuple[str,str]]) -> Dict[str,str]:
+    dict = {} # type: Dict[str,str]
     for extension in extensions:
         dict[extension[0]] = extension[1]
     return dict
 
 
-def GetContentTypeByExtension(extensionDict, filename):
+def GetContentTypeByExtension(extensionDict: Dict[str,str], filename: str) -> str:
     filenameExtension = GetFileExtension(filename).lower()
     return extensionDict[filenameExtension] if filenameExtension in extensionDict else ""
 
 
-def BuildResourceDirectorySet(uniqueFiles, duplicatedFilesDict):
+def BuildResourceDirectorySet(uniqueFiles: List[str], duplicatedFilesDict: Dict[str, List[str]]) -> Set[str]:
     # build unique dir list
-    resourceDirSet = set()
+    resourceDirSet = set()  # type: Set[str]
     for entry in uniqueFiles:
         dirName = GetDirectoryName(entry)
         if not dirName in resourceDirSet:
@@ -324,15 +331,15 @@ def BuildResourceDirectorySet(uniqueFiles, duplicatedFilesDict):
 
 
 class LicenseManager(object):
-    def __init__(self):
-        super(LicenseManager, self).__init__()
+    def __init__(self) -> None:
+        super().__init__()
         self.KeyOrigin = "Origin"
         self.KeyLicense = "License"
         self.KeyComment = "Comment"
         self.KeyTags = "Tags"
         self.KeyURL = "URL"
 
-    def TryReadLicense(self, config, filename):
+    def TryReadLicense(self, config: Config, filename: str) -> Optional[JsonLicense]:
         if not os.path.isfile(filename):
             return None
 
@@ -349,17 +356,17 @@ class LicenseManager(object):
         if not self.KeyLicense in content:
             config.LogPrint("ERROR: '{0}' not present in file '{1}'".format(self.KeyLicense, filename));
             return None
-        
+
         license = JsonLicense(content)
         license.Origin = content[self.KeyOrigin]
         license.License = content[self.KeyLicense]
         license.Comment = content[self.KeyComment] if self.KeyComment in content else ""
-        license.URL = content[self.KeyURL] if self.KeyURL in content else ""
+        license.Url = content[self.KeyURL] if self.KeyURL in content else ""
         license.SetTags(content[self.KeyTags] if self.KeyTags in content else "")
         return license
 
 
-    def SaveLicense(self, filename, license):
+    def SaveLicense(self, filename: str, license: JsonLicense) -> None:
         #contentDict = {}
         #self.__AddKeyIfNeeded(contentDict, self.KeyOrigin, license.Origin)
         #self.__AddKeyIfNeeded(contentDict, self.KeyLicense, license.License)
@@ -368,27 +375,27 @@ class LicenseManager(object):
         WriteJsonFile(filename, license.SourceDict)
 
 
-    def __AddKeyIfNeeded(self, dict, key, value):
-        if len(value) <= 0:
-            return
-        dict[key] = value
+    #def __AddKeyIfNeeded(self, dict, key, value):
+    #    if len(value) <= 0:
+    #        return
+    #    dict[key] = value
 
 
-def BuildDirectoryLicenseDict(config, resourceDirectories, licenseFilename):
+def BuildDirectoryLicenseDict(config: Config, resourceDirectories: Set[str], licenseFilename: str) -> Dict[str, JsonLicense]:
     licenseManager = LicenseManager()
-    licenseDict = {}
+    licenseDict = {} # type: Dict[str, JsonLicense]
     for dir in resourceDirectories:
         license = licenseManager.TryReadLicense(config, Join(dir, licenseFilename))
-        if license != None:        
+        if license is not None:
             licenseDict[dir] = license
     return licenseDict
 
 
-def TagListWithLicenses(inputDirectory, files, directoryLicenseDict):
+def TagListWithLicenses(inputDirectory: str, files: List[str], directoryLicenseDict: Dict[str, JsonLicense]) -> List[Resource]:
     inputDirectory = ToUnixStylePath(inputDirectory)
     skipChars = len(inputDirectory) if inputDirectory.endswith('/') else len(inputDirectory)+1
 
-    res = []    
+    res = []
     for entry in files:
         resource = Resource(entry, skipChars)
         if resource.SourceDirectory in directoryLicenseDict:
@@ -397,21 +404,21 @@ def TagListWithLicenses(inputDirectory, files, directoryLicenseDict):
     return res;
 
 
-def TagDictWithLicenses(inputDirectory, fileDict, directoryLicenseDict):
+def TagDictWithLicenses(inputDirectory: str, fileDict: Dict[str, List[str]], directoryLicenseDict: Dict[str, JsonLicense]) -> Dict[str, List[Resource]]:
     inputDirectory = ToUnixStylePath(inputDirectory)
     skipChars = len(inputDirectory) if inputDirectory.endswith('/') else len(inputDirectory)+1
 
-    res = {}    
+    res = {} # type: Dict[str, List[Resource]]
     for key, value in fileDict.items():
         keyFilename = key[skipChars:]
         res[keyFilename] = TagListWithLicenses(inputDirectory, value, directoryLicenseDict)
     return res;
 
 
-def WriteCSV(dstFilename, extensions, uniqueEntries, duplicatedEntryDict):
+def WriteCSV(dstFilename: str, extensions: List[Tuple[str,str]], uniqueEntries: List[Resource], duplicatedEntryDict: Dict[str, List[Resource]]) -> None:
     #count = len(uniqueFiles)
     #for list in duplicatedFilesDict.values():
-    #  count += len(list)  
+    #  count += len(list)
     #config.LogPrint("Found {0} resource files".format(count))
 
     uniqueEntries.sort(key=lambda s: s.SourcePath.lower())
@@ -422,14 +429,14 @@ def WriteCSV(dstFilename, extensions, uniqueEntries, duplicatedEntryDict):
 
     extensionDict = BuildExtensionDict(extensions)
 
-    lines = []   
+    lines = []
     lines.append("Unique files ({0});;Origin;License;Type;Comment;URL".format(len(uniqueEntries)))
     for entry in uniqueEntries:
         contentType = GetContentTypeByExtension(extensionDict, entry.RelativePath)
-        if entry.License == None:
+        if entry.License is None:
             lines.append("{0};;;;{1};;".format(entry.RelativePath, contentType))
         else:
-            lines.append("{0};;{1};{2};{3};{4};{5}".format(entry.RelativePath, entry.License.Origin, entry.License.License, contentType, entry.License.Comment, entry.License.URL))
+            lines.append("{0};;{1};{2};{3};{4};{5}".format(entry.RelativePath, entry.License.Origin, entry.License.License, contentType, entry.License.Comment, entry.License.Url))
 
     lines.append("\n")
     lines.append("Duplicated files ({0})".format(len(duplicatedEntryDict)))
@@ -437,16 +444,16 @@ def WriteCSV(dstFilename, extensions, uniqueEntries, duplicatedEntryDict):
         lines.append("{0};;;;{1};;".format(key, GetContentTypeByExtension(extensionDict, key)))
         for entry in duplicatedEntryDict[key]:
             contentType = GetContentTypeByExtension(extensionDict, entry.RelativePath)
-            if entry.License == None:
+            if entry.License is None:
                 lines.append(";{0};;;{1};;".format(entry.RelativePath, contentType))
             else:
-                lines.append(";{0};{1};{2};{3};{4};{5}".format(entry.RelativePath, entry.License.Origin, entry.License.License, contentType, entry.License.Comment, entry.License.URL))
+                lines.append(";{0};{1};{2};{3};{4};{5}".format(entry.RelativePath, entry.License.Origin, entry.License.License, contentType, entry.License.Comment, entry.License.Url))
 
     WriteFile(dstFilename, "\n".join(lines));
 
 
-def PrintIssueDirectories(fileList, dict):
-    uniqueDirs = set()
+def PrintIssueDirectories(fileList: List[Resource], dict: Dict[str,List[Resource]]) -> None:
+    uniqueDirs = set() # type: Set[str]
     for entry in fileList:
         if not entry.SourceDirectory in uniqueDirs:
             uniqueDirs.add(entry.SourceDirectory)
@@ -458,13 +465,13 @@ def PrintIssueDirectories(fileList, dict):
 
     if len(uniqueDirs) > 0:
         print("Investigate license for the following directories:")
-        uniqueDirs = list(uniqueDirs)
-        uniqueDirs.sort()
-        for entry in uniqueDirs:
-            print("  {0}".format(entry))
+        uniqueDirSet = list(uniqueDirs)
+        uniqueDirSet.sort()
+        for dirEntry in uniqueDirSet:
+            print("  {0}".format(dirEntry))
 
 
-def Filter(config, ignoreDirList, inputDirectory, files):
+def Filter(config: Config, ignoreDirList: List[str], inputDirectory: str, files: List[str]) -> List[str]:
     inputDirectory = ToUnixStylePath(inputDirectory)
     skipChars = len(inputDirectory) if inputDirectory.endswith('/') else len(inputDirectory)+1
 
@@ -476,21 +483,21 @@ def Filter(config, ignoreDirList, inputDirectory, files):
     return res
 
 
-def ProcessDictLicenses(config, licenseFilename, dict):
+def ProcessDictLicenses(config: Config, licenseFilename: str, dict: Dict[str, List[Resource]]) -> None:
     licenseManager = LicenseManager()
-    newLicenseDirs = set()
+    newLicenseDirs = set() # type: Set[str]
     for key, entryList in dict.items():
         firstLicenseEntry = None
         noLicenseEntries = []
         for entry in entryList:
-            if entry.License == None:
+            if entry.License is None:
                 noLicenseEntries.append(entry)
-            elif firstLicenseEntry == None:
+            elif firstLicenseEntry is None:
                 firstLicenseEntry = entry
             elif not firstLicenseEntry.License.Compare(entry.License):
                 raise Exception("The license of the duplicated resource at {0} and {1} is different".format(firstLicenseEntry.SourceDirectory, entry.SourceDirectory))
 
-        if len(noLicenseEntries) > 0 and firstLicenseEntry != None:
+        if len(noLicenseEntries) > 0 and firstLicenseEntry is not None:
             config.LogPrint("Info: Found duplicated resource missing a license, cloning source license from {0}".format(firstLicenseEntry.SourcePath))
             for entry in noLicenseEntries:
                 entry.License = firstLicenseEntry.License
@@ -499,16 +506,18 @@ def ProcessDictLicenses(config, licenseFilename, dict):
                     newLicenseFile = Join(entry.SourceDirectory, licenseFilename)
                     if os.path.isfile(newLicenseFile):
                         raise Exception("Could not create a new license at {0} since one already exist".format(newLicenseFile))
+                    if firstLicenseEntry.License is None:
+                        raise Exception("internal error")
                     licenseManager.SaveLicense(newLicenseFile, firstLicenseEntry.License)
 
 
-def FilterDictBasedOnLicense(dict):
-    newDict = {}
+def FilterDictBasedOnLicense(dict: Dict[str, List[Resource]]) -> Dict[str,List[Resource]]:
+    newDict = {} # type: Dict[str,List[Resource]]
     for key, entryList in dict.items():
         newList = []
         firstLicenseEntry = None
         for entry in entryList:
-            if entry.License == None:
+            if entry.License is None:
                 newList.append(entry)
         if len(newList) > 0:
             if len(entryList) != len(newList):
@@ -517,41 +526,41 @@ def FilterDictBasedOnLicense(dict):
     return newDict
 
 
-def PrintListFixTags(entries):
+def PrintListFixTags(entries: List[Resource]) -> None:
     for entry in entries:
-        if entry.License != None and "fix" in entry.License.TagsIdList:
+        if entry.License is not None and "fix" in entry.License.TagsIdList:
             print("Fix: {0}".format(entry.SourcePath))
 
 
-def PrintFixTags(uniqueEntries, duplicatedEntriesDict):
+def PrintFixTags(uniqueEntries: List[Resource], duplicatedEntriesDict: Dict[str, List[Resource]]) -> None:
     PrintListFixTags(uniqueEntries)
     for entries in list(duplicatedEntriesDict.values()):
         PrintListFixTags(entries)
 
 
-def AddLicenses(dict, entries):
+def AddLicenses(dict: Dict[str, List[Resource]], entries: List[Resource]) -> None:
     for entry in entries:
-        if entry.License != None:
+        if entry.License is not None:
             if not entry.License.License in dict:
                 dict[entry.License.License] = [entry]
             else:
                 dict[entry.License.License].append(entry)
 
 
-def ExpandLicense(key):
+def ExpandLicense(key: str) -> bool:
     key = key.lower()
     return key != 'bsd-3-clause' and key != "mit" and key != "mixed" and key != "cc0-1.0" and key != "cc-by-3.0" and key != "cc-by-sa-4.0" and key != "modified 3-clause bsd-license"
 
 
-def PrintLicenses(uniqueEntries, duplicatedEntriesDict):
-    licenseDict = {}
+def PrintLicenses(uniqueEntries: List[Resource], duplicatedEntriesDict: Dict[str, List[Resource]]) -> None:
+    licenseDict = {}  # type: Dict[str, List[Resource]]
     AddLicenses(licenseDict, uniqueEntries)
     for entries in list(duplicatedEntriesDict.values()):
         AddLicenses(licenseDict, entries)
 
     sortedKeys = list(licenseDict.keys())
     sortedKeys.sort()
-    
+
     print("License")
     for key in sortedKeys:
         value = licenseDict[key]
@@ -561,7 +570,9 @@ def PrintLicenses(uniqueEntries, duplicatedEntriesDict):
                 print("  * {0}".format(entry.SourcePath))
 
 
-def Process(config, ignoreDirList, inputDirectory, extensions, ignoreFiles, licenseFilename, listLicenses):
+def Process(config: Config, ignoreDirList: List[str], inputDirectory: str, extensions: List[Tuple[str,str]],
+            ignoreFiles: List[str], licenseFilename: str, listLicenses: List[str],
+            saveCSVs: bool) -> None:
     if not os.path.isdir(inputDirectory):
         raise Exception("'{0}' is not a directory".format(inputDirectory));
 
@@ -574,7 +585,7 @@ def Process(config, ignoreDirList, inputDirectory, extensions, ignoreFiles, lice
     if len(files) != len(allFiles):
         config.LogPrint("Skipping {0} files since they are part of the ignored directory list".format(len(allFiles)-len(files)))
 
-    uniqueFiles = []
+    uniqueFiles = [] # type: List[str]
     duplicatedFilesDict = BuildUniqueFileDict(config, files, uniqueFiles)
 
     config.LogPrint("Found {0} unique resource files".format(len(uniqueFiles)))
@@ -589,13 +600,14 @@ def Process(config, ignoreDirList, inputDirectory, extensions, ignoreFiles, lice
     uniqueEntries = TagListWithLicenses(inputDirectory, uniqueFiles, directoryLicenseDict)
     duplicatedEntriesDict = TagDictWithLicenses(inputDirectory, duplicatedFilesDict, directoryLicenseDict)
 
-    ProcessDictLicenses(config, licenseFilename, duplicatedEntriesDict)    
+    ProcessDictLicenses(config, licenseFilename, duplicatedEntriesDict)
 
     # All resources
-    WriteCSV("resources.csv", extensions, uniqueEntries, duplicatedEntriesDict)
-    
+    if saveCSVs:
+        WriteCSV("resources.csv", extensions, uniqueEntries, duplicatedEntriesDict)
+
     # Remove all entries that have a license associated
-    noLicenseUniqueEntries = [entry for entry in uniqueEntries if entry.License == None]
+    noLicenseUniqueEntries = [entry for entry in uniqueEntries if entry.License is None]
     noLicenseDuplicatedEntriesDict = FilterDictBasedOnLicense(duplicatedEntriesDict)
 
     if len(noLicenseUniqueEntries) > 0:
@@ -603,7 +615,8 @@ def Process(config, ignoreDirList, inputDirectory, extensions, ignoreFiles, lice
     if len(noLicenseDuplicatedEntriesDict) > 0:
         print("WARNING: Found {0} duplicated resource files with no license attached".format(len(noLicenseDuplicatedEntriesDict)))
 
-    WriteCSV("resourcesIssues.csv", extensions, noLicenseUniqueEntries, noLicenseDuplicatedEntriesDict)
+    if saveCSVs:
+        WriteCSV("resourcesIssues.csv", extensions, noLicenseUniqueEntries, noLicenseDuplicatedEntriesDict)
 
     PrintIssueDirectories(noLicenseUniqueEntries, noLicenseDuplicatedEntriesDict)
 
@@ -613,12 +626,12 @@ def Process(config, ignoreDirList, inputDirectory, extensions, ignoreFiles, lice
         PrintLicenses(uniqueEntries, duplicatedEntriesDict)
 
 
-def AddDefaultOptions(parser):
+def AddDefaultOptions(parser: argparse.ArgumentParser) -> None:
     parser.add_argument('-v', '--verbosity', action='count', default=0, help='Set verbosity level')
     parser.add_argument('--debug', action='store_true',  help='Enable script debugging')
 
 
-def EarlyArgumentParser():
+def EarlyArgumentParser() -> bool:
     global __g_verbosityLevel
     global __g_debugEnabled
     ### Parse the initial options this allows us to use the required debug and verbosity levels while
@@ -630,7 +643,7 @@ def EarlyArgumentParser():
         __g_verbosityLevel = args.verbosity
         __g_debugEnabled = True if args.debug else False;
     except (Exception) as ex:
-        print("ERROR: {0}".format(ex.message))
+        print("ERROR: {0}".format(str(ex)))
         if __g_debugEnabled:
             raise
         else:
@@ -638,11 +651,7 @@ def EarlyArgumentParser():
     return True
 
 
-def AddArgSubParser(subparsers, cmdName, cmdHelp):
-    return parser
-
-
-def Main():
+def Main() -> None:
     global __g_verbosityLevel
     global __g_debugEnabled
     global __g_extensions
@@ -659,16 +668,17 @@ def Main():
     parser = argparse.ArgumentParser(description='Quick and dirty image resource comparision script.')
     parser.add_argument("directory", help="to scan for resource files {0}".format(GetExtensionList(__g_extensions)))
     parser.add_argument('--list', action='store_true',  help='List all licenses')
+    parser.add_argument('--saveCSVs', action='store_true',  help='Save CSVs')
     AddDefaultOptions(parser)
 
 
     try:
         args = parser.parse_args()
         config = Config(args.verbosity)
-        Process(config, __g_ignoreDir, args.directory, __g_extensions, __g_ignore, __g_licenseFilename, args.list)
+        Process(config, __g_ignoreDir, args.directory, __g_extensions, __g_ignore, __g_licenseFilename, args.list, args.saveCSVs)
     except (Exception) as ex:
         ShowTitleIfNecessary()
-        print("ERROR: {0}".format(ex.message))
+        print("ERROR: {0}".format(str(ex)))
         if __g_debugEnabled:
             raise
     return

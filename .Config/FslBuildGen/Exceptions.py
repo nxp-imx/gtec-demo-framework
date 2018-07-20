@@ -35,34 +35,43 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
+class ExitException(Exception):
+    def __init__(self, exitCode: int) -> None:
+        super().__init__()
+        self.ExitCode = exitCode
+
+class AggregateException(Exception):
+    def __init__(self, exceptionList: List[Exception]) -> None:
+        super().__init__("AggregateException")
+        self.ExceptionList = exceptionList # type: List[Exception]
 
 class GroupedException(Exception):
     def __init__(self, exceptionList: List[Exception]) -> None:
-        super(GroupedException, self).__init__("GroupedException")
+        super().__init__("GroupedException")
         self.ExceptionList = exceptionList # type: List[Exception]
 
 
 class PackageHasMultipleDefinitionsException(Exception):
     def __init__(self, message: str) -> None:
-        super(PackageHasMultipleDefinitionsException, self).__init__(message)
+        super().__init__(message)
 
 
 class PackageMissingRequiredIncludeDirectoryException(Exception):
     def __init__(self, directory: str) -> None:
         msg = "Required include directory '{0}' not found".format(directory)
-        super(PackageMissingRequiredIncludeDirectoryException, self).__init__(msg)
+        super().__init__(msg)
 
 
 class PackageMissingRequiredSourceDirectoryException(Exception):
     def __init__(self, directory: str) -> None:
         msg = "Required source directory '{0}' not found".format(directory)
-        super(PackageMissingRequiredSourceDirectoryException, self).__init__(msg)
+        super().__init__(msg)
 
 
 class PackageRequirementExtendsUnusedFeatureException(Exception):
     def __init__(self, requirementName: str, requirementExtends: str, packageName: str) -> None:
         msg = "Package requirement '{0}' in package '{1}' extends unknown feature '{2}'. Is it a feature spelling error or missing package dependency?".format(requirementName, packageName, requirementExtends)
-        super(PackageRequirementExtendsUnusedFeatureException, self).__init__(msg)
+        super().__init__(msg)
 
 
 class InternalErrorException(Exception):
@@ -83,6 +92,15 @@ class UnknownTypeException(Exception):
 class FileNotFoundException(Exception):
     """ Error
     """
+    def __init__(self, oldSchoolFormat: str, filename: str) -> None:
+        super().__init__(oldSchoolFormat % filename)
+
+class PackageIncludeFilePathInvalidException(Exception):
+    """ Error
+    """
+    def __init__(self, packageName: str, filename: str, expectedIncludePathStart: str) -> None:
+        msg = "Package '{0}' include file '{1}' did not start with '{2} as expected".format(packageName, filename, expectedIncludePathStart)
+        super().__init__(msg)
 
 
 class CircularDependencyException(Exception):
@@ -110,7 +128,7 @@ class DuplicatedNewProjectTemplatesRootPath(Exception):
     """
     def __init__(self, name: str, configFileName1: str, configFileName2: str) -> None:
         msg = "Root path '{0}' listed multiple times in {1} and {2}".format(name, configFileName1, configFileName2)
-        super(DuplicatedNewProjectTemplatesRootPath, self).__init__(msg)
+        super().__init__(msg)
 
 
 class DuplicatedConfigRootPath(Exception):
@@ -118,7 +136,7 @@ class DuplicatedConfigRootPath(Exception):
     """
     def __init__(self, name: str, configFileName: str) -> None:
         msg = "Root path '{0}' listed multiple times in {1}".format(name, configFileName)
-        super(DuplicatedConfigRootPath, self).__init__(msg)
+        super().__init__(msg)
 
 
 class DuplicatedConfigPackageLocation(Exception):
@@ -126,7 +144,7 @@ class DuplicatedConfigPackageLocation(Exception):
     """
     def __init__(self, name: str, configFileName: str) -> None:
         msg = "Package location '{0}' listed multiple times in {1}".format(name, configFileName)
-        super(DuplicatedConfigPackageLocation, self).__init__(msg)
+        super().__init__(msg)
 
 
 class DuplicatedConfigContentBuilder(Exception):
@@ -134,7 +152,7 @@ class DuplicatedConfigContentBuilder(Exception):
     """
     def __init__(self, name: str, configFileName: str) -> None:
         msg = "ContentBuilder '{0}' listed multiple times in {1}".format(name, configFileName)
-        super(DuplicatedConfigContentBuilder, self).__init__(msg)
+        super().__init__(msg)
 
 
 class IncompleteVariableFoundException(Exception):
@@ -142,7 +160,7 @@ class IncompleteVariableFoundException(Exception):
     """
     def __init__(self, message: str, tag: Optional[object]) -> None:
         msg = "String '{0}' contains '${{' but is missing a terminating '}}'.".format(message)
-        super(IncompleteVariableFoundException, self).__init__(msg)
+        super().__init__(msg)
         self.Tag = tag
 
 
@@ -151,7 +169,7 @@ class IncompleteEnvironmentVariableFoundException(Exception):
     """
     def __init__(self, message: str, tag: Optional[object]) -> None:
         msg = "String '{0}' contains '$(' but is missing a terminating ')'.".format(message)
-        super(IncompleteEnvironmentVariableFoundException, self).__init__(msg)
+        super().__init__(msg)
         self.Tag = tag
 
 
@@ -160,7 +178,7 @@ class EnvironmentVariableInMiddleOfStringException(Exception):
     """
     def __init__(self, message: str, tag: Optional[object]) -> None:
         msg = "Environment variables can not be located in the middle of a string '{0}'".format(message)
-        super(EnvironmentVariableInMiddleOfStringException, self).__init__(msg)
+        super().__init__(msg)
         self.Tag = tag
 
 
@@ -169,7 +187,7 @@ class CombinedEnvironmentVariableAndPathException(Exception):
     """
     def __init__(self, message: str, tag: Optional[object]) -> None:
         msg = "String '{0}' contains a environment variable mixed with a path.".format(message)
-        super(CombinedEnvironmentVariableAndPathException, self).__init__(msg)
+        super().__init__(msg)
         self.Tag = tag
 
 
@@ -178,7 +196,7 @@ class CombinedVariableAndPathException(Exception):
     """
     def __init__(self, message: str, tag: Optional[object]) -> None:
         msg = "String '{0}' contains a variable mixed with a path.".format(message)
-        super(CombinedVariableAndPathException, self).__init__(msg)
+        super().__init__(msg)
         self.Tag = tag
 
 
@@ -187,7 +205,7 @@ class VariableInMiddleOfStringException(Exception):
     """
     def __init__(self, message: str, tag: Optional[object]) -> None:
         msg = "Variables can not be located in the middle of a string '{0}'".format(message)
-        super(VariableInMiddleOfStringException, self).__init__(msg)
+        super().__init__(msg)
         self.Tag = tag
 
 
@@ -196,7 +214,14 @@ class VariableNotDefinedException(Exception):
     """
     def __init__(self, variableName: str, variableDict: Dict[str, Optional[object]]) -> None:
         msg = "Variable '{0}' is not defined, possible variable names [{1}]".format(variableName, ", ".join(list(variableDict.keys())))
-        super(VariableNotDefinedException, self).__init__(msg)
+        super().__init__(msg)
+
+class ToolDependencyNotFoundException(Exception):
+    def __init__(self, depName: str, additionalMessage: str = "") -> None:
+        message = "Package not found '{0}', its required by the tool chain.".format(depName)
+        if len(additionalMessage) > 0:
+            message += " {0}".format(additionalMessage)
+        super().__init__(message)
 
 
 class DependencyNotFoundException(Exception):
@@ -207,15 +232,15 @@ class DependencyNotFoundException(Exception):
             message = "'{0}' has a dependency to a unknown package '{1}' did you mean {2}.".format(packageName, depName, candidateList)
         if len(additionalMessage) > 0:
             message += " {0}".format(additionalMessage)
-        super(DependencyNotFoundException, self).__init__(message)
+        super().__init__(message)
 
 # If this exception fires it means the package loader has a bug
 class PackageLoaderFailedToLocatePackageException(DependencyNotFoundException):
     def __init__(self, packageName: str, depName: str) -> None:
         msg = "*INTERNAL_ERROR* the package exist, but the package loader failed to locate it."
-        super(PackageLoaderFailedToLocatePackageException, self).__init__(packageName, depName, additionalMessage=msg)
+        super().__init__(packageName, depName, additionalMessage=msg)
 
 
 class InvalidDependencyException(Exception):
     def __init__(self, packageName: str, depName: str) -> None:
-        super(InvalidDependencyException, self).__init__("'{0}' has a invalid dependency to package '{1}'".format(packageName, depName))
+        super().__init__("'{0}' has a invalid dependency to package '{1}'".format(packageName, depName))

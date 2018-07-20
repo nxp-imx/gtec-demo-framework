@@ -114,5 +114,4 @@ class AndroidUtil(object):
         ]
         if allowAllId:
             result.insert(0, AndroidABIOption.All)
-        return result;
-
+        return result

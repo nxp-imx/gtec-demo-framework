@@ -108,8 +108,10 @@ class ParseState(object):
 FormatStringEnvironmentVariableResolver = Callable[[str], str]
 
 class ParsedFormatString(object):
-    def __init__(self, source: str, variableDict: VariableDict,
-                 environmentVariableResolver: Optional[FormatStringEnvironmentVariableResolver] = None) -> None:
+    def __init__(self, source: str, variableDict: Optional[VariableDict],
+                 environmentVariableResolver: Optional[FormatStringEnvironmentVariableResolver] = None,
+                 noVariableResolve: bool = False,
+                 noEnvVariableResolve: bool = False) -> None:
         super().__init__()
         self.SplitList = []    # type: List[str]
         self.VarCommandList = [] # type: List[LookupVariableCommand]
@@ -150,7 +152,10 @@ class ParsedFormatString(object):
                     if not Util.IsValidCStyleName(variableName):
                         raise FormatStringInvalidVariableNameException(variableName)
 
-                    variableValue = variableDict.TryGetVariableReport(variableName)
+                    if noVariableResolve:
+                        variableValue = VariableReport("*NotDefined*", ["*NotDefined*"], None)  # type: Optional[VariableReport]
+                    else:
+                        variableValue = variableDict.TryGetVariableReport(variableName) if variableDict is not None else None
                     if variableValue is None:
                         raise FormatStringUndefinedVariableNameException(variableName)
 
@@ -166,7 +171,9 @@ class ParsedFormatString(object):
                     if not Util.IsValidCStyleName(envName):
                         raise FormatStringInvalidVariableNameException(envName)
 
-                    if environmentVariableResolver is None:
+                    if noEnvVariableResolve:
+                        envValue = "*NotDefined*"                                               # type: Optional[str]
+                    elif environmentVariableResolver is None:
                         envValue = IOUtil.TryGetEnvironmentVariable(envName)
                     else:
                         envValue = environmentVariableResolver(envName)

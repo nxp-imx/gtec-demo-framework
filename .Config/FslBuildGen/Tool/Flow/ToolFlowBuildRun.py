@@ -163,6 +163,7 @@ class ToolFlowBuildRun(AToolAppFlow):
         toolFlowConfig.SetToolAppConfigValues(toolAppContext.ToolAppConfig)
         toolFlowConfig.RemainingArgs = ToolAppConfigDefaultValue.RemainingArgs
         toolFlowConfig.ForAllExe = '(EXE) {0}'.format(" ".join(localToolConfig.RemainingArgs))
+        toolFlowConfig.PackageConfigurationType = localToolConfig.PackageConfigurationType
 
         buildFlow = ToolFlowBuild.ToolFlowBuild(toolAppContext)
         buildFlow.Process(currentDirPath, toolConfig, toolFlowConfig)

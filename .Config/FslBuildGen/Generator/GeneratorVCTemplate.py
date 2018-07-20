@@ -37,17 +37,20 @@ from typing import List
 from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
+from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import OptimizationType
 from FslBuildGen.DataTypes import MagicStrings
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Generator.VSVersionLanguageTemplates import VSVersionLanguageTemplates
+from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 #from FslBuildGen.SharedGeneration import *
 #from FslBuildGen.PackageGeneratorReport import *
 from FslBuildGen.Template.TemplateFileRecordManager import TemplateFileRecordManager
 #from FslBuildGen.Template.TemplateFileProcessor import TemplateFileProcessor
+from FslBuildGen.Xml.XmlNewVSProjectTemplateCustomizationFile import XmlNewVSProjectTemplateCustomizationFile
 from FslBuildGen.Xml.XmlNewVSProjectTemplateFile import XmlNewVSProjectTemplateFile
 
 
@@ -60,15 +63,16 @@ class TemplateOptimizationSetting(object):
 
 
 class NuGetPackageConfigSnippets(object):
-    def __init__(self, config: Config, path: str, master: str) -> None:
+    def __init__(self, log: Log, path: str, master: str) -> None:
         super(NuGetPackageConfigSnippets, self).__init__()
         self.Master = master
         self.PackageEntry = IOUtil.ReadFile(IOUtil.Join(path, "PackageEntry.txt"))
 
 
 class CodeTemplateVC(object):
-    def __init__(self, config: Config, template: XmlNewVSProjectTemplateFile,
-                subDirectory: str, vsVersion: int, useLinuxTools: bool) -> None:
+    def __init__(self, log: Log, template: XmlNewVSProjectTemplateFile,
+                subDirectory: str, vsVersion: int, useLinuxTools: bool,
+                customization: XmlNewVSProjectTemplateCustomizationFile) -> None:
         super(CodeTemplateVC, self).__init__()
         strVSPath = template.Path
 
@@ -79,6 +83,7 @@ class CodeTemplateVC(object):
 
         strTemplateNuGetPackageConfigPath = IOUtil.Join(strTemplatePath, "Template_packages_config")
 
+        self.BuildOutputLocation = customization.BuildOutput.Location
         self.FilterExtension = "vcxproj.filters"
         self.SolutionExtension = "sln"
         self.ProjectExtension = template.Template.ProjectExtension
@@ -86,7 +91,7 @@ class CodeTemplateVC(object):
         self.TemplateFileRecordManager = TemplateFileRecordManager(strTemplatePath)
 
         nuGetPackageConfig = IOUtil.TryReadFile(IOUtil.Join(strTemplateNuGetPackageConfigPath, "Master.txt"))
-        self.NuGetPackageConfig = NuGetPackageConfigSnippets(config, strTemplateNuGetPackageConfigPath, nuGetPackageConfig) if nuGetPackageConfig is not None else None
+        self.NuGetPackageConfig = NuGetPackageConfigSnippets(log, strTemplateNuGetPackageConfigPath, nuGetPackageConfig) if nuGetPackageConfig is not None else None
 
         self.TemplateSLN = IOUtil.ReadFile(IOUtil.Join(strTemplateSolutionPath, "Master.txt"))
         self.SLNAddProject = IOUtil.ReadFile(IOUtil.Join(strTemplateSolutionPath, "AddProject.txt"))
@@ -158,24 +163,21 @@ class CodeTemplateVC(object):
 
 
 class CodeTemplateProjectBatFiles(object):
-    def __init__(self, config: Config) -> None:
+    def __init__(self, log: Log, sdkConfigTemplatePath: str) -> None:
         super(CodeTemplateProjectBatFiles, self).__init__()
-        self.TemplateStartBat = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_WinStartProject.txt"))
-        self.TemplateBuildBat = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_WinBuildProject.txt"))
-        self.TemplateRunBat = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_WinRunProject.txt"))
-        templateSnippetErrorCheck = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "TemplateSnippet_WinBatErrorCheck.txt"))
+        self.TemplateStartBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinStartProject.txt"))
+        self.TemplateBuildBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinBuildProject.txt"))
+        self.TemplateRunBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinRunProject.txt"))
+        templateSnippetErrorCheck = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "TemplateSnippet_WinBatErrorCheck.txt"))
         self.TemplateSnippetErrorCheck = "" if templateSnippetErrorCheck is None else templateSnippetErrorCheck
 
 
 class GeneratorVCTemplate(object):
-    def __init__(self, config: Config, platformName: str, vsVersion: int, languageTemplates: VSVersionLanguageTemplates) -> None:
+    def __init__(self, log: Log, platformName: str, vsVersion: int, languageTemplates: VSVersionLanguageTemplates,
+                 activeTemplate: str, sdkConfigTemplatePath: str) -> None:
         super(GeneratorVCTemplate, self).__init__()
         self.__TemplateExecutablePrefix = "Executable"
         self.__TemplateLibraryPrefix = "Library"
-
-        packageLanguage = config.ToolConfig.DefaultPackageLanguage
-        projectConfig = config.ToolConfig.ProjectRootConfig
-        activeTemplate = projectConfig.DefaultTemplate
 
         self.UsingLinuxTools = (platformName != PackageConfig.PlatformNameString.WINDOWS) and activeTemplate == MagicStrings.VSDefaultCPPTemplate
         if self.UsingLinuxTools:
@@ -183,15 +185,17 @@ class GeneratorVCTemplate(object):
 
         template = languageTemplates.TryGet(activeTemplate)
         if template is None:
-            raise UnsupportedException("No template found for '{0}' named '{1}'".format(PackageLanguage.ToString(packageLanguage), activeTemplate))
+            raise UnsupportedException("No template found for '{0}' named '{1}'".format(PackageLanguage.ToString(languageTemplates.PackageLanguage), activeTemplate))
 
         # ScanForTemplates
         templateDirectories = IOUtil.GetDirectoriesAt(template.Path, False)
-        self.__ExecutableTemplateDict = self.__BuildTemplateDict(templateDirectories, self.__TemplateExecutablePrefix, config, template, vsVersion, self.UsingLinuxTools)
-        self.__LibraryTemplateDict = self.__BuildTemplateDict(templateDirectories, self.__TemplateLibraryPrefix, config, template, vsVersion, self.UsingLinuxTools)
+        self.__ExecutableTemplateDict = self.__BuildTemplateDict(templateDirectories, self.__TemplateExecutablePrefix, log,
+                                                                 template, vsVersion, self.UsingLinuxTools)
+        self.__LibraryTemplateDict = self.__BuildTemplateDict(templateDirectories, self.__TemplateLibraryPrefix, log,
+                                                              template, vsVersion, self.UsingLinuxTools)
 
-        self.__Bat = CodeTemplateProjectBatFiles(config)
-        self.__HeaderLib = self.__LoadHeaderLib(config, template, vsVersion, self.UsingLinuxTools)
+        self.__Bat = CodeTemplateProjectBatFiles(log, sdkConfigTemplatePath)
+        self.__HeaderLib = self.__LoadHeaderLib(log, template, vsVersion, self.UsingLinuxTools)
 
 
     def GetLibraryTemplate(self, package: Package) -> CodeTemplateVC:
@@ -219,18 +223,23 @@ class GeneratorVCTemplate(object):
 
 
     def __BuildTemplateDict(self, templateDirectories: List[str], templatePrefix: str,
-                            config: Config, template: XmlNewVSProjectTemplateFile,
+                            log: Log, template: XmlNewVSProjectTemplateFile,
                             vsVersion: int, usingLinuxTools: bool) -> Dict[str, CodeTemplateVC]:
         templateDict = {}  # type: Dict[str, CodeTemplateVC]
         for entry in templateDirectories:
+            templateCustomization = self.__LoadTemplateCustomization(log, template, entry)
             if self.__CheckPrefix(entry, templatePrefix):
                 skip = len(templatePrefix)+1 if len(templatePrefix) != len(entry) else len(templatePrefix)
                 subType = entry[skip:]
-                templateDict[subType] = CodeTemplateVC(config, template, entry, vsVersion, usingLinuxTools)
+                templateDict[subType] = CodeTemplateVC(log, template, entry, vsVersion, usingLinuxTools, templateCustomization)
         return templateDict
 
+    def __LoadTemplateCustomization(self, log: Log, template: XmlNewVSProjectTemplateFile, name: str) -> XmlNewVSProjectTemplateCustomizationFile:
+        filename = IOUtil.Join(template.Path, name)
+        filename = IOUtil.Join(filename, 'Customization.xml')
+        return XmlNewVSProjectTemplateCustomizationFile(log, filename)
 
-    def __LoadHeaderLib(self, config: Config, template: XmlNewVSProjectTemplateFile, vsVersion: int, usingLinuxTools: bool) -> Optional[CodeTemplateVC]:
+    def __LoadHeaderLib(self, log: Log, template: XmlNewVSProjectTemplateFile, vsVersion: int, usingLinuxTools: bool) -> Optional[CodeTemplateVC]:
         # FIX: this might not work correctly after the recent template changes
         #      but the headerlib is only used by the experimental visual studio linux tools support
         #      so its not critical to fix it now
@@ -238,4 +247,5 @@ class GeneratorVCTemplate(object):
         path = IOUtil.Join(template.Path, "{0}.sln".format(name))
         if not IOUtil.IsFile(path):
             return None
-        return CodeTemplateVC(config, template, name, vsVersion, usingLinuxTools)
+        templateCustomization = self.__LoadTemplateCustomization(log, template, "Dummy")
+        return CodeTemplateVC(log, template, name, vsVersion, usingLinuxTools, templateCustomization)

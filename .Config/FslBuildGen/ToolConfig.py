@@ -41,6 +41,13 @@ import os.path
 from FslBuildGen import IOUtil
 from FslBuildGen import Util
 from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
+from FslBuildGen.BuildConfig.BuildDocConfigurationRequirement import BuildDocConfigurationRequirement
+from FslBuildGen.BuildConfig.ClangFormatConfiguration import ClangFormatConfiguration
+from FslBuildGen.BuildConfig.ClangTidyConfiguration import ClangTidyConfiguration
+from FslBuildGen.BuildConfig.ClangTidyPlatform import ClangTidyPlatform
+from FslBuildGen.BuildConfig.ClangTidyPlatformCompiler import ClangTidyPlatformCompiler
+from FslBuildGen.BuildConfig.ClangTidyPlatformDefines import ClangTidyPlatformDefines
 from FslBuildGen.DataTypes import CompilerNames
 from FslBuildGen.DataTypes import MagicStrings
 from FslBuildGen.DataTypes import PackageRequirementTypeString
@@ -51,19 +58,28 @@ from FslBuildGen.Exceptions import DuplicatedConfigRootPath
 from FslBuildGen.Exceptions import DuplicatedNewProjectTemplatesRootPath
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
+from FslBuildGen.ToolConfigPackageRootUtil import ToolConfigPackageRootUtil
 from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
+from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.Exceptions import XmlDuplicatedCompilerConfigurationException
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedCompilerVersionException
+from FslBuildGen.Xml.Project.XmlBuildDocConfiguration import XmlBuildDocConfiguration
+from FslBuildGen.Xml.Project.XmlClangTidyConfiguration import XmlClangTidyConfiguration
+from FslBuildGen.Xml.Project.XmlClangTidyPlatform import XmlClangTidyPlatform
+from FslBuildGen.Xml.Project.XmlClangTidyPlatformCompiler import XmlClangTidyPlatformCompiler
+from FslBuildGen.Xml.Project.XmlClangTidyPlatformDefines import XmlClangTidyPlatformDefines
+from FslBuildGen.Xml.Project.XmlClangTidyPlatformStrictChecks import XmlClangTidyPlatformStrictChecks
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigCompilerConfiguration
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimental
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 from FslBuildGen.Xml.ToolConfig.XmlConfigFileAddNewProjectTemplatesRootDirectory import XmlConfigFileAddNewProjectTemplatesRootDirectory
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageConfiguration import XmlConfigPackageConfiguration
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageLocation import FakeXmlConfigPackageLocation
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageLocation import XmlConfigPackageLocation
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlConfigCompilerConfiguration
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlExperimental
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlProjectRootConfigFile
+from FslBuildGen.Xml.XmlToolConfigFile import XmlClangFormatConfiguration
 from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilder
 from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilderConfiguration
 from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigFileAddTemplateImportDirectory
@@ -185,7 +201,7 @@ class ToolConfigLocation(object):
             # then use it to dynamically add a new allowed root directory based on the project file location
             for rootDir in rootDirs:
                 if projectRootDirectory == rootDir.ResolvedPath:
-                    return ToolConfigRootDirectory(basicConfig, None, rootDir, MagicStrings.ProjectRoot, rootDir.ResolvedPath)
+                    return ToolConfigRootDirectory(basicConfig, None, rootDir, MagicStrings.ProjectRoot, rootDir.DynamicName)
                 elif projectRootDirectory.startswith(rootDir.ResolvedPathEx):
                     dynamicRootDir = projectRootDirectory[len(rootDir.ResolvedPathEx):]
                     dynamicRootDir = "{0}/{1}".format(rootDir.Name, dynamicRootDir)
@@ -325,10 +341,84 @@ class ToolConfig(object):
         self.DefaultCompany = projectRootConfig.DefaultCompany
         self.RequirePackageCreationYear = projectRootConfig.RequirePackageCreationYear
         self.ProjectRootConfig = projectRootConfig
+        self.BuildDocConfiguration = self.__TryGetBuildDocConfiguration(basedUponXML.BuildDocConfiguration)
+        self.ClangFormatConfiguration = self.__TryGetClangFormatConfiguration(basedUponXML.ClangFormatConfiguration)
+        self.ClangTidyConfiguration = self.__TryGetClangTidyConfiguration(basedUponXML.ClangTidyConfiguration)
         self.CompilerConfigurationDict = self.__ProcessCompilerConfiguration(basicConfig, basedUponXML.CompilerConfiguration)
         self.RequirementTypes = [PackageRequirementTypeString.Extension, PackageRequirementTypeString.Feature]
         self.Experimental = self.__ResolveExperimental(basicConfig, self.RootDirectories, basedUponXML.Experimental, filename, projectRootConfig.RootDirectory) # type: Optional[ToolConfigExperimental]
 
+    def GetMinimalConfig(self) -> ToolMinimalConfig:
+        ignoreDirectories = []  # type: List[str]
+        # ignore the template import directory
+        for templateImport in self.TemplateImportDirectories:
+            ignoreDirectories.append(templateImport.ResolvedPathEx)
+        # ignore the NewProjectTemplateRootDirectories
+        for newProjectTemplate in self.NewProjectTemplateRootDirectories:
+            ignoreDirectories.append(newProjectTemplate.ResolvedPathEx)
+        return ToolMinimalConfig(self.RootDirectories, ignoreDirectories)
+
+    def __TryGetBuildDocConfiguration(self, configList: List[XmlBuildDocConfiguration]) -> BuildDocConfiguration:
+        requirementList = [] # type: List[BuildDocConfigurationRequirement]
+        if len(configList) < 1:
+            return BuildDocConfiguration(requirementList)
+        config = configList[0];
+        for requirement in config.Requirements:
+            requirementList.append(BuildDocConfigurationRequirement(requirement.Name, requirement.Skip))
+        return BuildDocConfiguration(requirementList)
+
+    def __TryGetClangFormatConfiguration(self, configList: List[XmlClangFormatConfiguration]) -> Optional[ClangFormatConfiguration]:
+        if len(configList) < 1:
+            return None
+        config = configList[0];
+        return ClangFormatConfiguration(config.FileExtensions, config.Recipe)
+
+    def __TryGetClangTidyConfiguration(self, configList: List[XmlClangTidyConfiguration]) -> Optional[ClangTidyConfiguration]:
+        if len(configList) < 1:
+            return None
+        config = configList[0];
+        platforms = self.__GetClangTidyPlatforms(config.Platforms)
+        clangConfig =  ClangTidyConfiguration(config.FileExtensions, config.Recipe, platforms)
+        allPlatformName = 'all'
+        if allPlatformName in clangConfig.PlatformDict:
+            # append the all configuration to all other configurations
+            allPlatform = clangConfig.PlatformDict[allPlatformName]
+            for platform in clangConfig.PlatformDict.values():
+                if platform != allPlatform:
+                    platform.Merge(allPlatform)
+        return clangConfig
+
+    def __GetClangTidyPlatforms(self, clangTidyPlatforms: List[XmlClangTidyPlatform]) -> List[ClangTidyPlatform]:
+        res = [] # type: List[ClangTidyPlatform]
+        for platform in clangTidyPlatforms:
+            res.append(self.__GetClangTidyPlatform(platform))
+        return res
+
+    def __GetClangTidyPlatform(self, clangTidyPlatform: XmlClangTidyPlatform) -> ClangTidyPlatform:
+        compiler = self.__GetClangTidyPlatformCompiler(clangTidyPlatform.Compiler)
+        defines = self.__GetClangTidyPlatformDefines(clangTidyPlatform.Defines)
+        strictChecks = self.__GetClangTidyPlatformStrictChecks(clangTidyPlatform.StrictChecks)
+        return ClangTidyPlatform(clangTidyPlatform.Name, compiler, defines, strictChecks)
+
+    def __GetClangTidyPlatformCompiler(self, compiler: Optional[XmlClangTidyPlatformCompiler]) -> ClangTidyPlatformCompiler:
+        if compiler is None:
+            return ClangTidyPlatformCompiler([])
+        return ClangTidyPlatformCompiler(compiler.Flags)
+
+    def __GetClangTidyPlatformDefines(self, defines: Optional[XmlClangTidyPlatformDefines]) -> ClangTidyPlatformDefines:
+        definesAll = []       # type: List[str]
+        definesDebug = []     # type: List[str]
+        definesRelease = []   # type: List[str]
+        if defines is not None:
+            definesAll += defines.All
+            definesDebug += defines.Debug
+            definesRelease += defines.Release
+        return ClangTidyPlatformDefines(definesAll, definesDebug, definesRelease)
+
+    def __GetClangTidyPlatformStrictChecks(self, strictChecks: Optional[XmlClangTidyPlatformStrictChecks]) -> Set[str]:
+        if strictChecks is None:
+            return set()
+        return strictChecks.Checks
 
     def GetVisualStudioDefaultVersion(self) -> int:
         visualStudioId = CompilerNames.VisualStudio.lower()
@@ -344,27 +434,10 @@ class ToolConfig(object):
 
 
     def ToPath(self, path: str) -> str:
-        if path.find("\\") >= 0:
-            raise UsageErrorException("Backslash found in the supplied path '{0}'".format(path))
-        for rootDir in self.RootDirectories:
-            if path.startswith(rootDir.ResolvedPathEx):
-                lenRootPath = len(rootDir.ResolvedPathEx)
-                path = path[lenRootPath:]
-                return rootDir.Name + "/" + Util.UTF8ToAscii(path)
-            elif path == rootDir.ResolvedPath:
-                return rootDir.Name + "/"
-        raise UsageErrorException("the folder '{0}' does not reside inside one of the root dirs".format(path))
-
-
+        return ToolConfigPackageRootUtil.ToPath(self.RootDirectories, path)
 
     def TryFindRootDirectory(self, path: Optional[str]) -> Optional[ToolConfigRootDirectory]:
-        """ Try to find the nearest root directory """
-        if path is None:
-            return None
-        for rootDir in self.RootDirectories:
-            if path.startswith(rootDir.ResolvedPathEx) or path == rootDir.ResolvedPath:
-                return rootDir
-        return None
+        return ToolConfigPackageRootUtil.TryFindRootDirectory(self.RootDirectories, path)
 
 
     def ToBashPath(self, path: str) -> str:

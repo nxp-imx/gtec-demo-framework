@@ -3,7 +3,8 @@
   <ExternalLibrary Name="Recipe.tclap_1_2_2">
     <ExperimentalRecipe Name="tclap-1.2.2">
       <Pipeline>
-        <Download URL="https://sourceforge.net/projects/tclap/files/tclap-1.2.2.tar.gz" Hash="f5013be7fcaafc69ba0ce2d1710f693f61e9c336b6292ae4f57554f59fde5837"/>
+        <!--Download URL="https://sourceforge.net/projects/tclap/files/tclap-1.2.2.tar.gz" Hash="f5013be7fcaafc69ba0ce2d1710f693f61e9c336b6292ae4f57554f59fde5837"/-->
+        <Download URL="https://source.codeaurora.org/mirrored_source/external/imx/tclap-1.2.2.tar.gz" Hash="f5013be7fcaafc69ba0ce2d1710f693f61e9c336b6292ae4f57554f59fde5837"/>
         <Unpack File="tclap-1.2.2.tar.gz" OutputPath="tclap-1.2.2">
           <Delete Path="config"/>
           <Delete Path="docs"/>

@@ -34,26 +34,26 @@
 from typing import Optional
 from typing import List
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.DataTypes import ScanMethod
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 
 class XmlConfigPackageLocationBlacklist(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlConfigPackageLocationBlacklist, self).__init__(basicConfig, xmlElement)
-        self.Name = XmlBase._ReadAttrib(self, xmlElement, 'Name')
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super().__init__(log, xmlElement)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')
 
 
 class XmlConfigPackageLocation(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlConfigPackageLocation, self).__init__(basicConfig, xmlElement)
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super().__init__(log, xmlElement)
         defaultScanMethod = ScanMethod.Directory
-        self.Name = XmlBase._ReadAttrib(self, xmlElement, 'Name') # type: str
+        self.Name = self._ReadAttrib(xmlElement, 'Name') # type: str
         self.Blacklist = self.__LoadBlacklist(xmlElement)
-        self.ScanMethod = ScanMethod.FromString(XmlBase._ReadAttrib(self, xmlElement, 'ScanMethod', ScanMethod.ToString(defaultScanMethod)))
+        self.ScanMethod = ScanMethod.FromString(self._ReadAttrib(xmlElement, 'ScanMethod', ScanMethod.ToString(defaultScanMethod)))
         self.Id = self.Name.lower() if self.Name is not None else None
         self.ResolvedActualPath = None
 
@@ -62,12 +62,12 @@ class XmlConfigPackageLocation(XmlBase):
         res = []
         foundElements = xmlElement.findall("Blacklist")
         for foundElement in foundElements:
-            res.append(XmlConfigPackageLocationBlacklist(self.BasicConfig, foundElement))
+            res.append(XmlConfigPackageLocationBlacklist(self.Log, foundElement))
         return res
 
 
 class FakeXmlConfigPackageLocation(XmlConfigPackageLocation):
-    def __init__(self, basicConfig: BasicConfig, name: str, scanMethod: Optional[int] = None, blacklist: Optional[List[str]] = None) -> None:
+    def __init__(self, log: Log, name: str, scanMethod: Optional[int] = None, blacklist: Optional[List[str]] = None) -> None:
         xmlAttribs = {'Name': name}
         if scanMethod is not None:
             xmlAttribs['ScanMethod'] = ScanMethod.ToString(scanMethod)
@@ -77,5 +77,5 @@ class FakeXmlConfigPackageLocation(XmlConfigPackageLocation):
                 xmlBlacklistElement = FakeXmlElementFactory.CreateWithName("Blacklist", blacklistEntry)
                 xmlElement.append(xmlBlacklistElement)
 
-        super(FakeXmlConfigPackageLocation, self).__init__(basicConfig, xmlElement)
+        super().__init__(log, xmlElement)
 

@@ -36,7 +36,7 @@ from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
 
 
 class ToolConfigRootDirectory(object):

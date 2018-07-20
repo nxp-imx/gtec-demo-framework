@@ -97,10 +97,19 @@ namespace Fsl
                const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Set the data of the texture
-    //void SetData(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint);
+    void SetData(const Bitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Set the data of the texture
-    //void SetData(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint);
+    void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
+
+    //! @brief Set the data of the texture
+    void SetData(const Texture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
+
+    //! @brief Set the data of the texture
+    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
+
+    //! @brief Get the texture size.
+    Extent2D GetExtent() const;
 
     //! @brief Get the texture size.
     Point2 GetSize() const;
@@ -114,8 +123,15 @@ namespace Fsl
     std::shared_ptr<INativeTexture2D> GetNative() const;
 
 
-    bool operator==(const Texture2D& rhs) const { return m_native == rhs.m_native && m_size == rhs.m_size; }
-    bool operator!=(const Texture2D& rhs) const { return !(*this == rhs); }
+    bool operator==(const Texture2D& rhs) const
+    {
+      return m_native == rhs.m_native && m_size == rhs.m_size;
+    }
+
+    bool operator!=(const Texture2D& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

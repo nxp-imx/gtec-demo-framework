@@ -114,13 +114,14 @@ class PackageExternalDependency(PackageElement):
 
 class Package(object):
     def __init__(self, config: Config, genFile: XmlGenFile) -> None:
-        super(Package, self).__init__()
+        super().__init__()
         self._BasicConfig = config
         self.GenFile = genFile
         self.SourceFileHash = genFile.SourceFileHash
         self.XMLElement = genFile.XMLElement
         self.TemplateType = genFile.TemplateType
         self.AllowCheck = genFile.AllowCheck
+        self.PackageNameBasedIncludePath = genFile.PackageNameBasedIncludePath
         self.EnableExtendedSourceExtensions = genFile.EnableExtendedSourceExtensions  # type: bool
 
         # Clone all attributes that exist on a genFile
@@ -243,6 +244,9 @@ class Package(object):
         #self.ResolvedDirectVariantDependencies = []
         # This is up the the build generator to set, it will be a PackageGeneratorReport object or None if the builder doesn't support it
         self.ResolvedBuildPath = None # type: Optional[str]
+
+    def __repr__(self) -> str:
+        return "Package({0})".format(self.Name)
 
     def __BuildPlatformsDict(self, platforms: Dict[str, XmlGenFilePlatform]) -> Dict[str, XmlGenFilePlatform]:
         platformDict = {} # type: Dict[str, XmlGenFilePlatform]

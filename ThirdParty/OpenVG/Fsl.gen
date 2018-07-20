@@ -8,7 +8,7 @@
       <!-- Android SDK does not support OpenVG -->
       <!-- ExternalDependency Name="OpenVG" Type="StaticLib" /-->
     <!--/Platform-->
-    <Platform Name="Ubuntu" Supported="true">
+    <Platform Name="Ubuntu" Supported="false">
       <ExternalDependency Name="OpenVG" Type="StaticLib"/>
     </Platform>
     <Platform Name="Yocto" Supported="true">

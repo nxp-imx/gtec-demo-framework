@@ -70,8 +70,8 @@ class VariantHelper(object):
 
     def __GetNormalVariantsVariableFormatString(self) -> str:
         variantVariableNameList = []
-        for variantName in self.NormalVariants:
-            variantVariableNameList.append("${{{0}}}".format(variantName))
+        for platformVariant in self.NormalVariants:
+            variantVariableNameList.append("${{{0}}}".format(platformVariant.Name))
         return "".join(variantVariableNameList)
 
 

@@ -44,6 +44,7 @@ from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Log import Log
+from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.VariableReport import VariableReport
@@ -142,6 +143,7 @@ def ToJsonPackage(package: Package, generatorReportDict: Optional[Dict[Package, 
 
 
 def SavePackageMetaDataToJson(generatorContext: GeneratorContext,
+                              generatorConfig: GeneratorConfig,
                               dstFilePath: str,
                               log: Log,
                               topLevelPackage: Package,
@@ -158,7 +160,7 @@ def SavePackageMetaDataToJson(generatorContext: GeneratorContext,
         log.LogPrint("WARNING: No packages left to write to json file '{0}'".format(dstFilePath))
         resolvedBuildOrder = []
 
-    generatorReportDict = None if not includeGeneratorReport else generatorContext.Generator.GenerateReport(log, resolvedBuildOrder)
+    generatorReportDict = None if not includeGeneratorReport else generatorContext.Generator.GenerateReport(log, generatorConfig, resolvedBuildOrder)
 
     jsonRootDict = {} # type: Dict[str, Any]
     jsonRootDict["PlatformName"] = topLevelPackage.ResolvedPlatformName

@@ -61,6 +61,7 @@ from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.Exceptions import GroupedException
+from FslBuildGen.Exceptions import PackageIncludeFilePathInvalidException
 from FslBuildGen.Exceptions import PackageRequirementExtendsUnusedFeatureException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Exceptions import UsageErrorException
@@ -309,6 +310,20 @@ class PackageResolver(object):
             return True
         return False
 
+    def __ValidateIncludePaths(self, package: Package, files: List[str]) -> None:
+        # skip the base include path name and its slash
+        strip = len(package.BaseIncludePath) + 1
+        packageNameAsDir = package.Name.replace('.','/') + '/'
+        errors = None # type: Optional[List[Exception]]
+        for filename in files:
+            baseFilename = filename[strip:]
+            if not baseFilename.startswith(packageNameAsDir):
+                if errors is None:
+                    errors = []
+                errors.append(PackageIncludeFilePathInvalidException(package.Name, baseFilename, packageNameAsDir))
+        if errors is not None:
+            raise GroupedException(errors)
+
     def __ResolveBuildIncludeFiles(self, packages: List[Package]) -> None:
         for package in packages:
             if not package.IsVirtual or package.Type == PackageType.HeaderLibrary:
@@ -330,6 +345,8 @@ class PackageResolver(object):
                 filesAll.sort(key=lambda s: s.lower())
                 package.ResolvedBuildPublicIncludeFiles = filesPub
                 package.ResolvedBuildAllIncludeFiles = filesAll
+                if package.PackageNameBasedIncludePath:
+                    self.__ValidateIncludePaths(package, filesPub)
             else:
                 package.ResolvedBuildPublicIncludeFiles = []
                 package.ResolvedBuildAllIncludeFiles = []

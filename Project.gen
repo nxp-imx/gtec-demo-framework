@@ -15,10 +15,62 @@
       <!-- ThirdParty -->
       <PackageLocation Name="$(FSL_GRAPHICS_SDK)/ThirdParty"/>
       <!-- Framework packages -->
-      <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoFramework"/>
+      <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoFramework" ScanMethod="AllSubDirectories"/>
       <!-- App packages -->
-      <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps" ScanMethod="OneSubDirectory"/>
+      <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps" ScanMethod="AllSubDirectories"/>
     </PackageConfiguration>
+  <BuildDocConfiguration>
+    <Requirement Name="GoogleUnitTest" Skip="true"/>
+  </BuildDocConfiguration>
+    <ClangFormatConfiguration FileExtensions=".cpp;.hpp" Recipe="Recipe.BuildTool.clang_format"/>
+    <ClangTidyConfiguration FileExtensions=".cpp;.hpp" Recipe="Recipe.BuildTool.clang_tidy">
+      <Platform Name="All">
+        <Compiler Flags="-Wall;-Wno-invalid-token-paste;-Wno-unknown-pragmas;-Wno-unused-variable;-Wno-unused-value"/>
+        <StrictChecks>
+          clang-analyzer-core.*
+          clang-analyzer-cplusplus.*
+          bugprone-assert-side-effect
+          bugprone-use-after-move
+          cppcoreguidelines-c-copy-assignment-signature
+          cppcoreguidelines-pro-type-member-init
+          cppcoreguidelines-slicing
+          google-global-names-in-headers
+          misc-definitions-in-headers
+          misc-misplaced-widening-cast
+          misc-non-copyable-objects
+          misc-suspicious-semicolon
+          misc-suspicious-string-compare
+          misc-undelegated-constructor
+          misc-unused-using-decls
+          modernize-redundant-void-arg
+          modernize-replace-auto-ptr
+          modernize-use-bool-literals
+          modernize-use-default-member-init
+          performance-unnecessary-value-param
+          readability-named-parameter
+          readability-non-const-parameter
+          readability-redundant-control-flow
+          readability-redundant-declaration
+          readability-static-definition-in-anonymous-namespace
+        </StrictChecks>
+      </Platform>
+      <Platform Name="Android">
+        <Compiler Flags="-std=c++11"/>
+      </Platform>
+      <Platform Name="Ubuntu">
+        <Compiler Flags="-std=c++11"/>
+        <Defines All="FSL_PLATFORM_UBUNTU;PIC" Debug="DEBUG" Release="NDEBUG"/>
+      </Platform>
+      <Platform Name="Windows">
+        <!-- We use C++14 as it's required for VS2017 -->
+        <Compiler Flags="-std=c++14;-Wmicrosoft;-fms-compatibility"/>
+        <Defines All="_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_CONSOLE" Debug="_DEBUG" Release="NDEBUG"/>
+      </Platform>
+      <Platform Name="Yocto">
+        <Compiler Flags="-std=c++11;-I$(ROOTFS)/usr/include"/>
+        <Defines All="FSL_PLATFORM_YOCTO;PIC;LINUX" Debug="DEBUG;_DEBUG" Release="NDEBUG"/>
+      </Platform>
+    </ClangTidyConfiguration>
     <CompilerConfiguration Name="VisualStudio" Platform="Windows" DefaultVersion="2017"/>
     <Experimental AllowDownloads="true" DisableDownloadEnv="FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DISABLE_DOWNLOAD">
       <!-- Define the name of the default third party installation directory. -->

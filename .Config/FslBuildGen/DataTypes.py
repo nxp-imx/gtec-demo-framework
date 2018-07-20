@@ -30,7 +30,6 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import cast
 from typing import List
 from typing import Optional
 from FslBuildGen.Exceptions import UnknownTypeException

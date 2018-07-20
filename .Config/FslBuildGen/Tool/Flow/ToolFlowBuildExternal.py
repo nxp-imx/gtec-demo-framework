@@ -113,7 +113,7 @@ class ToolFlowBuildExternal(AToolAppFlow):
         platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
         theFiles = [] # type: List[str]
         if not localToolConfig.VoidBuild:
-            theFiles = MainFlow.DoGetFiles(config, currentDirPath)
+            theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
         else:
             self.Log.LogPrintVerbose(1, "Doing a void build")
         generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
@@ -154,10 +154,11 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
         argConfig.ProcessRemainingArgs = False
-        argConfig.AllowVSVersion = True
+        #argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True
         argConfig.SupportBuildTime = True
         argConfig.AddBuildThreads = True
+        argConfig.AllowRecursive = True
         return argConfig
 
 

@@ -514,7 +514,8 @@ namespace Fsl
     void GLTexture::SetData(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
     {
       // GL_TEXTURE_WRAP_R defaults to GL_REPEAT
-      SetData(texture, GLTextureParameters3(textureParameters.MinFilter, textureParameters.MagFilter, textureParameters.WrapS, textureParameters.WrapT, GL_REPEAT), textureFlags);
+      SetData(texture, GLTextureParameters3(textureParameters.MinFilter, textureParameters.MagFilter,
+              textureParameters.WrapS, textureParameters.WrapT, GL_REPEAT), textureFlags);
     }
 
 
@@ -532,7 +533,8 @@ namespace Fsl
         throw std::invalid_argument("The texture parameters are invalid");
 
 
-      FSLLOG_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin), "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects");
+      FSLLOG_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin),
+                              "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects");
 
       const FaceToTargetRecord* pFaceTargetMapping;
       GLenum target;

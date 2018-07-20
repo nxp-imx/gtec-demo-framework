@@ -39,8 +39,8 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 from FslBuildGen.ToolConfigExperimentalDefaultThirdPartyInstallDirectory import ToolConfigExperimentalDefaultThirdPartyInstallDirectory
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlExperimental
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimental
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory
 
 
 class ToolConfigExperimental(object):

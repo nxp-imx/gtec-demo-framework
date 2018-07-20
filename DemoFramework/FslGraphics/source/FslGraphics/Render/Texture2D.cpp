@@ -31,6 +31,7 @@
 
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslBase/Exceptions.hpp>
 
 namespace Fsl
@@ -146,28 +147,48 @@ namespace Fsl
     m_pixelFormat = texture.GetPixelFormat();
   }
 
-  //void Texture2D::SetData(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint)
-  //{
-  //  RawBitmap rawBitmap;
-  //  Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
-  //  SetData(nativeGraphics, rawBitmap, filterHint);
-  //}
+
+  void Texture2D::SetData(const Bitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  {
+    RawBitmap rawBitmap;
+    Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
+    SetData(rawBitmap, filterHint, textureFlags);
+  }
 
 
-  //void Texture2D::SetData(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint)
-  //{
-  //  if (!nativeGraphics)
-  //    throw std::invalid_argument("nativeGraphics can not be null");
-  //  if (! bitmap.IsValid())
-  //    throw std::invalid_argument("bitmap is invalid");
-  //  if (bitmap.Width() < 1 || bitmap.Height() < 1)
-  //    throw std::invalid_argument("bitmap size is invalid");
+  void Texture2D::SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  {
+    if (! bitmap.IsValid())
+      throw std::invalid_argument("bitmap is invalid");
+    if (bitmap.Width() < 1 || bitmap.Height() < 1)
+      throw std::invalid_argument("bitmap size is invalid");
 
-  //  //const std::shared_ptr<INativeGraphics> native = nativeGraphics->GetNativeService();
-  //  //if ( m_native )
-  //  //m_native = native->CreateTexture2D(bitmap, filterHint);
-  //  //m_size = Point2(bitmap.Width(), bitmap.Height());
-  //}
+    m_native->SetData(bitmap, filterHint, textureFlags);
+  }
+
+
+  void Texture2D::SetData(const Texture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  {
+    RawTexture rawTexture;
+    Texture::ScopedDirectAccess(texture, rawTexture);
+    SetData(rawTexture, filterHint, textureFlags);
+  }
+
+
+  void Texture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+  {
+    if (!texture.IsValid())
+      throw std::invalid_argument("texture is invalid");
+    if (texture.GetExtent().Width < 1 || texture.GetExtent().Height < 1)
+      throw std::invalid_argument("texture size is invalid");
+
+    m_native->SetData(texture, filterHint, textureFlags);
+  }
+
+  Extent2D Texture2D::GetExtent() const
+  {
+    return Extent2D(m_size.X, m_size.Y);
+  }
 
 
   Point2 Texture2D::GetSize() const

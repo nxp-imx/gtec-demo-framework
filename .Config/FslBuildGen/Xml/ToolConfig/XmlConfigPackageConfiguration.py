@@ -33,26 +33,26 @@
 
 from typing import List
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageLocation import XmlConfigPackageLocation
 
 
 class XmlConfigPackageConfiguration(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, sourceFile: str) -> None:
-        super(XmlConfigPackageConfiguration, self).__init__(basicConfig, xmlElement)
-        self.Name = XmlBase._ReadAttrib(self, xmlElement, 'Name')
-        self.Preload = XmlBase._ReadBoolAttrib(self, xmlElement, 'Preload', False)
-        self.Locations = self.__LoadLocations(basicConfig, xmlElement)  # type: List[XmlConfigPackageLocation]
+    def __init__(self, log: Log, xmlElement: ET.Element, sourceFile: str) -> None:
+        super().__init__(log, xmlElement)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self.Preload = self._ReadBoolAttrib(xmlElement, 'Preload', False)
+        self.Locations = self.__LoadLocations(log, xmlElement)  # type: List[XmlConfigPackageLocation]
         self.SourceFile = sourceFile
         self.Id = self.Name.lower()
 
 
-    def __LoadLocations(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> List[XmlConfigPackageLocation]:
+    def __LoadLocations(self, log: Log, xmlElement: ET.Element) -> List[XmlConfigPackageLocation]:
         res = []
         foundElements = xmlElement.findall("PackageLocation")
         for foundElement in foundElements:
-            res.append(XmlConfigPackageLocation(basicConfig, foundElement))
+            res.append(XmlConfigPackageLocation(log, foundElement))
         return res
 
 

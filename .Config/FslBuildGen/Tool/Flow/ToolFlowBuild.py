@@ -137,7 +137,7 @@ class ToolFlowBuild(AToolAppFlow):
 
         config.LogPrint("Active platform: {0}".format(platformGeneratorPlugin.Name))
 
-        theFiles = MainFlow.DoGetFiles(config, currentDirPath)
+        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
 
         generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platformGeneratorPlugin)
         PluginConfig.SetGeneratorType(localToolConfig.GenType)
@@ -183,12 +183,13 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
         argConfig.ProcessRemainingArgs = True
-        argConfig.AllowVSVersion = True
+        #argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True
         argConfig.SupportBuildTime = True
         argConfig.AddBuildFiltering = True
         argConfig.AddBuildThreads = True
         argConfig.AddBuildVariants = True
+        argConfig.AllowRecursive = True
         return argConfig
 
 

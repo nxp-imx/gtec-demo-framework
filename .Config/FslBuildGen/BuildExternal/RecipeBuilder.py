@@ -50,6 +50,7 @@ from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.BuildExternal.BuilderConfig import BuilderConfig
 from FslBuildGen.BuildExternal.BuilderSettings import BuilderSettings
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
+from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.BuildExternal.Pipeline import RecipeRecord
 from FslBuildGen.BuildExternal.PipelineCommandBuilder import PipelineCommandBuilder
 from FslBuildGen.BuildExternal.ValidationEngine import ErrorRecord
@@ -160,7 +161,11 @@ def __CreatePipelines(basicConfig: BasicConfig,
 def ValidateInstallationForPackages(config: Config,
                                     generatorContext: GeneratorContext,
                                     resolvedBuildOrder: List[Package],
-                                    builderSettings: BuilderSettings = BuilderSettings()) -> None:
+                                    builderSettings: BuilderSettings = BuilderSettings(),
+                                    packageRecipeResultManager: Optional[PackageRecipeResultManager] = None) -> None:
+    if packageRecipeResultManager is None:
+       packageRecipeResultManager = PackageRecipeResultManager(config)
+
     basicConfig = generatorContext.BasicConfig
     if not generatorContext.RecipePathBuilder.IsEnabled:
         basicConfig.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
@@ -186,22 +191,31 @@ def ValidateInstallationForPackages(config: Config,
     recipePackageStateCache = RecipePackageStateCache(basicConfig)
 
     # Here we basically run the installation validation engine and see if there is anything that triggers a exception
-    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor)
+    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager)
     __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache)
-
 
 # requestedPackages is the packages specifically requested by the user or None for SDK builds.
 def BuildPackagesInOrder(config: Config,
                          generatorContext: GeneratorContext,
                          resolvedBuildOrder: List[Package],
-                         builderSettings: BuilderSettings = BuilderSettings()) -> None:
+                         builderSettings: BuilderSettings = BuilderSettings(),
+                         packageRecipeResultManager: Optional[PackageRecipeResultManager]=None) -> None:
+    if packageRecipeResultManager is None:
+        packageRecipeResultManager = PackageRecipeResultManager(config)
+    __DoBuildPackagesInOrder(config, generatorContext, resolvedBuildOrder, builderSettings, packageRecipeResultManager)
+
+
+def __DoBuildPackagesInOrder(config: Config,
+                             generatorContext: GeneratorContext,
+                             resolvedBuildOrder: List[Package],
+                             builderSettings: BuilderSettings,
+                             packageRecipeResultManager: PackageRecipeResultManager) -> None:
     basicConfig = generatorContext.BasicConfig
     if not generatorContext.RecipePathBuilder.IsEnabled:
         basicConfig.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
         return
     if generatorContext.RecipePathBuilder.TargetPath is None:
         raise Exception("Invalid path builder")
-
 
     # Claim the 'package' install directory to prevent multiple builds from using the same
     # as it would give concurrency issues
@@ -221,7 +235,7 @@ def BuildPackagesInOrder(config: Config,
 
 
     recipePackageStateCache = RecipePackageStateCache(basicConfig)
-    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor)
+    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager)
     missingPackagesInBuildOrder = __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache)
     builder = PipelineCommandBuilder(generatorContext, builderSettings.CheckBuildCommands, builderSettings.BuildThreads)
     recipeRecords = __CreatePipelines(basicConfig, builder, missingPackagesInBuildOrder)
@@ -271,8 +285,9 @@ def __BuildNow(config: Config,
                generatorContext: GeneratorContext,
                builderConfig: BuilderConfig,
                topLevelPackage: Package,
-               buildConfig: BuildConfigRecord) -> None:
-    BuildPackagesInOrder(config, generatorContext, topLevelPackage.ResolvedBuildOrder, builderConfig.Settings)
+               buildConfig: BuildConfigRecord,
+               packageRecipeResultManager: PackageRecipeResultManager) -> None:
+    __DoBuildPackagesInOrder(config, generatorContext, topLevelPackage.ResolvedBuildOrder, builderConfig.Settings, packageRecipeResultManager)
 
 
 # requestedFiles is None for SDK builds else its the list of specifically requested files by the user
@@ -280,7 +295,11 @@ def __BuildNow(config: Config,
 def BuildPackages(config: Config,
                   generatorContext: GeneratorContext,
                   builderConfig: BuilderConfig,
-                  packages: List[Package]) -> None:
+                  packages: List[Package],
+                  packageRecipeResultManager: Optional[PackageRecipeResultManager] = None) -> None:
+    if packageRecipeResultManager is None:
+       packageRecipeResultManager = PackageRecipeResultManager(config)
+
     PlatformUtil.CheckBuildPlatform(generatorContext.Platform.Name)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
@@ -290,6 +309,6 @@ def BuildPackages(config: Config,
     try:
         basicConfig.LogPrint("- Building recipe packages")
         basicConfig.PushIndent()
-        __BuildNow(config, generatorContext, builderConfig, topLevelPackage, buildConfig,)
+        __BuildNow(config, generatorContext, builderConfig, topLevelPackage, buildConfig, packageRecipeResultManager)
     finally:
         basicConfig.PopIndent()

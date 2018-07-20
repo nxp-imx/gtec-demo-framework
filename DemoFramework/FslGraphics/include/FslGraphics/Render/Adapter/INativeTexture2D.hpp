@@ -31,12 +31,24 @@
 *
 ****************************************************************************************************************************************************/
 
+#include <FslGraphics/Render/Texture2DFilterHint.hpp>
+#include <FslGraphics/TextureFlags.hpp>
+
 namespace Fsl
 {
+  class RawBitmap;
+  class RawTexture;
+
   class INativeTexture2D
   {
   public:
     virtual ~INativeTexture2D() {}
+
+    //! @brief Set the data of the texture
+    virtual void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) = 0;
+
+    //! @brief Set the data of the texture
+    virtual void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) = 0;
   };
 }
 

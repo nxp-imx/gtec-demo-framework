@@ -36,7 +36,9 @@ from typing import Optional
 import os
 import os.path
 from FslBuildGen import IOUtil
-from FslBuildGen.Config import Config
+from FslBuildGen.Log import Log
+from FslBuildGen.BuildConfig.CustomPackageFileFilter import CustomPackageFileFilter
+from FslBuildGen.BuildConfig.PerformClangUtil import PerformClangUtil
 from FslBuildGen.DataTypes import CheckType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Packages.Package import Package
@@ -143,7 +145,7 @@ def __GenerateIncludeGuardName(package: Package, fileName: str) -> str:
     return name + finalName.replace('.', '_').upper()
 
 
-def __ValidateIncludeGuard(config: Config, sourceFile: SourceFile, shortFile: str, repairEnabled: bool) -> bool:
+def __ValidateIncludeGuard(log: Log, sourceFile: SourceFile, shortFile: str, repairEnabled: bool) -> bool:
     if len(sourceFile.LinesModded) < 2:
         return False
 
@@ -160,40 +162,40 @@ def __ValidateIncludeGuard(config: Config, sourceFile: SourceFile, shortFile: st
     prefix0 = "#ifndef "
     prefix1 = "#define "
     if not currentLine0.startswith(prefix0):
-        config.DoPrint("Line 0 does not start with '%s' in '%s'" % (prefix0, os.path.normpath(sourceFile.FileName)))
+        log.DoPrint("Line 0 does not start with '%s' in '%s'" % (prefix0, os.path.normpath(sourceFile.FileName)))
         if repairEnabled:
-            config.LogPrint("Because of this repair was not attempted.")
+            log.LogPrint("Because of this repair was not attempted.")
         return False
     if not currentLine1.startswith(prefix1):
-        config.DoPrint("Line 1 does not start with '%s' in '%s'" % (prefix1, os.path.normpath(sourceFile.FileName)))
+        log.DoPrint("Line 1 does not start with '%s' in '%s'" % (prefix1, os.path.normpath(sourceFile.FileName)))
         if repairEnabled:
-            config.LogPrint("Because of this repair was not attempted.")
+            log.LogPrint("Because of this repair was not attempted.")
         return False
 
     # validate that the #ifndef and define works on the same string
     userDef0 = currentLine0[len(prefix0):].strip()
     userDef1 = currentLine1[len(prefix1):].strip()
     if userDef0 != userDef1:
-        config.DoPrint("The include guards do not appear to match '%s' != '%s' in '%s'" % (userDef0, userDef1, os.path.normpath(sourceFile.FileName)))
-        config.LogPrint("- Line 0 '%s'" % (userDef0))
-        config.LogPrint("- Line 1 '%s'" % (userDef1))
+        log.DoPrint("The include guards do not appear to match '%s' != '%s' in '%s'" % (userDef0, userDef1, os.path.normpath(sourceFile.FileName)))
+        log.LogPrint("- Line 0 '%s'" % (userDef0))
+        log.LogPrint("- Line 1 '%s'" % (userDef1))
         if repairEnabled:
-            config.LogPrint("Because of this repair was not attempted.")
+            log.LogPrint("Because of this repair was not attempted.")
         return False
 
     # So we should be sure that the guard is just the incorrect name, so list it
-    config.DoPrint("Wrong include guard: '%s' expected '%s'" % (os.path.normpath(sourceFile.FileName), guard))
+    log.DoPrint("Wrong include guard: '%s' expected '%s'" % (os.path.normpath(sourceFile.FileName), guard))
     if currentLine0 != line0Valid:
-        config.LogPrint("- Expected '%s'" % (line0Valid))
-        config.LogPrint("- Was      '%s'" % (currentLine0))
+        log.LogPrint("- Expected '%s'" % (line0Valid))
+        log.LogPrint("- Was      '%s'" % (currentLine0))
     elif currentLine1 != line1Valid:
-        config.LogPrint("- Expected '%s'" % (line1Valid))
-        config.LogPrint("- Was      '%s'" % (currentLine1))
+        log.LogPrint("- Expected '%s'" % (line1Valid))
+        log.LogPrint("- Was      '%s'" % (currentLine1))
 
     if not repairEnabled:
         return False
 
-    config.DoPrint("Include guard corrected")
+    log.DoPrint("Include guard corrected")
 
     # We are allowed to repair the content, so lets do that
     sourceFile.LinesModded[0] = line0Valid
@@ -219,14 +221,14 @@ def __IndexOfNonAscii(srcStr: str, startIndex: int = 0) -> int:
     return -1
 
 
-def __CheckASCII(config: Config, sourceFile: SourceFile, repairEnabled: bool) -> bool:
+def __CheckASCII(log: Log, sourceFile: SourceFile, repairEnabled: bool) -> bool:
     errorCount = 0
     for index, line in enumerate(sourceFile.LinesOriginal):
         if not __IsAscii(line):
             posX = __IndexOfNonAscii(line, 0)
             while posX >= 0:
                 ch = hex(ord(line[posX])) if index >= 0 else '-failed-'
-                config.DoPrint("Non ASCII character '{0}' encountered at X:{1}, Y:{2} in '{3}'".format(ch, posX+1, index+1, os.path.normpath(sourceFile.FileName)))
+                log.DoPrint("Non ASCII character '{0}' encountered at X:{1}, Y:{2} in '{3}'".format(ch, posX+1, index+1, os.path.normpath(sourceFile.FileName)))
                 errorCount = errorCount + 1
                 #if repairEnabled:
                 #    line[posX] = ' '  # disabled because its too dangerous
@@ -242,16 +244,16 @@ def __IsValidExtension(fileName: str, validExtensions: List[str]) -> bool:
     return False
 
 
-def __CheckIncludeGuard(config: Config, sourceFile: SourceFile, repairEnabled: bool) -> bool:
+def __CheckIncludeGuard(log: Log, sourceFile: SourceFile, repairEnabled: bool) -> bool:
     if not sourceFile.BasePath:
         return True
 
     pathLen = len(sourceFile.BasePath)
     shortFile = sourceFile.FileName[pathLen:].replace('\\', '/')
-    return __ValidateIncludeGuard(config, sourceFile, shortFile, repairEnabled)
+    return __ValidateIncludeGuard(log, sourceFile, shortFile, repairEnabled)
 
 
-def __CheckTabs(config: Config, sourceFile: SourceFile, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
+def __CheckTabs(log: Log, sourceFile: SourceFile, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
     if __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
         return True
 
@@ -261,89 +263,116 @@ def __CheckTabs(config: Config, sourceFile: SourceFile, repairEnabled: bool, thi
     if tabCount == 0:
         return True
 
-    config.DoPrint("Found %s tab characters in '%s'" % (tabCount, os.path.normpath(sourceFile.FileName)))
+    log.DoPrint("Found %s tab characters in '%s'" % (tabCount, os.path.normpath(sourceFile.FileName)))
     return False
 
 
-def __Repair(config: Config, sourceFile: SourceFile, asciiRepair: bool) -> None:
+def __Repair(log: Log, sourceFile: SourceFile, asciiRepair: bool, disableWrite: bool) -> None:
 
     strContent = "\n".join(sourceFile.LinesModded)
     if asciiRepair:
         strContent = __Decoded(strContent)
 
     if strContent != sourceFile.Content:
-        config.DoPrint("Repaired '%s'" % (os.path.normpath(sourceFile.FileName)))
-        if not config.DisableWrite:
+        log.DoPrint("Repaired '%s'" % (os.path.normpath(sourceFile.FileName)))
+        if not disableWrite:
             IOUtil.WriteFile(sourceFile.FileName, strContent)
 
 
-def __ProcessIncludeFile(config: Config, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
+def __ProcessIncludeFile(log: Log, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str],
+                         disableWrite: bool) -> bool:
+    log.LogPrintVerbose(10, "- Scanning '{0}'".format(fullPath))
     noErrors = True
     asciiRepair = False
     sourceFile = SourceFile(package, fullPath)
     if not __g_thirdParty in sourceFile.FileName or (thirdpartyExceptionDir is not None and sourceFile.BasePath is not None and sourceFile.BasePath.startswith(thirdpartyExceptionDir)):
-        if not __CheckIncludeGuard(config, sourceFile, repairEnabled):
+        if not __CheckIncludeGuard(log, sourceFile, repairEnabled):
             noErrors = False
-    if not __CheckASCII(config, sourceFile, repairEnabled):
+    if not __CheckASCII(log, sourceFile, repairEnabled):
         # The ASCII repair is not safe, so dont do it
         #asciiRepair = True
         noErrors = False
-    if not __CheckTabs(config, sourceFile, repairEnabled, thirdpartyExceptionDir):
+    if not __CheckTabs(log, sourceFile, repairEnabled, thirdpartyExceptionDir):
         noErrors = False
     if repairEnabled:
-        __Repair(config, sourceFile, asciiRepair)
+        __Repair(log, sourceFile, asciiRepair, disableWrite)
     return noErrors
 
 
-def __ProcessSourceFile(config: Config, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str]) -> bool:
+def __ProcessSourceFile(log: Log, package: Package, fullPath: str, repairEnabled: bool, thirdpartyExceptionDir: Optional[str],
+                        disableWrite: bool) -> bool:
+    log.LogPrintVerbose(10, "- Scanning '{0}'".format(fullPath))
     noErrors = True
     asciiRepair = False
     sourceFile = SourceFile(package, fullPath)
-    if not __CheckASCII(config, sourceFile, repairEnabled):
+    if not __CheckASCII(log, sourceFile, repairEnabled):
         # The ASCII repair is not safe, so dont do it
         #asciiRepair = True
         noErrors = False
-    if not __CheckTabs(config, sourceFile, repairEnabled, thirdpartyExceptionDir):
+    if not __CheckTabs(log, sourceFile, repairEnabled, thirdpartyExceptionDir):
         noErrors = False
     if repairEnabled:
-        __Repair(config, sourceFile, asciiRepair)
+        __Repair(log, sourceFile, asciiRepair, disableWrite)
     return noErrors
 
 
-def __ScanFiles(config: Config, package: Package, repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int) -> bool:
+def __ScanFiles(log: Log, package: Package, filteredFiles: Optional[List[str]],
+                repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int, disableWrite: bool) -> int:
+    """
+    :param filteredFiles: a optional list of specifc files to scan in this package (if supplied the rest should be ignored)
+    """
     if not package.ResolvedBuildAllIncludeFiles:
-        return True
+        return 0
     if not package.AllowCheck and checkType == CheckType.Normal:
-        return True
+        return 0
 
     if package.AbsolutePath is None or package.ResolvedBuildSourceFiles is None:
         raise Exception("Invalid package")
 
-    noErrors = True
+    allowedFileSet = None if filteredFiles is None else set(filteredFiles)
+
+    errorCount = 0
     for fileName in package.ResolvedBuildAllIncludeFiles:
         fullPath = IOUtil.Join(package.AbsolutePath, fileName)
         # Only process files with the expected extension
-        if __IsValidExtension(fileName, __g_includeExtensionList):
-            if not __ProcessIncludeFile(config, package, fullPath, repairEnabled, thirdpartyExceptionDir):
-                noErrors = False
+        if allowedFileSet is None or fullPath in allowedFileSet:
+            if __IsValidExtension(fileName, __g_includeExtensionList):
+                if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                    errorCount += 1
 
 
     for fileName in package.ResolvedBuildSourceFiles:
         fullPath = IOUtil.Join(package.AbsolutePath, fileName)
-        if __IsValidExtension(fileName, __g_includeExtensionList):
-            if not __ProcessIncludeFile(config, package, fullPath, repairEnabled, thirdpartyExceptionDir):
-                noErrors = False
-        elif __IsValidExtension(fileName, __g_sourceExtensionList):
-            if not __ProcessSourceFile(config, package, fullPath, repairEnabled, thirdpartyExceptionDir):
-                noErrors = False
-    return noErrors
+        if allowedFileSet is None or fullPath in allowedFileSet:
+            if __IsValidExtension(fileName, __g_includeExtensionList):
+                if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                    errorCount += 1
+            elif __IsValidExtension(fileName, __g_sourceExtensionList):
+                if not __ProcessSourceFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                    errorCount += 1
+    return errorCount
 
 
-def Scan(config: Config, packages: List[Package], repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int) -> None:
-    """ Run through all source files that are part of the packages and check for common errors """
-    noErrors = True
-    for package in packages:
-        noErrors = __ScanFiles(config, package, repairEnabled, thirdpartyExceptionDir, checkType)
+def Scan(log: Log, scanPackageList: List[Package], customPackageFileFilter: Optional[CustomPackageFileFilter],
+         repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int,
+         disableWrite: bool) -> None:
+    """
+    Run through all source files that are part of the packages and check for common errors
+    :param scanPackageList: the packages that will be scanned.
+    """
 
-    if not noErrors and not repairEnabled:
-        config.DoPrint("BEWARE: If you have made a backup of your files you can try to auto correct the errors with '--Repair' but do so at your own peril")
+    log.LogPrint("Running source scan")
+
+    extensionList = __g_includeExtensionList + __g_sourceExtensionList
+
+    # Filter the package list so it only contains things we can process
+    finalPackageList = [package for package in scanPackageList if PerformClangUtil.CanProcessPackage(package)]
+
+    totalErrorCount = 0
+    for package in finalPackageList:
+        filteredFiles = None if customPackageFileFilter is None else customPackageFileFilter.TryLocateFilePatternInPackage(log, package, extensionList)
+        if customPackageFileFilter is None or filteredFiles is not None:
+            totalErrorCount += __ScanFiles(log, package, filteredFiles, repairEnabled, thirdpartyExceptionDir, checkType, disableWrite)
+
+    if totalErrorCount > 0 and not repairEnabled:
+        log.DoPrint("BEWARE: If you have made a backup of your files you can try to auto correct the errors with '--Repair' but do so at your own peril")

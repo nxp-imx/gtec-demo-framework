@@ -1,0 +1,52 @@
+#!/usr/bin/env groovy
+pipeline
+{
+    agent
+    {
+        docker
+        {
+            label 'ubuntu'
+            image 'sigil/graphics-compute-api-test:u16_04'
+            args '-v $HOME/PersistentCache:/PersistentCache:rw'
+        }
+    }
+    environment {
+        FSL_JENKINS_DF_PLATFORM_NAME     = 'u16_04'
+        FSL_JENKINS_DF_CACHE_DIR         = "DF-${FSL_JENKINS_DF_PLATFORM_NAME}"
+        FSL_JENKINS_THIRD_PARTY_INSTALL  = "/PersistentCache/${FSL_JENKINS_DF_CACHE_DIR}"
+    }    
+    options
+    {
+      buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+    triggers
+    {
+        pollSCM('H 4 * * *')
+    }
+    stages
+    {
+        stage('Build')
+        {
+            steps
+            {
+                sh '.Config/Jenkins/ubuntu/Review_DF_UbuntuX11_debug.sh'
+                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+                junit allowEmptyResults: true, testResults: '.Reports/UnitTests/*.xml'
+            }
+        }
+        stage('Test')
+        {
+            steps
+            {
+                echo 'make check'
+            }
+        }
+        stage('Deploy')
+        {
+            steps
+            {
+                echo 'make publish'
+            }
+        }
+    }
+}

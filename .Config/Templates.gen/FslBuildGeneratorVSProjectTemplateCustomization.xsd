@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation>
+      Describes the customization format FslBuildGeneratorVSProjectTemplateCustomization
+	    used by the visual studio project generator.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:complexType name="_T_BuildOutput">
+    <xs:attribute name="Location" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:group name="_G_BuildOutput">
+    <xs:choice>
+      <xs:element name="BuildOutput" type="_T_BuildOutput"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_CustomizationList">
+    <xs:sequence>
+      <xs:group ref="_G_BuildOutput" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:complexType name="_T_FslBuildGeneratorVSProjectTemplateCustomization">
+    <xs:group ref="_G_CustomizationList"/>
+    <xs:attribute name="Version" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:element name="FslBuildGeneratorVSProjectTemplateCustomization" type="_T_FslBuildGeneratorVSProjectTemplateCustomization"/>
+</xs:schema>

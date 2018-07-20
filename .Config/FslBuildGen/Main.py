@@ -45,16 +45,18 @@ from FslBuildGen import PackageListUtil
 from FslBuildGen import PackageUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen import Util
-from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.Build.Filter import LocalUtil
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Context.PlatformContext import PlatformContext
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
 from FslBuildGen.Log import Log
+from FslBuildGen.PackageFile import PackageFile
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.PackageLoader import PackageLoader
 from FslBuildGen.PackageResolver import PackageResolver
@@ -63,17 +65,33 @@ from FslBuildGen.Tool import ToolAppMain
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfig import ToolConfigPackageConfigurationAddLocationType
 from FslBuildGen.ToolConfig import ToolConfigPackageConfigurationLocationSetup
+from FslBuildGen.ToolConfigPackageRootUtil import ToolConfigPackageRootUtil
+from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 
 MultiPlatformPackageResultType = Dict[str, Tuple[List[Package], GeneratorPlugin]]
 
-def DoGetFiles(config: Config, currentDir: str) -> List[str]:
-    theFiles = []
+def DoGetFiles(config: Config, toolMiniConfig: ToolMinimalConfig,
+               currentDir: str, allowRecursiveScan: bool = False) -> List[str]:
+    """
+    :param currentDir: currentDir must be part of a package root
+    :param allowRecursiveScan: if True and not a sdk build all subdirectories will be scanned
+    """
+    if allowRecursiveScan and config.IsSDKBuild:
+        config.DoPrintWarning("recursive is ignored for sdk builds")
+
+    if ToolConfigPackageRootUtil.TryFindRootDirectory(toolMiniConfig.RootDirectories, currentDir) is None:
+        raise UsageErrorException("the folder '{0}' does not reside inside one of the root dirs".format(currentDir))
+
+    theFiles = [] # type: List[str]
     if not config.IsSDKBuild:
-        theFile = IOUtil.Join(currentDir, config.GenFileName)
-        if not os.path.isfile(theFile):
-            raise Exception("File not found: '{0}'".format(theFile))
-        theFiles.append(theFile)
+        if allowRecursiveScan:
+            theFiles += IOUtil.FindFileByName(currentDir, config.GenFileName, toolMiniConfig.IgnoreDirectories)
+        else:
+            theFile = IOUtil.Join(currentDir, config.GenFileName)
+            if not os.path.isfile(theFile):
+                raise Exception("File not found: '{0}'".format(theFile))
+            theFiles.append(theFile)
     return theFiles
 
 
@@ -85,6 +103,7 @@ class PackageLoadAndResolveProcess(object):
         self.Log = config
         self.MarkExternalLibFirstUse = False
         self.SourceFiles = []         # type: List[str]
+        self.FoundInputFiles = []     # type: List[PackageFile]
         self.LoadedGenFiles = None    # type: Optional[List[XmlGenFile]]
         self.Packages = []            # type: List[Package]
         self.IsFullResolve = True
@@ -96,14 +115,15 @@ class PackageLoadAndResolveProcess(object):
 
     def __ExtractFromPackageLoader(self, packageLoader: PackageLoader, plugin: GeneratorPlugin) -> None:
         self.SourceFiles = packageLoader.SourceFiles
+        self.FoundInputFiles = packageLoader.FoundInputFiles
         self.LoadedGenFiles = packageLoader.GenFiles
         self.MarkExternalLibFirstUse = plugin.PackageResolveConfig_MarkExternalLibFirstUse
 
 
-    def Load(self, filePathList: List[str], plugin: GeneratorPlugin) -> None:
+    def Load(self, filePathList: List[str], plugin: GeneratorPlugin, forceImportPackageNames: Optional[List[str]] = None) -> None:
         if self.LoadedGenFiles is not None:
             raise Exception("Load has already been called")
-        packageLoader = PackageLoader(self.Config, filePathList, plugin)
+        packageLoader = PackageLoader(self.Config, filePathList, plugin, forceImportPackageNames)
         self.__ExtractFromPackageLoader(packageLoader, plugin)
 
 
@@ -158,10 +178,11 @@ class PackageLoadAndResolveProcess(object):
 
 
 def DoGetPackages(generatorContext: GeneratorContext, config: Config, filePathList: List[str],
-                  packageFilters: PackageFilters, autoAddRecipeExternals: bool = True) -> List[Package]:
+                  packageFilters: PackageFilters, autoAddRecipeExternals: bool = True,
+                  forceImportPackageNames: Optional[List[str]] = None) -> List[Package]:
 
     process = PackageLoadAndResolveProcess(config)
-    process.Load(filePathList, generatorContext.Platform)
+    process.Load(filePathList, generatorContext.Platform, forceImportPackageNames)
     process.Resolve(generatorContext, packageFilters, autoAddRecipeExternals)
     return process.Packages
 

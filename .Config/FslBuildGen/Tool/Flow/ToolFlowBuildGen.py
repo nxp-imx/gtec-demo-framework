@@ -127,7 +127,7 @@ class ToolFlowBuildGen(AToolAppFlow):
         if localToolConfig.Graph:
             PluginConfig.EnableGraph()
 
-        theFiles = MainFlow.DoGetFiles(config, currentDirPath)
+        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
 
         PluginConfig.SetGeneratorType(localToolConfig.GenType)
 
@@ -209,12 +209,13 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
         argConfig.AllowPlaformAll = True
-        argConfig.AllowVSVersion = True
+        #argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True
         argConfig.SupportBuildTime = True
         argConfig.AddBuildThreads = True
         argConfig.AddBuildVariants = True
         argConfig.AddBuildFiltering = True
+        argConfig.AllowRecursive = True
         return argConfig
 
 

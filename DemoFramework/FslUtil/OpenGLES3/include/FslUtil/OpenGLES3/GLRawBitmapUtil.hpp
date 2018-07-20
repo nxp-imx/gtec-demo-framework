@@ -50,6 +50,14 @@ namespace Fsl
         GLenum Type;
         GLint Alignment;
 
+        Result()
+          : InternalFormat(0)
+          , Format(0)
+          , Type(0)
+          , Alignment(0)
+        {
+        }
+
         Result(const GLint internalFormat, const GLint format, const GLenum type, const GLint alignment)
           : InternalFormat(internalFormat)
           , Format(format)

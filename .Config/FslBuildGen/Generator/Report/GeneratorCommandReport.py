@@ -37,7 +37,8 @@ from typing import Optional
 
 class GeneratorCommandReport(object):
     def __init__(self, useAsRelative: bool, commandFormatString: str,
-                 arguments: List[str], currentWorkingDirectoryFormatString: Optional[str] = None) -> None:
+                 arguments: List[str], currentWorkingDirectoryFormatString: Optional[str] = None,
+                 runInEnvScript: Optional[str] = None) -> None:
         """
             The information stored in a format string can contain both variables and environment variables and
             it need to be formatted/converted using the ReportVariableFormatter before being used.
@@ -55,6 +56,8 @@ class GeneratorCommandReport(object):
             raise Exception("commandFormatString can not be absolute")
         if currentWorkingDirectoryFormatString is not None and (currentWorkingDirectoryFormatString.startswith('/') or ':' in currentWorkingDirectoryFormatString):
             raise Exception("currentWorkingDirectoryFormatString can not be absolute")
+        if runInEnvScript is not None and (runInEnvScript.startswith('/') or ':' in runInEnvScript):
+            raise Exception("runInEnvScript can not be absolute")
 
         # if this is true the exe should be run via as 'relative' command.
         # if this is false it will be run as a absolute path command relative to the package absolute path
@@ -68,3 +71,6 @@ class GeneratorCommandReport(object):
 
         # if this is None, the package absolute path should be used instead
         self.CurrentWorkingDirectoryFormatString = currentWorkingDirectoryFormatString
+
+        # A optional script that can be used to run things with the 'dynamic' environment used for virtual variants
+        self.RunInEnvScript = runInEnvScript

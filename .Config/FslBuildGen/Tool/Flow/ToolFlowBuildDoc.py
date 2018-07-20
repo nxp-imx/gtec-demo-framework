@@ -37,6 +37,7 @@ from typing import cast
 from typing import Dict
 from typing import Optional
 from typing import List
+from typing import Set
 import argparse
 import json
 import subprocess
@@ -46,6 +47,7 @@ from FslBuildGen import Main as MainFlow
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
@@ -53,6 +55,7 @@ from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.Packages.Package import Package
+from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
@@ -453,9 +456,34 @@ def ExtractArguments(toolAppContext: ToolAppContext, config: Config, exePackages
         #return res
     return res
 
+def __TryFindRequirementInSet(requirements: List[PackageRequirement], ignoreRequirementSet: Set[str]) -> Optional[PackageRequirement]:
+    for requirement in requirements:
+        if requirement.Name in ignoreRequirementSet:
+            return requirement
+    return None
 
-def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: List[Package], activeRootDir: ToolConfigRootDirectory, extractArguments: Optional[str]) -> List[str]:
+def __RemoveIgnored(log: Log, packages: List[Package], ignoreRequirementSet: Set[str]) -> List[Package]:
+    if len(ignoreRequirementSet) <= 0:
+        return packages
+    filteredPackages = [] # type: List[Package]
+    for package in packages:
+        skipRequirement = __TryFindRequirementInSet(package.ResolvedAllUsedFeatures, ignoreRequirementSet)
+        if skipRequirement is None:
+            filteredPackages.append(package)
+        else:
+            log.LogPrint("Skipping '{0}' because requirement '{1}' was set to skip".format(package.Name, skipRequirement.Name))
+    return filteredPackages
+
+def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: List[Package], activeRootDir: ToolConfigRootDirectory,
+                    extractArguments: Optional[str], buildDocConfiguration: BuildDocConfiguration) -> List[str]:
+    log = config # type: Log
+    ignoreRequirementSet = set() # type: Set[str]
+    for requirement in buildDocConfiguration.Requirements:
+        if requirement.Skip:
+            ignoreRequirementSet.add(requirement.Name)
+
     exePackages = ExtractPackages(packages, PackageType.Executable)
+    exePackages = __RemoveIgnored(log, exePackages, ignoreRequirementSet)
     exePackages.sort(key=lambda s: None if s.AbsolutePath is None else s.AbsolutePath.lower())
 
     packageArgumentsDict = {}  # type: Dict[Package, JsonDictType]
@@ -491,6 +519,7 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
                 raise Exception("Invalid package")
             rootDir = config.ToolConfig.TryFindRootDirectory(package.AbsolutePath)
             if rootDir == activeRootDir:
+                config.LogPrintVerbose(4, "Processing package '{0}'".format(package.Name))
                 packageDir = package.AbsolutePath[len(rootDir.ResolvedPath)+1:]
                 result.append("### [{0}]({1})".format(package.ShortName, packageDir))
                 exampleImagePath = IOUtil.Join(package.AbsolutePath, "Example.jpg")
@@ -512,8 +541,8 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
                         result.append("")
 
                 result.append("")
-            else:
-                config.LogPrint("WARNING: Could not find a root directory for package: {0}".format(package.Name))
+            #else:
+            #    config.LogPrintVerbose(4, "Skipping package '{0}' with rootDir '{1}' is not part of the activeRootDir '{2}'".format(package.Name, rootDir.ResolvedPath, activeRootDir.ResolvedPath))
 
     return result
 
@@ -577,7 +606,7 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        theFiles = MainFlow.DoGetFiles(config, currentDirPath)
+        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
@@ -586,7 +615,8 @@ class ToolFlowBuildDoc(AToolAppFlow):
         for rootDir in config.ToolConfig.RootDirectories:
             readmePath = IOUtil.Join(rootDir.ResolvedPath, "README.md")
             packageReadMeLines = TryLoadReadMe(config, readmePath)
-            result = ProcessPackages(self.ToolAppContext, config, packages, rootDir, localToolConfig.ExtractArguments)
+            result = ProcessPackages(self.ToolAppContext, config, packages, rootDir, localToolConfig.ExtractArguments,
+                                     toolConfig.BuildDocConfiguration)
             if packageReadMeLines is not None:
                 packageReadMeLinesNew = TryReplaceSection(config, packageReadMeLines, "AG_DEMOAPPS", result, readmePath)
                 if packageReadMeLinesNew is not None:
@@ -597,8 +627,8 @@ class ToolFlowBuildDoc(AToolAppFlow):
                     packageReadMeLines = packageReadMeLinesNew
 
                 SaveReadMe(config, readmePath, packageReadMeLines)
-            else:
-                config.LogPrint("WARNING: No README.md found in {0}".format(rootDir.ResolvedPath))
+            elif config.Verbosity > 2:
+                config.LogPrintWarning("No README.md found in {0}".format(rootDir.ResolvedPath))
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
@@ -614,11 +644,12 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
         argConfig.SupportBuildTime = True
-        argConfig.AllowVSVersion = False
+        #argConfig.AllowVSVersion = True
         # These are used when: --ExtractArguments is enabled
         argConfig.AddBuildFiltering = True
         argConfig.AddBuildThreads = True
         argConfig.AddBuildVariants = True
+        argConfig.AllowRecursive = True
         return argConfig
 
 

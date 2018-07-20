@@ -64,6 +64,7 @@ class ToolAppConfig(object):
 
         self.BuildPackageFilters = PackageFilters()
         self.BuildVariantsDict = {}  # type: Dict[str, str]
+        self.Recursive = False
 
 
     def SetToolAppConfigValues(self, toolAppConfig: 'ToolAppConfig') -> None:
@@ -80,3 +81,4 @@ class ToolAppConfig(object):
 
         self.BuildPackageFilters = toolAppConfig.BuildPackageFilters
         self.BuildVariantsDict = toolAppConfig.BuildVariantsDict
+        self.Recursive = toolAppConfig.Recursive

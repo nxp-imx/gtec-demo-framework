@@ -55,8 +55,11 @@ from FslBuildGen.Generator.GeneratorCMake import GeneratorCMake
 from FslBuildGen.Generator.GeneratorQNXmakefile import GeneratorQNXmakefile
 from FslBuildGen.Generator.GeneratorVC import GeneratorVC
 from FslBuildGen.Generator.GeneratorVC import GeneratorVCUtil
+from FslBuildGen.Generator.GeneratorVC import GeneratorVSConfig
+from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorVariant
+from FslBuildGen.Generator.GeneratorVSTemplateInfo import GeneratorVSTemplateInfo
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
@@ -106,7 +109,7 @@ class GeneratorPluginAndroid(GeneratorPlugin):
         return self.GenerateDone(config, packages, self.Name, generator)
 
 
-    def _DoGenerateReport(self, log: Log, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+    def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
         for package in packageList:
             buildReport = GeneratorAndroidGradleCMakeUtil.TryGenerateGeneratorPackageReport(log, self.Name, package)
@@ -126,7 +129,7 @@ class GeneratorPluginUbuntu(GeneratorPlugin):
         return self.GenerateDone(config, packages, self.Name, generator)
 
 
-    def _DoGenerateReport(self, log: Log, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+    def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
         for package in packageList:
             buildReport = GeneratorGNUmakefileUtil.TryGenerateGeneratorPackageReport(log, self.Name, package)
@@ -159,7 +162,7 @@ class GeneratorPluginYocto(GeneratorPlugin):
         return self.GenerateDone(config, packages, self.Name, generator)
 
 
-    def _DoGenerateReport(self, log: Log, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+    def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
         for package in packageList:
             buildReport = GeneratorGNUmakefileUtil.TryGenerateGeneratorPackageReport(log, self.Name, package)
@@ -202,15 +205,23 @@ class GeneratorPluginWindows(GeneratorPlugin):
             raise Exception("Invalid package")
 
         activeThirdPartyLibsDir = platformContext.RecipePathBuilder.InstallRootPath
-        generator = GeneratorVC(config, packages, self.Name, self.ToolVersion, activeThirdPartyLibsDir)
+        generatorConfig = GeneratorVSConfig(self.Name, self.ToolVersion)
+        generator = GeneratorVC(config, packages, generatorConfig, activeThirdPartyLibsDir)
         #GenerateBuildScript.GenerateWindowsScreenshotScriptAll(config, packages)
         return self.GenerateDone(config, packages, self.Name, generator)
 
 
-    def _DoGenerateReport(self, log: Log, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+    def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
+
+        # vsVersion: int, platformName: str
+        generatorVSConfig = GeneratorVSConfig(self.Name, self.ToolVersion)
+        generatorTemplateInfo = GeneratorVSTemplateInfo(generatorConfig.ToolConfig.ProjectRootConfig.DefaultTemplate,
+                                                        generatorConfig.ToolConfig.TemplateFolder,
+                                                        generatorConfig.SDKConfigTemplatePath)
+
         for package in packageList:
-            buildReport = GeneratorVCUtil.TryGenerateGeneratorPackageReport(log, self.Name, package)
+            buildReport = GeneratorVCUtil.TryGenerateGeneratorPackageReport(log, self.Name, package, generatorVSConfig, generatorTemplateInfo)
             if buildReport is not None:
                 resultDict[package] = buildReport
         return resultDict

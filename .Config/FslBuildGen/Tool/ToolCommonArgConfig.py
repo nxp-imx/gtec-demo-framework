@@ -39,9 +39,10 @@ class ToolCommonArgConfig(object):
         self.AddBuildVariants = False
         self.AddUseFeatures = False
         self.AddPlatformArg = False
-        self.AllowPlaformAll = False
         self.AllowForceClaimInstallArea = False
-        self.AllowVSVersion = False
+        self.AllowPlaformAll = False
+        self.AllowRecursive = False
+        #self.AllowVSVersion = True
         self.SupportBuildTime = False
         # Dont use this if you have positional arguments!
         self.ProcessRemainingArgs = False

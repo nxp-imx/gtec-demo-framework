@@ -99,7 +99,7 @@ class PlatformUtil(object):
 
     @staticmethod
     def GetPlatformDependentExecuteableName(exeName: str, buildPlatformType: int) -> str:
-        exeName = IOUtil.GetFileNameWithoutExtension(exeName)
+        exeName = exeName if not exeName.lower().endswith(".exe") else IOUtil.GetFileNameWithoutExtension(exeName)
         if buildPlatformType == BuildPlatformType.Windows:
             return exeName + ".exe"
         return exeName

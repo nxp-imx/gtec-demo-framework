@@ -36,7 +36,7 @@
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <OpenCVExperimental/BasicImageConvert.hpp>
+#include <Shared/OpenCVExperimental/BasicImageConvert.hpp>
 
 namespace Fsl
 {

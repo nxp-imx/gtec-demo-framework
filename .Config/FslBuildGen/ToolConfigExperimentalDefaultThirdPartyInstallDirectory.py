@@ -36,8 +36,8 @@ from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlExperimentalDefaultThirdPartyInstallDirectory
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimentalDefaultThirdPartyInstallDirectory
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory
 
 
 class ToolConfigExperimentalDefaultThirdPartyInstallDirectory(object):

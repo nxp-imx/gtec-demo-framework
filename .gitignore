@@ -41,6 +41,8 @@
 /.Config/FslBuildGen/Vars/__pycache__
 /.Config/FslBuildGen/Xml/*.pyc
 /.Config/FslBuildGen/Xml/__pycache__
+/.Config/FslBuildGen/Xml/Project/*.pyc
+/.Config/FslBuildGen/Xml/Project/__pycache__
 /.Config/FslBuildGen/Xml/ToolConfig/*.pyc
 /.Config/FslBuildGen/Xml/ToolConfig/__pycache__
 /.Config/FslFontHelper/BasicKerningObjects.pyc
@@ -54,6 +56,8 @@
 /.Config/TPConvert/*.pyc
 /.Config/x264.exe
 /.Thirdparty/
+/.vscode/
+/.Reports/
 /bin/
 /build/
 /Application.mk

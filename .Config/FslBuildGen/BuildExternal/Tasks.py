@@ -66,6 +66,9 @@ class BasicTask(object):
     def LogPrint(self, message: str) -> None:
         self.BasicConfig.LogPrint(message)
 
+    def LogPrintWarning(self, message: str) -> None:
+        self.BasicConfig.LogPrintWarning(message)
+
     def DoPrint(self, message: str) -> None:
         self.BasicConfig.DoPrint(message)
 
@@ -137,6 +140,14 @@ class GitCloneTask(GitBaseTask):
             IOUtil.SafeRemoveDirectoryTree(targetPath, True)
             raise
 
+    def RunGitCheckout(self, sourcePath: str, branch: str) -> None:
+        self.DoPrint("Running git checkout {0} at {1}".format(branch, sourcePath))
+        try:
+            self.__RunGitCheckout(sourcePath, branch)
+        except Exception:
+            # A error occurred removing the targetPath
+            raise
+
 
     def GetCurrentHash(self, path: str) -> str:
         command = [self.GitCommand, "rev-parse", "HEAD"]
@@ -160,6 +171,18 @@ class GitCloneTask(GitBaseTask):
             buildCommand += ['-b', branch]
         result = subprocess.call(buildCommand)
         if result != 0:
+            raise Exception("git clone failed {0}".format(buildCommand))
+
+
+    def __RunGitCheckout(self, sourcePath: str, branch: str) -> None:
+        if len(branch) <= 0:
+            raise Exception("A git checkout branch name can not be empty")
+
+        currentWorkingDirectory = sourcePath
+        buildCommand = [self.GitCommand, 'checkout', branch]
+        result = subprocess.call(buildCommand, cwd=currentWorkingDirectory)
+        if result != 0:
+            self.LogPrintWarning("The command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(buildCommand), result, currentWorkingDirectory))
             raise Exception("git clone failed {0}".format(buildCommand))
 
 

@@ -60,6 +60,9 @@ namespace Fsl
       {
         return Get();
       }
+
+      virtual void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override;
+      virtual void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override;
     };
   }
 }

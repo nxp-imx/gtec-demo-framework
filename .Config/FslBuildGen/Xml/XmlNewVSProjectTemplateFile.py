@@ -36,7 +36,7 @@ import os
 import os.path
 import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
-from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Log import Log
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import FileNotFoundException
 from FslBuildGen.Xml.Exceptions import XmlException
@@ -45,31 +45,35 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlNewVSProjectTemplate(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlNewVSProjectTemplate, self).__init__(basicConfig, xmlElement)
-        self.Name = XmlBase._ReadAttrib(self, xmlElement, 'Name')
-        self.Description = XmlBase._ReadAttrib(self, xmlElement, 'Description')
-        packageLanguage = XmlBase._ReadAttrib(self, xmlElement, 'PackageLanguage')
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlNewVSProjectTemplate, self).__init__(log, xmlElement)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')
+        self.Description = self._ReadAttrib(xmlElement, 'Description')
+        packageLanguage = self._ReadAttrib(xmlElement, 'PackageLanguage')
         self.PackageLanguage = PackageLanguage.FromString(packageLanguage)
-        self.ProjectExtension = XmlBase._ReadAttrib(self, xmlElement, 'ProjectExtension', 'vcxproj')
+        self.ProjectExtension = self._ReadAttrib(xmlElement, 'ProjectExtension', 'vcxproj')
 
 
 class XmlNewVSProjectTemplateFile(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, filename: str) -> None:
+    def __init__(self, log: Log, filename: str) -> None:
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate config file %s", filename)
 
         tree = ET.parse(filename)
         elem = tree.getroot()
-        if elem.tag != 'FslBuildNewVSProjectTemplate':
-            raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildNewVSProjectTemplate'")
+        if elem.tag == 'FslBuildGeneratorVSProjectTemplate':
+            pass
+        elif elem.tag == 'FslBuildNewVSProjectTemplate':
+            log.LogPrintWarning("Template file '{0}' using legacy template FslBuildNewVSProjectTemplate update it to FslBuildGeneratorVSProjectTemplate".format(filename));
+        else:
+            raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGeneratorVSProjectTemplate'")
 
-        super(XmlNewVSProjectTemplateFile, self).__init__(basicConfig, elem)
-        strVersion = XmlBase._ReadAttrib(self, elem, 'Version')
+        super(XmlNewVSProjectTemplateFile, self).__init__(log, elem)
+        strVersion = self._ReadAttrib(elem, 'Version')
         if strVersion != "1":
             raise Exception("Unsupported version")
 
-        xmlTemplate = self.__LoadTemplateConfiguration(basicConfig, elem)
+        xmlTemplate = self.__LoadTemplateConfiguration(log, elem)
         if len(xmlTemplate) != 1:
             raise XmlException("The file did not contain exactly one Template element")
 
@@ -84,9 +88,9 @@ class XmlNewVSProjectTemplateFile(XmlBase):
         if self.Name != self.Template.Name:
             raise Exception("The parent template directory name '{0}' does not match the template name '{1}' {2}".format(self.Name, self.Template.Name, self.Path))
 
-    def __LoadTemplateConfiguration(self, basicConfig: BasicConfig, element: ET.Element) -> List[XmlNewVSProjectTemplate]:
+    def __LoadTemplateConfiguration(self, log: Log, element: ET.Element) -> List[XmlNewVSProjectTemplate]:
         res = []
         foundElements = element.findall("Template")
         for foundElement in foundElements:
-            res.append(XmlNewVSProjectTemplate(basicConfig, foundElement))
+            res.append(XmlNewVSProjectTemplate(log, foundElement))
         return res

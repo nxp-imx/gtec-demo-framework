@@ -32,10 +32,10 @@
 #****************************************************************************************************************************************************
 
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Log import Log
 
 class XmlBaseInfo(object):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super(XmlBaseInfo, self).__init__()
-        self.BasicConfig = basicConfig
+        self.Log = log
         self.XMLElement = xmlElement

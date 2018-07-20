@@ -1,0 +1,53 @@
+#!/usr/bin/env groovy
+pipeline
+{
+    agent
+    {
+        docker
+        {
+            label 'ubuntu'
+            image 'sigil/android-ndk-sdk:r16b'
+            args '-v $HOME/PersistentCache:/PersistentCache:rw'
+        }
+    }
+    environment {
+        FSL_JENKINS_DF_PLATFORM_NAME     = 'Android'
+        FSL_JENKINS_DF_SDK_NAME          = ''
+        FSL_JENKINS_DF_CACHE_DIR         = "DF-${FSL_JENKINS_DF_PLATFORM_NAME}"
+        FSL_JENKINS_THIRD_PARTY_INSTALL  = "/PersistentCache/${FSL_JENKINS_DF_CACHE_DIR}"
+    }    
+    options
+    {
+      buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+    triggers
+    {
+        pollSCM('H 4 * * *')
+    }
+    stages
+    {
+        stage('Build')
+        {
+            steps
+            {
+                sh '.Config/Jenkins/android/Review_DF_Android.sh'
+                // warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'Clang (LLVM based)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''                
+            }
+        }
+        stage('Test')
+        {
+            steps
+            {
+                echo 'make check'
+            }
+        }
+        stage('Deploy')
+        {
+            steps
+            {
+                echo 'make publish'
+            }
+        }
+    }
+}

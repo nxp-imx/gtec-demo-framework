@@ -45,6 +45,9 @@ namespace Fsl
     public:
       NativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint);
       ~NativeTexture2D();
+
+      virtual void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override;
+      virtual void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override;
     };
   }
 }

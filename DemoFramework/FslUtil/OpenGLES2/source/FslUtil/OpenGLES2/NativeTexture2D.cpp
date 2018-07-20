@@ -38,11 +38,19 @@ namespace Fsl
 {
   namespace GLES2
   {
+    namespace
+    {
+      inline GLTextureParameters Convert(const Texture2DFilterHint filterHint)
+      {
+        const GLenum filter = (filterHint == Texture2DFilterHint::Nearest ? GL_NEAREST : GL_LINEAR);
+        return GLTextureParameters(filter, filter, GL_REPEAT, GL_REPEAT);
+      }
+    }
+
     NativeTexture2D::NativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
       : m_impl()
     {
-      const GLenum filter = (filterHint == Texture2DFilterHint::Nearest ? GL_NEAREST : GL_LINEAR);
-      GLTextureParameters params(filter, filter, GL_REPEAT, GL_REPEAT);
+      auto params = Convert(filterHint);
       m_impl.SetData(bitmap, params, textureFlags);
     }
 
@@ -50,8 +58,21 @@ namespace Fsl
     NativeTexture2D::NativeTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
       : m_impl()
     {
-      const GLenum filter = (filterHint == Texture2DFilterHint::Nearest ? GL_NEAREST : GL_LINEAR);
-      GLTextureParameters params(filter, filter, GL_REPEAT, GL_REPEAT);
+      auto params = Convert(filterHint);
+      m_impl.SetData(texture, params, textureFlags);
+    }
+
+
+    void NativeTexture2D::SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    {
+      auto params = Convert(filterHint);
+      m_impl.SetData(bitmap, params, textureFlags);
+    }
+
+
+    void NativeTexture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    {
+      auto params = Convert(filterHint);
       m_impl.SetData(texture, params, textureFlags);
     }
   }

@@ -1,5 +1,7 @@
-Prerequisites
-=============
+# Setup guide Android SDK+NDK
+
+## Prerequisites
+
 - **IMPORTANT!**
   The way gradle currently handles CMake builds on windows place some serious limits on 
   the path length, so its recommended to either place the DemoFramework folder close to
@@ -33,24 +35,20 @@ Prerequisites
 
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
 
-
-
-Simple setup
-============
+## Simple setup
 
 Android projects are generated to the path specified in the environment variable
-FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR. If it's not defined the 'prepare' script 
+FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR. If it's not defined the 'prepare' script
 sets it to a default location.
 
 1. Start a windows console (cmd.exe) in the DemoFramework folder
 2. Run the `prepare.bat` file located in the root of the framework folder to
     configure the necessary environment variables and paths.
-    Please beware that the `prepare.bat` file requires the current working 
-    directory to be the root of your demoframework folder to function 
+    Please beware that the `prepare.bat` file requires the current working
+    directory to be the root of your demoframework folder to function
     (which is also the folder it resides in).
 
-To Compile and run an existing sample application 
--------------------------------------------------
+## To Compile and run an existing sample application
 
 In this example we will utilize the GLES2 S06_Texturing app.
 
@@ -63,24 +61,24 @@ In this example we will utilize the GLES2 S06_Texturing app.
     ```bash
     FslBuild.py -p android
     ```
-       
 If you just want to regenerate the cmake build files then you can just run
-```bash
-FslBuildGen.py -p android
-```
-       
+    ```bash
+    FslBuildGen.py -p android
+    ```
+
 If you want to save a bit of compilation time you can build for the ANDROID ABI you need by adding
+
 ```bash
 FslBuildGen.py --Variants [ANDROID_ABI=armeabi-v7a]
 ```
+
 or
+
 ```bash
 FslBuild.py --Variants [ANDROID_ABI=armeabi-v7a]
 ```
-       
 
-To create a new GLES2 demo project named 'CoolNewDemo'
-------------------------------------------------------
+## To create a new GLES2 demo project named 'CoolNewDemo'
   
 1. Make sure that you performed the simple setup
 2. Change directory to the GLES2 sample directory:
@@ -101,46 +99,52 @@ To create a new GLES2 demo project named 'CoolNewDemo'
     ```
 
 If you just want to regenerate the cmake build files then you can just run
+
 ```bash
 FslBuildGen.py -p android
 ```
-       
+
 If you want to save a bit of compilation time you can build for the ANDROID ABI you need by adding
+
 ```bash
 FslBuildGen.py -p android --Variants [ANDROID_ABI=armeabi-v7a]
 ```
-or 
+
+or
+
 ```bash
 FslBuild.py -p android --Variants [ANDROID_ABI=armeabi-v7a]
 ```
-       
+
 Using android studio.
+
 1. Follow the instructions for "creating a new project" or "building an existing project".  
 2. As projects are generated to the path specified by the FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR
     environment variable you can locate the project there and open it with android studio.
     Be sure to open Android studio in a correctly configured environment.
-    Here it could be a good idea to create a script for launching android studio with the 
+    Here it could be a good idea to create a script for launching android studio with the
     right environment.
-       
-If you add source files to a project or change the Fsl.gen file then run the 
-FslBuildGen.py script in the project root folder to regenerate the various 
+
+If you add source files to a project or change the Fsl.gen file then run the
+FslBuildGen.py script in the project root folder to regenerate the various
 build files.
 
-Linux notes:
-============
+## Linux notes
 
 Install for private user
 
 Unzip android studio like this:
+
 ```bash
-    sudo unzip android-studio-ide_FILENAME.zip -d ~/sdk
-    cd ~/sdk/android-studio/bin
-    ./studio.sh  
+sudo unzip android-studio-ide_FILENAME.zip -d ~/sdk
+cd ~/sdk/android-studio/bin
+./studio.sh  
 ```
 
 In the UI make sure to install the sdk in a directory you have access to for example 
+
 ```bash
-    ~/sdk/android-sdk-linux
+~/sdk/android-sdk-linux
 ```
 
 - https://developer.android.com/studio/install.html

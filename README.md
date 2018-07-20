@@ -1,4 +1,4 @@
-# DemoFramework 5.1.0
+# DemoFramework 5.1.1
 
 A multi-platform framework for fast and easy demo development.
 
@@ -33,7 +33,8 @@ since the exact same demo/benchmark code run on all of them.
 * Ubuntu 16.04
 * Windows 7+
 
-# Table of contents
+## Table of contents
+
 <!-- #AG_TOC_BEGIN# -->
 * [Introduction](#introduction)
   * [Technical overview](#technical-overview)
@@ -66,7 +67,9 @@ since the exact same demo/benchmark code run on all of them.
 <!-- #AG_TOC_END# -->
 
 # Introduction
+
 ## Technical overview
+
 * Written in a limited subset of [C++ 11](https://en.wikipedia.org/wiki/C%2B%2B11) and
 uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization) to manage resources.
 * Uses a limited subset of [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) to make it easier to port.
@@ -117,9 +120,9 @@ So ideally, we wanted to use a build tool that supported
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
 2. Proper package dependency support.
 3. A good developer experience
-  * co-existence of debug, release and other variants.
-  * re-use of already build libs for other samples.
-  * full source access to all used packages inside IDE’s.
+   * co-existence of debug, release and other variants.
+   * re-use of already build libs for other samples.
+   * full source access to all used packages inside IDE’s.
 4. Support for Windows, Ubuntu, Yocto and Android NDK.
 5. Ensure a similar source layout for all samples.
 
@@ -154,7 +157,6 @@ It basically specifies that this directory contains an executable package with n
 that it uses the ‘DemoAppGLES2’ template and has a dependency on a package called ‘EnvironmentMappingShared’ then it
 defines a ‘ProjectId’ for visual studio for windows.
 
-
 Another example is the ‘Fsl.gen’ file for the FslGraphics package which has had lots of files added over the years,
 but its build file has been untouched.
 
@@ -188,10 +190,12 @@ Yocto|make
 ## Scripts
 
 ### FslBuildGen.py
+
 Is a cross-platform build-file generator. Which main purpose is to keep all build files consistent, in sync and up to date.
 See the [FslBuildGen document](./Doc/FslBuildGen.docx) for details.
 
 ### FslBuild.py
+
 Extends the technology behind FslBuildGen with additional knowledge about how to execute the build system for a given platform.
 So basically, FslBuild works like this
 1.	Invoke the build-file generator that updates all build files if necessary.
@@ -199,6 +203,7 @@ So basically, FslBuild works like this
 3.	Build all necessary build files in the correct order.
 
 #### Useful arguments
+
 FslBuild comes with a few useful arguments
 
 Argument|Description
@@ -215,6 +220,7 @@ Argument|Description
 --                 | arguments written after this is send directly to the native build system.
 
 #### Important notes
+
 * Don’t modify the auto-generated files.
 The FslBuild scripts are responsible for creating all the build files for a platform and verifying dependencies.
 Since all build files are auto generated you can never modify them directly as the next build will overwrite your changes.
@@ -222,8 +228,8 @@ Instead add your changes to the ‘Fsl.gen’ files as they control the build fi
 * The ‘Fsl.gen’ file is the real build file.
 * All include and source files in the respective folders are automatically added to the build files.
 
-
 ### FslBuildContent.py
+
 This only runs the content builder part of the build process.
 
 ```
@@ -232,6 +238,7 @@ FslBuildContent.py
 Build the current directories package content.
 
 ### FslBuildNew.py
+
 Generate a new project of the specified type. This is basically a project wizard that will prepare a new project directory with a basic template
 for the chosen project type.
 
@@ -241,6 +248,7 @@ FslBuildNew.py GLES2 FlyingPigsApp
 Create the FlyingPigsApp sample app directory using the GLES2 template.
 
 ### FslBuildCheck.py
+
 Package build environment checker. Based on what features the package uses this will try to detect setup errors.
 It also has the capability to scan the source for common mistakes.
 
@@ -250,11 +258,12 @@ FslBuildCheck.py
 Check the current build environment to see if the package can be build.
 
 ```
-FslBuildCheck.py --ScanSource
+FslBuildCheck.py --scan
 ```
 Scan the current package and see if there is any common mistakes with for example include guards, tabs, etc.
 
 ### FslBuildDoc.py
+
 A new **work in progress* tool that helps keep the README.md files similar and that fills out various areas of the root README.md file.
 
 ```
@@ -262,6 +271,7 @@ FslBuildDoc.py
 ```
 
 ### FslResourceScan.py
+
 This is a stand alone tool used to scan for 'graphics' files like textures and models and determine if a there is a 'License.json'
 file accompanying them
 
@@ -270,7 +280,6 @@ FslResourceScan.py . -v --list
 ```
 Scan the current directory and all it subdirectories for graphics files and license issues, then list all licenses found.
 
-
 # Demo application details
 
 The following description of the demo application details uses a GLES2 demo named ‘S01_SimpleTriangle’ as example.
@@ -278,6 +287,7 @@ It lists the default methods that a demo should implement, the way it can provid
 how asset management is made platform agnostic.
 
 ## Method overview
+
 This is a list of the methods that every Demo App is most likely to override .
 
 ```C++
@@ -306,22 +316,28 @@ This also means that you should never try to shutdown EGL in the destructor sinc
 The destructor should only worry about resources that your demo app actually allocated by itself.
 
 ### Resized
+
 The resized method will be called if the screen resolution changes (if your app never changes resolution this will never be called) .
 
 ### FixedUpdate
+
 Is a fixed time-step update method that will be called the set number of times per second. The fixed time step update is often used for physics.
 
 ### Update
+
 Will be called once before every draw call and you will normally update your animation using delta time.
 For example if you need to move your object 10 units horizontally per second you would do something like
+
 ```C++
-	m_positionX += 10 * demoTime.DeltaTime;
+_positionX += 10 * demoTime.DeltaTime;
 ```
 
 ### Draw
+
 Should be used to render graphics.
 
 ### Fixed or variable timestep update
+
 Depending on what your demo is doing, you might use one or the other - or both.
 It’s actually a very complex topic once you start to dig into it, but in general anything that need precision and
 predictable/repeatable calculations, like for example physics, often benefits from using fixed time steps.
@@ -329,6 +345,7 @@ It really depends on your algorithm and it’s recommended to do a couple of goo
 since there are lots of arguments for both. It’s also worth noting that game engines like Unity3D support both methods.
 
 ## Execution order of methods during a frame
+
 The methods will be called in this order
 * Events (if any occurred)
 * Resized
@@ -348,9 +365,11 @@ Content/Stuff/Readme.txt
 ```
 
 You can load the files via the IContentManager service that can be accessed by calling
+
 ```C++
 std::shared_ptr<IContentManager> contentManager = GetContentManager();
 ```
+
 You can then load files like this:
 
 ```C++
@@ -402,6 +421,7 @@ IO::Path texture1Path = IO::Path::Combine(contentPath, "Texture1.bmp");
 You can then open the files with any method you prefer. Both methods work for all supported platforms.
 
 ## Demo registration
+
 This is done in the S01_SimpleTriangle_Register.cpp file.
 
 ```C++
@@ -444,10 +464,12 @@ To register a demo for OpenGLES 3.X you would use the GLES3 register method:
 ```
 
 ## Dealing with screen resolution changes
+
 Per default the app is destroyed and recreated when a resolution change occurs.
 It is left up to the DemoApp to save and restore demo specific state.
 
 ## Exit
+
 The demo app can request an exit to occur, or it can be terminated via an external request.
 In both cases one of the following things occur.
 1. If the app has been constructed and has received a FixedUpdate, then it will finish its FixedUpdate, Update, Draw, swap sequence before its shutdown.
@@ -456,7 +478,6 @@ The app can request an exit to occur by calling:
 ```C++
         GetDemoAppControl()->RequestExit(1);
 ```
-
 
 # Demo playback
 
@@ -475,7 +496,6 @@ Argument             | Description
 --ExitAfterFrame     | Exit after the given number of frames has been rendered
 --ContentMonitor     | Monitor the Content directory for changes and restart the app on changes. WARNING: Might not work on all platforms and it might impact app performance (experimental)
 
-
 ## Default keyboard mappings.
 
 All apps support these keys per default, but can override then if they chose to do so.
@@ -486,7 +506,6 @@ Key     | Function
 Escape  | Exit the app.
 F4      | Take a screenshot (If supported by the test service)
 F5      | Restart the app.
-
 
 ## Demo single stepping / pause.
 
@@ -506,6 +525,7 @@ Home    | Toggle between normal and fast 4x playback.
 # Demo applications
 
 <!-- #AG_DEMOAPPS_BEGIN# -->
+
 ## Console
 
 ### [Console101](DemoApps/Console/Console101)

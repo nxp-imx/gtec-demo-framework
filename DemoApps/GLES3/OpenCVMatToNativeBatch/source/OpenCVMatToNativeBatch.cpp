@@ -193,10 +193,10 @@ namespace Fsl
 
   void OpenCVMatToNativeBatch::CreateReferenceTextures(const std::shared_ptr<IContentManager>& contentManager)
   {
-    auto bitmapTest = contentManager->ReadBitmap(TEST_IMAGE1, PixelFormat::R8G8B8_UINT);
-    auto bitmapTestR = contentManager->ReadBitmap(TEST_IMAGE_R, PixelFormat::R8G8B8_UINT);
-    auto bitmapTestG = contentManager->ReadBitmap(TEST_IMAGE_G, PixelFormat::R8G8B8_UINT);
-    auto bitmapTestB = contentManager->ReadBitmap(TEST_IMAGE_B, PixelFormat::R8G8B8_UINT);
+    auto bitmapTest = contentManager->ReadBitmap(TEST_IMAGE1, PixelFormat::R8G8B8_UNORM);
+    auto bitmapTestR = contentManager->ReadBitmap(TEST_IMAGE_R, PixelFormat::R8G8B8_UNORM);
+    auto bitmapTestG = contentManager->ReadBitmap(TEST_IMAGE_G, PixelFormat::R8G8B8_UNORM);
+    auto bitmapTestB = contentManager->ReadBitmap(TEST_IMAGE_B, PixelFormat::R8G8B8_UNORM);
 
     const auto nativeGraphics = m_graphics->GetNativeGraphics();
 
@@ -227,10 +227,10 @@ namespace Fsl
     const auto apiPreferredBitmapOrigin = contentManager->GetPreferredBitmapOrigin();
     const auto nativeGraphics = m_graphics->GetNativeGraphics();
 
-    Convert(m_texTestMat, m_convert, nativeGraphics, mat1, PixelFormat::R8G8B8_UINT, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
-    Convert(m_texTestMatR, m_convert, nativeGraphics, matR, PixelFormat::R8G8B8_UINT, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
-    Convert(m_texTestMatG, m_convert, nativeGraphics, matG, PixelFormat::R8G8B8_UINT, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
-    Convert(m_texTestMatB, m_convert, nativeGraphics, matB, PixelFormat::R8G8B8_UINT, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
+    Convert(m_texTestMat, m_convert, nativeGraphics, mat1, PixelFormat::R8G8B8_UNORM, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
+    Convert(m_texTestMatR, m_convert, nativeGraphics, matR, PixelFormat::R8G8B8_UNORM, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
+    Convert(m_texTestMatG, m_convert, nativeGraphics, matG, PixelFormat::R8G8B8_UNORM, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
+    Convert(m_texTestMatB, m_convert, nativeGraphics, matB, PixelFormat::R8G8B8_UNORM, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
   }
 
 }

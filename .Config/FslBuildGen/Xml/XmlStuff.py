@@ -41,7 +41,7 @@ import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
 from FslBuildGen import Util
-from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Log import Log
 from FslBuildGen.DataTypes import OptimizationType
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageLanguage
@@ -93,21 +93,21 @@ class LocalPackageDefaultValues(object):
 
 
 class XmlGenFileImportTemplate(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlGenFileImportTemplate, self).__init__(basicConfig, xmlElement)
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlGenFileImportTemplate, self).__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
 
 
 class XmlGenFileVariantOption(XmlBase2):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, ownerPackageName: str, subPackageSupport: SubPackageSupportConfig) -> None:
-        super(XmlGenFileVariantOption, self).__init__(basicConfig, xmlElement, subPackageSupport)
+    def __init__(self, log: Log, xmlElement: ET.Element, ownerPackageName: str, subPackageSupport: SubPackageSupportConfig) -> None:
+        super(XmlGenFileVariantOption, self).__init__(log, xmlElement, subPackageSupport)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.IntroducedByPackageName = ownerPackageName
 
 
 class XmlGenFileVariant(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, ownerPackageName: str, subPackageSupport: SubPackageSupportConfig) -> None:
-        super(XmlGenFileVariant, self).__init__(basicConfig, xmlElement)
+    def __init__(self, log: Log, xmlElement: ET.Element, ownerPackageName: str, subPackageSupport: SubPackageSupportConfig) -> None:
+        super(XmlGenFileVariant, self).__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.IntroducedByPackageName = ownerPackageName
         self.AllowExtend = self._ReadBoolAttrib(xmlElement, 'Extend', False)
@@ -171,17 +171,17 @@ class XmlGenFileVariant(XmlBase):
         if elem != None:
             for child in elem:
                 if child.tag == 'Option':
-                    options.append(XmlGenFileVariantOption(self.BasicConfig, child, ownerPackageName, subPackageSupport))
+                    options.append(XmlGenFileVariantOption(self.Log, child, ownerPackageName, subPackageSupport))
         options.sort(key=lambda s: s.Name.lower())
         return options
 
 
 class XmlGenFilePlatform(XmlBase2):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, defaultValues: LocalPackageDefaultValues,
+    def __init__(self, log: Log, xmlElement: ET.Element, defaultValues: LocalPackageDefaultValues,
                  requirements: List[XmlGenFileRequirement], dependencies: List[XmlGenFileDependency],
                  variants: List[XmlGenFileVariant], experimentalRecipe: Optional[XmlExperimentalRecipe],
                  subPackageSupport: SubPackageSupportConfig) -> None:
-        super(XmlGenFilePlatform, self).__init__(basicConfig, xmlElement, subPackageSupport)
+        super(XmlGenFilePlatform, self).__init__(log, xmlElement, subPackageSupport)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.DirectRequirements = requirements
         self.DirectDependencies = dependencies
@@ -216,15 +216,15 @@ class XmlGenFilePlatform(XmlBase2):
 
 
 class FakeXmlGenFilePlatform(XmlGenFilePlatform):
-    def __init__(self, basicConfig: BasicConfig, platformName: str,
+    def __init__(self, log: Log, platformName: str,
                  defaultValues: LocalPackageDefaultValues, subPackageSupport: SubPackageSupportConfig) -> None:
         fakeXmlElement = FakeXmlElementFactory.CreateWithName("Platform", platformName)
-        super(FakeXmlGenFilePlatform, self).__init__(basicConfig, fakeXmlElement, defaultValues, [], [], [], None, subPackageSupport)
+        super(FakeXmlGenFilePlatform, self).__init__(log, fakeXmlElement, defaultValues, [], [], [], None, subPackageSupport)
 
 
 class XmlGenFileBuildCustomization(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlGenFileBuildCustomization, self).__init__(basicConfig, xmlElement)
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlGenFileBuildCustomization, self).__init__(log, xmlElement)
         self.Name = xmlElement.tag
         self.ValueString = self._ReadAttrib(xmlElement, 'Value')
 
@@ -233,8 +233,8 @@ class XmlGenFileBuildCustomization(XmlBase):
 
 
 class XmlGenFileBuildCustomization_Optimization(XmlGenFileBuildCustomization):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlGenFileBuildCustomization_Optimization, self).__init__(basicConfig, xmlElement)
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlGenFileBuildCustomization_Optimization, self).__init__(log, xmlElement)
         if self.ValueString == "Disabled":
             self.Value = OptimizationType.Disabled
         elif self.ValueString == "Default":

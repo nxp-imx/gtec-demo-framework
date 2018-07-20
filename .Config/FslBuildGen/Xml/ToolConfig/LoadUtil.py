@@ -32,23 +32,23 @@
 
 from typing import List
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.ToolConfig.XmlConfigFileAddNewProjectTemplatesRootDirectory import XmlConfigFileAddNewProjectTemplatesRootDirectory
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageConfiguration import XmlConfigPackageConfiguration
 
 
-def LoadAddNewProjectTemplatesRootDirectory(basicConfig: BasicConfig, xmlElement: ET.Element, filename: str) -> List[XmlConfigFileAddNewProjectTemplatesRootDirectory]:
+def LoadAddNewProjectTemplatesRootDirectory(log: Log, xmlElement: ET.Element, filename: str) -> List[XmlConfigFileAddNewProjectTemplatesRootDirectory]:
     res = []
     foundElements = xmlElement.findall("AddNewProjectTemplatesRootDirectory")
     for foundElement in foundElements:
-        res.append(XmlConfigFileAddNewProjectTemplatesRootDirectory(basicConfig, foundElement, filename))
+        res.append(XmlConfigFileAddNewProjectTemplatesRootDirectory(log, foundElement, filename))
     return res
 
 
 
-def XMLLoadPackageConfiguration(basicConfig: BasicConfig, xmlElement: ET.Element, sourceFile: str) -> List[XmlConfigPackageConfiguration]:
+def XMLLoadPackageConfiguration(log: Log, xmlElement: ET.Element, sourceFile: str) -> List[XmlConfigPackageConfiguration]:
     res = []
     foundElements = xmlElement.findall("PackageConfiguration")
     for foundElement in foundElements:
-        res.append(XmlConfigPackageConfiguration(basicConfig, foundElement, sourceFile))
+        res.append(XmlConfigPackageConfiguration(log, foundElement, sourceFile))
     return res

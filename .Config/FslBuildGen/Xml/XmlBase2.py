@@ -33,10 +33,10 @@
 
 from typing import List
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen import Util
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedPackageNameException
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedSubPackageNameException
@@ -48,10 +48,10 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class FakeXmlGenFileDependency(XmlGenFileDependency):
-    def __init__(self, basicConfig: BasicConfig, name: str, access: int) -> None:
+    def __init__(self, log: Log, name: str, access: int) -> None:
         fakeXmlElementAttribs = {'Name': name, 'Access': AccessType.ToString(access)}
         fakeXmlElement = FakeXmlElementFactory.Create("FakeXmlGenFileDependency", fakeXmlElementAttribs)
-        super(FakeXmlGenFileDependency, self).__init__(basicConfig, fakeXmlElement)
+        super().__init__(log, fakeXmlElement)
         if self.Name != name:
             raise Exception("Failed to setting fake element name")
         if self.Access != access:
@@ -59,10 +59,10 @@ class FakeXmlGenFileDependency(XmlGenFileDependency):
 
 
 class XmlBase2(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element, subPackageSupport: SubPackageSupportConfig) -> None:
+    def __init__(self, log: Log, xmlElement: ET.Element, subPackageSupport: SubPackageSupportConfig) -> None:
         if not isinstance(subPackageSupport, SubPackageSupportConfig):
             raise UsageErrorException("The support object was not of the correct type")
-        super(XmlBase2, self).__init__(basicConfig, xmlElement)
+        super().__init__(log, xmlElement)
         self.SystemSubPackageSupport = subPackageSupport  # type: SubPackageSupportConfig
         self.ExternalDependencies = self.__GetXMLExternalDependencies(xmlElement)
         self.DirectDefines = self.__GetXMLDefines(xmlElement)
@@ -85,7 +85,7 @@ class XmlBase2(XmlBase):
         if xmlElement != None:
             for child in xmlElement:
                 if child.tag == 'ExternalDependency':
-                    dependencies.append(XmlGenFileExternalDependency(self.BasicConfig, child))
+                    dependencies.append(XmlGenFileExternalDependency(self.Log, child))
         return dependencies
 
 
@@ -94,10 +94,10 @@ class XmlBase2(XmlBase):
         if xmlElement != None:
             for child in xmlElement:
                 if child.tag == 'Define':
-                    dependencies.append(XmlGenFileDefine(self.BasicConfig, child))
+                    dependencies.append(XmlGenFileDefine(self.Log, child))
                 elif child.tag == 'CPPDefine':
                     # todo log warning here
-                    dependencies.append(XmlGenFileDefine(self.BasicConfig, child))
+                    dependencies.append(XmlGenFileDefine(self.Log, child))
         return dependencies
 
 
@@ -115,10 +115,10 @@ class XmlBase2(XmlBase):
         if xmlElement is not None:
             for child in xmlElement:
                 if child.tag == 'Dependency':
-                    xmlDep = XmlGenFileDependency(self.BasicConfig, child)
+                    xmlDep = XmlGenFileDependency(self.Log, child)
                     self._ValidateName(xmlDep.XMLElement, xmlDep.Name)
                     elements.append(xmlDep)
         return elements
 
     def _CreateFakeXMLDependencies(self, dependencyName: str, access: int = AccessType.Public) -> FakeXmlGenFileDependency:
-        return FakeXmlGenFileDependency(self.BasicConfig, dependencyName, access)
+        return FakeXmlGenFileDependency(self.Log, dependencyName, access)

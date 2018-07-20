@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation>
+      Describes the template format FslBuildGeneratorVSProjectTemplate
+      used by the visual studio project generator.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:complexType name="_T_Template">
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="PackageLanguage" type="xs:string" use="required"/>
+    <xs:attribute name="ProjectExtension" type="xs:string" use="optional"/>
+    <xs:attribute name="Description" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:group name="_G_Template">
+    <xs:choice>
+      <xs:element name="Template" type="_T_Template"/>
+    </xs:choice>
+  </xs:group>
+
+
+  <xs:group name="_G_ConfigList">
+    <xs:sequence>
+      <xs:group ref="_G_Template" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:group>
+
+
+  <xs:complexType name="_T_FslBuildGeneratorVSProjectTemplate">
+    <xs:group ref="_G_ConfigList"/>
+    <xs:attribute name="Version" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:element name="FslBuildGeneratorVSProjectTemplate" type="_T_FslBuildGeneratorVSProjectTemplate"/>
+</xs:schema>

@@ -38,15 +38,15 @@ class FormatPluginFslAtlas(FormatPlugin):
         super(FormatPluginFslAtlas, self).__init__("fsl")
 
     def Process(self, atlas, outputFilename):
-        hppOutputFilename = '%s.%s' % (outputFilename, 'hpp')
-        cppOutputFilename = '%s.%s' % (outputFilename, 'cpp')
+        hppOutputFilename = '{0}.{1}'.format(outputFilename, 'hpp')
+        cppOutputFilename = '{0}.{1}'.format(outputFilename, 'cpp')
 
         className = IOUtil.GetFileNameWithoutExtension(outputFilename)
 
         hppContent = self.__BuildHPPContent(atlas, className)
         cppContent = self.__BuildCPPContent(atlas, className)
-        IOUtil.WriteBinaryFileIfChanged(hppOutputFilename, hppContent)
-        IOUtil.WriteBinaryFileIfChanged(cppOutputFilename, cppContent)
+        IOUtil.WriteFileIfChanged(hppOutputFilename, hppContent)
+        IOUtil.WriteFileIfChanged(cppOutputFilename, cppContent)
 
 
     def __BuildHPPContent(self, atlas, className):
@@ -61,7 +61,7 @@ class FormatPluginFslAtlas(FormatPlugin):
         list.append('')
         list.append('namespace Fsl')
         list.append('{')
-        list.append('  class %s : public ITextureAtlas' % (className)) 
+        list.append('  class %s : public ITextureAtlas' % (className))
         list.append('  {')
         list.append('  public:')
         list.append('    virtual std::string GetName() const;')

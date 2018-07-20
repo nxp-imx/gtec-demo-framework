@@ -29,9 +29,10 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "OpenCVExperimental/BasicImageConvert.hpp"
+#include <Shared/OpenCVExperimental/BasicImageConvert.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <cassert>
 #include <opencv2/opencv.hpp>
 
@@ -65,7 +66,7 @@ namespace Fsl
       throw NotSupportedException("The cv::Mat did contain a supported depth");
 
     const auto srcPixelFormat = ConvertToPixelFormat(src);
-    if( srcPixelFormat != PixelFormat::B8G8R8_UINT )
+    if( PixelFormatUtil::GetPixelFormatLayout(srcPixelFormat) != PixelFormatLayout::B8G8R8 )
       throw NotSupportedException("Source pixel format is unsupported");
 
     // FIX: this should verify the 'src' cv::Mat image format
@@ -82,8 +83,8 @@ namespace Fsl
 
   void BasicImageConvert::Convert(cv::Mat& rDst, const Bitmap& src, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredBitmapOrigin)
   {
-    if (desiredPixelFormat != PixelFormat::B8G8R8_UINT)
-      throw NotSupportedException("We only support the pixel format PixelFormat::B8G8R8_UINT");
+    if (PixelFormatUtil::GetPixelFormatLayout(desiredPixelFormat) != PixelFormatLayout::B8G8R8)
+      throw NotSupportedException("We only support the pixel format PixelFormatLayout::B8G8R8");
 
     // This method is monster slow :)
 

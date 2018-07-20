@@ -32,17 +32,17 @@
 #****************************************************************************************************************************************************
 
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.DataTypes import AccessType
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.Exceptions import XmlFormatException
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlGenFileDependency(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlGenFileDependency, self).__init__(basicConfig, xmlElement)
-        self.Name = XmlBase._ReadAttrib(self, xmlElement, 'Name')  # type: str
-        access = XmlBase._ReadAttrib(self, xmlElement, 'Access', 'Public')  # type: str
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlGenFileDependency, self).__init__(log, xmlElement)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
+        access = self._ReadAttrib(xmlElement, 'Access', 'Public')  # type: str
         if access == "Public":
             self.Access = AccessType.Public  # type: int
         elif access == "Private":

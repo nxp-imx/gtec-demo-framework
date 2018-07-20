@@ -49,6 +49,7 @@ from FslBuildGen import PackageListUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.BuildConfigRecord import BuildConfigRecord
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
+from FslBuildGen.Build.BuildVariantUtil import BuildVariantUtil
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.Build.Filter import RequirementFilter
@@ -70,6 +71,7 @@ from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Generator import PluginConfig
+from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorPluginBase2
 from FslBuildGen.Generator.GeneratorVC import GeneratorVCUtil
 from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
@@ -153,7 +155,8 @@ class Builder(object):
             config.DoPrint("Nothing to build!")
             return
 
-        generatorReportDict = generatorContext.Generator.GenerateReport(self.Log, resolvedBuildOrderBuildable)
+        generatorConfig = GeneratorConfig(config.SDKConfigTemplatePath, config.ToolConfig)
+        generatorReportDict = generatorContext.Generator.GenerateReport(self.Log, generatorConfig, resolvedBuildOrderBuildable)
 
         packageCount = len(resolvedBuildOrderBuildable)
 
@@ -180,7 +183,7 @@ class Builder(object):
             if not config.IsDryRun:
                 buildEnv = os.environ.copy()  # type: Dict[str, str]
                 buildEnv[CONFIG_FSLBUILDCONTENT_ENABLED] = "false"
-                self.__ExtendEnvironmentDictWithVariants(config, buildEnv, package, buildConfig.VariantSettingsDict)
+                BuildVariantUtil.ExtendEnvironmentDictWithVariants(config, buildEnv, package, buildConfig.VariantSettingsDict)
                 buildConfig.BuildArgs = list(originalBuildArgs)
                 if config.Verbosity > 4:
                     config.DoPrint("Package build arguments1: {0}".format(buildConfig.BuildArgs))
@@ -243,7 +246,8 @@ class Builder(object):
 
         currentWorkingDirectory = package.AbsolutePath
         if buildCommandReport.CurrentWorkingDirectoryFormatString is not None:
-            currentWorkingDirectory = ReportVariableFormatter.Format(buildCommandReport.CurrentWorkingDirectoryFormatString, variableReport, buildConfig.VariantSettingsDict)
+            currentWorkingDirectory = ReportVariableFormatter.Format(buildCommandReport.CurrentWorkingDirectoryFormatString,
+                                                                     variableReport, buildConfig.VariantSettingsDict)
 
         buildCommandStr = ReportVariableFormatter.Format(buildCommandReport.CommandFormatString, variableReport, buildConfig.VariantSettingsDict)
         if not buildCommandReport.UseAsRelative:
@@ -279,57 +283,6 @@ class Builder(object):
             except FileNotFoundError:
                     self.Log.LogPrintWarning("The run command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(runCommands), currentWorkingDirectory))
                     raise
-
-
-
-    def __TryLocateVariant(self, package: Package, key: str) -> Optional[PackagePlatformVariant]:
-        if key in package.ResolvedAllVariantDict:
-            return package.ResolvedAllVariantDict[key]
-        # try a manual search for 'virtual keys'
-        for entry in list(package.ResolvedAllVariantDict.values()):
-            if key in entry.PurifiedName:
-                return entry
-        return None
-
-
-    def __ExtendEnvironmentDictWithVariants(self, config: Config,
-                                            buildEnv: Dict[str, str],
-                                            package: Package,
-                                            userVariantSettingDict: Dict[str, str]) -> None:
-        for key, value in list(userVariantSettingDict.items()):
-            variant = self.__TryLocateVariant(package, key)
-            if variant is not None:
-                if variant.Type == VariantType.Virtual or (value in variant.OptionDict):
-                    envName = "{0}{1}".format(GEN_BUILD_ENV_VARIANT_SETTING, key.upper())
-                    if envName in buildEnv:
-                        raise Exception("The environment variable {0} has allready been defined".format(envName))
-                    buildEnv[envName] = value
-                else:
-                    validValues = list(variant.OptionDict.keys())
-                    validValues.sort()
-                    config.LogPrint("WARNING: Variant '%s' expects one of the following values: '%s' not '%s'" % (key, ','.join(validValues), value))
-
-
-
-    def __ExtractRelevantVariantSettingsDict(self, config: Config,
-                                             package: Package,
-                                             userVariantSettingDict: Dict[str, str]) -> Dict[str, str]:
-        """ Filters the userVariantSettingsDict down into a dict containing only the entries that are relevant for this package.
-            It also validates that the user-value is valid for the given variant.
-        """
-        dictVariantSettings = {}  # type: Dict[str, str]
-        for key, value in userVariantSettingDict.items():
-            if key in package.ResolvedAllVariantDict:
-                variant = package.ResolvedAllVariantDict[key]
-                if value in variant.OptionDict:
-                    dictVariantSettings[key] = value
-                else:
-                    validValues = list(variant.OptionDict.keys())
-                    validValues.sort()
-                    config.DoPrintWarning("Variant '{0}' expects one of the following values: '{1}' not '{2}'".format(key, ','.join(validValues), value))
-        return dictVariantSettings
-
-
 
 
 
@@ -387,39 +340,6 @@ class Builder(object):
             commands.append(command)
         return commands
 
-
-
-def __BuildCompleteVariantDict(topLevelPackage: Package) -> Dict[str, PackagePlatformVariant]:
-    variantDict = dict(topLevelPackage.ResolvedAllVariantDict) # type: Dict[str, PackagePlatformVariant]
-    return variantDict
-
-
-def __ValidateUserVariantSettings(config: Config,
-                                  topLevelPackage: Package,
-                                  userVariantSettingDict: Dict[str, str]) -> None:
-    variantDict = __BuildCompleteVariantDict(topLevelPackage)
-    for key, value in list(userVariantSettingDict.items()):
-        if key in variantDict:
-            variant = variantDict[key]
-            if not value in variant.OptionDict:
-                validValues = list(variant.OptionDict.keys())
-                validValues.sort()
-                raise Exception("Variant '{0}' expects one of the following values: '{1}' not '{2}'".format(key, ','.join(validValues), value))
-        elif key != ToolAddedVariant.CONFIG:
-            config.LogPrint("WARNING: Unused variant setting '{0}'".format(key))
-
-
-def __LogVariantSettings(config: Config, variantSettingsDict: Dict[str, str]) -> None:
-    if len(variantSettingsDict) <= 0:
-        return
-    names = list(variantSettingsDict.keys())
-    names.sort()
-    result = []
-    for name in names:
-        result.append("{0}={1}".format(name, variantSettingsDict[name]))
-    config.LogPrint("Variant settings: {0}".format(", ".join(result)))
-
-
 # generator = the generator that was used to build the files
 def BuildPackages(generatorContext: GeneratorContext,
                   config: Config,
@@ -435,8 +355,8 @@ def BuildPackages(generatorContext: GeneratorContext,
     PlatformUtil.CheckBuildPlatform(generatorContext.PlatformName)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
-    __ValidateUserVariantSettings(config, topLevelPackage, variantSettingsDict)
-    __LogVariantSettings(config, variantSettingsDict)
+    BuildVariantUtil.ValidateUserVariantSettings(config, topLevelPackage, variantSettingsDict)
+    BuildVariantUtil.LogVariantSettings(config, variantSettingsDict)
 
     buildConfig = BuildConfigRecord(generatorContext.PlatformName, variantSettingsDict, buildCommand, buildArgs, buildForAllExe, generator, buildThreads)
     Builder(generatorContext, config, topLevelPackage, buildConfig, enableContentBuilder, forceClaimInstallArea)
@@ -448,7 +368,7 @@ def ShowVariantList(log: Log,
                     requestedFiles: Optional[List[str]],
                     generator: GeneratorPluginBase2) -> None:
 
-    variantDict = __BuildCompleteVariantDict(topLevelPackage)
+    variantDict = BuildVariantUtil.BuildCompleteVariantDict(topLevelPackage)
 
 
     # This is kind of a hack to list this here (its also not a real variant inside our model)

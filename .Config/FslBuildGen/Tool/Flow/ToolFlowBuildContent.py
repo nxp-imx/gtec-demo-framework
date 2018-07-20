@@ -58,7 +58,7 @@ from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
-
+from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
 
 class DefaultValue(object):
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
@@ -120,7 +120,8 @@ class ToolFlowBuildContent(AToolAppFlow):
         if discoverFeatureList or localToolConfig.Project is None:
             if discoverFeatureList:
                 config.LogPrint("No features specified, so using package to determine them")
-            topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath)
+            topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(), 
+                                                                  localToolConfig.Recursive)
             if discoverFeatureList:
                 featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
             #if localToolConfig.Project is None:
@@ -130,7 +131,8 @@ class ToolFlowBuildContent(AToolAppFlow):
         if localToolConfig.Validate:
             Validate.ValidatePlatform(config, localToolConfig.PlatformName, featureList)
             if topLevelPackage is None:
-                topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath)
+                topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(),
+                                                                      localToolConfig.Recursive)
             RecipeBuilder.ValidateInstallationForPackages(config, generatorContext, topLevelPackage.ResolvedBuildOrder)
 
         if toolEnabled is not None and not ParseUtil.ParseBool(toolEnabled):
@@ -141,11 +143,12 @@ class ToolFlowBuildContent(AToolAppFlow):
         ContentBuilder.Build(config, currentDirPath, featureList)
 
 
-    def __ResolveAndGetTopLevelPackage(self, generatorContext: GeneratorContext, config: Config, currentDir: str) -> Package:
+    def __ResolveAndGetTopLevelPackage(self, generatorContext: GeneratorContext, config: Config, currentDir: str,
+                                       toolMiniConfig: ToolMinimalConfig, recursive: bool) -> Package:
         # Since we use this to discover filters, we just use a empty one
         noPackageFilters = PackageFilters()
 
-        theFiles = MainFlow.DoGetFiles(config, currentDir)
+        theFiles = MainFlow.DoGetFiles(config, toolMiniConfig, currentDir, recursive)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, noPackageFilters)
         return PackageListUtil.GetTopLevelPackage(packages)
 
@@ -164,6 +167,8 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig.AddPlatformArg = True
         argConfig.SupportBuildTime = True
         argConfig.AddUseFeatures = True
+        argConfig.AddBuildThreads = True
+        argConfig.AllowRecursive = True
         return argConfig
 
 

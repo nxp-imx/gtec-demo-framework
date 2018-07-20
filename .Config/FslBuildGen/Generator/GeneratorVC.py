@@ -40,6 +40,7 @@ from typing import Tuple
 from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen import Util
+from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import BuildVariantConfig
@@ -57,6 +58,7 @@ from FslBuildGen.Generator.GeneratorVCTemplate import CodeTemplateProjectBatFile
 from FslBuildGen.Generator.GeneratorVCTemplate import GeneratorVCTemplate
 from FslBuildGen.Generator.GeneratorVCTemplate import NuGetPackageConfigSnippets
 from FslBuildGen.Generator.GeneratorVCTemplateManager import GeneratorVCTemplateManager
+from FslBuildGen.Generator.GeneratorVSTemplateInfo import GeneratorVSTemplateInfo
 from FslBuildGen.Generator.WindowsRegistryHelper import WindowsRegistryHelper
 from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
@@ -64,6 +66,8 @@ from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommand
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
+from FslBuildGen.Generator.Report.ParsedFormatString import ParsedFormatString
+from FslBuildGen.Generator.Report.StringVariableDict import StringVariableDict
 from FslBuildGen.Generator.VariantHelper import VariantHelper
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
@@ -76,12 +80,48 @@ from FslBuildGen.SharedGeneration import ToolAddedVariant
 from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_FEATURE_SETTING
 from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_VARIANT_SETTING
 from FslBuildGen.Template.TemplateFileProcessor import TemplateFileProcessor
+from FslBuildGen.ToolConfig import ToolConfigTemplateFolder
 from FslBuildGen.Xml.Exceptions import XmlFormatException
 
 
 #class GeneratorVCMode:
 #    Normal = 0
 #    LinuxTools = 1
+
+class GeneratorVSConfig(object):
+    def __init__(self, platformName: str, vsVersion: int) -> None:
+        super().__init__()
+        self.PlatformName = platformName
+        self.VsVersion = vsVersion
+
+
+
+class TemplateCache(object):
+    def __init__(self) -> None:
+        super().__init__()
+        self.__Dict = {} # type: Dict[Tuple[ToolConfigTemplateFolder,int], GeneratorVCTemplateManager]
+
+    def GetTemplate(self, log: Log, generatorConfig: GeneratorVSConfig, packageLanguage: int,
+                    generatorTemplateInfo: GeneratorVSTemplateInfo) -> GeneratorVCTemplate:
+        templateManager = self.__GetTemplateManager(log, generatorTemplateInfo.TemplateFolder, generatorConfig.VsVersion)
+        languageTemplates = templateManager.TryGetLanguageTemplates(packageLanguage)
+        if languageTemplates is None:
+            raise UnsupportedException("No visual studio generator templates found for language: {0}".format(PackageLanguage.ToString(packageLanguage)))
+
+        return GeneratorVCTemplate(log, generatorConfig.PlatformName, generatorConfig.VsVersion, languageTemplates,
+                                   generatorTemplateInfo.ActiveTemplate, generatorTemplateInfo.SdkConfigTemplatePath)
+
+    def __GetTemplateManager(self, log: Log, pathTemplateRoot: ToolConfigTemplateFolder, vsVersion: int) -> GeneratorVCTemplateManager:
+        key = (pathTemplateRoot, vsVersion)
+        if key in self.__Dict:
+            return self.__Dict[key]
+        templateManger = GeneratorVCTemplateManager(log, pathTemplateRoot, vsVersion)
+        self.__Dict[key] = templateManger
+        return templateManger
+
+# This allows us to reuse already loaded information when possible
+g_templateCache = TemplateCache()
+
 
 class VSPackageManager:
     NuGet = "NuGet"
@@ -98,40 +138,39 @@ class LocalMagicBuildVariantOption:
     Debug = "Debug"
     Release = "Release"
 
-
 class GeneratorVC(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], platformName: str, vsVersion: int, activeThirdPartyLibsDir: Optional[str]) -> None:
+    def __init__(self, config: Config, packages: List[Package], generatorConfig: GeneratorVSConfig, activeThirdPartyLibsDir: Optional[str]) -> None:
         super(GeneratorVC, self).__init__()
         self.__ActiveThirdPartyLibsDir = activeThirdPartyLibsDir
 
-        windows10SDKVersion = self.__DetectVS10SDKVersion(config, vsVersion)
+        windows10SDKVersion = self.__DetectVS10SDKVersion(config, generatorConfig.VsVersion)
 
-        packageLanguage = config.ToolConfig.DefaultPackageLanguage
-        templateManger = GeneratorVCTemplateManager(config, config.ToolConfig.TemplateFolder, vsVersion)
         # for now we assume all packages are using the same language
-        languageTemplates = templateManger.TryGetLanguageTemplates(packageLanguage)
-        if languageTemplates is None:
-            raise UnsupportedException("No visual studio generator templates found for language: {0}".format(PackageLanguage.ToString(packageLanguage)))
+        packageLanguage = config.ToolConfig.DefaultPackageLanguage
+        generatorTemplateInfo = GeneratorVSTemplateInfo(config.ToolConfig.ProjectRootConfig.DefaultTemplate,
+                                                        config.ToolConfig.TemplateFolder,
+                                                        config.SDKConfigTemplatePath)
 
-        template = GeneratorVCTemplate(config, platformName, vsVersion, languageTemplates)
+        template = g_templateCache.GetTemplate(config, generatorConfig, packageLanguage, generatorTemplateInfo)
         self.UsingLinuxTools = template.UsingLinuxTools
 
         self.__CheckProjectIds(packages)
 
         for package in packages:
             #if package.Type == PackageType.TopLevel:
-            #    self.__GenerateLibraryBuildFile(config, package, platformName, template.GetLibraryTemplate(package), template.GetBatTemplate(), vsVersion, windows10SDKVersion)
+            #    self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, template.GetLibraryTemplate(package),
+            #                                    template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
             if package.Type == PackageType.Library:
-                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetLibraryTemplate(package),
-                                                template.GetBatTemplate(), vsVersion, windows10SDKVersion)
+                self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, template.GetLibraryTemplate(package),
+                                                template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
             elif package.Type == PackageType.Executable:
-                self.__GenerateLibraryBuildFile(config, package, platformName, template.GetExecutableTemplate(package),
-                                                template.GetBatTemplate(), vsVersion, windows10SDKVersion)
+                self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, template.GetExecutableTemplate(package),
+                                                template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
             elif package.Type == PackageType.HeaderLibrary:
                 headerLibTemplate = template.TryGetHeaderLibraryTemplate()
                 if headerLibTemplate is not None:
-                    self.__GenerateLibraryBuildFile(config, package, platformName, headerLibTemplate,
-                                                    template.GetBatTemplate(), vsVersion, windows10SDKVersion)
+                    self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, headerLibTemplate,
+                                                    template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
 
         self.__ValidateProjectIds(packages)
 
@@ -525,7 +564,7 @@ class GeneratorVC(GeneratorBase):
         if len(variants) == 1:
             return list(variants.values())[0]
         if config.Verbosity > 1 and len(variants) > 1:
-            config.DoPrint("WARNING: Could not determine which variant %s introduced the feature: %s" % (list(variants.keys()), feature.Name))
+            config.DoPrint("WARNING: Could not determine which variant {0} introduced the feature: {1}".format(list(variants.keys()), feature.Name))
         return None
 
 
@@ -1207,48 +1246,79 @@ class GeneratorVCUtil(object):
         # Unfortunately this causes the libs to not be copied from src -> target location too :(
         # buildCommandArguments += ["/p:BuildProjectReferences=false"]
 
+        runInEnvScript = IOUtil.Join(package.ResolvedBuildPath, LocalMagicFilenames.RunProject)
         buildCommand = IOUtil.Join(package.ResolvedBuildPath, LocalMagicFilenames.BuildProject)
-        buildCommandReport = GeneratorCommandReport(False, buildCommand, buildCommandArguments)
+        buildCommandReport = GeneratorCommandReport(False, buildCommand, buildCommandArguments, runInEnvScript=runInEnvScript)
         return GeneratorBuildReport(buildCommandReport)
 
 
     @staticmethod
-    def TryGenerateExecutableReport(log: Log, generatorName: str, package: Package, variantHelper: VariantHelper) -> Optional[GeneratorExecutableReport]:
+    def TryGenerateExecutableReport(log: Log, generatorName: str, package: Package,
+                                    variantHelper: VariantHelper,
+                                    generatorConfig: GeneratorVSConfig,
+                                    generatorTemplateInfo: GeneratorVSTemplateInfo) -> Optional[GeneratorExecutableReport]:
         if package.Type != PackageType.Executable or package.IsVirtual:
             return None
 
         if package.ResolvedBuildPath is None:
             raise Exception("Invalid package")
 
+        template = g_templateCache.GetTemplate(log, generatorConfig, package.PackageLanguage, generatorTemplateInfo)
+        exeTemplate = template.GetExecutableTemplate(package)
+        # The template now supplied its buildOutputLocation 'pattern'
+        buildOutputLocation = exeTemplate.BuildOutputLocation
+
+        # ${PACKAGE_BUILD_PATH}/${PACKAGE_TARGET_NAME}/${PACKAGE_NORMAL_VARIANT_NAME_HINT}${CONFIGURATION}${PROJECT_VARIANT_NAME}
         targetName = GeneratorVCUtil.GetTargetName(package)
 
         # $(SolutionDir)\build\##PLATFORM_NAME##\##PACKAGE_TARGET_NAME##\$(Configuration)##PROJECT_VARIANT_NAME##\
-        # $(SolutionDir)\build\Windows\S06_Texturing\$(Configuration)_$(FSL_GLES_NAME)\
+        # $(SolutionDir)\build\Windows          \S06_Texturing          \$(Configuration)_$(FSL_GLES_NAME)\
         allVariantNames = GeneratorVCUtil.GenerateSLNVariantNames(variantHelper)
         if len(allVariantNames) < 1:
             allVariantNames.append('')
 
         configVariantName = "${{{0}}}".format(LocalMagicBuildVariants.GeneratorConfig)
 
-        foundBuildPath = IOUtil.Join(package.ResolvedBuildPath, targetName)
         normalVariantFormatString = variantHelper.ResolvedNormalVariantNameHint
-        exeFormatString = "{0}/{1}{2}{3}/{4}.exe".format(foundBuildPath, normalVariantFormatString, configVariantName, package.ResolvedVirtualVariantNameHint, targetName)
+        exeFileName = "{0}.exe".format(targetName)
+        #foundBuildPath = IOUtil.Join(package.ResolvedBuildPath, targetName)
+        #exeFormatStringOld = "{0}/{1}{2}{3}/{4}".format(foundBuildPath, normalVariantFormatString, configVariantName, package.ResolvedVirtualVariantNameHint, exeFileName)
         runScript = "{0}/{1}".format(package.ResolvedBuildPath, LocalMagicFilenames.RunProject)
+
+        # fill in the variable dict for the templates 'buildOutputLocation', then parse and resolve
+        variableDict = StringVariableDict()
+        variableDict.Add("PACKAGE_BUILD_PATH", package.ResolvedBuildPath)
+        variableDict.Add("PACKAGE_TARGET_NAME", targetName)
+        variableDict.Add("PACKAGE_NORMAL_VARIANT_NAME_HINT", normalVariantFormatString)
+        variableDict.Add("CONFIGURATION", configVariantName)
+        variableDict.Add("PROJECT_VARIANT_NAME", package.ResolvedVirtualVariantNameHint)
+        parsedBuildOutputLocation = ParsedFormatString(buildOutputLocation, variableDict)
+        for var in parsedBuildOutputLocation.VarCommandList:
+            parsedBuildOutputLocation.SplitList[var.SplitIndex] = var.Report.Options[0]
+        resolvedBuildOutputLocation = "".join(parsedBuildOutputLocation.SplitList)
+        exeFormatString = IOUtil.Join(resolvedBuildOutputLocation, exeFileName)
 
         return GeneratorExecutableReport(False, exeFormatString, runScript, FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable)
 
 
     @staticmethod
-    def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package) -> Optional[PackageGeneratorReport]:
+    def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package,
+                                          generatorConfig: GeneratorVSConfig,
+                                          generatorTemplateInfo: GeneratorVSTemplateInfo) -> Optional[PackageGeneratorReport]:
         if package.IsVirtual:
             return None
 
         variableReport = GeneratorVariableReport(log)
         variableReport.Add(LocalMagicBuildVariants.GeneratorConfig, [LocalMagicBuildVariantOption.Debug, LocalMagicBuildVariantOption.Release], ToolAddedVariant.CONFIG)
+        for variantEntry in package.ResolvedAllVariantDict.values():
+            variantEntryOptions = [option.Name for option in variantEntry.Options]
+            variableReport.Add(variantEntry.Name, variantEntryOptions)
 
         variantHelper = VariantHelper(package)
         buildReport = GeneratorVCUtil.TryGenerateBuildReport(log, generatorName, package, variantHelper)
-        executableReport = GeneratorVCUtil.TryGenerateExecutableReport(log, generatorName, package, variantHelper)
+        executableReport = GeneratorVCUtil.TryGenerateExecutableReport(log, generatorName, package, variantHelper,
+                                                                       generatorConfig, generatorTemplateInfo)
+
         return PackageGeneratorReport(buildReport, executableReport, variableReport)
 
 

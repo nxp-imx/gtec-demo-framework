@@ -40,8 +40,6 @@ import argparse
 import os
 import sys
 import time
-import cProfile
-import pstats
 from datetime import timedelta
 from FslBuildGen import IOUtil
 from FslBuildGen import ParseUtil
@@ -50,6 +48,8 @@ from FslBuildGen import PluginSharedValues
 from FslBuildGen import Util
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import BaseConfig
+from FslBuildGen.Exceptions import AggregateException
+from FslBuildGen.Exceptions import ExitException
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.Log import Log
@@ -61,10 +61,10 @@ from FslBuildGen.Tool.ToolAppConfig import DefaultValue
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
-from FslBuildGen.Xml.XmlProjectRootConfigFile import XmlProjectRootConfigFile
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersionString = "2.5.7"
+CurrentVersionString = "2.8.4"
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -168,7 +168,7 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
         toolAppConfig.RemainingArgs = args.RemainingArgs
     if toolCommonArgConfig.AllowForceClaimInstallArea:
         toolAppConfig.ForceClaimInstallArea = args.ForceClaimInstallArea
-    toolAppConfig.VSVersion = int(args.VSVersion) if toolCommonArgConfig.AllowVSVersion else defaultVSVersion
+    toolAppConfig.VSVersion = int(args.VSVersion) #if toolCommonArgConfig.AllowVSVersion else defaultVSVersion
 
     if toolCommonArgConfig.AddBuildFiltering or toolCommonArgConfig.AddUseFeatures:
         toolAppConfig.BuildPackageFilters.FeatureNameList = ParseUtil.ParseFeatureList(args.UseFeatures)
@@ -182,6 +182,9 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
 
     if toolCommonArgConfig.AddBuildThreads:
         toolAppConfig.BuildThreads = BuildThreads.FromString(args.BuildThreads)
+
+    if toolCommonArgConfig.AllowRecursive:
+        toolAppConfig.Recursive = args.recursive
 
     return toolAppConfig
 
@@ -214,6 +217,8 @@ def __CreateParser(toolCommonArgConfig: ToolCommonArgConfig, allowStandaloneMode
 
     if toolCommonArgConfig.AddBuildVariants:
         parser.add_argument('--Variants', help='Configure the variants you wish to use for the build [WindowSystem=X11]')
+    if toolCommonArgConfig.AllowRecursive:
+        parser.add_argument('-r', '--recursive', action='store_true', help='From the current package location we scan all sub directories for packages and process them')
     return parser
 
 
@@ -258,14 +263,33 @@ def __RunStandalone(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
             print("ERROR: {0}".format(entry))
         if lowLevelToolConfig.DebugEnabled:
             raise
+        for entry in ex.ExceptionList:
+            if isinstance(entry, ExitException):
+                sys.exit(entry.ExitCode)
         sys.exit(1)
-    except (Exception) as ex:
+    except AggregateException as ex:
+        if buildTiming:
+            PrintBuildTiming(buildTiming)
+        for entry in ex.ExceptionList:
+            print("ERROR: {0}".format(entry))
+        if lowLevelToolConfig.DebugEnabled:
+            if len(ex.ExceptionList) > 0:
+                raise ex.ExceptionList[0]
+            raise
+        for entry in ex.ExceptionList:
+            if isinstance(entry, ExitException):
+                sys.exit(entry.ExitCode)
+        sys.exit(1)
+    except ExitException as ex:
+        sys.exit(ex.ExitCode)
+    except Exception as ex:
         if buildTiming:
             PrintBuildTiming(buildTiming)
         print("ERROR: {0}".format(ex))
         if lowLevelToolConfig.DebugEnabled:
             raise
         sys.exit(1)
+
 
 
 def DetectBuildPlatform() -> str:
@@ -320,16 +344,16 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
     buildTiming = None
     try:
         defaultVSVersion = toolConfig.GetVisualStudioDefaultVersion()
-        if toolCommonArgConfig.AllowVSVersion:
-            parser.add_argument('--VSVersion', default=str(defaultVSVersion), help='Choose a specific visual studio version (2015,2017), This project defaults to: {0}'.format(toolConfig.GetVisualStudioDefaultVersion()))
+        #if toolCommonArgConfig.AllowVSVersion:
+        parser.add_argument('--VSVersion', default=str(defaultVSVersion), help='Choose a specific visual studio version (2015,2017), This project defaults to: {0}'.format(toolConfig.GetVisualStudioDefaultVersion()))
 
         userTag = appFlowFactory.CreateUserTag(baseConfig)
         appFlowFactory.AddCustomArguments(parser, toolConfig, userTag)
 
         args = parser.parse_args()
 
-        if toolCommonArgConfig.AllowVSVersion:
-            PluginConfig.SetVSVersion(args.VSVersion)
+        #if toolCommonArgConfig.AllowVSVersion:
+        PluginConfig.SetVSVersion(args.VSVersion)
 
 
         #if toolCommonArgConfig.AddPlatformArg and args.platform.lower() != PluginSharedValues.PLATFORM_ID_ALL:
@@ -355,8 +379,26 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
             print("ERROR: {0}".format(entry))
         if lowLevelToolConfig.DebugEnabled:
             raise
+        for entry in ex.ExceptionList:
+            if isinstance(entry, ExitException):
+                sys.exit(entry.ExitCode)
         sys.exit(1)
-    except (Exception) as ex:
+    except AggregateException as ex:
+        if buildTiming:
+            PrintBuildTiming(buildTiming)
+        for entry in ex.ExceptionList:
+            print("ERROR: {0}".format(entry))
+        if lowLevelToolConfig.DebugEnabled:
+            if len(ex.ExceptionList) > 0:
+                raise ex.ExceptionList[0]
+            raise
+        for entry in ex.ExceptionList:
+            if isinstance(entry, ExitException):
+                sys.exit(entry.ExitCode)
+        sys.exit(1)
+    except ExitException as ex:
+        sys.exit(ex.ExitCode)
+    except Exception as ex:
         if buildTiming:
             PrintBuildTiming(buildTiming)
         print("ERROR: {0}".format(ex))
@@ -384,17 +426,23 @@ def Run(appFlowFactory: AToolAppFlowFactory, allowStandaloneMode: bool = False) 
         else:
             __RunStandalone(appFlowFactory, strToolAppTitle, toolCommonArgConfig, lowLevelToolConfig)
     else:
-        if not lowLevelToolConfig.StandaloneEnabled:
-            cProfile.runctx('__Run(appFlowFactory, strToolAppTitle, toolCommonArgConfig, lowLevelToolConfig, allowStandaloneMode)', globals(), locals(), 'restats')
-        else:
-            cProfile.runctx('__RunStandalone(appFlowFactory, strToolAppTitle, toolCommonArgConfig, lowLevelToolConfig)', globals(), locals(), 'restats')
-        p = pstats.Stats('restats')
-        p.strip_dirs().sort_stats(-1)
-        p.print_stats()
-        p.sort_stats('cumulative')
-        p.print_stats(10)
-        p.sort_stats('time')
-        p.print_stats(10)
-        p.sort_stats('tottime')
-        p.print_stats(100)
+        try:
+            import cProfile
+            import pstats
+
+            if not lowLevelToolConfig.StandaloneEnabled:
+                cProfile.runctx('__Run(appFlowFactory, strToolAppTitle, toolCommonArgConfig, lowLevelToolConfig, allowStandaloneMode)', globals(), locals(), 'restats')
+            else:
+                cProfile.runctx('__RunStandalone(appFlowFactory, strToolAppTitle, toolCommonArgConfig, lowLevelToolConfig)', globals(), locals(), 'restats')
+            p = pstats.Stats('restats')
+            p.strip_dirs().sort_stats(-1)
+            p.print_stats()
+            p.sort_stats('cumulative')
+            p.print_stats(10)
+            p.sort_stats('time')
+            p.print_stats(10)
+            p.sort_stats('tottime')
+            p.print_stats(100)
+        except ImportError:
+            raise Exception("Standard python package cProfile or pstats is not available. So profiling is not available.")
 

@@ -1,5 +1,9 @@
-Latest version:
----------------
+# Latest version
+
+* FslBuildCheck parameters renamed.
+* FslBuild 2.6+ now checks that all include files are under their correct package name based include path.
+  So for a package called "Hamster.Dance.Master" the include files will be under "include/Hamster/Dance/Master"
+  This check can de disabled per package with PackageNameBasedIncludePath="false".
 * **Breaking change** Isolated the Graphics service from FslDemoHost.Base to FslDemoService/Graphics to 
   allow better dependency control. This allowed us to remove the Graphics service from Console type demos 
   removing their dependency on the Graphics, NativeGraphics and NativeWindow packages which they did not need.
@@ -136,21 +140,21 @@ Latest version:
 * Renamed FslGraphicsVG to FslUtil.OpenVG
 * Renamed FslGraphicsEGL to FslUtil.EGL
 * Updated FslBuild tools to 1.6.0
-  - FslBuildNew now uses the same 'engine' as the generators
-  - FslBuildNew templates now reside in '.Config\Templates.gen\NewProject'
+  * FslBuildNew now uses the same 'engine' as the generators
+  * FslBuildNew templates now reside in '.Config\Templates.gen\NewProject'
 * Updated Fsl python toolchain to 1.5.5.
-  - All FslBuildNew templates moved so they reside under ".Config\Templates.gen\NewProject" instead of "Templates".
-  - Internal template improvements.  
+  * All FslBuildNew templates moved so they reside under ".Config\Templates.gen\NewProject" instead of "Templates".
+  * Internal template improvements.  
 * Removed deprecated FslNewDemoProject.
 * Updated GLM from 0.9.7.6 to 0.9.8.4
 * Updated GLI from 0.8.1.0 to 0.8.2.0
 * Release 4.0
 * Basic Gamepad support on windows.
 * Renamed register demo app header files so all follow the same pattern:
-  - RegisterDemoAppG2D.hpp -> RegisterDemoApp.hpp
-  - RegisterDemoAppGLES2.hpp -> RegisterDemoApp.hpp
-  - RegisterDemoAppGLES3.hpp -> RegisterDemoApp.hpp
-  - RegisterDemoAppStub.hpp -> RegisterDemoApp.hpp
+  * RegisterDemoAppG2D.hpp -> RegisterDemoApp.hpp
+  * RegisterDemoAppGLES2.hpp -> RegisterDemoApp.hpp
+  * RegisterDemoAppGLES3.hpp -> RegisterDemoApp.hpp
+  * RegisterDemoAppStub.hpp -> RegisterDemoApp.hpp
 * The FSL_REGISTER_VULKAN_DEMO and FSL_REGISTER_VULKAN_DEMO_EX macro are not supported anymore. Create a ConfigureDemoAppEnvironment function instead.
 * The FSL_REGISTER_OPENVX_DEMO and FSL_REGISTER_OPENVX_DEMO_EX macro are not supported anymore. Create a ConfigureDemoAppEnvironment function instead.
 * The FSL_REGISTER_OPENVG_DEMO and FSL_REGISTER_OPENVG_DEMO_EX macro are not supported anymore. Create a ConfigureDemoAppEnvironment function instead.
@@ -186,7 +190,7 @@ Latest version:
   See FslBuildGen --ListVariants and --Variants
   See FslBuild --ListVariants and --Variants
 * Android projects are now generated to the path specified in the environment variable
-  FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR. If it's not defined the 'prepare' script 
+  FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR. If it's not defined the 'prepare' script
   sets it to a default location.
 * Android builds now use gradle and CMake.
 * Android builds now requires android-ndk-r12b and Android 7.0 (API 24) SDK Platform
@@ -198,7 +202,7 @@ Latest version:
   Use WindowSystem instead of EGLBackend now.
 * QNX should now build out of the box, but its experimental.
 * FslBuild --ForAllExe support.
-  - Run A command for all executables with access to various build information
+  * Run A command for all executables with access to various build information
     (EXE) = the full path to the executable.
     (EXE_NAME) = name of the executable.
     (EXE_PATH) = the executables dir. 
@@ -207,19 +211,19 @@ Latest version:
   For example on windows to take a screenshot of all executables supporting a set of features:
     FslBuild.py --ForAllExe "WinScreenshot.bat (EXE)" -t sdk --UseFeatures [EGL,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenCL,OpenCL1.1,OpenCL1.2]
 * OpenCV support was split into OpenCV2_4 and OpenCV3_0 due to different libs and breaking changes.
-* New Texture class and full support for loading it and creating it in GLTexture with the same level of format 
-  conversion support as we have for Bitmaps. The new texture class supports 1d, 2d, 3d, cubemaps with mipmaps, 
-  layers and compression. We also now have full ktx and dds loading support. 
+* New Texture class and full support for loading it and creating it in GLTexture with the same level of format
+  conversion support as we have for Bitmaps. The new texture class supports 1d, 2d, 3d, cubemaps with mipmaps,
+  layers and compression. We also now have full ktx and dds loading support.
 * Moved all the FsGraphics bitmap related files into their own directory.
-  - FslGraphics/Bitmap            -> FslGraphics/Bitmap/Bitmap           
-  - FslGraphics/BitmapClearMethod -> FslGraphics/Bitmap/BitmapClearMethod
-  - FslGraphics/BitmapOrigin      -> FslGraphics/Bitmap/BitmapOrigin
-  - FslGraphics/BitmapUtil        -> FslGraphics/Bitmap/BitmapUtil
-  - FslGraphics/RawBitmap         -> FslGraphics/Bitmap/RawBitmap
-  - FslGraphics/RawBitmapEx       -> FslGraphics/Bitmap/RawBitmapEx
-  - FslGraphics/RawBitmapUtil     -> FslGraphics/Bitmap/RawBitmapUtil
-  - FslGraphics/RawCubeBitmap     -> FslGraphics/Bitmap/RawCubeBitmap
-  - FslGraphics/RawCubeBitmapEx   -> FslGraphics/Bitmap/RawCubeBitmapEx
+  * FslGraphics/Bitmap            -> FslGraphics/Bitmap/Bitmap
+  * FslGraphics/BitmapClearMethod -> FslGraphics/Bitmap/BitmapClearMethod
+  * FslGraphics/BitmapOrigin      -> FslGraphics/Bitmap/BitmapOrigin
+  * FslGraphics/BitmapUtil        -> FslGraphics/Bitmap/BitmapUtil
+  * FslGraphics/RawBitmap         -> FslGraphics/Bitmap/RawBitmap
+  * FslGraphics/RawBitmapEx       -> FslGraphics/Bitmap/RawBitmapEx
+  * FslGraphics/RawBitmapUtil     -> FslGraphics/Bitmap/RawBitmapUtil
+  * FslGraphics/RawCubeBitmap     -> FslGraphics/Bitmap/RawCubeBitmap
+  * FslGraphics/RawCubeBitmapEx   -> FslGraphics/Bitmap/RawCubeBitmapEx
 * FslBuildCheck can now do some code style sanity checks and even repair a bit of the common mistakes.
   --ScanSource = Scan source and check for common issues.
   --Repair     = If used in combination with --ScanSource the tool will attempt to fix common mistakes, 
@@ -239,10 +243,10 @@ Latest version:
     | ALPHA8            | EX_ALPHA8_UNORM            | N                      |
     | LUMINANCE8        | EX_LUMINANCE8_UNORM        | N                      |
     | LUMINANCE_ALPHA88 | EX_LUMINANCE8_ALPHA8_UNORM | N                      |
-    
+
   Beware the new name listed here is just a suggestion that will match well with how
   GLES2+3 treated the data.
-    
+
 * Environment variable FSLDEMOAPP_PREFERRED_WINDOW_RESOLUTION can now be set to the preferred window resolution. 
   It will be used if no --Window parameter is set, it also accepts the same values as --Window does.
 * Renamed FslConfigCheck to FslBuildCheck and allowed it to utilize the FslBuildGen package.
@@ -250,67 +254,67 @@ Latest version:
   The FslBuildContent code automatically be executed for the build generators that dont support it.
 * FslGraphicsGLES3v1 renamed to FslGraphicsGLES3_1 to follow the convention of the rest of the packages.
 * FslBuild.py now support all platforms!
-* FslBuild.py now support 
+* FslBuild.py now support
   --BuildTime    = Time the build and log it at the end of the build.
   --ListVariants = List all variant and their options.
-  --Variants     = specify a list of variants and their configuration 
-                   for example 
-                   "--Variants [config=Debug,FSL_GLES_NAME=vivante]" or 
+  --Variants     = specify a list of variants and their configuration
+                   for example
+                   "--Variants [config=Debug,FSL_GLES_NAME=vivante]" or
                    "--Variants [config=Debug,WindowSystem=X11]"
-                   This means that we have build system independent way of 
+                   This means that we have build system independent way of
                    doing this so it works on all platforms.
 * FslNativeWindow, FslNativeWindowEGL, FslNativeWindowPlatform created in preparation for Vulkan support (and future platforms)
 * FslBuild.py now has experimental windows support.
 * FslUtilOpenCL StringHelper.hpp was replaced by DebugStrings.hpp.
 * FslUtilOpenVX
-  - All GetHandle methods was renamed to Get. Since this library was marked 'early access' no deprecation cycle was needed.
-  - Was split into version specific libraries (FSLUtilOpenVX is generic, FslUtilOpenVX1_0_1, FslUtilOpenVX1_1)
+  * All GetHandle methods was renamed to Get. Since this library was marked 'early access' no deprecation cycle was needed.
+  * Was split into version specific libraries (FSLUtilOpenVX is generic, FslUtilOpenVX1_0_1, FslUtilOpenVX1_1)
 * FslUtilOpenCL
-  - StringHelper.pp was replaced by DebugStrings.hpp
-  - All GetHandle methods was renamed to Get. Since this library was marked 'early access' no deprecation cycle was needed.
-  - Program was renamed to ProgramEx and replaced with another Program RAII class.
-  - Was split into version specific libraries (FSLUtilOpenCL is generic, FslUtilOpenCL1_1, FslUtilOpenCL1_2)
+  * StringHelper.pp was replaced by DebugStrings.hpp
+  * All GetHandle methods was renamed to Get. Since this library was marked 'early access' no deprecation cycle was needed.
+  * Program was renamed to ProgramEx and replaced with another Program RAII class.
+  * Was split into version specific libraries (FSLUtilOpenCL is generic, FslUtilOpenCL1_1, FslUtilOpenCL1_2)
 * Legacy style struct enums was converted to C++11 enum class
-  - BitmapClearMethod::Enum was changed to BitmapClearMethod
-  - BlendState::Enum was changed to BlendState
-  - ChunkType::Enum was changed to ChunkType
-  - ConfigControl::Enum was changed to ConfigControl
-  - ContentMonitorResultCommand was changed to ContentMonitorResultCommand.
-  - DemoState::Enum was changed to DemoState
-  - EventType::Enum was changed to EventType
-  - OptimizationFlag::Enum was changed to OptimizationFlag.
-  - PixelFormat::Enum was changed to PixelFormat.
-  - PrimitiveType::Enum was changed to PrimitiveType.
-  - SearchOptions::Enum was changed to SearchOptions.
-  - StrideRequirement::Enum was changed to StrideRequirement.
-  - TimeStepMode::Enum was changed to TimeStepMode.
-  - Texture2DFilterHint::Enum was changed to Texture2DFilterHint.
-  - VertexElementFormat::Enum was changed to VertexElementFormat.
-  - VertexElementUsage::Enum was changed to VertexElementUsage.  
-  - WindowMode::Enum was changed to WindowMode
+  * BitmapClearMethod::Enum was changed to BitmapClearMethod
+  * BlendState::Enum was changed to BlendState
+  * ChunkType::Enum was changed to ChunkType
+  * ConfigControl::Enum was changed to ConfigControl
+  * ContentMonitorResultCommand was changed to ContentMonitorResultCommand.
+  * DemoState::Enum was changed to DemoState
+  * EventType::Enum was changed to EventType
+  * OptimizationFlag::Enum was changed to OptimizationFlag.
+  * PixelFormat::Enum was changed to PixelFormat.
+  * PrimitiveType::Enum was changed to PrimitiveType.
+  * SearchOptions::Enum was changed to SearchOptions.
+  * StrideRequirement::Enum was changed to StrideRequirement.
+  * TimeStepMode::Enum was changed to TimeStepMode.
+  * Texture2DFilterHint::Enum was changed to Texture2DFilterHint.
+  * VertexElementFormat::Enum was changed to VertexElementFormat.
+  * VertexElementUsage::Enum was changed to VertexElementUsage.  
+  * WindowMode::Enum was changed to WindowMode
 * The build system was updated.
-  - All build.sh type scripts was replaced by the FslBuild.py script. 
+  * All build.sh type scripts was replaced by the FslBuild.py script.
     See Readme_FslBuild.txt. Seriously read that document! :)
-  - All build documentation was updated to reflect this change.
-  - Its recommended to run a clean on your git checkout, but be careful :)
-  - QNX is available as a 'in-development' generator, it can be enabled by adding the '--dev' parameter
-  - All build output locations were made more consistent
-    - Ubuntu builds used to write to the "obj" directory it now writes to "build/Ubuntu"
-    - Windows builds used to build to the "bin" directory it now writes to "build/Windows"
-    - Yocto builds used to build to the "obj" directory it now writes to "build/Yocto"
-    - QNX builds used to build to the "build_qnx" directory it now writes to "build/QNX/"
-  - Build/project files are no longer submitted to GIT. 
+  * All build documentation was updated to reflect this change.
+  * Its recommended to run a clean on your git checkout, but be careful :)
+  * QNX is available as a 'in-development' generator, it can be enabled by adding the '--dev' parameter
+  * All build output locations were made more consistent
+    * Ubuntu builds used to write to the "obj" directory it now writes to "build/Ubuntu"
+    * Windows builds used to build to the "bin" directory it now writes to "build/Windows"
+    * Yocto builds used to build to the "obj" directory it now writes to "build/Yocto"
+    * QNX builds used to build to the "build_qnx" directory it now writes to "build/QNX/"
+  * Build/project files are no longer submitted to GIT.
     Instead you are required to run FslBuild or FslBuildGen to generate them.
-  - The generated Visual Studio project files do not detect changes to the build environment automatically.
+  * The generated Visual Studio project files do not detect changes to the build environment automatically.
     So its your job to run FslBuildGen when you change it by for example doing a "git pull"
-   - The build can now be queried for a list of required features by using
-       FslBuild.py --ListFeatures
-   - The build can be constrained by a list of available features. For example to build the entire SDK
+    * The build can now be queried for a list of required features by using
+       ```FslBuild.py --ListFeatures```
+    * The build can be constrained by a list of available features. For example to build the entire SDK
      using the features EGL, OpenGLES2, OpenCL do this:
-       FslBuild.py -t sdk --UseFeatures [EGL,OpenGLES2,OpenCL]
-    - For now the old build.sh files are still generated but they are located in the build/<platform' folder as a backup.
+       ```FslBuild.py -t sdk --UseFeatures [EGL,OpenGLES2,OpenCL]```
+    * For now the old build.sh files are still generated but they are located in the build/<platform' folder as a backup.
 * Early access to new DemoApp types were added:
-  - OpenCL
-  - OpenVX
+  * OpenCL
+  * OpenVX
   However since this is early access they are not supported on all platforms nor are the interfaces
   considered stable.

@@ -153,7 +153,7 @@ def RemoveAllContent(pathDir: str, directoryMustExist: bool = True) -> None:
 def TryGetEnvironmentVariable(name: str) -> Optional[str]:
     return os.environ.get(name)
 
-def GetEnvironmentVariable(name: str) -> Optional[str]:
+def GetEnvironmentVariable(name: str) -> str:
     result = os.environ.get(name)
     if result is None:
         raise EnvironmentError("'{0}' environment variable not set".format(name))
@@ -283,6 +283,32 @@ def GetFileNameWithoutExtension(path: str) -> str:
 def GetFileNameExtension(path: str) -> str:
     return os.path.splitext(os.path.basename(path))[1]
 
+def __IgnoreFile(ignoreDirectories: List[str], filename: str) -> bool:
+    for dirpath in ignoreDirectories:
+        if filename.startswith(dirpath):
+            return True
+    return False
+
+def FindFileByName(directory: str, findFilename: str, ignoreDirectories: Optional[List[str]] = None) -> List[str]:
+    """
+    This function will find all instances of a findFilename in the directory and its subdirectories
+    :param ignoreDirectories: if this is supplied any filename that starts with one of the ignore directories will be ignored.
+                              beware if the ignoreDirectory doesnt end with a '/' partial matches can be ignored
+    """
+    filePaths = []  # type: List[str]   # List which will store all of the full filepaths.
+
+    try:
+        # Walk the tree.
+        for root, directories, files in os.walk(directory):
+            for filename in files:
+                if filename == findFilename:
+                    # Join the two strings in order to form the full filepath.
+                    filepath = ToUnixStylePath(os.path.join(root, filename))
+                    if ignoreDirectories is None or not __IgnoreFile(ignoreDirectories, filepath):
+                        filePaths.append(filepath)  # Add it to the list.
+    except StopIteration: # Python >2.5
+        pass
+    return filePaths
 
 def GetFilePaths(directory: str, endswithFilter: Optional[Union[str, Tuple[str, ...]]]) -> List[str]:
     """

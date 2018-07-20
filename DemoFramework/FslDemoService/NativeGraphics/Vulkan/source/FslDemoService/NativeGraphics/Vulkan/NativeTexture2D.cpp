@@ -45,7 +45,14 @@ namespace Fsl
 
     NativeTexture2D::~NativeTexture2D()
     {
+    }
 
+    void NativeTexture2D::SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    {
+    }
+
+    void NativeTexture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
+    {
     }
   }
 }

@@ -36,7 +36,7 @@ import os
 import os.path
 import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
-from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Log import Log
 from FslBuildGen.Exceptions import FileNotFoundException
 from FslBuildGen.Xml.Exceptions import XmlException
 from FslBuildGen.Xml.Exceptions import XmlInvalidRootElement
@@ -48,15 +48,15 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlNewTemplate(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlNewTemplate, self).__init__(basicConfig, xmlElement)
-        self.NoInclude = XmlBase._ReadBoolAttrib(self, xmlElement, 'NoInclude', False)
-        self.Force = XmlBase._ReadBoolAttrib(self, xmlElement, 'Force', False)
-        self.Warning = XmlBase._ReadAttrib(self, xmlElement, 'Warning', '')
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlNewTemplate, self).__init__(log, xmlElement)
+        self.NoInclude = self._ReadBoolAttrib(xmlElement, 'NoInclude', False)
+        self.Force = self._ReadBoolAttrib(xmlElement, 'Force', False)
+        self.Warning = self._ReadAttrib(xmlElement, 'Warning', '')
 
 
 class XmlNewTemplateFile(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, filename: str) -> None:
+    def __init__(self, log: Log, filename: str) -> None:
         if not os.path.isfile(filename):
             raise FileNotFoundException("Could not locate config file %s", filename)
 
@@ -65,12 +65,12 @@ class XmlNewTemplateFile(XmlBase):
         if elem.tag != 'FslBuildNewTemplate':
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGenConfig'")
 
-        super(XmlNewTemplateFile, self).__init__(basicConfig, elem)
-        fileVersion = XmlBase._ReadAttrib(self, elem, 'Version')
+        super(XmlNewTemplateFile, self).__init__(log, elem)
+        fileVersion = self._ReadAttrib(elem, 'Version')
         if fileVersion != '1':
             raise Exception("The template file version was not correct")
 
-        xmlTemplate = self.__LoadTemplateConfiguration(basicConfig, elem)
+        xmlTemplate = self.__LoadTemplateConfiguration(log, elem)
         if len(xmlTemplate) != 1:
             raise XmlException("The file did not contain exactly one Template element")
 
@@ -82,9 +82,9 @@ class XmlNewTemplateFile(XmlBase):
         self.Prefix = ("%s_" % (self.Name)).upper()
 
 
-    def __LoadTemplateConfiguration(self, basicConfig: BasicConfig, element: ET.Element) -> List[XmlNewTemplate]:
+    def __LoadTemplateConfiguration(self, log: Log, element: ET.Element) -> List[XmlNewTemplate]:
         res = []
         foundElements = element.findall("Template")
         for foundElement in foundElements:
-            res.append(XmlNewTemplate(basicConfig, foundElement))
+            res.append(XmlNewTemplate(log, foundElement))
         return res

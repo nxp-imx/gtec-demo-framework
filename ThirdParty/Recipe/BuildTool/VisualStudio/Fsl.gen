@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ToolRecipe Name="Recipe.BuildTool.VisualStudio">
+    <Default.Platform.Supported Value="false"/>
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe>
+        <Installation>
+          <FindExecutableFileInPath Name="rc" Help="This tool is normally provided by Visual Studio and is used internally by cmake when generating visual studio projects. Please install it if its missing or maybe you just forgot to run Visual Studio's setup script 'vcvarsall.bat x64'"/>
+          <FindExecutableFileInPath Name="msbuild" Help="This tool is normally provided by Visual Studio, please ensure that msbuild is available in your path. Did you run Visual Studio's setup script 'vcvarsall.bat x64'?"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ToolRecipe>
+</FslBuildGen>

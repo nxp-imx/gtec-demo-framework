@@ -33,16 +33,16 @@
 
 from typing import Optional
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.DataTypes import BoolStringHelper
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBaseInfo import XmlBaseInfo
 from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.Exceptions import XmlFormatException
 from FslBuildGen.Xml.Exceptions import XmlRequiredAttributeMissingException
 
 class XmlBase(XmlBaseInfo):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlBase, self).__init__(basicConfig, xmlElement)
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlBase, self).__init__(log, xmlElement)
 
 
     def _GetElement(self, xmlElement: ET.Element, elementName: str) -> ET.Element:
@@ -59,7 +59,7 @@ class XmlBase(XmlBaseInfo):
     #    """ Raise a exception if there is any attributes isn't on the list """
     #    for entry in xmlElement.attrib.keys():
     #        if not entry in validAttributeNames:
-    #            self.BasicConfig.LogPrint("Unexpected attribute '{0}' found, valid attributes={0}".format(validAttributeNames))
+    #            self.Log.LogPrint("Unexpected attribute '{0}' found, valid attributes={0}".format(validAttributeNames))
 
     def _HasAttrib(self, xmlElement: ET.Element, attribName: str) -> bool:
         return attribName in xmlElement.attrib

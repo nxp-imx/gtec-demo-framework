@@ -161,7 +161,12 @@ class PipelineCommandGitClone(PipelineCommandFetch):
             dstPath = self.Info.DstRootPath
             if not self.Info.AllowDownloads and not IOUtil.IsDirectory(dstPath):
                 raise Exception("Could not git clone {0} to {1} as downloads have been disabled. Enable downloads or clone it manually.".format(self.__SourceCommand.URL, dstPath))
-            self.Task.RunGitClone(self.__SourceCommand.URL, self.__SourceCommand.Tag, dstPath)
+            remoteTag = self.__SourceCommand.Tag
+            self.Task.RunGitClone(self.__SourceCommand.URL, remoteTag, dstPath)
+            if len(remoteTag) <= 0 and self.__SourceCommand.Hash is not None:
+                self.Task.RunGitCheckout(dstPath, self.__SourceCommand.Hash)
+
+
             # get the repo hash
             hashStr = self.Task.GetCurrentHash(dstPath)
             if self.__SourceCommand.Hash is None:

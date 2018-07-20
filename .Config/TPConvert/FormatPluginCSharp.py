@@ -69,6 +69,6 @@ class FormatPluginCSharp(FormatPlugin):
 
         content = '\n'.join(list)
 
-        outputFilename = '%s.%s' % (outputFilename, 'cs')
-        IOUtil.WriteBinaryFileIfChanged(outputFilename, content)
+        outputFilename = '{0}.{1}'.format(outputFilename, 'cs')
+        IOUtil.WriteFileIfChanged(outputFilename, content)
 

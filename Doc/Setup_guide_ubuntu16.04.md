@@ -1,21 +1,21 @@
-Prerequisites
-=============
+# Setup guide Ubuntu 16.04
+
+## Prerequisites
+
 - Ubuntu16.04 64 bit
 - Build tools and xrand
-  ```bash
-  sudo apt-get install build-essential libxrandr-dev
-  ```
-- Python 3.4+ 
-
+    ```bash
+    sudo apt-get install build-essential libxrandr-dev
+    ```
+- Python 3.4+
   To be able run python scripts, they are not needed to build.
   It should be part of the default Ubuntu install.
   If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
   To install the typing library in Python **3.4** run:
-  ```bash
-  sudo apt-get install python3-pip
-  sudo pip3 install typing
-  ```
- 
+    ```bash
+    sudo apt-get install python3-pip
+    sudo pip3 install typing
+    ```
 - One of these (they are mutually exclusive):
   - Mesa OpenGL ES 2
     ```bash
@@ -26,92 +26,87 @@ Prerequisites
     wget https://armkeil.blob.core.windows.net/developer/Files/downloads/open-gl-es-emulator/3.0.2/Mali_OpenGL_ES_Emulator-v3.0.2.g694a9-Linux-64bit.deb
     sudo dpkg -i Mali_OpenGL_ES_Emulator-v3.0.2.g694a9-Linux-64bit.deb
     ```
-
 - DevIL (Developer's Image Library)
-  ```bash
-  sudo apt-get install libdevil-dev 
-  ```
-    
+    ```bash
+    sudo apt-get install libdevil-dev
+    ```
 - Assimp (Open Asset Import Library)
   Is now downloaded and build from source when needed. So its no longer necessary to run "sudo apt-get install libassimp-dev".
-    
 - Download the source from git.
 
 It's also a good idea to read the introduction to the [FslBuild toolchain](./FslBuild_toolchain_readme.md)
 
-Simple setup
-============
-  1. Start a terminal (ctrl+alt t) in the DemoFramework folder
-  2. Run the `prepare.sh` file located in the root of the framework folder to
-     configure the necessary environment variables and paths.
-     Please beware that the `prepare.sh` file requires the current working 
-     directory to be the root of your demoframework folder to function 
-     (which is also the folder it resides in).
-```bash
-      source prepare.sh
-```
- 
- 
-To Compile all samples
-----------------------
-  1. Make sure that you performed the [simple setup].
-  2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
-```bash
-      FslBuild.py --BuildThreads 2
-```
+## Simple setup
 
-     
-To Compile and run an existing sample application 
--------------------------------------------------
+1. Start a terminal (ctrl+alt t) in the DemoFramework folder
+2. Run the `prepare.sh` file located in the root of the framework folder to
+   configure the necessary environment variables and paths.
+   Please beware that the `prepare.sh` file requires the current working 
+   directory to be the root of your demoframework folder to function 
+   (which is also the folder it resides in).
+    ```bash
+    source prepare.sh
+    ```
+
+## To Compile all samples
+
+1. Make sure that you performed the [simple setup].
+2. Compile everything (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
+    ```bash
+    FslBuild.py -t sdk --BuildThreads 2
+    ```
+
+## To Compile and run an existing sample application
+
 In this example we will utilize the GLES2.S06_Texturing app.
-  1. Make sure that you performed the [simple setup].
-  2. Change directory to the sample directory:
+
+1. Make sure that you performed the [simple setup].
+2. Change directory to the sample directory:
     ```bash
     cd DemoApps/GLES2/S06_Texturing
     ```
-  3. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
-     If you FslBuild without the --BuildThreads argument it will be set to 'auto' which uses your cpu core count.
-```bash
+3. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
+   If you FslBuild without the --BuildThreads argument it will be set to 'auto' which uses your cpu core count.
+    ```bash
     FslBuild.py --BuildThreads 2
-```
+    ```
 
+## To create a new GLES2 demo project named 'CoolNewDemo'
 
-To create a new GLES2 demo project named 'CoolNewDemo'
-------------------------------------------------------
-  1. Make sure that you performed the [simple setup].
-  2. Change directory to the GLES2 sample directory:
+1. Make sure that you performed the [simple setup].
+2. Change directory to the GLES2 sample directory:
     ```bash
     cd DemoApps/GLES2
     ```
-  3. Create the project template using the FslBuildNew.py script
+3. Create the project template using the FslBuildNew.py script
     ```bash
     FslBuildNew.py GLES2 CoolNewDemo  
     ```
-  4. Change directory to the newly created project folder 'CoolNewDemo'
+4. Change directory to the newly created project folder 'CoolNewDemo'
     ```bash
     cd CoolNewDemo
     ```
-  5. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
+5. Compile the project (a good rule of thumb for '--BuildThreads N' is number of cpu cores * 2)
     ```bash
     FslBuild.py --BuildThreads 2
     ```
 
-Note: 
+Note:
 
 Once a build has been done once you can just invoke the make file directly.
 However this requires that you didn't change any dependencies or add files.
-To do this run 
-```bash
-      make -j 2
-```
+To do this run:
 
-If you add source files to a project or change the Fsl.gen file then run the 
-`FslBuildGen.py` script in the project root folder to regenerate the various 
-build files or just make sure you always use the `FslBuild.py` script as it 
+  ```bash
+  make -j 2
+  ```
+
+If you add source files to a project or change the Fsl.gen file then run the
+`FslBuildGen.py` script in the project root folder to regenerate the various
+build files or just make sure you always use the `FslBuild.py` script as it
 automatically adds files and regenerate build files as needed.
 
-Building Vulkan demo framework apps
------------------------------------
+## Building Vulkan demo framework apps
 
 See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
 
@@ -148,8 +143,8 @@ See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/gett
 8. Run the normal setup.
 
 
-Building OpenCV 3.2 demo framework apps
-------------------------------------------
+## Building OpenCV 3.2 demo framework apps
+
 1. Follow the normal setup procedure for the sdk
 2. Install the required packages
     ```bash
@@ -189,17 +184,16 @@ Building OpenCV 3.2 demo framework apps
     ```
    See DemoApps/GLES2/OpenCV101/Fsl.gen for how its done.
 
-9. Run FslBuildGen.py to regenerate the project files. 
+9. Run FslBuildGen.py to regenerate the project files.
 
-Building OpenCL demo framework apps
------------------------------------
+## Building OpenCL demo framework apps
+
 - This is a guide that works for running inside a virtual machine.
-  It will use the AMD OpenCL CPU implementation. 
+  It will use the AMD OpenCL CPU implementation.
   If you encounter problems or want to use proper GPU accelleration please refer to AMD's guidelines.
 
-1. Download the [AMD sdk](http://developer.amd.com/amd-accelerated-parallel-processing-app-sdk/) 
-   (AMD APP SDK v2.9.1 beware the 3.0 release appears to be broken) 
-     
+1. Download the [AMD sdk](http://developer.amd.com/amd-accelerated-parallel-processing-app-sdk/)
+   (AMD APP SDK v2.9.1 beware the 3.0 release appears to be broken)
 2. Go to the location of the downloaded file AMD-APP-SDK-linux-v2.9-1.599.381-GA-x64.tar.bz2
 3. Extract the sdk (Follow the next three steps or look at the install guide)
     ```bash
@@ -217,4 +211,4 @@ Building OpenCL demo framework apps
     ```bash
     printenv AMDAPPSDKROOT
     ```
-7. You are now ready to build and run OpenCL apps.     
+7. You are now ready to build and run OpenCL apps.

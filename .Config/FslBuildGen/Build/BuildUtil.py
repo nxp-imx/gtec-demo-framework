@@ -67,3 +67,8 @@ class PlatformBuildUtil(object):
             log.LogPrint("Builder using BuildThreads: {0}".format(buildThreads))
             rBuildCommandList += ['-j', str(buildThreads)]
 
+    @staticmethod
+    def GetRecommendedBuildThreads(buildThreads: int) -> int:
+        if buildThreads == BuildThreads.Auto:
+             return multiprocessing.cpu_count()
+        return buildThreads

@@ -146,6 +146,15 @@ def IsValidName(name: str) -> bool:
             return False
     return True
 
+def IsValidComamndName(name: str) -> bool:
+    if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
+        return False
+
+    for ch in name:
+        if not IsValidNameCharacter(ch) and ch != '-':
+            return False
+    return True
+
 def IsValidUppercaseName(name: str) -> bool:
     if len(name) <= 0 or not IsValidUppercaseNameStartCharacter(name[0]):
         return False
@@ -269,3 +278,12 @@ def ChangeToDosEnvironmentVariables(path: str) -> str:
     end = path[endIndex+1:]
     path = "%s%%%s%%%s" % (start, envName, end)
     return ChangeToDosEnvironmentVariables(path)
+
+def ParseVersionString(version: str, splitChar: str='.', maxValues: int = 4) -> List[int]:
+    valueStrings = version.split(splitChar)
+    if len(valueStrings) > maxValues:
+        raise Exception("Version string contained more values than allowed '{0}'".format(version))
+    return [int(value) for value in valueStrings]
+
+
+

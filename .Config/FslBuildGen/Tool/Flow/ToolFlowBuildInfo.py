@@ -45,6 +45,7 @@ from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.ExtensionListManager import ExtensionListManager
+from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.PackageConfig import PlatformNameString
@@ -142,7 +143,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
 
-        theFiles = MainFlow.DoGetFiles(config, currentDirPath)
+        theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
         generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 
@@ -155,7 +156,9 @@ class ToolFlowBuildInfo(AToolAppFlow):
             config.LogPrint("Saving to json file '{0}'".format(localToolConfig.SaveJson))
 
 
+            generatorConfig = GeneratorConfig(config.SDKConfigTemplatePath, config.ToolConfig)
             InfoSaver.SavePackageMetaDataToJson(generatorContext,
+                                                generatorConfig,
                                                 localToolConfig.SaveJson,
                                                 config,
                                                 topLevelPackage,
@@ -192,6 +195,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         argConfig.AddBuildFiltering = True
         argConfig.AddBuildThreads = True
         argConfig.AddBuildVariants = True
+        argConfig.AllowRecursive = True
         return argConfig
 
 

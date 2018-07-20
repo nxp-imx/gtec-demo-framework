@@ -17,6 +17,7 @@ The external dependencies are build on a 'as required' basis meaning that we 'fe
 first time you try to build something that depends on them.
 
 ## Common requirements
+
 * Python 3.4 or better is required by all our scripts (beware using 3.4 requires you to install the 'typing' library for python it comes with 3.5+).
 * [CMake](https://cmake.org/) is required by most external source packages.
 * Git is required by a few external packages.
@@ -26,6 +27,7 @@ first time you try to build something that depends on them.
 All existing FslBuild python scripts will automatically invoke the external builder when required. Additionally we introduced a new FslBuildExternal.py script that work directory on the new external build recipes.
 
 ### FslBuildExternal.py
+
 * Only builds external packages
 * Has various command line options to help develop the external package recipe's.
 
@@ -38,6 +40,7 @@ FslBuildExternal.py -t sdk -v
 ## The technical details
 
 ### Paths
+
 The paths below are subject to change.
 
 * All downloads and git clones are done to a cache area where each package must have a unique name. This cache exist at

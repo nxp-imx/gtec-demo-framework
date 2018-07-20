@@ -92,8 +92,6 @@ class PackageFinder(object):
             resultFileList.append(PackageFile(file, None, location))
         return resultFileList
 
-
-
     def __LocateInputFileLocation(self, file: str) -> ToolConfigPackageLocation:
         print(file)
         for location in self.__InitialSearchLocations:
@@ -104,6 +102,12 @@ class PackageFinder(object):
             scannedLocations.append(location.ResolvedPathEx)
         raise Exception("Could not find package location for file {0} scanned locations: {1}".format(file, scannedLocations))
 
+    def TryLocateMissingPackagesByName(self, packageName: str) -> Optional[PackageFile]:
+        # Check to see if the package can be found
+        foundLocation = self.PackageLocationCache.TryLocatePackage(packageName)
+        if foundLocation is not None and foundLocation.FoundPackageFilePath is not None:
+            return PackageFile(foundLocation.FoundPackageFilePath, packageName, foundLocation.SourceLocation)
+        return None
 
     def LocateMissingPackages(self, missingDict: Dict[str, XmlGenFile]) -> List[PackageFile]:
         """ Given a dict of missing package requests, try to locate them """
@@ -112,7 +116,6 @@ class PackageFinder(object):
             foundLocation = self.__LocateMissingPackage(packageName, missingDict)
             files.append(PackageFile(cast(str, foundLocation.FoundPackageFilePath), packageName, foundLocation.SourceLocation))
         return files
-
 
     def __LocateMissingPackage(self, packageName: str, missingDict: Dict[str, XmlGenFile], allowRetry: bool = True) -> PackageLocationCachePath:
         """ We only provide the missing dict here so that we can use it in case of a exception """

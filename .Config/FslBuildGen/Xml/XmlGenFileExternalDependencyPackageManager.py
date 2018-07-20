@@ -33,13 +33,13 @@
 
 from typing import Optional
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
 
 class XmlGenFileExternalDependencyPackageManager(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlGenFileExternalDependencyPackageManager, self).__init__(basicConfig, xmlElement)
-        self.Name = XmlBase._ReadAttrib(self, xmlElement, 'Name')  # type: str
-        self.PackageVersion = XmlBase._TryReadAttrib(self, xmlElement, 'PackageVersion')  # type: Optional[str]
-        self.PackageTargetFramework = XmlBase._TryReadAttrib(self, xmlElement, 'PackageTargetFramework')  # type: Optional[str]
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super(XmlGenFileExternalDependencyPackageManager, self).__init__(log, xmlElement)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
+        self.PackageVersion = self._TryReadAttrib(xmlElement, 'PackageVersion')  # type: Optional[str]
+        self.PackageTargetFramework = self._TryReadAttrib(xmlElement, 'PackageTargetFramework')  # type: Optional[str]

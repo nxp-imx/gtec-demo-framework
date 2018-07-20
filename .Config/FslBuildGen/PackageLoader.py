@@ -43,6 +43,7 @@ from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import ScanMethod
 from FslBuildGen.Exceptions import DependencyNotFoundException
+from FslBuildGen.Exceptions import ToolDependencyNotFoundException
 from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Exceptions import PackageHasMultipleDefinitions2Exception
@@ -62,7 +63,7 @@ def _CreateXmlGenFile(config: Config, defaultPackageLanguage: int) -> XmlGenFile
 
 
 class PackageLoader(object):
-    def __init__(self, config: Config, files: List[str], platform: GeneratorPluginBase) -> None:
+    def __init__(self, config: Config, files: List[str], platform: GeneratorPluginBase, forceImportPackageNames: Optional[List[str]] = None) -> None:
         super(PackageLoader, self).__init__()
         self.BasicConfig = config
 
@@ -85,8 +86,28 @@ class PackageLoader(object):
             if config.Type in packageConfigDict and packageConfigDict[config.Type].Preload:
                 inputFiles = self.PackageFinder.GetKnownPackageFiles(inputFiles)
 
-            if platform.Name == PlatformNameString.ANDROID and not self.__ContainsPackage(inputFiles, "Recipe.BuildTool.ninja"):
-                inputFiles.append(self.PackageFinder.LocatePackageFileByName("Recipe.BuildTool.ninja"))
+            internalNinjaToolPackageName = "Recipe.BuildTool.ninja"
+            if platform.Name == PlatformNameString.ANDROID and not self.__ContainsPackage(inputFiles, internalNinjaToolPackageName):
+                packageFile = self.PackageFinder.TryLocateMissingPackagesByName(internalNinjaToolPackageName)
+                if packageFile is None:
+                    raise ToolDependencyNotFoundException(internalNinjaToolPackageName)
+                if packageFile not in inputFiles:
+                    # prevent file duplicatin (FIX: this is a workaround due to 'initial' packages not being in the lookup cache)
+                    if not self.__ContainsName(inputFiles, internalNinjaToolPackageName):
+                        inputFiles.append(packageFile)
+                #files.append(packageFile.AbsoluteFilePath)
+
+            if forceImportPackageNames is not None:
+                for packageName in forceImportPackageNames:
+                    packageFile = self.PackageFinder.TryLocateMissingPackagesByName(packageName)
+                    if packageFile is None:
+                        raise ToolDependencyNotFoundException(packageName)
+                    if packageFile not in inputFiles:
+                        # prevent file duplicatin (FIX: this is a workaround due to 'initial' packages not being in the lookup cache)
+                        if not self.__ContainsName(inputFiles, packageName):
+                            inputFiles.append(packageFile)
+                            #files.append(packageFile.AbsoluteFilePath)
+
 
             # sort the input files to ensure a predictable 'initial' order
             inputFiles.sort(key=lambda s: s.AbsoluteDirPath.lower())
@@ -109,10 +130,17 @@ class PackageLoader(object):
                 else:
                     searchForPackages = False
 
+            self.FoundInputFiles = inputFiles
             self.SourceFiles = files
             self.GenFiles = genFiles
         finally:
             config.PopIndent()
+
+    def __ContainsName(self, packageFiles: List[PackageFile], name: str) -> bool:
+        for entry in packageFiles:
+            if entry.PackageName == name:
+                return True
+        return False
 
     def __ContainsPackage(self, packageFiles: List[PackageFile], packageName: str) -> bool:
         for entry in packageFiles:

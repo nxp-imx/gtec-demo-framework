@@ -8,11 +8,10 @@
     </ExperimentalRecipe>
     <!-- Override the default recipe to provide a better help message -->
     <Platform Name="Windows" Supported="true">
+      <Dependency Name="Recipe.BuildTool.VisualStudio"/>
       <ExperimentalRecipe>
         <Installation>
           <FindExecutableFileInPath Name="cmake" Help="Please install cmake (https://cmake.org/) as it is used to build solutions we depend upon."/>
-          <FindExecutableFileInPath Name="rc" Help="This tool is normally provided by Visual Studio and is used internally by cmake when generating visual studio projects. Please install it if its missing or maybe you just forgot to run Visual Studio's setup script 'vcvarsall.bat x64'"/>
-          <FindExecutableFileInPath Name="msbuild" Help="This tool is normally provided by Visual Studio, please ensure that msbuild is available in your path. Did you run Visual Studio's setup script 'vcvarsall.bat x64'?"/>
         </Installation>
       </ExperimentalRecipe>
     </Platform>

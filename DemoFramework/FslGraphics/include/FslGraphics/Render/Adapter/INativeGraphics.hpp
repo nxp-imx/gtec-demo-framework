@@ -47,8 +47,10 @@ namespace Fsl
   public:
     virtual ~INativeGraphics() {}
 
-    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) = 0;
-    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) = 0;
+    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
+                                                              const TextureFlags& textureFlags) = 0;
+    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                              const TextureFlags& textureFlags) = 0;
   };
 
 }

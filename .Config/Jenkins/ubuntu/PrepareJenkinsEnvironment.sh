@@ -5,6 +5,11 @@ localJobName=$JOB_NAME
 localJobName+='_'
 localJobName+=$EXECUTOR_NUMBER
 
+echo - localJobName: $localJobName
+echo - HOME: $HOME
+echo - FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR: $FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR
+echo - FSL_JENKINS_THIRD_PARTY_INSTALL: $FSL_JENKINS_THIRD_PARTY_INSTALL
+
 if [ ! -n "${FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR+1}" ]; then
   if [ -n "${FSL_JENKINS_THIRD_PARTY_INSTALL+1}" ]; then
     export FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR=$FSL_JENKINS_THIRD_PARTY_INSTALL/WorkspaceInstall/$EXECUTOR_NUMBER
@@ -31,6 +36,8 @@ echo - FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR as $FSL_GRAPHICS_SDK
 export FSL_GRAPHICS_SDK=$WORKSPACE
 
 source prepare.sh  
+
+export FSL_TEST_REPORTS=$WORKSPACE/.Reports/UnitTests
 
 # Since a specific executor can run build multiple version of the %JOB_NAME% and there is no way 
 # to get information about that to create a unique directory name based on 'JOB_NAME' 'EXECUTOR_NUMBER' and this 'magic workspace #'

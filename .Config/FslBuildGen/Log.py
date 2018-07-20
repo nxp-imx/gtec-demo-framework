@@ -77,8 +77,7 @@ class Log(object):
     def PopIndent(self) -> None:
         if self.__CurrentIndent <= 0:
             if self.IsVerbose:
-                print("ERROR: PopIndent called while indent level is zero, call ignored")
-                sys.stdout.flush()
+                self._PrintNow("ERROR: PopIndent called while indent level is zero, call ignored")
             return
 
         self.__CurrentIndent -= 1
@@ -102,18 +101,20 @@ class Log(object):
 
     def DoPrint(self, message: str) -> None:
         if self.__CurrentIndent <= 0:
-            print(message)
+            self._PrintNow(message)
         else:
-            print("{0}{1}".format(self.__CurrentSpaces, message))
-
-        sys.stdout.flush()
+            self._PrintNow("{0}{1}".format(self.__CurrentSpaces, message))
 
 
     def DoPrintError(self, message: str) -> None:
-        print("ERROR: {0}".format(message))
-        sys.stdout.flush()
+        self._PrintNow("ERROR: {0}".format(message))
 
 
     def DoPrintWarning(self, message: str) -> None:
-        print("WARNING: {0}".format(message))
+        self._PrintNow("WARNING: {0}".format(message))
+
+    def _PrintNow(self, message: str) -> None:
+        print(message)
         sys.stdout.flush()
+
+

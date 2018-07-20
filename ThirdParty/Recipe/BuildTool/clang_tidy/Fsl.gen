@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../FslBuildGen.xsd">
+  <ToolRecipe Name="Recipe.BuildTool.clang_tidy">
+    <Dependency Name="Recipe.BuildTool.clang"/>
+    <ExperimentalRecipe>
+      <Installation>
+        <FindExecutableFileInPath Name="clang-tidy" Alternatives="clang-tidy-6.0" MinVersion="6.0" VersionCommand="-version" VersionRegEx="LLVM version\s*([\d.]+)" Help="Please install clang-tidy 6.0+ as its needed for tidy (http://releases.llvm.org/download.html)"/>
+      </Installation>
+    </ExperimentalRecipe>
+  </ToolRecipe>
+</FslBuildGen>

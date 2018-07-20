@@ -78,6 +78,3 @@ class CMakeUtil(object):
         versionMajor = version[0:indexEndMajor]
         versionMinor = version[indexEndMajor+1:indexEndMinor]
         return CMakeVersion(int(versionMajor), int(versionMinor))
-
-
-

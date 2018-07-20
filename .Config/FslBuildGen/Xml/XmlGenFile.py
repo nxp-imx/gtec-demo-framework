@@ -115,6 +115,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.AllowCheck = True
         self.EnableExtendedSourceExtensions = False
         self.AllowCombinedDirectory = False
+        self.PackageNameBasedIncludePath = True
         self.PlatformDefaultSupportedValue = True
         self.SystemDefaultValues = LocalPackageDefaultValues()
 
@@ -153,6 +154,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.BaseIncludePath = self._ReadAttrib(elem, 'OverrideInclude', 'include')
         self.BaseSourcePath = self._ReadAttrib(elem, 'OverrideSource', 'source')
         self.AllowCombinedDirectory = self._ReadBoolAttrib(elem, 'AllowCombinedDirectory', False)
+        self.PackageNameBasedIncludePath = self._ReadBoolAttrib(elem, 'PackageNameBasedIncludePath', True)
 
         self.BaseLoad(elem, SubPackageSupportConfig(theType, config.SubPackageSupport))
 
@@ -261,7 +263,7 @@ class XmlGenFile(XmlCommonFslBuild):
                 variants = self.__GetXMLVariants(child, ownerPackageName)
                 experimentalRecipe = self._TryGetExperimentalRecipe(child, ownerPackageName, allowRecipes)
                 dependencies = self.__AddExperimentalRecipeDependencies(directDependencies, dependencies, experimentalRecipe)
-                xmlPlatform = XmlGenFilePlatform(self.BasicConfig, child, defaultValues, requirements, dependencies, variants, experimentalRecipe, self.GetSubPackageSupport())
+                xmlPlatform = XmlGenFilePlatform(self.Log, child, defaultValues, requirements, dependencies, variants, experimentalRecipe, self.GetSubPackageSupport())
                 if xmlPlatform.Name in platforms:
                     raise PlatformAlreadyDefinedException(xmlPlatform.XMLElement, xmlPlatform.Name) #, platforms[xmlPlatform.Name])
                 platforms[xmlPlatform.Name] = xmlPlatform
@@ -283,7 +285,7 @@ class XmlGenFile(XmlCommonFslBuild):
             return None
         if not allowRecipe:
             raise Exception("This package type does not allow '{0}' elments".format(recipeElementName))
-        return XmlExperimentalRecipe(self.BasicConfig, child, defaultName)
+        return XmlExperimentalRecipe(self.Log, child, defaultName)
 
 
     def __GetPipelineToolDependencyNames(self, pipeline: Optional[XmlRecipePipeline]) -> Set[str]:
@@ -338,7 +340,7 @@ class XmlGenFile(XmlCommonFslBuild):
         customizations = {}  # type: Dict[str, XmlGenFileBuildCustomization]
         for child in elem:
             if child.tag == 'BuildCustomization.Debug.Optimization':
-                xmlBuildCustomization = XmlGenFileBuildCustomization_Optimization(self.BasicConfig, child)
+                xmlBuildCustomization = XmlGenFileBuildCustomization_Optimization(self.Log, child)
                 if xmlBuildCustomization.Name in customizations:
                     raise BuildCustomizationAlreadyDefinedException(xmlBuildCustomization.XMLElement, xmlBuildCustomization.Name) #, customizations[xmlBuildCustomization.Name])
                 customizations[xmlBuildCustomization.Name] = xmlBuildCustomization
@@ -353,7 +355,7 @@ class XmlGenFile(XmlCommonFslBuild):
         elements = []  # type: List[XmlGenFileImportTemplate]
         for child in elem:
             if child.tag == 'ImportTemplate':
-                elements.append(XmlGenFileImportTemplate(self.BasicConfig, child))
+                elements.append(XmlGenFileImportTemplate(self.Log, child))
         return elements
 
 
@@ -361,7 +363,7 @@ class XmlGenFile(XmlCommonFslBuild):
         elements = []
         for child in elem:
             if child.tag == 'Variant':
-                elements.append(XmlGenFileVariant(self.BasicConfig, child, ownerPackageName, self.GetSubPackageSupport()))
+                elements.append(XmlGenFileVariant(self.Log, child, ownerPackageName, self.GetSubPackageSupport()))
         return elements
 
 

@@ -31,8 +31,6 @@
 #
 #****************************************************************************************************************************************************
 
-from typing import List
-
 class LibUtil(object):
     @staticmethod
     def ToUnixLibName(libName: str) -> str:

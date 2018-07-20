@@ -33,8 +33,8 @@
 
 from typing import List
 import xml.etree.ElementTree as ET
-from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import Config
+from FslBuildGen.Log import Log
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedTag
 from FslBuildGen.Xml.SubPackageSupportConfig import SubPackageSupportConfig
 from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
@@ -43,14 +43,14 @@ from FslBuildGen.Xml.XmlBase2 import XmlBase2
 
 
 class XmlGenFileUsesFeature(XmlBase):
-    def __init__(self, basicConfig: BasicConfig, xmlElement: ET.Element) -> None:
-        super(XmlGenFileUsesFeature, self).__init__(basicConfig, xmlElement)
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
 
 
 class XmlCommonFslBuild(XmlBase2):
     def __init__(self, config: Config, xmlElement: ET.Element, subPackageSupport: SubPackageSupportConfig) -> None:
-        super(XmlCommonFslBuild, self).__init__(config, xmlElement, subPackageSupport)
+        super().__init__(config, xmlElement, subPackageSupport)
         self.__Config = config
 
 
@@ -60,6 +60,6 @@ class XmlCommonFslBuild(XmlBase2):
             if child.tag == 'Requirement':
                 elements.append(XmlGenFileRequirement(self.__Config, child))
             if child.tag == 'UsesFeature':
-                legacyElement = XmlGenFileUsesFeature(self.BasicConfig, child)
+                legacyElement = XmlGenFileUsesFeature(self.Log, child)
                 raise XmlUnsupportedTag(legacyElement.XMLElement, "The tag <UsesFeature Name='{0}'> has been replaced by <Requirement Name=\"{0}\" Type=\"feature\"> please update".format(legacyElement.Name))
         return elements

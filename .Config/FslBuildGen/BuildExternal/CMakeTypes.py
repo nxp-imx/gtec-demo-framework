@@ -76,6 +76,10 @@ def DetermineCMakeCommand(platformName: str) -> str:
 def TryDetermineCMakeGenerator(platform: GeneratorPluginBase) -> Optional[str]:
     if platform.Name == PackageConfig.PlatformNameString.UBUNTU:
         return CMakeGeneratorName.UnixMakeFile
+    elif platform.Name == PackageConfig.PlatformNameString.YOCTO:
+        return CMakeGeneratorName.UnixMakeFile
+    elif platform.Name == PackageConfig.PlatformNameString.QNX:
+        return CMakeGeneratorName.UnixMakeFile
     elif platform.Name == PackageConfig.PlatformNameString.WINDOWS:
         return CMakeGeneratorName.FromVisualStudioVersion(platform.ToolVersion)
     elif platform.Name == PackageConfig.PlatformNameString.ANDROID:

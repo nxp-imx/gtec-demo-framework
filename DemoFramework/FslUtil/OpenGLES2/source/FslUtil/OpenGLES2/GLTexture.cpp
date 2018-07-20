@@ -481,7 +481,8 @@ namespace Fsl
         throw std::invalid_argument("The texture parameters are invalid");
 
 
-      FSLLOG_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin), "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects");
+      FSLLOG_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin),
+                              "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects");
 
       const FaceToTargetRecord* pFaceTargetMapping;
       GLenum target;
@@ -534,7 +535,7 @@ namespace Fsl
 
             const auto rawBlob = texture.GetTextureBlob(level, face);
 
-            const GLRawBitmapUtil::Result result = GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width, srcStride, textureFlags.IsEnabled(TextureFlags::ExactFormat));
+            const auto result = GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width, srcStride, textureFlags.IsEnabled(TextureFlags::ExactFormat));
 
             // Verify our nasty little assumption
             assert(pFaceTargetMapping[face].Face == face);

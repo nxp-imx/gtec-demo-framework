@@ -66,6 +66,7 @@ class TemplateEnvironment(object):
         platformProjectId = platformProjectId if platformProjectId != None else "ERROR_PLATFORM_PROJECT_ID_NOT_DEFINED"
         self.Dict["##PACKAGE_LOCATION##"] = packageLocation
         self.Dict["##PACKAGE_NAME##"] = packageName
+        self.Dict["##DIRS_PACKAGE_NAME##"] = packageName.replace('.','/')
         self.Dict["##PACKAGE_SHORT_NAME##"] = packageShortName
         self.Dict["##PACKAGE_TARGET_NAME##"] = packageTargetName
         self.Dict["##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"] = platformProjectId

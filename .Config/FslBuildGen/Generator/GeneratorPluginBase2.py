@@ -34,6 +34,7 @@ from typing import Dict
 from typing import Optional
 from typing import List
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Log import Log
@@ -62,12 +63,12 @@ class GeneratorPluginBase2(GeneratorPluginBase):
         return list(self.GeneratorVariants.values())
 
 
-    def GenerateReport(self, log: Log, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+    def GenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
         """ Run through the packages and generate a generator specific report """
-        return self._DoGenerateReport(log, packageList)
+        return self._DoGenerateReport(log, generatorConfig, packageList)
 
 
-    def _DoGenerateReport(self, log: Log, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+    def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
         log.LogPrintWarning("Generator {0} does not support build reports".format(self.Name))
         return {}
 

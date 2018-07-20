@@ -293,7 +293,11 @@
     <xs:attribute name="NoInclude" type="_TP_Bool" use="optional"/>
     <xs:attribute name="Company" type="xs:string" use="optional"/>
     <xs:attribute name="TemplateType" type="xs:string" use="optional"/>
+    <xs:attribute name="OverrideInclude" type="xs:string" use="optional"/>
+    <xs:attribute name="OverrideSource" type="xs:string" use="optional"/>
+    <xs:attribute name="AllowCombinedDirectory" type="_TP_Bool" use="optional"/>
     <xs:attribute name="AllowCheck" type="_TP_Bool" use="optional"/>
+    <xs:attribute name="PackageNameBasedIncludePath" type="_TP_Bool" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="_T_Library">
@@ -308,6 +312,7 @@
     <xs:attribute name="OverrideSource" type="xs:string" use="optional"/>
     <xs:attribute name="AllowCombinedDirectory" type="_TP_Bool" use="optional"/>
     <xs:attribute name="AllowCheck" type="_TP_Bool" use="optional"/>
+    <xs:attribute name="PackageNameBasedIncludePath" type="_TP_Bool" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="_T_ExternalLibrary">
@@ -330,7 +335,11 @@
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Company" type="xs:string" use="optional"/>
     <xs:attribute name="TemplateType" type="xs:string" use="optional"/>
+    <xs:attribute name="OverrideInclude" type="xs:string" use="optional"/>
+    <xs:attribute name="OverrideSource" type="xs:string" use="optional"/>
+    <xs:attribute name="AllowCombinedDirectory" type="_TP_Bool" use="optional"/>
     <xs:attribute name="AllowCheck" type="_TP_Bool" use="optional"/>
+    <xs:attribute name="PackageNameBasedIncludePath" type="_TP_Bool" use="optional"/>
   </xs:complexType>
 
 
@@ -521,6 +530,10 @@
       <xs:documentation>Check if a executable file can be found in the path. The executable name will be stripped of any extension and the platform default executable extension will be added</xs:documentation>
     </xs:annotation>
     <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Alternatives" type="xs:string" use="required"/>
+	<xs:attribute name="MinVersion" type="xs:string" use="optional"/> 
+	<xs:attribute name="VersionCommand" type="xs:string" use="optional"/> 
+	<xs:attribute name="VersionRegEx" type="xs:string" use="optional"/> 
     <xs:attribute name="ExpectedPath" type="xs:string" use="optional"/>
     <xs:attribute name="Help" type="xs:string" use="optional"/>
   </xs:complexType>

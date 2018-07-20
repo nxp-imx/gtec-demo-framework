@@ -76,6 +76,7 @@ from FslBuildGen.ToolConfig import NewProjectTemplateRootDirectory
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfig import ToolConfigPackageConfiguration
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
+from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
 from FslBuildGen.Template.TemplateFileRecordManager import TemplateFileRecordManager
 from FslBuildGen.Template.TemplateFileProcessor import TemplateFileProcessor
 from FslBuildGen.Xml.XmlNewTemplateFile import XmlNewTemplateFile
@@ -259,9 +260,10 @@ class LocalConfig(object):
             raise ArgumentError("Unknown project type '%s'. Expected: %s." % (projectType, ", ".join(templateNames)))
 
 
-def ParsePackages(generatorContext: GeneratorContext, config: Config, currentDir: str, packageFilters: PackageFilters) -> List[Package]:
+def ParsePackages(generatorContext: GeneratorContext, config: Config, toolMiniConfig: ToolMinimalConfig,
+                  currentDir: str, packageFilters: PackageFilters) -> List[Package]:
 
-    theFiles = MainFlow.DoGetFiles(config, currentDir)
+    theFiles = MainFlow.DoGetFiles(config, toolMiniConfig, currentDir)
     # We set autoAddRecipeExternals to false since we are not actually interested in building this,
     # so therefore we dont want to do any checks for the externals before someone tries to build it
     return MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
@@ -424,7 +426,7 @@ class ToolFlowBuildNew(AToolAppFlow):
             PlatformUtil.CheckBuildPlatform(platform.Name)
             config.LogPrint("Active platform: {0}".format(platform.Name))
             generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
-            packages = ParsePackages(generatorContext, config, currentDir, packageFilters)
+            packages = ParsePackages(generatorContext, config, toolConfig.GetMinimalConfig(), currentDir, packageFilters)
 
         # Reserve the name of all packages
         if not packages is None:
@@ -453,7 +455,7 @@ class ToolFlowBuildNew(AToolAppFlow):
             projectConfig = Config(self.Log, toolConfig, PluginSharedValues.TYPE_DEFAULT,
                                    localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
 
-            theFiles = MainFlow.DoGetFiles(projectConfig, configVariant.ProjectPath)
+            theFiles = MainFlow.DoGetFiles(projectConfig, toolConfig.GetMinimalConfig(), configVariant.ProjectPath)
             platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
             MainFlow.DoGenerateBuildFiles(projectConfig, theFiles, platformGeneratorPlugin, packageFilters)
 
@@ -545,7 +547,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
     def GetToolCommonArgConfig(self) -> ToolCommonArgConfig:
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
-        argConfig.AllowVSVersion = True
+        #argConfig.AllowVSVersion = True
         argConfig.SupportBuildTime = True
         argConfig.AddBuildFiltering = True
         argConfig.AddBuildThreads = True
