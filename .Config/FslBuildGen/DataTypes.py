@@ -414,8 +414,7 @@ class BuildRecipeValidateMethod:
             return BuildRecipeValidateMethod.IsFile
         elif value == "Exists":
             return BuildRecipeValidateMethod.Exists
-        else:
-            raise Exception("Unsupported BuildRecipeValidateMethod '{0}'".format(value))
+        raise Exception("Unsupported BuildRecipeValidateMethod '{0}'".format(value))
 
     @staticmethod
     def ToString(value: int) -> str:

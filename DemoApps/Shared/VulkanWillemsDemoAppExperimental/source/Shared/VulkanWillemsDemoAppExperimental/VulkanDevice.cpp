@@ -1,12 +1,12 @@
 /*
-* Vulkan device class
-*
-* Encapsulates a physical Vulkan device and it's logical representation
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan device class
+ *
+ * Encapsulates a physical Vulkan device and it's logical representation
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -46,13 +46,12 @@ namespace Fsl
       , m_properties{}
       , m_features{}
       , m_memoryProperties{}
-      , m_queueFamilyProperties()
-      , m_commandPool()
       , m_enableDebugMarkers(false)
-      , m_queueFamilyIndices()
     {
       if (m_physicalDevice == VK_NULL_HANDLE || m_device == VK_NULL_HANDLE)
+      {
         throw std::invalid_argument("arguments can not be null");
+      }
 
       // Store Properties features, limits and properties of the physical device for later use
       // Device properties also contain limits and sparse properties
@@ -64,16 +63,16 @@ namespace Fsl
 
       // Queue family properties, used for setting up requested queues upon device creation
       m_queueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice);
-      if (m_queueFamilyProperties.size() == 0)
+      if (m_queueFamilyProperties.empty())
+      {
         throw NotSupportedException("Family count of zero is not supported");
+      }
 
       m_commandPool = CreateCommandPool(m_queueFamilyIndices.Graphics);
     }
 
 
-    VulkanDevice::~VulkanDevice()
-    {
-    }
+    VulkanDevice::~VulkanDevice() = default;
 
 
     uint32_t VulkanDevice::GetMemoryType(const uint32_t typeBits, const VkMemoryPropertyFlags properties) const
@@ -85,20 +84,24 @@ namespace Fsl
     uint32_t VulkanDevice::GetQueueFamiliyIndex(const VkQueueFlagBits queueFlags) const
     {
       // If a compute queue is requested, try to find a separate compute queue family from graphics first
-      if (queueFlags & VK_QUEUE_COMPUTE_BIT)
+      if ((queueFlags & VK_QUEUE_COMPUTE_BIT) != 0)
       {
         for (uint32_t i = 0; i < static_cast<uint32_t>(m_queueFamilyProperties.size()); i++)
         {
-          if ((m_queueFamilyProperties[i].queueFlags & queueFlags) && ((m_queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0))
+          if (((m_queueFamilyProperties[i].queueFlags & queueFlags) != 0u) && ((m_queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0))
+          {
             return i;
+          }
         }
       }
 
       // For other queue types or if no separate compute queue is present, return the first one to support the requested flags
       for (uint32_t i = 0; i < static_cast<uint32_t>(m_queueFamilyProperties.size()); i++)
       {
-        if (m_queueFamilyProperties[i].queueFlags & queueFlags)
+        if ((m_queueFamilyProperties[i].queueFlags & queueFlags) != 0u)
+        {
           return i;
+        }
       }
       throw std::runtime_error("Could not find a matching queue family index");
     }
@@ -156,7 +159,8 @@ namespace Fsl
     }
 
 
-    VulkanBuffer VulkanDevice::CreateBuffer(const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize size, const void* pData)
+    VulkanBuffer VulkanDevice::CreateBuffer(const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags,
+                                            const VkDeviceSize size, const void* pData)
     {
       // Create the buffer handle
       VkBufferCreateInfo bufferCreateInfo{};
@@ -197,7 +201,8 @@ namespace Fsl
       descriptor.offset = 0;
       descriptor.range = VK_WHOLE_SIZE;
 
-      VulkanBuffer buffer(std::move(newBuffer), std::move(newMemory), descriptor, memAlloc.allocationSize, memReqs.alignment, usageFlags, memoryPropertyFlags);
+      VulkanBuffer buffer(std::move(newBuffer), std::move(newMemory), descriptor, memAlloc.allocationSize, memReqs.alignment, usageFlags,
+                          memoryPropertyFlags);
       // Attach the memory to the buffer object
       buffer.Bind();
       return std::move(buffer);
@@ -260,7 +265,7 @@ namespace Fsl
 
     void VulkanDevice::FlushCommandBuffer(RapidVulkan::CommandBuffer& rCommandBuffer, const VkQueue queue, const bool free)
     {
-      if (! rCommandBuffer.IsValid())
+      if (!rCommandBuffer.IsValid())
       {
         FSLLOG_DEBUG_WARNING("Can not flush a invalid command buffer");
         return;
@@ -286,7 +291,9 @@ namespace Fsl
       RAPIDVULKAN_CHECK(vkWaitForFences(m_device, 1, fence.GetPointer(), VK_TRUE, Config::DEFAULT_FENCE_TIMEOUT));
 
       if (free)
+      {
         rCommandBuffer.Reset();
+      }
     }
   }
 }

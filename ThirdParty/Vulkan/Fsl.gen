@@ -1,27 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="Vulkan">
-    <Requirement Name="Vulkan" Type="feature" Version="1"/>
-    <Requirement Name="EarlyAccess" Type="feature"/>
+    <Dependency Name="VulkanBase"/>
     <Dependency Name="WindowSystem"/>
-    <Define Name="FSL_FEATURE_VULKAN1_0" Access="Public"/>
-    <Platform Name="Android">
-      <Define Name="VK_USE_PLATFORM_ANDROID_KHR" Access="Public"/>
-      <ExternalDependency Name="vulkan" Type="StaticLib"/>
-      <!-- Workaround, as JNIHelper needs GLES. We need to handle JNIHelper differently -->
-      <ExternalDependency Name="GLESv3" Type="StaticLib"/>
-    </Platform>
-    <Platform Name="QNX" Supported="false"/>
-    <Platform Name="Ubuntu">
-      <Define Name="VK_USE_PLATFORM_XLIB_KHR" Access="Public"/>
-      <ExternalDependency Name="vulkan" Include="$(VULKAN_SDK)/include" Access="Public" Type="StaticLib"/>
-    </Platform>
-    <Platform Name="Windows">
-      <Dependency Name="Recipe.Vulkan"/>
-      <Define Name="VK_USE_PLATFORM_WIN32_KHR" Access="Public"/>
-    </Platform>
     <Platform Name="Yocto">
-      <ExternalDependency Name="vulkan" Type="StaticLib"/>
       <Variant Name="WindowSystem" Extend="true">
         <Option Name="FB" />
         <Option Name="Wayland" >
@@ -29,9 +11,6 @@
         </Option>
         <Option Name="X11" Supported="false"/>
       </Variant>
-    </Platform>
-    <Platform Name="CMake">
-      <ExternalDependency Name="Vulkan" Type="Find"/>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

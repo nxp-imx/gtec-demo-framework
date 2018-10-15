@@ -1,39 +1,40 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
 #include <cstdlib>
+#include <cstring>
 
 namespace Fsl
 {
@@ -54,28 +55,37 @@ namespace Fsl
 
   ADemoHostOptionParser::ADemoHostOptionParser()
     : m_nativeWindowConfig(WindowMode::Fullscreen, Rectangle())
-    , m_nativeWindowTag()
+    , m_userControlledWindow(false)
   {
   }
 
 
   void ADemoHostOptionParser::ArgumentSetup(std::deque<Option>& rOptions)
   {
-    rOptions.push_back(Option("Window", OptionArgument::OptionRequired, CommandId::Window, "Window mode [left,top,width,height]", OptionGroup::Host));
-    rOptions.push_back(Option("DisplayId", OptionArgument::OptionRequired, CommandId::DisplayId, "DisplayId <number>", OptionGroup::Host));
+    rOptions.emplace_back("Window", OptionArgument::OptionRequired, CommandId::Window, "Window mode [left,top,width,height]", OptionGroup::Host);
+    rOptions.emplace_back("DisplayId", OptionArgument::OptionRequired, CommandId::DisplayId, "DisplayId <number>", OptionGroup::Host);
   }
 
 
-  OptionParseResult::Enum ADemoHostOptionParser::Parse(const int32_t cmdId, const char*const pszOptArg)
+  OptionParseResult::Enum ADemoHostOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
   {
     Rectangle rectValue;
     int32_t intValue;
     switch (cmdId)
     {
     case CommandId::Window:
-      StringParseUtil::Parse(rectValue, pszOptArg);
-      m_nativeWindowConfig.SetWindowMode(WindowMode::Window);
-      m_nativeWindowConfig.SetWindowRectangle(rectValue);
+      if (std::strcmp(pszOptArg, "[]") != 0)
+      {
+        StringParseUtil::Parse(rectValue, pszOptArg);
+        m_nativeWindowConfig.SetWindowMode(WindowMode::Window);
+        m_nativeWindowConfig.SetWindowRectangle(rectValue);
+        m_userControlledWindow = true;
+      }
+      else
+      {
+        m_nativeWindowConfig.SetWindowMode(WindowMode::Fullscreen);
+        m_userControlledWindow = true;
+      }
       return OptionParseResult::Parsed;
     case CommandId::DisplayId:
       StringParseUtil::Parse(intValue, pszOptArg);
@@ -89,16 +99,16 @@ namespace Fsl
 
   bool ADemoHostOptionParser::ParsingComplete()
   {
-    if (m_nativeWindowConfig.GetWindowMode() == WindowMode::Fullscreen)
+    if (m_nativeWindowConfig.GetWindowMode() == WindowMode::Fullscreen && !m_userControlledWindow)
     {
 #ifdef _WIN32
-#pragma warning( push )
+#pragma warning(push)
       // Disable the warning about unsafe method under windows (unfortunately visual studio does not remove this warning for C++11)
-#pragma warning( disable : 4996)
+#pragma warning(disable : 4996)
 #endif
       auto psz = std::getenv(ENV_PREFERRED_WINDOW_RESOLUTION);
 #ifdef _WIN32
-#pragma warning( pop )
+#pragma warning(pop)
 #endif
 
       if (psz != nullptr)
@@ -130,5 +140,4 @@ namespace Fsl
   {
     return m_nativeWindowTag;
   }
-
 }

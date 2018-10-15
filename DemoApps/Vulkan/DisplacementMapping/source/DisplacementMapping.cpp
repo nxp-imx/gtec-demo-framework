@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "DisplacementMapping.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -55,12 +55,8 @@ namespace Fsl
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
 
     // Vertex layout for this example
-    const std::vector<MeshLoader::VertexLayout> g_vertexLayout =
-    {
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_UV
-    };
+    const std::vector<MeshLoader::VertexLayout> g_vertexLayout = {
+      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION, MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL, MeshLoader::VertexLayout::VERTEX_LAYOUT_UV};
   }
 
 
@@ -76,9 +72,11 @@ namespace Fsl
     m_title = "Vulkan Example - Tessellation shader displacement mapping";
 
     // Support for tessellation shaders is optional, so check first
-    if (!m_deviceActiveFeatures.tessellationShader)
+    if (m_deviceActiveFeatures.tessellationShader == VK_FALSE)
+    {
       throw NotSupportedException("Selected GPU does not support tessellation shaders!");
-    if (!m_deviceActiveFeatures.fillModeNonSolid)
+    }
+    if (m_deviceActiveFeatures.fillModeNonSolid == VK_FALSE)
     {
       FSLLOG("Disabling split screen");
       m_splitScreen = false;
@@ -88,7 +86,7 @@ namespace Fsl
 
   DisplacementMapping::~DisplacementMapping()
   {
-
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -136,7 +134,7 @@ namespace Fsl
 
     VkClearValue clearValues[2];
     clearValues[0].color = m_defaultClearColor;
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -162,7 +160,6 @@ namespace Fsl
 
     for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
     {
-
       // Set target frame buffer
       renderPassBeginInfo.framebuffer = m_frameBuffers[i].Get();
 
@@ -177,7 +174,7 @@ namespace Fsl
 
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
 
-          VkDeviceSize offsets[1] = { 0 };
+          VkDeviceSize offsets[1] = {0};
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Object.GetVertices().GetBufferPointer(), offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Object.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
@@ -191,6 +188,8 @@ namespace Fsl
 
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Solid.Get());
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Object.GetIndexCount(), 1, 0, 0, 0);
+
+          DrawUI(m_drawCmdBuffers[i]);
         }
         m_drawCmdBuffers.CmdEndRenderPass(i);
       }
@@ -202,7 +201,9 @@ namespace Fsl
   void DisplacementMapping::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
 
     if (event.IsPressed())
@@ -244,7 +245,9 @@ namespace Fsl
   void DisplacementMapping::Draw(const DemoTime& demoTime)
   {
     if (!TryPrepareFrame())
+    {
       return;
+    }
 
     m_submitInfo.commandBufferCount = 1;
     m_submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);
@@ -263,18 +266,20 @@ namespace Fsl
 
   void DisplacementMapping::LoadTextures()
   {
-    if (m_deviceActiveFeatures.textureCompressionBC)
+    if (m_deviceActiveFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC compression");
       m_textures.ColorHeightMap = m_textureLoader->LoadTexture("textures/pattern_36_bc3.ktx");
     }
-    else if (m_deviceActiveFeatures.textureCompressionETC2)
+    else if (m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 compression");
       m_textures.ColorHeightMap = m_textureLoader->LoadTexture("textures/pattern_36_etc2.ktx");
     }
     else
+    {
       throw NotSupportedException("No supported compression format found");
+    }
   }
 
 
@@ -321,17 +326,12 @@ namespace Fsl
   void DisplacementMapping::PrepareUniformBuffers()
   {
     // Tessellation evaluation shader uniform buffer
-    CreateBuffer(m_uniformDataTE.Buffer, m_uniformDataTE.Memory, m_uniformDataTE.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboTE), nullptr);
+    CreateBuffer(m_uniformDataTE.Buffer, m_uniformDataTE.Memory, m_uniformDataTE.Descriptor, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboTE), nullptr);
 
     // Tessellation control shader uniform buffer
-    CreateBuffer(m_uniformDataTC.Buffer, m_uniformDataTC.Memory, m_uniformDataTC.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboTC),
-      nullptr);
+    CreateBuffer(m_uniformDataTC.Buffer, m_uniformDataTC.Memory, m_uniformDataTC.Descriptor, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboTC), nullptr);
 
     UpdateUniformBuffers();
   }
@@ -342,13 +342,13 @@ namespace Fsl
 
     const float aspect = static_cast<float>(screenExtent.Width) / static_cast<float>(screenExtent.Height);
     // Tessellation eval
-    glm::mat4 viewMatrix = glm::mat4();
+    glm::mat4 viewMatrix = glm::mat4(1.0f);
     m_uboTE.Projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 256.0f);
     viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, m_zoom));
 
-    //float offset = 0.5f;
-    //int uboIndex = 1;
-    m_uboTE.Model = glm::mat4();
+    // float offset = 0.5f;
+    // int uboIndex = 1;
+    m_uboTE.Model = glm::mat4(1.0f);
     m_uboTE.Model = viewMatrix * glm::translate(m_uboTE.Model, glm::vec3(0, 0, 0));
     m_uboTE.Model = glm::rotate(m_uboTE.Model, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_uboTE.Model = glm::rotate(m_uboTE.Model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -464,8 +464,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables1 =
-    {
+    std::vector<VkDynamicState> dynamicStateEnables1 = {
       VK_DYNAMIC_STATE_VIEWPORT,
       VK_DYNAMIC_STATE_SCISSOR,
     };
@@ -513,14 +512,9 @@ namespace Fsl
     m_pipelines.Solid.Reset(m_device.Get(), m_pipelineCache.Get(), pipelineCreateInfo);
 
     // Wireframe pipeline
-    if (m_deviceActiveFeatures.fillModeNonSolid)
+    if (m_deviceActiveFeatures.fillModeNonSolid != VK_FALSE)
     {
-      std::vector<VkDynamicState> dynamicStateEnables2 =
-      {
-        VK_DYNAMIC_STATE_VIEWPORT,
-        VK_DYNAMIC_STATE_SCISSOR,
-        VK_DYNAMIC_STATE_LINE_WIDTH
-      };
+      std::vector<VkDynamicState> dynamicStateEnables2 = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_LINE_WIDTH};
 
       VkPipelineDynamicStateCreateInfo dynamicState2{};
       dynamicState2.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -573,7 +567,7 @@ namespace Fsl
     VkDescriptorImageInfo texDescriptor{};
     texDescriptor.sampler = m_textures.ColorHeightMap.GetSampler();
     texDescriptor.imageView = m_textures.ColorHeightMap.GetImageView();
-    texDescriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    texDescriptor.imageLayout = m_textures.ColorHeightMap.GetImageLayout();
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets(3);
     // Binding 0 : Tessellation control shader ubo

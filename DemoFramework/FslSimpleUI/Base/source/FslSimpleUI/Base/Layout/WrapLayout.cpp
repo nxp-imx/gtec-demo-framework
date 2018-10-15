@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/LayoutHelper.hpp>
 #include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
@@ -45,7 +45,7 @@ namespace Fsl
 {
   namespace UI
   {
-    WrapLayout::WrapLayout(const std::shared_ptr<WindowContext>& context)
+    WrapLayout::WrapLayout(const std::shared_ptr<BaseWindowContext>& context)
       : Layout(context)
       , m_orientation(LayoutOrientation::Vertical)
     {
@@ -55,7 +55,8 @@ namespace Fsl
     void WrapLayout::WinInit()
     {
       Layout::WinInit();
-      m_children.SYS_WinInit(this, GetContext()->WindowManager);
+      auto uiContext = GetContext()->TheUIContext.Get();
+      m_children.SYS_WinInit(this, uiContext->WindowManager);
     }
 
 
@@ -80,7 +81,9 @@ namespace Fsl
     Vector2 WrapLayout::ArrangeOverride(const Vector2& finalSize)
     {
       if (m_children.empty())
+      {
         return Layout::ArrangeOverride(finalSize);
+      }
 
       for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
@@ -99,24 +102,34 @@ namespace Fsl
     Vector2 WrapLayout::MeasureOverride(const Vector2& availableSize)
     {
       if (m_children.empty())
+      {
         return Layout::MeasureOverride(availableSize);
+      }
 
       Vector2 minSize;
       if (m_orientation == LayoutOrientation::Horizontal)
       {
         // If we are supplied with infinity we behave like a stack panel
         if (!isinf(availableSize.X))
+        {
           minSize = MeasureHorizontalWrapLayout(m_children, m_spacing, availableSize);
+        }
         else
+        {
           minSize = MeasureHorizontalStackLayout(m_children, m_spacing.X, availableSize);
+        }
       }
       else
       {
         // If we are supplied with infinity we behave like a stack panel
         if (!isinf(availableSize.Y))
+        {
           minSize = MeasureVerticalWrapLayout(m_children, m_spacing, availableSize);
+        }
         else
+        {
           minSize = MeasureVerticalStackLayout(m_children, m_spacing.Y, availableSize);
+        }
       }
 
       assert(!isinf(minSize.X));
@@ -137,7 +150,9 @@ namespace Fsl
         itr->Window->Measure(availableSize);
         auto desiredSize = itr->Window->DesiredSize();
         if (desiredSize.Y > minSize.Y)
+        {
           minSize.Y = desiredSize.Y;
+        }
 
         itr->Position = Vector2(pos, 0);
         pos += desiredSize.X + spacingX;
@@ -159,7 +174,9 @@ namespace Fsl
         auto desiredSize = itr->Window->DesiredSize();
         itr->Position = Vector2(0, pos);
         if (desiredSize.X > minSize.X)
+        {
           minSize.X = desiredSize.X;
+        }
         pos += desiredSize.Y + spacingY;
       }
       minSize.Y = pos - spacingY;
@@ -196,7 +213,9 @@ namespace Fsl
           // ok we exceeded the available space so we wrap and
           // insert the current item as the first item in the new row
           if (posX > maxRowWidth)
+          {
             maxRowWidth = posX;
+          }
 
           posY += spacing.Y + rowHeight;
           rowHeight = desiredSize.Y;
@@ -210,13 +229,17 @@ namespace Fsl
           itr->Position = Vector2(posX + spacing.X, posY);
         }
         else
+        {
           itr->Position = Vector2(posX + spacing.X, posY);
+        }
         posX = rowWidth;
 
         ++itr;
       }
       if (rowWidth > maxRowWidth)
+      {
         maxRowWidth = rowWidth;
+      }
       posY += rowHeight;
 
       return Vector2(maxRowWidth, posY);
@@ -253,7 +276,9 @@ namespace Fsl
           // ok we exceeded the available space so we wrap and
           // insert the current item as the first item in the new row
           if (posY > maxRowHeight)
+          {
             maxRowHeight = posY;
+          }
 
           posX += spacing.X + rowWidth;
           rowWidth = desiredSize.X;
@@ -267,13 +292,17 @@ namespace Fsl
           itr->Position = Vector2(posX, posY + spacing.Y);
         }
         else
+        {
           itr->Position = Vector2(posX, posY + spacing.Y);
+        }
         posY = rowHeight;
 
         ++itr;
       }
       if (rowHeight > maxRowHeight)
+      {
         maxRowHeight = rowHeight;
+      }
       posX += rowWidth;
 
       return Vector2(posX, maxRowHeight);

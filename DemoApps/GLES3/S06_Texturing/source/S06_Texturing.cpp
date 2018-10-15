@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
@@ -49,17 +49,10 @@ namespace Fsl
     const GLuint g_hColorLoc = 1;
     const GLuint g_hVertexTexLoc = 2;
 
-    const char*const g_pszShaderAttributeArray[] =
-    {
-      "g_vPosition",
-      "g_vColor",
-      "g_vTexCoord",
-      nullptr
-    };
+    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", "g_vTexCoord", nullptr};
 
 
-    const float g_vertexPositions[] =
-    {
+    const float g_vertexPositions[] = {
       // Draw A Quad
 
       // Top Right Of The Quad (Top)
@@ -111,49 +104,70 @@ namespace Fsl
       //  Bottom Right Of The Quad (Right)
       1.0f, -1.0f, -1.0f,
       //  Bottom Left Of The Quad (Right)
-      1.0f, -1.0f, 1.0f
-    };
+      1.0f, -1.0f, 1.0f};
 
-    const float g_vertexTexCoords[] =
-    {
+    const float g_vertexTexCoords[] = {
       //  Top Face
-      0.0f, 0.0f,
-      1.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      1.0f,
       //  Bottom Face
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
 
       //  Front Face
 
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
       //  Back Face
-      0.0f, 0.0f,
-      1.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      1.0f,
       // left face
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
 
       //  Right face
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
 
     };
 
-    const float g_vertexColors[] =
-    {
+    const float g_vertexColors[] = {
       //  Red
       1.0f, 0.0f, 0.0f, 1.0f,
       //  Red
@@ -207,25 +221,19 @@ namespace Fsl
       0.0f, 0.0f, 1.0f, 1.0f,
 
       //  Green
-      0.0f, 1.0f, 0.0f, 1.0f
-    };
+      0.0f, 1.0f, 0.0f, 1.0f};
   }
 
 
   S06_Texturing::S06_Texturing(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_program()
-    , m_texture()
     , m_hModelViewMatrixLoc(0)
     , m_hProjMatrixLoc(0)
-    , m_matProj()
-    , m_matTranslate()
-    , m_angle()
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
     m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
 
-    { // Load the texture (we use a scope here, so the bitmap objects is thrown away as soon as we dont need it)
+    {    // Load the texture (we use a scope here, so the bitmap objects is thrown away as soon as we dont need it)
       Bitmap bitmap;
       content->Read(bitmap, "Texturing.png", PixelFormat::R8G8B8_UNORM);
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
@@ -245,10 +253,7 @@ namespace Fsl
   }
 
 
-  S06_Texturing::~S06_Texturing()
-  {
-
-  }
+  S06_Texturing::~S06_Texturing() = default;
 
 
   void S06_Texturing::Update(const DemoTime& demoTime)
@@ -262,8 +267,8 @@ namespace Fsl
   void S06_Texturing::Draw(const DemoTime& demoTime)
   {
     // Rotate and translate the model view matrix
-    const Matrix matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) *
-      Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
+    const Matrix matModel =
+      Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
     const Point2 currentSize = GetScreenResolution();
     glViewport(0, 0, currentSize.X, currentSize.Y);
@@ -312,7 +317,5 @@ namespace Fsl
     glDisableVertexAttribArray(g_hVertexLoc);
     glDisableVertexAttribArray(g_hColorLoc);
     glDisableVertexAttribArray(g_hVertexTexLoc);
-
   }
-
 }

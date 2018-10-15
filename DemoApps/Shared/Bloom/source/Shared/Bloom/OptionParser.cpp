@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/Bloom/OptionParser.hpp>
 #include <FslBase/BasicTypes.hpp>
@@ -57,7 +57,6 @@ namespace Fsl
         ShowBuffers,
         ScaleInputSequentially
       };
-
     };
   }
 
@@ -74,26 +73,23 @@ namespace Fsl
   }
 
 
-  OptionParser::~OptionParser()
-  {
-
-  }
+  OptionParser::~OptionParser() = default;
 
 
   void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
-    rOptions.push_back(Option("s", "Scene", OptionArgument::OptionRequired, CommandId::Scene, "Select the scene number"));
-    rOptions.push_back(Option("Rotate", OptionArgument::OptionRequired, CommandId::Rotate, "Rotate on/off"));
-    rOptions.push_back(Option("BlurPass", OptionArgument::OptionRequired, CommandId::BlurPass, "Blue pass on/off"));
-    rOptions.push_back(Option("BrightPass", OptionArgument::OptionRequired, CommandId::BrightPass, "Bright pass on/off"));
-    rOptions.push_back(Option("FinalScene", OptionArgument::OptionRequired, CommandId::FinalScene, "Render final scene on/off"));
-    rOptions.push_back(Option("FinalBloom", OptionArgument::OptionRequired, CommandId::FinalBloom, "Render final bloom on/off"));
-    rOptions.push_back(Option("ShowBuffers", OptionArgument::OptionRequired, CommandId::ShowBuffers, "Show buffers on/off"));
-    rOptions.push_back(Option("ScaleSeq", OptionArgument::OptionRequired, CommandId::ScaleInputSequentially, "Scale input sequentially on/off"));
+    rOptions.emplace_back("s", "Scene", OptionArgument::OptionRequired, CommandId::Scene, "Select the scene number");
+    rOptions.emplace_back("Rotate", OptionArgument::OptionRequired, CommandId::Rotate, "Rotate on/off");
+    rOptions.emplace_back("BlurPass", OptionArgument::OptionRequired, CommandId::BlurPass, "Blue pass on/off");
+    rOptions.emplace_back("BrightPass", OptionArgument::OptionRequired, CommandId::BrightPass, "Bright pass on/off");
+    rOptions.emplace_back("FinalScene", OptionArgument::OptionRequired, CommandId::FinalScene, "Render final scene on/off");
+    rOptions.emplace_back("FinalBloom", OptionArgument::OptionRequired, CommandId::FinalBloom, "Render final bloom on/off");
+    rOptions.emplace_back("ShowBuffers", OptionArgument::OptionRequired, CommandId::ShowBuffers, "Show buffers on/off");
+    rOptions.emplace_back("ScaleSeq", OptionArgument::OptionRequired, CommandId::ScaleInputSequentially, "Scale input sequentially on/off");
   }
 
 
-  OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char*const pszOptArg)
+  OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     int32_t intValue;
     bool boolValue;
@@ -102,42 +98,58 @@ namespace Fsl
     {
     case CommandId::Scene:
       if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_sceneId = intValue;
       return OptionParseResult::Parsed;
     case CommandId::Rotate:
       if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_rotateEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::BlurPass:
       if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_blurPassEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::BrightPass:
       if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_brightPassEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::FinalScene:
       if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_renderFinalScene = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::FinalBloom:
       if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_renderFinalBloom = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::ShowBuffers:
       if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_showBuffers = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::ScaleInputSequentially:
       if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      {
         return OptionParseResult::Failed;
+      }
       m_scaleInputSequentially = boolValue;
       return OptionParseResult::Parsed;
     default:
@@ -151,5 +163,4 @@ namespace Fsl
     // If you return false, the app exits.
     return true;
   }
-
 }

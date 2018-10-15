@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "Scissor101.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -58,33 +58,32 @@ namespace Fsl
 
     const float CUBE_LEFT = -CUBE_DIMENSIONS;
     const float CUBE_RIGHT = CUBE_DIMENSIONS;
-    const float CUBE_BACK = CUBE_DIMENSIONS; // zBack
-    const float CUBE_FRONT = -CUBE_DIMENSIONS;  // zFront
+    const float CUBE_BACK = CUBE_DIMENSIONS;      // zBack
+    const float CUBE_FRONT = -CUBE_DIMENSIONS;    // zFront
     const float CUBE_U0 = 0.0f;
     const float CUBE_U1 = 1.0f;
     const float CUBE_V0 = 1.0f;
     const float CUBE_V1 = 0.0f;
 
 
-    const std::array<VertexPositionTexture, 6 * 6> g_vertices =
-    {
+    const std::array<VertexPositionTexture, 6 * 6> g_vertices = {
       // Floor
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),     // LB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),    // LF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),   // RF
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),     // LF
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),     // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),   // RF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),    // RB
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // LB
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // RB
 
       // Ceiling
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),  // LF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),   // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)), // RF
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),     // LF
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)), // RF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),   // LB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),  // RB
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // RF
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),      // LB
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // RB
 
       // Back wall
       VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),
@@ -105,31 +104,35 @@ namespace Fsl
       VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),
 
       //// Right wall
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),     // FF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),   // CF
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V1)),      // FF
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),      // FB
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),   // CF
-      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),    // CB
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U1, CUBE_V1)),       // FB
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U0, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CUBE_RIGHT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U1, CUBE_V0)),     // CB
 
       // Left wall
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),   // FF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),    // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)), // CF
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V1)),      // FF
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
 
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)), // CF
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),    // FB
-      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),  // CB
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_FRONT), Vector2(CUBE_U1, CUBE_V0)),    // CF
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_FLOOR, CUBE_BACK), Vector2(CUBE_U0, CUBE_V1)),       // FB
+      VertexPositionTexture(Vector3(CUBE_LEFT, CUBE_CEILING, CUBE_BACK), Vector2(CUBE_U0, CUBE_V0)),     // CB
     };
 
     float Clamp(const float value)
     {
       // Basic clamping that works ok at low speeds
       if (value >= MathHelper::ToRadians(360))
+      {
         return value - MathHelper::ToRadians(360);
-      else if (value <= -MathHelper::ToRadians(360))
+      }
+      if (value <= -MathHelper::ToRadians(360))
+      {
         return value + MathHelper::ToRadians(360);
+      }
       return value;
     }
 
@@ -143,13 +146,6 @@ namespace Fsl
   Scissor101::Scissor101(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_options(config.GetOptions<OptionParser>())
-    , m_programInfo()
-    , m_texture()
-    , m_vertexBufferInfo()
-    , m_matModel()
-    , m_matProj()
-    , m_matTranslate()
-    , m_angle()
     , m_speed1A(SPEED * -2.0f, SPEED * -0.9f)
     , m_speed1B(SPEED * 1.4f, SPEED * 1.4f)
     , m_speed2A(SPEED * -1.7f, SPEED * -2.2f)
@@ -158,12 +154,9 @@ namespace Fsl
     , m_angle1B(MathHelper::ToRadians(90.0f), MathHelper::ToRadians(90.0f))
     , m_angle2A(0.0f, 0.0f)
     , m_angle2B(0.0f, 0.0f)
-    , m_clip1()
-    , m_clip2()
     , m_clipX(m_options->ScissorX)
     , m_clipY(m_options->ScissorY)
   {
-
     const std::shared_ptr<IContentManager> content = GetContentManager();
     m_programInfo = CreateProgram(content);
     m_texture = CreateTexture(content);
@@ -177,15 +170,15 @@ namespace Fsl
   }
 
 
-  Scissor101::~Scissor101()
-  {
-  }
+  Scissor101::~Scissor101() = default;
 
 
   void Scissor101::OnKeyEvent(const KeyEvent& event)
   {
-    if (event.IsHandled() || ! event.IsPressed())
+    if (event.IsHandled() || !event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -216,11 +209,10 @@ namespace Fsl
     m_angle.Z -= 0.40f * demoTime.DeltaTime;
 
     // Rotate and translate the model view matrix
-    m_matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) *
-                 Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
+    m_matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
 
-    { // Do some funky double sinus movement we can use for a bit of unpredictable clipping
+    {    // Do some funky double sinus movement we can use for a bit of unpredictable clipping
       const auto resolution = GetScreenResolution();
       const Vector2 dist(resolution.X, resolution.Y);
 
@@ -282,14 +274,20 @@ namespace Fsl
     int32_t clipHeight = m_clipY ? (far.Y - near.Y) : screenResolution.Y;
 
     if (clipX < 0 || (clipX + clipWidth) > screenResolution.X || clipY < 0 || (clipY + clipHeight) > screenResolution.Y)
+    {
       throw std::runtime_error("Scissor rect out of bounds");
+    }
 
     glEnable(GL_SCISSOR_TEST);
 
     if (m_options->ForceInvalidWidth)
+    {
       clipWidth += (screenResolution.X - (clipX + clipWidth)) + 10;
+    }
     if (m_options->ForceInvalidHeight)
+    {
       clipHeight += (screenResolution.Y - (clipY + clipHeight)) + 10;
+    }
 
     glScissor(clipX, clipY, clipWidth, clipHeight);
 
@@ -352,8 +350,10 @@ namespace Fsl
     info.VertexBuffer.Reset(g_vertices.data(), g_vertices.size(), GL_STATIC_DRAW);
 
     auto vertexDecl = VertexPositionTexture::GetVertexDeclaration();
-    info.AttribLink[0] = GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    info.AttribLink[1] = GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    info.AttribLink[0] =
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    info.AttribLink[1] =
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     return info;
   }
 }

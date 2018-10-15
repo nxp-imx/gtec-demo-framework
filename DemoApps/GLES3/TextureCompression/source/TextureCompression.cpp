@@ -1,37 +1,37 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "TextureCompression.hpp"
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/IO/Path.hpp>
+#include <FslBase/Log/IO/LogPath.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Log/PixelFormat.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
@@ -52,10 +52,9 @@ namespace Fsl
 
   namespace
   {
-    std::shared_ptr<BaseWindow> CreateTextureControl(const std::shared_ptr<IContentManager> contentManager,
+    std::shared_ptr<BaseWindow> CreateTextureControl(const std::shared_ptr<IContentManager>& contentManager,
                                                      const std::shared_ptr<IGraphicsService>& graphicsService,
-                                                     const std::shared_ptr<UI::WindowContext>& context,
-                                                     const IO::Path& path,
+                                                     const std::shared_ptr<UI::WindowContext>& context, const IO::Path& path,
                                                      PixelFormat switchPF = PixelFormat::Undefined)
     {
       // Since we are loading a compressed texture the 'contentManager' wont modify it and
@@ -71,15 +70,15 @@ namespace Fsl
         auto label = std::make_shared<Label>(context);
         label->SetAlignmentX(ItemAlignment::Center);
         label->SetAlignmentY(ItemAlignment::Far);
-        label->SetContent(Fsl::Debug::ToString(texture.GetPixelFormat()) );
+        label->SetContent(Fsl::Debug::ToString(texture.GetPixelFormat()));
 
         auto tex = std::make_shared<Texture2DImage>(context);
         tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
         tex->SetContent(sourceTexture);
         tex->SetAlignmentX(ItemAlignment::Center);
         tex->SetAlignmentY(ItemAlignment::Center);
-        //tex1->SetWidth(256);
-        //tex1->SetHeight(256);
+        // tex1->SetWidth(256);
+        // tex1->SetHeight(256);
 
         auto stack = std::make_shared<StackLayout>(context);
         stack->SetLayoutOrientation(LayoutOrientation::Vertical);
@@ -97,8 +96,8 @@ namespace Fsl
 
   TextureCompression::TextureCompression(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_uiEventListener(this)                                                                                     // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))   // Prepare the extension
+    , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
   {
     // https://developer.android.com/guide/topics/graphics/opengl.html
 
@@ -194,10 +193,7 @@ namespace Fsl
   }
 
 
-  TextureCompression::~TextureCompression()
-  {
-
-  }
+  TextureCompression::~TextureCompression() = default;
 
 
   void TextureCompression::Update(const DemoTime& demoTime)
@@ -232,7 +228,8 @@ namespace Fsl
     auto tex2 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB.ktx");
     auto tex3 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB.ktx", PixelFormat::ETC2_R8G8B8_SRGB_BLOCK);
     auto tex4 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB_A1.ktx");
-    auto tex5 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB_A1.ktx", PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK);
+    auto tex5 =
+      CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB_A1.ktx", PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK);
     auto tex6 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGBA.ktx");
     auto tex7 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGBA.ktx", PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK);
 
@@ -256,7 +253,6 @@ namespace Fsl
     fillLayout->AddChild(wrapLayout);
 
     // Finally add everything to the window manager (to ensure its seen)
-    context->WindowManager->Add(fillLayout);
+    m_uiExtension->GetWindowManager()->Add(fillLayout);
   }
-
 }

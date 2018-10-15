@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -48,8 +48,8 @@ namespace Fsl
   namespace
   {
     const int32_t NUM_BLENDSTATES = 4;
-    BlendState g_blendStates[NUM_BLENDSTATES] = { BlendState::AlphaBlend, BlendState::NonPremultiplied, BlendState::Additive, BlendState::Opaque };
-    const char* g_blendStatesDesc[NUM_BLENDSTATES] = { "AlphaBlend (Premultiplied)", "NonPremultiplied AlphaBlend", "Additive", "Opaque" };
+    BlendState g_blendStates[NUM_BLENDSTATES] = {BlendState::AlphaBlend, BlendState::NonPremultiplied, BlendState::Additive, BlendState::Opaque};
+    const char* g_blendStatesDesc[NUM_BLENDSTATES] = {"AlphaBlend (Premultiplied)", "NonPremultiplied AlphaBlend", "Additive", "Opaque"};
 
     const int32_t GRID_CELL_SIZE = 128;
   }
@@ -59,13 +59,6 @@ namespace Fsl
     , m_batch(m_graphics->GetNativeBatch2D())
     , m_blendStateIndex(0)
     , m_blendState(g_blendStates[m_blendStateIndex])
-    , m_font()
-    , m_fontSmall()
-    , m_atlasTexture1()
-    , m_atlasTexture2()
-    , m_atlasTexture3()
-    , m_atlasTexture4()
-    , m_atlasTextureFill()
     , m_fillCenter(16, 16, 1, 1)
     , m_angle(0.0f)
     , m_zoomAngle1(0.0f)
@@ -105,7 +98,9 @@ namespace Fsl
   void TextureAtlasScene::OnKeyEvent(const KeyEvent& event)
   {
     if (!event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -113,7 +108,9 @@ namespace Fsl
       event.Handled();
       ++m_blendStateIndex;
       if (m_blendStateIndex >= NUM_BLENDSTATES)
+      {
         m_blendStateIndex = 0;
+      }
       m_blendState = g_blendStates[m_blendStateIndex];
       break;
     case VirtualKey::Code1:
@@ -154,8 +151,8 @@ namespace Fsl
 
     m_batch->Begin(m_blendState);
 
-    if ( m_sceneId == 0)
-    { // Draw the texture atlas
+    if (m_sceneId == 0)
+    {    // Draw the texture atlas
       const Point2 atlasSize = atlasTexture.GetSize();
       m_batch->Draw(atlasTexture, Vector2(screenResolution.X - atlasSize.X, screenResolution.Y - atlasSize.Y), Color::White());
     }
@@ -178,7 +175,8 @@ namespace Fsl
       dstOffset.Y += (GRID_CELL_SIZE * 4) + (GRID_CELL_SIZE / 2);
 
       // Render a simple test string
-      m_batch->DrawString(atlasTexture, m_fontSmall, "The quick brown fox jumps over the lazy dog", Vector2(dstOffset.X, dstOffset.Y - m_fontSmall.BaseLine()), Color::Cyan());
+      m_batch->DrawString(atlasTexture, m_fontSmall, "The quick brown fox jumps over the lazy dog",
+                          Vector2(dstOffset.X, dstOffset.Y - m_fontSmall.BaseLine()), Color::Cyan());
     }
     else
     {
@@ -186,11 +184,11 @@ namespace Fsl
     }
 
     m_batch->End();
-
   }
 
 
-  void TextureAtlasScene::DrawStrings(const Texture2D& atlasTexture, const TextureAtlasBitmapFont& font, const char*const psz, const int32_t areaWidth)
+  void TextureAtlasScene::DrawStrings(const Texture2D& atlasTexture, const TextureAtlasBitmapFont& font, const char* const psz,
+                                      const int32_t areaWidth)
   {
     const float zoomValue1 = (std::sin(m_zoomAngle1) + 1.0f) / 2.0f;
     const float zoomValue2 = (std::sin(m_zoomAngle2) + 1.0f) / 2.0f;
@@ -199,39 +197,45 @@ namespace Fsl
 
     Vector2 dstPosText(GRID_CELL_SIZE * 7, m_font.LineSpacing() + GRID_CELL_SIZE * 3);
 
+    const float gridCellSizeDiv2 = (GRID_CELL_SIZE / 2.0f);
+
     m_batch->DrawString(atlasTexture, font, psz, dstPosText, Color::White());
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    dstPosText.Y += gridCellSizeDiv2;
 
     const Point2 dim = font.MeasureString(psz);
-    const float emptyAreaX = float(areaWidth - dim.X);
+    const auto emptyAreaX = float(areaWidth - dim.X);
     Vector2 originCenter(dim.X * 0.5f, dim.Y * 0.5f);
     Vector2 originBottomRight(dim.X, dim.Y);
 
     m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + (emptyAreaX * 0.5f), dstPosText.Y), Color::White());
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    dstPosText.Y += gridCellSizeDiv2;
 
     m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + emptyAreaX, dstPosText.Y), Color::White());
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    dstPosText.Y += gridCellSizeDiv2;
 
     // Zoom: top-left
     m_batch->DrawString(atlasTexture, font, psz, dstPosText, Color::White(), Vector2(), zoom1);
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    dstPosText.Y += gridCellSizeDiv2;
     // Zoom: center
-    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + (emptyAreaX * 0.5f) + originCenter.X, dstPosText.Y + originCenter.Y), Color::White(), originCenter, zoom1);
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + (emptyAreaX * 0.5f) + originCenter.X, dstPosText.Y + originCenter.Y),
+                        Color::White(), originCenter, zoom1);
+    dstPosText.Y += gridCellSizeDiv2;
     // Zoom: right
-    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + emptyAreaX + originBottomRight.X, dstPosText.Y + originBottomRight.Y), Color::White(), originBottomRight, zoom1);
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + emptyAreaX + originBottomRight.X, dstPosText.Y + originBottomRight.Y),
+                        Color::White(), originBottomRight, zoom1);
+    dstPosText.Y += gridCellSizeDiv2;
 
     // Zoom: top-left
     m_batch->DrawString(atlasTexture, font, psz, dstPosText, Color::White(), Vector2(), zoom2);
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    dstPosText.Y += gridCellSizeDiv2;
     // Zoom: center
-    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + (emptyAreaX * 0.5f) + originCenter.X, dstPosText.Y + originCenter.Y), Color::White(), originCenter, zoom2);
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + (emptyAreaX * 0.5f) + originCenter.X, dstPosText.Y + originCenter.Y),
+                        Color::White(), originCenter, zoom2);
+    dstPosText.Y += gridCellSizeDiv2;
     // Zoom: right
-    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + emptyAreaX + originBottomRight.X, dstPosText.Y + originBottomRight.Y), Color::White(), originBottomRight, zoom2);
-    dstPosText.Y += (GRID_CELL_SIZE / 2);
+    m_batch->DrawString(atlasTexture, font, psz, Vector2(dstPosText.X + emptyAreaX + originBottomRight.X, dstPosText.Y + originBottomRight.Y),
+                        Color::White(), originBottomRight, zoom2);
+    dstPosText.Y += gridCellSizeDiv2;
   }
 
 
@@ -267,8 +271,8 @@ namespace Fsl
       Rectangle srcRect(atlas4Size.X / 4, atlas4Size.Y / 4, atlas4Size.X / 2, atlas4Size.Y / 2);
       const Vector2 halfF4(srcRect.Width() / 2.0f, srcRect.Height() / 2.0f);
       Vector2 offset0 = Vector2(dstOffset.X + GRID_CELL_SIZE * 1, dstOffset.Y + (GRID_CELL_SIZE * 3));
-      Vector2 offset1 = Vector2(dstOffset.X + GRID_CELL_SIZE * 4, dstOffset.Y + (GRID_CELL_SIZE*3));
-      Vector2 offset2 = Vector2(dstOffset.X + GRID_CELL_SIZE * 7, dstOffset.Y + (GRID_CELL_SIZE*3));
+      Vector2 offset1 = Vector2(dstOffset.X + GRID_CELL_SIZE * 4, dstOffset.Y + (GRID_CELL_SIZE * 3));
+      Vector2 offset2 = Vector2(dstOffset.X + GRID_CELL_SIZE * 7, dstOffset.Y + (GRID_CELL_SIZE * 3));
 
       m_batch->Draw(m_atlasTexture4, offset0, srcRect, Color(64, 64, 64, 255), 0.0f, Vector2(), Vector2::One());
       m_batch->Draw(m_atlasTexture4, offset0, srcRect, Color::White(), m_angle, Vector2(), Vector2::One());
@@ -335,8 +339,8 @@ namespace Fsl
     const float speed = 0.40f;
     for (int i = 0; i < numEntries; ++i)
     {
-      offsets1[i] = Vector2(offsetA.X + (i * atlas1Size.X), offsetA.Y + 30.0f + std::sin(m_angle + i*speed) * 30.0f);
-      offsets2[i] = Vector2(offsetB.X + (i * atlas2Size.X), offsetB.Y + 30.0f + std::sin(m_angle + i*speed) * 30.0f);
+      offsets1[i] = Vector2(offsetA.X + (i * atlas1Size.X), offsetA.Y + 30.0f + std::sin(m_angle + i * speed) * 30.0f);
+      offsets2[i] = Vector2(offsetB.X + (i * atlas2Size.X), offsetB.Y + 30.0f + std::sin(m_angle + i * speed) * 30.0f);
     }
 
     m_batch->Draw(m_atlasTexture1, offset1, Color::White());
@@ -358,9 +362,9 @@ namespace Fsl
     m_batch->Draw(m_atlasTexture1, offsets1, numEntries, Rectangle(0, 0, atlas1Size.X, half1.Y), Color::White());
     m_batch->Draw(m_atlasTexture2, offsets2, numEntries, Rectangle(0, 0, atlas2Size.X, half2.Y), Color::White());
 
-    offset1.Y += maxSizeY / 2;
-    offset2.Y += maxSizeY / 2;
-    offset3.Y += maxSizeY / 2;
+    offset1.Y += maxSizeY / 2.0f;
+    offset2.Y += maxSizeY / 2.0f;
+    offset3.Y += maxSizeY / 2.0f;
     for (int i = 0; i < numEntries; ++i)
     {
       offsets1[i] += offsetY / 2;
@@ -372,9 +376,9 @@ namespace Fsl
     m_batch->Draw(m_atlasTexture1, offsets1, numEntries, Rectangle(0, half1.Y, atlas1Size.X, atlas1Size.Y - half1.Y), Color::White());
     m_batch->Draw(m_atlasTexture2, offsets2, numEntries, Rectangle(0, half2.Y, atlas2Size.X, atlas2Size.Y - half2.Y), Color::White());
 
-    offset1.Y += maxSizeY / 2;
-    offset2.Y += maxSizeY / 2;
-    offset3.Y += maxSizeY / 2;
+    offset1.Y += maxSizeY / 2.0f;
+    offset2.Y += maxSizeY / 2.0f;
+    offset3.Y += maxSizeY / 2.0f;
     for (int i = 0; i < numEntries; ++i)
     {
       offsets1[i] += offsetY / 2;
@@ -411,7 +415,8 @@ namespace Fsl
 
     m_batch->Draw(m_atlasTexture1, Vector2(offset1.X + halfF1.X, offset1.Y + halfF1.Y), Color::White(), Vector2(halfF1.X, halfF1.Y), zoom1);
     m_batch->Draw(m_atlasTexture3, Vector2(offset2.X + halfF3.X, offset2.Y + halfF3.Y), Color::White(), Vector2(halfF3.X, halfF3.Y), zoom1);
-    m_batch->Draw(m_atlasTexture1, Vector2(offset3.X + halfF1.X, offset3.Y + halfF1.Y), q1, Color::White(), Vector2(q1.Width() * 0.5f, q1.Height() * 0.5f), zoom1);
+    m_batch->Draw(m_atlasTexture1, Vector2(offset3.X + halfF1.X, offset3.Y + halfF1.Y), q1, Color::White(),
+                  Vector2(q1.Width() * 0.5f, q1.Height() * 0.5f), zoom1);
 
     offset1.Y += maxSizeY;
     offset2.Y += maxSizeY;
@@ -419,7 +424,8 @@ namespace Fsl
 
     m_batch->Draw(m_atlasTexture1, Vector2(offset1.X + halfF1.X, offset1.Y + halfF1.Y), Color::White(), Vector2(halfF1.X, halfF1.Y), zoom2);
     m_batch->Draw(m_atlasTexture3, Vector2(offset2.X + halfF3.X, offset2.Y + halfF3.Y), Color::White(), Vector2(halfF3.X, halfF3.Y), zoom2);
-    m_batch->Draw(m_atlasTexture1, Vector2(offset3.X + halfF1.X, offset3.Y + halfF1.Y), q1, Color::White(), Vector2(q1.Width() * 0.5f, q1.Height() * 0.5f), zoom2);
+    m_batch->Draw(m_atlasTexture1, Vector2(offset3.X + halfF1.X, offset3.Y + halfF1.Y), q1, Color::White(),
+                  Vector2(q1.Width() * 0.5f, q1.Height() * 0.5f), zoom2);
   }
 
 
@@ -444,9 +450,12 @@ namespace Fsl
     const int quarterY2 = atlas2Size.Y / 4;
 
     Rectangle offset1 = Rectangle(dstOffset.X, dstOffset.Y, int32_t(atlas1Size.X * zoomValue1), int32_t(atlas1Size.Y * zoomValue1));
-    Rectangle offset2 = Rectangle(offset1.X() + m_atlasTexture1.GetSize().X, offset1.Y(), int32_t(atlas2Size.X * zoomValue1), int32_t(atlas2Size.Y * zoomValue1));
-    Rectangle offset3 = Rectangle(offset2.X() + m_atlasTexture2.GetSize().X, offset2.Y(), int32_t(atlas1Size.X * zoomValue1), int32_t(atlas1Size.Y * zoomValue2));
-    Rectangle offset4 = Rectangle(offset3.X() + m_atlasTexture1.GetSize().X, offset3.Y(), int32_t(atlas2Size.X * zoomValue1), int32_t(atlas2Size.Y * zoomValue2));
+    Rectangle offset2 =
+      Rectangle(offset1.X() + m_atlasTexture1.GetSize().X, offset1.Y(), int32_t(atlas2Size.X * zoomValue1), int32_t(atlas2Size.Y * zoomValue1));
+    Rectangle offset3 =
+      Rectangle(offset2.X() + m_atlasTexture2.GetSize().X, offset2.Y(), int32_t(atlas1Size.X * zoomValue1), int32_t(atlas1Size.Y * zoomValue2));
+    Rectangle offset4 =
+      Rectangle(offset3.X() + m_atlasTexture1.GetSize().X, offset3.Y(), int32_t(atlas2Size.X * zoomValue1), int32_t(atlas2Size.Y * zoomValue2));
 
     m_batch->Draw(m_atlasTexture1, offset1, Color::White());
     m_batch->Draw(m_atlasTexture2, offset2, Color::White());
@@ -478,10 +487,14 @@ namespace Fsl
     offset3.AddY(maxSizeY);
     offset4.AddY(maxSizeY);
 
-    m_batch->Draw(m_atlasTexture1, offset1, Rectangle(quarterX1, quarterY1, atlas1Size.X - (quarterX1 * 2), atlas1Size.Y - (quarterY1 * 2)), Color::White());
-    m_batch->Draw(m_atlasTexture2, offset2, Rectangle(quarterX2, quarterY2, atlas2Size.X - (quarterX2 * 2), atlas2Size.Y - (quarterY2 * 2)), Color::White());
-    m_batch->Draw(m_atlasTexture1, offset3, Rectangle(quarterX1, quarterY1, atlas1Size.X - (quarterX1 * 2), atlas1Size.Y - (quarterY1 * 2)), Color::White());
-    m_batch->Draw(m_atlasTexture2, offset4, Rectangle(quarterX2, quarterY2, atlas2Size.X - (quarterX2 * 2), atlas2Size.Y - (quarterY2 * 2)), Color::White());
+    m_batch->Draw(m_atlasTexture1, offset1, Rectangle(quarterX1, quarterY1, atlas1Size.X - (quarterX1 * 2), atlas1Size.Y - (quarterY1 * 2)),
+                  Color::White());
+    m_batch->Draw(m_atlasTexture2, offset2, Rectangle(quarterX2, quarterY2, atlas2Size.X - (quarterX2 * 2), atlas2Size.Y - (quarterY2 * 2)),
+                  Color::White());
+    m_batch->Draw(m_atlasTexture1, offset3, Rectangle(quarterX1, quarterY1, atlas1Size.X - (quarterX1 * 2), atlas1Size.Y - (quarterY1 * 2)),
+                  Color::White());
+    m_batch->Draw(m_atlasTexture2, offset4, Rectangle(quarterX2, quarterY2, atlas2Size.X - (quarterX2 * 2), atlas2Size.Y - (quarterY2 * 2)),
+                  Color::White());
   }
 
   void TextureAtlasScene::DrawGrid(const int32_t cellWidth, const int32_t cellHeight, const int32_t areaWidth, const int32_t areaHeight,
@@ -500,7 +513,7 @@ namespace Fsl
     for (int32_t x = startX; x < areaWidth; x += cellWidth)
     {
       m_batch->Draw(m_atlasTextureFill, Rectangle(x, 0, 1, areaHeight), m_fillCenter, colorBorder);
-      m_batch->Draw(m_atlasTextureFill, Rectangle(x+ xOffset, 0, 1, areaHeight), m_fillCenter, colorCenter);
+      m_batch->Draw(m_atlasTextureFill, Rectangle(x + xOffset, 0, 1, areaHeight), m_fillCenter, colorCenter);
     }
   }
 

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -63,12 +63,7 @@ namespace Fsl
     const int SIZE_128 = 128 * SIZE_MOD;
     const int SIZE_256 = 256 * SIZE_MOD;
 
-    const char*const g_pszShaderAttributeArray[] =
-    {
-      "VertexPosition",
-      "VertexTexCoord",
-      nullptr
-    };
+    const char* const g_pszShaderAttributeArray[] = {"VertexPosition", "VertexTexCoord", nullptr};
 
     const GLTextureImageParameters g_defaultFBImageParams(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
   }
@@ -83,10 +78,7 @@ namespace Fsl
     , m_menuUI(config)
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
     , m_camera(config.ScreenResolution)
-    , m_rotation()
     , m_rotationSpeed(0, -0.6f, 0)
-    , m_storedStartRotation()
-    , m_scene()
     , m_fbBlur16A(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
     , m_fbBlur16B(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
     , m_fbBlur32A(Point2(SIZE_32, SIZE_32), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
@@ -97,7 +89,8 @@ namespace Fsl
     , m_fbBlur128B(Point2(SIZE_128, SIZE_128), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
     , m_fbBlur256A(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
     , m_fbBlur256B(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbRender256(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams, GL_DEPTH_COMPONENT16)
+    , m_fbRender256(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams,
+                    GL_DEPTH_COMPONENT16)
     , m_locBlurHTexSize(GLValues::INVALID_LOCATION)
     , m_locBlurVTexSize(GLValues::INVALID_LOCATION)
     , m_locBloomTexture256(GLValues::INVALID_LOCATION)
@@ -147,25 +140,28 @@ namespace Fsl
     m_sceneRender = std::make_shared<RenderScene>(config);
     m_sceneWhiteRect = std::make_shared<WhiteRectScene>(config);
 
-    if ( m_menuUI.GetSceneId() == 1 )
+    if (m_menuUI.GetSceneId() == 1)
+    {
       m_scene = m_sceneWhiteRect;
+    }
     else
+    {
       m_scene = m_sceneRender;
+    }
   }
 
 
-  Bloom::~Bloom()
-  {
-
-  }
+  Bloom::~Bloom() = default;
 
 
   void Bloom::OnKeyEvent(const KeyEvent& event)
   {
     m_menuUI.OnKeyEvent(event);
 
-    if (! event.IsPressed())
+    if (!event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -202,16 +198,22 @@ namespace Fsl
   void Bloom::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
     {
       if (event.IsPressed())
+      {
         m_camera.BeginDrag(event.GetPosition());
+      }
       else if (m_camera.IsDragging())
+      {
         m_camera.EndDrag(event.GetPosition());
+      }
       event.Handled();
     }
     break;
@@ -233,7 +235,9 @@ namespace Fsl
   void Bloom::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
 
     if (m_camera.IsDragging())
@@ -247,7 +251,9 @@ namespace Fsl
   void Bloom::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     m_camera.AddZoom(event.GetDelta() * -0.001f);
   }
@@ -262,7 +268,9 @@ namespace Fsl
     }
 
     if (m_scene)
+    {
       m_scene->Update(demoTime, m_camera.GetViewMatrix(), m_camera.GetRotationMatrix(), m_rotation, GetScreenResolution());
+    }
 
     if (m_menuUI.GetKernelWeightMod() != m_gaussianBlurKernelWeight)
     {
@@ -275,7 +283,9 @@ namespace Fsl
   void Bloom::Draw(const DemoTime& demoTime)
   {
     if (!m_scene)
+    {
       return;
+    }
 
     glEnable(GL_DEPTH_TEST);
 
@@ -297,9 +307,13 @@ namespace Fsl
 
     // 2. Apply bright pass
     if (m_menuUI.IsBrightPassEnabled())
+    {
       PostProcess(m_fbBlur256A, m_fbRender256, m_programBrightPass);
+    }
     else
+    {
       PostProcess(m_fbBlur256A, m_fbRender256, m_programCopy);
+    }
 
     // 3. copy to the smaller blur render targets
     if (m_menuUI.IsScaleInputSequentiallyEnabled())
@@ -340,7 +354,9 @@ namespace Fsl
     // Calling this last allows the UI to draw on top of everything.
     // Beware that the UI drawing methods might alter the OpenGL state!
     if (m_renderUI)
+    {
       m_menuUI.Draw();
+    }
   }
 
   void Bloom::DrawFinalComposite()
@@ -379,7 +395,7 @@ namespace Fsl
       glUniform1i(m_locBloomTexture64, 2);
       glUniform1i(m_locBloomTexture32, 3);
       glUniform1i(m_locBloomTexture16, 4);
-      glUniform1f(m_locBloomTextureLevel, m_menuUI.GetBlendLevel() );
+      glUniform1f(m_locBloomTextureLevel, m_menuUI.GetBlendLevel());
 
 
       glActiveTexture(GL_TEXTURE0);
@@ -415,7 +431,7 @@ namespace Fsl
       m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0.0f), Color::White());
       dstX += m_fbBlur32A.GetSize().X;
       m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0.0f), Color::White());
-      //dstX += m_fbBlur16A.GetSize().X;
+      // dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
     }
   }
@@ -424,9 +440,11 @@ namespace Fsl
   void Bloom::PostProcessBlurH(const GLFrameBuffer& dst, const GLFrameBuffer& src)
   {
     glUseProgram(m_programBlurHPass.Get());
-    //glUseProgram(m_programCopy.Get());
+    // glUseProgram(m_programCopy.Get());
     if (m_locBlurHTexSize >= 0)
+    {
       glUniform1f(m_locBlurHTexSize, 1.0f / src.GetSize().X);
+    }
     PostProcess(dst, src);
   }
 
@@ -434,9 +452,11 @@ namespace Fsl
   void Bloom::PostProcessBlurV(const GLFrameBuffer& dst, const GLFrameBuffer& src)
   {
     glUseProgram(m_programBlurVPass.Get());
-    //glUseProgram(m_programCopy.Get());
+    // glUseProgram(m_programCopy.Get());
     if (m_locBlurVTexSize >= 0)
+    {
       glUniform1f(m_locBlurVTexSize, 1.0f / src.GetSize().Y);
+    }
     PostProcess(dst, src);
   }
 
@@ -473,27 +493,35 @@ namespace Fsl
     auto contentManager = GetContentManager();
     switch (shaderType)
     {
-      case BlurShaderType::Custom:
-        m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), g_pszShaderAttributeArray);
-        m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), g_pszShaderAttributeArray);
-        break;
-      case Bloom::Gaussian9X9:
-        m_programBlurHPass.Reset(m_strShaderVertPass, GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9HPass.frag"), gaussianBlurKernelWeightMod), g_pszShaderAttributeArray);
-        m_programBlurVPass.Reset(m_strShaderVertPass, GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9VPass.frag"), gaussianBlurKernelWeightMod), g_pszShaderAttributeArray);
-        break;
-      case Bloom::Gaussian5X5:
-      default:
-        m_programBlurHPass.Reset(m_strShaderVertPass, GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5HPass.frag"), gaussianBlurKernelWeightMod), g_pszShaderAttributeArray);
-        m_programBlurVPass.Reset(m_strShaderVertPass, GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5VPass.frag"), gaussianBlurKernelWeightMod), g_pszShaderAttributeArray);
-        break;
+    case BlurShaderType::Custom:
+      m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), g_pszShaderAttributeArray);
+      m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), g_pszShaderAttributeArray);
+      break;
+    case Bloom::Gaussian9X9:
+      m_programBlurHPass.Reset(
+        m_strShaderVertPass,
+        GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9HPass.frag"), gaussianBlurKernelWeightMod),
+        g_pszShaderAttributeArray);
+      m_programBlurVPass.Reset(
+        m_strShaderVertPass,
+        GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9VPass.frag"), gaussianBlurKernelWeightMod),
+        g_pszShaderAttributeArray);
+      break;
+    case Bloom::Gaussian5X5:
+    default:
+      m_programBlurHPass.Reset(
+        m_strShaderVertPass,
+        GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5HPass.frag"), gaussianBlurKernelWeightMod),
+        g_pszShaderAttributeArray);
+      m_programBlurVPass.Reset(
+        m_strShaderVertPass,
+        GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5VPass.frag"), gaussianBlurKernelWeightMod),
+        g_pszShaderAttributeArray);
+      break;
     }
 
     m_locBlurHTexSize = glGetUniformLocation(m_programBlurHPass.Get(), "TexSize");
     m_locBlurVTexSize = glGetUniformLocation(m_programBlurVPass.Get(), "TexSize");
     m_activeBlueShaderType = shaderType;
   }
-
-
-
-
 }

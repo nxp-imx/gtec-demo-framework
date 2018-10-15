@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
@@ -49,7 +49,9 @@ namespace Fsl
         std::size_t count = 0;
         const std::size_t elementCount = vertexDeclaration.Count();
         for (std::size_t i = 0; i < elementCount; ++i)
+        {
           count += (vertexDeclaration.At(i).Format == VertexElementFormat::Matrix4x4) ? 1 : 0;
+        }
         return count;
       }
 
@@ -62,11 +64,13 @@ namespace Fsl
         const auto convertedElementCount = (vertexDeclaration.Count() - numMatrixElements) + (numMatrixElements * 4);
 
         if (convertedElementCount != rVertexElements.size())
+        {
           rVertexElements.resize(convertedElementCount);
+        }
 
         const auto srcCount = vertexDeclaration.Count();
         const VertexElementEx* pSrcElements = vertexDeclaration.DirectAccess();
-        const VertexElementEx*const pSrcElementsEnd = pSrcElements + srcCount;
+        const VertexElementEx* const pSrcElementsEnd = pSrcElements + srcCount;
         GLVertexElement* pDst = rVertexElements.data();
 
         auto extendedIndex = srcCount;
@@ -87,7 +91,8 @@ namespace Fsl
             ++pDst;
             extendedIndex += 3;
 
-            // We store the extended attributes after all the normal ones to ensure that the index between the VertexDeclation and our internal ones are the same
+            // We store the extended attributes after all the normal ones to ensure that the index between the VertexDeclation and our internal ones
+            // are the same
             pDstAfterNormalData->Reset(*pSrcElements, VertexElementFormat::Vector4, sizeof(float) * 4);
             ++pDstAfterNormalData;
             pDstAfterNormalData->Reset(*pSrcElements, VertexElementFormat::Vector4, sizeof(float) * 4 * 2);
@@ -100,20 +105,25 @@ namespace Fsl
       }
 
 
-      bool IsEqual(const VertexDeclaration& vertexDeclaration, const std::vector<GLVertexElement>& vertexElements, const std::size_t originalVertexElementCount)
+      bool IsEqual(const VertexDeclaration& vertexDeclaration, const std::vector<GLVertexElement>& vertexElements,
+                   const std::size_t originalVertexElementCount)
       {
         if (vertexDeclaration.Count() != originalVertexElementCount)
+        {
           return false;
+        }
 
         const auto srcCount = vertexDeclaration.Count();
         const VertexElementEx* pSrcElements = vertexDeclaration.DirectAccess();
-        const VertexElementEx*const pSrcElementsEnd = pSrcElements + srcCount;
+        const VertexElementEx* const pSrcElementsEnd = pSrcElements + srcCount;
         const GLVertexElement* pDst = vertexElements.data();
 
         while (pSrcElements < pSrcElementsEnd)
         {
           if (pDst->Source != *pSrcElements)
+          {
             return false;
+          }
           ++pSrcElements;
           ++pDst;
         }
@@ -121,23 +131,28 @@ namespace Fsl
       }
 
 
-      inline void EnableAttribArray(const std::vector<GLVertexElement>& vertexElement, const std::size_t elementIndex, const GLuint attribIndex, const uint32_t vertexStride)
+      inline void EnableAttribArray(const std::vector<GLVertexElement>& vertexElement, const std::size_t elementIndex, const GLuint attribIndex,
+                                    const uint32_t vertexStride)
       {
         assert(elementIndex < vertexElement.size());
 
-        glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized, vertexStride, vertexElement[elementIndex].Pointer);
+        glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized,
+                              vertexStride, vertexElement[elementIndex].Pointer);
         glEnableVertexAttribArray(attribIndex);
         // if this is a matrix element we need to enable the rest of the components
         if (vertexElement[elementIndex].Source.Format == VertexElementFormat::Matrix4x4)
         {
           auto extendedIndex = vertexElement[elementIndex].ExtendedIndex;
-          glVertexAttribPointer(attribIndex + 1, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type, vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
+          glVertexAttribPointer(attribIndex + 1, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
+                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
           glEnableVertexAttribArray(attribIndex + 1);
           ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 2, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type, vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
+          glVertexAttribPointer(attribIndex + 2, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
+                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
           glEnableVertexAttribArray(attribIndex + 2);
           ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 3, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type, vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
+          glVertexAttribPointer(attribIndex + 3, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
+                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
           glEnableVertexAttribArray(attribIndex + 3);
         }
       }
@@ -158,47 +173,51 @@ namespace Fsl
         }
       }
 
-      inline void EnableAttribPointer(const std::vector<GLVertexElement>& vertexElement, const uint32_t elementIndex, const GLuint attribIndex, const uint32_t vertexStride)
+      inline void EnableAttribPointer(const std::vector<GLVertexElement>& vertexElement, const uint32_t elementIndex, const GLuint attribIndex,
+                                      const uint32_t vertexStride)
       {
         assert(elementIndex < vertexElement.size());
 
-        glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized, vertexStride, vertexElement[elementIndex].Pointer);
+        glVertexAttribPointer(attribIndex, vertexElement[elementIndex].Size, vertexElement[elementIndex].Type, vertexElement[elementIndex].Normalized,
+                              vertexStride, vertexElement[elementIndex].Pointer);
         // if this is a matrix element we need to enable the rest of the components
         if (vertexElement[elementIndex].Source.Format == VertexElementFormat::Matrix4x4)
         {
           auto extendedIndex = vertexElement[elementIndex].ExtendedIndex;
-          glVertexAttribPointer(attribIndex + 1, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type, vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
+          glVertexAttribPointer(attribIndex + 1, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
+                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
           ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 2, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type, vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
+          glVertexAttribPointer(attribIndex + 2, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
+                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
           ++extendedIndex;
-          glVertexAttribPointer(attribIndex + 3, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type, vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
+          glVertexAttribPointer(attribIndex + 3, vertexElement[extendedIndex].Size, vertexElement[extendedIndex].Type,
+                                vertexElement[extendedIndex].Normalized, vertexStride, vertexElement[extendedIndex].Pointer);
         }
       }
-
-
     }
 
 
-    GLVertexBufferArray& GLVertexBufferArray::operator=(GLVertexBufferArray&& other)
+    GLVertexBufferArray& GLVertexBufferArray::operator=(GLVertexBufferArray&& other) noexcept
     {
       if (this != &other)
       {
-        GLBufferArray::operator=(std::move(other));
-
         // Claim ownership here
         m_vertexElements = std::move(other.m_vertexElements);
         m_originalVertexElementCount = other.m_originalVertexElementCount;
 
         // Remove the data from other
         other.m_originalVertexElementCount = 0;
+
+        // Move the base part
+        GLBufferArray::operator=(std::move(other));
       }
       return *this;
     }
 
     //! @brief Move constructor
     //! Transfer ownership from other to this
-    GLVertexBufferArray::GLVertexBufferArray(GLVertexBufferArray&& other)
-      : GLBufferArray(std::move(other))
+    GLVertexBufferArray::GLVertexBufferArray(GLVertexBufferArray&& other) noexcept
+      : GLBufferArray(std::move(other))    // NOLINT(bugprone-use-after-move)
       , m_vertexElements(std::move(other.m_vertexElements))
       , m_originalVertexElementCount(other.m_originalVertexElementCount)
     {
@@ -208,9 +227,7 @@ namespace Fsl
 
 
     GLVertexBufferArray::GLVertexBufferArray()
-      : GLBufferArray()
-      , m_vertexElements()
-      , m_originalVertexElementCount(0)
+      : m_originalVertexElementCount(0)
     {
     }
 
@@ -230,10 +247,13 @@ namespace Fsl
     }
 
 
-    void GLVertexBufferArray::Reset(const std::size_t arrayIndex, const void*const pVertices, const std::size_t elementCount, const VertexDeclaration& vertexDeclaration, const GLenum usage)
+    void GLVertexBufferArray::Reset(const std::size_t arrayIndex, const void* const pVertices, const std::size_t elementCount,
+                                    const VertexDeclaration& vertexDeclaration, const GLenum usage)
     {
       if (!IsEqual(vertexDeclaration, m_vertexElements, m_originalVertexElementCount))
+      {
         throw NotSupportedException("The Vertex declaration did not match the array configuration");
+      }
 
       GLBufferArray::Reset(arrayIndex, GL_ARRAY_BUFFER, pVertices, elementCount, vertexDeclaration.VertexStride(), usage);
     }
@@ -243,13 +263,14 @@ namespace Fsl
     {
       const auto vertexStride = GetElementStride();
       const GLVertexElement* pVertexElements = m_vertexElements.data();
-      const GLVertexElement*const pVertexElementsEnd = pVertexElements + m_vertexElements.size();
+      const GLVertexElement* const pVertexElementsEnd = pVertexElements + m_vertexElements.size();
 
       GLuint attribIndex = 0;
       while (pVertexElements < pVertexElementsEnd)
       {
         // We dont need special handling of the 'extended' elements here since we enable everything
-        glVertexAttribPointer(attribIndex, pVertexElements->Size, pVertexElements->Type, pVertexElements->Normalized, vertexStride, pVertexElements->Pointer);
+        glVertexAttribPointer(attribIndex, pVertexElements->Size, pVertexElements->Type, pVertexElements->Normalized, vertexStride,
+                              pVertexElements->Pointer);
         glEnableVertexAttribArray(attribIndex);
         ++pVertexElements;
         ++attribIndex;
@@ -259,7 +280,7 @@ namespace Fsl
 
     void GLVertexBufferArray::DisableAttribArrays() const
     {
-      const GLuint count = static_cast<GLuint>(m_vertexElements.size());
+      const auto count = static_cast<GLuint>(m_vertexElements.size());
       GLuint index = 0;
       while (index < count)
       {
@@ -270,10 +291,12 @@ namespace Fsl
     }
 
 
-    void GLVertexBufferArray::EnableAttribArrays(const GLuint*const pAttributeIndices, const std::size_t count) const
+    void GLVertexBufferArray::EnableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
     {
       if (count > std::numeric_limits<uint32_t>::max())
+      {
         throw NotSupportedException("We only support 32bit of elements");
+      }
 
       FSLLOG_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
 
@@ -288,10 +311,12 @@ namespace Fsl
     }
 
 
-    void GLVertexBufferArray::DisableAttribArrays(const GLuint*const pAttributeIndices, const std::size_t count) const
+    void GLVertexBufferArray::DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
     {
       if (count > std::numeric_limits<uint32_t>::max())
+      {
         throw NotSupportedException("We only support 32bit of elements");
+      }
       FSLLOG_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
 
       const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
@@ -302,29 +327,37 @@ namespace Fsl
     }
 
 
-    void GLVertexBufferArray::EnableAttribArrays(const GLVertexAttribLink*const pLinks, const std::size_t count) const
+    void GLVertexBufferArray::EnableAttribArrays(const GLVertexAttribLink* const pLinks, const std::size_t count) const
     {
       if (count > std::numeric_limits<uint32_t>::max())
+      {
         throw NotSupportedException("We only support 32bit of elements");
+      }
 
       const auto vertexStride = GetElementStride();
       for (uint32_t i = 0; i < count; ++i)
       {
         if (pLinks[i].AttribIndex >= 0)
+        {
           EnableAttribArray(m_vertexElements, pLinks[i].VertexElementIndex, pLinks[i].AttribIndex, vertexStride);
+        }
       }
     }
 
 
-    void GLVertexBufferArray::DisableAttribArrays(const GLVertexAttribLink*const pLinks, const std::size_t count) const
+    void GLVertexBufferArray::DisableAttribArrays(const GLVertexAttribLink* const pLinks, const std::size_t count) const
     {
       if (count > std::numeric_limits<uint32_t>::max())
+      {
         throw NotSupportedException("We only support 32bit of elements");
+      }
 
       for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
       {
         if (pLinks[i].AttribIndex >= 0)
+        {
           DisableAttribArray(m_vertexElements, pLinks[i].VertexElementIndex, pLinks[i].AttribIndex);
+        }
       }
     }
 
@@ -333,23 +366,26 @@ namespace Fsl
     {
       const auto vertexStride = GetElementStride();
       const GLVertexElement* pVertexElements = m_vertexElements.data();
-      const GLVertexElement*const pVertexElementsEnd = pVertexElements + m_vertexElements.size();
+      const GLVertexElement* const pVertexElementsEnd = pVertexElements + m_vertexElements.size();
 
       GLuint attribIndex = 0;
       while (pVertexElements < pVertexElementsEnd)
       {
         // We dont need special handling of the 'extended' elements here since we enable everything
-        glVertexAttribPointer(attribIndex, pVertexElements->Size, pVertexElements->Type, pVertexElements->Normalized, vertexStride, pVertexElements->Pointer);
+        glVertexAttribPointer(attribIndex, pVertexElements->Size, pVertexElements->Type, pVertexElements->Normalized, vertexStride,
+                              pVertexElements->Pointer);
         ++pVertexElements;
         ++attribIndex;
       }
     }
 
 
-    void GLVertexBufferArray::SetVertexAttribPointers(const GLuint*const pAttributeIndices, const std::size_t count) const
+    void GLVertexBufferArray::SetVertexAttribPointers(const GLuint* const pAttributeIndices, const std::size_t count) const
     {
       if (count > std::numeric_limits<uint32_t>::max())
+      {
         throw NotSupportedException("We only support 32bit of elements");
+      }
 
       FSLLOG_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
 
@@ -364,16 +400,20 @@ namespace Fsl
     }
 
 
-    void GLVertexBufferArray::SetVertexAttribPointers(const GLVertexAttribLink*const pLinks, const std::size_t count) const
+    void GLVertexBufferArray::SetVertexAttribPointers(const GLVertexAttribLink* const pLinks, const std::size_t count) const
     {
       if (count > std::numeric_limits<uint32_t>::max())
+      {
         throw NotSupportedException("We only support 32bit of elements");
+      }
 
       const auto vertexStride = GetElementStride();
       for (uint32_t i = 0; i < static_cast<uint32_t>(count); ++i)
       {
         if (pLinks[i].AttribIndex >= 0)
+        {
           EnableAttribPointer(m_vertexElements, pLinks[i].VertexElementIndex, pLinks[i].AttribIndex, vertexStride);
+        }
       }
     }
 
@@ -400,7 +440,9 @@ namespace Fsl
     {
       const auto index = VertexElementIndexOf(usage, usageIndex);
       if (index < 0)
+      {
         throw UsageErrorException("The supplied usage and usageIndex combo was not found");
+      }
       return index;
     }
 
@@ -411,7 +453,9 @@ namespace Fsl
       for (int32_t i = 0; i < static_cast<int32_t>(m_vertexElements.size()); ++i)
       {
         if (m_vertexElements[i].Source.Usage == usage && m_vertexElements[i].Source.UsageIndex == usageIndex)
+        {
           return i;
+        }
       }
       return -1;
     }

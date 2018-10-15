@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
@@ -75,22 +75,24 @@ namespace Fsl
     : ABlurredDraw("Two pass linear scaled")
     , m_batch2D(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
     , m_screenResolution(config.ScreenResolution)
-    , m_framebufferOrg(Point2(m_screenResolution.X, m_screenResolution.Y), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams, GL_DEPTH_COMPONENT16)
-    , m_framebufferBlur1()
-    , m_framebufferBlur2()
-    , m_shaders()
+    , m_framebufferOrg(Point2(m_screenResolution.X, m_screenResolution.Y),
+                       GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams, GL_DEPTH_COMPONENT16)
   {
     if (!m_batch2D)
+    {
       throw std::runtime_error("NativeBatch2D unavailable");
+    }
 
     // Ensure that the kernel size is correct
     int moddedKernelLength = UpdateKernelLength(blurConfig.KernelLength);
-    FSLLOG_WARNING_IF(moddedKernelLength != blurConfig.KernelLength, "The two pass linear scaled shader is not compatible with the supplied kernel length of " << blurConfig.KernelLength << " using " << moddedKernelLength);
+    FSLLOG_WARNING_IF(moddedKernelLength != blurConfig.KernelLength,
+                      "The two pass linear scaled shader is not compatible with the supplied kernel length of " << blurConfig.KernelLength
+                                                                                                                << " using " << moddedKernelLength);
 
     // Simplistic scaling of the kernel so it handles the down-sampling of the image correctly
     moddedKernelLength = UpdateScaledKernelLength(moddedKernelLength / 2);
     float moddedSigma = blurConfig.Sigma / 2.0f;
-    FSLLOG("Scaled actual kernel length: " << moddedKernelLength << " which becomes a " << ((moddedKernelLength / 2)+1) << " linear kernel" );
+    FSLLOG("Scaled actual kernel length: " << moddedKernelLength << " which becomes a " << ((moddedKernelLength / 2) + 1) << " linear kernel");
 
     // The downscaled framebuffer needs to contain 'half of the kernel width' extra pixels on the left to ensure that we can use
     // them for the blur calc of the first pixel we are interested in
@@ -99,8 +101,10 @@ namespace Fsl
     blurFBWidth += ((blurFBWidth % 16) != 0 ? (16 - (blurFBWidth % 16)) : 0);
     int addedPixels = blurFBWidth - quadWidth;
 
-    m_framebufferBlur1.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
-    m_framebufferBlur2.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
+    m_framebufferBlur1.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2),
+                             GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
+    m_framebufferBlur2.Reset(Point2(blurFBWidth, m_screenResolution.Y / 2),
+                             GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams);
 
 
     // Prepare the shaders
@@ -109,7 +113,8 @@ namespace Fsl
     m_shaders.Reset(contentManager, moddedKernelLength, moddedSigma, m_framebufferBlur1.GetSize(), m_framebufferBlur2.GetSize(),
                     TwoPassShaders::Linear, blurConfig.TheShaderType);
 
-    const float xOrg = ((m_framebufferOrg.GetSize().X - ((m_framebufferOrg.GetSize().X / 2) + addedPixels * 2)) / float(m_framebufferOrg.GetSize().X));
+    const float xOrg = ((m_framebufferOrg.GetSize().X - ((m_framebufferOrg.GetSize().X / 2.0f) + (addedPixels * 2))) /
+                        static_cast<float>(m_framebufferOrg.GetSize().X));
     const float xFinal = addedPixels / float(m_framebufferBlur2.GetSize().X);
 
     VBHelper::BuildVB(m_vertexBufferLeft, BoxF(-1, -1, 0, 1), BoxF(0.0f, 0.0f, 0.5f, 1.0f));
@@ -120,8 +125,7 @@ namespace Fsl
   }
 
 
-
-  void TwoPassLinearScaledBlurredDraw::Draw(AScene*const pScene)
+  void TwoPassLinearScaledBlurredDraw::Draw(AScene* const pScene)
   {
     assert(pScene != nullptr);
 
@@ -204,5 +208,4 @@ namespace Fsl
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
   }
-
 }

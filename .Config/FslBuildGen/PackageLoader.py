@@ -87,7 +87,7 @@ class PackageLoader(object):
                 inputFiles = self.PackageFinder.GetKnownPackageFiles(inputFiles)
 
             internalNinjaToolPackageName = "Recipe.BuildTool.ninja"
-            if platform.Name == PlatformNameString.ANDROID and not self.__ContainsPackage(inputFiles, internalNinjaToolPackageName):
+            if (platform.Name == PlatformNameString.ANDROID or platform.Name.lower() == PlatformNameString.ALL.lower()) and not self.__ContainsPackage(inputFiles, internalNinjaToolPackageName):
                 packageFile = self.PackageFinder.TryLocateMissingPackagesByName(internalNinjaToolPackageName)
                 if packageFile is None:
                     raise ToolDependencyNotFoundException(internalNinjaToolPackageName)

@@ -1,35 +1,35 @@
 #ifndef OPENCL_INFO_LOGHELP_HPP
 #define OPENCL_INFO_LOGHELP_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/String/ToString.hpp>
@@ -43,20 +43,19 @@ namespace Fsl
 {
   class LogHelp
   {
-    uint32_t m_currentIndent;
+    uint32_t m_currentIndent{0};
+
   public:
     std::string Indent;
 
-    LogHelp()
-      : m_currentIndent(0)
-      , Indent()
-    {
-    }
+    LogHelp() = default;
 
     void PushIndent()
     {
       if (m_currentIndent >= 0x10)
+      {
         return;
+      }
       ++m_currentIndent;
       RebuildIndentString();
     }
@@ -64,7 +63,9 @@ namespace Fsl
     void PopIndent()
     {
       if (m_currentIndent == 0)
+      {
         return;
+      }
 
       --m_currentIndent;
       RebuildIndentString();
@@ -80,7 +81,7 @@ namespace Fsl
     }
 
 
-    template<typename T>
+    template <typename T>
     inline std::string ToString(const std::vector<T>& container)
     {
       std::stringstream stream;
@@ -101,20 +102,20 @@ namespace Fsl
       return stream.str();
     }
 
-    template<typename T>
+    template <typename T>
     inline std::string ToString(const T& value)
     {
       return Fsl::ToString(value);
     }
 
-    template<typename T>
+    template <typename T>
     void LogPlatformInfo(const std::string& text, const cl_platform_id platformId, const cl_platform_info platformInfo)
     {
       T result;
       FSLLOG(Indent << text << (OpenCL::OpenCLHelper::TryGetPlatformInfo<T>(platformId, platformInfo, result) ? ToString(result) : "Unavailable"));
     }
 
-    template<typename T>
+    template <typename T>
     void LogDeviceInfo(const std::string& text, const cl_device_id deviceId, const cl_device_info deviceInfo)
     {
       T result;
@@ -192,7 +193,6 @@ namespace Fsl
       FSLLOG(Indent << "CL_PLATFORM_ICD_SUFFIX_KHR: Unavailable");
 #endif
     }
-
 
 
     // CL_DEVICE_ADDRESS_BITS (cl_uint)
@@ -946,7 +946,7 @@ namespace Fsl
     inline void Log_CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT(const cl_device_id deviceId)
     {
 #ifdef CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT
-      LogDeviceInfo<cl_uint>("CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT: " , deviceId, CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT);
+      LogDeviceInfo<cl_uint>("CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT: ", deviceId, CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT);
 #else
       FSLLOG(Indent << "CL_DEVICE_PREFERRED_GLOBAL_ATOMIC_ALIGNMENT: Unavailable");
 #endif
@@ -1219,7 +1219,7 @@ namespace Fsl
     {
 #ifdef CL_DEVICE_TYPE
       cl_device_type result;
-      if (! OpenCL::OpenCLHelper::TryGetDeviceInfo<cl_device_type>(deviceId, CL_DEVICE_TYPE, result))
+      if (!OpenCL::OpenCLHelper::TryGetDeviceInfo<cl_device_type>(deviceId, CL_DEVICE_TYPE, result))
       {
         FSLLOG(Indent << "CL_DEVICE_TYPE: Unavailable");
       }

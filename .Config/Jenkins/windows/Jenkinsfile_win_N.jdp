@@ -21,6 +21,8 @@ pipeline
             {
                 bat '.Config/Jenkins/windows/Review_DF_WinArm_Build.bat'
                 warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'MSBuild']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+                bat '.Config/Jenkins/windows/Review_DF_WinArm_RunTest.bat'
+                junit allowEmptyResults: true, testResults: '.Reports/UnitTests/*.xml'
             }
         }
         stage('Test')

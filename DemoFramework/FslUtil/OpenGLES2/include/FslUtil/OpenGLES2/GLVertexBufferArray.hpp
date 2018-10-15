@@ -1,35 +1,35 @@
 #ifndef FSLUTIL_OPENGLES2_GLVERTEXBUFFERARRAY_HPP
 #define FSLUTIL_OPENGLES2_GLVERTEXBUFFERARRAY_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES2/Common.hpp>
@@ -44,18 +44,18 @@ namespace Fsl
 {
   namespace GLES2
   {
-
     class GLVertexBufferArray : public GLBufferArray
     {
       std::vector<GLVertexElement> m_vertexElements;
       uint32_t m_originalVertexElementCount;
+
     public:
       //! @brief Move assignment operator
-      GLVertexBufferArray& operator=(GLVertexBufferArray&& other);
+      GLVertexBufferArray& operator=(GLVertexBufferArray&& other) noexcept;
 
       //! @brief Move constructor
       //! Transfer ownership from other to this
-      GLVertexBufferArray(GLVertexBufferArray&& other);
+      GLVertexBufferArray(GLVertexBufferArray&& other) noexcept;
 
       //! @brief Create a empty array
       GLVertexBufferArray();
@@ -68,20 +68,24 @@ namespace Fsl
 
 
       //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer internally)
-      void Reset(const std::size_t arrayIndex, const void*const pVertices, const std::size_t elementCount, const VertexDeclaration& vertexDeclaration, const GLenum usage);
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      void Reset(const std::size_t arrayIndex, const void* const pVertices, const std::size_t elementCount,
+                 const VertexDeclaration& vertexDeclaration, const GLenum usage);
 
       //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer internally)
-      template<typename T>
-      void Reset(const std::size_t arrayIndex, const T*const pVertices, const std::size_t elementCount, const GLenum usage)
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      template <typename T>
+      void Reset(const std::size_t arrayIndex, const T* const pVertices, const std::size_t elementCount, const GLenum usage)
       {
         Reset(arrayIndex, pVertices, elementCount, T::GetVertexDeclaration(), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
-      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer internally)
-      template<typename T>
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      template <typename T>
       void Reset(const std::size_t arrayIndex, const std::vector<T>& vertices, const GLenum usage)
       {
         Reset(arrayIndex, vertices.data(), vertices.size(), T::GetVertexDeclaration(), usage);
@@ -97,16 +101,16 @@ namespace Fsl
       //! @brief Enable all attrib arrays binding them in order to the supplied index list.
       //         If count < m_vertexElements.size() only the attributes with supplied indices will be bound.
       //         If count >= m_vertexElements.size() only m_vertexElements.size attributes will be bound (the rest is ignored).
-      void EnableAttribArrays(const GLuint*const pAttributeIndices, const std::size_t count) const;
+      void EnableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const;
 
       //! @brief Disable all attrib arrays in the supplied index list.
-      void DisableAttribArrays(const GLuint*const pAttributeIndices, const std::size_t count) const;
+      void DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const;
 
       //! @brief Enable all vertex elements listed in the supplied link list binding the to the requested index
-      void EnableAttribArrays(const GLVertexAttribLink*const pLinks, const std::size_t count) const;
+      void EnableAttribArrays(const GLVertexAttribLink* const pLinks, const std::size_t count) const;
 
       //! @brief Disable all vertex elements listed in the supplied link
-      void DisableAttribArrays(const GLVertexAttribLink*const pLinks, const std::size_t count) const;
+      void DisableAttribArrays(const GLVertexAttribLink* const pLinks, const std::size_t count) const;
 
 
       //! @brief Configure all attrib arrays binding them in order to index 0 to the last VertexElement.
@@ -115,10 +119,10 @@ namespace Fsl
       //! @brief Configure all attrib arrays binding them in order to the supplied index list.
       //         If count < m_vertexElements.size() only the attributes with supplied indices will be bound.
       //         If count >= m_vertexElements.size() only m_vertexElements.size attributes will be bound (the rest is ignored).
-      void SetVertexAttribPointers(const GLuint*const pAttributeIndices, const std::size_t count) const;
+      void SetVertexAttribPointers(const GLuint* const pAttributeIndices, const std::size_t count) const;
 
       //! @brief Configure all vertex elements listed in the supplied link list binding the to the requested index
-      void SetVertexAttribPointers(const GLVertexAttribLink*const pLinks, const std::size_t count) const;
+      void SetVertexAttribPointers(const GLVertexAttribLink* const pLinks, const std::size_t count) const;
 
 
       //! @brief Get the number of attrib's associated with the vertex structure currently stored in this buffer
@@ -138,7 +142,6 @@ namespace Fsl
       //! @brief Find the element index of for the given usage and usageIndex (if not found <0 is returned)
       int32_t VertexElementIndexOf(const VertexElementUsage usage, const uint32_t usageIndex) const;
     };
-
   }
 }
 #endif

@@ -1,13 +1,13 @@
 /*
-* This code was created by Jeff Molofee '99
-* (ported to Linux by Ti Leggett '01)
-* (ported to i.mx51, i.mx31 and x11 by Freescale '10)
-* (ported to the Freescale demo framework by Freescale '14)
-* If you've found this code useful, please let him know.
-*
-* Visit Jeff at http://nehe.gamedev.net/
-*
-*/
+ * This code was created by Jeff Molofee '99
+ * (ported to Linux by Ti Leggett '01)
+ * (ported to i.mx51, i.mx31 and x11 by Freescale '10)
+ * (ported to the Freescale demo framework by Freescale '14)
+ * If you've found this code useful, please let him know.
+ *
+ * Visit Jeff at http://nehe.gamedev.net/
+ *
+ */
 
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
@@ -21,36 +21,58 @@ namespace Fsl
   namespace
   {
     // Define vertices for a 4-sided pyramid
-    float g_vertexPositions[] =
-    {
+    float g_vertexPositions[] = {
       // Top Of Triangle (Front)
-      0.0f, 1.0f, 0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
       // Left Of Triangle (Front)
-      -1.0f, -1.0f, 1.0f,
+      -1.0f,
+      -1.0f,
+      1.0f,
       // Right Of Triangle (Front)
-      1.0f, -1.0f, 1.0f,
+      1.0f,
+      -1.0f,
+      1.0f,
       // Top Of Triangle (Right)
-      0.0f, 1.0f, 0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
       // Left Of Triangle (Right)
-      1.0f, -1.0f, 1.0f,
+      1.0f,
+      -1.0f,
+      1.0f,
       // Right Of Triangle (Right)
-      1.0f, -1.0f, -1.0f,
+      1.0f,
+      -1.0f,
+      -1.0f,
       // Top Of Triangle (Back)
-      0.0f, 1.0f, 0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
       // Left Of Triangle (Back)
-      1.0f, -1.0f, -1.0f,
+      1.0f,
+      -1.0f,
+      -1.0f,
       // Right Of Triangle (Back)
-      -1.0f, -1.0f, -1.0f,
+      -1.0f,
+      -1.0f,
+      -1.0f,
       // Top Of Triangle (Left)
-      0.0f, 1.0f, 0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
       // Left Of Triangle (Left)
-      -1.0f, -1.0f, -1.0f,
+      -1.0f,
+      -1.0f,
+      -1.0f,
       // Right Of Triangle (Left)
-      -1.0f, -1.0f, 1.0f,
+      -1.0f,
+      -1.0f,
+      1.0f,
     };
 
-    float g_vertexPositions2[] =
-    {
+    float g_vertexPositions2[] = {
       /* Draw A Quad */
 
       // Top Right Of The Quad (Top)
@@ -106,37 +128,71 @@ namespace Fsl
 
     };
 
-    float g_vertexColors[] =
-    {
+    float g_vertexColors[] = {
       // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
       // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      1.0f,
       // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
       // Red
-      1.0f, 0.0, 0.0f, 1.0f,
+      1.0f,
+      0.0,
+      0.0f,
+      1.0f,
       // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
       // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      1.0f,
       // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
       // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      1.0f,
       // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
       // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
       // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
       // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      1.0f,
 
     };
 
-    float g_vertexColors2[] =
-    {
+    float g_vertexColors2[] = {
       // Red
       1.0f, 0.0f, 0.0f, 1.0f,
       // Red
@@ -190,31 +246,20 @@ namespace Fsl
       0.0f, 0.0f, 1.0f, 1.0f,
 
       // Green
-      0.0f, 1.0f, 0.0f, 1.0f
-    };
+      0.0f, 1.0f, 0.0f, 1.0f};
 
 
     // The index in these variables should match the g_pszShaderAttributeArray ordering
     const GLuint g_hVertexLoc = 0;
     const GLuint g_hColorLoc = 1;
-    const char*const g_pszShaderAttributeArray[] =
-    {
-      "g_vPosition",
-      "g_vColor",
-      nullptr
-    };
-
+    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", nullptr};
   }
 
 
   S04_Projection::S04_Projection(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_program()
     , m_hModelViewMatrixLoc(0)
     , m_hProjMatrixLoc(0)
-    , m_matProj()
-    , m_matTranslate1()
-    , m_matTranslate2()
     , m_angle(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
@@ -236,10 +281,7 @@ namespace Fsl
   }
 
 
-  S04_Projection::~S04_Projection()
-  {
-
-  }
+  S04_Projection::~S04_Projection() = default;
 
 
   void S04_Projection::Update(const DemoTime& demoTime)
@@ -303,5 +345,4 @@ namespace Fsl
     glDisableVertexAttribArray(g_hVertexLoc);
     glDisableVertexAttribArray(g_hColorLoc);
   }
-
 }

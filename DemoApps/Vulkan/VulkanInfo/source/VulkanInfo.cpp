@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "VulkanInfo.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -40,7 +40,6 @@ namespace Fsl
 
   namespace
   {
-
     struct DecodeVulkanVersion
     {
       uint32_t Value;
@@ -58,12 +57,12 @@ namespace Fsl
     // The major version number is a 10 - bit integer packed into bits 31 - 22.
     // The minor version number is a 10 - bit integer packed into bits 21 - 12.
     // The patch version number is a 12 - bit integer packed into bits 11 - 0.
-    inline std::ostream &operator <<(std::ostream &o, const DecodeVulkanVersion& value)
+    inline std::ostream& operator<<(std::ostream& o, const DecodeVulkanVersion& value)
     {
       uint32_t major = (value.Value >> 22) & ((1 << 10) - 1);
       uint32_t minor = (value.Value >> 12) & ((1 << 10) - 1);
       uint32_t patch = value.Value & ((1 << 12) - 1);
-      return o << major << '.' << minor  << '.' << patch;
+      return o << major << '.' << minor << '.' << patch;
     }
 
     void LogPhysicalDeviceLimits(const VkPhysicalDeviceLimits& limits)
@@ -122,8 +121,8 @@ namespace Fsl
       FSLLOG("- limits.maxFragmentCombinedOutputResources: " << limits.maxFragmentCombinedOutputResources);
       FSLLOG("- limits.maxComputeSharedMemorySize: " << limits.maxComputeSharedMemorySize);
 
-      for(uint32_t i=0; i<3; ++i)
-        FSLLOG("- limits.maxComputeWorkGroupCount[" << i<< "]: " << limits.maxComputeWorkGroupCount[i]);
+      for (uint32_t i = 0; i < 3; ++i)
+        FSLLOG("- limits.maxComputeWorkGroupCount[" << i << "]: " << limits.maxComputeWorkGroupCount[i]);
 
       FSLLOG("- limits.maxComputeWorkGroupInvocations: " << limits.maxComputeWorkGroupInvocations);
 
@@ -209,9 +208,9 @@ namespace Fsl
       FSLLOG("- driverVersion: " << DecodeVulkanVersion(properties.driverVersion));
       FSLLOG("- vendorID: " << properties.vendorID);
       FSLLOG("- deviceID: " << properties.deviceID);
-      FSLLOG("- deviceType: " << properties.deviceType); // VkPhysicalDeviceType
+      FSLLOG("- deviceType: " << properties.deviceType);    // VkPhysicalDeviceType
       FSLLOG("- deviceName: " << properties.deviceName);
-      //uint8_t                             pipelineCacheUUID[VK_UUID_SIZE];
+      // uint8_t                             pipelineCacheUUID[VK_UUID_SIZE];
       LogPhysicalDeviceLimits(properties.limits);
       LogPhysicalDeviceSparseProperties(properties.sparseProperties);
     }
@@ -278,12 +277,12 @@ namespace Fsl
     }
 
 
-    inline std::ostream &operator <<(std::ostream &o, const VkMemoryType& value)
+    inline std::ostream& operator<<(std::ostream& o, const VkMemoryType& value)
     {
       return o << "{ propertyFlags: " << value.propertyFlags << ", heapIndex: " << value.heapIndex << " }";
     }
 
-    inline std::ostream &operator <<(std::ostream &o, const VkMemoryHeap& value)
+    inline std::ostream& operator<<(std::ostream& o, const VkMemoryHeap& value)
     {
       return o << "{ size: " << value.size << ", flags: " << value.flags << " }";
     }
@@ -293,7 +292,7 @@ namespace Fsl
     {
       FSLLOG("Physical device memory properties:");
       FSLLOG("- memoryTypeCount: " << properties.memoryTypeCount);
-      for(uint32_t i=0; i<properties.memoryTypeCount; ++i)
+      for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
         FSLLOG("- memoryTypes[" << i << "]: " << properties.memoryTypes[i]);
 
       FSLLOG("- memoryHeapCount: " << properties.memoryHeapCount);
@@ -307,19 +306,16 @@ namespace Fsl
       LogPhysicalDeviceFeatures(physicalDevice.GetPhysicalDeviceFeatures());
       LogPhysicalDeviceMemoryProperties(physicalDevice.GetPhysicalDeviceMemoryProperties());
     }
-
   }
 
 
   VulkanInfo::VulkanInfo(const DemoAppConfig& config)
-    : DemoAppConsole(config)
+    : DemoAppConsoleMinimal(config)
   {
   }
 
 
-  VulkanInfo::~VulkanInfo()
-  {
-  }
+  VulkanInfo::~VulkanInfo() = default;
 
 
   void VulkanInfo::Run()
@@ -328,15 +324,13 @@ namespace Fsl
 
     const auto physicalDevices = InstanceUtil::EnumeratePhysicalDevices(instance.Get());
     FSLLOG("Physical device count: " << physicalDevices.size());
-    for( std::size_t i=0; i<physicalDevices.size(); ++i)
+    for (std::size_t i = 0; i < physicalDevices.size(); ++i)
     {
       FSLLOG("*** Physical device #" << i << " ***");
       LogPhysicalDevice(PhysicalDeviceRecord(physicalDevices[i]));
-
-
     }
 
 
-    //Vulkan
+    // Vulkan
   }
 }

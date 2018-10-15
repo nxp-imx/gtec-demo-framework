@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Fsl
 {
-
   float PlaneHelper::ClassifyPoint(const Vector3& point, const Plane& plane)
   {
     return point.X * plane.Normal.X + point.Y * plane.Normal.Y + point.Z * plane.Normal.Z + plane.D;
@@ -45,7 +44,7 @@ namespace Fsl
   float PlaneHelper::PerpendicularDistance(const Vector3& point, const Plane& plane)
   {
     // dist = (ax + by + cz + d) / sqrt(a*a + b*b + c*c)
-    return std::abs((plane.Normal.X * point.X + plane.Normal.Y * point.Y + plane.Normal.Z * point.Z)
-      / std::sqrt(plane.Normal.X * plane.Normal.X + plane.Normal.Y * plane.Normal.Y + plane.Normal.Z * plane.Normal.Z));
+    return std::abs((plane.Normal.X * point.X + plane.Normal.Y * point.Y + plane.Normal.Z * point.Z) /
+                    std::sqrt(plane.Normal.X * plane.Normal.X + plane.Normal.Y * plane.Normal.Y + plane.Normal.Z * plane.Normal.Z));
   }
 }

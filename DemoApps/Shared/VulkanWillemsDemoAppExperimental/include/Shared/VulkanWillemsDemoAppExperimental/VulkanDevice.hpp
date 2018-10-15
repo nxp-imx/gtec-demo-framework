@@ -1,14 +1,14 @@
 #ifndef SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_VULKANDEVICE_HPP
 #define SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_VULKANDEVICE_HPP
 /*
-* Vulkan device class
-*
-* Encapsulates a physical Vulkan device and it's logical representation
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan device class
+ *
+ * Encapsulates a physical Vulkan device and it's logical representation
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -30,24 +30,19 @@ namespace Fsl
 {
   namespace Willems
   {
-
     class VulkanDevice
     {
     public:
       //! Contains queue family indices
       struct QueueFamilyIndices
       {
-        uint32_t Graphics;
-        uint32_t Compute;
+        uint32_t Graphics{0};
+        uint32_t Compute{0};
 
-        QueueFamilyIndices()
-          : Graphics(0)
-          , Compute(0)
-        {
-        }
+        QueueFamilyIndices() = default;
       };
-    private:
 
+    private:
       VkPhysicalDevice m_physicalDevice;
       VkDevice m_device;
 
@@ -75,11 +70,11 @@ namespace Fsl
         return m_queueFamilyIndices;
       }
 
-     //! @brief Get the index of a memory type that has all the requested property bits set
-     //! @param typeBits Bitmask with bits set for each memory type supported by the resource to request for (from VkMemoryRequirements)
-     //! @param properties Bitmask of properties for the memory type to request
-     //! @return Index of the requested memory type
-     //! @throw Throws an exception if memTypeFound is null and no memory type could be found that supports the requested properties
+      //! @brief Get the index of a memory type that has all the requested property bits set
+      //! @param typeBits Bitmask with bits set for each memory type supported by the resource to request for (from VkMemoryRequirements)
+      //! @param properties Bitmask of properties for the memory type to request
+      //! @return Index of the requested memory type
+      //! @throw Throws an exception if memTypeFound is null and no memory type could be found that supports the requested properties
       uint32_t GetMemoryType(const uint32_t typeBits, const VkMemoryPropertyFlags properties) const;
 
       //! @brief Get the index of a queue family that supports the requested queue flags
@@ -104,7 +99,8 @@ namespace Fsl
       //! @param buffer Pointer to a vk::Vulkan buffer object
       //! @param size Size of the buffer in byes
       //! @param data Pointer to the data that should be copied to the buffer after creation (optional, if not set, no data is copied over)
-      VulkanBuffer CreateBuffer(const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize size, const void* pData = nullptr);
+      VulkanBuffer CreateBuffer(const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize size,
+                                const void* pData = nullptr);
 
       //! @brief Copy buffer data from src to dst using VkCmdCopyBuffer
       //! @param src Pointer to the source buffer to copy from
@@ -119,7 +115,8 @@ namespace Fsl
       //! @param createFlags (Optional) Command pool creation flags (Defaults to VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT)
       //! @note Command buffers allocated from the created pool can only be submitted to a queue with the same family index
       //! @return A handle to the created command buffer
-      RapidVulkan::CommandPool CreateCommandPool(const uint32_t queueFamilyIndex, const VkCommandPoolCreateFlags createFlags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+      RapidVulkan::CommandPool CreateCommandPool(const uint32_t queueFamilyIndex,
+                                                 const VkCommandPoolCreateFlags createFlags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
       //! @brief Allocate a command buffer from the command pool
       //! @param level Level of the new command buffer (primary or secondary)
@@ -156,7 +153,6 @@ namespace Fsl
       {
         return m_features;
       }
-
     };
   }
 }

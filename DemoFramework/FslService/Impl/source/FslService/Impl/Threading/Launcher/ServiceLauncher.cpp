@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2017 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2017 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
 #include <FslBase/Log/Log.hpp>
@@ -46,7 +46,6 @@
 
 namespace Fsl
 {
-
   namespace
   {
     struct RecordComparator
@@ -68,25 +67,29 @@ namespace Fsl
 
     void CalcInterfaceHitCount(std::map<TypeInfo, int32_t>& rInterfaceMap, const RegisteredServiceDeque& services)
     {
-      RegisteredServiceDeque::const_iterator itr = services.begin();
+      auto itr = services.begin();
       const RegisteredServiceDeque::const_iterator itrEnd = services.end();
       ServiceSupportedInterfaceDeque interfaces;
       while (itr != itrEnd)
       {
         interfaces.clear();
         itr->Factory->FillInterfaceType(interfaces);
-        assert(interfaces.size() > 0);
+        assert(!interfaces.empty());
 
         // Increase the hit count for each interface provided by this service
         ServiceSupportedInterfaceDeque::const_iterator itrItf = interfaces.begin();
         const ServiceSupportedInterfaceDeque::const_iterator itrItfEnd = interfaces.end();
         while (itrItf != itrItfEnd)
         {
-          std::map<TypeInfo, int32_t>::iterator itrFind = rInterfaceMap.find(*itrItf);
+          auto itrFind = rInterfaceMap.find(*itrItf);
           if (itrFind != rInterfaceMap.end())
+          {
             ++itrFind->second;
+          }
           else
+          {
             rInterfaceMap[*itrItf] = 1;
+          }
 
           ++itrItf;
         }
@@ -106,24 +109,29 @@ namespace Fsl
       while (itr != itrEnd)
       {
         if (itr->second > 1)
+        {
           rMultiProviderInterfaces.insert(itr->first);
+        }
         ++itr;
       }
     }
 
 
-    std::shared_ptr<IService> StartService(std::set<TypeInfo>& multiProviderInterfaces, ServiceProvider& provider, TypeServiceMaps& rServiceProviderMaps, const RegisteredServiceRecord& record)
+    std::shared_ptr<IService> StartService(std::set<TypeInfo>& multiProviderInterfaces, ServiceProvider& provider,
+                                           TypeServiceMaps& rServiceProviderMaps, const RegisteredServiceRecord& record)
     {
       ServiceSupportedInterfaceDeque deque;
       record.Factory->FillInterfaceType(deque);
 
-      assert(deque.size() > 0);
+      assert(!deque.empty());
 
       const std::shared_ptr<IService> service(record.Factory->Allocate(provider));
       if (!service)
       {
         if ((record.Factory->GetFlags() & ServiceCaps::AvailableOnDemand) != 0)
+        {
           return std::shared_ptr<IService>();
+        }
 
         FSLLOG_ERROR("The service factory '" << SafeGetTypeName(record.Factory) << "' returned a nullptr");
         throw InvalidServiceFactoryException("The service factory returned a null-ptr");
@@ -147,15 +155,17 @@ namespace Fsl
           // Register a multiple provider interface
           rServiceProviderMaps.InterfaceToService[itr->Get()] = ServiceLaunchRecord(ProviderId::Invalid(), ServiceLaunchType::MultipleProviderTag);
 
-          std::shared_ptr<std::deque<ServiceLaunchRecord> > serviceDeque;
-          TypeServiceMapEx::iterator itrFind = rServiceProviderMaps.InterfaceMultipleServices.find(itr->Get());
+          std::shared_ptr<std::deque<ServiceLaunchRecord>> serviceDeque;
+          auto itrFind = rServiceProviderMaps.InterfaceMultipleServices.find(itr->Get());
           if (itrFind == rServiceProviderMaps.InterfaceMultipleServices.end())
           {
-            serviceDeque = std::make_shared<std::deque<ServiceLaunchRecord> >();
+            serviceDeque = std::make_shared<std::deque<ServiceLaunchRecord>>();
             rServiceProviderMaps.InterfaceMultipleServices[itr->Get()] = serviceDeque;
           }
           else
+          {
             serviceDeque = itrFind->second;
+          }
 
           serviceDeque->push_back(ServiceLaunchRecord(record.Id, ServiceLaunchType::Instance, service));
         }
@@ -193,7 +203,9 @@ namespace Fsl
         {
           const std::shared_ptr<IService> service = StartService(rMultiProviderInterfaces, theServiceProvider, rServiceProviderMaps, *itr);
           if (service)
+          {
             rServiceProviderMaps.OwnedUniqueServices.push_back(service);
+          }
         }
         catch (const std::exception& ex)
         {
@@ -202,7 +214,9 @@ namespace Fsl
             FSLLOG_WARNING("Service provided by '" << SafeGetTypeName(itr->Factory) << "' failed to start: " << ex.what())
           }
           else
+          {
             throw;
+          }
         }
         ++itr;
       }
@@ -214,7 +228,7 @@ namespace Fsl
   std::shared_ptr<RegisteredGlobalServiceInfo> ServiceLauncher::Launch(const RegisteredServiceDeque& services)
   {
     TypeServiceMaps serviceProviderMaps;
-    if (services.size() > 0)
+    if (!services.empty())
     {
       // Find all interfaces that have multiple providers
       std::set<TypeInfo> multiProviderInterfaces;
@@ -226,13 +240,16 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<ServiceProviderImpl> ServiceLauncher::Launch(const TypeServiceMaps& globalServiceTypeMaps, const RegisteredServiceDeque& services, const bool clearOwnedUniqueServices)
+  std::shared_ptr<ServiceProviderImpl> ServiceLauncher::Launch(const TypeServiceMaps& globalServiceTypeMaps, const RegisteredServiceDeque& services,
+                                                               const bool clearOwnedUniqueServices)
   {
     TypeServiceMaps serviceProviderMaps(globalServiceTypeMaps);
     if (clearOwnedUniqueServices)
+    {
       serviceProviderMaps.OwnedUniqueServices.clear();
+    }
 
-    if (services.size() > 0)
+    if (!services.empty())
     {
       // Find all interfaces that have multiple providers
       std::set<TypeInfo> multiProviderInterfaces;

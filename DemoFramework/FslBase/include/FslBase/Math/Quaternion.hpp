@@ -28,7 +28,7 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector2.cs.
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/OptimizationFlag.hpp>
+// #include <FslBase/OptimizationFlag.hpp>
 
 namespace Fsl
 {
@@ -37,15 +37,22 @@ namespace Fsl
 
   struct Quaternion
   {
-    float X;
-    float Y;
-    float Z;
-    float W;
+    float X{0};
+    float Y{0};
+    float Z{0};
+    float W{0};
 
-    Quaternion();
+    Quaternion() = default;
     // coverity[uninit_member]
-    Quaternion(const OptimizationFlag flag) {};
-    Quaternion(const float x, const float y, const float z, const float w);
+    // Quaternion(const OptimizationFlag flag){};
+    Quaternion(const float x, const float y, const float z, const float w)
+      : X(x)
+      , Y(y)
+      , Z(z)
+      , W(w)
+    {
+    }
+
     Quaternion(const Vector3& vectorPart, const float scalarPart);
 
     static Quaternion Identity()
@@ -70,8 +77,8 @@ namespace Fsl
     static void CreateFromYawPitchRoll(Quaternion& rResult, const float yaw, const float pitch, const float roll);
     static Quaternion Divide(const Quaternion& lhs, const Quaternion& rhs);
     static void Divide(Quaternion& rResult, const Quaternion& lhs, const Quaternion& rhs);
-    static float Dot(const Quaternion& quaternion1, const Quaternion& quaternion2);
-    static void Dot(float& rResult, const Quaternion& quaternion1, const Quaternion& quaternion2);
+    static float Dot(const Quaternion& lhs, const Quaternion& rhs);
+    static void Dot(float& rResult, const Quaternion& lhs, const Quaternion& rhs);
     static Quaternion Inverse(const Quaternion& quaternion);
     static void Inverse(Quaternion& rResult, const Quaternion& quaternion);
 
@@ -81,7 +88,7 @@ namespace Fsl
     static Quaternion Lerp(const Quaternion& quaternion1, const Quaternion& quaternion2, const float amount);
     static void Lerp(Quaternion& rResult, const Quaternion& quaternion1, const Quaternion& quaternion2, const float amount);
     static Quaternion Slerp(const Quaternion& quaternion1, const Quaternion& quaternion2, const float amount);
-    static void Slerp(Quaternion rResult, const Quaternion& quaternion1, const Quaternion& quaternion2, const float amount);
+    static void Slerp(Quaternion& rResult, const Quaternion& quaternion1, const Quaternion& quaternion2, const float amount);
 
     static Quaternion Subtract(const Quaternion& lhs, const Quaternion& rhs);
     static void Subtract(Quaternion& rResult, const Quaternion& lhs, const Quaternion& rhs);
@@ -96,18 +103,18 @@ namespace Fsl
     static void Normalize(Quaternion& rResult, const Quaternion& quaternion);
 
     //! @brief Tests for equality.
-    bool operator==(const Quaternion &rhs) const
+    bool operator==(const Quaternion& rhs) const
     {
       return X == rhs.X && Y == rhs.Y && Z == rhs.Z && W == rhs.W;
     }
 
     //! @brief Tests for inequality.
-    bool operator!=(const Quaternion &rhs) const
+    bool operator!=(const Quaternion& rhs) const
     {
       return X != rhs.X || Y != rhs.Y || Z != rhs.Z || W != rhs.W;
     }
 
-    Quaternion& operator+=(const Quaternion &rhs)
+    Quaternion& operator+=(const Quaternion& rhs)
     {
       X += rhs.X;
       Y += rhs.Y;
@@ -116,7 +123,7 @@ namespace Fsl
       return *this;
     }
 
-    Quaternion& operator-=(const Quaternion &rhs)
+    Quaternion& operator-=(const Quaternion& rhs)
     {
       X -= rhs.X;
       Y -= rhs.Y;
@@ -124,7 +131,6 @@ namespace Fsl
       W -= rhs.W;
       return *this;
     }
-
   };
 }
 

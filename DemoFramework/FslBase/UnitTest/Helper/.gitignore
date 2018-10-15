@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/Android.mk
+/CMakeLists.txt
+/FslBase.UnitTest.Helper.VC.VC.opendb
+/FslBase.UnitTest.Helper.VC.db
+/FslBase.UnitTest.Helper.manifest
+/FslBase.UnitTest.Helper.opensdf
+/FslBase.UnitTest.Helper.sdf
+/FslBase.UnitTest.Helper.sln
+/FslBase.UnitTest.Helper.v12.sdf
+/FslBase.UnitTest.Helper.v12.suo
+/FslBase.UnitTest.Helper.vcxproj
+/FslBase.UnitTest.Helper.vcxproj.filters
+/FslBase.UnitTest.Helper.vcxproj.user
+/GNUmakefile
+/build/

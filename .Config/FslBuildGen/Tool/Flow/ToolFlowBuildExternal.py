@@ -37,6 +37,8 @@ from typing import Optional
 import argparse
 from FslBuildGen import Main as MainFlow
 #from FslBuildGen import PackageListUtil
+#from FslBuildGen.DataTypes import BuildRecipeValidateCommand
+#from FslBuildGen.DataTypes import BuildRecipeValidateMethod
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.BuildExternal import RecipeBuilder
@@ -119,7 +121,7 @@ class ToolFlowBuildExternal(AToolAppFlow):
         generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #packages = DoExperimentalGetRecipes(generatorContext, config, [])
-        #topLevePackage = PackageListUtil.GetTopLevelPackage(packages)
+        #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
 
         builderConfig = BuilderConfig()
@@ -131,14 +133,46 @@ class ToolFlowBuildExternal(AToolAppFlow):
 
         RecipeBuilder.BuildPackages(config, generatorContext, builderConfig, packages)
 
-        #for package in topLevePackage.ResolvedBuildOrder:
+        #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
+        #for package in topLevelPackage.ResolvedExperimentalRecipeBuildOrder:
         #    print("{0}".format(package.Name))
-        #    for pipeline in package.ResolvedPipelines:
-        #        print("- {0}".format(pipeline.Name))
+        #    packageRecipe = package.ResolvedDirectExperimentalRecipe
+        #    pipeline = packageRecipe.Pipeline
+        #    validation = packageRecipe.ValidateInstallation
+        #    print("- {0}".format(packageRecipe.Name))
+        #    if pipeline is not None:
         #        for command in pipeline.CommandList:
         #            print("  - {0}".format(command.CommandName))
         #            for joinCommand in command.JoinCommandList:
         #                print("    - {0}".format(joinCommand.CommandName))
+        #    if validation is not None:
+        #        for command in validation.CommandList:
+        #            if command.CommandType == BuildRecipeValidateCommand.EnvironmentVariable:
+        #                print("  - {0}".format(command.CommandName))
+        #            elif command.CommandType == BuildRecipeValidateCommand.Path:
+        #                if command.Method == BuildRecipeValidateMethod.IsDirectory:
+        #                    print("  - {0} '{1}' is directory".format(command.CommandName, command.Name))
+        #                elif command.Method == BuildRecipeValidateMethod.IsFile:
+        #                    print("  - {0} '{1}' is file".format(command.CommandName, command.Name))
+        #                elif command.Method == BuildRecipeValidateMethod.Exists:
+        #                    print("  - {0} '{1}' exists".format(command.CommandName, command.Name))
+        #                else:
+        #                    print("  - {0} '{1}' unknown".format(command.CommandName, command.Name))
+        #            elif command.CommandType == BuildRecipeValidateCommand.FindFileInPath:
+        #                print("  - {0}".format(command.CommandName))
+        #            elif command.CommandType == BuildRecipeValidateCommand.FindExecutableFileInPath:
+        #                print("  - {0}".format(command.CommandName))
+        #            elif command.CommandType == BuildRecipeValidateCommand.AddHeaders:
+        #                print("  - {0}".format(command.CommandName))
+        #            elif command.CommandType == BuildRecipeValidateCommand.AddLib:
+        #                print("  - {0}".format(command.CommandName))
+        #            elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
+        #                print("  - {0}".format(command.CommandName))
+        #            elif command.CommandType == BuildRecipeValidateCommand.AddTool:
+        #                print("  - {0}".format(command.CommandName))
+        #            else:
+        #                print("  - Unexpected '{0}'".format(command.CommandName))
+
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):

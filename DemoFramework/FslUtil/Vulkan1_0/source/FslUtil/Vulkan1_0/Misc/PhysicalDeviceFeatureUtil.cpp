@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
@@ -225,9 +225,12 @@ namespace Fsl
     {
       std::size_t offset;
       if (!TryGetOffset(featureName, offset))
+      {
         throw std::invalid_argument("Unknown Vulkan PhysicalDeviceFeature");
+      }
 
-      // Nasty lookup that breaks without warning if the type changes from VkBool32 in VkPhysicalDeviceFeatures (this is the reason we have the static asserts at the bottom of this file)
+      // Nasty lookup that breaks without warning if the type changes from VkBool32 in VkPhysicalDeviceFeatures (this is the reason we have the static
+      // asserts at the bottom of this file)
       const auto pMember = reinterpret_cast<const VkBool32*>((reinterpret_cast<const uint8_t*>(&features) + offset));
       return *pMember;
     }
@@ -237,9 +240,12 @@ namespace Fsl
     {
       std::size_t offset;
       if (!TryGetOffset(featureName, offset))
+      {
         throw std::invalid_argument("Unknown Vulkan PhysicalDeviceFeature");
+      }
 
-      // Nasty lookup that breaks without warning if the type changes from VkBool32 in VkPhysicalDeviceFeatures (this is the reason we have the static asserts at the bottom of this file)
+      // Nasty lookup that breaks without warning if the type changes from VkBool32 in VkPhysicalDeviceFeatures (this is the reason we have the static
+      // asserts at the bottom of this file)
       auto pMember = reinterpret_cast<VkBool32*>((reinterpret_cast<uint8_t*>(&rFeatures) + offset));
       *pMember = value;
     }
@@ -366,7 +372,6 @@ namespace Fsl
     }
 
 
-
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::robustBufferAccess)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::fullDrawIndexUint32)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::imageCubeArray)>::value, "struct member not of the expected type");
@@ -377,7 +382,8 @@ namespace Fsl
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::dualSrcBlend)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::logicOp)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::multiDrawIndirect)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::drawIndirectFirstInstance)>::value, "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::drawIndirectFirstInstance)>::value,
+                  "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::depthBiasClamp)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::fillModeNonSolid)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::depthBounds)>::value, "struct member not of the expected type");
@@ -386,40 +392,64 @@ namespace Fsl
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::alphaToOne)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::multiViewport)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::samplerAnisotropy)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::textureCompressionETC2)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::textureCompressionASTC_LDR)>::value, "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::textureCompressionETC2)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::textureCompressionASTC_LDR)>::value,
+                  "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::textureCompressionBC)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::occlusionQueryPrecise)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::pipelineStatisticsQuery)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::vertexPipelineStoresAndAtomics)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::fragmentStoresAndAtomics)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderTessellationAndGeometryPointSize)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderImageGatherExtended)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageExtendedFormats)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageMultisample)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageReadWithoutFormat)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageWriteWithoutFormat)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderUniformBufferArrayDynamicIndexing)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderSampledImageArrayDynamicIndexing)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageBufferArrayDynamicIndexing)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageArrayDynamicIndexing)>::value, "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::pipelineStatisticsQuery)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::vertexPipelineStoresAndAtomics)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::fragmentStoresAndAtomics)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderTessellationAndGeometryPointSize)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderImageGatherExtended)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageExtendedFormats)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageMultisample)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageReadWithoutFormat)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageWriteWithoutFormat)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderUniformBufferArrayDynamicIndexing)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderSampledImageArrayDynamicIndexing)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageBufferArrayDynamicIndexing)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderStorageImageArrayDynamicIndexing)>::value,
+                  "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderClipDistance)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderCullDistance)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderFloat64)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderInt64)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderInt16)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderResourceResidency)>::value, "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderResourceResidency)>::value,
+                  "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::shaderResourceMinLod)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseBinding)>::value, "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidencyBuffer)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidencyImage2D)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidencyImage3D)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency2Samples)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency4Samples)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency8Samples)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency16Samples)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidencyAliased)>::value, "struct member not of the expected type");
-    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::variableMultisampleRate)>::value, "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidencyImage2D)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidencyImage3D)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency2Samples)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency4Samples)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency8Samples)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidency16Samples)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::sparseResidencyAliased)>::value,
+                  "struct member not of the expected type");
+    static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::variableMultisampleRate)>::value,
+                  "struct member not of the expected type");
     static_assert(std::is_same<VkBool32, decltype(VkPhysicalDeviceFeatures::inheritedQueries)>::value, "struct member not of the expected type");
   }
 }

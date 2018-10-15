@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.CameraDemo" NoInclude="true">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="glm"/>
+    <Dependency Name="Shared.Camera.Platform"/>
+    <Platform Name="Windows" ProjectId="0C479E75-D152-43D4-A5E5-5502467F7963"/>
+  </Executable>
+</FslBuildGen>

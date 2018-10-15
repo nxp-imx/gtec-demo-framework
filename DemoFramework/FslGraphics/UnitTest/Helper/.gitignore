@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/Android.mk
+/CMakeLists.txt
+/FslGraphics.UnitTest.Helper.VC.VC.opendb
+/FslGraphics.UnitTest.Helper.VC.db
+/FslGraphics.UnitTest.Helper.manifest
+/FslGraphics.UnitTest.Helper.opensdf
+/FslGraphics.UnitTest.Helper.sdf
+/FslGraphics.UnitTest.Helper.sln
+/FslGraphics.UnitTest.Helper.v12.sdf
+/FslGraphics.UnitTest.Helper.v12.suo
+/FslGraphics.UnitTest.Helper.vcxproj
+/FslGraphics.UnitTest.Helper.vcxproj.filters
+/FslGraphics.UnitTest.Helper.vcxproj.user
+/GNUmakefile
+/build/

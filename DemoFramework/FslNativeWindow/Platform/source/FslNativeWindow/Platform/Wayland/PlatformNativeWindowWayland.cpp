@@ -1,25 +1,25 @@
-#if ! defined(__ANDROID__) && defined(__linux__) && ! defined(FSL_WINDOWSYSTEM_X11) && defined(FSL_WINDOWSYSTEM_WAYLAND)
+#if !defined(__ANDROID__) && defined(__linux__) && !defined(FSL_WINDOWSYSTEM_X11) && defined(FSL_WINDOWSYSTEM_WAYLAND)
 /*
-* Copyright (C) 2011 Benjamin Franzke
-*
-* Permission to use, copy, modify, distribute, and sell this software and its
-* documentation for any purpose is hereby granted without fee, provided that
-* the above copyright notice appear in all copies and that both that copyright
-* notice and this permission notice appear in supporting documentation, and
-* that the name of the copyright holders not be used in advertising or
-* publicity pertaining to distribution of the software without specific,
-* written prior permission. The copyright holders make no representations
-* about the suitability of this software for any purpose. It is provided "as
-* is" without express or implied warranty.
-*
-* THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
-* INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
-* EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT OR
-* CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
-* DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
-* TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
-* OF THIS SOFTWARE.
-*/
+ * Copyright (C) 2011 Benjamin Franzke
+ *
+ * Permission to use, copy, modify, distribute, and sell this software and its
+ * documentation for any purpose is hereby granted without fee, provided that
+ * the above copyright notice appear in all copies and that both that copyright
+ * notice and this permission notice appear in supporting documentation, and
+ * that the name of the copyright holders not be used in advertising or
+ * publicity pertaining to distribution of the software without specific,
+ * written prior permission. The copyright holders make no representations
+ * about the suitability of this software for any purpose. It is provided "as
+ * is" without express or implied warranty.
+ *
+ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ * INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+ * EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+ * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+ * DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ * TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+ * OF THIS SOFTWARE.
+ */
 
 // Wayland code adapted for the DemoFramework by Freescale 2014
 
@@ -31,7 +31,7 @@
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/Rectangle.hpp>
+#include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <wayland-client.h>
@@ -45,7 +45,6 @@ namespace Fsl
 {
   namespace
   {
-
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
 
     struct MouseEvent
@@ -59,51 +58,54 @@ namespace Fsl
       };
     };
 
-    struct geometry {
+    struct geometry
+    {
       int width;
       int height;
     };
 
     struct display;
 
-    struct window {
-      struct display *display;
+    struct window
+    {
+      struct display* display;
       PlatformNativeWindowType native;
       struct geometry geometry, window_size;
-      wl_surface *surface;
-      wl_shell_surface *shell_surface;
-      wl_callback *callback;
+      wl_surface* surface;
+      wl_shell_surface* shell_surface;
+      wl_callback* callback;
       int fullscreen, configured;
-      std::function<void(void *, int, int, int, int)> resizeWindowCallback;
+      std::function<void(void*, int, int, int, int)> resizeWindowCallback;
     };
 
-    struct display {
-      wl_display *display;
-      wl_registry *registry;
-      wl_compositor *compositor;
-      wl_shell *shell;
-      wl_seat *seat;
-      wl_pointer *pointer;
-      wl_keyboard *keyboard;
-      wl_shm *shm;
-      wl_cursor_theme *cursor_theme;
-      wl_cursor *default_cursor;
-      wl_surface *cursor_surface;
+    struct display
+    {
+      wl_display* display;
+      wl_registry* registry;
+      wl_compositor* compositor;
+      wl_shell* shell;
+      wl_seat* seat;
+      wl_pointer* pointer;
+      wl_keyboard* keyboard;
+      wl_shm* shm;
+      wl_cursor_theme* cursor_theme;
+      wl_cursor* default_cursor;
+      wl_surface* cursor_surface;
       VirtualKey::Enum keycode;
       bool isPressed;
       Point2 mousePosition;
       int zDelta;
       VirtualMouseButton::Enum mouseButton;
       bool mouseIsPressed;
-      struct window *window;
+      struct window* window;
     };
 
-    struct display sdisplay = { nullptr };
-    struct window  swindow = { nullptr };
+    struct display sdisplay = {nullptr};
+    struct window swindow = {nullptr};
     bool dummyRunning = true;
 
 
-    void CheckKey(struct display * d, int state, VirtualKey::Enum keyCode)
+    void CheckKey(struct display* d, int state, VirtualKey::Enum keyCode)
     {
       d->keycode = keyCode;
       if (state)
@@ -113,9 +115,9 @@ namespace Fsl
     }
 
 
-    void ConfigureCallback(void *data, wl_callback *callback, uint32_t  time)
+    void ConfigureCallback(void* data, wl_callback* callback, uint32_t time)
     {
-      struct window *window = (struct window *)data;
+      struct window* window = (struct window*)data;
       wl_callback_destroy(callback);
       if (!window->fullscreen)
         window->configured = 1;
@@ -129,18 +131,18 @@ namespace Fsl
     };
 
 
-    void HandlePing(void *data, wl_shell_surface *shell_surface, uint32_t serial)
+    void HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial)
     {
       wl_shell_surface_pong(shell_surface, serial);
     }
 
 
-    void HandleConfigure(void *data, wl_shell_surface *shell_surface, uint32_t edges, int32_t width, int32_t height)
+    void HandleConfigure(void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height)
     {
-      struct window *window = (struct window *)data;
+      struct window* window = (struct window*)data;
       if (window->native && !window->fullscreen)
       {
-        if(window->resizeWindowCallback)
+        if (window->resizeWindowCallback)
           window->resizeWindowCallback(window->native, width, height, 0, 0);
       }
       window->geometry.width = width;
@@ -153,21 +155,17 @@ namespace Fsl
     }
 
 
-    void HandlePopUpDone(void *data, wl_shell_surface *shell_surface)
+    void HandlePopUpDone(void* data, wl_shell_surface* shell_surface)
     {
     }
 
 
-    const wl_shell_surface_listener shell_surface_listener = {
-      HandlePing,
-      HandleConfigure,
-      HandlePopUpDone
-    };
+    const wl_shell_surface_listener shell_surface_listener = {HandlePing, HandleConfigure, HandlePopUpDone};
 
 
-    void ToggleFullScreen(struct window *window, int fullscreen)
+    void ToggleFullScreen(struct window* window, int fullscreen)
     {
-      wl_callback *callback;
+      wl_callback* callback;
       window->fullscreen = fullscreen;
       window->configured = 0;
 
@@ -190,9 +188,9 @@ namespace Fsl
 
     void CreateWlDummySurface()
     {
-      struct display * display = &sdisplay;
-      struct window * window = &swindow;
-      wl_callback *callback;
+      struct display* display = &sdisplay;
+      struct window* window = &swindow;
+      wl_callback* callback;
       try
       {
         if (nullptr == (window->surface = wl_compositor_create_surface(display->compositor)))
@@ -201,15 +199,12 @@ namespace Fsl
         if (nullptr == (window->shell_surface = wl_shell_get_shell_surface(display->shell, window->surface)))
           throw GraphicsException("wl_shell_get_shell_surface Failure");
 
-        if (wl_shell_surface_add_listener(window->shell_surface,
-          &shell_surface_listener, window))
+        if (wl_shell_surface_add_listener(window->shell_surface, &shell_surface_listener, window))
           throw GraphicsException("wl_shell_surface_add_listener Failure");
 
         wl_shell_surface_set_title(window->shell_surface, "FSL Framework");
 
-        wl_shell_surface_set_fullscreen(window->shell_surface,
-          WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT,
-          0, nullptr);
+        wl_shell_surface_set_fullscreen(window->shell_surface, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
 
         if (nullptr == (callback = wl_display_sync(window->display->display)))
           throw GraphicsException("wl_display_sync Failure");
@@ -240,8 +235,8 @@ namespace Fsl
 
     void CreateWlSurface(void)
     {
-      struct display * display = &sdisplay;
-      struct window * window = &swindow;
+      struct display* display = &sdisplay;
+      struct window* window = &swindow;
       try
       {
         if (nullptr == (window->surface = wl_compositor_create_surface(display->compositor)))
@@ -268,12 +263,12 @@ namespace Fsl
     }
 
 
-    void PointerHandleEnter(void *data, wl_pointer *pointer, uint32_t serial, wl_surface *surface, wl_fixed_t sx, wl_fixed_t sy)
+    void PointerHandleEnter(void* data, wl_pointer* pointer, uint32_t serial, wl_surface* surface, wl_fixed_t sx, wl_fixed_t sy)
     {
-      struct display *display = (struct display *)data;
-      wl_buffer *buffer;
-      wl_cursor *cursor = display->default_cursor;
-      wl_cursor_image *image;
+      struct display* display = (struct display*)data;
+      wl_buffer* buffer;
+      wl_cursor* cursor = display->default_cursor;
+      wl_cursor_image* image;
 
 
       if (display->window->fullscreen)
@@ -293,15 +288,15 @@ namespace Fsl
     }
 
 
-    void PointerHandleLeave(void *data, wl_pointer *pointer, uint32_t serial, wl_surface *surface)
+    void PointerHandleLeave(void* data, wl_pointer* pointer, uint32_t serial, wl_surface* surface)
     {
     }
 
 
-    void PointerHandleMotion(void *data, wl_pointer *pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy)
+    void PointerHandleMotion(void* data, wl_pointer* pointer, uint32_t time, wl_fixed_t sx, wl_fixed_t sy)
     {
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-      struct display *display = (struct display *)data;
+      struct display* display = (struct display*)data;
 
       display->mousePosition.X = sx / 256;
       display->mousePosition.Y = sy / 256;
@@ -310,12 +305,10 @@ namespace Fsl
     }
 
 
-    void PointerHandleButton(void *data, wl_pointer *wl_pointer,
-      uint32_t serial, uint32_t time,
-      uint32_t button, uint32_t state)
+    void PointerHandleButton(void* data, wl_pointer* wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
     {
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-      struct display *display = (struct display *)data;
+      struct display* display = (struct display*)data;
 
       if (WL_POINTER_BUTTON_STATE_PRESSED == state)
       {
@@ -338,14 +331,15 @@ namespace Fsl
         display->mouseIsPressed = false;
       }
       if (eventQueue)
-        eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(display->mouseButton, display->mouseIsPressed, display->mousePosition));
+        eventQueue->PostEvent(
+          NativeWindowEventHelper::EncodeInputMouseButtonEvent(display->mouseButton, display->mouseIsPressed, display->mousePosition));
     }
 
 
-    void PointerHandleAxis(void *data, wl_pointer *wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
+    void PointerHandleAxis(void* data, wl_pointer* wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
     {
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-      struct display *display = (struct display *)data;
+      struct display* display = (struct display*)data;
 
       display->zDelta = (int)value / 2560;
       if (eventQueue)
@@ -354,35 +348,29 @@ namespace Fsl
 
 
     const wl_pointer_listener pointer_listener = {
-      PointerHandleEnter,
-      PointerHandleLeave,
-      PointerHandleMotion,
-      PointerHandleButton,
-      PointerHandleAxis,
+      PointerHandleEnter, PointerHandleLeave, PointerHandleMotion, PointerHandleButton, PointerHandleAxis,
     };
 
 
-    void KeyboardHandleKeymap(void *data, wl_keyboard *keyboard, uint32_t format, int fd, uint32_t size)
+    void KeyboardHandleKeymap(void* data, wl_keyboard* keyboard, uint32_t format, int fd, uint32_t size)
     {
     }
 
 
-    void KeyboardHandleEnter(void *data, wl_keyboard *keyboard, uint32_t serial, wl_surface *surface, wl_array *keys)
+    void KeyboardHandleEnter(void* data, wl_keyboard* keyboard, uint32_t serial, wl_surface* surface, wl_array* keys)
     {
     }
 
 
-    void KeyboardHandleLeave(void *data, wl_keyboard *keyboard, uint32_t serial, wl_surface *surface)
+    void KeyboardHandleLeave(void* data, wl_keyboard* keyboard, uint32_t serial, wl_surface* surface)
     {
     }
 
 
-    void KeyboardHandleKey(void *data, wl_keyboard *keyboard,
-      uint32_t serial, uint32_t time,
-      uint32_t key, uint32_t state)
+    void KeyboardHandleKey(void* data, wl_keyboard* keyboard, uint32_t serial, uint32_t time, uint32_t key, uint32_t state)
     {
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-      struct display *d = (struct display *)data;
+      struct display* d = (struct display*)data;
 
       if (key == KEY_F11)
         CheckKey(d, state, VirtualKey::F11);
@@ -524,26 +512,20 @@ namespace Fsl
     }
 
 
-    void KeyboardHandleModifiers(void *data, wl_keyboard *keyboard,
-      uint32_t serial, uint32_t mods_depressed,
-      uint32_t mods_latched,
-      uint32_t mods_locked, uint32_t group)
+    void KeyboardHandleModifiers(void* data, wl_keyboard* keyboard, uint32_t serial, uint32_t mods_depressed, uint32_t mods_latched,
+                                 uint32_t mods_locked, uint32_t group)
     {
     }
 
 
     const wl_keyboard_listener keyboard_listener = {
-      KeyboardHandleKeymap,
-      KeyboardHandleEnter,
-      KeyboardHandleLeave,
-      KeyboardHandleKey,
-      KeyboardHandleModifiers,
+      KeyboardHandleKeymap, KeyboardHandleEnter, KeyboardHandleLeave, KeyboardHandleKey, KeyboardHandleModifiers,
     };
 
 
-    void SeatHandleCapabilities(void *data, wl_seat *seat, uint32_t caps)
+    void SeatHandleCapabilities(void* data, wl_seat* seat, uint32_t caps)
     {
-      struct display *d = (struct display *)data;
+      struct display* d = (struct display*)data;
 
       if ((caps & WL_SEAT_CAPABILITY_POINTER) && !d->pointer)
       {
@@ -566,8 +548,6 @@ namespace Fsl
         wl_keyboard_destroy(d->keyboard);
         d->keyboard = nullptr;
       }
-
-
     }
 
     const wl_seat_listener seat_listener = {
@@ -575,9 +555,9 @@ namespace Fsl
     };
 
 
-    void RegistryHandleGlobal(void *data, wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
+    void RegistryHandleGlobal(void* data, wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
     {
-      struct display *d = (struct display *)data;
+      struct display* d = (struct display*)data;
 
       if (strcmp(interface, "wl_compositor") == 0)
       {
@@ -585,38 +565,35 @@ namespace Fsl
       }
       else if (strcmp(interface, "wl_shell") == 0)
       {
-        d->shell = (struct wl_shell *)wl_registry_bind(registry, name, &wl_shell_interface, 1);
+        d->shell = (struct wl_shell*)wl_registry_bind(registry, name, &wl_shell_interface, 1);
       }
       else if (strcmp(interface, "wl_seat") == 0)
       {
-        d->seat = (struct wl_seat *)wl_registry_bind(registry, name, &wl_seat_interface, 1);
+        d->seat = (struct wl_seat*)wl_registry_bind(registry, name, &wl_seat_interface, 1);
         wl_seat_add_listener(d->seat, &seat_listener, d);
       }
       else if (strcmp(interface, "wl_shm") == 0)
       {
-        d->shm = (struct wl_shm *)wl_registry_bind(registry, name, &wl_shm_interface, 1);
+        d->shm = (struct wl_shm*)wl_registry_bind(registry, name, &wl_shm_interface, 1);
         d->cursor_theme = wl_cursor_theme_load(nullptr, 32, d->shm);
         d->default_cursor = wl_cursor_theme_get_cursor(d->cursor_theme, "left_ptr");
       }
     }
 
-    const wl_registry_listener registry_listener = {
-      RegistryHandleGlobal
-    };
+    const wl_registry_listener registry_listener = {RegistryHandleGlobal};
 
 
-    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
+                                                  const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
       return std::make_shared<PlatformNativeWindowWayland>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
+  }    // namespace
 
 
-  }
-
-
-
-
-  PlatformNativeWindowSystemWayland::PlatformNativeWindowSystemWayland(const NativeWindowSystemSetup& setup, const PlatformNativeWindowAllocationFunction& allocateWindowFunction, const PlatformNativeWindowSystemParams& systemParams)
+  PlatformNativeWindowSystemWayland::PlatformNativeWindowSystemWayland(const NativeWindowSystemSetup& setup,
+                                                                       const PlatformNativeWindowAllocationFunction& allocateWindowFunction,
+                                                                       const PlatformNativeWindowSystemParams& systemParams)
     : PlatformNativeWindowSystem(setup, nullptr)
     , m_allocationFunction(allocateWindowFunction ? allocateWindowFunction : AllocateWindow)
   {
@@ -672,9 +649,12 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<INativeWindow> PlatformNativeWindowSystemWayland::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  std::shared_ptr<INativeWindow>
+    PlatformNativeWindowSystemWayland::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                          const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
   {
-    return m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, nullptr, nullptr, nullptr), pPlatformCustomWindowAllocationParams);
+    return m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, nullptr, nullptr, nullptr),
+                                pPlatformCustomWindowAllocationParams);
   }
 
 
@@ -682,21 +662,24 @@ namespace Fsl
   {
     bool bContinue = true;
 
-    struct display * display = &sdisplay;
-    //This will dispatch messages that occurred
+    struct display* display = &sdisplay;
+    // This will dispatch messages that occurred
     wl_display_dispatch_pending(display->display);
 
     return bContinue;
   }
 
 
-  PlatformNativeWindowWayland::PlatformNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  PlatformNativeWindowWayland::PlatformNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup,
+                                                           const PlatformNativeWindowParams& platformWindowParams,
+                                                           const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
   {
     const NativeWindowConfig nativeWindowConfig = nativeWindowSetup.GetConfig();
     g_eventQueue = nativeWindowSetup.GetEventQueue();
 
-    FSLLOG_WARNING_IF(nativeWindowSetup.GetConfig().GetDisplayId() != 0, "Wayland only supports the main display. Using DisplayId 0 instead of " << nativeWindowSetup.GetConfig().GetDisplayId());
+    FSLLOG_WARNING_IF(nativeWindowSetup.GetConfig().GetDisplayId() != 0,
+                      "Wayland only supports the main display. Using DisplayId 0 instead of " << nativeWindowSetup.GetConfig().GetDisplayId());
     if (nativeWindowConfig.GetWindowMode() != WindowMode::Window)
     {
       FSLLOG("WARNING: Window Size/Position not defined, setting them to MAX Display Resolution");
@@ -723,26 +706,28 @@ namespace Fsl
       swindow.fullscreen = 0;
     }
 
-    FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowX11: Creating window: {Width = " << swindow.window_size.width << " Height = " << swindow.window_size.height << " fullscreen: " << swindow.fullscreen << " }");
+    FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0,
+              "PlatformNativeWindowX11: Creating window: {Width = " << swindow.window_size.width << " Height = " << swindow.window_size.height
+                                                                    << " fullscreen: " << swindow.fullscreen << " }");
 
 
     CreateWlSurface();
     m_platformSurface = swindow.surface;
 
-    void * nativeWindowHolder = nullptr;
-    if( platformWindowParams.CreateWaylandWindow )
+    void* nativeWindowHolder = nullptr;
+    if (platformWindowParams.CreateWaylandWindow)
     {
-        nativeWindowHolder = platformWindowParams.CreateWaylandWindow((void *)swindow.surface, swindow.window_size.width, swindow.window_size.height);
+      nativeWindowHolder = platformWindowParams.CreateWaylandWindow((void*)swindow.surface, swindow.window_size.width, swindow.window_size.height);
     }
     swindow.native = (PlatformNativeWindowType)nativeWindowHolder;
     m_platformWindow = swindow.native;
 
-    //Assign the Destroy Callback, there must be a smarter way to call them to avoid using globals.
-    if(platformWindowParams.DestroyWaylandWindow)
+    // Assign the Destroy Callback, there must be a smarter way to call them to avoid using globals.
+    if (platformWindowParams.DestroyWaylandWindow)
     {
       g_destroyWindowCallback = platformWindowParams.DestroyWaylandWindow;
     }
-    if(platformWindowParams.ResizeWaylandWindow)
+    if (platformWindowParams.ResizeWaylandWindow)
     {
       swindow.resizeWindowCallback = platformWindowParams.ResizeWaylandWindow;
     }
@@ -750,7 +735,7 @@ namespace Fsl
     if (nullptr == (sdisplay.cursor_surface = wl_compositor_create_surface(sdisplay.compositor)))
       throw GraphicsException("wl_compositor_create_surface Failure");
 
-    { // Post the activation message to let the framework know we are ready
+    {    // Post the activation message to let the framework know we are ready
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
       if (eventQueue)
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowActivationEvent(true));
@@ -762,9 +747,9 @@ namespace Fsl
   {
     struct display* display = &sdisplay;
     struct window* window = &swindow;
-    if(nullptr!=window->native)
+    if (nullptr != window->native)
     {
-      if(g_destroyWindowCallback)
+      if (g_destroyWindowCallback)
         g_destroyWindowCallback(window->native);
     }
     wl_shell_surface_destroy(window->shell_surface);
@@ -785,7 +770,7 @@ namespace Fsl
 
   bool PlatformNativeWindowWayland::TryGetDPI(Vector2& rDPI) const
   {
-    { // Remove this once its implemented
+    {    // Remove this once its implemented
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
@@ -801,7 +786,7 @@ namespace Fsl
 
   bool PlatformNativeWindowWayland::TryGetSize(Point2& rSize) const
   {
-    { // Remove this once its implemented
+    {    // Remove this once its implemented
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
@@ -813,6 +798,5 @@ namespace Fsl
     rSize = Point2();
     return false;
   }
-
-}
+}    // namespace Fsl
 #endif

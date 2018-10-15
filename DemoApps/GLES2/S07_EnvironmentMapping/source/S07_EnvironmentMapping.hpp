@@ -39,13 +39,14 @@ namespace Fsl
 
     Matrix m_transformMatrix;
     bool m_fast;
+
   public:
     S07_EnvironmentMapping(const DemoAppConfig& config);
-    ~S07_EnvironmentMapping();
+    ~S07_EnvironmentMapping() override;
 
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

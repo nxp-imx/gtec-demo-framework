@@ -1,36 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslDemoPlatform">
-    <Dependency Name="stb"/>
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoHost.Base"/>
     <Platform Name="Android">
-      <Dependency Name="FslUtil.EGL"/>
       <Dependency Name="FslNativeWindow.Platform"/>
       <Dependency Name="Platform.Android.Glue" Access="Private"/>
       <Dependency Name="Platform.Android.NDKHelper" Access="Private"/>
       <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
-      <Dependency Name="gli"/>
       <!-- For now we only enable this on android, once proper download is enabled on all platforms we can enable it everywhere -->
       <Dependency Name="Recipe.half_1_12_0" Access="Private"/>
     </Platform>
     <Platform Name="Ubuntu">
-      <Dependency Name="DevIL" Access="Private"/>
-      <Dependency Name="gli"/>
     </Platform>
     <Platform Name="QNX">
-      <Dependency Name="DevIL" Access="Private"/>
     </Platform>
     <Platform Name="Yocto">
-      <Dependency Name="DevIL" Access="Private"/>
       <Dependency Name="Mmdc" Access="Private"/>
-      <Dependency Name="gli"/>
     </Platform>
     <Platform Name="Windows" ProjectId="5D828207-1B76-40FE-8817-CAA002DE8144">
-      <Dependency Name="DevIL" Access="Private"/>
-      <Dependency Name="gli"/>
     </Platform>
   </Library>
 </FslBuildGen>

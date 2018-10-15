@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
+from typing import Dict
 from typing import Optional
 from typing import List
 from typing import Union
@@ -47,9 +48,11 @@ from FslBuildGen.Xml.Exceptions import XmlException
 from FslBuildGen.Vars.VariableProcessor import VariableEnvironment
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 from FslBuildGen.Xml import FakeXmlElementFactory
+from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.Exceptions import XmlInvalidRootElement
 from FslBuildGen.Xml.Project.XmlBuildDocConfiguration import XmlBuildDocConfiguration
 from FslBuildGen.Xml.Project.XmlClangTidyConfiguration import XmlClangTidyConfiguration
+from FslBuildGen.Xml.Project.XmlExperimentalPlatform import XmlExperimentalPlatform
 from FslBuildGen.Xml.ToolConfig import LoadUtil
 from FslBuildGen.Xml.ToolConfig.XmlConfigFileAddNewProjectTemplatesRootDirectory import XmlConfigFileAddNewProjectTemplatesRootDirectory
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageConfiguration import XmlConfigPackageConfiguration
@@ -105,7 +108,15 @@ class XmlExperimental(XmlBase):
 
         self.AllowDownloads = self._ReadBoolAttrib(xmlElement, "AllowDownloads")
         self.DisableDownloadEnv = self._ReadAttrib(xmlElement, "DisableDownloadEnv")
+        self.Platforms = self.__TryLoadPlatforms(log, xmlElement)                     # type: Dict[str, XmlExperimentalPlatform]
 
+
+    def TryGetRecipesDefaultValue(self, platformName: str) -> Optional[str]:
+        if platformName in self.Platforms:
+            platform = self.Platforms[platformName]
+            if platform.Recipes is not None:
+                return platform.Recipes.Value
+        return None
 
     def __TryLoadInstallDirectory(self, log: Log, xmlElement: ET.Element) -> Optional[XmlExperimentalDefaultThirdPartyInstallDirectory]:
         extendedElement = xmlElement.find("DefaultThirdPartyInstallDirectory")
@@ -120,6 +131,17 @@ class XmlExperimental(XmlBase):
             return None
         return XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory(log, extendedElement)
 
+    def __TryLoadPlatforms(self, log: Log, xmlElement: ET.Element) -> Dict[str, XmlExperimentalPlatform]:
+        platformDict = {}                                      # type: Dict[str, XmlExperimentalPlatform]
+        platformElements = xmlElement.findall("Platform")
+        if platformElements is not None and len(platformElements) > 0:
+            for element in platformElements:
+                platform = XmlExperimentalPlatform(log, element)
+                if platform.Id in platformDict:
+                    errorMsg = "Multiple platforms called '{0}' found in Project.gen".format(platform.Id)
+                    raise XmlException2(element, errorMsg)
+                platformDict[platform.Id] = platform
+        return platformDict
 
 
     def Merge(self, src: Optional['XmlExperimental']) -> None:

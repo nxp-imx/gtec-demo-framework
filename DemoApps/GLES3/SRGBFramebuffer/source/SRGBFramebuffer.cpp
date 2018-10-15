@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "SRGBFramebuffer.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -57,38 +57,23 @@ namespace Fsl
 
   SRGBFramebuffer::SRGBFramebuffer(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_uiEventListener(this)                                                                                     // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))   // Prepare the extension
+    , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
-    , m_camera()
-    , m_matrixWorldViewL()
-    , m_matrixProjectionL()
-    , m_matrixWorldViewR()
-    , m_matrixProjectionR()
-    , m_texLinear()
-    , m_texSRGB()
-    , m_program()
     , m_hModelViewMatrixLoc(GLValues::INVALID_LOCATION)
     , m_hProjMatrixLoc(GLValues::INVALID_LOCATION)
     , m_hLightPositions(GLValues::INVALID_LOCATION)
     , m_hLightColors(GLValues::INVALID_LOCATION)
     , m_hViewPos(GLValues::INVALID_LOCATION)
-    , m_vertexBuffer()
-    , m_vertexArray()
-    , m_lightPositions()
-    , m_lightColors()
     , m_state(State::Split2)
-    , m_transitionCache()
     , m_splitX(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
     , m_splitSceneWidthL(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
     , m_splitSceneWidthR(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
     , m_splitSceneAlphaL(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
     , m_splitSceneAlphaR(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_labelLeft()
-    , m_labelRight()
   {
     const auto userTagEx = std::dynamic_pointer_cast<SharedData>(config.CustomConfig.AppRegistrationUserTag);
     bool hasSRGBFramebuffer = userTagEx && userTagEx->SRGBFramebufferEnabled;
@@ -106,20 +91,18 @@ namespace Fsl
   }
 
 
-  SRGBFramebuffer::~SRGBFramebuffer()
-  {
-
-  }
+  SRGBFramebuffer::~SRGBFramebuffer() = default;
 
 
   void SRGBFramebuffer::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled() || !event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
-
     case VirtualKey::Code1:
       m_state = State::Scene1;
       break;
@@ -139,7 +122,9 @@ namespace Fsl
   void SRGBFramebuffer::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     switch (event.GetButton())
     {
@@ -147,9 +132,13 @@ namespace Fsl
     {
       const bool mouseCapture = event.IsPressed();
       if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+      {
         m_mouseCaptureEnabled = mouseCapture;
+      }
       else
+      {
         m_mouseCaptureEnabled = false;
+      }
       event.Handled();
       break;
     }
@@ -164,7 +153,6 @@ namespace Fsl
       break;
     }
   }
-
 
 
   void SRGBFramebuffer::Update(const DemoTime& demoTime)
@@ -205,7 +193,7 @@ namespace Fsl
 
   void SRGBFramebuffer::UpdateInput(const DemoTime& demoTime)
   {
-    { // Mouse camera rotation
+    {    // Mouse camera rotation
       const auto mouseState = m_mouse->GetState();
 
       if (!m_mouseCaptureEnabled)
@@ -223,18 +211,26 @@ namespace Fsl
       }
     }
 
-    { // Keyboard camera movement
+    {    // Keyboard camera movement
       const float movementSpeed = 2.0f * demoTime.DeltaTime;
       auto keyboardState = m_keyboard->GetState();
 
       if (keyboardState.IsKeyDown(VirtualKey::W))
+      {
         m_camera.MoveForward(movementSpeed);
+      }
       if (keyboardState.IsKeyDown(VirtualKey::S))
+      {
         m_camera.MoveBackwards(movementSpeed);
+      }
       if (keyboardState.IsKeyDown(VirtualKey::A))
+      {
         m_camera.MoveLeft(movementSpeed);
+      }
       if (keyboardState.IsKeyDown(VirtualKey::D))
+      {
         m_camera.MoveRight(movementSpeed);
+      }
     }
   }
 
@@ -307,7 +303,7 @@ namespace Fsl
 
     // Android build complains about std::round (so this makes all happy)
     using namespace std;
-    const GLint splitX = static_cast<GLint>(round(m_splitX.GetValue()));
+    const auto splitX = static_cast<GLint>(round(m_splitX.GetValue()));
     const GLint remainderX = screenResolution.X - splitX;
 
     glBindTexture(GL_TEXTURE_2D, m_texLinear.Get());
@@ -324,7 +320,7 @@ namespace Fsl
     glUniformMatrix4fv(m_hModelViewMatrixLoc, 1, 0, m_matrixWorldViewR.DirectAccess());
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matrixProjectionR.DirectAccess());
     glViewport(splitX, 0, remainderX, screenResolution.Y);
-    //glUniform1i(m_hGamma, true);
+    // glUniform1i(m_hGamma, true);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_vertexArray.Unbind();
@@ -349,20 +345,8 @@ namespace Fsl
   void SRGBFramebuffer::PrepareLights()
   {
     // lighting info
-    m_lightPositions =
-    {
-      Vector3(0.0f, 0.0f, -3.0f),
-      Vector3(0.0f, 0.0f, -1.0f),
-      Vector3(0.0f, 0.0f, 1.0f),
-      Vector3(0.0f, 0.0f, 3.0f)
-    };
-    m_lightColors =
-    {
-      Vector3(0.25f, 0.25f, 0.25f),
-      Vector3(0.50f, 0.50f, 0.50f),
-      Vector3(0.75f, 0.75f, 0.75f),
-      Vector3(1.00f, 1.00f, 1.00f)
-    };
+    m_lightPositions = {Vector3(0.0f, 0.0f, -3.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 3.0f)};
+    m_lightColors = {Vector3(0.25f, 0.25f, 0.25f), Vector3(0.50f, 0.50f, 0.50f), Vector3(0.75f, 0.75f, 0.75f), Vector3(1.00f, 1.00f, 1.00f)};
   }
 
 
@@ -374,7 +358,7 @@ namespace Fsl
     tex.OverrideOrigin(BitmapOrigin::LowerLeft);
 
     GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-    //m_texLinear.Reset(tex, texParams, TextureFlags::GenerateMipMaps);
+    // m_texLinear.Reset(tex, texParams, TextureFlags::GenerateMipMaps);
     m_texLinear.Reset(tex, texParams);
     tex.SetCompatiblePixelFormat(PixelFormat::ETC2_R8G8B8_SRGB_BLOCK);
     m_texSRGB.Reset(tex, texParams);
@@ -414,8 +398,7 @@ namespace Fsl
     const float v0 = 10.0f;
     const float v1 = 0.0f;
     const Vector3 normal(0.0f, 1.0f, 0.0f);
-    VertexPositionNormalTexture vertices[6] =
-    {
+    VertexPositionNormalTexture vertices[6] = {
       VertexPositionNormalTexture(Vector3(x0, y, z0), normal, Vector2(u0, v0)),
       VertexPositionNormalTexture(Vector3(x0, y, z1), normal, Vector2(u0, v1)),
       VertexPositionNormalTexture(Vector3(x1, y, z1), normal, Vector2(u1, v1)),
@@ -427,9 +410,11 @@ namespace Fsl
 
     auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclaration();
     std::vector<GLES3::GLVertexAttribLink> attribLink(3);
-    attribLink[0] = GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    attribLink[0] =
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
     attribLink[1] = GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-    attribLink[2] = GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    attribLink[2] =
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
 
     m_vertexBuffer.Reset(vertices, sizeof(vertices) / sizeof(VertexPositionNormalTexture), GL_STATIC_DRAW);
@@ -438,7 +423,7 @@ namespace Fsl
     m_vertexArray.Reset(true);
     m_vertexArray.Bind();
 
-    //Set up VBO Vertex Attribute information
+    // Set up VBO Vertex Attribute information
     GL_CHECK(glBindBuffer(m_vertexBuffer.GetTarget(), m_vertexBuffer.Get()));
 
     // - We assume that the vertex format is listed in the same order as the shader requires them.
@@ -501,7 +486,6 @@ namespace Fsl
 
 
     // Finally add everything to the window manager (to ensure its seen)
-    context->WindowManager->Add(fillLayout);
+    m_uiExtension->GetWindowManager()->Add(fillLayout);
   }
-
 }

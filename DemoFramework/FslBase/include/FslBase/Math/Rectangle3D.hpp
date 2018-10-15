@@ -1,35 +1,35 @@
 #ifndef FSLBASE_MATH_RECTANGLE3D_HPP
 #define FSLBASE_MATH_RECTANGLE3D_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Offset3D.hpp>
@@ -41,11 +41,7 @@ namespace Fsl
     Offset3D Offset;
     Extent3D Extent;
 
-    Rectangle3D()
-      : Offset()
-      , Extent()
-    {
-    }
+    Rectangle3D() = default;
 
     Rectangle3D(const Offset3D& offset, const Extent3D& extent)
       : Offset(offset)
@@ -54,17 +50,18 @@ namespace Fsl
     }
 
     Rectangle3D(const int32_t x, const int32_t y, int32_t z, const uint16_t width, const uint16_t height, const uint16_t depth)
-      : Offset(x,y,z)
+      : Offset(x, y, z)
       , Extent(width, height, depth)
     {
     }
 
-    Rectangle3D(const int32_t left, const int32_t top, const int32_t front, const int32_t right, const int32_t bottom, const int32_t back, bool reserved);
+    Rectangle3D(const int32_t left, const int32_t top, const int32_t front, const int32_t right, const int32_t bottom, const int32_t back,
+                bool reserved);
 
 
     static Rectangle3D Empty()
     {
-      return Rectangle3D();
+      return {};
     }
 
 
@@ -102,9 +99,7 @@ namespace Fsl
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
     bool Contains(const int32_t x, const int32_t y, const int32_t z) const
     {
-      return (x >= Left() && x < Right() &&
-              y >= Top() && y < Bottom() &&
-              z >= Front() && z < Back());
+      return (x >= Left() && x < Right() && y >= Top() && y < Bottom() && z >= Front() && z < Back());
     }
 
 
@@ -144,9 +139,8 @@ namespace Fsl
     //! @brief Determines whether a specified Rectangle intersects with this Rectangle.
     bool Intersects(const Rectangle3D& value) const
     {
-      return value.Left() < Right() && Left() < value.Right() &&
-             value.Top() < Bottom() && Top() < value.Bottom() &&
-             value.Front() < Back() && Front() < value.Back();
+      return value.Left() < Right() && Left() < value.Right() && value.Top() < Bottom() && Top() < value.Bottom() && value.Front() < Back() &&
+             Front() < value.Back();
     }
 
 
@@ -167,7 +161,6 @@ namespace Fsl
     {
       return (Offset != rhs.Offset || Extent != rhs.Extent);
     }
-
   };
 }
 

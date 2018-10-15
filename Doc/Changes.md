@@ -1,5 +1,37 @@
 # Latest version
-
+* Fixed all vulkan 1.1.85.0 validation layer warnings in:
+  * DisplacementMapping
+  * DynamicTerrainTessellation
+  * Gears
+  * MeshInstancing
+  * TessellationPNTriangles
+  * Texturing
+  * TexturingArrays
+  * TexturingCubeMap
+* Fixed all vulkan 1.1.82.1 validation layer warnings in:
+  * DevBatch
+  * DisplacementMapping
+  * Gears
+  * MeshInstancing
+  * TessellationPNTriangles
+  * Texturing
+  * TexturingArrays
+  * TexturingCubeMap
+* DynamicTerrainTessellation
+* All events are only logged at -vvvvv. This should make verbose more useful.
+* FslBuildNew template ConsoleMinimal, introduces a minimalistic build with no graphics library dependencies.
+* VulkanBase third party package introduced. This allows us to removes the window system dependency from some vulkan libraries.
+* FslSimpleUI WindowContext now contains a weak pointer to the ui interfaces. This prevents circular dependencies.
+* Added new app OpenVX.Stereo.
+* CONTRIBUTING.md describes how to contribute.
+* Early access to the Helios cross platform camera API.
+* Added new app GLES3.CameraDemo
+* Added new app GLES3. DFNativeBatchCamera
+* Includes a small subset of the unit tests. More will be made available in future release.
+* Code cleanup
+* FslBuildCheck now supports clang format and clang tidy.
+* All code was reformatted with clang format.
+* All code had a tidy pass using clang tidy.
 * FslBuildCheck parameters renamed.
 * FslBuild 2.6+ now checks that all include files are under their correct package name based include path.
   So for a package called "Hamster.Dance.Master" the include files will be under "include/Hamster/Dance/Master"

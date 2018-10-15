@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Service/Profiler/ProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerServiceOptionParser.hpp>
@@ -46,47 +46,48 @@ namespace Fsl
 
     inline int32_t CapTime(const uint64_t value)
     {
-      return static_cast<int32_t>(std::max(std::min(value, static_cast<uint64_t>(std::numeric_limits<int32_t>::max())), (uint64_t)0));
+      return static_cast<int32_t>(std::max(std::min(value, static_cast<uint64_t>(std::numeric_limits<int32_t>::max())), static_cast<uint64_t>(0)));
     }
   }
 
   ProfilerService::ProfilerService(const ServiceProvider& serviceProvider, const std::shared_ptr<ProfilerServiceOptionParser>& optionParser)
     : ThreadLocalService(serviceProvider)
     , m_maxCapacity(optionParser->GetAverageEntries())
-    , m_combinedTime()
     , m_customCounters(MAX_CUSTOM_COUNTERS)
     , m_customCounterCount(0)
     , m_customConfigurationRevision(1)
   {
     for (uint16_t i = 0; i < static_cast<uint16_t>(m_customCounters.size()); ++i)
+    {
       m_customCounters[i].RealIndex = i;
+    }
   }
 
 
-  ProfilerService::~ProfilerService()
-  {
-  }
+  ProfilerService::~ProfilerService() = default;
 
 
   ProfilerFrameTime ProfilerService::GetLastFrameTime() const
   {
-    if (m_entries.size() > 0)
+    if (!m_entries.empty())
     {
       const ProfilerRecord entry = m_entries.back();
       return ProfilerFrameTime(entry.UpdateTime, entry.DrawTime, entry.TotalTime);
     }
-    else
-      return ProfilerFrameTime();
+
+    return ProfilerFrameTime();
   }
 
 
   ProfilerFrameTime ProfilerService::GetAverageFrameTime() const
   {
-    const int32_t numFrames = static_cast<int32_t>(m_entries.size());
-    if(numFrames > 0 )
+    const auto numFrames = static_cast<int32_t>(m_entries.size());
+    if (numFrames > 0)
+    {
       return ProfilerFrameTime(m_combinedTime.UpdateTime / numFrames, m_combinedTime.DrawTime / numFrames, m_combinedTime.TotalTime / numFrames);
-    else
-      return ProfilerFrameTime();
+    }
+
+    return ProfilerFrameTime();
   }
 
 
@@ -105,7 +106,9 @@ namespace Fsl
   ProfilerCustomCounterHandle ProfilerService::GetCustomCounterHandle(const int32_t index) const
   {
     if (index < 0 || index >= m_customCounterCount)
+    {
       throw IndexOutOfRangeException("index out of bounds");
+    }
 
     const int32_t handleIndex = m_customCounters[index].RealIndex;
     assert(handleIndex >= 0);
@@ -113,14 +116,19 @@ namespace Fsl
   }
 
 
-  ProfilerCustomCounterHandle ProfilerService::CreateCustomCounter(const std::string& name, const int32_t minValue, const int32_t maxValue, const Color& colorHint)
+  ProfilerCustomCounterHandle ProfilerService::CreateCustomCounter(const std::string& name, const int32_t minValue, const int32_t maxValue,
+                                                                   const Color& colorHint)
   {
     if (m_customCounterCount >= static_cast<int32_t>(m_customCounters.size()))
+    {
       throw NotSupportedException("Capacity reached");
+    }
 
     ++m_customConfigurationRevision;
     if (m_customConfigurationRevision == 0)
+    {
       ++m_customConfigurationRevision;
+    }
 
     const uint32_t freeIndex = m_customCounters[m_customCounterCount].RealIndex;
     assert(m_customCounters[freeIndex].IsInUse == false);
@@ -139,7 +147,9 @@ namespace Fsl
     const int32_t handleIndex = ConvertHandleToIndex(handle);
     ++m_customConfigurationRevision;
     if (m_customConfigurationRevision == 0)
+    {
       ++m_customConfigurationRevision;
+    }
 
     // 0,1,2,3,4,5,6,7
     // A,B,C,-,-,-,-,-
@@ -186,12 +196,11 @@ namespace Fsl
 
   bool ProfilerService::IsValidHandle(const ProfilerCustomCounterHandle& handle) const
   {
-    const uint16_t handleVersion = static_cast<uint16_t>(handle.Value & 0xFFFF);
+    const auto handleVersion = static_cast<uint16_t>(handle.Value & 0xFFFF);
     const uint32_t handleIndex = handle.Value >> 16;
 
-    if (handleIndex >= static_cast<uint32_t>(m_customCounters.size()) || !m_customCounters[handleIndex].IsInUse || m_customCounters[handleIndex].Version != handleVersion)
-      return false;
-    return true;
+    return !(handleIndex >= static_cast<uint32_t>(m_customCounters.size()) || !m_customCounters[handleIndex].IsInUse ||
+             m_customCounters[handleIndex].Version != handleVersion);
   }
 
 
@@ -201,7 +210,7 @@ namespace Fsl
     const int32_t cappedDrawTime = CapTime(drawTime);
     const int32_t cappedTotalTime = CapTime(totalTime);
 
-    m_entries.push_back(ProfilerRecord(cappedUpdateTime, cappedDrawTime, cappedTotalTime));
+    m_entries.emplace_back(cappedUpdateTime, cappedDrawTime, cappedTotalTime);
 
     m_combinedTime.UpdateTime += cappedUpdateTime;
     m_combinedTime.DrawTime += cappedDrawTime;
@@ -225,13 +234,14 @@ namespace Fsl
 
   int32_t ProfilerService::ConvertHandleToIndex(const ProfilerCustomCounterHandle& handle) const
   {
-    const uint16_t handleVersion = static_cast<uint16_t>(handle.Value & 0xFFFF);
+    const auto handleVersion = static_cast<uint16_t>(handle.Value & 0xFFFF);
     const uint32_t handleIndex = handle.Value >> 16;
 
     if (handleIndex >= m_customCounters.size() || !m_customCounters[handleIndex].IsInUse || m_customCounters[handleIndex].Version != handleVersion)
+    {
       throw std::invalid_argument("Unknown handle supplied");
+    }
 
     return handleIndex;
   }
-
 }

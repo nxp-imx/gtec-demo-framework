@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
@@ -60,7 +60,7 @@
 
 //! workaround for GCC complaint
 #ifdef __GNUC__
-#define REMOVE_WARNING_VARIABLE_IS_NOT_USED __attribute__ ((unused))
+#define REMOVE_WARNING_VARIABLE_IS_NOT_USED __attribute__((unused))
 #else
 #define REMOVE_WARNING_VARIABLE_IS_NOT_USED
 #endif
@@ -73,7 +73,8 @@
 //!
 //! WARNING:
 //! - The mesh conversion process has not been optimized at all.
-//! - Since there are no standard compiler flags containing endian information the code here uses some very basic endian assumptions that are verified at runtime.
+//! - Since there are no standard compiler flags containing endian information the code here uses some very basic endian assumptions that are
+//! verified at runtime.
 
 namespace Fsl
 {
@@ -93,27 +94,27 @@ namespace Fsl
         , IndexByteSize(sourceMesh->GenericDirectAccess().IndexStride)
         , VertexDeclarationIndex(vertexDeclarationIndex)
       {
-        if ( IndexByteSize != 1 && IndexByteSize != 2)
+        if (IndexByteSize != 1 && IndexByteSize != 2)
+        {
           throw NotSupportedException("Index stride is not supported");
+        }
       }
     };
 
     struct InternalVertexDeclaration : public SFVertexDeclaration
     {
-      uint32_t VertexByteSize;
+      uint32_t VertexByteSize{0};
 
-      InternalVertexDeclaration()
-        : SFVertexDeclaration()
-        , VertexByteSize(0)
-      {
-      }
+      InternalVertexDeclaration() = default;
 
       InternalVertexDeclaration(const SFVertexDeclaration& declaration)
         : SFVertexDeclaration(declaration)
         , VertexByteSize(0)
       {
         for (auto itr = declaration.Elements.begin(); itr != declaration.Elements.end(); ++itr)
+        {
           VertexByteSize += CalcByteSize(*itr);
+        }
       }
 
       static uint32_t CalcByteSize(const SFVertexElement& element)
@@ -123,11 +124,11 @@ namespace Fsl
         case SceneFormat::VertexElementFormat::Single:
           return 4;
         case SceneFormat::VertexElementFormat::Vector2:
-          return 4*2;
+          return 4 * 2;
         case SceneFormat::VertexElementFormat::Vector3:
-          return 4*3;
+          return 4 * 3;
         case SceneFormat::VertexElementFormat::Vector4:
-          return 4*4;
+          return 4 * 4;
         default:
           throw NotSupportedException("unsupported vertex element format");
         }
@@ -191,19 +192,13 @@ namespace Fsl
       struct ChunkHeader
       {
         // The byte size excluding the header
-        uint32_t ByteSize;
+        uint32_t ByteSize{0};
         // The type of the chunk
-        ChunkType Type; // uint8_t
-        uint8_t Reserved;
-        uint16_t Version;
+        ChunkType Type{ChunkType::VertexDeclarations};    // uint8_t
+        uint8_t Reserved{0};
+        uint16_t Version{0};
 
-        ChunkHeader()
-          : ByteSize(0)
-          , Type(ChunkType::VertexDeclarations)
-          , Reserved(0)
-          , Version(0)
-        {
-        }
+        ChunkHeader() = default;
 
         ChunkHeader(const uint32_t byteSize, const ChunkType chunkType, const uint16_t version)
           : ByteSize(byteSize)
@@ -214,21 +209,21 @@ namespace Fsl
         }
       };
 
-      //int32_t Offset;
-      //VertexElementFormat Format;
-      //VertexElementUsage Usage;
-      //int32_t UsageIndex;
+      // int32_t Offset;
+      // VertexElementFormat Format;
+      // VertexElementUsage Usage;
+      // int32_t UsageIndex;
 
       const uint32_t SIZEOF_VERTEX_DECLARATION_LIST_HEADER = 4;
 
-      //struct VertexDeclarations
+      // struct VertexDeclarations
       //{
       //  uint32_t Entries;
       //};
 
       const uint32_t SIZEOF_VERTEX_DECLARATION_HEADER = 2;
 
-      //struct VertexDeclaration
+      // struct VertexDeclaration
       //{
       //  uint16_t ElementCount;
       //};
@@ -238,10 +233,12 @@ namespace Fsl
       const uint32_t VERTEXELEMENT_OFFSET_UsageIndex = VERTEXELEMENT_OFFSET_Usage + sizeof(uint8_t);
       const uint32_t SIZE_OF_VERTEXELEMENT = VERTEXELEMENT_OFFSET_UsageIndex + sizeof(uint8_t);
 
-      const uint32_t BUFFER_ENTRY_SIZE_1 = SIZEOF_VERTEX_DECLARATION_LIST_HEADER >= SIZEOF_VERTEX_DECLARATION_HEADER ? SIZEOF_VERTEX_DECLARATION_LIST_HEADER : SIZEOF_VERTEX_DECLARATION_HEADER;
+      const uint32_t BUFFER_ENTRY_SIZE_1 = SIZEOF_VERTEX_DECLARATION_LIST_HEADER >= SIZEOF_VERTEX_DECLARATION_HEADER
+                                             ? SIZEOF_VERTEX_DECLARATION_LIST_HEADER
+                                             : SIZEOF_VERTEX_DECLARATION_HEADER;
       const uint32_t BUFFER_ENTRY_SIZE_2 = BUFFER_ENTRY_SIZE_1 >= SIZE_OF_VERTEXELEMENT ? BUFFER_ENTRY_SIZE_1 : SIZE_OF_VERTEXELEMENT;
       const uint32_t BUFFER_ENTRY_SIZE = BUFFER_ENTRY_SIZE_2;
-      //struct ChunkVertexElement
+      // struct ChunkVertexElement
       //{
       //  uint8_t Format;         // FS3::VertexElementFormat
       //  uint8_t Usage;          // FS3::VertexElementUsage
@@ -250,7 +247,7 @@ namespace Fsl
 
       const uint32_t SIZEOF_MESH_LIST_HEADER = 4;
 
-      //struct MeshList
+      // struct MeshList
       //{
       //  uint32_t Entries;
       //};
@@ -266,7 +263,7 @@ namespace Fsl
 
       const uint32_t MESH_HEADERS = (SIZEOF_MESH_HEADER > SIZEOF_MESH_LIST_HEADER ? SIZEOF_MESH_HEADER : SIZEOF_MESH_LIST_HEADER);
 
-      //struct ChunkMeshHeader
+      // struct ChunkMeshHeader
       //{
       //  uint32_t MaterialIndex;
       //  uint32_t VertexCount;
@@ -285,7 +282,7 @@ namespace Fsl
       const uint16_t NODE_OFFSET_ChildCount = NODE_OFFSET_MeshCount + sizeof(uint8_t);
       const uint16_t SIZEOF_NODE_HEADER = NODE_OFFSET_ChildCount + sizeof(uint8_t);
 
-      //struct ChunkNodeHeader
+      // struct ChunkNodeHeader
       //{
       //  Matrix Transformation;
       //  uint16_t NameLength;
@@ -299,13 +296,17 @@ namespace Fsl
         uint8_t buffer[SIZE_OF_FORMATHEADER];
         rStream.read(reinterpret_cast<char*>(buffer), SIZE_OF_FORMATHEADER);
         if (!rStream.good())
+        {
           throw FormatException("Failed to read the expected data");
+        }
 
         const uint32_t magic = ByteArrayUtil::ReadUInt32LE(buffer, SIZE_OF_FORMATHEADER, FORMATHEADER_OFFSET_Magic);
         const uint32_t version = ByteArrayUtil::ReadUInt32LE(buffer, SIZE_OF_FORMATHEADER, FORMATHEADER_OFFSET_Version);
 
         if (magic != FORMAT_MAGIC || version != FORMAT_CURRENT_VERSION)
+        {
           throw NotSupportedException("File format not supported");
+        }
         return FormatHeader(magic, version);
       }
 
@@ -324,11 +325,13 @@ namespace Fsl
         uint8_t buffer[SIZE_OF_CHUNKHEADER];
         rStream.read(reinterpret_cast<char*>(buffer), SIZE_OF_CHUNKHEADER);
         if (!rStream.good())
+        {
           throw FormatException("Failed to read the expected data");
+        }
 
         const uint32_t byteSize = ByteArrayUtil::ReadUInt32LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_ByteSize);
         const uint8_t chunkType = ByteArrayUtil::ReadUInt8LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Type);
-        //const uint8_t reserved = ByteArrayUtil::ReadUInt8LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Reserved);
+        // const uint8_t reserved = ByteArrayUtil::ReadUInt8LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Reserved);
         const uint16_t version = ByteArrayUtil::ReadUInt16LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Version);
         return ChunkHeader(byteSize, static_cast<ChunkType>(chunkType), version);
       }
@@ -361,12 +364,16 @@ namespace Fsl
           const auto itrFind = std::find(rVertexDeclarations.begin(), rVertexDeclarations.end(), vertexDeclaration);
           const auto vertexDeclarationIndex = std::distance(rVertexDeclarations.begin(), itrFind);
           if (itrFind == rVertexDeclarations.end())
-            rVertexDeclarations.push_back(vertexDeclaration);
+          {
+            rVertexDeclarations.emplace_back(vertexDeclaration);
+          }
 
           if (vertexDeclarationIndex > 255)
+          {
             throw NotSupportedException("The maximum number of vertex declarations exceeded");
+          }
 
-          rMeshes.push_back(InternalMeshRecord(mesh, static_cast<uint8_t>(vertexDeclarationIndex)));
+          rMeshes.emplace_back(mesh, static_cast<uint8_t>(vertexDeclarationIndex));
         }
       }
 
@@ -380,7 +387,7 @@ namespace Fsl
         {
           // Write the vertex element count
           assert(itrDecl->Elements.size() <= std::numeric_limits<uint16_t>::max());
-          const uint16_t elementCount = static_cast<uint16_t>(itrDecl->Elements.size());
+          const auto elementCount = static_cast<uint16_t>(itrDecl->Elements.size());
           size += SIZEOF_VERTEX_DECLARATION_HEADER + (elementCount * SIZE_OF_VERTEXELEMENT);
           ++itrDecl;
         }
@@ -391,7 +398,9 @@ namespace Fsl
       SceneFormat::VertexElementFormat ConvertToFormat(const uint8_t value)
       {
         if (value <= static_cast<uint32_t>(SceneFormat::VertexElementFormat::SYS_COUNT))
+        {
           return static_cast<SceneFormat::VertexElementFormat>(value);
+        }
         throw FormatException("invalid vertex element format");
       }
 
@@ -399,7 +408,9 @@ namespace Fsl
       SceneFormat::VertexElementUsage ConvertToUsage(const uint8_t value)
       {
         if (value <= static_cast<uint32_t>(SceneFormat::VertexElementUsage::SYS_COUNT))
+        {
           return static_cast<SceneFormat::VertexElementUsage>(value);
+        }
         throw FormatException("invalid vertex element usage");
       }
 
@@ -407,7 +418,9 @@ namespace Fsl
       SceneFormat::PrimitiveType ConvertToPrimitiveType(const uint8_t value)
       {
         if (value <= static_cast<uint32_t>(SceneFormat::PrimitiveType::SYS_COUNT))
+        {
           return static_cast<SceneFormat::PrimitiveType>(value);
+        }
         throw FormatException("invalid primitive type");
       }
 
@@ -417,9 +430,13 @@ namespace Fsl
       {
         const ChunkHeader header = ReadChunkHeader(rStream);
         if (header.Type != ChunkType::VertexDeclarations)
+        {
           throw NotSupportedException("format not correct");
+        }
         if (header.Version != CHUNK_VERSION_VertexDeclaration)
+        {
           throw FormatException("Unsupported vertex declaration chunk version");
+        }
 
         const auto startPos = rStream.tellg();
 
@@ -427,7 +444,9 @@ namespace Fsl
         uint8_t buffer[BUFFER_ENTRY_SIZE];
         rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_VERTEX_DECLARATION_LIST_HEADER);
         if (!rStream.good())
+        {
           throw FormatException("Failed to read the expected data");
+        }
 
         // Read the number of vertex declarations
         const uint32_t numVertexDeclarations = ByteArrayUtil::ReadUInt32LE(buffer, BUFFER_ENTRY_SIZE, 0);
@@ -438,29 +457,35 @@ namespace Fsl
 
           rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_VERTEX_DECLARATION_HEADER);
           if (!rStream.good())
+          {
             throw FormatException("Failed to read the expected data");
+          }
 
           const uint16_t elementCount = ByteArrayUtil::ReadUInt16LE(buffer, BUFFER_ENTRY_SIZE, 0);
           for (uint16_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
           {
             rStream.read(reinterpret_cast<char*>(buffer), SIZE_OF_VERTEXELEMENT);
             if (!rStream.good())
+            {
               throw FormatException("Failed to read the expected data");
+            }
 
             const uint8_t format = ByteArrayUtil::ReadUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_Format);
             const uint8_t usage = ByteArrayUtil::ReadUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_Usage);
             const uint8_t usageIndex = ByteArrayUtil::ReadUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_UsageIndex);
 
-            vertexDecl.Elements.push_back(SFVertexElement(ConvertToFormat(format), ConvertToUsage(usage), usageIndex));
+            vertexDecl.Elements.emplace_back(ConvertToFormat(format), ConvertToUsage(usage), usageIndex);
           }
 
-          rUniqueEntries.push_back(vertexDecl);
+          rUniqueEntries.emplace_back(vertexDecl);
         }
 
         const auto endPos = rStream.tellg();
         assert(endPos >= startPos);
         if (static_cast<uint32_t>(endPos - startPos) != header.ByteSize)
+        {
           throw FormatException("VertexDeclarationChunk was of a unexpected size");
+        }
       }
 
 
@@ -468,7 +493,9 @@ namespace Fsl
       void WriteVertexDeclarationsChunk(std::ofstream& rStream, const std::deque<InternalVertexDeclaration>& uniqueEntries)
       {
         if (uniqueEntries.size() > std::numeric_limits<uint32_t>::max())
+        {
           throw NotSupportedException("Too many unique entries");
+        }
 
         const uint32_t cbContent = CalcByteSize(uniqueEntries);
 
@@ -486,7 +513,7 @@ namespace Fsl
         {
           // Write the vertex element count
           assert(itrDecl->Elements.size() <= std::numeric_limits<uint16_t>::max());
-          const uint16_t elementCount = static_cast<uint16_t>(itrDecl->Elements.size());
+          const auto elementCount = static_cast<uint16_t>(itrDecl->Elements.size());
           ByteArrayUtil::WriteUInt16LE(buffer, BUFFER_ENTRY_SIZE, 0, elementCount);
           rStream.write(reinterpret_cast<const char*>(buffer), SIZEOF_VERTEX_DECLARATION_HEADER);
 
@@ -494,10 +521,10 @@ namespace Fsl
           {
             assert(static_cast<uint32_t>(itrDecl->Elements[i].Format) <= 255);
             assert(static_cast<uint32_t>(itrDecl->Elements[i].Usage) <= 255);
-            assert(itrDecl->Elements[i].UsageIndex >= 0 && itrDecl->Elements[i].UsageIndex <= 255);
+            // assert(itrDecl->Elements[i].UsageIndex >= 0 && itrDecl->Elements[i].UsageIndex <= 255);
 
-            const uint8_t format = static_cast<uint8_t>(itrDecl->Elements[i].Format);
-            const uint8_t usage = static_cast<uint8_t>(itrDecl->Elements[i].Usage);
+            const auto format = static_cast<uint8_t>(itrDecl->Elements[i].Format);
+            const auto usage = static_cast<uint8_t>(itrDecl->Elements[i].Usage);
             const uint8_t usageIndex = itrDecl->Elements[i].UsageIndex;
 
             ByteArrayUtil::WriteUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_Format, format);
@@ -529,13 +556,14 @@ namespace Fsl
           cbMeshes += SIZEOF_MESH_HEADER;
           cbMeshes += vertexDeclarations[itr->VertexDeclarationIndex].VertexByteSize * mesh->GetVertexCount();
           cbMeshes += itr->IndexByteSize * mesh->GetIndexCount();
-          cbMeshes += mesh->GetName().GetByteSize() + 1; // +1 because we write the terminating zero as well
+          cbMeshes += mesh->GetName().GetByteSize() + 1;    // +1 because we write the terminating zero as well
         }
         return cbMeshes;
       }
 
 
-      void ConvertFloat1ArrayLE(uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void ConvertFloat1ArrayLE(uint8_t* const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset,
+                                const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4;
         assert(pSrcArray != nullptr);
@@ -543,7 +571,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentSrcIndex = srcInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -559,7 +587,9 @@ namespace Fsl
       }
 
 
-      void WriteFloat1ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride, const std::size_t dstInterleaveOffset, const uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void WriteFloat1ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride,
+                              const std::size_t dstInterleaveOffset, const uint8_t* const pSrcArray, const std::size_t cbSrc,
+                              const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4;
         assert(pDst != nullptr);
@@ -571,7 +601,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         const uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentDstIndex = dstIndex + dstInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -587,7 +617,8 @@ namespace Fsl
       }
 
 
-      void ConvertFloat2ArrayLE(uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void ConvertFloat2ArrayLE(uint8_t* const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset,
+                                const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4 * 2;
         assert(pSrcArray != nullptr);
@@ -595,7 +626,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentSrcIndex = srcInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -612,7 +643,9 @@ namespace Fsl
       }
 
 
-      void WriteFloat2ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride, const std::size_t dstInterleaveOffset, const uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void WriteFloat2ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride,
+                              const std::size_t dstInterleaveOffset, const uint8_t* const pSrcArray, const std::size_t cbSrc,
+                              const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4 * 2;
         assert(pDst != nullptr);
@@ -624,7 +657,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         const uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentDstIndex = dstIndex + dstInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -641,7 +674,8 @@ namespace Fsl
       }
 
 
-      void ConvertFloat3ArrayLE(uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void ConvertFloat3ArrayLE(uint8_t* const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset,
+                                const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4 * 3;
         assert(pSrcArray != nullptr);
@@ -649,7 +683,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentSrcIndex = srcInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -667,7 +701,9 @@ namespace Fsl
       }
 
 
-      void WriteFloat3ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride, const std::size_t dstInterleaveOffset, const uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void WriteFloat3ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride,
+                              const std::size_t dstInterleaveOffset, const uint8_t* const pSrcArray, const std::size_t cbSrc,
+                              const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4 * 3;
         assert(pDst != nullptr);
@@ -679,7 +715,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         const uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentDstIndex = dstIndex + dstInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -688,15 +724,16 @@ namespace Fsl
           // NOTE: this code assumes that a float is stored in the same endian format as a uint32 that is unfortunately not always the case :/
           //       But we do a runtime check earlier to verify that, so it ought to be detected before we get here
           ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex, *reinterpret_cast<const uint32_t*>(pSrc));
-          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex+4, *reinterpret_cast<const uint32_t*>(pSrc + 4));
-          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex+8, *reinterpret_cast<const uint32_t*>(pSrc + 8));
+          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex + 4, *reinterpret_cast<const uint32_t*>(pSrc + 4));
+          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex + 8, *reinterpret_cast<const uint32_t*>(pSrc + 8));
           pSrc += srcStride;
           currentDstIndex += dstStride;
         }
       }
 
 
-      void ConvertFloat4ArrayLE(uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void ConvertFloat4ArrayLE(uint8_t* const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset,
+                                const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4 * 4;
         assert(pSrcArray != nullptr);
@@ -704,7 +741,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentSrcIndex = srcInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -723,7 +760,9 @@ namespace Fsl
       }
 
 
-      void WriteFloat4ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride, const std::size_t dstInterleaveOffset, const uint8_t*const pSrcArray, const std::size_t cbSrc, const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
+      void WriteFloat4ArrayLE(uint8_t* pDst, const std::size_t cbDst, const std::size_t dstIndex, const std::size_t dstStride,
+                              const std::size_t dstInterleaveOffset, const uint8_t* const pSrcArray, const std::size_t cbSrc,
+                              const uint32_t srcStride, const std::size_t srcInterleaveOffset, const std::size_t entries)
       {
         const std::size_t REMOVE_WARNING_VARIABLE_IS_NOT_USED elementSize = 4 * 3;
         assert(pDst != nullptr);
@@ -735,7 +774,7 @@ namespace Fsl
         assert((entries * srcStride) <= cbSrc);
 
         const uint8_t* pSrc = pSrcArray + srcInterleaveOffset;
-        const uint8_t*const pSrcEnd = pSrcArray + cbSrc;
+        const uint8_t* const pSrcEnd = pSrcArray + cbSrc;
 
         std::size_t currentDstIndex = dstIndex + dstInterleaveOffset;
         while (pSrc < pSrcEnd)
@@ -744,13 +783,12 @@ namespace Fsl
           // NOTE: this code assumes that a float is stored in the same endian format as a uint32 that is unfortunately not always the case :/
           //       But we do a runtime check earlier to verify that, so it ought to be detected before we get here
           ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex, *reinterpret_cast<const uint32_t*>(pSrc));
-          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex+4, *reinterpret_cast<const uint32_t*>(pSrc + 4));
-          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex+8, *reinterpret_cast<const uint32_t*>(pSrc + 8));
-          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex+12, *reinterpret_cast<const uint32_t*>(pSrc + 12));
+          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex + 4, *reinterpret_cast<const uint32_t*>(pSrc + 4));
+          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex + 8, *reinterpret_cast<const uint32_t*>(pSrc + 8));
+          ByteArrayUtil::WriteUInt32LE(pDst, cbDst, currentDstIndex + 12, *reinterpret_cast<const uint32_t*>(pSrc + 12));
           pSrc += srcStride;
           currentDstIndex += dstStride;
         }
-
       }
 
 
@@ -760,14 +798,17 @@ namespace Fsl
         {
           const VertexElementEx element = vertexDeclaration.At(i);
           if (Conversion::Convert(element.Usage) == usage && element.UsageIndex == usageIndex)
+          {
             return element.Offset;
+          }
         }
         throw NotFoundException("Could not locate the requested vertex element");
       }
 
 
       //! @brief Convert the vertices in place from little endian format into the host format
-      void ConvertVerticesLE(uint8_t*const pSrc, const std::size_t srcLength, const InternalVertexDeclaration& srcVertexDeclaration, const std::size_t vertexCount)
+      void ConvertVerticesLE(uint8_t* const pSrc, const std::size_t srcLength, const InternalVertexDeclaration& srcVertexDeclaration,
+                             const std::size_t vertexCount)
       {
         assert(pSrc != nullptr);
 
@@ -803,13 +844,14 @@ namespace Fsl
 
       //! @brief Read the vertices in the host format and write them in little endian format
       //!        While at the same time compacting the vertex data to its minimal byte size.
-      std::size_t WriteVerticesLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const InternalMeshRecord& record, const std::deque<InternalVertexDeclaration>& dstVertexDeclarations)
+      std::size_t WriteVerticesLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const InternalMeshRecord& record,
+                                  const std::deque<InternalVertexDeclaration>& dstVertexDeclarations)
       {
         const auto meshVertexDeclaration = record.SourceMesh->GetVertexDeclaration();
         const auto meshContent = record.SourceMesh->GenericDirectAccess();
         const auto srcVertexCount = meshContent.VertexCount;
         const auto srcVertexStride = meshContent.VertexStride;
-        const uint8_t* pVertices = static_cast<const uint8_t*>(meshContent.pVertices);
+        const auto* pVertices = static_cast<const uint8_t*>(meshContent.pVertices);
         const auto cbSrcVertices = srcVertexCount * srcVertexStride;
         const InternalVertexDeclaration& dstVertexDeclaration = dstVertexDeclarations[record.VertexDeclarationIndex];
         const auto dstStride = dstVertexDeclaration.VertexByteSize;
@@ -821,19 +863,23 @@ namespace Fsl
           switch (itr->Format)
           {
           case SceneFormat::VertexElementFormat::Single:
-            WriteFloat1ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride, srcInterleaveOffset, srcVertexCount);
+            WriteFloat1ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride,
+                               srcInterleaveOffset, srcVertexCount);
             dstInterleaveOffset += 4;
             break;
           case SceneFormat::VertexElementFormat::Vector2:
-            WriteFloat2ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride, srcInterleaveOffset, srcVertexCount);
+            WriteFloat2ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride,
+                               srcInterleaveOffset, srcVertexCount);
             dstInterleaveOffset += 4 * 2;
             break;
           case SceneFormat::VertexElementFormat::Vector3:
-            WriteFloat3ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride, srcInterleaveOffset, srcVertexCount);
+            WriteFloat3ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride,
+                               srcInterleaveOffset, srcVertexCount);
             dstInterleaveOffset += 4 * 3;
             break;
           case SceneFormat::VertexElementFormat::Vector4:
-            WriteFloat4ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride, srcInterleaveOffset, srcVertexCount);
+            WriteFloat4ArrayLE(pDst, dstLength, dstIndex, dstStride, dstInterleaveOffset, pVertices, cbSrcVertices, srcVertexStride,
+                               srcInterleaveOffset, srcVertexCount);
             dstInterleaveOffset += 4 * 4;
             break;
           default:
@@ -847,20 +893,26 @@ namespace Fsl
 
 
       //! @brief Read the indices in little endian format writing them in host format
-      void ConvertIndicesLE(uint8_t*const pSrc, const std::size_t srcLength, const std::size_t srcIndexByteSize, const std::size_t indexCount)
+      void ConvertIndicesLE(uint8_t* const pSrc, const std::size_t srcLength, const std::size_t srcIndexByteSize, const std::size_t indexCount)
       {
         assert(pSrc != nullptr);
         const std::size_t indexOffsetEnd = indexCount * srcIndexByteSize;
 
         if (srcIndexByteSize == 1)
+        {
           return;
-        else if (srcIndexByteSize == 2)
+        }
+        if (srcIndexByteSize == 2)
         {
           for (std::size_t indexOffset = 0; indexOffset < indexOffsetEnd; indexOffset += srcIndexByteSize)
+          {
             *reinterpret_cast<uint16_t*>(pSrc + indexOffset) = ByteArrayUtil::ReadUInt16LE(pSrc, srcLength, indexOffset);
+          }
         }
         else
+        {
           throw NotSupportedException("Index byte size not supported");
+        }
       }
 
 
@@ -872,7 +924,7 @@ namespace Fsl
         const auto meshContent = record.SourceMesh->GenericDirectAccess();
         const auto indexCount = meshContent.IndexCount;
         const auto indexStride = meshContent.IndexStride;
-        const uint8_t* pIndices = static_cast<const uint8_t*>(meshContent.pIndices);
+        const auto* pIndices = static_cast<const uint8_t*>(meshContent.pIndices);
 
         const std::size_t indexOffsetEnd = indexCount * indexStride;
 
@@ -880,7 +932,9 @@ namespace Fsl
         if (record.IndexByteSize == 1)
         {
           for (std::size_t indexOffset = 0; indexOffset < indexOffsetEnd; indexOffset += indexStride)
+          {
             currentDstIndex += ByteArrayUtil::WriteUInt8LE(pDst, dstLength, currentDstIndex, *(pIndices + indexOffset));
+          }
         }
         else if (record.IndexByteSize == 2)
         {
@@ -891,7 +945,9 @@ namespace Fsl
           }
         }
         else
+        {
           throw NotSupportedException("Index byte size not supported");
+        }
         return currentDstIndex - dstIndex;
       }
 
@@ -901,12 +957,16 @@ namespace Fsl
       {
         assert(pStr != nullptr);
         if (pStr[expectedLength] != 0)
+        {
           throw FormatException("No zero termination found at the end of the string");
+        }
 
         for (std::size_t i = 0; i < expectedLength; ++i)
         {
           if (pStr[i] == 0)
+          {
             throw FormatException("Encountered zero termination before string end");
+          }
         }
       }
 
@@ -928,14 +988,15 @@ namespace Fsl
       }
 
 
-      void AddMeshToScene(Scene& rScene, const MeshAllocatorFunc& meshAllocator,
-                          const void*const pVertices, const std::size_t vertexCount, const InternalVertexDeclaration& srcInternalVertexDeclaration,
-                          const void*const pIndices, const std::size_t indexCount, const uint8_t indexByteSize,
-                          const SceneFormat::PrimitiveType primitiveType, const uint32_t materialIndex, const char*const pszName,
-                          const void*const pDstDefaultValues, const int32_t cbDstDefaultValues)
+      void AddMeshToScene(Scene& rScene, const MeshAllocatorFunc& meshAllocator, const void* const pVertices, const std::size_t vertexCount,
+                          const InternalVertexDeclaration& srcInternalVertexDeclaration, const void* const pIndices, const std::size_t indexCount,
+                          const uint8_t indexByteSize, const SceneFormat::PrimitiveType primitiveType, const uint32_t materialIndex,
+                          const char* const pszName, const void* const pDstDefaultValues, const int32_t cbDstDefaultValues)
       {
         if (materialIndex >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
+        {
           throw FormatException("Material index is invalid");
+        }
 
         // Create the vertex declaration for the loaded file
         const VertexDeclaration srcVertexDeclaration(Create(srcInternalVertexDeclaration));
@@ -949,27 +1010,37 @@ namespace Fsl
         const auto cbSrcIndices = indexByteSize * indexCount;
 
         RawMeshContentEx rawDst = mesh->GenericDirectAccess();
-        VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, mesh->GetVertexDeclaration(), pVertices, cbSrcVertices, srcVertexDeclaration, vertexCount, pDstDefaultValues, cbDstDefaultValues);
-        IndexConverter::GenericConvert(rawDst.pIndices, rawDst.IndexStride * rawDst.IndexCount, rawDst.IndexStride, pIndices, cbSrcIndices, indexByteSize, indexCount);
+        VertexConverter::GenericConvert(rawDst.pVertices, rawDst.VertexStride * rawDst.VertexCount, mesh->GetVertexDeclaration(), pVertices,
+                                        cbSrcVertices, srcVertexDeclaration, vertexCount, pDstDefaultValues, cbDstDefaultValues);
+        IndexConverter::GenericConvert(rawDst.pIndices, rawDst.IndexStride * rawDst.IndexCount, rawDst.IndexStride, pIndices, cbSrcIndices,
+                                       indexByteSize, indexCount);
 
         rScene.AddMesh(mesh);
       }
 
 
-      std::shared_ptr<Scene> ReadMeshesChunk(std::ifstream& rStream, const std::deque<InternalVertexDeclaration>& vertexDeclarations, const Graphics3D::SceneAllocatorFunc& sceneAllocator, const void*const pDstDefaultValues, const int32_t cbDstDefaultValues, const bool hostIsLittleEndian)
+      std::shared_ptr<Scene> ReadMeshesChunk(std::ifstream& rStream, const std::deque<InternalVertexDeclaration>& vertexDeclarations,
+                                             const Graphics3D::SceneAllocatorFunc& sceneAllocator, const void* const pDstDefaultValues,
+                                             const int32_t cbDstDefaultValues, const bool hostIsLittleEndian)
       {
         const ChunkHeader header = ReadChunkHeader(rStream);
         if (header.Type != ChunkType::Meshes)
+        {
           throw FormatException("Did not find the expected mesh chunk");
+        }
         if (header.Version != CHUNK_VERSION_Meshes)
+        {
           throw FormatException("Unsupported mesh chunk version");
+        }
 
         const auto startPos = rStream.tellg();
 
         uint8_t buffer[MESH_HEADERS];
         rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_MESH_LIST_HEADER);
         if (!rStream.good())
+        {
           throw FormatException("Failed to read the expected data");
+        }
 
         const uint32_t meshCount = ByteArrayUtil::ReadUInt32LE(buffer, SIZEOF_MESH_LIST_HEADER, 0);
 
@@ -981,7 +1052,9 @@ namespace Fsl
         {
           rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_MESH_HEADER);
           if (!rStream.good())
+          {
             throw FormatException("Failed to read the expected data");
+          }
 
           const uint32_t materialIndex = ByteArrayUtil::ReadUInt32LE(buffer, MESH_HEADERS, MESH_OFFSET_MaterialIndex);
           const uint32_t vertexCount = ByteArrayUtil::ReadUInt32LE(buffer, MESH_HEADERS, MESH_OFFSET_VertexCount);
@@ -992,9 +1065,13 @@ namespace Fsl
           const uint8_t indexByteSize = ByteArrayUtil::ReadUInt8LE(buffer, MESH_HEADERS, MESH_OFFSET_IndexByteSize);
 
           if (vertexDeclarationIndex >= vertexDeclarations.size())
+          {
             throw FormatException("Referenced a invalid vertex declaration");
+          }
           if (nameLength == 0)
+          {
             throw FormatException("the name is expected to be zero terminated, so a min length of 1 is expected");
+          }
 
           const uint32_t cbVertex = vertexDeclarations[vertexDeclarationIndex].VertexByteSize;
           const uint32_t cbVertices = cbVertex * vertexCount;
@@ -1006,10 +1083,12 @@ namespace Fsl
           // Read the actual data
           rStream.read(reinterpret_cast<char*>(pContent), content.size());
           if (!rStream.good())
+          {
             throw FormatException("Failed to read the vertices");
+          }
 
-          const uint8_t*const pVertices = pContent;
-          const uint8_t*const pIndices = pContent + cbVertices;
+          const uint8_t* const pVertices = pContent;
+          const uint8_t* const pIndices = pContent + cbVertices;
           if (hostIsLittleEndian)
           {
             ConvertVerticesLE(pContent, cbVertices, vertexDeclarations[vertexDeclarationIndex], vertexCount);
@@ -1020,40 +1099,44 @@ namespace Fsl
             pContent += cbIndices;
           }
           else
+          {
             pContent += cbVertices + cbIndices;
+          }
 
           // Update mesh with the name
           ValidateStringLength(pContent, nameLength - 1);
 
           // Create the mesh and add it to the scene
-          AddMeshToScene(*scene, meshAllocator, pVertices, vertexCount, vertexDeclarations[vertexDeclarationIndex], pIndices, indexCount, indexByteSize, primitiveType, materialIndex, reinterpret_cast<const char*>(pContent), pDstDefaultValues, cbDstDefaultValues);
+          AddMeshToScene(*scene, meshAllocator, pVertices, vertexCount, vertexDeclarations[vertexDeclarationIndex], pIndices, indexCount,
+                         indexByteSize, primitiveType, materialIndex, reinterpret_cast<const char*>(pContent), pDstDefaultValues, cbDstDefaultValues);
         }
 
         const auto endPos = rStream.tellg();
         assert(endPos >= startPos);
         if (static_cast<uint32_t>(endPos - startPos) != header.ByteSize)
+        {
           throw FormatException("MeshesChunk was of a unexpected size");
+        }
         return scene;
       }
 
-/*
-      uint8_t GetIndexType(const uint32_t indexByteSize)
-      {
-        switch (indexByteSize)
-        {
-        case 1:
-          return 0;
-        case 2:
-          return 1;
-        default:
-          throw NotSupportedException("Index type not supported");
-        }
-      }
-*/
+      /*
+            uint8_t GetIndexType(const uint32_t indexByteSize)
+            {
+              switch (indexByteSize)
+              {
+              case 1:
+                return 0;
+              case 2:
+                return 1;
+              default:
+                throw NotSupportedException("Index type not supported");
+              }
+            }
+      */
 
       void WriteMeshesChunk(std::ofstream& rStream, const InternalSceneRecord& scene)
       {
-
         const uint32_t cbMeshes = CalcMeshesSize(scene);
         ChunkHeader header(cbMeshes, ChunkType::Meshes, CHUNK_VERSION_Meshes);
         WriteChunkHeader(rStream, header);
@@ -1065,11 +1148,13 @@ namespace Fsl
         std::vector<uint8_t> content(cbMeshes);
 
         if (meshes.size() > std::numeric_limits<uint32_t>::max())
+        {
           throw NotSupportedException("Only support up to 32bit mesh count");
+        }
 
         std::size_t dstIndex = 0;
         dstIndex += ByteArrayUtil::WriteUInt32LE(content.data(), content.size(), dstIndex, static_cast<uint32_t>(meshes.size()));
-#if ! defined(NDEBUG)
+#if !defined(NDEBUG)
         auto dstStartIndex = dstIndex;
 #endif
         for (auto itr = meshes.begin(); itr != meshes.end(); ++itr)
@@ -1079,15 +1164,17 @@ namespace Fsl
 
           const int32_t vertexCount = mesh->GetVertexCount();
           const int32_t indexCount = mesh->GetIndexCount();
-          const int32_t nameLength = mesh->GetName().GetByteSize() + 1; // +1 to write the terminating zero as well
+          const int32_t nameLength = mesh->GetName().GetByteSize() + 1;    // +1 to write the terminating zero as well
           const int32_t materialIndex = mesh->GetMaterialIndex();
-          const uint32_t primitiveType = static_cast<uint32_t>(Conversion::Convert(mesh->GetPrimitiveType()));
+          const auto primitiveType = static_cast<uint32_t>(Conversion::Convert(mesh->GetPrimitiveType()));
           assert(itr->IndexByteSize <= 255);
-          const uint8_t indexType = static_cast<uint8_t>(itr->IndexByteSize);
+          const auto indexType = static_cast<uint8_t>(itr->IndexByteSize);
           uint8_t vertexDeclarationIndex = itr->VertexDeclarationIndex;
 
           if (vertexCount < 0 || indexCount < 0 || nameLength < 0 || materialIndex < 0 || primitiveType > 255)
+          {
             throw NotSupportedException("Mesh format unsupported");
+          }
 
           // Write the mesh header
           assert((dstIndex - dstStartIndex) == (MESH_OFFSET_MaterialIndex));
@@ -1110,8 +1197,9 @@ namespace Fsl
           // write index data
           dstIndex += WriteIndicesLE(content.data(), content.size(), dstIndex, *itr);
           // write name
-          dstIndex += ByteArrayUtil::WriteBytes(content.data(), content.size(), dstIndex, reinterpret_cast<const uint8_t*>(mesh->GetName().ToUTF8String().c_str()), nameLength);
-#if ! defined(NDEBUG)
+          dstIndex += ByteArrayUtil::WriteBytes(content.data(), content.size(), dstIndex,
+                                                reinterpret_cast<const uint8_t*>(mesh->GetName().ToUTF8String().c_str()), nameLength);
+#if !defined(NDEBUG)
           dstStartIndex = dstIndex;
 #endif
         }
@@ -1143,14 +1231,18 @@ namespace Fsl
         {
         }
 
-        inline bool operator()(const NodeInfo& entry) const { return entry.Node == Node; }
+        inline bool operator()(const NodeInfo& entry) const
+        {
+          return entry.Node == Node;
+        }
       };
 
 
-      std::size_t ReadNode(std::ifstream& rStream, std::deque<std::shared_ptr<SceneNode> >& rNodes, const std::vector<uint8_t>& srcBuffer, const std::size_t srcOffset, const uint32_t sceneMeshCount, const bool hostIsLittleEndian)
+      std::size_t ReadNode(std::ifstream& rStream, std::deque<std::shared_ptr<SceneNode>>& rNodes, const std::vector<uint8_t>& srcBuffer,
+                           const std::size_t srcOffset, const uint32_t sceneMeshCount, const bool hostIsLittleEndian)
       {
         Matrix transform;
-        uint32_t* pTransform = reinterpret_cast<uint32_t*>(transform.DirectAccess());
+        auto* pTransform = reinterpret_cast<uint32_t*>(transform.DirectAccess());
 
         std::size_t srcIndex = srcOffset;
         assert((srcIndex - srcOffset) == NODE_OFFSET_Transformation);
@@ -1184,7 +1276,9 @@ namespace Fsl
         assert((srcIndex - srcOffset) == SIZEOF_NODE_HEADER);
 
         if (nameLength == 0)
+        {
           throw FormatException("the name is expected to be zero terminated, so a min length of 1 is expected");
+        }
 
         auto node = std::make_shared<SceneNode>(nodeMeshCount);
 
@@ -1194,7 +1288,9 @@ namespace Fsl
           const uint32_t index = ByteArrayUtil::ReadUInt32LE(srcBuffer.data(), srcBuffer.size(), srcIndex);
           srcIndex += sizeof(uint32_t);
           if (index >= sceneMeshCount)
+          {
             throw FormatException("Invalid mesh index encountered");
+          }
           node->AddMesh(index);
         }
 
@@ -1203,8 +1299,10 @@ namespace Fsl
         {
           const uint32_t index = ByteArrayUtil::ReadUInt32LE(srcBuffer.data(), srcBuffer.size(), srcIndex);
           srcIndex += sizeof(uint32_t);
-          if (index >= rNodes.size() )
+          if (index >= rNodes.size())
+          {
             throw FormatException("Invalid child node index encountered");
+          }
 
           node->AddChild(rNodes[index]);
         }
@@ -1225,17 +1323,23 @@ namespace Fsl
 
         const auto nodeChildCount = info.Node->GetChildCount();
         const auto nodeMeshCount = info.Node->GetMeshCount();
-        const std::size_t nameLength = (info.Node->GetName().GetByteSize() + 1); // +1 to write the terminating zero as well
+        const std::size_t nameLength = (info.Node->GetName().GetByteSize() + 1);    // +1 to write the terminating zero as well
 
         if (nameLength >= std::numeric_limits<uint16_t>::max())
+        {
           throw FormatException("Name size not supported");
+        }
         if (nodeMeshCount < 0 || nodeMeshCount >= std::numeric_limits<uint8_t>::max())
+        {
           throw FormatException("Mesh count not supported");
+        }
         if (nodeChildCount < 0 || nodeChildCount >= std::numeric_limits<uint8_t>::max())
+        {
           throw FormatException("Child count not supported");
+        }
 
         Matrix transform = info.Node->GetTransformation();
-        const uint32_t* pTransform = reinterpret_cast<const uint32_t*>(transform.DirectAccess());
+        const auto* pTransform = reinterpret_cast<const uint32_t*>(transform.DirectAccess());
 
         std::size_t dstIndex = 0;
         assert(dstIndex == NODE_OFFSET_Transformation);
@@ -1268,7 +1372,9 @@ namespace Fsl
         {
           const int32_t meshIndex = info.Node->GetMeshAt(i);
           if (meshIndex < 0)
+          {
             throw FormatException("Negative mesh indices not supported");
+          }
           dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, static_cast<uint32_t>(meshIndex));
         }
 
@@ -1280,12 +1386,15 @@ namespace Fsl
           auto child = info.Node->GetChildAt(i);
           const auto itr = std::find_if(allNodes.begin(), allNodes.end(), NodeComp(child));
           if (itr == allNodes.end())
+          {
             throw FormatException("Node not found");
+          }
           dstIndex += ByteArrayUtil::WriteUInt32LE(rContent.data(), rContent.size(), dstIndex, itr->Index);
         }
 
         // write name
-        dstIndex += ByteArrayUtil::WriteBytes(rContent.data(), rContent.size(), dstIndex, reinterpret_cast<const uint8_t*>(info.Node->GetName().ToUTF8String().c_str()), nameLength);
+        dstIndex += ByteArrayUtil::WriteBytes(rContent.data(), rContent.size(), dstIndex,
+                                              reinterpret_cast<const uint8_t*>(info.Node->GetName().ToUTF8String().c_str()), nameLength);
 
         rStream.write(reinterpret_cast<const char*>(rContent.data()), dstIndex);
       }
@@ -1295,32 +1404,44 @@ namespace Fsl
       {
         const ChunkHeader header = ReadChunkHeader(rStream);
         if (header.Type != ChunkType::Nodes)
+        {
           throw FormatException("Did not find the expected nodes chunk");
-        if (header.Version != CHUNK_VERSION_Nodes )
+        }
+        if (header.Version != CHUNK_VERSION_Nodes)
+        {
           throw FormatException("Unsupported node chunk version");
+        }
 
         const auto startPos = rStream.tellg();
 
         std::vector<uint8_t> buffer(header.ByteSize);
         rStream.read(reinterpret_cast<char*>(buffer.data()), header.ByteSize);
         if (!rStream.good())
+        {
           throw FormatException("Failed to read the expected data");
+        }
 
         const uint32_t nodeCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), SIZEOF_NODELIST_HEADER, 0);
 
-        const uint32_t sceneMeshCount = static_cast<uint32_t>(rScene.GetMeshCount());
-        std::deque<std::shared_ptr<SceneNode> > nodes;
+        const auto sceneMeshCount = static_cast<uint32_t>(rScene.GetMeshCount());
+        std::deque<std::shared_ptr<SceneNode>> nodes;
         std::size_t srcOffset = SIZEOF_NODELIST_HEADER;
         for (uint32_t childIndex = 0; childIndex < nodeCount; ++childIndex)
+        {
           srcOffset += ReadNode(rStream, nodes, buffer, srcOffset, sceneMeshCount, hostIsLittleEndian);
+        }
 
         const auto endPos = rStream.tellg();
         assert(endPos >= startPos);
         if (static_cast<uint32_t>(endPos - startPos) != header.ByteSize)
+        {
           throw FormatException("NodeChunk was of a unexpected size");
+        }
 
-        if (nodes.size() > 0)
+        if (!nodes.empty())
+        {
           rScene.SetRootNode(nodes.back());
+        }
       }
 
 
@@ -1340,19 +1461,23 @@ namespace Fsl
       NodesInfo ExamineNodes(std::deque<NodeInfo>& rAllNodes, const std::shared_ptr<SceneNode>& node)
       {
         if (!node)
+        {
           return NodesInfo(0, 0);
+        }
 
 
         const auto nodeMeshCount = node->GetMeshCount();
         const auto nodeChildCount = node->GetChildCount();
         if (nodeMeshCount < 0 || nodeChildCount < 0)
+        {
           throw FormatException("Unsupported mesh or child count");
+        }
 
 
         std::size_t nodeByteSize = SIZEOF_NODE_HEADER;
         nodeByteSize += nodeMeshCount * sizeof(uint32_t);
         nodeByteSize += nodeChildCount * sizeof(uint32_t);
-        nodeByteSize += node->GetName().GetByteSize() + 1; // +1 to write the terminating zero as well
+        nodeByteSize += node->GetName().GetByteSize() + 1;    // +1 to write the terminating zero as well
 
         NodesInfo totalInfo(nodeByteSize, nodeByteSize);
         for (int32_t childIndex = 0; childIndex < nodeChildCount; ++childIndex)
@@ -1364,7 +1489,7 @@ namespace Fsl
 
         // depth first storage
         assert(rAllNodes.size() <= std::numeric_limits<uint32_t>::max());
-        rAllNodes.push_back(NodeInfo(node, static_cast<uint32_t>(rAllNodes.size())));
+        rAllNodes.emplace_back(node, static_cast<uint32_t>(rAllNodes.size()));
         return totalInfo;
       }
 
@@ -1385,7 +1510,9 @@ namespace Fsl
         rStream.write(reinterpret_cast<const char*>(content.data()), SIZEOF_NODELIST_HEADER);
 
         for (auto itr = allNodes.begin(); itr != allNodes.end(); ++itr)
+        {
           WriteNode(rStream, content, *itr, allNodes);
+        }
       }
 
 
@@ -1394,32 +1521,38 @@ namespace Fsl
       bool CheckEndianAssumptions()
       {
         if (sizeof(float) != 4)
+        {
           throw NotSupportedException("We expect a float to be four bytes");
+        }
 
         // Runtime verification of endian assumptions
         uint32_t tmp;
-        uint32_t* pUInt32 = reinterpret_cast<uint32_t*>(&tmp);
-        float* pFloat = reinterpret_cast<float*>(&tmp);
-        uint8_t* pTmp = reinterpret_cast<uint8_t*>(&tmp);
+        auto* pUInt32 = reinterpret_cast<uint32_t*>(&tmp);
+        auto* pFloat = reinterpret_cast<float*>(&tmp);
+        auto* pTmp = reinterpret_cast<uint8_t*>(&tmp);
         *pUInt32 = 0x01020304;
         if (pTmp[0] == 0x04 && pTmp[1] == 0x03 && pTmp[2] == 0x02 && pTmp[3] == 0x01)
         {
           // little endian
           *pFloat = 0x01020304;
           if (pTmp[0] != 0x82 || pTmp[1] != 0x01 || pTmp[2] != 0x81 || pTmp[3] != 0x4B)
+          {
             throw NotSupportedException("The float is either not of the expected encoding or not stored in the same endian as a uint32_t");
+          }
           return true;
         }
-        else if (pTmp[0] == 0x01 && pTmp[1] == 0x02 && pTmp[2] == 0x03 && pTmp[3] == 0x04)
+        if (pTmp[0] == 0x01 && pTmp[1] == 0x02 && pTmp[2] == 0x03 && pTmp[3] == 0x04)
         {
           // big endian
           *pFloat = 0x01020304;
           if (pTmp[0] != 0x4B || pTmp[1] != 0x81 || pTmp[2] != 0x01 || pTmp[3] != 0x82)
+          {
             throw NotSupportedException("The float is either not of the expected encoding or not stored in the same endian as a uint32_t");
+          }
           return false;
         }
-        else
-          throw NotSupportedException("Unsupported endian format");
+
+        throw NotSupportedException("Unsupported endian format");
       }
     }
 
@@ -1431,19 +1564,19 @@ namespace Fsl
     }
 
 
-    BasicSceneFormat::~BasicSceneFormat()
-    {
-    }
+    BasicSceneFormat::~BasicSceneFormat() = default;
 
 
-    std::shared_ptr<Graphics3D::Scene> BasicSceneFormat::GenericLoad(const IO::Path& filename, const Graphics3D::SceneAllocatorFunc& sceneAllocator, const void*const pDstDefaultValues, const int32_t cbDstDefaultValues)
+    std::shared_ptr<Graphics3D::Scene> BasicSceneFormat::GenericLoad(const IO::Path& filename, const Graphics3D::SceneAllocatorFunc& sceneAllocator,
+                                                                     const void* const pDstDefaultValues, const int32_t cbDstDefaultValues)
     {
       std::ifstream fileStream(PATH_GET_NAME(filename), std::ios::in | std::ios::binary);
       return GenericLoad(fileStream, sceneAllocator, pDstDefaultValues, cbDstDefaultValues);
     }
 
 
-    std::shared_ptr<Graphics3D::Scene> BasicSceneFormat::GenericLoad(std::ifstream& rStream, const Graphics3D::SceneAllocatorFunc& sceneAllocator, const void*const pDstDefaultValues, const int32_t cbDstDefaultValues)
+    std::shared_ptr<Graphics3D::Scene> BasicSceneFormat::GenericLoad(std::ifstream& rStream, const Graphics3D::SceneAllocatorFunc& sceneAllocator,
+                                                                     const void* const pDstDefaultValues, const int32_t cbDstDefaultValues)
     {
       try
       {
@@ -1452,7 +1585,8 @@ namespace Fsl
         m_sceneScratchpad->Clear();
         ReadVertexDeclarationsChunk(rStream, m_sceneScratchpad->VertexDeclarations);
 
-        std::shared_ptr<Scene> scene = ReadMeshesChunk(rStream, m_sceneScratchpad->VertexDeclarations, sceneAllocator, pDstDefaultValues, cbDstDefaultValues, m_hostIsLittleEndian);
+        std::shared_ptr<Scene> scene = ReadMeshesChunk(rStream, m_sceneScratchpad->VertexDeclarations, sceneAllocator, pDstDefaultValues,
+                                                       cbDstDefaultValues, m_hostIsLittleEndian);
 
         ReadNodesChunk(rStream, *scene, m_hostIsLittleEndian);
 

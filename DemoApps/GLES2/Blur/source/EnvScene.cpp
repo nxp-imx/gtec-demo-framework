@@ -1,14 +1,14 @@
 /*
-* This code was created by Jeff Molofee '99
-* (ported to Linux by Ti Leggett '01)
-* (ported to i.mx51, i.mx31 and x11 by Freescale '10)
-* (ported to the Freescale demo framework by Freescale '14)
-* (improved port to the Freescale demo framework by Freescale '15)
-* If you've found this code useful, please let him know.
-*
-* Visit Jeff at http://nehe.gamedev.net/
-*
-*/
+ * This code was created by Jeff Molofee '99
+ * (ported to Linux by Ti Leggett '01)
+ * (ported to i.mx51, i.mx31 and x11 by Freescale '10)
+ * (ported to the Freescale demo framework by Freescale '14)
+ * (improved port to the Freescale demo framework by Freescale '15)
+ * If you've found this code useful, please let him know.
+ *
+ * Visit Jeff at http://nehe.gamedev.net/
+ *
+ */
 
 #include "EnvScene.hpp"
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
@@ -26,9 +26,9 @@ namespace Fsl
 
   namespace
   {
-    void CreateCubemapTexture(GLTexture& rTexture, const std::shared_ptr<IContentManager>& contentManager, const std::string cubeDirName)
+    void CreateCubemapTexture(GLTexture& rTexture, const std::shared_ptr<IContentManager>& contentManager, const std::string& cubeDirName)
     {
-      std::vector<uint8_t>rawData;
+      std::vector<uint8_t> rawData;
 
       Bitmap posX, negX, posY, negY, posZ, negZ;
 
@@ -58,23 +58,17 @@ namespace Fsl
 
   EnvScene::EnvScene(const DemoAppConfig& config)
     : m_renderState(config.ScreenResolution)
-    , m_programGlass()
-    , m_programBgrnd()
-    , m_cubeTexture()
-    , m_vertexBuffer()
-    , m_indexBuffer()
-    , m_transformMatrix()
   {
     const std::shared_ptr<IContentManager> content = config.DemoServiceProvider.Get<IContentManager>();
 
     std::string strPath;
 
-    //strPath = "Brudslojan"; // Nice
-    //strPath = "LarnacaCastle"; // Nice
-    //strPath = "SanFrancisco3"; // nice
-   strPath = "Stairs";
-    //strPath = "SaintLazarusChurch2"; // Nice
-    //strPath = "SaintLazarusChurch3"; // Nice
+    // strPath = "Brudslojan"; // Nice
+    // strPath = "LarnacaCastle"; // Nice
+    // strPath = "SanFrancisco3"; // nice
+    strPath = "Stairs";
+    // strPath = "SaintLazarusChurch2"; // Nice
+    // strPath = "SaintLazarusChurch3"; // Nice
 
     CreateCubemapTexture(m_cubeTexture, content, strPath);
 
@@ -83,7 +77,7 @@ namespace Fsl
     m_programGlass.Reset(vertexShader, content->ReadAllText("ShaderGlass.frag"));
     m_programBgrnd.Reset(vertexShader, content->ReadAllText("ShaderBgrnd.frag"));
 
-    { // Create the sphere vertex & index buffer
+    {    // Create the sphere vertex & index buffer
       std::vector<uint16_t> m_indices;
       std::vector<VertexPosition> sphereVertices;
       SphereMeshCreator::Create(sphereVertices, m_indices, 40, 60);
@@ -114,7 +108,7 @@ namespace Fsl
   {
     m_renderState.Update(demoTime.DeltaTime);
 
-    //m_renderState.ProjMatrix *= Matrix::CreateTranslation(Vector3(1, 0, 0));
+    // m_renderState.ProjMatrix *= Matrix::CreateTranslation(Vector3(1, 0, 0));
     m_renderState.ExtractTransform(m_transformMatrix);
   }
 
@@ -141,7 +135,7 @@ namespace Fsl
       glUniform1f(m_glass.LocRadius, 1.0f);
       glUniform3fv(m_glass.LocEyePos, 1, m_renderState.EyeVector.DirectAccess());
       glUniformMatrix4fv(m_glass.LocTransformMat, 1, GL_FALSE, m_transformMatrix.DirectAccess());
-      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), 0);
+      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), nullptr);
     }
 
     // Render background sphere.
@@ -152,9 +146,8 @@ namespace Fsl
       glUniform1f(m_background.LocRadius, 10.0f);
       // glUniform3fv(m_background.LocEyePos, 1, m_renderState.EyeVector.DirectAccess());
       glUniformMatrix4fv(m_background.LocTransformMat, 1, GL_FALSE, m_transformMatrix.DirectAccess());
-      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), 0);
+      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), nullptr);
     }
     m_vertexBuffer.DisableAttribArrays();
   }
-
 }

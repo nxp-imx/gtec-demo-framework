@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/EGL/EGLConfigUtil.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -46,11 +46,10 @@ namespace Fsl
       struct RatedConfigRecord
       {
         EGLConfig Config;
-        uint64_t  Rating;
+        uint64_t Rating{0};
 
         RatedConfigRecord()
           : Config{}
-          , Rating(0)
         {
         }
 
@@ -67,24 +66,34 @@ namespace Fsl
         switch (key)
         {
         case EGL_CONFIG_ID:
-          return 0;  // We dont support config id
+          return 0;    // We dont support config id
         case EGL_COLOR_BUFFER_TYPE:
           return desiredValue == actualValue ? 1 : 0;
         case EGL_BLUE_SIZE:
         case EGL_GREEN_SIZE:
         case EGL_RED_SIZE:
           if (desiredValue < 0 || actualValue > maxColorBits)
+          {
             return 0;
+          }
           else if (desiredValue > 0)
+          {
             return (actualValue >= desiredValue ? 1 : 0);
+          }
           return 1;
         case EGL_DEPTH_SIZE:
           if (desiredValue < 0)
+          {
             return 0;
+          }
           else if (desiredValue == 0)
+          {
             return actualValue == 0 ? 10 : 1;
+          }
           else if (actualValue >= 128)
+          {
             return 1;
+          }
           return 128 - actualValue;
         case EGL_LEVEL:
           return desiredValue == actualValue ? 1 : 0;
@@ -105,12 +114,16 @@ namespace Fsl
 
         EGLint actualValue;
 
-        if (eglGetConfigAttrib(hDisplay, config, EGL_CONFIG_CAVEAT, &actualValue))
+        if (eglGetConfigAttrib(hDisplay, config, EGL_CONFIG_CAVEAT, &actualValue) != 0u)
         {
           if (actualValue != EGL_NONE)
+          {
             adjustedScore += 10;
+          }
           else
+          {
             adjustedScore -= 10;
+          }
         }
         return adjustedScore;
       }
@@ -131,7 +144,7 @@ namespace Fsl
           ++itr;
 
           EGLint configValue;
-          if (!eglGetConfigAttrib(hDisplay, config, key, &configValue))
+          if (eglGetConfigAttrib(hDisplay, config, key, &configValue) == 0u)
           {
             FSLLOG_DEBUG_WARNING("Failed to retrieve attribute value for key: " << key);
             return 0;
@@ -139,7 +152,9 @@ namespace Fsl
 
           const uint64_t keyScore = RateKeyValue(key, desiredValue, configValue, maxColorBits);
           if (keyScore <= 0)
+          {
             return 0;
+          }
 
           score += keyScore;
         }
@@ -152,7 +167,9 @@ namespace Fsl
       {
         auto itrFind = std::find(rConfigAttribs.begin(), rConfigAttribs.end(), key);
         if (itrFind != rConfigAttribs.end())
+        {
           return;
+        }
 
         rConfigAttribs.push_back(key);
         rConfigAttribs.push_back(defaultValue);
@@ -165,7 +182,9 @@ namespace Fsl
         if ((result.size() % 2) == 1)
         {
           if (result.back() != EGL_NONE)
+          {
             throw UsageErrorException("The configAttribs format was not valid");
+          }
           result.pop_back();
         }
 
@@ -176,7 +195,7 @@ namespace Fsl
         AddIfMissing(result, EGL_BLUE_SIZE, 0);
         AddIfMissing(result, EGL_GREEN_SIZE, 0);
 
-        //AddIfMissing(result, EGL_CONFIG_CAVEAT, EGL_DONT_CARE);
+        // AddIfMissing(result, EGL_CONFIG_CAVEAT, EGL_DONT_CARE);
         return result;
       }
     }

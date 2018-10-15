@@ -27,7 +27,7 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector4.cs.
 
-#include <FslBase/OptimizationFlag.hpp>
+//#include <FslBase/OptimizationFlag.hpp>
 
 namespace Fsl
 {
@@ -38,50 +38,71 @@ namespace Fsl
   struct Vector4
   {
   public:
-    float X;
-    float Y;
-    float Z;
-    float W;
+    float X{0};
+    float Y{0};
+    float Z{0};
+    float W{0};
 
-    Vector4()
-      : X(0), Y(0), Z(0), W(0)
-    {
-    }
+    Vector4() = default;
 
     explicit Vector4(const Vector2& v, const float z, const float w);
     explicit Vector4(const Vector3& v, const float w);
 
     Vector4(const float x, const float y, const float z, const float w)
-      : X(x), Y(y), Z(z), W(w)
+      : X(x)
+      , Y(y)
+      , Z(z)
+      , W(w)
     {
     }
 
     //! @brief A optimization constructor that doesn't initialize the Vector4 so when this is called the content of the Vector4 in undefined!!!
     // coverity[uninit_member]
-    Vector4(const OptimizationFlag flag) {};
+    // Vector4(const OptimizationFlag flag)
+    //{
+    //}
 
     //! @brief Get direct access to the elements
     const float* DirectAccess() const;
 
     // @brief Returns the vector with all components being zero (1, 1, 1, 1)
-    static Vector4 One() { return Vector4(1.0f, 1.0f, 1.0f, 1.0f); }
+    static Vector4 One()
+    {
+      return Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    }
 
     // @brief Returns the x unit vector (1, 0, 0, 0)
-    static Vector4 UnitX() { return Vector4(1.0f, 0.0f, 0.0f, 0.0f); }
+    static Vector4 UnitX()
+    {
+      return Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+    }
 
     // @brief Returns the y unit vector (0, 1, 0, 0)
-    static Vector4 UnitY() { return Vector4(0.0f, 1.0f, 0.0f, 0.0f); }
+    static Vector4 UnitY()
+    {
+      return Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+    }
 
     // @brief Returns the z unit vector (0, 0, 1, 0)
-    static Vector4 UnitZ() { return Vector4(0.0f, 0.0f, 1.0f, 0.0f); }
+    static Vector4 UnitZ()
+    {
+      return Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+    }
 
     // @brief Returns the w unit vector (0, 0, 0, 1)
-    static Vector4 UnitW() { return Vector4(0.0f, 0.0f, 0.0f, 1.0f); }
+    static Vector4 UnitW()
+    {
+      return Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+    }
 
     // @brief Returns the vector with all components being zero (0, 0, 0, 0)
-    static Vector4 Zero() { return Vector4(); }
+    static Vector4 Zero()
+    {
+      return {};
+    }
 
-    //! @brief Creates a new Vector4 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to 4d-triangle.
+    //! @brief Creates a new Vector4 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to
+    //! 4d-triangle.
     //! @param value1 The first vector of 4d-triangle.
     //! @param value2 The second vector of 4d-triangle.
     //! @param value3 The third vector of 4d-triangle.
@@ -90,14 +111,16 @@ namespace Fsl
     //! @return The Cartesian translation of barycentric coordinates.
     static Vector4 Barycentric(const Vector4& value1, const Vector4& value2, const Vector4& value3, const float amount1, const float amount2);
 
-    //! @brief Creates a new Vector4 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to 4d-triangle.
+    //! @brief Creates a new Vector4 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to
+    //! 4d-triangle.
     //! @param value1 The first vector of 4d-triangle.
     //! @param value2 The second vector of 4d-triangle.
     //! @param value3 The third vector of 4d-triangle.
     //! @param amount1 Barycentric scalar <c>b2</c> which represents a weighting factor towards second vector of 4d-triangle.
     //! @param amount2 Barycentric scalar <c>b3</c> which represents a weighting factor towards third vector of 4d-triangle.
     //! @param result The Cartesian translation of barycentric coordinates as an output parameter.
-    static void Barycentric(const Vector4& value1, const Vector4& value2, const Vector4& value3, const float amount1, const float amount2, Vector4& rResult);
+    static void Barycentric(const Vector4& value1, const Vector4& value2, const Vector4& value3, const float amount1, const float amount2,
+                            Vector4& rResult);
 
     //! @brief Creates a new Vector4 that contains CatmullRom interpolation of the specified vectors.
     //! @param value1 The first vector in interpolation.
@@ -115,7 +138,8 @@ namespace Fsl
     //! @param value4 The fourth vector in interpolation.
     //! @param amount Weighting factor.
     //! @param result The result of CatmullRom interpolation as an output parameter.
-    static void CatmullRom(const Vector4& value1, const Vector4& value2, const Vector4& value3, const Vector4& value4, const float amount, Vector4& rResult);
+    static void CatmullRom(const Vector4& value1, const Vector4& value2, const Vector4& value3, const Vector4& value4, const float amount,
+                           Vector4& rResult);
 
     //! @brief Restricts a value to be within a specified range.
     static Vector4 Clamp(const Vector4& value, const Vector4& min, const Vector4& max);
@@ -129,10 +153,8 @@ namespace Fsl
     //! @brief Calculates the distance between two vectors squared.
     static float DistanceSquared(const Vector4& vector1, const Vector4& vector2)
     {
-      return (vector1.X - vector2.X) * (vector1.X - vector2.X) +
-        (vector1.Y - vector2.Y) * (vector1.Y - vector2.Y) +
-        (vector1.Z - vector2.Z) * (vector1.Z - vector2.Z) +
-        (vector1.W - vector2.W) * (vector1.W - vector2.W);
+      return (vector1.X - vector2.X) * (vector1.X - vector2.X) + (vector1.Y - vector2.Y) * (vector1.Y - vector2.Y) +
+             (vector1.Z - vector2.Z) * (vector1.Z - vector2.Z) + (vector1.W - vector2.W) * (vector1.W - vector2.W);
     }
 
     //! @brief Divides the components of a Vector4 by the components of another Vector4.
@@ -179,7 +201,8 @@ namespace Fsl
     //! @param tangent2 The second tangent vector.
     //! @param amount Weighting factor.
     //! @param result The hermite spline interpolation vector as an output parameter.
-    static void Hermite(const Vector4& value1, const Vector4& tangent1, const Vector4& value2, const Vector4& tangent2, const float amount, Vector4& rResult);
+    static void Hermite(const Vector4& value1, const Vector4& tangent1, const Vector4& value2, const Vector4& tangent2, const float amount,
+                        Vector4& rResult);
 
     //! @brief Calculates the length of the vector.
     float Length() const;
@@ -187,7 +210,7 @@ namespace Fsl
     //! @brief Calculates the length of the vector squared.
     float LengthSquared() const
     {
-      return (X*X) + (Y*Y) + (Z*Z) + (W*W);
+      return (X * X) + (Y * Y) + (Z * Z) + (W * W);
     }
 
     //! @brief Performs a linear interpolation between two vectors.
@@ -341,17 +364,16 @@ namespace Fsl
     }
 
     //! @brief Tests for equality.
-    bool operator==(const Vector4 &rhs) const
+    bool operator==(const Vector4& rhs) const
     {
       return X == rhs.X && Y == rhs.Y && Z == rhs.Z && W == rhs.W;
     }
 
     //! @brief Tests for inequality.
-    bool operator!=(const Vector4 &rhs) const
+    bool operator!=(const Vector4& rhs) const
     {
       return X != rhs.X || Y != rhs.Y || Z != rhs.Z || W != rhs.W;
     }
-
   };
 }
 
@@ -376,13 +398,13 @@ inline Fsl::Vector4 operator*(const Fsl::Vector4& lhs, const Fsl::Vector4& rhs)
 //! @brief multiply a vector with a scalar
 inline Fsl::Vector4 operator*(const Fsl::Vector4& lhs, const int rhs)
 {
-  return Fsl::Vector4(lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs);
+  return {lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs};
 }
 
 //! @brief multiply a vector with a scalar
 inline Fsl::Vector4 operator*(const Fsl::Vector4& lhs, const float rhs)
 {
-  return Fsl::Vector4(lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs);
+  return {lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs};
 }
 
 //! @brief multiply a scalar with a vector

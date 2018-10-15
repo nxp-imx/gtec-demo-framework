@@ -1,14 +1,14 @@
 #ifndef SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_SWAPCHAINBUFFERS_HPP
 #define SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_SWAPCHAINBUFFERS_HPP
 /*
-* Class wrapping access to the swap chain
-*
-* A swap chain is a collection of framebuffers used for rendering and presentation to the windowing system
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Class wrapping access to the swap chain
+ *
+ * A swap chain is a collection of framebuffers used for rendering and presentation to the windowing system
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -37,11 +37,11 @@ namespace Fsl
       SwapchainBuffers& operator=(const SwapchainBuffers&) = delete;
 
       //! @brief Move assignment operator
-      SwapchainBuffers& operator=(SwapchainBuffers&& other);
+      SwapchainBuffers& operator=(SwapchainBuffers&& other) noexcept;
 
       //! @brief Move constructor
       //! Transfer ownership from other to this
-      SwapchainBuffers(SwapchainBuffers&& other);
+      SwapchainBuffers(SwapchainBuffers&& other) noexcept;
 
       //! @brief Create a 'invalid' swapchain buffers
       SwapchainBuffers();

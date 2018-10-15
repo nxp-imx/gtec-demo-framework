@@ -9,4 +9,4 @@ source $WORKSPACE/.Config/Jenkins/yocto/PrepareJenkinsEnvironment.sh
 # all
 #FslBuild.py -t sdk -vv --BuildTime --UseFeatures [EGL,EarlyAccess,G2D,OpenCL1.1,OpenCV,OpenCV3,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1,Vulkan] --Variants [WindowSystem=X11] -- install
 # No OpenCV, Vulkan
-FslBuild.py --debug -t sdk -vv --BuildTime --UseFeatures [EGL,EarlyAccess,G2D,OpenCL1.1,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1] --Variants [WindowSystem=X11] -- install
+FslBuild.py --debug -t sdk -vv --BuildTime --UseFeatures [EGL,EarlyAccess,G2D,OpenCL1.1,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1,HW_CAMERA_MIPI8X] --Variants [WindowSystem=X11] -- install

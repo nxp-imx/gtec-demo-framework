@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
@@ -78,64 +78,40 @@ namespace Fsl
 
     struct BMPFileHeader
     {
-      uint16_t FileType;
+      uint16_t FileType{0};
       // This field only stores a useful value when the bitmap data is compressed, and this value is usually zero in uncompressed BMP files.
-      uint32_t FileSize;
-      uint16_t Reserved1;
-      uint16_t Reserved2;
+      uint32_t FileSize{0};
+      uint16_t Reserved1{0};
+      uint16_t Reserved2{0};
       // BitmapOffset is the starting offset of the bitmap data from the beginning of the file in bytes.
-      uint32_t BitmapOffset;
+      uint32_t BitmapOffset{0};
 
-      BMPFileHeader()
-        : FileType(0)
-        , FileSize(0)
-        , Reserved1(0)
-        , Reserved2(0)
-        , BitmapOffset(0)
-      {
-      }
+      BMPFileHeader() = default;
     };
 
 
     struct BMPBitmapV3InfoHeader
     {
-      uint32_t      DIBHeaderSize;
-      int32_t       ImageWidth;
-      int32_t       ImageHeight;
-      uint16_t      Planes;
-      uint16_t      BitsPerPixel;
-      uint32_t      Compression;
-      uint32_t      ImageSize;
-      int32_t       XPixelsPerMeter;
-      int32_t       YPixelsPerMeter;
-      uint32_t      ColorsInColorTable;
-      uint32_t      ImportantColorCount;
-      uint32_t      RedMask;
-      uint32_t      GreenMask;
-      uint32_t      BlueMask;
-      uint32_t      AlphaMask;
+      uint32_t DIBHeaderSize{0};
+      int32_t ImageWidth{0};
+      int32_t ImageHeight{0};
+      uint16_t Planes{0};
+      uint16_t BitsPerPixel{0};
+      uint32_t Compression{0};
+      uint32_t ImageSize{0};
+      int32_t XPixelsPerMeter{0};
+      int32_t YPixelsPerMeter{0};
+      uint32_t ColorsInColorTable{0};
+      uint32_t ImportantColorCount{0};
+      uint32_t RedMask{0};
+      uint32_t GreenMask{0};
+      uint32_t BlueMask{0};
+      uint32_t AlphaMask{0};
 
-      BMPBitmapV3InfoHeader()
-        : DIBHeaderSize(0)
-        , ImageWidth(0)
-        , ImageHeight(0)
-        , Planes(0)
-        , BitsPerPixel(0)
-        , Compression(0)
-        , ImageSize(0)
-        , XPixelsPerMeter(0)
-        , YPixelsPerMeter(0)
-        , ColorsInColorTable(0)
-        , ImportantColorCount(0)
-        , RedMask(0)
-        , GreenMask(0)
-        , BlueMask(0)
-        , AlphaMask(0)
-      {
-      }
+      BMPBitmapV3InfoHeader() = default;
     };
 
-    const int32_t PIXELS_PER_METER_DEFAULT = 100; // ? magic number
+    const int32_t PIXELS_PER_METER_DEFAULT = 100;    // ? magic number
 
     // The max bitmap size if 512MB
     const uint64_t MAX_BITMAP_SIZE = 1024 * 1024 * 512;
@@ -233,18 +209,18 @@ namespace Fsl
         , ActivePixelFormat(PixelFormat::Undefined)
       {
         if (header.ImageWidth < 0)
+        {
           throw FormatException("Negative width bitmaps not supported");
+        }
 
         if (header.Planes != 1)
+        {
           throw FormatException("Bitmap did not contain the expected amount of planes");
+        }
 
         // Check for mask overlaps
-        if ((header.RedMask & header.GreenMask) != 0 ||
-            (header.RedMask & header.BlueMask) != 0 ||
-            (header.RedMask & header.AlphaMask) != 0 ||
-            (header.GreenMask & header.BlueMask) != 0 ||
-            (header.GreenMask & header.AlphaMask) != 0 ||
-            (header.BlueMask & header.AlphaMask) != 0 )
+        if ((header.RedMask & header.GreenMask) != 0 || (header.RedMask & header.BlueMask) != 0 || (header.RedMask & header.AlphaMask) != 0 ||
+            (header.GreenMask & header.BlueMask) != 0 || (header.GreenMask & header.AlphaMask) != 0 || (header.BlueMask & header.AlphaMask) != 0)
         {
           throw FormatException("The bitmap uses a unsupported mask");
         }
@@ -253,20 +229,26 @@ namespace Fsl
 
         const bool isB8G8R8 = header.RedMask == 0x00FF0000 && header.GreenMask == 0x0000FF00 && header.BlueMask == 0x000000FF;
         const bool isR8G8B8 = header.RedMask == 0x000000FF && header.GreenMask == 0x0000FF00 && header.BlueMask == 0x00FF0000;
-        if (! isR8G8B8 && ! isB8G8R8)
+        if (!isR8G8B8 && !isB8G8R8)
         {
           const int shiftR = BitsUtil::IndexOf(header.RedMask);
           const int shiftG = BitsUtil::IndexOf(header.GreenMask);
           const int shiftB = BitsUtil::IndexOf(header.BlueMask);
           if (shiftR < 0 || shiftG < 0 || shiftB < 0)
+          {
             throw FormatException("The bitmap uses a unsupported mask");
+          }
 
           if ((header.RedMask >> shiftR) != 0xFF || (header.GreenMask >> shiftG) != 0xFF || (header.BlueMask >> shiftB) != 0xFF)
+          {
             throw FormatException("The bitmap uses a unsupported mask");
+          }
 
           // We only support masks that are shifts of 0, 8, 16, 24
-          if ((shiftR & 7) != 0 || (shiftG & 7) != 0 || (shiftB & 7) != 0 )
+          if ((shiftR & 7) != 0 || (shiftG & 7) != 0 || (shiftB & 7) != 0)
+          {
             throw FormatException("The bitmap uses a unsupported mask");
+          }
 
           Swizzle = true;
           SwizzleR = shiftR / 8;
@@ -277,12 +259,16 @@ namespace Fsl
         if (header.AlphaMask != 0xFF000000 && header.AlphaMask != 0x00000000)
         {
           const int shiftA = BitsUtil::IndexOf(header.AlphaMask);
-          if (header.AlphaMask != 0 && (header.AlphaMask >> shiftA) != 0xFF)
+          if (shiftA < 0 || (header.AlphaMask != 0 && (header.AlphaMask >> shiftA) != 0xFF))
+          {
             throw FormatException("The bitmap uses a unsupported alpha mask");
+          }
 
           // We only support masks that are shifts of 0, 8, 16, 24
           if ((shiftA & 7) != 0)
+          {
             throw FormatException("The bitmap uses a unsupported alpha mask");
+          }
 
           assert(Swizzle);
           SwizzleA = shiftA / 8;
@@ -290,21 +276,33 @@ namespace Fsl
 
         if (header.AlphaMask == 0xFF000000)
         {
-          if( isR8G8B8 )
+          if (isR8G8B8)
+          {
             ActivePixelFormat = PixelFormat::R8G8B8A8_UINT;
-          else if( isB8G8R8 )
+          }
+          else if (isB8G8R8)
+          {
             ActivePixelFormat = PixelFormat::B8G8R8A8_UINT;
+          }
           else
+          {
             ActivePixelFormat = PixelFormat::R8G8B8A8_UINT;
+          }
         }
         else
         {
           if (isR8G8B8)
+          {
             ActivePixelFormat = PixelFormat::R8G8B8_UINT;
+          }
           else if (isB8G8R8)
+          {
             ActivePixelFormat = PixelFormat::B8G8R8_UINT;
+          }
           else
+          {
             ActivePixelFormat = PixelFormat::R8G8B8_UINT;
+          }
         }
       }
     };
@@ -340,11 +338,13 @@ namespace Fsl
     }
 
 
-    void StreamRead(std::ifstream& rStream, void*const pDst, const std::size_t cbRead)
+    void StreamRead(std::ifstream& rStream, void* const pDst, const std::size_t cbRead)
     {
       rStream.read(reinterpret_cast<char*>(pDst), cbRead);
-      if (! rStream.good())
+      if (!rStream.good())
+      {
         throw FormatException("Failed to read the expected amount of bytes");
+      }
     }
 
 
@@ -362,7 +362,9 @@ namespace Fsl
       header.BitmapOffset = ByteArrayUtil::ReadUInt16LE(fileheader, SIZE_FILEHEADER, FILEHEADER_OFFSET_BitmapOffset);
 
       if (header.FileType != 0x4D42)
+      {
         throw FormatException("Unsupported BMP file format");
+      }
       return header;
     }
 
@@ -380,7 +382,7 @@ namespace Fsl
       // Check if its one of the common header sizes
       if (header.DIBHeaderSize != SIZE_BITMAPINFOHEADER && header.DIBHeaderSize != SIZE_BITMAPV2INFOHEADER &&
           header.DIBHeaderSize != SIZE_BITMAPV3INFOHEADER && header.DIBHeaderSize != SIZE_BITMAPV4HEADER &&
-          header.DIBHeaderSize != SIZE_BITMAPV5HEADER )
+          header.DIBHeaderSize != SIZE_BITMAPV5HEADER)
       {
         throw FormatException("bitmap header not of the supported size");
       }
@@ -391,7 +393,7 @@ namespace Fsl
       StreamRead(rStream, bitmapHeader + CB_BITMAPHEADER_SIZE_FIELD, header.DIBHeaderSize - CB_BITMAPHEADER_SIZE_FIELD);
 
       // Decode the standard BITMAPINFOHEADER
-      header.ImageWidth  = ByteArrayUtil::ReadInt32LE(bitmapHeader, header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ImageWidth);
+      header.ImageWidth = ByteArrayUtil::ReadInt32LE(bitmapHeader, header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ImageWidth);
       header.ImageHeight = ByteArrayUtil::ReadInt32LE(bitmapHeader, header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_ImageHeight);
       header.Planes = ByteArrayUtil::ReadUInt16LE(bitmapHeader, header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_Planes);
       header.BitsPerPixel = ByteArrayUtil::ReadUInt16LE(bitmapHeader, header.DIBHeaderSize, BITMAPINFOHEADER_OFFSET_BitsPerPixel);
@@ -429,7 +431,6 @@ namespace Fsl
       }
 
       return BitmapHeader(header, compression);
-
     }
 
 
@@ -437,19 +438,24 @@ namespace Fsl
     {
       const uint64_t calculatedSize = uint64_t(minimumStride) * uint64_t(bitmapHeader.ImageHeight);
       if (calculatedSize > MAX_BITMAP_SIZE)
+      {
         throw FormatException("The bitmap size was exceeded");
+      }
 
       const auto expectedBitmapSize = static_cast<uint32_t>(calculatedSize);
       if (bitmapHeader.Compression != BmpCompression::RGB)
       {
         if (bitmapHeader.ImageSize != expectedBitmapSize && !(allowZero && bitmapHeader.ImageSize == 0u))
+        {
           throw FormatException("The bitmap size is incorrect");
+        }
       }
       return expectedBitmapSize;
     }
 
 
-    void ReadBitmapContent(std::ifstream& rStream, Bitmap& rBitmap, const uint32_t cbBitmap, const uint32_t minStride, const BitmapHeader& bitmapHeader, const BitmapOrigin originHint)
+    void ReadBitmapContent(std::ifstream& rStream, Bitmap& rBitmap, const uint32_t cbBitmap, const uint32_t minStride,
+                           const BitmapHeader& bitmapHeader, const BitmapOrigin originHint)
     {
       RawBitmapEx rawBitmap;
       Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
@@ -458,22 +464,30 @@ namespace Fsl
 
       assert(rawBitmap.Stride() == minStride);
       if (cbBitmap > rawBitmap.GetBufferLength())
+      {
         throw FormatException("Decode BMP failed due to unexpected buffer size");
+      }
 
       // Since the raw bitmap is in the exact same format we can just read directly into it.
       StreamRead(rStream, rawBitmap.Content(), cbBitmap);
 
-      if (rawBitmap.GetOrigin() != originHint )
+      if (rawBitmap.GetOrigin() != originHint)
+      {
         RawBitmapUtil::FlipHorizontal(rawBitmap);
+      }
       if (bitmapHeader.Swizzle)
+      {
         RawBitmapUtil::Swizzle(rawBitmap, bitmapHeader.SwizzleR, bitmapHeader.SwizzleG, bitmapHeader.SwizzleB, bitmapHeader.SwizzleA);
+      }
     }
 
 
     void DecodeBitmap24BPP(Bitmap& rBitmap, std::ifstream& rStream, const BitmapHeader& bitmapHeader, const BitmapOrigin originHint)
     {
       if (bitmapHeader.BitsPerPixel == 24 && bitmapHeader.Compression != BmpCompression::RGB)
+      {
         throw FormatException("Bitmap 24bpp not using uncompressed compression");
+      }
 
       // Uncompressed data is a series of values representing either color palette indices or actual RGB color values.
       // Pixels are packed into bytes and arranged as scan lines.Each scan line must end on a 4 - byte boundary,
@@ -484,7 +498,8 @@ namespace Fsl
 
       // Ensure that the bitmap can hold the image (dont modify because we fill eventual padding with content from the bmp)
       const PixelFormat pf = bitmapHeader.ActivePixelFormat;
-      rBitmap.Reset(Extent2D(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minimumBmpStride, rBitmap.GetOrigin(), BitmapClearMethod::DontModify);
+      rBitmap.Reset(Extent2D(bitmapHeader.ImageWidth, bitmapHeader.ImageHeight), pf, minimumBmpStride, rBitmap.GetOrigin(),
+                    BitmapClearMethod::DontModify);
 
       ReadBitmapContent(rStream, rBitmap, cbBitmap, minimumBmpStride, bitmapHeader, originHint);
     }
@@ -493,7 +508,9 @@ namespace Fsl
     void DecodeBitmap32BPP(Bitmap& rBitmap, std::ifstream& rStream, const BitmapHeader& bitmapHeader, const BitmapOrigin originHint)
     {
       if (bitmapHeader.BitsPerPixel == 32 && bitmapHeader.Compression != BmpCompression::BITFIELDS && bitmapHeader.Compression != BmpCompression::RGB)
+      {
         throw FormatException("Bitmap 32bpp not using bit-fields compression");
+      }
 
       const uint32_t bytesPerPixel = 4;
       const auto minStride = PixelFormatUtil::CalcMinimumStride(bitmapHeader.ImageWidth, bytesPerPixel);
@@ -534,7 +551,8 @@ namespace Fsl
       ByteArrayUtil::WriteInt32LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_ImageHeight, -height);
       ByteArrayUtil::WriteUInt16LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_Planes, 1);
       ByteArrayUtil::WriteUInt16LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_BitsPerPixel, 32);
-      ByteArrayUtil::WriteUInt32LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_Compression, static_cast<uint32_t>(BmpCompression::RGB));
+      ByteArrayUtil::WriteUInt32LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_Compression,
+                                   static_cast<uint32_t>(BmpCompression::RGB));
       ByteArrayUtil::WriteUInt32LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_ImageSize, cbBitmap);
       ByteArrayUtil::WriteInt32LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_XPixelsPerMeter, PIXELS_PER_METER_DEFAULT);
       ByteArrayUtil::WriteInt32LE(bitmapHeader, SIZE_BITMAPV2INFOHEADER, BITMAPINFOHEADER_OFFSET_YPixelsPerMeter, PIXELS_PER_METER_DEFAULT);
@@ -560,7 +578,9 @@ namespace Fsl
   {
     std::ifstream file(PATH_GET_NAME(strFilename), std::ios::in | std::ios::binary);
     if (file.good())
+    {
       Load(rBitmap, file, originHint);
+    }
     else
     {
       std::stringstream strStream;
@@ -584,7 +604,9 @@ namespace Fsl
     // Seek to the bitmap data area
     rStream.seekg(fileHeader.BitmapOffset, std::ios_base::beg);
     if (!rStream.good())
+    {
       throw FormatException("Failed to seek to the bitmap data area");
+    }
 
     // At his point we know we have a 24bit bgr or 32bit bgra bitmap
     DecodeBitmap(rBitmap, rStream, bitmapHeader, originHint);
@@ -599,7 +621,7 @@ namespace Fsl
       Load(rBitmap, strFilename, originHint);
       return true;
     }
-    catch (const std::exception)
+    catch (const std::exception&)
     {
       return false;
     }
@@ -632,7 +654,9 @@ namespace Fsl
   void BMPUtil::Save(std::ofstream& stream, const RawBitmap& bitmap)
   {
     if (bitmap.GetPixelFormatLayout() != PixelFormatLayout::B8G8R8A8)
+    {
       throw UnsupportedPixelFormatException(bitmap.GetPixelFormat());
+    }
 
     const auto minimumStride = PixelFormatUtil::CalcMinimumStride(bitmap.Width(), bitmap.GetPixelFormat(), StrideRequirement::MinimumAlign32Bit);
 
@@ -652,7 +676,9 @@ namespace Fsl
     if (minimumStride == bitmap.Stride() && bitmap.GetOrigin() == BitmapOrigin::UpperLeft)
     {
       // Since its the minimum stride we can just write the entire image with one call
-      stream.write(reinterpret_cast<const char*>(bitmap.Content()), bitmap.Height() * bitmap.Stride());
+      const std::streamsize bitmapStride = bitmap.Stride();
+      const auto cbBitmap = bitmap.Height() * bitmapStride;
+      stream.write(reinterpret_cast<const char*>(bitmap.Content()), cbBitmap);
     }
     else
     {
@@ -660,8 +686,8 @@ namespace Fsl
       {
         // We have to write the image data one scan line at a time to 'compress' the stride to the minimum
         const auto srcStride = bitmap.Stride();
-        const uint8_t* pSrc = static_cast<const uint8_t*>(bitmap.Content());
-        const uint8_t*const pSrcEnd = pSrc + (srcStride * bitmap.Height());
+        const auto* pSrc = static_cast<const uint8_t*>(bitmap.Content());
+        const uint8_t* const pSrcEnd = pSrc + (srcStride * bitmap.Height());
         while (pSrc < pSrcEnd)
         {
           stream.write(reinterpret_cast<const char*>(pSrc), minimumStride);
@@ -672,7 +698,7 @@ namespace Fsl
       {
         // We have to write the image data one scan line at a time to 'compress' the stride to the minimum or to flip it
         const auto srcStride = bitmap.Stride();
-        const uint8_t*const pSrcStart = static_cast<const uint8_t*>(bitmap.Content());
+        const auto* const pSrcStart = static_cast<const uint8_t*>(bitmap.Content());
         const uint8_t* pSrc = pSrcStart + (srcStride * (bitmap.Height() - 1));
         while (pSrc >= pSrcStart)
         {

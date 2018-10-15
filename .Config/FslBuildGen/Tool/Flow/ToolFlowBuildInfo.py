@@ -41,6 +41,7 @@ from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
+from FslBuildGen.BuildExternal.RecipeInfo import RecipeInfo
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
@@ -69,6 +70,7 @@ class DefaultValue(object):
     ListBuildVariants = False
     ListExtensions = False
     ListFeatures = False
+    ListRecipes = False
     ListRequirements = False
     ListVariants = False
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
@@ -87,6 +89,7 @@ class LocalToolConfig(ToolAppConfig):
         self.ListBuildVariants = DefaultValue.ListBuildVariants
         self.ListExtensions = DefaultValue.ListExtensions
         self.ListFeatures = DefaultValue.ListFeatures
+        self.ListRecipes = DefaultValue.ListRecipes
         self.ListRequirements = DefaultValue.ListRequirements
         self.ListVariants = DefaultValue.ListVariants
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
@@ -119,6 +122,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
         localToolConfig.ListBuildVariants = args.ListBuildVariants
         localToolConfig.ListExtensions = args.ListExtensions
         localToolConfig.ListFeatures = args.ListFeatures
+        localToolConfig.ListRecipes = args.ListRecipes
         localToolConfig.ListRequirements = args.ListRequirements
         localToolConfig.ListVariants = args.ListVariants
         localToolConfig.PackageConfigurationType = args.type
@@ -176,6 +180,8 @@ class ToolFlowBuildInfo(AToolAppFlow):
             Builder.ShowExtensionList(self.Log, topLevelPackage, requestedFiles)
         if localToolConfig.ListRequirements:
             Builder.ShowRequirementList(self.Log, config, topLevelPackage, requestedFiles)
+        if localToolConfig.ListRecipes:
+            RecipeInfo.ShowRecipeList(self.Log, topLevelPackage, requestedFiles)
 
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
@@ -210,6 +216,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--ListExtensions', action='store_true', help='List all extensions')
         parser.add_argument('--ListFeatures', action='store_true', help='List all features supported by build')
         parser.add_argument('--ListVariants', action='store_true', help='List all used variants')
+        parser.add_argument('--ListRecipes', action='store_true', help='List all known recipes')
         parser.add_argument('--ListRequirements', action='store_true', help='List all requirements')
 
         parser.add_argument('-t', '--type', default=DefaultValue.PackageConfigurationType, choices=[PluginSharedValues.TYPE_DEFAULT, 'sdk'], help='Select generator type')

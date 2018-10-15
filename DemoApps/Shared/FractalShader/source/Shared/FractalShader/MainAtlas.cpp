@@ -36,8 +36,7 @@ namespace Fsl
 {
   namespace
   {
-    NamedAtlasTexture g_entries[] =
-    {
+    NamedAtlasTexture g_entries[] = {
       NamedAtlasTexture("Banner_Julia", AtlasTextureInfo(Rectangle(-14, -7, 1920, 1080), Rectangle(2, 2, 556, 180))),
       NamedAtlasTexture("Banner_Mandelbrot", AtlasTextureInfo(Rectangle(-16, 171, 1920, 1080), Rectangle(2, 184, 585, 46))),
     };

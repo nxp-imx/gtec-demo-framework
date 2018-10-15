@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/Bloom/GaussianShaderBuilder.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -54,22 +54,16 @@ namespace Fsl
   // To determine the weights of an n x n kernel, select the row that has n numbers in it, then convolve it.
   // This basically means do a vector multiply with its own transpose.
 
-#define CALC_LINEAR_KERNEL_LENGTH(X) ((((X) - 1) / 2) + 1)
+#define CALC_LINEAR_KERNEL_LENGTH(X) ((((X)-1) / 2) + 1)
 
   namespace
   {
-
-
     struct LinearData
     {
-      float Weight;
-      float Offset;
+      float Weight{0};
+      float Offset{0};
 
-      LinearData()
-        : Weight(0)
-        , Offset(0)
-      {
-      }
+      LinearData() = default;
 
       LinearData(const float weight, const float offset)
         : Weight(weight)
@@ -78,7 +72,8 @@ namespace Fsl
       }
     };
 
-    void BuildLinearKernel(LinearData* pLinearKernel, const std::size_t linearKernelLength, const float*const pActualKernel, const std::size_t actualKernelLength)
+    void BuildLinearKernel(LinearData* pLinearKernel, const std::size_t linearKernelLength, const float* const pActualKernel,
+                           const std::size_t actualKernelLength)
     {
       assert(pLinearKernel != nullptr);
       assert(pActualKernel != nullptr);
@@ -104,8 +99,8 @@ namespace Fsl
         pLinearKernel[i].Weight = value;
         pLinearKernel[i].Offset = offset;
         assert((int32_t(dstMiddleIndex) - int32_t(i - dstMiddleIndex)) >= 0);
-        pLinearKernel[(dstMiddleIndex)-(i - dstMiddleIndex)].Weight = value;
-        pLinearKernel[(dstMiddleIndex)-(i - dstMiddleIndex)].Offset = offset;
+        pLinearKernel[(dstMiddleIndex) - (i - dstMiddleIndex)].Weight = value;
+        pLinearKernel[(dstMiddleIndex) - (i - dstMiddleIndex)].Offset = offset;
         srcIndex += 2;
       }
       pLinearKernel[dstMiddleIndex].Weight = pActualKernel[srcMiddleIndex];
@@ -118,16 +113,22 @@ namespace Fsl
 
       float sum = 0;
       for (std::size_t i = 0; i < kernelLength; ++i)
+      {
         sum += pKernel[i].Weight;
+      }
 
-      if ( weight != 1.0f )
+      if (weight != 1.0f)
+      {
         sum *= weight;
+      }
 
       for (std::size_t i = 0; i < kernelLength; ++i)
+      {
         pKernel[i].Weight /= sum;
+      }
     }
 
-    void StringReplaceWithValue(std::string& rStr, const char*const oldText, const float value)
+    void StringReplaceWithValue(std::string& rStr, const char* const oldText, const float value)
     {
       std::stringstream str;
       str << std::setprecision(13) << std::fixed;
@@ -138,7 +139,7 @@ namespace Fsl
 
   std::string GaussianShaderBuilder::Build5x5(const std::string& strTemplate, const float kernelWeightMod)
   {
-    const float actualKernel[] = { 1, 4, 6, 4, 1 };
+    const float actualKernel[] = {1, 4, 6, 4, 1};
     const std::size_t actualKernelLength = sizeof(actualKernel) / sizeof(float);
 
     LinearData linearKernel[CALC_LINEAR_KERNEL_LENGTH(actualKernelLength)];
@@ -155,7 +156,7 @@ namespace Fsl
     StringReplaceWithValue(res, "##REPLACE0_OFFSET##", linearKernel[0].Offset);
     StringReplaceWithValue(res, "##REPLACE1_WEIGHT##", linearKernel[1].Weight);
 
-    //FSLLOG(res);
+    // FSLLOG(res);
     return res;
   }
 
@@ -164,10 +165,10 @@ namespace Fsl
   {
     // yes we could take advantage of the fact that the kernel is mirrored around the middle but for now its not important and
     // the code is more 'clear' when we just ignore it
-    const float actualKernel[] = { 1, 8, 28, 56, 70, 56, 28, 8, 1 };
-    //const float actualKernel[] = { 0, 5, 0, 5, 5, 5, 0, 5, 0 };
-    //const float actualKernel[] = { 5, 0, 5, 0, 5, 0, 5, 0, 5 };
-    //const float actualKernel[] = { 5, 5, 5, 5, 5, 5, 5, 5, 5 };
+    const float actualKernel[] = {1, 8, 28, 56, 70, 56, 28, 8, 1};
+    // const float actualKernel[] = { 0, 5, 0, 5, 5, 5, 0, 5, 0 };
+    // const float actualKernel[] = { 5, 0, 5, 0, 5, 0, 5, 0, 5 };
+    // const float actualKernel[] = { 5, 5, 5, 5, 5, 5, 5, 5, 5 };
     const std::size_t actualKernelLength = sizeof(actualKernel) / sizeof(float);
 
     LinearData linearKernel[CALC_LINEAR_KERNEL_LENGTH(actualKernelLength)];
@@ -187,5 +188,4 @@ namespace Fsl
     StringReplaceWithValue(res, "##REPLACE2_WEIGHT##", linearKernel[2].Weight);
     return res;
   }
-
 }

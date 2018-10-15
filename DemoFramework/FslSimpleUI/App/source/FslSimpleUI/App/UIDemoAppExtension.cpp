@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslBase/IO/Path.hpp>
@@ -35,8 +35,6 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-
-
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
@@ -52,10 +50,12 @@ namespace Fsl
 
   namespace
   {
-    std::shared_ptr<AtlasFont> PrepareDefaultFont(const std::shared_ptr<IContentManager>& contentManager, const std::shared_ptr<INativeGraphics> nativeGraphics, const UTF8String& fontName, BasicTextureAtlas& rFontAtlas)
+    std::shared_ptr<AtlasFont> PrepareDefaultFont(const std::shared_ptr<IContentManager>& contentManager,
+                                                  const std::shared_ptr<INativeGraphics>& nativeGraphics, const UTF8String& fontName,
+                                                  BasicTextureAtlas& rFontAtlas)
     {
       const auto defaultPath = "UI";
-      const auto strFontname = fontName.ToUTF8String();
+      const auto& strFontname = fontName.ToUTF8String();
       IO::Path pathFontnameAtlas(strFontname + ".bta");
       IO::Path pathFontnameKerning(strFontname + ".fbk");
       IO::Path pathFontnameTexture(strFontname + ".png");
@@ -86,12 +86,9 @@ namespace Fsl
   }
 
 
-  UIDemoAppExtension::UIDemoAppExtension(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener, const UTF8String& fontName)
+  UIDemoAppExtension::UIDemoAppExtension(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener,
+                                         const UTF8String& fontName)
     : m_uiManager(demoAppConfig.ScreenResolution)
-    , m_defaultTextureAtlas()
-    , m_defaultFont()
-    , m_textureAtlasMap()
-    , m_context()
     , m_transitionCache(std::make_shared<TransitionCache>())
   {
     m_uiManager.RegisterEventListener(eventListener);
@@ -106,13 +103,11 @@ namespace Fsl
     m_textureAtlasMap = TextureAtlasMap(m_defaultTextureAtlas);
 
     // Prepare the window context
-    m_context = std::make_shared<WindowContext>(m_uiManager.GetWindowManager(), m_uiManager.GetEventSender(), graphicsService->GetNativeBatch2D(), m_defaultFont);
+    m_context = std::make_shared<WindowContext>(m_uiManager.GetUIContext(), graphicsService->GetNativeBatch2D(), m_defaultFont);
   }
 
 
-  UIDemoAppExtension::~UIDemoAppExtension()
-  {
-  }
+  UIDemoAppExtension::~UIDemoAppExtension() = default;
 
   void UIDemoAppExtension::RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener)
   {
@@ -134,6 +129,16 @@ namespace Fsl
   void UIDemoAppExtension::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
     m_uiManager.SendMouseMoveEvent(event);
+  }
+
+  void UIDemoAppExtension::PreUpdate(const DemoTime& demoTime)
+  {
+    m_uiManager.ProcessEvents();
+  }
+
+  void UIDemoAppExtension::Update(const DemoTime& demoTime)
+  {
+    m_uiManager.ProcessEvents();
   }
 
 
@@ -172,5 +177,4 @@ namespace Fsl
   {
     return m_transitionCache;
   }
-
 }

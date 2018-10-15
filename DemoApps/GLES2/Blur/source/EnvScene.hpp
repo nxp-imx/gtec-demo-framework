@@ -25,7 +25,6 @@
 
 namespace Fsl
 {
-
   class EnvScene : public AScene
   {
     EnvState m_renderState;
@@ -39,12 +38,13 @@ namespace Fsl
     EnvShaderInfo m_background;
 
     Matrix m_transformMatrix;
+
   public:
     EnvScene(const DemoAppConfig& config);
-    ~EnvScene();
+    ~EnvScene() override;
 
-    virtual void Update(const DemoTime& demoTime);
-    virtual void Draw();
+    void Update(const DemoTime& demoTime) override;
+    void Draw() override;
   };
 }
 

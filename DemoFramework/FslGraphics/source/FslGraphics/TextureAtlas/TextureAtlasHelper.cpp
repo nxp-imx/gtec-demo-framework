@@ -41,7 +41,9 @@ namespace Fsl
     {
       NamedAtlasTexture entry = textureAtlas.GetEntry(i);
       if (entry.Name == name)
+      {
         return entry.TextureInfo;
+      }
     }
     throw std::runtime_error(std::string("Unknown texture: ") + name.ToUTF8String());
   }

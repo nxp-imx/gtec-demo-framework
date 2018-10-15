@@ -41,13 +41,16 @@ SOFTWARE.
 
 namespace Fsl
 {
-
   BoundingSphere BoundingSphere::Transform(const Matrix& matrix)
   {
     const float* mat = matrix.DirectAccess();
     BoundingSphere sphere;
     sphere.Center = Vector3::Transform(Center, matrix);
-    sphere.Radius = Radius * ((float)std::sqrt((double)std::max(((mat[_M11] * mat[_M11]) + (mat[_M12] * mat[_M12])) + (mat[_M13] * mat[_M13]), std::max(((mat[_M21] * mat[_M21]) + (mat[_M22] * mat[_M22])) + (mat[_M23] * mat[_M23]), ((mat[_M31] * mat[_M31]) + (mat[_M32] * mat[_M32])) + (mat[_M33] * mat[_M33])))));
+    sphere.Radius =
+      Radius * (static_cast<float>(
+                 std::sqrt(static_cast<double>(std::max(((mat[_M11] * mat[_M11]) + (mat[_M12] * mat[_M12])) + (mat[_M13] * mat[_M13]),
+                                                        std::max(((mat[_M21] * mat[_M21]) + (mat[_M22] * mat[_M22])) + (mat[_M23] * mat[_M23]),
+                                                                 ((mat[_M31] * mat[_M31]) + (mat[_M32] * mat[_M32])) + (mat[_M33] * mat[_M33])))))));
     return sphere;
   }
 
@@ -56,18 +59,22 @@ namespace Fsl
   {
     const float* mat = matrix.DirectAccess();
     rResult.Center = Vector3::Transform(Center, matrix);
-    rResult.Radius = Radius * ((float)std::sqrt((double)std::max(((mat[_M11] * mat[_M11]) + (mat[_M12] * mat[_M12])) + (mat[_M13] * mat[_M13]), std::max(((mat[_M21] * mat[_M21]) + (mat[_M22] * mat[_M22])) + (mat[_M23] * mat[_M23]), ((mat[_M31] * mat[_M31]) + (mat[_M32] * mat[_M32])) + (mat[_M33] * mat[_M33])))));
+    rResult.Radius =
+      Radius * (static_cast<float>(
+                 std::sqrt(static_cast<double>(std::max(((mat[_M11] * mat[_M11]) + (mat[_M12] * mat[_M12])) + (mat[_M13] * mat[_M13]),
+                                                        std::max(((mat[_M21] * mat[_M21]) + (mat[_M22] * mat[_M22])) + (mat[_M23] * mat[_M23]),
+                                                                 ((mat[_M31] * mat[_M31]) + (mat[_M32] * mat[_M32])) + (mat[_M33] * mat[_M33])))))));
   }
 
   ContainmentType BoundingSphere::Contains(const BoundingBox& box) const
   {
-    //check if all corner is in sphere
+    // check if all corner is in sphere
     bool inside = true;
     // FIX: Update this code so it doens't utilize dynamic memory
     const auto corners = box.GetCorners();
-    for (uint32_t i = 0; i < corners.size(); ++i)
+    for (auto corner : corners)
     {
-      if (Contains(corners[i]) == ContainmentType::Disjoint)
+      if (Contains(corner) == ContainmentType::Disjoint)
       {
         inside = false;
         break;
@@ -75,30 +82,46 @@ namespace Fsl
     }
 
     if (inside)
+    {
       return ContainmentType::Contains;
+    }
 
-    //check if the distance from sphere center to cube face < radius
+    // check if the distance from sphere center to cube face < radius
     double dmin = 0;
 
     if (Center.X < box.Min.X)
+    {
       dmin += (Center.X - box.Min.X) * (Center.X - box.Min.X);
+    }
     else if (Center.X > box.Max.X)
+    {
       dmin += (Center.X - box.Max.X) * (Center.X - box.Max.X);
+    }
 
     if (Center.Y < box.Min.Y)
+    {
       dmin += (Center.Y - box.Min.Y) * (Center.Y - box.Min.Y);
+    }
     else if (Center.Y > box.Max.Y)
+    {
       dmin += (Center.Y - box.Max.Y) * (Center.Y - box.Max.Y);
+    }
 
     if (Center.Z < box.Min.Z)
+    {
       dmin += (Center.Z - box.Min.Z) * (Center.Z - box.Min.Z);
+    }
     else if (Center.Z > box.Max.Z)
+    {
       dmin += (Center.Z - box.Max.Z) * (Center.Z - box.Max.Z);
+    }
 
     if (dmin <= Radius * Radius)
+    {
       return ContainmentType::Intersects;
+    }
 
-    //else disjoint
+    // else disjoint
     return ContainmentType::Disjoint;
   }
 
@@ -109,30 +132,34 @@ namespace Fsl
 
   ContainmentType BoundingSphere::Contains(const BoundingFrustum& frustum) const
   {
-    //check if all corner is in sphere
+    // check if all corner is in sphere
     bool inside = true;
 
     // FIX: Update this code so it doens't utilize dynamic memory
     const auto corners = frustum.GetCorners();
-    for (uint32_t i = 0; i < corners.size(); ++i)
+    for (auto corner : corners)
     {
-      if (Contains(corners[i]) == ContainmentType::Disjoint)
+      if (Contains(corner) == ContainmentType::Disjoint)
       {
         inside = false;
         break;
       }
     }
     if (inside)
+    {
       return ContainmentType::Contains;
+    }
 
-    //check if the distance from sphere center to frustum face < radius
+    // check if the distance from sphere center to frustum face < radius
     double dmin = 0;
-    //TODO : calcul dmin
+    // TODO: calcul dmin
 
     if (dmin <= Radius * Radius)
+    {
       return ContainmentType::Intersects;
+    }
 
-    //else disjoint
+    // else disjoint
     return ContainmentType::Disjoint;
   }
 
@@ -149,11 +176,17 @@ namespace Fsl
   {
     const float sqDistance = Vector3::DistanceSquared(sphere.Center, Center);
     if (sqDistance > (sphere.Radius + Radius) * (sphere.Radius + Radius))
+    {
       rResult = ContainmentType::Disjoint;
+    }
     else if (sqDistance <= (Radius - sphere.Radius) * (Radius - sphere.Radius))
+    {
       rResult = ContainmentType::Contains;
+    }
     else
+    {
       rResult = ContainmentType::Intersects;
+    }
   }
 
 
@@ -170,11 +203,17 @@ namespace Fsl
     const float sqRadius = Radius * Radius;
     const float sqDistance = Vector3::DistanceSquared(point, Center);
     if (sqDistance > sqRadius)
+    {
       rResult = ContainmentType::Disjoint;
+    }
     else if (sqDistance < sqRadius)
+    {
       rResult = ContainmentType::Contains;
+    }
     else
+    {
       rResult = ContainmentType::Intersects;
+    }
   }
 
 
@@ -189,9 +228,7 @@ namespace Fsl
   void BoundingSphere::CreateFromBoundingBox(const BoundingBox& box, BoundingSphere& rResult)
   {
     // Find the center of the box.
-    const Vector3 center((box.Min.X + box.Max.X) / 2.0f,
-      (box.Min.Y + box.Max.Y) / 2.0f,
-      (box.Min.Z + box.Max.Z) / 2.0f);
+    const Vector3 center((box.Min.X + box.Max.X) / 2.0f, (box.Min.Y + box.Max.Y) / 2.0f, (box.Min.Z + box.Max.Z) / 2.0f);
 
     // Find the distance between the center and one of the corners of the box.
     const float radius = Vector3::Distance(center, box.Max);
@@ -207,8 +244,10 @@ namespace Fsl
 
   BoundingSphere BoundingSphere::CreateFromPoints(const std::vector<Vector3>& points)
   {
-    if (points.size() <= 0)
+    if (points.empty())
+    {
       throw std::invalid_argument("You should have at least one point in points.");
+    }
 
     // From "Real-Time Collision Detection" (Page 89)
 
@@ -220,20 +259,32 @@ namespace Fsl
     auto maxz = maxx;
 
     // Find the most extreme points along the principle axis.
-    for (uint32_t i = 0; i < points.size(); ++i)
+    for (auto point : points)
     {
-      if (points[i].X < minx.X)
-        minx = points[i];
-      if (points[i].X > maxx.X)
-        maxx = points[i];
-      if (points[i].Y < miny.Y)
-        miny = points[i];
-      if (points[i].Y > maxy.Y)
-        maxy = points[i];
-      if (points[i].Z < minz.Z)
-        minz = points[i];
-      if (points[i].Z > maxz.Z)
-        maxz = points[i];
+      if (point.X < minx.X)
+      {
+        minx = point;
+      }
+      if (point.X > maxx.X)
+      {
+        maxx = point;
+      }
+      if (point.Y < miny.Y)
+      {
+        miny = point;
+      }
+      if (point.Y > maxy.Y)
+      {
+        maxy = point;
+      }
+      if (point.Z < minz.Z)
+      {
+        minz = point;
+      }
+      if (point.Z > maxz.Z)
+      {
+        maxz = point;
+      }
     }
 
     const auto sqDistX = Vector3::DistanceSquared(maxx, minx);
@@ -262,21 +313,21 @@ namespace Fsl
     // From: Mathematics for 3D Game Programming and Computer Graphics, Eric Lengyel, Third Edition.
     // Page 218
     float sqRadius = radius * radius;
-    for (uint32_t i = 0; i < points.size(); ++i)
+    for (auto point : points)
     {
-      const Vector3 diff = (points[i] - center);
+      const Vector3 diff = (point - center);
       const float sqDist = diff.LengthSquared();
       if (sqDist > sqRadius)
       {
-        const float distance = std::sqrt(sqDist); // equal to diff.Length();
+        const float distance = std::sqrt(sqDist);    // equal to diff.Length();
         Vector3 direction = diff / distance;
         Vector3 G = center - radius * direction;
-        center = (G + points[i]) / 2;
-        radius = Vector3::Distance(points[i], center);
+        center = (G + point) / 2;
+        radius = Vector3::Distance(point, center);
         sqRadius = radius * radius;
       }
     }
-    return BoundingSphere(center, radius);
+    return {center, radius};
   }
 
 
@@ -292,23 +343,23 @@ namespace Fsl
   {
     Vector3 ocenterToaCenter = additional.Center - original.Center;
     const float distance = ocenterToaCenter.Length();
-    if (distance <= original.Radius + additional.Radius)//intersect
+    if (distance <= original.Radius + additional.Radius)    // intersect
     {
-      if (distance <= original.Radius - additional.Radius)//original contain additional
+      if (distance <= original.Radius - additional.Radius)    // original contain additional
       {
         rResult = original;
         return;
       }
-      if (distance <= additional.Radius - original.Radius)//additional contain original
+      if (distance <= additional.Radius - original.Radius)    // additional contain original
       {
         rResult = additional;
         return;
       }
     }
-    //else find center of new sphere and radius
+    // else find center of new sphere and radius
     const float leftRadius = std::max(original.Radius - distance, additional.Radius);
     const float Rightradius = std::max(original.Radius + distance, additional.Radius);
-    ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);//
+    ocenterToaCenter = ocenterToaCenter + (((leftRadius - Rightradius) / (2 * ocenterToaCenter.Length())) * ocenterToaCenter);    //
 
     rResult = BoundingSphere(original.Center + ocenterToaCenter, (leftRadius + Rightradius) / 2.0f);
   }
@@ -353,11 +404,17 @@ namespace Fsl
     auto distance = Vector3::Dot(plane.Normal, Center);
     distance += plane.D;
     if (distance > Radius)
+    {
       rResult = PlaneIntersectionType::Front;
+    }
     else if (distance < -Radius)
+    {
       rResult = PlaneIntersectionType::Back;
+    }
     else
+    {
       rResult = PlaneIntersectionType::Intersecting;
+    }
   }
 
 
@@ -365,7 +422,4 @@ namespace Fsl
   {
     return ray.Intersects(*this, rResult);
   }
-
-
-
 }

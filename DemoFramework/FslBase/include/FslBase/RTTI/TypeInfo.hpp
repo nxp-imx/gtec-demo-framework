@@ -12,8 +12,8 @@ namespace Fsl
   {
   public:
     // Constructors
-    TypeInfo(); // needed for containers
-    TypeInfo(const std::type_info&); // non-explicit
+    TypeInfo();                            // needed for containers
+    TypeInfo(const std::type_info& ti);    // non-explicit
 
     // Access for the wrapped std::type_info
     const std::type_info& Get() const;
@@ -29,9 +29,9 @@ namespace Fsl
 
   // Comparison operators
   inline bool operator==(const TypeInfo& lhs, const TypeInfo& rhs)
-    // type_info::operator== return type is int in some VC libraries
+  // type_info::operator== return type is int in some VC libraries
   {
-    return (lhs.Get() == rhs.Get()) != 0;
+    return static_cast<int>(lhs.Get() == rhs.Get()) != 0;
   }
 
   inline bool operator<(const TypeInfo& lhs, const TypeInfo& rhs)
@@ -59,7 +59,6 @@ namespace Fsl
     return !(lhs < rhs);
   }
 }
-
 
 
 #endif

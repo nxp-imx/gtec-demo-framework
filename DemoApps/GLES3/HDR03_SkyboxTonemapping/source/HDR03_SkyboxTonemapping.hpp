@@ -1,35 +1,35 @@
 #ifndef GLES3_HDR03_SKYBOXTONEMAPPING_HDR03_SKYBOXTONEMAPPING_HPP
 #define GLES3_HDR03_SKYBOXTONEMAPPING_HDR03_SKYBOXTONEMAPPING_HPP
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionValue.hpp>
@@ -92,11 +92,7 @@ namespace Fsl
       GLES3::GLVertexBuffer VertexBuffer;
       GLES3::GLVertexArray VertexArray;
 
-      SimpleMesh()
-        : VertexBuffer()
-        , VertexArray()
-      {
-      }
+      SimpleMesh() = default;
 
       SimpleMesh(GLES3::GLVertexBuffer&& vertexBuffer, GLES3::GLVertexArray&& vertexArray)
         : VertexBuffer(std::move(vertexBuffer))
@@ -111,12 +107,7 @@ namespace Fsl
       SkyboxProgram Program;
       SkyboxMesh Mesh;
 
-      Scene()
-        : CubemapTexture()
-        , Program()
-        , Mesh()
-      {
-      }
+      Scene() = default;
     };
 
     struct RenderRecord
@@ -125,16 +116,10 @@ namespace Fsl
       TransitionValue SplitX;
       TransitionValue LabelAlpha;
 
-      RenderRecord()
-        : Name()
-        , SplitX()
-        , LabelAlpha()
-      {
-      }
+      RenderRecord() = default;
 
       RenderRecord(TransitionCache& rTransitionCache, const TransitionTimeSpan& timeSplitX, const TransitionTimeSpan& timeLabel)
-        : Name()
-        , SplitX(rTransitionCache, timeSplitX)
+        : SplitX(rTransitionCache, timeSplitX)
         , LabelAlpha(rTransitionCache, timeLabel)
       {
       }
@@ -147,7 +132,7 @@ namespace Fsl
     std::shared_ptr<UI::CanvasLayout> m_rootCanvas;
     std::shared_ptr<UI::BaseWindow> m_configWindow;
     std::shared_ptr<UI::FloatSliderAndValueLabel> m_exposureSlider;
-    std::vector<std::shared_ptr<UI::CheckBox> > m_checkboxes;
+    std::vector<std::shared_ptr<UI::CheckBox>> m_checkboxes;
 
     std::shared_ptr<INativeBatch2D> m_nativeBatch;
     std::shared_ptr<AtlasFont> m_defaultFont;
@@ -175,15 +160,18 @@ namespace Fsl
     std::vector<RenderRecord> m_render;
     uint32_t m_sceneRenderFlags;
     Vector2 m_rotationSpeed;
+
   public:
     HDR03_SkyboxTonemapping(const DemoAppConfig& config);
-    ~HDR03_SkyboxTonemapping();
-    virtual void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+    ~HDR03_SkyboxTonemapping() override;
+    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
+
   protected:
-    virtual void OnKeyEvent(const KeyEvent& event) override;
-    virtual void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void OnKeyEvent(const KeyEvent& event) override;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void ToggleState(const SceneFlags newState);
     void SetState(const SceneFlags newState, const bool enabled);

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
@@ -41,24 +41,21 @@
 namespace Fsl
 {
   TestScene::TestScene(const DemoAppConfig& config)
-    : m_program()
-    , m_texture()
-    , m_vertexBuffer()
   {
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
     const Point2 screenResolution = config.ScreenResolution;
 
     std::vector<double> kernel;
-    //const int length = 3;
-    //GausianHelper::CalculateGausianKernel(kernel, length, 1.0);
+    // const int length = 3;
+    // GausianHelper::CalculateGausianKernel(kernel, length, 1.0);
     const int length = 9;
     GausianHelper::CalculateGausianKernel(kernel, length, 1.83);
-    //const int length = 41;
-    //GausianHelper::CalculateGausianKernel(kernel, length, 9.83);
-    //const int length = 21;
-    //GausianHelper::CalculateGausianKernel(kernel, length, 9.5);
+    // const int length = 41;
+    // GausianHelper::CalculateGausianKernel(kernel, length, 9.83);
+    // const int length = 21;
+    // GausianHelper::CalculateGausianKernel(kernel, length, 9.5);
 
-    //GausianHelper::DebugDumpKernel2D(kernel, length);
+    // GausianHelper::DebugDumpKernel2D(kernel, length);
 
     {
       Bitmap bitmap;
@@ -70,24 +67,23 @@ namespace Fsl
     const std::string fragTemplate = contentManager->ReadAllText("GaussianTemplate.frag");
     const std::string gaussianFrag = GausianHelper::GenerateGausianFragmentShader(fragTemplate, kernel, length, m_texture.GetSize());
     m_program.Reset(contentManager->ReadAllText("BasicShader.vert"), gaussianFrag);
-    //m_program.Reset(contentManager->ReadAllText("BasicShader.vert"), contentManager->ReadAllText("BasicShader.frag"));
+    // m_program.Reset(contentManager->ReadAllText("BasicShader.vert"), contentManager->ReadAllText("BasicShader.frag"));
 
-    //FSLLOG(gaussianFrag);
+    // FSLLOG(gaussianFrag);
 
-    //const GLuint hProgram = m_program.Get();
+    // const GLuint hProgram = m_program.Get();
 
 
-    { // prepare the vertex buffer
+    {    // prepare the vertex buffer
       // We scale the UV coordinates so that we get a 1-1 pixel mapping on the screen
       const float scaleX = screenResolution.X / float(m_texture.GetSize().X);
-      const float aspect = (screenResolution.Y / (float)screenResolution.X);
+      const float aspect = (screenResolution.Y / static_cast<float>(screenResolution.X));
       const float u1 = 0.0f;
       const float u2 = scaleX;
       const float v1 = scaleX * aspect;
       const float v2 = 0.0f * aspect;
 
-      VertexPositionTexture vertices[] =
-      {
+      VertexPositionTexture vertices[] = {
         VertexPositionTexture(Vector3(-1.0f, 1.0f, 0.0f), Vector2(u1, v2)),
         VertexPositionTexture(Vector3(-1.0f, -1.0f, 0.0f), Vector2(u1, v1)),
         VertexPositionTexture(Vector3(1.0f, 1.0f, 0.0f), Vector2(u2, v2)),
@@ -125,5 +121,4 @@ namespace Fsl
 
     glBindBuffer(m_vertexBuffer.GetTarget(), 0);
   }
-
 }

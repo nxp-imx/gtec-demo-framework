@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -50,11 +50,9 @@ namespace Fsl
   FractalShaderMandelbrot::FractalShaderMandelbrot(const DemoAppConfig& config, const uint32_t sceneIndex)
     : m_screenResolution(config.ScreenResolution)
     , m_sceneIndex(sceneIndex)
-    , m_program()
-    , m_vertexBuffer()
     , m_locCoordinateOffset(GLValues::INVALID_LOCATION)
     , m_locCoordinateScale(GLValues::INVALID_LOCATION)
-    , m_angle(0,1.0f)
+    , m_angle(0, 1.0f)
   {
     std::shared_ptr<BasicOptionParser> options = config.GetOptions<BasicOptionParser>();
     auto cfg = options->GetBasicConfig();
@@ -64,7 +62,7 @@ namespace Fsl
       std::string fragmentShaderFile;
       switch (cfg.TheRenderMode)
       {
-      //case RenderMode::Tex:
+      // case RenderMode::Tex:
       //  fragmentShaderFile = "Mandelbrot_tex.frag";
       //  break;
       case RenderMode::Smooth:
@@ -93,7 +91,7 @@ namespace Fsl
     m_locCoordinateScale = glGetUniformLocation(hProgram, "CoordinateScale");
 
     // Since we are rendering to 1/2 of the original resolution the aspect calc can easily use the actual screen resolution.
-    const float aspect = (m_screenResolution.Y / (float)m_screenResolution.X);
+    const float aspect = (m_screenResolution.Y / static_cast<float>(m_screenResolution.X));
     const float scaleX = 2.5f;
     const float scaleY = scaleX * aspect;
     const float u1 = (-1.0f) * scaleX;
@@ -101,8 +99,7 @@ namespace Fsl
     const float v1 = (-1.0f) * scaleY;
     const float v2 = (1.0f) * scaleY;
 
-    VertexPositionTexture vertices[] =
-    {
+    VertexPositionTexture vertices[] = {
       VertexPositionTexture(Vector3(-1.0f, 1.0f, 0.0f), Vector2(u1, v2)),
       VertexPositionTexture(Vector3(-1.0f, -1.0f, 0.0f), Vector2(u1, v1)),
       VertexPositionTexture(Vector3(1.0f, 1.0f, 0.0f), Vector2(u2, v2)),
@@ -114,10 +111,7 @@ namespace Fsl
   }
 
 
-  FractalShaderMandelbrot::~FractalShaderMandelbrot()
-  {
-
-  }
+  FractalShaderMandelbrot::~FractalShaderMandelbrot() = default;
 
 
   void FractalShaderMandelbrot::Update(const DemoTime& demoTime)
@@ -161,7 +155,6 @@ namespace Fsl
     glUniform1f(m_locCoordinateScale, scale);
 
     m_angle.X += demoTime.DeltaTime;
-
   }
 
 
@@ -182,7 +175,5 @@ namespace Fsl
     m_vertexBuffer.DisableAttribArrays();
 
     glBindBuffer(m_vertexBuffer.GetTarget(), 0);
-
   }
-
 }

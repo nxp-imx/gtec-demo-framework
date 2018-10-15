@@ -1,26 +1,26 @@
 /**
-* The MIT License (MIT)
-*
-* Copyright (c) since 2014 Norbert Nopper
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*/
+ * The MIT License (MIT)
+ *
+ * Copyright (c) since 2014 Norbert Nopper
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample02)
@@ -102,7 +102,7 @@ namespace Fsl
   {
     VkResult result = VK_SUCCESS;
     // FIX: hasCurrentExtentChanged missing, is this important?
-    //if (surface->hasCurrentExtentChanged(physicalDevice->getPhysicalDevice()))
+    // if (surface->hasCurrentExtentChanged(physicalDevice->getPhysicalDevice()))
     //{
     //  const auto& currentExtent = surface->getCurrentExtent(physicalDevice->getPhysicalDevice(), VK_FALSE);
     //  if (currentExtent.width == 0 || currentExtent.height == 0)
@@ -115,8 +115,10 @@ namespace Fsl
     ////
 
     uint32_t currentBuffer;
-    if( result == VK_SUCCESS)
+    if (result == VK_SUCCESS)
+    {
       result = vkAcquireNextImageKHR(m_device.Get(), m_swapchain.Get(), UINT64_MAX, m_imageAcquiredSemaphore.Get(), VK_NULL_HANDLE, &currentBuffer);
+    }
     if (!(result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR))
     {
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -126,52 +128,51 @@ namespace Fsl
         GetDemoAppControl()->RequestAppRestart();
         return;
       }
-      else
-        throw std::runtime_error("Could not acquire next image.");
+
+      throw std::runtime_error("Could not acquire next image.");
+    }
+
+
+    const VkSemaphore waitSemaphores = m_imageAcquiredSemaphore.Get();
+    const VkSemaphore signalSemaphores = m_renderingCompleteSemaphore.Get();
+
+    const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = &waitSemaphores;
+    submitInfo.pWaitDstStageMask = &waitDstStageMask;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = m_cmdBuffer[currentBuffer].GetPointer();
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &signalSemaphores;
+
+    m_deviceQueue.Submit(1, &submitInfo, VK_NULL_HANDLE);
+
+    result = m_swapchain.TryQueuePresent(m_deviceQueue.Queue, 1, &signalSemaphores, &currentBuffer, nullptr);
+    if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR)
+    {
+      m_deviceQueue.WaitIdle();
     }
     else
     {
-      const VkSemaphore waitSemaphores = m_imageAcquiredSemaphore.Get();
-      const VkSemaphore signalSemaphores = m_renderingCompleteSemaphore.Get();
-
-      const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-
-      VkSubmitInfo submitInfo{};
-      submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-      submitInfo.waitSemaphoreCount = 1;
-      submitInfo.pWaitSemaphores = &waitSemaphores;
-      submitInfo.pWaitDstStageMask = &waitDstStageMask;
-      submitInfo.commandBufferCount = 1;
-      submitInfo.pCommandBuffers = m_cmdBuffer[currentBuffer].GetPointer();
-      submitInfo.signalSemaphoreCount = 1;
-      submitInfo.pSignalSemaphores = &signalSemaphores;
-
-      m_deviceQueue.Submit(1, &submitInfo, VK_NULL_HANDLE);
-
-      result = m_swapchain.TryQueuePresent(m_deviceQueue.Queue, 1, &signalSemaphores, &currentBuffer, nullptr);
-      if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR)
+      if (result == VK_ERROR_OUT_OF_DATE_KHR)
       {
-        m_deviceQueue.WaitIdle();
+        // TODO: support 'soft restart'
+        FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
+        GetDemoAppControl()->RequestAppRestart();
+        return;
       }
-      else
-      {
-        if (result == VK_ERROR_OUT_OF_DATE_KHR)
-        {
-          // TODO: support 'soft restart'
-          FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
-          GetDemoAppControl()->RequestAppRestart();
-          return;
-        }
-        else
-          throw std::runtime_error("Could not present queue");
-      }
+
+      throw std::runtime_error("Could not present queue");
     }
   }
 
   void VulkanTriangle::BuildVertexBuffer()
   {
     // Window clip origin is upper left.
-    static const float vertices[3 * 4] = { -0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f };
+    static const float vertices[3 * 4] = {-0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f};
 
     VkBufferCreateInfo bufferCreateInfo{};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -187,7 +188,8 @@ namespace Fsl
     VkMemoryRequirements memoryRequirements = m_vertexBuffer.GetBufferMemoryRequirements();
 
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
-    const auto memoryTypeIndex = MemoryTypeUtil::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    const auto memoryTypeIndex = MemoryTypeUtil::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes,
+                                                                    memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
     m_deviceMemoryVertexBuffer.Reset(m_device.Get(), memoryRequirements.size, memoryTypeIndex);
 
@@ -198,7 +200,7 @@ namespace Fsl
     {
       std::memcpy(mappedData, vertices, sizeof(vertices));
 
-      if (!(physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+      if ((physicalDeviceMemoryProperties.memoryTypes[memoryTypeIndex].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0u)
       {
         VkMappedMemoryRange mappedMemoryRange{};
         mappedMemoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
@@ -239,7 +241,9 @@ namespace Fsl
 
     uint32_t swapchainImagesCount = m_swapchain.GetImageCount();
     if (swapchainImagesCount == 0)
+    {
       throw std::runtime_error("We need at least one image in the swapchain");
+    }
 
     m_swapchainImageView.clear();
     m_framebuffer.clear();
@@ -404,7 +408,7 @@ namespace Fsl
     pipelineColorBlendStateCreateInfo.blendConstants[2] = 0.0f;
     pipelineColorBlendStateCreateInfo.blendConstants[3] = 0.0f;
 
-    VkDynamicState dynamicState[VKTS_NUMBER_DYNAMIC_STATES] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+    VkDynamicState dynamicState[VKTS_NUMBER_DYNAMIC_STATES] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
     pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -438,17 +442,19 @@ namespace Fsl
 
   void VulkanTriangle::BuildSwapchainImageView(const uint32_t bufferIndex)
   {
-    VkComponentMapping componentMapping = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
-    VkImageSubresourceRange imageSubresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+    VkComponentMapping componentMapping = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+    VkImageSubresourceRange imageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-    m_swapchainImageView[bufferIndex].Reset(m_device.Get(), 0, m_swapchain[bufferIndex], VK_IMAGE_VIEW_TYPE_2D, m_swapchain.GetImageFormat(), componentMapping, imageSubresourceRange);
+    m_swapchainImageView[bufferIndex].Reset(m_device.Get(), 0, m_swapchain[bufferIndex], VK_IMAGE_VIEW_TYPE_2D, m_swapchain.GetImageFormat(),
+                                            componentMapping, imageSubresourceRange);
   }
 
 
   void VulkanTriangle::BuildFramebuffer(const uint32_t bufferIndex)
   {
     auto imageView = m_swapchainImageView[bufferIndex].Get();
-    m_framebuffer[bufferIndex].Reset(m_device.Get(), 0, m_renderPass.Get(), 1, &imageView, m_swapchain.GetImageExtent().width, m_swapchain.GetImageExtent().height, 1);
+    m_framebuffer[bufferIndex].Reset(m_device.Get(), 0, m_renderPass.Get(), 1, &imageView, m_swapchain.GetImageExtent().width,
+                                     m_swapchain.GetImageExtent().height, 1);
   }
 
 
@@ -457,7 +463,8 @@ namespace Fsl
     m_cmdBuffer[bufferIndex].Reset(m_device.Get(), m_commandPool.Get(), VK_COMMAND_BUFFER_LEVEL_PRIMARY);
     m_cmdBuffer[bufferIndex].Begin(0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
-      m_swapchain.CmdPipelineBarrier(m_cmdBuffer[bufferIndex].Get(), VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, bufferIndex);
+      m_swapchain.CmdPipelineBarrier(m_cmdBuffer[bufferIndex].Get(), VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                     VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, bufferIndex);
 
       VkClearColorValue clearColorValue{};
       clearColorValue.float32[0] = 0.0f;
@@ -465,7 +472,7 @@ namespace Fsl
       clearColorValue.float32[2] = 1.0f;
       clearColorValue.float32[3] = 1.0f;
 
-      VkClearValue clearValues[1] = { clearColorValue };
+      VkClearValue clearValues[1] = {clearColorValue};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -484,8 +491,8 @@ namespace Fsl
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)m_swapchain.GetImageExtent().width;
-        viewport.height = (float)m_swapchain.GetImageExtent().height;
+        viewport.width = static_cast<float>(m_swapchain.GetImageExtent().width);
+        viewport.height = static_cast<float>(m_swapchain.GetImageExtent().height);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
@@ -498,14 +505,15 @@ namespace Fsl
 
         vkCmdSetScissor(m_cmdBuffer[bufferIndex].Get(), 0, 1, &scissor);
 
-        VkDeviceSize offsets[1] = { 0 };
+        VkDeviceSize offsets[1] = {0};
         VkBuffer vertexBuffer = m_vertexBuffer.Get();
         vkCmdBindVertexBuffers(m_cmdBuffer[bufferIndex].Get(), 0, 1, &vertexBuffer, offsets);
         vkCmdDraw(m_cmdBuffer[bufferIndex].Get(), 3, 1, 0, 0);
       }
       m_cmdBuffer[bufferIndex].CmdEndRenderPass();
 
-      m_swapchain.CmdPipelineBarrier(m_cmdBuffer[bufferIndex].Get(), VK_ACCESS_MEMORY_READ_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, bufferIndex);
+      m_swapchain.CmdPipelineBarrier(m_cmdBuffer[bufferIndex].Get(), VK_ACCESS_MEMORY_READ_BIT, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, bufferIndex);
     }
     m_cmdBuffer[bufferIndex].End();
   }

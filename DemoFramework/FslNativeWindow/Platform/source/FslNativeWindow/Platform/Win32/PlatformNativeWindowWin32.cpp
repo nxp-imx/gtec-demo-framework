@@ -1,34 +1,34 @@
 #ifdef _WIN32
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/Win32/PlatformNativeWindowSystemWin32.hpp>
 #include <FslNativeWindow/Platform/Win32/PlatformNativeWindowWin32.hpp>
@@ -40,7 +40,7 @@
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/Rectangle.hpp>
+#include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/System/Platform/PlatformWin32.hpp>
 #include <algorithm>
 #include <cassert>
@@ -54,47 +54,54 @@
 
 #if 0
 #define VERBOSE_LOG(X) FSLLOG(X)
-#define VERBOSE_LOG_IF(cONDITION,X) FSLLOG_IF(cONDITION, X)
+#define VERBOSE_LOG_IF(cONDITION, X) FSLLOG_IF(cONDITION, X)
 #else
-#define VERBOSE_LOG(X) {}
-#define VERBOSE_LOG_IF(cONDITION,X) {}
+#define VERBOSE_LOG(X) \
+  {                    \
+  }
+#define VERBOSE_LOG_IF(cONDITION, X) \
+  {                                  \
+  }
 #endif
 
 #ifndef HID_USAGE_PAGE_GENERIC
-#define HID_USAGE_PAGE_GENERIC         ((USHORT) 0x01)
+#define HID_USAGE_PAGE_GENERIC ((USHORT)0x01)
 #endif
 #ifndef HID_USAGE_GENERIC_MOUSE
-#define HID_USAGE_GENERIC_MOUSE        ((USHORT) 0x02)
+#define HID_USAGE_GENERIC_MOUSE ((USHORT)0x02)
 #endif
 
 namespace Fsl
 {
   namespace
   {
-    const bool USE_FORCE_ACTIVATED = true;   // For now we always force activation (meaning we dont lose deactivate on windows focus loss)
+    const bool USE_FORCE_ACTIVATED = true;    // For now we always force activation (meaning we dont lose deactivate on windows focus loss)
 
     inline void UpdateButton(uint32_t& rButtonFlags, const uint16_t wButtons, const uint16_t xinputFlag, const VirtualGamepadButton virtualFlag)
     {
       if ((wButtons & xinputFlag) == xinputFlag)
+      {
         rButtonFlags |= static_cast<uint32_t>(virtualFlag);
+      }
       else
+      {
         rButtonFlags &= ~static_cast<uint32_t>(virtualFlag);
+      }
     }
 
-    inline int32_t CapValue(const long value, const char*const pszDebugHelp)
+    inline int32_t CapValue(const long value, const char* const pszDebugHelp)
     {
       if (value > std::numeric_limits<int32_t>::max())
       {
         FSLLOG_DEBUG_WARNING("Raw input, capping " << pszDebugHelp << " value to fit in a int32_t (max)");
         return std::numeric_limits<int32_t>::max();
       }
-      else if (value < std::numeric_limits<int32_t>::min())
+      if (value < std::numeric_limits<int32_t>::min())
       {
         FSLLOG_DEBUG_WARNING("Raw input, capping " << pszDebugHelp << " value to fit in a int32_t (min)");
         return std::numeric_limits<int32_t>::min();
       }
-      else
-        return static_cast<int32_t>(value);
+      return static_cast<int32_t>(value);
     }
 
     inline bool TryToScreenSpace(HWND hwnd, RECT& rRect)
@@ -102,33 +109,34 @@ namespace Fsl
       POINT point;
       point.x = rRect.left;
       point.y = rRect.top;
-      if (!ClientToScreen(hwnd, &point))
+      if (ClientToScreen(hwnd, &point) == 0)
+      {
         return false;
+      }
       rRect.left = point.x;
       rRect.top = point.y;
 
       point.x = rRect.right;
       point.y = rRect.bottom;
-      if (!ClientToScreen(hwnd, &point))
+      if (ClientToScreen(hwnd, &point) == 0)
+      {
         return false;
+      }
 
       rRect.right = point.x;
       rRect.bottom = point.y;
       return true;
     }
-  }
+  }    // namespace
 
   struct PlatformGamepadStateWin32
   {
     VirtualGamepadState State;
 
-    PlatformGamepadStateWin32()
-      : State()
-    {
-    }
+    PlatformGamepadStateWin32() = default;
 
     PlatformGamepadStateWin32(const uint32_t deviceId, const bool isConnected, const XINPUT_STATE& state)
-      : State()
+
     {
       State.IsConnected = isConnected;
       assert(deviceId <= 255);
@@ -162,12 +170,14 @@ namespace Fsl
     const uint32_t MAGIC_DEFAULT_DPI = 96;
 
     inline void SendButtonEventIfChanged(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const uint32_t deviceId,
-                                         const VirtualGamepadState& oldState, const VirtualGamepadState& newState,
-                                         const VirtualGamepadButton button, const VirtualKey::Enum key)
+                                         const VirtualGamepadState& oldState, const VirtualGamepadState& newState, const VirtualGamepadButton button,
+                                         const VirtualKey::Enum key)
     {
       const bool isPressed = newState.IsPressed(button);
       if (oldState.IsPressed(button) == isPressed)
+      {
         return;
+      }
 
       const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputKeyEvent(key, isPressed);
       eventQueue->PostEvent(event);
@@ -247,7 +257,7 @@ namespace Fsl
         return true;
         // Snapshot only sends a up event, so we can't really use it
         // There are workarounds, but its not worth using time on at the moment.
-        //case VK_SNAPSHOT:
+        // case VK_SNAPSHOT:
         //  rKey = VirtualKey::PrintScreen;
         //  return true;
       case VK_SCROLL:
@@ -283,7 +293,7 @@ namespace Fsl
 
       return false;
     }
-  }
+  }    // namespace
 
   class PlatformNativeWindowSystemWin32State
   {
@@ -291,10 +301,7 @@ namespace Fsl
     {
       std::weak_ptr<PlatformNativeWindowWin32> Window;
 
-      WindowRecord()
-        : Window()
-      {
-      }
+      WindowRecord() = default;
 
       WindowRecord(const std::weak_ptr<PlatformNativeWindowWin32>& window)
         : Window(window)
@@ -307,8 +314,8 @@ namespace Fsl
     bool m_activated;
     uint32_t m_mouseButtonState;
     std::deque<WindowRecord> m_activeWindows;
-  public:
 
+  public:
     PlatformNativeWindowSystemWin32State(const std::weak_ptr<INativeWindowEventQueue>& eventQueue)
       : m_eventQueue(eventQueue)
       , m_forceActivated(USE_FORCE_ACTIVATED)
@@ -326,15 +333,19 @@ namespace Fsl
     {
       // Garbage collect all dead windows
       auto itr = m_activeWindows.begin();
-      while(itr != m_activeWindows.end())
+      while (itr != m_activeWindows.end())
       {
         if (itr->Window.expired())
+        {
           itr = m_activeWindows.erase(itr);
+        }
         else
+        {
           ++itr;
+        }
       }
 
-      m_activeWindows.push_back(WindowRecord(window));
+      m_activeWindows.emplace_back(window);
     }
 
 
@@ -345,8 +356,7 @@ namespace Fsl
 
     std::shared_ptr<PlatformNativeWindowWin32> TryGetWindow(HWND hWnd) const
     {
-      auto compareFunc = [hWnd](const WindowRecord& val)
-      {
+      auto compareFunc = [hWnd](const WindowRecord& val) {
         auto window = val.Window.lock();
         return (window && window->GetPlatformWindow() == hWnd);
       };
@@ -368,16 +378,21 @@ namespace Fsl
     }
 
 
-    LRESULT OnMouseButton(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam, const VirtualMouseButton::Enum button, const bool isPressed)
+    LRESULT OnMouseButton(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam,
+                          const VirtualMouseButton::Enum button, const bool isPressed)
     {
       const Point2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseButtonEvent(button, isPressed, position);
       eventQueue->PostEvent(event);
 
       if (isPressed)
+      {
         m_mouseButtonState |= button;
+      }
       else
+      {
         m_mouseButtonState &= ~button;
+      }
 
       auto window = TryGetWindow(hWnd);
       if (window)
@@ -394,7 +409,9 @@ namespace Fsl
 
       auto window = TryGetWindow(hWnd);
       if (window)
+      {
         window->OnMouseMove(eventQueue, position);
+      }
       return 0;
     }
 
@@ -407,13 +424,13 @@ namespace Fsl
       POINT pt;
       pt.x = GET_X_LPARAM(lParam);
       pt.y = GET_Y_LPARAM(lParam);
-      if (ScreenToClient(hWnd, &pt))
+      if (ScreenToClient(hWnd, &pt) != 0)
       {
         const Point2 position(pt.x, pt.y);
 
         const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseWheelEvent(zDelta, position);
         eventQueue->PostEvent(event);
-        //FSLLOG("WHEEL: X: " << position.X << " Y: " << position.Y);
+        // FSLLOG("WHEEL: X: " << position.X << " Y: " << position.Y);
       }
       else
       {
@@ -426,11 +443,15 @@ namespace Fsl
     void OnRawInput(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
       if (!m_activated)
+      {
         return;
+      }
 
       auto window = TryGetWindow(hWnd);
       if (window)
+      {
         window->OnRawInput(eventQueue, lParam);
+      }
     }
 
 
@@ -447,8 +468,8 @@ namespace Fsl
       // - NativeWindowEventType::WindowActivation true
 
       // When the window is minimized we send the suspend message
-      //const bool isMinimize = hiWord != 0;
-      //if (isMinimize && lowWord != 0)
+      // const bool isMinimize = hiWord != 0;
+      // if (isMinimize && lowWord != 0)
       //  eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowSuspendEvent(false));
 
       // Ensure that we only send state changes
@@ -460,9 +481,8 @@ namespace Fsl
       }
 
 
-
       // When the window is minimized we send the suspend message
-      //if (isMinimize && lowWord == 0)
+      // if (isMinimize && lowWord == 0)
       //  eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowSuspendEvent(true));
       return 0;
     }
@@ -472,7 +492,9 @@ namespace Fsl
     {
       // The window has been resized, but neither the SIZE_MINIMIZED nor SIZE_MAXIMIZED value applies.
       if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED)
+      {
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowResizedEvent());
+      }
       return 0;
     }
 
@@ -484,18 +506,20 @@ namespace Fsl
       // for now we just spy on this info
       auto window = TryGetWindow(hWnd);
       if (window)
+      {
         window->OnDPIChanged(Point2(newDpiX, newDpiY));
+      }
 
       // A pointer to a RECT structure that provides a suggested size and position of the current window scaled for the new DPI.
       // The expectation is that apps will reposition and resize windows based on the suggestions provided by lParam when handling this message.
-      //LPRECT lprcNewScale;
-      //lprcNewScale = (LPRECT)lParam;
-      //const auto newWidth = lprcNewScale->right - lprcNewScale->left;
-      //const auto newHeight = lprcNewScale->bottom - lprcNewScale->top;
+      // LPRECT lprcNewScale;
+      // lprcNewScale = (LPRECT)lParam;
+      // const auto newWidth = lprcNewScale->right - lprcNewScale->left;
+      // const auto newHeight = lprcNewScale->bottom - lprcNewScale->top;
       //// Resize the window for the new DPI setting
-      //SetWindowPos(hWnd, HWND_TOP, lprcNewScale->left, lprcNewScale->top, newWidth, newHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+      // SetWindowPos(hWnd, HWND_TOP, lprcNewScale->left, lprcNewScale->top, newWidth, newHeight, SWP_NOZORDER | SWP_NOACTIVATE);
       // Render the window contents again
-      //RedrawWindow(hWnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
+      // RedrawWindow(hWnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE);
       return 1;
     }
 
@@ -503,7 +527,9 @@ namespace Fsl
     {
       auto window = TryGetWindow(hWnd);
       if (window)
-        window->OnWindowCaptureChanged((HWND)lParam);
+      {
+        window->OnWindowCaptureChanged(reinterpret_cast<HWND>(lParam));
+      }
     }
   };
 
@@ -521,7 +547,7 @@ namespace Fsl
         PostQuitMessage(0);
         return 0;
       }
-      else if (windowSystemState)
+      if (windowSystemState)
       {
         auto eventQueue = windowSystemState->GetEventQueue().lock();
         if (eventQueue)
@@ -574,30 +600,28 @@ namespace Fsl
     //! @brief Adjust the client size of the window to the expected dimensions
     void DoSetClientSize(HWND hwnd, int clientWidth, int clientHeight)
     {
-      if (IsWindow(hwnd))
+      if (IsWindow(hwnd) != 0)
       {
-        DWORD dwStyle = static_cast<DWORD>(GetWindowLongPtr(hwnd, GWL_STYLE));
-        DWORD dwExStyle = static_cast<DWORD>(GetWindowLongPtr(hwnd, GWL_EXSTYLE));
+        auto dwStyle = static_cast<DWORD>(GetWindowLongPtr(hwnd, GWL_STYLE));
+        auto dwExStyle = static_cast<DWORD>(GetWindowLongPtr(hwnd, GWL_EXSTYLE));
         auto menu = GetMenu(hwnd);
 
-        RECT rc = { 0, 0, clientWidth, clientHeight };
+        RECT rc = {0, 0, clientWidth, clientHeight};
 
-        if (!AdjustWindowRectEx(&rc, dwStyle, menu ? TRUE : FALSE, dwExStyle))
+        if (AdjustWindowRectEx(&rc, dwStyle, menu != nullptr ? TRUE : FALSE, dwExStyle) == 0)
+        {
           MessageBox(nullptr, TEXT("AdjustWindowRectEx Failed!"), TEXT("Error"), MB_OK);
+        }
         SetWindowPos(hwnd, nullptr, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOMOVE);
       }
     }
 
     struct MonitorRecord
     {
-      HMONITOR Handle;
+      HMONITOR Handle{nullptr};
       Rectangle Rect;
 
-      MonitorRecord()
-        : Handle(nullptr)
-        , Rect()
-      {
-      }
+      MonitorRecord() = default;
 
       MonitorRecord(HMONITOR hMonitor, const Rectangle& rect)
         : Handle(hMonitor)
@@ -608,18 +632,20 @@ namespace Fsl
 
     std::deque<MonitorRecord> g_monitorDeque;
 
-    BOOL CALLBACK MonitorEnumProc(_In_  HMONITOR hMonitor, _In_  HDC      hdcMonitor, _In_  LPRECT   lprcMonitor, _In_  LPARAM   dwData)
+    BOOL CALLBACK MonitorEnumProc(_In_ HMONITOR hMonitor, _In_ HDC hdcMonitor, _In_ LPRECT lprcMonitor, _In_ LPARAM dwData)
     {
-      if (hdcMonitor == nullptr &&  lprcMonitor != nullptr)
+      if (hdcMonitor == nullptr && lprcMonitor != nullptr)
       {
         const int32_t left = lprcMonitor->left;
         const int32_t top = lprcMonitor->top;
         const int32_t dx = lprcMonitor->right - left;
         const int32_t dy = lprcMonitor->bottom - top;
-        if ( dx > 0 && dy > 0 )
-          g_monitorDeque.push_back(MonitorRecord(hMonitor, Rectangle(left, top, dx, dy)));
+        if (dx > 0 && dy > 0)
+        {
+          g_monitorDeque.emplace_back(hMonitor, Rectangle(left, top, dx, dy));
+        }
       }
-      return true;
+      return 1;
     }
 
     bool TryGetMonitor(int32_t displayId, MonitorRecord& rRecord, int32_t& rMaxDisplayId)
@@ -648,26 +674,28 @@ namespace Fsl
       {
         FSLLOG_WARNING("Backend max display Id is: " << maxDisplayId << " so " << requestedDisplayId << " is unsupported, using displayid 0.");
         if (!TryGetMonitor(0, record, maxDisplayId))
+        {
           throw GraphicsException("Could not find a valid monitor");
+        }
       }
       return record;
     }
 
 
-
-
-
-    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
+                                                  const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
       return std::make_shared<PlatformNativeWindowWin32>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
-  }
+  }    // namespace
 
 
   static_assert(XUSER_MAX_COUNT <= 255, "The virtual gamepad only supports up to 255 devices");
 
 
-  PlatformNativeWindowSystemWin32::PlatformNativeWindowSystemWin32(const NativeWindowSystemSetup& setup, const PlatformNativeWindowAllocationFunction& allocateWindowFunction, const PlatformNativeWindowSystemParams& systemParams)
+  PlatformNativeWindowSystemWin32::PlatformNativeWindowSystemWin32(const NativeWindowSystemSetup& setup,
+                                                                   const PlatformNativeWindowAllocationFunction& allocateWindowFunction,
+                                                                   const PlatformNativeWindowSystemParams& systemParams)
     : PlatformNativeWindowSystem(setup, GetModuleHandle(nullptr))
     , m_allocationFunction(allocateWindowFunction ? allocateWindowFunction : AllocateWindow)
     , m_dpiHelper(std::make_shared<DPIHelperWin32>())
@@ -675,7 +703,9 @@ namespace Fsl
     , m_gamepadState(new std::vector<PlatformGamepadStateWin32>(XUSER_MAX_COUNT))
   {
     if (!g_windowSystemState.expired())
+    {
       throw NotSupportedException("PlatformNativeWindowSystemWin32 is a singleton, please destroy any previously allocated instance first");
+    }
 
     // Create the singleton state object
     auto windowSystemState = std::make_shared<PlatformNativeWindowSystemWin32State>(setup.GetEventQueue());
@@ -697,12 +727,17 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<INativeWindow> PlatformNativeWindowSystemWin32::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  std::shared_ptr<INativeWindow>
+    PlatformNativeWindowSystemWin32::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                        const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
   {
-    auto newBaseWindow = m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, m_dpiHelper), pPlatformCustomWindowAllocationParams);
+    auto newBaseWindow =
+      m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, m_dpiHelper), pPlatformCustomWindowAllocationParams);
     auto newWindow = std::dynamic_pointer_cast<PlatformNativeWindowWin32>(newBaseWindow);
     if (newWindow == nullptr)
+    {
       throw NotSupportedException("The CreateNativeWindow method returned a unsupported window type");
+    }
 
     m_windowSystemState->AddWindow(newWindow);
     return newWindow;
@@ -713,7 +748,7 @@ namespace Fsl
   {
     MSG sMessage;
     bool bQuit = false;
-    while(PeekMessage(&sMessage, nullptr, 0, 0, PM_REMOVE) != 0)
+    while (PeekMessage(&sMessage, nullptr, 0, 0, PM_REMOVE) != 0)
     {
       switch (sMessage.message)
       {
@@ -737,7 +772,9 @@ namespace Fsl
   {
     auto eventQueue = m_eventQueue.lock();
     if (!eventQueue)
+    {
       return;
+    }
 
     assert(m_gamepadState);
     assert(m_gamepadState->size() == XUSER_MAX_COUNT);
@@ -766,7 +803,9 @@ namespace Fsl
 
       if (oldState.State != newState.State)
       {
-        // FSLLOG("S" << newState.State.IsConnected << ", " << (int)newState.State.Buttons << ", " << (int)newState.State.LeftTrigger << ", " << (int)newState.State.RightTrigger << ", " << newState.State.LeftThumbX << ", " << newState.State.LeftThumbY << ", " << newState.State.RightThumbX << ", " << newState.State.RightThumbY);
+        // FSLLOG("S" << newState.State.IsConnected << ", " << (int)newState.State.Buttons << ", " << (int)newState.State.LeftTrigger << ", " <<
+        // (int)newState.State.RightTrigger << ", " << newState.State.LeftThumbX << ", " << newState.State.LeftThumbY << ", " <<
+        // newState.State.RightThumbX << ", " << newState.State.RightThumbY);
 
         const NativeWindowEvent event = NativeWindowEventHelper::EncodeVirtualGamepadStateEvent(newState.State);
         eventQueue->PostEvent(event);
@@ -777,12 +816,11 @@ namespace Fsl
   }
 
 
-
-  PlatformNativeWindowWin32::PlatformNativeWindowWin32(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  PlatformNativeWindowWin32::PlatformNativeWindowWin32(const NativeWindowSetup& nativeWindowSetup,
+                                                       const PlatformNativeWindowParams& platformWindowParams,
+                                                       const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
     , m_dpiHelper(platformWindowParams.DpiHelper)
-    , m_rawInputScratchpad()
-    , m_rawMouseButtonFlags()
     , m_mouseCaptureEnabled(false)
     , m_mouseInternalCaptureEnabled(false)
     , m_mouseIsCaptured(false)
@@ -802,26 +840,26 @@ namespace Fsl
     switch (nativeWindowConfig.GetWindowMode())
     {
     case WindowMode::Fullscreen:
+    {
+      const int32_t displayIdRequest = nativeWindowSetup.GetConfig().GetDisplayId();
+      if (displayIdRequest == 0)
       {
-        const int32_t displayIdRequest = nativeWindowSetup.GetConfig().GetDisplayId();
-        if (displayIdRequest == 0)
-        {
-          const int width = GetSystemMetrics(SM_CXSCREEN);
-          const int height = GetSystemMetrics(SM_CYSCREEN);
-          targetRectangle = Rectangle(0, 0, width, height);
-        }
-        else
-        {
-          const MonitorRecord record = GetMonitorRecord(displayIdRequest);
-          targetRectangle = record.Rect;
-        }
-
-        dwStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
-        bFullscreen = true;
-
-        FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating fullscreen window: " << targetRectangle);
+        const int width = GetSystemMetrics(SM_CXSCREEN);
+        const int height = GetSystemMetrics(SM_CYSCREEN);
+        targetRectangle = Rectangle(0, 0, width, height);
       }
-      break;
+      else
+      {
+        const MonitorRecord record = GetMonitorRecord(displayIdRequest);
+        targetRectangle = record.Rect;
+      }
+
+      dwStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
+      bFullscreen = true;
+
+      FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating fullscreen window: " << targetRectangle);
+    }
+    break;
     case WindowMode::Window:
       FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating window: " << targetRectangle);
       break;
@@ -841,7 +879,7 @@ namespace Fsl
     const auto className = TEXT("PlatformNativeWindowWin32");
 
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-    wc.lpfnWndProc = (WNDPROC)WndProc;
+    wc.lpfnWndProc = static_cast<WNDPROC>(WndProc);
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = hInstance;
@@ -850,22 +888,27 @@ namespace Fsl
     wc.lpszMenuName = nullptr;
     wc.lpszClassName = className;
 
-    auto icon = (HICON)LoadImage(nullptr, TEXT("FslSDKIcon.ico"), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+    auto icon = static_cast<HICON>(LoadImage(nullptr, TEXT("FslSDKIcon.ico"), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE));
     if (icon == nullptr)
+    {
       wc.hIcon = LoadIcon(nullptr, IDI_WINLOGO);
+    }
     else
+    {
       wc.hIcon = icon;
+    }
 
     RegisterClass(&wc);
 
     const auto applicationName = PlatformWin32::Widen(nativeWindowSetup.GetApplicationName());
-    m_platformWindow = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, className, applicationName.c_str(), dwStyle,
-                                      targetRectangle.Left(), targetRectangle.Top(), targetRectangle.Width(), targetRectangle.Height(),
-                                      nullptr, nullptr, hInstance, nullptr);
+    m_platformWindow = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE, className, applicationName.c_str(), dwStyle, targetRectangle.Left(),
+                                      targetRectangle.Top(), targetRectangle.Width(), targetRectangle.Height(), nullptr, nullptr, hInstance, nullptr);
     if (m_platformWindow == nullptr)
+    {
       throw GraphicsException("Failed to create native window");
+    }
 
-    //if (bFullscreen)
+    // if (bFullscreen)
     //  SetWindowLong(m_platformWindow, GWL_STYLE, 0);
 
     DoSetClientSize(m_platformWindow, targetRectangle.Width(), targetRectangle.Height());
@@ -874,7 +917,7 @@ namespace Fsl
     SetForegroundWindow(m_platformWindow);
     SetFocus(m_platformWindow);
 
-    if (! m_dpiHelper->TryGetDPI(m_platformWindow, m_cachedDPIValue))
+    if (!m_dpiHelper->TryGetDPI(m_platformWindow, m_cachedDPIValue))
     {
       FSLLOG_DEBUG_WARNING("Failed to cache DPI value, using default");
       m_cachedDPIValue = Point2(MAGIC_DEFAULT_DPI, MAGIC_DEFAULT_DPI);
@@ -912,7 +955,7 @@ namespace Fsl
   bool PlatformNativeWindowWin32::TryGetSize(Point2& rSize) const
   {
     RECT rect{};
-    if (!GetClientRect(m_platformWindow, &rect))
+    if (GetClientRect(m_platformWindow, &rect) == 0)
     {
       rSize = Point2();
       return false;
@@ -925,7 +968,9 @@ namespace Fsl
   bool PlatformNativeWindowWin32::TryCaptureMouse(const bool enableCapture)
   {
     if (m_mouseCaptureEnabled == enableCapture)
+    {
       return true;
+    }
 
     m_mouseCaptureEnabled = enableCapture;
     m_mouseHideCursorEnabled = enableCapture;
@@ -933,7 +978,9 @@ namespace Fsl
 
     auto windowSystemState = g_windowSystemState.lock();
     if (windowSystemState)
+    {
       windowSystemState->SetUseForceActivated(enableCapture ? false : USE_FORCE_ACTIVATED);
+    }
 
 
     ResolveMouseCapture();
@@ -941,34 +988,43 @@ namespace Fsl
   }
 
 
-
   void PlatformNativeWindowWin32::OnDPIChanged(const Point2& value)
   {
     if (value == m_cachedDPIValue)
+    {
       return;
+    }
 
     m_cachedDPIValue = value;
 
     auto eventQueue = TryGetEventQueue();
-    if ( eventQueue )
+    if (eventQueue)
+    {
       eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowDPIChanged());
+    }
   }
 
 
   void PlatformNativeWindowWin32::OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const LPARAM lParam)
   {
-    const HRAWINPUT hRawInput = (HRAWINPUT)lParam;
+    const auto hRawInput = reinterpret_cast<HRAWINPUT>(lParam);
 
     UINT requiredSize;
     if (GetRawInputData(hRawInput, RID_INPUT, nullptr, &requiredSize, sizeof(RAWINPUTHEADER)) != 0)
+    {
       return;
+    }
 
     if (requiredSize > m_rawInputScratchpad.size())
+    {
       m_rawInputScratchpad.resize(requiredSize);
+    }
 
     const auto bytesWritten = GetRawInputData(hRawInput, RID_INPUT, m_rawInputScratchpad.data(), &requiredSize, sizeof(RAWINPUTHEADER));
     if (bytesWritten != sizeof(RAWINPUT))
+    {
       return;
+    }
 
     const auto pRawInput = reinterpret_cast<const RAWINPUT*>(m_rawInputScratchpad.data());
     if (pRawInput->header.dwType == RIM_TYPEMOUSE)
@@ -977,20 +1033,32 @@ namespace Fsl
       const int32_t deltaY = CapValue(pRawInput->data.mouse.lLastY, "y");
 
       uint32_t buttonFlags = 0;
-      if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_LEFT_BUTTON_DOWN)
+      if ((pRawInput->data.mouse.ulRawButtons & RI_MOUSE_LEFT_BUTTON_DOWN) != 0u)
+      {
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Left, true);
-      else if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_LEFT_BUTTON_UP)
+      }
+      else if ((pRawInput->data.mouse.ulRawButtons & RI_MOUSE_LEFT_BUTTON_UP) != 0u)
+      {
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Left, false);
+      }
 
-      if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_MIDDLE_BUTTON_DOWN)
+      if ((pRawInput->data.mouse.ulRawButtons & RI_MOUSE_MIDDLE_BUTTON_DOWN) != 0u)
+      {
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Middle, true);
-      else if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_MIDDLE_BUTTON_UP)
+      }
+      else if ((pRawInput->data.mouse.ulRawButtons & RI_MOUSE_MIDDLE_BUTTON_UP) != 0u)
+      {
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Middle, false);
+      }
 
-      if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_RIGHT_BUTTON_DOWN)
+      if ((pRawInput->data.mouse.ulRawButtons & RI_MOUSE_RIGHT_BUTTON_DOWN) != 0u)
+      {
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Right, true);
-      else if (pRawInput->data.mouse.ulRawButtons & RI_MOUSE_RIGHT_BUTTON_UP)
+      }
+      else if ((pRawInput->data.mouse.ulRawButtons & RI_MOUSE_RIGHT_BUTTON_UP) != 0u)
+      {
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Right, false);
+      }
 
       Point2 position(deltaX, deltaY);
       const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(position, m_rawMouseButtonFlags);
@@ -1003,10 +1071,12 @@ namespace Fsl
   {
     const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseMoveEvent(position);
     eventQueue->PostEvent(event);
-    //FSLLOG("MOVE: X: " << position.X << " Y: " << position.Y);
+    // FSLLOG("MOVE: X: " << position.X << " Y: " << position.Y);
 
     if (!m_mouseCaptureEnabled)
+    {
       return;
+    }
 
     ResolveMouseCapture();
   }
@@ -1020,7 +1090,9 @@ namespace Fsl
 
     m_mouseIsCaptured = (newCaptureHwnd == m_platformWindow);
     if (m_mouseIsCaptured)
+    {
       return;
+    }
 
     if (m_mouseCursorIsClipped)
     {
@@ -1031,7 +1103,7 @@ namespace Fsl
     if (m_mouseIsCursorHidden)
     {
       m_mouseIsCursorHidden = false;
-      ShowCursor(true);
+      ShowCursor(1);
       VERBOSE_LOG("* Showing cursor");
     }
   }
@@ -1048,22 +1120,24 @@ namespace Fsl
   {
     const bool enableCapture = m_mouseCaptureEnabled || m_mouseInternalCaptureEnabled;
 
-    if (m_mouseIsCaptured == enableCapture &&
-        m_mouseCursorIsClipped == m_mouseCaptureEnabled &&
-        m_mouseHideCursorEnabled == m_mouseIsCursorHidden)
+    if (m_mouseIsCaptured == enableCapture && m_mouseCursorIsClipped == m_mouseCaptureEnabled && m_mouseHideCursorEnabled == m_mouseIsCursorHidden)
     {
       return;
     }
 
     if (GetForegroundWindow() != m_platformWindow)
+    {
       return;
+    }
 
 
     ResolveMouseCursorClip();
     ResolveMouseCursorVisible();
 
     if (m_mouseIsCaptured == enableCapture)
+    {
       return;
+    }
     VERBOSE_LOG("- ResolveMouseCapture");
 
 
@@ -1084,7 +1158,9 @@ namespace Fsl
   void PlatformNativeWindowWin32::ResolveMouseCursorClip()
   {
     if (m_mouseCursorIsClipped == m_mouseCaptureEnabled)
+    {
       return;
+    }
 
 
     VERBOSE_LOG("- ResolveMouseCursorClip");
@@ -1092,7 +1168,7 @@ namespace Fsl
     if (m_mouseCaptureEnabled)
     {
       RECT rect{};
-      if (!GetClientRect(m_platformWindow, &rect))
+      if (GetClientRect(m_platformWindow, &rect) == 0)
       {
         FSLLOG_DEBUG_WARNING("Failed to get client rect");
         return;
@@ -1103,9 +1179,9 @@ namespace Fsl
       rect.top = (rect.bottom - rect.top) / 2;
       rect.right = rect.left;
       rect.bottom = rect.top;
-      //SetCursorPos(rect.left, rect.top);
+      // SetCursorPos(rect.left, rect.top);
 
-      if (!TryToScreenSpace(m_platformWindow, rect) || !ClipCursor(&rect))
+      if (!TryToScreenSpace(m_platformWindow, rect) || (ClipCursor(&rect) == 0))
       {
         FSLLOG_DEBUG_WARNING("Failed to ClipCursor to window");
         return;
@@ -1125,16 +1201,17 @@ namespace Fsl
   void PlatformNativeWindowWin32::ResolveMouseCursorVisible()
   {
     if (m_mouseHideCursorEnabled == m_mouseIsCursorHidden)
+    {
       return;
+    }
 
     VERBOSE_LOG("- ResolveMouseCursorVisible");
 
     VERBOSE_LOG_IF(m_mouseHideCursorEnabled, "* Hiding cursor");
     VERBOSE_LOG_IF(!m_mouseHideCursorEnabled, "* Showing cursor");
 
-    ShowCursor(!m_mouseHideCursorEnabled);
+    ShowCursor(static_cast<BOOL>(!m_mouseHideCursorEnabled));
     m_mouseIsCursorHidden = m_mouseHideCursorEnabled;
   }
-
-}
+}    // namespace Fsl
 #endif

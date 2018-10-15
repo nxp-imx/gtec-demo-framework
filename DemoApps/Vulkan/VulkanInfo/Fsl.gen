@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="Vulkan.VulkanInfo" NoInclude="true">
-    <ImportTemplate Name="DemoAppConsole"/>
+    <ImportTemplate Name="DemoAppConsoleMinimal"/>
     <Dependency Name="FslUtil.Vulkan1_0"/>
     <Platform Name="Android" Supported="false"/>  
     <Platform Name="Windows" ProjectId="4ACE4C2D-5545-473A-9FA3-D77C2403FD3E"/>

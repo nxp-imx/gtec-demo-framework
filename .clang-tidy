@@ -334,3 +334,180 @@ CheckOptions:
     
 # readability-identifier-naming.ClassMember = static class member variables
 # 
+	
+#  - key:             google-readability-redundant-smartptr-get 
+#    value:           '1'
+#  - key:             modernize-use-nullptr.NullMacros
+#    value:           'NULL'
+#  - key:             modernize-use-using.IgnoreMacros
+#    value:           '1'
+#  - key:             readability-simplify-boolean-expr.ChainedConditionalAssignment
+#    value:           '0'
+#  - key:             readability-simplify-boolean-expr.ChainedConditionalReturn
+#    value:           '0'
+...
+
+# Create command line option to add and also one to only run this check
+# readability-identifier-naming
+
+
+# Use in nightly build as its too slow
+#clang-analyzer-core.*,
+#clang-analyzer-cplusplus.*,
+#bugprone-assert-side-effect,
+#bugprone-use-after-move,
+#cppcoreguidelines-c-copy-assignment-signature,
+#cppcoreguidelines-pro-type-member-init,
+#cppcoreguidelines-slicing,
+#google-global-names-in-headers,
+#misc-definitions-in-headers,
+#misc-misplaced-widening-cast,
+#misc-non-copyable-objects,
+#misc-suspicious-semicolon,
+#misc-suspicious-string-compare,
+#misc-undelegated-constructor,
+#misc-unused-using-decls,
+#modernize-redundant-void-arg,
+#modernize-replace-auto-ptr,
+#modernize-use-bool-literals,
+#modernize-use-default-member-init,
+#performance-unnecessary-value-param,
+#readability-named-parameter,
+#readability-non-const-parameter,
+#readability-redundant-control-flow,
+#readability-redundant-declaration,
+#readability-static-definition-in-anonymous-namespace,
+
+
+# Good idea but requires quite a bit of work
+# cert-dcl50-cpp
+# cert-err60-cpp,
+# cppcoreguidelines-pro-type-vararg,
+# cppcoreguidelines-special-member-functions,
+# google-default-arguments,
+# misc-misplaced-const,
+# misc-redundant-expression,
+# modernize-make-shared
+# modernize-loop-convert
+# modernize-pass-by-value
+# modernize-raw-string-literal
+# modernize-return-braced-init-list
+# readability-function-size
+# readability-identifier-naming,
+# performance-inefficient-string-concatenation
+
+# Also might conflict with google test
+#cert-err58-cpp,
+
+# Good idea but conflicts with gli
+# cppcoreguidelines-pro-type-union-access,
+
+
+# Use when C++14
+# modernize-avoid-bind,
+# modernize-make-unique
+# modernize-use-transparent-functors
+    
+# Use when C++17
+# modernize-unary-static-assert
+
+# Use when the GSL is added
+# cppcoreguidelines-pro-bounds-array-to-pointer-decay
+# cppcoreguidelines-pro-bounds-constant-array-index,
+# cppcoreguidelines-pro-bounds-pointer-arithmetic  
+  
+# Candidates
+# google-readability-function-size
+# google-runtime-int
+# hicpp-new-delete-operators
+
+# Not likely
+# cppcoreguidelines-pro-type-reinterpret-cast
+# google-build-using-namespace
+# google-readability-namespace-comments
+# google-readability-todo
+# google-runtime-operator
+# llvm-namespace-comment
+# readability-avoid-const-params-in-decls
+
+# Evaluate
+# bugprone-bool-pointer-implicit-conversion
+# bugprone-forward-declaration-namespace
+# bugprone-multiple-statement-macro
+# cert-msc50-cpp
+# cppcoreguidelines-owning-memory
+# google-explicit-constructor
+# google-runtime-member-string-references
+# misc-macro-parentheses,  # We do have a few logging macros this will cause trouble with.
+# misc-unused-parameters
+# llvm-include-order
+# hicpp-signed-bitwise
+
+# Dont use:
+# boost-use-to-string
+# bugprone-argument-comment
+# fuchsia-default-arguments
+# fuchsia-overloaded-operator
+# fuchsia-virtual-inheritance
+# google-build-namespaces
+# google-objc-avoid-throwing-exception
+# google-objc-global-variable-declaration
+# google-runtime-references
+# objc-avoid-nserror-init
+# objc-avoid-spinlock
+# objc-forbidden-subclassing
+# objc-property-declaration
+# llvm-header-guard,
+# llvm-twine-local
+# mpi-buffer-deref
+# mpi-type-mismatch
+
+# Alias
+# cert-dcl03-c
+# cert-dcl54-cpp
+# cert-dcl59-cpp
+# cert-err09-cpp
+# cert-err61-cpp
+# cert-fio38-c
+# cert-msc30-c
+# cert-oop11-cpp
+# google-readability-redundant-smartptr-get
+# hicpp-braces-around-statements
+# hicpp-deprecated-headers
+# hicpp-explicit-conversions
+# hicpp-function-size
+# hicpp-invalid-access-moved
+# hicpp-member-init
+# hicpp-move-const-arg
+# hicpp-named-parameter
+# hicpp-no-array-decay
+# hicpp-no-malloc
+# hicpp-noexcept-move
+# hicpp-use-noexcept
+# hicpp-special-member-functions
+# hicpp-static-assert
+# hicpp-undelegated-constructor
+# hicpp-use-auto
+# hicpp-use-emplace
+# hicpp-use-equals-default
+# hicpp-use-equals-delete
+# hicpp-use-nullptr
+# hicpp-use-override
+# hicpp-vararg
+# misc-unconventional-assign-operator,
+
+
+# Android
+# android-cloexec-accept
+# android-cloexec-accept4
+# android-cloexec-creat
+# android-cloexec-dup
+# android-cloexec-epoll-create
+# android-cloexec-epoll-create1
+# android-cloexec-fopen
+# android-cloexec-inotify-init
+# android-cloexec-inotify-init1
+# android-cloexec-memfd-create
+# android-cloexec-open
+# android-cloexec-socket
+    

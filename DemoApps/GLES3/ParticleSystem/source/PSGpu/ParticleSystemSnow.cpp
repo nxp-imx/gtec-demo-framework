@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ParticleSystemSnow.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -68,7 +68,7 @@ namespace Fsl
 
     void PostCompilePreLinkCallback(const GLuint hProgram)
     {
-      const char* particleAttribLinkFeedback[] = { "Out_ParticlePosition", "Out_ParticleVelocity", "Out_ParticleEnergy" };
+      const char* particleAttribLinkFeedback[] = {"Out_ParticlePosition", "Out_ParticleVelocity", "Out_ParticleEnergy"};
       glTransformFeedbackVaryings(hProgram, 3, particleAttribLinkFeedback, GL_INTERLEAVED_ATTRIBS);
 
       GL_CHECK_FOR_ERROR();
@@ -76,12 +76,13 @@ namespace Fsl
   }
 
 
-  ParticleSystemSnow::ParticleSystemSnow(const uint32_t capacity, const std::shared_ptr<IContentManager>& contentManager, const Vector3& ranges, const float pointSize)
+  ParticleSystemSnow::ParticleSystemSnow(const uint32_t capacity, const std::shared_ptr<IContentManager>& contentManager, const Vector3& ranges,
+                                         const float pointSize)
     : m_capacity(capacity)
     , m_ranges(ranges)
     , m_pointSize(pointSize)
-    , m_programTransform(contentManager->ReadAllText("PSSnow_TransformFeedbackShader.vert"), contentManager->ReadAllText("PSSnow_TransformFeedbackShader.frag"), PostCompilePreLinkCallback)
-    , m_vertexBuffer1()
+    , m_programTransform(contentManager->ReadAllText("PSSnow_TransformFeedbackShader.vert"),
+                         contentManager->ReadAllText("PSSnow_TransformFeedbackShader.frag"), PostCompilePreLinkCallback)
     , m_vertexBuffer2(nullptr, capacity, ParticleSnowGPU::GetVertexDeclaration(), GL_STREAM_DRAW)
     , m_pCurrentVertexBuffer(&m_vertexBuffer1)
     , m_pOtherVertexBuffer(&m_vertexBuffer2)
@@ -90,10 +91,6 @@ namespace Fsl
     , m_locFeedbackDeltaTime(GLValues::INVALID_LOCATION)
     , m_locFeedbackUpperBoundaryY(GLValues::INVALID_LOCATION)
     , m_locFeedbackLowerBoundaryY(GLValues::INVALID_LOCATION)
-    , m_pipeline()
-    , m_shaderVert()
-    , m_shaderFrag()
-    , m_shaderGeom()
     , m_locViewProjectionMatrix(GLValues::INVALID_LOCATION)
     , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
     , m_locPointSize(GLValues::INVALID_LOCATION)
@@ -105,9 +102,12 @@ namespace Fsl
     {
       const auto hProgram = m_programTransform.Get();
       const auto vertexDecl = ParticleSnowGPU::GetVertexDeclaration();
-      m_particleAttribLinkFeedback[0] = GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticlePosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-      m_particleAttribLinkFeedback[1] = GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleVelocity"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
-      m_particleAttribLinkFeedback[2] = GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleEnergy"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
+      m_particleAttribLinkFeedback[0] =
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticlePosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      m_particleAttribLinkFeedback[1] =
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleVelocity"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
+      m_particleAttribLinkFeedback[2] =
+        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleEnergy"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
 
       m_locFeedbackDeltaTime = glGetUniformLocation(hProgram, "DeltaTime");
       m_locFeedbackUpperBoundaryY = glGetUniformLocation(hProgram, "UpperBoundaryY");
@@ -170,11 +170,17 @@ namespace Fsl
 
     // Load the matrices
     if (m_locViewProjectionMatrix >= 0)
+    {
       glProgramUniformMatrix4fv(m_shaderGeom.Get(), m_locViewProjectionMatrix, 1, GL_FALSE, context.MatrixWorldView.DirectAccess());
+    }
     if (m_locWorldViewProjectionMatrix >= 0)
+    {
       glProgramUniformMatrix4fv(m_shaderGeom.Get(), m_locWorldViewProjectionMatrix, 1, GL_FALSE, context.MatrixWorldViewProjection.DirectAccess());
+    }
     if (m_locPointSize >= 0)
+    {
       glProgramUniform1f(m_shaderGeom.Get(), m_locPointSize, m_pointSize);
+    }
 
     glBindBuffer(m_pCurrentVertexBuffer->GetTarget(), m_pCurrentVertexBuffer->Get());
     m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLink, 1);
@@ -195,9 +201,9 @@ namespace Fsl
     std::string strGeom = contentManager->ReadAllText("PSSnow_Render.geom");
 
     {
-      //GLShader shaderVert(GL_VERTEX_SHADER, strVert);
-      //GLShader shaderFrag(GL_FRAGMENT_SHADER, strFrag);
-      //GLShader shaderGeom(GL_GEOMETRY_SHADER_EXT, strGeom);
+      // GLShader shaderVert(GL_VERTEX_SHADER, strVert);
+      // GLShader shaderFrag(GL_FRAGMENT_SHADER, strFrag);
+      // GLShader shaderGeom(GL_GEOMETRY_SHADER_EXT, strGeom);
     }
 
     m_shaderVert.Reset(GL_VERTEX_SHADER, strVert);
@@ -207,18 +213,18 @@ namespace Fsl
 
     auto vertexDecl = ParticleSnowGPU::GetVertexDeclaration();
 
-    m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "ParticlePosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "ParticlePosition"),
+                                                 vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
 
     m_locViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldView");
     m_locWorldViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldViewProjection");
     m_locPointSize = glGetUniformLocation(m_shaderGeom.Get(), "PointSize");
 
-    //if (m_locViewProjectionMatrix < 0 || m_locWorldViewProjectionMatrix < 0)
+    // if (m_locViewProjectionMatrix < 0 || m_locWorldViewProjectionMatrix < 0)
     //  throw NotSupportedException("The shader does not conform to the expected behavior");
 
     glUseProgram(0);
     m_pipeline.Reset(true);
     GL_CHECK_FOR_ERROR();
   }
-
 }

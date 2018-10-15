@@ -1,10 +1,10 @@
 /*
-* Vulkan Example - Dynamic terrain tessellation
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Dynamic terrain tessellation
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'DynamicTerrainTesselation' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -24,6 +24,7 @@
 #include <RapidVulkan/Sampler.hpp>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <iomanip>
 #include <utility>
@@ -52,12 +53,8 @@ namespace Fsl
 
 
     // Vertex layout for this example
-    const std::vector<MeshLoader::VertexLayout> g_vertexLayout =
-    {
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_UV
-    };
+    const std::vector<MeshLoader::VertexLayout> g_vertexLayout = {
+      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION, MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL, MeshLoader::VertexLayout::VERTEX_LAYOUT_UV};
 
     // Encapsulate height map data for easy sampling
     struct HeightMap
@@ -66,6 +63,7 @@ namespace Fsl
       uint32_t Dim;
       std::vector<uint16_t> HeightData;
       uint32_t Scale;
+
     public:
       HeightMap(const Bitmap& srcBitmap, const uint32_t patchSize)
         : Dim(srcBitmap.GetExtent().Width)
@@ -94,7 +92,6 @@ namespace Fsl
         return *(HeightData.data() + (rpos.x + rpos.y * Dim) * Scale) / 65535.0f;
       }
     };
-
   }
 
 
@@ -120,8 +117,10 @@ namespace Fsl
 
     m_camera.MovementSpeed = 7.5f;
     // Support for tessellation shaders is optional, so check first
-    if (!m_deviceFeatures.tessellationShader)
+    if (m_deviceFeatures.tessellationShader == VK_FALSE)
+    {
       throw NotSupportedException("Selected GPU does not support tessellation shaders!");
+    }
 
     FSLLOG_WARNING_IF(!m_deviceFeatures.fillModeNonSolid, "Selected GPU does not support non solid fill mode");
     FSLLOG_WARNING_IF(!m_deviceFeatures.pipelineStatisticsQuery, "Selected GPU does not support pipeline statistics query");
@@ -130,14 +129,16 @@ namespace Fsl
 
   DynamicTerrainTessellation::~DynamicTerrainTessellation()
   {
-
+    SafeWaitForDeviceIdle();
   }
 
 
   void DynamicTerrainTessellation::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
 
     if (event.IsPressed())
@@ -178,7 +179,10 @@ namespace Fsl
     LoadMeshes();
     LoadTextures();
     GenerateTerrain();
-    SetupQueryResultBuffer();
+    if (m_deviceFeatures.pipelineStatisticsQuery != VK_FALSE)
+    {
+      SetupQueryResultBuffer();
+    }
     SetupVertexDescriptions();
     PrepareUniformBuffers();
     SetupDescriptorSetLayouts();
@@ -199,14 +203,18 @@ namespace Fsl
     const auto screenWidth = static_cast<float>(screenExtent.Width);
 
     rTextOverlay.AddText("Tessellation factor: " + ss.str() + " (numpad +/-)", 5.0f, 85.0f, VulkanTextOverlay::TextAlign::Left);
-    if (m_deviceFeatures.fillModeNonSolid)
+    if (m_deviceFeatures.fillModeNonSolid != VK_FALSE)
+    {
       rTextOverlay.AddText("Press 'f' to toggle wireframe", 5.0f, 100.0f, VulkanTextOverlay::TextAlign::Left);
+    }
     rTextOverlay.AddText("Press 't' to toggle tessellation", 5.0f, 115.0f, VulkanTextOverlay::TextAlign::Left);
     rTextOverlay.AddText("pipeline stats:", screenWidth - 5.0f, 5.0f, VulkanTextOverlay::TextAlign::Right);
-    rTextOverlay.AddText("VS:" + ToString(m_pipelineStats[0]), screenWidth - 5.0f, 20.0f, VulkanTextOverlay::TextAlign::Right);
-    rTextOverlay.AddText("TE:" + ToString(m_pipelineStats[1]), screenWidth - 5.0f, 35.0f, VulkanTextOverlay::TextAlign::Right);
+    if (m_deviceFeatures.pipelineStatisticsQuery != VK_FALSE)
+    {
+      rTextOverlay.AddText("VS:" + ToString(m_pipelineStats[0]), screenWidth - 5.0f, 20.0f, VulkanTextOverlay::TextAlign::Right);
+      rTextOverlay.AddText("TE:" + ToString(m_pipelineStats[1]), screenWidth - 5.0f, 35.0f, VulkanTextOverlay::TextAlign::Right);
+    }
   }
-
 
 
   void DynamicTerrainTessellation::OnViewChanged()
@@ -223,8 +231,8 @@ namespace Fsl
 
     VkClearValue clearValues[2];
     clearValues[0].color = m_defaultClearColor;
-    clearValues[0].color = { { 0.2f, 0.2f, 0.2f, 0.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[0].color = {{0.2f, 0.2f, 0.2f, 0.0f}};
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -258,7 +266,10 @@ namespace Fsl
       {
         m_drawCmdBuffers.Begin(i, cmdBufInfo);
 
-        vkCmdResetQueryPool(m_drawCmdBuffers[i], m_queryPool.Get(), 0, 2);
+        if (m_deviceFeatures.pipelineStatisticsQuery != VK_FALSE)
+        {
+          vkCmdResetQueryPool(m_drawCmdBuffers[i], m_queryPool.Get(), 0, 2);
+        }
 
         {
           vkCmdBeginRenderPass(m_drawCmdBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -266,27 +277,37 @@ namespace Fsl
           vkCmdSetScissor(m_drawCmdBuffers[i], 0, 1, &scissor);
           vkCmdSetLineWidth(m_drawCmdBuffers[i], 1.0f);
 
-          VkDeviceSize offsets[1] = { 0 };
+          VkDeviceSize offsets[1] = {0};
 
           // Skysphere
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Skysphere.Get());
-          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayouts.Skysphere.Get(), 0, 1, &m_descriptorSets.Skysphere, 0, nullptr);
+          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayouts.Skysphere.Get(), 0, 1,
+                                  &m_descriptorSets.Skysphere, 0, nullptr);
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Skysphere.GetVertices().GetBufferPointer(), offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Skysphere.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Skysphere.GetIndexCount(), 1, 0, 0, 0);
 
           // Terrain
-          // Begin pipeline statistics query
-          vkCmdBeginQuery(m_drawCmdBuffers[i], m_queryPool.Get(), 0, VK_QUERY_CONTROL_PRECISE_BIT);
+          if (m_deviceFeatures.pipelineStatisticsQuery != VK_FALSE)
+          {
+            // Begin pipeline statistics query
+            vkCmdBeginQuery(m_drawCmdBuffers[i], m_queryPool.Get(), 0, VK_QUERY_CONTROL_PRECISE_BIT);
+          }
           // Render
-          vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_wireframe ? m_pipelines.Wireframe.Get() : m_pipelines.Terrain.Get());
-          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayouts.Terrain.Get(), 0, 1, &m_descriptorSets.Terrain, 0, nullptr);
+          vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            m_wireframe ? m_pipelines.Wireframe.Get() : m_pipelines.Terrain.Get());
+          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayouts.Terrain.Get(), 0, 1,
+                                  &m_descriptorSets.Terrain, 0, nullptr);
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Terrain.GetVertices().GetBufferPointer(), offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Terrain.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Terrain.GetIndexCount(), 1, 0, 0, 0);
-          // End pipeline statistics query
-          vkCmdEndQuery(m_drawCmdBuffers[i], m_queryPool.Get(), 0);
+          if (m_deviceFeatures.pipelineStatisticsQuery != VK_FALSE)
+          {
+            // End pipeline statistics query
+            vkCmdEndQuery(m_drawCmdBuffers[i], m_queryPool.Get(), 0);
+          }
 
+          DrawUI(m_drawCmdBuffers[i]);
           vkCmdEndRenderPass(m_drawCmdBuffers[i]);
         }
 
@@ -304,17 +325,22 @@ namespace Fsl
   void DynamicTerrainTessellation::Draw(const DemoTime& demoTime)
   {
     if (!TryPrepareFrame())
+    {
       return;
+    }
 
     m_submitInfo.commandBufferCount = 1;
     m_submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);
 
     m_deviceQueue.Submit(1, &m_submitInfo, VK_NULL_HANDLE);
 
-    // Read query results for displaying in next frame
-    GetQueryResults();
-
     SubmitFrame();
+
+    if (m_deviceFeatures.pipelineStatisticsQuery != VK_FALSE)
+    {
+      // Read query results for displaying in next frame
+      GetQueryResults();
+    }
   }
 
 
@@ -329,14 +355,14 @@ namespace Fsl
   {
     FSLLOG("LoadTextures");
 
-    if (m_deviceFeatures.textureCompressionBC)
+    if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC compression");
       m_textures.SkySphere = m_textureLoader->LoadTexture("textures/skysphere_bc3.ktx");
       // Terrain textures are stored in a texture array with layers corresponding to terrain height
       m_textures.TerrainArray = m_textureLoader->LoadTextureArray("textures/terrain_texturearray_bc3.ktx");
     }
-    else if(m_deviceFeatures.textureCompressionETC2)
+    else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 compression");
       m_textures.SkySphere = m_textureLoader->LoadTexture("textures/skysphere_etc2.ktx");
@@ -353,7 +379,8 @@ namespace Fsl
 
     // Height data is stored in a one-channel texture
     VkImageFormatProperties imageFormatProperties{};
-    if (m_physicalDevice.TryGetPhysicalDeviceImageFormatProperties(VK_FORMAT_R16_UNORM, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0, imageFormatProperties))
+    if (m_physicalDevice.TryGetPhysicalDeviceImageFormatProperties(VK_FORMAT_R16_UNORM, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
+                                                                   VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0, imageFormatProperties))
     {
       FSLLOG("Heightmap using R16");
       m_textures.HeightMap = m_textureLoader->LoadTexture("textures/terrain_heightmap_r16.ktx", VK_FORMAT_R16_UNORM);
@@ -397,9 +424,9 @@ namespace Fsl
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = static_cast<float>(m_textures.TerrainArray.GetLevels());
     samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-    if (m_deviceFeatures.samplerAnisotropy)
+    if (m_deviceFeatures.samplerAnisotropy != VK_FALSE)
     {
-      samplerInfo.maxAnisotropy = m_deviceActiveFeatures.samplerAnisotropy ? 4.0f : 1.0f;
+      samplerInfo.maxAnisotropy = 4.0f;
       samplerInfo.anisotropyEnable = VK_TRUE;
     }
     Sampler terrainSampler(m_device.Get(), samplerInfo);
@@ -432,9 +459,9 @@ namespace Fsl
         {
           const uint32_t index = (x + y * PATCH_SIZE);
           assert(index < vertices.size());
-          pDst[index].pos[0] = (x * wx) + (wx / 2.0f) - ((static_cast<float>(PATCH_SIZE)* wx) / 2.0f);
+          pDst[index].pos[0] = (x * wx) + (wx / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wx) / 2.0f);
           pDst[index].pos[1] = 0.0f;
-          pDst[index].pos[2] = (y * wy) + (wy / 2.0f) - ((static_cast<float>(PATCH_SIZE)* wy) / 2.0f);
+          pDst[index].pos[2] = (y * wy) + (wy / 2.0f) - ((static_cast<float>(PATCH_SIZE) * wy) / 2.0f);
           pDst[index].uv = glm::vec2(static_cast<float>(x) / PATCH_SIZE, static_cast<float>(y) / PATCH_SIZE) * UV_SCALE;
         }
       }
@@ -466,7 +493,7 @@ namespace Fsl
         normal.z = heights[0][0] + 2.0f * heights[1][0] + heights[2][0] - heights[0][2] - 2.0f * heights[1][2] - heights[2][2];
         // Calculate missing up component of the normal using the filtered x and y axis
         // The first value controls the bump strength
-        normal.y = 0.25f * sqrt(1.0f - normal.x * normal.x - normal.z * normal.z);
+        normal.y = 0.25f * std::sqrt(1.0f - normal.x * normal.x - normal.z * normal.z);
 
         vertices[x + y * PATCH_SIZE].normal = glm::normalize(normal * glm::vec3(2.0f, 1.0f, 2.0f));
       }
@@ -482,7 +509,7 @@ namespace Fsl
         for (uint32_t y = 0; y < w; ++y)
         {
           const uint32_t index = (x + y * w) * 4;
-          assert((index+3) < indices.size());
+          assert((index + 3) < indices.size());
           pDst[index] = (x + y * PATCH_SIZE);
           pDst[index + 1] = indices[index] + PATCH_SIZE;
           pDst[index + 2] = indices[index + 1] + 1;
@@ -490,8 +517,8 @@ namespace Fsl
         }
       }
     }
-    //FIX:
-    //meshes.terrain.indexCount = (PATCH_SIZE - 1) * (PATCH_SIZE - 1) * 4;
+    // FIX:
+    // meshes.terrain.indexCount = (PATCH_SIZE - 1) * (PATCH_SIZE - 1) * 4;
     const auto terrainIndexCount = (PATCH_SIZE - 1) * (PATCH_SIZE - 1) * 4;
 
     const uint32_t vertexBufferSize = (PATCH_SIZE * PATCH_SIZE * 4) * sizeof(Vertex);
@@ -507,23 +534,18 @@ namespace Fsl
 
     // Create staging buffers
     // Vertex data
-    CreateBuffer(vertexStaging.Buffer, vertexStaging.Memory,
-      VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-      vertexBufferSize, vertices.data());
+    CreateBuffer(vertexStaging.Buffer, vertexStaging.Memory, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize,
+                 vertices.data());
 
     // Index data
-    CreateBuffer(indexStaging.Buffer, indexStaging.Memory,
-      VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-      indexBufferSize, indices.data());
+    CreateBuffer(indexStaging.Buffer, indexStaging.Memory, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize,
+                 indices.data());
 
-    CreateBuffer(terrainVertices.Buffer, terrainVertices.Memory,
-      VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBufferSize, nullptr);
+    CreateBuffer(terrainVertices.Buffer, terrainVertices.Memory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBufferSize, nullptr);
 
-    CreateBuffer(terrainIndices.Buffer, terrainIndices.Memory,
-      VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-      indexBufferSize, nullptr);
+    CreateBuffer(terrainIndices.Buffer, terrainIndices.Memory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize, nullptr);
 
     // Copy from staging buffers
     auto copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
@@ -531,7 +553,7 @@ namespace Fsl
     VkBufferCopy copyRegion{};
 
     copyRegion.size = vertexBufferSize;
-    vkCmdCopyBuffer(copyCmd.Get(), vertexStaging.Buffer.Get(), terrainVertices.Buffer.Get(),  1, &copyRegion);
+    vkCmdCopyBuffer(copyCmd.Get(), vertexStaging.Buffer.Get(), terrainVertices.Buffer.Get(), 1, &copyRegion);
 
     copyRegion.size = indexBufferSize;
     vkCmdCopyBuffer(copyCmd.Get(), indexStaging.Buffer.Get(), terrainIndices.Buffer.Get(), 1, &copyRegion);
@@ -551,6 +573,7 @@ namespace Fsl
   void DynamicTerrainTessellation::SetupQueryResultBuffer()
   {
     FSLLOG("SetupQueryResultBuffer");
+    assert(m_deviceFeatures.pipelineStatisticsQuery);
 
     const uint32_t bufSize = 2 * sizeof(uint64_t);
 
@@ -582,8 +605,7 @@ namespace Fsl
     queryPoolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     queryPoolInfo.queryType = VK_QUERY_TYPE_PIPELINE_STATISTICS;
     queryPoolInfo.pipelineStatistics =
-      VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
-      VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_EVALUATION_SHADER_INVOCATIONS_BIT;
+      VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT | VK_QUERY_PIPELINE_STATISTIC_TESSELLATION_EVALUATION_SHADER_INVOCATIONS_BIT;
     queryPoolInfo.queryCount = 2;
 
     m_queryPool.Reset(m_device.Get(), queryPoolInfo);
@@ -637,19 +659,14 @@ namespace Fsl
   {
     FSLLOG("PrepareUniformBuffers");
     // Shared tessellation shader stages uniform buffer
-    CreateBuffer(m_uniformData.TerrainTessellation.Buffer, m_uniformData.TerrainTessellation.Memory,
-      m_uniformData.TerrainTessellation.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboTess),
-      nullptr);
+    CreateBuffer(m_uniformData.TerrainTessellation.Buffer, m_uniformData.TerrainTessellation.Memory, m_uniformData.TerrainTessellation.Descriptor,
+                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboTess),
+                 nullptr);
 
     // Skysphere vertex shader uniform buffer
-    CreateBuffer(m_uniformData.SkysphereVertex.Buffer, m_uniformData.SkysphereVertex.Memory,
-      m_uniformData.SkysphereVertex.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboVS), nullptr);
+    CreateBuffer(m_uniformData.SkysphereVertex.Buffer, m_uniformData.SkysphereVertex.Memory, m_uniformData.SkysphereVertex.Descriptor,
+                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboVS),
+                 nullptr);
 
     UpdateUniformBuffers();
   }
@@ -661,8 +678,8 @@ namespace Fsl
 
     // Tessellation
     m_uboTess.Projection = m_camera.Matrices.Perspective;
-    m_uboTess.Modelview = m_camera.Matrices.View * glm::mat4();
-    m_uboTess.LightPos.y = -0.5f - m_uboTess.DisplacementFactor; // todo: Not used yet
+    m_uboTess.Modelview = m_camera.Matrices.View * glm::mat4(1.0f);
+    m_uboTess.LightPos.y = -0.5f - m_uboTess.DisplacementFactor;    // todo: Not used yet
     m_uboTess.ViewportDim = glm::vec2(static_cast<float>(screenExtent.Width), static_cast<float>(screenExtent.Height));
 
     m_frustum.Update(m_uboTess.Projection * m_uboTess.Modelview);
@@ -711,7 +728,8 @@ namespace Fsl
     setLayoutBindings[1].binding = 1;
     setLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     setLayoutBindings[1].descriptorCount = 1;
-    setLayoutBindings[1].stageFlags = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT | VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    setLayoutBindings[1].stageFlags =
+      VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT | VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     // Binding 3 : Terrain texture array layers
     setLayoutBindings[2].binding = 2;
     setLayoutBindings[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -812,12 +830,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR,
-      VK_DYNAMIC_STATE_LINE_WIDTH
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_LINE_WIDTH};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -899,7 +912,6 @@ namespace Fsl
 
   void DynamicTerrainTessellation::SetupDescriptorSets()
   {
-
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.pNext = nullptr;
@@ -991,7 +1003,7 @@ namespace Fsl
 
   void DynamicTerrainTessellation::ToggleWireframe()
   {
-    if (! m_deviceFeatures.fillModeNonSolid)
+    if (m_deviceFeatures.fillModeNonSolid == VK_FALSE)
     {
       FSLLOG("The device does not support the non solid fill mode, so the wireframe toggle is disabled");
       return;
@@ -1011,10 +1023,10 @@ namespace Fsl
 
   void DynamicTerrainTessellation::GetQueryResults()
   {
-    // We use vkGetQueryResults to copy the results into a host visible buffer
-    vkGetQueryPoolResults(m_device.Get(), m_queryPool.Get(),
-      0, 1, sizeof(m_pipelineStats), m_pipelineStats,
-      sizeof(uint64_t), VK_QUERY_RESULT_64_BIT);
-  }
+    assert(m_deviceFeatures.pipelineStatisticsQuery);
 
+    // We use vkGetQueryResults to copy the results into a host visible buffer
+    vkGetQueryPoolResults(m_device.Get(), m_queryPool.Get(), 0, 1, sizeof(m_pipelineStats), m_pipelineStats, sizeof(uint64_t),
+                          VK_QUERY_RESULT_64_BIT);
+  }
 }

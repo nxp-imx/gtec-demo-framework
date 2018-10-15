@@ -1,14 +1,14 @@
 #ifndef VULKAN_GEARS_VULKANGEAR_HPP
 #define VULKAN_GEARS_VULKANGEAR_HPP
 /*
-* Vulkan Example - Animated gears using multiple uniform buffers
-*
-* See readme.md for details
-*
-* Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Animated gears using multiple uniform buffers
+ *
+ * See readme.md for details
+ *
+ * Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -23,14 +23,14 @@ namespace Fsl
 {
   struct Vertex
   {
-    float Pos[3];
-    float Normal[3];
-    float Color[3];
+    float Pos[3]{};
+    float Normal[3]{};
+    float Color[3]{};
 
     Vertex()
-      //: Pos{} // bogus warning in VC2013
-      //, Normal{}
-      //, Color{}
+    //: Pos{} // bogus warning in VC2013
+    //, Normal{}
+    //, Color{}
     {
       // Bypass warning
       Pos[0] = 0;
@@ -96,6 +96,7 @@ namespace Fsl
 
     UBO m_ubo;
     Willems::VulkanUniformData m_uniformData;
+
   public:
     VkDescriptorSet DescriptorSet;
 
@@ -114,7 +115,6 @@ namespace Fsl
 
     void PrepareUniformBuffer();
   };
-
 }
 
 #endif

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "TessellationSample.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -64,8 +64,10 @@ namespace Fsl
 
   namespace
   {
-    std::shared_ptr<SliderControl> CreateSlider(const std::shared_ptr<WindowContext>& context, const std::string& name, const int32_t min, const int32_t max, const float widthF1, const float widthF2, const float widthF3,
-                                                const AtlasTexture2D& texBackground, const AtlasTexture2D& texCursor, const NineSlice& nineSlice, const ThicknessF& cursorPadding)
+    std::shared_ptr<SliderControl> CreateSlider(const std::shared_ptr<WindowContext>& context, const std::string& name, const int32_t min,
+                                                const int32_t max, const float widthF1, const float widthF2, const float widthF3,
+                                                const AtlasTexture2D& texBackground, const AtlasTexture2D& texCursor, const NineSlice& nineSlice,
+                                                const ThicknessF& cursorPadding)
     {
       std::shared_ptr<SliderControl> slider(new SliderControl(context, name, min, max, widthF1, widthF2, widthF3));
       slider->GetSlider()->SetBackgroundTexture(texBackground);
@@ -75,8 +77,9 @@ namespace Fsl
       return slider;
     }
 
-    template<typename T>
-    SceneRecord CreateSceneRecord(StackLayout& stack, const std::shared_ptr<WindowContext>& context, const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t id, const std::string& name)
+    template <typename T>
+    SceneRecord CreateSceneRecord(StackLayout& stack, const std::shared_ptr<WindowContext>& context, const DemoAppConfig& config,
+                                  const std::shared_ptr<OptionParser>& options, const int32_t id, const std::string& name)
     {
       SceneRecord record;
       record.Scene = std::make_shared<T>(config, options, id);
@@ -88,27 +91,12 @@ namespace Fsl
   }
 
 
-
   TessellationSample::TessellationSample(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(std::dynamic_pointer_cast<GLES3::NativeBatch2D>(m_graphics->GetNativeBatch2D()))
     , m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
-    , m_context()
-    , m_caption()
-    , m_checkDisplacement()
-    , m_checkWireframe()
-    , m_checkTexture()
-    , m_checkRotate()
-    , m_sliderTInner()
-    , m_sliderTOuter()
-    , m_sliderTDispFactor()
-    , m_sliderTDispMod()
-    , m_sliderShininess()
-    , m_fillLayout()
-    , m_scene()
-    , m_tessellationConfig()
   {
     RegisterExtension(m_uiExtension);
 
@@ -120,7 +108,7 @@ namespace Fsl
     m_scenes.push_back(CreateSceneRecord<LoadedScene>(*m_buttonStack, m_context, config, options, 0, "Face"));
     m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 0, "Torus"));
     m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 1, "Rocks"));
-    //m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 2, "Plane"));
+    // m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 2, "Plane"));
     m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 3, "Cube"));
 
 
@@ -138,10 +126,7 @@ namespace Fsl
   }
 
 
-  TessellationSample::~TessellationSample()
-  {
-
-  }
+  TessellationSample::~TessellationSample() = default;
 
 
   void TessellationSample::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
@@ -157,7 +142,6 @@ namespace Fsl
       }
     }
   }
-
 
 
   void TessellationSample::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
@@ -204,17 +188,20 @@ namespace Fsl
     {
       m_drawConfig.UseRotation = m_checkRotate->IsChecked();
     }
-
   }
 
 
   void TessellationSample::OnKeyEvent(const KeyEvent& event)
   {
     if (m_scene)
+    {
       m_scene->OnKeyEvent(event);
+    }
 
-    if (event.IsHandled() || ! event.IsPressed() )
+    if (event.IsHandled() || !event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -235,7 +222,7 @@ namespace Fsl
       m_checkDisplacement->Toggle();
       break;
     case VirtualKey::Q:
-      //m_uiExtension->GetWindowManager()->ScheduleClose(m_fillLayout);
+      // m_uiExtension->GetWindowManager()->ScheduleClose(m_fillLayout);
       break;
     default:
       break;
@@ -246,41 +233,55 @@ namespace Fsl
   void TessellationSample::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     if (m_scene)
+    {
       m_scene->OnMouseButtonEvent(event);
+    }
   }
 
 
   void TessellationSample::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     if (m_scene)
+    {
       m_scene->OnMouseMoveEvent(event);
+    }
   }
 
 
   void TessellationSample::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
     if (m_scene)
+    {
       m_scene->OnMouseWheelEvent(event);
+    }
   }
 
 
   void TessellationSample::Update(const DemoTime& demoTime)
   {
     if (m_scene)
+    {
       m_scene->Update(demoTime, m_drawConfig);
+    }
   }
 
 
   void TessellationSample::Draw(const DemoTime& demoTime)
   {
     if (m_scene)
+    {
       m_scene->Draw(m_drawConfig);
+    }
 
     // Calling this last allows the UI to draw on top of everything.
     // Beware that the UI drawing methods might alter the OpenGL state!
@@ -335,11 +336,16 @@ namespace Fsl
     float widthF2 = 200;
     float widthF3 = 80;
 
-    m_sliderTInner = CreateSlider(m_context, "TInner", 1, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderTOuter = CreateSlider(m_context, "TOuter", 1, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderTDispFactor = CreateSlider(m_context, "DispFactor", 0, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderTDispMod = CreateSlider(m_context, "DispMod", -10, 10, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderShininess = CreateSlider(m_context, "Shininess", 0, 100, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
+    m_sliderTInner =
+      CreateSlider(m_context, "TInner", 1, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
+    m_sliderTOuter =
+      CreateSlider(m_context, "TOuter", 1, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
+    m_sliderTDispFactor =
+      CreateSlider(m_context, "DispFactor", 0, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
+    m_sliderTDispMod =
+      CreateSlider(m_context, "DispMod", -10, 10, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
+    m_sliderShininess =
+      CreateSlider(m_context, "Shininess", 0, 100, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
 
     std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
     stackLayout->SetLayoutOrientation(LayoutOrientation::Vertical);
@@ -370,7 +376,7 @@ namespace Fsl
 
 
     // Add the fill layout to the window manager to ensure it is visible
-    m_context->WindowManager->Add(m_fillLayout);
+    m_uiExtension->GetWindowManager()->Add(m_fillLayout);
 
 
     m_checkDisplacement->SetIsChecked(true);
@@ -387,7 +393,7 @@ namespace Fsl
 
   void TessellationSample::UpdateCaption()
   {
-    //m_caption->SetContent(m_basicRenderingEnabled ? "RenderMode: Basic (t)" : "RenderMode: Tessellation (t)");
+    // m_caption->SetContent(m_basicRenderingEnabled ? "RenderMode: Basic (t)" : "RenderMode: Tessellation (t)");
   }
 
   void TessellationSample::UpdateUIWithSceneSettings()
@@ -402,6 +408,4 @@ namespace Fsl
     m_sliderTDispMod->SetValue(static_cast<int32_t>(m_tessellationConfig.DisplacementMod));
     m_sliderShininess->SetValue(static_cast<int32_t>(m_material.Shininess));
   }
-
-
 }

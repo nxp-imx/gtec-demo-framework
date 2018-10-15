@@ -80,6 +80,7 @@ from FslBuildGen.Packages.Package import PackageExternalDependency
 from FslBuildGen.Packages.Package import PackagePlatformVariant
 from FslBuildGen.Packages.Package import PackagePlatformVariantOption
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
+from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.Vars.Variable import Variable
 from FslBuildGen.Xml.Exceptions import XmlMissingWindowsVisualStudioProjectIdException
 from FslBuildGen.Xml.XmlGenFileExternalDependency import FakeXmlGenFileExternalDependencyHeaders
@@ -107,13 +108,14 @@ class PackageResolver(object):
                  genFiles: List[XmlGenFile],
                  autoAddRecipeExternals: bool,
                  fullResolve: bool,
-                 markExternalLibFirstUse: bool) -> None:
+                 markExternalLibFirstUse: bool,
+                 recipeFilterManager: RecipeFilterManager) -> None:
         """
         fullResolve
         - if this is false only the dependencies, platform, requirements and not supported will be resolved.
           This is useful for doing some filtering before doing a full resolve
         """
-        super(PackageResolver, self).__init__()
+        super().__init__()
         logVerbosity = 1 if fullResolve else 4
         if fullResolve:
             config.LogPrintVerbose(logVerbosity, "- Processing platform: {0}".format(platformContext.PlatformName))
@@ -147,7 +149,7 @@ class PackageResolver(object):
             if fullResolve:
                 config.LogPrintVerbose(4, "- Recipe")
                 # - Can trigger environment variables missing
-                self.__ResolveExperimentalRecipe(platformContext, finalResolveOrder, autoAddRecipeExternals)
+                self.__ResolveExperimentalRecipe(platformContext, finalResolveOrder, recipeFilterManager, autoAddRecipeExternals)
                 config.LogPrintVerbose(4, "- tool dependencies")
                 self.__ResolveBuildToolDependencies(platformContext, finalResolveOrder)
                 config.LogPrintVerbose(4, "- Direct externals")
@@ -184,10 +186,12 @@ class PackageResolver(object):
     def __ResolveExperimentalRecipe(self,
                                     platformContext: PlatformContext,
                                     finalResolveOrder: List[Package],
+                                    recipeFilterManager: RecipeFilterManager,
                                     resolveInstallPath: bool = True) -> None:
         for package in finalResolveOrder:
             platformName = platformContext.PlatformName if package.Type != PackageType.ToolRecipe else platformContext.HostPlatformName
-            package.ResolvedDirectExperimentalRecipe = package.TryGetExperimentaleRecipe(platformName)
+            forceDisable = not recipeFilterManager.IsEnabled(package.Name)
+            package.ResolvedDirectExperimentalRecipe = package.TryGetExperimentaleRecipe(platformName, forceDisable)
             if package.ResolvedDirectExperimentalRecipe is not None:
                 # Resolve the experimental recipe internally
                 self.__ResolveExperimentalRecipeEntry(platformContext, package, package.ResolvedDirectExperimentalRecipe, resolveInstallPath)
@@ -440,6 +444,15 @@ class PackageResolver(object):
                             self.__RemoveBuildIncludeDir(includeDirs[dirEntry], includeDirs, privateIncludeDirs, publicIncludeDirs)
                             self.__AddBuildIncludeDir(dirEntry, dep.Access, dep.Access, includeDirs, privateIncludeDirs, publicIncludeDirs)
 
+            # If this is a unit test package 'allow access to the source files as a include path' this is done to allow access to private headers
+            if package.IsUnitTest:
+                for parentPackage in package.ResolvedBuildOrder:
+                    if parentPackage.Name == package.Namespace and parentPackage.AbsoluteSourcePath is not None:
+                        sourceDir = self.__ExtractSourcePath(config, parentPackage)
+                        if config.Verbosity >= 4:
+                            config.LogPrint("  Adding source {0} as include for unit test {1}".format(sourceDir, package.Name))
+                        self.__AddBuildIncludeDir(sourceDir, AccessType.Private, AccessType.Private, includeDirs, privateIncludeDirs, publicIncludeDirs)
+
             allIncludeDirs = list(includeDirs.keys())
             allIncludeDirs.sort(key=lambda s: s.lower())
             publicIncludeDirs.sort(key=lambda s: s.lower())
@@ -599,6 +612,12 @@ class PackageResolver(object):
         if package.AbsoluteIncludePath is None:
             raise Exception("Invalid package")
         path = config.ToPath(package.AbsoluteIncludePath)
+        return Util.UTF8ToAscii(path)
+
+    def __ExtractSourcePath(self, config: Config, package: Package) -> str:
+        if package.AbsoluteSourcePath is None:
+            raise Exception("Invalid package")
+        path = config.ToPath(package.AbsoluteSourcePath)
         return Util.UTF8ToAscii(path)
 
 

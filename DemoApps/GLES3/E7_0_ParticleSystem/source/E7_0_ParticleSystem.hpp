@@ -38,18 +38,18 @@
 //
 
 /*
-* OpenGL ES 3.0 Tutorial 7
-*
-* Draws a Particle system
-*/
+ * OpenGL ES 3.0 Tutorial 7
+ *
+ * Draws a Particle system
+ */
 
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 
-#define NUM_PARTICLES   2000
-#define PARTICLE_SIZE   7
+#define NUM_PARTICLES 2000
+#define PARTICLE_SIZE 7
 
 namespace Fsl
 {
@@ -58,36 +58,29 @@ namespace Fsl
     struct UserData
     {
       //
-      GLint lifetimeLoc;
-      GLint startPositionLoc;
-      GLint endPositionLoc;
-      GLint timeLoc;
-      GLint colorLoc;
-      GLint centerPositionLoc;
-      GLint samplerLoc;
+      GLint lifetimeLoc{0};
+      GLint startPositionLoc{0};
+      GLint endPositionLoc{0};
+      GLint timeLoc{0};
+      GLint colorLoc{0};
+      GLint centerPositionLoc{0};
+      GLint samplerLoc{0};
 
       // Texture handle
       GLES3::GLTexture Texture;
 
       // Particle vertex data
-      float particleData[NUM_PARTICLES * PARTICLE_SIZE];
+      float particleData[NUM_PARTICLES * PARTICLE_SIZE]{};
 
       // Current time
-      float time;
+      float time{1.0f};
 
       UserData()
-        : lifetimeLoc(0)
-        , startPositionLoc(0)
-        , endPositionLoc(0)
-        , timeLoc(0)
-        , colorLoc(0)
-        , centerPositionLoc(0)
-        , samplerLoc(0)
-        , Texture()
-        , time(1.0f) // 1.0f to reset the system
       {
         for (int i = 0; i < NUM_PARTICLES * PARTICLE_SIZE; ++i)
+        {
           particleData[i] = 0.0f;
+        }
       }
     };
 
@@ -97,10 +90,11 @@ namespace Fsl
 
   public:
     E7_0_ParticleSystem(const DemoAppConfig& config);
-    ~E7_0_ParticleSystem();
+    ~E7_0_ParticleSystem() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

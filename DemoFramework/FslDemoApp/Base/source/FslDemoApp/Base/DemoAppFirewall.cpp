@@ -1,68 +1,84 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
-#include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslDemoApp/Base/Service/Exceptions.hpp>
+#include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
+#include <FslDemoApp/Base/Service/Exceptions.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <cassert>
+#include <thread>
 
 namespace Fsl
 {
-
-  DemoAppFirewall::DemoAppFirewall(const DemoAppConfig& demoAppConfig, const std::shared_ptr<IDemoAppFactory>& appFactory)
-    : ADemoApp(demoAppConfig)
-    , m_app()
-    , m_errorString()
-    , m_basic2D()
+  namespace
   {
-    { // Allocate basic 2D if available
+    inline const char* SafeStr(const char* const psz)
+    {
+      return psz != nullptr ? psz : "nullptr";
+    }
+  }
+
+  DemoAppFirewall::DemoAppFirewall(const DemoAppConfig& demoAppConfig, const std::shared_ptr<IDemoAppFactory>& appFactory,
+                                   const bool isConsoleBasedApp)
+    : ADemoApp(demoAppConfig)
+
+  {
+    {    // Allocate basic 2D if available
       auto graphicsService = demoAppConfig.DemoServiceProvider.TryGet<IGraphicsService>();
       if (graphicsService)
+      {
         m_basic2D = graphicsService->GetBasic2D();
+      }
     }
 
-    try
+    if (isConsoleBasedApp || (demoAppConfig.ScreenResolution.X > 0 && demoAppConfig.ScreenResolution.Y > 0))
     {
-      m_app = appFactory->Allocate(demoAppConfig);
+      try
+      {
+        m_app = appFactory->Allocate(demoAppConfig);
+      }
+      catch (const std::exception& ex)
+      {
+        FSLLOG_ERROR("App allocation threw exception: " << SafeStr(ex.what()));
+        SafeDispose();
+        BuildErrorString("App threw exception on construction:", ex);
+      }
     }
-    catch (const std::exception& ex)
+    else
     {
-      FSLLOG_ERROR("App allocation threw exception: " << ex.what());
-      SafeDispose();
-      BuildErrorString("App threw exception on construction:", ex);
+      FSLLOG_WARNING("Screen resolution is 0x0, delaying app start");
     }
   }
 
@@ -88,7 +104,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._PostConstruct threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._PostConstruct threw exception:", message);
@@ -96,9 +112,9 @@ namespace Fsl
   }
 
 
-  void DemoAppFirewall::_OnEvent(IEvent*const pEvent)
+  void DemoAppFirewall::_OnEvent(IEvent* const pEvent)
   {
-    if ( ! m_app )
+    if (!m_app)
     {
       ADemoApp::_OnEvent(pEvent);
       return;
@@ -111,7 +127,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._OnEvent threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._OnEvent threw exception:", message);
@@ -134,7 +150,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._Resized threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._Resized threw exception:", message);
@@ -157,7 +173,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._PreUpdate threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._PreUpdate threw exception:", message);
@@ -180,7 +196,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._FixedUpdate threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._FixedUpdate threw exception:", message);
@@ -203,7 +219,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._Update threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._Update threw exception:", message);
@@ -226,7 +242,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._PostUpdate threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._PostUpdate threw exception:", message);
@@ -244,12 +260,16 @@ namespace Fsl
         m_basic2D->DrawString(m_errorString, Vector2::Zero());
         m_basic2D->End();
       }
-      else
+      if (!m_appNotAllocatedInfoShown)
       {
-        FSLLOG(m_errorString);
+        m_appNotAllocatedInfoShown = true;
+        FSLLOG("App not allocated, press F5 to force reload");
       }
+      // While the app is unallocated we sleep during draw to prevent the app from consuming 100% cpu time busy waiting
+      std::this_thread::sleep_for(std::chrono::duration<uint64_t, std::milli>(8));
       return;
     }
+    m_appNotAllocatedInfoShown = false;
 
     try
     {
@@ -258,7 +278,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       std::string message;
-      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : ex.what();
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
       FSLLOG_ERROR("App._Draw threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._Draw threw exception:", message);
@@ -269,7 +289,9 @@ namespace Fsl
   void DemoAppFirewall::SafeDispose()
   {
     if (!m_app)
+    {
       return;
+    }
 
     try
     {
@@ -277,14 +299,14 @@ namespace Fsl
     }
     catch (const std::exception& ex)
     {
-      FSLLOG_ERROR("App.Destructors are not allowed to throw, but this one did. Exception: " << ex.what());
+      FSLLOG_ERROR("App.Destructors are not allowed to throw, but this one did. Exception: " << SafeStr(ex.what()));
     }
   }
 
 
   void DemoAppFirewall::BuildErrorString(const std::string& desc, const std::exception& ex)
   {
-    m_errorString = desc + " '" + ex.what() + "'";
+    m_errorString = desc + " '" + SafeStr(ex.what()) + "'";
   }
 
 
@@ -292,6 +314,4 @@ namespace Fsl
   {
     m_errorString = desc + " '" + message + "'";
   }
-
-
-}
+}    // namespace Fsl

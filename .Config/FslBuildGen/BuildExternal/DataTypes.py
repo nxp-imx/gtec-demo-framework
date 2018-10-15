@@ -31,8 +31,33 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Optional
+
 class RecipeType(object):
     Undefined = 0
     External = 1
     ExternalInstallation = 2
     Build = 3
+    Disabled = 4
+
+    @staticmethod
+    def ToString(value: int) -> str:
+        result = RecipeType.TryToString(value)
+        if result is not None:
+            return result
+        raise Exception("Unsupported RecipeType '{0}'".format(value))
+
+
+    @staticmethod
+    def TryToString(value: int) -> Optional[str]:
+        if value == RecipeType.Undefined:
+            return "Undefined"
+        elif value == RecipeType.External:
+            return "External"
+        elif value == RecipeType.ExternalInstallation:
+            return "ExternalInstallation"
+        elif value == RecipeType.Build:
+            return "Build"
+        elif value == RecipeType.Disabled:
+            return "Disabled"
+        return None

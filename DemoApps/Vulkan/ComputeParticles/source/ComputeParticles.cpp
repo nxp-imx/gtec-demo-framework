@@ -1,12 +1,12 @@
 /*
-* Vulkan Example - Attraction based compute shader particle system
-*
-* Updated compute shader by Lukas Bergdoll (https://github.com/Voultapher)
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Attraction based compute shader particle system
+ *
+ * Updated compute shader by Lukas Bergdoll (https://github.com/Voultapher)
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'ComputeParticles' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -48,6 +48,8 @@ namespace Fsl
 
   ComputeParticles::~ComputeParticles()
   {
+    SafeWaitForDeviceIdle();
+
     // Controlled shutdown since things are created and destroyed in a different order than the 'declaration order'
 
     m_compute.Fence.Reset();
@@ -56,14 +58,14 @@ namespace Fsl
     m_compute.Pipeline.Reset();
     // m_compute.DescriptorSet.Reset(); (pool managed)
     m_compute.DescriptorSetLayout.Reset();
-    //m_graphics.DescriptorSet.Reset();
+    // m_graphics.DescriptorSet.Reset();
     m_descriptorPool.Reset();
     m_graphics.Pipeline.Reset();
     m_graphics.PipelineLayout.Reset();
     m_graphics.DescriptorSetLayout.Reset();
     m_compute.UniformBuffer.Unmap();
     m_compute.UniformBuffer.Reset();
-    //m_compute.StorageBuffer.Unmap();
+    // m_compute.StorageBuffer.Unmap();
     m_compute.StorageBuffer.Reset();
   }
 
@@ -95,20 +97,23 @@ namespace Fsl
     Willems::VulkanWillemsDemoApp::OnKeyEvent(event);
 
     if (event.IsHandled())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
     case VirtualKey::A:
     case VirtualKey::GamePadButtonA:
       if (event.IsPressed())
+      {
         m_animate = !m_animate;
+      }
       break;
     default:
       break;
     }
   }
-
 
 
   void ComputeParticles::Update(const DemoTime& demoTime)
@@ -118,11 +123,13 @@ namespace Fsl
 
   void ComputeParticles::Draw(const DemoTime& demoTime)
   {
-    { // Do the draw
+    {    // Do the draw
       // Submit graphics commands
 
       if (!TryPrepareFrame())
+      {
         return;
+      }
 
       // Command buffer to be submitted to the queue
       m_submitInfo.commandBufferCount = 1;
@@ -156,7 +163,9 @@ namespace Fsl
       {
         m_timer += m_frameTimer * 0.04f;
         if (m_timer > 1.f)
+        {
           m_timer = 0.f;
+        }
       }
     }
 
@@ -168,7 +177,7 @@ namespace Fsl
   {
     // Destroy command buffers if already present
     // FIX:
-    //if (!CheckCommandBuffers())
+    // if (!CheckCommandBuffers())
     //{
     //  DestroyCommandBuffers();
     //  CreateCommandBuffers();
@@ -182,7 +191,7 @@ namespace Fsl
 
     VkClearValue clearValues[2];
     clearValues[0].color = m_defaultClearColor;
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -206,7 +215,7 @@ namespace Fsl
     scissor.offset.y = 0;
     scissor.extent = screenExtent;
 
-    VkDeviceSize offsets[1] = { 0 };
+    VkDeviceSize offsets[1] = {0};
 
     for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
     {
@@ -222,10 +231,13 @@ namespace Fsl
           vkCmdSetScissor(m_drawCmdBuffers[i], 0, 1, &scissor);
 
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics.Pipeline.Get());
-          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics.PipelineLayout.Get(), 0, 1, &m_graphics.DescriptorSet, 0, nullptr);
+          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics.PipelineLayout.Get(), 0, 1,
+                                  &m_graphics.DescriptorSet, 0, nullptr);
 
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_compute.StorageBuffer.GetBufferPointer(), offsets);
           vkCmdDraw(m_drawCmdBuffers[i], m_optionParser->GetParticleCount(), 1, 0, 0);
+
+          DrawUI(m_drawCmdBuffers[i]);
         }
         vkCmdEndRenderPass(m_drawCmdBuffers[i]);
       }
@@ -263,16 +275,14 @@ namespace Fsl
     // Staging
     // SSBO won't be changed on the host after upload so copy to device local memory
 
-    VulkanBuffer stagingBuffer = m_vulkanDevice.CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      storageBufferSize,
-      particleBuffer.data());
+    VulkanBuffer stagingBuffer =
+      m_vulkanDevice.CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                  storageBufferSize, particleBuffer.data());
 
     // The SSBO will be used as a storage buffer for the compute pipeline and as a vertex buffer in the graphics pipeline
-    m_compute.StorageBuffer = m_vulkanDevice.CreateBuffer(
-      VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-      storageBufferSize);
+    m_compute.StorageBuffer =
+      m_vulkanDevice.CreateBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, storageBufferSize);
 
     // Copy to staging buffer
     CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
@@ -316,9 +326,8 @@ namespace Fsl
   void ComputeParticles::PrepareUniformBuffers()
   {
     // Compute shader uniform buffer block
-    m_compute.UniformBuffer = m_vulkanDevice.CreateBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_compute.Ubo));
+    m_compute.UniformBuffer = m_vulkanDevice.CreateBuffer(
+      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_compute.Ubo));
 
     // Map for host access
     m_compute.UniformBuffer.MapEx();
@@ -340,8 +349,8 @@ namespace Fsl
       const auto screenExtent = GetScreenExtent();
       if (screenExtent.Width > 0 && screenExtent.Height > 0)
       {
-        const float normalizedMx = (m_mousePos.x - static_cast<float>(screenExtent.Width / 2)) / static_cast<float>(screenExtent.Width / 2);
-        const float normalizedMy = (m_mousePos.y - static_cast<float>(screenExtent.Height / 2)) / static_cast<float>(screenExtent.Height / 2);
+        const float normalizedMx = (m_mousePos.x - static_cast<float>(screenExtent.Width / 2.0f)) / static_cast<float>(screenExtent.Width / 2.0f);
+        const float normalizedMy = (m_mousePos.y - static_cast<float>(screenExtent.Height / 2.0f)) / static_cast<float>(screenExtent.Height / 2.0f);
         m_compute.Ubo.DestX = normalizedMx;
         m_compute.Ubo.DestY = normalizedMy;
       }
@@ -431,11 +440,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -656,49 +661,41 @@ namespace Fsl
       bufferBarrier.pNext = nullptr;
       bufferBarrier.buffer = m_compute.StorageBuffer.GetBuffer();
       bufferBarrier.size = m_compute.StorageBuffer.GetDesciptor().range;
-      bufferBarrier.srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;                    // Vertex shader invocations have finished reading from the buffer
-      bufferBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;                             // Compute shader wants to write to the buffer
+      bufferBarrier.srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;    // Vertex shader invocations have finished reading from the buffer
+      bufferBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;             // Compute shader wants to write to the buffer
       // Compute and graphics queue may have different queue families (see VulkanDevice::createLogicalDevice)
       // For the barrier to work across different queues, we need to set their family indices
-      bufferBarrier.srcQueueFamilyIndex = m_vulkanDevice.GetQueueFamilyIndices().Graphics;  // Required as compute and graphics queue may have different families
-      bufferBarrier.dstQueueFamilyIndex = m_vulkanDevice.GetQueueFamilyIndices().Compute;   // Required as compute and graphics queue may have different families
+      bufferBarrier.srcQueueFamilyIndex =
+        m_vulkanDevice.GetQueueFamilyIndices().Graphics;    // Required as compute and graphics queue may have different families
+      bufferBarrier.dstQueueFamilyIndex =
+        m_vulkanDevice.GetQueueFamilyIndices().Compute;    // Required as compute and graphics queue may have different families
 
-      vkCmdPipelineBarrier(
-        m_compute.CommandBuffer.Get(),
-        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-        Config::FLAGS_NONE,
-        0, nullptr,
-        1, &bufferBarrier,
-        0, nullptr);
+      vkCmdPipelineBarrier(m_compute.CommandBuffer.Get(), VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                           Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
 
       vkCmdBindPipeline(m_compute.CommandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_compute.Pipeline.Get());
-      vkCmdBindDescriptorSets(m_compute.CommandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_compute.PipelineLayout.Get(), 0, 1, &m_compute.DescriptorSet, 0, 0);
+      vkCmdBindDescriptorSets(m_compute.CommandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_compute.PipelineLayout.Get(), 0, 1,
+                              &m_compute.DescriptorSet, 0, nullptr);
 
       // Dispatch the compute job
       vkCmdDispatch(m_compute.CommandBuffer.Get(), m_optionParser->GetParticleCount() / 16, 1, 1);
 
       // Add memory barrier to ensure that compute shader has finished writing to the buffer
       // Without this the (rendering) vertex shader may display incomplete results (partial data from last frame)
-      bufferBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;                       // Compute shader has finished writes to the buffer
-      bufferBarrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;              // Vertex shader invocations want to read from the buffer
+      bufferBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;             // Compute shader has finished writes to the buffer
+      bufferBarrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;    // Vertex shader invocations want to read from the buffer
       bufferBarrier.buffer = m_compute.StorageBuffer.GetBuffer();
       bufferBarrier.size = m_compute.StorageBuffer.GetDesciptor().range;
       // Compute and graphics queue may have different queue families (see VulkanDevice::createLogicalDevice)
       // For the barrier to work across different queues, we need to set their family indices
-      bufferBarrier.srcQueueFamilyIndex = m_vulkanDevice.GetQueueFamilyIndices().Compute;   // Required as compute and graphics queue may have different families
-      bufferBarrier.dstQueueFamilyIndex = m_vulkanDevice.GetQueueFamilyIndices().Graphics;  // Required as compute and graphics queue may have different families
+      bufferBarrier.srcQueueFamilyIndex =
+        m_vulkanDevice.GetQueueFamilyIndices().Compute;    // Required as compute and graphics queue may have different families
+      bufferBarrier.dstQueueFamilyIndex =
+        m_vulkanDevice.GetQueueFamilyIndices().Graphics;    // Required as compute and graphics queue may have different families
 
-      vkCmdPipelineBarrier(
-        m_compute.CommandBuffer.Get(),
-        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-        Config::FLAGS_NONE,
-        0, nullptr,
-        1, &bufferBarrier,
-        0, nullptr);
+      vkCmdPipelineBarrier(m_compute.CommandBuffer.Get(), VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+                           Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
     }
     m_compute.CommandBuffer.End();
   }
-
 }

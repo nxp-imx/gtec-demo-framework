@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslBase/Math/MathHelper.hpp>
@@ -124,23 +124,22 @@ namespace Fsl
 
       inline void RestoreState(const GLenum oldState, const GLboolean oldValue)
       {
-        if (oldValue)
+        if (oldValue != 0u)
+        {
           glEnable(oldState);
+        }
         else
+        {
           glDisable(oldState);
+        }
       }
     }
 
 
     GLBatch2DQuadRenderer::GLBatch2DQuadRenderer(const int32_t quadCapacityHint)
-      : m_screenResolution()
-      , m_indexBuffer()
-      , m_vertexBuffer()
-      , m_program(g_vertexShader, g_fragmentShader)
+      : m_program(g_vertexShader, g_fragmentShader)
       , m_vertexOffset(0)
       , m_indexOffset(0)
-      , m_oldState()
-      , m_currentState()
       , m_locMatModelViewProj(GLValues::INVALID_LOCATION)
       , m_locTexture(GLValues::INVALID_LOCATION)
     {
@@ -254,13 +253,21 @@ namespace Fsl
       }
 
       if (m_oldState.DepthTest != GL_FALSE)
+      {
         glDisable(GL_DEPTH_TEST);
+      }
       if (m_oldState.CullFace != GL_FALSE)
+      {
         glDisable(GL_CULL_FACE);
+      }
       if (m_oldState.ScissorTest != GL_FALSE)
+      {
         glDisable(GL_SCISSOR_TEST);
+      }
       if (m_oldState.ActiveTexture != GL_TEXTURE0)
+      {
         glActiveTexture(GL_TEXTURE0);
+      }
       glUseProgram(hProgram);
       glBindBuffer(m_vertexBuffer.GetTarget(), m_vertexBuffer.Get());
       glBindBuffer(m_indexBuffer.GetTarget(), m_indexBuffer.Get());
@@ -272,8 +279,8 @@ namespace Fsl
         m_screenResolution = screenResolution;
 
         // Setup the shader
-        const float screenWidth = static_cast<float>(m_screenResolution.X);
-        const float screenHeight = static_cast<float>(m_screenResolution.Y);
+        const auto screenWidth = static_cast<float>(m_screenResolution.X);
+        const auto screenHeight = static_cast<float>(m_screenResolution.Y);
         const float screenOffsetX = std::floor(screenWidth / 2.0f);
         const float screenOffsetY = std::floor(screenHeight / 2.0f);
 
@@ -293,7 +300,9 @@ namespace Fsl
     {
       // Restore the initial state
       if (m_oldState.Blend != m_currentState.Blend)
+      {
         RestoreState(GL_BLEND, m_oldState.Blend);
+      }
 
       // Restore the blend func if necessary
       if (m_oldState.BlendSrcRGB != m_currentState.BlendSrcRGB || m_oldState.BlendDstRGB != m_currentState.BlendDstRGB ||
@@ -303,13 +312,21 @@ namespace Fsl
       }
 
       if (m_oldState.CullFace != GL_FALSE)
+      {
         RestoreState(GL_CULL_FACE, m_oldState.CullFace);
+      }
       if (m_oldState.DepthTest != GL_FALSE)
+      {
         RestoreState(GL_DEPTH_TEST, m_oldState.DepthTest);
+      }
       if (m_oldState.ScissorTest != GL_FALSE)
+      {
         RestoreState(GL_SCISSOR_TEST, m_oldState.ScissorTest);
+      }
       if (m_oldState.ActiveTexture != GL_TEXTURE0)
+      {
         glActiveTexture(m_oldState.ActiveTexture);
+      }
       glBindTexture(GL_TEXTURE_2D, m_oldState.CurrentTexture);
       glUseProgram(m_oldState.CurrentProgram);
       glBindBuffer(GL_ARRAY_BUFFER, m_oldState.VertexBuffer);
@@ -318,16 +335,21 @@ namespace Fsl
       // restore the attrib state
       for (int i = 0; i < 3; ++i)
       {
-        glVertexAttribPointer(i, m_oldState.Attrib[i].Size, m_oldState.Attrib[i].Type, m_oldState.Attrib[i].Normalized, m_oldState.Attrib[i].Stride, m_oldState.Attrib[i].Pointer);
-        if (m_oldState.Attrib[i].Enabled)
+        glVertexAttribPointer(i, m_oldState.Attrib[i].Size, m_oldState.Attrib[i].Type, m_oldState.Attrib[i].Normalized, m_oldState.Attrib[i].Stride,
+                              m_oldState.Attrib[i].Pointer);
+        if (m_oldState.Attrib[i].Enabled != 0)
+        {
           glEnableVertexAttribArray(i);
+        }
         else
+        {
           glDisableVertexAttribArray(i);
+        }
       }
     }
 
 
-    void GLBatch2DQuadRenderer::DrawQuads(const VertexPositionColorTexture*const pVertices, const uint32_t length, const GLTextureInfo& textureInfo)
+    void GLBatch2DQuadRenderer::DrawQuads(const VertexPositionColorTexture* const pVertices, const uint32_t length, const GLTextureInfo& textureInfo)
     {
       assert(pVertices != nullptr);
       assert(length >= 1);
@@ -352,7 +374,7 @@ namespace Fsl
 
         const auto numIndices = 4 + (((verticesToAdd / QUAD_VERTEX_COUNT) - 1) * 6);
         assert((m_indexOffset + numIndices) <= m_indexBuffer.GetCapacity());
-        glDrawElements(GL_TRIANGLE_STRIP, numIndices, m_indexBuffer.GetType(), (const void*)(m_indexOffset*sizeof(uint16_t)));
+        glDrawElements(GL_TRIANGLE_STRIP, numIndices, m_indexBuffer.GetType(), reinterpret_cast<const void*>(m_indexOffset * sizeof(uint16_t)));
         m_indexOffset += numIndices + 2;
         verticesLeft -= verticesToAdd;
       }
@@ -370,7 +392,7 @@ namespace Fsl
         m_indexOffset = 0;
       }
 
-      if ( verticesLeft > 0)
+      if (verticesLeft > 0)
       {
         m_vertexOffset = 0;
         m_indexOffset = 0;
@@ -382,14 +404,11 @@ namespace Fsl
 
         const int32_t numIndices = 4 + (((verticesLeft / QUAD_VERTEX_COUNT) - 1) * 6);
         assert((m_indexOffset + numIndices) <= m_indexBuffer.GetCapacity());
-        glDrawElements(GL_TRIANGLE_STRIP, numIndices, m_indexBuffer.GetType(), (const void*)(m_indexOffset*sizeof(uint16_t)));
+        glDrawElements(GL_TRIANGLE_STRIP, numIndices, m_indexBuffer.GetType(), reinterpret_cast<const void*>(m_indexOffset * sizeof(uint16_t)));
         m_indexOffset += numIndices + 2;
         verticesLeft -= verticesLeft;
         assert(verticesLeft == 0);
       }
-
     }
-
-
   }
 }

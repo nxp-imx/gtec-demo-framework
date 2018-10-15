@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
@@ -35,8 +35,9 @@
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
+#include <FslSimpleUI/Base/Event/RoutedEventArgs.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
@@ -52,11 +53,6 @@ namespace Fsl
 {
   namespace UI
   {
-
-    struct RoutedEventArgs
-    {
-    };
-
     namespace
     {
       inline float CalcAlignment(const ItemAlignment alignment, const float delta)
@@ -73,38 +69,41 @@ namespace Fsl
         }
       }
 
-      template<typename T, typename Y>
+      template <typename T, typename Y>
       inline std::shared_ptr<T> SafeDynamicPointerCast(const std::shared_ptr<Y>& ptr)
       {
         auto converted = std::dynamic_pointer_cast<T>(ptr);
         if (!converted)
+        {
           throw UsageErrorException("Internal error the object is not of the expected type");
+        }
         return converted;
       }
     }
 
 
-    BaseWindow::BaseWindow(const std::shared_ptr<WindowContext>& context)
+    BaseWindow::BaseWindow(const std::shared_ptr<BaseWindowContext>& context)
       : m_context(context)
       , m_size(-1, -1)
-      , m_margin()
       , m_alignmentX(ItemAlignment::Near)
       , m_alignmentY(ItemAlignment::Near)
-      , m_flags()
-      , m_layoutCache()
     {
+      if (!context)
+      {
+        throw std::invalid_argument("context can not be null");
+      }
     }
 
 
-    BaseWindow::~BaseWindow()
-    {
-    }
+    BaseWindow::~BaseWindow() = default;
 
 
     bool BaseWindow::WinMarkLayoutAsDirty()
     {
       if (m_flags.IsEnabled(BaseWindowFlags::LayoutDirty))
+      {
         return false;
+      }
       m_flags.Enable(BaseWindowFlags::LayoutDirty);
       return true;
     }
@@ -119,9 +118,13 @@ namespace Fsl
       {
         auto event = SafeDynamicPointerCast<WindowInputClickEvent>(routedEvent.Content);
         if (routedEvent.IsTunneling)
+        {
           OnClickInputPreview(routedEventArgs, event);
+        }
         else
+        {
           OnClickInput(routedEventArgs, event);
+        }
       }
       break;
       case EventTypeId::Select:
@@ -184,7 +187,8 @@ namespace Fsl
           const float alignmentOffsetX = CalcAlignment(m_alignmentX, dx);
           const float alignmentOffsetY = CalcAlignment(m_alignmentY, dy);
 
-          m_layoutCache.ContentRect = Rect((finalRect.Left() + m_margin.Left() + alignmentOffsetX), (finalRect.Top() + m_margin.Top() + alignmentOffsetY), renderSize.X, renderSize.Y);
+          m_layoutCache.ContentRect = Rect((finalRect.Left() + m_margin.Left() + alignmentOffsetX),
+                                           (finalRect.Top() + m_margin.Top() + alignmentOffsetY), renderSize.X, renderSize.Y);
           m_layoutCache.ClippedContentRect = Rect::Intersect(m_layoutCache.ContentRect, finalRect);
           m_layoutCache.RenderSize = Vector2(m_layoutCache.ContentRect.Width(), m_layoutCache.ContentRect.Height());
           MarkLayoutArrangeEnd();
@@ -201,7 +205,7 @@ namespace Fsl
 
     void BaseWindow::Measure(const Vector2& availableSize)
     {
-      //if (IsLayoutDirty() || !EqualHelper::IsAlmostEqual(availableSize, m_layoutCache.MeasureLastAvailableSize))
+      // if (IsLayoutDirty() || !EqualHelper::IsAlmostEqual(availableSize, m_layoutCache.MeasureLastAvailableSize))
       {
         m_layoutCache.MeasureLastAvailableSize = availableSize;
 
@@ -245,9 +249,13 @@ namespace Fsl
 
             // handle invalid measure results.
             if (isnan(desiredSize.X) || isnan(desiredSize.Y))
+            {
               throw UsageErrorException("MeasureOverride returned NaN!");
+            }
             if (isinf(desiredSize.X) || isinf(desiredSize.Y))
+            {
               throw UsageErrorException("MeasureOverride returned infinity!");
+            }
           }
 
           m_layoutCache.DesiredSize = desiredSize;
@@ -274,7 +282,7 @@ namespace Fsl
 
     void BaseWindow::SetWidth(const int32_t value)
     {
-      const float floatValue = static_cast<float>(value);
+      const auto floatValue = static_cast<float>(value);
       if (floatValue != m_size.X)
       {
         m_size.X = floatValue;
@@ -295,7 +303,7 @@ namespace Fsl
 
     void BaseWindow::SetHeight(const int32_t value)
     {
-      const float floatValue = static_cast<float>(value);
+      const auto floatValue = static_cast<float>(value);
       if (floatValue != m_size.Y)
       {
         m_size.Y = floatValue;
@@ -336,30 +344,41 @@ namespace Fsl
 
     Vector2 BaseWindow::PointFromScreen(const Vector2& screenPoint) const
     {
-      return m_context->WindowManager->PointFromScreen(this, screenPoint);
+      auto uiContext = GetContext()->TheUIContext.Get();
+      return uiContext->WindowManager->PointFromScreen(this, screenPoint);
     }
 
 
-    Vector2 BaseWindow::PointFrom(const IWindowId*const pFromWin, const Vector2& point) const
+    Vector2 BaseWindow::PointFrom(const IWindowId* const pFromWin, const Vector2& point) const
     {
-      auto screenPoint = m_context->WindowManager->PointToScreen(pFromWin, point);
-      return m_context->WindowManager->PointFromScreen(this, screenPoint);
+      auto uiContext = GetContext()->TheUIContext.Get();
+      auto& windowManager = uiContext->WindowManager;
+      auto screenPoint = windowManager->PointToScreen(pFromWin, point);
+      return windowManager->PointFromScreen(this, screenPoint);
     }
 
 
-    Vector2 BaseWindow::PointTo(const IWindowId*const pToWin, const Vector2& point) const
+    Vector2 BaseWindow::PointTo(const IWindowId* const pToWin, const Vector2& point) const
     {
-      auto screenPoint = m_context->WindowManager->PointToScreen(this, point);
-      return m_context->WindowManager->PointFromScreen(pToWin, screenPoint);
+      auto uiContext = GetContext()->TheUIContext.Get();
+      auto& windowManager = uiContext->WindowManager;
+      auto screenPoint = windowManager->PointToScreen(this, point);
+      return windowManager->PointFromScreen(pToWin, screenPoint);
     }
 
     bool BaseWindow::IsReadyToSendEvents()
     {
       if (m_flags.IsEnabled(BaseWindowFlags::CachedEventReady))
+      {
         return true;
+      }
 
-      if (!m_context->WindowManager->Exists(this))
+
+      auto uiContext = GetContext()->TheUIContext.Get();
+      if (!uiContext->WindowManager->Exists(this))
+      {
         return false;
+      }
 
       m_flags.Set(BaseWindowFlags::CachedEventReady, true);
       return true;
@@ -368,11 +387,12 @@ namespace Fsl
 
     void BaseWindow::SendEvent(const std::shared_ptr<WindowEvent>& event)
     {
-      m_context->EventSender->SendEvent(event, this);
+      auto uiContext = GetContext()->TheUIContext.Get();
+      uiContext->EventSender->SendEvent(event, this);
     }
 
     // Disabled for now as its easy to forget to release the event back to the pool on failure
-    //bool BaseWindow::TrySendEvent(const std::shared_ptr<WindowEvent>& event)
+    // bool BaseWindow::TrySendEvent(const std::shared_ptr<WindowEvent>& event)
     //{
     //  return m_context->EventSender->TrySendEvent(event, this);
     //}
@@ -380,7 +400,8 @@ namespace Fsl
 
     const std::shared_ptr<WindowEventPool>& BaseWindow::GetEventPool() const
     {
-      return m_context->EventSender->EventPool;
+      auto uiContext = GetContext()->TheUIContext.Get();
+      return uiContext->EventSender->EventPool;
     }
 
 
@@ -389,8 +410,9 @@ namespace Fsl
       if (!m_flags.IsEnabled(flags))
       {
         m_flags.Enable(flags);
-        if (m_context)
-          m_context->WindowManager->TrySetWindowFlags(this, flags);
+
+        auto uiContext = GetContext()->TheUIContext.Get();
+        uiContext->WindowManager->TrySetWindowFlags(this, flags);
       }
     }
 
@@ -414,7 +436,9 @@ namespace Fsl
         OnPropertiesUpdated(flags);
       }
       else
+      {
         m_flags.Value |= flags.GetSafeValue();
+      }
     }
 
 
@@ -424,10 +448,13 @@ namespace Fsl
       {
         if (isDirty)
         {
-          m_context->WindowManager->TrySetWindowFlags(this, WindowFlags::LayoutDirty);
+          auto uiContext = GetContext()->TheUIContext.Get();
+          uiContext->WindowManager->TrySetWindowFlags(this, WindowFlags::LayoutDirty);
         }
         else
+        {
           m_flags.Disable(BaseWindowFlags::LayoutDirty);
+        }
       }
     }
   }

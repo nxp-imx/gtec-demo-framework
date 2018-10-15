@@ -1,12 +1,12 @@
 #ifndef SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_FRUSTRUM_HPP
 #define SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_FRUSTRUM_HPP
 /*
-* View frustum culling class
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * View frustum culling class
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 #include <vulkan/vulkan.h>
 #include <array>
@@ -20,7 +20,15 @@ namespace Fsl
     class Frustum
     {
     public:
-      enum Side { LEFT = 0, RIGHT = 1, TOP = 2, BOTTOM = 3, BACK = 4, FRONT = 5 };
+      enum Side
+      {
+        LEFT = 0,
+        RIGHT = 1,
+        TOP = 2,
+        BOTTOM = 3,
+        BACK = 4,
+        FRONT = 5
+      };
       std::array<glm::vec4, 6> Planes;
 
       void Update(const glm::mat4& matrix)
@@ -74,7 +82,6 @@ namespace Fsl
         return true;
       }
     };
-
   }
 }
 

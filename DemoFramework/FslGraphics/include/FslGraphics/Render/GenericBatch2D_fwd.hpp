@@ -1,35 +1,35 @@
 #ifndef FSLGRAPHICS_RENDER_GENERICBATCH2D_FWD_HPP
 #define FSLGRAPHICS_RENDER_GENERICBATCH2D_FWD_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Rectangle.hpp>
@@ -48,7 +48,7 @@ namespace Fsl
   struct Vector2;
   class TextureAtlasBitmapFont;
 
-  template<typename T>
+  template <typename T>
   struct GenericBatch2DAtlasTexture
   {
     T Texture;
@@ -88,28 +88,25 @@ namespace Fsl
   //!        the bottom right corner is equal to the display width-1,height-1
   //! @note  This API provides a form of batched immediate mode, so it will be slower than properly
   //         optimized graphics, but its faster to get something running and good for debugging.
-  template<typename TNativeBatch, typename TTexture, typename TVFormatter=GenericBatch2DFormat::Flipped>
+  template <typename TNativeBatch, typename TTexture, typename TVFormatter = GenericBatch2DFormat::Flipped>
   class GenericBatch2D
   {
     static const uint32_t VERTICES_PER_QUAD = 4;
     static const uint32_t EXPAND_QUAD_GROWTH = 1024;
+
   public:
+    using texture_type = TTexture;
+    using atlas_texture_type = GenericBatch2DAtlasTexture<texture_type>;
+    using native_batch_type = TNativeBatch;
 
-
-
-    typedef TTexture texture_type;
-    typedef GenericBatch2DAtlasTexture<texture_type> atlas_texture_type;
-    typedef TNativeBatch native_batch_type;
   private:
-
     struct DrawRecord
     {
       texture_type NativeTexture;
-      uint32_t QuadCount;
+      uint32_t QuadCount{0};
 
       DrawRecord()
         : NativeTexture()
-        , QuadCount(0)
       {
       }
       DrawRecord(const texture_type& nativeTexture)
@@ -135,8 +132,9 @@ namespace Fsl
     bool m_restoreState;
     std::vector<Vector2> m_posScratchpad;
     std::vector<FontGlyphPosition> m_glyphScratchpad;
+
   public:
-    GenericBatch2D(const native_batch_type& nativeGraphics, const Point2& screenResolution);
+    GenericBatch2D(const native_batch_type& nativeBatchType, const Point2& screenResolution);
     virtual ~GenericBatch2D();
 
     void SetScreenResolution(const Point2& resolution);
@@ -201,11 +199,11 @@ namespace Fsl
 
     //! @brief Scale the texture area so it fits inside the dstRectangle
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const atlas_texture_type& srcTexture, const Rect& dstRect, const Rectangle& srcRectangle, const Color& color);
+    void Draw(const atlas_texture_type& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color);
 
     //! @brief Scale the texture area so it fits inside the dstRectangle
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const texture_type& srcTexture, const Rect& dstRect, const Rectangle& srcRectangle, const Color& color);
+    void Draw(const texture_type& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color);
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
@@ -217,47 +215,55 @@ namespace Fsl
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale);
+    void Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin,
+              const Vector2& scale);
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale);
+    void Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin,
+              const Vector2& scale);
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const Vector2& origin, const Vector2& scale);
+    void Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color,
+              const Vector2& origin, const Vector2& scale);
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const Vector2& origin, const Vector2& scale);
+    void Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const Vector2& origin,
+              const Vector2& scale);
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale);
+    void Draw(const atlas_texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color,
+              const float rotation, const Vector2& origin, const Vector2& scale);
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    void Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const float rotation, const Vector2& origin, const Vector2& scale);
+    void Draw(const texture_type& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color, const float rotation,
+              const Vector2& origin, const Vector2& scale);
 
     //! @brief Draw the full texture at the given dst positions
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    void Draw(const atlas_texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Color& color);
+    void Draw(const atlas_texture_type& srcTexture, const Vector2* const pDstPositions, const uint32_t dstPositionsLength, const Color& color);
 
     //! @brief Draw the full texture at the given dst positions
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    void Draw(const texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Color& color);
+    void Draw(const texture_type& srcTexture, const Vector2* const pDstPositions, const uint32_t dstPositionsLength, const Color& color);
 
     //! @brief Draw the texture area at the given dst positions
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    void Draw(const atlas_texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Rectangle& srcRectangle, const Color& color);
+    void Draw(const atlas_texture_type& srcTexture, const Vector2* const pDstPositions, const uint32_t dstPositionsLength,
+              const Rectangle& srcRectangle, const Color& color);
 
     //! @brief Draw the texture area at the given dst positions
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    void Draw(const texture_type& srcTexture, const Vector2*const pDstPositions, const uint32_t dstPositionsLength, const Rectangle& srcRectangle, const Color& color);
+    void Draw(const texture_type& srcTexture, const Vector2* const pDstPositions, const uint32_t dstPositionsLength, const Rectangle& srcRectangle,
+              const Color& color);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -265,7 +271,8 @@ namespace Fsl
     //! @param psz a zero terminated string that should be rendered (!= nullptr)
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const psz, const Vector2& dstPosition, const Color& color);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz, const Vector2& dstPosition,
+                    const Color& color);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -273,7 +280,8 @@ namespace Fsl
     //! @param str a string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition, const Color& color);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition,
+                    const Color& color);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -283,7 +291,8 @@ namespace Fsl
     //! @param length the number of characters to render from startIndex
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const pStr, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
+                    const int32_t length, const Vector2& dstPosition, const Color& color);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -293,7 +302,8 @@ namespace Fsl
     //! @param length the number of characters to render from startIndex
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
+                    const int32_t length, const Vector2& dstPosition, const Color& color);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -301,7 +311,8 @@ namespace Fsl
     //! @param psz a zero terminated string that should be rendered (!= nullptr)
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const psz, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz, const Vector2& dstPosition,
+                    const Color& color, const Vector2& origin, const Vector2& scale);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -309,7 +320,8 @@ namespace Fsl
     //! @param str a string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition,
+                    const Color& color, const Vector2& origin, const Vector2& scale);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -319,7 +331,8 @@ namespace Fsl
     //! @param length the number of characters to render from startIndex
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char*const pStr, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
+                    const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -329,46 +342,53 @@ namespace Fsl
     //! @param length the number of characters to render from startIndex
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex, const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
+                    const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
 
 
     //! @brief Draw a rectangle at the given location using a fill texture
-    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for rendering lines.
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
     void DebugDrawRectangle(const atlas_texture_type& srcFillTexture, const Rectangle& dstRect, const Color& color);
 
     //! @brief Draw a rectangle at the given location using a fill texture
-    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for rendering lines.
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
     void DebugDrawRectangle(const texture_type& srcFillTexture, const Rectangle& dstRect, const Color& color);
 
     //! @brief Draw a rectangle at the given location using a fill texture
-    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for rendering lines.
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
     void DebugDrawRectangle(const atlas_texture_type& srcFillTexture, const Rect& dstRect, const Color& color);
 
     //! @brief Draw a rectangle at the given location using a fill texture
-    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for rendering lines.
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
     void DebugDrawRectangle(const texture_type& srcFillTexture, const Rect& dstRect, const Color& color);
 
     //! @brief Draw a line using a fill texture
-    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for rendering lines.
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
     void DebugDrawLine(const atlas_texture_type& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color);
 
     //! @brief Draw a line using a fill texture
-    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for rendering lines.
+    //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
+    //! rendering lines.
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
@@ -391,25 +411,25 @@ namespace Fsl
   // The TTexture must have the ConceptTextureType methods
   // The TextureHandle must have the ConceptTextureHandle methods
   //
-  //class ConceptTextureHandle
+  // class ConceptTextureHandle
   //{
   //  int32_t q;
-  //public:
+  // public:
   //  bool operator==(const ConceptTextureHandle& rhs) const { return q == rhs.q; }
   //  bool operator!=(const ConceptTextureHandle& rhs) const { return !(*this == rhs); }
   //};
 
-  //class ConceptNativeBatchType
+  // class ConceptNativeBatchType
   //{
-  //public:
+  // public:
   //  void Begin(const Point2& screenResolution, const BlendState blendState) {}
   //  void DrawQuads(const VertexPositionColorTexture*const pVertices, const int32_t length, ConceptTextureHandle& texture) {}
   //  void End() {}
   //};
 
-  //class ConceptTextureType
+  // class ConceptTextureType
   //{
-  //public:
+  // public:
   //  ConceptTextureHandle Handle;
   //  Point2 Size;
   //  void Reset() {}

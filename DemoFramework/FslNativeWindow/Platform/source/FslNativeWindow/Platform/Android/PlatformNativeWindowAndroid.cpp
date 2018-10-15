@@ -1,34 +1,34 @@
 #ifdef __ANDROID__
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroid.hpp>
@@ -39,7 +39,7 @@
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/Rectangle.hpp>
+#include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <iostream>
@@ -52,12 +52,13 @@
 #if 0
 #define LOCAL_LOG(X) FSLLOG("PlatformNativeWindowAndroid: " << X)
 #else
-#define LOCAL_LOG(X) {}
+#define LOCAL_LOG(X) \
+  {                  \
+  }
 #endif
 
 namespace Fsl
 {
-
   namespace
   {
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
@@ -70,13 +71,13 @@ namespace Fsl
 
     void ShowUI(android_app* pAppState)
     {
-      JNIEnv *jni;
-      pAppState->activity->vm->AttachCurrentThread( &jni, nullptr );
+      JNIEnv* jni;
+      pAppState->activity->vm->AttachCurrentThread(&jni, nullptr);
 
-      //Default class retrieval
-      jclass clazz = jni->GetObjectClass( pAppState->activity->clazz );
-      jmethodID methodID = jni->GetMethodID( clazz, "showUI", "()V" );
-      jni->CallVoidMethod( pAppState->activity->clazz, methodID );
+      // Default class retrieval
+      jclass clazz = jni->GetObjectClass(pAppState->activity->clazz);
+      jmethodID methodID = jni->GetMethodID(clazz, "showUI", "()V");
+      jni->CallVoidMethod(pAppState->activity->clazz, methodID);
 
       pAppState->activity->vm->DetachCurrentThread();
     }
@@ -84,7 +85,7 @@ namespace Fsl
 
     void PostActivated(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, bool activate)
     {
-      if( activate != g_isActivated )
+      if (activate != g_isActivated)
       {
         g_isActivated = activate;
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowActivationEvent(activate));
@@ -94,10 +95,10 @@ namespace Fsl
 
     void PostSuspend(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, bool suspend)
     {
-      if( suspend != g_isSuspended )
+      if (suspend != g_isSuspended)
       {
         g_isSuspended = suspend;
-        if( suspend && g_isActivated)
+        if (suspend && g_isActivated)
           PostActivated(eventQueue, false);
 
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowSuspendEvent(suspend));
@@ -142,12 +143,12 @@ namespace Fsl
     }
 
 
-    void CmdCatcher(android_app* pAppState, int32_t cmd )
+    void CmdCatcher(android_app* pAppState, int32_t cmd)
     {
       LOCAL_LOG("HandleCmd");
 
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-      if( ! eventQueue )
+      if (!eventQueue)
         return;
 
       switch (cmd)
@@ -204,7 +205,7 @@ namespace Fsl
         break;
       case APP_CMD_STOP:
         LOCAL_LOG("APP_CMD_STOP");
-        //PostSuspend(eventQueue, true);
+        // PostSuspend(eventQueue, true);
         break;
       case APP_CMD_DESTROY:
         LOCAL_LOG("APP_CMD_DESTROY");
@@ -216,7 +217,7 @@ namespace Fsl
     }
 
 
-    //VirtualKey::Enum TryConvertGamepadKeys()
+    // VirtualKey::Enum TryConvertGamepadKeys()
     //{
     //  switch (wParam)
     //  {
@@ -244,13 +245,13 @@ namespace Fsl
     {
       switch (key)
       {
-      //case AKEYCODE_UNKNOWN:
-      //case AKEYCODE_SOFT_LEFT:
-      //case AKEYCODE_SOFT_RIGHT:
-      //case AKEYCODE_HOME:
-      //case AKEYCODE_BACK:
-      //case AKEYCODE_CALL:
-      //case AKEYCODE_ENDCALL:
+      // case AKEYCODE_UNKNOWN:
+      // case AKEYCODE_SOFT_LEFT:
+      // case AKEYCODE_SOFT_RIGHT:
+      // case AKEYCODE_HOME:
+      // case AKEYCODE_BACK:
+      // case AKEYCODE_CALL:
+      // case AKEYCODE_ENDCALL:
       case AKEYCODE_0:
         return VirtualKey::Code0;
       case AKEYCODE_1:
@@ -271,8 +272,8 @@ namespace Fsl
         return VirtualKey::Code8;
       case AKEYCODE_9:
         return VirtualKey::Code9;
-      //case AKEYCODE_STAR:
-      //case AKEYCODE_POUND:
+      // case AKEYCODE_STAR:
+      // case AKEYCODE_POUND:
       case AKEYCODE_DPAD_UP:
         return VirtualKey::GamePadDpadUp;
       case AKEYCODE_DPAD_DOWN:
@@ -283,11 +284,11 @@ namespace Fsl
         return VirtualKey::GamePadDpadRight;
       case AKEYCODE_DPAD_CENTER:
         return VirtualKey::GamePadDpadCenter;
-        //case AKEYCODE_VOLUME_UP:
-      //case AKEYCODE_VOLUME_DOWN:
-      //case AKEYCODE_POWER:
-      //case AKEYCODE_CAMERA:
-      //case AKEYCODE_CLEAR:
+        // case AKEYCODE_VOLUME_UP:
+      // case AKEYCODE_VOLUME_DOWN:
+      // case AKEYCODE_POWER:
+      // case AKEYCODE_CAMERA:
+      // case AKEYCODE_CLEAR:
       case AKEYCODE_A:
         return VirtualKey::A;
       case AKEYCODE_B:
@@ -340,53 +341,53 @@ namespace Fsl
         return VirtualKey::Y;
       case AKEYCODE_Z:
         return VirtualKey::Z;
-      //case AKEYCODE_COMMA:
-      //case AKEYCODE_PERIOD:
-      //case AKEYCODE_ALT_LEFT:
-      //case AKEYCODE_ALT_RIGHT:
-      //case AKEYCODE_SHIFT_LEFT:
-      //case AKEYCODE_SHIFT_RIGHT:
+      // case AKEYCODE_COMMA:
+      // case AKEYCODE_PERIOD:
+      // case AKEYCODE_ALT_LEFT:
+      // case AKEYCODE_ALT_RIGHT:
+      // case AKEYCODE_SHIFT_LEFT:
+      // case AKEYCODE_SHIFT_RIGHT:
       case AKEYCODE_TAB:
         return VirtualKey::Tab;
       case AKEYCODE_SPACE:
         return VirtualKey::Space;
-      //case AKEYCODE_SYM:
-      //case AKEYCODE_EXPLORER:
-      //case AKEYCODE_ENVELOPE:
+      // case AKEYCODE_SYM:
+      // case AKEYCODE_EXPLORER:
+      // case AKEYCODE_ENVELOPE:
       case AKEYCODE_ENTER:
         return VirtualKey::Return;
       case AKEYCODE_DEL:
         return VirtualKey::Delete;
-      //case AKEYCODE_GRAVE:
-      //case AKEYCODE_MINUS:
-      //case AKEYCODE_EQUALS:
-      //case AKEYCODE_LEFT_BRACKET:
-      //case AKEYCODE_RIGHT_BRACKET:
-      //case AKEYCODE_BACKSLASH:
-      //case AKEYCODE_SEMICOLON:
-      //case AKEYCODE_APOSTROPHE:
-      //case AKEYCODE_SLASH:
-      //case AKEYCODE_AT:
-      //case AKEYCODE_NUM:
-      //case AKEYCODE_HEADSETHOOK:
-      //case AKEYCODE_FOCUS:
-      //case AKEYCODE_PLUS:
-      //case AKEYCODE_MENU:
-      //case AKEYCODE_NOTIFICATION:
-      //case AKEYCODE_SEARCH:
-      //case AKEYCODE_MEDIA_PLAY_PAUSE:
-      //case AKEYCODE_MEDIA_STOP:
-      //case AKEYCODE_MEDIA_NEXT:
-      //case AKEYCODE_MEDIA_PREVIOUS:
-      //case AKEYCODE_MEDIA_REWIND:
-      //case AKEYCODE_MEDIA_FAST_FORWARD:
-      //case AKEYCODE_MUTE:
+      // case AKEYCODE_GRAVE:
+      // case AKEYCODE_MINUS:
+      // case AKEYCODE_EQUALS:
+      // case AKEYCODE_LEFT_BRACKET:
+      // case AKEYCODE_RIGHT_BRACKET:
+      // case AKEYCODE_BACKSLASH:
+      // case AKEYCODE_SEMICOLON:
+      // case AKEYCODE_APOSTROPHE:
+      // case AKEYCODE_SLASH:
+      // case AKEYCODE_AT:
+      // case AKEYCODE_NUM:
+      // case AKEYCODE_HEADSETHOOK:
+      // case AKEYCODE_FOCUS:
+      // case AKEYCODE_PLUS:
+      // case AKEYCODE_MENU:
+      // case AKEYCODE_NOTIFICATION:
+      // case AKEYCODE_SEARCH:
+      // case AKEYCODE_MEDIA_PLAY_PAUSE:
+      // case AKEYCODE_MEDIA_STOP:
+      // case AKEYCODE_MEDIA_NEXT:
+      // case AKEYCODE_MEDIA_PREVIOUS:
+      // case AKEYCODE_MEDIA_REWIND:
+      // case AKEYCODE_MEDIA_FAST_FORWARD:
+      // case AKEYCODE_MUTE:
       case AKEYCODE_PAGE_UP:
         return VirtualKey::PageUp;
       case AKEYCODE_PAGE_DOWN:
         return VirtualKey::PageDown;
-      //case AKEYCODE_PICTSYMBOLS:
-      //case AKEYCODE_SWITCH_CHARSET:
+      // case AKEYCODE_PICTSYMBOLS:
+      // case AKEYCODE_SWITCH_CHARSET:
       case AKEYCODE_BUTTON_A:
         return VirtualKey::GamePadButtonA;
       case AKEYCODE_BUTTON_B:
@@ -419,16 +420,16 @@ namespace Fsl
         return VirtualKey::GamePadButtonMode;
       case AKEYCODE_ESCAPE:
         return VirtualKey::Escape;
-      //case AKEYCODE_FORWARD_DEL:
-      //case AKEYCODE_CTRL_LEFT:
-      //case AKEYCODE_CTRL_RIGHT:
-      //case AKEYCODE_CAPS_LOCK:
+      // case AKEYCODE_FORWARD_DEL:
+      // case AKEYCODE_CTRL_LEFT:
+      // case AKEYCODE_CTRL_RIGHT:
+      // case AKEYCODE_CAPS_LOCK:
       case AKEYCODE_SCROLL_LOCK:
         return VirtualKey::ScrollLock;
-      //case AKEYCODE_META_LEFT:
-      //case AKEYCODE_META_RIGHT:
-      //case AKEYCODE_FUNCTION:
-      //case AKEYCODE_SYSRQ:
+      // case AKEYCODE_META_LEFT:
+      // case AKEYCODE_META_RIGHT:
+      // case AKEYCODE_FUNCTION:
+      // case AKEYCODE_SYSRQ:
       case AKEYCODE_BREAK:
         return VirtualKey::Break;
       case AKEYCODE_MOVE_HOME:
@@ -437,12 +438,12 @@ namespace Fsl
         return VirtualKey::End;
       case AKEYCODE_INSERT:
         return VirtualKey::Insert;
-      //case AKEYCODE_FORWARD:
-      //case AKEYCODE_MEDIA_PLAY:
-      //case AKEYCODE_MEDIA_PAUSE:
-      //case AKEYCODE_MEDIA_CLOSE:
-      //case AKEYCODE_MEDIA_EJECT:
-      //case AKEYCODE_MEDIA_RECORD:
+      // case AKEYCODE_FORWARD:
+      // case AKEYCODE_MEDIA_PLAY:
+      // case AKEYCODE_MEDIA_PAUSE:
+      // case AKEYCODE_MEDIA_CLOSE:
+      // case AKEYCODE_MEDIA_EJECT:
+      // case AKEYCODE_MEDIA_RECORD:
       case AKEYCODE_F1:
         return VirtualKey::F1;
       case AKEYCODE_F2:
@@ -467,88 +468,88 @@ namespace Fsl
         return VirtualKey::F11;
       case AKEYCODE_F12:
         return VirtualKey::F12;
-      //case AKEYCODE_NUM_LOCK:
-      //case AKEYCODE_NUMPAD_0:
-      //case AKEYCODE_NUMPAD_1:
-      //case AKEYCODE_NUMPAD_2:
-      //case AKEYCODE_NUMPAD_3:
-      //case AKEYCODE_NUMPAD_4:
-      //case AKEYCODE_NUMPAD_5:
-      //case AKEYCODE_NUMPAD_6:
-      //case AKEYCODE_NUMPAD_7:
-      //case AKEYCODE_NUMPAD_8:
-      //case AKEYCODE_NUMPAD_9:
-      //case AKEYCODE_NUMPAD_DIVIDE:
-      //case AKEYCODE_NUMPAD_MULTIPLY:
+      // case AKEYCODE_NUM_LOCK:
+      // case AKEYCODE_NUMPAD_0:
+      // case AKEYCODE_NUMPAD_1:
+      // case AKEYCODE_NUMPAD_2:
+      // case AKEYCODE_NUMPAD_3:
+      // case AKEYCODE_NUMPAD_4:
+      // case AKEYCODE_NUMPAD_5:
+      // case AKEYCODE_NUMPAD_6:
+      // case AKEYCODE_NUMPAD_7:
+      // case AKEYCODE_NUMPAD_8:
+      // case AKEYCODE_NUMPAD_9:
+      // case AKEYCODE_NUMPAD_DIVIDE:
+      // case AKEYCODE_NUMPAD_MULTIPLY:
       case AKEYCODE_NUMPAD_SUBTRACT:
         return VirtualKey::Add;
       case AKEYCODE_NUMPAD_ADD:
         return VirtualKey::Subtract;
-      //case AKEYCODE_NUMPAD_DOT:
-      //case AKEYCODE_NUMPAD_COMMA:
-      //case AKEYCODE_NUMPAD_ENTER:
-      //case AKEYCODE_NUMPAD_EQUALS:
-      //case AKEYCODE_NUMPAD_LEFT_PAREN:
-      //case AKEYCODE_NUMPAD_RIGHT_PAREN:
-      //case AKEYCODE_VOLUME_MUTE:
-      //case AKEYCODE_INFO:
-      //case AKEYCODE_CHANNEL_UP:
-      //case AKEYCODE_CHANNEL_DOWN:
-      //case AKEYCODE_ZOOM_IN:
-      //case AKEYCODE_ZOOM_OUT:
-      //case AKEYCODE_TV:
-      //case AKEYCODE_WINDOW:
-      //case AKEYCODE_GUIDE:
-      //case AKEYCODE_DVR:
-      //case AKEYCODE_BOOKMARK:
-      //case AKEYCODE_CAPTIONS:
-      //case AKEYCODE_SETTINGS:
-      //case AKEYCODE_TV_POWER:
-      //case AKEYCODE_TV_INPUT:
-      //case AKEYCODE_STB_POWER:
-      //case AKEYCODE_STB_INPUT:
-      //case AKEYCODE_AVR_POWER:
-      //case AKEYCODE_AVR_INPUT:
-      //case AKEYCODE_PROG_RED:
-      //case AKEYCODE_PROG_GREEN:
-      //case AKEYCODE_PROG_YELLOW:
-      //case AKEYCODE_PROG_BLUE:
-      //case AKEYCODE_APP_SWITCH:
-      //case AKEYCODE_BUTTON_1:
-      //case AKEYCODE_BUTTON_2:
-      //case AKEYCODE_BUTTON_3:
-      //case AKEYCODE_BUTTON_4:
-      //case AKEYCODE_BUTTON_5:
-      //case AKEYCODE_BUTTON_6:
-      //case AKEYCODE_BUTTON_7:
-      //case AKEYCODE_BUTTON_8:
-      //case AKEYCODE_BUTTON_9:
-      //case AKEYCODE_BUTTON_10:
-      //case AKEYCODE_BUTTON_11:
-      //case AKEYCODE_BUTTON_12:
-      //case AKEYCODE_BUTTON_13:
-      //case AKEYCODE_BUTTON_14:
-      //case AKEYCODE_BUTTON_15:
-      //case AKEYCODE_BUTTON_16:
-      //case AKEYCODE_LANGUAGE_SWITCH:
-      //case AKEYCODE_MANNER_MODE:
-      //case AKEYCODE_3D_MODE:
-      //case AKEYCODE_CONTACTS:
-      //case AKEYCODE_CALENDAR:
-      //case AKEYCODE_MUSIC:
-      //case AKEYCODE_CALCULATOR:
-      //case AKEYCODE_ZENKAKU_HANKAKU:
-      //case AKEYCODE_EISU:
-      //case AKEYCODE_MUHENKAN:
-      //case AKEYCODE_HENKAN:
-      //case AKEYCODE_KATAKANA_HIRAGANA:
-      //case AKEYCODE_YEN:
-      //case AKEYCODE_RO:
-      //case AKEYCODE_KANA:
-      //case AKEYCODE_ASSIST:
-      //case AKEYCODE_BRIGHTNESS_DOWN:
-      //case AKEYCODE_BRIGHTNESS_UP:
-      //case AKEYCODE_MEDIA_AUDIO_TRACK:
+      // case AKEYCODE_NUMPAD_DOT:
+      // case AKEYCODE_NUMPAD_COMMA:
+      // case AKEYCODE_NUMPAD_ENTER:
+      // case AKEYCODE_NUMPAD_EQUALS:
+      // case AKEYCODE_NUMPAD_LEFT_PAREN:
+      // case AKEYCODE_NUMPAD_RIGHT_PAREN:
+      // case AKEYCODE_VOLUME_MUTE:
+      // case AKEYCODE_INFO:
+      // case AKEYCODE_CHANNEL_UP:
+      // case AKEYCODE_CHANNEL_DOWN:
+      // case AKEYCODE_ZOOM_IN:
+      // case AKEYCODE_ZOOM_OUT:
+      // case AKEYCODE_TV:
+      // case AKEYCODE_WINDOW:
+      // case AKEYCODE_GUIDE:
+      // case AKEYCODE_DVR:
+      // case AKEYCODE_BOOKMARK:
+      // case AKEYCODE_CAPTIONS:
+      // case AKEYCODE_SETTINGS:
+      // case AKEYCODE_TV_POWER:
+      // case AKEYCODE_TV_INPUT:
+      // case AKEYCODE_STB_POWER:
+      // case AKEYCODE_STB_INPUT:
+      // case AKEYCODE_AVR_POWER:
+      // case AKEYCODE_AVR_INPUT:
+      // case AKEYCODE_PROG_RED:
+      // case AKEYCODE_PROG_GREEN:
+      // case AKEYCODE_PROG_YELLOW:
+      // case AKEYCODE_PROG_BLUE:
+      // case AKEYCODE_APP_SWITCH:
+      // case AKEYCODE_BUTTON_1:
+      // case AKEYCODE_BUTTON_2:
+      // case AKEYCODE_BUTTON_3:
+      // case AKEYCODE_BUTTON_4:
+      // case AKEYCODE_BUTTON_5:
+      // case AKEYCODE_BUTTON_6:
+      // case AKEYCODE_BUTTON_7:
+      // case AKEYCODE_BUTTON_8:
+      // case AKEYCODE_BUTTON_9:
+      // case AKEYCODE_BUTTON_10:
+      // case AKEYCODE_BUTTON_11:
+      // case AKEYCODE_BUTTON_12:
+      // case AKEYCODE_BUTTON_13:
+      // case AKEYCODE_BUTTON_14:
+      // case AKEYCODE_BUTTON_15:
+      // case AKEYCODE_BUTTON_16:
+      // case AKEYCODE_LANGUAGE_SWITCH:
+      // case AKEYCODE_MANNER_MODE:
+      // case AKEYCODE_3D_MODE:
+      // case AKEYCODE_CONTACTS:
+      // case AKEYCODE_CALENDAR:
+      // case AKEYCODE_MUSIC:
+      // case AKEYCODE_CALCULATOR:
+      // case AKEYCODE_ZENKAKU_HANKAKU:
+      // case AKEYCODE_EISU:
+      // case AKEYCODE_MUHENKAN:
+      // case AKEYCODE_HENKAN:
+      // case AKEYCODE_KATAKANA_HIRAGANA:
+      // case AKEYCODE_YEN:
+      // case AKEYCODE_RO:
+      // case AKEYCODE_KANA:
+      // case AKEYCODE_ASSIST:
+      // case AKEYCODE_BRIGHTNESS_DOWN:
+      // case AKEYCODE_BRIGHTNESS_UP:
+      // case AKEYCODE_MEDIA_AUDIO_TRACK:
       default:
         return VirtualKey::Undefined;
       }
@@ -559,12 +560,12 @@ namespace Fsl
       if (AInputEvent_getType(event) != AINPUT_EVENT_TYPE_MOTION || AInputEvent_getSource(event) != AINPUT_SOURCE_JOYSTICK)
         return false;
       // Left thumbstick
-      //gamePadState.axisLeft.x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
-      //gamePadState.axisLeft.y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
+      // gamePadState.axisLeft.x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_X, 0);
+      // gamePadState.axisLeft.y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Y, 0);
       // Right thumbstick
-      //gamePadState.axisRight.x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Z, 0);
-      //gamePadState.axisRight.y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RZ, 0);
-      //return true;
+      // gamePadState.axisRight.x = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_Z, 0);
+      // gamePadState.axisRight.y = AMotionEvent_getAxisValue(event, AMOTION_EVENT_AXIS_RZ, 0);
+      // return true;
       return false;
     }
 
@@ -578,7 +579,7 @@ namespace Fsl
       const int32_t action = AKeyEvent_getAction(event);
 
       const auto virtualKey = TryConvertKeys(keyCode);
-      if( virtualKey == VirtualKey::Undefined )
+      if (virtualKey == VirtualKey::Undefined)
         return false;
 
       const bool isPressed = (action == AKEY_EVENT_ACTION_DOWN);
@@ -592,8 +593,8 @@ namespace Fsl
     bool InputCatcherMotion(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, android_app* pAppState, struct AInputEvent* event)
     {
       const auto source = AInputEvent_getSource(event);
-      const bool validSource = (source == AINPUT_SOURCE_TOUCHSCREEN || source ==  AINPUT_SOURCE_MOUSE);
-      if( ! validSource || AInputEvent_getType( event ) != AINPUT_EVENT_TYPE_MOTION )
+      const bool validSource = (source == AINPUT_SOURCE_TOUCHSCREEN || source == AINPUT_SOURCE_MOUSE);
+      if (!validSource || AInputEvent_getType(event) != AINPUT_EVENT_TYPE_MOTION)
         return false;
 
       const auto action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
@@ -601,20 +602,20 @@ namespace Fsl
       const auto posY = AMotionEvent_getY(event, 0);
       const Point2 position(static_cast<int32_t>(posX), static_cast<int32_t>(posY));
 
-      switch(action)
+      switch (action)
       {
       case AMOTION_EVENT_ACTION_DOWN:
-        if( ! g_isTouchDown)
+        if (!g_isTouchDown)
           eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, true, position));
         g_isTouchDown = true;
         return true;
       case AMOTION_EVENT_ACTION_UP:
-        if( g_isTouchDown)
+        if (g_isTouchDown)
           eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseButtonEvent(VirtualMouseButton::Left, false, position));
         g_isTouchDown = false;
         return true;
       case AMOTION_EVENT_ACTION_MOVE:
-        if( g_isTouchDown )
+        if (g_isTouchDown)
           eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputMouseMoveEvent(position));
         return true;
       default:
@@ -626,17 +627,16 @@ namespace Fsl
     int32_t InputCatcher(android_app* pAppState, struct AInputEvent* event)
     {
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-      if( ! eventQueue )
+      if (!eventQueue)
         return 0;
 
       bool handled = false;
 
       handled = InputCatcherGamepad(eventQueue, pAppState, event);
-      handled = (! handled ? InputCatcherKeys(eventQueue, pAppState, event) : true);
-      handled = (! handled ? InputCatcherMotion(eventQueue, pAppState, event) : true);
+      handled = (!handled ? InputCatcherKeys(eventQueue, pAppState, event) : true);
+      handled = (!handled ? InputCatcherMotion(eventQueue, pAppState, event) : true);
       return handled > 0 ? 1 : 0;
     }
-
 
 
     bool LocalProcessMessages(android_app* pAppState)
@@ -669,11 +669,11 @@ namespace Fsl
 
 
     std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
-                                                  const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+                                                  const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
       return std::make_shared<PlatformNativeWindowAndroid>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
-  }
+  }    // namespace
 
 
   PlatformNativeWindowSystemAndroid::PlatformNativeWindowSystemAndroid(const NativeWindowSystemSetup& setup,
@@ -710,10 +710,12 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<INativeWindow> PlatformNativeWindowSystemAndroid::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
-                                                                                       const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  std::shared_ptr<INativeWindow>
+    PlatformNativeWindowSystemAndroid::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                          const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
   {
-    return m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, m_pAppState, nullptr), pPlatformCustomWindowAllocationParams);
+    return m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay, m_pAppState, nullptr),
+                                pPlatformCustomWindowAllocationParams);
   }
 
 
@@ -740,10 +742,8 @@ namespace Fsl
   }
 
 
-
-  PlatformNativeWindowAndroid::PlatformNativeWindowAndroid(const NativeWindowSetup& nativeWindowSetup,
-                                                           const PlatformNativeWindowParams& windowParams,
-                                                           const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  PlatformNativeWindowAndroid::PlatformNativeWindowAndroid(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
+                                                           const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     : PlatformNativeWindow(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
     , m_eventQueue(nativeWindowSetup.GetEventQueue())
     , m_pAppState(windowParams.AppState)
@@ -752,7 +752,7 @@ namespace Fsl
     m_pAppState->userData = this;
 
     // Wait for a window to be ready
-    if( g_hWindow == nullptr )
+    if (g_hWindow == nullptr)
     {
       LOCAL_LOG("Waiting for window to be ready");
       WaitForWindowReady();
@@ -761,7 +761,7 @@ namespace Fsl
     m_platformWindow = g_hWindow;
 
 
-    if( windowParams.OnWindowCreated )
+    if (windowParams.OnWindowCreated)
     {
       LOCAL_LOG("NativeWindow onWindowCreated");
       windowParams.OnWindowCreated(m_platformWindow, m_pAppState);
@@ -784,7 +784,7 @@ namespace Fsl
 
   bool PlatformNativeWindowAndroid::TryGetDPI(Vector2& rDPI) const
   {
-    { // Remove this once its implemented
+    {    // Remove this once its implemented
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
@@ -811,14 +811,13 @@ namespace Fsl
   {
     bool bContinue;
     // Keep processing messages until we get a active window or a termination request
-    while( (bContinue = LocalProcessMessages(m_pAppState)) == true && g_hWindow == nullptr )
+    while ((bContinue = LocalProcessMessages(m_pAppState)) == true && g_hWindow == nullptr)
     {
     }
 
-    if( ! bContinue )
+    if (!bContinue)
       throw GraphicsException("Failed to create window");
   }
-
-}
+}    // namespace Fsl
 
 #endif

@@ -1,10 +1,10 @@
 #ifndef GLES3_E6_0_MULTIPLERENDERTARGETS_E6_0_MULTIPLERENDERTARGETS_HPP
 #define GLES3_E6_0_MULTIPLERENDERTARGETS_E6_0_MULTIPLERENDERTARGETS_HPP
 /*
-* OpenGL ES 3.0 Tutorial 6
-*
-* Outputs the results of the Fragment shader in Multiple Render Buffers
-*/
+ * OpenGL ES 3.0 Tutorial 6
+ *
+ * Outputs the results of the Fragment shader in Multiple Render Buffers
+ */
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
@@ -19,16 +19,14 @@ namespace Fsl
       GLuint fbo;
 
       // Texture handle
-      GLuint colorTexId[4];
+      GLuint colorTexId[4]{};
 
       // Texture size
-      GLsizei textureWidth;
-      GLsizei textureHeight;
+      GLsizei textureWidth{0};
+      GLsizei textureHeight{0};
 
       UserData()
         : fbo(GLES3::GLValues::INVALID_HANDLE)
-        , textureWidth(0)
-        , textureHeight(0)
       {
         colorTexId[0] = GLES3::GLValues::INVALID_HANDLE;
         colorTexId[1] = GLES3::GLValues::INVALID_HANDLE;
@@ -42,10 +40,12 @@ namespace Fsl
 
   public:
     E6_0_MultipleRenderTargets(const DemoAppConfig& config);
-    ~E6_0_MultipleRenderTargets();
+    ~E6_0_MultipleRenderTargets() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     int InitFBO();
     void DrawGeometry(const int w, const int h);

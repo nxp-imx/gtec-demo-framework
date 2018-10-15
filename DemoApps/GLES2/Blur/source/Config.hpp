@@ -1,43 +1,41 @@
 #ifndef GLES2_BLUR_CONFIG_HPP
 #define GLES2_BLUR_CONFIG_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Exceptions.hpp>
 
 namespace Fsl
 {
-
-
   struct RenderMode
   {
     enum Enum
@@ -75,24 +73,17 @@ namespace Fsl
   class Config
   {
   public:
-    RenderMode::Enum TheRenderMode;
-    int32_t KernelLength;
-    float Sigma;
-    ShaderType::Enum TheShaderType;
-    bool CompareEnabled;
+    RenderMode::Enum TheRenderMode{RenderMode::TwoPassLinarScaled};
+    int32_t KernelLength{75};
+    float Sigma{17};
+    ShaderType::Enum TheShaderType{ShaderType::HardCoded};
+    bool CompareEnabled{false};
     uint32_t CRMFlags;
-    CaptionType::Enum TheCaptionType;
-    bool UseOptimalSigma;
+    CaptionType::Enum TheCaptionType{CaptionType::Algorithm};
+    bool UseOptimalSigma{false};
 
     Config()
-      : TheRenderMode(RenderMode::TwoPassLinarScaled)
-      , KernelLength(75)
-      , Sigma(17)
-      , TheShaderType(ShaderType::HardCoded)
-      , CompareEnabled(false)
-      , CRMFlags(0xFFFFFFFF & ~(1 << int(RenderMode::ReferenceOnePass)))
-      , TheCaptionType(CaptionType::Algorithm)
-      , UseOptimalSigma(false)
+      : CRMFlags(0xFFFFFFFF & ~(1 << int(RenderMode::ReferenceOnePass)))
     {
     }
 
@@ -104,14 +95,18 @@ namespace Fsl
     void SetRenderMode(const int32_t value)
     {
       if (value < 0 || value >= static_cast<int32_t>(RenderMode::COUNT))
+      {
         throw std::invalid_argument("invalid render mode");
+      }
       TheRenderMode = static_cast<RenderMode::Enum>(value);
     }
 
     void SetKernelLength(const int32_t value)
     {
       if (value < 1)
+      {
         throw std::invalid_argument("invalid kernel length");
+      }
       KernelLength = value;
     }
 
@@ -128,7 +123,9 @@ namespace Fsl
     void SetShaderType(const int32_t value)
     {
       if (value < 0 || value >= static_cast<int32_t>(ShaderType::COUNT))
+      {
         throw std::invalid_argument("invalid shader type");
+      }
       TheShaderType = static_cast<ShaderType::Enum>(value);
     }
 
@@ -139,13 +136,15 @@ namespace Fsl
 
     void SetCRMFlags(const uint32_t value)
     {
-      CRMFlags= value;
+      CRMFlags = value;
     }
 
     void SetCaptionType(const int32_t value)
     {
       if (value < 0 || value >= static_cast<int32_t>(CaptionType::COUNT))
+      {
         throw std::invalid_argument("invalid caption type");
+      }
 
       TheCaptionType = static_cast<CaptionType::Enum>(value);
     }
@@ -159,7 +158,6 @@ namespace Fsl
     {
       UseOptimalSigma = value;
     }
-
   };
 }
 

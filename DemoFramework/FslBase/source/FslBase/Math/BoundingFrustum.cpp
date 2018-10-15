@@ -47,7 +47,7 @@ namespace Fsl
     {
       // Formula used
       //                d1 ( N2 * N3 ) + d2 ( N3 * N1 ) + d3 ( N1 * N2 )
-      //P =   -------------------------------------------------------------------------
+      // P =   -------------------------------------------------------------------------
       //                             N1 . ( N2 * N3 )
       //
       // Note: N refers to the normal, d refers to the displacement. '.' means dot product. '*' means cross product
@@ -58,10 +58,7 @@ namespace Fsl
       const Vector3 v2 = Vector3::Cross(c.Normal, a.Normal) * b.D;
       const Vector3 v3 = Vector3::Cross(a.Normal, b.Normal) * c.D;
 
-      return Vector3(
-        (v1.X + v2.X + v3.X) / f,
-        (v1.Y + v2.Y + v3.Y) / f,
-        (v1.Z + v2.Z + v3.Z) / f);
+      return Vector3((v1.X + v2.X + v3.X) / f, (v1.Y + v2.Y + v3.Y) / f, (v1.Z + v2.Z + v3.Z) / f);
     }
 
 
@@ -85,8 +82,8 @@ namespace Fsl
   void BoundingFrustum::SetMatrix(const Matrix& value)
   {
     m_matrix = value;
-    CreatePlanes();    // FIXME: The odds are the planes will be used a lot more often than the matrix
-    CreateCorners();   // is updated, so this should help performance. I hope ;)
+    CreatePlanes();     // FIXME: The odds are the planes will be used a lot more often than the matrix
+    CreateCorners();    // is updated, so this should help performance. I hope ;)
   }
 
 
@@ -165,8 +162,10 @@ namespace Fsl
 
   ContainmentType BoundingFrustum::Contains(const BoundingFrustum& frustum) const
   {
-    if (this == &frustum)               // We check to see if the two frustums are equal
-      return ContainmentType::Contains; // If they are, there's no need to go any further.
+    if (this == &frustum)    // We check to see if the two frustums are equal
+    {
+      return ContainmentType::Contains;    // If they are, there's no need to go any further.
+    }
 
     bool intersects = false;
     for (int32_t i = 0; i < PlaneCount; ++i)
@@ -249,10 +248,14 @@ namespace Fsl
   void BoundingFrustum::GetCorners(std::vector<Vector3>& rCorners) const
   {
     if (rCorners.size() < static_cast<uint32_t>(CornerCount))
+    {
       throw std::invalid_argument("rCorners");
+    }
 
     for (uint32_t i = 0; i < m_corners.size(); ++i)
+    {
       rCorners[i] = m_corners[i];
+    }
   }
 
 
@@ -306,8 +309,12 @@ namespace Fsl
   {
     rResult = plane.Intersects(m_corners[0]);
     for (uint32_t i = 1; i < m_corners.size(); ++i)
+    {
       if (plane.Intersects(m_corners[i]) != rResult)
+      {
         rResult = PlaneIntersectionType::Intersecting;
+      }
+    }
   }
 
 
@@ -325,41 +332,51 @@ namespace Fsl
       // TODO: Needs additional test for not 0.0 and null results.
       float minVal = std::numeric_limits<float>::max();
       float maxVal = std::numeric_limits<float>::lowest();
-      for (uint32_t i = 0; i < m_planes.size(); ++i)
+      for (auto plane : m_planes)
       {
-        const auto normal = m_planes[i].Normal;
+        const auto normal = plane.Normal;
 
         float result2 = Vector3::Dot(ray.Direction, normal);
         float result3 = Vector3::Dot(ray.Position, normal);
 
-        result3 += m_planes[i].D;
+        result3 += plane.D;
 
-        if ((double)std::abs(result2) < 9.99999974737875E-06)
+        if (static_cast<double>(std::abs(result2)) < 9.99999974737875E-06)
         {
-          if ((double)result3 > 0.0)
+          if (static_cast<double>(result3) > 0.0)
+          {
             return false;
+          }
         }
         else
         {
           float result4 = -result3 / result2;
-          if ((double)result2 < 0.0)
+          if (static_cast<double>(result2) < 0.0)
           {
-            if ((double)result4 >(double)maxVal)
+            if (static_cast<double>(result4) > static_cast<double>(maxVal))
+            {
               return false;
-            if ((double)result4 > (double)minVal)
+            }
+            if (static_cast<double>(result4) > static_cast<double>(minVal))
+            {
               minVal = result4;
+            }
           }
           else
           {
-            if ((double)result4 < (double)minVal)
+            if (static_cast<double>(result4) < static_cast<double>(minVal))
+            {
               return false;
-            if ((double)result4 < (double)maxVal)
+            }
+            if (static_cast<double>(result4) < static_cast<double>(maxVal))
+            {
               maxVal = result4;
+            }
           }
         }
 
         float distance;
-        if (ray.Intersects(m_planes[i], distance))
+        if (ray.Intersects(plane, distance))
         {
           minVal = std::min(minVal, distance);
           maxVal = std::max(maxVal, distance);
@@ -368,7 +385,9 @@ namespace Fsl
 
       float temp = minVal >= 0.0 ? minVal : maxVal;
       if (temp < 0.0)
+      {
         return false;
+      }
 
       rResult = temp;
       return true;
@@ -409,5 +428,4 @@ namespace Fsl
     NormalizePlane(m_planes[4]);
     NormalizePlane(m_planes[5]);
   }
-
 }

@@ -1,35 +1,35 @@
 #ifndef FSLUTIL_OPENGLES2_GLTEXTURE_HPP
 #define FSLUTIL_OPENGLES2_GLTEXTURE_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES2/Common.hpp>
@@ -55,20 +55,20 @@ namespace Fsl
 
   namespace GLES2
   {
-
     class GLTexture
     {
       GLuint m_handle;
       GLenum m_target;
       Extent3D m_extent;
+
     public:
       GLTexture(const GLTexture&) = delete;
       GLTexture& operator=(const GLTexture&) = delete;
 
       // move assignment operator
-      GLTexture& operator=(GLTexture&& other);
+      GLTexture& operator=(GLTexture&& other) noexcept;
       // move constructor
-      GLTexture(GLTexture&& other);
+      GLTexture(GLTexture&& other) noexcept;
 
 
       //! @brief Create a uninitialized texture (use SetData to add texture data to it)
@@ -96,16 +96,13 @@ namespace Fsl
       GLTexture(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX,
-                const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
-                const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ,
-                const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      GLTexture(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
+                const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX,
-                const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
-                const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ,
-                const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      GLTexture(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
+                const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters,
+                const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Create a texture with the supplied content
       GLTexture(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
@@ -129,11 +126,14 @@ namespace Fsl
       ~GLTexture();
 
       //! @brief Check if this contains a valid gl handle.
-      bool IsValid() const { return m_handle != GLValues::INVALID_HANDLE; }
+      bool IsValid() const
+      {
+        return m_handle != GLValues::INVALID_HANDLE;
+      }
 
 
       //! @brief If a texture is allocated this will releases it.
-      void Reset();
+      void Reset() noexcept;
 
       //! @brief Let this GLTexture object assume control over the given texture handle.
       //! @param handle the GL handle to the texture
@@ -157,16 +157,13 @@ namespace Fsl
       void Reset(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Reset the data of the texture
-      void Reset(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX,
-                 const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
-                 const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ,
-                 const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void Reset(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
+                 const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Reset the data of the texture
-      void Reset(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX,
-                 const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
-                 const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ,
-                 const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void Reset(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
+                 const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters,
+                 const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Reset the data of the texture
       void Reset(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
@@ -194,16 +191,13 @@ namespace Fsl
       void SetData(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Set the data of the texture
-      void SetData(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX,
-                   const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
-                   const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ,
-                   const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void SetData(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
+                   const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Set the data of the texture
-      void SetData(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX,
-                   const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
-                   const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ,
-                   const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void SetData(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
+                   const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters,
+                   const TextureFlags& textureFlags = TextureFlags());
 
       //! @brief Set the data of the texture
       void SetData(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
@@ -259,7 +253,6 @@ namespace Fsl
       //! @brief Get the native texture area of the given textureRectangle
       static NativeTextureArea CalcTextureArea(const TextureRectangle& textureRectangle, const int timesX, const int timesY);
     };
-
   }
 }
 

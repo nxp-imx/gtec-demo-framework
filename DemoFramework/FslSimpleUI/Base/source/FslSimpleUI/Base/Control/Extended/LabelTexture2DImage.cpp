@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Control/Extended/LabelTexture2DImage.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -46,10 +46,8 @@ namespace Fsl
 {
   namespace UI
   {
-
     LabelTexture2DImage::LabelTexture2DImage(const std::shared_ptr<WindowContext>& context)
       : LabelBase(context)
-      , m_texture()
       , m_scalePolicy(ItemScalePolicy::FitKeepAR)
     {
       Enable(WindowFlags::DrawEnabled);
@@ -68,7 +66,9 @@ namespace Fsl
     void LabelTexture2DImage::SetContent(const std::string& value)
     {
       if (value == m_content)
+      {
         return;
+      }
 
       m_content = value;
       PropertyUpdated(PropertyType::Content);
@@ -105,7 +105,7 @@ namespace Fsl
           targetRect.SetHeight(textureSize.Y);
         }
 
-        GetContext()->Batch2D->Draw(m_texture, targetRect, Color::White());
+        m_windowContext->Batch2D->Draw(m_texture, targetRect, Color::White());
         LabelBase::WinDraw(context);
       }
     }
@@ -120,7 +120,9 @@ namespace Fsl
       {
         Vector2 contentSize(m_texture.GetSize().X, m_texture.GetSize().Y);
         if (!UIScaleUtil::TryCalcSize(textureSize, finalSize, contentSize, m_scalePolicy))
+        {
           textureSize = finalSize;
+        }
       }
 
       // Pick the largest of each dimension
@@ -134,7 +136,9 @@ namespace Fsl
 
       Vector2 textureSize;
       if (m_texture.IsValid())
+      {
         textureSize = Vector2(m_texture.GetSize().X, m_texture.GetSize().Y);
+      }
 
       // Pick the largest of each dimension
       return Vector2(std::max(labelSize.X, textureSize.X), std::max(labelSize.Y, textureSize.Y));

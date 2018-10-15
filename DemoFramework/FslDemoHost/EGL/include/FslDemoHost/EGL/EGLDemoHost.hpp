@@ -1,35 +1,35 @@
 #ifndef FSLDEMOHOST_EGL_EGLDEMOHOST_HPP
 #define FSLDEMOHOST_EGL_EGLDEMOHOST_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <deque>
 #include <vector>
@@ -50,28 +50,22 @@ namespace Fsl
 
   struct EGLDemoHostFeatureConfig
   {
-    bool EnableGLES;
-    int ESVersionMajor;
-    int ESVersionMinor;
+    bool EnableGLES{false};
+    int ESVersionMajor{0};
+    int ESVersionMinor{0};
 
-    bool EnableVG;
-    int VGVersion;
+    bool EnableVG{false};
+    int VGVersion{0};
 
     DemoHostFeature Feature;
 
     EGLDemoHostFeatureConfig()
-      : EnableGLES(false)
-      , ESVersionMajor(0)
-      , ESVersionMinor(0)
-      , EnableVG(false)
-      , VGVersion(0)
-      , Feature(DemoHostFeatureName::OpenGLES, 0)
+      : Feature(DemoHostFeatureName::OpenGLES, 0)
     {
     }
   };
 
-  class EGLDemoHost
-    : public ADemoHost
+  class EGLDemoHost : public ADemoHost
   {
     DemoHostConfig m_demoHostConfig;
     std::deque<EGLint> m_appEglConfigAttribs;
@@ -100,19 +94,21 @@ namespace Fsl
     bool m_logExtensions;
     bool m_apiInit;
     DemoHostFeature m_activeApi;
+
   public:
     EGLDemoHost(const DemoHostConfig& demoHostConfig);
-    ~EGLDemoHost();
+    ~EGLDemoHost() override;
 
-    virtual void OnConstructed() override;
-    virtual void OnActivate() override;
-    virtual void OnDeactivate() override;
-    virtual void OnSuspend() override;
-    virtual void OnResume() override;
-    virtual DemoHostFeature GetActiveAPI() const override;
-    virtual Point2 GetScreenResolution() const override;
-    virtual bool SwapBuffers() override;
-    virtual bool ProcessNativeMessages(const bool allowBlock) override;
+    void OnConstructed() override;
+    void OnActivate() override;
+    void OnDeactivate() override;
+    void OnSuspend() override;
+    void OnResume() override;
+    DemoHostFeature GetActiveAPI() const override;
+    Point2 GetScreenResolution() const override;
+    bool SwapBuffers() override;
+    bool ProcessNativeMessages(const bool allowBlock) override;
+
   protected:
     bool IsLogExtensionsEnabled() const
     {
@@ -132,12 +128,13 @@ namespace Fsl
     virtual void OnAPIShutdown()
     {
     }
+
   private:
     void Init();
     void Shutdown();
     void InitEGL();
     bool TryInitEGLHDRConfig(const std::deque<EGLint>& appAglConfigAttribs);
-    bool TryInitEGLTryConfigFallback(const ConfigControl configControl, const std::deque<EGLint>& appAglConfigAttribs);
+    bool TryInitEGLTryConfigFallback(const ConfigControl configControl, const std::deque<EGLint>& appEglConfigAttribs);
     void ShutdownEGL();
     void InitSurfaceAndContext();
     void ShutdownSurfaceAndContext();

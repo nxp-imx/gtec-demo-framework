@@ -4,6 +4,7 @@
     <Dependency Name="OpenCL"/>
     <Dependency Name="RapidOpenCL1"/>
     <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslDemoApp.Util.Graphics" Access="Private"/>
     <Dependency Name="FslDemoHost.Console" Access="Private"/>
     <Dependency Name="FslDemoPlatform" Access="Link"/>
     <Platform Name="Windows" ProjectId="3A7F5779-B796-4F5B-BDD0-F702530C8262"/>

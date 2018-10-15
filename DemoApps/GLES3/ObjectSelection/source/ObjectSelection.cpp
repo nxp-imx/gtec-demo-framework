@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2017 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2017 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ObjectSelection.hpp"
 #include <FslBase/Math/MathHelper.hpp>
@@ -56,7 +56,7 @@ namespace Fsl
   {
     const float DEFAULT_ZOOM = 10;
 
-    template<typename TVertex>
+    template <typename TVertex>
     BoundingBox CalculateBoundingBox(const std::vector<TVertex>& vertices)
     {
       Vector3 min = Vector3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
@@ -77,18 +77,11 @@ namespace Fsl
 
     BoundingBox CalculateAABB(const Matrix& matrix, const BoundingBox& box)
     {
-      Vector3 vertices[] =
-      {
-        Vector3(box.Min.X, box.Min.Y, box.Min.Z),
-        Vector3(box.Max.X, box.Min.Y, box.Min.Z),
-        Vector3(box.Min.X, box.Max.Y, box.Min.Z),
-        Vector3(box.Max.X, box.Max.Y, box.Min.Z),
+      Vector3 vertices[] = {Vector3(box.Min.X, box.Min.Y, box.Min.Z), Vector3(box.Max.X, box.Min.Y, box.Min.Z),
+                            Vector3(box.Min.X, box.Max.Y, box.Min.Z), Vector3(box.Max.X, box.Max.Y, box.Min.Z),
 
-        Vector3(box.Min.X, box.Min.Y, box.Max.Z),
-        Vector3(box.Max.X, box.Min.Y, box.Max.Z),
-        Vector3(box.Min.X, box.Max.Y, box.Max.Z),
-        Vector3(box.Max.X, box.Max.Y, box.Max.Z)
-      };
+                            Vector3(box.Min.X, box.Min.Y, box.Max.Z), Vector3(box.Max.X, box.Min.Y, box.Max.Z),
+                            Vector3(box.Min.X, box.Max.Y, box.Max.Z), Vector3(box.Max.X, box.Max.Y, box.Max.Z)};
 
       Vector3 min = Vector3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
       Vector3 max = Vector3(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
@@ -114,23 +107,13 @@ namespace Fsl
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
     , m_menuUI(config)
-    , m_camera()
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
-    , m_texture()
-    , m_textureChessboard()
     , m_meshes(3)
-    , m_programDirectionalLight()
     , m_attribLink(3)
     , m_vertexDeclLine(VertexPositionColor::GetVertexDeclaration())
-    , m_programSolidColor()
     , m_attribLinkColoredToLine(2)
-    , m_programTextured()
     , m_attribLinkTextured(2)
-    , m_viewPort()
-    , m_matrixView()
-    , m_matrixProjection()
-    , m_matrixViewProjection()
     , m_lightDirection(0.0f, 1.0f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
     , m_ambientColor(0.2f, 0.2f, 0.2f)
@@ -170,37 +153,42 @@ namespace Fsl
   }
 
 
-  ObjectSelection::~ObjectSelection()
-  {
-
-  }
+  ObjectSelection::~ObjectSelection() = default;
 
 
   void ObjectSelection::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     if (event.IsPressed() && event.GetButton() == VirtualMouseButton::Left)
     {
       if (CheckCollision(event.GetPosition()))
+      {
         event.Handled();
+      }
     }
 
     switch (event.GetButton())
     {
     case VirtualMouseButton::Right:
     {
-      //if (event.IsPressed())
+      // if (event.IsPressed())
       //  m_camera.BeginDrag(event.GetPosition());
-      //else if (m_camera.IsDragging())
+      // else if (m_camera.IsDragging())
       //  m_camera.EndDrag(event.GetPosition());
       const bool mouseCapture = event.IsPressed();
       if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+      {
         m_mouseCaptureEnabled = mouseCapture;
+      }
       else
+      {
         m_mouseCaptureEnabled = false;
-      //FSLLOG("Captured: " << m_mouseCaptureEnabled);
+      }
+      // FSLLOG("Captured: " << m_mouseCaptureEnabled);
       event.Handled();
       break;
     }
@@ -221,8 +209,10 @@ namespace Fsl
   {
     m_menuUI.OnKeyEvent(event);
 
-    if (event.IsHandled() || ! event.IsPressed())
+    if (event.IsHandled() || !event.IsPressed())
+    {
       return;
+    }
   }
 
 
@@ -241,11 +231,9 @@ namespace Fsl
       rEntry.Rotation.X += rEntry.RotationSpeed.X * demoTime.DeltaTime;
       rEntry.Rotation.Y += rEntry.RotationSpeed.Y * demoTime.DeltaTime;
       rEntry.Rotation.Z += rEntry.RotationSpeed.Z * demoTime.DeltaTime;
-      rEntry.WorldMatrix = Matrix::CreateScale(rEntry.Scale)
-        * Matrix::CreateRotationX(rEntry.Rotation.X)
-        * Matrix::CreateRotationY(rEntry.Rotation.Y)
-        * Matrix::CreateRotationZ(rEntry.Rotation.Z)
-        * Matrix::CreateTranslation(rEntry.Position);
+      rEntry.WorldMatrix = Matrix::CreateScale(rEntry.Scale) * Matrix::CreateRotationX(rEntry.Rotation.X) *
+                           Matrix::CreateRotationY(rEntry.Rotation.Y) * Matrix::CreateRotationZ(rEntry.Rotation.Z) *
+                           Matrix::CreateTranslation(rEntry.Position);
       rEntry.WorldViewMatrix = rEntry.WorldMatrix * m_matrixView;
       rEntry.WorldViewProjectionMatrix = rEntry.WorldViewMatrix * m_matrixProjection;
 
@@ -271,7 +259,8 @@ namespace Fsl
       m_mousePositionNear = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
       sourcePos.Z = 1.0f;
       m_mousePositionFar = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
-      //FSLLOG("2D: X: " << mouseState.Position.X << " Y: " << mouseState.Position.Y  << " 3D: X: " << m_mousePositionFar.X << " Y: " << m_mousePositionFar.Y << " Z: " << m_mousePositionFar.Z);
+      // FSLLOG("2D: X: " << mouseState.Position.X << " Y: " << mouseState.Position.Y  << " 3D: X: " << m_mousePositionFar.X << " Y: " <<
+      // m_mousePositionFar.Y << " Z: " << m_mousePositionFar.Z);
 
 
       if (!m_mouseCaptureEnabled)
@@ -294,13 +283,21 @@ namespace Fsl
       auto keyboardState = m_keyboard->GetState();
 
       if (keyboardState.IsKeyDown(VirtualKey::W))
-        m_camera.MoveForward(movementSpeed );
+      {
+        m_camera.MoveForward(movementSpeed);
+      }
       if (keyboardState.IsKeyDown(VirtualKey::S))
+      {
         m_camera.MoveBackwards(movementSpeed);
+      }
       if (keyboardState.IsKeyDown(VirtualKey::A))
+      {
         m_camera.MoveLeft(movementSpeed);
+      }
       if (keyboardState.IsKeyDown(VirtualKey::D))
+      {
         m_camera.MoveRight(movementSpeed);
+      }
     }
   }
 
@@ -316,11 +313,13 @@ namespace Fsl
 
 
     if (m_menuUI.IsPlaneEnabled())
+    {
       DrawPlaneMesh();
+    }
     DrawMeshes();
     DrawDebugData();
 
-    //GL_CHECK_FOR_ERROR();
+    // GL_CHECK_FOR_ERROR();
 
     // Draw the UI overlay
     m_menuUI.Draw();
@@ -351,12 +350,12 @@ namespace Fsl
       float distance;
       if (mouseRay.Intersects(m_objects[i].MeshAABB, distance))
       {
-        m_pickScratchpad.push_back(HitRecord(i, distance));
+        m_pickScratchpad.emplace_back(i, distance);
       }
     }
 
     // Check if there is any stored hits
-    m_hasSelectedObject = m_pickScratchpad.size() > 0;
+    m_hasSelectedObject = !m_pickScratchpad.empty();
     if (m_hasSelectedObject)
     {
       // Find the one with the shortest distance
@@ -372,7 +371,6 @@ namespace Fsl
     }
     return m_hasSelectedObject;
   }
-
 
 
   void ObjectSelection::DrawMeshes()
@@ -391,7 +389,9 @@ namespace Fsl
     for (std::size_t i = 0; i < m_attribLink.size(); ++i)
     {
       if (m_attribLink[i].AttribIndex >= 0)
+      {
         glEnableVertexAttribArray(m_attribLink[i].AttribIndex);
+      }
     }
 
     // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
@@ -437,7 +437,7 @@ namespace Fsl
 
     m_meshPlane.VertexBuffer.EnableAttribArrays(m_attribLinkTextured);
 
-    glDrawElements(GL_TRIANGLE_STRIP, m_meshPlane.IndexBuffer.GetCapacity(), m_meshPlane.IndexBuffer.GetType(), (void*)0);
+    glDrawElements(GL_TRIANGLE_STRIP, m_meshPlane.IndexBuffer.GetCapacity(), m_meshPlane.IndexBuffer.GetType(), nullptr);
 
     glBindBuffer(m_meshPlane.IndexBuffer.GetTarget(), 0);
     glBindBuffer(m_meshPlane.VertexBuffer.GetTarget(), 0);
@@ -449,7 +449,9 @@ namespace Fsl
   {
     const auto indexBufferType = mesh.IndexBuffer.GetType();
     if (mesh.IndexBuffer.GetCapacity() <= 0)
+    {
       return;
+    }
 
     if (bindMesh)
     {
@@ -461,7 +463,7 @@ namespace Fsl
       mesh.VertexBuffer.SetVertexAttribPointers(m_attribLink);
     }
 
-    glDrawElements(GL_TRIANGLE_STRIP, mesh.IndexBuffer.GetCapacity(), indexBufferType, (void*)0);
+    glDrawElements(GL_TRIANGLE_STRIP, mesh.IndexBuffer.GetCapacity(), indexBufferType, nullptr);
   }
 
 
@@ -489,7 +491,9 @@ namespace Fsl
       for (std::size_t i = 0; i < m_objects.size(); ++i)
       {
         if (i != m_selectedIndex || !m_hasSelectedObject)
+        {
           DrawBoundingBox(m_objects[i].MeshAABB, Color::Blue());
+        }
       }
     }
     if (m_hasSelectedObject)
@@ -519,12 +523,10 @@ namespace Fsl
   }
 
 
-
   void ObjectSelection::DrawBoundingBox(const BoundingBox& box, const Color& color)
   {
     const Vector4 realColor = color.ToVector4();
-    VertexPositionColor vertices[] =
-    {
+    VertexPositionColor vertices[] = {
       VertexPositionColor(Vector3(box.Min.X, box.Min.Y, box.Min.Z), realColor),
       VertexPositionColor(Vector3(box.Max.X, box.Min.Y, box.Min.Z), realColor),
       VertexPositionColor(Vector3(box.Min.X, box.Max.Y, box.Min.Z), realColor),
@@ -553,11 +555,13 @@ namespace Fsl
       VertexPositionColor(Vector3(box.Max.X, box.Max.Y, box.Max.Z), realColor),
     };
 
-    const auto e0 = m_vertexDeclLine.At((std::size_t)m_attribLinkColoredToLine[0].VertexElementIndex);
-    const auto e1 = m_vertexDeclLine.At((std::size_t)m_attribLinkColoredToLine[1].VertexElementIndex);
+    const auto e0 = m_vertexDeclLine.At(static_cast<std::size_t>(m_attribLinkColoredToLine[0].VertexElementIndex));
+    const auto e1 = m_vertexDeclLine.At(static_cast<std::size_t>(m_attribLinkColoredToLine[1].VertexElementIndex));
 
-    glVertexAttribPointer(m_attribLinkColoredToLine[0].AttribIndex, 3, GL_FLOAT, 0, sizeof(VertexPositionColor), reinterpret_cast<const uint8_t*>(vertices) + e0.Offset);
-    glVertexAttribPointer(m_attribLinkColoredToLine[1].AttribIndex, 4, GL_FLOAT, 0, sizeof(VertexPositionColor), reinterpret_cast<const uint8_t*>(vertices) + e1.Offset);
+    glVertexAttribPointer(m_attribLinkColoredToLine[0].AttribIndex, 3, GL_FLOAT, 0, sizeof(VertexPositionColor),
+                          reinterpret_cast<const uint8_t*>(vertices) + e0.Offset);
+    glVertexAttribPointer(m_attribLinkColoredToLine[1].AttribIndex, 4, GL_FLOAT, 0, sizeof(VertexPositionColor),
+                          reinterpret_cast<const uint8_t*>(vertices) + e1.Offset);
 
     glDrawArrays(GL_LINES, 0, 8 + 8 + 8);
   }
@@ -566,17 +570,18 @@ namespace Fsl
   void ObjectSelection::DrawLine(const Vector3& p1, const Vector3& p2, const Color& color)
   {
     const Vector4 realColor = color.ToVector4();
-    VertexPositionColor vertices[] =
-    {
+    VertexPositionColor vertices[] = {
       VertexPositionColor(p1, realColor),
       VertexPositionColor(p2, realColor),
     };
 
-    const auto e0 = m_vertexDeclLine.At((std::size_t)m_attribLinkColoredToLine[0].VertexElementIndex);
-    const auto e1 = m_vertexDeclLine.At((std::size_t)m_attribLinkColoredToLine[1].VertexElementIndex);
+    const auto e0 = m_vertexDeclLine.At(static_cast<std::size_t>(m_attribLinkColoredToLine[0].VertexElementIndex));
+    const auto e1 = m_vertexDeclLine.At(static_cast<std::size_t>(m_attribLinkColoredToLine[1].VertexElementIndex));
 
-    glVertexAttribPointer(m_attribLinkColoredToLine[0].AttribIndex, 3, GL_FLOAT, 0, sizeof(VertexPositionColor), reinterpret_cast<const uint8_t*>(vertices) + e0.Offset);
-    glVertexAttribPointer(m_attribLinkColoredToLine[1].AttribIndex, 4, GL_FLOAT, 0, sizeof(VertexPositionColor), reinterpret_cast<const uint8_t*>(vertices) + e1.Offset);
+    glVertexAttribPointer(m_attribLinkColoredToLine[0].AttribIndex, 3, GL_FLOAT, 0, sizeof(VertexPositionColor),
+                          reinterpret_cast<const uint8_t*>(vertices) + e0.Offset);
+    glVertexAttribPointer(m_attribLinkColoredToLine[1].AttribIndex, 4, GL_FLOAT, 0, sizeof(VertexPositionColor),
+                          reinterpret_cast<const uint8_t*>(vertices) + e1.Offset);
 
     glDrawArrays(GL_LINES, 0, 2);
   }
@@ -587,7 +592,7 @@ namespace Fsl
     const Point2 tex1Size = texture.GetSize();
     TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
     const NativeTextureArea texRepeatArea(GLTexture::CalcTextureArea(texRect, 15 / 5, 15 / 5));
-    const auto mesh = SegmentedQuadGenerator::GenerateStrip(Vector3(0, 0, 0), 1000 / 5, 1000 / 5, 1, 1, texRepeatArea, WindingOrder::CCW);
+    const auto mesh = SegmentedQuadGenerator::GenerateStrip(Vector3(0, 0, 0), 1000 / 5.0f, 1000 / 5.0f, 1, 1, texRepeatArea, WindingOrder::CCW);
 
     rMeshPlane.IndexBuffer.Reset(mesh.GetIndexArray(), GL_STATIC_DRAW);
     rMeshPlane.VertexBuffer.Reset(mesh.GetVertexArray(), GL_STATIC_DRAW);
@@ -614,7 +619,7 @@ namespace Fsl
     rMeshes[1].VertexBuffer.Reset(mesh.GetVertexArray(), GL_STATIC_DRAW);
     rMeshes[1].TheBoundingBox = CalculateBoundingBox(mesh.GetVertexArray());
 
-    NativeTextureArea texAreas[] = { texArea,texArea, texArea, texArea,texArea, texArea };
+    NativeTextureArea texAreas[] = {texArea, texArea, texArea, texArea, texArea, texArea};
     mesh = BoxGenerator::GenerateStrip(Vector3(), 2.0f, 2.0f, 2.0f, texAreas, 6, WindingOrder::CCW);
     rMeshes[2].IndexBuffer.Reset(mesh.GetIndexArray(), GL_STATIC_DRAW);
     rMeshes[2].VertexBuffer.Reset(mesh.GetVertexArray(), GL_STATIC_DRAW);
@@ -637,9 +642,12 @@ namespace Fsl
     rProgram.LocAmbientColor = glGetUniformLocation(program, "AmbientColor");
 
     // Attrib link between shader and vertex format
-    rAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(program, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    rAttribLink[1] = GLVertexAttribLink(glGetAttribLocation(program, "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-    rAttribLink[2] = GLVertexAttribLink(glGetAttribLocation(program, "VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    rAttribLink[0] =
+      GLVertexAttribLink(glGetAttribLocation(program, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    rAttribLink[1] =
+      GLVertexAttribLink(glGetAttribLocation(program, "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+    rAttribLink[2] = GLVertexAttribLink(glGetAttribLocation(program, "VertexTexCoord"),
+                                        vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
   }
 
 
@@ -652,8 +660,10 @@ namespace Fsl
     rProgram.LocWorldViewProjection = glGetUniformLocation(program, "WorldViewProjection");
 
     // Attrib link between shader and vertex format
-    rAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(program, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    rAttribLink[1] = GLVertexAttribLink(glGetAttribLocation(program, "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+    rAttribLink[0] =
+      GLVertexAttribLink(glGetAttribLocation(program, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    rAttribLink[1] =
+      GLVertexAttribLink(glGetAttribLocation(program, "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
   }
 
 
@@ -667,8 +677,10 @@ namespace Fsl
     rProgram.LocWorldViewProjection = glGetUniformLocation(program, "WorldViewProjection");
 
     // Attrib link between shader and vertex format
-    rAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(program, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    rAttribLink[1] = GLVertexAttribLink(glGetAttribLocation(program, "VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    rAttribLink[0] =
+      GLVertexAttribLink(glGetAttribLocation(program, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    rAttribLink[1] = GLVertexAttribLink(glGetAttribLocation(program, "VertexTexCoord"),
+                                        vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
   }
 
 
@@ -703,5 +715,4 @@ namespace Fsl
     // Sort the objects according to mesh index to make it simpler to render
     std::sort(rObjects.begin(), rObjects.end(), [](const MeshObject& lhs, const MeshObject& rhs) -> bool { return lhs.MeshIndex < rhs.MeshIndex; });
   }
-
 }

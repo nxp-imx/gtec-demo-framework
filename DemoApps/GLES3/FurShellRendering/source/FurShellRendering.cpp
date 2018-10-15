@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Matrix.hpp>
@@ -69,8 +69,7 @@ namespace Fsl
   {
     void BuildVB(GLVertexBuffer& rVB, const BoxF& coords, const BoxF& uv)
     {
-      VertexPositionTexture vertices[] =
-      {
+      VertexPositionTexture vertices[] = {
         VertexPositionTexture(Vector3(coords.X1, coords.Y2, 0.0f), Vector2(uv.X1, uv.Y2)),
         VertexPositionTexture(Vector3(coords.X1, coords.Y1, 0.0f), Vector2(uv.X1, uv.Y1)),
         VertexPositionTexture(Vector3(coords.X2, coords.Y2, 0.0f), Vector2(uv.X2, uv.Y2)),
@@ -82,14 +81,10 @@ namespace Fsl
   }
 
 
-
   FurShellRendering::FurShellRendering(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_config(config.GetOptions<OptionParser>()->GetConfig())
-    , m_program()
     , m_meshStuff()
-    , m_tex1()
-    , m_tex2()
     , m_shaderES3MultiPass(*GetContentManager(), "ES3MultiPass", false, m_config.GetLightCount())
     , m_shaderES3Instanced(*GetContentManager(), "ES3Instanced", false, m_config.GetLightCount())
     , m_shaderES3InstancedLayer0(*GetContentManager(), "ES3Instanced2/Fur_Layer0.vert", "ES3Instanced2/Fur_Layer0.frag", 1)
@@ -105,8 +100,6 @@ namespace Fsl
     , m_cameraAngleX(0)
     , m_cameraPosY(0)
     , m_gravity(0, -1.0f, 0)
-    , m_displacement()
-    , m_backgroundColor()
     , m_radians(0.0f)
     , m_enableDepthTest(true)
     , m_enableForce(true)
@@ -114,7 +107,7 @@ namespace Fsl
     using namespace GLES3;
 
     const Point2 furTextureDim = m_config.GetFurTextureDimensions();
-    const float hairDensity =m_config.GetHairDensity();
+    const float hairDensity = m_config.GetHairDensity();
     float hairLength = m_config.GetHairLength();
     const int layerCount = m_config.GetLayerCount();
 
@@ -122,7 +115,7 @@ namespace Fsl
     m_backgroundColor = Vector3(color.X, color.Y, color.Z);
 
 
-    { // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
+    {    // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
       Bitmap bitmap;
 
       std::string strPath("Seamless.jpg");
@@ -143,7 +136,7 @@ namespace Fsl
     }
 
     // Create the fur 'density' bitmap
-    //if (furTextureDim.X != 1024 || furTextureDim.Y != 512)
+    // if (furTextureDim.X != 1024 || furTextureDim.Y != 512)
     if (m_config.GetDemoId() != 2)
     {
       const std::vector<uint8_t> furBitmapContent = FurTexture::GenerateSmooth(furTextureDim.X, furTextureDim.Y, hairDensity, layerCount);
@@ -158,7 +151,7 @@ namespace Fsl
       GLTextureParameters texParams2(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
       m_tex2.SetData(furBitmap, texParams2);
     }
-    //else
+    // else
     //{
     //  Bitmap bitmap;
 
@@ -252,18 +245,28 @@ namespace Fsl
       BasicMesh mesh;
       if (primitive == ProceduralPrimitive::Box)
       {
-        NativeTextureArea texAreas[6] = { texArea, texArea, texArea, texArea, texArea, texArea };
+        NativeTextureArea texAreas[6] = {texArea, texArea, texArea, texArea, texArea, texArea};
         if (m_config.GetUseTriangleStrip())
+        {
           mesh = BoxGenerator::GenerateStrip(Vector3::Zero(), 30, 30, 30, texAreas, 6, windingOrder);
+        }
         else
+        {
           mesh = BoxGenerator::GenerateList(Vector3::Zero(), 30, 30, 30, texAreas, 6, windingOrder);
+        }
       }
       else
       {
         if (m_config.GetUseTriangleStrip())
-          mesh = TorusGenerator::GenerateStrip(m_config.GetTorusMajorSegments(), m_config.GetTorusMinorSegments(), radius, ringRadius, texArea, windingOrder);
+        {
+          mesh = TorusGenerator::GenerateStrip(m_config.GetTorusMajorSegments(), m_config.GetTorusMinorSegments(), radius, ringRadius, texArea,
+                                               windingOrder);
+        }
         else
-          mesh = TorusGenerator::GenerateList(m_config.GetTorusMajorSegments(), m_config.GetTorusMinorSegments(), radius, ringRadius, texArea, windingOrder);
+        {
+          mesh = TorusGenerator::GenerateList(m_config.GetTorusMajorSegments(), m_config.GetTorusMinorSegments(), radius, ringRadius, texArea,
+                                              windingOrder);
+        }
       }
 
       // OpenGL ES expects that the index count is <= 0xFFFF
@@ -271,13 +274,13 @@ namespace Fsl
 
       m_meshStuff.reset(new MeshStuff(mesh));
       m_meshStuff->RenderES3Instanced.SetInstanceCount(layerCount);
-      m_meshStuff->RenderES3InstancedLayerN.SetInstanceCount(layerCount-1);
+      m_meshStuff->RenderES3InstancedLayerN.SetInstanceCount(layerCount - 1);
     }
 
 
     lightDirection.Normalize();
 
-    { // Prepare the shader
+    {    // Prepare the shader
       ShaderBase::ScopedUse shaderScope(m_shaderES3MultiPass);
       m_shaderES3MultiPass.SetTexture0(0);
       m_shaderES3MultiPass.SetTexture1(1);
@@ -286,7 +289,7 @@ namespace Fsl
       m_shaderES3MultiPass.SetLightColor(0, lightColor);
       m_shaderES3MultiPass.SetLightAmbientColor(ambientColor);
     }
-    { // Prepare the shader
+    {    // Prepare the shader
       ShaderBase::ScopedUse shaderScope(m_shaderES3Instanced);
       m_shaderES3Instanced.SetTexture0(0);
       m_shaderES3Instanced.SetTexture1(1);
@@ -296,7 +299,7 @@ namespace Fsl
       m_shaderES3Instanced.SetLightAmbientColor(ambientColor);
       m_shaderES3Instanced.SetInstanceCount(layerCount);
     }
-    { // Prepare the shader
+    {    // Prepare the shader
       ShaderBase::ScopedUse shaderScope(m_shaderES3InstancedLayer0);
       m_shaderES3InstancedLayer0.SetTexture0(0);
       m_shaderES3InstancedLayer0.SetTexture1(1);
@@ -305,7 +308,7 @@ namespace Fsl
       m_shaderES3InstancedLayer0.SetLightColor(0, lightColor);
       m_shaderES3InstancedLayer0.SetLightAmbientColor(ambientColor);
     }
-    { // Prepare the shader
+    {    // Prepare the shader
       ShaderBase::ScopedUse shaderScope(m_shaderES3InstancedLayerN);
       m_shaderES3InstancedLayerN.SetTexture0(0);
       m_shaderES3InstancedLayerN.SetTexture1(1);
@@ -331,7 +334,7 @@ namespace Fsl
       const Vector2 res(config.ScreenResolution.X / 2, config.ScreenResolution.Y / 2);
       const Vector2 atlasSize(m_texDescriptionAtlas.GetSize().X, m_texDescriptionAtlas.GetSize().Y);
 
-      //texSize.X / tex
+      // texSize.X / tex
       float x1 = -1.0f - (m_texDescription.Offset.X / res.X);
       float x2 = x1 + (m_texDescription.TrimmedRect.Width() / res.X);
       float y1 = -1.0f - (m_texDescription.Offset.Y / res.Y);
@@ -349,10 +352,7 @@ namespace Fsl
   }
 
 
-  FurShellRendering::~FurShellRendering()
-  {
-
-  }
+  FurShellRendering::~FurShellRendering() = default;
 
 
   void FurShellRendering::Update(const DemoTime& demoTime)
@@ -365,11 +365,13 @@ namespace Fsl
       m_displacement = m_gravity + forceDirection;
     }
     else
+    {
       m_displacement = m_gravity;
+    }
 
-    //m_xAngle = 0;
-    //m_yAngle = 0;
-    //m_zAngle = 0;
+    // m_xAngle = 0;
+    // m_yAngle = 0;
+    // m_zAngle = 0;
     m_world = Matrix::CreateRotationX(-m_xAngle);
     m_world *= Matrix::CreateRotationY(m_yAngle);
     m_world *= Matrix::CreateRotationZ(m_zAngle);
@@ -378,7 +380,8 @@ namespace Fsl
     m_view = Matrix::CreateRotationX(m_cameraAngleX);
     m_view *= Matrix::CreateTranslation(0.0f, m_cameraPosY, -cameraDistance);
 
-    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / (float)screenResolution.Y, 1, m_perspectiveZ);
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1,
+                                                         m_perspectiveZ);
     m_MVP = m_world * m_view * m_perspective;
 
     m_radians += 1.00f * demoTime.DeltaTime;
@@ -391,7 +394,7 @@ namespace Fsl
   void FurShellRendering::Draw(const DemoTime& demoTime)
   {
     glEnable(GL_CULL_FACE);
-    //glDisable(GL_CULL_FACE);
+    // glDisable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -399,9 +402,13 @@ namespace Fsl
     glClearColor(m_backgroundColor.X, m_backgroundColor.Y, m_backgroundColor.Z, 1.0f);
 
     if (m_enableDepthTest)
+    {
       glEnable(GL_DEPTH_TEST);
+    }
     else
+    {
       glDisable(GL_DEPTH_TEST);
+    }
 
     // Setup the texture
     glActiveTexture(GL_TEXTURE0);
@@ -413,7 +420,7 @@ namespace Fsl
     const int layerCount = m_config.GetLayerCount();
 
     bool bypassRender = false;
-    if (bypassRender == false)
+    if (!bypassRender)
     {
       // Clear the screen
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -478,7 +485,8 @@ namespace Fsl
   }
 
 
-  void FurShellRendering::DrawES3Multipass(FurShaderMultiPass& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view, const Matrix& perspective, const Vector3& displacement, const int layerCount)
+  void FurShellRendering::DrawES3Multipass(FurShaderMultiPass& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view,
+                                           const Matrix& perspective, const Vector3& displacement, const int layerCount)
   {
     ShaderBase::ScopedUse shaderScope(rShader);
 
@@ -499,11 +507,11 @@ namespace Fsl
       layer += layerAdd;
     }
     rRender.Unbind();
-
   }
 
 
-  void FurShellRendering::DrawES3Instanced(FurShaderBase& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view, const Matrix& perspective, const Vector3& displacement)
+  void FurShellRendering::DrawES3Instanced(FurShaderBase& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view,
+                                           const Matrix& perspective, const Vector3& displacement)
   {
     ShaderBase::ScopedUse shaderScope(rShader);
 

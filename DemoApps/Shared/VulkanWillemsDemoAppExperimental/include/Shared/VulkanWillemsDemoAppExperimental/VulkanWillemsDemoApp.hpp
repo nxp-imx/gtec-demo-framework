@@ -1,12 +1,12 @@
 #ifndef SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_VULKANWILLEMSDEMOAPP_HPP
 #define SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_VULKANWILLEMSDEMOAPP_HPP
 /*
-* Vulkan Example base class
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example base class
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -48,9 +48,11 @@ namespace Fsl
     class VulkanWillemsDemoApp : public VulkanWindowDemoApp
     {
     public:
-      typedef std::function<std::unique_ptr<VulkanMeshLoader>(const std::shared_ptr<IContentManager>& contentManager)> MeshLoaderAllocFunc;
+      using MeshLoaderAllocFunc = std::function<std::unique_ptr<VulkanMeshLoader>(const std::shared_ptr<IContentManager>&)>;
+
     protected:
       VulkanDevice m_vulkanDevice;
+
     private:
       MeshLoaderAllocFunc m_meshLoaderAllocFunc;
       //! Indicates that the view (position, rotation) has changed.
@@ -67,16 +69,25 @@ namespace Fsl
         RapidVulkan::Semaphore TextOverlayComplete;
       };
 
+      struct LocalMouseButtons
+      {
+        bool Left = false;
+        bool Right = false;
+        bool Middle = false;
+      };
+
       Semaphores m_semaphores;
+
     public:
-      virtual void _PostConstruct() override;
-      virtual void _Update(const DemoTime& demoTime) override;
-      virtual void _Draw(const DemoTime& demoTime) override;
+      void _PostConstruct() override;
+      void _Update(const DemoTime& demoTime) override;
+      void _Draw(const DemoTime& demoTime) override;
+
     protected:
-      virtual void OnKeyEvent(const KeyEvent& event) override;
-      virtual void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-      virtual void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-      virtual void OnMouseWheelEvent(const MouseWheelEvent& event) override;
+      void OnKeyEvent(const KeyEvent& event) override;
+      void OnMouseButtonEvent(const MouseButtonEvent& event) override;
+      void OnMouseMoveEvent(const MouseMoveEvent& event) override;
+      void OnMouseWheelEvent(const MouseWheelEvent& event) override;
       // Last frame time, measured using a high performance timer (if available)
       float m_frameTimer = 1.0f;
       // Frame counter to display fps
@@ -90,12 +101,12 @@ namespace Fsl
 
       bool m_paused = false;
 
-      VkClearColorValue m_defaultClearColor;
+      VkClearColorValue m_defaultClearColor{};
 
       //! @brief Pipeline stages used to wait at for graphics queue submissions
       VkPipelineStageFlags m_submitPipelineStages = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
       // Contains command buffers and semaphores to be presented to the queue
-      VkSubmitInfo m_submitInfo;
+      VkSubmitInfo m_submitInfo{};
 
       bool m_enableVSync;
       // fps timer (one second interval)
@@ -144,13 +155,17 @@ namespace Fsl
       bool m_enableTextOverlay;
       std::unique_ptr<VulkanTextOverlay> m_textOverlay;
 
+      LocalMouseButtons m_mouseButtons;
+      bool m_commandBuffersDirty = false;
 
       VulkanWillemsDemoApp(const DemoAppConfig& demoAppConfig, const MeshLoaderAllocFunc& meshLoaderAllocFunc = nullptr);
-      ~VulkanWillemsDemoApp();
+      ~VulkanWillemsDemoApp() override;
 
       virtual void Prepare();
       //! @brief Called whenever the view changes
-      virtual void OnViewChanged() {}
+      virtual void OnViewChanged()
+      {
+      }
 
       // Creates a new (graphics) command pool object storing command buffers
       void CreateCommandPool();
@@ -180,7 +195,7 @@ namespace Fsl
 
 
       //// Connect and prepare the swap chain
-      //void InitSwapchain();
+      // void InitSwapchain();
 
       // Check if command buffers are valid (!= VK_NULL_HANDLE)
       bool CheckCommandBuffers();
@@ -196,22 +211,21 @@ namespace Fsl
       void FlushCommandBuffer(RapidVulkan::CommandBuffer& rCommandBuffer, const VkQueue queue, const bool free);
 
       //! Create a buffer, fill it with data (if != nullptr) and bind buffer memory
-      void CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory,
-                        const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags,
-                        const VkDeviceSize size, const void* pData);
+      void CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory, const VkBufferUsageFlags usageFlags,
+                        const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize size, const void* pData);
 
       //! This version always uses HOST_VISIBLE memory
-      void CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory,
-                        const VkBufferUsageFlags usage, const VkDeviceSize size, const void*const pData);
+      void CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory, const VkBufferUsageFlags usage, const VkDeviceSize size,
+                        const void* const pData);
 
       // Overload that assigns buffer info to descriptor
       void CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory, VkDescriptorBufferInfo& rDescriptor,
-                        const VkBufferUsageFlags usage, const VkDeviceSize size, const void*const pData);
+                        const VkBufferUsageFlags usage, const VkDeviceSize size, const void* const pData);
 
       // Overload to pass memory property flags
       void CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory, VkDescriptorBufferInfo& rDescriptor,
-                        const VkBufferUsageFlags usage, const VkMemoryPropertyFlags memoryPropertyFlags,
-                        const VkDeviceSize size, const void*const pData);
+                        const VkBufferUsageFlags usage, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize size,
+                        const void* const pData);
 
       void UpdateTextOverlay();
 
@@ -235,10 +249,10 @@ namespace Fsl
 
       // Load a mesh (using ASSIMP) and create vulkan vertex and index buffers with given vertex layout
       MeshLoader::MeshBuffer LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout, const float scale);
-      MeshLoader::MeshBuffer LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout, const MeshLoader::MeshCreateInfo*const pMeshCreateInfo);
+      MeshLoader::MeshBuffer LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout,
+                                      const MeshLoader::MeshCreateInfo* const pMeshCreateInfo);
 
-      //! @brief wait for everything to be idle
-      void WaitForIdle();
+      void DrawUI(const VkCommandBuffer commandBuffer);
     };
   }
 }

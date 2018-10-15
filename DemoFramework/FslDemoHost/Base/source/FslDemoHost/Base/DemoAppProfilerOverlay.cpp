@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/DemoAppProfilerOverlay.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -54,11 +54,11 @@ namespace Fsl
     {
       return value != 0 ? static_cast<int32_t>(std::floor(std::log10(std::abs(value))) + 1) : 1;
     }
-
   }
 
 
-  DemoAppProfilerOverlay::CustomRecord::CustomRecord(const ProfilerCustomCounterHandle& handle, const ProfilerCustomCounterDesc& desc, const std::shared_ptr<DemoAppProfilerGraph>& graph)
+  DemoAppProfilerOverlay::CustomRecord::CustomRecord(const ProfilerCustomCounterHandle& handle, const ProfilerCustomCounterDesc& desc,
+                                                     const std::shared_ptr<DemoAppProfilerGraph>& graph)
     : Handle(handle)
     , Name(desc.Name)
     , TheColor(desc.ColorHint)
@@ -67,7 +67,9 @@ namespace Fsl
     int32_t digits1 = MinimumDigits(desc.MinValue);
     const int32_t digits2 = MinimumDigits(desc.MaxValue);
     if (desc.MinValue < 0)
+    {
       ++digits1;
+    }
 
     const int32_t maxDigits = std::max(digits1, digits2);
 
@@ -76,24 +78,18 @@ namespace Fsl
 
 
   DemoAppProfilerOverlay::DemoAppProfilerOverlay(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig)
-    : m_profilerService()
-    , m_graphicsService()
-    , m_basic2D()
-    , m_graphTotal(0, 2000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
+    : m_graphTotal(0, 2000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
     , m_graphUpdate(0, 2000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
     , m_graphDraw(0, 2000, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT))
-    , m_customConfigurationRevision(0) // the profiler service never returns zero for its revision
-    , m_customCounters()
+    , m_customConfigurationRevision(0)    // the profiler service never returns zero for its revision
+
   {
     m_profilerService = demoAppConfig.DemoServiceProvider.Get<IProfilerService>();
     m_graphicsService = demoAppConfig.DemoServiceProvider.TryGet<IGraphicsService>();
   }
 
 
-  DemoAppProfilerOverlay::~DemoAppProfilerOverlay()
-  {
-
-  }
+  DemoAppProfilerOverlay::~DemoAppProfilerOverlay() = default;
 
 
   void DemoAppProfilerOverlay::Draw(const Point2& screenResolution)
@@ -125,18 +121,26 @@ namespace Fsl
         char tmp[TMP_BUFFER_SIZE];
         int numChars = 0;
         if (showFPS && showMicro)
+        {
           numChars = StringCompat::sprintf_s(tmp, TMP_BUFFER_SIZE, "%.1fFPS %.1fms", frameTime.GetFramePerSecond(), frameTime.TotalTime / 1000.0f);
+        }
         else if (showFPS)
+        {
           numChars = StringCompat::sprintf_s(tmp, TMP_BUFFER_SIZE, "%.1fFPS", frameTime.GetFramePerSecond());
+        }
         else if (showMicro)
+        {
           numChars = StringCompat::sprintf_s(tmp, TMP_BUFFER_SIZE, "%.1fms", frameTime.TotalTime / 1000.0f);
+        }
 
         const Point2 fontSize = basic2D->FontSize();
         Vector2 dstPos(0.0f, static_cast<float>(screenResolution.Y - fontSize.Y));
-        if ( numChars > 0 )
+        if (numChars > 0)
+        {
           basic2D->DrawString(tmp, dstPos);
+        }
 
-        { // Render text for the custom counters
+        {    // Render text for the custom counters
           numChars = std::max(numChars, 0);
           dstPos.X += (numChars + 1) * fontSize.X;
           std::list<CustomRecord>::const_iterator itr = m_customCounters.begin();
@@ -173,7 +177,9 @@ namespace Fsl
   {
     uint32_t currentRevision = m_profilerService->GetCustomConfigurationRevision();
     if (currentRevision == m_customConfigurationRevision)
+    {
       return;
+    }
 
     // Something changed so lets update our cached entries
     m_customConfigurationRevision = currentRevision;
@@ -187,13 +193,17 @@ namespace Fsl
 
     // Remove all outdated entries
     {
-      std::list<CustomRecord>::iterator itr = m_customCounters.begin();
+      auto itr = m_customCounters.begin();
       while (itr != m_customCounters.end())
       {
         if (m_profilerService->IsValidHandle(itr->Handle))
+        {
           ++itr;
+        }
         else
+        {
           itr = m_customCounters.erase(itr);
+        }
       }
     }
 
@@ -205,20 +215,21 @@ namespace Fsl
       {
         const ProfilerCustomCounterDesc desc = m_profilerService->GetDescription(handle);
         auto ptr = std::make_shared<DemoAppProfilerGraph>(desc.MinValue, desc.MaxValue, Point2(DEFAULT_GRAPH_WIDTH, DEFAULT_GRAPH_HEIGHT));
-        m_customCounters.push_back(CustomRecord(handle, desc, ptr));
+        m_customCounters.emplace_back(handle, desc, ptr);
       }
     }
-
   }
 
 
   bool DemoAppProfilerOverlay::IsNewHandle(const ProfilerCustomCounterHandle& handle) const
   {
-    std::list<CustomRecord>::const_iterator itr = m_customCounters.begin();
+    auto itr = m_customCounters.begin();
     while (itr != m_customCounters.end())
     {
       if (itr->Handle == handle)
+      {
         return false;
+      }
       ++itr;
     }
     return true;
@@ -235,5 +246,4 @@ namespace Fsl
       ++itr;
     }
   }
-
 }

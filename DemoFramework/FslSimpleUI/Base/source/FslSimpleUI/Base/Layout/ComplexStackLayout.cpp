@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/LayoutHelper.hpp>
@@ -46,7 +46,7 @@ namespace Fsl
   namespace UI
   {
     // FIX: this should not use the simple layout
-    ComplexStackLayout::ComplexStackLayout(const std::shared_ptr<WindowContext>& context)
+    ComplexStackLayout::ComplexStackLayout(const std::shared_ptr<BaseWindowContext>& context)
       : Layout(context)
       , m_orientation(LayoutOrientation::Vertical)
       , m_spacing(0)
@@ -58,7 +58,8 @@ namespace Fsl
     {
       Layout::WinInit();
 
-      m_children.SYS_WinInit(this, GetContext()->WindowManager);
+      auto uiContext = GetContext()->TheUIContext.Get();
+      m_children.SYS_WinInit(this, uiContext->WindowManager);
     }
 
 
@@ -84,7 +85,7 @@ namespace Fsl
 
     void ComplexStackLayout::ClearLayoutLengths()
     {
-      if (m_layoutLength.size() > 0)
+      if (!m_layoutLength.empty())
       {
         m_layoutLength.clear();
         PropertyUpdated(PropertyType::Layout);
@@ -101,7 +102,7 @@ namespace Fsl
 
     void ComplexStackLayout::PopLayoutLength()
     {
-      if (m_layoutLength.size() <= 0)
+      if (m_layoutLength.empty())
       {
         FSLLOG_WARNING("There are not layouts to pop, request ignored");
         return;
@@ -172,14 +173,17 @@ namespace Fsl
 
           minSize.X += desiredSize.X + m_spacing;
           if (desiredSize.Y > minSize.Y)
+          {
             minSize.Y = desiredSize.Y;
+          }
         }
         if (!m_children.empty())
+        {
           minSize.X -= m_spacing;
+        }
       }
       else
       {
-
         // Fake that we have unlimited space in Y and keep X constrained.
         const Vector2 fakeAvailableSize(availableSize.X, LayoutHelper::InfiniteSpace);
         for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
@@ -215,10 +219,14 @@ namespace Fsl
           desiredSize = itr->Window->DesiredSize();
           minSize.Y += desiredSize.Y + m_spacing;
           if (desiredSize.X > minSize.X)
+          {
             minSize.X = desiredSize.X;
+          }
         }
         if (!m_children.empty())
+        {
           minSize.Y -= m_spacing;
+        }
       }
 
       assert(!isinf(minSize.X));
@@ -269,16 +277,19 @@ namespace Fsl
         totalSize += m_spacing;
       }
       if (!m_children.empty())
+      {
         totalSize -= m_spacing;
+      }
 
       // We now know the total size and total stars
       const float sizeLeft = std::max(finalSize.X - totalSize, 0.0f);
       FinalizeStarSizes(sizeLeft, totalStars);
       if (finalSize.X >= totalSize && totalStars > 0)
+      {
         totalSize = finalSize.X;
+      }
       return Vector2(totalSize, finalSize.Y);
     }
-
 
 
     Vector2 ComplexStackLayout::CalcFixedStarSizeVertical(const Vector2& finalSize)
@@ -319,13 +330,17 @@ namespace Fsl
         totalSize += m_spacing;
       }
       if (!m_children.empty())
+      {
         totalSize -= m_spacing;
+      }
 
       // We now know the total size and total stars
       const float sizeLeft = std::max(finalSize.Y - totalSize, 0.0f);
       FinalizeStarSizes(sizeLeft, totalStars);
       if (finalSize.X >= totalSize && totalStars > 0)
+      {
         totalSize = finalSize.Y;
+      }
       return Vector2(finalSize.X, totalSize);
     }
 
@@ -337,7 +352,9 @@ namespace Fsl
       for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
       {
         if (itr->UnitType == LayoutUnitType::Star)
+        {
           itr->Size = (totalStars / itr->Size) * spaceLeft;
+        }
         itr->Position = position;
         position += itr->Size + m_spacing;
       }
@@ -363,5 +380,4 @@ namespace Fsl
       }
     }
   }
-
 }

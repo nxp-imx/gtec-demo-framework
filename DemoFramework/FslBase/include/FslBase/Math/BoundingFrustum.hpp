@@ -53,7 +53,6 @@ namespace Fsl
     std::array<Plane, PlaneCount> m_planes;
 
   public:
-
     Matrix GetMatrix() const;
     void SetMatrix(const Matrix& value);
 
@@ -174,6 +173,7 @@ namespace Fsl
     {
       return m_matrix != rhs.m_matrix;
     }
+
   private:
     void CreateCorners();
     void CreatePlanes();

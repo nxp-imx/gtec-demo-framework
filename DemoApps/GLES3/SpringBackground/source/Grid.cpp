@@ -1,33 +1,33 @@
-  /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+/****************************************************************************************************************************************************
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "Grid.hpp"
 #include <FslBase/Math/VectorHelper.hpp>
@@ -42,14 +42,13 @@ namespace Fsl
   Grid::Grid(const Rect& rect, const Point2& gridResolution)
     : m_gridX(gridResolution.X + (gridResolution.X & 1))
     , m_gridY(gridResolution.Y + (gridResolution.Y & 1))
-    , m_springs()
-    , m_points(m_gridX*m_gridY)
-    , m_fixedPoints(m_gridX*m_gridY)    // TODO: reduce the amount of fixed points we need to allocate
+    , m_points(m_gridX * m_gridY)
+    , m_fixedPoints(m_gridX * m_gridY)    // TODO: reduce the amount of fixed points we need to allocate
   {
     assert((m_gridX & 1) == 0);
     assert((m_gridY & 1) == 0);
 
-    const Vector2 spacing(rect.Width() / (m_gridX-1), rect.Height() / (m_gridY-1));
+    const Vector2 spacing(rect.Width() / (m_gridX - 1), rect.Height() / (m_gridY - 1));
     InitPoints(rect, spacing);
     InitSprings();
   }
@@ -153,7 +152,7 @@ namespace Fsl
   {
     const float xPosStart = rect.TopLeft().X;
     float yPos = rect.TopLeft().Y;
-    for (int y=0; y < m_gridY; ++y)
+    for (int y = 0; y < m_gridY; ++y)
     {
       float xPos = xPosStart;
       for (int x = 0; x < m_gridX; ++x)
@@ -174,47 +173,45 @@ namespace Fsl
     // link the point masses with springs
     const int32_t endX = m_gridX - 1;
     const int32_t endY = m_gridY - 1;
-    { // Setup the fairly rigid border
+    {    // Setup the fairly rigid border
       const float stiffness = 0.1f;
       const float damping = 0.1f;
       for (int32_t y = 0; y < m_gridY; ++y)
       {
-        m_springs.push_back(Spring(GetPointMass(m_fixedPoints.data(), 0, y), GetPointMass(m_points.data(), 0, y), stiffness, damping));
-        m_springs.push_back(Spring(GetPointMass(m_fixedPoints.data(), endX, y), GetPointMass(m_points.data(), endX, y), stiffness, damping));
+        m_springs.emplace_back(GetPointMass(m_fixedPoints.data(), 0, y), GetPointMass(m_points.data(), 0, y), stiffness, damping);
+        m_springs.emplace_back(GetPointMass(m_fixedPoints.data(), endX, y), GetPointMass(m_points.data(), endX, y), stiffness, damping);
       }
       for (int32_t x = 0; x < m_gridX; ++x)
       {
-        m_springs.push_back(Spring(GetPointMass(m_fixedPoints.data(), x, 0), GetPointMass(m_points.data(), x, 0), stiffness, damping));
-        m_springs.push_back(Spring(GetPointMass(m_fixedPoints.data(), x, endY), GetPointMass(m_points.data(), x, endY), stiffness, damping));
+        m_springs.emplace_back(GetPointMass(m_fixedPoints.data(), x, 0), GetPointMass(m_points.data(), x, 0), stiffness, damping);
+        m_springs.emplace_back(GetPointMass(m_fixedPoints.data(), x, endY), GetPointMass(m_points.data(), x, endY), stiffness, damping);
       }
     }
-    { // Add stabilizer springs at regular intervals
+    {    // Add stabilizer springs at regular intervals
       for (int y = 3; y < endY; y += 3)
       {
         for (int x = 3; x < endX; x += 3)
         {
-          m_springs.push_back(Spring(GetPointMass(m_fixedPoints.data(), x, y), GetPointMass(m_points.data(), x, y), 0.002f, 0.02f));
+          m_springs.emplace_back(GetPointMass(m_fixedPoints.data(), x, y), GetPointMass(m_points.data(), x, y), 0.002f, 0.02f);
         }
       }
     }
-    { // Add the main springs
+    {    // Add the main springs
       for (int y = 0; y < m_gridY; ++y)
       {
         for (int x = 0; x < m_gridX; ++x)
         {
           if (x > 0)
           {
-            m_springs.push_back(Spring(GetPointMass(m_points.data(), x - 1, y), GetPointMass(m_points.data(), x, y), 0.28f, 0.06f));
+            m_springs.emplace_back(GetPointMass(m_points.data(), x - 1, y), GetPointMass(m_points.data(), x, y), 0.28f, 0.06f);
           }
 
           if (y > 0)
           {
-            m_springs.push_back(Spring(GetPointMass(m_points.data(), x, y - 1), GetPointMass(m_points.data(), x, y), 0.28f, 0.06f));
+            m_springs.emplace_back(GetPointMass(m_points.data(), x, y - 1), GetPointMass(m_points.data(), x, y), 0.28f, 0.06f);
           }
         }
       }
     }
   }
-
-
 }

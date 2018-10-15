@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.Camera.Platform">
+    <Default.Platform.Supported Value="false"/>
+    <Requirement Name="EarlyAccess" Type="feature"/>
+    <Dependency Name="Shared.Camera.System"/>
+
+    <Platform Name="Ubuntu" Supported="true">
+	  <Dependency Name="Shared.Camera.Adapter.OpenCV" Access="Private"/>
+    </Platform>
+    <Platform Name="Windows" ProjectId="582FFFDB-9503-4A66-BABA-A4F6DEBCF42E" Supported="true">
+	  <Dependency Name="Shared.Camera.Adapter.OpenCV" Access="Private"/>
+	</Platform>
+    <Platform Name="Yocto" Supported="true">
+	  <Dependency Name="Shared.Camera.Adapter.Mipi8X" Access="Private"/>
+    </Platform>    
+  </Library>
+</FslBuildGen>

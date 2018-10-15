@@ -1,15 +1,15 @@
 /*
-* Vulkan Example - Basic indexed triangle rendering
-*
-* Note:
-* This is a "pedal to the metal" example to show off how to get Vulkan up an displaying something
-* Contrary to the other examples, this one won't make use of helper functions or initializers
-* Except in a few cases (swap chain setup e.g.)
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Basic indexed triangle rendering
+ *
+ * Note:
+ * This is a "pedal to the metal" example to show off how to get Vulkan up an displaying something
+ * Contrary to the other examples, this one won't make use of helper functions or initializers
+ * Except in a few cases (swap chain setup e.g.)
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Triangle' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -46,7 +46,6 @@ namespace Fsl
     // If begin is true, the command buffer is also started so we can start adding commands
     CommandBuffer DoGetCommandBuffer(const VkDevice device, const CommandPool& cmdPool, const bool begin)
     {
-
       VkCommandBufferAllocateInfo cmdBufAllocateInfo{};
       cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
       cmdBufAllocateInfo.commandPool = cmdPool.Get();
@@ -109,7 +108,7 @@ namespace Fsl
   Triangle::~Triangle()
   {
     // Wait for everything to be idle before we try to free it
-    WaitForIdle();
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -144,7 +143,7 @@ namespace Fsl
     image.imageType = VK_IMAGE_TYPE_2D;
     image.format = depthFormat;
     // Use example's height and width
-    image.extent = { screenExtent.Width, screenExtent.Height, 1 };
+    image.extent = {screenExtent.Width, screenExtent.Height, 1};
     image.mipLevels = 1;
     image.arrayLayers = 1;
     image.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -188,10 +187,11 @@ namespace Fsl
 
 
   // Render pass setup
-  // Render passes are a new concept in Vulkan. They describe the attachments used during rendering and may contain multiple subpasses with attachment dependencies
-  // This allows the driver to know up-front what the rendering will look like and is a good opportunity to optimize especially on tile-based renderers (with multiple subpasses)
-  // Using sub pass dependencies also adds implicit layout transitions for the attachment used, so we don't need to add explicit image memory barriers to transform them
-  // Note: Override of virtual function in the base class and called from within VulkanExampleBase::prepare
+  // Render passes are a new concept in Vulkan. They describe the attachments used during rendering and may contain multiple subpasses with attachment
+  // dependencies This allows the driver to know up-front what the rendering will look like and is a good opportunity to optimize especially on
+  // tile-based renderers (with multiple subpasses) Using sub pass dependencies also adds implicit layout transitions for the attachment used, so we
+  // don't need to add explicit image memory barriers to transform them Note: Override of virtual function in the base class and called from within
+  // VulkanExampleBase::prepare
   void Triangle::SetupRenderPass(const VkFormat colorFormat, const VkFormat depthFormat)
   {
     // This example will use a single render pass with one subpass
@@ -201,44 +201,47 @@ namespace Fsl
 
     // Color attachment
     attachments[0].format = colorFormat;
-    attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;                   // We don't use multi sampling in this example
-    attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;              // Clear this attachment at the start of the render pass
-    attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;            // Keep it's contents after the render pass is finished (for displaying it)
-    attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;   // We don't use stencil, so don't care for load
-    attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; // Same for store
-    attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;         // Layout at render pass start. Initial doesn't matter, so we use undefined
-    attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;     // Layout to which the attachment is transitioned when the render pass is finished
+    attachments[0].samples = VK_SAMPLE_COUNT_1_BIT;                      // We don't use multi sampling in this example
+    attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;                 // Clear this attachment at the start of the render pass
+    attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;               // Keep it's contents after the render pass is finished (for displaying it)
+    attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;      // We don't use stencil, so don't care for load
+    attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;    // Same for store
+    attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;            // Layout at render pass start. Initial doesn't matter, so we use undefined
+    attachments[0].finalLayout =
+      VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;    // Layout to which the attachment is transitioned when the render pass is finished
     // As we want to present the color buffer to the swapchain, we transition to PRESENT_KHR
     // Depth attachment
     attachments[1].format = depthFormat;
     attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-    attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;                            // Clear depth at start of first subpass
-    attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;                      // We don't need depth after render pass has finished (DONT_CARE may result in better performance)
-    attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;                 // No stencil
-    attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;               // No Stencil
-    attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;                       // Layout at render pass start. Initial doesn't matter, so we use undefined
-    attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;  // Transition to depth/stencil attachment
+    attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;    // Clear depth at start of first subpass
+    attachments[1].storeOp =
+      VK_ATTACHMENT_STORE_OP_DONT_CARE;    // We don't need depth after render pass has finished (DONT_CARE may result in better performance)
+    attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;      // No stencil
+    attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;    // No Stencil
+    attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;            // Layout at render pass start. Initial doesn't matter, so we use undefined
+    attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;    // Transition to depth/stencil attachment
 
     // Setup attachment references
     VkAttachmentReference colorReference{};
-    colorReference.attachment = 0;                                      // Attachment 0 is color
-    colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;   // Attachment layout used as color during the subpass
+    colorReference.attachment = 0;                                       // Attachment 0 is color
+    colorReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;    // Attachment layout used as color during the subpass
 
     VkAttachmentReference depthReference{};
-    depthReference.attachment = 1;                                            // Attachment 1 is color
-    depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL; // Attachment used as depth/stemcil used during the subpass
+    depthReference.attachment = 1;                                               // Attachment 1 is color
+    depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;    // Attachment used as depth/stemcil used during the subpass
 
     // Setup a single subpass reference
     VkSubpassDescription subpassDescription{};
     subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpassDescription.colorAttachmentCount = 1;                  // Subpass uses one color attachment
-    subpassDescription.pColorAttachments = &colorReference;       // Reference to the color attachment in slot 0
-    subpassDescription.pDepthStencilAttachment = &depthReference; // Reference to the depth attachment in slot 1
-    subpassDescription.inputAttachmentCount = 0;                  // Input attachments can be used to sample from contents of a previous subpass
-    subpassDescription.pInputAttachments = nullptr;               // (Input attachments not used by this example)
-    subpassDescription.preserveAttachmentCount = 0;               // Preserved attachments can be used to loop (and preserve) attachments through subpasses
-    subpassDescription.pPreserveAttachments = nullptr;            // (Preserve attachments not used by this example)
-    subpassDescription.pResolveAttachments = nullptr;             // Resolve attachments are resolved at the end of a sub pass and can be used for e.g. multi sampling
+    subpassDescription.colorAttachmentCount = 1;                     // Subpass uses one color attachment
+    subpassDescription.pColorAttachments = &colorReference;          // Reference to the color attachment in slot 0
+    subpassDescription.pDepthStencilAttachment = &depthReference;    // Reference to the depth attachment in slot 1
+    subpassDescription.inputAttachmentCount = 0;                     // Input attachments can be used to sample from contents of a previous subpass
+    subpassDescription.pInputAttachments = nullptr;                  // (Input attachments not used by this example)
+    subpassDescription.preserveAttachmentCount = 0;       // Preserved attachments can be used to loop (and preserve) attachments through subpasses
+    subpassDescription.pPreserveAttachments = nullptr;    // (Preserve attachments not used by this example)
+    subpassDescription.pResolveAttachments =
+      nullptr;    // Resolve attachments are resolved at the end of a sub pass and can be used for e.g. multi sampling
 
     // Setup subpass dependencies
     // These will add the implicit attachment layout transitions specified by the attachment descriptions
@@ -250,8 +253,8 @@ namespace Fsl
 
     // First dependency at the start of the renderpass
     // Does the transition from final to initial layout
-    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;               // Producer of the dependency
-    dependencies[0].dstSubpass = 0;                                 // Consumer is our single subpass that will wait for the execution depdendency
+    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;    // Producer of the dependency
+    dependencies[0].dstSubpass = 0;                      // Consumer is our single subpass that will wait for the execution depdendency
     dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
@@ -260,8 +263,8 @@ namespace Fsl
 
     // Second dependency at the end the renderpass
     // Does the transition from the initial to the final layout
-    dependencies[1].srcSubpass = 0;                                 // Producer of the dependency is our single subpass
-    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;               // Consumer are all commands outside of the renderpass
+    dependencies[1].srcSubpass = 0;                      // Producer of the dependency is our single subpass
+    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;    // Consumer are all commands outside of the renderpass
     dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
@@ -271,12 +274,12 @@ namespace Fsl
     // Create the actual renderpass
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());   // Number of attachments used by this render pass
-    renderPassInfo.pAttachments = attachments.data();                             // Descriptions of the attachments used by the render pass
-    renderPassInfo.subpassCount = 1;                                              // We only use one subpass in this example
-    renderPassInfo.pSubpasses = &subpassDescription;                              // Description of that subpass
-    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());  // Number of subpass dependencies
-    renderPassInfo.pDependencies = dependencies.data();                           // Subpass dependencies used by the render pass
+    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());     // Number of attachments used by this render pass
+    renderPassInfo.pAttachments = attachments.data();                               // Descriptions of the attachments used by the render pass
+    renderPassInfo.subpassCount = 1;                                                // We only use one subpass in this example
+    renderPassInfo.pSubpasses = &subpassDescription;                                // Description of that subpass
+    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());    // Number of subpass dependencies
+    renderPassInfo.pDependencies = dependencies.data();                             // Subpass dependencies used by the render pass
 
     m_renderPass.Reset(m_device.Get(), renderPassInfo);
   }
@@ -293,8 +296,8 @@ namespace Fsl
     for (std::size_t i = 0; i < m_frameBuffers.size(); ++i)
     {
       std::array<VkImageView, 2> attachments{};
-      attachments[0] = m_swapchain[i].View.Get();             // Color attachment is the view of the swapchain image
-      attachments[1] = m_depthStencil.View.Get();             // Depth/Stencil attachment is the same for all frame buffers
+      attachments[0] = m_swapchain[i].View.Get();    // Color attachment is the view of the swapchain image
+      attachments[1] = m_depthStencil.View.Get();    // Depth/Stencil attachment is the same for all frame buffers
 
       VkFramebufferCreateInfo frameBufferCreateInfo{};
       frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -322,12 +325,14 @@ namespace Fsl
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
       // TODO: support 'soft restart'
-      FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
+      FSLLOG("Restarting app due to VK_ERROR_OUT_OF_DATE_KHR");
       GetDemoAppControl()->RequestAppRestart();
       return;
     }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
       throw std::runtime_error("Could not acquire next image.");
+    }
 
     // Use a fence to wait until the command buffer has finished execution before using it again
     m_waitFences[m_currentBufferIndex].WaitForFence(UINT64_MAX);
@@ -338,13 +343,14 @@ namespace Fsl
     // The submit info structure specifies a command buffer queue submission batch
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pWaitDstStageMask = &waitStageMask;                                  // Pointer to the list of pipeline stages that the semaphore waits will occur at
-    submitInfo.pWaitSemaphores = m_presentCompleteSemaphore.GetPointer();           // Semaphore(s) to wait upon before the submitted command buffer starts executing
-    submitInfo.waitSemaphoreCount = 1;                                              // One wait semaphore
-    submitInfo.pSignalSemaphores = m_renderCompleteSemaphore.GetPointer();          // Semaphore(s) to be signaled when command buffers have completed
-    submitInfo.signalSemaphoreCount = 1;                                            // One signal semaphore
-    submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);   // Command buffers(s) to execute in this batch (submission)
-    submitInfo.commandBufferCount = 1;                                              // One command buffer
+    submitInfo.pWaitDstStageMask = &waitStageMask;    // Pointer to the list of pipeline stages that the semaphore waits will occur at
+    submitInfo.pWaitSemaphores =
+      m_presentCompleteSemaphore.GetPointer();    // Semaphore(s) to wait upon before the submitted command buffer starts executing
+    submitInfo.waitSemaphoreCount = 1;            // One wait semaphore
+    submitInfo.pSignalSemaphores = m_renderCompleteSemaphore.GetPointer();    // Semaphore(s) to be signaled when command buffers have completed
+    submitInfo.signalSemaphoreCount = 1;                                      // One signal semaphore
+    submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);    // Command buffers(s) to execute in this batch (submission)
+    submitInfo.commandBufferCount = 1;                                                 // One command buffer
 
     // Submit to the graphics queue passing a wait fence
     m_deviceQueue.Submit(1, &submitInfo, m_waitFences[m_currentBufferIndex].Get());
@@ -356,12 +362,14 @@ namespace Fsl
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
       // TODO: support 'soft restart'
-      FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
+      FSLLOG("Restarting app due to VK_ERROR_OUT_OF_DATE_KHR");
       GetDemoAppControl()->RequestAppRestart();
       return;
     }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-        throw std::runtime_error("Could not present queue");
+    if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    {
+      throw std::runtime_error("Could not present queue");
+    }
   }
 
 
@@ -410,16 +418,12 @@ namespace Fsl
     };
 
     // Setup vertices
-    std::vector<Vertex> vertexBuffer =
-    {
-      { { 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-      { { -1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-      { { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
-    };
+    std::vector<Vertex> vertexBuffer = {
+      {{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}, {{0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}};
     uint32_t vertexBufferSize = static_cast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);
 
     // Setup indices
-    std::vector<uint32_t> indexBuffer = { 0, 1, 2 };
+    std::vector<uint32_t> indexBuffer = {0, 1, 2};
     m_indices.Count = static_cast<uint32_t>(indexBuffer.size());
     uint32_t indexBufferSize = m_indices.Count * sizeof(uint32_t);
 
@@ -467,7 +471,8 @@ namespace Fsl
       memAlloc.allocationSize = memReqs.size;
       // Request a host visible memory type that can be used to copy our data do
       // Also request it to be coherent, so that writes are visible to the GPU right after unmapping the buffer
-      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits,
+                                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
       stagingBuffers.Vertices.Memory.Reset(m_device.Get(), memAlloc);
 
@@ -498,7 +503,8 @@ namespace Fsl
       stagingBuffers.Indices.Buffer.Reset(m_device.Get(), indexbufferInfo);
       memReqs = stagingBuffers.Indices.Buffer.GetBufferMemoryRequirements();
       memAlloc.allocationSize = memReqs.size;
-      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits,
+                                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
       stagingBuffers.Indices.Memory.Reset(m_device.Get(), memAlloc);
 
@@ -518,9 +524,9 @@ namespace Fsl
       m_indices.Memory.Reset(m_device.Get(), memAlloc);
       RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), m_indices.Buffer.Get(), m_indices.Memory.Get(), 0));
 
-      //VkCommandBufferBeginInfo cmdBufferBeginInfo{};
-      //cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-      //cmdBufferBeginInfo.pNext = nullptr;
+      // VkCommandBufferBeginInfo cmdBufferBeginInfo{};
+      // cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+      // cmdBufferBeginInfo.pNext = nullptr;
 
       // Buffer copies have to be submitted to a queue, so we need a command buffer for them
       // Note: Some devices offer a dedicated transfer queue (with only the transfer bit set) that may be faster when doing lots of copies
@@ -548,39 +554,39 @@ namespace Fsl
       // Don't use staging
       // Create host-visible buffers only and use these for rendering. This is not advised and will usually result in lower rendering performance
 
-    //  // Vertex buffer
-    //  VkBufferCreateInfo vertexBufferInfo = {};
-    //  vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    //  vertexBufferInfo.size = vertexBufferSize;
-    //  vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+      //  // Vertex buffer
+      //  VkBufferCreateInfo vertexBufferInfo = {};
+      //  vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+      //  vertexBufferInfo.size = vertexBufferSize;
+      //  vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
-    //  // Copy vertex data to a buffer visible to the host
-    //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &vertexBufferInfo, nullptr, &vertices.buffer));
-    //  vkGetBufferMemoryRequirements(device, vertices.buffer, &memReqs);
-    //  memAlloc.allocationSize = memReqs.size;
-    //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-    //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &vertices.memory));
-    //  RAPIDVULKAN_CHECK(vkMapMemory(device, vertices.memory, 0, memAlloc.allocationSize, 0, &data));
-    //  memcpy(data, vertexBuffer.data(), vertexBufferSize);
-    //  vkUnmapMemory(device, vertices.memory);
-    //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, vertices.buffer, vertices.memory, 0));
+      //  // Copy vertex data to a buffer visible to the host
+      //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &vertexBufferInfo, nullptr, &vertices.buffer));
+      //  vkGetBufferMemoryRequirements(device, vertices.buffer, &memReqs);
+      //  memAlloc.allocationSize = memReqs.size;
+      //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+      //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &vertices.memory));
+      //  RAPIDVULKAN_CHECK(vkMapMemory(device, vertices.memory, 0, memAlloc.allocationSize, 0, &data));
+      //  memcpy(data, vertexBuffer.data(), vertexBufferSize);
+      //  vkUnmapMemory(device, vertices.memory);
+      //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, vertices.buffer, vertices.memory, 0));
 
-    //  // Index buffer
-    //  VkBufferCreateInfo indexbufferInfo = {};
-    //  indexbufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    //  indexbufferInfo.size = indexBufferSize;
-    //  indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+      //  // Index buffer
+      //  VkBufferCreateInfo indexbufferInfo = {};
+      //  indexbufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+      //  indexbufferInfo.size = indexBufferSize;
+      //  indexbufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 
-    //  // Copy index data to a buffer visible to the host
-    //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &indexbufferInfo, nullptr, &indices.buffer));
-    //  vkGetBufferMemoryRequirements(device, indices.buffer, &memReqs);
-    //  memAlloc.allocationSize = memReqs.size;
-    //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-    //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &indices.memory));
-    //  RAPIDVULKAN_CHECK(vkMapMemory(device, indices.memory, 0, indexBufferSize, 0, &data));
-    //  memcpy(data, indexBuffer.data(), indexBufferSize);
-    //  vkUnmapMemory(device, indices.memory);
-    //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, indices.buffer, indices.memory, 0));
+      //  // Copy index data to a buffer visible to the host
+      //  RAPIDVULKAN_CHECK(vkCreateBuffer(device, &indexbufferInfo, nullptr, &indices.buffer));
+      //  vkGetBufferMemoryRequirements(device, indices.buffer, &memReqs);
+      //  memAlloc.allocationSize = memReqs.size;
+      //  memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+      //  RAPIDVULKAN_CHECK(vkAllocateMemory(device, &memAlloc, nullptr, &indices.memory));
+      //  RAPIDVULKAN_CHECK(vkMapMemory(device, indices.memory, 0, indexBufferSize, 0, &data));
+      //  memcpy(data, indexBuffer.data(), indexBufferSize);
+      //  vkUnmapMemory(device, indices.memory);
+      //  RAPIDVULKAN_CHECK(vkBindBufferMemory(device, indices.buffer, indices.memory, 0));
     }
 
     // Vertex input binding
@@ -646,7 +652,8 @@ namespace Fsl
     // Most implementations offer multiple memory types and selecting the correct one to allocate memory from is crucial
     // We also want the buffer to be host coherent so we don't have to flush (or sync after every update.
     // Note: This may affect performance so you might not want to do this in a real world application that updates buffers on a regular base
-    allocInfo.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    allocInfo.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits,
+                                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     // Allocate memory for the uniform buffer
     m_uniformDataVS.Memory.Reset(m_device.Get(), allocInfo);
     // Bind memory to buffer
@@ -668,15 +675,15 @@ namespace Fsl
     // Update matrices
     m_uboVS.ProjectionMatrix = glm::perspective(glm::radians(60.0f), static_cast<float>(screenRes.X) / static_cast<float>(screenRes.Y), 0.1f, 256.0f);
 
-    m_uboVS.ViewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, m_zoom));
+    m_uboVS.ViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, m_zoom));
 
-    m_uboVS.ModelMatrix = glm::mat4();
+    m_uboVS.ModelMatrix = glm::mat4(1.0f);
     m_uboVS.ModelMatrix = glm::rotate(m_uboVS.ModelMatrix, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_uboVS.ModelMatrix = glm::rotate(m_uboVS.ModelMatrix, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     m_uboVS.ModelMatrix = glm::rotate(m_uboVS.ModelMatrix, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Map uniform buffer and update it
-    uint8_t *pData;
+    uint8_t* pData;
     RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), m_uniformDataVS.Memory.Get(), 0, sizeof(m_uboVS), 0, reinterpret_cast<void**>(&pData)));
     {
       std::memcpy(pData, &m_uboVS, sizeof(m_uboVS));
@@ -772,8 +779,8 @@ namespace Fsl
 
     // Enable dynamic states
     // Most states are baked into the pipeline, but there are still a few dynamic states that can be changed within a command buffer
-    // To be able to change these we need do specify which dynamic states will be changed using this pipeline. Their actual states are set later on in the command buffer.
-    // For this example we will set the viewport and scissor using dynamic states
+    // To be able to change these we need do specify which dynamic states will be changed using this pipeline. Their actual states are set later on in
+    // the command buffer. For this example we will set the viewport and scissor using dynamic states
     std::vector<VkDynamicState> dynamicStateEnables;
     dynamicStateEnables.push_back(VK_DYNAMIC_STATE_VIEWPORT);
     dynamicStateEnables.push_back(VK_DYNAMIC_STATE_SCISSOR);
@@ -806,7 +813,7 @@ namespace Fsl
     // Load shaders
     // Vulkan loads it's shaders from an immediate binary representation called SPIR-V
     // Shaders are compiled offline from e.g. GLSL using the reference glslang compiler
-    std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages;
+    std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages{};
     shaderStages[0] = LoadShader("triangle.vert.spv", VK_SHADER_STAGE_VERTEX_BIT);
     shaderStages[1] = LoadShader("triangle.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
 
@@ -898,8 +905,8 @@ namespace Fsl
     // Set clear values for all framebuffer attachments with loadOp set to clear
     // We use two attachments (color and depth) that are cleared at the start of the subpass and as such we need to set clear values for both
     VkClearValue clearValues[2];
-    clearValues[0].color = { { 0.0f, 0.0f, 0.2f, 1.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[0].color = {{0.0f, 0.0f, 0.2f, 1.0f}};
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -941,11 +948,12 @@ namespace Fsl
       vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
 
       // Bind the rendering pipeline
-      // The pipeline (state object) contains all states of the rendering pipeline, binding it will set all the states specified at pipeline creation time
+      // The pipeline (state object) contains all states of the rendering pipeline, binding it will set all the states specified at pipeline creation
+      // time
       vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.Get());
 
       // Bind triangle vertex buffer (contains position and colors)
-      VkDeviceSize offsets[1] = { 0 };
+      VkDeviceSize offsets[1] = {0};
       vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_vertices.Buffer.GetPointer(), offsets);
 
       // Bind triangle index buffer
@@ -953,6 +961,8 @@ namespace Fsl
 
       // Draw indexed triangle
       vkCmdDrawIndexed(m_drawCmdBuffers[i], m_indices.Count, 1, 0, 0, 1);
+
+      DrawUI(m_drawCmdBuffers[i]);
 
       vkCmdEndRenderPass(m_drawCmdBuffers[i]);
 

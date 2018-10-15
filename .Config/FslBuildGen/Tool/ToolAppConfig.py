@@ -44,6 +44,7 @@ class DefaultValue(object):
     RequireFeatures = "*"
     UseExtensions = "*"
     RequireExtensions = "*"
+    Recipes = "*"
 
     AllowDevelopmentPlugins = False
     ForceClaimInstallArea = False

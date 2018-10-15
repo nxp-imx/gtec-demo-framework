@@ -5,7 +5,9 @@ namespace Fsl
 {
   TypeInfo::TypeInfo()
   {
-    class Nil {};
+    class Nil
+    {
+    };
     m_pInfo = &typeid(Nil);
     assert(m_pInfo);
   }
@@ -22,7 +24,7 @@ namespace Fsl
   {
     assert(m_pInfo);
     // type_info::before return type is int in some VC libraries
-    return m_pInfo->before(*rhs.m_pInfo) != 0;
+    return static_cast<int>(m_pInfo->before(*rhs.m_pInfo)) != 0;
   }
 
 

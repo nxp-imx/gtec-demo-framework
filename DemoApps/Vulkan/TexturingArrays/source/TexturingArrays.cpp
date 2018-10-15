@@ -1,10 +1,10 @@
 /*
-* Vulkan Example - Texture arrays and instanced rendering
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Texture arrays and instanced rendering
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Texture Arrays' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -44,7 +44,7 @@ namespace Fsl
   {
     m_zoom = -15.0f;
     m_rotationSpeed = 0.25f;
-    m_rotation = { -15.0f, 35.0f, 0.0f };
+    m_rotation = {-15.0f, 35.0f, 0.0f};
 
     m_enableTextOverlay = true;
     m_title = "Vulkan Example - Texture arrays";
@@ -53,7 +53,7 @@ namespace Fsl
 
   TexturingArrays::~TexturingArrays()
   {
-
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -84,7 +84,7 @@ namespace Fsl
 
     VkClearValue clearValues[2];
     clearValues[0].color = m_defaultClearColor;
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -123,12 +123,14 @@ namespace Fsl
 
         vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
 
-        VkDeviceSize offsets[1] = { 0 };
+        VkDeviceSize offsets[1] = {0};
         vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Quad.GetVertices().GetBufferPointer(), offsets);
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Quad.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Solid.Get());
 
         vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Quad.GetIndexCount(), m_textureArray.GetLayers(), 0, 0, 0);
+
+        DrawUI(m_drawCmdBuffers[i]);
 
         vkCmdEndRenderPass(m_drawCmdBuffers[i]);
       }
@@ -151,7 +153,9 @@ namespace Fsl
   void TexturingArrays::Draw(const DemoTime& demoTime)
   {
     if (!TryPrepareFrame())
+    {
       return;
+    }
 
     m_submitInfo.commandBufferCount = 1;
     m_submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);
@@ -196,17 +200,19 @@ namespace Fsl
 
   void TexturingArrays::LoadTextures()
   {
-    if (m_deviceActiveFeatures.textureCompressionBC)
+    if (m_deviceActiveFeatures.textureCompressionBC != VK_FALSE)
     {
-      //m_textureArray = m_textureLoader->LoadTextureArray("textures/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
+      // m_textureArray = m_textureLoader->LoadTextureArray("textures/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
       m_textureArray = LoadTextureArray("textures/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
     }
-    else if (m_deviceActiveFeatures.textureCompressionETC2)
+    else if (m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE)
     {
       m_textureArray = LoadTextureArray("textures/texturearray_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
     }
     else
+    {
       throw NotSupportedException("No supported texture compression available");
+    }
   }
 
 
@@ -217,9 +223,9 @@ namespace Fsl
     auto texExtent = textureArray.GetExtent();
     texExtent.Depth = 1;
 
-    //textureArray.width = tex2DArray.dimensions().x;
-    //textureArray.height = tex2DArray.dimensions().y;
-    //layerCount = tex2DArray.layers();
+    // textureArray.width = tex2DArray.dimensions().x;
+    // textureArray.height = tex2DArray.dimensions().y;
+    // layerCount = tex2DArray.layers();
 
     // Create a host-visible staging buffer that contains the raw image data
 
@@ -241,7 +247,8 @@ namespace Fsl
     memAllocInfo.pNext = nullptr;
     memAllocInfo.allocationSize = memReqs.size;
     // Get memory type index for a host visible buffer
-    memAllocInfo.memoryTypeIndex = m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    memAllocInfo.memoryTypeIndex =
+      m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     Memory stagingMemory(m_device.Get(), memAllocInfo);
 
@@ -252,7 +259,9 @@ namespace Fsl
     stagingMemory.MapMemory(0, memReqs.size, 0, &pData);
     {
       if (pData == nullptr)
+      {
         throw std::runtime_error("failed to map memory");
+      }
       RawTexture rawTexture;
       Texture::ScopedDirectAccess directAccess(textureArray, rawTexture);
       std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetContentByteSize());
@@ -265,7 +274,7 @@ namespace Fsl
     // Check if all array layers have the same dimensions
     bool sameDims = true;
     // NOTE: the Texture class does not support multiple layers of different sizes
-    //for (uint32_t layer = 0; layer < textureArray.GetLayers(); ++layer)
+    // for (uint32_t layer = 0; layer < textureArray.GetLayers(); ++layer)
     //{
     //  if (tex2DArray[layer].dimensions().x != textureArray.width || tex2DArray[layer].dimensions().y != textureArray.height)
     //  {
@@ -293,7 +302,7 @@ namespace Fsl
       for (uint32_t layer = 0; layer < textureArray.GetLayers(); ++layer)
       {
         // FIX: texture does not currently support different layer sizes
-        //const auto blobExtent = textureArray.GetExtent(0, layer);
+        // const auto blobExtent = textureArray.GetExtent(0, layer);
         const auto blobExtent = textureArray.GetExtent(0);
         const auto blobRecord = textureArray.GetTextureBlob(0, 0, layer);
         VkBufferImageCopy bufferCopyRegion{};
@@ -348,18 +357,15 @@ namespace Fsl
       subresourceRange.levelCount = 1;
       subresourceRange.layerCount = textureArray.GetLayers();
 
-      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(),
-                                        VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
                                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
       // Copy the cube map faces from the staging buffer to the optimal tiled image
-      vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), texImage.Get(),
-                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+      vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), texImage.Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                              static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
 
       // Change texture image layout to shader read after all faces have been copied
-      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(),
-                                        VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                         texImageLayout, subresourceRange);
 
       FlushCommandBuffer(copyCmd, m_deviceQueue.Queue, true);
@@ -376,7 +382,7 @@ namespace Fsl
     sampler.addressModeV = sampler.addressModeU;
     sampler.addressModeW = sampler.addressModeU;
     sampler.mipLodBias = 0.0f;
-    sampler.maxAnisotropy = m_deviceActiveFeatures.samplerAnisotropy ? 8.0f : 1.0f;
+    sampler.maxAnisotropy = m_deviceActiveFeatures.samplerAnisotropy != VK_FALSE ? 8.0f : 1.0f;
     sampler.compareOp = VK_COMPARE_OP_NEVER;
     sampler.minLod = 0.0f;
     sampler.maxLod = 0.0f;
@@ -390,8 +396,8 @@ namespace Fsl
     view.pNext = nullptr;
     view.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
     view.format = format;
-    view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
-    view.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+    view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+    view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
     view.subresourceRange.layerCount = textureArray.GetLayers();
     view.image = texImage.Get();
 
@@ -400,41 +406,36 @@ namespace Fsl
     VkDescriptorImageInfo texDescriptor{};
     texDescriptor.sampler = texSampler.Get();
     texDescriptor.imageView = texImageView.Get();
-    texDescriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    texDescriptor.imageLayout = texImageLayout;
 
     // Transfer ownership to the texture object (move)
-    return VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory), std::move(texImageView),
-                         texExtent, textureArray.GetLevels(), textureArray.GetLayers(), texDescriptor);
+    return VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory), std::move(texImageView), texExtent,
+                         textureArray.GetLevels(), textureArray.GetLayers(), texDescriptor);
   }
 
 
   void TexturingArrays::GenerateQuad()
   {
     const float dim = 2.5f;
-    std::vector<Vertex> vertexBuffer =
-    {
-      { { dim, dim, 0.0f }, { 1.0f, 1.0f } },
-      { { -dim, dim, 0.0f }, { 0.0f, 1.0f } },
-      { { -dim, -dim, 0.0f }, { 0.0f, 0.0f } },
-      { { dim, -dim, 0.0f }, { 1.0f, 0.0f } }
-    };
+    std::vector<Vertex> vertexBuffer = {
+      {{dim, dim, 0.0f}, {1.0f, 1.0f}}, {{-dim, dim, 0.0f}, {0.0f, 1.0f}}, {{-dim, -dim, 0.0f}, {0.0f, 0.0f}}, {{dim, -dim, 0.0f}, {1.0f, 0.0f}}};
 
     MeshLoader::MeshBufferInfo meshVertexInfo;
-    CreateBuffer(meshVertexInfo.Buffer, meshVertexInfo.Memory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 vertexBuffer.size() * sizeof(Vertex), vertexBuffer.data());
+    CreateBuffer(meshVertexInfo.Buffer, meshVertexInfo.Memory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexBuffer.size() * sizeof(Vertex),
+                 vertexBuffer.data());
 
     // Setup indices
-    const std::vector<uint32_t> indexBuffer = { 0, 1, 2, 2, 3, 0 };
+    const std::vector<uint32_t> indexBuffer = {0, 1, 2, 2, 3, 0};
 
     MeshLoader::MeshBufferInfo meshIndexInfo;
-    CreateBuffer(meshIndexInfo.Buffer, meshIndexInfo.Memory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-      indexBuffer.size() * sizeof(uint32_t), indexBuffer.data());
+    CreateBuffer(meshIndexInfo.Buffer, meshIndexInfo.Memory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indexBuffer.size() * sizeof(uint32_t),
+                 indexBuffer.data());
 
     std::vector<MeshLoader::MeshDescriptor> meshDescriptors;
-    meshDescriptors.push_back(MeshLoader::MeshDescriptor(static_cast<uint32_t>(vertexBuffer.size()), 0, static_cast<uint32_t>(indexBuffer.size())));
+    meshDescriptors.emplace_back(static_cast<uint32_t>(vertexBuffer.size()), 0, static_cast<uint32_t>(indexBuffer.size()));
 
-    m_meshes.Quad.Reset(std::move(meshDescriptors), std::move(meshVertexInfo), std::move(meshIndexInfo),
-                        static_cast<uint32_t>(indexBuffer.size()), glm::vec3(dim));
+    m_meshes.Quad.Reset(std::move(meshDescriptors), std::move(meshVertexInfo), std::move(meshIndexInfo), static_cast<uint32_t>(indexBuffer.size()),
+                        glm::vec3(dim));
   }
 
 
@@ -447,17 +448,15 @@ namespace Fsl
 
     // Vertex shader uniform buffer block
     CreateBuffer(m_uniformData.VertexShader.Buffer, m_uniformData.VertexShader.Memory, m_uniformData.VertexShader.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      uboSize, &m_uboVS);
+                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uboSize, &m_uboVS);
 
     // Array indices and model matrices are fixed
     const float offset = -1.5f;
-    float center = (layerCount*offset) / 2;
+    float center = (layerCount * offset) / 2;
     for (uint32_t i = 0; i < layerCount; ++i)
     {
       // Instance model matrix
-      m_uboVS.Instance[i].Model = glm::translate(glm::mat4(), glm::vec3(0.0f, i * offset - center, 0.0f));
+      m_uboVS.Instance[i].Model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, i * offset - center, 0.0f));
       m_uboVS.Instance[i].Model = glm::rotate(m_uboVS.Instance[i].Model, glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f));
       // Instance texture array index
       m_uboVS.Instance[i].ArrayIndex.x = static_cast<float>(i);
@@ -471,7 +470,9 @@ namespace Fsl
     m_uniformData.VertexShader.Memory.MapMemory(dataOffset, dataSize, 0, &pData);
     {
       if (pData == nullptr)
+      {
         throw std::runtime_error("vkMapMemory returned nullptr");
+      }
 
       std::memcpy(pData, m_uboVS.Instance.data(), dataSize);
     }
@@ -491,7 +492,7 @@ namespace Fsl
     m_uboVS.Matrices.Projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
 
     // View
-    m_uboVS.Matrices.View = glm::translate(glm::mat4(), glm::vec3(0.0f, -1.0f, m_zoom));
+    m_uboVS.Matrices.View = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -1.0f, m_zoom));
     m_uboVS.Matrices.View = glm::rotate(m_uboVS.Matrices.View, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_uboVS.Matrices.View = glm::rotate(m_uboVS.Matrices.View, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     m_uboVS.Matrices.View = glm::rotate(m_uboVS.Matrices.View, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -584,11 +585,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;

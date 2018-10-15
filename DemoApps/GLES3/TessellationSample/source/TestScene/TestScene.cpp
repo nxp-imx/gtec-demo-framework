@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/MathHelper.hpp>
@@ -63,10 +63,8 @@ namespace Fsl
   using namespace Graphics3D;
   using namespace Procedural;
 
-  typedef GenericMesh<VertexPositionNormalTangentTexture, uint16_t> ModelMesh;
-  typedef GenericScene<ModelMesh> ModelScene;
-
-
+  using ModelMesh = GenericMesh<VertexPositionNormalTangentTexture, uint16_t>;
+  using ModelScene = GenericScene<ModelMesh>;
 
 
   TestScene::TestScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t id)
@@ -80,15 +78,17 @@ namespace Fsl
     m_tessellationConfig.TessLevelInner = 6.0f;
     m_tessellationConfig.TessLevelOuter = 6.0f;
     m_tessellationConfig.DisplacementFactor = 20.0f;
-    //m_tessellationConfig.DisplacementMod = -0.5f;
-    //m_tessellationConfig.UseRotation = true;
+    // m_tessellationConfig.DisplacementMod = -0.5f;
+    // m_tessellationConfig.UseRotation = true;
     const int32_t sceneId = id;
     if (sceneId == 2)
+    {
       m_tessellationConfig.DisplacementFactor = 180.0f;
+    }
     else if (sceneId == 3)
     {
       m_tessellationConfig.DisplacementFactor = 180.0f;
-      //m_tessellationConfig.DisplacementMod = 0;// -0.345f;
+      // m_tessellationConfig.DisplacementMod = 0;// -0.345f;
       m_tessellationConfig.TessLevelInner = 60;
       m_tessellationConfig.TessLevelOuter = 60;
     }
@@ -98,12 +98,16 @@ namespace Fsl
       m_tessellationConfig.DisplacementMod = 0.0f;
     }
     if (sceneId == 1 || sceneId == 4)
+    {
       m_rotationSpeed = Vector3(0.0f, -0.2f, 0);
+    }
     else
+    {
       m_rotationSpeed = Vector3(0.1f, 0.2f, 0.3f);
+    }
     m_rotation = Vector3(0, 100, 0);
 
-    //m_lightDirection = Vector3(0.0f, -0.75f, -1.0f);
+    // m_lightDirection = Vector3(0.0f, -0.75f, -1.0f);
     m_lightDirection = Vector3(1, 1, 1);
     m_lightColor = Vector3(0.8f, 0.8f, 0.8f);
 
@@ -118,10 +122,7 @@ namespace Fsl
   }
 
 
-  TestScene::~TestScene()
-  {
-
-  }
+  TestScene::~TestScene() = default;
 
 
   void TestScene::ConstructMesh(const std::shared_ptr<IContentManager>& contentManager, const int32_t sceneId)
@@ -133,8 +134,8 @@ namespace Fsl
       Point2 tex1Size(128, 128);
       TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
       const NativeTextureArea texArea(GLTexture::CalcTextureArea(texRect, 1, 1));
-      NativeTextureArea texAreas[6] = { texArea, texArea, texArea, texArea, texArea, texArea };
-      //tmpMesh = BoxGenerator::GenerateList(Vector3::Zero(), 150, 150, 150, texAreas, 6, windingOrder);
+      NativeTextureArea texAreas[6] = {texArea, texArea, texArea, texArea, texArea, texArea};
+      // tmpMesh = BoxGenerator::GenerateList(Vector3::Zero(), 150, 150, 150, texAreas, 6, windingOrder);
       switch (sceneId)
       {
       case 1:
@@ -170,7 +171,6 @@ namespace Fsl
         tmp.Tangent = Vector3();
         vertex[i] = tmp;
       }
-      if (true)
       {
         auto indices = mesh.DirectAccessIndices();
         for (uint32_t i = 0; i < mesh.GetIndexCount(); i += 3)
@@ -211,7 +211,7 @@ namespace Fsl
     m_textureDiffuse.SetData(bitmap, texParams1);
 
     std::string strTexDisplace;
-    std::string strTexNormal ;
+    std::string strTexNormal;
     bool isFloatTexture = false;
 
     switch (sceneId)
@@ -242,7 +242,7 @@ namespace Fsl
     if (embedNormalMap)
     {
       contentManager->Read(bitmap, strTexDisplace, PixelFormat::R8G8B8A8_UNORM);
-      //Encode normal as xyz and displacement as z
+      // Encode normal as xyz and displacement as z
       for (uint32_t y = 0; y < bitmap.Height(); ++y)
       {
         for (uint32_t x = 0; x < bitmap.Width(); ++x)
@@ -257,7 +257,7 @@ namespace Fsl
     }
     else
     {
-      contentManager->Read(bitmap, strTexDisplace, ! isFloatTexture ? PixelFormat::R8G8B8_UNORM : PixelFormat::R32G32B32A32_SFLOAT);
+      contentManager->Read(bitmap, strTexDisplace, !isFloatTexture ? PixelFormat::R8G8B8_UNORM : PixelFormat::R32G32B32A32_SFLOAT);
       m_textureDisplacement.SetData(bitmap, texParams1);
     }
 
@@ -269,6 +269,4 @@ namespace Fsl
     m_textureDiffuseWhite.SetData(bitmap, texParams1);
     GL_CHECK_FOR_ERROR();
   }
-
-
 }

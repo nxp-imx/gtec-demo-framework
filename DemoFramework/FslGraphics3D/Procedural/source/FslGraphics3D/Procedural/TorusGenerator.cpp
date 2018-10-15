@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics3D/Procedural/TorusGenerator.hpp>
 #include <FslBase/Math/Vector2.hpp>
@@ -36,15 +36,16 @@
 #include <cstdlib>
 #include <vector>
 
-namespace Fsl {
+namespace Fsl
+{
   namespace Procedural
   {
     // Based on the algorithm specified here -> http://paulbourke.net/geometry/torus/
     namespace
     {
-      void GenerateRingVertices(std::vector<BasicMesh::vertex_type>& rVertices, int& rVertexIndex, const int minorSegments, const float radius, const float ringRadius,
-        const float mod, const float horizontalAngularStride, const float sinTheta, const float cosTheta,
-        const float uCurrent, const float v1, const float v2, const float vAdd)
+      void GenerateRingVertices(std::vector<BasicMesh::vertex_type>& rVertices, int& rVertexIndex, const int minorSegments, const float radius,
+                                const float ringRadius, const float mod, const float horizontalAngularStride, const float sinTheta,
+                                const float cosTheta, const float uCurrent, const float v1, const float v2, const float vAdd)
       {
         float phi;
         for (int horizontalIndex = 0; horizontalIndex < minorSegments; ++horizontalIndex)
@@ -55,8 +56,8 @@ namespace Fsl {
           float z = ringRadius * std::sin(phi);
           const float cosPhi = std::cos(phi);
           {
-            float x = cosTheta * (radius + ringRadius*cosPhi);
-            float y = sinTheta * (radius + ringRadius*cosPhi);
+            float x = cosTheta * (radius + ringRadius * cosPhi);
+            float y = sinTheta * (radius + ringRadius * cosPhi);
 
             rVertices[rVertexIndex].Position = Vector3(x, z, y);
           }
@@ -79,7 +80,8 @@ namespace Fsl {
         ++rVertexIndex;
       }
 
-      void GenerateVertices(std::vector<BasicMesh::vertex_type>& rVertices, const int majorSegments, const int minorSegments, const float radius, const float ringRadius, const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
+      void GenerateVertices(std::vector<BasicMesh::vertex_type>& rVertices, const int majorSegments, const int minorSegments, const float radius,
+                            const float ringRadius, const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
       {
         const float verticalAngularStride = (MathHelper::PI * 2.0f) / majorSegments;
         const float horizontalAngularStride = (MathHelper::PI * 2.0f) / minorSegments;
@@ -109,20 +111,23 @@ namespace Fsl {
           theta = verticalAngularStride * verticalIndex;
           const float sinTheta = std::sin(theta);
           const float cosTheta = std::cos(theta);
-          const float uCurrent = static_cast<float>(u1 + (verticalIndex * uAdd));
+          const auto uCurrent = static_cast<float>(u1 + (verticalIndex * uAdd));
 
-          GenerateRingVertices(rVertices, vertexIndex, minorSegments, radius, ringRadius, mod, horizontalAngularStride, sinTheta, cosTheta, uCurrent, v1, v2, vAdd);
+          GenerateRingVertices(rVertices, vertexIndex, minorSegments, radius, ringRadius, mod, horizontalAngularStride, sinTheta, cosTheta, uCurrent,
+                               v1, v2, vAdd);
         }
         {
           // The last ring is equal to the first except for the texture coordinate
           const float sinTheta = std::sin(0.0f);
           const float cosTheta = std::cos(0.0f);
-          GenerateRingVertices(rVertices, vertexIndex, minorSegments, radius, ringRadius, mod, horizontalAngularStride, sinTheta, cosTheta, u2, v1, v2, vAdd);
+          GenerateRingVertices(rVertices, vertexIndex, minorSegments, radius, ringRadius, mod, horizontalAngularStride, sinTheta, cosTheta, u2, v1,
+                               v2, vAdd);
         }
       }
 
 
-      void GenerateTriangleListIndices(std::vector<BasicMesh::index_type>& rIndices, const int majorSegments, const int minorSegments, const WindingOrder::Enum windingOrder)
+      void GenerateTriangleListIndices(std::vector<BasicMesh::index_type>& rIndices, const int majorSegments, const int minorSegments,
+                                       const WindingOrder::Enum windingOrder)
       {
         int numVerticesPerRow = minorSegments + 1;
 
@@ -153,7 +158,8 @@ namespace Fsl {
         }
       }
 
-      static void GenerateTriangleStripIndices(std::vector<BasicMesh::index_type>& rIndices, const int majorSegments, const int minorSegments, const WindingOrder::Enum windingOrder)
+      void GenerateTriangleStripIndices(std::vector<BasicMesh::index_type>& rIndices, const int majorSegments, const int minorSegments,
+                                        const WindingOrder::Enum windingOrder)
       {
         // BEWARE of the flip  in the code below
 
@@ -237,8 +243,8 @@ namespace Fsl {
     }
 
 
-
-    BasicMesh TorusGenerator::GenerateList(const int majorSegments, const int minorSegments, const float radius, const float ringRadius, const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
+    BasicMesh TorusGenerator::GenerateList(const int majorSegments, const int minorSegments, const float radius, const float ringRadius,
+                                           const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
     {
       const int numVerticesPerRow = minorSegments + 1;
       const int numVerticesPerColumn = majorSegments + 1;
@@ -255,7 +261,8 @@ namespace Fsl {
     }
 
 
-    BasicMesh TorusGenerator::GenerateStrip(const int majorSegments, const int minorSegments, const float radius, const float ringRadius, const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
+    BasicMesh TorusGenerator::GenerateStrip(const int majorSegments, const int minorSegments, const float radius, const float ringRadius,
+                                            const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
     {
       // The torus generated here is not the most efficient strip possible, but the generated quads are ordered
       const int numVerticesPerRow = minorSegments + 1;
@@ -272,6 +279,5 @@ namespace Fsl {
       GenerateTriangleStripIndices(indices, majorSegments, minorSegments, windingOrder);
       return BasicMesh(vertices, indices, PrimitiveType::TriangleStrip);
     }
-
   }
 }

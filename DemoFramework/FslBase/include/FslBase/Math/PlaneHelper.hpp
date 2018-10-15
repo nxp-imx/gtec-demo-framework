@@ -37,7 +37,6 @@ namespace Fsl
   class PlaneHelper
   {
   public:
-
     //! @brief Returns a value indicating what side (positive/negative) of a plane a point is
     //! @param point The point to check with
     //! @param plane The plane to check against

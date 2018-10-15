@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.fmt_4_0_0">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Ubuntu" Supported="true">
+      <ExperimentalRecipe Name="fmt-4.0.0">
+        <Pipeline>
+          <Download URL="https://github.com/fmtlib/fmt/archive/4.0.0.zip" To="fmt-4.0.0.zip" Hash="f2ef458b878a14e74dafea7430f72e03d1c929be64312d4cd076b35d5a4f256b"/> 
+          <Unpack File="fmt-4.0.0.zip" OutputPath="fmt-4.0.0"/>
+          <CMakeBuild Project="googletest-distribution" Target="install" Configuration="release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libfmt.a"/>
+          <Path Name="include/fmt/format.h" Method="IsFile"/>
+          <Path Name="include/fmt/printf.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="fmt-4.0.0">
+        <Pipeline>
+          <Download URL="https://github.com/fmtlib/fmt/archive/4.0.0.zip" To="fmt-4.0.0.zip" Hash="f2ef458b878a14e74dafea7430f72e03d1c929be64312d4cd076b35d5a4f256b"/> 
+          <Unpack File="fmt-4.0.0.zip" OutputPath="fmt-4.0.0"/>
+          <CMakeBuild Project="googletest-distribution" Target="install" Configuration="debug;release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install">
+            <Copy From="{DST_PATH}/fmt/Debug/fmt.lib" To="{OUTPUT_PATH}/lib/fmt_d.lib"/>
+          </CMakeBuild>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/fmt.lib" DebugName="lib/fmt_d.lib"/>
+          <Path Name="include/fmt/format.h" Method="IsFile"/>
+          <Path Name="include/fmt/printf.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

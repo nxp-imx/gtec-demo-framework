@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/Bloom/MenuUI.hpp>
 #include <Shared/Bloom/OptionParser.hpp>
@@ -62,15 +62,15 @@ namespace Fsl
   }
 
 
-  MenuUI::~MenuUI()
-  {
-  }
+  MenuUI::~MenuUI() = default;
 
 
   void MenuUI::OnKeyEvent(const KeyEvent& event)
   {
     if (!event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -171,9 +171,13 @@ namespace Fsl
   void MenuUI::ToggleMenu()
   {
     if (m_layoutMenu)
+    {
       DestroyMenuUI();
+    }
     else
+    {
       CreateMenuUI();
+    }
   }
 
 
@@ -210,14 +214,16 @@ namespace Fsl
     m_rootLayout->AddChild(internalStack);
 
     // Finally add everything to the window manager (to ensure its seen)
-    context->WindowManager->Add(m_rootLayout);
+    m_uiExtension->GetWindowManager()->Add(m_rootLayout);
   }
 
 
   void MenuUI::CreateMenuUI()
   {
     if (m_layoutMenu)
+    {
       return;
+    }
 
     auto context = m_uiExtension->GetContext();
     AtlasTexture2D texCheckBoxC(m_uiExtension->GetAtlasTexture2D("CheckBoxC"));
@@ -287,20 +293,20 @@ namespace Fsl
     m_sliderBlend->SetCursorPadding(sliderCursorPadding);
     m_sliderBlend->SetNineSlice(sliderNineSlice);
 
-    //auto label1 = std::make_shared<Label>(context);
-    //label1->SetContent("Kernel");
-    //label1->SetWidth((200)
-    //auto stack1 = std::make_shared<StackLayout>(context);
-    //stack1->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    //stack1->AddChild(label1);
-    //stack1->AddChild(m_sliderBlur);
+    // auto label1 = std::make_shared<Label>(context);
+    // label1->SetContent("Kernel");
+    // label1->SetWidth((200)
+    // auto stack1 = std::make_shared<StackLayout>(context);
+    // stack1->SetLayoutOrientation(LayoutOrientation::Horizontal);
+    // stack1->AddChild(label1);
+    // stack1->AddChild(m_sliderBlur);
 
-    //auto label2 = std::make_shared<Label>(context);
-    //label2->SetContent("Blend");
-    //auto stack2 = std::make_shared<StackLayout>(context);
-    //stack2->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    //stack2->AddChild(label2);
-    //stack2->AddChild(m_sliderBlend);
+    // auto label2 = std::make_shared<Label>(context);
+    // label2->SetContent("Blend");
+    // auto stack2 = std::make_shared<StackLayout>(context);
+    // stack2->SetLayoutOrientation(LayoutOrientation::Horizontal);
+    // stack2->AddChild(label2);
+    // stack2->AddChild(m_sliderBlend);
 
     m_layoutMenu->AddChild(m_cbMenuRotate);
     m_layoutMenu->AddChild(m_cbMenuBlur);
@@ -312,8 +318,8 @@ namespace Fsl
 
     m_layoutMenu->AddChild(m_sliderBlur);
     m_layoutMenu->AddChild(m_sliderBlend);
-    //m_layoutMenu->AddChild(stack1);
-    //m_layoutMenu->AddChild(stack2);
+    // m_layoutMenu->AddChild(stack1);
+    // m_layoutMenu->AddChild(stack2);
 
     UpdateControls();
   }
@@ -322,7 +328,9 @@ namespace Fsl
   void MenuUI::SetRotateEnabled(bool enabled)
   {
     if (m_rotateEnabled == enabled)
+    {
       return;
+    }
 
     m_rotateEnabled = enabled;
     UpdateControls();
@@ -332,7 +340,9 @@ namespace Fsl
   void MenuUI::SetBlurEnabled(bool enabled)
   {
     if (m_blurEnabled == enabled)
+    {
       return;
+    }
 
     m_blurEnabled = enabled;
     UpdateControls();
@@ -342,7 +352,9 @@ namespace Fsl
   void MenuUI::SetBrightPassEnabled(bool enabled)
   {
     if (m_brightPassEnabled == enabled)
+    {
       return;
+    }
 
     m_brightPassEnabled = enabled;
     UpdateControls();
@@ -352,7 +364,9 @@ namespace Fsl
   void MenuUI::SetFinalSceneEnabled(bool enabled)
   {
     if (m_renderFinalScene == enabled)
+    {
       return;
+    }
 
     m_renderFinalScene = enabled;
     UpdateControls();
@@ -362,7 +376,9 @@ namespace Fsl
   void MenuUI::SetFinalBloomEnabled(bool enabled)
   {
     if (m_renderFinalBloom == enabled)
+    {
       return;
+    }
 
     m_renderFinalBloom = enabled;
     UpdateControls();
@@ -372,7 +388,9 @@ namespace Fsl
   void MenuUI::SetShowBuffersEnabled(bool enabled)
   {
     if (m_showBuffersEnabled == enabled)
+    {
       return;
+    }
 
     m_showBuffersEnabled = enabled;
     UpdateControls();
@@ -382,7 +400,9 @@ namespace Fsl
   void MenuUI::SetScaleInputSequentiallyEnabled(bool enabled)
   {
     if (m_scaleInputSequentially == enabled)
+    {
       return;
+    }
 
     m_scaleInputSequentially = enabled;
     UpdateControls();
@@ -398,7 +418,9 @@ namespace Fsl
   void MenuUI::DestroyMenuUI()
   {
     if (!m_layoutMenu)
+    {
       return;
+    }
 
     // Close the menu window
     m_mainMenuStack->RemoveChild(m_layoutMenu);
@@ -419,22 +441,40 @@ namespace Fsl
   void MenuUI::UpdateControls()
   {
     if (m_cbMenuRotate)
+    {
       m_cbMenuRotate->SetIsChecked(m_rotateEnabled);
+    }
     if (m_cbMenuBlur)
+    {
       m_cbMenuBlur->SetIsChecked(m_blurEnabled);
+    }
     if (m_cbMenuBright)
+    {
       m_cbMenuBright->SetIsChecked(m_brightPassEnabled);
+    }
     if (m_cbMenuFinalScene)
+    {
       m_cbMenuFinalScene->SetIsChecked(m_renderFinalScene);
+    }
     if (m_cbMenuFinalBloom)
+    {
       m_cbMenuFinalBloom->SetIsChecked(m_renderFinalBloom);
+    }
     if (m_cbMenuShowBuffers)
+    {
       m_cbMenuShowBuffers->SetIsChecked(m_showBuffersEnabled);
+    }
     if (m_cbScaleInputSequentially)
+    {
       m_cbScaleInputSequentially->SetIsChecked(m_scaleInputSequentially);
+    }
     if (m_sliderBlur)
+    {
       m_sliderBlur->SetValue(m_kernelWeightMod);
+    }
     if (m_sliderBlend)
+    {
       m_sliderBlend->SetValue(int32_t(m_blendLevel * SLIDER_RANGE));
+    }
   }
 }

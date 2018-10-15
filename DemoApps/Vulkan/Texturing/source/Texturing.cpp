@@ -20,6 +20,7 @@
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <RapidVulkan/Fence.hpp>
 #include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
 #include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
 #include <vulkan/vulkan.h>
@@ -41,6 +42,7 @@ namespace Fsl
   namespace
   {
     const auto VERTEX_BUFFER_BIND_ID = 0;
+    const uint64_t DEFAULT_FENCE_TIMEOUT = 100000000000;
 
 
     struct Vertex
@@ -50,77 +52,6 @@ namespace Fsl
       float normal[3];
     };
 
-
-    // Create an image memory barrier for changing the layout of
-    // an image and put it into an active command buffer
-    void SetImageLayout(CommandBuffer& rCmdBuffer, VkImage image, VkImageAspectFlags aspectMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, VkImageSubresourceRange subresourceRange)
-    {
-      // Create an image barrier object
-      VkImageMemoryBarrier imageMemoryBarrier{};
-      imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-      imageMemoryBarrier.pNext = nullptr;
-      imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-      imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
-      imageMemoryBarrier.oldLayout = oldImageLayout;
-      imageMemoryBarrier.newLayout = newImageLayout;
-      imageMemoryBarrier.image = image;
-      imageMemoryBarrier.subresourceRange = subresourceRange;
-
-      // Only sets masks for layouts used in this example
-      // For a more complete version that can be used with other layouts see vkTools::setImageLayout
-
-      // Source layouts (old)
-      switch (oldImageLayout)
-      {
-      case VK_IMAGE_LAYOUT_UNDEFINED:
-        // Only valid as initial layout, memory contents are not preserved
-        // Can be accessed directly, no source dependency required
-        imageMemoryBarrier.srcAccessMask = 0;
-        break;
-      case VK_IMAGE_LAYOUT_PREINITIALIZED:
-        // Only valid as initial layout for linear images, preserves memory contents
-        // Make sure host writes to the image have been finished
-        imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
-        break;
-      case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-        // Old layout is transfer destination
-        // Make sure any writes to the image have been finished
-        imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        break;
-      default:
-        break;
-      }
-
-      // Target layouts (new)
-      switch (newImageLayout)
-      {
-      case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-        // Transfer source (copy, blit)
-        // Make sure any reads from the image have been finished
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        break;
-      case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-        // Transfer destination (copy, blit)
-        // Make sure any writes to the image have been finished
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        break;
-      case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-        // Shader read (sampler, input attachment)
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-        break;
-      default:
-        break;
-      }
-
-      // Put barrier on top of pipeline
-      VkPipelineStageFlags srcStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-      VkPipelineStageFlags destStageFlags = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-
-      // Put barrier inside setup command buffer
-      vkCmdPipelineBarrier(rCmdBuffer.Get(), srcStageFlags, destStageFlags, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-    }
-
     //! @brief Create a buffer on the device
     //! @param usageFlags Usage flag bitmask for the buffer (i.e. index, vertex, uniform buffer)
     //! @param memoryPropertyFlags Memory properties for this buffer (i.e. device local, host visible, coherent)
@@ -128,7 +59,8 @@ namespace Fsl
     //! @param size Size of the buffer in byes
     //! @param data Pointer to the data that should be copied to the buffer after creation (optional, if not set, no data is copied over)
     //! @return VK_SUCCESS if buffer handle and memory have been created and (optionally passed) data has been copied
-    VkResult DoCreateBuffer(BufferData& rBuffer, const PhysicalDeviceRecord& physicalDevice, VkDevice device, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize size, void *data = nullptr)
+    VkResult DoCreateBuffer(BufferData& rBuffer, const PhysicalDeviceRecord& physicalDevice, VkDevice device, VkBufferUsageFlags usageFlags,
+                            VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize size, void* data = nullptr)
     {
       using namespace MemoryTypeUtil;
       const VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = physicalDevice.GetPhysicalDeviceMemoryProperties();
@@ -150,7 +82,8 @@ namespace Fsl
       memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
       memAlloc.allocationSize = memReqs.size;
       // Find a memory type index that fits the properties of the buffer
-      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, memoryPropertyFlags);
+      memAlloc.memoryTypeIndex =
+        GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, memoryPropertyFlags);
       rBuffer.Memory.Reset(device, memAlloc);
 
       rBuffer.Alignment = memReqs.alignment;
@@ -194,17 +127,7 @@ namespace Fsl
 
   Texturing::~Texturing()
   {
-    try
-    {
-      // Wait for everything to be idle before we try to free it
-      WaitForIdle();
-      FSLLOG("Texturing app destroying");
-    }
-    catch (const std::exception& ex)
-    {
-      // We log and swallow it since destructors are not allowed to throw
-      FSLLOG_ERROR("WaitForIdle, threw exception: " << ex.what());
-    }
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -217,17 +140,20 @@ namespace Fsl
     SetupVertexDescriptions();
     PrepareUniformBuffers();
 
-    if (m_deviceFeatures.textureCompressionBC)
+    bool forceLinearTiling = false;
+    if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
-      LoadTexture("textures/pattern_02_bc2.ktx", false);
-      //LoadTexture("textures/checkerboard_nomips_rgba.ktx", VK_FORMAT_BC2_UNORM_BLOCK, false);
+      LoadTexture("textures/pattern_02_bc2.ktx", forceLinearTiling);
+      // LoadTexture("textures/checkerboard_nomips_rgba.ktx", VK_FORMAT_BC2_UNORM_BLOCK, false);
     }
-    else if (m_deviceFeatures.textureCompressionETC2)
+    else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      LoadTexture("textures/pattern_02_etc2.ktx", false);
+      LoadTexture("textures/pattern_02_etc2.ktx", forceLinearTiling);
     }
     else
+    {
       throw NotSupportedException("No supported compression format available");
+    }
 
     SetupDescriptorSetLayout();
     PreparePipelines();
@@ -254,7 +180,7 @@ namespace Fsl
 
     VkClearValue clearValues[2];
     clearValues[0].color = m_defaultClearColor;
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -274,7 +200,8 @@ namespace Fsl
     VkRect2D scissor{};
     scissor.extent = screenExtent;
 
-    for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
+    const auto count = static_cast<uint32_t>(m_drawCmdBuffers.Size());
+    for (uint32_t i = 0; i < count; ++i)
     {
       // Set target frame buffer
       renderPassBeginInfo.framebuffer = m_frameBuffers[i].Get();
@@ -289,11 +216,13 @@ namespace Fsl
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline.Get());
 
-          VkDeviceSize offsets[1] = { 0 };
+          VkDeviceSize offsets[1] = {0};
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_vertexBuffer.Buffer.GetPointer(), offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_indexBuffer.Buffer.Get(), 0, VK_INDEX_TYPE_UINT32);
 
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_indexCount, 1, 0, 0, 0);
+
+          DrawUI(m_drawCmdBuffers.Get(i));
         }
         m_drawCmdBuffers.CmdEndRenderPass(i);
       }
@@ -310,7 +239,9 @@ namespace Fsl
   void Texturing::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
 
     if (event.IsPressed())
@@ -344,7 +275,9 @@ namespace Fsl
   void Texturing::Draw(const DemoTime& demoTime)
   {
     if (!TryPrepareFrame())
+    {
       return;
+    }
 
     // Command buffer to be submitted to the queue
     m_submitInfo.commandBufferCount = 1;
@@ -360,29 +293,26 @@ namespace Fsl
   void Texturing::GenerateQuad()
   {
     // Setup vertices for a single uv-mapped quad made from two triangles
-    std::vector<Vertex> vertices =
-    {
-      { { 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } },
-      { { -1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f } },
-      { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
-      { { 1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } }
-    };
+    std::vector<Vertex> vertices = {{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+                                    {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}},
+                                    {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}},
+                                    {{1.0f, -1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}};
 
     // Setup indices
-    std::vector<uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
+    std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
     m_indexCount = static_cast<uint32_t>(indices.size());
 
     // Create buffers
     // For the sake of simplicity we won't stage the vertex data to the gpu memory
     // Vertex buffer
-    RAPIDVULKAN_CHECK(DoCreateBuffer(m_vertexBuffer, m_physicalDevice, m_device.Get(),
-      VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      vertices.size() * sizeof(Vertex), vertices.data()));
+    RAPIDVULKAN_CHECK(DoCreateBuffer(m_vertexBuffer, m_physicalDevice, m_device.Get(), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertices.size() * sizeof(Vertex),
+                                     vertices.data()));
 
     // Index buffer
-    RAPIDVULKAN_CHECK(DoCreateBuffer(m_indexBuffer, m_physicalDevice, m_device.Get(),
-      VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      indices.size() * sizeof(uint32_t), indices.data()));
+    RAPIDVULKAN_CHECK(DoCreateBuffer(m_indexBuffer, m_physicalDevice, m_device.Get(), VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, indices.size() * sizeof(uint32_t),
+                                     indices.data()));
   }
 
 
@@ -429,11 +359,8 @@ namespace Fsl
   void Texturing::PrepareUniformBuffers()
   {
     // Vertex shader uniform buffer block
-    RAPIDVULKAN_CHECK(DoCreateBuffer(m_uniformBufferVS, m_physicalDevice, m_device.Get(),
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboVS),
-      &m_uboVS));
+    RAPIDVULKAN_CHECK(DoCreateBuffer(m_uniformBufferVS, m_physicalDevice, m_device.Get(), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboVS), &m_uboVS));
 
     UpdateUniformBuffers();
   }
@@ -444,10 +371,10 @@ namespace Fsl
     auto resolution = GetScreenResolution();
 
     // Vertex shader
-    m_uboVS.Projection = glm::perspective(glm::radians(60.0f), (float)resolution.X / (float)resolution.Y, 0.001f, 256.0f);
-    glm::mat4 viewMatrix = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, m_zoom));
+    m_uboVS.Projection = glm::perspective(glm::radians(60.0f), static_cast<float>(resolution.X) / static_cast<float>(resolution.Y), 0.001f, 256.0f);
+    glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, m_zoom));
 
-    m_uboVS.Model = viewMatrix * glm::translate(glm::mat4(), m_cameraPos);
+    m_uboVS.Model = viewMatrix * glm::translate(glm::mat4(1.0f), m_cameraPos);
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
@@ -466,27 +393,24 @@ namespace Fsl
     Texture texture;
     GetContentManager()->Read(texture, fileName);
 
-    VkFormatProperties formatProperties;
-
     m_texture.Width = texture.GetExtent().Width;
     m_texture.Height = texture.GetExtent().Height;
     m_texture.MipLevels = texture.GetLevels();
 
     const VkFormat format = ConvertUtil::Convert(texture.GetPixelFormat());
-    // Get device properties for the requested texture format
-    vkGetPhysicalDeviceFormatProperties(m_physicalDevice.Device, format, &formatProperties);
 
-    // Only use linear tiling if requested (and supported by the device)
-    // Support for linear tiling is mostly limited, so prefer to use  optimal tiling instead
-    // On most implementations linear tiling will only support a very
-    // limited amount of formats and features (mip maps, cubemaps, arrays, etc.)
+    // We prefer using staging to copy the texture data to a device local optimal image
+
     bool useStaging = true;
 
     // Only use linear tiling if forced
     if (forceLinearTiling)
     {
       // Don't use linear if format is not supported for (linear) shader sampling
-      useStaging = !(formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
+      // Get device properties for the requested texture format
+      VkFormatProperties formatProperties{};
+      vkGetPhysicalDeviceFormatProperties(m_physicalDevice.Device, format, &formatProperties);
+      useStaging = ((formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) == 0u);
     }
 
     VkMemoryAllocateInfo memAllocInfo{};
@@ -499,7 +423,11 @@ namespace Fsl
 
     if (useStaging)
     {
+      // Copy data to an optimal tiled image
+      // This loads the texture data into a host local buffer that is copied to the optimal tiled image on the device
+
       // Create a host-visible staging buffer that contains the raw image data
+      // This buffer will be the data source for copying texture data to the optimal tiled image on the device
 
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -515,13 +443,14 @@ namespace Fsl
       VkMemoryRequirements memReqs = stagingBuffer.GetBufferMemoryRequirements();
       memAllocInfo.allocationSize = memReqs.size;
       // Get memory type index for a host visible buffer
-      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
       Memory stagingMemory(m_device.Get(), memAllocInfo);
       RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
 
       // Copy texture data into staging buffer
-      uint8_t *data;
+      uint8_t* data;
       RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), stagingMemory.Get(), 0, memReqs.size, 0, reinterpret_cast<void**>(&data)));
       {
         RawTexture rawTexture;
@@ -537,17 +466,17 @@ namespace Fsl
       for (uint32_t i = 0; i < texture.GetLevels(); ++i)
       {
         VkBufferImageCopy bufferCopyRegion{};
-        bufferCopyRegion.bufferOffset = texture.GetTextureBlob(i).Offset;
         bufferCopyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         bufferCopyRegion.imageSubresource.mipLevel = i;
         bufferCopyRegion.imageSubresource.baseArrayLayer = 0;
         bufferCopyRegion.imageSubresource.layerCount = 1;
         bufferCopyRegion.imageExtent = Convert(texture.GetExtent(i));
+        bufferCopyRegion.bufferOffset = texture.GetTextureBlob(i).Offset;
 
         bufferCopyRegions.push_back(bufferCopyRegion);
       }
 
-      // Create optimal tiled target image
+      // Create optimal tiled target image on the device
       VkImageCreateInfo imageCreateInfo{};
       imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
       imageCreateInfo.pNext = nullptr;
@@ -557,7 +486,6 @@ namespace Fsl
       imageCreateInfo.arrayLayers = 1;
       imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
       imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-      imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
       imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
       // Set initial layout of the image to undefined
       imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -569,7 +497,8 @@ namespace Fsl
       memReqs = m_texture.Image.GetImageMemoryRequirements();
 
       memAllocInfo.allocationSize = memReqs.size;
-      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits,
+                                                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
       m_texture.DeviceMemory.Reset(m_device.Get(), memAllocInfo);
       RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_texture.Image.Get(), m_texture.DeviceMemory.Get(), 0));
@@ -580,9 +509,9 @@ namespace Fsl
       copyCommandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
       copyCmd.Begin(copyCommandBufferBeginInfo);
       {
-        // Image barrier for optimal image
+        // Image memory barriers for the texture image
 
-        // The sub resource range describes the regions of the image we will be transition
+        // The sub resource range describes the regions of the image that will be transitioned using the memory barriers below
         VkImageSubresourceRange subresourceRange{};
         // Image only contains color data
         subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -593,35 +522,64 @@ namespace Fsl
         // The 2D texture only has one layer
         subresourceRange.layerCount = 1;
 
-        // Optimal image will be used as destination for the copy, so we must transfer from our
-        // initial undefined image layout to the transfer destination layout
-        SetImageLayout(copyCmd, m_texture.Image.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+        // Transition the texture image layout to transfer target, so we can safely copy our buffer data to it.
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.pNext = nullptr;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+        imageMemoryBarrier.image = m_texture.Image.Get();
+        imageMemoryBarrier.subresourceRange = subresourceRange;
+        imageMemoryBarrier.srcAccessMask = 0;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        // Insert a memory dependency at the proper pipeline stages that will execute the image layout transition
+        // Source pipeline stage is host write/read exection (VK_PIPELINE_STAGE_HOST_BIT)
+        // Destination pipeline stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
+        vkCmdPipelineBarrier(copyCmd.Get(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1,
+                             &imageMemoryBarrier);
 
         // Copy mip levels from staging buffer
         vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), m_texture.Image.Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
 
-        // Change texture image layout to shader read after all mip levels have been copied
+        // Once the data has been uploaded we transfer to the texture image to the shader read layout, so it can be sampled from
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        // Insert a memory dependency at the proper pipeline stages that will execute the image layout transition
+        // Source pipeline stage stage is copy command exection (VK_PIPELINE_STAGE_TRANSFER_BIT)
+        // Destination pipeline stage fragment shader access (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
+        vkCmdPipelineBarrier(copyCmd.Get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
+                             &imageMemoryBarrier);
+
+        // Store current layout for later reuse
         m_texture.ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        SetImageLayout(copyCmd, m_texture.Image.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_texture.ImageLayout, subresourceRange);
       }
       copyCmd.End();
+
+      // Normally its recommended to reuse fence objects, but we only need this for one use.
+      Fence fence(m_device.Get(), 0);
 
       VkSubmitInfo submitInfo{};
       submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
       submitInfo.commandBufferCount = 1;
       submitInfo.pCommandBuffers = copyCmd.GetPointer();
 
-      m_deviceQueue.Submit(1, &submitInfo, VK_NULL_HANDLE);
-      m_deviceQueue.WaitIdle();
+      m_deviceQueue.Submit(1, &submitInfo, fence.Get());
+
+      fence.WaitForFence(DEFAULT_FENCE_TIMEOUT);
 
       // Clean up staging resources is done automatically due to the use of the RAII containers
     }
     else
     {
-      // Prefer using optimal tiling, as linear tiling
-      // may support only a small set of features
-      // depending on implementation (e.g. no mip maps, only one layer, etc.)
+      // Copy data to a linear tiled image
+
 
       // Load mip map level 0 to linear tiling image
       VkImageCreateInfo imageCreateInfo{};
@@ -636,7 +594,7 @@ namespace Fsl
       imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
       imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
       imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
-      imageCreateInfo.extent = { m_texture.Width, m_texture.Height, 1 };
+      imageCreateInfo.extent = {m_texture.Width, m_texture.Height, 1};
 
       m_texture.Image.Reset(m_device.Get(), imageCreateInfo);
 
@@ -646,26 +604,16 @@ namespace Fsl
       // Set memory allocation size to required memory size
       memAllocInfo.allocationSize = memReqs.size;
       // Get memory type that can be mapped to host memory
-      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits,
+                                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
       // Allocate host memory
       m_texture.DeviceMemory.Reset(m_device.Get(), memAllocInfo);
 
       // Bind allocated image for use
       RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_texture.Image.Get(), m_texture.DeviceMemory.Get(), 0));
 
-      // Get sub resource layout
-      // Mip map count, array layer, etc.
-      VkImageSubresource subRes{};
-      subRes.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-      VkSubresourceLayout subResLayout;
-      void* data;
-
-      // Get sub resources layout
-      // Includes row pitch, size offsets, etc.
-      vkGetImageSubresourceLayout(m_device.Get(), m_texture.Image.Get(), &subRes, &subResLayout);
-
       // Map image memory
+      void* data;
       RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), m_texture.DeviceMemory.Get(), 0, memReqs.size, 0, &data));
       {
         RawTexture rawTexture;
@@ -673,13 +621,12 @@ namespace Fsl
         // Copy image data into memory
         const auto blob0 = rawTexture.GetBlob(0);
         assert(blob0.Size == memReqs.size);
-        const uint8_t*const pContent = static_cast<const uint8_t*>(rawTexture.GetContent()) + blob0.Offset;
+        const uint8_t* const pContent = static_cast<const uint8_t*>(rawTexture.GetContent()) + blob0.Offset;
         std::memcpy(data, pContent, blob0.Size);
       }
       vkUnmapMemory(m_device.Get(), m_texture.DeviceMemory.Get());
 
-      // Linear tiled images don't need to be staged
-      // and can be directly used as textures
+      // Linear tiled images don't need to be staged and can be directly used as textures
       m_texture.ImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
       CommandBuffer copyCmd(m_device.Get(), m_commandPool.Get(), VK_COMMAND_BUFFER_LEVEL_PRIMARY);
@@ -701,28 +648,45 @@ namespace Fsl
         // The 2D texture only has one layer
         subresourceRange.layerCount = 1;
 
-        SetImageLayout(copyCmd, m_texture.Image.Get(), VK_IMAGE_ASPECT_COLOR_BIT,
-          VK_IMAGE_LAYOUT_PREINITIALIZED, m_texture.ImageLayout, subresourceRange);
+        // Transition the texture image layout to shader read, so it can be sampled from
+        VkImageMemoryBarrier imageMemoryBarrier{};
+        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        imageMemoryBarrier.pNext = nullptr;
+        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
+        imageMemoryBarrier.image = m_texture.Image.Get();
+        imageMemoryBarrier.subresourceRange = subresourceRange;
+        imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+        imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_PREINITIALIZED;
+        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+        // Insert a memory dependency at the proper pipeline stages that will execute the image layout transition
+        // Source pipeline stage is host write/read exection (VK_PIPELINE_STAGE_HOST_BIT)
+        // Destination pipeline stage fragment shader access (VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT)
+        vkCmdPipelineBarrier(copyCmd.Get(), VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1,
+                             &imageMemoryBarrier);
       }
       copyCmd.End();
+
+      // Normally its recommended to reuse fence objects, but we only need this for one use.
+      Fence fence(m_device.Get(), 0);
 
       VkSubmitInfo submitInfo{};
       submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
       submitInfo.commandBufferCount = 1;
       submitInfo.pCommandBuffers = copyCmd.GetPointer();
 
-      m_deviceQueue.Submit(1, &submitInfo, VK_NULL_HANDLE);
-      m_deviceQueue.WaitIdle();
+      m_deviceQueue.Submit(1, &submitInfo, fence.Get());
+
+      fence.WaitForFence(DEFAULT_FENCE_TIMEOUT);
     }
 
-    // Create sampler
+    // Create a texture sampler
     // In Vulkan textures are accessed by samplers
-    // This separates all the sampling information from the
-    // texture data
-    // This means you could have multiple sampler objects
-    // for the same texture with different settings
-    // Similar to the samplers available with OpenGL 3.3
+    // This separates all the sampling information from the texture data. This means you could have multiple sampler objects for the same texture with
+    // different settings Note: Similar to the samplers available with OpenGL 3.3
     VkSamplerCreateInfo sampler{};
     sampler.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     sampler.pNext = nullptr;
@@ -736,18 +700,19 @@ namespace Fsl
     sampler.compareOp = VK_COMPARE_OP_NEVER;
     sampler.minLod = 0.0f;
     // Set max level-of-detail to mip level count of the texture
-    sampler.maxLod = (useStaging) ? (float)m_texture.MipLevels : 0.0f;
+    sampler.maxLod = (useStaging) ? static_cast<float>(m_texture.MipLevels) : 0.0f;
     // Enable anisotropic filtering
     // This feature is optional, so we must check if it's supported on the device
 
-    // FIX:
-    //if (vulkanDevice->features.samplerAnisotropy)
-    //{
-    //  // Use max. level of anisotropy for this example
-    //  sampler.maxAnisotropy = vulkanDevice->properties.limits.maxSamplerAnisotropy;
-    //  sampler.anisotropyEnable = VK_TRUE;
-    //}
-    //else
+    if (m_vulkanDevice.GetFeatures().samplerAnisotropy != VK_FALSE)
+    {
+      auto maxAnisotropy = m_vulkanDevice.GetProperties().limits.maxSamplerAnisotropy;
+      FSLLOG("Using sampler anisotropy: " << maxAnisotropy)
+      // Use max. level of anisotropy for this example
+      sampler.maxAnisotropy = maxAnisotropy;
+      sampler.anisotropyEnable = VK_TRUE;
+    }
+    else
     {
       // The device does not support anisotropic filtering
       sampler.maxAnisotropy = 1.0;
@@ -763,10 +728,10 @@ namespace Fsl
     VkImageViewCreateInfo view{};
     view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     view.pNext = nullptr;
-    view.image = VK_NULL_HANDLE;
+
     view.viewType = VK_IMAGE_VIEW_TYPE_2D;
     view.format = format;
-    view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+    view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
     // The subresource range describes the set of mip levels (and array layers) that can be accessed through this image view
     // It's possible to create multiple image views for a single image referring to different (and/or overlapping) ranges of the image
     view.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -780,7 +745,7 @@ namespace Fsl
     m_texture.View.Reset(m_device.Get(), view);
 
     // Fill image descriptor image info that can be used during the descriptor set setup
-    m_texture.Descriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    m_texture.Descriptor.imageLayout = m_texture.ImageLayout;
     m_texture.Descriptor.imageView = m_texture.View.Get();
     m_texture.Descriptor.sampler = m_texture.Sampler.Get();
   }
@@ -849,25 +814,21 @@ namespace Fsl
     depthStencilState.depthTestEnable = VK_TRUE;
     depthStencilState.depthWriteEnable = VK_TRUE;
     depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
-    depthStencilState.front = depthStencilState.back;     // FIX: is this a bug?? it seems like its intended to execute after the line below
+    depthStencilState.front = depthStencilState.back;    // FIX: is this a bug?? it seems like its intended to execute after the line below
     depthStencilState.back.compareOp = VK_COMPARE_OP_ALWAYS;
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;    //! FIX: Is this wrong? we are not supplying any pointers
     viewportState.pViewports = nullptr;
-    viewportState.scissorCount = 1;     //! FIX: Is this wrong? we are not supplying any pointers
+    viewportState.scissorCount = 1;    //! FIX: Is this wrong? we are not supplying any pointers
     viewportState.pScissors = nullptr;
 
     VkPipelineMultisampleStateCreateInfo multisampleState{};
     multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;

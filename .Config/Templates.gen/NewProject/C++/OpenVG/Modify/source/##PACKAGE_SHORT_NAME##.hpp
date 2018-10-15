@@ -40,10 +40,10 @@ namespace Fsl
 
   public:
     ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
-    ~##PACKAGE_SHORT_NAME##();
+    ~##PACKAGE_SHORT_NAME##() override;
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

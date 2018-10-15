@@ -1,42 +1,41 @@
 #ifndef FSLGRAPHICS_PIXELFORMAT_HPP
 #define FSLGRAPHICS_PIXELFORMAT_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/PixelFormatFlags.hpp>
 
 namespace Fsl
 {
-
   //! Custom pixel format enum
   //! Based on the Vulkan formats but not 100% value compatible as some extra meta data has been embedded in the "format value"
   //! This extra data is only embedded as we never intend this PixelFormat type to be used on a public API
@@ -112,14 +111,18 @@ namespace Fsl
     A8B8G8R8_SRGB_PACK32 = 57 | PixelFormatFlags::NF_Srgb | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A8B8G8R8_PACK32),
     A2R10G10B10_UNORM_PACK32 = 58 | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
     A2R10G10B10_SNORM_PACK32 = 59 | PixelFormatFlags::NF_SNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
-    A2R10G10B10_USCALED_PACK32 = 60 | PixelFormatFlags::NF_UScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
-    A2R10G10B10_SSCALED_PACK32 = 61 | PixelFormatFlags::NF_SScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
+    A2R10G10B10_USCALED_PACK32 =
+      60 | PixelFormatFlags::NF_UScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
+    A2R10G10B10_SSCALED_PACK32 =
+      61 | PixelFormatFlags::NF_SScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
     A2R10G10B10_UINT_PACK32 = 62 | PixelFormatFlags::NF_UInt | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
     A2R10G10B10_SINT_PACK32 = 63 | PixelFormatFlags::NF_SInt | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2R10G10B10_PACK32),
     A2B10G10R10_UNORM_PACK32 = 64 | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
     A2B10G10R10_SNORM_PACK32 = 65 | PixelFormatFlags::NF_SNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
-    A2B10G10R10_USCALED_PACK32 = 66 | PixelFormatFlags::NF_UScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
-    A2B10G10R10_SSCALED_PACK32 = 67 | PixelFormatFlags::NF_SScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
+    A2B10G10R10_USCALED_PACK32 =
+      66 | PixelFormatFlags::NF_UScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
+    A2B10G10R10_SSCALED_PACK32 =
+      67 | PixelFormatFlags::NF_SScaled | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
     A2B10G10R10_UINT_PACK32 = 68 | PixelFormatFlags::NF_UInt | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
     A2B10G10R10_SINT_PACK32 = 69 | PixelFormatFlags::NF_SInt | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::A2B10G10R10_PACK32),
     R16_UNORM = 70 | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::R16),
@@ -182,8 +185,9 @@ namespace Fsl
     S8_UINT = 127 | PixelFormatFlags::NF_UInt | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::S8),
     D16_UNORM_S8_UINT = 128 | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::D16_S8),
     // This is a packed format even though its not tagged as such in vulkan
-    // "data copied to or from the depth aspect of a VK_FORMAT_X8_D24_UNORM_PACK32 or VK_FORMAT_D24_UNORM_S8_UINT format is packed with one 32-bit word per texel with the D24 value in the LSBs of the word, and undefined values in the eight MSBs.
-    D24_UNORM_S8_UINT = 129 | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::D24_S8), //,
+    // "data copied to or from the depth aspect of a VK_FORMAT_X8_D24_UNORM_PACK32 or VK_FORMAT_D24_UNORM_S8_UINT format is packed with one 32-bit
+    // word per texel with the D24 value in the LSBs of the word, and undefined values in the eight MSBs.
+    D24_UNORM_S8_UINT = 129 | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::D24_S8),    //,
     D32_SFLOAT_S8_UINT = 130 | PixelFormatFlags::NF_UInt | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::D32_S8),
     BC1_RGB_UNORM_BLOCK = 131 | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::BC1_RGB_BLOCK),
     BC1_RGB_SRGB_BLOCK = 132 | PixelFormatFlags::NF_Srgb | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::BC1_RGB_BLOCK),
@@ -254,9 +258,12 @@ namespace Fsl
 
     //! These are custom formats not supported by Vulkan, but they are useful for OpenGL ES
     //! Unlike the Vulkan formats these commonly gets converted to another format by the GPU
-    EX_ALPHA8_UNORM = (ENUM_ID_BEGIN_EXTENDED_RANGE + 0) | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::R8),
-    EX_LUMINANCE8_UNORM = (ENUM_ID_BEGIN_EXTENDED_RANGE + 1) | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::R8),
-    EX_LUMINANCE8_ALPHA8_UNORM = (ENUM_ID_BEGIN_EXTENDED_RANGE + 2) | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::R8G8),
+    EX_ALPHA8_UNORM =
+      (ENUM_ID_BEGIN_EXTENDED_RANGE + 0) | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::R8),
+    EX_LUMINANCE8_UNORM =
+      (ENUM_ID_BEGIN_EXTENDED_RANGE + 1) | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::R8),
+    EX_LUMINANCE8_ALPHA8_UNORM =
+      (ENUM_ID_BEGIN_EXTENDED_RANGE + 2) | PixelFormatFlags::NF_UNorm | FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(PixelFormatLayout::R8G8),
 
 
     //! -- Helper values --

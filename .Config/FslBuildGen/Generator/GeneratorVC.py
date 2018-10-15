@@ -31,6 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Any
 from typing import Dict
 from typing import Iterable
 from typing import List
@@ -76,6 +77,7 @@ from FslBuildGen.Packages.Package import PackageExternalDependency
 from FslBuildGen.Packages.Package import PackagePlatformVariant
 from FslBuildGen.Packages.Package import PackagePlatformVariantOption
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
+from FslBuildGen.Packages.PackagePlatformExternalDependency import PackagePlatformExternalDependency
 from FslBuildGen.SharedGeneration import ToolAddedVariant
 from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_FEATURE_SETTING
 from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_VARIANT_SETTING
@@ -401,14 +403,26 @@ class GeneratorVC(GeneratorBase):
             return ""
         return "\n" + snippet.replace("##WINDOWS_TARGET_PLATFORM_VERSION##", windows10SDKVersion)
 
+    def __ExtractAllExternalDeps(self, package: Package) -> List[Union[PackageExternalDependency,PackagePlatformExternalDependency]]:
+        foundSet = set() # type: Set[str]
+        result = [] # type: List[Union[PackageExternalDependency,PackagePlatformExternalDependency]]
+        for depPackage in package.ResolvedBuildOrder:
+            if depPackage.ResolvedBuildAllExternalDependencies is not None:
+                for entry in depPackage.ResolvedBuildAllExternalDependencies:
+                    if entry.Name not in foundSet:
+                        result.append(entry)
+                        foundSet.add(entry.Name)
+        return result
+
 
     def __GenerateExternalFilesToOutput(self, config: Config, variantHelper: VariantHelper, snippet: str, package: Package) -> str:
         if snippet is None or len(snippet) <= 0 or package.Type != PackageType.Executable:
             return ""
-        if package.ResolvedBuildAllExternalDependencies is None:
-            raise Exception("Invalid package")
 
-        extDeps = Util.FilterByType(package.ResolvedBuildAllExternalDependencies, ExternalDependencyType.DLL)
+        # By running though all our dependencies we don't rely on visual studio handling the copying correctly from libs to exe
+        allExternalDeps = self.__ExtractAllExternalDeps(package)
+
+        extDeps = Util.FilterByType(allExternalDeps, ExternalDependencyType.DLL)
         if len(extDeps) <= 0:
             return ""
 

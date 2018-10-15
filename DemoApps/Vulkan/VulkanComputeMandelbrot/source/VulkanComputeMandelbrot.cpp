@@ -1,26 +1,26 @@
 /**
-* The MIT License (MIT)
-*
-* Copyright (c) since 2014 Norbert Nopper
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*/
+ * The MIT License (MIT)
+ *
+ * Copyright (c) since 2014 Norbert Nopper
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample08)
 // Recreated as a DemoFramework freestyle console sample by Freescale (2016)
@@ -46,7 +46,7 @@ namespace Fsl
 
   namespace
   {
-    //const auto IMAGE_NAME = "texture/mandelbrot.tga";
+    // const auto IMAGE_NAME = "texture/mandelbrot.tga";
     const auto IMAGE_NAME = "mandelbrot.bmp";
 
     const auto COMPUTE_SHADER_NAME = "mandelbrot.comp.spv";
@@ -54,21 +54,19 @@ namespace Fsl
     // Has to be the same as in compute shader.
     const uint32_t IMAGE_LENGTH = 1024;
     const uint32_t LOCAL_SIZE = 16;
- }
+  }
 
 
   VulkanComputeMandelbrot::VulkanComputeMandelbrot(const DemoAppConfig& config)
     : DemoAppConsole(config)
-    , m_instance()
-    , m_physicalDevice()
-    , m_fence()
   {
     try
     {
-      { // this was basically the setup done in main.cpp in the original example
+      {    // this was basically the setup done in main.cpp in the original example
         const auto options = config.GetOptions<OptionParser>();
 
-        m_instance = InstanceUtil::CreateInstance("VulkanComputeMandelbrot", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0, nullptr, 0, nullptr);
+        m_instance =
+          InstanceUtil::CreateInstance("VulkanComputeMandelbrot", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0, nullptr, 0, nullptr);
 
         const uint32_t physicalDeviceIndex = options->GetPhysicalDeviceIndex();
         m_physicalDevice = InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicalDeviceIndex);
@@ -76,7 +74,7 @@ namespace Fsl
         const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice.Device);
         const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_COMPUTE_BIT, 0, nullptr);
 
-        const float queuePriorities[1] = { 0.0f };
+        const float queuePriorities[1] = {0.0f};
         VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
         deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         deviceQueueCreateInfo.flags = 0;
@@ -151,8 +149,8 @@ namespace Fsl
         //
         auto storedImage = GatherImageData();
 
-        //SaveHelper::Save(IMAGE_NAME, storedImage);
-        { // FIX: quick fix to save for now
+        // SaveHelper::Save(IMAGE_NAME, storedImage);
+        {    // FIX: quick fix to save for now
           RawBitmap rawBitmap;
           ImageData::ScopedRawBitmapAccess access(storedImage, rawBitmap);
           Bitmap bitmap(rawBitmap);
@@ -163,17 +161,15 @@ namespace Fsl
         // Returning false requests quitting the application.
         return false;
       }
-      else
-      {
-        if (!rState.Informed)
-        {
-          FSLLOG("Compute shader ongoing.");
-          rState.Informed = VK_TRUE;
-        }
 
-        // Avoid "empty while" loop, as nothing is done.
-        std::this_thread::yield();
+      if (!rState.Informed)
+      {
+        FSLLOG("Compute shader ongoing.");
+        rState.Informed = VK_TRUE;
       }
+
+      // Avoid "empty while" loop, as nothing is done.
+      std::this_thread::yield();
     }
     return true;
   }
@@ -186,28 +182,31 @@ namespace Fsl
     ImageData imageData(IMAGE_LENGTH, IMAGE_LENGTH, 1, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_UNORM);
 
     // Check, if we can use a linear tiled image for staging.
-    if (m_physicalDevice.IsImageTilingAvailable(VK_IMAGE_TILING_LINEAR, imageData.GetPixelFormat(), imageData.GetImageType(), 0, imageData.GetExtent3D(), imageData.GetMipLevels(), 1, VK_SAMPLE_COUNT_1_BIT, imageData.GetSize()))
+    if (m_physicalDevice.IsImageTilingAvailable(VK_IMAGE_TILING_LINEAR, imageData.GetPixelFormat(), imageData.GetImageType(), 0,
+                                                imageData.GetExtent3D(), imageData.GetMipLevels(), 1, VK_SAMPLE_COUNT_1_BIT, imageData.GetSize()))
     {
       FSLLOG("Gather data using image tiling");
 
-      DeviceTexture stageTexture = CreateTexture(m_device.Get(), VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 0);
+      DeviceTexture stageTexture = CreateTexture(m_device.Get(), VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+                                                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 0);
 
       // Reset the command buffer
       RAPIDVULKAN_CHECK(vkResetCommandBuffer(m_commandBuffer.Get(), 0));
 
       m_commandBuffer.Begin(0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
       {
-        VkImageSubresourceRange imageSubresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        VkImageSubresourceRange imageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
         // Prepare stage image for final layout etc.
-        stageTexture.ImageCmdPipelineBarrier(m_commandBuffer.Get(), VK_ACCESS_TRANSFER_WRITE_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, imageSubresourceRange);
+        stageTexture.ImageCmdPipelineBarrier(m_commandBuffer.Get(), VK_ACCESS_TRANSFER_WRITE_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                             imageSubresourceRange);
 
         VkImageCopy imageCopy{};
-        imageCopy.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-        imageCopy.srcOffset = { 0, 0, 0 };
-        imageCopy.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-        imageCopy.dstOffset = { 0, 0, 0 };
-        imageCopy.extent = { IMAGE_LENGTH, IMAGE_LENGTH, 1u };
+        imageCopy.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+        imageCopy.srcOffset = {0, 0, 0};
+        imageCopy.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+        imageCopy.dstOffset = {0, 0, 0};
+        imageCopy.extent = {IMAGE_LENGTH, IMAGE_LENGTH, 1u};
 
         // Copy form device to host visible image / memory. This command also sets the needed barriers.
         m_currentTexture.CopyImage(m_commandBuffer.Get(), stageTexture.GetImage2(), imageCopy);
@@ -241,7 +240,7 @@ namespace Fsl
       stageTexture.MapMemory(0, allocationSize, 0);
       {
         imageData.SetData(stageTexture.GetMappedMemoryPointer(), 0, 0, subresourceLayout);
-        if (!(stageTexture.GetMemoryPropertyFlags() & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+        if ((stageTexture.GetMemoryPropertyFlags() & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0u)
         {
           stageTexture.InvalidateMappedMemoryRanges(0, allocationSize);
         }
@@ -272,9 +271,9 @@ namespace Fsl
         bufferImageCopy.bufferOffset = 0;
         bufferImageCopy.bufferRowLength = IMAGE_LENGTH;
         bufferImageCopy.bufferImageHeight = IMAGE_LENGTH;
-        bufferImageCopy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-        bufferImageCopy.imageOffset = { 0, 0, 0 };
-        bufferImageCopy.imageExtent = { IMAGE_LENGTH, IMAGE_LENGTH, 1 };
+        bufferImageCopy.imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+        bufferImageCopy.imageOffset = {0, 0, 0};
+        bufferImageCopy.imageExtent = {IMAGE_LENGTH, IMAGE_LENGTH, 1};
 
         m_currentTexture.CopyImageToBuffer(m_commandBuffer.Get(), stageBuffer.GetBuffer2(), bufferImageCopy);
       }
@@ -306,7 +305,7 @@ namespace Fsl
       {
         imageData.SetData(stageBuffer.GetMappedMemoryPointer(), 0, 0, subresourceLayout);
 
-        if (!(stageBuffer.GetDeviceMemory().GetMemoryPropertyFlags() & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
+        if ((stageBuffer.GetDeviceMemory().GetMemoryPropertyFlags() & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) == 0u)
         {
           stageBuffer.InvalidateMappedMemoryRanges(0, stageBuffer.GetDeviceMemory().GetAllocationSize());
         }
@@ -336,10 +335,10 @@ namespace Fsl
     m_computeShaderModule.Reset();
     m_fence.Reset();
 
-//    m_deviceQueue.Reset();
+    //    m_deviceQueue.Reset();
     m_device.Reset();
 
-    //m_physicalDevice.Reset();
+    // m_physicalDevice.Reset();
     m_instance.Reset();
   }
 
@@ -365,13 +364,17 @@ namespace Fsl
     vkGetPhysicalDeviceFormatProperties(m_physicalDevice.Device, VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
 
     // Check, if storage image is possible.
-    if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
+    if ((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) == 0u)
+    {
       throw NotSupportedException("Format not supported");
+    }
 
-    m_currentTexture = CreateTexture(m_device.Get(), VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0);
+    m_currentTexture = CreateTexture(m_device.Get(), VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_STORAGE_BIT,
+                                     VK_IMAGE_LAYOUT_UNDEFINED, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0);
 
     m_imageView.Reset(m_device.Get(), 0, m_currentTexture.GetImage().Get(), VK_IMAGE_VIEW_TYPE_2D, m_currentTexture.GetImageFormat(),
-    { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A }, { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 });
+                      {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A},
+                      {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1});
   }
 
 
@@ -459,9 +462,10 @@ namespace Fsl
     m_commandBuffer.Begin(0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       vkCmdBindPipeline(m_commandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_pipeline.Get());
-      vkCmdBindDescriptorSets(m_commandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_pipelineLayout.Get(), 0, 1, m_descriptorSets.GetPointer(0), 0, nullptr);
+      vkCmdBindDescriptorSets(m_commandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_pipelineLayout.Get(), 0, 1, m_descriptorSets.GetPointer(0), 0,
+                              nullptr);
 
-      VkImageSubresourceRange imageSubresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+      VkImageSubresourceRange imageSubresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
       m_currentTexture.ImageCmdPipelineBarrier(m_commandBuffer.Get(), VK_ACCESS_SHADER_WRITE_BIT, VK_IMAGE_LAYOUT_GENERAL, imageSubresourceRange);
 
@@ -471,28 +475,33 @@ namespace Fsl
   }
 
 
-
-  DeviceBuffer VulkanComputeMandelbrot::CreateBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags) const
+  DeviceBuffer VulkanComputeMandelbrot::CreateBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
+                                                     const VkMemoryPropertyFlags memoryPropertyFlags) const
   {
-    BufferEx buffer(device, bufferCreateInfo.flags, bufferCreateInfo.size, bufferCreateInfo.usage, bufferCreateInfo.sharingMode, bufferCreateInfo.queueFamilyIndexCount, bufferCreateInfo.pQueueFamilyIndices);
+    BufferEx buffer(device, bufferCreateInfo.flags, bufferCreateInfo.size, bufferCreateInfo.usage, bufferCreateInfo.sharingMode,
+                    bufferCreateInfo.queueFamilyIndexCount, bufferCreateInfo.pQueueFamilyIndices);
 
     // Get the memory requirements
     const auto memoryRequirements = buffer.GetBufferMemoryRequirements();
     const auto physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
 
-    DeviceMemoryEx deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties.memoryTypeCount, physicalDeviceMemoryProperties.memoryTypes, memoryPropertyFlags);
+    DeviceMemoryEx deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties.memoryTypeCount,
+                                physicalDeviceMemoryProperties.memoryTypes, memoryPropertyFlags);
 
     RAPIDVULKAN_CHECK(vkBindBufferMemory(device, buffer.Get(), deviceMemory.Get(), 0));
     return DeviceBuffer(std::move(buffer), std::move(deviceMemory));
   }
 
 
-  DeviceTexture VulkanComputeMandelbrot::CreateTexture(const VkDevice device, const VkImageTiling imageTiling, const VkImageUsageFlags usage, const VkImageLayout initialLayout, const VkMemoryPropertyFlags memoryPropertyFlagBits, const VkAccessFlags accessMask)
+  DeviceTexture VulkanComputeMandelbrot::CreateTexture(const VkDevice device, const VkImageTiling imageTiling, const VkImageUsageFlags usage,
+                                                       const VkImageLayout initialLayout, const VkMemoryPropertyFlags memoryPropertyFlagBits,
+                                                       const VkAccessFlags accessMask)
   {
-    VkExtent3D extent = { IMAGE_LENGTH, IMAGE_LENGTH, 1 };
+    VkExtent3D extent = {IMAGE_LENGTH, IMAGE_LENGTH, 1};
 
     const VkFormat imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
-    ImageEx image(device, 0, VK_IMAGE_TYPE_2D, imageFormat, extent, 1, 1, VK_SAMPLE_COUNT_1_BIT, imageTiling, usage, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr, initialLayout, accessMask);
+    ImageEx image(device, 0, VK_IMAGE_TYPE_2D, imageFormat, extent, 1, 1, VK_SAMPLE_COUNT_1_BIT, imageTiling, usage, VK_SHARING_MODE_EXCLUSIVE, 0,
+                  nullptr, initialLayout, accessMask);
 
     // Get the memory requirements
     const auto memoryRequirements = image.GetImageMemoryRequirements();
@@ -506,5 +515,4 @@ namespace Fsl
     // move the local stack based objects into the Texture class
     return DeviceTexture(std::move(image), std::move(deviceMemory), imageFormat);
   }
-
 }

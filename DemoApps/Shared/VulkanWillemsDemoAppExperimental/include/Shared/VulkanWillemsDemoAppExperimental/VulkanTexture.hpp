@@ -1,35 +1,35 @@
 #ifndef SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_VULKANTEXTURE_HPP
 #define SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_VULKANTEXTURE_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslBase/Math/Extent3D.hpp>
@@ -57,21 +57,22 @@ namespace Fsl
       uint32_t m_mipLevels;
       uint32_t m_layerCount;
       VkDescriptorImageInfo m_descriptor;
+
     public:
       VulkanTexture(const VulkanTexture&) = delete;
       VulkanTexture& operator=(const VulkanTexture&) = delete;
 
       //! @brief Move assignment operator
-      VulkanTexture& operator=(VulkanTexture&& other);
+      VulkanTexture& operator=(VulkanTexture&& other) noexcept;
 
       //! @brief Move constructor
       //! Transfer ownership from other to this
-      VulkanTexture(VulkanTexture&& other);
+      VulkanTexture(VulkanTexture&& other) noexcept;
 
       //! @brief Move objects into this object
-      VulkanTexture(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
-                    RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const Extent3D& extent,
-                    const uint32_t mipLevels, const uint32_t layerCount, const VkDescriptorImageInfo& descriptor);
+      VulkanTexture(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout, RapidVulkan::Memory&& deviceMemory,
+                    RapidVulkan::ImageView&& view, const Extent3D& extent, const uint32_t mipLevels, const uint32_t layerCount,
+                    const VkDescriptorImageInfo& descriptor);
 
       //! @brief Create a 'invalid' instance (use Reset to populate it)
       VulkanTexture();
@@ -82,12 +83,12 @@ namespace Fsl
       }
 
       //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset();
+      void Reset() noexcept;
 
       //! @brief Move objects into this object
-      void Reset(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
-                 RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const Extent3D& extent,
-                 const uint32_t mipLevels, const uint32_t layerCount, const VkDescriptorImageInfo& descriptor);
+      void Reset(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout, RapidVulkan::Memory&& deviceMemory,
+                 RapidVulkan::ImageView&& view, const Extent3D& extent, const uint32_t mipLevels, const uint32_t layerCount,
+                 const VkDescriptorImageInfo& descriptor);
 
       //! @brief Change the associated sampler (destroys the old one)
       void SetSampler(RapidVulkan::Sampler&& sampler);
@@ -155,7 +156,6 @@ namespace Fsl
         return m_sampler.IsValid();
       }
     };
-
   }
 }
 

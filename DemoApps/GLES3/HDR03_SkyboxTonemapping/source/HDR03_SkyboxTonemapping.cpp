@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "HDR03_SkyboxTonemapping.hpp"
 #include <FslBase/Bits/BitsUtil.hpp>
@@ -59,12 +59,15 @@ namespace Fsl
     const float START_EXPOSURE = 1.0f;
 
 
-    std::shared_ptr<UI::CheckBox> TryFindSourceCheckbox(const std::vector<std::shared_ptr<UI::CheckBox> >& checkboxes, const std::shared_ptr<IWindowId>& source)
+    std::shared_ptr<UI::CheckBox> TryFindSourceCheckbox(const std::vector<std::shared_ptr<UI::CheckBox>>& checkboxes,
+                                                        const std::shared_ptr<IWindowId>& source)
     {
       for (auto checkbox : checkboxes)
       {
         if (checkbox == source)
+        {
           return checkbox;
+        }
       }
       return std::shared_ptr<UI::CheckBox>();
     }
@@ -81,35 +84,19 @@ namespace Fsl
       checkbox->SetUncheckedTexture(texCheckBoxU);
       return checkbox;
     }
-
   }
 
 
   HDR03_SkyboxTonemapping::HDR03_SkyboxTonemapping(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_uiEventListener(this)                                                                                     // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))   // Prepare the extension
-    , m_rootCanvas()
-    , m_configWindow()
-    , m_exposureSlider()
-    , m_checkboxes()
+    , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
     , m_nativeBatch(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D())
-    , m_defaultFont()
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
-    , m_camera()
-    , m_matrixModel()
-    , m_matrixView()
-    , m_matrixProjection()
-    , m_scene()
-    , m_programTonemap()
-    , m_hdrFrameBuffer()
-    , m_meshQuad()
     , m_exposure(START_EXPOSURE)
-    , m_transitionCache()
-    , m_render()
     , m_sceneRenderFlags(0)
     , m_rotationSpeed(5.4f, 0.0f)
   {
@@ -141,19 +128,17 @@ namespace Fsl
   }
 
 
-  HDR03_SkyboxTonemapping::~HDR03_SkyboxTonemapping()
-  {
-
-  }
+  HDR03_SkyboxTonemapping::~HDR03_SkyboxTonemapping() = default;
 
 
   void HDR03_SkyboxTonemapping::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled() || !event.IsPressed())
+    {
       return;
+    }
     switch (event.GetKey())
     {
-
     case VirtualKey::Code1:
       ToggleState(SceneFlags::Scene1);
       break;
@@ -181,7 +166,9 @@ namespace Fsl
   void HDR03_SkyboxTonemapping::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     switch (event.GetButton())
     {
@@ -189,9 +176,13 @@ namespace Fsl
     {
       const bool mouseCapture = event.IsPressed();
       if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+      {
         m_mouseCaptureEnabled = mouseCapture;
+      }
       else
+      {
         m_mouseCaptureEnabled = false;
+      }
       event.Handled();
       break;
     }
@@ -211,7 +202,9 @@ namespace Fsl
   void HDR03_SkyboxTonemapping::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->IsHandled())
+    {
       return;
+    }
 
     auto source = theEvent->GetSource();
 
@@ -223,8 +216,10 @@ namespace Fsl
     else
     {
       const auto checkbox = TryFindSourceCheckbox(m_checkboxes, source);
-      if(checkbox)
+      if (checkbox)
+      {
         UpdateStateBasedOnCheckboxes(checkbox);
+      }
     }
   }
 
@@ -236,7 +231,7 @@ namespace Fsl
     const auto screenResolution = GetScreenResolution();
     m_matrixModel = Matrix::GetIdentity();
     m_matrixView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;  // ok since we divide both by two when we show four screens
+    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
   }
 
@@ -264,10 +259,10 @@ namespace Fsl
 
     assert(m_render.size() == m_programTonemap.size());
     GLint startX = 0;
-    for(std::size_t i=0; i<m_render.size(); ++i)
+    for (std::size_t i = 0; i < m_render.size(); ++i)
     {
-      GLint endX = static_cast<GLint>(m_render[i].SplitX.GetValue());
-      glScissor(startX, 0, endX-startX, screenResolution.Y);
+      auto endX = static_cast<GLint>(m_render[i].SplitX.GetValue());
+      glScissor(startX, 0, endX - startX, screenResolution.Y);
       startX = endX;
       DrawTonemappedScene(m_programTonemap[i], m_hdrFrameBuffer);
     }
@@ -291,16 +286,22 @@ namespace Fsl
 
   void HDR03_SkyboxTonemapping::SetState(const SceneFlags newState, const bool enabled)
   {
-    const uint32_t newStateBits = static_cast<uint32_t>(newState);
+    const auto newStateBits = static_cast<uint32_t>(newState);
     const bool currentState = (m_sceneRenderFlags & newStateBits) == newStateBits;
     if (currentState == enabled || (!enabled && BitsUtil::Count(m_sceneRenderFlags) == 1))
+    {
       return;
+    }
 
     uint32_t sceneRenderFlags = m_sceneRenderFlags;
     if (enabled)
+    {
       sceneRenderFlags |= newStateBits;
+    }
     else
+    {
       sceneRenderFlags &= ~newStateBits;
+    }
 
     SetStateViaFlags(sceneRenderFlags);
   }
@@ -308,7 +309,9 @@ namespace Fsl
   void HDR03_SkyboxTonemapping::SetStateViaFlags(const uint32_t flags)
   {
     if (flags == m_sceneRenderFlags)
+    {
       return;
+    }
     m_sceneRenderFlags = flags;
 
     const auto resolution = GetScreenResolution();
@@ -316,15 +319,15 @@ namespace Fsl
 
     if (activeSegments > 0)
     {
-      const float segmentSize = static_cast<float>(resolution.X / activeSegments);
+      const auto segmentSize = static_cast<float>(resolution.X) / activeSegments;
       uint32_t sceneFlags = m_sceneRenderFlags;
       float currentSplitX = segmentSize;
-      for (std::size_t i=0; i<m_render.size(); ++i)
+      for (std::size_t i = 0; i < m_render.size(); ++i)
       {
         if ((sceneFlags & 1) == 0)
         {
           m_render[i].LabelAlpha.SetValue(0.0f);
-          m_render[i].SplitX.SetValue(currentSplitX-segmentSize);
+          m_render[i].SplitX.SetValue(currentSplitX - segmentSize);
         }
         else
         {
@@ -365,14 +368,18 @@ namespace Fsl
   void HDR03_SkyboxTonemapping::UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::CheckBox>& source)
   {
     if (!source)
+    {
       return;
+    }
 
     uint32_t flag = 1;
     uint32_t enabledFlags = 0;
     for (std::size_t i = 0; i < m_checkboxes.size(); ++i)
     {
       if (m_checkboxes[i]->IsChecked())
+      {
         enabledFlags |= flag;
+      }
       flag <<= 1;
     }
     // Cant disable all
@@ -401,7 +408,7 @@ namespace Fsl
 
   void HDR03_SkyboxTonemapping::UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState)
   {
-    { // Mouse camera rotation
+    {    // Mouse camera rotation
       const auto mouseState = m_mouse->GetState();
 
       if (!m_mouseCaptureEnabled)
@@ -422,13 +429,21 @@ namespace Fsl
     // Keyboard camera movement
     const float movementSpeed = 2.0f * demoTime.DeltaTime;
     if (keyboardState.IsKeyDown(VirtualKey::W))
+    {
       m_camera.MoveForward(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::S))
+    {
       m_camera.MoveBackwards(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::A))
+    {
       m_camera.MoveLeft(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::D))
+    {
       m_camera.MoveRight(movementSpeed);
+    }
   }
 
 
@@ -440,13 +455,17 @@ namespace Fsl
     {
       m_exposure -= exposureAdd;
       if (m_exposure < MIN_EXPOSURE)
+      {
         m_exposure = MIN_EXPOSURE;
+      }
     }
     else if (keyboardState.IsKeyDown(VirtualKey::E))
     {
       m_exposure += exposureAdd;
       if (m_exposure > MAX_EXPOSURE)
+      {
         m_exposure = MAX_EXPOSURE;
+      }
     }
     if (keyboardState.IsKeyDown(VirtualKey::R))
     {
@@ -454,7 +473,9 @@ namespace Fsl
     }
     // Update the slider on demand
     if (m_exposureSlider && m_exposure != oldExposure)
+    {
       m_exposureSlider->SetValue(m_exposure);
+    }
   }
 
 
@@ -478,13 +499,13 @@ namespace Fsl
     GLint startX = 0;
     for (std::size_t i = 0; i < m_render.size(); ++i)
     {
-      const GLint endX = static_cast<GLint>(m_render[i].SplitX.GetValue());
+      const auto endX = static_cast<GLint>(m_render[i].SplitX.GetValue());
       const auto color = m_render[i].LabelAlpha.GetValue();
       if (color >= 0.001f)
       {
         const Color fontColor(color, color, color, color);
         const auto dim = font.MeasureString(m_render[i].Name.c_str());
-        const float position = static_cast<float>(((endX - startX - dim.X) / 2) + startX);
+        const auto position = static_cast<float>(((endX - startX - dim.X) / 2.0f) + startX);
         m_nativeBatch->DrawString(atlasTex, font, m_render[i].Name, Vector2(position, 0), fontColor);
       }
       startX = endX;
@@ -517,7 +538,7 @@ namespace Fsl
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.Get());
     glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetCapacity());
-    //glDrawArrays(GL_TRIANGLES, 0, 6);
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
 
     mesh.VertexArray.Unbind();
 
@@ -535,7 +556,9 @@ namespace Fsl
 
     // The LDR shader dont use exposure
     if (location.Exposure != GLValues::INVALID_LOCATION)
+    {
       glUniform1f(location.Exposure, m_exposure);
+    }
 
     // Bind the vertex array
     m_meshQuad.VertexArray.Bind();
@@ -551,7 +574,7 @@ namespace Fsl
   void HDR03_SkyboxTonemapping::PrepareTransition(std::vector<RenderRecord>& rRender, const std::size_t entries)
   {
     rRender.resize(entries);
-    for (auto &rRecord : rRender)
+    for (auto& rRecord : rRender)
     {
       rRecord.LabelAlpha.SetTransitionTime(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth);
       rRecord.SplitX.SetTransitionTime(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth);
@@ -566,7 +589,7 @@ namespace Fsl
 
   void HDR03_SkyboxTonemapping::ForceCompleteTransitions(std::vector<RenderRecord>& rRender)
   {
-    for (auto &rRecord : rRender)
+    for (auto& rRecord : rRender)
     {
       rRecord.LabelAlpha.ForceComplete();
       rRecord.SplitX.ForceComplete();
@@ -581,7 +604,7 @@ namespace Fsl
     GLTextureParameters3 texParams(GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
     std::string texture = "test";
-    //rScene.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, "floral_tent/1024", PixelFormat::R16G16B16A16_SFLOAT);
+    // rScene.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, "floral_tent/1024", PixelFormat::R16G16B16A16_SFLOAT);
     rScene.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, "lookout/1024", PixelFormat::R16G16B16A16_SFLOAT);
 
     FSLLOG("- loading shaders")
@@ -601,7 +624,8 @@ namespace Fsl
   }
 
 
-  HDR03_SkyboxTonemapping::TonemapProgramInfo HDR03_SkyboxTonemapping::CreateTonemapShader(const std::shared_ptr<IContentManager>& contentManager, const Tonemapper tonemapper)
+  HDR03_SkyboxTonemapping::TonemapProgramInfo HDR03_SkyboxTonemapping::CreateTonemapShader(const std::shared_ptr<IContentManager>& contentManager,
+                                                                                           const Tonemapper tonemapper)
   {
     TonemapProgramInfo info;
     const auto fragmentShaderName = GetTonemapperShaderName(tonemapper);
@@ -661,22 +685,21 @@ namespace Fsl
     const float v0 = 0.0f;
     const float v1 = 1.0f;
 
-    std::array<VertexPositionTexture, 6> vertices =
-    {
+    std::array<VertexPositionTexture, 6> vertices = {
       // Floor
-      VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)),
-      VertexPositionTexture(Vector3(x0, y0, zPos), Vector2(u0, v0)),
+      VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)), VertexPositionTexture(Vector3(x0, y0, zPos), Vector2(u0, v0)),
       VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),
 
-      VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)),
-      VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),
+      VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)), VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),
       VertexPositionTexture(Vector3(x1, y1, zPos), Vector2(y1, v1)),
     };
 
     auto vertexDecl = VertexPositionTexture::GetVertexDeclaration();
     std::vector<GLES3::GLVertexAttribLink> attribLink(2);
-    attribLink[0] = GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    attribLink[1] = GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    attribLink[0] =
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    attribLink[1] =
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
     GLVertexBuffer vertexBuffer(vertices.data(), vertices.size(), GL_STATIC_DRAW);
 
@@ -684,7 +707,7 @@ namespace Fsl
     GLVertexArray vertexArray(true);
     vertexArray.Bind();
     {
-      //Set up VBO Vertex Attribute information
+      // Set up VBO Vertex Attribute information
       GL_CHECK(glBindBuffer(vertexBuffer.GetTarget(), vertexBuffer.Get()));
       vertexBuffer.EnableAttribArrays(attribLink);
     }
@@ -707,7 +730,7 @@ namespace Fsl
     rootLayout->SetAlignmentY(ItemAlignment::Stretch);
 
     // Finally add everything to the window manager (to ensure its seen)
-    context->WindowManager->Add(rootLayout);
+    m_uiExtension->GetWindowManager()->Add(rootLayout);
     return rootLayout;
   }
 
@@ -720,8 +743,10 @@ namespace Fsl
     auto texCheckBoxU = m_uiExtension->GetAtlasTexture2D("CheckBoxU");
 
     m_checkboxes.resize(render.size());
-    for(std::size_t i=0; i<m_checkboxes.size(); ++i)
+    for (std::size_t i = 0; i < m_checkboxes.size(); ++i)
+    {
       m_checkboxes[i] = CreateCheckbox(context, texCheckBoxC, texCheckBoxU, render[i].Name);
+    }
 
     auto texSlider = m_uiExtension->GetAtlasTexture2D("Slider");
     auto texSliderCursor = m_uiExtension->GetAtlasTexture2D("SliderCursor");
@@ -744,7 +769,9 @@ namespace Fsl
 
     auto stackLayout = std::make_shared<StackLayout>(context);
     for (std::size_t i = 0; i < m_checkboxes.size(); ++i)
+    {
       stackLayout->AddChild(m_checkboxes[i]);
+    }
     stackLayout->AddChild(labelExposure);
     stackLayout->AddChild(m_exposureSlider);
 

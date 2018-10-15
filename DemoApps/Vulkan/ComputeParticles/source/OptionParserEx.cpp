@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2017 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2017 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "OptionParserEx.hpp"
 #include <FslBase/BasicTypes.hpp>
@@ -58,10 +58,9 @@ namespace Fsl
       const int32_t PARTICLE_COUNT_ULTRA = 16 * 16384;
       const int32_t PARTICLE_COUNT_HIGHER = 16 * 8192;
       const int32_t PARTICLE_COUNT_HIGH = 16 * 4096;
-      const int32_t PARTICLE_COUNT_MEDIUM =  16 * 2048;
+      const int32_t PARTICLE_COUNT_MEDIUM = 16 * 2048;
       const int32_t PARTICLE_COUNT_LOW = 16 * 1024;
     }
-
   }
 
   OptionParserEx::OptionParserEx()
@@ -73,12 +72,13 @@ namespace Fsl
   {
     OptionParser::OnArgumentSetup(rOptions);
 
-    rOptions.push_back(Option("ParticleCount", OptionArgument::OptionRequired, CommandId::ParticleCount, "Set the particle count directly."));
-    rOptions.push_back(Option("Preset", OptionArgument::OptionRequired, CommandId::Preset, "Set the particle count preset (low,medium,high,higher,ultra)"));
+    rOptions.emplace_back("ParticleCount", OptionArgument::OptionRequired, CommandId::ParticleCount, "Set the particle count directly.");
+    rOptions.emplace_back("Preset", OptionArgument::OptionRequired, CommandId::Preset,
+                          "Set the particle count preset (low,medium,high,higher,ultra)");
   }
 
 
-  OptionParseResult::Enum OptionParserEx::OnParse(const int32_t cmdId, const char*const pszOptArg)
+  OptionParseResult::Enum OptionParserEx::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     switch (cmdId)
     {
@@ -88,20 +88,34 @@ namespace Fsl
     case CommandId::Preset:
     {
       if (pszOptArg == nullptr)
+      {
         return OptionParseResult::Failed;
+      }
       std::string input(pszOptArg);
       if (input == "low")
+      {
         m_particleCount = PARTICLE_COUNT_LOW;
+      }
       else if (input == "medium")
+      {
         m_particleCount = PARTICLE_COUNT_MEDIUM;
+      }
       else if (input == "high")
+      {
         m_particleCount = PARTICLE_COUNT_HIGH;
+      }
       else if (input == "higher")
+      {
         m_particleCount = PARTICLE_COUNT_HIGHER;
+      }
       else if (input == "ultra")
+      {
         m_particleCount = PARTICLE_COUNT_ULTRA;
+      }
       else
+      {
         return OptionParseResult::Failed;
+      }
       return OptionParseResult::Parsed;
     }
     default:
@@ -128,5 +142,4 @@ namespace Fsl
     // If you return false, the app exits.
     return OptionParser::OnParsingComplete();
   }
-
 }

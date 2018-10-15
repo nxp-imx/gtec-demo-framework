@@ -17,9 +17,11 @@ A "contributor" is any person that distributes its contribution under this licen
 
 2. Grant of Rights
 (A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3,
-each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
-(B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3,
-each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
+each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its
+contribution, and distribute its contribution or any derivative works that you create. (B) Patent Grant- Subject to the terms of this license,
+including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its
+licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative
+works of the contribution in the software.
 
 3. Conditions and Limitations
 (A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
@@ -81,8 +83,7 @@ namespace Fsl
     Matrix matrix = Matrix::Invert(Matrix::Multiply(Matrix::Multiply(world, view), projection));
 
     const Vector3 source1((((source.X - X) / static_cast<float>(Width)) * 2.0f) - 1.0f,
-                          -((((source.Y - Y) / static_cast<float>(Height)) * 2.0f) - 1.0f),
-                          (source.Z - MinDepth) / (MaxDepth - MinDepth));
+                          -((((source.Y - Y) / static_cast<float>(Height)) * 2.0f) - 1.0f), (source.Z - MinDepth) / (MaxDepth - MinDepth));
 
 
     Vector3 vector = Vector3::Transform(source1, matrix);
@@ -90,7 +91,7 @@ namespace Fsl
     const auto* pMatrix = matrix.DirectAccess();
     const float a = (((source1.X * pMatrix[_M14]) + (source1.Y * pMatrix[_M24])) + (source1.Z * pMatrix[_M34])) + pMatrix[_M44];
 
-    if( !WithinEpsilon(a, 1.0f))
+    if (!WithinEpsilon(a, 1.0f))
     {
       vector.X = vector.X / a;
       vector.Y = vector.Y / a;
@@ -98,5 +99,4 @@ namespace Fsl
     }
     return vector;
   }
-
 }

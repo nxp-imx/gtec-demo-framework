@@ -39,8 +39,8 @@ namespace Fsl
   {
   public:
     virtual std::string GetName() const;
-    virtual int32_t Count() const;
-    virtual NamedAtlasTexture GetEntry(const int32_t index) const;
+    int32_t Count() const override;
+    NamedAtlasTexture GetEntry(const int32_t index) const override;
   };
 }
 #endif

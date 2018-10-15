@@ -2,6 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslDemoApp.Window">
     <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslDemoApp.Util.Graphics" Access="Private"/>
     <Dependency Name="FslDemoHost.Window" Access="Private"/>
     <Dependency Name="FslDemoPlatform" Access="Link"/>
     <Platform Name="Windows" ProjectId="C26C7F13-D0DB-4CE1-8BF7-A88027D9039B"/>

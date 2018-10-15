@@ -1,10 +1,10 @@
 /*
-* Mesh loader for creating Vulkan resources from models loaded with ASSIMP
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Mesh loader for creating Vulkan resources from models loaded with ASSIMP
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -28,7 +28,7 @@
 
 namespace Fsl
 {
-  //using namespace Vulkan;
+  // using namespace Vulkan;
 
   namespace Willems
   {
@@ -40,11 +40,17 @@ namespace Fsl
 
         // Do a lot of extra validation
         if (notTrustedRelativePath.IsEmpty())
+        {
           throw std::invalid_argument(std::string("path is invalid: ") + notTrustedRelativePath.ToAsciiString());
+        }
         if (IO::Path::IsPathRooted(notTrustedRelativePath))
+        {
           throw std::invalid_argument(std::string("not a relative path: ") + notTrustedRelativePath.ToAsciiString());
+        }
         if (notTrustedRelativePath.Contains(".."))
+        {
           throw std::invalid_argument(std::string("\"..\" not allowed in the relative path: ") + notTrustedRelativePath.ToAsciiString());
+        }
 
         return IO::Path::Combine(trustedAbsPath, notTrustedRelativePath);
       }
@@ -54,13 +60,13 @@ namespace Fsl
       : VulkanMeshLoader(contentManager)
     {
       if (!contentManager)
+      {
         throw std::invalid_argument("contentManager can not be null");
+      }
     }
 
 
-    VulkanMeshLoaderAssimp::~VulkanMeshLoaderAssimp()
-    {
-    }
+    VulkanMeshLoaderAssimp::~VulkanMeshLoaderAssimp() = default;
 
 
     void VulkanMeshLoaderAssimp::LoadMeshNow(const std::string& relativePath, std::vector<MeshEntry>& rEntries, Dimension& rDim)
@@ -75,8 +81,10 @@ namespace Fsl
 
 
       auto pScene = Importer.ReadFile(absPath.ToAsciiString().c_str(), flags);
-      if (! pScene)
+      if (pScene == nullptr)
+      {
         throw NotSupportedException(std::string("Could not read file: ") + absPath.ToAsciiString());
+      }
 
       rEntries.clear();
       rEntries.resize(pScene->mNumMeshes);
@@ -92,7 +100,7 @@ namespace Fsl
     }
 
 
-    void VulkanMeshLoaderAssimp::InitMesh(MeshEntry& rMeshEntry, const aiMesh*const pAiMesh, const aiScene*const pScene, Dimension& rDim)
+    void VulkanMeshLoaderAssimp::InitMesh(MeshEntry& rMeshEntry, const aiMesh* const pAiMesh, const aiScene* const pScene, Dimension& rDim)
     {
       assert(pAiMesh != nullptr);
       assert(pScene != nullptr);
@@ -115,14 +123,9 @@ namespace Fsl
         aiVector3D* pTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mTangents[i]) : &Zero3D;
         aiVector3D* pBiTangent = (pAiMesh->HasTangentsAndBitangents()) ? &(pAiMesh->mBitangents[i]) : &Zero3D;
 
-        Vertex v(
-          glm::vec3(pPos->x, -pPos->y, pPos->z),
-          glm::vec2(pTexCoord->x, pTexCoord->y),
-          glm::vec3(pNormal->x, pNormal->y, pNormal->z),
-          glm::vec3(pTangent->x, pTangent->y, pTangent->z),
-          glm::vec3(pBiTangent->x, pBiTangent->y, pBiTangent->z),
-          glm::vec3(pColor.r, pColor.g, pColor.b)
-          );
+        Vertex v(glm::vec3(pPos->x, -pPos->y, pPos->z), glm::vec2(pTexCoord->x, pTexCoord->y), glm::vec3(pNormal->x, pNormal->y, pNormal->z),
+                 glm::vec3(pTangent->x, pTangent->y, pTangent->z), glm::vec3(pBiTangent->x, pBiTangent->y, pBiTangent->z),
+                 glm::vec3(pColor.r, pColor.g, pColor.b));
 
         rDim.max.x = std::max(pPos->x, rDim.max.x);
         rDim.max.y = std::max(pPos->y, rDim.max.y);
@@ -137,7 +140,7 @@ namespace Fsl
 
       rDim.size = rDim.max - rDim.min;
 
-      uint32_t indexBase = static_cast<uint32_t>(rMeshEntry.Indices.size());
+      auto indexBase = static_cast<uint32_t>(rMeshEntry.Indices.size());
       for (unsigned int i = 0; i < pAiMesh->mNumFaces; i++)
       {
         const aiFace& Face = pAiMesh->mFaces[i];
@@ -149,7 +152,5 @@ namespace Fsl
         }
       }
     }
-
-
   }
 }

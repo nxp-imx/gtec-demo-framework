@@ -1,10 +1,10 @@
 /*
-* Vulkan Example base class
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example base class
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -32,13 +32,15 @@ namespace Fsl
   namespace Willems
   {
     //! @brief Move assignment operator
-    Swapchain& Swapchain::operator = (Swapchain&& other)
+    Swapchain& Swapchain::operator=(Swapchain&& other) noexcept
     {
       if (this != &other)
       {
         // Free existing resources then transfer the content of other to this one and fill other with default values
         if (IsValid())
+        {
           Reset();
+        }
 
         // Claim ownership here
         m_device = other.m_device;
@@ -54,7 +56,7 @@ namespace Fsl
     }
 
 
-    Swapchain::Swapchain(Swapchain&& other)
+    Swapchain::Swapchain(Swapchain&& other) noexcept
       : m_device(other.m_device)
       , m_swapchain(std::move(other.m_swapchain))
       , m_buffers(std::move(other.m_buffers))
@@ -67,14 +69,13 @@ namespace Fsl
 
     Swapchain::Swapchain()
       : m_device(VK_NULL_HANDLE)
-      , m_swapchain()
-      , m_buffers()
       , m_createInfo{}
     {
     }
 
 
-    Swapchain::Swapchain(const PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent, const bool enableVSync)
+    Swapchain::Swapchain(const PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+                         const bool enableVSync)
       : Swapchain()
     {
       Reset(physicalDevice, device, surface, extent, enableVSync);
@@ -87,10 +88,12 @@ namespace Fsl
     }
 
 
-    void Swapchain::Reset()
+    void Swapchain::Reset() noexcept
     {
       if (!IsValid())
+      {
         return;
+      }
 
       m_device = VK_NULL_HANDLE;
       m_swapchain.Reset();
@@ -99,7 +102,8 @@ namespace Fsl
     }
 
 
-    void Swapchain::Reset(const PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent, const bool enableVSync)
+    void Swapchain::Reset(const PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+                          const bool enableVSync)
     {
       try
       {
@@ -146,7 +150,7 @@ namespace Fsl
 
         // Find the transformation of the surface
         VkSurfaceTransformFlagBitsKHR preTransform;
-        if (surfCaps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+        if ((surfCaps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) != 0u)
         {
           // We prefer a non-rotated transform
           preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
@@ -174,7 +178,7 @@ namespace Fsl
         }
         const auto colorSpace = surfaceFormats[0].colorSpace;
 
-        FSLLOG("Swapchain present mode: " << Vulkan::Debug::ToString(swapchainPresentMode) );
+        FSLLOG("Swapchain present mode: " << Vulkan::Debug::ToString(swapchainPresentMode));
 
         m_device = device;
         m_createInfo = VkSwapchainCreateInfoKHR{};
@@ -213,13 +217,7 @@ namespace Fsl
           colorAttachmentView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
           colorAttachmentView.pNext = nullptr;
           colorAttachmentView.format = colorFormat;
-          colorAttachmentView.components =
-          {
-            VK_COMPONENT_SWIZZLE_R,
-            VK_COMPONENT_SWIZZLE_G,
-            VK_COMPONENT_SWIZZLE_B,
-            VK_COMPONENT_SWIZZLE_A
-          };
+          colorAttachmentView.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
           colorAttachmentView.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
           colorAttachmentView.subresourceRange.baseMipLevel = 0;
           colorAttachmentView.subresourceRange.levelCount = 1;
@@ -239,13 +237,14 @@ namespace Fsl
         Reset();
         throw;
       }
-
     }
 
     const SwapchainBuffers& Swapchain::operator[](const std::size_t arrayIndex) const
     {
       if (arrayIndex >= m_buffers.size())
+      {
         throw std::invalid_argument("index is out of bounds");
+      }
       return m_buffers[arrayIndex];
     }
 
@@ -266,6 +265,5 @@ namespace Fsl
       }
       return vkQueuePresentKHR(queue, &presentInfo);
     }
-
   }
 }

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 #include <FslBase/Log/Log.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -38,8 +38,8 @@
 #include <GLES3/gl3ext.h>
 #include <EGL/egl.h>
 
-#define GL_PROGRAM_BINARY_VIV           0x8FC5
-#define GL_SHADER_BINARY_VIV            0x8FC4
+#define GL_PROGRAM_BINARY_VIV 0x8FC5
+#define GL_SHADER_BINARY_VIV 0x8FC4
 
 namespace Fsl
 {
@@ -112,18 +112,12 @@ namespace Fsl
 
   void S05_PrecompiledShader::Update(const DemoTime& demoTime)
   {
-
   }
 
 
   void S05_PrecompiledShader::Draw(const DemoTime& demoTime)
   {
-    GLfloat vVertices[] =
-    {
-      0.0f, 0.5f, 0.0f,
-      -0.5f, -0.5f, 0.0f,
-      0.5f, -0.5f, 0.0f
-    };
+    GLfloat vVertices[] = {0.0f, 0.5f, 0.0f, -0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f};
 
     // set viewport
     glViewport(0, 0, m_width, m_height);
@@ -140,7 +134,7 @@ namespace Fsl
     glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 
-  GLuint S05_PrecompiledShader::LoadProgram(const uint8_t *buf, const int length)
+  GLuint S05_PrecompiledShader::LoadProgram(const uint8_t* buf, const int length)
   {
     GL_CHECK(const GLuint hProgram = glCreateProgram());
     if (hProgram == 0)
@@ -162,7 +156,7 @@ namespace Fsl
   }
 
 
-  GLuint S05_PrecompiledShader::LoadShader(const uint8_t *buf, const GLenum type, const int length)
+  GLuint S05_PrecompiledShader::LoadShader(const uint8_t* buf, const GLenum type, const int length)
   {
     // Create the shader object
     GL_CHECK(const GLuint hShader = glCreateShader(type));
@@ -174,7 +168,7 @@ namespace Fsl
     try
     {
       // Load the precompiled shader binary into the newly created shader object
-      //std::vector<uint8_t> alignBuf(length);
+      // std::vector<uint8_t> alignBuf(length);
       // std::copy(buf, buf+length, alignBuf.begin());
       GL_CHECK(glShaderBinary(1, &hShader, GL_SHADER_BINARY_VIV, buf, length));
       return hShader;
@@ -191,8 +185,8 @@ namespace Fsl
   GLuint S05_PrecompiledShader::PrepareProgram(const bool useSeparateShaders)
   {
     GLuint hProgram = 0;
-    const char * localRenderer;
-    GL_CHECK(localRenderer = (const char *)glGetString(GL_RENDERER));
+    const char* localRenderer;
+    GL_CHECK(localRenderer = (const char*)glGetString(GL_RENDERER));
 
     std::string rendererString(localRenderer);
     if (rendererString.compare("Vivante GC2000"))
@@ -239,7 +233,7 @@ namespace Fsl
           fragmentShaderName.assign("flatES3gc880.pgcSL");
         }
         // load vertex/frag shader
-        std::vector<uint8_t>buf;
+        std::vector<uint8_t> buf;
         GetContentManager()->ReadAllBytes(buf, vertexShaderName);
         hVertexShader = LoadShader(buf.data(), GL_VERTEX_SHADER, buf.size());
         GetContentManager()->ReadAllBytes(buf, fragmentShaderName);
@@ -298,11 +292,10 @@ namespace Fsl
       {
         shaderProgramName.assign("es30gc880.gcPGM");
       }
-      std::vector<uint8_t>buf;
+      std::vector<uint8_t> buf;
       GetContentManager()->ReadAllBytes(buf, shaderProgramName);
       hProgram = LoadProgram(buf.data(), buf.size());
     }
     return hProgram;
   }
-
 }

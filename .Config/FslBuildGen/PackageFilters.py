@@ -34,16 +34,20 @@
 from typing import List
 from typing import Optional
 from FslBuildGen.ExtensionListManager import ExtensionListManager
+from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 
 class PackageFilters(object):
     def __init__(self, featureNameList: Optional[List[str]] = None,
                  extensionNameList: Optional[ExtensionListManager] = None,
-                 requiredFeatureNameList: Optional[List[str]] = None) -> None:
+                 requiredFeatureNameList: Optional[List[str]] = None,
+                 recipeList: Optional[RecipeFilterManager] = None) -> None:
         self.FeatureNameList = ['*'] if featureNameList is None else featureNameList                                    # type: List[str]
         self.ExtensionNameList = ExtensionListManager(True, []) if extensionNameList is None else extensionNameList     # type: ExtensionListManager
         self.RequiredFeatureNameList = ['*'] if requiredFeatureNameList is None else requiredFeatureNameList            # type: List[str]
+        self.RecipeFilterManager = RecipeFilterManager(True, []) if recipeList is None else recipeList                  # type: RecipeFilterManager
 
     def ContainsFilters(self) -> bool:
         return (not self.ExtensionNameList.AllowAllExtensions or
                 not '*' in self.FeatureNameList or
-                not '*' in self.RequiredFeatureNameList)
+                not '*' in self.RequiredFeatureNameList or
+                not self.RecipeFilterManager.AllRecipesEnabled)

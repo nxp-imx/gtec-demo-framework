@@ -70,20 +70,19 @@ namespace Fsl
 
     struct UpdateState
     {
-      bool Executed;
-      bool Informed;
+      bool Executed{false};
+      bool Informed{false};
 
-      UpdateState()
-        : Executed(false)
-        , Informed(false)
-      {
-      }
+      UpdateState() = default;
     };
+
   public:
     VulkanComputeMandelbrot(const DemoAppConfig& config);
-    ~VulkanComputeMandelbrot();
+    ~VulkanComputeMandelbrot() override;
+
   protected:
-    virtual void Run() override;
+    void Run() override;
+
   private:
     bool Update(UpdateState& rState);
 
@@ -101,9 +100,11 @@ namespace Fsl
     void BuildPipeline();
     void BuildCmdBuffer();
 
-    DeviceBuffer CreateBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags) const;
-    DeviceTexture CreateTexture(const VkDevice device, const VkImageTiling imageTiling, const VkImageUsageFlags usage, const VkImageLayout initialLayout, const VkMemoryPropertyFlags memoryPropertyFlagBits, const VkAccessFlags accessMask);
-
+    DeviceBuffer CreateBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
+                              const VkMemoryPropertyFlags memoryPropertyFlags) const;
+    DeviceTexture CreateTexture(const VkDevice device, const VkImageTiling imageTiling, const VkImageUsageFlags usage,
+                                const VkImageLayout initialLayout, const VkMemoryPropertyFlags memoryPropertyFlagBits,
+                                const VkAccessFlags accessMask);
   };
 }
 

@@ -1,16 +1,15 @@
 /*
-* Vulkan Example - Animated gears using multiple uniform buffers
-*
-* See readme.md for details
-*
-* Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Animated gears using multiple uniform buffers
+ *
+ * See readme.md for details
+ *
+ * Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
-
 
 
 #include "Gears.hpp"
@@ -52,7 +51,7 @@ namespace Fsl
 
   Gears::~Gears()
   {
-
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -76,7 +75,7 @@ namespace Fsl
 
     VkClearValue clearValues[2];
     clearValues[0].color = m_defaultClearColor;
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -120,6 +119,9 @@ namespace Fsl
             rGear->Draw(m_drawCmdBuffers[i], m_pipelineLayout.Get());
           }
         }
+
+        DrawUI(m_drawCmdBuffers[i]);
+
         vkCmdEndRenderPass(m_drawCmdBuffers[i]);
       }
       m_drawCmdBuffers.End(i);
@@ -143,7 +145,9 @@ namespace Fsl
     vkDeviceWaitIdle(m_device.Get());
     {
       if (!TryPrepareFrame())
+      {
         return;
+      }
 
       // Command buffer to be submitted to the queue
       m_submitInfo.commandBufferCount = 1;
@@ -165,25 +169,15 @@ namespace Fsl
   void Gears::PrepareVertices()
   {
     // Gear definitions
-    std::vector<float> innerRadiuses = { 1.0f, 0.5f, 1.3f };
-    std::vector<float> outerRadiuses = { 4.0f, 2.0f, 2.0f };
-    std::vector<float> widths = { 1.0f, 2.0f, 0.5f };
-    std::vector<int32_t> toothCount = { 20, 10, 10 };
-    std::vector<float> toothDepth = { 0.7f, 0.7f, 0.7f };
-    std::vector<glm::vec3> colors =
-    {
-      glm::vec3(1.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.2f),
-      glm::vec3(0.0f, 0.0f, 1.0f)
-    };
-    std::vector<glm::vec3> positions =
-    {
-      glm::vec3(-3.0, 0.0, 0.0),
-      glm::vec3(3.1, 0.0, 0.0),
-      glm::vec3(-3.1, -6.2, 0.0)
-    };
-    std::vector<float> rotationSpeeds = { 1.0f, -2.0f, -2.0f };
-    std::vector<float> rotationOffsets = { 0.0f, -9.0f, -30.0f };
+    std::vector<float> innerRadiuses = {1.0f, 0.5f, 1.3f};
+    std::vector<float> outerRadiuses = {4.0f, 2.0f, 2.0f};
+    std::vector<float> widths = {1.0f, 2.0f, 0.5f};
+    std::vector<int32_t> toothCount = {20, 10, 10};
+    std::vector<float> toothDepth = {0.7f, 0.7f, 0.7f};
+    std::vector<glm::vec3> colors = {glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.2f), glm::vec3(0.0f, 0.0f, 1.0f)};
+    std::vector<glm::vec3> positions = {glm::vec3(-3.0, 0.0, 0.0), glm::vec3(3.1, 0.0, 0.0), glm::vec3(-3.1, -6.2, 0.0)};
+    std::vector<float> rotationSpeeds = {1.0f, -2.0f, -2.0f};
+    std::vector<float> rotationOffsets = {0.0f, -9.0f, -30.0f};
 
     m_gears.clear();
     m_gears.resize(positions.size());
@@ -317,11 +311,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -369,7 +359,7 @@ namespace Fsl
     VkDescriptorPoolCreateInfo descriptorPoolInfo{};
     descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolInfo.pNext = nullptr;
-    descriptorPoolInfo.maxSets = 3; // Three descriptor sets (for each gear)
+    descriptorPoolInfo.maxSets = 3;    // Three descriptor sets (for each gear)
     descriptorPoolInfo.poolSizeCount = 1;
     descriptorPoolInfo.pPoolSizes = &poolSize;
 

@@ -1,0 +1,1272 @@
+/****************************************************************************************************************************************************
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
+
+#include "cl_viv_vx_ext.h"
+__kernel void CensusTransform
+	(
+	__read_only image2d_t 	in_image,
+	__write_only image2d_t 	out_image
+	)
+{
+    int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+    
+    vxc_uchar16 center;
+    VXC_OP4(img_load, center, in_image, coord_in, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    
+    /*	Census window layout
+	 *		X 	X 	X 	X 	P0 	X 	X 	X	X
+	 *		X 	X 	X 	X 	P1 	X 	X 	X	X
+	 *		X 	X 	X 	X 	P2 	X 	X 	X	X
+	 *		X 	X 	X 	X 	P3 	X 	X 	X	X
+	 *		P4 	P5 	p6 	P7	C 	P8 	P9 	P10 P11
+	 *		X 	X 	X 	X 	P12	X 	X 	X	X
+	 *		X 	X 	X 	X 	P13	X 	X 	X	X
+	 *		X 	X 	X 	X 	P14	X 	X 	X	X
+	 *		X 	X 	X 	X 	P15	X 	X 	X	X
+	 */
+    vxc_uchar16 row;
+	vxc_uchar16 string = (vxc_uchar16)(0x00);
+    // P0
+    int2 coord_in0 = coord_in;
+    coord_in0.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in0, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P1
+	int2 coord_in1 = coord_in;
+    coord_in1.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in1, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P2
+	int2 coord_in2 = coord_in;
+    coord_in2.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in2, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P3
+	int2 coord_in3 = coord_in;
+    coord_in3.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in3, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P4
+	int2 coord_in4 = coord_in;
+    coord_in4.x = coord_in.x - 4;
+    VXC_OP4(img_load, row, in_image, coord_in4, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P5
+	int2 coord_in5 = coord_in;
+    coord_in5.x = coord_in.x - 3;
+    VXC_OP4(img_load, row, in_image, coord_in5, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P6
+	int2 coord_in6 = coord_in;
+    coord_in6.x = coord_in.x - 2;
+    VXC_OP4(img_load, row, in_image, coord_in6, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P7
+	int2 coord_in7 = coord_in;
+    coord_in7.x = coord_in.x - 1;
+    VXC_OP4(img_load, row, in_image, coord_in7, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out0 = coord_in;
+	VXC_OP4_NoDest(img_store, out_image, coord_out0, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*
+	 * Second byte
+	 */
+
+	// P8
+	int2 coord_in8 = coord_in;
+    coord_in8.x = coord_in.x + 1;
+    VXC_OP4(img_load, row, in_image, coord_in8, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P9
+	int2 coord_in9 = coord_in;
+    coord_in9.x = coord_in.x + 2;
+    VXC_OP4(img_load, row, in_image, coord_in9, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P10
+	int2 coord_in10 = coord_in;
+    coord_in10.x = coord_in.x + 3;
+    VXC_OP4(img_load, row, in_image, coord_in10, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P11
+	int2 coord_in11 = coord_in;
+    coord_in11.x = coord_in.x + 4;
+    VXC_OP4(img_load, row, in_image, coord_in11, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P12
+	int2 coord_in12 = coord_in;
+    coord_in12.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in12, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P13
+	int2 coord_in13 = coord_in;
+    coord_in13.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in13, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P14
+	int2 coord_in14 = coord_in;
+    coord_in14.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in14, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P15
+	int2 coord_in15 = coord_in;
+    coord_in15.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in15, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out1 = coord_in;
+	coord_out1.y = coord_in.y + get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out1, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*	Census window layout
+	 *		P0 	P1 	P2 	P3 	X 	X 	X 	X	X
+	 *		P4 	P5 	P6 	P7 	X 	X 	X 	X	X
+	 *		P8 	P9 	P10	P11	X 	X 	X 	X	X
+	 *		P12	P13	P14	P15	X 	X 	X 	X	X
+	 *		X 	X 	X 	X	C 	X 	X 	X 	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 */
+	 
+	string = (vxc_uchar16)(0x00);
+    // P0
+    coord_in0.x = coord_in.x - 4;
+    coord_in0.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in0, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P1
+	coord_in1.x = coord_in.x - 3;
+    coord_in1.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in1, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P2
+	coord_in2.x = coord_in.x - 2;
+    coord_in2.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in2, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P3
+	coord_in3.x = coord_in.x - 1;
+    coord_in3.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in3, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P4
+	coord_in4.x = coord_in.x - 4;
+    coord_in4.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in4, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P5
+	coord_in5.x = coord_in.x - 3;
+    coord_in5.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in5, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P6
+	coord_in6.x = coord_in.x - 2;
+    coord_in6.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in6, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P7
+	coord_in7.x = coord_in.x - 1;
+    coord_in7.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in7, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out2 = coord_in;
+	coord_out2.y = coord_in.y + 2 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out2, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*
+	 * Second byte
+	 */
+
+	// P8
+	coord_in8.x = coord_in.x - 4;
+    coord_in8.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in8, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P9
+	coord_in9.x = coord_in.x - 3;
+    coord_in9.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in9, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P10
+	coord_in10.x = coord_in.x - 2;
+    coord_in10.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in10, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P11
+	coord_in11.x = coord_in.x - 1;
+    coord_in11.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in11, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P12
+	coord_in12.x = coord_in.x - 4;
+    coord_in12.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in12, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P13
+	coord_in13.x = coord_in.x - 3;
+    coord_in13.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in13, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P14
+	coord_in14.x = coord_in.x - 2;
+    coord_in14.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in14, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P15
+	coord_in15.x = coord_in.x - 1;
+    coord_in15.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in15, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out3 = coord_in;
+	coord_out3.y = coord_in.y + 3 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out3, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*	Census window layout
+	 *		X 	X 	X 	X	X 	P0 	P1 	P2 	P3
+	 *		X 	X 	X 	X	X 	P4 	P5 	P6 	P7	
+	 *		X 	X 	X 	X	X 	P8 	P9 	P10	P11
+	 *		X 	X 	X 	X	X 	P12	P13	P14	P15
+	 *		X 	X 	X 	X	C 	X 	X 	X 	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 *		X 	X 	X 	X 	X	X 	X 	X	X
+	 */
+	 
+	string = (vxc_uchar16)(0x00);
+	 // P0
+    coord_in0.x = coord_in.x + 4;
+    coord_in0.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in0, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P1
+	coord_in1.x = coord_in.x + 3;
+    coord_in1.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in1, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P2
+	coord_in2.x = coord_in.x + 2;
+    coord_in2.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in2, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P3
+	coord_in3.x = coord_in.x + 1;
+    coord_in3.y = coord_in.y - 4;
+    VXC_OP4(img_load, row, in_image, coord_in3, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P4
+	coord_in4.x = coord_in.x + 4;
+    coord_in4.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in4, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P5
+	coord_in5.x = coord_in.x + 3;
+    coord_in5.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in5, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P6
+	coord_in6.x = coord_in.x + 2;
+    coord_in6.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in6, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P7
+	coord_in7.x = coord_in.x + 1;
+    coord_in7.y = coord_in.y - 3;
+    VXC_OP4(img_load, row, in_image, coord_in7, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out4 = coord_in;
+	coord_out4.y = coord_in.y + 4 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out4, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*
+	 * Second byte
+	 */
+
+	// P8
+	coord_in8.x = coord_in.x + 4;
+    coord_in8.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in8, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P9
+	coord_in9.x = coord_in.x + 3;
+    coord_in9.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in9, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P10
+	coord_in10.x = coord_in.x + 2;
+    coord_in10.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in10, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P11
+	coord_in11.x = coord_in.x + 1;
+    coord_in11.y = coord_in.y - 2;
+    VXC_OP4(img_load, row, in_image, coord_in11, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P12
+	coord_in12.x = coord_in.x + 4;
+    coord_in12.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in12, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P13
+	coord_in13.x = coord_in.x + 3;
+    coord_in13.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in13, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P14
+	coord_in14.x = coord_in.x + 2;
+    coord_in14.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in14, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P15
+	coord_in15.x = coord_in.x + 1;
+    coord_in15.y = coord_in.y - 1;
+    VXC_OP4(img_load, row, in_image, coord_in15, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out5 = coord_in;
+	coord_out5.y = coord_in.y + 5 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out5, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*	Census window layout
+	 *		X 	X 	X 	X	X	X	X 	X 	X	 	
+	 *		X 	X 	X 	X	X	X	X 	X 	X	 		
+	 *		X 	X 	X 	X	X	X	X 	X 	X	 	
+	 *		X 	X 	X 	X	X	X	X 	X 	X	
+	 *		X 	X 	X 	X	C 	X 	X 	X 	X
+	 *		P0 	P1 	P2 	P3 	X 	X 	X 	X 	X
+	 *		P4 	P5 	P6 	P7 	X 	X 	X 	X 	X
+	 *		P8 	P9 	P10	P11 X 	X 	X 	X 	X
+	 *		P12	P13	P14	P15 X 	X 	X 	X 	X
+	 */
+	string = (vxc_uchar16)(0x00);
+	 // P0
+    coord_in0.x = coord_in.x - 4;
+    coord_in0.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in0, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P1
+	coord_in1.x = coord_in.x - 3;
+    coord_in1.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in1, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P2
+	coord_in2.x = coord_in.x - 2;
+    coord_in2.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in2, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P3
+	coord_in3.x = coord_in.x - 1;
+    coord_in3.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in3, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P4
+	coord_in4.x = coord_in.x - 4;
+    coord_in4.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in4, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P5
+	coord_in5.x = coord_in.x - 3;
+    coord_in5.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in5, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P6
+	coord_in6.x = coord_in.x - 2;
+    coord_in6.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in6, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P7
+	coord_in7.x = coord_in.x - 1;
+    coord_in7.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in7, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out6 = coord_in;
+	coord_out6.y = coord_in.y + 6 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out6, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*
+	 * Second byte
+	 */
+
+	// P8
+	coord_in8.x = coord_in.x - 4;
+    coord_in8.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in8, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P9
+	coord_in9.x = coord_in.x - 3;
+    coord_in9.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in9, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P10
+	coord_in10.x = coord_in.x - 2;
+    coord_in10.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in10, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P11
+	coord_in11.x = coord_in.x - 1;
+    coord_in11.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in11, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P12
+	coord_in12.x = coord_in.x - 4;
+    coord_in12.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in12, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P13
+	coord_in13.x = coord_in.x - 3;
+    coord_in13.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in13, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P14
+	coord_in14.x = coord_in.x - 2;
+    coord_in14.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in14, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P15
+	coord_in15.x = coord_in.x - 1;
+    coord_in15.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in15, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out7 = coord_in;
+	coord_out7.y = coord_in.y + 7 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out7, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*	Census window layout
+	 *		X 	X 	X 	X	X	X	X 	X 	X	 	
+	 *		X 	X 	X 	X	X	X	X 	X 	X	 		
+	 *		X 	X 	X 	X	X	X	X 	X 	X	 	
+	 *		X 	X 	X 	X	X	X	X 	X 	X	
+	 *		X 	X 	X 	X	C 	X 	X 	X 	X
+	 *		X 	X 	X 	X 	X 	P0 	P1 	P2 	P3
+	 *		X 	X 	X 	X 	X 	P4 	P5 	P6 	P7
+	 *		X 	X 	X 	X 	X 	P8 	P9 	P10	P11
+	 *		X 	X 	X 	X 	X 	P12	P13	P14	P15
+	 */
+	string = (vxc_uchar16)(0x00);
+	// P0
+    coord_in0.x = coord_in.x + 4;
+    coord_in0.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in0, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P1
+	coord_in1.x = coord_in.x + 3;
+    coord_in1.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in1, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P2
+	coord_in2.x = coord_in.x + 2;
+    coord_in2.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in2, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P3
+	coord_in3.x = coord_in.x + 1;
+    coord_in3.y = coord_in.y + 4;
+    VXC_OP4(img_load, row, in_image, coord_in3, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P4
+	coord_in4.x = coord_in.x + 4;
+    coord_in4.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in4, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P5
+	coord_in5.x = coord_in.x + 3;
+    coord_in5.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in5, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P6
+	coord_in6.x = coord_in.x + 2;
+    coord_in6.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in6, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P7
+	coord_in7.x = coord_in.x + 1;
+    coord_in7.y = coord_in.y + 3;
+    VXC_OP4(img_load, row, in_image, coord_in7, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out8 = coord_in;
+	coord_out8.y = coord_in.y + 8 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out8, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+	
+	/*
+	 * Second byte
+	 */
+
+	// P8
+	coord_in8.x = coord_in.x + 4;
+    coord_in8.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in8, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x80), row < center);
+	
+	//P9
+	coord_in9.x = coord_in.x + 3;
+    coord_in9.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in9, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x40), row < center);
+	
+	//P10
+	coord_in10.x = coord_in.x + 2;
+    coord_in10.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in10, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x20), row < center);
+	
+	// P11
+	coord_in11.x = coord_in.x + 1;
+    coord_in11.y = coord_in.y + 2;
+    VXC_OP4(img_load, row, in_image, coord_in11, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x10), row < center);
+	
+	// P12
+	coord_in12.x = coord_in.x + 4;
+    coord_in12.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in12, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x08), row < center);
+	
+	// P13
+	coord_in13.x = coord_in.x + 3;
+    coord_in13.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in13, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x04), row < center);
+	
+	// P14
+	coord_in14.x = coord_in.x + 2;
+    coord_in14.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in14, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x02), row < center);
+	
+	// P15
+	coord_in15.x = coord_in.x + 1;
+    coord_in15.y = coord_in.y + 1;
+    VXC_OP4(img_load, row, in_image, coord_in15, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+    string = string | select((vxc_uchar16)(0x00), (vxc_uchar16)(0x01), row < center);
+    
+    int2 coord_out9 = coord_in;
+	coord_out9.y = coord_in.y + 9 * get_global_size(1);
+	VXC_OP4_NoDest(img_store, out_image, coord_out9, string, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+}
+
+inline int4 hamming_distance_uchar4(const vxc_uchar4 left_census_pixel, const vxc_uchar4 right_census_pixel){
+  vxc_uchar4 res;
+  _viv_asm(XOR_BITWISE, res, left_census_pixel, right_census_pixel);
+  int4 res_xor;
+  res_xor = convert_int4(res);
+  return popcount(res_xor);
+}
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
+                                
+__kernel void stereo_matching_kernel_LeftReference(
+					__read_only image2d_t 	Census_padded_L,
+					__read_only image2d_t 	Census_padded_R,
+	        __write_only image2d_t 	output_disparity_L,
+	        global const int *min_disparity,
+	        global const int *max_disparity
+				)
+{
+	int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+
+  int2 census_input_index = coord_in;
+
+  int4 current_cost;
+	int4 min_cost = (int4)(INT_MAX);
+  vxc_uchar4 ref[10];
+  int4 ref_int[10];
+
+  int ciib_const = get_global_size(1);
+  for(int i = 0; i < 10; i++){    
+	  VXC_OP4(img_load, ref[i], Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    census_input_index.y += ciib_const;
+  }
+
+	vxc_uchar4 tmp_census_R;
+	int4 disparity_tmp;
+	for(int d = (*min_disparity); d <= (*max_disparity); d++){
+
+    census_input_index = coord_in;
+    census_input_index.x -= d;
+    VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost  = hamming_distance_uchar4(ref[0], tmp_census_R);
+
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[1], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[2], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[3], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[4], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[5], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[6], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[7], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[8], tmp_census_R);
+
+		census_input_index.y += ciib_const;
+		VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+		current_cost += hamming_distance_uchar4(ref[9], tmp_census_R);
+
+		disparity_tmp = select(disparity_tmp, (int4)(d), current_cost < min_cost);
+
+		min_cost = select(min_cost, current_cost, current_cost < min_cost);
+
+	}
+
+	vxc_uchar4 out_disparity;
+  out_disparity = convert_uchar4(disparity_tmp);
+	VXC_OP4_NoDest(img_store, output_disparity_L, coord_in, out_disparity, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+}
+
+
+
+
+__kernel void stereo_matching_kernel_RightReference(
+					__read_only image2d_t 	Census_padded_L,
+					__read_only image2d_t 	Census_padded_R,
+	        __write_only image2d_t 	output_disparity_R,
+	        global const int *min_disparity,
+	        global const int *max_disparity
+				)
+{
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+
+  int2 census_input_index = coord_in;
+
+  int4 current_cost;
+	int4 min_cost = (int4)(INT_MAX);
+  vxc_uchar4 ref[10];
+  int4 ref_int[10];
+
+  int ciib_const = get_global_size(1);
+  for(int i = 0; i < 10; i++){    
+	  VXC_OP4(img_load, ref[i], Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    census_input_index.y += ciib_const;
+  }
+
+  vxc_uchar4 tmp_census_l;
+  int4 disparity_tmp;
+  for(int d = (*min_disparity); d <= (*max_disparity); d++){
+
+    census_input_index = coord_in;
+    census_input_index.x += d;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost  = hamming_distance_uchar4(ref[0], tmp_census_l);
+
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[1], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[2], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[3], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[4], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[5], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[6], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[7], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[8], tmp_census_l);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar4(ref[9], tmp_census_l);
+
+	disparity_tmp = select(disparity_tmp, (int4)(d), current_cost < min_cost);
+
+	min_cost = select(min_cost, current_cost, current_cost < min_cost);
+
+  }
+  
+  vxc_uchar4 out_disparity;
+  out_disparity = convert_uchar4(disparity_tmp);
+  VXC_OP4_NoDest(img_store, output_disparity_R, coord_in, out_disparity, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+}
+
+#define DRT_THRESHOLD 1
+#define DRT_THRESHOLD_2 5
+#define WINDOW_SIZE 3
+__kernel void outlier_detection_naive( 
+			__read_only image2d_t 	in_image, 
+	        __write_only image2d_t 	out_image
+				)
+{	
+	int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+	
+	uchar rank = 0;
+	int2 coord_line;
+	vxc_uchar4 center;
+	vxc_uchar4 line[3];	
+	vxc_uchar4 out_img;
+	VXC_OP4(img_load, center, in_image, coord_in, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	
+	coord_line = coord_in  + (int2)(-1 , -1);
+	VXC_OP4(img_load, line[0], in_image, coord_line, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	coord_line.y = coord_in.y;
+	VXC_OP4(img_load, line[1], in_image, coord_line, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	coord_line.y = coord_in.y + 1;
+	VXC_OP4(img_load, line[2], in_image, coord_line, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+	
+	for(int i = 0; i < 3; i++){
+	  if(abs(line[i].x - center.x) > DRT_THRESHOLD)
+	    rank++;
+	  if(abs(line[i].y - center.x) > DRT_THRESHOLD)
+	    rank++;
+	  if(abs(line[i].z - center.x) > DRT_THRESHOLD)
+	    rank++;
+	}
+	if(rank > DRT_THRESHOLD_2){
+		out_img.x = 0;
+	} else{
+		out_img.x = center.x;
+	}
+	
+	rank = 0;
+	for(int i = 0; i < 3; i++){
+	  if(abs(line[i].y - center.y) > DRT_THRESHOLD)
+	    rank++;
+	  if(abs(line[i].z - center.y) > DRT_THRESHOLD)
+	    rank++;
+	  if(abs(line[i].w - center.y) > DRT_THRESHOLD)
+	    rank++;
+	}
+	if(rank > DRT_THRESHOLD_2){
+		out_img.y = 0;
+	} else{
+		out_img.y = center.y;
+	}
+	
+	VXC_OP4_NoDest(img_store, out_image, coord_in, out_img, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+}
+
+#define LEFT_RIGHT_DIFFERENCE_THRESHOLD 1
+__kernel void left_right_consistency_kernel_naive( 
+					 __read_only image2d_t 	disparity_L, 
+					 __read_only image2d_t 	disparity_R,
+	                 __write_only image2d_t 	disparity_output_L,
+	                 __write_only image2d_t 	disparity_output_R
+				)
+{
+  int2 coord = (int2)(get_global_id(0), get_global_id(1));
+	
+	vxc_uchar4 in0_L;
+  vxc_uchar4 in0_R;
+  vxc_uchar4 in1_L;
+  vxc_uchar4 in1_R;
+  
+  vxc_uchar4 out_L;
+  vxc_uchar4 out_R;
+  
+  int4 coord_tmp;
+  
+  int2 coord_L = coord;
+  VXC_OP4(img_load, in0_L, disparity_L, coord_L, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));	
+  
+  int2 coord_R = coord;
+  coord_tmp = convert_int4(in0_L);
+  coord_R.x = coord.x - coord_tmp.x;
+  VXC_OP4(img_load, in0_R, disparity_R, coord_R, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));	
+  
+  if(abs(in0_L.x - in0_R.x) > LEFT_RIGHT_DIFFERENCE_THRESHOLD){
+		out_L.x = 0;
+  } else {
+		out_L.x = in0_L.x;
+  }
+	
+  coord_R.x = coord.x - coord_tmp.y;
+  VXC_OP4(img_load, in0_R, disparity_R, coord_R, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+  if(abs(in0_L.y - in0_R.x) > LEFT_RIGHT_DIFFERENCE_THRESHOLD){
+    out_L.y = 0;
+  } else {
+	out_L.y = in0_L.y;
+  }
+  VXC_OP4_NoDest(img_store, disparity_output_L, coord, out_L, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	
+	
+  coord_R = coord;
+  VXC_OP4(img_load, in1_R, disparity_R, coord_R, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));	
+  
+  coord_L = coord;
+  coord_tmp = convert_int4(in1_R);
+  coord_L.x = coord.x + coord_tmp.x;
+  VXC_OP4(img_load, in1_L, disparity_L, coord_L, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));	
+  
+  if(abs(in1_R.x - in1_L.x) > LEFT_RIGHT_DIFFERENCE_THRESHOLD){
+    out_R.x = 0;
+  } else {
+    out_R.x = in1_R.x;
+  }
+	
+  coord_L.x = coord.x + coord_tmp.y;
+  VXC_OP4(img_load, in1_L, disparity_L, coord_L, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+  if(abs(in1_R.y - in1_L.x) > LEFT_RIGHT_DIFFERENCE_THRESHOLD){
+    out_R.y = 0;
+  } else {
+    out_R.y = in1_R.y;
+  }
+  VXC_OP4_NoDest(img_store, disparity_output_R, coord, out_R, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+}
+
+__kernel void disparity_refinement_dense_kernel_naive( 
+					__read_only image2d_t 	in_image, 
+	                __write_only image2d_t 	out_image
+				)
+{
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+  int2 coord_cur = coord_in;
+		
+  vxc_uchar4 in;
+  vxc_uchar4 out;
+  VXC_OP4(img_load, in, in_image, coord_in, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+
+  if(in.x == 0){
+    uchar value_left = 255;
+	uchar value_right = 255;
+
+	uchar distance_left = 0;
+	uchar distance_right = 0;
+	
+	 //find first non-zero value in the right
+	int ww = get_global_id(0);
+
+	vxc_uchar4 disp_right_current;
+	vxc_uchar4 disp_left_current;
+	while(++ww < get_global_size(0)){ 
+      coord_cur.x = ww;					
+	  VXC_OP4(img_load, disp_right_current, in_image, coord_cur, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	  distance_right++;
+	  if(disp_right_current.x != 0){
+	    value_right = disp_right_current.x;
+        break;
+      }
+			
+	  distance_right++;
+      if(disp_right_current.y != 0){
+        value_right = disp_right_current.y;
+		break;
+      }
+    }
+
+	//find first non-zero value in the left 
+    ww = get_global_id(0);
+	while(--ww > 0){
+      coord_cur.x = ww;
+      VXC_OP4(img_load, disp_left_current, in_image, coord_cur, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+      distance_left++;
+      if(disp_left_current.x != 0){
+        value_left = disp_left_current.x;
+        break;
+      }
+      distance_left++;
+      if(disp_left_current.y != 0){
+        value_left = disp_left_current.y;
+        break;
+      }
+    }
+    out.x = value_left < value_right? value_left : value_right;
+  } else {
+    out.x = in.x;
+  }
+	
+  if(in.y == 0){
+    uchar value_left = 255;
+    uchar value_right = 255;
+    uchar distance_left = 0;
+    uchar distance_right = 0;
+    
+    //find first non-zero value in the right
+    int ww = get_global_id(0) + 1;
+    
+    vxc_uchar4 disp_right_current;
+    vxc_uchar4 disp_left_current;
+    while(++ww < get_global_size(0)){
+      coord_cur.x = ww;
+      VXC_OP4(img_load, disp_right_current, in_image, coord_cur, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+      distance_right++;
+      if(disp_right_current.x != 0){
+      value_right = disp_right_current.x;
+      break;
+      }
+			
+	  distance_right++;
+	  if(disp_right_current.y != 0){
+	    value_right = disp_right_current.y;
+	    break;
+	  }
+    }
+
+    //find first non-zero value in the left 
+    ww = get_global_id(0) + 1;
+    while(--ww > 0){
+      coord_cur.x = ww;
+      VXC_OP4(img_load, disp_left_current, in_image, coord_cur, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+      distance_left++;
+      if(disp_left_current.x != 0){
+        value_left = disp_left_current.x;
+        break;
+      }
+  
+      distance_left++;
+      if(disp_left_current.y != 0){
+        value_left = disp_left_current.y;
+        break;
+      } 
+    }
+    out.y = value_left < value_right? value_left : value_right;
+	} else {
+		out.y = in.y;
+	}
+	
+	VXC_OP4_NoDest(img_store, out_image, coord_in, out, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+}
+
+ _viv_uniform unsigned int height;
+__kernel void median_filter_kernel_3x3(
+					__read_only image2d_t 	in_image,
+	                __write_only image2d_t 	out_image
+				)
+{  
+  int2  coord = (int2)(get_global_id(0), get_global_id(1));
+  
+  vxc_uchar16 v0;
+  vxc_uchar16 v1;
+  vxc_uchar16 v2;
+  
+  int2 coord1 = coord + (int2)(-1, -1);
+  VXC_OP4(img_load, v0, in_image, coord1, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+
+  int2 coord2 = coord + (int2)(-1, 0);
+  VXC_OP4(img_load, v1, in_image, coord2, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+
+  do
+  {
+    int2 coord3 = coord + (int2)(-1, 1);
+    VXC_OP4(img_load, v2, in_image, coord3, 0, VXC_MODIFIER(0, 15, 0, VXC_RM_TowardZero, 0));
+
+    vxc_uchar16 median = viv_intrinsic_vxmc_Filter_uc(v0, v1, v2, VXC_MODIFIER_FILTER(0, 13, 0, VXC_FM_Median, 0));
+    VXC_OP4_NoDest(img_store, out_image, coord, median, VXC_MODIFIER(0, 13, 0, VXC_RM_TowardZero, 0));
+
+    v0 = v1;
+    v1 = v2;
+    coord.y++;
+  }
+  while (coord.y < height);
+}
+
+inline int2 hamming_distance_uchar2(const vxc_uchar2 left_census_pixel, const vxc_uchar2 right_census_pixel){
+  vxc_uchar2 res;
+  _viv_asm(XOR_BITWISE, res, left_census_pixel, right_census_pixel);
+  int2 res_xor;
+  res_xor = convert_int2(res);
+  return popcount(res_xor);
+}
+__kernel void stereo_matching_finer_kernel_RightReference( 					
+					__read_only image2d_t 	Census_padded_L, 
+					__read_only image2d_t 	Census_padded_R, 
+	                __write_only image2d_t 	output_disparity_R,
+	                global const int *min_disparity,
+	                global const int *max_disparity,
+	                __read_only image2d_t 	_disparity_estimate_left,
+	                __read_only image2d_t 	_disparity_estimate_right,
+	                global const int *disparity_range_variation
+				)
+{
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+  int2 census_input_index = coord_in;
+
+  int2 current_cost;
+  int2 min_cost = (int2)(INT_MAX);
+  vxc_uchar2 ref[10];
+  
+  vxc_uchar2 disparity_estimate_right;
+  int2 disparity_estimate_right2;
+  int2 coord_down = (int2)(coord_in.x / 2, coord_in.y / 2);
+  VXC_OP4(img_load, disparity_estimate_right, _disparity_estimate_right, coord_down, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+  disparity_estimate_right2 = convert_int2(disparity_estimate_right);
+  disparity_estimate_right2 = disparity_estimate_right2 * 2;
+
+  int ciib_const = get_global_size(1);
+  for(int i = 0; i < 10; i++){    
+	  VXC_OP4(img_load, ref[i], Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+    census_input_index.y += ciib_const;
+  }
+
+  vxc_uchar2 tmp_census_l;
+  int2 disparity_tmp;
+  for(int disparity_offset = -(*disparity_range_variation); disparity_offset <= (*disparity_range_variation); disparity_offset++){
+    int disparity = clamp(disparity_estimate_right2.x + disparity_offset, *min_disparity, *max_disparity);
+    census_input_index = coord_in;
+    census_input_index.x += disparity;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+    current_cost  = hamming_distance_uchar2(ref[0], tmp_census_l);
+
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[1], tmp_census_l);
+    
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[2], tmp_census_l);
+
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[3], tmp_census_l);
+
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[4], tmp_census_l);
+
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[5], tmp_census_l);
+
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[6], tmp_census_l);
+    
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[7], tmp_census_l);
+
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[8], tmp_census_l);
+
+    census_input_index.y += ciib_const;
+    VXC_OP4(img_load, tmp_census_l, Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 3, 0, VXC_RM_TowardZero, 0));
+    current_cost += hamming_distance_uchar2(ref[9], tmp_census_l);
+
+    disparity_tmp = select(disparity_tmp, (int2)(disparity), current_cost < min_cost);
+
+    min_cost = select(min_cost, current_cost, current_cost < min_cost);
+
+  }
+
+  vxc_uchar2 out_disparity;
+  out_disparity = convert_uchar2(disparity_tmp);
+  VXC_OP4_NoDest(img_store, output_disparity_R, coord_in, out_disparity, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));	
+}
+
+__kernel void stereo_matching_finer_kernel_LeftReference( 
+					__read_only image2d_t 	Census_padded_L, 
+					__read_only image2d_t 	Census_padded_R, 
+	                __write_only image2d_t 	output_disparity_L,
+	                global const int *min_disparity,
+	                global const int *max_disparity,
+	                __read_only image2d_t 	_disparity_estimate_left,
+	                __read_only image2d_t 	_disparity_estimate_right,
+	                global const int *disparity_range_variation
+				)
+{
+  int2 coord_in = (int2)(get_global_id(0), get_global_id(1));
+
+  int2 census_input_index = coord_in;
+
+  int2 current_cost;
+  int2 min_cost = (int2)(INT_MAX);
+  vxc_uchar2 ref[10];
+  
+  vxc_uchar2 disparity_estimate_left;
+  int2 disparity_estimate_left2;
+  int2 coord_down = (int2)(coord_in.x / 2, coord_in.y / 2);
+  VXC_OP4(img_load, disparity_estimate_left, _disparity_estimate_left, coord_down, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+  disparity_estimate_left2 = convert_int2(disparity_estimate_left);
+  disparity_estimate_left2 = disparity_estimate_left2 * 2;
+  
+  if(disparity_estimate_left2.x == 0 || disparity_estimate_left2.y == 0){
+  		return;
+  }  
+
+  int ciib_const = get_global_size(1);
+  for(int i = 0; i < 10; i++){    
+	  VXC_OP4(img_load, ref[i], Census_padded_L, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+    census_input_index.y += ciib_const;
+  }
+
+  vxc_uchar2 tmp_census_R;
+  int2 disparity_tmp;
+	
+  for(int disparity_offset = -(*disparity_range_variation); disparity_offset <= (*disparity_range_variation); disparity_offset++){
+    int disparity = clamp(disparity_estimate_left2.x + disparity_offset, *min_disparity, *max_disparity);
+    census_input_index = coord_in;
+    census_input_index.x -= disparity;
+    VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+    current_cost  = hamming_distance_uchar2(ref[0], tmp_census_R);
+
+    census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[1], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[2], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[3], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[4], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[5], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[6], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[7], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[8], tmp_census_R);
+
+	census_input_index.y += ciib_const;
+	VXC_OP4(img_load, tmp_census_R, Census_padded_R, census_input_index, 0, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+	current_cost += hamming_distance_uchar2(ref[9], tmp_census_R);
+	disparity_tmp = select(disparity_tmp, (int2)(disparity), current_cost < min_cost);
+
+	min_cost = select(min_cost, current_cost, current_cost < min_cost);
+  }
+
+  vxc_uchar2 out_disparity;
+  out_disparity = convert_uchar2(disparity_tmp);
+  VXC_OP4_NoDest(img_store, output_disparity_L, coord_in, out_disparity, VXC_MODIFIER(0, 1, 0, VXC_RM_TowardZero, 0));
+}

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
 #include <Shared/VulkanWindowExperimental/OptionParser.hpp>
@@ -53,7 +53,7 @@ namespace Fsl
   namespace
   {
 #ifdef NDEBUG
-    const static bool LOCAL_VALIDATION_LAYER_ENABLED = false;
+    const bool LOCAL_VALIDATION_LAYER_ENABLED = false;
 #else
     const static bool LOCAL_VALIDATION_LAYER_ENABLED = true;
 #endif
@@ -93,21 +93,24 @@ namespace Fsl
     {
       InstanceConfigRequest instanceConfig;
 
-      const auto buildDebugLayerRequirement = LOCAL_VALIDATION_LAYER_ENABLED ? Vulkan::FeatureRequirement::Optional : Vulkan::FeatureRequirement::Invalid;
+      const auto buildDebugLayerRequirement =
+        LOCAL_VALIDATION_LAYER_ENABLED ? Vulkan::FeatureRequirement::Optional : Vulkan::FeatureRequirement::Invalid;
       const auto debugLayerRequirement = ToFeatureRequirement(userChoiceValidationLayer, buildDebugLayerRequirement);
       if (debugLayerRequirement != Vulkan::FeatureRequirement::Invalid)
-        instanceConfig.LayerRequests.push_back(InstanceFeatureRequest(CONFIG_VALIDATION_LAYER_NAME, debugLayerRequirement));
+      {
+        instanceConfig.LayerRequests.emplace_back(CONFIG_VALIDATION_LAYER_NAME, debugLayerRequirement);
+      }
 
       // Always add the SURFACE extensions the extension ConfigControl does not modify this
-      instanceConfig.ExtensionRequests.push_back(InstanceFeatureRequest(VK_KHR_SURFACE_EXTENSION_NAME, Vulkan::FeatureRequirement::Mandatory));
-      instanceConfig.ExtensionRequests.push_back(InstanceFeatureRequest(khrSurfaceExtensionName, Vulkan::FeatureRequirement::Mandatory));
+      instanceConfig.ExtensionRequests.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME, Vulkan::FeatureRequirement::Mandatory);
+      instanceConfig.ExtensionRequests.emplace_back(khrSurfaceExtensionName, Vulkan::FeatureRequirement::Mandatory);
 
-      //if (instanceLayerConfigControl == ConfigControl::Overwrite)
+      // if (instanceLayerConfigControl == ConfigControl::Overwrite)
       //{
 
       //}
 
-      //if (instanceExtensionConfigControl == ConfigControl::Overwrite)
+      // if (instanceExtensionConfigControl == ConfigControl::Overwrite)
       //{
 
       //}
@@ -117,21 +120,27 @@ namespace Fsl
 
     bool TryReplace(std::deque<Vulkan::InstanceFeatureRequest>& rRequests, const Vulkan::InstanceFeatureRequest& featureRequest)
     {
-      auto itrFind = std::find_if(rRequests.begin(), rRequests.end(), [featureRequest](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == featureRequest.Name); });
+      auto itrFind = std::find_if(rRequests.begin(), rRequests.end(),
+                                  [featureRequest](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == featureRequest.Name); });
       if (itrFind == rRequests.end())
+      {
         return false;
+      }
 
       *itrFind = featureRequest;
       return true;
     }
 
 
-    void MergeInstanceFeatureRequests(std::deque<Vulkan::InstanceFeatureRequest>& rRequests, const std::deque<Vulkan::InstanceFeatureRequest>& newRequests)
+    void MergeInstanceFeatureRequests(std::deque<Vulkan::InstanceFeatureRequest>& rRequests,
+                                      const std::deque<Vulkan::InstanceFeatureRequest>& newRequests)
     {
       for (const auto& entry : newRequests)
       {
-        if (! TryReplace(rRequests, entry))
+        if (!TryReplace(rRequests, entry))
+        {
           rRequests.push_back(entry);
+        }
       }
     }
 
@@ -149,12 +158,14 @@ namespace Fsl
 
 
     template <typename T>
-    void PrepareConfig(std::deque<std::string>& rDst, std::deque<Vulkan::InstanceFeatureRequest> requests, const std::vector<T>& properties, const char*const pszDesc)
+    void PrepareConfig(std::deque<std::string>& rDst, std::deque<Vulkan::InstanceFeatureRequest> requests, const std::vector<T>& properties,
+                       const char* const pszDesc)
     {
       FSLLOG2(LogType::Verbose, "Examining " << pszDesc << " requests");
       for (const auto& request : requests)
       {
-        const auto itrFind = std::find_if(properties.begin(), properties.end(), [request](const T& entry) { return (GetEntryName(entry) == request.Name); });
+        const auto itrFind =
+          std::find_if(properties.begin(), properties.end(), [request](const T& entry) { return (GetEntryName(entry) == request.Name); });
         if (itrFind != properties.end())
         {
           // Found, so just push it
@@ -182,7 +193,8 @@ namespace Fsl
 
     void FilterFeatureByName(std::deque<Vulkan::InstanceFeatureRequest>& rLayerRequests, const std::string& name)
     {
-      auto itrFind = std::find_if(rLayerRequests.begin(), rLayerRequests.end(), [name](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == name); });
+      auto itrFind = std::find_if(rLayerRequests.begin(), rLayerRequests.end(),
+                                  [name](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == name); });
       if (itrFind != rLayerRequests.end())
       {
         FSLLOG2(LogType::Verbose, "Removing '" << name << "' due to command line option.");
@@ -204,12 +216,16 @@ namespace Fsl
     //! @param khrSurfaceExtensionName
     //! @param userEnableValidationLayerRequest true if the user has requested it from the command line
     //! @param customdemoAppHostConfig a optional demo app host config
-    InstanceConfig BuildInstanceConfig(const std::string& khrSurfaceExtensionName, const OptionUserChoice userChoiceValidationLayer, const std::shared_ptr<DemoAppHostConfigVulkanEx>& customDemoAppHostConfig)
+    InstanceConfig BuildInstanceConfig(const std::string& khrSurfaceExtensionName, const OptionUserChoice userChoiceValidationLayer,
+                                       const std::shared_ptr<DemoAppHostConfigVulkanEx>& customDemoAppHostConfig)
     {
-      const auto instanceLayerConfigControl = customDemoAppHostConfig ? customDemoAppHostConfig->GetInstanceLayerConfigControl() : ConfigControl::Default;
-      const auto instanceExtensionConfigControl = customDemoAppHostConfig ? customDemoAppHostConfig->GetInstanceExtensionConfigControl() : ConfigControl::Default;
+      const auto instanceLayerConfigControl =
+        customDemoAppHostConfig ? customDemoAppHostConfig->GetInstanceLayerConfigControl() : ConfigControl::Default;
+      const auto instanceExtensionConfigControl =
+        customDemoAppHostConfig ? customDemoAppHostConfig->GetInstanceExtensionConfigControl() : ConfigControl::Default;
 
-      InstanceConfigRequest instanceConfig = BuildHostInstanceConfigRequest(khrSurfaceExtensionName, userChoiceValidationLayer, instanceLayerConfigControl, instanceExtensionConfigControl);
+      InstanceConfigRequest instanceConfig = BuildHostInstanceConfigRequest(khrSurfaceExtensionName, userChoiceValidationLayer,
+                                                                            instanceLayerConfigControl, instanceExtensionConfigControl);
       InstanceConfigRequest appInstanceConfig;
       if (customDemoAppHostConfig)
       {
@@ -221,16 +237,16 @@ namespace Fsl
       MergeInstanceFeatureRequests(instanceConfig.ExtensionRequests, appInstanceConfig.ExtensionRequests);
 
       if (userChoiceValidationLayer == OptionUserChoice::Off)
+      {
         FilterFeatureByName(instanceConfig.LayerRequests, CONFIG_VALIDATION_LAYER_NAME);
+      }
       return PrepareConfig(instanceConfig);
     }
   }
 
   VulkanWindowSystem::VulkanWindowSystem(const DemoHostCustomWindowSystemSetup& setup)
     : DemoHostCustomWindowSystem(VulkanNativeWindowSystemFactory::AllocateNative(setup.WindowSystemSetup))
-    , m_instance()
     , m_instanceCreateInfo(std::make_shared<Vulkan::InstanceCreateInfoCopy>())
-    , m_physicalDevice()
   {
     FSLLOG("VulkanWindowSystem creating");
     Options optionsService(setup.Provider.Get<IOptions>());
@@ -239,21 +255,29 @@ namespace Fsl
     const auto userChoiceValidationLayer = appOptionParser->GetValidationLayer();
 
     auto vulkanWindowSystem = std::dynamic_pointer_cast<IVulkanNativeWindowSystem>(m_windowSystem);
-    if (! vulkanWindowSystem)
+    if (!vulkanWindowSystem)
+    {
       throw NotSupportedException("The window system was not of the expected type");
+    }
 
     const std::string khrSurfaceExtensionName = vulkanWindowSystem->GetKHRSurfaceExtensionName();
-    const auto instanceConfig = BuildInstanceConfig(khrSurfaceExtensionName, userChoiceValidationLayer, std::dynamic_pointer_cast<DemoAppHostConfigVulkanEx>(setup.CustomDemoAppHostConfig));
+    const auto instanceConfig = BuildInstanceConfig(khrSurfaceExtensionName, userChoiceValidationLayer,
+                                                    std::dynamic_pointer_cast<DemoAppHostConfigVulkanEx>(setup.CustomDemoAppHostConfig));
 
-    { // Transform the config to nasty C style arrays, then create the instance
+    {    // Transform the config to nasty C style arrays, then create the instance
       std::vector<const char*> layers(instanceConfig.Layers.size());
       std::vector<const char*> extensions(instanceConfig.Extensions.size());
       for (std::size_t i = 0; i < instanceConfig.Layers.size(); ++i)
+      {
         layers[i] = instanceConfig.Layers[i].c_str();
+      }
       for (std::size_t i = 0; i < instanceConfig.Extensions.size(); ++i)
+      {
         extensions[i] = instanceConfig.Extensions[i].c_str();
+      }
 
-      m_instance = InstanceUtil::CreateInstance("VulkanWindowSystem", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, layers, extensions, m_instanceCreateInfo.get());
+      m_instance = InstanceUtil::CreateInstance("VulkanWindowSystem", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, layers, extensions,
+                                                m_instanceCreateInfo.get());
     }
     m_physicalDevice = InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicialDeviceIndex);
 
@@ -267,13 +291,16 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<INativeWindow> VulkanWindowSystem::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  std::shared_ptr<INativeWindow>
+    VulkanWindowSystem::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                           const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
   {
-    if (pPlatformCustomWindowAllocationParams)
+    if (pPlatformCustomWindowAllocationParams != nullptr)
+    {
       throw NotSupportedException("pPlatformCustomWindowAllocationParams must be null");
+    }
 
     NativeVulkanSetup vulkanSetup(m_instance.Get(), m_physicalDevice.Device);
     return m_windowSystem->CreateNativeWindow(nativeWindowSetup, &vulkanSetup);
   }
-
 }

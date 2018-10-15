@@ -40,9 +40,9 @@ namespace Fsl
 
   public:
     ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);
-    ~##PACKAGE_SHORT_NAME##();
+    ~##PACKAGE_SHORT_NAME##() override;
   protected:
-    virtual void Run() override;
+    void Run() override;
   };
 }
 

@@ -49,7 +49,7 @@ namespace Fsl
     const float Log2E = 1.442695f;
 
     /// Represents the value of pi divided by two(1.57079637).
-    const float PiOver2 = static_cast<float>(PI/ 2.0);
+    const float PiOver2 = static_cast<float>(PI / 2.0);
 
     /// Represents the value of pi divided by four(0.7853982).
     const float PiOver4 = static_cast<float>(PI / 4.0);
@@ -67,12 +67,15 @@ namespace Fsl
     const float RADS45 = (45.0f * TO_RADS);
     const float RADS0 = (0);
 
-    //! @brief Returns the Cartesian coordinate for one axis of a point that is defined by a given triangle and two normalized barycentric (areal) coordinates.
+    //! @brief Returns the Cartesian coordinate for one axis of a point that is defined by a given triangle and two normalized barycentric (areal)
+    //! coordinates.
     //! @param value1 The coordinate on one axis of vertex 1 of the defining triangle.
     //! @param value2 The coordinate on the same axis of vertex 2 of the defining triangle.
     //! @param value3 The coordinate on the same axis of vertex 3 of the defining triangle.
-    //! @param amount1 The normalized barycentric (areal) coordinate b2, equal to the weighting factor for vertex 2, the coordinate of which is specified in value2.
-    //! @param amount2 The normalized barycentric (areal) coordinate b3, equal to the weighting factor for vertex 3, the coordinate of which is specified in value3.
+    //! @param amount1 The normalized barycentric (areal) coordinate b2, equal to the weighting factor for vertex 2, the coordinate of which is
+    //! specified in value2.
+    //! @param amount2 The normalized barycentric (areal) coordinate b3, equal to the weighting factor for vertex 3, the coordinate of which is
+    //! specified in value3.
     //! @return Cartesian coordinate of the specified point with respect to the axis being used.
     constexpr inline float Barycentric(const float value1, const float value2, const float value3, const float amount1, const float amount2)
     {
@@ -93,9 +96,9 @@ namespace Fsl
       // Internally using doubles not to lose precision
       const double amountSquared = amount * amount;
       const double amountCubed = amountSquared * amount;
-      return static_cast<float>(0.5 * (2.0 * value2 + (value3 - value1) * amount +
-                               (2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared +
-                               (3.0 * value2 - value1 - 3.0 * value3 + value4) * amountCubed));
+      return static_cast<float>(0.5 *
+                                (2.0 * value2 + (value3 - value1) * amount + (2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared +
+                                 (3.0 * value2 - value1 - 3.0 * value3 + value4) * amountCubed));
     }
 
 
@@ -137,14 +140,17 @@ namespace Fsl
 
       double result;
       if (amount == 0.0f)
+      {
         result = value1;
+      }
       else if (amount == 1.0f)
+      {
         result = value2;
+      }
       else
-        result = (2 * v1 - 2 * v2 + t2 + t1) * sCubed +
-                 (3 * v2 - 3 * v1 - 2 * t1 - t2) * sSquared +
-                 t1 * s +
-                 v1;
+      {
+        result = (((2 * v1) - (2 * v2) + t2 + t1) * sCubed) + (((3 * v2) - (3 * v1) - (2 * t1) - t2) * sSquared) + (t1 * s) + v1;
+      }
       return static_cast<float>(result);
     }
 
@@ -195,7 +201,7 @@ namespace Fsl
     constexpr inline int Sign(const float value)
     {
       // Reference: 4.7 [conv.integral] / 4: If the source type is bool... true is converted to one.
-      return (0.0f < value) - (value < 0.0f);
+      return static_cast<int>(0.0f < value) - static_cast<int>(value < 0.0f);
     }
 
 

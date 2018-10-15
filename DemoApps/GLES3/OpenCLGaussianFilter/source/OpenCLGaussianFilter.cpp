@@ -37,9 +37,10 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Program.hpp>
+#include <FslUtil/OpenCL1_1/ContextEx.hpp>
 #include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
-#include <RapidOpenCL1/Context.hpp>
 #include <RapidOpenCL1/CommandQueue.hpp>
+#include <RapidOpenCL1/DebugStrings.hpp>
 #include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Buffer.hpp>
 #include <RapidOpenCL1/Kernel.hpp>
@@ -58,9 +59,9 @@ namespace Fsl
     void PrintInfo(const cl_platform_id rplatformId, const cl_device_id deviceId)
     {
       const int arrSize = 4;
-      const char* attributeNames[arrSize] = { "Name", "Vendor", "Version", "Profile" };
-      const cl_platform_info attributeTypes[arrSize] = { CL_PLATFORM_NAME, CL_PLATFORM_VENDOR, CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE };
-      const cl_device_info deviceAttributeTypes[arrSize] = { CL_DEVICE_NAME, CL_DEVICE_VENDOR, CL_DEVICE_VERSION, CL_DEVICE_PROFILE };
+      const char* attributeNames[arrSize] = {"Name", "Vendor", "Version", "Profile"};
+      const cl_platform_info attributeTypes[arrSize] = {CL_PLATFORM_NAME, CL_PLATFORM_VENDOR, CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE};
+      const cl_device_info deviceAttributeTypes[arrSize] = {CL_DEVICE_NAME, CL_DEVICE_VENDOR, CL_DEVICE_VERSION, CL_DEVICE_PROFILE};
       const int attributeCount = sizeof(attributeNames) / sizeof(char*);
 
       FSLLOG("\n-=-=-=- Platform and Device information -=-=-=-\n\n");
@@ -74,14 +75,13 @@ namespace Fsl
         FSLLOG("Device Attributes " << attributeNames[count] << ": " << deviceInfo);
       }
 
-      const cl_uint deviceItems = OpenCLHelper::GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+      const auto deviceItems = OpenCLHelper::GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
       FSLLOG("Device Max Work Item Dimensions: " << deviceItems << "-D");
 
-      const std::size_t deviceSize = OpenCLHelper::GetDeviceInfo<std::size_t>(deviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE);
+      const auto deviceSize = OpenCLHelper::GetDeviceInfo<std::size_t>(deviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE);
       FSLLOG("Device Max Work Group Size: " << deviceSize);
 
       FSLLOG("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
-
     }
 
 
@@ -102,19 +102,15 @@ namespace Fsl
       return program;
     }
 
-
     void ProcessBitmapUsingOpenCL(Bitmap& rBitmap, const std::string& strProgram)
     {
-      cl_platform_id platformId;
-      RAPIDOPENCL_CHECK(clGetPlatformIDs(1, &platformId, nullptr));
+      ContextEx context;
       cl_device_id deviceId;
-      RAPIDOPENCL_CHECK(clGetDeviceIDs(platformId, CL_DEVICE_TYPE_GPU, 1, &deviceId, nullptr));
+      context.Reset(CL_DEVICE_TYPE_GPU, &deviceId);
 
-      cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, reinterpret_cast<cl_context_properties>(platformId), 0 };
-      Context context(properties, 1, &deviceId, nullptr, nullptr);
       CommandQueue commandQueue(context.Get(), deviceId, 0);
 
-      PrintInfo(platformId, deviceId);
+      PrintInfo(context.GetPlatformId(), deviceId);
 
       Program program = BuildProgram(context.Get(), deviceId, strProgram);
       Kernel kernel(program.Get(), "gaussian_filter");
@@ -123,23 +119,23 @@ namespace Fsl
       Buffer gaussMemInput(context.Get(), CL_MEM_READ_ONLY, size2d, nullptr);
       Buffer gaussMemOutput(context.Get(), CL_MEM_WRITE_ONLY, size2d, nullptr);
 
-      const cl_int width = static_cast<cl_int>(rBitmap.Width());
-      const cl_int height = static_cast<cl_int>(rBitmap.Height());
+      const auto width = static_cast<cl_int>(rBitmap.Width());
+      const auto height = static_cast<cl_int>(rBitmap.Height());
       const cl_int channels = 1;
-      clSetKernelArg(kernel.Get(), 0, sizeof(cl_mem), gaussMemInput.GetPointer());  // input
-      clSetKernelArg(kernel.Get(), 1, sizeof(cl_mem), gaussMemOutput.GetPointer()); // output
-      clSetKernelArg(kernel.Get(), 2, sizeof(cl_int), &width);                      // width
-      clSetKernelArg(kernel.Get(), 3, sizeof(cl_int), &height);                     // height
-      clSetKernelArg(kernel.Get(), 4, sizeof(cl_int), &channels);                   // channels
+      clSetKernelArg(kernel.Get(), 0, sizeof(cl_mem), gaussMemInput.GetPointer());     // input
+      clSetKernelArg(kernel.Get(), 1, sizeof(cl_mem), gaussMemOutput.GetPointer());    // output
+      clSetKernelArg(kernel.Get(), 2, sizeof(cl_int), &width);                         // width
+      clSetKernelArg(kernel.Get(), 3, sizeof(cl_int), &height);                        // height
+      clSetKernelArg(kernel.Get(), 4, sizeof(cl_int), &channels);                      // channels
 
       {
         RawBitmapEx rawBitmap;
-        Bitmap::ScopedDirectAccess(rBitmap, rawBitmap);
-        uint8_t* pImgData = static_cast <uint8_t*>(rawBitmap.Content());
+        Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
+        auto* pImgData = static_cast<uint8_t*>(rawBitmap.Content());
 
-        const std::size_t global[2] = { rawBitmap.Width(), rawBitmap.Height() };
+        const std::size_t global[2] = {rawBitmap.Width(), rawBitmap.Height()};
         const int dimension = 2;
-        std::size_t local[dimension] = { 16, 8 };
+        std::size_t local[dimension] = {16, 8};
         RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), gaussMemInput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
         RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global, local, 0, nullptr, nullptr));
         RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), gaussMemOutput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
@@ -152,17 +148,10 @@ namespace Fsl
     const GLuint g_hVertexLoc = 0;
     const GLuint g_hColorLoc = 1;
     const GLuint g_hVertexTexLoc = 2;
-    const char*const g_pszShaderAttributeArray[] =
-    {
-      "g_vPosition",
-      "g_vColor",
-      "g_vTexCoord",
-      nullptr
-    };
+    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", "g_vTexCoord", nullptr};
 
 
-    const float g_vertexPositions[] =
-    {
+    const float g_vertexPositions[] = {
       // Draw A Quad
 
       // Top Right Of The Quad (Top)
@@ -214,49 +203,70 @@ namespace Fsl
       // Bottom Right Of The Quad (Right)
       1.0f, -1.0f, -1.0f,
       // Bottom Left Of The Quad (Right)
-      1.0f, -1.0f, 1.0f
-    };
+      1.0f, -1.0f, 1.0f};
 
-    const float g_vertexTexCoords[] =
-    {
+    const float g_vertexTexCoords[] = {
       // Top Face
-      0.0f, 0.0f,
-      1.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      1.0f,
       // Bottom Face
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
 
       // Front Face
 
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
       // Back Face
-      0.0f, 0.0f,
-      1.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      1.0f,
       // left face
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
 
       // Right face
-      1.0f, 1.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      1.0f,
+      1.0f,
+      0.0f,
+      0.0f,
+      0.0f,
 
     };
 
-    const float g_vertexColors[] =
-    {
+    const float g_vertexColors[] = {
       // Red
       1.0f, 0.0f, 0.0f, 1.0f,
       // Red
@@ -310,21 +320,14 @@ namespace Fsl
       0.0f, 0.0f, 1.0f, 1.0f,
 
       // Green
-      0.0f, 1.0f, 0.0f, 1.0f
-    };
-
+      0.0f, 1.0f, 0.0f, 1.0f};
   }
 
 
   OpenCLGaussianFilter::OpenCLGaussianFilter(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_program()
-    , m_texture()
     , m_hModelViewMatrixLoc(0)
     , m_hProjMatrixLoc(0)
-    , m_matProj()
-    , m_matTranslate()
-    , m_angle()
 
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
@@ -357,10 +360,7 @@ namespace Fsl
   }
 
 
-  OpenCLGaussianFilter::~OpenCLGaussianFilter()
-  {
-
-  }
+  OpenCLGaussianFilter::~OpenCLGaussianFilter() = default;
 
 
   void OpenCLGaussianFilter::Update(const DemoTime& demoTime)
@@ -374,8 +374,8 @@ namespace Fsl
   void OpenCLGaussianFilter::Draw(const DemoTime& demoTime)
   {
     // Rotate and translate the model view matrix
-    const Matrix matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) *
-      Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
+    const Matrix matModel =
+      Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
     const Point2 currentSize = GetScreenResolution();
     glViewport(0, 0, currentSize.X, currentSize.Y);
@@ -425,5 +425,4 @@ namespace Fsl
     glDisableVertexAttribArray(g_hColorLoc);
     glDisableVertexAttribArray(g_hVertexTexLoc);
   }
-
 }

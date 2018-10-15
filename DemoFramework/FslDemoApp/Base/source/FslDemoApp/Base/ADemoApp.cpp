@@ -1,48 +1,49 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/ADemoApp.hpp>
+#include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
-#include <FslDemoApp/Base/Service/Events/IEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
+#include <FslDemoApp/Base/Service/Events/IEvent.hpp>
 #include <FslDemoApp/Base/Service/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
   namespace
   {
-    void ToggleTimestep(const std::shared_ptr<IDemoAppControl> demoAppControl, const TimeStepMode mode)
+    void ToggleTimestep(const std::shared_ptr<IDemoAppControl>& demoAppControl, const TimeStepMode mode)
     {
       const TimeStepMode newTimeStepMode = demoAppControl->GetTimeStepMode() != mode ? mode : TimeStepMode::Normal;
       demoAppControl->SetTimeStepMode(newTimeStepMode);
@@ -52,8 +53,8 @@ namespace Fsl
     {
       std::shared_ptr<DemoAppExtension> m_ext;
 
-      ExtensionCompare(const std::shared_ptr<DemoAppExtension>& ext)
-        : m_ext(ext)
+      ExtensionCompare(std::shared_ptr<DemoAppExtension> ext)
+        : m_ext(std::move(ext))
       {
       }
 
@@ -68,7 +69,10 @@ namespace Fsl
     struct PredMethodOnKeyEvent
     {
       const KeyEvent& m_rParam0;
-      PredMethodOnKeyEvent(const KeyEvent& rParam0) : m_rParam0(rParam0) {}
+      PredMethodOnKeyEvent(const KeyEvent& rParam0)
+        : m_rParam0(rParam0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -81,7 +85,10 @@ namespace Fsl
     struct PredMethodOnMouseButtonEvent
     {
       const MouseButtonEvent& m_rParam0;
-      PredMethodOnMouseButtonEvent(const MouseButtonEvent& rParam0) : m_rParam0(rParam0) {}
+      PredMethodOnMouseButtonEvent(const MouseButtonEvent& rParam0)
+        : m_rParam0(rParam0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -93,7 +100,10 @@ namespace Fsl
     struct PredMethodOnMouseMoveEvent
     {
       const MouseMoveEvent& m_rParam0;
-      PredMethodOnMouseMoveEvent(const MouseMoveEvent& rParam0) : m_rParam0(rParam0) {}
+      PredMethodOnMouseMoveEvent(const MouseMoveEvent& rParam0)
+        : m_rParam0(rParam0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -105,7 +115,10 @@ namespace Fsl
     struct PredMethodOnMouseWheelEvent
     {
       const MouseWheelEvent& m_rParam0;
-      PredMethodOnMouseWheelEvent(const MouseWheelEvent& rParam0) : m_rParam0(rParam0) {}
+      PredMethodOnMouseWheelEvent(const MouseWheelEvent& rParam0)
+        : m_rParam0(rParam0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -132,7 +145,10 @@ namespace Fsl
     struct PredMethodOnTimeStateEvent
     {
       const TimeStateEvent& m_rParam0;
-      PredMethodOnTimeStateEvent(const TimeStateEvent& rParam0) : m_rParam0(rParam0) {}
+      PredMethodOnTimeStateEvent(const TimeStateEvent& rParam0)
+        : m_rParam0(rParam0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -145,7 +161,10 @@ namespace Fsl
     struct PredMethodResized
     {
       Point2 m_param0;
-      PredMethodResized(const Point2& param0) : m_param0(param0) {}
+      PredMethodResized(const Point2& param0)
+        : m_param0(param0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -157,7 +176,10 @@ namespace Fsl
     struct PredMethodPreUpdate
     {
       DemoTime m_param0;
-      PredMethodPreUpdate(const DemoTime& param0) : m_param0(param0) {}
+      PredMethodPreUpdate(const DemoTime& param0)
+        : m_param0(param0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -169,7 +191,10 @@ namespace Fsl
     struct PredMethodFixedUpdate
     {
       DemoTime m_param0;
-      PredMethodFixedUpdate(const DemoTime& param0) : m_param0(param0) {}
+      PredMethodFixedUpdate(const DemoTime& param0)
+        : m_param0(param0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -181,7 +206,10 @@ namespace Fsl
     struct PredMethodUpdate
     {
       DemoTime m_param0;
-      PredMethodUpdate(const DemoTime& param0) : m_param0(param0) {}
+      PredMethodUpdate(const DemoTime& param0)
+        : m_param0(param0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -193,7 +221,10 @@ namespace Fsl
     struct PredMethodPostUpdate
     {
       DemoTime m_param0;
-      PredMethodPostUpdate(const DemoTime& param0) : m_param0(param0) {}
+      PredMethodPostUpdate(const DemoTime& param0)
+        : m_param0(param0)
+      {
+      }
 
       inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
       {
@@ -202,7 +233,7 @@ namespace Fsl
       }
     };
 
-    //struct PredMethodDraw
+    // struct PredMethodDraw
     //{
     //  inline void operator()(const std::shared_ptr<DemoAppExtension>& value) const
     //  {
@@ -212,11 +243,11 @@ namespace Fsl
     //};
 
     //! @brief Loop over all the registered extensions calling the predicate for all valid extensions and removing all invalid ones.
-    template<typename TPred>
-    inline void CallExtensions(std::deque<std::weak_ptr<DemoAppExtension> >& rExtensions, const TPred& predicate)
+    template <typename TPred>
+    inline void CallExtensions(std::deque<std::weak_ptr<DemoAppExtension>>& rExtensions, const TPred& predicate)
     {
       auto itr = rExtensions.begin();
-      while(itr != rExtensions.end())
+      while (itr != rExtensions.end())
       {
         auto extension = itr->lock();
         if (extension)
@@ -225,19 +256,17 @@ namespace Fsl
           ++itr;
         }
         else
+        {
           itr = rExtensions.erase(itr);
+        }
       }
     }
-
   }
 
 
   ADemoApp::ADemoApp(const DemoAppConfig& demoAppConfig)
     : m_demoAppConfig(demoAppConfig)
-    , m_contentManger()
-    , m_persistentDataManager()
-    , m_demoAppControl()
-    , m_extensions()
+
   {
     m_contentManger = demoAppConfig.DemoServiceProvider.Get<IContentManager>();
     m_persistentDataManager = demoAppConfig.DemoServiceProvider.Get<IPersistentDataManager>();
@@ -249,7 +278,9 @@ namespace Fsl
   {
     auto itr = std::find_if(m_extensions.begin(), m_extensions.end(), ExtensionCompare(extension));
     if (itr != m_extensions.end())
+    {
       throw UsageErrorException("A extension can only be registered once");
+    }
 
     m_extensions.push_back(extension);
   }
@@ -259,7 +290,9 @@ namespace Fsl
   {
     auto itr = std::find_if(m_extensions.begin(), m_extensions.end(), ExtensionCompare(extension));
     if (itr == m_extensions.end())
+    {
       return;
+    }
 
     // Remove the extension
     m_extensions.erase(itr);
@@ -271,15 +304,18 @@ namespace Fsl
   }
 
 
-  void ADemoApp::_OnEvent(IEvent*const pEvent)
+  void ADemoApp::_OnEvent(IEvent* const pEvent)
   {
     // Done this way to prevent common mistakes where people forget to call the base class
     const EventType eventType = pEvent->GetEventType();
 
-    if ((static_cast<uint32_t>(eventType)& static_cast<uint32_t>(EventType::ComplexEvent)) == 0)
+    if ((static_cast<uint32_t>(eventType) & static_cast<uint32_t>(EventType::ComplexEvent)) == 0)
     {
-      BasicEvent* pBasicEvent = dynamic_cast<BasicEvent*>(pEvent);
-      assert(pBasicEvent != nullptr);
+      auto* pBasicEvent = dynamic_cast<BasicEvent*>(pEvent);
+      if (pBasicEvent == nullptr)
+      {
+        throw std::runtime_error("the event was not a BasicEvent as expected");
+      }
 
       switch (pEvent->GetEventType())
       {
@@ -292,7 +328,9 @@ namespace Fsl
 
         OnKeyEvent(keyEvent);
         if (!keyEvent.IsHandled())
+        {
           UnhandledKeyFallback(keyEvent);
+        }
         break;
       }
       case EventType::MouseButton:
@@ -341,7 +379,6 @@ namespace Fsl
         break;
       }
     }
-
   }
 
 
@@ -401,19 +438,20 @@ namespace Fsl
   void ADemoApp::_Draw(const DemoTime& demoTime)
   {
     // Call all registered extensions
-    //CallExtensions(m_extensions, PredMethodDraw());
+    // CallExtensions(m_extensions, PredMethodDraw());
 
     // Done this way to prevent common mistakes where people forget to call the base class
     Draw(demoTime);
   }
 
 
-
   std::shared_ptr<IDemoAppControl> ADemoApp::GetDemoAppControl() const
   {
     const std::shared_ptr<IDemoAppControl> demoAppControl = m_demoAppControl.lock();
     if (!demoAppControl)
+    {
       throw ServiceUnavailableException("The service is no longer available");
+    }
     return demoAppControl;
   }
 
@@ -422,7 +460,9 @@ namespace Fsl
   {
     const std::shared_ptr<IContentManager> contentManager = m_contentManger.lock();
     if (!contentManager)
+    {
       throw ServiceUnavailableException("The service is no longer available");
+    }
     return contentManager;
   }
 
@@ -431,7 +471,9 @@ namespace Fsl
   {
     const std::shared_ptr<IPersistentDataManager> manager = m_persistentDataManager.lock();
     if (!manager)
+    {
       throw ServiceUnavailableException("The service is no longer available");
+    }
     return manager;
   }
 
@@ -445,7 +487,9 @@ namespace Fsl
   void ADemoApp::UnhandledKeyFallback(const KeyEvent& keyEvent)
   {
     if (!keyEvent.IsPressed())
+    {
       return;
+    }
 
 
     const std::shared_ptr<IDemoAppControl> demoAppControl = GetDemoAppControl();
@@ -482,5 +526,4 @@ namespace Fsl
       break;
     }
   }
-
-}
+}    // namespace Fsl

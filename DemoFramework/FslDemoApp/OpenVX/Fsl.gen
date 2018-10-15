@@ -4,6 +4,7 @@
     <Dependency Name="OpenVX"/>
     <Dependency Name="RapidOpenVX"/>
     <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslDemoApp.Util.Graphics" Access="Private"/>
     <Dependency Name="FslDemoHost.Console" Access="Private"/>
     <Dependency Name="FslDemoPlatform" Access="Link"/>
     <Platform Name="Windows" ProjectId="86986353-6E4B-44FB-950A-F970E7736EE6"/>

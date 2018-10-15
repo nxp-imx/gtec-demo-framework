@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenVG/VGCheck.hpp>
@@ -41,50 +41,36 @@ namespace Fsl
   using namespace OpenVG;
   namespace
   {
-
-    VGint g_coord[] = { 0, 0, 1280, 1080 };
-    const std::vector<VGubyte> vgTriangleSegments =
-    {
+    VGint g_coord[] = {0, 0, 1280, 1080};
+    const std::vector<VGubyte> vgTriangleSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte>  vgQuadCurveSegments =
-    {
+    const std::vector<VGubyte> vgQuadCurveSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_QUAD_TO_ABS,
       VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte> vgCubicCurveSegments =
-    {
-      VG_MOVE_TO_ABS,
-      VG_LINE_TO_ABS,
-      VG_CUBIC_TO_ABS,
-      VG_LINE_TO_ABS,
-      VG_CLOSE_PATH,
+    const std::vector<VGubyte> vgCubicCurveSegments = {
+      VG_MOVE_TO_ABS, VG_LINE_TO_ABS, VG_CUBIC_TO_ABS, VG_LINE_TO_ABS, VG_CLOSE_PATH,
     };
 
-    const std::vector<VGubyte>  vgArcSegments =
-    {
+    const std::vector<VGubyte> vgArcSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
       VG_SCCWARC_TO_ABS,
       VG_CLOSE_PATH,
     };
-
   }
 
 
   Example3::Example3(const DemoAppConfig& config)
     : DemoAppVG(config)
-    , m_vg_triangle_path()
-    , m_vg_quad_path()
-    , m_vg_cubic_path()
-    , m_vg_arc_path()
     , m_angle(0)
     , m_scale(0)
     , m_shear(0)
@@ -95,7 +81,7 @@ namespace Fsl
     , m_scissors_direction(0)
     , m_scissor_rectangle(1280)
   {
-    VGfloat afClearColour[] = { 0.6f, 0.8f, 1.0f, 1.0f };
+    VGfloat afClearColour[] = {0.6f, 0.8f, 1.0f, 1.0f};
     vgSetfv(VG_CLEAR_COLOR, 4, afClearColour);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
@@ -103,48 +89,51 @@ namespace Fsl
     const Point2 currentSize = GetScreenResolution();
     scaleX = currentSize.X / 1280.0f;
     scaleY = currentSize.Y / 1080.0f;
-    std::vector<Vector2>vgTrianglePoints;
-    std::vector<Vector2>vgQuadCurvePoints;
-    std::vector<Vector2>vgCubicCurvePoints;
+    std::vector<Vector2> vgTrianglePoints;
+    std::vector<Vector2> vgQuadCurvePoints;
+    std::vector<Vector2> vgCubicCurvePoints;
     std::vector<VGfloat> vgArcPoints;
 
-    vgTrianglePoints.push_back(Vector2(100.0f * scaleX, 100.0f * scaleY));
-    vgTrianglePoints.push_back(Vector2(300.0f * scaleX, 300.0f * scaleY));
-    vgTrianglePoints.push_back(Vector2(500.0f * scaleX, 100.0f * scaleY));
+    vgTrianglePoints.emplace_back(100.0f * scaleX, 100.0f * scaleY);
+    vgTrianglePoints.emplace_back(300.0f * scaleX, 300.0f * scaleY);
+    vgTrianglePoints.emplace_back(500.0f * scaleX, 100.0f * scaleY);
 
-    vgQuadCurvePoints.push_back(Vector2(100.0f * scaleX, 400.0f * scaleY));
-    vgQuadCurvePoints.push_back(Vector2(100.0f * scaleX, 600.0f * scaleY));
-    vgQuadCurvePoints.push_back(Vector2(300.0f * scaleX, 700.0f * scaleY));
-    vgQuadCurvePoints.push_back(Vector2(500.0f * scaleX, 600.0f * scaleY));
+    vgQuadCurvePoints.emplace_back(100.0f * scaleX, 400.0f * scaleY);
+    vgQuadCurvePoints.emplace_back(100.0f * scaleX, 600.0f * scaleY);
+    vgQuadCurvePoints.emplace_back(300.0f * scaleX, 700.0f * scaleY);
+    vgQuadCurvePoints.emplace_back(500.0f * scaleX, 600.0f * scaleY);
 
-    vgCubicCurvePoints.push_back(Vector2(620.0f * scaleX, 400.0f * scaleY));
-    vgCubicCurvePoints.push_back(Vector2(620.0f * scaleX, 500.0f * scaleY));
-    vgCubicCurvePoints.push_back(Vector2(680.0f * scaleX, 700.0f * scaleY));
-    vgCubicCurvePoints.push_back(Vector2(700.0f * scaleX, 200.0f * scaleY));
-    vgCubicCurvePoints.push_back(Vector2(800.0f * scaleX, 500.0f * scaleY));
-    vgCubicCurvePoints.push_back(Vector2(800.0f * scaleX, 400.0f * scaleY));
+    vgCubicCurvePoints.emplace_back(620.0f * scaleX, 400.0f * scaleY);
+    vgCubicCurvePoints.emplace_back(620.0f * scaleX, 500.0f * scaleY);
+    vgCubicCurvePoints.emplace_back(680.0f * scaleX, 700.0f * scaleY);
+    vgCubicCurvePoints.emplace_back(700.0f * scaleX, 200.0f * scaleY);
+    vgCubicCurvePoints.emplace_back(800.0f * scaleX, 500.0f * scaleY);
+    vgCubicCurvePoints.emplace_back(800.0f * scaleX, 400.0f * scaleY);
 
 
-    vgArcPoints.push_back(620.0f *scaleX);
-    vgArcPoints.push_back(200.0f *scaleY);;
-    vgArcPoints.push_back(620.0f *scaleX);
-    vgArcPoints.push_back(100.0f *scaleY);;
+    vgArcPoints.push_back(620.0f * scaleX);
+    vgArcPoints.push_back(200.0f * scaleY);
+    ;
+    vgArcPoints.push_back(620.0f * scaleX);
+    vgArcPoints.push_back(100.0f * scaleY);
+    ;
 
     vgArcPoints.push_back(10.0f);
     vgArcPoints.push_back(10.0f);
     vgArcPoints.push_back(0.0f);
 
 
-    vgArcPoints.push_back(700.0f *scaleX);
-    vgArcPoints.push_back(150.0f *scaleY);;
+    vgArcPoints.push_back(700.0f * scaleX);
+    vgArcPoints.push_back(150.0f * scaleY);
+    ;
 
-    //create path
+    // create path
     m_vg_triangle_path.Reset(vgTrianglePoints, vgTriangleSegments);
     m_vg_quad_path.Reset(vgQuadCurvePoints, vgQuadCurveSegments);
     m_vg_cubic_path.Reset(vgCubicCurvePoints, vgCubicCurveSegments);
     m_vg_arc_path.Reset(vgArcPoints, vgArcSegments);
 
-    //create paint
+    // create paint
     m_vg_triangle_paint = vgCreatePaint();
     vgSetParameteri(m_vg_triangle_paint, VG_PAINT_TYPE, VG_PAINT_TYPE_COLOR);
     vgSetColor(m_vg_triangle_paint, 0xFF0000FF);
@@ -173,19 +162,16 @@ namespace Fsl
   }
 
 
-  Example3::~Example3()
-  {
-
-  }
+  Example3::~Example3() = default;
 
 
   void Example3::Update(const DemoTime& demoTime)
   {
     const Point2 screenSize = GetScreenResolution();
-    const VGfloat scissorLimit = static_cast<VGfloat>(std::min(screenSize.X, screenSize.Y));
+    const auto scissorLimit = static_cast<VGfloat>(std::min(screenSize.X, screenSize.Y));
     if (1 == m_scissors_direction)
     {
-      m_scissor_rectangle += 125.0f*demoTime.DeltaTime;
+      m_scissor_rectangle += 125.0f * demoTime.DeltaTime;
       if (m_scissor_rectangle >= scissorLimit)
       {
         m_scissor_rectangle = scissorLimit;
@@ -194,7 +180,7 @@ namespace Fsl
     }
     else
     {
-      m_scissor_rectangle -= 125.0f*demoTime.DeltaTime;
+      m_scissor_rectangle -= 125.0f * demoTime.DeltaTime;
       if (m_scissor_rectangle <= 0)
       {
         m_scissor_rectangle = 0;
@@ -205,11 +191,13 @@ namespace Fsl
     g_coord[3] = static_cast<VGint>(m_scissor_rectangle);
     m_angle += demoTime.DeltaTime;
     if (m_angle >= 6.28)
+    {
       m_angle = 0;
+    }
 
     if (1 == m_scale_direction)
     {
-      m_scale += 2.0f* demoTime.DeltaTime;
+      m_scale += 2.0f * demoTime.DeltaTime;
       if (m_scale >= 1)
       {
         m_scale_direction = 0;
@@ -217,43 +205,53 @@ namespace Fsl
     }
     else
     {
-      m_scale -= 2.0f* demoTime.DeltaTime;
+      m_scale -= 2.0f * demoTime.DeltaTime;
       if (m_scale <= 0)
+      {
         m_scale_direction = 1;
+      }
     }
 
     if (1 == m_shear_direction)
     {
-      m_shear += 2.0f* demoTime.DeltaTime;
+      m_shear += 2.0f * demoTime.DeltaTime;
       if (m_shear >= 1)
+      {
         m_shear_direction = 0;
+      }
     }
     else
     {
-      m_shear -= 2.0f* demoTime.DeltaTime;
+      m_shear -= 2.0f * demoTime.DeltaTime;
       if (m_shear <= -2)
+      {
         m_shear_direction = 1;
+      }
     }
 
     if (1 == m_translate_direction)
     {
-      m_translate += 25.0f* demoTime.DeltaTime;
+      m_translate += 25.0f * demoTime.DeltaTime;
       if (m_translate >= 300)
+      {
         m_translate_direction = 0;
+      }
     }
     else
     {
-      m_translate -= 25.0f* demoTime.DeltaTime;
+      m_translate -= 25.0f * demoTime.DeltaTime;
       if (m_translate <= 0)
+      {
         m_translate_direction = 1;
+      }
     }
   }
 
 
   void Example3::Draw(const DemoTime& demoTime)
   {
-    VGfloat afClearColour0[] = { 0.6f, 0.8f, 1.0f, 1.0f };
-    VGfloat afClearColour1[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    VGfloat afClearColour0[] = {0.6f, 0.8f, 1.0f, 1.0f};
+    VGfloat afClearColour1[] = {0.0f, 0.0f, 0.0f, 1.0f};
     if (1 == m_scissors_direction)
     {
       if (m_scissor_rectangle >= 1280)
@@ -277,9 +275,9 @@ namespace Fsl
     vgSeti(VG_SCISSORING, VG_TRUE);
     vgSetiv(VG_SCISSOR_RECTS, 4, g_coord);
 
-    //Set transformation matrix mode
+    // Set transformation matrix mode
     vgSeti(VG_MATRIX_MODE, VG_MATRIX_PATH_USER_TO_SURFACE);
-    //Loads identity matrix
+    // Loads identity matrix
     vgLoadIdentity();
 
     vgSetPaint(m_vg_triangle_paint, VG_FILL_PATH);
@@ -310,5 +308,4 @@ namespace Fsl
 
     vgFinish();
   }
-
 }

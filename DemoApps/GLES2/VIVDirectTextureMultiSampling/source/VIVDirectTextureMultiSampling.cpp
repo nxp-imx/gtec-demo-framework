@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 #ifndef GL_GLEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES 1
 #endif
@@ -46,39 +46,16 @@ namespace Fsl
 {
   namespace
   {
-    const GLfloat g_vertices[][2] =
-    {
-      { -0.5f, -0.5f },
-      { 0.5f, -0.5f },
-      { -0.5f, 0.5f },
-      { 0.5f, 0.5f }
-    };
+    const GLfloat g_vertices[][2] = {{-0.5f, -0.5f}, {0.5f, -0.5f}, {-0.5f, 0.5f}, {0.5f, 0.5f}};
 
-    const GLfloat g_texcoords[][2] =
-    {
-      { 0.0f, 1.0f },
-      { 1.0f, 1.0f },
-      { 0.0f, 0.0f },
-      { 1.0f, 0.0f }
-    };
+    const GLfloat g_texcoords[][2] = {{0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
 
-    GLfloat g_transformMatrix[16] =
-    {
-      1.0f, 0.0f, 0.0f, 0.0f,
-      0.0f, 1.0f, 0.0f, 0.0f,
-      0.0f, 0.0f, 1.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 1.0f
-    };
+    GLfloat g_transformMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-    const char*const g_pszShaderAttributeArray[] =
-    {
-      "vPosition",
-      "my_Texcoor",
-      nullptr
-    };
+    const char* const g_pszShaderAttributeArray[] = {"vPosition", "my_Texcoor", nullptr};
 
-    const int  WIDTH = 160;
-    const int  HEIGHT = 120;
+    const int WIDTH = 160;
+    const int HEIGHT = 120;
   }
 
 
@@ -159,12 +136,13 @@ namespace Fsl
     glClear(GL_COLOR_BUFFER_BIT);
     glUniformMatrix4fv(m_locTransformMat, 1, GL_FALSE, m_matTransform.DirectAccess());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    if(m_vFrames  > 1) LoadFrame();
+    if (m_vFrames > 1)
+      LoadFrame();
   }
 
-  void  VIVDirectTextureMultiSampling::LoadFrame()
+  void VIVDirectTextureMultiSampling::LoadFrame()
   {
-    uint8_t *videoData = m_raw_video.data() + m_data_index;
+    uint8_t* videoData = m_raw_video.data() + m_data_index;
 
     if ((m_fileSize - m_data_index) < m_frameSize)
       m_data_index = 0;
@@ -174,7 +152,7 @@ namespace Fsl
     glBindTexture(GL_TEXTURE_2D, m_yTex);
     std::memcpy(m_planes[0], videoData, m_ySize);
     // std::copy(videoData, videoData+m_ySize, m_planes[0]);
-    GL_CHECK(glTexDirectVIV(GL_TEXTURE_2D,WIDTH,HEIGHT,GL_ALPHA,(GLvoid**)&m_planes[0]));
+    GL_CHECK(glTexDirectVIV(GL_TEXTURE_2D, WIDTH, HEIGHT, GL_ALPHA, (GLvoid**)&m_planes[0]));
     glTexDirectInvalidateVIV(GL_TEXTURE_2D);
     videoData += m_ySize;
 
@@ -185,9 +163,10 @@ namespace Fsl
       glBindTexture(GL_TEXTURE_2D, m_uvTex);
       std::memcpy(m_planes[1], videoData, m_vSize);
       // std::copy(videoData, videoData+m_vSize, m_planes[1]);
-      GL_CHECK(glTexDirectVIV(GL_TEXTURE_2D,WIDTH,HEIGHT,GL_LUMINANCE8_ALPHA8_EXT,(GLvoid**)&m_planes[1]));
+      GL_CHECK(glTexDirectVIV(GL_TEXTURE_2D, WIDTH, HEIGHT, GL_LUMINANCE8_ALPHA8_EXT, (GLvoid**)&m_planes[1]));
       videoData += m_vSize;
-      glTexDirectInvalidateVIV(GL_TEXTURE_2D);;
+      glTexDirectInvalidateVIV(GL_TEXTURE_2D);
+      ;
     }
 
     m_data_index += m_frameSize;
@@ -199,7 +178,7 @@ namespace Fsl
 
   int VIVDirectTextureMultiSampling::Load420Texture(int texWidth, int texHeight, int format)
   {
-    uint8_t *videoData = m_raw_video.data() + m_data_index;
+    uint8_t* videoData = m_raw_video.data() + m_data_index;
     GLuint result = 0;
 
     switch (format)
@@ -273,7 +252,7 @@ namespace Fsl
     if (m_vSize > 0)
     {
       std::memcpy(m_planes[1], videoData, m_vSize);
-      //std::copy(videoData, videoData+m_vSize, m_planes[1]);
+      // std::copy(videoData, videoData+m_vSize, m_planes[1]);
       videoData += m_vSize;
     }
     GL_CHECK_FOR_ERROR();
@@ -289,7 +268,5 @@ namespace Fsl
     // Success.
     result = m_yTex;
     return result;
-
   }
-
 }

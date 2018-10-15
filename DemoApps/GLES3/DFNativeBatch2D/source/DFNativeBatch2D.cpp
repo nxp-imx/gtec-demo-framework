@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -44,11 +44,11 @@ namespace Fsl
     , m_scene1(config.DemoServiceProvider)
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(std::dynamic_pointer_cast<GLES3::NativeBatch2D>(m_graphics->GetNativeBatch2D()))
-    , m_texture2D()
-    , m_nativeTexture()
   {
     if (!m_nativeBatch)
+    {
       throw NotSupportedException("INativeBatch not backed by the expected type");
+    }
 
     const std::shared_ptr<IContentManager> contentManager = GetContentManager();
     {
@@ -65,10 +65,7 @@ namespace Fsl
   }
 
 
-  DFNativeBatch2D::~DFNativeBatch2D()
-  {
-
-  }
+  DFNativeBatch2D::~DFNativeBatch2D() = default;
 
 
   void DFNativeBatch2D::OnKeyEvent(const KeyEvent& event)
@@ -98,11 +95,14 @@ namespace Fsl
     const Point2 nativeTexSize = m_nativeTexture.GetSize();
 
     // GLES3 native texture handle
-    m_nativeBatch->Draw(GLES3::GLTextureInfo(m_nativeTexture.Get(), m_nativeTexture.GetSize()), Rectangle(res.X - 256, offsetY+256, 256, 256), Color::White());
+    m_nativeBatch->Draw(GLES3::GLTextureInfo(m_nativeTexture.Get(), m_nativeTexture.GetSize()), Rectangle(res.X - 256, offsetY + 256, 256, 256),
+                        Color::White());
 
     // GLES3 native texture
     m_nativeBatch->Draw(m_nativeTexture, Vector2(res.X - nativeTexSize.X - 128 * 2, offsetY), Color::White());
-    m_nativeBatch->Draw(m_nativeTexture, Rectangle(res.X - nativeTexSize.X - 128*2, offsetY + 256 * 0 + 128, nativeTexSize.X / 2, nativeTexSize.Y / 2), Color::White());
+    m_nativeBatch->Draw(m_nativeTexture,
+                        Rectangle(res.X - nativeTexSize.X - 128 * 2, offsetY + 256 * 0 + 128, nativeTexSize.X / 2, nativeTexSize.Y / 2),
+                        Color::White());
 
     // API independent texture
     const Point2 texSize = m_texture2D.GetSize();
@@ -115,6 +115,4 @@ namespace Fsl
     // Draw native API independent graphics
     m_scene1.Draw(res);
   }
-
-
 }

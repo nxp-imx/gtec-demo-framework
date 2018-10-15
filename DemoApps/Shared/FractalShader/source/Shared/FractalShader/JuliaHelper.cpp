@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -44,22 +44,18 @@
 
 namespace Fsl
 {
-  JuliaHelper::JuliaHelper(const BasicConfig& config, const AnimationMode animationMode, const ServiceProvider& serviceProvider, const bool allowBanner)
+  JuliaHelper::JuliaHelper(const BasicConfig& config, const AnimationMode animationMode, const ServiceProvider& serviceProvider,
+                           const bool allowBanner)
     : m_config(config)
     , m_animationMode(animationMode)
     , m_basic2D(serviceProvider.Get<IGraphicsService>()->GetBasic2D())
     , m_nativeBatch2D(serviceProvider.Get<IGraphicsService>()->GetNativeBatch2D())
-    , m_atlasTexBanner()
-    , m_angle1()
-    , m_angle2()
-    , m_angle3()
-    , m_location()
     , m_angle(0.0f)
   {
     if (allowBanner)
     {
       const std::shared_ptr<IContentManager> contentManager = serviceProvider.Get<IContentManager>();
-      { // Get the banner atlas texture
+      {    // Get the banner atlas texture
         MainAtlas textureAtlas;
         AtlasTextureInfo texInfo = TextureAtlasHelper::GetAtlasTextureInfo(textureAtlas, "Banner_Julia");
         Bitmap bitmap;
@@ -123,7 +119,6 @@ namespace Fsl
     m_angle1.Y -= 0.038f * 40.0f * demoTime.DeltaTime;
     m_angle2.Y += 0.023f * 40.0f * demoTime.DeltaTime;
   }
-
 
 
   void JuliaHelper::UpdateConstantLoad2(const DemoTime& demoTime)
@@ -191,7 +186,7 @@ namespace Fsl
 
     m_location.X += (std::sin(m_angle1.X) * s1x) + (std::cos(m_angle2.X) * s2x) + maxValueX;
     m_location.Y += (std::sin(m_angle1.Y) * s1y) + (std::cos(m_angle2.X) * s2y) + maxValueY;
-    //m_location.X = 0;
+    // m_location.X = 0;
 
     Matrix matrix;
 

@@ -22,12 +22,14 @@ namespace Fsl
     GLES2::GLProgram m_program;
     GLuint m_hModelViewMatrixLoc;
     GLuint m_hProjMatrixLoc;
+
   public:
     S01_SimpleTriangle(const DemoAppConfig& config);
-    ~S01_SimpleTriangle();
+    ~S01_SimpleTriangle() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

@@ -47,11 +47,7 @@ namespace Fsl
     Vector3 Min;
     Vector3 Max;
 
-    BoundingBox()
-      : Min()
-      , Max()
-    {
-    }
+    BoundingBox() = default;
 
     BoundingBox(const Vector3& min, const Vector3& max)
       : Min(min)
@@ -61,7 +57,7 @@ namespace Fsl
 
     ContainmentType Contains(const BoundingBox& box) const;
     void Contains(const BoundingBox& box, ContainmentType& rResult) const;
-    //ContainmentType Contains(const BoundingFrustum& frustum) const;
+    // ContainmentType Contains(const BoundingFrustum& frustum) const;
     ContainmentType Contains(const BoundingSphere& sphere) const;
     void Contains(const BoundingSphere& sphere, ContainmentType& rResult) const;
     ContainmentType Contains(const Vector3& point) const;
@@ -100,9 +96,7 @@ namespace Fsl
     {
       return Min != rhs.Min || Max != rhs.Max;
     }
-
   };
-
 }
 
 #endif

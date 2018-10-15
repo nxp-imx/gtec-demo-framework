@@ -4,6 +4,6 @@
     <Dependency Name="FslBase"/>
     <Dependency Name="OpenCL"/>
     <Define Name="FSL_DEMOFRAMEWORK" Access="Public"/>
-    <Dependency Name="Recipe.RapidOpenCL_1_1_0_0"/>
+    <Dependency Name="Recipe.RapidOpenCL_1_1_0_1"/>
   </ExternalLibrary>
 </FslBuildGen>

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "S09_VIV_direct_texture.hpp"
@@ -39,54 +39,30 @@
 #include <vector>
 
 #ifndef GL_VIV_direct_texture
-#define GL_VIV_YV12                     0x8FC0
-#define GL_VIV_NV12                     0x8FC1
-#define GL_VIV_YUY2                     0x8FC2
-#define GL_VIV_UYVY                     0x8FC3
-#define GL_VIV_NV21                     0x8FC4
+#define GL_VIV_YV12 0x8FC0
+#define GL_VIV_NV12 0x8FC1
+#define GL_VIV_YUY2 0x8FC2
+#define GL_VIV_UYVY 0x8FC3
+#define GL_VIV_NV21 0x8FC4
 #endif
 
 namespace Fsl
 {
   namespace
   {
-    typedef void (GL_APIENTRY *PFNGLTEXDIRECTVIV) (GLenum Target, GLsizei Width, GLsizei Height, GLenum Format, GLvoid ** Pixels);
-    typedef void (GL_APIENTRY *PFNGLTEXDIRECTINVALIDATEVIV) (GLenum Target);
+    typedef void(GL_APIENTRY* PFNGLTEXDIRECTVIV)(GLenum Target, GLsizei Width, GLsizei Height, GLenum Format, GLvoid** Pixels);
+    typedef void(GL_APIENTRY* PFNGLTEXDIRECTINVALIDATEVIV)(GLenum Target);
     static PFNGLTEXDIRECTVIV pFNglTexDirectVIV = nullptr;
     static PFNGLTEXDIRECTINVALIDATEVIV pFNglTexDirectInvalidateVIV = nullptr;
     // Triangle Vertex positions.
-    const GLfloat g_vertices[][2] =
-    {
-      { -0.5f, -0.5f },
-      { 0.5f, -0.5f },
-      { -0.5f, 0.5f },
-      { 0.5f, 0.5f }
-    };
-    const GLfloat g_texcoords[][2] =
-    {
-      { 0.0f, 1.0f },
-      { 1.0f, 1.0f },
-      { 0.0f, 0.0f },
-      { 1.0f, 0.0f }
-    };
-
+    const GLfloat g_vertices[][2] = {{-0.5f, -0.5f}, {0.5f, -0.5f}, {-0.5f, 0.5f}, {0.5f, 0.5f}};
+    const GLfloat g_texcoords[][2] = {{0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
   }
 
   // Start with an identity matrix.
-  GLfloat g_transformMatrix[16] =
-  {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
-  };
+  GLfloat g_transformMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-  const char*const g_pszShaderAttributeArray[] =
-  {
-    "my_Vertex",
-    "my_Texcoor",
-    nullptr
-  };
+  const char* const g_pszShaderAttributeArray[] = {"my_Vertex", "my_Texcoor", nullptr};
 
 
   S09_VIV_direct_texture::S09_VIV_direct_texture(const DemoAppConfig& config)
@@ -125,7 +101,8 @@ namespace Fsl
       }
     }
 
-    if (pFNglTexDirectInvalidateVIV == nullptr) {
+    if (pFNglTexDirectInvalidateVIV == nullptr)
+    {
       // Get the pointer to the glTexDirectInvalidate function.
       pFNglTexDirectInvalidateVIV = (PFNGLTEXDIRECTINVALIDATEVIV)eglGetProcAddress("glTexDirectInvalidateVIV");
 
@@ -184,7 +161,6 @@ namespace Fsl
 
   void S09_VIV_direct_texture::Draw(const DemoTime& demoTime)
   {
-
     const Point2 currentSize = GetScreenResolution();
     glViewport(0, 0, currentSize.X, currentSize.Y);
 
@@ -197,12 +173,11 @@ namespace Fsl
     glFlush();
 
     LoadFrame();
-
   }
 
   int S09_VIV_direct_texture::LoadFrame()
   {
-    uint8_t *videoData = m_rawVideo.data() + m_dataIndex;
+    uint8_t* videoData = m_rawVideo.data() + m_dataIndex;
 
     if ((m_fileSize - m_dataIndex) < m_frameSize)
       m_dataIndex = 0;
@@ -227,7 +202,8 @@ namespace Fsl
 
     // Mark as dirty.
     (*pFNglTexDirectInvalidateVIV)(GL_TEXTURE_2D);
-    if (GL_NO_ERROR != glGetError()){
+    if (GL_NO_ERROR != glGetError())
+    {
       throw GraphicsException("Error: while LoadFrame()");
     }
     return 0;
@@ -235,7 +211,7 @@ namespace Fsl
 
   int S09_VIV_direct_texture::Load420Texture(const int width, const int height, const int format)
   {
-    uint8_t *videoData = m_rawVideo.data() + m_dataIndex;
+    uint8_t* videoData = m_rawVideo.data() + m_dataIndex;
     GLuint result = 0;
     do
     {
@@ -260,7 +236,7 @@ namespace Fsl
         m_vSize = 0;
         m_uSize = 0;
         break;
-        //default:
+        // default:
         //  return 0;
       }
 
@@ -320,5 +296,4 @@ namespace Fsl
 
     return result;
   }
-
 }

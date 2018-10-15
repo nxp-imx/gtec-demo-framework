@@ -1,35 +1,35 @@
 #ifndef FSLSIMPLEUI_BASE_BASEWINDOW_HPP
 #define FSLSIMPLEUI_BASE_BASEWINDOW_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/ITag.hpp>
 #include <FslBase/Noncopyable.hpp>
@@ -42,6 +42,7 @@
 #include <FslSimpleUI/Base/LayoutCache.hpp>
 #include <FslSimpleUI/Base/BaseWindowFlags.hpp>
 #include <memory>
+#include <stdexcept>
 
 namespace Fsl
 {
@@ -53,7 +54,7 @@ namespace Fsl
     struct RoutedEvent;
     struct RoutedEventArgs;
     struct UIDrawContext;
-    class WindowContext;
+    class BaseWindowContext;
     class WindowEvent;
     class WindowEventPool;
     class WindowInputClickEvent;
@@ -64,7 +65,7 @@ namespace Fsl
       , protected IEventListener
       , private Noncopyable
     {
-      const std::shared_ptr<WindowContext> m_context;
+      const std::shared_ptr<BaseWindowContext> m_context;
       std::shared_ptr<ITag> m_tag;
       Vector2 m_size;
       ThicknessF m_margin;
@@ -72,12 +73,15 @@ namespace Fsl
       ItemAlignment m_alignmentY;
       BaseWindowFlags m_flags;
       LayoutCache m_layoutCache;
+
     public:
-      BaseWindow(const std::shared_ptr<WindowContext>& context);
-      virtual ~BaseWindow();
+      BaseWindow(const std::shared_ptr<BaseWindowContext>& context);
+      ~BaseWindow() override;
 
       //! @brief Called on windows that registered for it once they become known to the window manager.
-      virtual void WinInit() {}
+      virtual void WinInit()
+      {
+      }
       //! @brief Called by the engine to mark the layout of the window as dirty.
       //! @warning This method is not allowed to throw a exception!!!!!
       //! @return true if the window was marked as dirty, false if it was already dirty.
@@ -94,13 +98,21 @@ namespace Fsl
 
       virtual void WinHandleEvent(const RoutedEvent& routedEvent);
 
+      //! @note This is only called if enabled.
       virtual void WinUpdate(const DemoTime& demoTime)
       {
       }
 
       //! @brief Called by the UITree to request a draw operation.
       //! @param drawContext the UIDrawContext.
+      //! @note This is only called if enabled.
       virtual void WinDraw(const UIDrawContext& context)
+      {
+      }
+
+      //! @brief Called by the UITree to request a resolve operation.
+      //! @note This is only called if enabled (WindowFlags::ResolveEnabled).
+      virtual void WinResolve(const DemoTime& demoTime)
       {
       }
 
@@ -171,10 +183,10 @@ namespace Fsl
       Vector2 PointFromScreen(const Vector2& screenPoint) const;
 
       //! @brief Transform a point relative to fromWin window, to be relative to this window
-      Vector2 PointFrom(const IWindowId*const pFromWin, const Vector2& point) const;
+      Vector2 PointFrom(const IWindowId* const pFromWin, const Vector2& point) const;
 
       // @brief Transform a point relative to this window, to be relative to the toWin
-      Vector2 PointTo(const IWindowId*const pToWin, const Vector2& point) const;
+      Vector2 PointTo(const IWindowId* const pToWin, const Vector2& point) const;
 
       //! @brief Get the user tag value
       std::shared_ptr<ITag> GetTag() const
@@ -190,18 +202,26 @@ namespace Fsl
       }
 
     protected:
-      virtual void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override { }
-      virtual void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override { }
-      virtual void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override { }
-      virtual void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override { }
+      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      {
+      }
+      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      {
+      }
+      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+      {
+      }
+      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
+      {
+      }
 
       bool IsReadyToSendEvents();
 
       //! @brief Send a event
       void SendEvent(const std::shared_ptr<WindowEvent>& event);
-      //bool TrySendEvent(const std::shared_ptr<WindowEvent>& event);
+      // bool TrySendEvent(const std::shared_ptr<WindowEvent>& event);
 
-      const std::shared_ptr<WindowContext>& GetContext() const
+      const std::shared_ptr<BaseWindowContext>& GetContext() const
       {
         return m_context;
       }
@@ -276,12 +296,12 @@ namespace Fsl
       void PropertyUpdated(const PropertyTypeFlags& flags);
 
       //! @brief Override this to get property update notifications
-      virtual void OnPropertiesUpdated(const PropertyTypeFlags& flags) {};
+      virtual void OnPropertiesUpdated(const PropertyTypeFlags& flags){};
 
       //! @brief Control the layout dirty flag
       void SetLayoutDirty(const bool isDirty);
-    public:
 
+    public:
       //! @brief Do not call this, intended for internal UI framework use only
       void SYS_MarkLayoutDirty()
       {

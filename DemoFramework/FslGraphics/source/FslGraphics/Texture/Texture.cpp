@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
@@ -53,12 +53,14 @@ namespace Fsl
 
     inline Extent3D CalcExtent(const Extent3D& startExtent, const std::size_t level)
     {
-      return level == 0 ? startExtent : Extent3D(std::max(startExtent.Width >> level, 1u), std::max(startExtent.Height >> level, 1u), std::max(startExtent.Depth >> level, 1u));
+      return level == 0 ? startExtent
+                        : Extent3D(std::max(startExtent.Width >> level, 1u), std::max(startExtent.Height >> level, 1u),
+                                   std::max(startExtent.Depth >> level, 1u));
     }
 
     //! @brief Returns the total texel count
-    uint32_t ValidateBlobs(const std::vector<uint8_t>& srcContent, const std::vector<BlobRecord>& srcBlobs,
-                           const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo)
+    uint32_t ValidateBlobs(const std::vector<uint8_t>& srcContent, const std::vector<BlobRecord>& srcBlobs, const Extent3D& extent,
+                           const PixelFormat pixelFormat, const TextureInfo& textureInfo)
     {
       const bool isCompressed = PixelFormatUtil::IsCompressed(pixelFormat);
 
@@ -69,7 +71,9 @@ namespace Fsl
       for (uint32_t level = 0; level < textureInfo.Levels; ++level)
       {
         if (level > 0 && (extent.Width == 0 || extent.Height == 0 || extent.Depth == 0))
+        {
           throw std::invalid_argument("The number of levels and the start extend causes zero sized extents at some levels");
+        }
 
         const uint32_t currentTexelCount = (currentExtent.Width * currentExtent.Height * currentExtent.Depth);
         for (uint32_t layer = 0; layer < textureInfo.Layers; ++layer)
@@ -80,16 +84,22 @@ namespace Fsl
             auto blob = srcBlobs[index];
             // two checks bypasses any overflow issues
             if (blob.Size > contentByteSize)
+            {
               throw std::invalid_argument("Content blob is outside the content buffer");
-            if (blob.Offset >(contentByteSize - blob.Size))
+            }
+            if (blob.Offset > (contentByteSize - blob.Size))
+            {
               throw std::invalid_argument("Content blob is outside the content buffer");
+            }
 
             if (!isCompressed)
             {
               const auto stride = static_cast<std::size_t>(PixelFormatUtil::CalcMinimumStride(currentExtent.Width, pixelFormat));
               const auto expectedSize = currentExtent.Height * stride;
               if (expectedSize != blob.Size)
+              {
                 throw std::invalid_argument("Content of the given pixelFormat and extent does not fit the blob size, invalid blob");
+              }
             }
             totalTexelCount += currentTexelCount;
           }
@@ -103,7 +113,7 @@ namespace Fsl
   }
 
   // move assignment operator
-  Texture& Texture::operator=(Texture&& other)
+  Texture& Texture::operator=(Texture&& other) noexcept
   {
     if (this != &other)
     {
@@ -135,7 +145,7 @@ namespace Fsl
 
 
   // Transfer ownership from other to this
-  Texture::Texture(Texture&& other)
+  Texture::Texture(Texture&& other) noexcept
     : m_content(std::move(other.m_content))
     , m_blobs(std::move(other.m_blobs))
     , m_extent(other.m_extent)
@@ -157,18 +167,7 @@ namespace Fsl
   }
 
 
-  Texture::Texture()
-    : m_content()
-    , m_blobs()
-    , m_extent()
-    , m_pixelFormat(PixelFormat::Undefined)
-    , m_textureType(TextureType::Undefined)
-    , m_textureInfo()
-    , m_totalTexels(0)
-    , m_bitmapOrigin(BitmapOrigin::Undefined)
-    , m_isLocked(false)
-  {
-  }
+  Texture::Texture() = default;
 
 
   Texture::Texture(const TextureBlobBuilder& builder)
@@ -178,14 +177,14 @@ namespace Fsl
   }
 
 
-  Texture::Texture(const void*const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder)
+  Texture::Texture(const void* const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder)
     : Texture()
   {
     Reset(pContent, contentByteSize, builder);
   }
 
 
-  Texture::Texture(const void*const pContent, const std::size_t contentByteSize, TextureBlobBuilder&& builder)
+  Texture::Texture(const void* const pContent, const std::size_t contentByteSize, TextureBlobBuilder&& builder)
     : Texture()
   {
     Reset(pContent, contentByteSize, std::move(builder));
@@ -223,7 +222,9 @@ namespace Fsl
   {
     // Reset() should not throw, but this warrants a program stop since its a critical error
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not release a locked texture, that would invalidate the content being accessed");
+    }
 
     // Get the current content array, then reset this object
     rContentTarget = std::move(m_content);
@@ -236,7 +237,9 @@ namespace Fsl
   {
     // Reset() should not throw, but this warrants a program stop since its a critical error
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    }
 
     ResetNoThrow();
   }
@@ -244,36 +247,50 @@ namespace Fsl
 
   void Texture::Reset(const TextureBlobBuilder& builder)
   {
-      if (m_isLocked)
-        throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    if (m_isLocked)
+    {
+      throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    }
 
-    if ( ! builder.IsValid() )
+    if (!builder.IsValid())
+    {
       throw std::invalid_argument("build can not be invalid");
+    }
 
     DoReset(nullptr, 0, builder);
   }
 
 
-  void Texture::Reset(const void*const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder)
+  void Texture::Reset(const void* const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    }
 
     if (pContent == nullptr)
+    {
       throw NotSupportedException("The pContent buffer can not be null");
+    }
     if (!builder.IsValid())
+    {
       throw std::invalid_argument("build can not be invalid");
+    }
     if (contentByteSize != builder.GetContentSize())
+    {
       throw NotSupportedException("the builder content size did not match the buffer size");
+    }
 
     DoReset(pContent, contentByteSize, builder);
   }
 
 
-  void Texture::Reset(const void*const pContent, const std::size_t contentByteSize, TextureBlobBuilder&& builder)
+  void Texture::Reset(const void* const pContent, const std::size_t contentByteSize, TextureBlobBuilder&& builder)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    }
 
     // TODO: claim the vector from the builder to prevent unnecessary allocations
     Reset(pContent, contentByteSize, builder);
@@ -283,12 +300,18 @@ namespace Fsl
   void Texture::Reset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    }
 
     if (!builder.IsValid())
+    {
       throw std::invalid_argument("build can not be invalid");
+    }
     if (content.size() != builder.GetContentSize())
+    {
       throw NotSupportedException("the builder content size did not match the buffer size");
+    }
 
     DoReset(std::move(content), std::move(builder));
   }
@@ -297,7 +320,9 @@ namespace Fsl
   void Texture::Reset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    }
 
     DoReset(extent, pixelFormat, origin);
   }
@@ -306,7 +331,9 @@ namespace Fsl
   void Texture::Reset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not reset a locked texture, that would invalidate the content being accessed");
+    }
 
     DoReset(std::move(content), extent, pixelFormat, origin);
   }
@@ -327,9 +354,13 @@ namespace Fsl
   Extent3D Texture::GetExtent(const std::size_t level) const
   {
     if (!IsValid())
+    {
       throw UsageErrorException("GetExtent called on invalid object");
+    }
     if (level >= m_textureInfo.Levels)
+    {
       throw std::invalid_argument("argument out of bounds");
+    }
 
     return CalcExtent(m_extent, level);
   }
@@ -338,9 +369,13 @@ namespace Fsl
   std::size_t Texture::GetStride(const std::size_t level) const
   {
     if (!IsValid())
+    {
       throw UsageErrorException("GetExtent called on invalid object");
+    }
     if (level >= m_textureInfo.Levels)
+    {
       throw std::invalid_argument("argument out of bounds");
+    }
 
     const Extent3D levelExtent = CalcExtent(m_extent, level);
     return PixelFormatUtil::CalcMinimumStride(levelExtent.Width, m_pixelFormat);
@@ -392,9 +427,13 @@ namespace Fsl
   BlobRecord Texture::GetBlob(const std::size_t index) const
   {
     if (!IsValid())
+    {
       throw UsageErrorException("GetBlobs() called on invalid Texture");
+    }
     if (index >= m_blobs.size())
+    {
       throw UsageErrorException("index out of bounds");
+    }
     return m_blobs[index];
   }
 
@@ -402,7 +441,9 @@ namespace Fsl
   BlobRecord Texture::GetTextureBlob(const uint32_t level, const uint32_t face, const uint32_t layer) const
   {
     if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers)
+    {
       throw std::invalid_argument("out of bounds");
+    }
 
     const std::size_t index = m_textureInfo.GetBlockIndex(level, face, layer);
     return m_blobs[index];
@@ -416,11 +457,10 @@ namespace Fsl
   }
 
 
-  void Texture::SetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer,
-                         const uint32_t x, const uint32_t y, const uint32_t z,
+  void Texture::SetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer, const uint32_t x, const uint32_t y, const uint32_t z,
                          const uint8_t value, const bool ignoreOrigin)
   {
-    if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat) )
+    if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat))
     {
       FSLLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
       FSLLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
@@ -453,8 +493,7 @@ namespace Fsl
   }
 
 
-  uint8_t Texture::GetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer,
-                            const uint32_t x, const uint32_t y, const uint32_t z,
+  uint8_t Texture::GetUInt8(const uint32_t level, const uint32_t face, const uint32_t layer, const uint32_t x, const uint32_t y, const uint32_t z,
                             const bool ignoreOrigin) const
   {
     if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat))
@@ -493,15 +532,22 @@ namespace Fsl
   void Texture::SwapCompatibleBlobs(const uint32_t level, const uint32_t face0, const uint32_t layer0, const uint32_t face1, const uint32_t layer1)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("Can not SwapCompatibleBlobs a locked texture, that would invalidate the content being accessed");
+    }
 
-    if (level >= m_textureInfo.Levels || face0 >= m_textureInfo.Faces || layer0 >= m_textureInfo.Layers || face1 >= m_textureInfo.Faces || layer1 >= m_textureInfo.Layers)
+    if (level >= m_textureInfo.Levels || face0 >= m_textureInfo.Faces || layer0 >= m_textureInfo.Layers || face1 >= m_textureInfo.Faces ||
+        layer1 >= m_textureInfo.Layers)
+    {
       throw std::invalid_argument("out of bounds");
+    }
 
     const std::size_t index0 = m_textureInfo.GetBlockIndex(level, face0, layer0);
     const std::size_t index1 = m_textureInfo.GetBlockIndex(level, face1, layer1);
     if (index0 == index1)
+    {
       return;
+    }
 
     std::swap(m_blobs[index0], m_blobs[index1]);
   }
@@ -510,13 +556,20 @@ namespace Fsl
   void Texture::SetCompatiblePixelFormat(const PixelFormat compatiblePixelFormat, const bool allowBytePerPixelCompatible)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("The texture is already locked");
+    }
 
     if (allowBytePerPixelCompatible && PixelFormatUtil::GetBytesPerPixel(m_pixelFormat) != PixelFormatUtil::GetBytesPerPixel(compatiblePixelFormat))
+    {
       throw UsageErrorException("The supplied pixel format was not byte per pixel compatible");
+    }
 
-    if (!allowBytePerPixelCompatible && PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat) != PixelFormatUtil::GetPixelFormatLayout(compatiblePixelFormat))
+    if (!allowBytePerPixelCompatible &&
+        PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat) != PixelFormatUtil::GetPixelFormatLayout(compatiblePixelFormat))
+    {
       throw UsageErrorException("The supplied pixel format was not compatible");
+    }
 
     m_pixelFormat = compatiblePixelFormat;
   }
@@ -531,7 +584,9 @@ namespace Fsl
 
     const auto newPixelFormat = PixelFormatUtil::TrySetCompatiblePixelFormatFlag(m_pixelFormat, flag);
     if (newPixelFormat == PixelFormat::Undefined)
+    {
       return false;
+    }
     m_pixelFormat = newPixelFormat;
     return true;
   }
@@ -539,15 +594,19 @@ namespace Fsl
   void Texture::OverrideOrigin(const BitmapOrigin bitmapOrigin)
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("The texture is already locked");
+    }
     if (bitmapOrigin == BitmapOrigin::Undefined)
+    {
       throw std::invalid_argument("bitmapOrigin can not be undefined");
+    }
 
     m_bitmapOrigin = bitmapOrigin;
   }
 
 
-  void Texture::DoReset(const void*const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder)
+  void Texture::DoReset(const void* const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder)
   {
     // If any of these fire the builder did not keep its contract or
     // we forgot to validate a input parameter somewhere
@@ -563,7 +622,9 @@ namespace Fsl
     assert(pContent == nullptr || contentByteSize == builder.GetContentSize());
 
     if (IsValid())
+    {
       Reset();
+    }
 
     try
     {
@@ -572,11 +633,15 @@ namespace Fsl
       m_blobs.resize(blobCount);
 
       for (std::size_t i = 0; i < blobCount; ++i)
+      {
         m_blobs[i] = builder.GetBlobByIndex(i);
+      }
 
       const uint32_t totalTexels = ValidateBlobs(m_content, m_blobs, builder.GetExtent(), builder.GetPixelFormat(), builder.GetTextureInfo());
       if (totalTexels != builder.GetTotalTexelCount())
+      {
         throw std::invalid_argument("The builder does not contain the expected amount of texels in the blobs");
+      }
     }
     catch (const std::exception&)
     {
@@ -587,7 +652,9 @@ namespace Fsl
 
     // Just copy the data old school style
     if (pContent != nullptr && contentByteSize > 0)
+    {
       std::memcpy(m_content.data(), pContent, contentByteSize);
+    }
     m_extent = builder.GetExtent();
     m_pixelFormat = builder.GetPixelFormat();
     m_textureType = builder.GetTextureType();
@@ -613,7 +680,9 @@ namespace Fsl
     assert(content.size() == builder.GetContentSize());
 
     if (IsValid())
+    {
       Reset();
+    }
 
     try
     {
@@ -622,11 +691,15 @@ namespace Fsl
       m_blobs.resize(blobCount);
 
       for (std::size_t i = 0; i < blobCount; ++i)
+      {
         m_blobs[i] = builder.GetBlobByIndex(i);
+      }
 
       const uint32_t totalTexels = ValidateBlobs(m_content, m_blobs, builder.GetExtent(), builder.GetPixelFormat(), builder.GetTextureInfo());
       if (totalTexels != builder.GetTotalTexelCount())
+      {
         throw std::invalid_argument("The builder does not contain the expected amount of texels in the blobs");
+      }
     }
     catch (const std::exception&)
     {
@@ -650,7 +723,9 @@ namespace Fsl
     // If any of these fire the caller did not keep its contract.
     assert(!m_isLocked);
     if (IsValid())
+    {
       Reset();
+    }
 
     try
     {
@@ -686,12 +761,16 @@ namespace Fsl
     // If any of these fire the caller did not keep its contract.
     assert(!m_isLocked);
     if (IsValid())
+    {
       Reset();
+    }
 
     const std::size_t minStride = PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat);
     const std::size_t totalByteSize = (extent.Height * minStride);
     if (content.size() != totalByteSize)
+    {
       throw std::invalid_argument("the content buffer size is does not match the described content");
+    }
 
     try
     {
@@ -720,30 +799,40 @@ namespace Fsl
   RawTexture Texture::Lock() const
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("The texture is already locked");
+    }
     m_isLocked = true;
-    return RawTexture(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo, m_bitmapOrigin);
+    return RawTexture(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
+                      m_bitmapOrigin);
   }
 
 
   RawTextureEx Texture::LockEx()
   {
     if (m_isLocked)
+    {
       throw UsageErrorException("The texture is already locked");
+    }
 
     m_isLocked = true;
-    return RawTextureEx(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo, m_bitmapOrigin);
+    return RawTextureEx(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
+                        m_bitmapOrigin);
   }
 
 
   void Texture::UnlockEx(const RawTextureEx& texture)
   {
     if (!m_isLocked)
+    {
       throw UsageErrorException("The texture is not locked");
+    }
 
     BitmapOrigin currentOrigin = texture.GetBitmapOrigin();
     if (currentOrigin != m_bitmapOrigin)
+    {
       m_bitmapOrigin = CheckBitmapOrigin(currentOrigin);
+    }
 
     m_isLocked = false;
   }
@@ -752,7 +841,9 @@ namespace Fsl
   void Texture::Unlock() const
   {
     if (!m_isLocked)
+    {
       throw UsageErrorException("The texture is not locked");
+    }
     m_isLocked = false;
   }
 
@@ -770,5 +861,4 @@ namespace Fsl
     m_bitmapOrigin = BitmapOrigin::Undefined;
     m_isLocked = false;
   }
-
 }

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
@@ -66,9 +66,13 @@ namespace Fsl
         assert(srcSize.Y < CONSIDER_POSITIVE_INFINITY);
 
         if (srcSize.X < 0.00001f || srcSize.X < 0.00001f)
+        {
           return Vector2();
-        if( targetSize.X <= 0.00001f || targetSize.Y <= 0.00001f )
+        }
+        if (targetSize.X <= 0.00001f || targetSize.Y <= 0.00001f)
+        {
           return Vector2();
+        }
 
         // m = dy / dx
         // y = m * x
@@ -77,8 +81,10 @@ namespace Fsl
 
         float calcedX = targetSize.Y / m;
         float calcedY = m * targetSize.X;
-        if (calcedX <= 0.0001f || calcedY <= 0.000f )
+        if (calcedX <= 0.0001f || calcedY <= 0.000f)
+        {
           return Vector2();
+        }
 
         Vector2 size1(calcedX, targetSize.Y);
         Vector2 size2(targetSize.X, calcedY);
@@ -105,26 +111,22 @@ namespace Fsl
             // Both X,Y is too large so make it fit
             return CalcSizeKeepAspectRatioScaling(targetSize, srcSize);
           }
-          else
-          {
-            // Source Y fits but X is too large
-            const float newScale = targetSize.X / srcSize.X;
-            float newY = srcSize.Y * newScale;
-            return Vector2(targetSize.X, CorrectFloatingPointErrors(newY, targetSize.Y));
-          }
+
+          // Source Y fits but X is too large
+          const float newScale = targetSize.X / srcSize.X;
+          float newY = srcSize.Y * newScale;
+          return Vector2(targetSize.X, CorrectFloatingPointErrors(newY, targetSize.Y));
         }
-        else if (srcSize.Y > targetSize.Y)
+        if (srcSize.Y > targetSize.Y)
         {
           // Source X fits but Y is too large
           const float newScale = targetSize.Y / srcSize.Y;
           float newX = srcSize.X * newScale;
           return Vector2(CorrectFloatingPointErrors(newX, targetSize.X), targetSize.Y);
         }
-        else
-        {
-          // Source X, Y fits so do nothing
-          return srcSize;
-        }
+
+        // Source X, Y fits so do nothing
+        return srcSize;
       }
     }
 
@@ -139,11 +141,15 @@ namespace Fsl
     {
       rScaling = Vector2();
       if (srcSize.X <= 0.0f || srcSize.Y <= 0.0f)
+      {
         return false;
+      }
 
       Vector2 newSize;
       if (!TryCalcSize(newSize, targetSize, srcSize, scalePolicy))
+      {
         return false;
+      }
 
       rScaling = !EqualHelper::IsAlmostEqual(newSize, srcSize) ? Vector2((newSize.X / srcSize.X), (newSize.Y / srcSize.Y)) : Vector2(1.0f, 1.0f);
       return true;
@@ -160,16 +166,19 @@ namespace Fsl
     {
       rSize = Vector2();
       if (srcSize.X <= 0.0f || srcSize.Y <= 0.0f)
+      {
         return false;
+      }
 
       Vector2 size = CalcSize(targetSize, srcSize, scalePolicy);
       if (size.X < 0 || size.Y < 0)
+      {
         return false;
+      }
 
       rSize = size;
       return true;
     }
-
 
 
     Vector2 UIScaleUtil::CalcScaling(const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
@@ -182,7 +191,9 @@ namespace Fsl
     {
       // Early abort in case of crazy input
       if (srcSize.X <= 0.0f || srcSize.Y <= 0.0f)
+      {
         return Vector2();
+      }
 
       const Vector2 newSize = CalcSize(targetSize, srcSize, scalePolicy);
 
@@ -214,7 +225,9 @@ namespace Fsl
 
       // Early abort for no scaling
       if (clampedTarget == clampedSrc)
+      {
         return clampedTarget;
+      }
 
       switch (scalePolicy)
       {

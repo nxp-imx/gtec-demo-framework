@@ -39,7 +39,7 @@ namespace Fsl
   class ITextureAtlas
   {
   public:
-    virtual ~ITextureAtlas() {}
+    virtual ~ITextureAtlas() = default;
     virtual int32_t Count() const = 0;
     virtual NamedAtlasTexture GetEntry(const int32_t index) const = 0;
   };

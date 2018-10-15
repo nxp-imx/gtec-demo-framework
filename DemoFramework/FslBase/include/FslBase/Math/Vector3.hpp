@@ -27,7 +27,7 @@ SOFTWARE.
 
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector3.cs.
 
-#include <FslBase/OptimizationFlag.hpp>
+//#include <FslBase/OptimizationFlag.hpp>
 
 namespace Fsl
 {
@@ -38,61 +38,94 @@ namespace Fsl
   struct Vector3
   {
   public:
-    float X;
-    float Y;
-    float Z;
+    float X{0};
+    float Y{0};
+    float Z{0};
 
-    Vector3()
-      : X(0), Y(0), Z(0)
-    {
-    }
+    Vector3() = default;
 
     Vector3(const float x, const float y, const float z)
-      : X(x), Y(y), Z(z)
+      : X(x)
+      , Y(y)
+      , Z(z)
     {
     }
 
     //! @brief A optimization constructor that doesn't initialize the Vector3 so when this is called the content of the Vector3 in undefined!!!
     // coverity[uninit_member]
-    Vector3(const OptimizationFlag flag) {};
+    // Vector3(const OptimizationFlag flag){};
 
     //! @brief Get direct access to the elements
     const float* DirectAccess() const;
 
     // @brief Returns the vector with all components being zero (1, 1, 1)
-    static Vector3 One() { return Vector3(1.0f, 1.0f, 1.0f); }
+    static Vector3 One()
+    {
+      return Vector3(1.0f, 1.0f, 1.0f);
+    }
 
     // @brief Returns the x unit vector (1, 0, 0)
-    static Vector3 UnitX() { return Vector3(1.0f, 0.0f, 0.0f); }
+    static Vector3 UnitX()
+    {
+      return Vector3(1.0f, 0.0f, 0.0f);
+    }
 
     // @brief Returns the y unit vector (0, 1, 0)
-    static Vector3 UnitY() { return Vector3(0.0f, 1.0f, 0.0f); }
+    static Vector3 UnitY()
+    {
+      return Vector3(0.0f, 1.0f, 0.0f);
+    }
 
     // @brief Returns the z unit vector (0, 0, 1)
-    static Vector3 UnitZ() { return Vector3(0.0f, 0.0f, 1.0f); }
+    static Vector3 UnitZ()
+    {
+      return Vector3(0.0f, 0.0f, 1.0f);
+    }
 
     // @brief Returns the vector with all components being zero (0, 0, 0)
-    static Vector3 Zero() { return Vector3(); }
+    static Vector3 Zero()
+    {
+      return {};
+    }
 
     // @brief Returns a up vector (0, 1, 0)
-    static Vector3 Up() { return Vector3(0.0f, 1.0f, 0.0f); }
+    static Vector3 Up()
+    {
+      return Vector3(0.0f, 1.0f, 0.0f);
+    }
 
     // @brief Returns a down vector (0, -1, 0)
-    static Vector3 Down() { return Vector3(0.0f, -1.0f, 0.0f); }
+    static Vector3 Down()
+    {
+      return Vector3(0.0f, -1.0f, 0.0f);
+    }
 
     // @brief Returns a Right vector (1, 0, 0)
-    static Vector3 Right() { return Vector3(1.0f, 0.0f, 0.0f); }
+    static Vector3 Right()
+    {
+      return Vector3(1.0f, 0.0f, 0.0f);
+    }
 
     // @brief Returns a Left vector (-1, 0, 0)
-    static Vector3 Left() { return Vector3(-1.0f, 0.0f, 0.0f); }
+    static Vector3 Left()
+    {
+      return Vector3(-1.0f, 0.0f, 0.0f);
+    }
 
     // @brief Returns a Forward vector (0, 0, -1)
-    static Vector3 Forward() { return Vector3(0.0f, 0.0f, -1.0f); }
+    static Vector3 Forward()
+    {
+      return Vector3(0.0f, 0.0f, -1.0f);
+    }
 
     // @brief Returns a Backward vector (0, 0, 1)
-    static Vector3 Backward() { return Vector3(0.0f, 0.0f, 1.0f); }
+    static Vector3 Backward()
+    {
+      return Vector3(0.0f, 0.0f, 1.0f);
+    }
 
-    //! @brief Creates a new Vector3 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to 4d-triangle.
+    //! @brief Creates a new Vector3 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to
+    //! 4d-triangle.
     //! @param value1 The first vector of 3d-triangle.
     //! @param value2 The second vector of 3d-triangle.
     //! @param value3 The third vector of 3d-triangle.
@@ -101,14 +134,16 @@ namespace Fsl
     //! @return The Cartesian translation of barycentric coordinates.
     static Vector3 Barycentric(const Vector3& value1, const Vector3& value2, const Vector3& value3, const float amount1, const float amount2);
 
-    //! @brief Creates a new Vector3 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to 4d-triangle.
+    //! @brief Creates a new Vector3 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to
+    //! 4d-triangle.
     //! @param value1 The first vector of 3d-triangle.
     //! @param value2 The second vector of 3d-triangle.
     //! @param value3 The third vector of 3d-triangle.
     //! @param amount1 Barycentric scalar <c>b2</c> which represents a weighting factor towards second vector of 4d-triangle.
     //! @param amount2 Barycentric scalar <c>b3</c> which represents a weighting factor towards third vector of 4d-triangle.
     //! @param result The Cartesian translation of barycentric coordinates as an output parameter.
-    static void Barycentric(const Vector3& value1, const Vector3& value2, const Vector3& value3, const float amount1, const float amount2, Vector3& rResult);
+    static void Barycentric(const Vector3& value1, const Vector3& value2, const Vector3& value3, const float amount1, const float amount2,
+                            Vector3& rResult);
 
     //! @brief Creates a new Vector3 that contains CatmullRom interpolation of the specified vectors.
     //! @param value1 The first vector in interpolation.
@@ -126,7 +161,8 @@ namespace Fsl
     //! @param value4 The fourth vector in interpolation.
     //! @param amount Weighting factor.
     //! @param result The result of CatmullRom interpolation as an output parameter.
-    static void CatmullRom(const Vector3& value1, const Vector3& value2, const Vector3& value3, const Vector3& value4, const float amount, Vector3& rResult);
+    static void CatmullRom(const Vector3& value1, const Vector3& value2, const Vector3& value3, const Vector3& value4, const float amount,
+                           Vector3& rResult);
 
     //! @brief Restricts a value to be within a specified range.
     static Vector3 Clamp(const Vector3& value, const Vector3& min, const Vector3& max);
@@ -146,9 +182,8 @@ namespace Fsl
     //! @brief Calculates the distance between two vectors squared.
     static float DistanceSquared(const Vector3& vector1, const Vector3& vector2)
     {
-      return (vector1.X - vector2.X) * (vector1.X - vector2.X) +
-        (vector1.Y - vector2.Y) * (vector1.Y - vector2.Y) +
-        (vector1.Z - vector2.Z) * (vector1.Z - vector2.Z);
+      return (vector1.X - vector2.X) * (vector1.X - vector2.X) + (vector1.Y - vector2.Y) * (vector1.Y - vector2.Y) +
+             (vector1.Z - vector2.Z) * (vector1.Z - vector2.Z);
     }
 
     //! @brief Calculates the dot product of two vectors. If the two vectors are unit vectors,
@@ -177,7 +212,8 @@ namespace Fsl
     //! @param tangent2 The second tangent vector.
     //! @param amount Weighting factor.
     //! @param result The hermite spline interpolation vector as an output parameter.
-    static void Hermite(const Vector3& value1, const Vector3& tangent1, const Vector3& value2, const Vector3& tangent2, const float amount, Vector3& rResult);
+    static void Hermite(const Vector3& value1, const Vector3& tangent1, const Vector3& value2, const Vector3& tangent2, const float amount,
+                        Vector3& rResult);
 
     //! @brief Calculates the length of the vector.
     float Length() const;
@@ -185,7 +221,7 @@ namespace Fsl
     //! @brief Calculates the length of the vector squared.
     float LengthSquared() const
     {
-      return (X*X) + (Y*Y) + (Z*Z);
+      return (X * X) + (Y * Y) + (Z * Z);
     }
 
     //! @brief Performs a linear interpolation between two vectors.
@@ -341,20 +377,18 @@ namespace Fsl
     }
 
     //! @brief Tests for equality.
-    bool operator==(const Vector3 &rhs) const
+    bool operator==(const Vector3& rhs) const
     {
       return X == rhs.X && Y == rhs.Y && Z == rhs.Z;
     }
 
     //! @brief Tests for inequality.
-    bool operator!=(const Vector3 &rhs) const
+    bool operator!=(const Vector3& rhs) const
     {
       return X != rhs.X || Y != rhs.Y || Z != rhs.Z;
     }
-
   };
 }
-
 
 
 //! @brief Add a vector to a vector.

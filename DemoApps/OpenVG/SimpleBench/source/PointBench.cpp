@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -69,8 +69,8 @@ namespace Fsl
     }
 
 
-    void BenchPointsViaLine(const uint32_t index, const int32_t count, const int32_t width, const VGPath& hLine,
-                          const VGPaint& hPaint, const std::vector<Vector4>& colors)
+    void BenchPointsViaLine(const uint32_t index, const int32_t count, const int32_t width, const VGPath& hLine, const VGPaint& hPaint,
+                            const std::vector<Vector4>& colors)
     {
       const std::size_t colorCount = colors.size();
       std::size_t colorIndex = index % colorCount;
@@ -87,7 +87,7 @@ namespace Fsl
       {
         {
           vgLoadIdentity();
-          vgTranslate((float)x, (float)y);
+          vgTranslate(static_cast<float>(x), static_cast<float>(y));
           vgDrawPath(hLine, VG_STROKE_PATH);
         }
         x += 2;
@@ -103,8 +103,8 @@ namespace Fsl
     }
 
 
-    void BenchPointsViaNewPath(const uint32_t index, const int32_t count, const int32_t width, const VGPaint& hPaint, const std::vector<Vector4>& colors,
-                             std::vector<VGfloat>& rPathCoords, std::vector<VGubyte>& rPathSegments)
+    void BenchPointsViaNewPath(const uint32_t index, const int32_t count, const int32_t width, const VGPaint& hPaint,
+                               const std::vector<Vector4>& colors, std::vector<VGfloat>& rPathCoords, std::vector<VGubyte>& rPathSegments)
     {
       const float bias = 0.0f;
       const float scale = 1.0f;
@@ -127,9 +127,9 @@ namespace Fsl
       for (int i = 0; i < count; ++i)
       {
         {
-          pDstCoords[dstIndex] = (VGfloat)x;
+          pDstCoords[dstIndex] = static_cast<VGfloat>(x);
           pDstCoords[dstIndex + 1] = y;
-          pDstCoords[dstIndex + 2] = (VGfloat)x + 1;
+          pDstCoords[dstIndex + 2] = static_cast<VGfloat>(x) + 1;
           pDstCoords[dstIndex + 3] = y;
           dstIndex += 4;
         }
@@ -141,7 +141,8 @@ namespace Fsl
           ++y;
 
           {
-            VGPath hPath = vgCreatePath(VG_PATH_FORMAT_STANDARD, VG_PATH_DATATYPE_F, scale, bias, dstIndex / 2, dstIndex, VG_PATH_CAPABILITY_APPEND_TO);
+            VGPath hPath =
+              vgCreatePath(VG_PATH_FORMAT_STANDARD, VG_PATH_DATATYPE_F, scale, bias, dstIndex / 2, dstIndex, VG_PATH_CAPABILITY_APPEND_TO);
             vgAppendPathData(hPath, dstIndex / 2, rPathSegments.data(), pDstCoords);
             vgDrawPath(hPath, VG_STROKE_PATH);
             vgDestroyPath(hPath);
@@ -158,11 +159,11 @@ namespace Fsl
         vgDrawPath(hPath, VG_STROKE_PATH);
         vgDestroyPath(hPath);
       }
-
     }
 
 
-    //void BenchPointsViaModifyPath(const uint32_t index, const int32_t count, const int32_t width, const VGPath hPath, const VGPaint& hPaint, const std::vector<Vector4>& colors,
+    // void BenchPointsViaModifyPath(const uint32_t index, const int32_t count, const int32_t width, const VGPath hPath, const VGPaint& hPaint, const
+    // std::vector<Vector4>& colors,
     //  std::vector<VGfloat>& rPathCoords, std::vector<VGubyte>& rPathSegments)
     //{
     //  const float bias = 0.0f;
@@ -217,7 +218,8 @@ namespace Fsl
     //}
 
 
-    void BenchPointsViaBitmap(const uint32_t index, const int32_t count, const int32_t width, const OpenVG::VGImageBuffer*const pColors, const std::size_t colorCount)
+    void BenchPointsViaBitmap(const uint32_t index, const int32_t count, const int32_t width, const OpenVG::VGImageBuffer* const pColors,
+                              const std::size_t colorCount)
     {
       std::size_t colorIndex = index % colorCount;
 
@@ -232,7 +234,7 @@ namespace Fsl
       {
         {
           vgLoadIdentity();
-          vgTranslate((VGfloat)x, (VGfloat)y);
+          vgTranslate(static_cast<VGfloat>(x), static_cast<VGfloat>(y));
           vgDrawImage(hCurrentImage);
         }
         x += 2;
@@ -248,12 +250,13 @@ namespace Fsl
     }
 
 
-    void BenchPointsViaBitmapFont(const uint32_t index, const int32_t count, const int32_t width, const VGFont hFont, const std::vector<Color>& colors, std::vector<VGuint>& glyphs, std::vector<VGfloat>& rPathCoords)
+    void BenchPointsViaBitmapFont(const uint32_t index, const int32_t count, const int32_t width, const VGFont hFont,
+                                  const std::vector<Color>& colors, std::vector<VGuint>& glyphs, std::vector<VGfloat>& rPathCoords)
     {
       const std::size_t colorCount = colors.size();
       std::size_t colorIndex = index % colorCount;
 
-      float origin[2] = { 0, 0 };
+      float origin[2] = {0, 0};
       vgSeti(VG_MATRIX_MODE, VG_MATRIX_GLYPH_USER_TO_SURFACE);
 
       int dstIndex = 0;
@@ -270,7 +273,7 @@ namespace Fsl
         {
           pDstCoordsX[dstIndex] = 2.0f;
           pDstCoordsY[dstIndex] = 0.0f;
-          pGlyphs[dstIndex] = (VGuint)colorIndex;
+          pGlyphs[dstIndex] = static_cast<VGuint>(colorIndex);
           ++dstIndex;
         }
         x += 2;
@@ -279,7 +282,7 @@ namespace Fsl
           x = offset & 1;
           {
             vgLoadIdentity();
-            vgTranslate((VGfloat)x, y);
+            vgTranslate(static_cast<VGfloat>(x), y);
             vgSetfv(VG_GLYPH_ORIGIN, 2, origin);
             vgDrawGlyphs(hFont, dstIndex, pGlyphs, pDstCoordsX, pDstCoordsY, VG_FILL_PATH, VG_TRUE);
             dstIndex = 0;
@@ -293,7 +296,7 @@ namespace Fsl
       {
         x = offset & 1;
         vgLoadIdentity();
-        vgTranslate((VGfloat)x, y);
+        vgTranslate(static_cast<VGfloat>(x), y);
         vgSetfv(VG_GLYPH_ORIGIN, 2, origin);
         vgDrawGlyphs(hFont, dstIndex, pGlyphs, pDstCoordsX, pDstCoordsY, VG_FILL_PATH, VG_TRUE);
       }
@@ -307,12 +310,9 @@ namespace Fsl
     , m_index(0)
     , m_colors(8)
     , m_colorsV4(8)
-    , m_buffer()
-    , m_paint()
     , m_pathCoords(POINTS_PER_LINE * 4)
     , m_pathSegments(POINTS_PER_LINE * 2)
     , m_hPath(VG_INVALID_HANDLE)
-    , m_fontBuffer()
     , m_fontGlyphs(POINTS_PER_LINE)
   {
     Bitmap bitmap(8, 1, PixelFormat::R8G8B8A8_UNORM);
@@ -336,7 +336,7 @@ namespace Fsl
     m_imageColorParent.Reset(bitmap, VG_IMAGE_QUALITY_FASTER);
     for (uint32_t i = 0; i < colorCount; ++i)
     {
-      m_imageColors[i].Reset(vgChildImage(m_imageColorParent.GetHandle(), i, 0, 1, 1), Point2(1,1));
+      m_imageColors[i].Reset(vgChildImage(m_imageColorParent.GetHandle(), i, 0, 1, 1), Point2(1, 1));
     }
 
     m_paint.Reset(vgCreatePaint());
@@ -348,7 +348,7 @@ namespace Fsl
       m_pathSegments[i + 1] = VG_LINE_TO_ABS;
     }
 
-    if (m_mode == Mode::Line )
+    if (m_mode == Mode::Line)
     {
       std::vector<Vector2> vertices(2);
       std::vector<VGubyte> segments(2);
@@ -359,12 +359,13 @@ namespace Fsl
       m_buffer.Reset(vertices, segments);
     }
 
-    //if (m_mode == Mode::ModifyPath)
+    // if (m_mode == Mode::ModifyPath)
     //{
     //  const float bias = 0.0f;
     //  const float scale = 1.0f;
-    //  m_hPath = vgCreatePath(VG_PATH_FORMAT_STANDARD, VG_PATH_DATATYPE_F, scale, bias, m_pathSegments.size(), m_pathCoords.size(), VG_PATH_CAPABILITY_APPEND_TO | VG_PATH_CAPABILITY_MODIFY);
-    //  vgAppendPathData(m_hPath, m_pathSegments.size(), m_pathSegments.data(), m_pathCoords.data());
+    //  m_hPath = vgCreatePath(VG_PATH_FORMAT_STANDARD, VG_PATH_DATATYPE_F, scale, bias, m_pathSegments.size(), m_pathCoords.size(),
+    //  VG_PATH_CAPABILITY_APPEND_TO | VG_PATH_CAPABILITY_MODIFY); vgAppendPathData(m_hPath, m_pathSegments.size(), m_pathSegments.data(),
+    //  m_pathCoords.data());
     //}
     if (m_mode == Mode::BitmapFont)
     {
@@ -404,7 +405,7 @@ namespace Fsl
     case Mode::NewPath:
       buffer << "PointBench_NewPath";
       break;
-    //case Mode::ModifyPath:
+    // case Mode::ModifyPath:
     //  buffer << "PointBench_ModifyPath";
     //  break;
     case Mode::Bitmap:
@@ -448,7 +449,7 @@ namespace Fsl
     case Mode::NewPath:
       BenchPointsViaNewPath(m_index, m_pointCount, width, m_paint.GetHandle(), m_colorsV4, m_pathCoords, m_pathSegments);
       break;
-    //case Mode::ModifyPath:
+    // case Mode::ModifyPath:
     //  BenchPointsViaModifyPath(m_index, m_pointCount, width, m_hPath, m_paint.GetHandle(), m_colorsV4, m_pathCoords, m_pathSegments);
     //  break;
     case Mode::Bitmap:

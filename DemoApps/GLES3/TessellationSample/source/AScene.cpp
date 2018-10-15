@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "AScene.hpp"
 #include <FslBase/Math/MatrixConverter.hpp>
@@ -63,21 +63,11 @@ namespace Fsl
     , m_screenResolution(config.ScreenResolution)
     , m_fieldOfView(MathHelper::ToRadians(options->GetFieldOfView()))
     , m_camera(config.ScreenResolution)
-    , m_tessellationConfig()
-    , m_cameraConfig()
-    , m_material()
     , m_basicShader(config.DemoServiceProvider.Get<IContentManager>(), vertex_type::GetVertexDeclaration())
     , m_tessShader(config.DemoServiceProvider.Get<IContentManager>(), vertex_type::GetVertexDeclaration())
-    , m_indexBuffers()
-    , m_vertexBuffers()
-    , m_textureDiffuse()
-    , m_textureDiffuseWhite()
-    , m_textureDisplacement()
-    , m_textureNoDisplacement()
     , m_lightDirection(0.2f, 0.4f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
     , m_rotationSpeed(0.0f, -0.6f, 0.0f)
-    , m_rotation()
   {
     m_camera.SetZoom(DEFAULT_ZOOM);
     m_lightDirection.Normalize();
@@ -87,7 +77,9 @@ namespace Fsl
   void AScene::OnKeyEvent(const KeyEvent& event)
   {
     if (!event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -111,9 +103,13 @@ namespace Fsl
     case VirtualMouseButton::Left:
     {
       if (event.IsPressed())
+      {
         m_camera.BeginDrag(event.GetPosition());
+      }
       else if (m_camera.IsDragging())
+      {
         m_camera.EndDrag(event.GetPosition());
+      }
       event.Handled();
     }
     break;
@@ -151,9 +147,10 @@ namespace Fsl
   void AScene::Update(const DemoTime& demoTime, const RenderDrawConfig& config)
   {
     m_cameraConfig.World = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
-    //m_cameraConfig.View = Matrix::CreateTranslation(0.0f, 0.0f, -2.0f);
+    // m_cameraConfig.View = Matrix::CreateTranslation(0.0f, 0.0f, -2.0f);
     m_cameraConfig.View = m_camera.GetViewMatrix();
-    m_cameraConfig.Projection = Matrix::CreatePerspectiveFieldOfView(m_fieldOfView, m_screenResolution.X / (float)m_screenResolution.Y, 1, 1000.0f);
+    m_cameraConfig.Projection =
+      Matrix::CreatePerspectiveFieldOfView(m_fieldOfView, m_screenResolution.X / static_cast<float>(m_screenResolution.Y), 1, 1000.0f);
 
     m_cameraConfig.WorldView = m_cameraConfig.World * m_cameraConfig.View;
     m_cameraConfig.WorldViewProjection = m_cameraConfig.WorldView * m_cameraConfig.Projection;
@@ -177,13 +174,16 @@ namespace Fsl
 
   void AScene::Draw(const RenderDrawConfig& config)
   {
-
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     if (m_cullEnabled)
+    {
       glEnable(GL_CULL_FACE);
+    }
     else
+    {
       glDisable(GL_CULL_FACE);
+    }
 
     glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -229,7 +229,7 @@ namespace Fsl
         m_vertexBuffers.EnableAttribArrays(rTess.AttribLink.data(), rTess.AttribLink.size());
 
         // Draw the patch
-        glDrawElements(GL_PATCHES_EXT, indexBuffer.GetCapacity(), indexBufferType, (void*)0);
+        glDrawElements(GL_PATCHES_EXT, indexBuffer.GetCapacity(), indexBufferType, nullptr);
 
         m_vertexBuffers.DisableAttribArrays();
       }
@@ -270,12 +270,14 @@ namespace Fsl
       for (std::size_t i = 0; i < m_basicShader.AttribLink.size(); ++i)
       {
         if (m_basicShader.AttribLink[i].AttribIndex >= 0)
+        {
           glEnableVertexAttribArray(m_basicShader.AttribLink[i].AttribIndex);
+        }
       }
 
       DrawBasicMeshes();
 
-      //GL_CHECK_FOR_ERROR();
+      // GL_CHECK_FOR_ERROR();
 
       // Disable everything
       glBindBuffer(m_indexBuffers.GetTarget(), 0);
@@ -300,11 +302,10 @@ namespace Fsl
         glBindBuffer(m_indexBuffers.GetTarget(), indexBuffer.Get());
 
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
-        m_vertexBuffers.SetVertexAttribPointers(m_basicShader.AttribLink.data(),  m_basicShader.AttribLink.size());
+        m_vertexBuffers.SetVertexAttribPointers(m_basicShader.AttribLink.data(), m_basicShader.AttribLink.size());
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, (void*)0);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
       }
     }
   }
-
 }

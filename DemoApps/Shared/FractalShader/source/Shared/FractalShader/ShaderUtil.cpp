@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/FractalShader/ShaderUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
@@ -51,7 +51,8 @@ namespace Fsl
         stream << "  v = c + vec2(v.x * v.x - v.y * v.y, v.x * v.y * 2.0);\n";
         stream << "  if (dot(v, v) > 4.0)\n";
         stream << "  {\n";
-        stream << "    " << fragmentName << " = vec4(" << std::max(c, 0.001f) << ", " << std::max(c, 0.001f) << ", " << std::max(c, 0.001f) << ", 1.0);\n";
+        stream << "    " << fragmentName << " = vec4(" << std::max(c, 0.001f) << ", " << std::max(c, 0.001f) << ", " << std::max(c, 0.001f)
+               << ", 1.0);\n";
         stream << "    return;\n";
         stream << "  }\n\n";
       }
@@ -73,7 +74,8 @@ namespace Fsl
         stream << "  v = c + vec2(v.x * v.x - v.y * v.y, v.x * v.y * 2.0);\n";
         stream << "  if (dot(v, v) > 4.0)\n";
         stream << "  {\n";
-        stream << "    " << fragmentName << " = vec4(" << std::max(r, 0.001f) << ", " << std::max(g, 0.001f) << ", " << std::max(b, 0.001f) << ", 1.0);\n";
+        stream << "    " << fragmentName << " = vec4(" << std::max(r, 0.001f) << ", " << std::max(g, 0.001f) << ", " << std::max(b, 0.001f)
+               << ", 1.0);\n";
         stream << "    return;\n";
         stream << "  }\n\n";
       }
@@ -103,16 +105,16 @@ namespace Fsl
   }
 
 
-  std::string ShaderUtil::GetFragmentShader(const BasicConfig& m_config, const std::shared_ptr<IContentManager>& contentManager, const int32_t openGLESVersion)
+  std::string ShaderUtil::GetFragmentShader(const BasicConfig& m_config, const std::shared_ptr<IContentManager>& contentManager,
+                                            const int32_t openGLESVersion)
   {
-
     std::string fragmentShader;
     if (!m_config.ForceUnroll)
     {
       std::string fragmentShaderFile;
       switch (m_config.TheRenderMode)
       {
-        //case RenderMode::Tex:
+        // case RenderMode::Tex:
         //  fragmentShaderFile = "Julia_tex.frag";
         //  break;
       case RenderMode::Smooth:
@@ -148,7 +150,7 @@ namespace Fsl
 
       switch (m_config.TheRenderMode)
       {
-        //case RenderMode::Tex:
+        // case RenderMode::Tex:
         //  fragmentShaderFile = "Julia_tex.frag";
         //  break;
       case RenderMode::Smooth:
@@ -164,8 +166,7 @@ namespace Fsl
       }
     }
 
-    //std::cout << fragmentShader << "\n";
+    // std::cout << fragmentShader << "\n";
     return fragmentShader;
   }
-
 }

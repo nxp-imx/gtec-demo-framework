@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/MathHelper.hpp>
@@ -51,13 +51,6 @@ namespace Fsl
 
   Tessellation101::Tessellation101(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_vertexBuffer()
-    , m_pipeline()
-    , m_shaderVert()
-    , m_shaderControl()
-    , m_shaderEval()
-    , m_shaderFrag()
-    , m_shaderGeom()
     , m_locWorldViewProjection(-1)
     , m_locTessLevelInner(-1)
     , m_locTessLevelOuter(-1)
@@ -73,11 +66,11 @@ namespace Fsl
     const std::string strVert = contentManager->ReadAllText("Tesselation.vert");
     const std::string strGeom = contentManager->ReadAllText("Tesselation.geom");
 
-    //GLShader shaderVert(GL_VERTEX_SHADER, strVert);
-    //GLShader shaderControl(GL_TESS_CONTROL_SHADER_EXT, strControl);
-    //GLShader shaderEval(GL_TESS_EVALUATION_SHADER_EXT, strEvaluation);
-    //GLShader shaderFrag(GL_FRAGMENT_SHADER, strFrag);
-    //GLShader shaderGeom(GL_GEOMETRY_SHADER_EXT, strGeom);
+    // GLShader shaderVert(GL_VERTEX_SHADER, strVert);
+    // GLShader shaderControl(GL_TESS_CONTROL_SHADER_EXT, strControl);
+    // GLShader shaderEval(GL_TESS_EVALUATION_SHADER_EXT, strEvaluation);
+    // GLShader shaderFrag(GL_FRAGMENT_SHADER, strFrag);
+    // GLShader shaderGeom(GL_GEOMETRY_SHADER_EXT, strGeom);
 
     m_shaderVert.Reset(GL_VERTEX_SHADER, strVert);
     m_shaderControl.Reset(GL_TESS_CONTROL_SHADER_EXT, strControl);
@@ -90,7 +83,9 @@ namespace Fsl
 
     m_locWorldViewProjection = glGetUniformLocation(m_shaderEval.Get(), "WorldViewProjection");
     if (m_locTessLevelInner < 0 || m_locTessLevelOuter < 0 || m_locWorldViewProjection < 0)
+    {
       throw GraphicsException("Unable to locate uniform");
+    }
 
     // Set default values
     glProgramUniform1f(m_shaderControl.Get(), m_locTessLevelInner, m_tessLevelInner);
@@ -99,20 +94,17 @@ namespace Fsl
     glUseProgram(0);
     m_pipeline.Reset(true);
 
-    { // prepare the vertex buffer
-      //const Point2 screenResolution = config.ScreenResolution;
+    {    // prepare the vertex buffer
+      // const Point2 screenResolution = config.ScreenResolution;
 
       float magicX = 100;
       float magicY = 100;
 
-      VertexPosition vertices[] =
-      {
-        VertexPosition(Vector3(-magicX, magicY, 0.0f)),
-        VertexPosition(Vector3(-magicX, -magicY, 0.0f)),
+      VertexPosition vertices[] = {
+        VertexPosition(Vector3(-magicX, magicY, 0.0f)),      VertexPosition(Vector3(-magicX, -magicY, 0.0f)),
         VertexPosition(Vector3(magicX, magicY, 0.0f)),
 
-        VertexPosition(Vector3(magicX + 10, magicY, 0.0f)),
-        VertexPosition(Vector3(-magicX + 10, -magicY, 0.0f)),
+        VertexPosition(Vector3(magicX + 10, magicY, 0.0f)),  VertexPosition(Vector3(-magicX + 10, -magicY, 0.0f)),
         VertexPosition(Vector3(magicX + 10, -magicY, 0.0f)),
       };
 
@@ -121,10 +113,7 @@ namespace Fsl
   }
 
 
-  Tessellation101::~Tessellation101()
-  {
-
-  }
+  Tessellation101::~Tessellation101() = default;
 
 
   void Tessellation101::OnKeyEvent(const KeyEvent& event)
@@ -132,7 +121,9 @@ namespace Fsl
     DemoAppGLES3::OnKeyEvent(event);
 
     if (!event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -144,7 +135,9 @@ namespace Fsl
       event.Handled();
       m_tessLevelInner -= 1.0f;
       if (m_tessLevelInner < 1)
+      {
         m_tessLevelInner = 1.0f;
+      }
       glProgramUniform1f(m_shaderControl.Get(), m_locTessLevelInner, m_tessLevelInner);
       break;
     case VirtualKey::Code2:
@@ -156,7 +149,9 @@ namespace Fsl
       event.Handled();
       m_tessLevelOuter -= 1.0f;
       if (m_tessLevelOuter < 1)
+      {
         m_tessLevelOuter = 1.0f;
+      }
       glProgramUniform1f(m_shaderControl.Get(), m_locTessLevelOuter, m_tessLevelOuter);
       break;
     case VirtualKey::Code4:
@@ -178,7 +173,8 @@ namespace Fsl
     const Point2 screenResolution = GetScreenResolution();
 
     const Matrix view = Matrix::CreateTranslation(0.0f, 0.0f, -350.0f);
-    const Matrix projection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / (float)screenResolution.Y, 1, 1000.0f);
+    const Matrix projection =
+      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
     const Matrix viewProjection = view * projection;
 
     glProgramUniformMatrix4fv(m_shaderEval.Get(), m_locWorldViewProjection, 1, GL_FALSE, viewProjection.DirectAccess());
@@ -222,5 +218,4 @@ namespace Fsl
       m_pipeline.BindClear();
     }
   }
-
 }

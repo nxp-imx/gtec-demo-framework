@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ModelLoaderBasics.hpp"
 
@@ -58,8 +58,8 @@ namespace Fsl
   using namespace GLES2;
   using namespace Graphics3D;
 
-  typedef GenericMesh<VertexPositionColorNormalTexture, uint16_t> TestMesh;
-  typedef GenericScene<TestMesh> TestScene;
+  using TestMesh = GenericMesh<VertexPositionColorNormalTexture, uint16_t>;
+  using TestScene = GenericScene<TestMesh>;
 
   namespace
   {
@@ -69,10 +69,6 @@ namespace Fsl
 
   ModelLoaderBasics::ModelLoaderBasics(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_program()
-    , m_texture()
-    , m_indexBuffers()
-    , m_vertexBuffers()
     , m_locWorldView(GLValues::INVALID_LOCATION)
     , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
     , m_locNormalMatrix(GLValues::INVALID_LOCATION)
@@ -81,14 +77,7 @@ namespace Fsl
     , m_locLightColor(GLValues::INVALID_LOCATION)
     , m_locAmbientColor(GLValues::INVALID_LOCATION)
     , m_attribLink(4)
-    , m_rootNode()
-    , m_matrixWorld()
-    , m_matrixView()
-    , m_matrixProjection()
-    , m_matrixWorldView()
-    , m_matrixWorldViewProjection()
     , m_rotationSpeed(0.0f, -0.6f, 0.0f)
-    , m_rotation()
     , m_lightDirection(0.0f, 0.0f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
     , m_ambientColor(0.2f, 0.2f, 0.2f)
@@ -115,14 +104,18 @@ namespace Fsl
     const std::shared_ptr<TestScene> scene = sceneImporter.Load<TestScene>(modelPath, DEFAULT_MODEL_SCALE, true);
 
     if (scene->GetMeshCount() <= 0)
+    {
       throw NotSupportedException("Scene did not contain any meshes");
+    }
 
     m_rootNode = scene->GetRootNode();
-    if (! m_rootNode)
+    if (!m_rootNode)
+    {
       throw NotSupportedException("Scene did not contain a root node");
+    }
 
 
-    { // Prepare shaders
+    {    // Prepare shaders
       m_program.Reset(contentManger->ReadAllText("BasicShaderDLight.vert"), contentManger->ReadAllText("BasicShaderDLightTextured.frag"));
 
       m_locWorldView = glGetUniformLocation(m_program.Get(), "WorldView");
@@ -134,10 +127,14 @@ namespace Fsl
       m_locAmbientColor = glGetUniformLocation(m_program.Get(), "AmbientColor");
 
       auto vertexDecl = TestMesh::vertex_type::GetVertexDeclaration();
-      m_attribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-      m_attribLink[1] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
-      m_attribLink[2] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-      m_attribLink[3] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+      m_attribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"),
+                                           vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      m_attribLink[1] =
+        GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+      m_attribLink[2] =
+        GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+      m_attribLink[3] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"),
+                                           vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     }
 
     // Create index and vertex buffers for all the meshes.
@@ -161,10 +158,7 @@ namespace Fsl
   }
 
 
-  ModelLoaderBasics::~ModelLoaderBasics()
-  {
-
-  }
+  ModelLoaderBasics::~ModelLoaderBasics() = default;
 
 
   void ModelLoaderBasics::Update(const DemoTime& demoTime)
@@ -176,7 +170,8 @@ namespace Fsl
     m_rotation.Z += m_rotationSpeed.Z * demoTime.DeltaTime;
     m_matrixWorld = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
     m_matrixView = Matrix::CreateTranslation(0, 0, -DEFAULT_ZOOM);
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / (float)screenResolution.Y, 1, 1000.0f);
+    m_matrixProjection =
+      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
     m_matrixWorldView = m_matrixWorld * m_matrixView;
     m_matrixWorldViewProjection = m_matrixWorldView * m_matrixProjection;
     m_matrixNormal = Matrix3::Transpose(Matrix3::Invert(MatrixConverter::ToMatrix3(m_matrixWorldView)));
@@ -207,12 +202,14 @@ namespace Fsl
       for (std::size_t i = 0; i < m_attribLink.size(); ++i)
       {
         if (m_attribLink[i].AttribIndex >= 0)
+        {
           glEnableVertexAttribArray(m_attribLink[i].AttribIndex);
+        }
       }
 
       DrawMeshes();
 
-      //GL_CHECK_FOR_ERROR();
+      // GL_CHECK_FOR_ERROR();
 
       // Disable everything
       glBindBuffer(m_indexBuffers.GetTarget(), 0);
@@ -244,7 +241,7 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, (void*)0);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
       }
     }
   }

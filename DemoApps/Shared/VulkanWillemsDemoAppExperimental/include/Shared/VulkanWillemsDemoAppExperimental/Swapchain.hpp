@@ -1,14 +1,14 @@
 #ifndef SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_SWAPCHAIN_HPP
 #define SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_SWAPCHAIN_HPP
 /*
-* Class wrapping access to the swap chain
-*
-* A swap chain is a collection of framebuffers used for rendering and presentation to the windowing system
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Class wrapping access to the swap chain
+ *
+ * A swap chain is a collection of framebuffers used for rendering and presentation to the windowing system
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -38,30 +38,33 @@ namespace Fsl
       RapidVulkan::SwapchainKHR m_swapchain;
       std::vector<SwapchainBuffers> m_buffers;
       VkSwapchainCreateInfoKHR m_createInfo;
+
     public:
       Swapchain(const Swapchain&) = delete;
       Swapchain& operator=(const Swapchain&) = delete;
 
       //! @brief Move assignment operator
-      Swapchain& operator=(Swapchain&& other);
+      Swapchain& operator=(Swapchain&& other) noexcept;
 
       //! @brief Move constructor
       //! Transfer ownership from other to this
-      Swapchain(Swapchain&& other);
+      Swapchain(Swapchain&& other) noexcept;
 
       //! @brief Create a 'invalid' Swapchain (use Reset to populate it)
       Swapchain();
 
       //! @brief Create the requested resource
-      Swapchain(const Vulkan::PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent, const bool enableVSync);
+      Swapchain(const Vulkan::PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+                const bool enableVSync);
 
       ~Swapchain();
 
       //! @brief Destroys any owned resources and resets the object to its default state.
-      void Reset();
+      void Reset() noexcept;
 
       //! @brief Destroys any owned resources and then creates the requested one
-      void Reset(const Vulkan::PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent, const bool enableVSync);
+      void Reset(const Vulkan::PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+                 const bool enableVSync);
 
       //! @brief Get the associated resource handle
       VkSwapchainKHR Get() const
@@ -82,7 +85,7 @@ namespace Fsl
       }
 
       //! @brief Access the resource at a given index
-      const SwapchainBuffers& operator[] (const std::size_t arrayIndex) const;
+      const SwapchainBuffers& operator[](const std::size_t arrayIndex) const;
 
 
       uint32_t GetImageCount() const
@@ -118,7 +121,6 @@ namespace Fsl
       //! @param waitSemaphore (Optional) Semaphore that is waited on before the image is presented (only used if != VK_NULL_HANDLE)
       //! @return VkResult of the queue presentation
       VkResult TryQueuePresent(const VkQueue queue, const uint32_t imageIndex, const VkSemaphore waitSemaphore = VK_NULL_HANDLE);
-
     };
   }
 }

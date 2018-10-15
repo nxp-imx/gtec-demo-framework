@@ -19,9 +19,9 @@
       <!-- App packages -->
       <PackageLocation Name="$(FSL_GRAPHICS_SDK)/DemoApps" ScanMethod="AllSubDirectories"/>
     </PackageConfiguration>
-  <BuildDocConfiguration>
-    <Requirement Name="GoogleUnitTest" Skip="true"/>
-  </BuildDocConfiguration>
+    <BuildDocConfiguration>
+      <Requirement Name="GoogleUnitTest" Skip="true"/>
+    </BuildDocConfiguration>
     <ClangFormatConfiguration FileExtensions=".cpp;.hpp" Recipe="Recipe.BuildTool.clang_format"/>
     <ClangTidyConfiguration FileExtensions=".cpp;.hpp" Recipe="Recipe.BuildTool.clang_tidy">
       <Platform Name="All">
@@ -78,6 +78,9 @@
       <DefaultThirdPartyInstallDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)"/>
       <DefaultThirdPartyInstallReadonlyCacheDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR)"/>
       <!--Android NDKToolchain="clang" StlType="c++_shared"/-->
+      <Platform Name="Yocto">
+        <Recipes.DefaultValue Value="*"/>
+      </Platform>
     </Experimental>
   </Project>
 </FslBuildGenProjectRoot>

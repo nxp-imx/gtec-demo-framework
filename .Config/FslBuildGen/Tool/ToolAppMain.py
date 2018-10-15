@@ -64,7 +64,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersionString = "2.8.4"
+CurrentVersionString = "2.9.4"
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -176,6 +176,7 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
     if toolCommonArgConfig.AddBuildFiltering:
         toolAppConfig.BuildPackageFilters.RequiredFeatureNameList = ParseUtil.ParseFeatureList(args.RequireFeatures)
         toolAppConfig.BuildPackageFilters.ExtensionNameList = ParseUtil.ParseExtensionList(args.UseExtensions)
+        toolAppConfig.BuildPackageFilters.RecipeFilterManager = ParseUtil.ParseRecipeList(args.Recipes)
 
     if toolCommonArgConfig.AddBuildVariants:
         toolAppConfig.BuildVariantsDict = ParseUtil.ParseVariantDict(args.Variants)
@@ -211,6 +212,7 @@ def __CreateParser(toolCommonArgConfig: ToolCommonArgConfig, allowStandaloneMode
         parser.add_argument('--RequireFeatures', default=DefaultValue.RequireFeatures, help='The list of features that are required for a executable to be build. For example [OpenGLES2] to build all executables that use OpenGLES2.')
         parser.add_argument('--UseExtensions', default=DefaultValue.UseExtensions, help='The list of available extensions to build for. For example [OpenGLES3.1:EXT_geometry_shader,OpenGLES3.1:EXT_tessellation_shader] to allow the OpenGLES3.1 extensions EXT_geometry_shader and EXT_tessellation_shader. You can also specify * for all extensions (default).')
         #parser.add_argument('--RequireExtensions', default=DefaultValue.RequireExtensionsList, help='The list of extensions that are required for a executable to be saved. For example [OpenGLES3.1:EXT_geometry_shader] to build all executables that use OpenGLES3.1:EXT_geometry_shader beware this allows OpenGLES3.2 apps that use EXT_geometry_shader since OpenGLES3.2 extends OpenGLES3.1.')
+        parser.add_argument('--Recipes', default=DefaultValue.Recipes, help='The modifies the list of recipes. For example [Recipe.gli_0_8_2_0,-Recipe.Vulkan] will enable the glm and disable the vulkan recipe.')
 
     if toolCommonArgConfig.AddBuildThreads:
         parser.add_argument('--BuildThreads', default=str(DefaultValue.BuildThreads), help='Configures how many threads the builder should use, beware this is a hint that may be ignored by the builder, can be a number or "auto".')
@@ -364,6 +366,12 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
             args.RemainingArgs = __ProcessRemainingArgs(args.RemainingArgs)
         if toolCommonArgConfig.SupportBuildTime and args.BuildTime:
             buildTiming = BuildTimer()
+
+        if toolCommonArgConfig.AddBuildFiltering and args.Recipes == DefaultValue.Recipes:
+            if projectRootConfig.XmlExperimental is not None:
+                tmpResult = projectRootConfig.XmlExperimental.TryGetRecipesDefaultValue(defaultPlatform)
+                if tmpResult is not None:
+                    args.Recipes = "[{0}]".format(tmpResult)
 
         toolAppConfig = __CreateToolAppConfig(args, defaultPlatform, toolCommonArgConfig, defaultVSVersion)
         toolAppContext = ToolAppContext(log, lowLevelToolConfig, toolAppConfig)

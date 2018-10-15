@@ -1,49 +1,51 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <cassert>
 #include <cstdlib>
 
-namespace Fsl {
+namespace Fsl
+{
   namespace Procedural
   {
     namespace
     {
-      void GenerateVertices(std::vector<VertexPositionNormalTexture>& rDst, const BoxF& dstBox, const float dstZ, const int verticesX, const int verticesY, const NativeTextureArea& textureArea)
+      void GenerateVertices(std::vector<VertexPositionNormalTexture>& rDst, const BoxF& dstBox, const float dstZ, const int verticesX,
+                            const int verticesY, const NativeTextureArea& textureArea)
       {
         assert(verticesX >= 2);
         assert(verticesY >= 2);
-        assert(rDst.size() >= std::size_t(verticesX*verticesY));
+        assert(rDst.size() >= std::size_t(verticesX * verticesY));
 
         const double x1 = dstBox.X1;
         const double y1 = dstBox.Y1;
@@ -113,7 +115,8 @@ namespace Fsl {
       }
 
 
-      void GenerateTriangleListIndices(std::vector<BasicMesh::index_type>& rDst, const int segmentsX, const int segmentsY, const WindingOrder::Enum windingOrder)
+      void GenerateTriangleListIndices(std::vector<BasicMesh::index_type>& rDst, const int segmentsX, const int segmentsY,
+                                       const WindingOrder::Enum windingOrder)
       {
         assert(segmentsX >= 1);
         assert(segmentsY >= 1);
@@ -150,7 +153,8 @@ namespace Fsl {
       }
 
 
-      void GenerateTriangleStripIndices(std::vector<BasicMesh::index_type>& rDst, const int segmentsX, const int segmentsY, const WindingOrder::Enum windingOrder)
+      void GenerateTriangleStripIndices(std::vector<BasicMesh::index_type>& rDst, const int segmentsX, const int segmentsY,
+                                        const WindingOrder::Enum windingOrder)
       {
         assert(segmentsX >= 1);
         assert(segmentsY >= 1);
@@ -237,7 +241,7 @@ namespace Fsl {
           {
             for (int x = segmentsX - 1; x >= 0; --x)
             {
-              pIndices[dstIndex + dstOffset0] = (offset)+x;
+              pIndices[dstIndex + dstOffset0] = (offset) + x;
               pIndices[dstIndex + dstOffset1] = (offset + yOffset + x);
               dstIndex += 2;
             }
@@ -256,10 +260,12 @@ namespace Fsl {
 
 
     BasicMesh SegmentedQuadGenerator::GenerateList(const BoxF& dstBox, const float dstZ, const int segmentsX, const int segmentsY,
-                                                         const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
+                                                   const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
     {
       if (segmentsX < 1 || segmentsY < 1)
+      {
         throw std::invalid_argument("invalid arguments");
+      }
 
       const int verticesX = segmentsX + 1;
       const int verticesY = segmentsY + 1;
@@ -272,8 +278,8 @@ namespace Fsl {
     }
 
 
-    BasicMesh SegmentedQuadGenerator::GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX, const int segmentsY,
-      const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
+    BasicMesh SegmentedQuadGenerator::GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX,
+                                                   const int segmentsY, const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
     {
       const float x = dstCenter.X - (dstWidth * 0.5f);
       const float y = dstCenter.Y - (dstHeight * 0.5f);
@@ -283,10 +289,12 @@ namespace Fsl {
 
 
     BasicMesh SegmentedQuadGenerator::GenerateStrip(const BoxF& dstBox, const float dstZ, const int segmentsX, const int segmentsY,
-      const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
+                                                    const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
     {
       if (segmentsX < 1 || segmentsY < 1)
+      {
         throw std::invalid_argument("invalid arguments");
+      }
 
       const int verticesX = segmentsX + 1;
       const int verticesY = segmentsY + 1;
@@ -302,14 +310,13 @@ namespace Fsl {
     }
 
 
-    BasicMesh SegmentedQuadGenerator::GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX, const int segmentsY,
-      const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
+    BasicMesh SegmentedQuadGenerator::GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const int segmentsX,
+                                                    const int segmentsY, const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
     {
       const float x = dstCenter.X - (dstWidth * 0.5f);
       const float y = dstCenter.Y - (dstHeight * 0.5f);
       const BoxF dstRect(x, -y, dstWidth, -dstHeight, true);
       return GenerateStrip(dstRect, dstCenter.Z, segmentsX, segmentsY, textureArea, windingOrder);
     }
-
   }
 }

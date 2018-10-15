@@ -1,10 +1,10 @@
 /*
-* Vulkan Example - Instanced mesh rendering, uses a separate vertex buffer for instanced data
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Instanced mesh rendering, uses a separate vertex buffer for instanced data
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Mesh instancing' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -43,13 +43,9 @@ namespace Fsl
 
 
     // Vertex layout for this example
-    const std::vector<MeshLoader::VertexLayout> g_vertexLayout =
-    {
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_UV,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_COLOR
-    };
+    const std::vector<MeshLoader::VertexLayout> g_vertexLayout = {
+      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION, MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL, MeshLoader::VertexLayout::VERTEX_LAYOUT_UV,
+      MeshLoader::VertexLayout::VERTEX_LAYOUT_COLOR};
   }
 
 
@@ -68,7 +64,7 @@ namespace Fsl
 
   MeshInstancing::~MeshInstancing()
   {
-
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -104,8 +100,8 @@ namespace Fsl
     cmdBufInfo.pNext = nullptr;
 
     VkClearValue clearValues[2];
-    clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[0].color = {{0.0f, 0.0f, 0.0f, 0.0f}};
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -142,7 +138,7 @@ namespace Fsl
         vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
         vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Solid.Get());
 
-        VkDeviceSize offsets[1] = { 0 };
+        VkDeviceSize offsets[1] = {0};
         // Binding point 0 : Mesh vertex buffer
         vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Example.GetVertices().GetBufferPointer(), offsets);
         // Binding point 1 : Instance data buffer
@@ -152,6 +148,8 @@ namespace Fsl
 
         // Render instances
         vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Example.GetIndexCount(), m_optionParser->GetInstanceCount(), 0, 0, 0);
+
+        DrawUI(m_drawCmdBuffers[i]);
 
         vkCmdEndRenderPass(m_drawCmdBuffers[i]);
       }
@@ -175,7 +173,9 @@ namespace Fsl
   void MeshInstancing::Draw(const DemoTime& demoTime)
   {
     if (!TryPrepareFrame())
+    {
       return;
+    }
 
     m_submitInfo.commandBufferCount = 1;
     m_submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);
@@ -185,32 +185,33 @@ namespace Fsl
     SubmitFrame();
 
     // TODO:
-    //if (!paused)
+    // if (!paused)
     UpdateUniformBuffer(false);
   }
 
 
   void MeshInstancing::LoadTextures()
   {
-    if (m_deviceFeatures.textureCompressionBC)
+    if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC texture compression");
       m_textures.ColorMap = m_textureLoader->LoadTextureArray("textures/texturearray_rocks_bc3.ktx");
     }
-    else if (m_deviceFeatures.textureCompressionETC2)
+    else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 texture compression");
       m_textures.ColorMap = m_textureLoader->LoadTextureArray("textures/texturearray_rocks_etc2.ktx");
     }
     else
+    {
       throw NotSupportedException("No supported texture compression found");
+    }
   }
 
 
   void MeshInstancing::LoadMeshes()
   {
     m_meshes.Example = LoadMesh("models/rock01.dae", g_vertexLayout, 0.1f);
-
   }
 
 
@@ -219,13 +220,14 @@ namespace Fsl
     std::vector<InstanceData> instanceData(m_optionParser->GetInstanceCount());
     std::mt19937 rndGenerator(static_cast<std::mt19937::result_type>(time(nullptr)));
     std::uniform_real_distribution<double> uniformDist(0.0, 1.0);
-    std::uniform_int_distribution<uint32_t> uniformTexDist(0, m_textures.ColorMap.GetLayers()-1);
+    std::uniform_int_distribution<uint32_t> uniformTexDist(0, m_textures.ColorMap.GetLayers() - 1);
 
     for (std::size_t i = 0; i < m_optionParser->GetInstanceCount(); ++i)
     {
-      instanceData[i].rot = glm::vec3(MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator));
-      const float theta = static_cast<float>(2.0 * MathHelper::PI * uniformDist(rndGenerator));
-      const float phi = static_cast<float>(std::acos(1.0 - 2.0 * uniformDist(rndGenerator)));
+      instanceData[i].rot =
+        glm::vec3(MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator));
+      const auto theta = static_cast<float>(2.0 * MathHelper::PI * uniformDist(rndGenerator));
+      const auto phi = static_cast<float>(std::acos(1.0 - 2.0 * uniformDist(rndGenerator)));
       glm::vec3 pos;
       instanceData[i].pos = glm::vec3(std::sin(phi) * std::cos(theta), std::sin(theta) * uniformDist(rndGenerator) / 1500.0f, std::cos(phi)) * 7.5f;
       instanceData[i].scale = static_cast<float>(1.0 + uniformDist(rndGenerator) * 2.0);
@@ -243,16 +245,13 @@ namespace Fsl
       RapidVulkan::Memory Memory;
     } stagingBuffer;
 
-    CreateBuffer(stagingBuffer.Buffer, stagingBuffer.Memory,
-      VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-      m_instanceBuffer.Size, instanceData.data());
+    CreateBuffer(stagingBuffer.Buffer, stagingBuffer.Memory, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                 m_instanceBuffer.Size, instanceData.data());
 
-    CreateBuffer(m_instanceBuffer.Buffer, m_instanceBuffer.Memory,
-      VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-      m_instanceBuffer.Size, nullptr);
+    CreateBuffer(m_instanceBuffer.Buffer, m_instanceBuffer.Memory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_instanceBuffer.Size, nullptr);
 
-    { // Copy to staging buffer
+    {    // Copy to staging buffer
       CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 
       VkBufferCopy copyRegion{};
@@ -276,11 +275,13 @@ namespace Fsl
     // Mesh vertex buffer (description) at binding point 0
     m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
     m_vertices.BindingDescriptions[0].stride = MeshLoader::VertexSize(g_vertexLayout);
-    m_vertices.BindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX; // Input rate for the data passed to shader// Step for each vertex rendered;
+    m_vertices.BindingDescriptions[0].inputRate =
+      VK_VERTEX_INPUT_RATE_VERTEX;    // Input rate for the data passed to shader// Step for each vertex rendered;
 
     m_vertices.BindingDescriptions[1].binding = INSTANCE_BUFFER_BIND_ID;
     m_vertices.BindingDescriptions[1].stride = sizeof(InstanceData);
-    m_vertices.BindingDescriptions[1].inputRate = VK_VERTEX_INPUT_RATE_INSTANCE; // Input rate for the data passed to shader// Step for each instance rendered;
+    m_vertices.BindingDescriptions[1].inputRate =
+      VK_VERTEX_INPUT_RATE_INSTANCE;    // Input rate for the data passed to shader// Step for each instance rendered;
 
     // Attribute descriptions
     // Describes memory layout and shader positions
@@ -310,12 +311,12 @@ namespace Fsl
     m_vertices.AttributeDescriptions[3].offset = sizeof(float) * 8;
     // Instanced attributes
     // Location 4 : Position
-    m_vertices.AttributeDescriptions[4].location = 5; // TODO: 5?
+    m_vertices.AttributeDescriptions[4].location = 5;    // TODO: 5?
     m_vertices.AttributeDescriptions[4].binding = INSTANCE_BUFFER_BIND_ID;
     m_vertices.AttributeDescriptions[4].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[4].offset = sizeof(float) * 3;
     // Location 5 : Rotation
-    m_vertices.AttributeDescriptions[5].location = 4; // TODO: 4
+    m_vertices.AttributeDescriptions[5].location = 4;    // TODO: 4
     m_vertices.AttributeDescriptions[5].binding = INSTANCE_BUFFER_BIND_ID;
     m_vertices.AttributeDescriptions[5].format = VK_FORMAT_R32G32B32_SFLOAT;
     m_vertices.AttributeDescriptions[5].offset = 0;
@@ -342,14 +343,13 @@ namespace Fsl
 
   void MeshInstancing::PrepareUniformBuffers()
   {
-    CreateBuffer(m_uniformData.VsScene.Buffer, m_uniformData.VsScene.Memory, m_uniformData.VsScene.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboVS), nullptr);
+    CreateBuffer(m_uniformData.VsScene.Buffer, m_uniformData.VsScene.Memory, m_uniformData.VsScene.Descriptor, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboVS), nullptr);
 
     // Map for host access
     m_uniformData.VsScene.Map(0, sizeof(m_uboVS));
     UpdateUniformBuffer(true);
-    //m_uniformData.VsScene.Unmap();
+    // m_uniformData.VsScene.Unmap();
   }
 
 
@@ -361,14 +361,14 @@ namespace Fsl
 
       const float aspect = static_cast<float>(screenExtent.Width) / static_cast<float>(screenExtent.Height);
       m_uboVS.Projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
-      m_uboVS.View = glm::translate(glm::mat4(), m_cameraPos + glm::vec3(0.0f, 0.0f, m_zoom));
+      m_uboVS.View = glm::translate(glm::mat4(1.0f), m_cameraPos + glm::vec3(0.0f, 0.0f, m_zoom));
       m_uboVS.View = glm::rotate(m_uboVS.View, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
       m_uboVS.View = glm::rotate(m_uboVS.View, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
       m_uboVS.View = glm::rotate(m_uboVS.View, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     }
 
     // FIX:
-    //if (!m_paused)
+    // if (!m_paused)
     {
       m_uboVS.Time += m_frameTimer * 0.05f;
     }
@@ -455,11 +455,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;

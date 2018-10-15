@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ParticleDrawQuadsGLES3.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -45,7 +45,6 @@ namespace Fsl
   ParticleDrawQuadsGLES3::ParticleDrawQuadsGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity)
     : m_buffer(capacity * 6)
     , m_vertexBuffer(m_buffer, GL_DYNAMIC_DRAW)
-    , m_vertexBuffer2()
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(nullptr)
     , m_locWorldViewProjectionMatrix(GLValues::INVALID_LOCATION)
@@ -56,7 +55,8 @@ namespace Fsl
   }
 
 
-  ParticleDrawQuadsGLES3::ParticleDrawQuadsGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity, const bool useDoubleBuffering)
+  ParticleDrawQuadsGLES3::ParticleDrawQuadsGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity,
+                                                 const bool useDoubleBuffering)
     : m_buffer(capacity * 6)
     , m_vertexBuffer(m_buffer, GL_DYNAMIC_DRAW)
     , m_vertexBuffer2(m_buffer, GL_DYNAMIC_DRAW)
@@ -70,7 +70,8 @@ namespace Fsl
   }
 
 
-  void ParticleDrawQuadsGLES3::Draw(const ParticleDrawContext& context, const uint8_t* pParticles, const uint32_t particleCount, const uint32_t particleStride)
+  void ParticleDrawQuadsGLES3::Draw(const ParticleDrawContext& context, const uint8_t* pParticles, const uint32_t particleCount,
+                                    const uint32_t particleStride)
   {
     const GLuint hProgram = m_program.Get();
     // Set the shader program
@@ -82,8 +83,8 @@ namespace Fsl
 
     Vector4 col = Color::White().ToVector4();
 
-    //HighResolutionTimer timer;
-    //auto start = timer.GetTime();
+    // HighResolutionTimer timer;
+    // auto start = timer.GetTime();
 
     // 0 3
     // |\|
@@ -101,7 +102,7 @@ namespace Fsl
 
     for (uint32_t i = 0; i < count; i += 6)
     {
-      const Particle* pSrcParticle = reinterpret_cast<const Particle*>(pParticles);
+      const auto* pSrcParticle = reinterpret_cast<const Particle*>(pParticles);
 
       pDst[i + 0].Position = pSrcParticle->Position;
       pDst[i + 1].Position = pSrcParticle->Position;
@@ -134,8 +135,8 @@ namespace Fsl
       pParticles += particleStride;
     }
 
-    //auto end = timer.GetTime();
-    //FSLLOG("Particles-ToVertices Time: " << end - start);
+    // auto end = timer.GetTime();
+    // FSLLOG("Particles-ToVertices Time: " << end - start);
 
     glBindBuffer(m_pCurrentBuffer->GetTarget(), m_pCurrentBuffer->Get());
     m_pCurrentBuffer->SetDataFast(0, m_buffer.data(), particleCount * 6);
@@ -157,10 +158,14 @@ namespace Fsl
 
     const GLuint hProgram = m_program.Get();
     auto vertexDecl = TVertex::GetVertexDeclaration();
-    m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    m_particleAttribLink[1] = GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
-    m_particleAttribLink[2] = GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-    m_particleAttribLink[3] = GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    m_particleAttribLink[0] =
+      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    m_particleAttribLink[1] =
+      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+    m_particleAttribLink[2] =
+      GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+    m_particleAttribLink[3] = GLVertexAttribLink(glGetAttribLocation(hProgram, "VertexTexCoord"),
+                                                 vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
     m_locWorldViewProjectionMatrix = glGetUniformLocation(hProgram, "WorldViewProjection");
     m_locWorldViewMatrix = glGetUniformLocation(hProgram, "WorldView");
@@ -176,5 +181,4 @@ namespace Fsl
       m_buffer[i + 5].Normal = Vector3(+0.5f, +0.5f, 1.0f);
     }
   }
-
 }

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
@@ -59,13 +59,17 @@
 #if 0
 #define LOCAL_LOG(X) FSLLOG("EGLDemoHost: " << X)
 #else
-#define LOCAL_LOG(X) {}
+#define LOCAL_LOG(X) \
+  {                  \
+  }
 #endif
 
 #if 1
 #define LOCAL_LOG_WARNING(X) FSLLOG_WARNING("EGLDemoHost: " << X)
 #else
-#define LOCAL_LOG_WARNING(X) {}
+#define LOCAL_LOG_WARNING(X) \
+  {                          \
+  }
 #endif
 
 #define EMPTY_VALUE_EGLCONFIG nullptr
@@ -76,16 +80,11 @@ namespace Fsl
   {
     struct RGBConfig
     {
-      int32_t R;
-      int32_t G;
-      int32_t B;
+      int32_t R{8};
+      int32_t G{8};
+      int32_t B{8};
 
-      RGBConfig()
-        : R(8)
-        , G(8)
-        , B(8)
-      {
-      }
+      RGBConfig() = default;
 
       RGBConfig(const int32_t r, const int32_t g, const int32_t b)
         : R(r)
@@ -97,8 +96,7 @@ namespace Fsl
 
     const int32_t DEFAULT_DEPTH_BUFFER_SIZE = 24;
     const int32_t FALLBACK_DEPTH_BUFFER_SIZE = 16;
-    const RGBConfig DEFAULT_RGB_CONFIG(8,8,8);
-
+    const RGBConfig DEFAULT_RGB_CONFIG(8, 8, 8);
 
 
     //! @brief copy the supplied EGL config into a deque
@@ -116,14 +114,17 @@ namespace Fsl
           ++count;
         }
         if (*pEglAttribs != EGL_NONE)
+        {
           throw std::invalid_argument("pEglAttribs seems to be invalid");
-        else
-          rEglAttribs.push_back(*pEglAttribs);
+        }
+
+        rEglAttribs.push_back(*pEglAttribs);
       }
     }
 
 
-    void BuildDefaultConfigAttributes(std::deque<EGLint>& rConfigAttributes, const EGLDemoHostFeatureConfig& featureConfig, const bool bForceConformance, const RGBConfig& preferredRGBConfig, const int32_t preferredDepthBufferSize)
+    void BuildDefaultConfigAttributes(std::deque<EGLint>& rConfigAttributes, const EGLDemoHostFeatureConfig& featureConfig,
+                                      const bool bForceConformance, const RGBConfig& preferredRGBConfig, const int32_t preferredDepthBufferSize)
     {
       rConfigAttributes.push_back(EGL_RED_SIZE);
       rConfigAttributes.push_back(preferredRGBConfig.R);
@@ -167,7 +168,7 @@ namespace Fsl
         //  rConfigAttributes.push_back(8);
       }
 
-      //if (bUseOpenGLES && bForceConformance)
+      // if (bUseOpenGLES && bForceConformance)
       //{
       //  rConfigAttributes.push_back(EGL_CONFORMANT);
       //  rConfigAttributes.push_back(EGL_OPENGL_ES2_BIT);
@@ -201,7 +202,7 @@ namespace Fsl
     {
       assert((rConfigAttributes.size() % 2) == 1 && rConfigAttributes.back() == EGL_NONE);
 
-      std::deque<EGLint>::iterator itr = rConfigAttributes.begin();
+      auto itr = rConfigAttributes.begin();
       int index = 0;
       while (itr != rConfigAttributes.end() && *itr != EGL_NONE)
       {
@@ -219,13 +220,15 @@ namespace Fsl
 
     void MergeWithOverwriteConfigAttributes(std::deque<EGLint>& rConfigAttributes, const std::deque<EGLint>& srcConfigAttribs)
     {
-      if (srcConfigAttribs.size() == 0)
+      if (srcConfigAttribs.empty())
+      {
         return;
+      }
 
       assert((rConfigAttributes.size() % 2) == 1);
       assert((srcConfigAttribs.size() % 2) == 1);
 
-      std::deque<EGLint>::const_iterator itr = srcConfigAttribs.begin();
+      auto itr = srcConfigAttribs.begin();
       while (itr != srcConfigAttribs.end() && *itr != EGL_NONE)
       {
         EGLint key = *itr;
@@ -241,15 +244,16 @@ namespace Fsl
           rConfigAttributes.push_back(EGL_NONE);
         }
       }
-
     }
 
-    void ApplyHostOverrides(std::deque<EGLint>& rConfigAttributes, const std::shared_ptr<EGLDemoHostOptionParser> options)
+    void ApplyHostOverrides(std::deque<EGLint>& rConfigAttributes, const std::shared_ptr<EGLDemoHostOptionParser>& options)
     {
       std::deque<EGLint> forceConfigAttributes;
       options->ExtractConfigAttributes(forceConfigAttributes);
-      if (forceConfigAttributes.size() > 0)
+      if (!forceConfigAttributes.empty())
+      {
         MergeWithOverwriteConfigAttributes(rConfigAttributes, forceConfigAttributes);
+      }
     }
 
     EGLDemoHostFeatureConfig ExamineFeatureRequest(const std::shared_ptr<DemoHostAppSetup::DemoHostFeatureDeque>& features)
@@ -340,7 +344,9 @@ namespace Fsl
     {
       EGLint value;
       if (eglGetConfigAttrib(display, config, attribute, &value) == EGL_TRUE)
+      {
         return value > 8;
+      }
       FSLLOG_DEBUG_WARNING("Failed to retrive attribute: " << EGLStringUtil::GetConfigEnumToString(attribute));
       return false;
     }
@@ -348,17 +354,17 @@ namespace Fsl
     //! For now any config that has a channel greater than 8 is considered hdr
     inline bool IsHDRConfig(const EGLDisplay display, const EGLConfig config)
     {
-      return IsHDRChannel(display, config, EGL_RED_SIZE) ||
-             IsHDRChannel(display, config, EGL_GREEN_SIZE) ||
+      return IsHDRChannel(display, config, EGL_RED_SIZE) || IsHDRChannel(display, config, EGL_GREEN_SIZE) ||
              IsHDRChannel(display, config, EGL_BLUE_SIZE);
     }
-
 
 
     void DoLogConfigs(EGLDemoHostOptionParser::ConfigLogMode logMode, const EGLDisplay display)
     {
       if (logMode == EGLDemoHostOptionParser::ConfigLogMode::Off)
+      {
         return;
+      }
 
       const bool hdrFilter = (logMode == EGLDemoHostOptionParser::ConfigLogMode::HDR);
 
@@ -369,7 +375,7 @@ namespace Fsl
       const auto attribs = EGLUtil::GetConfigAttribs();
       for (const auto config : configs)
       {
-        if (! hdrFilter || IsHDRConfig(display, config) )
+        if (!hdrFilter || IsHDRConfig(display, config))
         {
           ++foundCount;
           FSLLOG("*** Config index " << index);
@@ -398,7 +404,8 @@ namespace Fsl
       FSLLOG("Requested EGL config");
       for (std::size_t i = 1; i < finalConfigAttribs.size(); i += 2)
       {
-        FSLLOG(EGLStringUtil::GetConfigEnumToString(finalConfigAttribs[i - 1]) << "=" << EGLStringUtil::GetConfigAttribToString(finalConfigAttribs[i - 1], finalConfigAttribs[i]));
+        FSLLOG(EGLStringUtil::GetConfigEnumToString(finalConfigAttribs[i - 1])
+               << "=" << EGLStringUtil::GetConfigAttribToString(finalConfigAttribs[i - 1], finalConfigAttribs[i]));
       }
     }
 
@@ -415,9 +422,8 @@ namespace Fsl
 
         if (actualValue != requestedValue)
         {
-          FSLLOG(EGLStringUtil::GetConfigEnumToString(finalConfigAttribs[i - 1]) << " is "
-                 << EGLStringUtil::GetConfigAttribToString(finalConfigAttribs[i - 1], actualValue)
-                 << " requested "
+          FSLLOG(EGLStringUtil::GetConfigEnumToString(finalConfigAttribs[i - 1])
+                 << " is " << EGLStringUtil::GetConfigAttribToString(finalConfigAttribs[i - 1], actualValue) << " requested "
                  << EGLStringUtil::GetConfigAttribToString(finalConfigAttribs[i - 1], requestedValue));
         }
       }
@@ -429,8 +435,10 @@ namespace Fsl
       // Do a basic validation on the app's custom EGL config attribs
       CopyConfig(rAppAttribs, appAttribs);
 
-      if (!(rAppAttribs.size() == 0 || ((rAppAttribs.size() % 2) == 1 && rAppAttribs.back() == EGL_NONE)))
+      if (!(rAppAttribs.empty() || ((rAppAttribs.size() % 2) == 1 && rAppAttribs.back() == EGL_NONE)))
+      {
         throw std::invalid_argument("eglConfigAttribs is in a unexpected format");
+      }
     }
 
 
@@ -440,13 +448,19 @@ namespace Fsl
     {
       // Then build our default egl config
       std::deque<EGLint> configAttribs;
-      if (appAglConfigAttribs.size() <= 0 || configControl == ConfigControl::Overwrite)
+      if (appAglConfigAttribs.empty() || configControl == ConfigControl::Overwrite)
+      {
         BuildDefaultConfigAttributes(configAttribs, featureConfig, false, preferredRGBConfig, preferredDepthBufferSize);
+      }
       else
+      {
         configAttribs.push_back(EGL_NONE);
+      }
 
-      if (appAglConfigAttribs.size() > 0)
+      if (!appAglConfigAttribs.empty())
+      {
         MergeWithOverwriteConfigAttributes(configAttribs, appAglConfigAttribs);
+      }
 
       // Allow the command line options to override things in the config
       ApplyHostOverrides(configAttribs, options);
@@ -459,25 +473,27 @@ namespace Fsl
     }
 
 
-
-    EGLContext DoEGLCreateContext(const EGLDisplay hDisplay, const EGLConfig hConfig,
-                                  const bool enableGLES, const int eglContextClientVersionMajor,
+    EGLContext DoEGLCreateContext(const EGLDisplay hDisplay, const EGLConfig hConfig, const bool enableGLES, const int eglContextClientVersionMajor,
                                   const int eglContextClientVersionMinor, const int eglContextClientVersionMinimumMinor)
     {
-      EGLint contextAttribListESMajorOnly[] = { EGL_CONTEXT_CLIENT_VERSION, eglContextClientVersionMajor, EGL_NONE };
+      EGLint contextAttribListESMajorOnly[] = {EGL_CONTEXT_CLIENT_VERSION, eglContextClientVersionMajor, EGL_NONE};
       bool supportsMinorVersion = true;
 #if defined(EGL_CONTEXT_MAJOR_VERSION) && defined(EGL_CONTEXT_MINOR_VERSION)
-      EGLint contextAttribListESMajorMinor[] = { EGL_CONTEXT_MAJOR_VERSION, eglContextClientVersionMajor, EGL_CONTEXT_MINOR_VERSION, eglContextClientVersionMinor, EGL_NONE };
-      EGLint* contextAttribListES = (eglContextClientVersionMajor < 3 || eglContextClientVersionMinor == 0) ? contextAttribListESMajorOnly : contextAttribListESMajorMinor;
+      EGLint contextAttribListESMajorMinor[] = {EGL_CONTEXT_MAJOR_VERSION, eglContextClientVersionMajor, EGL_CONTEXT_MINOR_VERSION,
+                                                eglContextClientVersionMinor, EGL_NONE};
+      EGLint* contextAttribListES =
+        (eglContextClientVersionMajor < 3 || eglContextClientVersionMinor == 0) ? contextAttribListESMajorOnly : contextAttribListESMajorMinor;
 #elif defined(EGL_CONTEXT_MAJOR_VERSION_KHR) && defined(EGL_CONTEXT_MINOR_VERSION_KHR)
-      EGLint contextAttribListESMajorMinor[] = { EGL_CONTEXT_MAJOR_VERSION_KHR, eglContextClientVersionMajor, EGL_CONTEXT_MINOR_VERSION_KHR, eglContextClientVersionMinor, EGL_NONE };
-      EGLint* contextAttribListES = (eglContextClientVersionMajor < 3 || eglContextClientVersionMinor == 0) ? contextAttribListESMajorOnly : contextAttribListESMajorMinor;
+      EGLint contextAttribListESMajorMinor[] = {EGL_CONTEXT_MAJOR_VERSION_KHR, eglContextClientVersionMajor, EGL_CONTEXT_MINOR_VERSION_KHR,
+                                                eglContextClientVersionMinor, EGL_NONE};
+      EGLint* contextAttribListES =
+        (eglContextClientVersionMajor < 3 || eglContextClientVersionMinor == 0) ? contextAttribListESMajorOnly : contextAttribListESMajorMinor;
 #else
       EGLint* contextAttribListES = contextAttribListESMajorOnly;
       FSLLOG_WARNING_IF(eglContextClientVersionMinor != 0, "EGL does not supported requesting a minor version. Hoping for the best");
       supportsMinorVersion = false;
 #endif
-      EGLint contextAttribListVG[] = { EGL_NONE };
+      EGLint contextAttribListVG[] = {EGL_NONE};
       EGLint* contextAttribList = (enableGLES ? contextAttribListES : contextAttribListVG);
 
       EGLContext hContext = eglCreateContext(hDisplay, hConfig, EGL_NO_CONTEXT, contextAttribList);
@@ -489,7 +505,8 @@ namespace Fsl
         if (supportsMinorVersion && eglContextClientVersionMinor > eglContextClientVersionMinimumMinor)
         {
           // Recursive try a lesser minor version until we succeed or hit minor version zero
-          hContext = DoEGLCreateContext(hDisplay, hConfig, enableGLES, eglContextClientVersionMajor, eglContextClientVersionMinor - 1, eglContextClientVersionMinimumMinor);
+          hContext = DoEGLCreateContext(hDisplay, hConfig, enableGLES, eglContextClientVersionMajor, eglContextClientVersionMinor - 1,
+                                        eglContextClientVersionMinimumMinor);
         }
         else if (eglError != EGL_SUCCESS)
         {
@@ -498,13 +515,15 @@ namespace Fsl
           throw EGLGraphicsException(stream.str(), eglError, __FILE__, __LINE__);
         }
         else
+        {
           throw EGLGraphicsException("Failed to create the requested context");
+        }
       }
       EGL_CHECK_FOR_ERROR();
       return hContext;
     }
 
-    template<typename TContainer>
+    template <typename TContainer>
     bool IsHDRRequest(const TContainer& appEglConfigAttribs)
     {
       auto itr = appEglConfigAttribs.begin();
@@ -521,7 +540,9 @@ namespace Fsl
           case EGL_GREEN_SIZE:
           case EGL_BLUE_SIZE:
             if (*itr > 8)
+            {
               return true;
+            }
             break;
           default:
             break;
@@ -546,7 +567,9 @@ namespace Fsl
           // Skipping the entries
           ++itr;
           if (itr != itrEnd)
+          {
             ++itr;
+          }
         }
         else
         {
@@ -563,52 +586,52 @@ namespace Fsl
     }
 
 
-    bool TryConfigFallbackDepth(const EGLDisplay hDisplay,
-                                std::vector<EGLint>& rFinalConfigAttribs, const std::deque<EGLint>& appAglConfigAttribs,
-                                const ConfigControl configControl,
-                                const EGLDemoHostFeatureConfig& featureConfig, const std::shared_ptr<EGLDemoHostOptionParser>& options,
-                                const RGBConfig& preferredRGBConfig, const int32_t preferredDepthBufferSize,
-                                EGLConfig& rEGLConfig)
+    bool TryConfigFallbackDepth(const EGLDisplay hDisplay, std::vector<EGLint>& rFinalConfigAttribs, const std::deque<EGLint>& appAglConfigAttribs,
+                                const ConfigControl configControl, const EGLDemoHostFeatureConfig& featureConfig,
+                                const std::shared_ptr<EGLDemoHostOptionParser>& options, const RGBConfig& preferredRGBConfig,
+                                const int32_t preferredDepthBufferSize, EGLConfig& rEGLConfig)
     {
-      auto customAppAglConfigAttribs = RemoveAttribs(appAglConfigAttribs, { EGL_DEPTH_SIZE });
+      auto customAppAglConfigAttribs = RemoveAttribs(appAglConfigAttribs, {EGL_DEPTH_SIZE});
       {
         FSLLOG("- Trying with a different color depth and depth buffer size. (D=" << preferredDepthBufferSize << ")");
-        BuildEGLConfig(rFinalConfigAttribs, customAppAglConfigAttribs, configControl, featureConfig, options, preferredRGBConfig, preferredDepthBufferSize);
+        BuildEGLConfig(rFinalConfigAttribs, customAppAglConfigAttribs, configControl, featureConfig, options, preferredRGBConfig,
+                       preferredDepthBufferSize);
 
         // Lets try again
         EGLint numConfigs;
         EGL_CHECK(eglChooseConfig(hDisplay, rFinalConfigAttribs.data(), &rEGLConfig, 1, &numConfigs));
         if (numConfigs == 1)
+        {
           return true;
+        }
       }
       return false;
     }
 
 
-    bool TryConfigFallbackColorsAndDepth(const EGLDisplay hDisplay,
-                                         std::vector<EGLint>& rFinalConfigAttribs, const std::deque<EGLint>& appAglConfigAttribs,
-                                         const ConfigControl configControl,
+    bool TryConfigFallbackColorsAndDepth(const EGLDisplay hDisplay, std::vector<EGLint>& rFinalConfigAttribs,
+                                         const std::deque<EGLint>& appAglConfigAttribs, const ConfigControl configControl,
                                          const EGLDemoHostFeatureConfig& featureConfig, const std::shared_ptr<EGLDemoHostOptionParser>& options,
-                                         const RGBConfig& preferredRGBConfig, const int32_t preferredDepthBufferSize,
-                                         EGLConfig& rEGLConfig)
+                                         const RGBConfig& preferredRGBConfig, const int32_t preferredDepthBufferSize, EGLConfig& rEGLConfig)
     {
-      auto customAppAglConfigAttribs = RemoveAttribs(appAglConfigAttribs, { EGL_RED_SIZE, EGL_GREEN_SIZE, EGL_BLUE_SIZE });
+      auto customAppAglConfigAttribs = RemoveAttribs(appAglConfigAttribs, {EGL_RED_SIZE, EGL_GREEN_SIZE, EGL_BLUE_SIZE});
       {
-        FSLLOG("- Trying with a different color depth. (R=" << preferredRGBConfig.R
-                                                   << " G=" << preferredRGBConfig.G
-                                                   << " B=" << preferredRGBConfig.B << ")");
-        BuildEGLConfig(rFinalConfigAttribs, customAppAglConfigAttribs, configControl, featureConfig, options, preferredRGBConfig, preferredDepthBufferSize);
+        FSLLOG("- Trying with a different color depth. (R=" << preferredRGBConfig.R << " G=" << preferredRGBConfig.G << " B=" << preferredRGBConfig.B
+                                                            << ")");
+        BuildEGLConfig(rFinalConfigAttribs, customAppAglConfigAttribs, configControl, featureConfig, options, preferredRGBConfig,
+                       preferredDepthBufferSize);
 
         // Lets try again
         EGLint numConfigs;
         EGL_CHECK(eglChooseConfig(hDisplay, rFinalConfigAttribs.data(), &rEGLConfig, 1, &numConfigs));
         if (numConfigs == 1)
+        {
           return true;
+        }
       }
 
       return TryConfigFallbackDepth(hDisplay, rFinalConfigAttribs, customAppAglConfigAttribs, configControl, featureConfig, options,
-                                    preferredRGBConfig, preferredDepthBufferSize,
-                                    rEGLConfig);
+                                    preferredRGBConfig, preferredDepthBufferSize, rEGLConfig);
     }
   }
 
@@ -616,13 +639,10 @@ namespace Fsl
   EGLDemoHost::EGLDemoHost(const DemoHostConfig& demoHostConfig)
     : ADemoHost(demoHostConfig)
     , m_demoHostConfig(demoHostConfig)
-    , m_finalConfigAttribs()
     , m_eglContextClientVersionMajor(0)
     , m_eglContextClientVersionMinor(0)
     , m_eglContextClientVersionMinimumMinor(0)
     , m_nativeWindowSetup()
-    , m_windowSystem()
-    , m_window()
     , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
     , m_hostService(demoHostConfig.GetServiceProvider().Get<EGLHostService>())
     , m_hDisplay(EGL_NO_DISPLAY)
@@ -631,9 +651,7 @@ namespace Fsl
     , m_hConfig(EMPTY_VALUE_EGLCONFIG)
     , m_isActivated(true)
     , m_options(demoHostConfig.GetOptions<EGLDemoHostOptionParser>())
-    , m_appHostConfig()
     , m_configControl(ConfigControl::Default)
-    , m_featureConfig()
     , m_enableGLES(false)
     , m_enableVG(false)
     , m_logSelectedConfig(false)
@@ -648,7 +666,7 @@ namespace Fsl
     // Set the window system in the host service so that any services or app that is interested will be able to access it
     m_windowHostInfoControl->SetWindowSystem(m_windowSystem);
 
-    const DemoHostAppSetup hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
+    const DemoHostAppSetup& hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
     // Retrieve the custom config
     m_appHostConfig = hostAppSetup.GetDemoAppHostConfig<DemoAppHostConfigEGL>();
 
@@ -659,7 +677,9 @@ namespace Fsl
     // Check that its a OpenGLES demo app
     m_featureConfig = ExamineFeatureRequest(hostAppSetup.DemoHostFeatures);
     if (!m_featureConfig.EnableGLES && !m_featureConfig.EnableVG)
+    {
       throw UsageErrorException("The EGLDemo host currently expects that OpenGLES or OpenVG has to be enabled");
+    }
 
     m_activeApi = m_featureConfig.Feature;
     m_enableGLES = m_featureConfig.EnableGLES;
@@ -668,9 +688,13 @@ namespace Fsl
     m_eglContextClientVersionMajor = m_featureConfig.ESVersionMajor;
     m_eglContextClientVersionMinor = m_featureConfig.ESVersionMinor;
     if (!m_appHostConfig->IsMinimumMiniorVersionSet())
+    {
       m_eglContextClientVersionMinimumMinor = m_featureConfig.ESVersionMinor;
+    }
     else
+    {
       m_eglContextClientVersionMinimumMinor = std::min(m_featureConfig.ESVersionMinor, m_appHostConfig->GetMinimumMiniorVersion());
+    }
 
     if (m_enableGLES)
     {
@@ -679,7 +703,8 @@ namespace Fsl
     }
 
     BuildAttribConfig(m_appEglConfigAttribs, m_appHostConfig->GetEglConfigAttribs());
-    BuildEGLConfig(m_finalConfigAttribs, m_appEglConfigAttribs, m_configControl, m_featureConfig, m_options, DEFAULT_RGB_CONFIG, DEFAULT_DEPTH_BUFFER_SIZE);
+    BuildEGLConfig(m_finalConfigAttribs, m_appEglConfigAttribs, m_configControl, m_featureConfig, m_options, DEFAULT_RGB_CONFIG,
+                   DEFAULT_DEPTH_BUFFER_SIZE);
     assert(m_finalConfigAttribs.size() > 0);
 
     if (m_options->IsLogConfigEnabled())
@@ -766,7 +791,9 @@ namespace Fsl
   bool EGLDemoHost::SwapBuffers()
   {
     if (!m_isActivated)
+    {
       return true;
+    }
 
     // Validate that we are not suspended
     assert(m_window);
@@ -804,7 +831,7 @@ namespace Fsl
     }
     catch (const std::exception&)
     {
-      //LOCAL_LOG("Init failed with exception: " << ex.what());
+      // LOCAL_LOG("Init failed with exception: " << ex.what());
       Shutdown();
       throw;
     }
@@ -877,19 +904,27 @@ namespace Fsl
         bool configSelected = false;
         bool isHDRRequest = IsHDRRequest(m_appEglConfigAttribs);
         if (isHDRRequest)
+        {
           configSelected = TryInitEGLHDRConfig(m_appEglConfigAttribs);
+        }
 
         if (!configSelected)
         {
-          if (! TryInitEGLTryConfigFallback(m_configControl, m_appEglConfigAttribs))
+          if (!TryInitEGLTryConfigFallback(m_configControl, m_appEglConfigAttribs))
+          {
             throw EGLGraphicsException("Failed to find a compatible EGL config");
+          }
         }
       }
 
       if (m_logSelectedConfig)
+      {
         DoLogConfigComparison(m_hDisplay, m_hConfig, finalConfigAttribsCopy);
+      }
       if (m_logExtensions)
+      {
         DoLogExtensions(m_hDisplay);
+      }
 
       // Do EGL extension check
       DoCheckExtensions(m_hDisplay, m_extensionRequests);
@@ -917,30 +952,29 @@ namespace Fsl
   bool EGLDemoHost::TryInitEGLTryConfigFallback(const ConfigControl configControl, const std::deque<EGLint>& appEglConfigAttribs)
   {
     if (!m_enableGLES)
+    {
       return false;
+    }
 
     FSLLOG_WARNING("Preferred configuration not available, trying to locate a alternative.");
     if (configControl != ConfigControl::Exact)
     {
       if (TryConfigFallbackDepth(m_hDisplay, m_finalConfigAttribs, appEglConfigAttribs, m_configControl, m_featureConfig, m_options,
-                                 DEFAULT_RGB_CONFIG, DEFAULT_DEPTH_BUFFER_SIZE,
-                                 m_hConfig))
+                                 DEFAULT_RGB_CONFIG, DEFAULT_DEPTH_BUFFER_SIZE, m_hConfig))
       {
         return true;
       }
 
       const RGBConfig configRGB888(8, 8, 8);
       if (TryConfigFallbackColorsAndDepth(m_hDisplay, m_finalConfigAttribs, appEglConfigAttribs, m_configControl, m_featureConfig, m_options,
-                                          configRGB888, DEFAULT_DEPTH_BUFFER_SIZE,
-                                          m_hConfig))
+                                          configRGB888, DEFAULT_DEPTH_BUFFER_SIZE, m_hConfig))
       {
         return true;
       }
 
-      const RGBConfig configRGB565(5,6,5);
+      const RGBConfig configRGB565(5, 6, 5);
       if (TryConfigFallbackColorsAndDepth(m_hDisplay, m_finalConfigAttribs, appEglConfigAttribs, m_configControl, m_featureConfig, m_options,
-                                          configRGB565, DEFAULT_DEPTH_BUFFER_SIZE,
-                                          m_hConfig))
+                                          configRGB565, DEFAULT_DEPTH_BUFFER_SIZE, m_hConfig))
       {
         return true;
       }
@@ -951,16 +985,20 @@ namespace Fsl
     {
       FSLLOG("- Switching to merge app and default config.");
       if (TryInitEGLTryConfigFallback(ConfigControl::Overwrite, appEglConfigAttribs))
+      {
         return true;
+      }
     }
 
     // As a last resort lets try to ignore the app
-    if (appEglConfigAttribs.size() > 0)
+    if (!appEglConfigAttribs.empty())
     {
       FSLLOG("- Ignoring the app requested config.");
-      std::deque<EGLint> emptyAppAglConfigAttribs = { EGL_NONE };
+      std::deque<EGLint> emptyAppAglConfigAttribs = {EGL_NONE};
       if (TryInitEGLTryConfigFallback(configControl, emptyAppAglConfigAttribs))
+      {
         return true;
+      }
     }
     return false;
   }
@@ -975,7 +1013,9 @@ namespace Fsl
     assert(m_hConfig != EMPTY_VALUE_EGLCONFIG);
     assert(m_window);
     if (m_hDisplay == EGL_NO_DISPLAY || m_hConfig == EMPTY_VALUE_EGLCONFIG || !m_window)
+    {
       return;
+    }
 
     try
     {
@@ -1004,7 +1044,8 @@ namespace Fsl
       m_hostService->SetSurface(m_hSurface);
 
       LOCAL_LOG("Creating context");
-      m_hContext = DoEGLCreateContext(m_hDisplay, m_hConfig, m_enableGLES, m_eglContextClientVersionMajor, m_eglContextClientVersionMinor, m_eglContextClientVersionMinimumMinor);
+      m_hContext = DoEGLCreateContext(m_hDisplay, m_hConfig, m_enableGLES, m_eglContextClientVersionMajor, m_eglContextClientVersionMinor,
+                                      m_eglContextClientVersionMinimumMinor);
 
       m_hostService->SetContext(m_hContext);
 
@@ -1022,7 +1063,9 @@ namespace Fsl
   void EGLDemoHost::ShutdownSurfaceAndContext()
   {
     if (m_hDisplay == EGL_NO_DISPLAY)
+    {
       return;
+    }
 
     assert(m_hConfig != EMPTY_VALUE_EGLCONFIG);
     assert(m_window);

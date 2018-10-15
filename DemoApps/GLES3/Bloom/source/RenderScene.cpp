@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -50,8 +50,8 @@ namespace Fsl
   using namespace SceneFormat;
 
 
-  typedef GenericMesh<VertexPositionNormalTangentTexture, uint16_t> BasicMesh;
-  typedef GenericScene<BasicMesh> BasicScene;
+  using BasicMesh = GenericMesh<VertexPositionNormalTangentTexture, uint16_t>;
+  using BasicScene = GenericScene<BasicMesh>;
 
   namespace
   {
@@ -60,11 +60,7 @@ namespace Fsl
 
 
   RenderScene::RenderScene(const DemoAppConfig& config)
-    : m_program()
-    , m_texture()
-    , m_indexBuffers()
-    , m_vertexBuffers()
-    , m_locWorld(GLValues::INVALID_LOCATION)
+    : m_locWorld(GLValues::INVALID_LOCATION)
     , m_locWorldView(GLValues::INVALID_LOCATION)
     , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
     , m_locNormalMatrix(GLValues::INVALID_LOCATION)
@@ -74,6 +70,8 @@ namespace Fsl
     , m_locLightDirection(GLValues::INVALID_LOCATION)
     , m_locLightColor(GLValues::INVALID_LOCATION)
     , m_locMatAmbient(GLValues::INVALID_LOCATION)
+    , m_locMatSpecular(GLValues::INVALID_LOCATION)
+    , m_locMatShininess(GLValues::INVALID_LOCATION)
     , m_attribLink(4)
     , m_lightDirection(1.0f, 1.0f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
@@ -111,11 +109,11 @@ namespace Fsl
     auto scene = sceneFormat.Load<BasicScene>(fullModelPath);
 
 
-    { // prepare textures
+    {    // prepare textures
       Bitmap bitmap;
       auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureFileName);
 
-      if (strTextureGloss.size() <= 0)
+      if (strTextureGloss.empty())
       {
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8_UNORM);
       }
@@ -140,14 +138,14 @@ namespace Fsl
       GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       m_texture.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
 
-      if (strTextureSpecular.size() > 0)
+      if (!strTextureSpecular.empty())
       {
         auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
 
-      if (strTextureNormal.size() > 0)
+      if (!strTextureNormal.empty())
       {
         auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
@@ -174,21 +172,19 @@ namespace Fsl
       FSLLOG("Total vertex count: " << vertexCount << ", Total index count : " << indexCount);
     }
 
-    PrepareShader(contentManager, m_textureSpecular.IsValid(), strTextureGloss.size() > 0, m_textureNormal.IsValid());
+    PrepareShader(contentManager, m_textureSpecular.IsValid(), !strTextureGloss.empty(), m_textureNormal.IsValid());
   }
 
 
-  RenderScene::~RenderScene()
+  RenderScene::~RenderScene() = default;
+
+  void RenderScene::Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
+                           const Point2& screenResolution)
   {
-
-  }
-
-  void RenderScene::Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation, const Point2& screenResolution)
-  {
-
     m_matrixWorld = Matrix::CreateRotationX(rotation.X) * Matrix::CreateRotationY(rotation.Y) * Matrix::CreateRotationZ(rotation.Z);
     m_matrixView = cameraViewMatrix;
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / (float)screenResolution.Y, 1, 1000.0f);
+    m_matrixProjection =
+      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
     m_matrixWorldView = m_matrixWorld * m_matrixView;
     m_matrixWorldViewProjection = m_matrixWorldView * m_matrixProjection;
 
@@ -205,8 +201,8 @@ namespace Fsl
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    //glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
-    glClearColor(0,0,0,0);
+    // glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+    glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     {
       glUseProgram(m_program.Get());
@@ -230,36 +226,56 @@ namespace Fsl
       }
 
       if (m_locLightDirection != GLValues::INVALID_LOCATION)
+      {
         glUniform3fv(m_locLightDirection, 1, m_cameraSpaceLightDirection.DirectAccess());
+      }
       if (m_locLightColor != GLValues::INVALID_LOCATION)
+      {
         glUniform3fv(m_locLightColor, 1, m_lightColor.DirectAccess());
+      }
       if (m_locMatAmbient != GLValues::INVALID_LOCATION)
+      {
         glUniform4fv(m_locMatAmbient, 1, m_matAmbient.DirectAccess());
+      }
       if (m_locMatSpecular != GLValues::INVALID_LOCATION)
+      {
         glUniform4fv(m_locMatSpecular, 1, m_matSpecular.DirectAccess());
+      }
       if (m_locMatShininess != GLValues::INVALID_LOCATION)
+      {
         glUniform1f(m_locMatShininess, m_matShininess);
+      }
       // Load the matrices
       if (m_locWorld != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorld, 1, 0, m_matrixWorld.DirectAccess());
+      }
       if (m_locWorldView != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorldView, 1, 0, m_matrixWorldView.DirectAccess());
+      }
       if (m_locWorldViewProjection != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorldViewProjection, 1, 0, m_matrixWorldViewProjection.DirectAccess());
+      }
       if (m_locNormalMatrix != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix3fv(m_locNormalMatrix, 1, 0, m_matrixNormal.DirectAccess());
+      }
 
 
       // Enable the attribs the meshes use once (since we use the same mesh layout for everything)
       for (std::size_t i = 0; i < m_attribLink.size(); ++i)
       {
         if (m_attribLink[i].AttribIndex >= 0)
+        {
           glEnableVertexAttribArray(m_attribLink[i].AttribIndex);
+        }
       }
 
       DrawMeshes();
 
-      //GL_CHECK_FOR_ERROR();
+      // GL_CHECK_FOR_ERROR();
 
       // Disable everything
       glBindBuffer(m_indexBuffers.GetTarget(), 0);
@@ -286,30 +302,37 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, (void*)0);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
       }
     }
   }
 
-  void RenderScene::PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useSpecMap, const bool useGlossMap, const bool useNormalMap)
+  void RenderScene::PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useSpecMap, const bool useGlossMap,
+                                  const bool useNormalMap)
   {
     std::string shaderPath = "Shaders";
 
     std::string baseShaderName("PerPixelDirectionalSpecular");
-    if( useSpecMap )
+    if (useSpecMap)
+    {
       baseShaderName += "Map";
+    }
     if (useGlossMap)
+    {
       baseShaderName += "GlossMap";
+    }
     if (useNormalMap)
+    {
       baseShaderName += "NormalMap";
+    }
     baseShaderName += "Textured";
 
-    //auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
+    // auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
     const IO::Path strVertShaderFilename(baseShaderName + ".vert");
     const IO::Path strFragShaderFilename(baseShaderName + ".frag");
-    //std::string strVertShaderFilename("BasicShaderDLight.vert");
-    //std::string strFragShaderFilename("BasicShaderDLight.frag");
-    //auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
+    // std::string strVertShaderFilename("BasicShaderDLight.vert");
+    // std::string strFragShaderFilename("BasicShaderDLight.frag");
+    // auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
 
     const IO::Path strVertShaderPath = IO::Path::Combine(shaderPath, strVertShaderFilename);
     const IO::Path strFragShaderPath = IO::Path::Combine(shaderPath, strFragShaderFilename);
@@ -329,13 +352,20 @@ namespace Fsl
     m_locMatShininess = glGetUniformLocation(m_program.Get(), "MatShininess");
 
     auto vertexDecl = BasicMesh::vertex_type::GetVertexDeclaration();
-    m_attribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    m_attribLink[1] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-    m_attribLink[2] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    m_attribLink[0] =
+      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    m_attribLink[1] =
+      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+    m_attribLink[2] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"),
+                                         vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     if (useNormalMap)
-      m_attribLink[3] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTangent"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
+    {
+      m_attribLink[3] =
+        GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTangent"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
+    }
     else
+    {
       m_attribLink[3] = GLVertexAttribLink(-1, 0);
-
+    }
   }
 }

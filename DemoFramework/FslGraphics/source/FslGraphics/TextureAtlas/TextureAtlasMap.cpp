@@ -35,14 +35,10 @@
 
 namespace Fsl
 {
-  TextureAtlasMap::TextureAtlasMap()
-    : m_map()
-  {
-  }
+  TextureAtlasMap::TextureAtlasMap() = default;
 
 
   TextureAtlasMap::TextureAtlasMap(ITextureAtlas& atlas)
-    : m_map()
   {
     for (int32_t i = 0; i < atlas.Count(); ++i)
     {
@@ -54,9 +50,11 @@ namespace Fsl
 
   AtlasTextureInfo TextureAtlasMap::GetAtlasTextureInfo(const UTF8String& name) const
   {
-    std::map<UTF8String, AtlasTextureInfo>::const_iterator itr = m_map.find(name);
+    auto itr = m_map.find(name);
     if (itr == m_map.end())
+    {
       throw std::runtime_error(std::string("Unknown texture: ") + name.ToUTF8String());
+    }
     return itr->second;
   }
 }

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/OpenGLES3/HDR/BasicScene/MenuUI.hpp>
 #include <Shared/OpenGLES3/HDR/BasicScene/OptionParser.hpp>
@@ -52,19 +52,10 @@ namespace Fsl
     : m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
     , m_screenResolution(config.ScreenResolution)
-    , m_rootCanvas()
-    , m_labelTopLeft()
-    , m_labelTopRight()
-    , m_configWindow()
-    , m_exposureSlider()
-    , m_checkboxLDR()
-    , m_checkboxHDR()
     , m_exposure(START_EXPOSURE)
     , m_state(SceneState::Invalid)
-    , m_transitionCache()
     , m_scene1LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
     , m_scene2LabelAlpha(m_transitionCache, TransitionTimeSpan(200, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
-    , m_gamepadState()
     , m_menuTextLDR("LDR scene")
     , m_menuTextHDR("HDR scene")
     , m_captionTopLeft("LDR")
@@ -82,9 +73,7 @@ namespace Fsl
   }
 
 
-  MenuUI::~MenuUI()
-  {
-  }
+  MenuUI::~MenuUI() = default;
 
 
   void MenuUI::SetNoteLabel(const std::string& content)
@@ -108,52 +97,69 @@ namespace Fsl
   void MenuUI::SetCaptionLeft(const std::string& content)
   {
     if (content == m_captionTopLeft)
+    {
       return;
+    }
     m_captionTopLeft = content;
     if (m_labelTopLeft)
+    {
       m_labelTopLeft->SetContent(m_captionTopLeft);
+    }
   }
 
 
   void MenuUI::SetCaptionRight(const std::string& content)
   {
     if (content == m_captionTopRight)
+    {
       return;
+    }
     m_captionTopRight = content;
     if (m_labelTopRight)
+    {
       m_labelTopRight->SetContent(m_captionTopRight);
+    }
   }
 
 
   void MenuUI::SetMenuTextLeft(const std::string& content)
   {
     if (content == m_menuTextLDR)
+    {
       return;
+    }
     m_menuTextLDR = content;
     if (m_checkboxLDR)
+    {
       m_checkboxLDR->SetText(m_menuTextLDR);
+    }
   }
 
 
   void MenuUI::SetMenuTextRight(const std::string& content)
   {
     if (content == m_menuTextHDR)
+    {
       return;
+    }
     m_menuTextHDR = content;
     if (m_checkboxHDR)
+    {
       m_checkboxHDR->SetText(m_menuTextHDR);
+    }
   }
 
 
   void MenuUI::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
     const bool isPressed = event.IsPressed();
 
     switch (event.GetKey())
     {
-
     case VirtualKey::GamePadButtonLeftShoulder:
       m_gamepadState.B1 = isPressed;
       break;
@@ -168,10 +174,11 @@ namespace Fsl
     }
 
     if (!isPressed)
+    {
       return;
+    }
     switch (event.GetKey())
     {
-
     case VirtualKey::Code1:
     case VirtualKey::GamePadDpadLeft:
       SetState(SceneState::Scene1);
@@ -193,7 +200,9 @@ namespace Fsl
   void MenuUI::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->IsHandled())
+    {
       return;
+    }
 
     auto source = theEvent->GetSource();
 
@@ -203,15 +212,19 @@ namespace Fsl
       theEvent->Handled();
     }
     else if (source == m_checkboxLDR)
+    {
       UpdateStateBasedOnCheckboxes(m_checkboxLDR);
+    }
     else if (source == m_checkboxHDR)
+    {
       UpdateStateBasedOnCheckboxes(m_checkboxHDR);
+    }
   }
 
 
   void MenuUI::ToggleMenu()
   {
-    ShowMenu(! m_configWindow);
+    ShowMenu(!m_configWindow);
   }
 
 
@@ -220,14 +233,18 @@ namespace Fsl
     if (enabled)
     {
       if (m_configWindow)
+      {
         return;
+      }
 
       CreateMenuUI();
     }
     else
     {
-      if (! m_configWindow)
+      if (!m_configWindow)
+      {
         return;
+      }
 
       DestroyMenuUI();
     }
@@ -242,10 +259,14 @@ namespace Fsl
 
     const float alpha1 = m_scene1LabelAlpha.GetValue();
     const float alpha2 = m_scene2LabelAlpha.GetValue();
-    if(m_labelTopLeft)
+    if (m_labelTopLeft)
+    {
       m_labelTopLeft->SetFontColor(Color(alpha1, alpha1, alpha1, alpha1));
-    if(m_labelTopRight)
+    }
+    if (m_labelTopRight)
+    {
       m_labelTopRight->SetFontColor(Color(alpha2, alpha2, alpha2, alpha2));
+    }
   }
 
 
@@ -262,13 +283,17 @@ namespace Fsl
     {
       m_exposure -= exposureAdd;
       if (m_exposure < MIN_EXPOSURE)
+      {
         m_exposure = MIN_EXPOSURE;
+      }
     }
     else if (keyboardState.IsKeyDown(VirtualKey::E) || m_gamepadState.B2)
     {
       m_exposure += exposureAdd;
       if (m_exposure > MAX_EXPOSURE)
+      {
         m_exposure = MAX_EXPOSURE;
+      }
     }
     if (keyboardState.IsKeyDown(VirtualKey::R) || m_gamepadState.B3)
     {
@@ -282,7 +307,9 @@ namespace Fsl
   void MenuUI::SetExposure(const float value)
   {
     if (value == m_exposure)
+    {
       return;
+    }
     m_exposure = value;
     UpdateUIExposureState();
   }
@@ -291,7 +318,9 @@ namespace Fsl
   void MenuUI::SetState(const SceneState newState)
   {
     if (newState == m_state)
+    {
       return;
+    }
 
     m_state = newState;
 
@@ -324,16 +353,22 @@ namespace Fsl
   void MenuUI::UpdateUIState()
   {
     if (m_checkboxLDR)
+    {
       m_checkboxLDR->SetIsChecked(m_state == SceneState::Scene1 || m_state == SceneState::Split2);
+    }
     if (m_checkboxHDR)
+    {
       m_checkboxHDR->SetIsChecked(m_state == SceneState::Scene2 || m_state == SceneState::Split2);
+    }
   }
 
 
   void MenuUI::UpdateUIExposureState()
   {
     if (m_exposureSlider && m_exposure != m_exposureSlider->GetValue())
+    {
       m_exposureSlider->SetValue(m_exposure);
+    }
   }
 
   void MenuUI::PrepareTransition()
@@ -352,14 +387,16 @@ namespace Fsl
     m_rootCanvas = CreateUI(context);
 
     // Finally add everything to the window manager (to ensure its seen)
-    context->WindowManager->Add(m_rootCanvas);
+    m_uiExtension->GetWindowManager()->Add(m_rootCanvas);
   }
 
 
   void MenuUI::CreateMenuUI()
   {
     if (m_configWindow)
+    {
       return;
+    }
 
     auto context = m_uiExtension->GetContext();
     m_configWindow = CreateConfigDialog(context);
@@ -372,7 +409,9 @@ namespace Fsl
   void MenuUI::DestroyMenuUI()
   {
     if (!m_configWindow)
+    {
       return;
+    }
 
     // Close the menu window
     m_rootCanvas->RemoveChild(m_configWindow);
@@ -388,7 +427,9 @@ namespace Fsl
   void MenuUI::UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::CheckBox>& source)
   {
     if (!m_checkboxLDR || !m_checkboxHDR)
+    {
       return;
+    }
 
     bool scene1 = m_checkboxLDR->IsChecked();
     bool scene2 = m_checkboxHDR->IsChecked();
@@ -398,17 +439,27 @@ namespace Fsl
       // Error tried to disable both
       source->SetIsChecked(true);
       if (source == m_checkboxLDR)
+      {
         scene1 = true;
+      }
       else
+      {
         scene2 = true;
+      }
     }
 
     if (scene1 && scene2)
+    {
       SetState(SceneState::Split2);
+    }
     else if (scene1)
+    {
       SetState(SceneState::Scene1);
+    }
     else if (scene2)
+    {
       SetState(SceneState::Scene2);
+    }
   }
 
 

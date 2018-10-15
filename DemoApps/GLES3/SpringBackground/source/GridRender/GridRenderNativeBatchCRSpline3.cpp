@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "GridRenderNativeBatchCRSpline3.hpp"
 #include <FslBase/Math/VectorHelper.hpp>
@@ -40,7 +40,8 @@ namespace Fsl
 
   namespace
   {
-    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const Rectangle nativeTexRect, const Vector2& start, const Vector2& end, const Color& color, const float thickness)
+    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const Rectangle nativeTexRect, const Vector2& start,
+                         const Vector2& end, const Color& color, const float thickness)
     {
       Vector2 delta = end - start;
       pBatch->Draw(texFill, start, nativeTexRect, color, VectorHelper::VectorToAngle(delta), Vector2(0, 0), Vector2(delta.Length(), thickness));
@@ -76,7 +77,6 @@ namespace Fsl
 
   void GridRenderNativeBatchCRSpline3::Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& points)
   {
-
     const std::shared_ptr<NativeTexture2D> nativeTex = std::dynamic_pointer_cast<NativeTexture2D>(drawContext.TexFill.TryGetNative());
     assert(nativeTex);
     GLBatch2D::texture_type texFillNative(nativeTex->Get(), drawContext.TexFill.GetAtlasSize());
@@ -93,7 +93,7 @@ namespace Fsl
     auto pSrc = m_coordinates2D.data();
     const auto pSrcArrayEnd = pSrc + m_coordinates2D.size();
 
-    { // Draw horizontal lines
+    {    // Draw horizontal lines
       const auto pSrcEnd = pSrc + (m_gridFinalSize.X * m_gridSize.Y);
       assert(pSrcEnd < pSrcArrayEnd);
       int lineCount = 0;
@@ -110,7 +110,7 @@ namespace Fsl
         pSrc += m_gridFinalSize.X;
       }
     }
-    { // Draw vertical lines
+    {    // Draw vertical lines
       int lineCount = 0;
       while (pSrc < pSrcArrayEnd)
       {
@@ -135,24 +135,25 @@ namespace Fsl
   }
 
 
-  int32_t GridRenderNativeBatchCRSpline3::CreateLinesHorizontal(std::vector<Vector3>& rDst, const std::vector<PointMass>& points, const std::ptrdiff_t dstOffset)
+  int32_t GridRenderNativeBatchCRSpline3::CreateLinesHorizontal(std::vector<Vector3>& rDst, const std::vector<PointMass>& points,
+                                                                const std::ptrdiff_t dstOffset)
   {
     const int srcGridMaxX = m_gridSize.X;
     const int srcGridMaxY = m_gridSize.Y;
     const int dstGridMaxX = m_gridFinalSize.X;
-    //const int dstGridMaxY = m_gridFinalSize.Y;
+    // const int dstGridMaxY = m_gridFinalSize.Y;
     const std::ptrdiff_t srcStride = srcGridMaxX;
     const std::ptrdiff_t dstStride = dstGridMaxX;
 
 #ifndef NDEBUG
-    const auto*const pDstEnd = rDst.data() + rDst.size();
+    const auto* const pDstEnd = rDst.data() + rDst.size();
 #endif
 
     // Create the horizontal border points as they are a special case
     {
       const PointMass* pSrcLeft = points.data();
       const PointMass* pSrcRight = pSrcLeft + srcGridMaxX - 3;
-      const PointMass*const pSrcEnd = pSrcLeft + (srcStride * srcGridMaxY);
+      const PointMass* const pSrcEnd = pSrcLeft + (srcStride * srcGridMaxY);
       Vector3* pDstLeft = rDst.data() + dstOffset;
       Vector3* pDstRight = pDstLeft + dstGridMaxX - 2;
       while (pSrcLeft < pSrcEnd)
@@ -165,7 +166,8 @@ namespace Fsl
         pDstLeft[1] = VectorHelper::CatmullRom(pSrcLeft[0].m_position, pSrcLeft[0].m_position, pSrcLeft[1].m_position, pSrcLeft[2].m_position, 0.5f);
         pDstLeft[2] = pSrcLeft[1].m_position;
 
-        pDstRight[0] = VectorHelper::CatmullRom(pSrcRight[0].m_position, pSrcRight[1].m_position, pSrcRight[2].m_position, pSrcRight[2].m_position, 0.5f);
+        pDstRight[0] =
+          VectorHelper::CatmullRom(pSrcRight[0].m_position, pSrcRight[1].m_position, pSrcRight[2].m_position, pSrcRight[2].m_position, 0.5f);
         pDstRight[1] = pSrcRight[2].m_position;
 
         pSrcLeft += srcStride;
@@ -175,9 +177,9 @@ namespace Fsl
       }
     }
 
-    { // horizontal pass - transfer all existing coordinates and spawn the new horizontal coordinates
+    {    // horizontal pass - transfer all existing coordinates and spawn the new horizontal coordinates
       const PointMass* pSrc = points.data();
-      const PointMass*const pSrcEnd = pSrc + (srcStride * srcGridMaxY);
+      const PointMass* const pSrcEnd = pSrc + (srcStride * srcGridMaxY);
       // +3 to skip the three points written in the border handling code
       Vector3* pDst = rDst.data() + dstOffset + 3;
       const int constrainedGridMaxX = srcGridMaxX - 3;
@@ -186,7 +188,7 @@ namespace Fsl
         assert(pDst < pDstEnd);
         for (int x = 0; x < constrainedGridMaxX; ++x)
         {
-          assert((pDst + (x*2)) < pDstEnd);
+          assert((pDst + (x * 2)) < pDstEnd);
           assert((pDst + (x * 2) + 1) < pDstEnd);
           pDst[x * 2] = VectorHelper::CatmullRom(pSrc[x].m_position, pSrc[x + 1].m_position, pSrc[x + 2].m_position, pSrc[x + 3].m_position, 0.5f);
           pDst[(x * 2) + 1] = pSrc[x + 2].m_position;
@@ -198,17 +200,18 @@ namespace Fsl
     return (m_gridFinalSize.X * m_gridSize.Y);
   }
 
-  int32_t GridRenderNativeBatchCRSpline3::CreateLinesVertical(std::vector<Vector3>& rDst, const std::vector<PointMass>& points, const std::ptrdiff_t dstOffset)
+  int32_t GridRenderNativeBatchCRSpline3::CreateLinesVertical(std::vector<Vector3>& rDst, const std::vector<PointMass>& points,
+                                                              const std::ptrdiff_t dstOffset)
   {
     const int srcGridMaxX = m_gridSize.X;
     const int srcGridMaxY = m_gridSize.Y;
-    //const int dstGridMaxX = m_gridFinalSize.X;
+    // const int dstGridMaxX = m_gridFinalSize.X;
     const int dstGridMaxY = m_gridFinalSize.Y;
     const std::ptrdiff_t srcStride = srcGridMaxX;
     const std::ptrdiff_t dstStride = dstGridMaxY;
 
 #ifndef NDEBUG
-    const auto*const pDstEnd = rDst.data() + rDst.size();
+    const auto* const pDstEnd = rDst.data() + rDst.size();
 #endif
 
     // Create the vertical border points as they are a special case
@@ -221,16 +224,18 @@ namespace Fsl
       for (int x = 0; x < srcGridMaxX; ++x)
       {
         assert(pDstTop < pDstEnd);
-        assert((pDstTop+2) < pDstEnd);
+        assert((pDstTop + 2) < pDstEnd);
         assert(pDstBottom < pDstEnd);
         assert(pDstBottom < (pDstTop + dstStride));
-        assert((pDstBottom+1) < (pDstTop + dstStride));
+        assert((pDstBottom + 1) < (pDstTop + dstStride));
 
         pDstTop[0] = pSrcTop[x].m_position;
-        pDstTop[1] = VectorHelper::CatmullRom(pSrcTop[x].m_position, pSrcTop[x].m_position, pSrcTop[x + srcStride].m_position, pSrcTop[x + (2*srcStride)].m_position, 0.5f);
+        pDstTop[1] = VectorHelper::CatmullRom(pSrcTop[x].m_position, pSrcTop[x].m_position, pSrcTop[x + srcStride].m_position,
+                                              pSrcTop[x + (2 * srcStride)].m_position, 0.5f);
         pDstTop[2] = pSrcTop[x + srcStride].m_position;
 
-        pDstBottom[0] = VectorHelper::CatmullRom(pSrcBottom[x].m_position, pSrcBottom[x + srcStride].m_position, pSrcBottom[x + (srcStride * 2)].m_position, pSrcBottom[x + (srcStride * 2)].m_position, 0.5f);
+        pDstBottom[0] = VectorHelper::CatmullRom(pSrcBottom[x].m_position, pSrcBottom[x + srcStride].m_position,
+                                                 pSrcBottom[x + (srcStride * 2)].m_position, pSrcBottom[x + (srcStride * 2)].m_position, 0.5f);
         pDstBottom[1] = pSrcBottom[x + (srcStride * 2)].m_position;
 
         pDstTop += dstStride;
@@ -238,10 +243,10 @@ namespace Fsl
       }
     }
 
-    { // vertical pass - transfer all existing coordinates and spawn the new vertical coordinates
+    {    // vertical pass - transfer all existing coordinates and spawn the new vertical coordinates
       // +3 to skip the three points written in the border handling code
-      const PointMass*const pSrcStart = points.data();
-      const PointMass*const pSrcConstrainedEnd = pSrcStart + (srcStride * (srcGridMaxY - 3));
+      const PointMass* const pSrcStart = points.data();
+      const PointMass* const pSrcConstrainedEnd = pSrcStart + (srcStride * (srcGridMaxY - 3));
       Vector3* pDstStart = rDst.data() + dstOffset + 3;
 
       for (int x = 0; x < srcGridMaxX; ++x)
@@ -251,8 +256,9 @@ namespace Fsl
         while (pSrc < pSrcConstrainedEnd)
         {
           assert(pDst < pDstEnd);
-          assert((pDst+1) < pDstEnd);
-          pDst[0] = VectorHelper::CatmullRom(pSrc[x].m_position, pSrc[x + srcStride].m_position, pSrc[x + (2 * srcStride)].m_position, pSrc[x + (3 * srcStride)].m_position, 0.5f);
+          assert((pDst + 1) < pDstEnd);
+          pDst[0] = VectorHelper::CatmullRom(pSrc[x].m_position, pSrc[x + srcStride].m_position, pSrc[x + (2 * srcStride)].m_position,
+                                             pSrc[x + (3 * srcStride)].m_position, 0.5f);
           pDst[1] = pSrc[x + (2 * srcStride)].m_position;
 
           pSrc += srcStride;
@@ -263,7 +269,6 @@ namespace Fsl
     }
     return (m_gridFinalSize.Y * m_gridSize.X);
   }
-
 
 
   void GridRenderNativeBatchCRSpline3::CalcFinalCoordinates(std::vector<Vector2>& rDst, const std::vector<Vector3>& src, const Vector2& finalSize)
@@ -287,6 +292,4 @@ namespace Fsl
       ++pDst;
     }
   }
-
-
 }

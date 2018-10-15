@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "EventRoute.hpp"
 #include <FslBase/Exceptions.hpp>
@@ -43,49 +43,39 @@ namespace Fsl
 {
   namespace UI
   {
-
     namespace
     {
-
-
-      inline bool Exists(const std::deque<std::shared_ptr<TreeNode> >& deque, const std::shared_ptr<TreeNode>& node)
+      inline bool Exists(const std::deque<std::shared_ptr<TreeNode>>& deque, const std::shared_ptr<TreeNode>& node)
       {
         return std::find(deque.begin(), deque.end(), node) != deque.end();
       }
 
 
-      inline void Remove(std::deque<std::shared_ptr<TreeNode> >& rDeque, const std::shared_ptr<TreeNode>& node)
+      inline void Remove(std::deque<std::shared_ptr<TreeNode>>& rDeque, const std::shared_ptr<TreeNode>& node)
       {
         auto itr = std::find(rDeque.begin(), rDeque.end(), node);
         if (itr != rDeque.end())
+        {
           rDeque.erase(itr);
+        }
       }
     }
 
 
     EventRoute::EventRoute()
-      : m_flags()
-      , m_tunnelList()
-      , m_bubbleList()
-      , m_target()
-      , m_isInitialized(false)
+      : m_isInitialized(false)
     {
     }
 
 
     EventRoute::EventRoute(const WindowFlags& flags)
       : m_flags(flags)
-      , m_tunnelList()
-      , m_bubbleList()
-      , m_target()
       , m_isInitialized(true)
     {
     }
 
 
-    EventRoute::~EventRoute()
-    {
-    }
+    EventRoute::~EventRoute() = default;
 
 
     void EventRoute::Initialize(const WindowFlags& flags)
@@ -110,11 +100,11 @@ namespace Fsl
     bool EventRoute::IsEmpty() const
     {
       assert(m_isInitialized);
-      return (m_bubbleList.size() <= 0 && m_tunnelList.size() <= 0);
+      return (m_bubbleList.empty() && m_tunnelList.empty());
     }
 
 
-    void EventRoute::Send(IEventHandler*const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent)
+    void EventRoute::Send(IEventHandler* const pEventHandler, const std::shared_ptr<WindowEvent>& theEvent)
     {
       assert(m_isInitialized);
       if (pEventHandler == nullptr)
@@ -150,14 +140,20 @@ namespace Fsl
       {
         // Build the tunnel part of the route if requested
         if (routingStrategy == EventRoutingStrategy::Paired || routingStrategy == EventRoutingStrategy::Tunnel)
+        {
           BuildTunnel(target);
+        }
 
         // Build the bubble part of the route if requested
         if (routingStrategy == EventRoutingStrategy::Paired || routingStrategy == EventRoutingStrategy::Bubble)
+        {
           BuildBubble(target);
+        }
 
         if (routingStrategy == EventRoutingStrategy::Direct)
+        {
           BuildDirect(target);
+        }
       }
     }
 
@@ -169,17 +165,22 @@ namespace Fsl
       Remove(m_bubbleList, node);
 
       if (m_target == node)
+      {
         m_target.reset();
+      }
     }
 
 
-    void EventRoute::SendTo(IEventHandler& eventHandler, const std::deque<std::shared_ptr<TreeNode> >& deque, const std::shared_ptr<WindowEvent>& theEvent, const bool isTunneling)
+    void EventRoute::SendTo(IEventHandler& eventHandler, const std::deque<std::shared_ptr<TreeNode>>& deque,
+                            const std::shared_ptr<WindowEvent>& theEvent, const bool isTunneling)
     {
       assert(m_isInitialized);
       assert(m_target);
 
-      if (deque.size() <= 0)
+      if (deque.empty())
+      {
         return;
+      }
 
       if (!theEvent->GetOriginalSource())
       {
@@ -192,7 +193,9 @@ namespace Fsl
       for (auto itr = deque.begin(); itr != deque.end() && !theEvent->IsHandled(); ++itr)
       {
         if ((*itr)->IsConsideredRunning() && (*itr)->GetFlags().IsFlagged(m_flags))
+        {
           eventHandler.HandleEvent(*itr, routedEvent);
+        }
       }
     }
 
@@ -212,7 +215,7 @@ namespace Fsl
           m_tunnelList.push_back(target);
         }
       }
-      //assert(IsValidRoute());
+      // assert(IsValidRoute());
     }
 
 
@@ -230,7 +233,7 @@ namespace Fsl
         }
         current = current->GetParent();
       }
-      //assert(IsValidRoute());
+      // assert(IsValidRoute());
     }
 
 
@@ -242,7 +245,7 @@ namespace Fsl
         assert(!Exists(m_tunnelList, target));
         m_tunnelList.push_back(target);
       }
-      //assert(IsValidRoute());
+      // assert(IsValidRoute());
     }
   }
 }

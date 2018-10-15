@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2017 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2017 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/VUBuffer.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
@@ -47,13 +47,15 @@ namespace Fsl
 {
   namespace Vulkan
   {
-    VUBuffer& VUBuffer::operator = (VUBuffer&& other)
+    VUBuffer& VUBuffer::operator=(VUBuffer&& other) noexcept
     {
       if (this != &other)
       {
         // Free existing resources then transfer the content of other to this one and fill other with default values
         if (IsValid())
+        {
           Reset();
+        }
 
         // Claim ownership here
         m_buffer = std::move(other.m_buffer);
@@ -69,7 +71,7 @@ namespace Fsl
     }
 
 
-    VUBuffer::VUBuffer(VUBuffer&& other)
+    VUBuffer::VUBuffer(VUBuffer&& other) noexcept
       : m_buffer(std::move(other.m_buffer))
       , m_memory(std::move(other.m_memory))
       , m_descriptor(other.m_descriptor)
@@ -89,47 +91,54 @@ namespace Fsl
     {
       const bool hasOneValid = m_buffer.IsValid() || m_memory.IsValid();
       if (m_buffer.IsValid() != hasOneValid || m_memory.IsValid() != hasOneValid)
+      {
         throw std::invalid_argument("Either all objects has to be valid or none must be");
+      }
 
       if (m_buffer.GetDevice() != m_memory.GetDevice())
+      {
         throw std::invalid_argument("All objects must belong to the same device");
+      }
     }
 
 
     VUBuffer::VUBuffer()
-      : m_buffer()
-      , m_memory()
-      , m_descriptor{}
+      : m_descriptor{}
       , m_pMapped(nullptr)
     {
     }
 
 
-    VUBuffer::VUBuffer(const VUDevice& device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize subBufferCount)
+    VUBuffer::VUBuffer(const VUDevice& device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
+                       const VkDeviceSize subBufferCount)
       : VUBuffer()
     {
       Reset(device, bufferCreateInfo, memoryPropertyFlags, subBufferCount);
     }
 
 
-    VUBuffer::VUBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize subBufferCount)
+    VUBuffer::VUBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
+                       const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize subBufferCount)
       : VUBuffer()
     {
       Reset(physicalDevice, device, bufferCreateInfo, memoryPropertyFlags, subBufferCount);
     }
 
 
-    VUBuffer::VUBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryAllocateInfo& memoryAllocationInfo, const VkMemoryPropertyFlags memoryPropertyFlags)
+    VUBuffer::VUBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryAllocateInfo& memoryAllocationInfo,
+                       const VkMemoryPropertyFlags memoryPropertyFlags)
       : VUBuffer()
     {
       Reset(device, bufferCreateInfo, memoryAllocationInfo, memoryPropertyFlags);
     }
 
 
-    void VUBuffer::Reset()
+    void VUBuffer::Reset() noexcept
     {
       if (!IsValid())
+      {
         return;
+      }
 
       assert(m_buffer.IsValid());
       assert(m_memory.IsValid());
@@ -147,22 +156,29 @@ namespace Fsl
     }
 
 
-    void VUBuffer::Reset(const VUDevice& device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize bufferSegments)
+    void VUBuffer::Reset(const VUDevice& device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
+                         const VkDeviceSize bufferSegments)
     {
       Reset(device.GetPhysicalDevice(), device.Get(), bufferCreateInfo, memoryPropertyFlags, bufferSegments);
     }
 
 
-    void VUBuffer::Reset(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize bufferSegments)
+    void VUBuffer::Reset(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
+                         const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize bufferSegments)
     {
       if (IsValid())
+      {
         Reset();
+      }
 
       try
       {
         VkBufferCreateInfo bufferCreateInfoEx = bufferCreateInfo;
         if (bufferSegments > 1)
-          bufferCreateInfoEx.size = AlignmentUtil::GetByteSize(bufferCreateInfoEx.size, physicalDevice.Properties.limits.minUniformBufferOffsetAlignment) * bufferSegments;
+        {
+          bufferCreateInfoEx.size =
+            AlignmentUtil::GetByteSize(bufferCreateInfoEx.size, physicalDevice.Properties.limits.minUniformBufferOffsetAlignment) * bufferSegments;
+        }
 
         m_buffer.Reset(device, bufferCreateInfoEx);
         const VkMemoryRequirements memoryRequirements = m_buffer.GetBufferMemoryRequirements();
@@ -183,18 +199,25 @@ namespace Fsl
       {
         // Cleanup this object so its back to its default invalid object state
         if (m_buffer.IsValid())
+        {
           m_buffer.Reset();
+        }
         if (m_memory.IsValid())
+        {
           m_memory.Reset();
+        }
         throw;
       }
     }
 
 
-    void VUBuffer::Reset(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryAllocateInfo& memoryAllocationInfo, const VkMemoryPropertyFlags memoryPropertyFlags)
+    void VUBuffer::Reset(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryAllocateInfo& memoryAllocationInfo,
+                         const VkMemoryPropertyFlags memoryPropertyFlags)
     {
       if (IsValid())
+      {
         Reset();
+      }
 
       try
       {
@@ -209,9 +232,13 @@ namespace Fsl
       {
         // Cleanup this object so its back to its default invalid object state
         if (m_buffer.IsValid())
+        {
           m_buffer.Reset();
+        }
         if (m_memory.IsValid())
+        {
           m_memory.Reset();
+        }
         throw;
       }
     }
@@ -231,7 +258,7 @@ namespace Fsl
     {
       FSLLOG_DEBUG_WARNING_IF(!IsValid(), "Unmap called on a invalid object, request ignored.");
       FSLLOG_DEBUG_WARNING_IF(m_pMapped == nullptr, "Unmap called on a unmapped object, request ignored.");
-      if (m_pMapped)
+      if (m_pMapped != nullptr)
       {
         vkUnmapMemory(m_buffer.GetDevice(), m_memory.Get());
         m_pMapped = nullptr;
@@ -320,7 +347,7 @@ namespace Fsl
     }
 
 
-    void VUBuffer::Upload(const uint32_t offset, const VkMemoryMapFlags flags, const void*const pData, const uint32_t dataSize)
+    void VUBuffer::Upload(const uint32_t offset, const VkMemoryMapFlags flags, const void* const pData, const uint32_t dataSize)
     {
       m_memory.Upload(offset, flags, pData, dataSize);
     }

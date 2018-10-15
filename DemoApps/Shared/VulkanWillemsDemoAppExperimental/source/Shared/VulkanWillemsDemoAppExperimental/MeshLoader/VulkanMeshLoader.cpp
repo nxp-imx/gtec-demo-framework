@@ -1,10 +1,10 @@
 /*
-* Mesh loader for creating Vulkan resources from models loaded with ASSIMP
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Mesh loader for creating Vulkan resources from models loaded with ASSIMP
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -36,11 +36,11 @@ namespace Fsl
       : m_contentManager(contentManager)
     {
       if (!contentManager)
+      {
         throw std::invalid_argument("arguments can not be null");
+      }
       m_contentPath = contentManager->GetContentPath();
     }
-
-
 
 
     void VulkanMeshLoader::LoadMesh(const std::string& relativePath)
@@ -61,9 +61,9 @@ namespace Fsl
     }
 
 
-    MeshBuffer VulkanMeshLoader::CreateBuffers(VulkanDevice& rVulkanDevice,
-                                               const std::vector<VertexLayout>& layout, const MeshCreateInfo*const pCreateInfo,
-                                               const bool useStaging, const VkCommandBuffer copyCmd, const VkQueue copyQueue)
+    MeshBuffer VulkanMeshLoader::CreateBuffers(VulkanDevice& rVulkanDevice, const std::vector<VertexLayout>& layout,
+                                               const MeshCreateInfo* const pCreateInfo, const bool useStaging, const VkCommandBuffer copyCmd,
+                                               const VkQueue copyQueue)
     {
       glm::vec3 scale;
       glm::vec2 uvscale;
@@ -148,10 +148,10 @@ namespace Fsl
 
       std::vector<MeshDescriptor> meshDescriptors;
       std::vector<uint32_t> indexBuffer;
-      { // Create mesh descriptors and index buffer
+      {    // Create mesh descriptors and index buffer
         for (std::size_t m = 0; m < m_entries.size(); ++m)
         {
-          uint32_t indexBase = static_cast<uint32_t>(indexBuffer.size());
+          auto indexBase = static_cast<uint32_t>(indexBuffer.size());
           for (uint32_t i = 0; i < m_entries[m].Indices.size(); i++)
           {
             indexBuffer.push_back(m_entries[m].Indices[i] + indexBase);
@@ -163,7 +163,6 @@ namespace Fsl
           meshDescriptors.push_back(descriptor);
         }
       }
-
 
 
       MeshBufferInfo meshVertices;
@@ -185,27 +184,21 @@ namespace Fsl
         Buffers indexStaging;
 
         // Vertex buffer
-        rVulkanDevice.CreateBuffer(vertexStaging.Buffer, vertexStaging.Memory,
-          VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-          meshVertices.Size, vertexBuffer.data());
+        rVulkanDevice.CreateBuffer(vertexStaging.Buffer, vertexStaging.Memory, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                   meshVertices.Size, vertexBuffer.data());
 
         // Index buffer
-        rVulkanDevice.CreateBuffer(indexStaging.Buffer, indexStaging.Memory,
-          VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-          meshIndices.Size, indexBuffer.data());
+        rVulkanDevice.CreateBuffer(indexStaging.Buffer, indexStaging.Memory, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                   meshIndices.Size, indexBuffer.data());
 
         // Create device local target buffers
         // Vertex buffer
-        rVulkanDevice.CreateBuffer(meshVertices.Buffer, meshVertices.Memory,
-          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-          meshVertices.Size);
+        rVulkanDevice.CreateBuffer(meshVertices.Buffer, meshVertices.Memory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, meshVertices.Size);
 
         // Index buffer
-        rVulkanDevice.CreateBuffer(meshIndices.Buffer, meshIndices.Memory,
-          VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-          meshIndices.Size);
+        rVulkanDevice.CreateBuffer(meshIndices.Buffer, meshIndices.Memory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, meshIndices.Size);
 
         // Copy from staging buffers
         VkCommandBufferBeginInfo cmdBufferBeginInfo{};
@@ -235,16 +228,12 @@ namespace Fsl
       else
       {
         // Generate vertex buffer
-        rVulkanDevice.CreateBuffer(meshVertices.Buffer, meshVertices.Memory,
-          VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-          meshVertices.Size, vertexBuffer.data());
+        rVulkanDevice.CreateBuffer(meshVertices.Buffer, meshVertices.Memory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, meshVertices.Size, vertexBuffer.data());
 
         // Generate index buffer
-        rVulkanDevice.CreateBuffer(meshIndices.Buffer, meshIndices.Memory,
-          VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-          meshIndices.Size, indexBuffer.data());
+        rVulkanDevice.CreateBuffer(meshIndices.Buffer, meshIndices.Memory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, meshIndices.Size, indexBuffer.data());
       }
 
 
@@ -252,8 +241,8 @@ namespace Fsl
       // Note the original code modified the 'loaded mesh' so the next mesh would be affected
       // this was removed as it's unexpected side effect.
       auto meshDim = m_dim;
-      //meshDim.min *= scale;
-      //meshDim.max *= scale;
+      // meshDim.min *= scale;
+      // meshDim.max *= scale;
       meshDim.size *= scale;
       return MeshBuffer(std::move(meshDescriptors), std::move(meshVertices), std::move(meshIndices), meshIndexCount, meshDim.size);
     }

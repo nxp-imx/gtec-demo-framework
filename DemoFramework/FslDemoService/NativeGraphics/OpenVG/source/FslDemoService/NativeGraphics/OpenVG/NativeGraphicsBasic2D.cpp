@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "NativeGraphicsBasic2D.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -50,7 +50,6 @@ namespace Fsl
     {
       return (ch >= int(MIN_VALUE) && ch <= int(MAX_VALUE));
     }
-
   }
 
 
@@ -59,12 +58,8 @@ namespace Fsl
     NativeGraphicsBasic2D::NativeGraphicsBasic2D(const Point2& currentResolution)
       : m_currentResolution(currentResolution)
       , m_fontSize(EmbeddedFont8x8::CharacterSize())
-      , m_font()
-      , m_glyphs()
-      , m_xAdjust()
       , m_inBegin(false)
       , m_oldMatrixMode(0)
-      , m_fontImage()
       , m_oldScissorEnabled(VG_FALSE)
     {
       m_oldClearColor[0] = 0.0f;
@@ -99,14 +94,14 @@ namespace Fsl
       const VGFont parentImage = m_fontImage.GetHandle();
       const int32_t imageWidth = bitmap.Width();
       const Point2 fontSize = EmbeddedFont8x8::CharacterSize();
-      VGfloat origin[2] = { 0.0f, static_cast<VGfloat>(fontSize.Y) };
-      VGfloat escapement[2] = { static_cast<VGfloat>(fontSize.X), 0.0f };
+      VGfloat origin[2] = {0.0f, static_cast<VGfloat>(fontSize.Y)};
+      VGfloat escapement[2] = {static_cast<VGfloat>(fontSize.X), 0.0f};
       int32_t srcX = 0;
       int32_t srcY = 0;
       for (uint16_t i = 0; i < numChars; ++i)
       {
         const VGFont childImage = vgChildImage(parentImage, srcX, bitmap.Height() - srcY - fontSize.Y, fontSize.X, fontSize.Y);
-          vgSetGlyphToImage(m_font.GetHandle(), firstChar + i, childImage, origin, escapement);
+        vgSetGlyphToImage(m_font.GetHandle(), firstChar + i, childImage, origin, escapement);
         m_fontImages[i].Reset(childImage, fontSize);
 
         srcX += fontSize.X;
@@ -119,9 +114,7 @@ namespace Fsl
     }
 
 
-    NativeGraphicsBasic2D::~NativeGraphicsBasic2D()
-    {
-    }
+    NativeGraphicsBasic2D::~NativeGraphicsBasic2D() = default;
 
 
     void NativeGraphicsBasic2D::SetScreenResolution(const Point2& currentResolution)
@@ -142,7 +135,7 @@ namespace Fsl
       vgGetfv(VG_CLEAR_COLOR, 4, m_oldClearColor);
       m_oldScissorEnabled = vgGeti(VG_SCISSORING);
 
-      //Disable scissoring
+      // Disable scissoring
       vgSeti(VG_SCISSORING, VG_FALSE);
       FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
     }
@@ -161,14 +154,16 @@ namespace Fsl
     }
 
 
-    void NativeGraphicsBasic2D::DrawPoints(const Vector2*const pSrc, const uint32_t length, const Color& color)
+    void NativeGraphicsBasic2D::DrawPoints(const Vector2* const pSrc, const uint32_t length, const Color& color)
     {
       assert(m_inBegin);
       assert(pSrc != nullptr);
       assert(length >= 0);
 
       if (length == 0)
+      {
         return;
+      }
 
       vgSetfv(VG_CLEAR_COLOR, 4, color.ToVector4().DirectAccess());
 
@@ -177,7 +172,7 @@ namespace Fsl
 
       const VGint screenHeight = m_currentResolution.Y - 1;
       const Vector2* pSrcCoord = pSrc;
-      const Vector2*const pSrcCoordEnd = pSrcCoord + length;
+      const Vector2* const pSrcCoordEnd = pSrcCoord + length;
       while (pSrcCoord < pSrcCoordEnd)
       {
         vgClear(static_cast<VGint>(pSrcCoord->X), screenHeight - static_cast<VGint>(pSrcCoord->Y), 1, 1);
@@ -186,17 +181,20 @@ namespace Fsl
     }
 
 
-    void NativeGraphicsBasic2D::DrawString(const char*const characters, const uint32_t length, const Vector2& dstPosition)
+    void NativeGraphicsBasic2D::DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition)
     {
       assert(m_inBegin);
       assert(characters != nullptr);
-      assert(length >= 0);;
+      assert(length >= 0);
+      ;
 
       if (length == 0)
+      {
         return;
+      }
 
       // Ensure we have enough room
-      const std::size_t theLength = static_cast<size_t>(length);
+      const auto theLength = static_cast<size_t>(length);
       if (theLength > m_glyphs.size())
       {
         m_glyphs.resize(theLength);
@@ -205,15 +203,15 @@ namespace Fsl
 
       // build the arrays needed to render
       const char* pSrc = characters;
-      const char*const pSrcEnd = pSrc + length;
+      const char* const pSrcEnd = pSrc + length;
       int32_t numGlyphs = 0;
 
-      const VGfloat charWidth = static_cast<float>(m_fontSize.X);
+      const auto charWidth = static_cast<float>(m_fontSize.X);
 
       VGfloat dstX = dstPosition.X;
 
       // Handle leading 'non drawable chars' by skipping them
-      while (pSrc < pSrcEnd && ! IsValidChar(int(*pSrc)))
+      while (pSrc < pSrcEnd && !IsValidChar(int(*pSrc)))
       {
         dstX += charWidth;
         ++pSrc;
@@ -227,7 +225,9 @@ namespace Fsl
         {
           m_glyphs[numGlyphs] = *pSrc;
           if (numGlyphs > 0)
-            m_xAdjust[numGlyphs-1] = currentGlyphWidth;
+          {
+            m_xAdjust[numGlyphs - 1] = currentGlyphWidth;
+          }
           ++numGlyphs;
           currentGlyphWidth = 0;
         }

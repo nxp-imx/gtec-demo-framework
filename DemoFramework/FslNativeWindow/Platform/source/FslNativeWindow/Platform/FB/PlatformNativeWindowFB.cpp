@@ -1,34 +1,35 @@
-#if ! defined(__ANDROID__) && defined(__linux__) && ! defined(FSL_WINDOWSYSTEM_X11) && defined(FSL_WINDOWSYSTEM_FRAMEBUFFER) && ! defined(FSL_WINDOWSYSTEM_WAYLAND)
+#if !defined(__ANDROID__) && defined(__linux__) && !defined(FSL_WINDOWSYSTEM_X11) && defined(FSL_WINDOWSYSTEM_FRAMEBUFFER) && \
+  !defined(FSL_WINDOWSYSTEM_WAYLAND)
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/FB/PlatformNativeWindowSystemFB.hpp>
 #include <FslNativeWindow/Platform/FB/PlatformNativeWindowFB.hpp>
@@ -36,7 +37,7 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/Rectangle.hpp>
+#include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslNativeWindow/Base/INativeWindowEventQueue.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
@@ -46,12 +47,11 @@
 #include <linux/input.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
+#include <cstring>
 #include <fstream>
 
 namespace Fsl
 {
-
   namespace
   {
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
@@ -64,36 +64,36 @@ namespace Fsl
       int lSize;
       char baseBuffer[20] = "/dev/input/";
 
-      //Grep the available input devices to look for a Keyboard
+      // Grep the available input devices to look for a Keyboard
       system("grep -E 'Handlers|EV=' /proc/bus/input/devices | grep -B1 'EV=120013' | grep -Eo 'event[0-9]+' > KBevent.txt");
       system("sync");
-      std::ifstream fileStream("KBevent.txt",std::ios::in);
-      if(!fileStream.good())
+      std::ifstream fileStream("KBevent.txt", std::ios::in);
+      if (!fileStream.good())
       {
         FSLLOG("Keyboard Event File Could not be oppened");
         return false;
       }
-      fileStream.seekg(0, fileStream.end);
+      fileStream.seekg(0, std::ifstream::end);
       const std::streamoff streamLength = fileStream.tellg();
-      fileStream.seekg(0, fileStream.beg);
-      lSize = (int)streamLength;
-      if(0==lSize)
+      fileStream.seekg(0, std::ifstream::beg);
+      lSize = static_cast<int>(streamLength);
+      if (0 == lSize)
       {
         FSLLOG("WARNING No Keyboard Device could be found");
         return false;
       }
-      else
+
+
+      // we only expect keyboard on event0 to event99
+      if (lSize > 8)
       {
-        //we only expect keyboard on event0 to event99
-        if(lSize>8)
-        {
-          FSLLOG("WARNING Not a valid Event File found");
-          return false;
-        }
-        std::string kbString;
-        getline (fileStream,kbString);
-        strncat(baseBuffer,kbString.c_str(),lSize);
+        FSLLOG("WARNING Not a valid Event File found");
+        return false;
       }
+      std::string kbString;
+      getline(fileStream, kbString);
+      strncat(baseBuffer, kbString.c_str(), lSize);
+
 
       g_kbFd = open(baseBuffer, O_RDONLY);
       int kbFlags = fcntl(g_kbFd, F_GETFL, 0);
@@ -109,15 +109,12 @@ namespace Fsl
 
     bool CloseKB()
     {
-      if(-1==close(g_kbFd))
-        return false;
-      else
-        return true;
+      return -1 != close(g_kbFd);
     }
 
     VirtualKey::Enum KeyToVirtualKey(int key)
     {
-      switch(key)
+      switch (key)
       {
       case KEY_ESC:
         return VirtualKey::Escape;
@@ -267,17 +264,17 @@ namespace Fsl
       while (!g_appFinished)
       {
         n = read(g_kbFd, &ev, sizeof ev);
-        if(-1 != n)
+        if (-1 != n)
         {
-          //A Key has been pressed
+          // A Key has been pressed
           if (ev.type == EV_KEY && ev.value >= 0 && ev.value <= 1)
           {
             std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-            if( eventQueue )
+            if (eventQueue)
             {
-              //Decode The Key
-              const VirtualKey::Enum keyCode = KeyToVirtualKey((int)ev.code);
-              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputKeyEvent(keyCode, ev.value));
+              // Decode The Key
+              const VirtualKey::Enum keyCode = KeyToVirtualKey(static_cast<int>(ev.code));
+              eventQueue->PostEvent(NativeWindowEventHelper::EncodeInputKeyEvent(keyCode, ev.value != 0));
             }
           }
         }
@@ -286,14 +283,17 @@ namespace Fsl
       return nullptr;
     }
 
-    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
+                                                  const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
       return std::make_shared<PlatformNativeWindowFB>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
-  }
+  }    // namespace
 
 
-  PlatformNativeWindowSystemFB::PlatformNativeWindowSystemFB(const NativeWindowSystemSetup& setup, const PlatformNativeWindowAllocationFunction& allocateWindowFunction, const PlatformNativeWindowSystemParams& systemParams)
+  PlatformNativeWindowSystemFB::PlatformNativeWindowSystemFB(const NativeWindowSystemSetup& setup,
+                                                             const PlatformNativeWindowAllocationFunction& allocateWindowFunction,
+                                                             const PlatformNativeWindowSystemParams& systemParams)
     : PlatformNativeWindowSystem(setup, systemParams.Display)
     , m_allocationFunction(allocateWindowFunction ? allocateWindowFunction : AllocateWindow)
     , m_destroyDisplayFunc(systemParams.DestroyDisplayFunc)
@@ -311,19 +311,23 @@ namespace Fsl
 
   PlatformNativeWindowSystemFB::~PlatformNativeWindowSystemFB()
   {
-    if( m_platformDisplay && m_destroyDisplayFunc )
+    if ((m_platformDisplay != nullptr) && m_destroyDisplayFunc)
     {
       m_destroyDisplayFunc(m_platformDisplay);
       m_platformDisplay = nullptr;
     }
 
     g_appFinished = true;
-    if(g_kbInitialized)
+    if (g_kbInitialized)
+    {
       CloseKB();
+    }
   }
 
 
-  std::shared_ptr<INativeWindow> PlatformNativeWindowSystemFB::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  std::shared_ptr<INativeWindow>
+    PlatformNativeWindowSystemFB::CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
+                                                     const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
   {
     return m_allocationFunction(nativeWindowSetup, PlatformNativeWindowParams(m_platformDisplay), pPlatformCustomWindowAllocationParams);
   }
@@ -336,7 +340,8 @@ namespace Fsl
   }
 
 
-  PlatformNativeWindowFB::PlatformNativeWindowFB(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  PlatformNativeWindowFB::PlatformNativeWindowFB(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
+                                                 const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
     , m_destroyWindowFunc(platformWindowParams.DestroyWindowFunc)
   {
@@ -356,31 +361,35 @@ namespace Fsl
       pthread_create(&pid, nullptr, &InputThread, nullptr);
     }
 
-    { // Post the activation message to let the framework know we are ready
+    {    // Post the activation message to let the framework know we are ready
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-      if( eventQueue )
+      if (eventQueue)
+      {
         eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowActivationEvent(true));
+      }
     }
   }
 
 
   PlatformNativeWindowFB::~PlatformNativeWindowFB()
   {
-    if( m_platformWindow != nullptr && m_destroyWindowFunc)
+    if (m_platformWindow != nullptr && m_destroyWindowFunc)
     {
       m_destroyWindowFunc(m_platformWindow);
       m_platformWindow = nullptr;
     }
 
     g_appFinished = true;
-    if(g_kbInitialized)
+    if (g_kbInitialized)
+    {
       CloseKB();
+    }
   }
 
 
   bool PlatformNativeWindowFB::TryGetDPI(Vector2& rDPI) const
   {
-    { // Remove this once its implemented
+    {    // Remove this once its implemented
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
@@ -396,7 +405,7 @@ namespace Fsl
 
   bool PlatformNativeWindowFB::TryGetSize(Point2& rSize) const
   {
-    { // Remove this once its implemented
+    {    // Remove this once its implemented
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
@@ -408,6 +417,5 @@ namespace Fsl
     rSize = Point2();
     return false;
   }
-
-}
+}    // namespace Fsl
 #endif

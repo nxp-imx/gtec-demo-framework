@@ -1,13 +1,13 @@
 /*
-* This code was created by Jeff Molofee '99
-* (ported to Linux by Ti Leggett '01)
-* (ported to i.mx51, i.mx31 and x11 by Freescale '10)
-* (ported to the Freescale demo framework by Freescale '14)
-* If you've found this code useful, please let him know.
-*
-* Visit Jeff at http://nehe.gamedev.net/
-*
-*/
+ * This code was created by Jeff Molofee '99
+ * (ported to Linux by Ti Leggett '01)
+ * (ported to i.mx51, i.mx31 and x11 by Freescale '10)
+ * (ported to the Freescale demo framework by Freescale '14)
+ * If you've found this code useful, please let him know.
+ *
+ * Visit Jeff at http://nehe.gamedev.net/
+ *
+ */
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
@@ -21,37 +21,23 @@ namespace Fsl
   namespace
   {
     // Define vertice for a triangle
-    const float g_vertexPositions[] =
-    {
-      0.0f, 100.0f, 0.0f,
-      -100.0f, -100.0f, 0.0f,
-      +100.0f, -100.0f, 0.0f,
-      100.0f, 100.0f, 0.0f,
-      -100.0f, 100.0f, 0.0f,
-      100.0f, -100.0, 0.0f
-    };
+    const float g_vertexPositions[] = {0.0f,   100.0f, 0.0f, -100.0f, -100.0f, 0.0f, +100.0f, -100.0f, 0.0f,
+                                       100.0f, 100.0f, 0.0f, -100.0f, 100.0f,  0.0f, 100.0f,  -100.0,  0.0f};
 
-    const float g_vertexColors[] =
-    {
-      1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Red
-      0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f // Green
+    const float g_vertexColors[] = {
+      1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,    // Red
+      0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f     // Green
     };
 
     // The index in these variables should match the g_pszShaderAttributeArray ordering
     const GLuint g_hVertexLoc = 0;
     const GLuint g_hColorLoc = 1;
 
-    const char*const g_pszShaderAttributeArray[] =
-    {
-      "g_vPosition",
-      "g_vColor",
-      nullptr
-    };
+    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", nullptr};
   }
 
   S02_ColoredTriangle::S02_ColoredTriangle(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_program()
     , m_hModelViewMatrixLoc(0)
     , m_hProjMatrixLoc(0)
   {
@@ -75,10 +61,7 @@ namespace Fsl
   }
 
 
-  S02_ColoredTriangle::~S02_ColoredTriangle()
-  {
-
-  }
+  S02_ColoredTriangle::~S02_ColoredTriangle() = default;
 
 
   void S02_ColoredTriangle::Update(const DemoTime& demoTime)
@@ -116,5 +99,4 @@ namespace Fsl
     glDisableVertexAttribArray(g_hVertexLoc);
     glDisableVertexAttribArray(g_hColorLoc);
   }
-
 }

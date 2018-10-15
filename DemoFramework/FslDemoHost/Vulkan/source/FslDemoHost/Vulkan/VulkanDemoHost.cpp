@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
@@ -57,13 +57,17 @@
 #if 0
 #define LOCAL_LOG(X) FSLLOG("VulkanDemoHost: " << X)
 #else
-#define LOCAL_LOG(X) {}
+#define LOCAL_LOG(X) \
+  {                  \
+  }
 #endif
 
 #if 1
 #define LOCAL_LOG_WARNING(X) FSLLOG_WARNING("VulkanDemoHost: " << X)
 #else
-#define LOCAL_LOG_WARNING(X) {}
+#define LOCAL_LOG_WARNING(X) \
+  {                          \
+  }
 #endif
 
 using namespace RapidVulkan;
@@ -86,8 +90,11 @@ namespace Fsl
         RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, currentQueueFamilyIndex, vulkanSurface, &supported));
 
         // FIX: queueIndex is always zero, what was the intention?
-        if (supported && (queueFamilyProperties[currentQueueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) && queueFamilyProperties[currentQueueFamilyIndex].queueCount > queueIndex)
+        if ((supported != 0u) && ((queueFamilyProperties[currentQueueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u) &&
+            queueFamilyProperties[currentQueueFamilyIndex].queueCount > queueIndex)
+        {
           return currentQueueFamilyIndex;
+        }
       }
 
       throw GraphicsException("Vulkan could not locate a queue with the VK_QUEUE_GRAPHICS_BIT enabled");
@@ -102,14 +109,15 @@ namespace Fsl
       imageViewCreateInfo.image = image;
       imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
       imageViewCreateInfo.format = imageFormat;
-      imageViewCreateInfo.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
-      imageViewCreateInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+      imageViewCreateInfo.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+      imageViewCreateInfo.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
       rImageView.Reset(device, imageViewCreateInfo);
     }
 
 
-    void InitFramebuffer(RapidVulkan::Framebuffer& rFramebuffers, const VkDevice device, const VkRenderPass renderPass, const VkImageView imageView, const uint32_t width, const uint32_t height)
+    void InitFramebuffer(RapidVulkan::Framebuffer& rFramebuffers, const VkDevice device, const VkRenderPass renderPass, const VkImageView imageView,
+                         const uint32_t width, const uint32_t height)
     {
       VkFramebufferCreateInfo framebufferCreateInfo{};
       framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -125,7 +133,8 @@ namespace Fsl
     }
 
 
-    void InitCommandBuffer(RapidVulkan::CommandBuffer& rCommandBuffer, const VkDevice device, const VkCommandPool commandPool, const VkRenderPass renderPass, const VkImage image, const VkExtent2D& imageExtent, const VkFramebuffer framebuffer)
+    void InitCommandBuffer(RapidVulkan::CommandBuffer& rCommandBuffer, const VkDevice device, const VkCommandPool commandPool,
+                           const VkRenderPass renderPass, const VkImage image, const VkExtent2D& imageExtent, const VkFramebuffer framebuffer)
     {
       VkCommandBufferAllocateInfo cmdBufferCreateInfo{};
       cmdBufferCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -160,9 +169,10 @@ namespace Fsl
         imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.image = image;
-        imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        imageMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-        vkCmdPipelineBarrier(rCommandBuffer.Get(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+        vkCmdPipelineBarrier(rCommandBuffer.Get(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0,
+                             nullptr, 1, &imageMemoryBarrier);
 
         VkClearColorValue clearColorValue{};
         clearColorValue.float32[0] = 0.0f;
@@ -170,7 +180,7 @@ namespace Fsl
         clearColorValue.float32[2] = 1.0f;
         clearColorValue.float32[3] = 1.0f;
 
-        VkClearValue clearValues[1] = { clearColorValue };
+        VkClearValue clearValues[1] = {clearColorValue};
 
         VkRenderPassBeginInfo renderPassBeginInfo{};
         renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -197,13 +207,13 @@ namespace Fsl
         imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.image = image;
-        imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        imageMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
-        vkCmdPipelineBarrier(rCommandBuffer.Get(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+        vkCmdPipelineBarrier(rCommandBuffer.Get(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0,
+                             nullptr, 1, &imageMemoryBarrier);
       }
       rCommandBuffer.End();
     }
-
   }
 
 
@@ -211,34 +221,25 @@ namespace Fsl
     : ADemoHost(demoHostConfig)
     , m_options(demoHostConfig.GetOptions<VulkanDemoHostOptionParser>())
     , m_nativeWindowSetup()
-    , m_windowSystem()
-    , m_window()
     , m_demoHostConfig(demoHostConfig)
     , m_isActivated(true)
     , m_activeApi(DemoHostFeatureName::OpenGLES, 0)
-    , m_instance()
     , m_physicalDevice(VK_NULL_HANDLE)
-    , m_device()
     , m_queue(VK_NULL_HANDLE)
-    , m_commandPool()
-    , m_swapchain()
     , m_imageExtend()
     , m_imageFormat()
-    , m_renderPass()
-    , m_swapchainImages()
-    , m_imageViews()
-    , m_framebuffers()
-    , m_commandBuffers()
   {
     const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), demoHostConfig.GetVerbosityLevel(),
                                                           m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
 
     m_windowSystem = VulkanNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
 
-    const DemoHostAppSetup hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
+    const DemoHostAppSetup& hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
 
-    if (hostAppSetup.DemoHostFeatures->size() <= 0)
+    if (hostAppSetup.DemoHostFeatures->empty())
+    {
       throw NotSupportedException("Must use at least one feature");
+    }
 
     m_activeApi = hostAppSetup.DemoHostFeatures->front();
 
@@ -295,7 +296,9 @@ namespace Fsl
   bool VulkanDemoHost::SwapBuffers()
   {
     if (!m_isActivated)
+    {
       return true;
+    }
 
     const Semaphore imageAcquiredSemaphore(m_device.Get(), 0);
     const Semaphore renderingCompleteSemaphore(m_device.Get(), 0);
@@ -403,7 +406,8 @@ namespace Fsl
         for (std::size_t i = 0; i < m_swapchainImages.size(); ++i)
         {
           InitImageView(m_imageViews[i], device, m_swapchainImages[i], m_imageFormat);
-          InitFramebuffer(m_framebuffers[i], device, renderPass, m_imageViews[i].Get(), static_cast<uint32_t>(m_imageExtend.width), static_cast<uint32_t>(m_imageExtend.height));
+          InitFramebuffer(m_framebuffers[i], device, renderPass, m_imageViews[i].Get(), static_cast<uint32_t>(m_imageExtend.width),
+                          static_cast<uint32_t>(m_imageExtend.height));
           InitCommandBuffer(m_commandBuffers[i], device, commandPool, renderPass, m_swapchainImages[i], m_imageExtend, m_framebuffers[i].Get());
         }
       }
@@ -443,7 +447,7 @@ namespace Fsl
     // FIXME: Gather dynamically, also depending on platform.
     assert(m_windowSystem);
     const auto surfaceExtensionName = m_windowSystem->GetKHRSurfaceExtensionName();
-    const char* enabledExtensionNames[2] = { VK_KHR_SURFACE_EXTENSION_NAME, surfaceExtensionName.c_str() };
+    const char* enabledExtensionNames[2] = {VK_KHR_SURFACE_EXTENSION_NAME, surfaceExtensionName.c_str()};
 
     VkInstanceCreateInfo instanceCreateInfo{};
     instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -458,8 +462,10 @@ namespace Fsl
     m_instance.Reset(instanceCreateInfo);
 
     std::vector<VkPhysicalDevice> allPhysicalDevices = InstanceUtil::EnumeratePhysicalDevices(m_instance.Get());
-    if (allPhysicalDevices.size() <= 0)
+    if (allPhysicalDevices.empty())
+    {
       throw GraphicsException("Did not find any Vulkan enabled devices");
+    }
 
     // TODO: all app device selection and or command line selection
 
@@ -478,7 +484,7 @@ namespace Fsl
   {
     const uint32_t queueFamilyIndex = GetCommandQueueFamily(m_physicalDevice, m_window->GetVulkanSurface());
 
-    float queuePriorities[1] = { 0.0f };
+    float queuePriorities[1] = {0.0f};
     VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
     deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     deviceQueueCreateInfo.flags = 0;
@@ -495,7 +501,7 @@ namespace Fsl
     deviceCreateInfo.ppEnabledLayerNames = nullptr;
     deviceCreateInfo.enabledExtensionCount = 1;
     // FIXME: Gather dynamically, also depending on platform.
-    const char* enabledExtensionNames[1] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+    const char* enabledExtensionNames[1] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     deviceCreateInfo.ppEnabledExtensionNames = enabledExtensionNames;
     deviceCreateInfo.pEnabledFeatures = nullptr;
 
@@ -525,13 +531,15 @@ namespace Fsl
 
     VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 
-    if (!(surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR))
+    if ((surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) == 0u)
     {
       preTransform = surfaceCapabilities.currentTransform;
     }
 
-    const std::vector<VkPresentModeKHR> surfacePresentModes = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_window->GetVulkanSurface());
-    const std::vector<VkSurfaceFormatKHR> surfaceFormats = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_window->GetVulkanSurface());
+    const std::vector<VkPresentModeKHR> surfacePresentModes =
+      PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_window->GetVulkanSurface());
+    const std::vector<VkSurfaceFormatKHR> surfaceFormats =
+      PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_window->GetVulkanSurface());
 
     // Regarding specification, this present mode has to be supported.
     VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
@@ -549,7 +557,7 @@ namespace Fsl
     }
 
     // The requested format was not found, default to the first format
-    if (!surfaceFormatFound)
+    if (surfaceFormatFound == 0u)
     {
       format = surfaceFormats[0].format;
       imageColorSpace = surfaceFormats[0].colorSpace;
@@ -561,7 +569,7 @@ namespace Fsl
     swapchainCreateInfo.flags = 0;
     swapchainCreateInfo.surface = m_window->GetVulkanSurface();
     // FIMXE
-    swapchainCreateInfo.minImageCount =(surfaceCapabilities.maxImageCount > 1)? 2 :surfaceCapabilities.maxImageCount;
+    swapchainCreateInfo.minImageCount = (surfaceCapabilities.maxImageCount > 1) ? 2 : surfaceCapabilities.maxImageCount;
     swapchainCreateInfo.imageFormat = format;
     swapchainCreateInfo.imageColorSpace = imageColorSpace;
     swapchainCreateInfo.imageExtent = surfaceCapabilities.currentExtent;
@@ -639,5 +647,4 @@ namespace Fsl
   {
     m_renderPass.Reset();
   }
-
 }

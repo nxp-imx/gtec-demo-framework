@@ -103,3 +103,15 @@ Run the WinScreenshot bat script (only works on windows)
 ```bash
 FslBuild.py --ForAllExe "WinScreenshot (EXE)"
 ```
+
+Run the all unit tests
+
+```bash
+FslBuild.py --ForAllExe "(EXE)" --RequireFeature [GoogleUnitTest] -t sdk
+```
+
+or
+
+```bash
+FslBuildRun.py --RequireFeature [GoogleUnitTest] -t sdk
+```

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
@@ -191,16 +191,11 @@ namespace Fsl
       FSLLOG(rLog.Indent << "Dumping detailed device info for " << platformIds.size() << " platforms.");
       rLog.PushIndent();
 
-      cl_device_type deviceTypes[] =
-      {
-        CL_DEVICE_TYPE_CPU,
-        CL_DEVICE_TYPE_GPU,
-        CL_DEVICE_TYPE_ACCELERATOR,
+      cl_device_type deviceTypes[] = {CL_DEVICE_TYPE_CPU, CL_DEVICE_TYPE_GPU, CL_DEVICE_TYPE_ACCELERATOR,
 #ifdef CL_DEVICE_TYPE_CUSTOM
-        CL_DEVICE_TYPE_CUSTOM,
+                                      CL_DEVICE_TYPE_CUSTOM,
 #endif
-        CL_DEVICE_TYPE_ALL
-      };
+                                      CL_DEVICE_TYPE_ALL};
       const uint32_t deviceTypeEntries = (sizeof(deviceTypes) / sizeof(cl_device_type));
 
       for (std::size_t platformIndex = 0; platformIndex < platformIds.size(); ++platformIndex)
@@ -208,7 +203,7 @@ namespace Fsl
         FSLLOG(rLog.Indent << "*** Platform #" << platformIndex << " ***");
         DumpPlatformInfo(rLog, platformIds[platformIndex]);
 
-        for (uint32_t deviceTypeIndex = 0; deviceTypeIndex<deviceTypeEntries; ++deviceTypeIndex)
+        for (uint32_t deviceTypeIndex = 0; deviceTypeIndex < deviceTypeEntries; ++deviceTypeIndex)
         {
           FSLLOG(rLog.Indent << "Enumerating devices of type: " << Debug::DeviceTypeTostring(deviceTypes[deviceTypeIndex]));
           rLog.PushIndent();
@@ -218,7 +213,6 @@ namespace Fsl
           {
             for (std::size_t deviceIndex = 0; deviceIndex < deviceIds.size(); ++deviceIndex)
             {
-
               FSLLOG(rLog.Indent << "--- Device #" << deviceIndex << " ---");
               LogDeviceInfo(rLog, deviceIds[deviceIndex]);
             }
@@ -232,15 +226,13 @@ namespace Fsl
       }
       rLog.PopIndent();
     }
-
   }
 
-  //clGetDeviceInfo(cl_device_id    /* device */,
+  // clGetDeviceInfo(cl_device_id    /* device */,
   //  cl_device_info  /* param_name */,
   //  size_t          /* param_value_size */,
   //  void *          /* param_value */,
   //  size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
-
 
 
   Info::Info(const DemoAppConfig& config)
@@ -249,9 +241,7 @@ namespace Fsl
   }
 
 
-  Info::~Info()
-  {
-  }
+  Info::~Info() = default;
 
 
   void Info::Run()

@@ -1,17 +1,17 @@
 #ifndef VULKAN_TRIANGLE_TRIANGLE_HPP
 #define VULKAN_TRIANGLE_TRIANGLE_HPP
 /*
-* Vulkan Example - Basic indexed triangle rendering
-*
-* Note:
-* This is a "pedal to the metal" example to show off how to get Vulkan up an displaying something
-* Contrary to the other examples, this one won't make use of helper functions or initializers
-* Except in a few cases (swap chain setup e.g.)
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Basic indexed triangle rendering
+ *
+ * Note:
+ * This is a "pedal to the metal" example to show off how to get Vulkan up an displaying something
+ * Contrary to the other examples, this one won't make use of helper functions or initializers
+ * Except in a few cases (swap chain setup e.g.)
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Triangle' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -35,18 +35,15 @@ namespace Fsl
     // Vertex buffer and attributes
     struct VertexBuffer
     {
-      RapidVulkan::Memory Memory;                              // Handle to the device memory for this buffer
-      RapidVulkan::Buffer Buffer;                                // Handle to the Vulkan buffer object that the memory is bound to
+      RapidVulkan::Memory Memory;    // Handle to the device memory for this buffer
+      RapidVulkan::Buffer Buffer;    // Handle to the Vulkan buffer object that the memory is bound to
       VkPipelineVertexInputStateCreateInfo InputState;
       VkVertexInputBindingDescription InputBinding;
       std::vector<VkVertexInputAttributeDescription> InputAttributes;
 
       VertexBuffer()
-        : Memory()
-        , Buffer()
-        , InputState{}
+        : InputState{}
         , InputBinding{}
-        , InputAttributes()
       {
       }
     };
@@ -56,14 +53,9 @@ namespace Fsl
     {
       RapidVulkan::Memory Memory;
       RapidVulkan::Buffer Buffer;
-      uint32_t Count;
+      uint32_t Count{0};
 
-      IndexBuffer()
-        : Memory()
-        , Buffer()
-        , Count(0)
-      {
-      }
+      IndexBuffer() = default;
     };
 
     // For simplicity we use the same uniform block layout as in the shader:
@@ -90,7 +82,7 @@ namespace Fsl
       RapidVulkan::Memory Memory;
       RapidVulkan::Buffer Buffer;
       VkDescriptorBufferInfo Descriptor;
-    } ;
+    };
 
 
     // PrepareSynchronizationPrimitives
@@ -116,15 +108,17 @@ namespace Fsl
 
   public:
     Triangle(const DemoAppConfig& config);
-    ~Triangle();
-  protected:
-    virtual void Prepare() override;
-    virtual void SetupDepthStencil(const VkFormat depthFormat) override;
-    virtual void SetupRenderPass(const VkFormat colorFormat, const VkFormat depthFormat) override;
-    virtual void SetupFrameBuffer() override;
+    ~Triangle() override;
 
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+  protected:
+    void Prepare() override;
+    void SetupDepthStencil(const VkFormat depthFormat) override;
+    void SetupRenderPass(const VkFormat colorFormat, const VkFormat depthFormat) override;
+    void SetupFrameBuffer() override;
+
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void PrepareSynchronizationPrimitives();
     void PrepareVertices(const bool useStagingBuffers);
@@ -134,8 +128,9 @@ namespace Fsl
     void PreparePipelines();
     void SetupDescriptorPool();
     void SetupDescriptorSet();
+
   protected:
-    virtual void BuildCommandBuffers() override;
+    void BuildCommandBuffers() override;
   };
 }
 

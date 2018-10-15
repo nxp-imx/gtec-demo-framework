@@ -19,9 +19,11 @@ A "contributor" is any person that distributes its contribution under this licen
 
 2. Grant of Rights
 (A) Copyright Grant- Subject to the terms of this license, including the license conditions and limitations in section 3,
-each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its contribution, and distribute its contribution or any derivative works that you create.
-(B) Patent Grant- Subject to the terms of this license, including the license conditions and limitations in section 3,
-each contributor grants you a non-exclusive, worldwide, royalty-free license under its licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative works of the contribution in the software.
+each contributor grants you a non-exclusive, worldwide, royalty-free copyright license to reproduce its contribution, prepare derivative works of its
+contribution, and distribute its contribution or any derivative works that you create. (B) Patent Grant- Subject to the terms of this license,
+including the license conditions and limitations in section 3, each contributor grants you a non-exclusive, worldwide, royalty-free license under its
+licensed patents to make, have made, use, sell, offer for sale, import, and/or otherwise dispose of its contribution in the software or derivative
+works of the contribution in the software.
 
 3. Conditions and Limitations
 (A) No Trademark License- This license does not grant you rights to use any contributors' name, logo, or trademarks.
@@ -53,12 +55,12 @@ namespace Fsl
     /// <summary>
     /// Attributes
     /// </summary>
-    int32_t X;
-    int32_t Y;
-    int32_t Width;
-    int32_t Height;
-    float MinDepth;
-    float MaxDepth;
+    int32_t X{0};
+    int32_t Y{0};
+    int32_t Width{0};
+    int32_t Height{0};
+    float MinDepth{0.0f};
+    float MaxDepth{0.0f};
 
 
     float GetAspectRatio() const
@@ -83,22 +85,13 @@ namespace Fsl
       Height = value.Height();
     }
 
-    Viewport()
-      : X(0)
-      , Y(0)
-      , Width(0)
-      , Height(0)
-      , MinDepth(0.0f)
-      , MaxDepth(0.0f)
-    {
-    }
+    Viewport() = default;
 
     Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height)
       : X(x)
       , Y(y)
       , Width(width)
       , Height(height)
-      , MinDepth(0.0f)
       , MaxDepth(1.0f)
     {
     }

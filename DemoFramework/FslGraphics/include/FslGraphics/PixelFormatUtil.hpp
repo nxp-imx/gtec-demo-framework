@@ -1,35 +1,35 @@
 #ifndef FSLGRAPHICS_PIXELFORMATUTIL_HPP
 #define FSLGRAPHICS_PIXELFORMATUTIL_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
@@ -48,9 +48,9 @@ namespace Fsl
     //         Index zero means the first id defined by PixelFormat::ENUM_ID_BEGIN_RANGE
     static uint32_t GetFormatRangeIndex(const PixelFormat pixelFormat);
     // FIX: switch the return type here to enums
-    //static uint32_t GetNumericFormat(const PixelFormat pixelFormat);
+    // static uint32_t GetNumericFormat(const PixelFormat pixelFormat);
     // FIX: switch the return type here to enums
-    //static uint32_t GetCompressionScheme(const PixelFormat pixelFormat);
+    // static uint32_t GetCompressionScheme(const PixelFormat pixelFormat);
 
     //! @brief Check if this is considered a compressed format
     static bool IsCompressed(const PixelFormat pixelFormat);
@@ -76,7 +76,7 @@ namespace Fsl
     // @return PixelFormat::Undefined if the requested change is invalid
     static PixelFormat TrySetCompatiblePixelFormatFlag(const PixelFormat sourcePixelFormat, const PixelFormatFlags::Enum flag)
     {
-      uint32_t pixelFormat = static_cast<uint32_t>(sourcePixelFormat);
+      auto pixelFormat = static_cast<uint32_t>(sourcePixelFormat);
       // Strip the numeric format
       pixelFormat &= ~static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT);
       pixelFormat |= static_cast<uint32_t>(flag);
@@ -85,7 +85,8 @@ namespace Fsl
 
     static constexpr PixelFormatLayout GetPixelFormatLayout(const PixelFormat pixelFormat)
     {
-      return static_cast<PixelFormatLayout>((static_cast<int32_t>(pixelFormat)& PixelFormatFlags::BIT_MASK_LAYOUT) >> PixelFormatFlags::BIT_INDEX_LAYOUT);
+      return static_cast<PixelFormatLayout>((static_cast<int32_t>(pixelFormat) & PixelFormatFlags::BIT_MASK_LAYOUT) >>
+                                            PixelFormatFlags::BIT_INDEX_LAYOUT);
     }
 
     static uint32_t GetBytesPerPixel(const PixelFormat pixelFormat)
@@ -113,12 +114,14 @@ namespace Fsl
       return PixelFormatLayoutUtil::CalcMinimumStride(width, bytesPerPixel, strideRequirement);
     }
 
-    static bool IsValidStride(const uint32_t width, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t desiredStride)
+    static bool IsValidStride(const uint32_t width, const PixelFormat pixelFormat, const StrideRequirement strideRequirement,
+                              const uint32_t desiredStride)
     {
       return PixelFormatLayoutUtil::IsValidStride(width, GetPixelFormatLayout(pixelFormat), strideRequirement, desiredStride);
     }
 
-    static bool IsValidStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement, const uint32_t desiredStride)
+    static bool IsValidStride(const uint32_t width, const uint32_t bytesPerPixel, const StrideRequirement strideRequirement,
+                              const uint32_t desiredStride)
     {
       return PixelFormatLayoutUtil::IsValidStride(width, bytesPerPixel, strideRequirement, desiredStride);
     }
@@ -126,7 +129,8 @@ namespace Fsl
     //! @brief Extract the numeric format from the pixel format
     static PixelFormatFlags::Enum GetNumericFormat(const PixelFormat pixelFormat)
     {
-      return static_cast<PixelFormatFlags::Enum>(static_cast<uint32_t>(pixelFormat) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT));
+      return static_cast<PixelFormatFlags::Enum>(static_cast<uint32_t>(pixelFormat) &
+                                                 static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_NUMERIC_FORMAT));
     }
 
     static uint32_t GetChannelCount(const PixelFormat pixelFormat)

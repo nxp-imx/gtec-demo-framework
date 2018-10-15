@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Texture/TextureUtil.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -51,9 +51,10 @@ namespace Fsl
     Texture CreateTargetTexture(const Texture& srcTexture, const PixelFormat desiredPixelFormat)
     {
       assert(!PixelFormatUtil::IsCompressed(srcTexture.GetPixelFormat()));
-      TextureBlobBuilder builder(srcTexture.GetTextureType(), srcTexture.GetExtent(), desiredPixelFormat, srcTexture.GetTextureInfo(), srcTexture.GetBitmapOrigin());
+      TextureBlobBuilder builder(srcTexture.GetTextureType(), srcTexture.GetExtent(), desiredPixelFormat, srcTexture.GetTextureInfo(),
+                                 srcTexture.GetBitmapOrigin());
       builder.SetDefaultBlobLayout();
-      return Texture(std::move(builder));
+      return Texture(builder);
     }
 
 
@@ -79,7 +80,7 @@ namespace Fsl
         assert(levels == rawTexture.GetLevels());
 
         const auto srcBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(srcPixelFormat);
-        uint8_t*const pContent = static_cast<uint8_t*>(rawTexture.GetContentWriteAccess());
+        auto* const pContent = static_cast<uint8_t*>(rawTexture.GetContentWriteAccess());
         const auto srcOrigin = rawTexture.GetBitmapOrigin();
 
         for (uint32_t level = 0; level < levels; ++level)
@@ -95,7 +96,8 @@ namespace Fsl
               const auto rawBlob = rawTexture.GetTextureBlob(level, face, layer);
               for (uint32_t z = 0; z < extent.Depth; ++z)
               {
-                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z*fullTextureStride), extent.Width, extent.Height, srcPixelFormat, srcStride, srcOrigin);
+                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width, extent.Height, srcPixelFormat, srcStride,
+                                         srcOrigin);
 
                 // TODO: use a more generic converter, this relies on the fact we know that there is only two origins
                 try
@@ -146,7 +148,7 @@ namespace Fsl
 
         const uint32_t srcBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(srcPixelFormat);
 
-        uint8_t*const pContent = static_cast<uint8_t*>(rawTexture.GetContentWriteAccess());
+        auto* const pContent = static_cast<uint8_t*>(rawTexture.GetContentWriteAccess());
 
         const auto srcOrigin = rawTexture.GetBitmapOrigin();
         const uint32_t layers = rawTexture.GetLayers();
@@ -166,10 +168,13 @@ namespace Fsl
               const auto rawBlob = rawTexture.GetTextureBlob(level, face, layer);
               for (uint32_t z = 0; z < extent.Depth; ++z)
               {
-                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z*fullTextureStride), extent.Width, extent.Height, srcPixelFormat, srcStride, srcOrigin);
+                RawBitmapEx rawSrcBitmap(pContent + rawBlob.Offset + (z * fullTextureStride), extent.Width, extent.Height, srcPixelFormat, srcStride,
+                                         srcOrigin);
 
                 if (!RawBitmapConverter::TryConvert(rawSrcBitmap, desiredPixelFormat))
+                {
                   return false;
+                }
               }
             }
           }
@@ -204,8 +209,8 @@ namespace Fsl
         const uint32_t srcBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(srcPixelFormat);
         const uint32_t dstBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(desiredPixelFormat);
 
-        const uint8_t*const pSrcContent = static_cast<const uint8_t*>(rawSrcTexture.GetContent());
-        uint8_t*const pDstContent = static_cast<uint8_t*>(rawDstTexture.GetContentWriteAccess());
+        const auto* const pSrcContent = static_cast<const uint8_t*>(rawSrcTexture.GetContent());
+        auto* const pDstContent = static_cast<uint8_t*>(rawDstTexture.GetContentWriteAccess());
 
         const auto srcOrigin = rawSrcTexture.GetBitmapOrigin();
         const uint32_t layers = rawSrcTexture.GetLayers();
@@ -228,12 +233,16 @@ namespace Fsl
               const auto rawDstBlob = rawDstTexture.GetTextureBlob(level, face, layer);
               for (uint32_t z = 0; z < srcExtent.Depth; ++z)
               {
-                RawBitmap rawSrcBitmap(pSrcContent + rawSrcBlob.Offset + (z*srcFullTextureStride), srcExtent.Width, srcExtent.Height, srcPixelFormat, srcStride, srcOrigin);
-                RawBitmapEx rawDstBitmap(pDstContent + rawDstBlob.Offset + (z*dstFullTextureStride), srcExtent.Width, srcExtent.Height, desiredPixelFormat, dstStride, srcOrigin);
+                RawBitmap rawSrcBitmap(pSrcContent + rawSrcBlob.Offset + (z * srcFullTextureStride), srcExtent.Width, srcExtent.Height,
+                                       srcPixelFormat, srcStride, srcOrigin);
+                RawBitmapEx rawDstBitmap(pDstContent + rawDstBlob.Offset + (z * dstFullTextureStride), srcExtent.Width, srcExtent.Height,
+                                         desiredPixelFormat, dstStride, srcOrigin);
 
                 // Try the raw bitmap converter
                 if (!RawBitmapConverter::TryConvert(rawDstBitmap, rawSrcBitmap))
+                {
                   return false;
+                }
               }
             }
           }
@@ -266,18 +275,21 @@ namespace Fsl
       if (PixelFormatUtil::IsCompressed(srcPixelFormat))
       {
         if (currentPixelFormatLayout != desiredPixelFormatLayout)
+        {
           return false;
+        }
 
         // There was no need to do any compression if desiredPixelFormat was PixelFormat::Undefined
         return desiredPixelFormat == PixelFormat::Undefined;
       }
 
       if (TryDoConvertUncompressedInPlace(rTexture, desiredPixelFormat))
+      {
         return true;
+      }
 
       // Last chance, try to see if we can get it done using a temporary texture as a intermediary
       return TryDoConvertUncompressedUsingTemporaryTexture(rTexture, desiredPixelFormat);
-
     }
   }
 
@@ -286,7 +298,9 @@ namespace Fsl
   {
     // Convert the pixel format first
     if (!TryDoConvert(rTexture, desiredPixelFormat))
+    {
       return false;
+    }
 
     // Check if we need to modify the origin
     return TryChangeOrigin(rTexture, desiredOrigin);
@@ -302,20 +316,28 @@ namespace Fsl
       const auto desiredPixelFormatLayout = PixelFormatUtil::GetPixelFormatLayout(desiredPixelFormat);
 
       if (desiredPixelFormat != PixelFormat::Undefined && currentPixelFormatLayout != desiredPixelFormatLayout)
+      {
         throw NotSupportedException("Can not change the pixel format of compressed textures");
+      }
       if (desiredOrigin != BitmapOrigin::Undefined && rTexture.GetBitmapOrigin() != desiredOrigin)
+      {
         throw NotSupportedException("Can not change the origin of compressed textures");
+      }
     }
 
     if (!TryConvert(rTexture, desiredPixelFormat, desiredOrigin))
+    {
       throw UnsupportedPixelFormatConversionException("Conversion not supported", rTexture.GetPixelFormat(), desiredPixelFormat);
+    }
   }
 
 
   Extent3D TextureUtil::GetExtentForLevel(const Extent3D& extent, const uint32_t level)
   {
     if (level <= 0)
+    {
       return extent;
+    }
     return Extent3D(std::max(extent.Width >> level, 1u), std::max(extent.Height >> level, 1u), std::max(extent.Depth >> level, 1u));
   }
 
@@ -337,7 +359,9 @@ namespace Fsl
   {
     // Check if we need to modify the origin, if not quick exit
     if (desiredOrigin == BitmapOrigin::Undefined || rTexture.GetBitmapOrigin() == desiredOrigin)
+    {
       return true;
+    }
 
     if (PixelFormatUtil::IsCompressed(rTexture.GetPixelFormat()))
     {
@@ -347,5 +371,4 @@ namespace Fsl
 
     return TryFlipUncompressedInPlace(rTexture, desiredOrigin);
   }
-
 }

@@ -1,42 +1,41 @@
 #ifndef SHARED_FRACTALSHADER_CONFIG_HPP
 #define SHARED_FRACTALSHADER_CONFIG_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Exceptions.hpp>
 
 namespace Fsl
 {
-
   enum class Quality
   {
     Low,
@@ -51,7 +50,7 @@ namespace Fsl
     Gray,
     Col,
     Smooth,
-    //Tex,
+    // Tex,
     COUNT
   };
 
@@ -71,23 +70,14 @@ namespace Fsl
   class BasicConfig
   {
   public:
-    Quality TheQuality;
-    RenderMode TheRenderMode;
-    int32_t IterationsJ;
-    int32_t IterationsM;
-    bool ForceUnroll;
-    bool Show;
+    Quality TheQuality{Quality::Medium};
+    RenderMode TheRenderMode{RenderMode::Col};
+    int32_t IterationsJ{20};
+    int32_t IterationsM{20};
+    bool ForceUnroll{false};
+    bool Show{false};
 
-    BasicConfig()
-      : TheQuality(Quality::Medium)
-      , TheRenderMode(RenderMode::Col)
-      , IterationsJ(20)
-      , IterationsM(20)
-      , ForceUnroll(false)
-      , Show(false)
-    {
-
-    }
+    BasicConfig() = default;
     void SetIterations(const int32_t value)
     {
       SetIterationsJ(value);
@@ -97,21 +87,27 @@ namespace Fsl
     void SetIterationsJ(const int32_t value)
     {
       if (value < 1)
+      {
         throw std::invalid_argument("invalid iteration limit");
+      }
       IterationsJ = value;
     }
 
     void SetIterationsM(const int32_t value)
     {
       if (value < 1)
+      {
         throw std::invalid_argument("invalid iteration limit");
+      }
       IterationsM = value;
     }
 
     void SetRenderMode(const RenderMode value)
     {
       if (static_cast<int>(value) < 0 || value >= RenderMode::COUNT)
+      {
         throw std::invalid_argument("Unknown RenderMode");
+      }
 
       TheRenderMode = value;
     }
@@ -120,7 +116,9 @@ namespace Fsl
     void SetQuality(const Quality value)
     {
       if (static_cast<int>(value) < 0 || value >= Quality::COUNT)
+      {
         throw std::invalid_argument("Unknown Quality");
+      }
 
       TheQuality = value;
     }
@@ -134,28 +132,25 @@ namespace Fsl
     {
       Show = value;
     }
-
   };
 
   class Config : public BasicConfig
   {
   public:
-    int32_t Scene;
-    AnimationMode TheAnimationMode;
+    int32_t Scene{0};
+    AnimationMode TheAnimationMode{AnimationMode::ComplexMove};
 
     Config()
-      : BasicConfig()
-      , Scene(0)
-      , TheAnimationMode(AnimationMode::ComplexMove)
-    {
-    }
 
+      = default;
 
 
     void SetScene(const int32_t value)
     {
       if (value < 0 || value >= 2)
+      {
         throw std::invalid_argument("Unknown scene");
+      }
       Scene = value;
     }
 
@@ -163,11 +158,12 @@ namespace Fsl
     void SetAnimationMode(const AnimationMode value)
     {
       if (static_cast<int>(value) < 0 || value >= AnimationMode::COUNT)
+      {
         throw std::invalid_argument("Unknown AnimationMode");
+      }
 
       TheAnimationMode = value;
     }
-
   };
 }
 

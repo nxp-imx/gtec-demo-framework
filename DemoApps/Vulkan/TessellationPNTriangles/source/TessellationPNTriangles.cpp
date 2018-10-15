@@ -1,13 +1,13 @@
 /*
-* Vulkan Example - Tessellation shader PN triangles
-*
-* Based on http://alex.vlachos.com/graphics/CurvedPNTriangles.pdf
-* Shaders based on http://onrendering.blogspot.de/2011/12/tessellation-on-gpu-curved-pn-triangles.html
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Tessellation shader PN triangles
+ *
+ * Based on http://alex.vlachos.com/graphics/CurvedPNTriangles.pdf
+ * Shaders based on http://onrendering.blogspot.de/2011/12/tessellation-on-gpu-curved-pn-triangles.html
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'PN-Triangles' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -38,12 +38,8 @@ namespace Fsl
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
 
     // Vertex layout for this example
-    const std::vector<MeshLoader::VertexLayout> g_vertexLayout =
-    {
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_UV
-    };
+    const std::vector<MeshLoader::VertexLayout> g_vertexLayout = {
+      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION, MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL, MeshLoader::VertexLayout::VERTEX_LAYOUT_UV};
   }
 
 
@@ -64,7 +60,7 @@ namespace Fsl
 
   TessellationPNTriangles::~TessellationPNTriangles()
   {
-
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -93,8 +89,8 @@ namespace Fsl
     cmdBufInfo.pNext = nullptr;
 
     VkClearValue clearValues[2];
-    clearValues[0].color = { { 0.5f, 0.5f, 0.5f, 0.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[0].color = {{0.5f, 0.5f, 0.5f, 0.0f}};
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -135,7 +131,7 @@ namespace Fsl
 
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
 
-          VkDeviceSize offsets[1] = { 0 };
+          VkDeviceSize offsets[1] = {0};
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Object.GetVertices().GetBufferPointer(), offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Object.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
@@ -144,12 +140,14 @@ namespace Fsl
             vkCmdSetViewport(m_drawCmdBuffers[i], 0, 1, &viewport);
             vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pPipelineLeft->Get());
             vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Object.GetIndexCount(), 1, 0, 0, 0);
-            viewport.x = static_cast<float>(screenExtent.width / 2);
+            viewport.x = static_cast<float>(screenExtent.width / 2.0f);
           }
 
           vkCmdSetViewport(m_drawCmdBuffers[i], 0, 1, &viewport);
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pPipelineRight->Get());
           vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Object.GetIndexCount(), 1, 0, 0, 0);
+
+          DrawUI(m_drawCmdBuffers[i]);
 
           m_drawCmdBuffers.CmdEndRenderPass(i);
         }
@@ -176,11 +174,12 @@ namespace Fsl
   }
 
 
-
   void TessellationPNTriangles::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
 
     if (event.IsPressed())
@@ -222,7 +221,9 @@ namespace Fsl
   void TessellationPNTriangles::Draw(const DemoTime& demoTime)
   {
     if (!TryPrepareFrame())
+    {
       return;
+    }
 
     m_submitInfo.commandBufferCount = 1;
     m_submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);
@@ -235,18 +236,20 @@ namespace Fsl
 
   void TessellationPNTriangles::LoadTextures()
   {
-    if (m_deviceFeatures.textureCompressionBC)
+    if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC compression");
       m_textures.ColorMap = m_textureLoader->LoadTexture("textures/deer_bc3.ktx");
     }
-    else if (m_deviceFeatures.textureCompressionETC2)
+    else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 compression");
       m_textures.ColorMap = m_textureLoader->LoadTexture("textures/deer_etc2.ktx");
     }
     else
+    {
       throw NotSupportedException("No supported texture compression");
+    }
   }
 
 
@@ -301,16 +304,12 @@ namespace Fsl
   void TessellationPNTriangles::PrepareUniformBuffers()
   {
     // Tessellation evaluation shader uniform buffer
-    CreateBuffer(m_uniformDataTE.Buffer, m_uniformDataTE.Memory, m_uniformDataTE.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboTE), &m_uboTE);
+    CreateBuffer(m_uniformDataTE.Buffer, m_uniformDataTE.Memory, m_uniformDataTE.Descriptor, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboTE), &m_uboTE);
 
     // Tessellation control shader uniform buffer
-    CreateBuffer(m_uniformDataTC.Buffer, m_uniformDataTC.Memory, m_uniformDataTC.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboTC), &m_uboTC);
+    CreateBuffer(m_uniformDataTC.Buffer, m_uniformDataTC.Memory, m_uniformDataTC.Descriptor, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboTC), &m_uboTC);
 
     UpdateUniformBuffers();
   }
@@ -322,13 +321,13 @@ namespace Fsl
 
     // Tessellation eval
 
-    const auto aspectRatio = static_cast<float>(screenExtent.Width* ((m_splitScreen) ? 0.5f : 1.0f)) / static_cast<float>(screenExtent.Height);
+    const auto aspectRatio = static_cast<float>(screenExtent.Width * ((m_splitScreen) ? 0.5f : 1.0f)) / static_cast<float>(screenExtent.Height);
 
-    glm::mat4 viewMatrix = glm::mat4();
+    glm::mat4 viewMatrix = glm::mat4(1.0f);
     m_uboTE.Projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 256.0f);
     viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, m_zoom));
 
-    m_uboTE.Model = glm::mat4();
+    m_uboTE.Model = glm::mat4(1.0f);
     m_uboTE.Model = viewMatrix * glm::translate(m_uboTE.Model, m_cameraPos);
     m_uboTE.Model = glm::rotate(m_uboTE.Model, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_uboTE.Model = glm::rotate(m_uboTE.Model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -432,12 +431,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR,
-      VK_DYNAMIC_STATE_LINE_WIDTH
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_LINE_WIDTH};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -533,7 +527,7 @@ namespace Fsl
     VkDescriptorImageInfo texDescriptor{};
     texDescriptor.sampler = m_textures.ColorMap.GetSampler();
     texDescriptor.imageView = m_textures.ColorMap.GetImageView();
-    texDescriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    texDescriptor.imageLayout = m_textures.ColorMap.GetImageLayout();
 
     std::vector<VkWriteDescriptorSet> writeDescriptorSets(3);
     // Binding 0 : Tessellation control shader ubo

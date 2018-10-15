@@ -43,13 +43,9 @@ namespace Fsl
   struct BoundingSphere
   {
     Vector3 Center;
-    float Radius;
+    float Radius{0.0f};
 
-    BoundingSphere()
-      : Center()
-      , Radius(0.0f)
-    {
-    }
+    BoundingSphere() = default;
 
     BoundingSphere(Vector3 center, float radius)
       : Center(center)
@@ -95,7 +91,6 @@ namespace Fsl
       return Center != rhs.Center || Radius != rhs.Radius;
     }
   };
-
 }
 
 #endif

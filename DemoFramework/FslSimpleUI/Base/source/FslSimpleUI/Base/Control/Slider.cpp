@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
@@ -49,24 +49,19 @@ namespace Fsl
 {
   namespace UI
   {
-
     Slider::Slider(const std::shared_ptr<WindowContext>& context)
       : BaseWindow(context)
-      , m_texBackground()
-      , m_texCursor()
+      , m_windowContext(context)
       , m_percentage(0)
       , m_value(0)
       , m_minValue(0)
       , m_maxValue(100)
-      , m_barClickRect()
       , m_dragState(DragState::Idle)
       , m_dragStartPos(0)
       , m_dragOffset(0)
       , m_renderXMin(0)
       , m_renderXMax(0)
-      , m_backgroundPadding()
-      , m_cursorPadding()
-      , m_nineSlice()
+
     {
       // We need to be draw enabled, accept click input and receive a notification on init
       Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput));
@@ -108,7 +103,9 @@ namespace Fsl
     bool Slider::SetValueLimits(const int32_t& min, const int32_t& max)
     {
       if (min > max)
+      {
         throw std::invalid_argument("min must be <= max");
+      }
 
       if (min != m_minValue || max != m_maxValue)
       {
@@ -172,7 +169,7 @@ namespace Fsl
       const float yBackground = dstPos.Y + m_backgroundPadding.Top();
 
       const float dxCursor = dxBackground - m_cursorPadding.SumX();
-      //const float dyCursor = dyBackground - m_cursorPadding.SumY();
+      // const float dyCursor = dyBackground - m_cursorPadding.SumY();
       const float xCursor = xBackground + m_cursorPadding.Left();
       const float yCursor = yBackground + m_cursorPadding.Top();
       float cursorX = xCursor;
@@ -190,9 +187,13 @@ namespace Fsl
       {
         cursorX = dstPos.X + m_dragOffset;
         if (cursorX <= renderXMin)
+        {
           cursorX = renderXMin;
+        }
         else if (cursorX >= renderXMax)
+        {
           cursorX = renderXMax;
+        }
       }
 
       // Scale the cursor to fit the height of the Slider (keeping the aspect ratio)
@@ -205,19 +206,23 @@ namespace Fsl
       // make the positions relative to the window
       m_renderXMin = renderXMin - dstPos.X;
       m_renderXMax = renderXMax - dstPos.X;
-      //m_barClickRect = Rect(dstRect.X() - dstPos.X, dstRect.Y() - dstPos.Y, dstRect.Width(), dstRect.Height());
-      m_barClickRect = Rect(0,0,renderSize.X, renderSize.Y);
+      // m_barClickRect = Rect(dstRect.X() - dstPos.X, dstRect.Y() - dstPos.Y, dstRect.Width(), dstRect.Height());
+      m_barClickRect = Rect(0, 0, renderSize.X, renderSize.Y);
 
       // Do the actual drawing
       {
-        const auto batch = GetContext()->Batch2D;
+        const auto batch = m_windowContext->Batch2D;
         batch->ChangeTo(BlendState::AlphaBlend);
 
         if (m_texBackground.IsValid())
+        {
           Draw9SliceImpl::WinDraw(batch, dstRect, m_texBackground, m_nineSlice, ThicknessF(), Color::White());
+        }
 
         if (m_texCursor.IsValid())
+        {
           batch->Draw(m_texCursor, cursorRect, Color::White());
+        }
       }
     }
 
@@ -265,7 +270,9 @@ namespace Fsl
     Vector2 Slider::MeasureOverride(const Vector2& availableSize)
     {
       if (!m_texBackground.IsValid())
+      {
         return Vector2();
+      }
       return Vector2(m_texBackground.GetSize().X, m_texBackground.GetSize().Y);
     }
 
@@ -281,16 +288,20 @@ namespace Fsl
     void Slider::SetValueBasedOnPosition(const float position)
     {
       if (position < m_renderXMin || EqualHelper::IsAlmostEqual(position, m_renderXMin))
+      {
         DoSetValue(m_minValue, 1);
+      }
       else if (position > m_renderXMax || EqualHelper::IsAlmostEqual(position, m_renderXMax))
+      {
         DoSetValue(m_maxValue, 1);
+      }
       else
       {
         const float value = position - m_renderXMin;
         const float percentage = value / (m_renderXMax - m_renderXMin);
         // +1 to offer the full range to all values as both min and max is included
         const auto delta = (m_maxValue - m_minValue) + 1;
-        DoSetValue(std::min(std::max(static_cast<int32_t>((delta)* percentage) + m_minValue, m_minValue), m_maxValue), 1);
+        DoSetValue(std::min(std::max(static_cast<int32_t>((delta)*percentage) + m_minValue, m_minValue), m_maxValue), 1);
       }
     }
 
@@ -304,11 +315,10 @@ namespace Fsl
         RecalcPercentage();
         PropertyUpdated(PropertyType::Other);
         if (IsReadyToSendEvents())
+        {
           SendEvent(GetEventPool()->AcquireWindowContentChangedEvent(0, m_value, reason));
+        }
       }
-
     }
-
   }
-
 }

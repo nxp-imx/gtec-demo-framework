@@ -1,10 +1,10 @@
 #ifndef GLES3_E1_1_VBOS_E1_1_VBOS_HPP
 #define GLES3_E1_1_VBOS_E1_1_VBOS_HPP
 /*
-* OpenGL ES 3.0 Tutorial 1
-*
-* Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
-*/
+ * OpenGL ES 3.0 Tutorial 1
+ *
+ * Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
+ */
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
@@ -16,12 +16,11 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[4];
+      GLuint vboIds[4]{};
       // x-offset uniform location
-      GLuint offsetLoc;
+      GLuint offsetLoc{0};
 
       UserData()
-        : offsetLoc(0)
       {
         vboIds[0] = GLES3::GLValues::INVALID_HANDLE;
         vboIds[1] = GLES3::GLValues::INVALID_HANDLE;
@@ -35,10 +34,12 @@ namespace Fsl
 
   public:
     E1_1_VBOs(const DemoAppConfig& config);
-    ~E1_1_VBOs();
+    ~E1_1_VBOs() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void Cleanup();
   };

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
@@ -47,7 +47,6 @@ namespace Fsl
 
   EightLayerBlend::EightLayerBlend(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_program()
     , m_locMatModelViewProj(-1)
     , m_angle(0)
   {
@@ -58,7 +57,7 @@ namespace Fsl
     {
       Bitmap bitmap;
       GLTextureParameters texParms(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
-      //contentManager->Read(bitmap, "1_new.jpg", PixelFormat::R8G8B8_UNORM);
+      // contentManager->Read(bitmap, "1_new.jpg", PixelFormat::R8G8B8_UNORM);
       contentManager->Read(bitmap, "1_old.jpg", PixelFormat::R8G8B8_UNORM);
       m_layers[0].Texture.Reset(bitmap, texParms);
       contentManager->Read(bitmap, "2.png", PixelFormat::R8G8B8A8_UNORM);
@@ -80,8 +79,8 @@ namespace Fsl
     m_layerSize = Point2(3840, 1080);
     const float x1 = 0.0f;
     const float y1 = 0.0f;
-    const float x2 = (float)m_layerSize.X;
-    const float y2 = (float)m_layerSize.Y;
+    const auto x2 = static_cast<float>(m_layerSize.X);
+    const auto y2 = static_cast<float>(m_layerSize.Y);
     const float z = 5;
 
 
@@ -90,8 +89,7 @@ namespace Fsl
     const float u2 = 1.0f;
     const float v2 = 1.0f;
 
-    VertexPositionTexture vertices[] =
-    {
+    VertexPositionTexture vertices[] = {
       VertexPositionTexture(Vector3(x1, y2, z), Vector2(u1, v2)),
       VertexPositionTexture(Vector3(x1, y1, z), Vector2(u1, v1)),
       VertexPositionTexture(Vector3(x2, y2, z), Vector2(u2, v2)),
@@ -105,19 +103,16 @@ namespace Fsl
   }
 
 
-  EightLayerBlend::~EightLayerBlend()
-  {
-
-  }
+  EightLayerBlend::~EightLayerBlend() = default;
 
 
   void EightLayerBlend::Update(const DemoTime& demoTime)
   {
     float pos = std::sin(m_angle);
 
-    float xRangeFirst = (1200.0f/2.0f);
+    float xRangeFirst = (1200.0f / 2.0f);
     float xRangeLast = (1920.0f / 2.0f);
-    float xRangeAdd = (xRangeLast - xRangeFirst) / (LAYER_COUNT-1);
+    float xRangeAdd = (xRangeLast - xRangeFirst) / (LAYER_COUNT - 1);
     float xRange = xRangeFirst;
     for (int i = 0; i < LAYER_COUNT; ++i)
     {
@@ -126,11 +121,13 @@ namespace Fsl
     }
 
     const Point2 res = GetScreenResolution();
-    m_matViewProj = Matrix::CreateOrthographic((float)res.X, (float)res.Y, 1.0f, 10.0f);
+    m_matViewProj = Matrix::CreateOrthographic(static_cast<float>(res.X), static_cast<float>(res.Y), 1.0f, 10.0f);
 
     m_angle += 0.4f * demoTime.DeltaTime;
-    if (m_angle >(MathHelper::TO_RADS * 360.0f))
+    if (m_angle > (MathHelper::TO_RADS * 360.0f))
+    {
       m_angle -= (MathHelper::TO_RADS * 360.0f);
+    }
   }
 
 
@@ -158,38 +155,38 @@ namespace Fsl
     glBindBuffer(m_vertexBuffer.GetTarget(), m_vertexBuffer.Get());
     m_vertexBuffer.EnableAttribArrays();
 
-    int positionX = (int)(-(m_layerSize.X / 2) + m_layers[0].Position);
-    Matrix matViewProj = Matrix::CreateTranslation((float)positionX, float(-m_layerSize.Y / 2), 0.0f) * Matrix::CreateOrthographic(float(res.X), float(res.Y), 1.0f, 10.0f);
+    auto positionX = static_cast<int>(-(m_layerSize.X / 2.0f) + m_layers[0].Position);
+    Matrix matViewProj = Matrix::CreateTranslation(static_cast<float>(positionX), static_cast<float>(-m_layerSize.Y / 2.0f), 0.0f) *
+                         Matrix::CreateOrthographic(static_cast<float>(res.X), static_cast<float>(res.Y), 1.0f, 10.0f);
     glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-    //matViewProj = Matrix::CreateTranslation(positionX - m_layerSize.X, -m_layerSize.Y / 2, 0) * Matrix::CreateOrthographic(res.X, res.Y, 1.0f, 10.0f);
-    //glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
-    //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    // matViewProj = Matrix::CreateTranslation(positionX - m_layerSize.X, -m_layerSize.Y / 2, 0) * Matrix::CreateOrthographic(res.X, res.Y,
+    // 1.0f, 10.0f);  glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glEnable(GL_BLEND);
     for (int i = 1; i < LAYER_COUNT; ++i)
     {
       glBindTexture(GL_TEXTURE_2D, m_layers[i].Texture.Get());
 
-      positionX = int(-(m_layerSize.X / 2) + m_layers[i].Position);
+      positionX = int(-(m_layerSize.X / 2.0f) + m_layers[i].Position);
 
-      matViewProj = Matrix::CreateTranslation(float(positionX), float(-m_layerSize.Y / 2), 0.0f) * Matrix::CreateOrthographic(float(res.X), float(res.Y), 1.0f, 10.0f);
+      matViewProj = Matrix::CreateTranslation(static_cast<float>(positionX), static_cast<float>(-m_layerSize.Y / 2.0f), 0.0f) *
+                    Matrix::CreateOrthographic(static_cast<float>(res.X), static_cast<float>(res.Y), 1.0f, 10.0f);
       glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
 
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-      //matViewProj = Matrix::CreateTranslation(positionX - m_layerSize.X, -m_layerSize.Y / 2, 0) * Matrix::CreateOrthographic(res.X, res.Y, 1.0f, 10.0f);
-      //glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
+      // matViewProj = Matrix::CreateTranslation(positionX - m_layerSize.X, -m_layerSize.Y / 2, 0) * Matrix::CreateOrthographic(res.X, res.Y,
+      // 1.0f, 10.0f);  glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
 
-      //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+      // glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
 
     m_vertexBuffer.DisableAttribArrays();
 
     glBindBuffer(m_vertexBuffer.GetTarget(), 0);
     glFinish();
-    //GL_CHECK_FOR_ERROR();
+    // GL_CHECK_FOR_ERROR();
   }
-
 }

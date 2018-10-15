@@ -1,0 +1,100 @@
+@startuml ServiceFramework Class Diagram
+'!pragma ratio 0.66
+'left to right direction
+scale 1
+
+namespace FslSimpleUI.Base {
+    interface IWindowManager
+    class BaseWindow
+    class BaseWindowContext
+    class UIContext
+    class WindowContext
+
+    BaseWindowContext <|-- WindowContext
+
+    BaseWindow o-- BaseWindowContext
+
+    BaseWindowContext o.. UIContext
+
+    UIContext o-- IWindowManager
+    UIContext o-- FslSimpleUI.Base.Event.WindowEventSender
+}
+
+namespace FslSimpleUI.Base.Event {
+    class WindowEventPool
+    class WindowEventSender
+
+    WindowEventSender o-- FslSimpleUI.Base.System.Event.WindowEventQueue
+    WindowEventSender o-- FslSimpleUI.Base.System.ITreeNodeLocator
+}
+
+namespace FslSimpleUI.Base.System {
+    interface ITreeContextInfo
+    interface ITreeNodeLocator
+    interface ITreeNodeClickInputTargetLocator
+    class RootWindow
+    class TreeNode
+    class TreeNodeFlags
+    class UIManager
+    class UITree
+    class WindowToNodeMap
+    class std_deque_WindowEventQueueRecord
+    class std_deque_TreeNode
+    class std_deque_IEventListener
+
+    FslSimpleUI.Base.BaseWindow <|-- RootWindow
+
+    ITreeContextInfo <|-- UITree
+    ITreeNodeLocator <|-- UITree
+    ITreeNodeClickInputTargetLocator <|-- UITree
+    FslSimpleUI.Base.IWindowManager <|-- UITree
+    FslSimpleUI.Base.System.Event.IEventHandler <|-- UITree
+
+
+    RootWindow o-- std_deque_IEventListener
+
+    TreeNode o-- std_deque_TreeNode
+    TreeNode o-- TreeNodeFlags
+    TreeNode o.. FslSimpleUI.Base.System.TreeNode
+    TreeNode o-- FslSimpleUI.Base.BaseWindow    
+
+    UIManager o-- FslSimpleUI.Base.Event.WindowEventPool
+    UIManager o-- FslSimpleUI.Base.System.Event.WindowEventQueueEx
+    UIManager o-- FslSimpleUI.Base.System.Modules.IModuleHost
+    UIManager o-- FslSimpleUI.Base.System.Modules.InputModule
+    UIManager o-- FslSimpleUI.Base.System.Modules.ModuleCallbackRegistry
+    UIManager o-- UITree
+
+    UITree o-- std_deque_WindowEventQueueRecord
+    UITree o-- WindowToNodeMap
+    UITree o-- RootWindow
+    UITree o-- TreeNode
+    UITree o-- FslSimpleUI.Base.System.Event.EventRoute
+    UITree o-- FslSimpleUI.Base.System.Event.WindowEventQueueEx
+    UITree o-- FslSimpleUI.Base.System.Modules.ModuleCallbackRegistry
+
+    std_deque_TreeNode o-- TreeNode
+    std_deque_WindowEventQueueRecord o-- FslSimpleUI.Base.System.Event.WindowEventQueueRecord
+    std_deque_IEventListener o-- FslSimpleUI.Base.System.Event.IEventListener
+}
+
+namespace FslSimpleUI.Base.System.Event {
+    interface IEventHandler
+    interface IEventListener
+    class EventRoute
+    class WindowEventQueue
+    class WindowEventQueueEx
+    class WindowEventQueueRecord
+
+    WindowEventQueue <|-- WindowEventQueueEx
+}
+
+namespace FslSimpleUI.Base.System.Modules {
+    interface IModuleHost
+    class InputModule
+    class ModuleCallbackRegistry
+}
+
+
+
+@enduml

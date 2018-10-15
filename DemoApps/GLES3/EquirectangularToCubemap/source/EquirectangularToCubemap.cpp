@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "EquirectangularToCubemap.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -95,20 +95,20 @@ namespace Fsl
 
     std::array<glm::mat4, 6> GenerateCubemapViewpoints()
     {
-      std::array<glm::mat4, 6> captureViews =
-      {
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),  // POS-X
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)), // NEG-X
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),  // POS-Y
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),  // NEG-Y
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),  // POS-Z
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))   // NEG-Z
+      std::array<glm::mat4, 6> captureViews = {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),     // POS-X
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)),    // NEG-X
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),      // POS-Y
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)),    // NEG-Y
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)),     // POS-Z
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))     // NEG-Z
       };
       return captureViews;
     }
 
 
-    GLTexture GenerateCubemap(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& texturePath, const Point2& resolution, const bool hdr)
+    GLTexture GenerateCubemap(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& texturePath, const Point2& resolution,
+                              const bool hdr)
     {
       auto tex = contentManager->ReadTexture(texturePath);
       GLTextureImageParameters texImageParams;
@@ -141,7 +141,8 @@ namespace Fsl
         // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 
         // With EXT_color_buffer_float the format GL_RGBA16F is supported as Texture and renderbuffer color formats.
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, texImageParams.InternalFormat, resolution.X, resolution.Y, 0, texImageParams.Format, texImageParams.Type, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, texImageParams.InternalFormat, resolution.X, resolution.Y, 0, texImageParams.Format,
+                     texImageParams.Type, nullptr);
         GL_CHECK_FOR_ERROR();
       }
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -167,7 +168,7 @@ namespace Fsl
 
       RenderCube renderCube(programInfo.Program);
       renderCube.BeginDraw();
-      for(uint32_t i=0; i<viewpoints.size(); ++i)
+      for (uint32_t i = 0; i < viewpoints.size(); ++i)
       {
         GL_CHECK_FOR_ERROR();
         glUniformMatrix4fv(programInfo.Location.ViewMatrix, 1, 0, glm::value_ptr(viewpoints[i]));
@@ -179,7 +180,7 @@ namespace Fsl
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         GL_CHECK_FOR_ERROR();
         renderCube.DrawCube();
-        //DrawCubeNow();
+        // DrawCubeNow();
         GL_CHECK_FOR_ERROR();
       }
       renderCube.EndDraw();
@@ -198,8 +199,6 @@ namespace Fsl
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
-    , m_skyboxProgram()
-    , m_skyboxMesh()
     , m_matrixProjection(Matrix::GetIdentity())
     , m_rotationSpeed(5.4f, 0.0f)
   {
@@ -210,7 +209,9 @@ namespace Fsl
 
     const bool hdrEnabled = options->GetScene() == SceneState::Scene2;
     if (hdrEnabled && !GLUtil::HasExtension("GL_EXT_color_buffer_float"))
+    {
       throw GraphicsException("This scene requires support for 'GL_EXT_color_buffer_float'");
+    }
 
     IO::Path texturePath(hdrEnabled ? "floral_tent/floral_tent_1k.hdr" : "Stairs/equirectangular.jpg");
 
@@ -230,15 +231,15 @@ namespace Fsl
   }
 
 
-  EquirectangularToCubemap::~EquirectangularToCubemap()
-  {
-  }
+  EquirectangularToCubemap::~EquirectangularToCubemap() = default;
 
 
   void EquirectangularToCubemap::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     switch (event.GetButton())
     {
@@ -246,9 +247,13 @@ namespace Fsl
     {
       const bool mouseCapture = event.IsPressed();
       if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+      {
         m_mouseCaptureEnabled = mouseCapture;
+      }
       else
+      {
         m_mouseCaptureEnabled = false;
+      }
       event.Handled();
       break;
     }
@@ -267,7 +272,7 @@ namespace Fsl
 
   void EquirectangularToCubemap::Update(const DemoTime& demoTime)
   {
-    if (! m_mouseCaptureEnabled)
+    if (!m_mouseCaptureEnabled)
     {
       m_camera.RotateByRadians(m_rotationSpeed * demoTime.DeltaTime);
     }
@@ -314,7 +319,7 @@ namespace Fsl
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture.Get());
     glDrawArrays(GL_TRIANGLES, 0, mesh.VertexBuffer.GetCapacity());
-    //glDrawArrays(GL_TRIANGLES, 0, 6);
+    // glDrawArrays(GL_TRIANGLES, 0, 6);
 
     mesh.VertexArray.Unbind();
 
@@ -324,7 +329,7 @@ namespace Fsl
 
   void EquirectangularToCubemap::UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState)
   {
-    { // Mouse camera rotation
+    {    // Mouse camera rotation
       const auto mouseState = m_mouse->GetState();
 
       if (!m_mouseCaptureEnabled)
@@ -345,12 +350,20 @@ namespace Fsl
     // Keyboard camera movement
     const float movementSpeed = 2.0f * demoTime.DeltaTime;
     if (keyboardState.IsKeyDown(VirtualKey::W))
+    {
       m_camera.MoveForward(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::S))
+    {
       m_camera.MoveBackwards(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::A))
+    {
       m_camera.MoveLeft(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::D))
+    {
       m_camera.MoveRight(movementSpeed);
+    }
   }
 }

@@ -1,14 +1,14 @@
 #ifndef VULKAN_GEARS_GEARS_HPP
 #define VULKAN_GEARS_GEARS_HPP
 /*
-* Vulkan Example - Animated gears using multiple uniform buffers
-*
-* See readme.md for details
-*
-* Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Animated gears using multiple uniform buffers
+ *
+ * See readme.md for details
+ *
+ * Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -37,7 +37,7 @@ namespace Fsl
       RapidVulkan::GraphicsPipeline Solid;
     };
 
-    std::vector<std::unique_ptr<VulkanGear> > m_gears;
+    std::vector<std::unique_ptr<VulkanGear>> m_gears;
     Vertices m_vertices;
     RapidVulkan::DescriptorSetLayout m_descriptorSetLayout;
     RapidVulkan::PipelineLayout m_pipelineLayout;
@@ -46,13 +46,15 @@ namespace Fsl
 
   public:
     Gears(const DemoAppConfig& config);
-    ~Gears();
+    ~Gears() override;
+
   protected:
-    virtual void Prepare() override;
-    virtual void BuildCommandBuffers() override;
-    virtual void OnViewChanged() override;
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Prepare() override;
+    void BuildCommandBuffers() override;
+    void OnViewChanged() override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void PrepareVertices();
     void SetupDescriptorSetLayout();

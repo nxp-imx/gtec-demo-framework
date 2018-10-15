@@ -1,12 +1,12 @@
 #ifndef VULKAN_TEXTURINGCUBEMAP_TEXTURINGCUBEMAP_HPP
 #define VULKAN_TEXTURINGCUBEMAP_TEXTURINGCUBEMAP_HPP
 /*
-* Vulkan Example - Cube map texture loading and displaying
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Cube map texture loading and displaying
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called '(Texture mapping) Cube maps' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -53,12 +53,9 @@ namespace Fsl
     {
       glm::mat4 Projection;
       glm::mat4 Model;
-      float LodBias;
+      float LodBias{0.0f};
 
-      UboVS()
-        : LodBias(0.0f)
-      {
-      }
+      UboVS() = default;
     };
 
     struct Pipelines
@@ -70,15 +67,11 @@ namespace Fsl
     struct DescriptorSet
     {
       // // We use the native type here since this is managed by a pool
-      VkDescriptorSet Object;
+      VkDescriptorSet Object{VK_NULL_HANDLE};
       // // We use the native type here since this is managed by a pool
-      VkDescriptorSet Skybox;
+      VkDescriptorSet Skybox{VK_NULL_HANDLE};
 
-      DescriptorSet()
-        : Object(VK_NULL_HANDLE)
-        , Skybox(VK_NULL_HANDLE)
-      {
-      }
+      DescriptorSet() = default;
     };
 
     bool m_displaySkybox;
@@ -98,15 +91,17 @@ namespace Fsl
 
   public:
     TexturingCubeMap(const DemoAppConfig& config);
-    ~TexturingCubeMap();
+    ~TexturingCubeMap() override;
+
   protected:
-    virtual void Prepare() override;
-    virtual void GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay) override;
-    virtual void BuildCommandBuffers() override;
-    virtual void OnViewChanged() override;
-    virtual void OnKeyEvent(const KeyEvent& event) override;
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Prepare() override;
+    void GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay) override;
+    void BuildCommandBuffers() override;
+    void OnViewChanged() override;
+    void OnKeyEvent(const KeyEvent& event) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void LoadMeshes();
     void SetupVertexDescriptions();

@@ -26,5 +26,5 @@
 ##SNIPPET8##
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  </ImportGroup>##ADD_EXTENAL_FILES_TO_OUTPUT##
 </Project>

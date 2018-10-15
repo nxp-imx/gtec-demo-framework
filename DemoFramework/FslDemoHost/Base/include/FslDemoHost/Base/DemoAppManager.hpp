@@ -1,35 +1,35 @@
 #ifndef FSLDEMOHOST_BASE_DEMOAPPMANAGER_HPP
 #define FSLDEMOHOST_BASE_DEMOAPPMANAGER_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <memory>
 #include <FslBase/Math/Point2.hpp>
@@ -75,21 +75,23 @@ namespace Fsl
     uint64_t m_timeStatsLast;
     uint64_t m_accumulatedTotalTimeFixed;
     uint64_t m_accumulatedTotalTime;
-    bool m_enableLogStats;
+    bool m_enableLogStats{};
     LogStatsMode m_logStatsMode;
     bool m_enableStats;
     bool m_useFirewall;
     bool m_preallocateBasic2D;
     std::shared_ptr<IDemoApp> m_demoApp;
+
   public:
-    DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode, const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime);
+    DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode,
+                   const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime);
     virtual ~DemoAppManager();
 
     void Suspend(const bool bSuspend);
 
     DemoState GetState() const;
 
-    bool Process(const Point2& screenResolution);
+    bool Process(const Point2& screenResolution, const bool isConsoleBasedApp);
 
     void OnActivate();
     void OnDeactivate();
@@ -98,13 +100,15 @@ namespace Fsl
 
     void RequestExit();
     bool HasExitRequest() const;
+    bool HasRestartRequest() const;
     int CloseApp();
+
   private:
     //! @brief Manage exit requests
     //! @return true if exit should occur right away
     bool ManageExitRequests(const bool bCheckExternalOnly);
-      //! @brief manage the app state
-    void ManageAppState(const Point2& screenResolution);
+    //! @brief manage the app state
+    void ManageAppState(const Point2& screenResolution, const bool isConsoleBasedApp);
     void ResetTimer();
     void ApplyTimeStepMode(const TimeStepMode mode);
   };

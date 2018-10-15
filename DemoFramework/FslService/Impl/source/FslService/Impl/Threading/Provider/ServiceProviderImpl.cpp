@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ServiceProviderImpl.hpp"
 #include <FslBase/Exceptions.hpp>
@@ -37,23 +37,22 @@
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
 #include <algorithm>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
-  ServiceProviderImpl::ServiceProviderImpl(const TypeServiceMaps& serviceProviderMaps)
-    : m_serviceProviderMaps(serviceProviderMaps)
+  ServiceProviderImpl::ServiceProviderImpl(TypeServiceMaps serviceProviderMaps)
+    : m_serviceProviderMaps(std::move(serviceProviderMaps))
   {
   }
 
 
-  ServiceProviderImpl::~ServiceProviderImpl()
-  {
-  }
+  ServiceProviderImpl::~ServiceProviderImpl() = default;
 
 
   void ServiceProviderImpl::Update()
   {
-    ServiceDeque::iterator itr = m_serviceProviderMaps.OwnedUniqueServices.begin();
+    auto itr = m_serviceProviderMaps.OwnedUniqueServices.begin();
     while (itr != m_serviceProviderMaps.OwnedUniqueServices.end())
     {
       (*itr)->Update();
@@ -65,7 +64,8 @@ namespace Fsl
   std::shared_ptr<IBasicService> ServiceProviderImpl::TryGet(const ServiceId& serviceId) const
   {
     auto res = TryGetNow(serviceId);
-    FSLLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag, "Service has multiple providers, please specify which one you want.");
+    FSLLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag,
+                            "Service has multiple providers, please specify which one you want.");
 
     if (res.LaunchType == ServiceLaunchType::InstanceAllocator)
     {
@@ -92,8 +92,10 @@ namespace Fsl
       break;
     }
 
-    if (! res.Service)
+    if (!res.Service)
+    {
       throw std::runtime_error("internal error, service pointer can not be null");
+    }
 
     return res.Service;
   }
@@ -102,7 +104,8 @@ namespace Fsl
   std::shared_ptr<IBasicService> ServiceProviderImpl::TryGet(const ServiceId& serviceId, const ProviderId& providerId) const
   {
     auto res = TryGetNow(serviceId, providerId);
-    FSLLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag, "Service has multiple providers, please specify which one you want.");
+    FSLLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag,
+                            "Service has multiple providers, please specify which one you want.");
 
     if (res.LaunchType == ServiceLaunchType::InstanceAllocator)
     {
@@ -130,7 +133,9 @@ namespace Fsl
     }
 
     if (!res.Service)
+    {
       throw std::runtime_error("internal error, service pointer can not be null");
+    }
 
     return res.Service;
   }
@@ -146,7 +151,7 @@ namespace Fsl
     }
 
     // See if we already have a instance of the service
-    TypeServiceMap::const_iterator itrFind = m_serviceProviderMaps.InterfaceToService.find(serviceId.Get());
+    auto itrFind = m_serviceProviderMaps.InterfaceToService.find(serviceId.Get());
     if (itrFind == m_serviceProviderMaps.InterfaceToService.end())
     {
       return;
@@ -162,7 +167,7 @@ namespace Fsl
     }
     else
     {
-      TypeServiceMapEx::const_iterator itrServices = m_serviceProviderMaps.InterfaceMultipleServices.find(serviceId.Get());
+      auto itrServices = m_serviceProviderMaps.InterfaceMultipleServices.find(serviceId.Get());
       assert(itrServices != m_serviceProviderMaps.InterfaceMultipleServices.end());
       if (itrServices != m_serviceProviderMaps.InterfaceMultipleServices.end())
       {
@@ -184,7 +189,7 @@ namespace Fsl
     }
 
     // See if we already have a instance of the service
-    TypeServiceMap::const_iterator itrService = m_serviceProviderMaps.InterfaceToService.find(serviceId.Get());
+    auto itrService = m_serviceProviderMaps.InterfaceToService.find(serviceId.Get());
 
     return (itrService != m_serviceProviderMaps.InterfaceToService.end() ? itrService->second : ServiceLaunchRecord());
   }
@@ -199,14 +204,16 @@ namespace Fsl
     }
 
     // See if we already have a instance of the service
-    TypeServiceMapEx::const_iterator itrService = m_serviceProviderMaps.InterfaceMultipleServices.find(serviceId.Get());
+    auto itrService = m_serviceProviderMaps.InterfaceMultipleServices.find(serviceId.Get());
     if (itrService != m_serviceProviderMaps.InterfaceMultipleServices.end())
     {
-      const auto itrFind = std::find_if(itrService->second->begin(), itrService->second->end(), [providerId](const ServiceLaunchRecord& record) { return record.TheProviderId == providerId; });
+      const auto itrFind = std::find_if(itrService->second->begin(), itrService->second->end(),
+                                        [providerId](const ServiceLaunchRecord& record) { return record.TheProviderId == providerId; });
       if (itrFind != itrService->second->end())
+      {
         return *itrFind;
+      }
     }
     return ServiceLaunchRecord();
   }
-
 }

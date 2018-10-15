@@ -1,13 +1,13 @@
 /*
-* This code was created by Jeff Molofee '99
-* (ported to Linux by Ti Leggett '01)
-* (ported to i.mx51, i.mx31 and x11 by Freescale '10)
-* (ported to the Freescale demo framework by Freescale '14)
-* If you've found this code useful, please let him know.
-*
-* Visit Jeff at http://nehe.gamedev.net/
-*
-*/
+ * This code was created by Jeff Molofee '99
+ * (ported to Linux by Ti Leggett '01)
+ * (ported to i.mx51, i.mx31 and x11 by Freescale '10)
+ * (ported to the Freescale demo framework by Freescale '14)
+ * If you've found this code useful, please let him know.
+ *
+ * Visit Jeff at http://nehe.gamedev.net/
+ *
+ */
 
 #include "S07_EnvironmentMapping.hpp"
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -24,9 +24,6 @@ namespace Fsl
 
   namespace
   {
-
-
-
     EnvShaderInfo ExtractShaderInfo(GLuint hProgram)
     {
       EnvShaderInfo shaderInfo;
@@ -41,13 +38,7 @@ namespace Fsl
 
   S07_EnvironmentMapping::S07_EnvironmentMapping(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-  , m_renderState(config.ScreenResolution)
-    , m_programGlass()
-    , m_programBgrnd()
-    , m_cubeTexture()
-    , m_vertexBuffer()
-    , m_indexBuffer()
-    , m_transformMatrix()
+    , m_renderState(config.ScreenResolution)
     , m_fast(false)
   {
     const std::shared_ptr<IContentManager> content = config.DemoServiceProvider.Get<IContentManager>();
@@ -64,7 +55,7 @@ namespace Fsl
     m_programGlass.Reset(vertexShader, content->ReadAllText("ShaderGlass.frag"));
     m_programBgrnd.Reset(vertexShader, content->ReadAllText("ShaderBgrnd.frag"));
 
-    { // Create the sphere vertex & index buffer
+    {    // Create the sphere vertex & index buffer
       std::vector<uint16_t> m_indices;
       std::vector<VertexPosition> sphereVertices;
       SphereMeshCreator::Create(sphereVertices, m_indices, 40, 60);
@@ -132,7 +123,7 @@ namespace Fsl
       glUniform1f(m_background.LocRadius, 10.0f);
       // glUniform3fv(m_background.LocEyePos, 1, m_renderState.EyeVector.DirectAccess());
       glUniformMatrix4fv(m_background.LocTransformMat, 1, GL_FALSE, m_transformMatrix.DirectAccess());
-      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), 0);
+      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), nullptr);
     }
 
     // Render mirror ball.
@@ -142,7 +133,7 @@ namespace Fsl
     glUniform1f(m_glass.LocRadius, 1.0f);
     glUniform3fv(m_glass.LocEyePos, 1, m_renderState.EyeVector.DirectAccess());
     glUniformMatrix4fv(m_glass.LocTransformMat, 1, GL_FALSE, m_transformMatrix.DirectAccess());
-    glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), 0);
+    glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), nullptr);
 
     if (!m_fast)
     {
@@ -153,9 +144,8 @@ namespace Fsl
       glUniform1f(m_background.LocRadius, 10.0f);
       // glUniform3fv(m_background.LocEyePos, 1, m_renderState.EyeVector.DirectAccess());
       glUniformMatrix4fv(m_background.LocTransformMat, 1, GL_FALSE, m_transformMatrix.DirectAccess());
-      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), 0);
+      glDrawElements(GL_TRIANGLES, m_indexBuffer.GetCapacity(), m_indexBuffer.GetType(), nullptr);
     }
     m_vertexBuffer.DisableAttribArrays();
   }
-
 }

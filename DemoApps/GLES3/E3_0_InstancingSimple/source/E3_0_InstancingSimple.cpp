@@ -36,10 +36,10 @@
 //
 
 /*
-* OpenGL ES 3.0 Tutorial 3
-*
-* Draws n number of cubes using instanced draw calls.
-*/
+ * OpenGL ES 3.0 Tutorial 3
+ *
+ * Draws n number of cubes using instanced draw calls.
+ */
 
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
@@ -52,22 +52,22 @@
 #include <cstring>
 #include <vector>
 
-//Defines needed for Instancing
+// Defines needed for Instancing
 #define srandom srand
 #define random rand
 
-#define POSITION_LOC    0
-#define COLOR_LOC       1
-#define MVP_LOC         2
+#define POSITION_LOC 0
+#define COLOR_LOC 1
+#define MVP_LOC 2
 
 #define PI 3.1415926535897932384626433832795f
 
-//Attribute Arrays Indexes and Sizes
-#define VERTEX_POS_SIZE       3 // x, y and z
-#define VERTEX_COLOR_SIZE     4 // r, g, b, and a
+// Attribute Arrays Indexes and Sizes
+#define VERTEX_POS_SIZE 3      // x, y and z
+#define VERTEX_COLOR_SIZE 4    // r, g, b, and a
 
-#define VERTEX_POS_INDX       0
-#define VERTEX_COLOR_INDX     1
+#define VERTEX_POS_INDX 0
+#define VERTEX_COLOR_INDX 1
 
 namespace Fsl
 {
@@ -85,94 +85,31 @@ namespace Fsl
     /// \return The number of indices required for rendering the buffers (the number of indices stored in the indices array
     ///         if it is not nullptr ) as a GL_TRIANGLE_STRIP
     //
-    int GenCube(float scale, std::vector<GLfloat>* pVertices, std::vector<GLfloat>* pNormals, std::vector<GLfloat>* pTexCoords, std::vector<GLuint>* pIndices)
+    int GenCube(float scale, std::vector<GLfloat>* pVertices, std::vector<GLfloat>* pNormals, std::vector<GLfloat>* pTexCoords,
+                std::vector<GLuint>* pIndices)
     {
       int i;
       int numVertices = 24;
       int numIndices = 36;
 
-      GLfloat cubeVerts[] =
-      {
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-        0.5f, -0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, -0.5f,
+      GLfloat cubeVerts[] = {
+        -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f,
+        -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,
+        -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f,
       };
 
-      GLfloat cubeNormals[] =
-      {
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
+      GLfloat cubeNormals[] = {
+        0.0f,  -1.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f,  1.0f, 0.0f,  0.0f,  1.0f, 0.0f,
+        0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,  -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f,
+        0.0f,  0.0f,  1.0f, 0.0f,  0.0f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
+        -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,
       };
 
-      GLfloat cubeTex[] =
-      {
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f,
-        0.0f, 0.0f,
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
+      GLfloat cubeTex[] = {
+        0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
       };
 
       // Allocate memory for buffers
@@ -203,21 +140,8 @@ namespace Fsl
       // Generate the indices
       if (pIndices != nullptr)
       {
-        GLuint cubeIndices[] =
-        {
-          0, 2, 1,
-          0, 3, 2,
-          4, 5, 6,
-          4, 6, 7,
-          8, 9, 10,
-          8, 10, 11,
-          12, 15, 14,
-          12, 14, 13,
-          16, 17, 18,
-          16, 18, 19,
-          20, 23, 22,
-          20, 22, 21
-        };
+        GLuint cubeIndices[] = {0,  2,  1,  0,  3,  2,  4,  5,  6,  4,  6,  7,  8,  9,  10, 8,  10, 11,
+                                12, 15, 14, 12, 14, 13, 16, 17, 18, 16, 18, 19, 20, 23, 22, 20, 22, 21};
 
         pIndices->resize(numIndices);
         memcpy(pIndices->data(), cubeIndices, sizeof(cubeIndices));
@@ -230,7 +154,6 @@ namespace Fsl
 
   E3_0_InstancingSimple::E3_0_InstancingSimple(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_program()
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
     m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"));
@@ -245,10 +168,10 @@ namespace Fsl
     std::vector<GLfloat> positions;
     std::vector<GLuint> indices;
 
-    //OSTEP1 Generate the vertex data
+    // OSTEP1 Generate the vertex data
     m_userData.numIndices = GenCube(0.1f, &positions, nullptr, nullptr, &indices);
 
-    //OSTEP2 Fill Index buffer object with Index data
+    // OSTEP2 Fill Index buffer object with Index data
     try
     {
       GL_CHECK(glGenBuffers(1, &m_userData.indicesIBO));
@@ -256,7 +179,7 @@ namespace Fsl
       GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * m_userData.numIndices, indices.data(), GL_STATIC_DRAW));
       GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-      //OSTEP3 Vertex Buffer Object with Vertex Data
+      // OSTEP3 Vertex Buffer Object with Vertex Data
       GL_CHECK(glGenBuffers(1, &m_userData.positionVBO));
       GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.positionVBO));
       GL_CHECK(glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat) * 3, positions.data(), GL_STATIC_DRAW));
@@ -276,7 +199,7 @@ namespace Fsl
           colors[instance][3] = 0;
         }
 
-        //OSTEP4 Generate a VBO for Colors
+        // OSTEP4 Generate a VBO for Colors
         GL_CHECK(glGenBuffers(1, &m_userData.colorVBO));
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.colorVBO));
         GL_CHECK(glBufferData(GL_ARRAY_BUFFER, NUM_INSTANCES * 4, colors, GL_STATIC_DRAW));
@@ -289,9 +212,9 @@ namespace Fsl
         // Random angle for each instance, compute the MVP later
         for (instance = 0; instance < NUM_INSTANCES; instance++)
         {
-          m_userData.angle[instance] = (float)(random() % 32768) / 32767.0f * 360.0f;
+          m_userData.angle[instance] = static_cast<float>(random() % 32768) / 32767.0f * 360.0f;
         }
-        //OSTEP5 Generate a VBO for each Projection Matrix
+        // OSTEP5 Generate a VBO for each Projection Matrix
         GL_CHECK(glGenBuffers(1, &m_userData.mvpVBO));
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.mvpVBO));
         GL_CHECK(glBufferData(GL_ARRAY_BUFFER, NUM_INSTANCES * sizeof(Matrix), nullptr, GL_DYNAMIC_DRAW));
@@ -316,14 +239,14 @@ namespace Fsl
   {
     const float deltaTime = demoTime.DeltaTime;
     Point2 size = GetScreenResolution();
-    const float w = float(size.X);
-    const float h = float(size.Y);
+    const auto w = float(size.X);
+    const auto h = float(size.Y);
 
     Matrix* pMatBuf;
-    float    aspect;
-    int      instance = 0;
-    int      numRows;
-    int      numColumns;
+    float aspect;
+    int instance = 0;
+    int numRows;
+    int numColumns;
 
 
     // Compute the window aspect ratio
@@ -334,18 +257,19 @@ namespace Fsl
 
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.mvpVBO));
-    GL_CHECK(pMatBuf = (Matrix *)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(Matrix) * NUM_INSTANCES, GL_MAP_WRITE_BIT));
+    GL_CHECK(pMatBuf = (Matrix*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(Matrix) * NUM_INSTANCES, GL_MAP_WRITE_BIT));
 
     assert(pMatBuf != nullptr);
 
     // Compute a per-instance MVP that translates and rotates each instance differently
-    numRows = (int)sqrtf(NUM_INSTANCES);
+    numRows = static_cast<int>(sqrtf(NUM_INSTANCES));
     numColumns = numRows;
 
     for (instance = 0; instance < NUM_INSTANCES; instance++)
     {
-      float translateX = ((float)(instance % numRows) / (float)numRows) * 2.0f - 1.0f;
-      float translateY = ((float)(instance / numColumns) / (float)numColumns) * 2.0f - 1.0f;
+      float translateX = (static_cast<float>(instance % numRows) / static_cast<float>(numRows)) * 2.0f - 1.0f;
+      float translateY =
+        (static_cast<float>(instance / numColumns) / static_cast<float>(numColumns)) * 2.0f - 1.0f;    // NOLINT(bugprone-integer-division)
 
       // Compute a rotation angle based on time to rotate the cube
       m_userData.angle[instance] += (deltaTime * 40.0f);
@@ -358,9 +282,8 @@ namespace Fsl
       // Generate a model view matrix to rotate/translate the cube
       // Per-instance translation
       const float angle = m_userData.angle[instance] * MathHelper::TO_RADS;
-      Matrix matModelView = Matrix::CreateRotationX(angle) *
-        Matrix::CreateRotationZ(angle) *
-        Matrix::CreateTranslation(translateX, translateY, -2.0f);
+      Matrix matModelView =
+        Matrix::CreateRotationX(angle) * Matrix::CreateRotationZ(angle) * Matrix::CreateTranslation(translateX, translateY, -2.0f);
 
       // Compute the final MVP by multiplying the
       // model view and perspective matrices together
@@ -383,29 +306,29 @@ namespace Fsl
     glVertexAttribPointer(POSITION_LOC, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
     glEnableVertexAttribArray(POSITION_LOC);
 
-    //OSTEP6 Load the instance color buffer
+    // OSTEP6 Load the instance color buffer
     glBindBuffer(GL_ARRAY_BUFFER, m_userData.colorVBO);
     glVertexAttribPointer(COLOR_LOC, 4, GL_UNSIGNED_BYTE, GL_TRUE, 4 * sizeof(GLubyte), nullptr);
     glEnableVertexAttribArray(COLOR_LOC);
 
-    //OSTEP7 Set the Attribute Divisor for Colors
-    glVertexAttribDivisor(COLOR_LOC, 1); // One color per instance
+    // OSTEP7 Set the Attribute Divisor for Colors
+    glVertexAttribDivisor(COLOR_LOC, 1);    // One color per instance
 
 
-    //OSTEP8 Load the instance MVP buffer
+    // OSTEP8 Load the instance MVP buffer
     glBindBuffer(GL_ARRAY_BUFFER, m_userData.mvpVBO);
 
     // Load each matrix row of the MVP.  Each row gets an increasing attribute location.
     glVertexAttribPointer(MVP_LOC + 0, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), nullptr);
-    glVertexAttribPointer(MVP_LOC + 1, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (const void *)(sizeof(GLfloat) * 4));
-    glVertexAttribPointer(MVP_LOC + 2, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (const void *)(sizeof(GLfloat) * 8));
-    glVertexAttribPointer(MVP_LOC + 3, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), (const void *)(sizeof(GLfloat) * 12));
+    glVertexAttribPointer(MVP_LOC + 1, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), reinterpret_cast<const void*>(sizeof(GLfloat) * 4));
+    glVertexAttribPointer(MVP_LOC + 2, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), reinterpret_cast<const void*>(sizeof(GLfloat) * 8));
+    glVertexAttribPointer(MVP_LOC + 3, 4, GL_FLOAT, GL_FALSE, sizeof(Matrix), reinterpret_cast<const void*>(sizeof(GLfloat) * 12));
     glEnableVertexAttribArray(MVP_LOC + 0);
     glEnableVertexAttribArray(MVP_LOC + 1);
     glEnableVertexAttribArray(MVP_LOC + 2);
     glEnableVertexAttribArray(MVP_LOC + 3);
 
-    //OSTEP9 One MVP per instance
+    // OSTEP9 One MVP per instance
     glVertexAttribDivisor(MVP_LOC + 0, 1);
     glVertexAttribDivisor(MVP_LOC + 1, 1);
     glVertexAttribDivisor(MVP_LOC + 2, 1);
@@ -414,8 +337,8 @@ namespace Fsl
     // Bind the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.indicesIBO);
 
-    //OSTEP10 Draw the cubes
-    glDrawElementsInstanced(GL_TRIANGLES, m_userData.numIndices, GL_UNSIGNED_INT, (const void *)nullptr, NUM_INSTANCES);
+    // OSTEP10 Draw the cubes
+    glDrawElementsInstanced(GL_TRIANGLES, m_userData.numIndices, GL_UNSIGNED_INT, nullptr, NUM_INSTANCES);
   }
 
 

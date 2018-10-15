@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2017 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2017 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "OpenCVMatToNativeBatch.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -54,17 +54,18 @@ namespace Fsl
     cv::Mat SafeImread(const IO::Path& path)
     {
       const cv::Mat srcImage = cv::imread(path.ToUTF8String());
-      if (!srcImage.data)
+      if (srcImage.data == nullptr)
+      {
         throw GraphicsException("Failed to load image");
+      }
       return srcImage;
     }
 
 
     // WARNING: Use the very limited example converter to convert the source image.
     //          We should add a proper cv::Mat -> Bitmap converter in the future.
-    void Convert(Texture2D& rDstTexture, BasicImageConvert& rConvert, const std::shared_ptr<INativeGraphics>& nativeGraphics,
-                 const cv::Mat& srcImage, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredBitmapOrigin,
-                 const Texture2DFilterHint textureFilterHint)
+    void Convert(Texture2D& rDstTexture, BasicImageConvert& rConvert, const std::shared_ptr<INativeGraphics>& nativeGraphics, const cv::Mat& srcImage,
+                 const PixelFormat desiredPixelFormat, const BitmapOrigin desiredBitmapOrigin, const Texture2DFilterHint textureFilterHint)
     {
       const Bitmap srcBitmap = rConvert.Convert(srcImage, desiredPixelFormat, desiredBitmapOrigin);
       // Convert the bitmap to a API independent Texture2D
@@ -76,7 +77,8 @@ namespace Fsl
   OpenCVMatToNativeBatch::OpenCVMatToNativeBatch(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
-    , m_nativeBatch(m_graphics->GetNativeBatch2D())  // We just acquire the completely API independent version (see DFNativeBatch2D if you want access to the OpenGLES3 specific methods)
+    , m_nativeBatch(m_graphics->GetNativeBatch2D())    // We just acquire the completely API independent version (see DFNativeBatch2D if you want
+                                                       // access to the OpenGLES3 specific methods)
   {
     auto contentManager = GetContentManager();
 
@@ -86,10 +88,7 @@ namespace Fsl
   }
 
 
-  OpenCVMatToNativeBatch::~OpenCVMatToNativeBatch()
-  {
-
-  }
+  OpenCVMatToNativeBatch::~OpenCVMatToNativeBatch() = default;
 
 
   void OpenCVMatToNativeBatch::Update(const DemoTime& demoTime)
@@ -118,7 +117,7 @@ namespace Fsl
 
 
   void OpenCVMatToNativeBatch::DrawImages(const Vector2& dstPosition, const Texture2D& tex1, const Texture2D& texR, const Texture2D& texG,
-                                          const Texture2D& texB, const char*const pszCaption)
+                                          const Texture2D& texB, const char* const pszCaption)
   {
     assert(pszCaption != nullptr);
 
@@ -232,5 +231,4 @@ namespace Fsl
     Convert(m_texTestMatG, m_convert, nativeGraphics, matG, PixelFormat::R8G8B8_UNORM, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
     Convert(m_texTestMatB, m_convert, nativeGraphics, matB, PixelFormat::R8G8B8_UNORM, apiPreferredBitmapOrigin, Texture2DFilterHint::Smooth);
   }
-
 }

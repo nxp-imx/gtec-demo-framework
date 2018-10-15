@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -42,17 +42,19 @@ namespace Fsl
 {
   namespace Vulkan
   {
-    VUSwapchainKHR& VUSwapchainKHR::operator = (VUSwapchainKHR&& other)
+    VUSwapchainKHR& VUSwapchainKHR::operator=(VUSwapchainKHR&& other) noexcept
     {
       if (this != &other)
       {
         // Free existing resources then transfer the content of other to this one and fill other with default values
         if (IsValid())
+        {
           Reset();
+        }
 
         // Claim ownership here
         m_swapchain = std::move(other.m_swapchain);
-        //m_createInfo = std::move(other.m_createInfo);
+        // m_createInfo = std::move(other.m_createInfo);
         m_imageFormat = other.m_imageFormat;
         m_imageExtent = other.m_imageExtent;
         m_images = std::move(other.m_images);
@@ -66,7 +68,7 @@ namespace Fsl
     }
 
 
-    VUSwapchainKHR::VUSwapchainKHR(VUSwapchainKHR&& other)
+    VUSwapchainKHR::VUSwapchainKHR(VUSwapchainKHR&& other) noexcept
       : m_swapchain(std::move(other.m_swapchain))
       //, m_createInfo(std::move(other.m_createInfo))
       , m_imageFormat(other.m_imageFormat)
@@ -81,12 +83,9 @@ namespace Fsl
 
 
     VUSwapchainKHR::VUSwapchainKHR()
-      : m_swapchain()
-      //, m_createInfo{}
-      , m_imageFormat(VK_FORMAT_UNDEFINED)
+      : m_imageFormat(VK_FORMAT_UNDEFINED)
       , m_imageExtent{}
-      , m_images()
-      , m_info()
+
     {
     }
 
@@ -109,7 +108,7 @@ namespace Fsl
     VUSwapchainKHR::VUSwapchainKHR(const VkDevice device, const VkSwapchainCreateFlagsKHR flags, const VkSurfaceKHR surface,
                                    const uint32_t minImageCount, const VkFormat imageFormat, const VkColorSpaceKHR imageColorSpace,
                                    const VkExtent2D imageExtent, const uint32_t imageArrayLayers, const VkImageUsageFlags imageUsage,
-                                   const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount, const uint32_t * pQueueFamilyIndices,
+                                   const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount, const uint32_t* pQueueFamilyIndices,
                                    const VkSurfaceTransformFlagBitsKHR preTransform, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
                                    const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain)
       : VUSwapchainKHR()
@@ -125,16 +124,18 @@ namespace Fsl
     }
 
 
-    void VUSwapchainKHR::Reset()
+    void VUSwapchainKHR::Reset() noexcept
     {
       if (!m_swapchain.IsValid())
+      {
         return;
+      }
 
       // if you add things to Reset then remember to add it to all the move places
       // and also the place marked "manual reset"
 
       m_swapchain.Reset();
-      //m_createInfo.Reset();
+      // m_createInfo.Reset();
       m_imageFormat = VK_FORMAT_UNDEFINED;
       m_imageExtent = VkExtent2D{};
       m_images.clear();
@@ -142,18 +143,19 @@ namespace Fsl
     }
 
 
-
     void VUSwapchainKHR::Reset(const RapidVulkan::ClaimMode claimMode, const VkDevice device, const VkSwapchainKHR swapchain,
                                const VkSwapchainCreateInfoKHR& createInfo)
     {
       if (IsValid())
+      {
         Reset();
+      }
 
       try
       {
         m_swapchain.Reset(claimMode, device, swapchain);
         // Clear the old swapchain handle because it will most likely be invalid now
-        //m_createInfo.Reset(createInfo, VK_NULL_HANDLE);
+        // m_createInfo.Reset(createInfo, VK_NULL_HANDLE);
         m_imageFormat = createInfo.imageFormat;
         m_imageExtent = createInfo.imageExtent;
         RefreshImages();
@@ -171,7 +173,7 @@ namespace Fsl
     {
       // Due to the 'oldSwapchain' thing we can now call reset like we normally would
       // so instead we rely on this resetting everything itself as needed
-      //if (IsValid())
+      // if (IsValid())
       //  Reset();
 
       try
@@ -179,7 +181,7 @@ namespace Fsl
         m_swapchain.Reset(device, createInfo);
         // "manual reset" (since the VkSwapchainCreateInfoKHR might contain our old handle, meaning it needs to be valid for the create)
         // Clear the old swapchain handle because it will most likely be invalid now
-        //m_createInfo.Reset(createInfo, VK_NULL_HANDLE);
+        // m_createInfo.Reset(createInfo, VK_NULL_HANDLE);
         m_imageFormat = createInfo.imageFormat;
         m_imageExtent = createInfo.imageExtent;
         m_images.clear();
@@ -199,7 +201,7 @@ namespace Fsl
     void VUSwapchainKHR::Reset(const VkDevice device, const VkSwapchainCreateFlagsKHR flags, const VkSurfaceKHR surface, const uint32_t minImageCount,
                                const VkFormat imageFormat, const VkColorSpaceKHR imageColorSpace, const VkExtent2D imageExtent,
                                const uint32_t imageArrayLayers, const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode,
-                               const uint32_t queueFamilyIndexCount, const uint32_t * pQueueFamilyIndices,
+                               const uint32_t queueFamilyIndexCount, const uint32_t* pQueueFamilyIndices,
                                const VkSurfaceTransformFlagBitsKHR preTransform, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
                                const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain)
     {
@@ -263,14 +265,14 @@ namespace Fsl
 
     VkFormat VUSwapchainKHR::GetImageFormat() const
     {
-      //return m_createInfo.Get().imageFormat;
+      // return m_createInfo.Get().imageFormat;
       return m_imageFormat;
     }
 
 
     VkExtent2D VUSwapchainKHR::GetImageExtent() const
     {
-      //return m_createInfo.Get().imageExtent;
+      // return m_createInfo.Get().imageExtent;
       return m_imageExtent;
     }
 
@@ -280,7 +282,9 @@ namespace Fsl
                                             const uint32_t imageIndex)
     {
       if (imageIndex >= GetImageCount())
+      {
         throw std::invalid_argument("Index out of bounds");
+      }
 
       VkImageMemoryBarrier imageMemoryBarrier{};
       imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -291,7 +295,7 @@ namespace Fsl
       imageMemoryBarrier.srcQueueFamilyIndex = 0;
       imageMemoryBarrier.dstQueueFamilyIndex = 0;
       imageMemoryBarrier.image = m_images[imageIndex];
-      imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+      imageMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 
       vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
 
@@ -315,6 +319,5 @@ namespace Fsl
       presentInfo.pResults = pResults;
       return vkQueuePresentKHR(queue, &presentInfo);
     }
-
   }
 }

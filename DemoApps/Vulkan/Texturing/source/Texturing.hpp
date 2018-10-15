@@ -42,24 +42,17 @@ namespace Fsl
     RapidVulkan::Buffer Buffer;
     RapidVulkan::Memory Memory;
     VkDescriptorBufferInfo Descriptor;
-    VkDeviceSize Size;
-    VkDeviceSize Alignment;
-    void* pMapped;
+    VkDeviceSize Size{0};
+    VkDeviceSize Alignment{0};
+    void* pMapped{nullptr};
 
     //! @brief Usage flags to be filled by external source at buffer creation (to query at some later point)
-    VkBufferUsageFlags usageFlags;
+    VkBufferUsageFlags usageFlags{0};
     //! @brief Memory properties flags to be filled by external source at buffer creation (to query at some later point)
-    VkMemoryPropertyFlags memoryPropertyFlags;
+    VkMemoryPropertyFlags memoryPropertyFlags{0};
 
     BufferData()
-      : Buffer()
-      , Memory()
-      , Descriptor{}
-      , Size(0)
-      , Alignment(0)
-      , pMapped(nullptr)
-      , usageFlags(0)
-      , memoryPropertyFlags(0)
+      : Descriptor{}
     {
     }
   };
@@ -75,8 +68,6 @@ namespace Fsl
 
       Vertices()
         : InputState{}
-        , BindingDescriptions()
-        , AttributeDescriptions()
       {
       }
     };
@@ -86,12 +77,9 @@ namespace Fsl
       glm::mat4 Projection;
       glm::mat4 Model;
       glm::vec4 ViewPos;
-      float LodBias;
+      float LodBias{0.0f};
 
-      UboVS()
-        : LodBias(0.0f)
-      {
-      }
+      UboVS() = default;
     };
 
     UboVS m_uboVS;
@@ -100,26 +88,19 @@ namespace Fsl
     {
       RapidVulkan::Sampler Sampler;
       RapidVulkan::Image Image;
-      VkImageLayout ImageLayout;
+      VkImageLayout ImageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
       RapidVulkan::Memory DeviceMemory;
       RapidVulkan::ImageView View;
       VkDescriptorImageInfo Descriptor;
-      uint32_t Width;
-      uint32_t Height;
-      uint32_t MipLevels;
+      uint32_t Width{0};
+      uint32_t Height{0};
+      uint32_t MipLevels{0};
 
       TextureData()
-        : ImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
-        , Descriptor{}
-        , Width(0)
-        , Height(0)
-        , MipLevels(0)
+        : Descriptor{}
       {
       }
     };
-
-
-    glm::vec3 m_cameraPos;
 
     // Generate quad
     uint32_t m_indexCount;
@@ -139,19 +120,21 @@ namespace Fsl
     // SetupDescriptorSet
     // We use the native type here since this is managed by a pool
     VkDescriptorSet m_descriptorSet;
+
   public:
     Texturing(const DemoAppConfig& config);
-    ~Texturing();
-  protected:
-    virtual void Prepare() override;
-    virtual void GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay) override;
-    virtual void BuildCommandBuffers() override;
-    virtual void OnViewChanged() override;
-    virtual void OnKeyEvent(const KeyEvent& event) override;
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
-  private:
+    ~Texturing() override;
 
+  protected:
+    void Prepare() override;
+    void GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay) override;
+    void BuildCommandBuffers() override;
+    void OnViewChanged() override;
+    void OnKeyEvent(const KeyEvent& event) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
+  private:
     void GenerateQuad();
     void SetupVertexDescriptions();
     void PrepareUniformBuffers();

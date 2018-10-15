@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ModelViewer.hpp"
 #include "OptionParser.hpp"
@@ -59,8 +59,8 @@ namespace Fsl
   using namespace GLES2;
   using namespace Graphics3D;
 
-  typedef GenericMesh<VertexPositionColorNormalTangentTexture, uint16_t> TestMesh;
-  typedef GenericScene<TestMesh> TestScene;
+  using TestMesh = GenericMesh<VertexPositionColorNormalTangentTexture, uint16_t>;
+  using TestScene = GenericScene<TestMesh>;
 
   const int32_t GRAPH_RES = 20000;
 
@@ -78,10 +78,6 @@ namespace Fsl
     , m_hCounterDraw(m_profilerService, m_profilerService->CreateCustomCounter("draw", 0, GRAPH_RES, Color(0x80, 0xFF, 0xFF, 0xFF)))
     , m_hCounterTotal(m_profilerService, m_profilerService->CreateCustomCounter("total", 0, GRAPH_RES, Color(0x80, 0x80, 0xFF, 0xFF)))
     , m_camera(config.ScreenResolution)
-    , m_program()
-    , m_texture()
-    , m_indexBuffers()
-    , m_vertexBuffers()
     , m_locWorld(GLValues::INVALID_LOCATION)
     , m_locWorldView(GLValues::INVALID_LOCATION)
     , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
@@ -92,23 +88,15 @@ namespace Fsl
     , m_locLightDirection(GLValues::INVALID_LOCATION)
     , m_locLightColor(GLValues::INVALID_LOCATION)
     , m_locMatAmbient(GLValues::INVALID_LOCATION)
+    , m_locMatSpecular(GLValues::INVALID_LOCATION)
+    , m_locMatShininess(GLValues::INVALID_LOCATION)
     , m_attribLink(5)
-    , m_rootNode()
-    , m_rotationSpeedOld()
     , m_rotationSpeed(0.5f, -0.6f, 0.7f)
-    , m_rotation()
     , m_lightDirection(1.0f, 1.0f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
     , m_matAmbient(0.2f, 0.2f, 0.2f, 0.2f)
     , m_matSpecular(1, 1, 1, 1)
     , m_matShininess(100.0f)
-    , m_matrixWorld()
-    , m_matrixView()
-    , m_matrixProjection()
-    , m_matrixWorldView()
-    , m_matrixWorldViewProjection()
-    , m_cameraSpaceLightDirection()
-    , m_matrixNormal()
     , m_allowBackfaceCull(true)
   {
     m_camera.SetZoom(DEFAULT_ZOOM);
@@ -147,8 +135,8 @@ namespace Fsl
       strFileName = "FuturisticCar/Futuristic_Car.3ds";
       strTextureFileName = "FuturisticCar/Futuristic_Car_C.jpg";
       strTextureNormalFileName = "FuturisticCar/Futuristic_Car_N.jpg";
-      //strTextureSpecularFileName = "FuturisticCar/Futuristic_Car_S.jpg";
-      //m_rotation.X = MathHelper::ToRadians(-90.0f);
+      // strTextureSpecularFileName = "FuturisticCar/Futuristic_Car_S.jpg";
+      // m_rotation.X = MathHelper::ToRadians(-90.0f);
       m_rotationSpeed.X = 0;
       m_rotationSpeed.Z = 0;
       scaleMod = 1.75f;
@@ -182,12 +170,12 @@ namespace Fsl
     }
 
 
-    if (strTextureFileName.size() > 0)
+    if (!strTextureFileName.empty())
     {
       Bitmap bitmap;
       auto texturePath = IO::Path::Combine("Scenes", strTextureFileName);
 
-      if (strTextureGloss.size() <= 0)
+      if (strTextureGloss.empty())
       {
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8_UNORM);
       }
@@ -212,13 +200,13 @@ namespace Fsl
       GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       m_texture.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
 
-      if (strTextureSpecularFileName.size() > 0)
+      if (!strTextureSpecularFileName.empty())
       {
         auto texturePath = IO::Path::Combine("Scenes", strTextureSpecularFileName);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
-      if (strTextureNormalFileName.size() > 0)
+      if (!strTextureNormalFileName.empty())
       {
         auto texturePath = IO::Path::Combine("Scenes", strTextureNormalFileName);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
@@ -237,13 +225,17 @@ namespace Fsl
     const std::shared_ptr<TestScene> scene = sceneImporter.Load<TestScene>(modelPath, DEFAULT_MODEL_SCALE * scaleMod, true);
 
     if (scene->GetMeshCount() <= 0)
+    {
       throw NotSupportedException(std::string("Scene did not contain any meshes: ") + strFileName);
+    }
 
     m_rootNode = scene->GetRootNode();
-    if (! m_rootNode)
+    if (!m_rootNode)
+    {
       throw NotSupportedException(std::string("Scene did not contain a root node: ") + strFileName);
+    }
 
-    PrepareShader(contentManager, strTextureGloss.size() > 0, m_textureSpecular.IsValid(), m_textureNormal.IsValid());
+    PrepareShader(contentManager, !strTextureGloss.empty(), m_textureSpecular.IsValid(), m_textureNormal.IsValid());
 
     // Create index and vertex buffers for all the meshes.
     m_indexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
@@ -266,9 +258,7 @@ namespace Fsl
   }
 
 
-  ModelViewer::~ModelViewer()
-  {
-  }
+  ModelViewer::~ModelViewer() = default;
 
 
   void ModelViewer::OnKeyEvent(const KeyEvent& event)
@@ -277,7 +267,9 @@ namespace Fsl
     {
     case VirtualKey::R:
       if (event.IsPressed())
+      {
         std::swap(m_rotationSpeed, m_rotationSpeedOld);
+      }
       event.Handled();
       break;
     default:
@@ -292,14 +284,18 @@ namespace Fsl
     switch (event.GetButton())
     {
     case VirtualMouseButton::Left:
+    {
+      if (event.IsPressed())
       {
-        if (event.IsPressed())
-          m_camera.BeginDrag(event.GetPosition());
-        else if (m_camera.IsDragging())
-          m_camera.EndDrag(event.GetPosition());
-        event.Handled();
+        m_camera.BeginDrag(event.GetPosition());
       }
-      break;
+      else if (m_camera.IsDragging())
+      {
+        m_camera.EndDrag(event.GetPosition());
+      }
+      event.Handled();
+    }
+    break;
     case VirtualMouseButton::Right:
       if (event.IsPressed())
       {
@@ -344,7 +340,8 @@ namespace Fsl
     m_rotation.Z += m_rotationSpeed.Z * demoTime.DeltaTime;
     m_matrixWorld = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
     m_matrixView = m_camera.GetViewMatrix();
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / (float)screenResolution.Y, 1, 1000.0f);
+    m_matrixProjection =
+      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
     m_matrixWorldView = m_matrixWorld * m_matrixView;
     m_matrixWorldViewProjection = m_matrixWorldView * m_matrixProjection;
 
@@ -359,10 +356,14 @@ namespace Fsl
   {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    if( m_allowBackfaceCull )
+    if (m_allowBackfaceCull)
+    {
       glEnable(GL_CULL_FACE);
+    }
     else
+    {
       glDisable(GL_CULL_FACE);
+    }
 
     glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -388,38 +389,58 @@ namespace Fsl
       }
 
       if (m_locLightDirection != GLValues::INVALID_LOCATION)
+      {
         glUniform3fv(m_locLightDirection, 1, m_cameraSpaceLightDirection.DirectAccess());
+      }
       if (m_locLightColor != GLValues::INVALID_LOCATION)
+      {
         glUniform3fv(m_locLightColor, 1, m_lightColor.DirectAccess());
+      }
       if (m_locMatAmbient != GLValues::INVALID_LOCATION)
+      {
         glUniform4fv(m_locMatAmbient, 1, m_matAmbient.DirectAccess());
+      }
       if (m_locMatSpecular != GLValues::INVALID_LOCATION)
+      {
         glUniform4fv(m_locMatSpecular, 1, m_matSpecular.DirectAccess());
+      }
       if (m_locMatShininess != GLValues::INVALID_LOCATION)
+      {
         glUniform1f(m_locMatShininess, m_matShininess);
+      }
       // Load the matrices
       if (m_locWorld != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorld, 1, 0, m_matrixWorld.DirectAccess());
+      }
       if (m_locWorldView != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorldView, 1, 0, m_matrixWorldView.DirectAccess());
+      }
       if (m_locWorldViewProjection != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorldViewProjection, 1, 0, m_matrixWorldViewProjection.DirectAccess());
+      }
       if (m_locNormalMatrix != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix3fv(m_locNormalMatrix, 1, 0, m_matrixNormal.DirectAccess());
+      }
 
 
       // Enable the attribs the meshes use once (since we use the same mesh layout for everything)
       for (std::size_t i = 0; i < m_attribLink.size(); ++i)
       {
         if (m_attribLink[i].AttribIndex >= 0)
+        {
           glEnableVertexAttribArray(m_attribLink[i].AttribIndex);
+        }
       }
 
       DrawMeshes();
-      //DrawMeshesAndProfile();
-      //DrawMeshesUsingNodes(m_rootNode.get(), Matrix::GetIdentity());
+      // DrawMeshesAndProfile();
+      // DrawMeshesUsingNodes(m_rootNode.get(), Matrix::GetIdentity());
 
-      //GL_CHECK_FOR_ERROR();
+      // GL_CHECK_FOR_ERROR();
 
       // Disable everything
       glBindBuffer(m_indexBuffers.GetTarget(), 0);
@@ -446,7 +467,7 @@ namespace Fsl
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, (void*)0);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
       }
     }
   }
@@ -479,12 +500,12 @@ namespace Fsl
 
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
         m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
-        //m_vertexBuffers.EnableAttribArrays(m_attribLink.data(), m_attribLink.size());
+        // m_vertexBuffers.EnableAttribArrays(m_attribLink.data(), m_attribLink.size());
         sequenceTimestampEnd = timer.GetTime();
         totalTimeEnable += sequenceTimestampEnd - sequenceTimestampStart;
         sequenceTimestampStart = sequenceTimestampEnd;
 
-        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, (void*)0);
+        glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
 
         sequenceTimestampEnd = timer.GetTime();
         totalTimeDraw += sequenceTimestampEnd - sequenceTimestampStart;
@@ -493,13 +514,14 @@ namespace Fsl
     }
     auto endTime = timer.GetTime();
     auto totalTime = endTime - startTime;
-    //FSLLOG("DrawCalls: " << m_indexBuffers.Length() << " Time: " << totalTime << " bind: " << totalTimeBind << " enable: " << totalTimeEnable << " draw: " << totalTimeDraw);
+    // FSLLOG("DrawCalls: " << m_indexBuffers.Length() << " Time: " << totalTime << " bind: " << totalTimeBind << " enable: " << totalTimeEnable << "
+    // draw: " << totalTimeDraw);
 
     {
-      const int32_t val1 = static_cast<int32_t>(totalTimeBind);
-      const int32_t val2 = static_cast<int32_t>(totalTimeEnable);
-      const int32_t val3 = static_cast<int32_t>(totalTimeDraw);
-      const int32_t val4 = static_cast<int32_t>(totalTime);
+      const auto val1 = static_cast<int32_t>(totalTimeBind);
+      const auto val2 = static_cast<int32_t>(totalTimeEnable);
+      const auto val3 = static_cast<int32_t>(totalTimeDraw);
+      const auto val4 = static_cast<int32_t>(totalTime);
       m_profilerService->Set(m_hCounterBind, val1);
       m_profilerService->Set(m_hCounterEnable, val2);
       m_profilerService->Set(m_hCounterDraw, val3);
@@ -514,7 +536,9 @@ namespace Fsl
     const Matrix currentMatrix = parentMatrix * pNode->GetTransformation();
     const int32_t childCount = pNode->GetChildCount();
     for (int32_t i = 0; i < childCount; ++i)
+    {
       DrawMeshesUsingNodes(pNode->GetChildAt(i).get(), currentMatrix);
+    }
 
     const auto indexBufferType = m_indexBuffers.GetType();
 
@@ -525,11 +549,15 @@ namespace Fsl
 
       // Load the matrices
       if (m_locWorld != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorld, 1, 0, currentMatrix.DirectAccess());
-      //if (m_locWorldView != GLValues::INVALID_LOCATION)
+      }
+      // if (m_locWorldView != GLValues::INVALID_LOCATION)
       //  glUniformMatrix4fv(m_locWorldView, 1, 0, currentMatrix.DirectAccess());
       if (m_locWorldViewProjection != GLValues::INVALID_LOCATION)
+      {
         glUniformMatrix4fv(m_locWorldViewProjection, 1, 0, matrix.DirectAccess());
+      }
 
       for (int32_t i = 0; i < meshCount; ++i)
       {
@@ -546,40 +574,47 @@ namespace Fsl
           // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
           m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
 
-          glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, (void*)0);
+          glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
         }
       }
     }
   }
 
 
-  void ModelViewer::PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useGlossMap, const bool useSpecularMap, const bool useNormalMap)
+  void ModelViewer::PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useGlossMap, const bool useSpecularMap,
+                                  const bool useNormalMap)
   {
     std::string shaderPath = "Shaders";
 
     std::string baseShaderName;
-    //baseShaderName = "LightPerVertexDirectional";
-    //baseShaderName = "LightPerVertexDirectionalTextured";
-    //baseShaderName = "LightPerVertexDirectionalSpecular";
-    //baseShaderName = "LightPerVertexDirectionalSpecularTextured";
-    //baseShaderName = "PerPixelDirectional";
-    //baseShaderName = "PerPixelDirectionalTextured";
-    //baseShaderName = "PerPixelDirectionalSpecular";
+    // baseShaderName = "LightPerVertexDirectional";
+    // baseShaderName = "LightPerVertexDirectionalTextured";
+    // baseShaderName = "LightPerVertexDirectionalSpecular";
+    // baseShaderName = "LightPerVertexDirectionalSpecularTextured";
+    // baseShaderName = "PerPixelDirectional";
+    // baseShaderName = "PerPixelDirectionalTextured";
+    // baseShaderName = "PerPixelDirectionalSpecular";
     baseShaderName = "PerPixelDirectionalSpecular";
     if (useSpecularMap)
+    {
       baseShaderName += "Map";
+    }
     if (useGlossMap)
+    {
       baseShaderName += "GlossMap";
+    }
     if (useNormalMap)
+    {
       baseShaderName += "NormalMap";
+    }
     baseShaderName += "Textured";
 
-    //auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
+    // auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
     const IO::Path strVertShaderFilename(baseShaderName + ".vert");
     const IO::Path strFragShaderFilename(baseShaderName + ".frag");
-    //std::string strVertShaderFilename("BasicShaderDLight.vert");
-    //std::string strFragShaderFilename("BasicShaderDLight.frag");
-    //auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
+    // std::string strVertShaderFilename("BasicShaderDLight.vert");
+    // std::string strFragShaderFilename("BasicShaderDLight.frag");
+    // auto strFragShaderName = useTexture ? "BasicShaderDLightTextured.frag" : "BasicShaderDLight.frag";
 
     const IO::Path strVertShaderPath = IO::Path::Combine(shaderPath, strVertShaderFilename);
     const IO::Path strFragShaderPath = IO::Path::Combine(shaderPath, strFragShaderFilename);
@@ -599,13 +634,22 @@ namespace Fsl
     m_locMatShininess = glGetUniformLocation(m_program.Get(), "MatShininess");
 
     auto vertexDecl = TestMesh::vertex_type::GetVertexDeclaration();
-    m_attribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    m_attribLink[1] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
-    m_attribLink[2] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-    m_attribLink[3] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    m_attribLink[0] =
+      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    m_attribLink[1] =
+      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+    m_attribLink[2] =
+      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+    m_attribLink[3] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"),
+                                         vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     if (useNormalMap)
-      m_attribLink[4] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTangent"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
+    {
+      m_attribLink[4] =
+        GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTangent"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
+    }
     else
+    {
       m_attribLink[4] = GLVertexAttribLink(-1, 0);
+    }
   }
 }

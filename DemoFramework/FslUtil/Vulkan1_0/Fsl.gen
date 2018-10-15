@@ -2,7 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslUtil.Vulkan1_0">
     <Dependency Name="RapidVulkan1_0"/>
-    <Dependency Name="Vulkan"/>
+    <Dependency Name="VulkanBase"/>
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
     <Dependency Name="glm"/>

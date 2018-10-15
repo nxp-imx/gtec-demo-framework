@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -62,7 +62,6 @@ namespace Fsl
     , m_gridScene(config, m_texFill, config.GetOptions<OptionParser>()->GetGridResolution())
     , m_isLeftButtonDown(false)
     , m_bloomRender(config)
-    , m_config()
     , m_balls(4)
     , m_explostionType(false)
   {
@@ -71,7 +70,9 @@ namespace Fsl
     auto options = config.GetOptions<OptionParser>();
 
     if (options->GetRenderId() >= 0)
+    {
       m_gridScene.SetRenderId(options->GetRenderId());
+    }
 
     m_config.Bloom = options->IsBloomEnabled();
 
@@ -92,15 +93,14 @@ namespace Fsl
   }
 
 
-  SpringBackground::~SpringBackground()
-  {
-
-  }
+  SpringBackground::~SpringBackground() = default;
 
   void SpringBackground::OnKeyEvent(const KeyEvent& event)
   {
     if (!event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -159,7 +159,9 @@ namespace Fsl
   void SpringBackground::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     switch (event.GetButton())
     {
@@ -169,13 +171,17 @@ namespace Fsl
       break;
     case VirtualMouseButton::Right:
       m_mousePosition = event.GetPosition();
-      if ( event.IsPressed() )
+      if (event.IsPressed())
       {
         Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
         if (!m_explostionType)
+        {
           m_gridScene.ApplyExplosiveForce(30, mousePos, 300);
+        }
         else
+        {
           m_gridScene.ApplyDirectedForce(Vector3(0, 0, 1000), mousePos, 300);
+        }
         m_explostionType = !m_explostionType;
       }
       break;
@@ -207,22 +213,22 @@ namespace Fsl
       Vector3 mousePosDeep(mousePos.X, mousePos.Y, 50);
       Vector3 delta = mousePos - m_oldMouse;
 
-      //m_gridScene.ApplyExplosiveForce(30, mousePosDeep, 200);
-      //m_gridScene.ApplyExplosiveForce(100, mousePos, 80);
-      //m_gridScene.ApplyImplosiveForce(100, mousePos, 80);
-      //m_gridScene.ApplyDirectedForce(Vector3(100, 0, 0), mousePos, 80);
-      //m_gridScene.ApplyDirectedForce(delta, mousePos, 80);
+      // m_gridScene.ApplyExplosiveForce(30, mousePosDeep, 200);
+      // m_gridScene.ApplyExplosiveForce(100, mousePos, 80);
+      // m_gridScene.ApplyImplosiveForce(100, mousePos, 80);
+      // m_gridScene.ApplyDirectedForce(Vector3(100, 0, 0), mousePos, 80);
+      // m_gridScene.ApplyDirectedForce(delta, mousePos, 80);
       m_gridScene.ApplyDirectedForce(delta * 0.2f * 2, mousePos, 40);
-//      m_gridScene.ApplyDirectedForce(delta * 0.2f * 20, mousePos - delta, 40);
+      //      m_gridScene.ApplyDirectedForce(delta * 0.2f * 20, mousePos - delta, 40);
     }
 
     if (m_config.Balls)
     {
       auto screenRes = GetScreenResolution();
       const float boundaryLeft = 0;
-      const float boundaryRight = static_cast<float>(screenRes.X);
+      const auto boundaryRight = static_cast<float>(screenRes.X);
       const float boundaryTop = 0;
-      const float boundaryBottom = static_cast<float>(screenRes.Y);
+      const auto boundaryBottom = static_cast<float>(screenRes.Y);
       const float bounce = 1.0f;
       for (auto itr = m_balls.begin(); itr != m_balls.end(); ++itr)
       {
@@ -232,16 +238,16 @@ namespace Fsl
 
         m_gridScene.ApplyDirectedForce(Vector3(velocity.X, velocity.Y, 0.0f) * 1.0f, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
 
-        //m_gridScene.ApplyDirectedForce(Vector3(0, 0, 100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        //m_gridScene.ApplyDirectedForce(Vector3(0, 0, -100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        //m_gridScene.ApplyImplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        //m_gridScene.ApplyImplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        //m_gridScene.ApplyImplosiveForce(30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        //m_gridScene.ApplyImplosiveForce(10, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyDirectedForce(Vector3(0, 0, 100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyDirectedForce(Vector3(0, 0, -100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyImplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyImplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyImplosiveForce(30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyImplosiveForce(10, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
 
-        //m_gridScene.ApplyExplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        //m_gridScene.ApplyExplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        //m_gridScene.ApplyExplosiveForce(-30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyExplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyExplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene.ApplyExplosiveForce(-30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
 
 
         if (itr->Position.X > boundaryRight)
@@ -268,7 +274,6 @@ namespace Fsl
     }
 
     m_gridScene.FixedUpdate(demoTime);
-
   }
 
 
@@ -288,9 +293,13 @@ namespace Fsl
   void SpringBackground::Draw(const DemoTime& demoTime)
   {
     if (m_config.Bloom)
+    {
       m_bloomRender.Draw(m_gridScene);
+    }
     else
+    {
       m_gridScene.Draw();
+    }
 
 
     if (m_config.Balls)
@@ -339,31 +348,37 @@ namespace Fsl
     m_rootLayout->AddChild(internalStack);
 
     // Finally add everything to the window manager (to ensure its seen)
-    context->WindowManager->Add(m_rootLayout);
+    m_uiExtension->GetWindowManager()->Add(m_rootLayout);
   }
 
 
   void SpringBackground::ToggleMenu()
   {
     if (m_layoutMenu)
+    {
       DestroyMenuUI();
+    }
     else
+    {
       CreateMenuUI();
+    }
   }
 
 
   void SpringBackground::CreateMenuUI()
   {
     if (m_layoutMenu)
+    {
       return;
+    }
 
     auto context = m_uiExtension->GetContext();
     AtlasTexture2D texCheckBoxC(m_uiExtension->GetAtlasTexture2D("CheckBoxC"));
     AtlasTexture2D texCheckBoxU(m_uiExtension->GetAtlasTexture2D("CheckBoxU"));
-    //AtlasTexture2D texSlider(m_uiExtension->GetAtlasTexture2D("Slider"));
-    //AtlasTexture2D texSliderCursor(m_uiExtension->GetAtlasTexture2D("SliderCursor"));
-    //ThicknessF sliderCursorPadding(13, 0, 13, 0);
-    //NineSlice sliderNineSlice(13, 0, 13, 0);
+    // AtlasTexture2D texSlider(m_uiExtension->GetAtlasTexture2D("Slider"));
+    // AtlasTexture2D texSliderCursor(m_uiExtension->GetAtlasTexture2D("SliderCursor"));
+    // ThicknessF sliderCursorPadding(13, 0, 13, 0);
+    // NineSlice sliderNineSlice(13, 0, 13, 0);
     AtlasTexture2D texBackSmall(m_uiExtension->GetAtlasTexture2D("Player/BackSmall"));
     AtlasTexture2D texNextSmall(m_uiExtension->GetAtlasTexture2D("Player/NextSmall"));
 
@@ -407,7 +422,9 @@ namespace Fsl
   void SpringBackground::DestroyMenuUI()
   {
     if (!m_layoutMenu)
+    {
       return;
+    }
 
     // Close the menu window
     m_mainMenuStack->RemoveChild(m_layoutMenu);
@@ -423,7 +440,9 @@ namespace Fsl
   void SpringBackground::UpdateControls()
   {
     if (!m_layoutMenu)
+    {
       return;
+    }
 
     m_menuLabelRenderType->SetContent(m_gridScene.GetRenderName());
     m_cbBloom->SetIsChecked(m_config.Bloom);

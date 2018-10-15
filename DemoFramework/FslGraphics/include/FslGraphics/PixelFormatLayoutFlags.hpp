@@ -1,35 +1,35 @@
 #ifndef FSLGRAPHICS_PIXELFORMATLAYOUTFLAGS_HPP
 #define FSLGRAPHICS_PIXELFORMATLAYOUTFLAGS_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
 
@@ -85,38 +85,39 @@ namespace Fsl
   {
     enum Enum
     {
-      BIT_COUNT_FORMAT_ID                           = 8,
-      BIT_COUNT_ENCODED_LAYOUT_BLOCK                = 9,
+      BIT_COUNT_FORMAT_ID = 8,
+      BIT_COUNT_ENCODED_LAYOUT_BLOCK = 9,
 
-      BIT_INDEX_FORMAT_ID                           = 0,
-      BIT_INDEX_ENCODED_LAYOUT_BLOCK                = BIT_INDEX_FORMAT_ID + BIT_COUNT_FORMAT_ID,
+      BIT_INDEX_FORMAT_ID = 0,
+      BIT_INDEX_ENCODED_LAYOUT_BLOCK = BIT_INDEX_FORMAT_ID + BIT_COUNT_FORMAT_ID,
 
-      BIT_MASK_FORMAT_ID                            = ((1 << BIT_COUNT_FORMAT_ID)      - 1),
-      BIT_MASK_ENCODED_LAYOUT_BLOCK                 = ((1 << BIT_COUNT_ENCODED_LAYOUT_BLOCK) - 1) << BIT_INDEX_ENCODED_LAYOUT_BLOCK,
-      BIT_MASK_ENCODED_LAYOUT_BIT0                  = ((1 << 1)                              - 1) << BIT_INDEX_ENCODED_LAYOUT_BLOCK,
+      BIT_MASK_FORMAT_ID = ((1 << BIT_COUNT_FORMAT_ID) - 1),
+      BIT_MASK_ENCODED_LAYOUT_BLOCK = ((1 << BIT_COUNT_ENCODED_LAYOUT_BLOCK) - 1) << BIT_INDEX_ENCODED_LAYOUT_BLOCK,
+      BIT_MASK_ENCODED_LAYOUT_BIT0 = ((1 << 1) - 1) << BIT_INDEX_ENCODED_LAYOUT_BLOCK,
 
       // Encoded layout 0 (9 bits)
-      BIT_COUNT_ENCODED_LAYOUT0_ENCODING            = 1,
-      BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL     = 7,
-      BIT_COUNT_ENCODED_LAYOUT0_PACKED              = 1,
+      BIT_COUNT_ENCODED_LAYOUT0_ENCODING = 1,
+      BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL = 7,
+      BIT_COUNT_ENCODED_LAYOUT0_PACKED = 1,
 
-      BIT_INDEX_ENCODED_LAYOUT0_ENCODING            = BIT_INDEX_ENCODED_LAYOUT_BLOCK,
-      BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL     = BIT_INDEX_ENCODED_LAYOUT0_ENCODING        + BIT_COUNT_ENCODED_LAYOUT0_ENCODING,
-      BIT_INDEX_ENCODED_LAYOUT0_PACKED              = BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL + BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL,
+      BIT_INDEX_ENCODED_LAYOUT0_ENCODING = BIT_INDEX_ENCODED_LAYOUT_BLOCK,
+      BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL = BIT_INDEX_ENCODED_LAYOUT0_ENCODING + BIT_COUNT_ENCODED_LAYOUT0_ENCODING,
+      BIT_INDEX_ENCODED_LAYOUT0_PACKED = BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL + BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL,
 
-      BIT_MASK_ENCODED_LAYOUT0_ENCODING             = ((1 << BIT_COUNT_ENCODED_LAYOUT0_ENCODING)        - 1) << BIT_INDEX_ENCODED_LAYOUT0_ENCODING,
-      BIT_MASK_ENCODED_LAYOUT0_BYTES_PER_PIXEL      = ((1 << BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL) - 1) << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL,
-      BIT_MASK_ENCODED_LAYOUT0_PACKED               = ((1 << BIT_COUNT_ENCODED_LAYOUT0_PACKED)          - 1) << BIT_INDEX_ENCODED_LAYOUT0_PACKED,
+      BIT_MASK_ENCODED_LAYOUT0_ENCODING = ((1 << BIT_COUNT_ENCODED_LAYOUT0_ENCODING) - 1) << BIT_INDEX_ENCODED_LAYOUT0_ENCODING,
+      BIT_MASK_ENCODED_LAYOUT0_BYTES_PER_PIXEL = ((1 << BIT_COUNT_ENCODED_LAYOUT0_BYTES_PER_PIXEL) - 1) << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL,
+      BIT_MASK_ENCODED_LAYOUT0_PACKED = ((1 << BIT_COUNT_ENCODED_LAYOUT0_PACKED) - 1) << BIT_INDEX_ENCODED_LAYOUT0_PACKED,
 
       // Encoded layout 1 (9 bits)
-      BIT_COUNT_ENCODED_LAYOUT1_ENCODING            = 2,
-      BIT_COUNT_ENCODED_LAYOUT1_COMPRESSION_SCHEME  = 7,
+      BIT_COUNT_ENCODED_LAYOUT1_ENCODING = 2,
+      BIT_COUNT_ENCODED_LAYOUT1_COMPRESSION_SCHEME = 7,
 
-      BIT_INDEX_ENCODED_LAYOUT1_ENCODING            = BIT_INDEX_ENCODED_LAYOUT_BLOCK,
-      BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME  = BIT_INDEX_ENCODED_LAYOUT1_ENCODING           + BIT_COUNT_ENCODED_LAYOUT1_ENCODING,
+      BIT_INDEX_ENCODED_LAYOUT1_ENCODING = BIT_INDEX_ENCODED_LAYOUT_BLOCK,
+      BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME = BIT_INDEX_ENCODED_LAYOUT1_ENCODING + BIT_COUNT_ENCODED_LAYOUT1_ENCODING,
 
-      BIT_MASK_ENCODED_LAYOUT1_ENCODING             = ((1 << BIT_COUNT_ENCODED_LAYOUT1_ENCODING)           - 1) << BIT_INDEX_ENCODED_LAYOUT1_ENCODING,
-      BIT_MASK_ENCODED_LAYOUT1_COMPRESSION_SCHEME   = ((1 << BIT_COUNT_ENCODED_LAYOUT1_COMPRESSION_SCHEME) - 1) << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME,
+      BIT_MASK_ENCODED_LAYOUT1_ENCODING = ((1 << BIT_COUNT_ENCODED_LAYOUT1_ENCODING) - 1) << BIT_INDEX_ENCODED_LAYOUT1_ENCODING,
+      BIT_MASK_ENCODED_LAYOUT1_COMPRESSION_SCHEME = ((1 << BIT_COUNT_ENCODED_LAYOUT1_COMPRESSION_SCHEME) - 1)
+                                                    << BIT_INDEX_ENCODED_LAYOUT1_COMPRESSION_SCHEME,
 
       // Layout 0 - Bytes per pixel
       BytesPerPixelUndefined = (0 << BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL),

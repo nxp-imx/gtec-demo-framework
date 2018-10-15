@@ -1,10 +1,10 @@
 /*
-* Vulkan Example - Cube map texture loading and displaying
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Cube map texture loading and displaying
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called '(Texture mapping) Cube maps' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -38,13 +38,8 @@ namespace Fsl
   {
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
 
-    std::vector<MeshLoader::VertexLayout> g_vertexLayout =
-    {
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_UV
-    };
-
+    std::vector<MeshLoader::VertexLayout> g_vertexLayout = {
+      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION, MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL, MeshLoader::VertexLayout::VERTEX_LAYOUT_UV};
   }
 
 
@@ -54,7 +49,7 @@ namespace Fsl
   {
     m_zoom = -4.0f;
     m_rotationSpeed = 0.25f;
-    m_rotation = { -7.25f, -120.0f, 0.0f };
+    m_rotation = {-7.25f, -120.0f, 0.0f};
 
     m_enableTextOverlay = true;
     m_title = "Vulkan Example - Cube map";
@@ -63,7 +58,7 @@ namespace Fsl
 
   TexturingCubeMap::~TexturingCubeMap()
   {
-
+    SafeWaitForDeviceIdle();
   }
 
 
@@ -77,12 +72,18 @@ namespace Fsl
     PrepareUniformBuffers();
 
     // m_cubeMap = m_textureLoader->LoadCubemap("textures/cubemap_yokohama.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
-    if (m_deviceActiveFeatures.textureCompressionBC )
+    if (m_deviceActiveFeatures.textureCompressionBC != VK_FALSE)
+    {
       m_cubeMap = LoadCubemap("textures/cubemap_yokohama_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK, false);
-    else if (m_deviceActiveFeatures.textureCompressionETC2)
+    }
+    else if (m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE)
+    {
       m_cubeMap = LoadCubemap("textures/cubemap_yokohama_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK, false);
+    }
     else
+    {
       throw NotSupportedException("No supported compression format");
+    }
 
 
     SetupDescriptorSetLayout();
@@ -113,7 +114,7 @@ namespace Fsl
 
     VkClearValue clearValues[2];
     clearValues[0].color = m_defaultClearColor;
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -149,12 +150,13 @@ namespace Fsl
 
         vkCmdSetScissor(m_drawCmdBuffers[i], 0, 1, &scissor);
 
-        VkDeviceSize offsets[1] = { 0 };
+        VkDeviceSize offsets[1] = {0};
 
         // Skybox
         if (m_displaySkybox)
         {
-          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSets.Skybox, 0, nullptr);
+          vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSets.Skybox, 0,
+                                  nullptr);
           vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Skybox.GetVertices().GetBufferPointer(), offsets);
           vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Skybox.GetIndices().Buffer.Get(), 0, VK_INDEX_TYPE_UINT32);
           vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Skybox.Get());
@@ -162,11 +164,15 @@ namespace Fsl
         }
 
         // 3D object
-        vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSets.Object, 0, NULL);
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Objects[m_meshes.ObjectIndex].GetVertices().GetBufferPointer(), offsets);
+        vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSets.Object, 0,
+                                nullptr);
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Objects[m_meshes.ObjectIndex].GetVertices().GetBufferPointer(),
+                               offsets);
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Objects[m_meshes.ObjectIndex].GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Reflect.Get());
         vkCmdDrawIndexed(m_drawCmdBuffers[i], m_meshes.Objects[m_meshes.ObjectIndex].GetIndexCount(), 1, 0, 0, 0);
+
+        DrawUI(m_drawCmdBuffers[i]);
 
         vkCmdEndRenderPass(m_drawCmdBuffers[i]);
       }
@@ -184,7 +190,9 @@ namespace Fsl
   void TexturingCubeMap::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
 
     if (event.IsPressed())
@@ -225,7 +233,9 @@ namespace Fsl
   void TexturingCubeMap::Draw(const DemoTime& demoTime)
   {
     if (!TryPrepareFrame())
+    {
       return;
+    }
 
     m_submitInfo.commandBufferCount = 1;
     m_submitInfo.pCommandBuffers = m_drawCmdBuffers.GetPointer(m_currentBufferIndex);
@@ -289,16 +299,12 @@ namespace Fsl
   void TexturingCubeMap::PrepareUniformBuffers()
   {
     // 3D object
-    CreateBuffer(m_uniformData.ObjectVS.Buffer, m_uniformData.ObjectVS.Memory, m_uniformData.ObjectVS.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboVS), nullptr);
+    CreateBuffer(m_uniformData.ObjectVS.Buffer, m_uniformData.ObjectVS.Memory, m_uniformData.ObjectVS.Descriptor, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboVS), nullptr);
 
     // Skybox
-    CreateBuffer(m_uniformData.SkyboxVS.Buffer, m_uniformData.SkyboxVS.Memory, m_uniformData.SkyboxVS.Descriptor,
-      VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-      sizeof(m_uboVS), nullptr);
+    CreateBuffer(m_uniformData.SkyboxVS.Buffer, m_uniformData.SkyboxVS.Memory, m_uniformData.SkyboxVS.Descriptor, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboVS), nullptr);
 
     UpdateUniformBuffers();
   }
@@ -311,11 +317,11 @@ namespace Fsl
     const float aspect = static_cast<float>(screenExtent.width) / static_cast<float>(screenExtent.height);
 
     // 3D object
-    glm::mat4 viewMatrix = glm::mat4();
+    glm::mat4 viewMatrix = glm::mat4(1.0f);
     m_uboVS.Projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
     viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, m_zoom));
 
-    m_uboVS.Model = glm::mat4();
+    m_uboVS.Model = glm::mat4(1.0f);
     m_uboVS.Model = viewMatrix * glm::translate(m_uboVS.Model, m_cameraPos);
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -325,17 +331,19 @@ namespace Fsl
     m_uniformData.ObjectVS.Memory.MapMemory(0, sizeof(m_uboVS), 0, &pData);
     {
       if (pData == nullptr)
+      {
         throw std::runtime_error("failed to map memory");
+      }
 
       std::memcpy(pData, &m_uboVS, sizeof(m_uboVS));
     }
     m_uniformData.ObjectVS.Memory.UnmapMemory();
 
     // Skybox
-    viewMatrix = glm::mat4();
+    viewMatrix = glm::mat4(1.0f);
     m_uboVS.Projection = glm::perspective(glm::radians(60.0f), aspect, 0.001f, 256.0f);
 
-    m_uboVS.Model = glm::mat4();
+    m_uboVS.Model = glm::mat4(1.0f);
     m_uboVS.Model = viewMatrix * glm::translate(m_uboVS.Model, glm::vec3(0, 0, 0));
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_uboVS.Model = glm::rotate(m_uboVS.Model, glm::radians(m_rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -377,7 +385,8 @@ namespace Fsl
     memAllocInfo.pNext = nullptr;
     memAllocInfo.allocationSize = memReqs.size;
     // Get memory type index for a host visible buffer
-    memAllocInfo.memoryTypeIndex = m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    memAllocInfo.memoryTypeIndex =
+      m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     RapidVulkan::Memory stagingMemory(m_device.Get(), memAllocInfo);
 
@@ -388,7 +397,9 @@ namespace Fsl
     stagingMemory.MapMemory(0, memReqs.size, 0, &pData);
     {
       if (pData == nullptr)
+      {
         throw std::runtime_error("Failed to map memory");
+      }
       RawTexture rawTexture;
       Texture::ScopedDirectAccess directAccess(texCube, rawTexture);
       assert(rawTexture.GetContentByteSize() <= memReqs.size);
@@ -462,15 +473,14 @@ namespace Fsl
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
     // Copy the cube map faces from the staging buffer to the optimal tiled image
-    vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), texImage.Get(),
-                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+    vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), texImage.Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
 
     const auto texImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     // Change texture image layout to shader read after all faces have been copied
-    CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT,
-                                      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texImageLayout, subresourceRange);
+    CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texImageLayout,
+                                      subresourceRange);
 
     FlushCommandBuffer(copyCmd, m_deviceQueue.Queue, true);
 
@@ -490,7 +500,7 @@ namespace Fsl
     sampler.maxLod = static_cast<float>(texCube.GetLevels());
     sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
     sampler.maxAnisotropy = 1.0f;
-    if (m_deviceActiveFeatures.samplerAnisotropy)
+    if (m_deviceActiveFeatures.samplerAnisotropy != VK_FALSE)
     {
       sampler.maxAnisotropy = m_vulkanDevice.GetProperties().limits.maxSamplerAnisotropy;
       sampler.anisotropyEnable = VK_TRUE;
@@ -504,8 +514,8 @@ namespace Fsl
     // Cube map view type
     view.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
     view.format = format;
-    view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
-    view.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+    view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
+    view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
     // 6 array layers (faces)
     view.subresourceRange.layerCount = texCube.GetFaces();
     // Set number of mip levels
@@ -519,8 +529,8 @@ namespace Fsl
     descriptor.imageView = texImageView.Get();
     descriptor.imageLayout = texImageLayout;
 
-    return VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory),
-      std::move(texImageView), texExtent, texCube.GetLevels(), 1, descriptor);
+    return VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory), std::move(texImageView), texExtent,
+                         texCube.GetLevels(), 1, descriptor);
   }
 
 
@@ -602,11 +612,7 @@ namespace Fsl
     multisampleState.flags = 0;
     multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-    std::vector<VkDynamicState> dynamicStateEnables =
-    {
-      VK_DYNAMIC_STATE_VIEWPORT,
-      VK_DYNAMIC_STATE_SCISSOR
-    };
+    std::vector<VkDynamicState> dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -679,7 +685,7 @@ namespace Fsl
     VkDescriptorImageInfo cubeMapDescriptor{};
     cubeMapDescriptor.sampler = m_cubeMap.GetSampler();
     cubeMapDescriptor.imageView = m_cubeMap.GetImageView();
-    cubeMapDescriptor.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    cubeMapDescriptor.imageLayout = m_cubeMap.GetImageLayout();
 
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;

@@ -382,8 +382,8 @@ class PackageFilter:
 
 
     @staticmethod
-    def __FiltersRecipePackages(log: Log, resolvedPackageOrder: List[Package]) -> List[Package]:
-        return [package for package in resolvedPackageOrder if not package.ContainsRecipe()]
+    def __FiltersRecipePackages(log: Log, resolvedPackageOrder: List[Package], requestedPackages: Optional[List[Package]]) -> List[Package]:
+        return [package for package in resolvedPackageOrder if not package.ContainsRecipe() or (requestedPackages is not None and package in requestedPackages)]
 
 
     @staticmethod
@@ -434,7 +434,7 @@ class PackageFilter:
         requestedPackagesInOrder = PackageFilter.__DetermineActualUserBuildRequest(resolvedBuildOrder, requestedPackages)
 
         # Remove recipe packages
-        requestedPackagesInOrder = PackageFilter.__FiltersRecipePackages(log, requestedPackagesInOrder)
+        requestedPackagesInOrder = PackageFilter.__FiltersRecipePackages(log, requestedPackagesInOrder, requestedPackages)
 
         # Remove packages based on the users required features request
         requestedPackagesInOrder = PackageFilter.__FiltersPackagesByRequiredFeature(log, requestedPackagesInOrder, packageFilters.RequiredFeatureNameList)

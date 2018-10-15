@@ -28,7 +28,7 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - Matrix.cs.
 
 #include <algorithm>
-#include <FslBase/OptimizationFlag.hpp>
+//#include <FslBase/OptimizationFlag.hpp>
 #include <FslBase/Math/Vector3.hpp>
 
 namespace Fsl
@@ -51,7 +51,7 @@ namespace Fsl
     // Anonymous structs are part of C11 but not currently allowed in C++
     // however most compilers to support them (GCC, Apple LLVM, Visual Studio).
 
-    //union
+    // union
     //{
     //  struct
     //  {
@@ -75,18 +75,21 @@ namespace Fsl
     //  };
     //  float m[4 * 4];
     //};
-    float m[4 * 4];
+    float m[4 * 4]{};
+
   public:
     //! @brief Creates a empty matrix (all components are set to zero)
-    Matrix();
-    Matrix(const float m11, const float m12, const float m13, const float m14,
-      const float m21, const float m22, const float m23, const float m24,
-      const float m31, const float m32, const float m33, const float m34,
-      const float m41, const float m42, const float m43, const float m44);
+    Matrix() = default;
 
-    //! @brief A optimization constructor that doesn't initialize the matrix so when this is called the content of the matrix in undefined!!!
-    // coverity[uninit_member]
-    Matrix(const OptimizationFlag flag) {};
+    Matrix(const float m11, const float m12, const float m13, const float m14, const float m21, const float m22, const float m23, const float m24,
+           const float m31, const float m32, const float m33, const float m34, const float m41, const float m42, const float m43, const float m44)
+      : m{m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}
+    {
+    }
+
+    ////! @brief A optimization constructor that doesn't initialize the matrix so when this is called the content of the matrix in undefined!!!
+    //// coverity[uninit_member]
+    // Matrix(const OptimizationFlag flag){};
 
     //! @brief Creates a new Matrix which contains sum of two matrices.
     //! @param matrix1 The first matrix to add.
@@ -101,10 +104,16 @@ namespace Fsl
     static void Add(const Matrix& matrix1, const Matrix& matrix2, Matrix& rResult);
 
     //! @brief Direct access to the matrix array
-    const float* DirectAccess() const { return m; }
+    const float* DirectAccess() const
+    {
+      return m;
+    }
 
     //! @brief Direct access to the matrix array
-    float* DirectAccess() { return m; }
+    float* DirectAccess()
+    {
+      return m;
+    }
 
     //! @brief Get the backward vector of the Matrix.
     Vector3 GetBackward() const;
@@ -127,10 +136,7 @@ namespace Fsl
     //! @brief Return a instance of the identity matrix
     static Matrix GetIdentity()
     {
-      return Matrix(1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f);
+      return Matrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     //! @brief Get the left vector of the Matrix.
@@ -166,7 +172,8 @@ namespace Fsl
     //! @param cameraUpVector The camera up vector.
     //! @param cameraForwardVector Optional camera forward vector.
     //! @return The Matrix for spherical billboarding
-    static Matrix CreateBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& cameraUpVector, const Vector3* pCameraForwardVector);
+    static Matrix CreateBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& cameraUpVector,
+                                  const Vector3* pCameraForwardVector);
 
     //! @brief Creates a new Matrix for spherical billboarding that rotates around specified object position.
     //! @param objectPosition Position of billboard object. It will rotate around that vector.
@@ -174,7 +181,8 @@ namespace Fsl
     //! @param cameraUpVector The camera up vector.
     //! @param cameraForwardVector Optional camera forward vector.
     //! @param result The Matrix for spherical billboarding as an output parameter.
-    static void CreateBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& cameraUpVector, const Vector3* pCameraForwardVector, Matrix& rResult);
+    static void CreateBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& cameraUpVector,
+                                const Vector3* pCameraForwardVector, Matrix& rResult);
 
     //! @brief Creates a new Matrix for cylindrical billboarding that rotates around specified axis.
     //! @param objectPosition Object position the billboard will rotate around.
@@ -183,7 +191,8 @@ namespace Fsl
     //! @param cameraForwardVector Optional camera forward vector.
     //! @param objectForwardVector Optional object forward vector.
     //! @return The Matrix for cylindrical billboarding
-    static Matrix CreateConstrainedBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& rotateAxis, const Vector3* pCameraForwardVector, const Vector3* pObjectForwardVector);
+    static Matrix CreateConstrainedBillboard(const Vector3& objectPosition, const Vector3& cameraPosition, const Vector3& rotateAxis,
+                                             const Vector3* pCameraForwardVector, const Vector3* pObjectForwardVector);
 
     //! @brief Creates a new Matrix for cylindrical billboarding that rotates around specified axis.
     //! @param objectPosition Object position the billboard will rotate around.
@@ -192,7 +201,8 @@ namespace Fsl
     //! @param cameraForwardVector Optional camera forward vector.
     //! @param objectForwardVector Optional object forward vector.
     //! @param result The Matrix for cylindrical billboarding as an output parameter.
-    static void CreateConstrainedBillboard(const Vector3 objectPosition, const Vector3 cameraPosition, const Vector3 rotateAxis, const Vector3* pCameraForwardVector, const Vector3* pObjectForwardVector, Matrix& rResult);
+    static void CreateConstrainedBillboard(const Vector3 objectPosition, const Vector3 cameraPosition, const Vector3 rotateAxis,
+                                           const Vector3* pCameraForwardVector, const Vector3* pObjectForwardVector, Matrix& rResult);
 
     //! @brief Creates a new Matrix which contains the rotation moment around specified axis.
     //! @param The axis of rotation.
@@ -253,7 +263,8 @@ namespace Fsl
     //! @param zNearPlane Depth of the near plane.
     //! @param zFarPlane Depth of the far plane.
     //! @return The new projection Matrix for customized orthographic view
-    static Matrix CreateOrthographicOffCenter(const float left, const float right, const float bottom, const float top, const float zNearPlane, const float zFarPlane);
+    static Matrix CreateOrthographicOffCenter(const float left, const float right, const float bottom, const float top, const float zNearPlane,
+                                              const float zFarPlane);
 
     //! @brief Creates a new projection Matrix for customized orthographic view.
     //! @param viewingVolume The viewing volume.
@@ -270,13 +281,15 @@ namespace Fsl
     //! @param zNearPlane Depth of the near plane.
     //! @param zFarPlane Depth of the far plane.
     //! @param result The new projection Matrix for customized orthographic view as an output parameter.
-    static void CreateOrthographicOffCenter(const float left, const float right, const float bottom, const float top, const float zNearPlane, const float zFarPlane, Matrix& rResult);
+    static void CreateOrthographicOffCenter(const float left, const float right, const float bottom, const float top, const float zNearPlane,
+                                            const float zFarPlane, Matrix& rResult);
 
     //! @brief Builds a perspective projection matrix.
     static Matrix CreatePerspective(const float width, const float height, const float nearPlaneDistance, const float farPlaneDistance);
 
     //! @brief Builds a perspective projection matrix.
-    static void CreatePerspective(Matrix& rResult, const float width, const float height, const float nearPlaneDistance, const float farPlaneDistance);
+    static void CreatePerspective(Matrix& rResult, const float width, const float height, const float nearPlaneDistance,
+                                  const float farPlaneDistance);
 
     //! @brief Builds a perspective projection matrix based on a field of view and returns by value.
     //! @param fieldOfView Field of view in the y direction, in radians.
@@ -284,7 +297,8 @@ namespace Fsl
     //! @param nearPlaneDistance Distance to the near view plane.
     //! @param farPlaneDistance Distance to the far view plane.
     //! @return The perspective projection matrix.
-    static Matrix CreatePerspectiveFieldOfView(const float fieldOfView, const float aspectRatio, const float nearPlaneDistance, const float farPlaneDistance);
+    static Matrix CreatePerspectiveFieldOfView(const float fieldOfView, const float aspectRatio, const float nearPlaneDistance,
+                                               const float farPlaneDistance);
 
     //! @brief Builds a perspective projection matrix based on a field of view and returns by value.
     //! @param rResult The perspective projection matrix.
@@ -292,7 +306,8 @@ namespace Fsl
     //! @param aspectRatio Aspect ratio, defined as view space width divided by height.
     //! @param nearPlaneDistance Distance to the near view plane.
     //! @param farPlaneDistance Distance to the far view plane.
-    static void CreatePerspectiveFieldOfView(Matrix& rResult, const float fieldOfView, const float aspectRatio, const float nearPlaneDistance, const float farPlaneDistance);
+    static void CreatePerspectiveFieldOfView(Matrix& rResult, const float fieldOfView, const float aspectRatio, const float nearPlaneDistance,
+                                             const float farPlaneDistance);
 
     //! @brief Creates a new projection Matrix for customized perspective view.
     //! @param left Lower x-value at the near plane.
@@ -302,7 +317,8 @@ namespace Fsl
     //! @param nearPlaneDistance Distance to the near plane.
     //! @param farPlaneDistance Distance to the far plane.
     //! @return The new Matrix for customized perspective view
-    static Matrix CreatePerspectiveOffCenter(const float left, const float right, const float bottom, const float top, const float nearPlaneDistance, const float farPlaneDistance);
+    static Matrix CreatePerspectiveOffCenter(const float left, const float right, const float bottom, const float top, const float nearPlaneDistance,
+                                             const float farPlaneDistance);
 
     //! @brief Creates a new projection Matrix for customized perspective view.
     //! @param viewingVolume The viewing volume.
@@ -319,7 +335,8 @@ namespace Fsl
     //! @param nearPlaneDistance Distance to the near plane.
     //! @param farPlaneDistance Distance to the far plane.
     //! @param result The new Matrix for customized perspective view as an output parameter.
-    static void CreatePerspectiveOffCenter(const float left, const float right, const float bottom, const float top, const float nearPlaneDistance, const float farPlaneDistance, Matrix& rResult);
+    static void CreatePerspectiveOffCenter(const float left, const float right, const float bottom, const float top, const float nearPlaneDistance,
+                                           const float farPlaneDistance, Matrix& rResult);
 
     //! @brief Creates a new reflection Matrix.
     //! @param value The plane that used for reflection calculation.
@@ -496,7 +513,7 @@ namespace Fsl
 
     //! @brief  Transposes the rows and columns of a matrix.
     //! @note matrix can be equal to rResult.
-    static void Transpose(Matrix& rResult, const Matrix& matrix);
+    static void Transpose(Matrix& rResult, const Matrix& src);
 
     // Negate the matrix
     Matrix operator-() const;
@@ -505,8 +522,8 @@ namespace Fsl
     Matrix& operator+=(const Matrix& rhs);
     Matrix& operator-=(const Matrix& rhs);
 
-    bool operator==(const Matrix &rhs) const;
-    bool operator!=(const Matrix &rhs) const;
+    bool operator==(const Matrix& rhs) const;
+    bool operator!=(const Matrix& rhs) const;
   };
 }
 

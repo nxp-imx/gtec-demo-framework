@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ParticleSystemOneArray.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -42,12 +42,9 @@ namespace Fsl
   const uint32_t ParticleSystemOneArray::SIZE_PARTICLE_RECORD = static_cast<uint32_t>(sizeof(ParticleSystemOneArray::ParticleRecord));
 
 
-
   ParticleSystemOneArray::ParticleSystemOneArray(const std::shared_ptr<IParticleDraw>& particleDraw, const std::size_t capacity)
     : m_particles(capacity)
-    , m_emitters()
     , m_particleDraw(particleDraw)
-    , m_gravity()
     , m_particleCount(0)
   {
   }
@@ -70,7 +67,9 @@ namespace Fsl
     // Allow the emitters to create new particles
     // BEWARE that this allows the emitters to call the 'AddParticles' functions
     for (auto itr = m_emitters.begin(); itr != m_emitters.end(); ++itr)
+    {
       (*itr)->Update(*this, demoTime);
+    }
 
 
     HighResolutionTimer timer;
@@ -98,7 +97,7 @@ namespace Fsl
       rParticle.Position.X += rParticle.Velocity.X * deltaTime;
       rParticle.Position.Y += rParticle.Velocity.Y * deltaTime;
       rParticle.Position.Z += rParticle.Velocity.Z * deltaTime;
-      //rParticle.RotationAngle += rParticle.RotationVelocity;
+      // rParticle.RotationAngle += rParticle.RotationVelocity;
 
       pParticles[dstIndex].Index = i;
       dstIndex += rParticle.Energy <= 0 ? 1 : 0;
@@ -109,8 +108,8 @@ namespace Fsl
     if (dstIndex > 0)
     {
       ParticleSystemGCFast(m_particles, m_particleCount, dstIndex);
-      //ParticleSystemGC(m_particles, m_particleCount, dstIndex);
-      //FSLLOG("GC: Time: " << end - start << " Count: " << dstIndex);
+      // ParticleSystemGC(m_particles, m_particleCount, dstIndex);
+      // FSLLOG("GC: Time: " << end - start << " Count: " << dstIndex);
     }
 
     auto end = timer.GetTime();

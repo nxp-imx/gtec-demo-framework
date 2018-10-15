@@ -1,10 +1,10 @@
 #ifndef GLES3_E2_1_COPYBUFFER_E2_1_COPYBUFFER_HPP
 #define GLES3_E2_1_COPYBUFFER_E2_1_COPYBUFFER_HPP
 /*
-* OpenGL ES 3.0 Tutorial 1
-*
-* Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
-*/
+ * OpenGL ES 3.0 Tutorial 1
+ *
+ * Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
+ */
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
@@ -16,14 +16,13 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[2];
+      GLuint vboIds[2]{};
       // VertexBufferObject Ids to copy
-      GLuint copyVboIds[2];
+      GLuint copyVboIds[2]{};
       // x-offset uniform location
-      GLuint offsetLoc;
+      GLuint offsetLoc{0};
 
       UserData()
-        : offsetLoc(0)
       {
         vboIds[0] = GLES3::GLValues::INVALID_HANDLE;
         vboIds[1] = GLES3::GLValues::INVALID_HANDLE;
@@ -37,10 +36,11 @@ namespace Fsl
 
   public:
     E2_1_CopyBuffer(const DemoAppConfig& config);
-    ~E2_1_CopyBuffer();
+    ~E2_1_CopyBuffer() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

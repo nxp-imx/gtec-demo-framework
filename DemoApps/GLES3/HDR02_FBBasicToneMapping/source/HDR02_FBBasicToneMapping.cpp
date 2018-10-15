@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2018 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2018 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "HDR02_FBBasicToneMapping.hpp"
 #include <FslBase/Log/Log.hpp>
@@ -62,19 +62,6 @@ namespace Fsl
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
-    , m_camera()
-    , m_matrixModel()
-    , m_matrixView()
-    , m_matrixProjection()
-    , m_texSRGB()
-    , m_program()
-    , m_programTonemapLDR()
-    , m_programTonemapHDR()
-    , m_hdrFrameBuffer()
-    , m_meshTunnel()
-    , m_meshQuad()
-    , m_lightPositions()
-    , m_lightColors()
   {
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
@@ -97,10 +84,7 @@ namespace Fsl
   }
 
 
-  HDR02_FBBasicToneMapping::~HDR02_FBBasicToneMapping()
-  {
-
-  }
+  HDR02_FBBasicToneMapping::~HDR02_FBBasicToneMapping() = default;
 
 
   void HDR02_FBBasicToneMapping::OnKeyEvent(const KeyEvent& event)
@@ -112,7 +96,9 @@ namespace Fsl
   void HDR02_FBBasicToneMapping::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
     if (event.IsHandled())
+    {
       return;
+    }
 
     switch (event.GetButton())
     {
@@ -120,9 +106,13 @@ namespace Fsl
     {
       const bool mouseCapture = event.IsPressed();
       if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+      {
         m_mouseCaptureEnabled = mouseCapture;
+      }
       else
+      {
         m_mouseCaptureEnabled = false;
+      }
       event.Handled();
       break;
     }
@@ -146,7 +136,7 @@ namespace Fsl
     const auto screenResolution = GetScreenResolution();
     m_matrixModel = Matrix::GetIdentity();
     m_matrixView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;  // ok since we divide both by two when we show four screens
+    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
   }
 
@@ -165,7 +155,7 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const GLint splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue()));
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue()));
     const GLint remainderX = screenResolution.X - splitX;
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
@@ -179,23 +169,31 @@ namespace Fsl
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (useClip)
+    {
       glEnable(GL_SCISSOR_TEST);
+    }
 
     if (showingScene1)
     {
-      if( useClip )
+      if (useClip)
+      {
         glScissor(0, 0, splitX, screenResolution.Y);
+      }
       DrawTonemappedScene(m_programTonemapLDR, m_hdrFrameBuffer);
     }
     if (showingScene2)
     {
       if (useClip)
+      {
         glScissor(splitX, 0, remainderX, screenResolution.Y);
+      }
       DrawTonemappedScene(m_programTonemapHDR, m_hdrFrameBuffer);
     }
 
     if (useClip)
+    {
       glDisable(GL_SCISSOR_TEST);
+    }
 
     // Calling this last allows the UI to draw on top of everything.
     // Beware that the UI drawing methods might alter the OpenGL state!
@@ -213,7 +211,7 @@ namespace Fsl
 
   void HDR02_FBBasicToneMapping::UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState)
   {
-    { // Mouse camera rotation
+    {    // Mouse camera rotation
       const auto mouseState = m_mouse->GetState();
 
       if (!m_mouseCaptureEnabled)
@@ -234,13 +232,21 @@ namespace Fsl
     // Keyboard camera movement
     const float movementSpeed = 2.0f * demoTime.DeltaTime;
     if (keyboardState.IsKeyDown(VirtualKey::W))
+    {
       m_camera.MoveForward(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::S))
+    {
       m_camera.MoveBackwards(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::A))
+    {
       m_camera.MoveLeft(movementSpeed);
+    }
     if (keyboardState.IsKeyDown(VirtualKey::D))
+    {
       m_camera.MoveRight(movementSpeed);
+    }
   }
 
 
@@ -286,14 +292,16 @@ namespace Fsl
 
     // The LDR shader dont use exposure
     if (location.Exposure != GLValues::INVALID_LOCATION)
+    {
       glUniform1f(location.Exposure, m_menuUI.GetExposure());
+    }
 
     // Bind the vertex array
     m_meshQuad.VertexArray.Bind();
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, hdrFramebufferTexInfo.Handle);
-    //glBindTexture(GL_TEXTURE_2D, m_texSRGB.Get());
+    // glBindTexture(GL_TEXTURE_2D, m_texSRGB.Get());
     glDrawArrays(GL_TRIANGLES, 0, m_meshQuad.VertexBuffer.GetCapacity());
 
     m_meshQuad.VertexArray.Unbind();
@@ -303,21 +311,12 @@ namespace Fsl
   void HDR02_FBBasicToneMapping::PrepareLights()
   {
     // lighting info
-    m_lightPositions =
-    {
-      Vector3(0.0f, 0.0f, -31.5f),
-      Vector3(-1.4f, -1.9f, -9.0f),
-      Vector3(0.0f, -1.8f, -4.0f),
-      //Vector3(0.0f, 0.0f, 0.0f)
-      Vector3(0.8f, -1.7f, -6.0f)
-    };
-    m_lightColors =
-    {
-      Vector3(200.0f, 200.0f, 200.0f),
-      Vector3(0.1f, 0.0f, 0.0f),
-      Vector3(0.0f, 0.0f, 0.2f),
-      Vector3(0.0f, 0.1f, 0.0f),
-      //Vector3(221.0f, 1.1f, 1.0f)
+    m_lightPositions = {Vector3(0.0f, 0.0f, -31.5f), Vector3(-1.4f, -1.9f, -9.0f), Vector3(0.0f, -1.8f, -4.0f),
+                        // Vector3(0.0f, 0.0f, 0.0f)
+                        Vector3(0.8f, -1.7f, -6.0f)};
+    m_lightColors = {
+      Vector3(200.0f, 200.0f, 200.0f), Vector3(0.1f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.2f), Vector3(0.0f, 0.1f, 0.0f),
+      // Vector3(221.0f, 1.1f, 1.0f)
     };
   }
 
@@ -326,7 +325,7 @@ namespace Fsl
   {
     // The KTX reader does not extract the origin, so we force a upper left
     auto tex = contentManager->ReadTexture("Textures/Bricks_ETC2_rgb.ktx", PixelFormat::ETC2_R8G8B8_SRGB_BLOCK, BitmapOrigin::UpperLeft);
-    //auto tex = contentManager->ReadTexture("Textures/Test.png", PixelFormat::R8G8B8A8_UNORM);
+    // auto tex = contentManager->ReadTexture("Textures/Test.png", PixelFormat::R8G8B8A8_UNORM);
     // Then override it to match the default GL setting since we know thats the way the texture is stored in the file
     tex.OverrideOrigin(BitmapOrigin::LowerLeft);
 
@@ -352,14 +351,17 @@ namespace Fsl
   }
 
 
-  HDR02_FBBasicToneMapping::TonemapProgramInfo HDR02_FBBasicToneMapping::CreateTonemapShader(const std::shared_ptr<IContentManager>& contentManager, const bool useHDR)
+  HDR02_FBBasicToneMapping::TonemapProgramInfo HDR02_FBBasicToneMapping::CreateTonemapShader(const std::shared_ptr<IContentManager>& contentManager,
+                                                                                             const bool useHDR)
   {
     TonemapProgramInfo info;
     const auto fragmentShaderName = useHDR ? "TonemapperHDR.frag" : "TonemapperLDR.frag";
     info.Program.Reset(contentManager->ReadAllText("Tonemapper.vert"), contentManager->ReadAllText(fragmentShaderName));
 
     if (useHDR)
+    {
       info.Location.Exposure = info.Program.GetUniformLocation("g_exposure");
+    }
     return info;
   }
 

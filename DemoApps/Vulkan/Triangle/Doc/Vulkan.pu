@@ -1,0 +1,55 @@
+@startuml Vulkan.Triangle Class Diagram
+'!pragma ratio 0.66
+left to right direction
+scale 1
+
+'    BaseWindowContext <|-- WindowContext
+'    BaseWindow o-- BaseWindowContext
+
+namespace Vulkan{
+    class VkDescriptorSet
+    class VkDescriptorBufferInfo
+    class VkPipelineVertexInputStateCreateInfo
+    class VkVertexInputBindingDescription
+    class VkVertexInputAttributeDescription
+}
+
+
+namespace RapidVulkan {
+    class Buffer
+    class DescriptorPool
+    class DescriptorSetLayout
+    class Fence
+    class GraphicsPipeline
+    class Memory
+    class PipelineLayout
+    class Semaphore
+}
+
+namespace Fsl {
+    class IndexBuffer
+    class VertexBuffer
+    class UniformDataVS
+    class vector_Fence
+    class vector_VkVertexInputAttributeDescription
+
+    vector_Fence o-- RapidVulkan.Fence
+    vector_VkVertexInputAttributeDescription o-- Vulkan.VkVertexInputAttributeDescription
+
+    IndexBuffer o-- RapidVulkan.Memory
+    IndexBuffer o-- RapidVulkan.Buffer
+
+    VertexBuffer o-- RapidVulkan.Memory
+    VertexBuffer o-- RapidVulkan.Buffer
+    VertexBuffer o-- Vulkan.VkPipelineVertexInputStateCreateInfo
+    VertexBuffer o-- Vulkan.VkVertexInputBindingDescription
+    VertexBuffer o-- vector_VkVertexInputAttributeDescription
+
+    UniformDataVS o-- RapidVulkan.Memory
+    UniformDataVS o-- RapidVulkan.Buffer
+    UniformDataVS o-- Vulkan.VkDescriptorBufferInfo
+}
+
+
+
+@enduml

@@ -1,35 +1,35 @@
 #ifndef FSLBASE_MATH_RECTANGLE_HPP
 #define FSLBASE_MATH_RECTANGLE_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <algorithm>
 #include <FslBase/Math/Point2.hpp>
@@ -40,42 +40,86 @@ namespace Fsl
   struct Rectangle
   {
   private:
-    int32_t m_x;
-    int32_t m_y;
-    int32_t m_width;
-    int32_t m_height;
+    int32_t m_x{0};
+    int32_t m_y{0};
+    int32_t m_width{0};
+    int32_t m_height{0};
+
   public:
-    Rectangle()
-      : m_x(0)
-      , m_y(0)
-      , m_width(0)
-      , m_height(0)
-    {
-    }
-
-
+    Rectangle() = default;
     Rectangle(const int32_t x, const int32_t y, const int32_t width, const int32_t height);
     Rectangle(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom, bool reserved);
 
+    static Rectangle Empty()
+    {
+      return Rectangle(0, 0, 0, 0);
+    }
 
-    static Rectangle Empty() { return Rectangle(0, 0, 0, 0); }
+    inline int32_t X() const
+    {
+      return m_x;
+    }
 
-    inline int32_t X() const { return m_x; }
-    inline int32_t Y() const { return m_y; }
-    inline int32_t Width() const { return m_width; }
-    inline int32_t Height() const { return m_height; }
+    inline int32_t Y() const
+    {
+      return m_y;
+    }
 
-    inline int32_t Left() const { return m_x; }
-    inline int32_t Top() const { return m_y; }
-    inline int32_t Right() const { return m_x + m_width; }
-    inline int32_t Bottom() const { return m_y + m_height; }
+    inline int32_t Width() const
+    {
+      return m_width;
+    }
 
-    inline Point2 GetSize() const { return Point2(m_width, m_height); }
+    inline int32_t Height() const
+    {
+      return m_height;
+    }
 
-    inline Point2 TopLeft() const { return Point2(m_x, m_y); }
-    inline Point2 TopRight() const { return Point2(Right(), m_y); }
-    inline Point2 BottomLeft() const { return Point2(m_x, Bottom()); }
-    inline Point2 BottomRight() const { return Point2(Right(), Bottom()); }
+
+    inline int32_t Left() const
+    {
+      return m_x;
+    }
+
+    inline int32_t Top() const
+    {
+      return m_y;
+    }
+
+    inline int32_t Right() const
+    {
+      return m_x + m_width;
+    }
+
+    inline int32_t Bottom() const
+    {
+      return m_y + m_height;
+    }
+
+    inline Point2 GetSize() const
+    {
+      return Point2(m_width, m_height);
+    }
+
+    inline Point2 TopLeft() const
+    {
+      return Point2(m_x, m_y);
+    }
+
+    inline Point2 TopRight() const
+    {
+      return Point2(Right(), m_y);
+    }
+
+    inline Point2 BottomLeft() const
+    {
+      return Point2(m_x, Bottom());
+    }
+
+    inline Point2 BottomRight() const
+    {
+      return Point2(Right(), Bottom());
+    }
 
     inline void Add(const int32_t x, const int32_t y)
     {
@@ -145,7 +189,7 @@ namespace Fsl
     }
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
-    //bool Contains(const Vector2& value) const
+    // bool Contains(const Vector2& value) const
     //{
     //  return ((((value.X >= X) && (value.X < (X + Width))) && (value.Y >= Y)) && (value.Y < (Y + Height)));
     //}
@@ -153,8 +197,8 @@ namespace Fsl
     //! @brief Check if the rectangle is considered to be contained within this rectangle
     bool Contains(const Rectangle& value) const
     {
-      return ((((value.m_x >= m_x) && ((value.m_x + value.m_width) <= (m_x + m_width))) &&
-                (value.m_y >= m_y)) && ((value.m_y + value.m_height) <= (m_y + m_height)));
+      return ((((value.m_x >= m_x) && ((value.m_x + value.m_width) <= (m_x + m_width))) && (value.m_y >= m_y)) &&
+              ((value.m_y + value.m_height) <= (m_y + m_height)));
     }
 
 
@@ -217,10 +261,8 @@ namespace Fsl
         int32_t bottomSide = std::min(rect1.m_y + rect1.m_height, rect2.m_y + rect2.m_height);
         return Rectangle(leftSide, topSide, rightSide - leftSide, bottomSide - topSide);
       }
-      else
-      {
-        return Rectangle(0, 0, 0, 0);
-      }
+
+      return Rectangle(0, 0, 0, 0);
     }
 
 
@@ -243,7 +285,6 @@ namespace Fsl
     {
       return ((m_x != rhs.m_x) || (m_y != rhs.m_y) || (m_width != rhs.m_width) || (m_height != rhs.m_height));
     }
-
   };
 }
 

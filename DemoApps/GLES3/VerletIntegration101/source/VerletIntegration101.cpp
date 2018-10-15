@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -60,7 +60,6 @@ namespace Fsl
     , m_uiEventListener(this)
     , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
-    , m_boundaryRect()
     , m_rotation(0)
   {
     RegisterExtension(m_uiExtension);
@@ -72,12 +71,12 @@ namespace Fsl
 
 
     auto screenResolution = config.ScreenResolution;
-    const int32_t safeX = static_cast<int32_t>(screenResolution.X * 0.10f);
-    const int32_t safeY = static_cast<int32_t>(screenResolution.Y * 0.10f);
+    const auto safeX = static_cast<int32_t>(screenResolution.X * 0.10f);
+    const auto safeY = static_cast<int32_t>(screenResolution.Y * 0.10f);
     m_boundaryRect = Rectangle(safeX, safeY, screenResolution.X - (2 * safeX), screenResolution.Y - (2 * safeY));
 
-    float offsetX = static_cast<float>(safeX);
-    float offsetY = static_cast<float>(safeY);
+    auto offsetX = static_cast<float>(safeX);
+    auto offsetY = static_cast<float>(safeY);
     auto p0 = Particle(offsetX + 100.0f, offsetY + 100.0f, offsetX + 85.0f, offsetY + 95.0f);
     auto p1 = Particle(offsetX + 200.0f, offsetY + 100.0f, offsetX + 200.0f, offsetY + 100.0f);
     auto p2 = Particle(offsetX + 200.0f, offsetY + 200.0f, offsetX + 200.0f, offsetY + 200.0f);
@@ -87,18 +86,15 @@ namespace Fsl
     m_particles.push_back(p1);
     m_particles.push_back(p2);
     m_particles.push_back(p3);
-    m_sticks.push_back(Stick(0, 1, Distance(p0.Position, p1.Position)));
-    m_sticks.push_back(Stick(1, 2, Distance(p1.Position, p2.Position)));
-    m_sticks.push_back(Stick(2, 3, Distance(p2.Position, p3.Position)));
-    m_sticks.push_back(Stick(3, 0, Distance(p3.Position, p0.Position)));
-    m_sticks.push_back(Stick(0, 2, Distance(p0.Position, p2.Position)));
+    m_sticks.emplace_back(0, 1, Distance(p0.Position, p1.Position));
+    m_sticks.emplace_back(1, 2, Distance(p1.Position, p2.Position));
+    m_sticks.emplace_back(2, 3, Distance(p2.Position, p3.Position));
+    m_sticks.emplace_back(3, 0, Distance(p3.Position, p0.Position));
+    m_sticks.emplace_back(0, 2, Distance(p0.Position, p2.Position));
   }
 
 
-  VerletIntegration101::~VerletIntegration101()
-  {
-
-  }
+  VerletIntegration101::~VerletIntegration101() = default;
 
 
   void VerletIntegration101::FixedUpdate(const DemoTime& demoTime)
@@ -119,7 +115,6 @@ namespace Fsl
   }
 
 
-
   void VerletIntegration101::Draw(const DemoTime& demoTime)
   {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -129,7 +124,7 @@ namespace Fsl
 
     m_batch->DebugDrawRectangle(m_texFill, m_boundaryRect, Color(64, 64, 64, 255));
 
-    //m_batch->DebugDrawLine(m_texFill, dstFrom, dstRotated, Color::White());
+    // m_batch->DebugDrawLine(m_texFill, dstFrom, dstRotated, Color::White());
 
     DrawSticks(m_particles, m_sticks);
     DrawParticles(m_particles);
@@ -170,13 +165,12 @@ namespace Fsl
   }
 
 
-
   void VerletIntegration101::ConstrainPoints(std::deque<Particle>& particles, const Rectangle& boundaryRect, const float friction)
   {
-    const float boundaryLeft = static_cast<float>(boundaryRect.Left());
-    const float boundaryTop = static_cast<float>(boundaryRect.Top());
-    const float boundaryRight = static_cast<float>(boundaryRect.Right() - 1);
-    const float boundaryBottom = static_cast<float>(boundaryRect.Bottom() - 1);
+    const auto boundaryLeft = static_cast<float>(boundaryRect.Left());
+    const auto boundaryTop = static_cast<float>(boundaryRect.Top());
+    const auto boundaryRight = static_cast<float>(boundaryRect.Right() - 1);
+    const auto boundaryBottom = static_cast<float>(boundaryRect.Bottom() - 1);
 
     const float bounce = 0.90f;
 
@@ -213,10 +207,9 @@ namespace Fsl
     for (auto itr = sticks.begin(); itr != sticks.end(); ++itr)
     {
       auto from = particles[itr->PointIndex0].Position;
-      auto to= particles[itr->PointIndex1].Position;
+      auto to = particles[itr->PointIndex1].Position;
       m_batch->DebugDrawLine(m_texFill, from, to, color);
     }
-
   }
 
 
@@ -231,6 +224,4 @@ namespace Fsl
       m_batch->Draw(m_texBall, itr->Position, color, origin, scale);
     }
   }
-
-
 }

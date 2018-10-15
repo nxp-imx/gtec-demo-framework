@@ -1,4 +1,4 @@
-# DemoFramework 5.1.1
+# DemoFramework 5.2.0
 
 A multi-platform framework for fast and easy demo development.
 
@@ -525,7 +525,6 @@ Home    | Toggle between normal and fast 4x playback.
 # Demo applications
 
 <!-- #AG_DEMOAPPS_BEGIN# -->
-
 ## Console
 
 ### [Console101](DemoApps/Console/Console101)
@@ -826,6 +825,15 @@ downscaling the original image to multiple smaller render-targets and then blurr
 using a relative small kernel and then finally rescaling the result to the original size.
 
 
+### [CameraDemo](DemoApps/GLES3/CameraDemo)
+<a href="DemoApps/GLES3/CameraDemo">
+<img src="DemoApps/GLES3/CameraDemo/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Showcases how to use the helios camera API.
+It captures a image from the camera and renders it using OpenGL ES 3.
+
+
 ### [ColorspaceInfo](DemoApps/GLES3/ColorspaceInfo)
 Checks for the presence of known EGL color space extensions and outputs information about them to the console.
 
@@ -877,6 +885,15 @@ The native batch functionality works across various 3D backends and also allows 
 
 The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
 It is however not a optimized way of rendering things.
+
+
+### [DFNativeBatchCamera](DemoApps/GLES3/DFNativeBatchCamera)
+<a href="DemoApps/GLES3/DFNativeBatchCamera">
+<img src="DemoApps/GLES3/DFNativeBatchCamera/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+Showcases how to use the helios camera API.
+It captures a image from the camera and renders it using the nativebatch.
 
 
 ### [DFSimpleUI100](DemoApps/GLES3/DFSimpleUI100)
@@ -1520,6 +1537,15 @@ This will often showcase the worst case power consumption.
 
 It is a software-based image signal processing(SoftISP) application optimized by GPU. SoftISP --Options
 "Enable" Enable high quality noise reduction node
+
+
+### [Stereo](DemoApps/OpenVX/Stereo)
+<a href="DemoApps/OpenVX/Stereo">
+<img src="DemoApps/OpenVX/Stereo/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+</a>
+
+It is a stereo vision implementations based on a multi resolution strategy running on GPU. GPU kernels are developed on i.MX8 series using extended vision instruction set (EVIS).
+Input images are taken by fisheye camera, so they have some distortion.
 
 
 ### [VxTutorial1](DemoApps/OpenVX/VxTutorial1)

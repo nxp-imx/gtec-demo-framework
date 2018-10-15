@@ -1,15 +1,15 @@
 #ifndef VULKAN_TESSELLATIONPNTRIANGLES_TESSELLATIONPNTRIANGLES_HPP
 #define VULKAN_TESSELLATIONPNTRIANGLES_TESSELLATIONPNTRIANGLES_HPP
 /*
-* Vulkan Example - Tessellation shader PN triangles
-*
-* Based on http://alex.vlachos.com/graphics/CurvedPNTriangles.pdf
-* Shaders based on http://onrendering.blogspot.de/2011/12/tessellation-on-gpu-curved-pn-triangles.html
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Tessellation shader PN triangles
+ *
+ * Based on http://alex.vlachos.com/graphics/CurvedPNTriangles.pdf
+ * Shaders based on http://onrendering.blogspot.de/2011/12/tessellation-on-gpu-curved-pn-triangles.html
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'PN-Triangles' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -93,17 +93,20 @@ namespace Fsl
     RapidVulkan::GraphicsPipeline* m_pPipelineLeft;
     RapidVulkan::GraphicsPipeline* m_pPipelineRight;
     bool m_splitScreen;
+
   public:
     TessellationPNTriangles(const DemoAppConfig& config);
-    ~TessellationPNTriangles();
+    ~TessellationPNTriangles() override;
+
   protected:
-    virtual void Prepare() override;
-    virtual void BuildCommandBuffers() override;
-    virtual void GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay) override;
-    virtual void OnViewChanged() override;
-    virtual void OnKeyEvent(const KeyEvent& event) override;
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Prepare() override;
+    void BuildCommandBuffers() override;
+    void GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay) override;
+    void OnViewChanged() override;
+    void OnKeyEvent(const KeyEvent& event) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void LoadTextures();
     void LoadMeshes();

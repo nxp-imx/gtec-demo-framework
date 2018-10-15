@@ -196,6 +196,10 @@ def IsValidPackageName(name: str, allowSubPackages: bool) -> bool:
     return name.find('..') < 0
 
 
+def IsValidRecipeName(name: str) -> bool:
+    return IsValidPackageName(name, True)
+
+
 def IsValidCStyleName(name: str) -> bool:
     if len(name) <= 0 or not IsValidNameStartCharacter(name[0]):
         return False

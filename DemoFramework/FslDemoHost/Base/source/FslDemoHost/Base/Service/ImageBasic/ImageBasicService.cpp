@@ -1,39 +1,39 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Service/ImageBasic/ImageBasicService.hpp>
 #include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/IO/Path.hpp>
+#include <FslBase/Log/IO/LogPath.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -56,7 +56,9 @@ namespace Fsl
                                 const PixelChannelOrder preferredChannelOrderHint)
     {
       if (!imageLibraryService)
+      {
         return false;
+      }
 
       // If pixel format is set to undefined we try to load into the 'native' format of the image
       return imageLibraryService->TryRead(rBitmap, absolutePath, desiredPixelFormat, usedOriginHint, preferredChannelOrderHint);
@@ -68,7 +70,9 @@ namespace Fsl
                                 const PixelChannelOrder preferredChannelOrderHint)
     {
       if (!imageLibraryService)
+      {
         return false;
+      }
       // If pixel format is set to undefined we try to load into the 'native' format of the image
       return imageLibraryService->TryRead(rTexture, absolutePath, desiredPixelFormat, usedOriginHint, preferredChannelOrderHint);
     }
@@ -78,12 +82,14 @@ namespace Fsl
   ImageBasicService::ImageBasicService(const ServiceProvider& serviceProvider)
     : ThreadLocalService(serviceProvider)
     , m_bitmapConverter(serviceProvider.Get<IBitmapConverter>())
-    , m_imageLibraryServices()
+
   {
     serviceProvider.Get<IImageLibraryService>(m_imageLibraryServices);
 
     // Sort the library services by name to ensure that we have a consistent order
-    auto funcByNameComp = [](const std::shared_ptr<IImageLibraryService>& lhs, const std::shared_ptr<IImageLibraryService>& rhs) {return lhs->GetName() > rhs->GetName(); };
+    auto funcByNameComp = [](const std::shared_ptr<IImageLibraryService>& lhs, const std::shared_ptr<IImageLibraryService>& rhs) {
+      return lhs->GetName() > rhs->GetName();
+    };
     std::sort(m_imageLibraryServices.begin(), m_imageLibraryServices.end(), funcByNameComp);
 
     // Query all libs for their supported extensions (note its optional for them to provide this list)
@@ -95,7 +101,7 @@ namespace Fsl
       for (auto itrFormat = formats.begin(); itrFormat != formats.end(); ++itrFormat)
       {
         auto itrFind = m_formatToImageLibrary.find(*itrFormat);
-        if(itrFind == m_formatToImageLibrary.end())
+        if (itrFind == m_formatToImageLibrary.end())
         {
           m_formatToImageLibrary[*itrFormat] = std::make_shared<ImageLibraryDeque>();
           m_formatToImageLibrary[*itrFormat]->push_back(*itr);
@@ -109,18 +115,21 @@ namespace Fsl
   }
 
 
-  ImageBasicService::~ImageBasicService()
-  {
-  }
+  ImageBasicService::~ImageBasicService() = default;
 
 
-  void ImageBasicService::Read(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  void ImageBasicService::Read(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                               const PixelChannelOrder preferredChannelOrder) const
   {
     if (!IO::Path::IsPathRooted(absolutePath))
+    {
       throw std::invalid_argument(std::string("Read only takes absolute paths: ") + absolutePath.ToUTF8String());
+    }
 
     if (!IO::File::Exists(absolutePath))
+    {
       throw std::invalid_argument(std::string("File not found: ") + absolutePath.ToUTF8String());
+    }
 
     // Try all image services one by one (basic strategy for now)
     bool isLoaded = false;
@@ -150,29 +159,42 @@ namespace Fsl
 
     // The fall back loader only supports BMP
     if (!isLoaded && imageFormatBasedOnExt == ImageFormat::Bmp)
+    {
       BMPUtil::Load(rBitmap, absolutePath, desiredOrigin);
+    }
 
     if (!isLoaded)
+    {
       throw NotSupportedException(std::string("None of the available image libraries could load: ") + absolutePath.ToUTF8String());
+    }
 
     const auto usedDesiredPixelFormat = (desiredPixelFormat != PixelFormat::Undefined ? desiredPixelFormat : rBitmap.GetPixelFormat());
 
     if (rBitmap.GetPixelFormat() != usedDesiredPixelFormat || rBitmap.GetOrigin() != desiredOrigin)
+    {
       m_bitmapConverter->Convert(rBitmap, usedDesiredPixelFormat, desiredOrigin);
+    }
 
     // When loading a undefined pixel format we prefer the unorm variant
     if (desiredPixelFormat == PixelFormat::Undefined)
+    {
       rBitmap.TrySetCompatiblePixelFormatFlag(PixelFormatFlags::NF_UNorm);
+    }
   }
 
 
-  void ImageBasicService::Read(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  void ImageBasicService::Read(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat,
+                               const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
   {
     if (!IO::Path::IsPathRooted(absolutePath))
+    {
       throw std::invalid_argument(std::string("Read only takes absolute paths: ") + absolutePath.ToUTF8String());
+    }
 
     if (!IO::File::Exists(absolutePath))
+    {
       throw std::invalid_argument(std::string("File not found: ") + absolutePath.ToUTF8String());
+    }
 
 
     // Try all image services one by one (basic strategy for now)
@@ -214,26 +236,36 @@ namespace Fsl
 
     const bool isCompressed = PixelFormatUtil::IsCompressed(rTexture.GetPixelFormat());
     if (isCompressed && desiredOrigin != BitmapOrigin::Undefined && rTexture.GetBitmapOrigin() != desiredOrigin)
+    {
       throw NotSupportedException("The origin of compressed formats can not be modified");
+    }
 
     const auto usedDesiredPixelFormat = (desiredPixelFormat != PixelFormat::Undefined ? desiredPixelFormat : rTexture.GetPixelFormat());
 
     if (rTexture.GetPixelFormat() != usedDesiredPixelFormat || rTexture.GetBitmapOrigin() != desiredOrigin)
+    {
       m_bitmapConverter->Convert(rTexture, usedDesiredPixelFormat, desiredOrigin);
+    }
 
     // When loading a undefined pixel format we prefer the unorm variant
     if (desiredPixelFormat == PixelFormat::Undefined)
+    {
       rTexture.TrySetCompatiblePixelFormatFlag(PixelFormatFlags::NF_UNorm);
+    }
   }
 
 
-  void ImageBasicService::Write(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const PixelFormat desiredPixelFormat)
+  void ImageBasicService::Write(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
+                                const PixelFormat desiredPixelFormat)
   {
     if (!IO::Path::IsPathRooted(absolutePath))
+    {
       throw std::invalid_argument(std::string("Write only takes absolute paths: ") + absolutePath.ToUTF8String());
+    }
 
     const auto usedDesiredPixelFormat = (desiredPixelFormat != PixelFormat::Undefined ? desiredPixelFormat : bitmap.GetPixelFormat());
-    const auto usedImageFormat = (imageFormat != ImageFormat::Undefined ? imageFormat : ImageFormatUtil::TryDetectImageFormatFromExtension(absolutePath));
+    const auto usedImageFormat =
+      (imageFormat != ImageFormat::Undefined ? imageFormat : ImageFormatUtil::TryDetectImageFormatFromExtension(absolutePath));
 
     if (bitmap.GetPixelFormat() == usedDesiredPixelFormat)
     {
@@ -248,13 +280,17 @@ namespace Fsl
   }
 
 
-  void ImageBasicService::WriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const PixelFormat desiredPixelFormat)
+  void ImageBasicService::WriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
+                                          const PixelFormat desiredPixelFormat)
   {
     if (!IO::Path::IsPathRooted(absolutePath))
+    {
       throw std::invalid_argument(std::string("WriteExactImage only takes absolute paths: ") + absolutePath.ToUTF8String());
+    }
 
     const auto usedDesiredPixelFormat = (desiredPixelFormat != PixelFormat::Undefined ? desiredPixelFormat : bitmap.GetPixelFormat());
-    const auto usedImageFormat = (imageFormat != ImageFormat::Undefined ? imageFormat : ImageFormatUtil::TryDetectImageFormatFromExtension(absolutePath));
+    const auto usedImageFormat =
+      (imageFormat != ImageFormat::Undefined ? imageFormat : ImageFormatUtil::TryDetectImageFormatFromExtension(absolutePath));
 
     if (bitmap.GetPixelFormat() == usedDesiredPixelFormat)
     {
@@ -269,7 +305,8 @@ namespace Fsl
   }
 
 
-  bool ImageBasicService::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  bool ImageBasicService::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat,
+                                  const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
@@ -298,7 +335,8 @@ namespace Fsl
   }
 
 
-  bool ImageBasicService::TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const PixelFormat desiredPixelFormat)
+  bool ImageBasicService::TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
+                                   const PixelFormat desiredPixelFormat)
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
@@ -322,7 +360,8 @@ namespace Fsl
   }
 
 
-  bool ImageBasicService::TryWriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const PixelFormat desiredPixelFormat)
+  bool ImageBasicService::TryWriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
+                                             const PixelFormat desiredPixelFormat)
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
@@ -356,7 +395,9 @@ namespace Fsl
       while (itrCurrent != itrCurrentEnd)
       {
         if ((*itrCurrent)->TryWrite(absPath, bitmap, imageFormat, true))
+        {
           return;
+        }
         ++itrCurrent;
       }
     }
@@ -365,7 +406,9 @@ namespace Fsl
     for (auto itr = m_imageLibraryServices.begin(); itr != m_imageLibraryServices.end(); ++itr)
     {
       if ((*itr)->TryWrite(absPath, bitmap, imageFormat, true))
+      {
         return;
+      }
     }
 
     // Still no luck, lets try the bmp fall back writer
@@ -373,7 +416,9 @@ namespace Fsl
     {
       // This only supports pixel format layout B8G8R8A8
       if (PixelFormatUtil::GetPixelFormatLayout(bitmap.GetPixelFormat()) == PixelFormatLayout::B8G8R8A8)
+      {
         BMPUtil::Save(absPath, bitmap);
+      }
       else
       {
         // Convert to a supported pixel format if possible
@@ -402,7 +447,9 @@ namespace Fsl
       while (itrCurrent != itrCurrentEnd)
       {
         if ((*itrCurrent)->TryWrite(absPath, bitmap, imageFormat, true))
+        {
           return;
+        }
       }
     }
 
@@ -411,7 +458,9 @@ namespace Fsl
     for (auto itr = m_imageLibraryServices.begin(); itr != m_imageLibraryServices.end(); ++itr)
     {
       if ((*itr)->TryWrite(absPath, bitmap, imageFormat, true))
+      {
         return;
+      }
     }
 
     // Still no luck, lets try the bmp fall back writer

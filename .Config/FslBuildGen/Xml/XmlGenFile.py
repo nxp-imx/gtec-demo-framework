@@ -118,6 +118,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.PackageNameBasedIncludePath = True
         self.PlatformDefaultSupportedValue = True
         self.SystemDefaultValues = LocalPackageDefaultValues()
+        self.UnitTest = False
 
 
     def Load(self, config: Config, packageTemplateLoader: PackageTemplateLoader, packageFile: PackageFile) -> None:
@@ -148,6 +149,7 @@ class XmlGenFile(XmlCommonFslBuild):
 
         templateType = self._ReadAttrib(elem, 'TemplateType', "")
         self.AllowCheck = self._ReadBoolAttrib(elem, 'AllowCheck', True)
+        self.UnitTest = self._ReadBoolAttrib(elem, 'UnitTest', False)
         # if this is set we allow '.cc' files for C++ code.
         self.EnableExtendedSourceExtensions = self._ReadBoolAttrib(elem, 'EnableExtendedSourceExtensions', False)
 

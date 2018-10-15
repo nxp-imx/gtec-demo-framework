@@ -321,35 +321,36 @@ def __ScanFiles(log: Log, package: Package, filteredFiles: Optional[List[str]],
     """
     :param filteredFiles: a optional list of specifc files to scan in this package (if supplied the rest should be ignored)
     """
-    if not package.ResolvedBuildAllIncludeFiles:
-        return 0
     if not package.AllowCheck and checkType == CheckType.Normal:
         return 0
 
-    if package.AbsolutePath is None or package.ResolvedBuildSourceFiles is None:
-        raise Exception("Invalid package")
+    if package.AbsolutePath is None:
+        log.DoPrintWarning("package did not contain a abs path")
+        return 0
 
     allowedFileSet = None if filteredFiles is None else set(filteredFiles)
 
     errorCount = 0
-    for fileName in package.ResolvedBuildAllIncludeFiles:
-        fullPath = IOUtil.Join(package.AbsolutePath, fileName)
-        # Only process files with the expected extension
-        if allowedFileSet is None or fullPath in allowedFileSet:
-            if __IsValidExtension(fileName, __g_includeExtensionList):
-                if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
-                    errorCount += 1
+    if package.ResolvedBuildAllIncludeFiles is not None:
+        for fileName in package.ResolvedBuildAllIncludeFiles:
+            fullPath = IOUtil.Join(package.AbsolutePath, fileName)
+            # Only process files with the expected extension
+            if allowedFileSet is None or fullPath in allowedFileSet:
+                if __IsValidExtension(fileName, __g_includeExtensionList):
+                    if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                        errorCount += 1
 
 
-    for fileName in package.ResolvedBuildSourceFiles:
-        fullPath = IOUtil.Join(package.AbsolutePath, fileName)
-        if allowedFileSet is None or fullPath in allowedFileSet:
-            if __IsValidExtension(fileName, __g_includeExtensionList):
-                if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
-                    errorCount += 1
-            elif __IsValidExtension(fileName, __g_sourceExtensionList):
-                if not __ProcessSourceFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
-                    errorCount += 1
+    if package.ResolvedBuildSourceFiles is not None:
+        for fileName in package.ResolvedBuildSourceFiles:
+            fullPath = IOUtil.Join(package.AbsolutePath, fileName)
+            if allowedFileSet is None or fullPath in allowedFileSet:
+                if __IsValidExtension(fileName, __g_includeExtensionList):
+                    if not __ProcessIncludeFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                        errorCount += 1
+                elif __IsValidExtension(fileName, __g_sourceExtensionList):
+                    if not __ProcessSourceFile(log, package, fullPath, repairEnabled, thirdpartyExceptionDir, disableWrite):
+                        errorCount += 1
     return errorCount
 
 

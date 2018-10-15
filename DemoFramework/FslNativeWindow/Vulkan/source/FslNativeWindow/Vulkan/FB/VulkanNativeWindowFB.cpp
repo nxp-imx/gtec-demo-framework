@@ -1,34 +1,34 @@
-#if ! defined(__ANDROID__) && defined(__linux__) && defined(FSL_WINDOWSYSTEM_FRAMEBUFFER)
+#if !defined(__ANDROID__) && defined(__linux__) && defined(FSL_WINDOWSYSTEM_FRAMEBUFFER)
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "VulkanNativeWindowSystemFB.hpp"
 #include "VulkanNativeWindowFB.hpp"
@@ -44,7 +44,9 @@
 #if 0
 #define LOCAL_LOG(X) FSLLOG("VulkanNativeWindowFB: " << X)
 #else
-#define LOCAL_LOG(X) {}
+#define LOCAL_LOG(X) \
+  {                  \
+  }
 #endif
 
 namespace Fsl
@@ -55,13 +57,14 @@ namespace Fsl
   {
     const auto PLATFORM_KHR_SURFACE_EXTENSION_NAME = VK_KHR_DISPLAY_EXTENSION_NAME;
 
-    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+    std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
+                                                  const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
       return std::make_shared<VulkanNativeWindowFB>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
 
 
-    NativeVulkanSetup ToNativeVulkanSetup(const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+    NativeVulkanSetup ToNativeVulkanSetup(const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     {
       const auto pNativeSetup = dynamic_cast<const NativeVulkanSetup*>(pPlatformCustomWindowAllocationParams);
       if (!pNativeSetup)
@@ -71,7 +74,8 @@ namespace Fsl
 
 
     //! @brief Try to locate a display mode that matches the native display resolution and prefer the fastest refresh rate.
-    VkDisplayModeKHR TryFindTheBestDisplayModeMatch(const VkDisplayPropertiesKHR& displayProperties, const std::vector<VkDisplayModePropertiesKHR>& displayModeProperties)
+    VkDisplayModeKHR TryFindTheBestDisplayModeMatch(const VkDisplayPropertiesKHR& displayProperties,
+                                                    const std::vector<VkDisplayModePropertiesKHR>& displayModeProperties)
     {
       uint32_t bestMatchIndex = 0;
       uint32_t refreshRate = 0;
@@ -90,7 +94,8 @@ namespace Fsl
     }
 
 
-    bool CanPlaneSupportDisplay(const VkPhysicalDevice physicalDevice,  const VkDisplayKHR currentDisplay, const VkDisplayModeKHR displayMode, const VkExtent2D& requiredExtent, const uint32_t planeIndex)
+    bool CanPlaneSupportDisplay(const VkPhysicalDevice physicalDevice, const VkDisplayKHR currentDisplay, const VkDisplayModeKHR displayMode,
+                                const VkExtent2D& requiredExtent, const uint32_t planeIndex)
     {
       const auto planeSupportedDisplays = PhysicalDeviceKHRUtil::GetDisplayPlaneSupportedDisplaysKHR(physicalDevice, planeIndex);
       for (uint32_t displayIndex = 0; displayIndex < planeSupportedDisplays.size(); ++displayIndex)
@@ -107,13 +112,15 @@ namespace Fsl
           }
 
           // Check, if plane fulfills extent requirements.
-          if (displayPlaneCapabilities.minDstExtent.width > requiredExtent.width || displayPlaneCapabilities.minDstExtent.height > requiredExtent.height)
+          if (displayPlaneCapabilities.minDstExtent.width > requiredExtent.width ||
+              displayPlaneCapabilities.minDstExtent.height > requiredExtent.height)
           {
             LOCAL_LOG("Extent to small.");
             continue;
           }
 
-          if (displayPlaneCapabilities.maxDstExtent.width < requiredExtent.width || displayPlaneCapabilities.maxDstExtent.height < requiredExtent.height)
+          if (displayPlaneCapabilities.maxDstExtent.width < requiredExtent.width ||
+              displayPlaneCapabilities.maxDstExtent.height < requiredExtent.height)
           {
             LOCAL_LOG("Extent to large.");
             continue;
@@ -126,7 +133,9 @@ namespace Fsl
     }
 
 
-    bool TryFindSupportedPlaneIndex(const VkPhysicalDevice physicalDevice, const VkDisplayKHR currentDisplay, const VkDisplayModeKHR displayMode, const VkExtent2D& requiredExtent, const std::vector<VkDisplayPlanePropertiesKHR>& planeProperties, uint32_t& rPlaneIndex)
+    bool TryFindSupportedPlaneIndex(const VkPhysicalDevice physicalDevice, const VkDisplayKHR currentDisplay, const VkDisplayModeKHR displayMode,
+                                    const VkExtent2D& requiredExtent, const std::vector<VkDisplayPlanePropertiesKHR>& planeProperties,
+                                    uint32_t& rPlaneIndex)
     {
       // Go through all planes.
       for (uint32_t planeIndex = 0; planeIndex < planeProperties.size(); ++planeIndex)
@@ -134,7 +143,7 @@ namespace Fsl
         // Check, if plane is attached to a display.
         if (planeProperties[planeIndex].currentDisplay != VK_NULL_HANDLE)
         {
-          if( CanPlaneSupportDisplay(physicalDevice, currentDisplay, displayMode, requiredExtent, planeIndex) )
+          if (CanPlaneSupportDisplay(physicalDevice, currentDisplay, displayMode, requiredExtent, planeIndex))
           {
             rPlaneIndex = planeIndex;
             return true;
@@ -228,7 +237,7 @@ namespace Fsl
     {
       // Get information about the physical displays
       const auto displayProperties = PhysicalDeviceKHRUtil::GetPhysicalDeviceDisplayPropertiesKHR(physicalDevice);
-      if( displayProperties.size() <= 0 )
+      if (displayProperties.size() <= 0)
         throw NotSupportedException("No physical displays found");
 
       if (verbosityLevel >= 2)
@@ -237,22 +246,23 @@ namespace Fsl
       // Force the user requested display id to be in range
       const auto config = nativeWindowSetup.GetConfig();
       auto displayId = config.GetDisplayId();
-      if( displayId < 0 || static_cast<std::size_t>(displayId) >= displayProperties.size() )
+      if (displayId < 0 || static_cast<std::size_t>(displayId) >= displayProperties.size())
       {
-        FSLLOG_WARNING("DisplayId " << displayId << " is invalid, expected a value between 0 and " << displayProperties.size() << ", using displayId: 0");
+        FSLLOG_WARNING("DisplayId " << displayId << " is invalid, expected a value between 0 and " << displayProperties.size()
+                                    << ", using displayId: 0");
         displayId = 0;
       }
 
       if (verbosityLevel >= 1)
       {
-        FSLLOG("User requested display index (id): "  << displayId);
+        FSLLOG("User requested display index (id): " << displayId);
         if (verbosityLevel >= 2)
           Log(displayProperties[displayId]);
       }
 
       // Get display mode properties for the chosen display
       const auto displayModeProperties = PhysicalDeviceKHRUtil::GetDisplayModePropertiesKHR(physicalDevice, displayProperties[displayId].display);
-      if( displayProperties.size() <= 0 )
+      if (displayProperties.size() <= 0)
         throw NotSupportedException(std::string("Display: ") + ToString(displayId) + " did not support any modes");
 
       if (verbosityLevel >= 2)
@@ -260,25 +270,26 @@ namespace Fsl
 
       // Try to find a display mode that matches the native resolution
       const VkDisplayModeKHR displayMode = TryFindTheBestDisplayModeMatch(displayProperties[displayId], displayModeProperties);
-      if( displayMode == VK_NULL_HANDLE )
+      if (displayMode == VK_NULL_HANDLE)
         throw NotSupportedException("Could not find a matching display mode");
 
       if (verbosityLevel >= 1)
         Log(displayModeProperties, displayMode);
 
       // Try to find a plane index that supports our display
-      auto imageExtent =  displayProperties[displayId].physicalResolution;
+      auto imageExtent = displayProperties[displayId].physicalResolution;
       const auto deviceDisplayPlaneProperties = PhysicalDeviceKHRUtil::GetPhysicalDeviceDisplayPlanePropertiesKHR(physicalDevice);
 
       if (verbosityLevel >= 2)
         Log(deviceDisplayPlaneProperties);
 
       uint32_t planeIndex;
-      if( ! TryFindSupportedPlaneIndex(physicalDevice, displayProperties[displayId].display, displayMode, imageExtent, deviceDisplayPlaneProperties, planeIndex) )
+      if (!TryFindSupportedPlaneIndex(physicalDevice, displayProperties[displayId].display, displayMode, imageExtent, deviceDisplayPlaneProperties,
+                                      planeIndex))
       {
         FSLLOG("No plane found. Falling back to plane with current resolution.");
         planeIndex = 0;
-        //currentDisplay = deviceDisplayPlaneProperties[planeIndex].currentDisplay;
+        // currentDisplay = deviceDisplayPlaneProperties[planeIndex].currentDisplay;
         VkDisplayPlaneCapabilitiesKHR displayPlaneCapabilities;
         RAPIDVULKAN_CHECK(vkGetDisplayPlaneCapabilitiesKHR(physicalDevice, displayMode, planeIndex, &displayPlaneCapabilities));
         imageExtent = displayPlaneCapabilities.maxDstExtent;
@@ -300,7 +311,7 @@ namespace Fsl
       surfaceCreateInfo.imageExtent = imageExtent;
       return surfaceCreateInfo;
     }
-  }
+  }    // namespace
 
 
   VulkanNativeWindowSystemFB::VulkanNativeWindowSystemFB(const NativeWindowSystemSetup& setup)
@@ -309,7 +320,8 @@ namespace Fsl
   }
 
 
-  VulkanNativeWindowFB::VulkanNativeWindowFB(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams, const PlatformNativeWindowAllocationParams*const pPlatformCustomWindowAllocationParams)
+  VulkanNativeWindowFB::VulkanNativeWindowFB(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
+                                             const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
     : AVulkanNativeWindow(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
     , PlatformNativeWindowFB(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
   {
@@ -327,6 +339,5 @@ namespace Fsl
   {
     return GetPlatformWindow();
   }
-
-}
+}    // namespace Fsl
 #endif

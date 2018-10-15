@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright 2017 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2017 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/ObjectSelection/MenuUI.hpp>
 #include <Shared/ObjectSelection/OptionParser.hpp>
@@ -51,21 +51,21 @@ namespace Fsl
     , m_drawOrientedBoundingBox(m_optionParser->IsOrientedBoundingBoxEnabled())
     , m_drawAxisAlignedBoundingBox(m_optionParser->IsAxisAlignedBoundingBoxEnabled())
     , m_randomSeedEnabled(m_optionParser->IsRandomSeedEnabled())
-    //, m_renderFinalBloom(m_optionParser->IsFinalBloomEnabled())
+  //, m_renderFinalBloom(m_optionParser->IsFinalBloomEnabled())
   {
     BuildUI();
   }
 
 
-  MenuUI::~MenuUI()
-  {
-  }
+  MenuUI::~MenuUI() = default;
 
 
   void MenuUI::OnKeyEvent(const KeyEvent& event)
   {
     if (event.IsHandled() || !event.IsPressed())
+    {
       return;
+    }
 
     switch (event.GetKey())
     {
@@ -127,7 +127,7 @@ namespace Fsl
       theEvent->Handled();
       m_drawAxisAlignedBoundingBox = m_cbMenuAxisAlignedBoundingBox->IsChecked();
     }
-    //else if (theEvent->GetSource() == m_cbMenuFinalBloom)
+    // else if (theEvent->GetSource() == m_cbMenuFinalBloom)
     //{
     //  theEvent->Handled();
     //  m_renderFinalBloom = m_cbMenuFinalBloom->IsChecked();
@@ -138,9 +138,13 @@ namespace Fsl
   void MenuUI::ToggleMenu()
   {
     if (m_layoutMenu)
+    {
       DestroyMenuUI();
+    }
     else
+    {
       CreateMenuUI();
+    }
   }
 
 
@@ -177,14 +181,16 @@ namespace Fsl
     m_rootLayout->AddChild(internalStack);
 
     // Finally add everything to the window manager (to ensure its seen)
-    context->WindowManager->Add(m_rootLayout);
+    m_uiExtension->GetWindowManager()->Add(m_rootLayout);
   }
 
 
   void MenuUI::CreateMenuUI()
   {
     if (m_layoutMenu)
+    {
       return;
+    }
 
     auto context = m_uiExtension->GetContext();
     AtlasTexture2D texCheckBoxC(m_uiExtension->GetAtlasTexture2D("CheckBoxC"));
@@ -222,19 +228,19 @@ namespace Fsl
     m_cbMenuAxisAlignedBoundingBox->SetCheckedTexture(texCheckBoxC);
     m_cbMenuAxisAlignedBoundingBox->SetUncheckedTexture(texCheckBoxU);
 
-    //m_cbMenuFinalBloom = std::make_shared<CheckBox>(context);
-    //m_cbMenuFinalBloom->SetText("Final bloom");
-    //m_cbMenuFinalBloom->SetCheckedTexture(texCheckBoxC);
-    //m_cbMenuFinalBloom->SetUncheckedTexture(texCheckBoxU);
+    // m_cbMenuFinalBloom = std::make_shared<CheckBox>(context);
+    // m_cbMenuFinalBloom->SetText("Final bloom");
+    // m_cbMenuFinalBloom->SetCheckedTexture(texCheckBoxC);
+    // m_cbMenuFinalBloom->SetUncheckedTexture(texCheckBoxU);
 
     m_layoutMenu->AddChild(m_cbMenuOrientedBoundingBox);
     m_layoutMenu->AddChild(m_cbMenuAxisAlignedBoundingBox);
     m_layoutMenu->AddChild(m_cbMenuDrawNearPlaneMouse);
     m_layoutMenu->AddChild(m_cbMenuDrawFarPlaneMouse);
-    //m_layoutMenu->AddChild(m_cbMenuFinalBloom);
+    // m_layoutMenu->AddChild(m_cbMenuFinalBloom);
 
-    //m_layoutMenu->AddChild(stack1);
-    //m_layoutMenu->AddChild(stack2);
+    // m_layoutMenu->AddChild(stack1);
+    // m_layoutMenu->AddChild(stack2);
 
     UpdateControls();
   }
@@ -243,7 +249,9 @@ namespace Fsl
   void MenuUI::SetDrawNearPlaneMouseEnabled(bool enabled)
   {
     if (m_drawNearPlaneMouse == enabled)
+    {
       return;
+    }
 
     m_drawNearPlaneMouse = enabled;
     UpdateControls();
@@ -253,7 +261,9 @@ namespace Fsl
   void MenuUI::SetDrawFarPlaneMouseEnabled(bool enabled)
   {
     if (m_drawFarPlaneMouse == enabled)
+    {
       return;
+    }
 
     m_drawFarPlaneMouse = enabled;
     UpdateControls();
@@ -263,7 +273,9 @@ namespace Fsl
   void MenuUI::SetDrawOrientedBoundingBoxEnabled(bool enabled)
   {
     if (m_drawOrientedBoundingBox == enabled)
+    {
       return;
+    }
 
     m_drawOrientedBoundingBox = enabled;
     UpdateControls();
@@ -273,14 +285,16 @@ namespace Fsl
   void MenuUI::SetDrawAxisAlignedBoundingBoxEnabled(bool enabled)
   {
     if (m_drawAxisAlignedBoundingBox == enabled)
+    {
       return;
+    }
 
     m_drawAxisAlignedBoundingBox = enabled;
     UpdateControls();
   }
 
 
-  //void MenuUI::SetFinalBloomEnabled(bool enabled)
+  // void MenuUI::SetFinalBloomEnabled(bool enabled)
   //{
   //  if (m_renderFinalBloom == enabled)
   //    return;
@@ -293,7 +307,9 @@ namespace Fsl
   void MenuUI::DestroyMenuUI()
   {
     if (!m_layoutMenu)
+    {
       return;
+    }
 
     // Close the menu window
     m_mainMenuStack->RemoveChild(m_layoutMenu);
@@ -304,20 +320,28 @@ namespace Fsl
     m_cbMenuDrawFarPlaneMouse.reset();
     m_cbMenuOrientedBoundingBox.reset();
     m_cbMenuAxisAlignedBoundingBox.reset();
-    //m_cbMenuFinalBloom.reset();
+    // m_cbMenuFinalBloom.reset();
   }
 
   void MenuUI::UpdateControls()
   {
     if (m_cbMenuDrawNearPlaneMouse)
+    {
       m_cbMenuDrawNearPlaneMouse->SetIsChecked(m_drawNearPlaneMouse);
+    }
     if (m_cbMenuDrawFarPlaneMouse)
+    {
       m_cbMenuDrawFarPlaneMouse->SetIsChecked(m_drawFarPlaneMouse);
+    }
     if (m_cbMenuOrientedBoundingBox)
+    {
       m_cbMenuOrientedBoundingBox->SetIsChecked(m_drawOrientedBoundingBox);
+    }
     if (m_cbMenuAxisAlignedBoundingBox)
+    {
       m_cbMenuAxisAlignedBoundingBox->SetIsChecked(m_drawAxisAlignedBoundingBox);
-    //if (m_cbMenuFinalBloom)
+    }
+    // if (m_cbMenuFinalBloom)
     //  m_cbMenuFinalBloom->SetIsChecked(m_renderFinalBloom);
   }
 }

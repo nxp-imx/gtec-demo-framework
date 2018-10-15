@@ -1,10 +1,10 @@
 /*
-* Vulkan Example base class
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example base class
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -23,7 +23,7 @@ namespace Fsl
   namespace Willems
   {
     //! @brief Move assignment operator
-    SwapchainBuffers& SwapchainBuffers::operator = (SwapchainBuffers&& other)
+    SwapchainBuffers& SwapchainBuffers::operator=(SwapchainBuffers&& other) noexcept
     {
       if (this != &other)
       {
@@ -38,7 +38,7 @@ namespace Fsl
     }
 
 
-    SwapchainBuffers::SwapchainBuffers(SwapchainBuffers&& other)
+    SwapchainBuffers::SwapchainBuffers(SwapchainBuffers&& other) noexcept
       : Image(other.Image)
       , View(std::move(other.View))
     {
@@ -48,7 +48,6 @@ namespace Fsl
 
     SwapchainBuffers::SwapchainBuffers()
       : Image()
-      , View()
     {
     }
   }

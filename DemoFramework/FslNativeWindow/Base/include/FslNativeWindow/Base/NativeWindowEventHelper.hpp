@@ -1,35 +1,35 @@
 #ifndef FSLNATIVEWINDOW_BASE_NATIVEWINDOWEVENTHELPER_HPP
 #define FSLNATIVEWINDOW_BASE_NATIVEWINDOWEVENTHELPER_HPP
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2.hpp>
@@ -79,7 +79,9 @@ namespace Fsl
     static void DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed, Point2& rPosition);
 
     //! @brief Create a input mouse move event
-    static NativeWindowEvent EncodeInputMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
+    static NativeWindowEvent
+      EncodeInputMouseMoveEvent(const Point2& position,
+                                const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
 
     //! @brief Decode a input mouse move event
     static void DecodeInputMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags);
@@ -91,7 +93,9 @@ namespace Fsl
     static void DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, Point2& rPosition);
 
     //! @brief Create a raw input mouse move event
-    static NativeWindowEvent EncodeInputRawMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
+    static NativeWindowEvent
+      EncodeInputRawMouseMoveEvent(const Point2& position,
+                                   const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
 
     //! @brief Decode a raw input mouse move event
     static void DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags);
@@ -100,7 +104,7 @@ namespace Fsl
     static int32_t EncodePosition(const Point2& position);
 
     //! @brief Decode a position
-    static Point2 DecodePosition(const int32_t position);
+    static Point2 DecodePosition(const int32_t encodedPosition);
 
     //! @brief Encode the mouse-button flags
     static int32_t EncodeVirtualMouseButtonFlags(const VirtualMouseButtonFlags& flags);
@@ -114,7 +118,6 @@ namespace Fsl
     static NativeWindowEvent EncodeVirtualGamepadStateEvent(const VirtualGamepadState& state);
     static void DecodeVirtualGamepadStateEvent(const NativeWindowEvent& event, VirtualGamepadState& rState);
   };
-
 }
 
 #endif

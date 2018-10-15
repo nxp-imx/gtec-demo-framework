@@ -1,10 +1,10 @@
 /*
-* Vulkan Example base class
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example base class
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -44,21 +44,15 @@ namespace Fsl
       {
         // Since all depth formats may be optional, we need to find a suitable depth format to use
         // Start with the highest precision packed format
-        std::vector<VkFormat> depthFormats =
-        {
-          VK_FORMAT_D32_SFLOAT_S8_UINT,
-          VK_FORMAT_D32_SFLOAT,
-          VK_FORMAT_D24_UNORM_S8_UINT,
-          VK_FORMAT_D16_UNORM_S8_UINT,
-          VK_FORMAT_D16_UNORM
-        };
+        std::vector<VkFormat> depthFormats = {VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D24_UNORM_S8_UINT,
+                                              VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM};
 
         for (auto& format : depthFormats)
         {
           VkFormatProperties formatProps;
           vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &formatProps);
           // Format must support depth stencil attachment for optimal tiling
-          if (formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+          if ((formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) != 0u)
           {
             return format;
           }
@@ -81,7 +75,7 @@ namespace Fsl
       catch (const std::exception&)
       {
         // Wait for everything to be idle before we try to free it
-        WaitForIdle();
+        SafeWaitForDeviceIdle();
         throw;
       }
     }
@@ -93,7 +87,9 @@ namespace Fsl
 
       m_camera.Update(m_frameTimer);
       if (m_camera.Moving())
+      {
         m_viewChanged = true;
+      }
 
       ++m_frameCounter;
 
@@ -111,7 +107,7 @@ namespace Fsl
       if (m_fpsTimer > 1000.0f)
       {
         // FIX:
-        //if (!m_enableTextOverlay)
+        // if (!m_enableTextOverlay)
         //{
         //  std::string windowTitle = GetWindowTitle();
         //  SetWindowText(window, windowTitle.c_str());
@@ -149,7 +145,9 @@ namespace Fsl
     {
       VulkanWindowDemoApp::OnKeyEvent(event);
       if (event.IsHandled())
+      {
         return;
+      }
 
       const bool isPressed = event.IsPressed();
       if (isPressed)
@@ -160,6 +158,7 @@ namespace Fsl
           if (isPressed && m_enableTextOverlay && m_textOverlay)
           {
             m_textOverlay->Visible = !m_textOverlay->Visible;
+            m_commandBuffersDirty = true;
           }
           break;
         default:
@@ -199,11 +198,29 @@ namespace Fsl
     {
       VulkanWindowDemoApp::OnMouseButtonEvent(event);
       if (event.IsHandled())
+      {
         return;
+      }
 
       const auto pos = event.GetPosition();
       m_mousePos.x = static_cast<float>(pos.X);
       m_mousePos.y = static_cast<float>(pos.Y);
+
+      switch (event.GetButton())
+      {
+      case VirtualMouseButton::Left:
+        m_mouseButtons.Left = event.IsPressed();
+        break;
+      case VirtualMouseButton::Middle:
+        m_mouseButtons.Middle = event.IsPressed();
+        break;
+      case VirtualMouseButton::Right:
+        m_mouseButtons.Right = event.IsPressed();
+        break;
+      default:
+        break;
+      }
+
       m_viewChanged = true;
     }
 
@@ -212,32 +229,44 @@ namespace Fsl
     {
       VulkanWindowDemoApp::OnMouseMoveEvent(event);
       if (event.IsHandled())
+      {
         return;
+      }
 
       const auto pos = event.GetPosition();
       const auto mouseButtonFlags = event.GetMouseButtonFlags();
       const Vector2 newPos(pos.X, pos.Y);
 
-      if (mouseButtonFlags.IsRightButtonPressed())
+      m_mouseButtons.Left = mouseButtonFlags.IsLeftButtonPressed();
+      m_mouseButtons.Middle = mouseButtonFlags.IsMiddleButtonPressed();
+      m_mouseButtons.Right = mouseButtonFlags.IsRightButtonPressed();
+
+      const float dx = m_mousePos.x - newPos.X;
+      const float dy = m_mousePos.y - newPos.Y;
+
+      if (m_mouseButtons.Left)
       {
-        const float mod = (m_mousePos.y - newPos.Y) * .005f * m_zoomSpeed;
+        m_rotation.x += dy * 1.25f * m_rotationSpeed;
+        m_rotation.y -= dx * 1.25f * m_rotationSpeed;
+        m_camera.Rotate(glm::vec3(dy * m_camera.RotationSpeed, -dx * m_camera.RotationSpeed, 0.0f));
+        m_viewChanged = true;
+      }
+      if (m_mouseButtons.Right)
+      {
+        const float mod = dy * .005f * m_zoomSpeed;
         m_zoom += mod;
         m_camera.Translate(glm::vec3(-0.0f, 0.0f, mod));
+        m_viewChanged = true;
       }
-      if (mouseButtonFlags.IsLeftButtonPressed())
+      if (m_mouseButtons.Middle)
       {
-        m_rotation.x += (m_mousePos.y - newPos.Y) * 1.25f * m_rotationSpeed;
-        m_rotation.y -= (m_mousePos.x - newPos.X) * 1.25f * m_rotationSpeed;
-        m_camera.Rotate(glm::vec3((m_mousePos.y - newPos.Y) * m_camera.RotationSpeed, -(m_mousePos.x - newPos.X) * m_camera.RotationSpeed, 0.0f));
-      }
-      if (mouseButtonFlags.IsMiddleButtonPressed())
-      {
-        m_cameraPos.x -= (m_mousePos.x - newPos.X) * 0.01f;
-        m_cameraPos.y -= (m_mousePos.y - newPos.Y) * 0.01f;
-        m_camera.Translate(glm::vec3(-(m_mousePos.x - newPos.X) * 0.01f, -(m_mousePos.y - newPos.Y) * 0.01f, 0.0f));
+        const float mod = 0.01f;
+        m_cameraPos.x -= dx * mod;
+        m_cameraPos.y -= dy * mod;
+        m_camera.Translate(glm::vec3(-dx * mod, -dy * mod, 0.0f));
+        m_viewChanged = true;
       }
       m_mousePos = glm::vec2(static_cast<float>(pos.X), static_cast<float>(pos.Y));
-      m_viewChanged = true;
     }
 
 
@@ -245,10 +274,12 @@ namespace Fsl
     {
       VulkanWindowDemoApp::OnMouseWheelEvent(event);
       if (event.IsHandled())
+      {
         return;
+      }
 
       const auto wheelDelta = event.GetDelta();
-      const auto adjust = static_cast<float>(wheelDelta)* 0.005f * m_zoomSpeed;
+      const auto adjust = static_cast<float>(wheelDelta) * 0.005f * m_zoomSpeed;
       m_zoom += adjust;
       m_camera.Translate(glm::vec3(0.0f, 0.0f, adjust));
       m_viewChanged = true;
@@ -311,7 +342,7 @@ namespace Fsl
     VulkanWillemsDemoApp::~VulkanWillemsDemoApp()
     {
       FSLLOG("VulkanWillemsDemoApp destroying");
-      WaitForIdle();
+      SafeWaitForDeviceIdle();
     }
 
 
@@ -330,7 +361,8 @@ namespace Fsl
       // Recreate setup command buffer for derived class
       CreateSetupCommandBuffer();
 
-      m_textureLoader.reset(new Willems::VulkanTextureLoader(GetContentManager(), m_physicalDevice.Device, m_device.Get(), m_deviceQueue.Queue, m_commandPool.Get(), m_deviceActiveFeatures));
+      m_textureLoader.reset(new Willems::VulkanTextureLoader(GetContentManager(), m_physicalDevice.Device, m_device.Get(), m_deviceQueue.Queue,
+                                                             m_commandPool.Get(), m_deviceActiveFeatures));
 
       if (m_enableTextOverlay)
       {
@@ -338,8 +370,8 @@ namespace Fsl
         std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
         shaderStages.push_back(LoadShader("shaders/textoverlay.vert.spv", VK_SHADER_STAGE_VERTEX_BIT));
         shaderStages.push_back(LoadShader("shaders/textoverlay.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT));
-        m_textOverlay.reset(new VulkanTextOverlay(&m_vulkanDevice, m_deviceQueue.Queue, &m_frameBuffers,
-            m_swapchain.GetImageFormat(), depthFormat, GetScreenExtent(), shaderStages));
+        m_textOverlay.reset(
+          new VulkanTextOverlay(&m_vulkanDevice, m_deviceQueue.Queue, &m_frameBuffers, GetScreenExtent(), m_renderPass.Get(), shaderStages));
         UpdateTextOverlay();
       }
     }
@@ -349,7 +381,9 @@ namespace Fsl
       for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
       {
         if (m_drawCmdBuffers[i] == VK_NULL_HANDLE)
+        {
           return false;
+        }
       }
       return true;
     }
@@ -425,7 +459,8 @@ namespace Fsl
 
       const VkMemoryRequirements memReqs = m_depthStencil.Image.GetImageMemoryRequirements();
       VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
-      const auto memoryTypeIndex = MemoryTypeUtil::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+      const auto memoryTypeIndex = MemoryTypeUtil::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes,
+                                                                      memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
       VkMemoryAllocateInfo memAlloc{};
       memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -498,7 +533,7 @@ namespace Fsl
       subpassDescription.pResolveAttachments = nullptr;
 
       // Subpass dependencies for layout transitions
-      std::array<VkSubpassDependency, 2> dependencies;
+      std::array<VkSubpassDependency, 2> dependencies{};
 
       dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
       dependencies[0].dstSubpass = 0;
@@ -571,7 +606,9 @@ namespace Fsl
     void VulkanWillemsDemoApp::FlushSetupCommandBuffer()
     {
       if (!m_setupCmdBuffer.IsValid())
+      {
         return;
+      }
 
       m_setupCmdBuffer.End();
 
@@ -627,13 +664,14 @@ namespace Fsl
       RAPIDVULKAN_CHECK(vkQueueWaitIdle(queue));
 
       if (free)
+      {
         rCommandBuffer.Reset();
+      }
     }
 
 
-    void VulkanWillemsDemoApp::CreateBuffer(Buffer& rBuffer, Memory& rMemory,
-                                            const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags,
-                                            const VkDeviceSize size, const void* pData)
+    void VulkanWillemsDemoApp::CreateBuffer(Buffer& rBuffer, Memory& rMemory, const VkBufferUsageFlags usageFlags,
+                                            const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize size, const void* pData)
     {
       try
       {
@@ -677,15 +715,15 @@ namespace Fsl
     }
 
 
-    void VulkanWillemsDemoApp::CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory,
-                                            const VkBufferUsageFlags usage, const VkDeviceSize size, const void*const pData)
+    void VulkanWillemsDemoApp::CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory, const VkBufferUsageFlags usage,
+                                            const VkDeviceSize size, const void* const pData)
     {
       return CreateBuffer(rBuffer, rMemory, usage, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, size, pData);
     }
 
 
     void VulkanWillemsDemoApp::CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory, VkDescriptorBufferInfo& rDescriptor,
-                                            const VkBufferUsageFlags usage, const VkDeviceSize size, const void*const pData)
+                                            const VkBufferUsageFlags usage, const VkDeviceSize size, const void* const pData)
     {
       CreateBuffer(rBuffer, rMemory, usage, size, pData);
       rDescriptor.offset = 0;
@@ -695,8 +733,8 @@ namespace Fsl
 
 
     void VulkanWillemsDemoApp::CreateBuffer(RapidVulkan::Buffer& rBuffer, RapidVulkan::Memory& rMemory, VkDescriptorBufferInfo& rDescriptor,
-                                            const VkBufferUsageFlags usage, const VkMemoryPropertyFlags memoryPropertyFlags,
-                                            const VkDeviceSize size, const void*const pData)
+                                            const VkBufferUsageFlags usage, const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize size,
+                                            const void* const pData)
     {
       CreateBuffer(rBuffer, rMemory, usage, memoryPropertyFlags, size, pData);
       rDescriptor.offset = 0;
@@ -708,7 +746,9 @@ namespace Fsl
     void VulkanWillemsDemoApp::UpdateTextOverlay()
     {
       if (!m_enableTextOverlay)
+      {
         return;
+      }
 
       m_textOverlay->BeginTextUpdate();
 
@@ -734,6 +774,12 @@ namespace Fsl
 
     bool VulkanWillemsDemoApp::TryPrepareFrame()
     {
+      if (m_commandBuffersDirty || m_textOverlay->Dirty)
+      {
+        m_commandBuffersDirty = false;
+        BuildCommandBuffers();
+      }
+
       // Get next image in the swap chain (back/front buffer)
       const auto result = m_swapchain.TryAcquireNextImage(m_semaphores.PresentComplete.Get(), m_currentBufferIndex);
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -743,44 +789,21 @@ namespace Fsl
         GetDemoAppControl()->RequestAppRestart();
         return false;
       }
-      else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+      if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+      {
         throw std::runtime_error("Could not acquire next image.");
+      }
       return true;
     }
 
 
     void VulkanWillemsDemoApp::SubmitFrame()
     {
-      const bool submitTextOverlay = m_enableTextOverlay && m_textOverlay && m_textOverlay->Visible;
-      if (submitTextOverlay)
-      {
-        // Wait for color attachment output to finish before rendering the text overlay
-        VkPipelineStageFlags stageFlags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-
-        // clone the submit info and patch it
-        auto submitInfo = m_submitInfo;
-        submitInfo.pWaitDstStageMask = &stageFlags;
-
-        // Set semaphores
-        // Wait for render complete semaphore
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = m_semaphores.RenderComplete.GetPointer();
-        // Signal ready with text overlay complete semaphore
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = m_semaphores.TextOverlayComplete.GetPointer();
-
-        // Submit current text overlay command buffer
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = m_textOverlay->CmdBuffers.GetPointer(m_currentBufferIndex);
-        RAPIDVULKAN_CHECK(vkQueueSubmit(m_deviceQueue.Queue, 1, &submitInfo, VK_NULL_HANDLE));
-      }
-
-
       // Present the current buffer to the swap chain
       // Pass the semaphore signaled by the command buffer submission from the submit info as the wait semaphore for swap chain presentation
       // This ensures that the image is not presented to the windowing system until all commands have been submitted
 
-      const auto semaphore = submitTextOverlay ? m_semaphores.TextOverlayComplete.Get() : m_semaphores.RenderComplete.Get();
+      const auto semaphore = m_semaphores.RenderComplete.Get();
       const auto result = m_swapchain.TryQueuePresent(m_deviceQueue.Queue, m_currentBufferIndex, semaphore);
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
       {
@@ -789,8 +812,10 @@ namespace Fsl
         GetDemoAppControl()->RequestAppRestart();
         return;
       }
-      else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+      if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+      {
         throw std::runtime_error("Could not present queue");
+      }
 
       RAPIDVULKAN_CHECK(vkQueueWaitIdle(m_deviceQueue.Queue));
     }
@@ -804,12 +829,11 @@ namespace Fsl
       shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
       shaderStage.stage = stage;
       shaderStage.module = shaderModule.Get();
-      shaderStage.pName = "main"; // todo : make param
+      shaderStage.pName = "main";    // todo : make param
 
       m_shaderModules.push_back(std::move(shaderModule));
       return shaderStage;
     }
-
 
 
     ShaderModule VulkanWillemsDemoApp::LoadShader(const std::string& fileName, const VkDevice device, const VkShaderStageFlagBits stage)
@@ -825,7 +849,8 @@ namespace Fsl
     }
 
 
-    MeshLoader::MeshBuffer VulkanWillemsDemoApp::LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout, const float scale)
+    MeshLoader::MeshBuffer VulkanWillemsDemoApp::LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout,
+                                                          const float scale)
     {
       MeshLoader::MeshCreateInfo meshCreateInfo;
       meshCreateInfo.Scale = glm::vec3(scale);
@@ -835,10 +860,13 @@ namespace Fsl
     }
 
 
-    MeshLoader::MeshBuffer VulkanWillemsDemoApp::LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout, const MeshLoader::MeshCreateInfo*const pMeshCreateInfo)
+    MeshLoader::MeshBuffer VulkanWillemsDemoApp::LoadMesh(const std::string& filename, const std::vector<MeshLoader::VertexLayout>& vertexLayout,
+                                                          const MeshLoader::MeshCreateInfo* const pMeshCreateInfo)
     {
       if (!m_meshLoaderAllocFunc)
+      {
         throw NotSupportedException("Mesh loading is not supported, switch to a VulkanWillemsMeshDemoApp type if you need it");
+      }
 
       auto meshLoader = m_meshLoaderAllocFunc(GetContentManager());
 
@@ -850,11 +878,12 @@ namespace Fsl
     }
 
 
-    void VulkanWillemsDemoApp::WaitForIdle()
+    void VulkanWillemsDemoApp::DrawUI(const VkCommandBuffer commandBuffer)
     {
-      // Wait for everything to be idle before we try to free it
-      if (m_deviceQueue.IsValid())
-        m_deviceQueue.WaitIdle();
+      if (m_textOverlay && m_textOverlay->Visible)
+      {
+        m_textOverlay->AddToCommandBuffer(commandBuffer);
+      }
     }
   }
 }

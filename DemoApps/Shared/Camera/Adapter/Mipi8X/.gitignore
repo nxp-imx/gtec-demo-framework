@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/Android.mk
+/CMakeLists.txt
+/GNUmakefile_Yocto
+/Shared.Camera.Adapter.Mipi8X.VC.VC.opendb
+/Shared.Camera.Adapter.Mipi8X.VC.db
+/Shared.Camera.Adapter.Mipi8X.manifest
+/Shared.Camera.Adapter.Mipi8X.opensdf
+/Shared.Camera.Adapter.Mipi8X.sdf
+/Shared.Camera.Adapter.Mipi8X.sln
+/Shared.Camera.Adapter.Mipi8X.v12.sdf
+/Shared.Camera.Adapter.Mipi8X.v12.suo
+/Shared.Camera.Adapter.Mipi8X.vcxproj
+/Shared.Camera.Adapter.Mipi8X.vcxproj.filters
+/Shared.Camera.Adapter.Mipi8X.vcxproj.user
+/build/

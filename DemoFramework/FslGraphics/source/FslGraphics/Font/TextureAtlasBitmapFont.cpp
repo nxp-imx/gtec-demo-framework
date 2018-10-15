@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Font/IFontBasicKerning.hpp>
@@ -48,14 +48,10 @@ namespace Fsl
   {
     struct TextureAtlasGlyphEntry
     {
-      int32_t Id;
+      int32_t Id{0};
       AtlasTextureInfo TextureInfo;
 
-      TextureAtlasGlyphEntry()
-        : Id(0)
-        , TextureInfo()
-      {
-      }
+      TextureAtlasGlyphEntry() = default;
 
       TextureAtlasGlyphEntry(const int32_t id, const AtlasTextureInfo& textureInfo)
         : Id(id)
@@ -66,7 +62,8 @@ namespace Fsl
 
 
     //! @brief Run through the texture atlas and extract all glyphs found at the basicFontKerning path
-    int32_t ExtractAndSortGlyphs(std::vector<TextureAtlasGlyphEntry>& rTextureAtlasGlyphs, const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning)
+    int32_t ExtractAndSortGlyphs(std::vector<TextureAtlasGlyphEntry>& rTextureAtlasGlyphs, const ITextureAtlas& textureAtlas,
+                                 const IFontBasicKerning& basicFontKerning)
     {
       assert(rTextureAtlasGlyphs.size() == std::size_t(basicFontKerning.Count()));
 
@@ -89,7 +86,9 @@ namespace Fsl
           rTextureAtlasGlyphs[dstIndex] = TextureAtlasGlyphEntry(glyphId, namedEntry.TextureInfo);
           ++dstIndex;
           if (dstIndex > dstEndIndex)
+          {
             throw std::invalid_argument("The texture atlas contains more glyphs than expected");
+          }
         }
       }
       return dstIndex;
@@ -105,7 +104,8 @@ namespace Fsl
     };
 
 
-    int32_t ExtractAtlasGlyphs(std::vector<TextureAtlasGlyphEntry>& rTextureAtlasGlyphs, const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning)
+    int32_t ExtractAtlasGlyphs(std::vector<TextureAtlasGlyphEntry>& rTextureAtlasGlyphs, const ITextureAtlas& textureAtlas,
+                               const IFontBasicKerning& basicFontKerning)
     {
       const int32_t atlasGlyphCount = ExtractAndSortGlyphs(rTextureAtlasGlyphs, textureAtlas, basicFontKerning);
       // Sort the glyphs by id
@@ -127,7 +127,9 @@ namespace Fsl
       }
 
       if (totalGlyphs != basicFontKerning.Count())
+      {
         throw std::invalid_argument("The basicFontKerning object is invalid");
+      }
     }
 
 
@@ -135,8 +137,8 @@ namespace Fsl
                      const std::vector<TextureAtlasGlyphEntry>& textureAtlasGlyphs, const int32_t textureAtlasGlyphCount,
                      const IFontBasicKerning& basicFontKerning)
     {
-      const int32_t endRangeIndex = static_cast<int32_t>(ranges.size());
-      //const int32_t glyphEndIndex = static_cast<int32_t>(rGlyphs.size());
+      const auto endRangeIndex = static_cast<int32_t>(ranges.size());
+      // const int32_t glyphEndIndex = static_cast<int32_t>(rGlyphs.size());
 
       int32_t glyphIndex = 0;
       int32_t atlasGlyphIndex = 0;
@@ -157,7 +159,7 @@ namespace Fsl
           if (textureAtlasGlyphs[atlasGlyphIndex].Id == rangeGlyphId)
           {
             // The texture atlas contained information about the glyph so lets use that
-            //textureAtlasGlyphs[atlasGlyphIndex].TextureInfo.;
+            // textureAtlasGlyphs[atlasGlyphIndex].TextureInfo.;
             const Rectangle atlasRect = textureAtlasGlyphs[atlasGlyphIndex].TextureInfo.TrimmedRect;
             FontGlyphBasicKerning basicKerning = basicFontKerning.Get(glyphIndex);
 
@@ -191,12 +193,14 @@ namespace Fsl
     //! @param unknownGlyphIndex the index that will be returned for glyphs outside of our supported ranges
     inline int32_t FindGlyphIndex(const std::vector<FontGlyphRange>& ranges, const int32_t glyph, const int32_t unknownGlyphIndex)
     {
-      std::vector<FontGlyphRange>::const_iterator itr = ranges.begin();
+      auto itr = ranges.begin();
       int index = 0;
       while (itr != ranges.end())
       {
         if (itr->Contains(glyph))
+        {
           return index + (glyph - itr->From);
+        }
         index += itr->Length;
         ++itr;
       }
@@ -206,25 +210,15 @@ namespace Fsl
 
 
   TextureAtlasBitmapFont::TextureAtlasBitmapFont()
-    : m_ranges()
-    , m_minGlyphId(0)
-    , m_maxGlyphId(0)
-    , m_unknownGlyphIndex(0)
-    , m_glyphs(0)
-    , m_baseLine(0)
-    , m_lineSpacing(0)
+    : m_glyphs(0)
   {
   }
 
 
   TextureAtlasBitmapFont::TextureAtlasBitmapFont(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning)
     : m_ranges(basicFontKerning.RangeCount())
-    , m_minGlyphId(0)
-    , m_maxGlyphId(0)
-    , m_unknownGlyphIndex(0)
     , m_glyphs(basicFontKerning.Count())
-    , m_baseLine(0)
-    , m_lineSpacing(0)
+
   {
     DoConstruct(textureAtlas, basicFontKerning);
   }
@@ -243,24 +237,32 @@ namespace Fsl
   }
 
 
-  Point2 TextureAtlasBitmapFont::MeasureString(const char*const psz) const
+  Point2 TextureAtlasBitmapFont::MeasureString(const char* const psz) const
   {
     if (psz == nullptr)
+    {
       throw std::invalid_argument("psz can not null");
+    }
 
     return MeasureString(psz, 0, std::strlen(psz));
   }
 
 
-  Point2 TextureAtlasBitmapFont::MeasureString(const char*const pStr, const uint32_t startIndex, const std::size_t length) const
+  Point2 TextureAtlasBitmapFont::MeasureString(const char* const pStr, const uint32_t startIndex, const std::size_t length) const
   {
     if (pStr == nullptr)
+    {
       throw std::invalid_argument("pStr can not null");
-    if (length > std::numeric_limits<uint32_t>::max() )
+    }
+    if (length > std::numeric_limits<uint32_t>::max())
+    {
       throw std::invalid_argument("length can not be larger than a uint32");
+    }
 
     if (m_minGlyphId == m_maxGlyphId)
-      return Point2(0,0);
+    {
+      return Point2(0, 0);
+    }
 
     // extract information about the characters we are rendering
     int32_t renderRight = 0;
@@ -270,7 +272,7 @@ namespace Fsl
     int32_t dstIndex = 0;
     for (uint32_t index = startIndex; index < length; ++index)
     {
-      const int32_t currentGlyph = static_cast<int32_t>(pStr[index]);
+      const auto currentGlyph = static_cast<int32_t>(pStr[index]);
       int32_t currentGlyphIndex;
       if (currentGlyph >= m_minGlyphId && currentGlyph < m_maxGlyphId)
       {
@@ -286,9 +288,13 @@ namespace Fsl
       const int32_t currentRight = layoutOffsetX + m_glyphs[currentGlyphIndex].Kerning.OffsetX + m_glyphs[currentGlyphIndex].SrcRect.Width();
       const int32_t currentBottom = m_glyphs[currentGlyphIndex].Kerning.OffsetY + m_glyphs[currentGlyphIndex].SrcRect.Height();
       if (currentRight > renderRight)
+      {
         renderRight = currentRight;
+      }
       if (currentBottom > renderBottom)
+      {
         renderBottom = currentBottom;
+      }
 
       layoutOffsetX += m_glyphs[currentGlyphIndex].Kerning.LayoutWidth;
       ++dstIndex;
@@ -297,14 +303,21 @@ namespace Fsl
   }
 
 
-  void TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const char*const pStr, const uint32_t startIndex, const std::size_t length) const
+  void TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const char* const pStr, const uint32_t startIndex,
+                                                  const std::size_t length) const
   {
     if (pStr == nullptr)
+    {
       throw std::invalid_argument("pStr can not null");
+    }
     if (length > std::numeric_limits<uint32_t>::max())
+    {
       throw std::invalid_argument("length can not be larger than a uint32");
+    }
     if (rDst.size() < std::size_t(length))
+    {
       throw std::invalid_argument("rDst is too small");
+    }
 
     if (m_minGlyphId == m_maxGlyphId)
     {
@@ -322,7 +335,7 @@ namespace Fsl
     uint32_t dstIndex = 0;
     for (uint32_t index = startIndex; index < length; ++index)
     {
-      const int32_t currentGlyph = static_cast<int32_t>(pStr[index]);
+      const auto currentGlyph = static_cast<int32_t>(pStr[index]);
       int32_t currentGlyphIndex;
       if (currentGlyph >= m_minGlyphId && currentGlyph < m_maxGlyphId)
       {
@@ -353,7 +366,7 @@ namespace Fsl
     // Extract the ranges and validate the glyph count
     ExtractRanges(m_ranges, basicFontKerning);
 
-    if (m_ranges.size() > 0)
+    if (!m_ranges.empty())
     {
       m_minGlyphId = m_ranges.front().From;
       m_maxGlyphId = (m_ranges.back().From + std::max(m_ranges.back().Length, 0));
@@ -366,5 +379,4 @@ namespace Fsl
     // Use the extracted information to build the glyphs
     BuildGlyphs(m_glyphs, m_ranges, textureAtlasGlyphs, textureAtlasGlyphCount, basicFontKerning);
   }
-
 }

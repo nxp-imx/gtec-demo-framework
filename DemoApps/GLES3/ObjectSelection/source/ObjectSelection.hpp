@@ -1,35 +1,35 @@
 #ifndef GLES3_OBJECTSELECTION_OBJECTSELECTION_HPP
 #define GLES3_OBJECTSELECTION_OBJECTSELECTION_HPP
 /****************************************************************************************************************************************************
-* Copyright 2017 NXP
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the NXP. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright 2017 NXP
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the NXP. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/Matrix.hpp>
@@ -95,9 +95,7 @@ namespace Fsl
     {
       std::size_t ObjectIndex = 0;
       float Distance = 0.0f;
-      HitRecord()
-      {
-      }
+      HitRecord() = default;
 
       HitRecord(const std::size_t objectIndex, const float distance)
         : ObjectIndex(objectIndex)
@@ -146,15 +144,17 @@ namespace Fsl
 
     bool m_hasSelectedObject;
     std::size_t m_selectedIndex;
+
   public:
     ObjectSelection(const DemoAppConfig& config);
-    ~ObjectSelection();
-  protected:
-    virtual void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    virtual void OnKeyEvent(const KeyEvent& event) override;
+    ~ObjectSelection() override;
 
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+  protected:
+    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
+    void OnKeyEvent(const KeyEvent& event) override;
+
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
 
   private:
     bool CheckCollision(const Point2& screenSpacePosition);
@@ -166,14 +166,18 @@ namespace Fsl
     void DrawDebugData();
     void DrawBoundingBox(const BoundingBox& box, const Color& color);
     void DrawLine(const Vector3& p1, const Vector3& p2, const Color& color);
+
   private:
     static void PreparePlaneMesh(Mesh& rMeshPlane, const GLES3::GLTexture& texture);
     static void PrepareMeshes(std::vector<Mesh>& rMeshes, const GLES3::GLTexture& texture);
-    static void PrepareDirectionalLightProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramDirectionalLight& rProgram, std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
-    static void PrepareSolidColorProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramColor& rProgram, std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
-    static void PrepareTexturedProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramColor& rProgram, std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
-    static void GenerateObjects(std::vector<MeshObject>& m_objects, const uint32_t objectCount, const bool useRandomSeed);
- };
+    static void PrepareDirectionalLightProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramDirectionalLight& rProgram,
+                                               std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
+    static void PrepareSolidColorProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramColor& rProgram,
+                                         std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
+    static void PrepareTexturedProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramColor& rProgram,
+                                       std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
+    static void GenerateObjects(std::vector<MeshObject>& rObjects, const uint32_t objectCount, const bool useRandomSeed);
+  };
 }
 
 #endif

@@ -43,13 +43,9 @@ namespace Fsl
   struct Plane
   {
     Vector3 Normal;
-    float D;
+    float D{0};
 
-    Plane()
-      : Normal()
-      , D(0)
-    {
-    }
+    Plane() = default;
 
     Plane(const Vector4& value)
       : Normal(value.X, value.Y, value.Z)
@@ -69,7 +65,6 @@ namespace Fsl
       : Normal(a, b, c)
       , D(d)
     {
-
     }
 
     float Dot(const Vector4& value) const;

@@ -58,3 +58,14 @@
 - Qnx support is disabled.
 - Yocto support is available for WindowSystem=FB, WindowSystem=Wayland only.
 - Requires 1.0.42.2 or newer or windows
+
+## Helios 
+
+The new cross platform camera API.
+
+- Very early access. Everything is subject to changes.
+- Limited platform support
+- Performance optimizations are missing.
+- Camera support is limited.
+- i.MX8 MIPI Camera always provides the data in a B8G8R8X8 format (even if you request a R8G8B8), fixed the camera adapter to consider the 32bpp format.
+- Some of the camera adapters do not obey our origin request so the image is upside down

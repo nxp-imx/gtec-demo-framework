@@ -36,6 +36,7 @@ class PackageNameMagicString(object):
 
 
 class PlatformNameString(object):
+    ALL = "All"
     INVALID = "Invalid"
     ANDROID = "Android"
     UBUNTU = "Ubuntu"

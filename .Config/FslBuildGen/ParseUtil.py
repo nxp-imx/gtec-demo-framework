@@ -37,6 +37,8 @@ from typing import Optional
 from typing import Union
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.ExtensionListManager import ExtensionListManager
+from FslBuildGen.RecipeFilterManager import RecipeFilterManager
+from FslBuildGen.RecipeFilterName import RecipeFilterName
 from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
 from FslBuildGen import Util
 
@@ -55,6 +57,20 @@ def ParseList(strSrcList: str, message: str, allowWildcard: bool) -> List[str]:
     parsedList = strSrcList.split(',')
     return parsedList if not '*' in parsedList else ['*']
 
+def ParseFilterList(strSrcList: str, message: str, allowWildcard: bool) -> List[str]:
+    if not strSrcList:
+        return []
+    if allowWildcard and strSrcList == '*':
+        return ['*']
+    if not strSrcList.startswith('[') and not strSrcList.endswith('['):
+        raise Exception("Expected a {0} list in the format '[{0},{0}]' not '{1}'".format(message, strSrcList))
+
+    strSrcList = strSrcList[1:-1]
+    if len(strSrcList) == 0:
+        return []
+    parsedList = strSrcList.split(',')
+    return parsedList
+
 
 # Do some minimal basic validation of the requirement name input
 def __ValidateRequirementList(requirementNameList: List[str], strHelpListName: str, strHelpEntryName: str) -> None:
@@ -66,7 +82,6 @@ def __ValidateRequirementList(requirementNameList: List[str], strHelpListName: s
             raise Exception("The {0} must be valid, the {1} name '{2}' is not a valid {1} name in list {3}".format(strHelpListName, strHelpEntryName, entry, requirementNameList))
 
 
-# TODO: Fix this bad return type
 def ParseExtensionList(strExtensionList: str) -> ExtensionListManager:
     parsedList = ParseList(strExtensionList, "extension", True)
     if not '*' in parsedList:
@@ -84,6 +99,17 @@ def ParseExtensionList(strExtensionList: str) -> ExtensionListManager:
             newParsedList.append(QualifiedRequirementExtensionName(values[0], values[1]))
         return ExtensionListManager(False, newParsedList)
     return ExtensionListManager(True, [])
+
+
+def ParseRecipeList(strRecipeFilterList: str) -> RecipeFilterManager:
+    parsedList = ParseFilterList(strRecipeFilterList, "recipe", True)
+    containsWildCard = '*' in parsedList
+    newParsedList = []
+    for entry in parsedList:
+        # Do some minimal basic validation of the input
+        if entry != '*':
+            newParsedList.append(RecipeFilterName(entry))
+    return RecipeFilterManager(containsWildCard, newParsedList)
 
 
 def ParsePackageTypeList(strPackageTypeList: str) -> List[str]:

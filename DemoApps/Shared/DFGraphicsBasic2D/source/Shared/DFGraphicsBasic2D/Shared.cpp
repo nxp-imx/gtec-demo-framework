@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <Shared/DFGraphicsBasic2D/Shared.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -50,25 +50,22 @@ namespace Fsl
     , m_hCounter1(m_profilerService, m_profilerService->CreateCustomCounter("c1", 0, 100, Color::Blue()))
     , m_hCounter2(m_profilerService, m_profilerService->CreateCustomCounter("c2", 0, 1000, Color(0xFF, 0x00, 0xFF, 0xFF)))
   {
-
   }
 
 
-  Shared::~Shared()
-  {
-  }
+  Shared::~Shared() = default;
 
 
   void Shared::Update(const DemoTime& demoTime, const Point2& currentScreenResolution)
   {
-    const float sx = static_cast<float>(currentScreenResolution.X);
-    const float sy = static_cast<float>(currentScreenResolution.Y);
+    const auto sx = static_cast<float>(currentScreenResolution.X);
+    const auto sy = static_cast<float>(currentScreenResolution.Y);
 
     // Red
     m_controlPoints[0] = Vector2(0, 0);
-    m_controlPoints[1] = Vector2(sx-3, 0);
+    m_controlPoints[1] = Vector2(sx - 3, 0);
     m_controlPoints[2] = Vector2(2, sy - 1);
-    m_controlPoints[3] = Vector2(sx-2, sy - 1);
+    m_controlPoints[3] = Vector2(sx - 2, sy - 1);
     // Green
     m_controlPoints[4] = Vector2(1, 0);
     m_controlPoints[5] = Vector2(sx - 2, 0);
@@ -78,7 +75,7 @@ namespace Fsl
     m_controlPoints[8] = Vector2(2, 0);
     m_controlPoints[9] = Vector2(sx - 1, 0);
     m_controlPoints[10] = Vector2(0, sy - 1);
-    m_controlPoints[11] = Vector2(sx-3, sy - 1);
+    m_controlPoints[11] = Vector2(sx - 3, sy - 1);
 
 
     const float xAdd1 = (180 / 512.0f) * MathHelper::TO_RADS;
@@ -114,8 +111,8 @@ namespace Fsl
     m_y2Ang += 1.4f * demoTime.DeltaTime;
 
     // Fill the counter with a simple value
-    int32_t funValue1 = static_cast<int32_t>(std::round(std::sin(m_x1Ang) * 500.0f + 500.0f));
-    int32_t funValue2 = static_cast<int32_t>(std::round(std::cos(m_x2Ang) * 500.0f + 500.0f));
+    auto funValue1 = static_cast<int32_t>(std::round(std::sin(m_x1Ang) * 500.0f + 500.0f));
+    auto funValue2 = static_cast<int32_t>(std::round(std::cos(m_x2Ang) * 500.0f + 500.0f));
     funValue1 = std::min(1000, std::max(funValue1, 0));
     funValue2 = std::min(1000, std::max(funValue2, 0));
     m_profilerService->Set(m_hCounter1, funValue1 / 10);
@@ -126,11 +123,11 @@ namespace Fsl
   void Shared::Draw()
   {
     const Point2 fontSize = m_basic2D->FontSize();
-    const float fontHeight = static_cast<float>(fontSize.Y);
+    const auto fontHeight = static_cast<float>(fontSize.Y);
 
     m_basic2D->Begin();
 
-    const int32_t size4 = static_cast<int32_t>(m_points.size() / 4);
+    const auto size4 = static_cast<int32_t>(m_points.size() / 4);
     m_basic2D->DrawPoints(m_points.data(), size4, Color::White());
     m_basic2D->DrawPoints(m_points.data() + size4, size4, Color::Red());
     m_basic2D->DrawPoints(m_points.data() + size4 * 2, size4, Color::Green());
@@ -144,9 +141,11 @@ namespace Fsl
     const ProfilerFrameTime lastFrame = m_profilerService->GetLastFrameTime();
     const ProfilerFrameTime averageFrames = m_profilerService->GetAverageFrameTime();
     std::stringstream tmpLast;
-    tmpLast << "Total: " << lastFrame.TotalTime << " Update: " << lastFrame.UpdateTime << " Draw: " << lastFrame.DrawTime << " FPS: " << lastFrame.GetFramePerSecond();
+    tmpLast << "Total: " << lastFrame.TotalTime << " Update: " << lastFrame.UpdateTime << " Draw: " << lastFrame.DrawTime
+            << " FPS: " << lastFrame.GetFramePerSecond();
     std::stringstream tmpAverage;
-    tmpAverage << "Total: " << averageFrames.TotalTime << " Update: " << averageFrames.UpdateTime << " Draw: " << averageFrames.DrawTime << " FPS: " << averageFrames.GetFramePerSecond();
+    tmpAverage << "Total: " << averageFrames.TotalTime << " Update: " << averageFrames.UpdateTime << " Draw: " << averageFrames.DrawTime
+               << " FPS: " << averageFrames.GetFramePerSecond();
 
     m_basic2D->DrawString(tmpLast.str(), Vector2(0, 1 + (fontHeight * 3)));
     m_basic2D->DrawString(tmpAverage.str(), Vector2(0, 1 + (fontHeight * 4)));
@@ -156,5 +155,4 @@ namespace Fsl
     m_basic2D->DrawPoints(m_controlPoints.data() + 8, 4, Color::Blue());
     m_basic2D->End();
   }
-
 }

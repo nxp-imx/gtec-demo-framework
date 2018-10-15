@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2015 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ParticleDrawGeometryShaderGLES3.hpp"
 #include <FslBase/Exceptions.hpp>
@@ -51,8 +51,7 @@ namespace Fsl
     VertexDeclaration GetVertexDeclaration(const uint32_t cbParticleRecord)
     {
       assert(cbParticleRecord >= sizeof(Particle));
-      static VertexElementEx elements[] =
-      {
+      static VertexElementEx elements[] = {
         VertexElementEx(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElementEx(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::PointSize, 0),
       };
@@ -60,10 +59,10 @@ namespace Fsl
     }
   }
 
-  ParticleDrawGeometryShaderGLES3::ParticleDrawGeometryShaderGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity, const uint32_t cbParticleRecord)
+  ParticleDrawGeometryShaderGLES3::ParticleDrawGeometryShaderGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity,
+                                                                   const uint32_t cbParticleRecord)
     : m_cbParticleRecord(cbParticleRecord)
     , m_vertexBuffer(nullptr, capacity, GetVertexDeclaration(cbParticleRecord), GL_DYNAMIC_DRAW)
-    , m_vertexBuffer2()
     , m_pCurrentBuffer(&m_vertexBuffer)
     , m_pOtherBuffer(nullptr)
     , m_locViewProjectionMatrix(GLValues::INVALID_LOCATION)
@@ -73,7 +72,8 @@ namespace Fsl
   }
 
 
-  ParticleDrawGeometryShaderGLES3::ParticleDrawGeometryShaderGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity, const uint32_t cbParticleRecord, const bool useDoubleBuffering)
+  ParticleDrawGeometryShaderGLES3::ParticleDrawGeometryShaderGLES3(const std::shared_ptr<IContentManager>& contentManager, const std::size_t capacity,
+                                                                   const uint32_t cbParticleRecord, const bool useDoubleBuffering)
     : m_cbParticleRecord(cbParticleRecord)
     , m_vertexBuffer(nullptr, capacity, GetVertexDeclaration(cbParticleRecord), GL_DYNAMIC_DRAW)
     , m_vertexBuffer2(nullptr, capacity, GetVertexDeclaration(cbParticleRecord), GL_DYNAMIC_DRAW)
@@ -86,12 +86,15 @@ namespace Fsl
   }
 
 
-  void ParticleDrawGeometryShaderGLES3::Draw(const ParticleDrawContext& context, const uint8_t* pParticles, const uint32_t particleCount, const uint32_t particleStride)
+  void ParticleDrawGeometryShaderGLES3::Draw(const ParticleDrawContext& context, const uint8_t* pParticles, const uint32_t particleCount,
+                                             const uint32_t particleStride)
   {
     if (particleCount <= 0)
+    {
       return;
+    }
 
-    //glDisable(GL_CULL_FACE);
+    // glDisable(GL_CULL_FACE);
     glEnable(GL_CULL_FACE);
 
     glUseProgram(0);
@@ -104,9 +107,13 @@ namespace Fsl
 
     // Load the matrices
     if (m_locViewProjectionMatrix >= 0)
+    {
       glProgramUniformMatrix4fv(m_shaderGeom.Get(), m_locViewProjectionMatrix, 1, GL_FALSE, context.MatrixWorldView.DirectAccess());
+    }
     if (m_locWorldViewProjectionMatrix >= 0)
+    {
       glProgramUniformMatrix4fv(m_shaderGeom.Get(), m_locWorldViewProjectionMatrix, 1, GL_FALSE, context.MatrixWorldViewProjection.DirectAccess());
+    }
 
     glBindBuffer(m_pCurrentBuffer->GetTarget(), m_pCurrentBuffer->Get());
     m_pCurrentBuffer->SetDataFast(0, pParticles, particleCount);
@@ -134,9 +141,9 @@ namespace Fsl
     std::string strGeom = contentManager->ReadAllText("CPUParticlesGeometryShader.geom");
 
     {
-      //GLShader shaderVert(GL_VERTEX_SHADER, strVert);
-      //GLShader shaderFrag(GL_FRAGMENT_SHADER, strFrag);
-      //GLShader shaderGeom(GL_GEOMETRY_SHADER_EXT, strGeom);
+      // GLShader shaderVert(GL_VERTEX_SHADER, strVert);
+      // GLShader shaderFrag(GL_FRAGMENT_SHADER, strFrag);
+      // GLShader shaderGeom(GL_GEOMETRY_SHADER_EXT, strGeom);
     }
 
     m_shaderVert.Reset(GL_VERTEX_SHADER, strVert);
@@ -146,20 +153,21 @@ namespace Fsl
 
     auto vertexDecl = GetVertexDeclaration(m_cbParticleRecord);
 
-    m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    m_particleAttribLink[1] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexPointSize"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::PointSize, 0));
-    //m_particleAttribLink[2] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+    m_particleAttribLink[0] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexPosition"),
+                                                 vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    m_particleAttribLink[1] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexPointSize"),
+                                                 vertexDecl.VertexElementGetIndexOf(VertexElementUsage::PointSize, 0));
+    // m_particleAttribLink[2] = GLVertexAttribLink(glGetAttribLocation(m_shaderVert.Get(), "VertexColor"),
+    // vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
 
     m_locViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldView");
     m_locWorldViewProjectionMatrix = glGetUniformLocation(m_shaderGeom.Get(), "WorldViewProjection");
 
-    //if (m_locViewProjectionMatrix < 0 || m_locWorldViewProjectionMatrix < 0)
+    // if (m_locViewProjectionMatrix < 0 || m_locWorldViewProjectionMatrix < 0)
     //  throw NotSupportedException("The shader does not conform to the expected behavior");
 
     glUseProgram(0);
     m_pipeline.Reset(true);
     GL_CHECK_FOR_ERROR();
   }
-
-
 }

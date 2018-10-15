@@ -38,7 +38,6 @@ SOFTWARE.
 
 namespace Fsl
 {
-
   // adapted from http://www.scratchapixel.com/lessons/3d-basic-lessons/lesson-7-intersecting-simple-shapes/ray-box-intersection/
   bool Ray::Intersects(const BoundingBox& box, float& rResult) const
   {
@@ -145,7 +144,7 @@ namespace Fsl
       {
         tMax = tMaxZ;
         // Disabled since no one checks it below
-        //hasMax = true;
+        // hasMax = true;
       }
     }
 

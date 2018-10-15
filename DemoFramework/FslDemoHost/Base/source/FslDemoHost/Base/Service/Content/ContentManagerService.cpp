@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -48,15 +48,21 @@ namespace Fsl
   {
     const IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
     {
-      assert(! trustedAbsPath.IsEmpty());
+      assert(!trustedAbsPath.IsEmpty());
 
       // Do a lot of extra validation
       if (notTrustedRelativePath.IsEmpty())
+      {
         throw std::invalid_argument(std::string("path is invalid: ") + notTrustedRelativePath.ToAsciiString());
+      }
       if (IO::Path::IsPathRooted(notTrustedRelativePath))
+      {
         throw std::invalid_argument(std::string("not a relative path: ") + notTrustedRelativePath.ToAsciiString());
+      }
       if (notTrustedRelativePath.Contains(".."))
+      {
         throw std::invalid_argument(std::string("\"..\" not allowed in the relative path: ") + notTrustedRelativePath.ToAsciiString());
+      }
 
       return IO::Path::Combine(trustedAbsPath, notTrustedRelativePath);
     }
@@ -65,18 +71,16 @@ namespace Fsl
   ContentManagerService::ContentManagerService(const ServiceProvider& serviceProvider, const IO::Path& contentPath)
     : ThreadLocalService(serviceProvider)
     , m_contentPath(contentPath)
-    , m_imageService(serviceProvider.TryGet<IImageService>()) // Try to acquire the image service so we can use it if its available.
+    , m_imageService(serviceProvider.TryGet<IImageService>())    // Try to acquire the image service so we can use it if its available.
   {
-    if (! IO::Path::IsPathRooted(m_contentPath))
+    if (!IO::Path::IsPathRooted(m_contentPath))
     {
       FSLLOG_WARNING("The supplied path is not rooted '" << contentPath.ToAsciiString() << "'");
     }
   }
 
 
-  ContentManagerService::~ContentManagerService()
-  {
-  }
+  ContentManagerService::~ContentManagerService() = default;
 
 
   IO::Path ContentManagerService::GetContentPath() const
@@ -140,28 +144,32 @@ namespace Fsl
   }
 
 
-  void ContentManagerService::ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const
+  void ContentManagerService::ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const uint64_t fileOffset,
+                                        const uint64_t bytesToRead) const
   {
     const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
     IO::File::ReadBytes(rTargetArray, absPath, fileOffset, bytesToRead);
   }
 
 
-  uint64_t ContentManagerService::ReadBytes(void* pDstArray, const uint64_t cbDstArray, const uint64_t dstStartIndex, const IO::Path& relativePath, const uint64_t fileOffset, const uint64_t bytesToRead) const
+  uint64_t ContentManagerService::ReadBytes(void* pDstArray, const uint64_t cbDstArray, const uint64_t dstStartIndex, const IO::Path& relativePath,
+                                            const uint64_t fileOffset, const uint64_t bytesToRead) const
   {
     const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
     return IO::File::ReadBytes(pDstArray, cbDstArray, dstStartIndex, absPath, fileOffset, bytesToRead);
   }
 
 
-  void ContentManagerService::Read(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  void ContentManagerService::Read(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat,
+                                   const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
   {
     const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
     m_imageService->Read(rBitmap, absPath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
   }
 
 
-  void ContentManagerService::Read(Texture& rTexture, const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  void ContentManagerService::Read(Texture& rTexture, const IO::Path& relativePath, const PixelFormat desiredPixelFormat,
+                                   const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
   {
     const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
     m_imageService->Read(rTexture, absPath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
@@ -198,14 +206,16 @@ namespace Fsl
   }
 
 
-  bool ContentManagerService::TryRead(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  bool ContentManagerService::TryRead(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat,
+                                      const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
   {
     const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
     return m_imageService->TryRead(rBitmap, absPath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
   }
 
 
-  Bitmap ContentManagerService::ReadBitmap(const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  Bitmap ContentManagerService::ReadBitmap(const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                                           const PixelChannelOrder preferredChannelOrder) const
   {
     Bitmap bitmap;
     Read(bitmap, relativePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
@@ -213,11 +223,11 @@ namespace Fsl
   }
 
 
-  Texture ContentManagerService::ReadTexture(const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin, const PixelChannelOrder preferredChannelOrder) const
+  Texture ContentManagerService::ReadTexture(const IO::Path& relativePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+                                             const PixelChannelOrder preferredChannelOrder) const
   {
     Texture texture;
     Read(texture, relativePath, desiredPixelFormat, desiredOrigin, preferredChannelOrder);
     return texture;
   }
-
 }

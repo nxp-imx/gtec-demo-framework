@@ -1,10 +1,10 @@
 #ifndef GLES3_E4_0_PRESTART_E4_0_PRESTART_HPP
 #define GLES3_E4_0_PRESTART_E4_0_PRESTART_HPP
 /*
-* OpenGL ES 3.0 Tutorial 4
-*
-* Primitive restart operation
-*/
+ * OpenGL ES 3.0 Tutorial 4
+ *
+ * Primitive restart operation
+ */
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
@@ -16,9 +16,9 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[2];
+      GLuint vboIds[2]{};
       // VertexArrayObject Id
-      GLuint vaoId[1];
+      GLuint vaoId[1]{};
 
       UserData()
       {
@@ -33,10 +33,12 @@ namespace Fsl
 
   public:
     E4_0_PRestart(const DemoAppConfig& config);
-    ~E4_0_PRestart();
+    ~E4_0_PRestart() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void Cleanup();
   };

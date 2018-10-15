@@ -1,10 +1,10 @@
 #ifndef GLES3_E1_2_VAOS_E1_2_VAOS_HPP
 #define GLES3_E1_2_VAOS_E1_2_VAOS_HPP
 /*
-* OpenGL ES 3.0 Tutorial 1
-*
-* Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
-*/
+ * OpenGL ES 3.0 Tutorial 1
+ *
+ * Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
+ */
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
@@ -17,9 +17,9 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[4];
+      GLuint vboIds[4]{};
       // VertexArrayObject Id
-      GLuint vaoId[2];
+      GLuint vaoId[2]{};
 
       UserData()
       {
@@ -37,10 +37,12 @@ namespace Fsl
 
   public:
     E1_2_VAOs(const DemoAppConfig& config);
-    ~E1_2_VAOs();
+    ~E1_2_VAOs() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void Cleanup();
   };

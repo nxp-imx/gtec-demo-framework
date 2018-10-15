@@ -1,39 +1,39 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <cassert>
 #include <cstdlib>
 #include <deque>
 #include <iostream>
-#include <signal.h>
+#include <csignal>
 #include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
@@ -62,7 +62,7 @@ namespace Fsl
   {
     const char* g_title = "DemoFramework";
     // since a C++ string is const char* we do a char array here
-    char g_normalVerbosityArgument[] = { '-', 'v', 0 };
+    char g_normalVerbosityArgument[] = {'-', 'v', 0};
 
     bool TryParseVerbosityLevel(const char* pszArgument, uint32_t& rCount)
     {
@@ -81,52 +81,61 @@ namespace Fsl
     uint32_t CheckVerbosityLevel(std::vector<char*>& rArguments)
     {
       uint32_t verbosityLevel = 0;
-      for (std::size_t i = 0; i < rArguments.size(); ++i)
+      for (auto& rArgument : rArguments)
       {
-        if (rArguments[i] != nullptr)
+        if (rArgument != nullptr)
         {
-          if (strncmp(rArguments[i], "-v", 2) == 0)
+          if (strncmp(rArgument, "-v", 2) == 0)
           {
-            uint32_t count; // +1 to skip the leading '-'
-            if (TryParseVerbosityLevel(rArguments[i] + 1, count))
+            uint32_t count;    // +1 to skip the leading '-'
+            if (TryParseVerbosityLevel(rArgument + 1, count))
             {
               verbosityLevel += count;
               if (verbosityLevel > 1)
               {
                 // The other option parse we use dont support the '-vvvv' style to replace the fancy one with a normal verbose
-                rArguments[i] = g_normalVerbosityArgument;
+                rArgument = g_normalVerbosityArgument;
               }
             }
           }
-          else if (strcmp(rArguments[i], "--verbose") == 0)
+          else if (strcmp(rArgument, "--verbose") == 0)
+          {
             ++verbosityLevel;
+          }
         }
       }
       return verbosityLevel;
     }
 
-    OptionParser::ParseResult TryParseInputArguments(std::vector<char*>& rArguments, const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
+    OptionParser::ParseResult TryParseInputArguments(std::vector<char*>& rArguments, const DemoBasicSetup& demoSetup,
+                                                     const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
     {
       std::deque<OptionParser::ParserRecord> inputParsers;
       if (demoHostManagerOptionParser)
-        inputParsers.push_back(OptionParser::ParserRecord(demoHostManagerOptionParser.get(), 0));
+      {
+        inputParsers.emplace_back(demoHostManagerOptionParser.get(), 0);
+      }
       if (demoSetup.Host.OptionParser)
-        inputParsers.push_back(OptionParser::ParserRecord(demoSetup.Host.OptionParser.get(), 0));
+      {
+        inputParsers.emplace_back(demoSetup.Host.OptionParser.get(), 0);
+      }
       if (demoSetup.Host.ServiceOptionParsers)
       {
         int32_t offset = DEMO_SERVICE_OPTION_BASE;
         for (auto itr = demoSetup.Host.ServiceOptionParsers->begin(); itr != demoSetup.Host.ServiceOptionParsers->end(); ++itr)
         {
-          inputParsers.push_back(OptionParser::ParserRecord(itr->get(), offset));
+          inputParsers.emplace_back(itr->get(), offset);
           offset += DEMO_SERVICE_OPTION_INTERVAL;
         }
       }
       if (demoSetup.App.AppSetup.OptionParser)
-        inputParsers.push_back(OptionParser::ParserRecord(demoSetup.App.AppSetup.OptionParser.get(), 0));
+      {
+        inputParsers.emplace_back(demoSetup.App.AppSetup.OptionParser.get(), 0);
+      }
 
       try
       {
-        int argc = static_cast<int>(rArguments.size());
+        auto argc = static_cast<int>(rArguments.size());
         char** argv = rArguments.data();
         return OptionParser::Parse(argc, argv, inputParsers, g_title);
       }
@@ -140,26 +149,34 @@ namespace Fsl
         FSLLOG("ERROR: A critical error occurred during input argument parsing.");
         return OptionParser::ParseResult(OptionParser::Result::Failed, 0);
       }
-
     }
 
 
-    void RegisterOptionParsersInOptionsService(const std::shared_ptr<IServiceProvider>& theServiceProvider, const DemoBasicSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
+    void RegisterOptionParsersInOptionsService(const std::shared_ptr<IServiceProvider>& theServiceProvider, const DemoBasicSetup& demoSetup,
+                                               const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
     {
       ServiceProvider serviceProvider(theServiceProvider);
       auto optionService = serviceProvider.Get<IOptionsServiceControl>();
 
       if (demoHostManagerOptionParser)
+      {
         optionService->AddOptionParser(demoHostManagerOptionParser);
+      }
       if (demoSetup.Host.OptionParser)
+      {
         optionService->AddOptionParser(demoSetup.Host.OptionParser);
+      }
       if (demoSetup.Host.ServiceOptionParsers)
       {
         for (auto itr = demoSetup.Host.ServiceOptionParsers->begin(); itr != demoSetup.Host.ServiceOptionParsers->end(); ++itr)
+        {
           optionService->AddOptionParser(*itr);
+        }
       }
       if (demoSetup.App.AppSetup.OptionParser)
+      {
         optionService->AddOptionParser(demoSetup.App.AppSetup.OptionParser);
+      }
     }
 
 
@@ -170,7 +187,9 @@ namespace Fsl
       const bool verbose = verbosityLevel > 0;
 
       if (verbose)
+      {
         Fsl::Logger::SetLogLevel(LogType::Verbose);
+      }
 
       bool enableFirewallRequest = false;
 
@@ -182,9 +201,11 @@ namespace Fsl
       const auto demoHostManagerOptionParser = std::make_shared<DemoHostManagerOptionParser>();
 
       if (enableFirewallRequest)
+      {
         demoHostManagerOptionParser->RequestEnableAppFirewall();
+      }
 
-      { // Lock the service registry and extract the service option parsers
+      {    // Lock the service registry and extract the service option parsers
         assert(!demoBasicSetup.Host.ServiceOptionParsers);
         demoBasicSetup.Host.ServiceOptionParsers = std::make_shared<ServiceOptionParserDeque>();
         serviceFramework->PrepareServices(*demoBasicSetup.Host.ServiceOptionParsers);
@@ -192,7 +213,9 @@ namespace Fsl
 
       const auto parseResult = TryParseInputArguments(rArguments, demoBasicSetup, demoHostManagerOptionParser);
       if (parseResult.Status != OptionParser::Result::OK)
+      {
         return parseResult.Status == OptionParser::Result::Failed ? EXIT_FAILURE : EXIT_SUCCESS;
+      }
 
       // Start the services, after the command line parameters have been processed
       serviceFramework->LaunchGlobalServices();
@@ -253,7 +276,9 @@ namespace Fsl
       const std::size_t argumentCount = (argc >= 0 && argv != nullptr) ? static_cast<std::size_t>(argc) : 0;
       std::vector<char*> arguments(argumentCount);
       for (std::size_t i = 0; i < argumentCount; ++i)
+      {
         arguments[i] = argv[i];
+      }
 
       return RunNow(arguments, demoRunnerConfig, rExceptionMessageFormatter);
     }

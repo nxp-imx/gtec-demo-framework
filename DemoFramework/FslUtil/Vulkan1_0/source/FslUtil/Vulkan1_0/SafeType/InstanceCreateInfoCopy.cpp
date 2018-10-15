@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -38,7 +38,7 @@ namespace Fsl
   namespace Vulkan
   {
     //! @brief Move assignment operator
-    InstanceCreateInfoCopy& InstanceCreateInfoCopy::operator=(InstanceCreateInfoCopy&& other)
+    InstanceCreateInfoCopy& InstanceCreateInfoCopy::operator=(InstanceCreateInfoCopy&& other) noexcept
     {
       if (this != &other)
       {
@@ -57,7 +57,7 @@ namespace Fsl
 
     //! @brief Move constructor
     //! Transfer ownership from other to this
-    InstanceCreateInfoCopy::InstanceCreateInfoCopy(InstanceCreateInfoCopy&& other)
+    InstanceCreateInfoCopy::InstanceCreateInfoCopy(InstanceCreateInfoCopy&& other) noexcept
       : m_applicationInfo(std::move(other.m_applicationInfo))
       , m_value(other.m_value)
       , m_enabledLayerNames(std::move(other.m_enabledLayerNames))
@@ -70,10 +70,8 @@ namespace Fsl
 
 
     InstanceCreateInfoCopy::InstanceCreateInfoCopy()
-      : m_applicationInfo()
-      , m_value{}
-      , m_enabledLayerNames()
-      , m_enabledExtensionNames()
+      : m_value{}
+
     {
     }
 
@@ -91,7 +89,7 @@ namespace Fsl
     }
 
 
-    void InstanceCreateInfoCopy::PatchPointers()
+    void InstanceCreateInfoCopy::PatchPointers() noexcept
     {
       m_value.ppEnabledLayerNames = m_value.ppEnabledLayerNames != nullptr ? m_enabledLayerNames.data() : nullptr;
       m_value.ppEnabledExtensionNames = m_value.ppEnabledExtensionNames != nullptr ? m_enabledExtensionNames.data() : nullptr;

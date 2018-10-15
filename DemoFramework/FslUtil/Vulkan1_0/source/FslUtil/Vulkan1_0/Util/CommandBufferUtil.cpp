@@ -1,12 +1,13 @@
 /*
-* Assorted commonly used Vulkan helper functions
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Assorted commonly used Vulkan helper functions
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 
 namespace Fsl
 {
@@ -15,9 +16,8 @@ namespace Fsl
     namespace CommandBufferUtil
     {
       // Create an image memory barrier for changing the layout of an image and put it into an active command buffer
-      void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image,
-                          const VkImageAspectFlags aspectMask, const VkImageLayout oldImageLayout,
-                          const VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange,
+      void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image, const VkImageAspectFlags aspectMask,
+                          const VkImageLayout oldImageLayout, const VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange,
                           const VkPipelineStageFlags srcStageMask, const VkPipelineStageFlags dstStageMask)
       {
         // Create an image barrier object
@@ -75,6 +75,7 @@ namespace Fsl
           imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
           break;
         default:
+          FSLBASICLOG_WARNING("Unhandled oldImageLayout");
           break;
         }
 
@@ -89,14 +90,12 @@ namespace Fsl
           break;
         case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
           // Image will be used as a transfer source
-          // Make sure any reads from and writes to the image have been finished
-          imageMemoryBarrier.srcAccessMask = imageMemoryBarrier.srcAccessMask | VK_ACCESS_TRANSFER_READ_BIT;
+          // Make sure any reads from the image have been finished
           imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
           break;
         case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
           // Image will be used as a color attachment
           // Make sure any writes to the color buffer have been finished
-          imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
           imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
           break;
         case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
@@ -114,6 +113,7 @@ namespace Fsl
           imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
           break;
         default:
+          FSLBASICLOG_WARNING("Unhandled newImageLayout");
           break;
         }
 
@@ -122,10 +122,8 @@ namespace Fsl
       }
 
 
-      void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image,
-                          const VkImageAspectFlags aspectMask, const VkImageLayout oldImageLayout,
-                          const VkImageLayout newImageLayout,
-                          const VkPipelineStageFlags srcStageMask,
+      void SetImageLayout(const VkCommandBuffer cmdBuffer, const VkImage image, const VkImageAspectFlags aspectMask,
+                          const VkImageLayout oldImageLayout, const VkImageLayout newImageLayout, const VkPipelineStageFlags srcStageMask,
                           const VkPipelineStageFlags dstStageMask)
       {
         VkImageSubresourceRange subresourceRange{};

@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
@@ -85,12 +85,13 @@ namespace Fsl
   {
     const int32_t arg1 = virtualKey;
     const int32_t arg2 = (isPressed ? VirtualKeyFlag::IsPressed : 0);
-    const int32_t arg3 = static_cast<int32_t>(deviceId);
+    const auto arg3 = static_cast<int32_t>(deviceId);
     return NativeWindowEvent(NativeWindowEventType::InputKey, arg1, arg2, arg3);
   }
 
 
-  void NativeWindowEventHelper::DecodeInputKeyEvent(const NativeWindowEvent& event, VirtualKey::Enum& rVirtualKey, bool& rIsPressed, uint32_t& rDeviceId)
+  void NativeWindowEventHelper::DecodeInputKeyEvent(const NativeWindowEvent& event, VirtualKey::Enum& rVirtualKey, bool& rIsPressed,
+                                                    uint32_t& rDeviceId)
   {
     assert(event.Type == NativeWindowEventType::InputKey);
     rVirtualKey = static_cast<VirtualKey::Enum>(event.Arg1);
@@ -99,7 +100,8 @@ namespace Fsl
   }
 
 
-  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const Point2& position)
+  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed,
+                                                                         const Point2& position)
   {
     const int32_t arg1 = button;
     const int32_t arg2 = (isPressed ? VirtualKeyFlag::IsPressed : 0);
@@ -109,7 +111,8 @@ namespace Fsl
   }
 
 
-  void NativeWindowEventHelper::DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed, Point2& rPosition)
+  void NativeWindowEventHelper::DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed,
+                                                            Point2& rPosition)
   {
     assert(event.Type == NativeWindowEventType::InputMouseButton);
     rButton = static_cast<VirtualMouseButton::Enum>(event.Arg1);
@@ -171,17 +174,21 @@ namespace Fsl
   int32_t NativeWindowEventHelper::EncodePosition(const Point2& position)
   {
     if (position.X < std::numeric_limits<int16_t>::min() || position.X > std::numeric_limits<int16_t>::max())
+    {
       throw UsageErrorException("the x-position is expected to fit inside a int16");
+    }
     if (position.Y < std::numeric_limits<int16_t>::min() || position.Y > std::numeric_limits<int16_t>::max())
+    {
       throw UsageErrorException("the y-position is expected to fit inside a int16");
+    }
     return ((position.Y & 0xFFFF) << 16) | (position.X & 0xFFFF);
   }
 
 
   Point2 NativeWindowEventHelper::DecodePosition(const int32_t encodedPosition)
   {
-    const int16_t x = static_cast<int16_t>(encodedPosition & 0xFFFF);
-    const int16_t y = static_cast<int16_t>((encodedPosition >> 16) & 0xFFFF);
+    const auto x = static_cast<int16_t>(encodedPosition & 0xFFFF);
+    const auto y = static_cast<int16_t>((encodedPosition >> 16) & 0xFFFF);
     return Point2(x, y);
   }
 
@@ -200,7 +207,7 @@ namespace Fsl
 
   NativeWindowEvent NativeWindowEventHelper::EncodeGamepadConfiguration(const uint32_t maxDevices)
   {
-    const int32_t arg1 = static_cast<int32_t>(maxDevices);
+    const auto arg1 = static_cast<int32_t>(maxDevices);
     return NativeWindowEvent(NativeWindowEventType::GamepadConfiguration, arg1);
   }
 
@@ -225,10 +232,10 @@ namespace Fsl
     const auto rightThumbX = (static_cast<uint32_t>(state.RightThumbX) & 0xFFFF);
     const auto rightThumbY = (static_cast<uint32_t>(state.RightThumbY) & 0XFFFF) << 16;
 
-    const int32_t arg1 = static_cast<int32_t>(deviceId | leftTrigger | rightTrigger | isConnected);
-    const int32_t arg2 = static_cast<int32_t>(state.Buttons);
-    const int32_t arg3 = static_cast<int32_t>(leftThumbX | leftThumbY);
-    const int32_t arg4 = static_cast<int32_t>(rightThumbX | rightThumbY);
+    const auto arg1 = static_cast<int32_t>(deviceId | leftTrigger | rightTrigger | isConnected);
+    const auto arg2 = static_cast<int32_t>(state.Buttons);
+    const auto arg3 = static_cast<int32_t>(leftThumbX | leftThumbY);
+    const auto arg4 = static_cast<int32_t>(rightThumbX | rightThumbY);
 
     return NativeWindowEvent(NativeWindowEventType::GamepadState, arg1, arg2, arg3, arg4);
   }

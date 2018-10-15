@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include "ImageData.hpp"
 #include <FslBase/Exceptions.hpp>
@@ -41,7 +41,7 @@
 namespace Fsl
 {
   // move assignment operator
-  ImageData& ImageData::operator=(ImageData&& other)
+  ImageData& ImageData::operator=(ImageData&& other) noexcept
   {
     if (this != &other)
     {
@@ -69,7 +69,7 @@ namespace Fsl
 
 
   // Transfer ownership from other to this
-  ImageData::ImageData(ImageData&& other)
+  ImageData::ImageData(ImageData&& other) noexcept
     : m_data(std::move(other.m_data))
     , m_scratchpadAllOffsets(std::move(other.m_scratchpadAllOffsets))
     , m_extent3D(other.m_extent3D)
@@ -88,9 +88,7 @@ namespace Fsl
 
 
   ImageData::ImageData()
-    : m_data()
-    , m_scratchpadAllOffsets()
-    , m_extent3D{}
+    : m_extent3D{}
     , m_imageType(VK_IMAGE_TYPE_1D)
     , m_format(VK_FORMAT_UNDEFINED)
     , m_mipLevels(0)
@@ -100,14 +98,11 @@ namespace Fsl
 
 
   ImageData::ImageData(const uint32_t width, const uint32_t height, const uint32_t depth, const VkImageType imageType, const VkFormat format)
-    : m_data()
-    , m_scratchpadAllOffsets()
-    , m_extent3D{}
+    : m_extent3D{}
     , m_imageType(imageType)
     , m_format(format)
     , m_mipLevels(1)
     , m_arrayLayers(1)
-    , m_bytesPerPixel(0)
   {
     m_extent3D.width = width;
     m_extent3D.height = height;
@@ -129,10 +124,12 @@ namespace Fsl
   }
 
 
-  void ImageData::Reset()
+  void ImageData::Reset() noexcept
   {
     if (!IsValid())
+    {
       return;
+    }
 
     m_data.resize(0);
     m_scratchpadAllOffsets.resize(0);
@@ -157,13 +154,17 @@ namespace Fsl
   }
 
 
-  void ImageData::SetData(const void*const pData, const uint32_t mipLevel, const uint32_t arrayLayer, const VkSubresourceLayout& subresourceLayout)
+  void ImageData::SetData(const void* const pData, const uint32_t mipLevel, const uint32_t arrayLayer, const VkSubresourceLayout& subresourceLayout)
   {
     if (!IsValid())
+    {
       throw UsageErrorException("Can not SetData on a invalid object");
+    }
 
-    if (!pData || mipLevel >= m_mipLevels || arrayLayer >= m_arrayLayers)
+    if ((pData == nullptr) || mipLevel >= m_mipLevels || arrayLayer >= m_arrayLayers)
+    {
       throw std::invalid_argument("Invalid arguments");
+    }
 
     // We just do a assert since this should be enough if the object was marked as valid
     assert(m_bytesPerPixel != 0);
@@ -173,9 +174,12 @@ namespace Fsl
     GetExtentAndOffset(currentExtent, dstOffset, mipLevel, arrayLayer);
 
     if (subresourceLayout.size > static_cast<VkDeviceSize>(m_data.size() - dstOffset))
+    {
       throw std::invalid_argument("subresourceLayout.size does not fit at the resulting offset");
+    }
 
-    const uint8_t*const pCurrentSourceBuffer = static_cast<const uint8_t*>(pData) + (arrayLayer * subresourceLayout.arrayPitch) + subresourceLayout.offset;
+    const uint8_t* const pCurrentSourceBuffer =
+      static_cast<const uint8_t*>(pData) + (arrayLayer * subresourceLayout.arrayPitch) + subresourceLayout.offset;
     uint8_t* pDst = m_data.data() + dstOffset;
 
     const std::size_t bytesPerLine = m_bytesPerPixel * currentExtent.width;
@@ -196,20 +200,26 @@ namespace Fsl
   }
 
 
-  void ImageData::GetExtentAndOffset(VkExtent3D& rCurrentExtent, std::size_t& rCurrentOffset, const uint32_t mipLevel, const uint32_t arrayLayer) const
+  void ImageData::GetExtentAndOffset(VkExtent3D& rCurrentExtent, std::size_t& rCurrentOffset, const uint32_t mipLevel,
+                                     const uint32_t arrayLayer) const
   {
     if (!TryGetExtentAndOffset(rCurrentExtent, rCurrentOffset, mipLevel, arrayLayer))
+    {
       throw std::invalid_argument("GetExtentAndOffset");
+    }
   }
 
 
-  bool ImageData::TryGetExtentAndOffset(VkExtent3D& currentExtent, std::size_t& currentOffset, const uint32_t mipLevel, const uint32_t arrayLayer) const
+  bool ImageData::TryGetExtentAndOffset(VkExtent3D& currentExtent, std::size_t& currentOffset, const uint32_t mipLevel,
+                                        const uint32_t arrayLayer) const
   {
     if (mipLevel >= m_mipLevels || arrayLayer >= m_arrayLayers)
+    {
       return false;
+    }
 
     // FIX: the m_scratchpadAllOffsets should not be needed here
-    if (m_scratchpadAllOffsets.size() == 0)
+    if (m_scratchpadAllOffsets.empty())
     {
       std::size_t offset = 0;
 
@@ -247,7 +257,7 @@ namespace Fsl
     return RawBitmap(m_data.data(), m_extent3D.width, m_extent3D.height, pixelFormat, BitmapOrigin::UpperLeft);
   }
 
-  //RawBitmapEx ImageData::LockEx()
+  // RawBitmapEx ImageData::LockEx()
   //{
 
   //}
@@ -257,8 +267,7 @@ namespace Fsl
   {
   }
 
-  //void ImageData::UnlockEx(const RawBitmapEx& bitmap)
+  // void ImageData::UnlockEx(const RawBitmapEx& bitmap)
   //{
   //}
-
 }

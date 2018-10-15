@@ -28,7 +28,7 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector2.cs.
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/OptimizationFlag.hpp>
+//#include <FslBase/OptimizationFlag.hpp>
 
 namespace Fsl
 {
@@ -38,59 +38,73 @@ namespace Fsl
   struct Vector2
   {
   public:
-    float X;
-    float Y;
+    float X{0};
+    float Y{0};
 
-    Vector2()
-      : X(0), Y(0)
-    {
-    }
+    Vector2() = default;
 
     //! overload to prevent annoying warning
     Vector2(const float x, const float y)
-      : X(x), Y(y)
+      : X(x)
+      , Y(y)
     {
     }
 
     //! overload to prevent annoying warning
     Vector2(const int32_t x, const int32_t y)
-      : X(static_cast<float>(x)), Y(static_cast<float>(y))
+      : X(static_cast<float>(x))
+      , Y(static_cast<float>(y))
     {
     }
 
 
     //! overload to prevent annoying warning
     Vector2(const float x, const int32_t y)
-      : X(x), Y(static_cast<float>(y))
+      : X(x)
+      , Y(static_cast<float>(y))
     {
     }
 
     //! overload to prevent annoying warning
     Vector2(const int32_t x, const float y)
-      : X(static_cast<float>(x)), Y(y)
+      : X(static_cast<float>(x))
+      , Y(y)
     {
     }
 
     //! @brief A optimization constructor that doesn't initialize the Vector2 so when this is called the content of the Vector2 in undefined!!!
     // coverity[uninit_member]
-    Vector2(const OptimizationFlag flag) {};
+    // Vector2(const OptimizationFlag flag){};
 
     //! @brief Get direct access to the elements
     const float* DirectAccess() const;
 
     // @brief Returns the vector with all components being zero (1, 1)
-    static Vector2 One() { return Vector2(1.0f, 1.0f); }
+    static Vector2 One()
+    {
+      return Vector2(1.0f, 1.0f);
+    }
 
     // @brief Returns the x unit vector (1, 0)
-    static Vector2 UnitX() { return Vector2(1.0f, 0.0f); }
+    static Vector2 UnitX()
+    {
+      return Vector2(1.0f, 0.0f);
+    }
 
     // @brief Returns the y unit vector (0, 1)
-    static Vector2 UnitY() { return Vector2(0.0f, 1.0f); }
+    static Vector2 UnitY()
+    {
+      return Vector2(0.0f, 1.0f);
+    }
 
     // @brief Returns the vector with all components being zero (0, 0)
-    static Vector2 Zero() { return Vector2(); }
+    static Vector2 Zero()
+    {
+      return {};
+    }
 
-    //! @brief Creates a new Vector2 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to 4d-triangle.
+    //! @brief Creates a new Vector2 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to
+    //! 4d-triangle.
     //! @param value1 The first vector of 4d-triangle.
     //! @param value2 The second vector of 4d-triangle.
     //! @param value3 The third vector of 4d-triangle.
@@ -99,14 +113,16 @@ namespace Fsl
     //! @return The Cartesian translation of barycentric coordinates.
     static Vector2 Barycentric(const Vector2& value1, const Vector2& value2, const Vector2& value3, const float amount1, const float amount2);
 
-    //! @brief Creates a new Vector2 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to 4d-triangle.
+    //! @brief Creates a new Vector2 that contains the Cartesian coordinates of a vector specified in barycentric coordinates and relative to
+    //! 4d-triangle.
     //! @param value1 The first vector of 4d-triangle.
     //! @param value2 The second vector of 4d-triangle.
     //! @param value3 The third vector of 4d-triangle.
     //! @param amount1 Barycentric scalar <c>b2</c> which represents a weighting factor towards second vector of 4d-triangle.
     //! @param amount2 Barycentric scalar <c>b3</c> which represents a weighting factor towards third vector of 4d-triangle.
     //! @param result The Cartesian translation of barycentric coordinates as an output parameter.
-    static void Barycentric(const Vector2& value1, const Vector2& value2, const Vector2& value3, const float amount1, const float amount2, Vector2& rResult);
+    static void Barycentric(const Vector2& value1, const Vector2& value2, const Vector2& value3, const float amount1, const float amount2,
+                            Vector2& rResult);
 
     //! @brief Creates a new Vector2 that contains CatmullRom interpolation of the specified vectors.
     //! @param value1 The first vector in interpolation.
@@ -124,7 +140,8 @@ namespace Fsl
     //! @param value4 The fourth vector in interpolation.
     //! @param amount Weighting factor.
     //! @param result The result of CatmullRom interpolation as an output parameter.
-    static void CatmullRom(const Vector2& value1, const Vector2& value2, const Vector2& value3, const Vector2& value4, const float amount, Vector2& rResult);
+    static void CatmullRom(const Vector2& value1, const Vector2& value2, const Vector2& value3, const Vector2& value4, const float amount,
+                           Vector2& rResult);
 
     //! @brief Restricts a value to be within a specified range.
     static Vector2 Clamp(const Vector2& value, const Vector2& min, const Vector2& max);
@@ -138,8 +155,7 @@ namespace Fsl
     //! @brief Calculates the distance between two vectors squared.
     static float DistanceSquared(const Vector2& vector1, const Vector2& vector2)
     {
-      return (vector1.X - vector2.X) * (vector1.X - vector2.X) +
-        (vector1.Y - vector2.Y) * (vector1.Y - vector2.Y);
+      return (vector1.X - vector2.X) * (vector1.X - vector2.X) + (vector1.Y - vector2.Y) * (vector1.Y - vector2.Y);
     }
 
 
@@ -169,7 +185,8 @@ namespace Fsl
     //! @param tangent2 The second tangent vector.
     //! @param amount Weighting factor.
     //! @param result The hermite spline interpolation vector as an output parameter.
-    static void Hermite(const Vector2& value1, const Vector2& tangent1, const Vector2& value2, const Vector2& tangent2, const float amount, Vector2& rResult);
+    static void Hermite(const Vector2& value1, const Vector2& tangent1, const Vector2& value2, const Vector2& tangent2, const float amount,
+                        Vector2& rResult);
 
     //! @brief Calculates the length of the vector.
     float Length() const;
@@ -177,7 +194,7 @@ namespace Fsl
     //! @brief Calculates the length of the vector squared.
     float LengthSquared() const
     {
-      return (X*X) + (Y*Y);
+      return (X * X) + (Y * Y);
     }
 
     //! @brief Performs a linear interpolation between two vectors.
@@ -248,13 +265,15 @@ namespace Fsl
     //! @brief Transforms a vector by the specified Matrix
     static void Transform(Vector2& rResult, const Vector2& position, const Matrix& matrix);
 
-    //! @brief Creates a new Vector2 that contains a transformation of vector(position.X,position.Y,0,0) by the specified Quaternion representing the rotation.
+    //! @brief Creates a new Vector2 that contains a transformation of vector(position.X,position.Y,0,0) by the specified Quaternion representing the
+    //! rotation.
     //! @param value Source Vector2.
     //! @param rotation The Quaternion which contains rotation transformation
     //! @return Transformed Vector2.
     static Vector2 Transform(const Vector2& value, const Quaternion& rotation);
 
-    //! @brief Creates a new Vector2 that contains a transformation of vector(position.X,position.Y,0,0) by the specified Quaternion, representing the rotation.
+    //! @brief Creates a new Vector2 that contains a transformation of vector(position.X,position.Y,0,0) by the specified Quaternion, representing the
+    //! rotation.
     //! @param value Source Vector2.
     //! @param rotation The Quaternion which contains rotation transformation.
     //! @param result Transformed Vector2 as an output parameter.
@@ -323,17 +342,16 @@ namespace Fsl
     }
 
     //! @brief Tests for equality.
-    bool operator==(const Vector2 &rhs) const
+    bool operator==(const Vector2& rhs) const
     {
       return X == rhs.X && Y == rhs.Y;
     }
 
     //! @brief Tests for inequality.
-    bool operator!=(const Vector2 &rhs) const
+    bool operator!=(const Vector2& rhs) const
     {
       return X != rhs.X || Y != rhs.Y;
     }
-
   };
 }
 

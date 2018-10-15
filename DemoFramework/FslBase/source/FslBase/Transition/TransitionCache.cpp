@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2016 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Math/MathHelper.hpp>
@@ -37,10 +37,9 @@
 namespace Fsl
 {
   TransitionCache::TransitionCache()
-    : m_empty(std::make_shared<std::vector<float> >())
-    , m_zeroTransition(std::make_shared<std::vector<float> >(1))
-    , m_lookupLinearBasedTables()
-    , m_lookupCosBasedTables()
+    : m_empty(std::make_shared<std::vector<float>>())
+    , m_zeroTransition(std::make_shared<std::vector<float>>(1))
+
   {
     (*m_zeroTransition)[0] = 1.0f;
 
@@ -52,7 +51,7 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<std::vector<float> > TransitionCache::GetLookupTable(const int32_t length, const TransitionType type)
+  std::shared_ptr<std::vector<float>> TransitionCache::GetLookupTable(const int32_t length, const TransitionType type)
   {
     if (length > 1)
     {
@@ -70,7 +69,6 @@ namespace Fsl
   }
 
 
-
   //------------------------------------------------------------------------------------------------------------------------------------------------
 
   /// <summary>
@@ -78,14 +76,16 @@ namespace Fsl
   /// </summary>
   /// <param name="length"></param>
   /// <returns></returns>
-  std::shared_ptr<std::vector<float> > TransitionCache::GetLinearLookupTable(const int32_t length)
+  std::shared_ptr<std::vector<float>> TransitionCache::GetLinearLookupTable(const int32_t length)
   {
     assert(length >= 0);
     const auto itr = m_lookupLinearBasedTables.find(length);
     if (itr != m_lookupLinearBasedTables.end())
+    {
       return itr->second;
+    }
 
-    auto table = std::make_shared<std::vector<float> >(length);
+    auto table = std::make_shared<std::vector<float>>(length);
 
     // fill the table
     float res = 0;
@@ -112,14 +112,16 @@ namespace Fsl
   /// </summary>
   /// <param name="length"></param>
   /// <returns></returns>
-  std::shared_ptr<std::vector<float> > TransitionCache::GetCosBasedLookupTable(const int32_t length)
+  std::shared_ptr<std::vector<float>> TransitionCache::GetCosBasedLookupTable(const int32_t length)
   {
     assert(length >= 0);
     const auto itr = m_lookupCosBasedTables.find(length);
     if (itr != m_lookupCosBasedTables.end())
+    {
       return itr->second;
+    }
 
-    auto table = std::make_shared<std::vector<float> >(length);
+    auto table = std::make_shared<std::vector<float>>(length);
 
     // fill the table
     float rads = 0;
@@ -139,5 +141,4 @@ namespace Fsl
     assert(EqualHelper::IsAlmostEqual(rTable.back(), 1));
     return table;
   }
-
 }

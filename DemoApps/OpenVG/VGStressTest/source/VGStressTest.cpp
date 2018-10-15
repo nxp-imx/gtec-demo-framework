@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
@@ -84,8 +84,8 @@ namespace Fsl
     }*/
 
     // Creates the spiral around the center and grows it
-    void CreateSpiralVertices(std::vector<Vector2>& rDst, const int numVerticesPerCircle, const int numRevolutions, const float grow, const Point2& dstCenter,
-      const bool bAddEndVertex = false)
+    void CreateSpiralVertices(std::vector<Vector2>& rDst, const int numVerticesPerCircle, const int numRevolutions, const float grow,
+                              const Point2& dstCenter, const bool bAddEndVertex = false)
     {
       rDst.resize((numVerticesPerCircle * numRevolutions) + (bAddEndVertex ? 1 : 0));
       const float angleAdd = (2 * MathHelper::PI) / numVerticesPerCircle;
@@ -144,7 +144,8 @@ namespace Fsl
     }
 
 
-    void ExtractLinePathTo(OpenVG::VGPathBuffer& rDst, const std::vector<Vector2>& srcVertices, const std::size_t vertexOffset, const std::size_t vertexLength)
+    void ExtractLinePathTo(OpenVG::VGPathBuffer& rDst, const std::vector<Vector2>& srcVertices, const std::size_t vertexOffset,
+                           const std::size_t vertexLength)
     {
       // Allocate the segments
       std::vector<VGubyte> segments(vertexLength + 1);
@@ -156,7 +157,8 @@ namespace Fsl
     }
 
 
-    void ExtractCubicPathTo(OpenVG::VGPathBuffer& rDst, const std::vector<Vector2>& srcVertices, const std::size_t vertexOffset, const std::size_t vertexLength)
+    void ExtractCubicPathTo(OpenVG::VGPathBuffer& rDst, const std::vector<Vector2>& srcVertices, const std::size_t vertexOffset,
+                            const std::size_t vertexLength)
     {
       // Allocate the segments
       std::vector<VGubyte> segments(2);
@@ -187,8 +189,8 @@ namespace Fsl
       rDst.Reset(vertices, segments);
     }
 
-    void GenerateSegmentedSpiral(std::vector<VGPathBufferPtr>& rPaths, const int numRevolutions, const float shrinkPerRevolution, const int numSegmentsPerRevolution,
-      const Rectangle& dstArea)
+    void GenerateSegmentedSpiral(std::vector<VGPathBufferPtr>& rPaths, const int numRevolutions, const float shrinkPerRevolution,
+                                 const int numSegmentsPerRevolution, const Rectangle& dstArea)
     {
       const int verticesPerCircle = 256;
 
@@ -210,8 +212,8 @@ namespace Fsl
     }
 
 
-    void GenerateCubicSegmentedSpiral(std::vector<VGPathBufferPtr>& rPaths, const int numRevolutions, const float shrink, const int numSegmentsPerRevolution,
-      const Rectangle& dstArea)
+    void GenerateCubicSegmentedSpiral(std::vector<VGPathBufferPtr>& rPaths, const int numRevolutions, const float shrink,
+                                      const int numSegmentsPerRevolution, const Rectangle& dstArea)
     {
       const int verticesPerCircle = 256;
 
@@ -260,9 +262,10 @@ namespace Fsl
     }
 
 
-    void DrawSegmentedSpiral(const std::vector<VGPathBufferPtr>& paths, const float strokeLineWidth, const VGPaint paintStroke, const VGPaint paintFill, const float*const pColor)
+    void DrawSegmentedSpiral(const std::vector<VGPathBufferPtr>& paths, const float strokeLineWidth, const VGPaint paintStroke,
+                             const VGPaint paintFill, const float* const pColor)
     {
-      float colorFill[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+      float colorFill[] = {1.0f, 1.0f, 0.0f, 1.0f};
 
       vgSetParameterfv(paintFill, VG_PAINT_COLOR, 4, &colorFill[0]);
       vgSetf(VG_STROKE_LINE_WIDTH, strokeLineWidth);
@@ -277,11 +280,12 @@ namespace Fsl
       }
     }
 
-    void DrawStrokedQuadricSpiral(const OpenVG::VGPathBuffer& VGPathBuffer, const float strokeLineWidth, const VGPaint paint, float* pColor, const int numLayers, const uint16_t angle)
+    void DrawStrokedQuadricSpiral(const OpenVG::VGPathBuffer& VGPathBuffer, const float strokeLineWidth, const VGPaint paint, float* pColor,
+                                  const int numLayers, const uint16_t angle)
     {
-      VGfloat d[] = { 500, 15 };
+      VGfloat d[] = {500, 15};
       vgSetfv(VG_STROKE_DASH_PATTERN, 2, d);
-      vgSeti( VG_STROKE_CAP_STYLE, VG_CAP_ROUND);
+      vgSeti(VG_STROKE_CAP_STYLE, VG_CAP_ROUND);
       vgSeti(VG_STROKE_JOIN_STYLE, VG_JOIN_ROUND);
 
       vgSetf(VG_STROKE_LINE_WIDTH, strokeLineWidth);
@@ -291,7 +295,8 @@ namespace Fsl
       for (int i = 0; i < numLayers; ++i)
       {
         DrawPath(VGPathBuffer, paint, pColor);
-        vgTranslate((std::sin((float)angle*MathHelper::TO_RADS) * i * 0.005f) + (i * 0.005f), (std::cos((float)angle*MathHelper::TO_RADS) * i * 0.005f) + (i * 0.005f));
+        vgTranslate((std::sin((float)angle * MathHelper::TO_RADS) * i * 0.005f) + (i * 0.005f),
+                    (std::cos((float)angle * MathHelper::TO_RADS) * i * 0.005f) + (i * 0.005f));
       }
       vgLoadIdentity();
 
@@ -320,7 +325,6 @@ namespace Fsl
     m_toggleMinMax = m_config.GetToggleMinMax();
 
 
-
     const Point2 screenResolution = GetScreenResolution();
 
     m_stroke = vgCreatePaint();
@@ -331,9 +335,9 @@ namespace Fsl
     m_stroke2 = vgCreatePaint();
     vgSetPaint(m_stroke2, VG_STROKE_PATH);
 
-//#ifdef GC355_PROFILER
-//    initGC355Profiler();
-//#endif
+    //#ifdef GC355_PROFILER
+    //    initGC355Profiler();
+    //#endif
     {
       const RawBitmap logo = Logo::GetBitmap();
 
@@ -355,62 +359,66 @@ namespace Fsl
 
       m_imgPattern = vgCreateImage(format, w, h, VG_IMAGE_QUALITY_FASTER);
       vgImageSubData(m_imgPattern, &img[0], 4 * w, /* stride */
-        format, 0, 0, w, h);
+                     format, 0, 0, w, h);
       m_imgPaint = vgCreatePaint();
       vgSetParameteri(m_imgPaint, VG_PAINT_TYPE, VG_PAINT_TYPE_PATTERN);
       vgSetParameteri(m_imgPaint, VG_PAINT_PATTERN_TILING_MODE, VG_TILE_REPEAT);
       vgPaintPattern(m_imgPaint, m_imgPattern);
     }
 
-  {
-    Rectangle dstArea;
-
-    int dim = 0;
-    if (screenResolution.X >= screenResolution.Y)
     {
-      dim = screenResolution.X;
-      dstArea = Rectangle(0, (screenResolution.Y - screenResolution.X) / 2, dim, dim);
+      Rectangle dstArea;
+
+      int dim = 0;
+      if (screenResolution.X >= screenResolution.Y)
+      {
+        dim = screenResolution.X;
+        dstArea = Rectangle(0, (screenResolution.Y - screenResolution.X) / 2, dim, dim);
+      }
+      else
+      {
+        dim = screenResolution.Y / 2;
+        dstArea = Rectangle((screenResolution.X - screenResolution.Y) / 2, 0, dim, dim);
+      }
+
+      {
+        std::vector<VGubyte> segments(2);
+        segments[0] = VG_MOVE_TO_ABS;
+        segments[1] = VG_QUAD_TO_ABS;
+
+        std::vector<VGfloat> vertices(8);
+        vertices[0] = 100;    // x1
+        vertices[1] = 100;    // y1
+        vertices[2] = 150;    // x1 + dx * 0.5
+        vertices[3] = 100;    // y1
+        vertices[4] = 200;    // x2
+        vertices[5] = 150;    // y1 + dy * 0.5
+        vertices[6] = 200;    // x2
+        vertices[7] = 200;    // y2
+      }
+
+
+      switch (m_config.GetType())
+      {
+      case 0:
+      case 1:
+        GenerateQuadricSpiral(m_test, m_config.GetQuadricSpiralRevolutionCount(),
+                              m_config.GetQuadricSpiralRevolutionChange(screenResolution.X, screenResolution.Y), dstArea);
+        break;
+      case 2:
+        GenerateCubicSegmentedSpiral(m_paths, m_config.GetSegmentedSpiralRevolutionCount(),
+                                     m_config.GetSegmentedSpiralRevolutionChange(dstArea.Width(), dstArea.Height()),
+                                     m_config.GetSegmentedSpiralSegmentsPerRevolution(), dstArea);
+        break;
+      case 3:
+        GenerateSegmentedSpiral(m_paths, m_config.GetSegmentedSpiralRevolutionCount(),
+                                m_config.GetSegmentedSpiralRevolutionChange(dstArea.Width(), dstArea.Height()),
+                                m_config.GetSegmentedSpiralSegmentsPerRevolution(), dstArea);
+        break;
+      default:
+        break;
+      }
     }
-    else
-    {
-      dim = screenResolution.Y / 2;
-      dstArea = Rectangle((screenResolution.X - screenResolution.Y) / 2, 0, dim, dim);
-    }
-
-    {
-      std::vector<VGubyte> segments(2);
-      segments[0] = VG_MOVE_TO_ABS;
-      segments[1] = VG_QUAD_TO_ABS;
-
-      std::vector<VGfloat> vertices(8);
-      vertices[0] = 100; // x1
-      vertices[1] = 100; // y1
-      vertices[2] = 150; // x1 + dx * 0.5
-      vertices[3] = 100; // y1
-      vertices[4] = 200; // x2
-      vertices[5] = 150; // y1 + dy * 0.5
-      vertices[6] = 200; // x2
-      vertices[7] = 200; // y2
-    }
-
-
-    switch (m_config.GetType())
-    {
-    case 0:
-    case 1:
-      GenerateQuadricSpiral(m_test, m_config.GetQuadricSpiralRevolutionCount(), m_config.GetQuadricSpiralRevolutionChange(screenResolution.X, screenResolution.Y), dstArea);
-      break;
-    case 2:
-      GenerateCubicSegmentedSpiral(m_paths, m_config.GetSegmentedSpiralRevolutionCount(), m_config.GetSegmentedSpiralRevolutionChange(dstArea.Width(), dstArea.Height()), m_config.GetSegmentedSpiralSegmentsPerRevolution(), dstArea);
-      break;
-    case 3:
-      GenerateSegmentedSpiral(m_paths, m_config.GetSegmentedSpiralRevolutionCount(), m_config.GetSegmentedSpiralRevolutionChange(dstArea.Width(), dstArea.Height()), m_config.GetSegmentedSpiralSegmentsPerRevolution(), dstArea);
-      break;
-    default:
-      break;
-    }
-  }
-
   }
 
 
@@ -425,16 +433,16 @@ namespace Fsl
     //    stopGC355Profiler();
     //#endif
 
-    //if (vgGetError() == VG_NO_ERROR) // only error to catch in this test, rest is caught by EGL setup and framework
+    // if (vgGetError() == VG_NO_ERROR) // only error to catch in this test, rest is caught by EGL setup and framework
     //  mVGS_test_pass = true;
-    //mVGS_framerate_avg = GetFramerateAvg();
+    // mVGS_framerate_avg = GetFramerateAvg();
 
-    //mVGS_error_count += GetDcicErrorCount();
-    //if (mVGS_error_count != 0)
+    // mVGS_error_count += GetDcicErrorCount();
+    // if (mVGS_error_count != 0)
     //  mVGS_test_pass = false;
     //
-    //LogResult(mVGS_test_pass, mVGS_framerate_avg, mVGS_error_count);
-    //if (mVGS_test_pass == false)
+    // LogResult(mVGS_test_pass, mVGS_framerate_avg, mVGS_error_count);
+    // if (mVGS_test_pass == false)
     //{
     //  ChangeExitCode(StatusCode::Enum::ERR_UKNOWN);
     //}
@@ -443,11 +451,11 @@ namespace Fsl
 
   void VGStressTest::Update(const DemoTime& demoTime)
   {
-    //if (IsDcicCheckEnabled())
+    // if (IsDcicCheckEnabled())
     //{
     //  m_angle = 0;
     //}
-    //else
+    // else
     {
       ++m_angle;
       if (m_angle == 360)
@@ -466,17 +474,17 @@ namespace Fsl
       {
         bypassRender = true;
         FSLLOG_WARNING("Thread sleep not implemented yet");
-        //Thread::Sleep(16);
+        // Thread::Sleep(16);
       }
     }
     if (bypassRender == false)
     {
       const Point2 screenResolution = GetScreenResolution();
 
-      float col[] = { 0.0f, 0.0f, 0.0f, 0.5f };
+      float col[] = {0.0f, 0.0f, 0.0f, 0.5f};
 
-      float colorStroke1[] = { 1.0f, 1.0f, 1.0f, 0.5f };
-      float colorStroke2[] = { 1.0f, 1.0f, 1.0f, 0.1f };
+      float colorStroke1[] = {1.0f, 1.0f, 1.0f, 0.5f};
+      float colorStroke2[] = {1.0f, 1.0f, 1.0f, 0.1f};
 
       vgSetfv(VG_CLEAR_COLOR, 4, col);
       vgClear(0, 0, screenResolution.X, screenResolution.Y);
@@ -484,18 +492,19 @@ namespace Fsl
       switch (m_config.GetType())
       {
       case 0:
-        DrawStrokedQuadricSpiral(m_test, m_config.GetQuadricSpiralStrokeLineWidth(), m_stroke2, colorStroke2, m_config.GetQuadricSpiralLayers(), m_angle);
+        DrawStrokedQuadricSpiral(m_test, m_config.GetQuadricSpiralStrokeLineWidth(), m_stroke2, colorStroke2, m_config.GetQuadricSpiralLayers(),
+                                 m_angle);
         break;
       case 1:
-        DrawStrokedQuadricSpiral(m_test, m_config.GetQuadricSpiralStrokeLineWidth(), m_imgPaint, colorStroke2, m_config.GetQuadricSpiralLayers(), m_angle);
+        DrawStrokedQuadricSpiral(m_test, m_config.GetQuadricSpiralStrokeLineWidth(), m_imgPaint, colorStroke2, m_config.GetQuadricSpiralLayers(),
+                                 m_angle);
         break;
       case 2:
       case 3:
         DrawSegmentedSpiral(m_paths, m_config.GetSegmentedSpiralStrokeLineWidth(), m_stroke, m_fill, colorStroke1);
         break;
       }
-      vgFinish();//execute all in pipe before presentation - workaround for eglSwapBuffer not flushing pipe
+      vgFinish();    // execute all in pipe before presentation - workaround for eglSwapBuffer not flushing pipe
     }
   }
-
 }

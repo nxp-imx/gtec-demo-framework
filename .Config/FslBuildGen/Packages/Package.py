@@ -122,7 +122,8 @@ class Package(object):
         self.TemplateType = genFile.TemplateType
         self.AllowCheck = genFile.AllowCheck
         self.PackageNameBasedIncludePath = genFile.PackageNameBasedIncludePath
-        self.EnableExtendedSourceExtensions = genFile.EnableExtendedSourceExtensions  # type: bool
+        self.EnableExtendedSourceExtensions = genFile.EnableExtendedSourceExtensions    # type: bool
+        self.IsUnitTest = genFile.UnitTest                                              # type: bool
 
         # Clone all attributes that exist on a genFile
         self.BaseIncludePath = genFile.BaseIncludePath
@@ -355,9 +356,9 @@ class Package(object):
         return xmlExperimentalRecipe
 
 
-    def TryGetExperimentaleRecipe(self, platformName: str) -> Optional[PackageExperimentalRecipe]:
+    def TryGetExperimentaleRecipe(self, platformName: str, forceDisable: bool) -> Optional[PackageExperimentalRecipe]:
         xmlExperimentalRecipe = self.__TryGetExperimentaleRecipe(platformName)
-        return None if xmlExperimentalRecipe is None else PackageExperimentalRecipe(self._BasicConfig, self.Name, xmlExperimentalRecipe)
+        return None if xmlExperimentalRecipe is None else PackageExperimentalRecipe(self._BasicConfig, self.Name, xmlExperimentalRecipe, forceDisable)
 
 
 # We define the PackageDependency here because it has a dependency to Package and having it externally

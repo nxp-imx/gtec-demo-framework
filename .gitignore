@@ -5,8 +5,8 @@
 /.Config/FslBuild/*.pyc
 /.Config/FslBuildGen/*.pyc
 /.Config/FslBuildGen/__pycache__
-/.Config/FslBuildGen/Build/*.pyc
-/.Config/FslBuildGen/Build/__pycache__
+/.Config/FslBuildGen/build//*.pyc
+/.Config/FslBuildGen/build/__pycache__
 /.Config/FslBuildGen/BuildConfig/*.pyc
 /.Config/FslBuildGen/BuildConfig/__pycache__
 /.Config/FslBuildGen/BuildContent/*.pyc

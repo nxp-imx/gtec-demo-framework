@@ -1,12 +1,12 @@
 #ifndef VULKAN_TEXTURINGARRAYS_TEXTURINGARRAYS_HPP
 #define VULKAN_TEXTURINGARRAYS_TEXTURINGARRAYS_HPP
 /*
-* Vulkan Example - Texture arrays and instanced rendering
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Texture arrays and instanced rendering
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Texture Arrays' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -95,13 +95,15 @@ namespace Fsl
 
   public:
     TexturingArrays(const DemoAppConfig& config);
-    ~TexturingArrays();
+    ~TexturingArrays() override;
+
   protected:
-    virtual void Prepare() override;
-    virtual void BuildCommandBuffers() override;
-    virtual void OnViewChanged();
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Prepare() override;
+    void BuildCommandBuffers() override;
+    void OnViewChanged() override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
+
   private:
     void SetupVertexDescriptions();
     void LoadTextures();

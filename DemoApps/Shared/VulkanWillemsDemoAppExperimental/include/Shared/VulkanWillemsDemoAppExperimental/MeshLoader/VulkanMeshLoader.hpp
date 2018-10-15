@@ -1,12 +1,12 @@
 #ifndef SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_MESHLOADER_VULKANMESHLOADER_HPP
 #define SHARED_VULKANWILLEMSDEMOAPPEXPERIMENTAL_MESHLOADER_VULKANMESHLOADER_HPP
 /*
-* Mesh loader for creating Vulkan resources from models loaded with ASSIMP
-*
-* Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Mesh loader for creating Vulkan resources from models loaded with ASSIMP
+ *
+ * Copyright (C) 2016 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 
 // Based on a code by Sascha Willems from https://github.com/SaschaWillems/Vulkan
@@ -52,11 +52,10 @@ namespace Fsl
         glm::vec3 m_tangent;
         glm::vec3 m_binormal;
 
-        Vertex()
-        {
-        }
+        Vertex() = default;
 
-        Vertex(const glm::vec3& pos, const glm::vec2& tex, const glm::vec3& normal, const glm::vec3& tangent, const glm::vec3& bitangent, const glm::vec3& color)
+        Vertex(const glm::vec3& pos, const glm::vec2& tex, const glm::vec3& normal, const glm::vec3& tangent, const glm::vec3& bitangent,
+               const glm::vec3& color)
         {
           m_pos = pos;
           m_tex = tex;
@@ -69,17 +68,12 @@ namespace Fsl
 
       struct MeshEntry
       {
-        uint32_t NumIndices;
-        uint32_t MaterialIndex;
-        uint32_t VertexBase;
+        uint32_t NumIndices{0};
+        uint32_t MaterialIndex{0};
+        uint32_t VertexBase{0};
         std::vector<Vertex> Vertices;
         std::vector<unsigned int> Indices;
-        MeshEntry()
-          : NumIndices(0)
-          , MaterialIndex(0)
-          , VertexBase(0)
-        {
-        }
+        MeshEntry() = default;
       };
 
       struct Dimension
@@ -88,11 +82,13 @@ namespace Fsl
         glm::vec3 max = glm::vec3(std::numeric_limits<float>::min());
         glm::vec3 size;
       };
+
     private:
       std::shared_ptr<IContentManager> m_contentManager;
       std::vector<MeshEntry> m_entries;
       Dimension m_dim;
       IO::Path m_contentPath;
+
     public:
       VulkanMeshLoader(const std::shared_ptr<IContentManager>& contentManager);
 
@@ -107,9 +103,9 @@ namespace Fsl
       //! @param useStaging If true, buffers are staged to device local memory
       //! @param copyCmd (Required for staging) Command buffer to put the copy commands into
       //! @param copyQueue (Required for staging) Queue to put copies into
-      MeshLoader::MeshBuffer CreateBuffers(VulkanDevice& rVulkanDevice,
-                                           const std::vector<MeshLoader::VertexLayout>& layout, const MeshLoader::MeshCreateInfo*const pCreateInfo,
-                                           const bool useStaging, const VkCommandBuffer copyCmd, const VkQueue copyQueue);
+      MeshLoader::MeshBuffer CreateBuffers(VulkanDevice& rVulkanDevice, const std::vector<MeshLoader::VertexLayout>& layout,
+                                           const MeshLoader::MeshCreateInfo* const pCreateInfo, const bool useStaging, const VkCommandBuffer copyCmd,
+                                           const VkQueue copyQueue);
 
 
     protected:

@@ -138,16 +138,17 @@ class PackageLoadAndResolveProcess(object):
         sourceGenFiles = self.__Filter(platformContext, packageFilters, autoAddRecipeExternals, sourceGenFiles)
         packageResolver = PackageResolver(platformContext, self.Config, sourceGenFiles,
                                           autoAddRecipeExternals, fullResolve,
-                                          self.MarkExternalLibFirstUse)
+                                          self.MarkExternalLibFirstUse,
+                                          packageFilters.RecipeFilterManager)
         self.IsFullResolve = fullResolve
         self.Packages = packageResolver.Packages
         return self.Packages
 
 
     def __Filter(self, platformContext: PlatformContext,
-                packageFilters: PackageFilters,
-                autoAddRecipeExternals: bool,
-                sourceGenFiles: List[XmlGenFile]) -> List[XmlGenFile]:
+                 packageFilters: PackageFilters,
+                 autoAddRecipeExternals: bool,
+                 sourceGenFiles: List[XmlGenFile]) -> List[XmlGenFile]:
 
         if not packageFilters.ContainsFilters():
             return sourceGenFiles
@@ -157,18 +158,14 @@ class PackageLoadAndResolveProcess(object):
             self.Log.PushIndent()
             packageResolver = PackageResolver(platformContext, self.Config, sourceGenFiles,
                                               autoAddRecipeExternals, False,
-                                              self.MarkExternalLibFirstUse)
+                                              self.MarkExternalLibFirstUse,
+                                              packageFilters.RecipeFilterManager)
             packages = packageResolver.Packages
 
             topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
             requestedFiles = self.SourceFiles
             requestedPackages = PackageUtil.TryGetPackageListFromFilenames(topLevelPackage, requestedFiles)
             resolvedBuildOrder = PackageFilter.Filter(self.Log, topLevelPackage, requestedPackages, packageFilters)
-
-#            if packageFilters.ContainsFilters():
-#                resolvedBuildOrder = PackageFilter.Filter(self.Log, topLevelPackage, requestedPackages, packageFilters)
-#            else:
-#                resolvedBuildOrder = PackageFilter.FilterNotSupported(self.Log, topLevelPackage, requestedPackages)#
 
             # Now do a lookup of package -> Genfile to provide a filtered gen file list
             genFileSet = set(sourceGenFiles)

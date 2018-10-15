@@ -43,6 +43,7 @@ namespace Fsl
   class TextureAtlasMap
   {
     std::map<UTF8String, AtlasTextureInfo> m_map;
+
   public:
     TextureAtlasMap();
     TextureAtlasMap(ITextureAtlas& atlas);

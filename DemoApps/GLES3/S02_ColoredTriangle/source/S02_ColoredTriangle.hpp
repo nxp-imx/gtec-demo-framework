@@ -22,12 +22,14 @@ namespace Fsl
     GLES3::GLProgram m_program;
     GLuint m_hModelViewMatrixLoc;
     GLuint m_hProjMatrixLoc;
+
   public:
     S02_ColoredTriangle(const DemoAppConfig& config);
-    ~S02_ColoredTriangle();
+    ~S02_ColoredTriangle() override;
+
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

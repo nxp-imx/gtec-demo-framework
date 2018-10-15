@@ -1,33 +1,33 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslGraphics3D/Procedural/BoxGenerator.hpp>
 #include <FslGraphics3D/Procedural/IndexUtil.hpp>
@@ -43,10 +43,14 @@ namespace Fsl
   {
     namespace
     {
-      void GenerateVertices(std::vector<BasicMesh::vertex_type>& rVertices, const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth, const NativeTextureArea*const pTextureAreas, const int32_t numTextureAreas, const WindingOrder::Enum windingOrder)
+      void GenerateVertices(std::vector<BasicMesh::vertex_type>& rVertices, const Vector3& dstCenter, const float dstWidth, const float dstHeight,
+                            const float dstDepth, const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas,
+                            const WindingOrder::Enum windingOrder)
       {
         if (dstWidth <= 0.0f || dstHeight <= 0.0f || dstDepth <= 0.0f || pTextureAreas == nullptr || numTextureAreas < 6)
+        {
           throw std::invalid_argument("GenerateVertices");
+        }
 
         assert(rVertices.size() >= (4 * 6));
 
@@ -216,10 +220,12 @@ namespace Fsl
     }
 
 
-    BasicMesh BoxGenerator::GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth, const NativeTextureArea*const pTextureAreas, const int32_t numTextureAreas, const WindingOrder::Enum windingOrder)
+    BasicMesh BoxGenerator::GenerateList(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth,
+                                         const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas,
+                                         const WindingOrder::Enum windingOrder)
     {
-      const int numVertices = 4 * 6;  // four for each side, six sides
-      const int numIndices = 6 * 6;   // six for each side, six sides
+      const int numVertices = 4 * 6;    // four for each side, six sides
+      const int numIndices = 6 * 6;     // six for each side, six sides
 
       std::vector<BasicMesh::vertex_type> vertices(numVertices);
       std::vector<BasicMesh::index_type> indices(numIndices);
@@ -230,10 +236,12 @@ namespace Fsl
     }
 
 
-    BasicMesh BoxGenerator::GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth, const NativeTextureArea*const pTextureAreas, const int32_t numTextureAreas, const WindingOrder::Enum windingOrder)
+    BasicMesh BoxGenerator::GenerateStrip(const Vector3& dstCenter, const float dstWidth, const float dstHeight, const float dstDepth,
+                                          const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas,
+                                          const WindingOrder::Enum windingOrder)
     {
-      const int numVertices = 4 * 6;  // four for each side, six sides
-      const int numIndices = 4 * 6 + (6 - 1) * 4;  // four for each side, six sides, and 4 degenerated per side beside the first
+      const int numVertices = 4 * 6;                 // four for each side, six sides
+      const int numIndices = 4 * 6 + (6 - 1) * 4;    // four for each side, six sides, and 4 degenerated per side beside the first
 
 
       std::vector<BasicMesh::vertex_type> vertices(numVertices);
@@ -243,6 +251,5 @@ namespace Fsl
       GenerateTriangleStripIndices(indices, windingOrder);
       return BasicMesh(vertices, indices, PrimitiveType::TriangleStrip);
     }
-
   }
 }

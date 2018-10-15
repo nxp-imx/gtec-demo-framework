@@ -71,6 +71,9 @@ class GeneratorGitIgnore(GeneratorBase):
         targetArray = self.__ToArray(targetContent)
         templateArray = self.__ToArray(template)
 
+        templateArray = [('/' + entry if not entry.startswith('/') else entry) for entry in templateArray if len(entry) > 0]
+
+
         targetArray = [_f for _f in targetArray if _f]
         templateArray = [_f for _f in templateArray if _f]
 
@@ -83,6 +86,10 @@ class GeneratorGitIgnore(GeneratorBase):
         if package.Name in generatorIgnoreDict:
             ignoreList = generatorIgnoreDict[package.Name]
             for entry in ignoreList:
+                # Remove the old legacy entries
+                if entry in targetArray:
+                    targetArray.remove(entry)
+                entry = '/' + entry if not entry.startswith('/') and len(entry) > 0 else entry
                 if not entry in targetArray:
                     targetArray.append(entry)
 
@@ -99,9 +106,19 @@ class GeneratorGitIgnore(GeneratorBase):
         #    targetArray.remove('GNUmakefile_yocto')
 
         # sort the content to ensure that there are minimal changes
-        targetArray.sort()
 
-        finalContent = "\n".join(targetArray) + '\n'
+        targetArraySet = set()  # type: Set[str]
+
+        # ensure no duplicates exist
+        finalTargetArray = []
+        for entry in targetArray:
+            if len(entry) > 0 and entry != '/' and entry not in targetArraySet:
+                targetArraySet.add(entry)
+                finalTargetArray.append(entry)
+
+        finalTargetArray.sort()
+
+        finalContent = "\n".join(finalTargetArray) + '\n'
 
         if not config.DisableWrite:
             IOUtil.WriteFileIfChanged(targetFilePath, finalContent)

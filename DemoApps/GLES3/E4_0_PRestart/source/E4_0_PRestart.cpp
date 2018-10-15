@@ -1,8 +1,8 @@
 /*
-* OpenGL ES 3.0 Tutorial 4
-*
-* Primitive restart operation
-*/
+ * OpenGL ES 3.0 Tutorial 4
+ *
+ * Primitive restart operation
+ */
 
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -10,14 +10,14 @@
 #include <GLES3/gl3.h>
 #include <iostream>
 
-//Attribute Arrays Indexes and Sizes
-#define VERTEX_POS_SIZE       3 // x, y and z
-#define VERTEX_COLOR_SIZE     4 // r, g, b, and a
+// Attribute Arrays Indexes and Sizes
+#define VERTEX_POS_SIZE 3      // x, y and z
+#define VERTEX_COLOR_SIZE 4    // r, g, b, and a
 
-#define VERTEX_POS_INDX       0
-#define VERTEX_COLOR_INDX     1
+#define VERTEX_POS_INDX 0
+#define VERTEX_COLOR_INDX 1
 
-#define VERTEX_STRIDE         ( sizeof(GLfloat) * ( VERTEX_POS_SIZE + VERTEX_COLOR_SIZE ) )
+#define VERTEX_STRIDE (sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE))
 
 namespace Fsl
 {
@@ -25,7 +25,6 @@ namespace Fsl
 
   E4_0_PRestart::E4_0_PRestart(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_program()
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
     m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"));
@@ -36,39 +35,38 @@ namespace Fsl
 
     try
     {
-      //VERTEX DATA
-      //OSTEP1 12 vertices, with (x,y,z) ,(r, g, b, a) per-vertex
-      GLfloat vertices0[12 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)] =
-      {
+      // VERTEX DATA
+      // OSTEP1 12 vertices, with (x,y,z) ,(r, g, b, a) per-vertex
+      GLfloat vertices0[12 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)] = {
         -1.0f, -1.0f, 0.0f,        // v0
-        1.0f, 0.0f, 0.0f, 1.0f,  // c0
+        1.0f, 0.0f, 0.0f, 1.0f,    // c0
         -1.0f, -0.5f, 0.0f,        // v1
-        0.0f, 1.0f, 0.0f, 1.0f,  // c1
+        0.0f, 1.0f, 0.0f, 1.0f,    // c1
         -0.5f, -1.0f, 0.0f,        // v2
-        0.0f, 0.0f, 1.0f, 1.0f,  // c2
-        -0.5f, -0.5f, 0.0f,      //v3
-        1.0f, 0.0f, 1.0f, 1.0f,  // c3
-        0.0f, -1.0f, 0.0f,      //v4
-        0.3f, 0.2f, 1.0f, 1.0f,  // c4
-        0.0f, -0.5f, 0.0f,      //v5
-        1.0f, 0.0f, 1.0f, 1.0f,  // c5
-        //NEW VERTICES ARE LOADED
-        -1.0f, 0.0f, 0.0f,        // v0
-        1.0f, 0.0f, 0.0f, 1.0f,  // c0
-        -1.0f, 0.5f, 0.0f,        // v1
-        0.0f, 1.0f, 0.0f, 1.0f,  // c1
-        -0.5f, 0.0f, 0.0f,        // v2
-        0.0f, 0.0f, 1.0f, 1.0f,  // c2
-        -0.5f, 0.5f, 0.0f,      //v3
-        1.0f, 0.0f, 1.0f, 1.0f,  // c3
-        0.0f, 0.0f, 0.0f,      //v4
-        0.3f, 0.2f, 1.0f, 1.0f,  // c4
-        0.0f, 0.5f, 0.0f,      //v5
-        1.0f, 0.0f, 1.0f, 1.0f,  // c5
+        0.0f, 0.0f, 1.0f, 1.0f,    // c2
+        -0.5f, -0.5f, 0.0f,        // v3
+        1.0f, 0.0f, 1.0f, 1.0f,    // c3
+        0.0f, -1.0f, 0.0f,         // v4
+        0.3f, 0.2f, 1.0f, 1.0f,    // c4
+        0.0f, -0.5f, 0.0f,         // v5
+        1.0f, 0.0f, 1.0f, 1.0f,    // c5
+        // NEW VERTICES ARE LOADED
+        -1.0f, 0.0f, 0.0f,         // v0
+        1.0f, 0.0f, 0.0f, 1.0f,    // c0
+        -1.0f, 0.5f, 0.0f,         // v1
+        0.0f, 1.0f, 0.0f, 1.0f,    // c1
+        -0.5f, 0.0f, 0.0f,         // v2
+        0.0f, 0.0f, 1.0f, 1.0f,    // c2
+        -0.5f, 0.5f, 0.0f,         // v3
+        1.0f, 0.0f, 1.0f, 1.0f,    // c3
+        0.0f, 0.0f, 0.0f,          // v4
+        0.3f, 0.2f, 1.0f, 1.0f,    // c4
+        0.0f, 0.5f, 0.0f,          // v5
+        1.0f, 0.0f, 1.0f, 1.0f,    // c5
       };
 
-      //OSTEP2 Define the Indices, when you want to render a new primitive use the PRIMITIVE RESTART INDEX
-      GLushort indices[13] = { 0, 1, 2, 3, 4, 5, 0xFFFF, 6, 7, 8, 9, 10, 11 };
+      // OSTEP2 Define the Indices, when you want to render a new primitive use the PRIMITIVE RESTART INDEX
+      GLushort indices[13] = {0, 1, 2, 3, 4, 5, 0xFFFF, 6, 7, 8, 9, 10, 11};
 
       // Generate VBO Ids and load the VBOs with data
       GL_CHECK(glGenBuffers(2, m_userData.vboIds));
@@ -91,12 +89,10 @@ namespace Fsl
       GL_CHECK(glEnableVertexAttribArray(VERTEX_POS_INDX));
       GL_CHECK(glEnableVertexAttribArray(VERTEX_COLOR_INDX));
 
-      GL_CHECK(glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE,
-        GL_FLOAT, GL_FALSE, VERTEX_STRIDE, (const void *)0));
+      GL_CHECK(glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, nullptr));
 
-      GL_CHECK(glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE,
-        GL_FLOAT, GL_FALSE, VERTEX_STRIDE,
-        (const void *)(VERTEX_POS_SIZE * sizeof(GLfloat))));
+      GL_CHECK(glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE,
+                                     (const void*)(VERTEX_POS_SIZE * sizeof(GLfloat))));
 
       // Restore the VAO Id to the default
       GL_CHECK(glBindVertexArray(0));
@@ -132,11 +128,11 @@ namespace Fsl
     // Bind the VAO
     glBindVertexArray(m_userData.vaoId[0]);
 
-    //OSTEP3 Enable the Primitive Restart Functionality
+    // OSTEP3 Enable the Primitive Restart Functionality
     glEnable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
 
-    //OSTEP4 Draw the triangles
-    glDrawElements(GL_TRIANGLE_STRIP, 13, GL_UNSIGNED_SHORT, (const void *)nullptr);
+    // OSTEP4 Draw the triangles
+    glDrawElements(GL_TRIANGLE_STRIP, 13, GL_UNSIGNED_SHORT, nullptr);
 
     glDisable(GL_PRIMITIVE_RESTART_FIXED_INDEX);
     // Return to the default VAO
@@ -160,5 +156,4 @@ namespace Fsl
       m_userData.vaoId[0] = GLValues::INVALID_HANDLE;
     }
   }
-
 }

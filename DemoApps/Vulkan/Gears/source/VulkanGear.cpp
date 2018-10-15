@@ -1,12 +1,12 @@
 /*
-* Vulkan Example - Animated gears using multiple uniform buffers
-*
-* See readme.md for details
-*
-* Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
-*
-* This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
-*/
+ * Vulkan Example - Animated gears using multiple uniform buffers
+ *
+ * See readme.md for details
+ *
+ * Copyright (C) 2015 by Sascha Willems - www.saschawillems.de
+ *
+ * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
+ */
 
 // Based on a example called 'Gears' by Sascha Willems from https://github.com/SaschaWillems/Vulkan
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
@@ -32,9 +32,7 @@ namespace Fsl
   }
 
 
-  VulkanGear::~VulkanGear()
-  {
-  }
+  VulkanGear::~VulkanGear() = default;
 
 
   void VulkanGear::Generate(const GearInfo& gearinfo, const VkQueue queue)
@@ -47,13 +45,13 @@ namespace Fsl
     std::vector<Vertex> vBuffer;
     std::vector<uint32_t> iBuffer;
 
-    //int i, j;
-    //float r0, r1, r2;
-    //float ta, da;
-    //float u1, v1, u2, v2, len;
-    //float cos_ta, cos_ta_1da, cos_ta_2da, cos_ta_3da, cos_ta_4da;
-    //float sin_ta, sin_ta_1da, sin_ta_2da, sin_ta_3da, sin_ta_4da;
-    //int32_t ix0, ix1, ix2, ix3, ix4, ix5;
+    // int i, j;
+    // float r0, r1, r2;
+    // float ta, da;
+    // float u1, v1, u2, v2, len;
+    // float cos_ta, cos_ta_1da, cos_ta_2da, cos_ta_3da, cos_ta_4da;
+    // float sin_ta, sin_ta_1da, sin_ta_2da, sin_ta_3da, sin_ta_4da;
+    // int32_t ix0, ix1, ix2, ix3, ix4, ix5;
 
     const float r0 = gearinfo.InnerRadius;
     const float r1 = gearinfo.OuterRadius - gearinfo.ToothDepth / 2.0f;
@@ -77,7 +75,7 @@ namespace Fsl
 
       float u1 = r2 * cos_ta_1da - r1 * cos_ta;
       float v1 = r2 * sin_ta_1da - r1 * sin_ta;
-      const float len = sqrt(u1 * u1 + v1 * v1);
+      const float len = std::sqrt(u1 * u1 + v1 * v1);
       u1 /= len;
       v1 /= len;
       const float u2 = r1 * cos_ta_3da - r2 * cos_ta_2da;
@@ -170,8 +168,8 @@ namespace Fsl
       NewFace(iBuffer, ix1, ix3, ix2);
     }
 
-    const uint32_t vertexBufferSize = static_cast<uint32_t>(vBuffer.size() * sizeof(Vertex));
-    const uint32_t indexBufferSize = static_cast<uint32_t>(iBuffer.size() * sizeof(uint32_t));
+    const auto vertexBufferSize = static_cast<uint32_t>(vBuffer.size() * sizeof(Vertex));
+    const auto indexBufferSize = static_cast<uint32_t>(iBuffer.size() * sizeof(uint32_t));
 
     const bool useStaging = true;
 
@@ -179,12 +177,12 @@ namespace Fsl
     {
       // Create staging buffers
       // Vertex data
-      auto vertexStaging = m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                                                         vertexBufferSize, vBuffer.data());
+      auto vertexStaging =
+        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize, vBuffer.data());
 
       // Index data
-      auto indexStaging = m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                                                        indexBufferSize, iBuffer.data());
+      auto indexStaging =
+        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize, iBuffer.data());
 
       // Create device local buffers
       // Vertex buffer
@@ -193,9 +191,9 @@ namespace Fsl
       // Index buffer
 
       m_indexBuffer = m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize);
+                                                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize);
 
-      { // Copy from staging buffers
+      {    // Copy from staging buffers
         CommandBuffer copyCmd = m_pVulkanDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 
         VkBufferCopy copyRegion{};
@@ -212,12 +210,12 @@ namespace Fsl
     else
     {
       // Vertex buffer
-      m_vertexBuffer = m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                                                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize, vBuffer.data());
+      m_vertexBuffer =
+        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize, vBuffer.data());
 
       // Index buffer
-      m_indexBuffer = m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize, iBuffer.data());
+      m_indexBuffer =
+        m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize, iBuffer.data());
     }
 
     m_indexCount = static_cast<uint32_t>(iBuffer.size());
@@ -233,7 +231,7 @@ namespace Fsl
     m_ubo.View = glm::rotate(m_ubo.View, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     m_ubo.View = glm::rotate(m_ubo.View, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 
-    m_ubo.Model = glm::mat4();
+    m_ubo.Model = glm::mat4(1.0f);
     m_ubo.Model = glm::translate(m_ubo.Model, m_pos);
 
     const float moddedRotationZ = (m_rotSpeed * timer) + m_rotOffset;
@@ -245,7 +243,7 @@ namespace Fsl
     m_ubo.LightPos.x = sin(glm::radians(timer)) * 8.0f;
     m_ubo.LightPos.z = cos(glm::radians(timer)) * 8.0f;
 
-    { //Transfer
+    {    // Transfer
       void* pData = nullptr;
       m_uniformData.Memory.MapMemory(0, sizeof(m_ubo), 0, &pData);
       std::memcpy(pData, &m_ubo, sizeof(m_ubo));
@@ -281,7 +279,7 @@ namespace Fsl
 
   void VulkanGear::Draw(const VkCommandBuffer cmdbuffer, const VkPipelineLayout pipelineLayout)
   {
-    VkDeviceSize offsets[1] = { 0 };
+    VkDeviceSize offsets[1] = {0};
 
     vkCmdBindDescriptorSets(cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &DescriptorSet, 0, nullptr);
     vkCmdBindVertexBuffers(cmdbuffer, 0, 1, m_vertexBuffer.GetBufferPointer(), offsets);
@@ -324,7 +322,8 @@ namespace Fsl
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.pNext = nullptr;
     allocInfo.allocationSize = memReqs.size;
-    allocInfo.memoryTypeIndex = m_pVulkanDevice->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    allocInfo.memoryTypeIndex =
+      m_pVulkanDevice->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     m_uniformData.Memory.Reset(m_pVulkanDevice->GetDevice(), allocInfo);
 

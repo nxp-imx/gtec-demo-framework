@@ -1,39 +1,39 @@
 /****************************************************************************************************************************************************
-* Copyright (c) 2014 Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*
-*    * Redistributions of source code must retain the above copyright notice,
-*      this list of conditions and the following disclaimer.
-*
-*    * Redistributions in binary form must reproduce the above copyright notice,
-*      this list of conditions and the following disclaimer in the documentation
-*      and/or other materials provided with the distribution.
-*
-*    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
-*      its contributors may be used to endorse or promote products derived from
-*      this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-* IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-* INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-* OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-* ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*
-****************************************************************************************************************************************************/
+ * Copyright (c) 2014 Freescale Semiconductor, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *    * Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *
+ *    * Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following disclaimer in the documentation
+ *      and/or other materials provided with the distribution.
+ *
+ *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *      its contributors may be used to endorse or promote products derived from
+ *      this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************************************************************************************/
 
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/IO/Path.hpp>
+#include <FslBase/Log/IO/LogPath.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
 #include <iostream>
@@ -72,7 +72,6 @@ namespace Fsl
 
   DemoHostManagerOptionParser::DemoHostManagerOptionParser()
     : m_exitAfterFrame(-1)
-    , m_exitAfterDuration()
     , m_screenshotConfig(TestScreenshotNameScheme::FrameNumber, ImageFormat::Png, 0, "Screenshot")
     , m_forceUpdateTime(0)
     , m_logStatsMode(LogStatsMode::Disabled)
@@ -86,25 +85,40 @@ namespace Fsl
 
   void DemoHostManagerOptionParser::ArgumentSetup(std::deque<Option>& rOptions)
   {
-    rOptions.push_back(Option("ExitAfterFrame", OptionArgument::OptionRequired, CommandId::ExitAfterFrame, "Exit after the given number of frames has been rendered"));
-    rOptions.push_back(Option("ExitAfterDuration", OptionArgument::OptionRequired, CommandId::ExitAfterDuration, "Exit after the given duration has passed. The value can be specified in seconds or milliseconds. For example 10s or 10ms."));
-    rOptions.push_back(Option("LogStats", OptionArgument::OptionNone, CommandId::LogStats, "Log basic rendering stats (this is equal to setting LogStatsMode to latest)"));
-    rOptions.push_back(Option("LogStatsMode", OptionArgument::OptionRequired, CommandId::LogStatsMode, "Set the log stats mode, more advanced version of LogStats. Can be disabled, latest, average"));
-    rOptions.push_back(Option("Stats", OptionArgument::OptionNone, CommandId::Stats, "Display basic frame profiling stats"));
-    rOptions.push_back(Option("AppFirewall", OptionArgument::OptionNone, CommandId::AppFirewall, "Enable the app firewall, reporting crashes on-screen instead of exiting"));
-    rOptions.push_back(Option("EnableBasic2DPrealloc", OptionArgument::OptionRequired, CommandId::EnableBasic2DPrealloc, "Enable/disable basic2d preallocation (Stats is enabled this is forced true)", OptionGroup::Hidden));
-    rOptions.push_back(Option("ScreenshotFrequency", OptionArgument::OptionRequired, CommandId::ScreenshotFrequency, "Create a screenshot at the given frame frequency"));
-    rOptions.push_back(Option("ScreenshotFormat", OptionArgument::OptionRequired, CommandId::ScreenshotFormat, "Chose the format for the screenshot: bmp, jpg, png or tga (defaults to png)"));
-    rOptions.push_back(Option("ScreenshotNamePrefix", OptionArgument::OptionRequired, CommandId::ScreenshotNamePrefix, "Chose the screenshot name prefix (defaults to 'Screenshot')"));
-    rOptions.push_back(Option("ScreenshotNameScheme", OptionArgument::OptionRequired, CommandId::ScreenshotNameScheme, "Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)"));
-    rOptions.push_back(Option("ContentMonitor", OptionArgument::OptionNone, CommandId::ContentMonitor, "Monitor the Content directory for changes and restart the app on changes. WARNING: Might not work on all platforms and it might impact app performance (experimental)"));
-    rOptions.push_back(Option("ForceUpdateTime", OptionArgument::OptionRequired, CommandId::ForceUpdateTime, "Force the update time to be the given value in microseconds (can be useful when taking a lot of screen-shots). If 0 this option is disabled"));
+    rOptions.emplace_back("ExitAfterFrame", OptionArgument::OptionRequired, CommandId::ExitAfterFrame,
+                          "Exit after the given number of frames has been rendered");
+    rOptions.emplace_back(
+      "ExitAfterDuration", OptionArgument::OptionRequired, CommandId::ExitAfterDuration,
+      "Exit after the given duration has passed. The value can be specified in seconds or milliseconds. For example 10s or 10ms.");
+    rOptions.emplace_back("LogStats", OptionArgument::OptionNone, CommandId::LogStats,
+                          "Log basic rendering stats (this is equal to setting LogStatsMode to latest)");
+    rOptions.emplace_back("LogStatsMode", OptionArgument::OptionRequired, CommandId::LogStatsMode,
+                          "Set the log stats mode, more advanced version of LogStats. Can be disabled, latest, average");
+    rOptions.emplace_back("Stats", OptionArgument::OptionNone, CommandId::Stats, "Display basic frame profiling stats");
+    rOptions.emplace_back("AppFirewall", OptionArgument::OptionNone, CommandId::AppFirewall,
+                          "Enable the app firewall, reporting crashes on-screen instead of exiting");
+    rOptions.emplace_back("EnableBasic2DPrealloc", OptionArgument::OptionRequired, CommandId::EnableBasic2DPrealloc,
+                          "Enable/disable basic2d preallocation (Stats is enabled this is forced true)", OptionGroup::Hidden);
+    rOptions.emplace_back("ScreenshotFrequency", OptionArgument::OptionRequired, CommandId::ScreenshotFrequency,
+                          "Create a screenshot at the given frame frequency");
+    rOptions.emplace_back("ScreenshotFormat", OptionArgument::OptionRequired, CommandId::ScreenshotFormat,
+                          "Chose the format for the screenshot: bmp, jpg, png or tga (defaults to png)");
+    rOptions.emplace_back("ScreenshotNamePrefix", OptionArgument::OptionRequired, CommandId::ScreenshotNamePrefix,
+                          "Chose the screenshot name prefix (defaults to 'Screenshot')");
+    rOptions.emplace_back("ScreenshotNameScheme", OptionArgument::OptionRequired, CommandId::ScreenshotNameScheme,
+                          "Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)");
+    rOptions.emplace_back("ContentMonitor", OptionArgument::OptionNone, CommandId::ContentMonitor,
+                          "Monitor the Content directory for changes and restart the app on changes. WARNING: Might not work on all platforms "
+                          "and it might impact app performance (experimental)");
+    rOptions.emplace_back(
+      "ForceUpdateTime", OptionArgument::OptionRequired, CommandId::ForceUpdateTime,
+      "Force the update time to be the given value in microseconds (can be useful when taking a lot of screen-shots). If 0 this option is disabled");
   }
 
 
-  OptionParseResult::Enum DemoHostManagerOptionParser::Parse(const int32_t cmdId, const char*const pszOptArg)
+  OptionParseResult::Enum DemoHostManagerOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
   {
-    Rectangle rectValue;
+    // Rectangle rectValue;
     bool boolValue;
     switch (cmdId)
     {
@@ -132,11 +146,17 @@ namespace Fsl
     {
       std::string str(pszOptArg);
       if (str == "disabled")
+      {
         m_logStatsMode = LogStatsMode::Disabled;
+      }
       else if (str == "latest")
+      {
         m_logStatsMode = LogStatsMode::Latest;
+      }
       else if (str == "average")
+      {
         m_logStatsMode = LogStatsMode::Average;
+      }
       else
       {
         throw std::invalid_argument(std::string("Unknown logStatsMode parameter " + str));
@@ -200,7 +220,6 @@ namespace Fsl
   }
 
 
-
   bool DemoHostManagerOptionParser::IsAppFirewallEnabled() const
   {
     return m_appFirewall;
@@ -225,7 +244,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum DemoHostManagerOptionParser::ParseDurationExitConfig(const char*const pszOptArg)
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseDurationExitConfig(const char* const pszOptArg)
   {
     std::string input(pszOptArg);
 
@@ -242,7 +261,7 @@ namespace Fsl
       input.erase(input.size() - 1, 1);
     }
 
-    if (durationFormat == DurationFormat::Invalid || input.size() < 1)
+    if (durationFormat == DurationFormat::Invalid || input.empty())
     {
       FSLLOG("Unsupported duration string '" << input << "' expected a duration value like this 10s or 10ms");
       return OptionParseResult::Failed;
@@ -267,7 +286,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotImageFormat(const char*const pszOptArg)
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotImageFormat(const char* const pszOptArg)
   {
     ImageFormat format = ImageFormatUtil::TryDetectImageFormat(std::string(pszOptArg));
     if (format == ImageFormat::Undefined)
@@ -292,7 +311,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotNamePrefix(const char*const pszOptArg)
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotNamePrefix(const char* const pszOptArg)
   {
     try
     {
@@ -313,7 +332,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotNameScheme(const char*const pszOptArg)
+  OptionParseResult::Enum DemoHostManagerOptionParser::ParseScreenshotNameScheme(const char* const pszOptArg)
   {
     std::string input(pszOptArg);
 
@@ -322,12 +341,12 @@ namespace Fsl
       m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::FrameNumber;
       return OptionParseResult::Parsed;
     }
-    else if (input == "sequential")
+    if (input == "sequential")
     {
       m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::Sequential;
       return OptionParseResult::Parsed;
     }
-    else if (input == "exact")
+    if (input == "exact")
     {
       m_screenshotConfig.NamingScheme = TestScreenshotNameScheme::Exact;
       return OptionParseResult::Parsed;
