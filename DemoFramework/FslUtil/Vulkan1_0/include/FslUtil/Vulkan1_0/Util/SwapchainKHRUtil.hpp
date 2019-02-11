@@ -44,13 +44,13 @@ namespace Fsl
     namespace SwapchainKHRUtil
     {
       VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
-                                     const VkSurfaceKHR surface, const uint32_t minImageCount, const uint32_t imageArrayLayers,
+                                     const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkBool32 clipped,
                                      const VkSwapchainKHR oldSwapchain);
 
       VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
-                                     const VkSurfaceKHR surface, const uint32_t minImageCount, const uint32_t imageArrayLayers,
+                                     const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
                                      const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain);

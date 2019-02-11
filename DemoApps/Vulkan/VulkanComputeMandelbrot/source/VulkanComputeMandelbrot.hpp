@@ -28,7 +28,7 @@
 // Recreated as a DemoFramework freestyle console sample by Freescale (2016)
 
 #include <FslDemoApp/Console/DemoAppConsole.hpp>
-#include <FslUtil/Vulkan1_0/Extend/PhysicalDeviceRecord.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/CommandPool.hpp>
@@ -53,7 +53,7 @@ namespace Fsl
   class VulkanComputeMandelbrot : public DemoAppConsole
   {
     RapidVulkan::Instance m_instance;
-    Vulkan::PhysicalDeviceRecord m_physicalDevice;
+    Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
     RapidVulkan::Device m_device;
     Vulkan::VUDeviceQueueRecord m_deviceQueue;
     RapidVulkan::Fence m_fence;

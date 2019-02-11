@@ -77,7 +77,9 @@ namespace Fsl
     void FloatSliderAndValueLabel::WinResolve(const DemoTime& demoTime)
     {
       if (!IsLayoutDirty())
+      {
         return;
+      }
       ContentControlBase::WinResolve(demoTime);
       UpdateLinkedContent();
       FixLayout();

@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <algorithm>
 
 namespace Fsl
 {
@@ -46,147 +47,183 @@ namespace Fsl
     uint32_t m_value{0};
 
   public:
-    Color() = default;
+    constexpr Color() = default;
 
-    explicit Color(const uint32_t value)
+    constexpr explicit Color(const uint32_t value)
       : m_value(value)
     {
     }
 
-    Color(const float r, const float g, const float b, const float a);
-    Color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
+    // IMPROVEMENT: C++14 make this constexpr
+    Color(const float r, const float g, const float b, const float a)
+      : m_value(static_cast<uint32_t>(Convert(b)) | (static_cast<uint32_t>(Convert(g)) << 8) | (static_cast<uint32_t>(Convert(r)) << 16) |
+                (static_cast<uint32_t>(Convert(a)) << 24))
+    {
+    }
+
+    constexpr Color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
+      : m_value(static_cast<uint32_t>(b) | (static_cast<uint32_t>(g) << 8) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(a) << 24))
+    {
+    }
+
     Color(const int32_t r, const int32_t g, const int32_t b, const int32_t a);
     Color(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a);
 
-    const Vector4 ToVector4() const;
+    constexpr Vector4 ToVector4() const
+    {
+      return Vector4(R() / 255.0f, G() / 255.0f, B() / 255.0f, A() / 255.0f);
+    }
 
     //! get the packed value
-    uint32_t PackedValue() const
+    constexpr uint32_t PackedValue() const
     {
       return m_value;
     }
 
     //! @brief get the alpha component
-    uint8_t A() const
+    constexpr uint8_t A() const
     {
       return static_cast<uint8_t>((m_value >> 24) & 0xFF);
     }
+
     //! @brief get the red component
-    uint8_t R() const
+    constexpr uint8_t R() const
     {
       return static_cast<uint8_t>((m_value >> 16) & 0xFF);
     }
+
     //! @brief get the green component
-    uint8_t G() const
+    constexpr uint8_t G() const
     {
       return static_cast<uint8_t>((m_value >> 8) & 0xFF);
     }
+
     //! @brief get the blue component
-    uint8_t B() const
+    constexpr uint8_t B() const
     {
       return static_cast<uint8_t>(m_value & 0xFF);
     }
 
     // Some predefined colors (values taken from HTML)
-    static Color Transparent()
+    static constexpr Color Transparent()
     {
       return Color(0x00000000);
     }
 
-    static Color Black()
+    static constexpr Color Black()
     {
       return Color(0xFF000000);
     }
 
-    static Color Red()
+    static constexpr Color Red()
     {
       return Color(0xFFFF0000);
     }
 
-    static Color Green()
+    static constexpr Color Green()
     {
       return Color(0xFF00FF00);
     }
 
-    static Color Blue()
+    static constexpr Color Blue()
     {
       return Color(0xFF0000FF);
     }
 
-    static Color Cyan()
+    static constexpr Color Cyan()
     {
       return Color(0xFF00FFFF);
     }
 
-    static Color Yellow()
+    static constexpr Color Yellow()
     {
       return Color(0xFFFFFF00);
     }
 
-    static Color White()
+    static constexpr Color White()
     {
       return Color(0xFFFFFFFF);
     }
 
-    static Color Orange()
+    static constexpr Color Orange()
     {
       return Color(0xFFFFA500);
     }
 
-    static Color Pink()
+    static constexpr Color Pink()
     {
       return Color(0xFFFAAFBE);
     }
 
-    static Color Purple()
+    static constexpr Color Purple()
     {
       return Color(0xFF800080);
     }
 
-    static Color Marrom()
+    static constexpr Color Marrom()
     {
       return Color(0xFF800000);
     }
 
-    static Color Brown()
+    static constexpr Color Brown()
     {
       return Color(0xFFA52A2A);
     }
 
-    static Color Olive()
+    static constexpr Color Olive()
     {
       return Color(0xFF808000);
     }
 
-    static Color Silver()
+    static constexpr Color Silver()
     {
       return Color(0xFFC0C0C0);
     }
 
-    static Color DarkBlue()
+    static constexpr Color DarkBlue()
     {
       return Color(0xFF0000A0);
     }
 
-    static Color LightBlue()
+    static constexpr Color LightBlue()
     {
       return Color(0xFFADD8E6);
     }
 
-    static Color Lime()
+    static constexpr Color Lime()
     {
       return Color(0xFF00FF00);
     }
 
 
-    bool operator==(const Color& rhs) const
+    constexpr bool operator==(const Color& rhs) const
     {
       return m_value == rhs.m_value;
     }
 
-    bool operator!=(const Color& rhs) const
+    constexpr bool operator!=(const Color& rhs) const
     {
       return m_value != rhs.m_value;
+    }
+
+  private:
+    // IMPROVEMENT: C++14 make this constexpr
+    static inline uint8_t Convert(const float value)
+    {
+      const auto asInt = static_cast<int32_t>(value * 255.0f);
+      // Since std::min and max are not constexpr in C++11
+      // return std::min(std::max(asInt, 0), 255);
+      return static_cast<uint8_t>(Min(Max(asInt, 0), 255));
+    }
+
+    static constexpr int32_t Min(const int32_t lhs, const int32_t rhs)
+    {
+      return (lhs < rhs ? lhs : rhs);
+    }
+
+    static constexpr int32_t Max(const int32_t lhs, const int32_t rhs)
+    {
+      return (lhs > rhs ? lhs : rhs);
     }
   };
 }

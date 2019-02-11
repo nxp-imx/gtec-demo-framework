@@ -37,7 +37,6 @@ namespace Fsl
   HostInfoService::HostInfoService(const ServiceProvider& serviceProvider)
     : ThreadLocalService(serviceProvider)
     , m_activeAPI(DemoHostFeatureName::Stub, 0)
-
   {
   }
 
@@ -63,6 +62,12 @@ namespace Fsl
   }
 
 
+  HostConfig HostInfoService::GetConfig() const
+  {
+    return m_hostConfig;
+  }
+
+
   void HostInfoService::SetIsConsoleBasedHost(const bool isConsoleBasedHost)
   {
     m_isConsoleBasedHost = isConsoleBasedHost;
@@ -78,5 +83,11 @@ namespace Fsl
   void HostInfoService::SetAppHostConfig(std::shared_ptr<DemoAppHostConfig> appHostConfig)
   {
     m_appHostConfig = appHostConfig;
+  }
+
+
+  void HostInfoService::SetConfig(const HostConfig& config)
+  {
+    m_hostConfig = config;
   }
 }

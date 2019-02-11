@@ -118,13 +118,13 @@ namespace Fsl
     {    // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
       Bitmap bitmap;
 
-      std::string strPath("Seamless.jpg");
+      std::string strPath("Textures/Seamless/GrassPattern/Seamless.jpg");
       switch (m_config.GetDemoId())
       {
       case 0:
       case 2:
       case 3:
-        strPath = "SeamlessFur.png";
+        strPath = "Textures/Seamless/Fur/SeamlessFur.png";
         break;
       default:
         break;

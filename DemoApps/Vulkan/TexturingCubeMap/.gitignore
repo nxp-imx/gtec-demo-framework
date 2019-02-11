@@ -3,6 +3,8 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Models/
+/Content/Textures/Cubemap/Yokohama3/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GNUmakefile
@@ -14,6 +16,7 @@
 /TexturingCubeMap_Wayland_d
 /TexturingCubeMap_X11
 /TexturingCubeMap_X11_d
+/TexturingCubeMap_c
 /TexturingCubeMap_d
 /Vulkan.TexturingCubeMap
 /Vulkan.TexturingCubeMap.VC.VC.opendb

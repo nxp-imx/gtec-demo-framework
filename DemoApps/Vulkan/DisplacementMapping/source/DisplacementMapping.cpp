@@ -260,7 +260,7 @@ namespace Fsl
 
   void DisplacementMapping::LoadMeshes()
   {
-    m_meshes.Object = LoadMesh("models/plane.obj", g_vertexLayout, 0.25f);
+    m_meshes.Object = LoadMesh("Models/Plane/plane.obj", g_vertexLayout, 0.25f);
   }
 
 
@@ -269,12 +269,12 @@ namespace Fsl
     if (m_deviceActiveFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC compression");
-      m_textures.ColorHeightMap = m_textureLoader->LoadTexture("textures/pattern_36_bc3.ktx");
+      m_textures.ColorHeightMap = m_textureLoader->LoadTexture("Textures/Pattern36/pattern_36_bc3.ktx");
     }
     else if (m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 compression");
-      m_textures.ColorHeightMap = m_textureLoader->LoadTexture("textures/pattern_36_etc2.ktx");
+      m_textures.ColorHeightMap = m_textureLoader->LoadTexture("Textures/Pattern36/pattern_36_etc2.ktx");
     }
     else
     {

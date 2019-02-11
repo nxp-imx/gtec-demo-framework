@@ -37,12 +37,12 @@
 #include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
 #include <FslDemoApp/Base/Service/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLIndexBufferArray.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBufferArray.hpp>
-#include <vector>
-#include <FslGraphics3D/Camera/ArcballCamera.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -51,37 +51,41 @@ namespace Fsl
     class SceneNode;
   }
 
-  class IContentManager;
-
   class ModelViewer : public DemoAppGLES2
   {
+    struct Resources
+    {
+      GLES2::GLProgram Program;
+      GLES2::GLTexture Texture;
+      GLES2::GLTexture TextureSpecular;
+      GLES2::GLTexture TextureNormal;
+      GLES2::GLIndexBufferArray IndexBuffers;
+      GLES2::GLVertexBufferArray VertexBuffers;
+
+      GLint LocWorld = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocWorldView = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocWorldViewProjection = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocNormalMatrix = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocTexture0 = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocTextureSpecular = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocTextureNormal = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocLightDirection = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocLightColor = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocMatAmbient = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocMatSpecular = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocMatShininess = GLES2::GLValues::INVALID_LOCATION;
+
+      std::array<GLES2::GLVertexAttribLink, 5> AttribLink;
+    };
+
     std::shared_ptr<IProfilerService> m_profilerService;
     ScopedProfilerCustomCounterHandle m_hCounterBind;
     ScopedProfilerCustomCounterHandle m_hCounterEnable;
     ScopedProfilerCustomCounterHandle m_hCounterDraw;
     ScopedProfilerCustomCounterHandle m_hCounterTotal;
     Graphics3D::ArcballCamera m_camera;
-    GLES2::GLProgram m_program;
-    GLES2::GLTexture m_texture;
-    GLES2::GLTexture m_textureSpecular;
-    GLES2::GLTexture m_textureNormal;
-    GLES2::GLIndexBufferArray m_indexBuffers;
-    GLES2::GLVertexBufferArray m_vertexBuffers;
 
-    GLint m_locWorld;
-    GLint m_locWorldView;
-    GLint m_locWorldViewProjection;
-    GLint m_locNormalMatrix;
-    GLint m_locTexture0;
-    GLint m_locTextureSpecular;
-    GLint m_locTextureNormal;
-    GLint m_locLightDirection;
-    GLint m_locLightColor;
-    GLint m_locMatAmbient;
-    GLint m_locMatSpecular;
-    GLint m_locMatShininess;
-
-    std::vector<GLES2::GLVertexAttribLink> m_attribLink;
+    Resources m_resources;
 
     std::shared_ptr<Graphics3D::SceneNode> m_rootNode;
     Vector3 m_rotationSpeedOld;

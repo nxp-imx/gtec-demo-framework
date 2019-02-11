@@ -32,15 +32,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Window/DemoAppWindow.hpp>
-#include <FslDemoApp/Base/Service/Gamepad/IGamepads.hpp>
-#include <vector>
+#include <Shared/InputEvents/InputLogger.hpp>
 
 namespace Fsl
 {
   class InputEvents : public DemoAppWindow
   {
-    std::shared_ptr<IGamepads> m_gamepads;
-    std::vector<GamepadState> m_gamepadStates;
+    InputLogger m_logger;
 
   public:
     InputEvents(const DemoAppConfig& config);
@@ -55,9 +53,6 @@ namespace Fsl
   protected:
     void Update(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
-
-  private:
-    void UpdateGamepadStates();
   };
 }
 

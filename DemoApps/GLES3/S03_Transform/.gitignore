@@ -31,6 +31,7 @@
 /S03_Transform_Wayland_d
 /S03_Transform_X11
 /S03_Transform_X11_d
+/S03_Transform_c
 /S03_Transform_d
 /build/
 /resource.h

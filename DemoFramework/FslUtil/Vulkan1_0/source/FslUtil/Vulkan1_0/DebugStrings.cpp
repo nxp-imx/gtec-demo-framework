@@ -32,8 +32,9 @@
 // Based on RapidVulkan https://github.com/Unarmed1000/RapidVulkan with permission.
 
 #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
-#include <RapidVulkan/Debug/Strings/VkResult.hpp>
+#include <RapidVulkan/Debug/Strings/VkFormat.hpp>
 #include <RapidVulkan/Debug/Strings/VkPresentModeKHR.hpp>
+#include <RapidVulkan/Debug/Strings/VkResult.hpp>
 
 namespace Fsl
 {
@@ -47,6 +48,11 @@ namespace Fsl
       }
 
       const char* ToString(const VkPresentModeKHR value)
+      {
+        return RapidVulkan::Debug::ToString(value);
+      }
+
+      const char* ToString(const VkFormat value)
       {
         return RapidVulkan::Debug::ToString(value);
       }

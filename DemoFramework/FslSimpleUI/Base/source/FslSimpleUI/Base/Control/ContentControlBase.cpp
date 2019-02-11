@@ -103,16 +103,7 @@ namespace Fsl
 
     Vector2 ContentControlBase::ArrangeOverride(const Vector2& finalSize)
     {
-      if (!m_content)
-      {
-        return finalSize;
-      }
-
-      const Vector2 localFinalSize(std::max(finalSize.X - m_padding.SumX(), 0.0f), std::max(finalSize.Y - m_padding.SumY(), 0.0f));
-
-      // Arrange the control inside this one
-      m_content->Arrange(Rect(m_padding.Left(), m_padding.Top(), localFinalSize.X, localFinalSize.Y));
-      return finalSize;
+      return CustomArrange(finalSize, Vector2());
     }
 
 
@@ -128,6 +119,21 @@ namespace Fsl
       m_content->Measure(localAvailableSize);
       const Vector2 contentDesiredSize = m_content->DesiredSize();
       return Vector2(m_padding.SumX() + contentDesiredSize.X, m_padding.SumY() + contentDesiredSize.Y);
+    }
+
+
+    Vector2 ContentControlBase::CustomArrange(const Vector2& finalSize, const Vector2& positionOffset)
+    {
+      if (!m_content)
+      {
+        return finalSize;
+      }
+
+      Vector2 localFinalSize(std::max(finalSize.X - m_padding.SumX(), 0.0f), std::max(finalSize.Y - m_padding.SumY(), 0.0f));
+
+      // Arrange the control inside this one
+      m_content->Arrange(Rect(positionOffset.X + m_padding.Left(), positionOffset.Y + m_padding.Top(), localFinalSize.X, localFinalSize.Y));
+      return finalSize;
     }
   }
 }

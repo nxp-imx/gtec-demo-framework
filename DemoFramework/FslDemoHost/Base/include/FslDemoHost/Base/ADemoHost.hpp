@@ -39,6 +39,7 @@ namespace Fsl
   class ADemoHost : public IDemoHost
   {
     bool m_isConsoleBasedHost;
+
   public:
     ADemoHost(const DemoHostConfig& demoHostConfig, const bool isConsoleBasedHost = false);
     ~ADemoHost() override;

@@ -29,12 +29,12 @@
  *
  ****************************************************************************************************************************************************/
 
-// OpenCV 3.1 App
+// OpenCV 4 App
 
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include "OpenCV102.hpp"
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgproc.hpp>

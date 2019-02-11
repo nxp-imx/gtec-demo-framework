@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateCommand.hpp>
 
@@ -40,10 +41,25 @@ namespace Fsl
   class TimeStateEvent : public BasicEvent
   {
   public:
-    explicit TimeStateEvent(const BasicEvent& encodedEvent);
-    TimeStateEvent(const TimeStateCommand command);
+    explicit TimeStateEvent(const BasicEvent& encodedEvent)
+      : BasicEvent(encodedEvent)
+    {
+      if (m_type != EventType::TimeState)
+      {
+        throw std::invalid_argument("The supplied argument is of a wrong type");
+      }
+    }
 
-    TimeStateCommand GetCommand() const;
+
+    TimeStateEvent(const TimeStateCommand command)
+      : BasicEvent(EventType::TimeState, static_cast<int32_t>(command))
+    {
+    }
+
+    TimeStateCommand GetCommand() const
+    {
+      return static_cast<TimeStateCommand>(m_arg1);
+    }
   };
 }
 

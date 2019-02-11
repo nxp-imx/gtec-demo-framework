@@ -31,16 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
 #include <FslService/Consumer/IService.hpp>
 #include <deque>
 #include <map>
 #include <memory>
+#include <typeindex>
 #include "ServiceLaunchRecord.hpp"
 
 namespace Fsl
 {
-  class TypeServiceMapEx : public std::map<TypeInfo, std::shared_ptr<std::deque<ServiceLaunchRecord>>>
+  class TypeServiceMapEx : public std::map<std::type_index, std::shared_ptr<std::deque<ServiceLaunchRecord>>>
   {
   public:
   };

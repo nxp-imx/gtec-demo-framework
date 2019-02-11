@@ -34,10 +34,9 @@
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
+//#include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
+//#include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
 #include "VulkanTriangle.hpp"
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
 #include <vulkan/vulkan.h>
 #include <array>
 #include <cstring>
@@ -187,9 +186,9 @@ namespace Fsl
 
     VkMemoryRequirements memoryRequirements = m_vertexBuffer.GetBufferMemoryRequirements();
 
-    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
-    const auto memoryTypeIndex = MemoryTypeUtil::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes,
-                                                                    memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
+    const auto memoryTypeIndex =
+      MemoryTypeUtil::GetMemoryTypeIndex(physicalDeviceMemoryProperties, memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
     m_deviceMemoryVertexBuffer.Reset(m_device.Get(), memoryRequirements.size, memoryTypeIndex);
 

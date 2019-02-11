@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.AssimpDoubleTexture" NoInclude="true">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="glm"/>
+    <Dependency Name="FslAssimp"/>
+    <Platform Name="Windows" ProjectId="7AFE985D-045C-4A93-A218-EC64D020BBD3"/>
+  </Executable>
+</FslBuildGen>

@@ -137,7 +137,7 @@ LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<Opti
 
 
   IO::Path rootDir("Face");
-  rootDir = IO::Path::Combine("Scenes", rootDir);
+  rootDir = IO::Path::Combine("Models", rootDir);
 
 
   FSLLOG("Loading scene...");

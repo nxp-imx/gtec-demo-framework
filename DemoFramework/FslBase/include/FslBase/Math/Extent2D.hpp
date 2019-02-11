@@ -45,9 +45,9 @@ namespace Fsl
     element_type Width{0};
     element_type Height{0};
 
-    Extent2D() = default;
+    constexpr Extent2D() = default;
 
-    Extent2D(const element_type width, const element_type height)
+    constexpr Extent2D(const element_type width, const element_type height)
       : Width(width)
       , Height(height)
     {
@@ -90,18 +90,18 @@ namespace Fsl
       return *this;
     }
 
-    bool operator==(const Extent2D& rhs) const
+    constexpr bool operator==(const Extent2D& rhs) const
     {
       return Width == rhs.Width && Height == rhs.Height;
     }
 
-    bool operator!=(const Extent2D& rhs) const
+    constexpr bool operator!=(const Extent2D& rhs) const
     {
       return Width != rhs.Width || Height != rhs.Height;
     }
 
     // @brief Returns a Extent2D with all components being zero (0, 0)
-    static Extent2D Zero()
+    static constexpr Extent2D Zero()
     {
       return {};
     }

@@ -36,13 +36,9 @@ namespace Fsl
 {
   namespace Helios
   {
-    CameraSystemAdapterMipi8X::CameraSystemAdapterMipi8X()
-    {
-    }
+    CameraSystemAdapterMipi8X::CameraSystemAdapterMipi8X() = default;
 
-    CameraSystemAdapterMipi8X::~CameraSystemAdapterMipi8X()
-    {
-    }
+    CameraSystemAdapterMipi8X::~CameraSystemAdapterMipi8X() = default;
 
     CameraType CameraSystemAdapterMipi8X::GetCameraType() const
     {

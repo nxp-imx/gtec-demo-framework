@@ -43,7 +43,7 @@
 namespace Fsl
 {
   StubDemoHost::StubDemoHost(const DemoHostConfig& demoHostConfig)
-    : ADemoHost(demoHostConfig)
+    : ADemoHost(demoHostConfig, true)
     , m_demoHostConfig(demoHostConfig)
     , m_isActivated(true)
     , m_activeApi(DemoHostFeatureName::Stub, 0)
@@ -100,15 +100,15 @@ namespace Fsl
   }
 
 
-  bool StubDemoHost::SwapBuffers()
+  SwapBuffersResult StubDemoHost::TrySwapBuffers()
   {
     if (!m_isActivated)
     {
-      return true;
+      return SwapBuffersResult::Completed;
     }
 
     // Validate that we are not suspended
-    return true;
+    return SwapBuffersResult::Completed;
   }
 
 

@@ -31,31 +31,145 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/ITag.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
 #include <FslDemoApp/Shared/Host/ConfigControl.hpp>
-#include <FslBase/ITag.hpp>
+#include <FslDemoHost/Vulkan/Config/InstanceFeatureRequest.hpp>
+#include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequest.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <vulkan/vulkan.h>
+#include <algorithm>
+#include <deque>
 
 namespace Fsl
 {
-  enum class VulkanDemoAppMode
-  {
-    Managed,
-    Freestyle,
-  };
+  // enum class VulkanDemoAppMode
+  //{
+  //  Managed,
+  //  Freestyle,
+  //};
 
 
   class DemoAppHostConfigVulkan : public DemoAppHostConfig
   {
-    VulkanDemoAppMode m_demoAppMode;
+    // VulkanDemoAppMode m_demoAppMode;
+    std::deque<Vulkan::PhysicalDeviceFeatureRequest> m_physicalDeviceFeatureRequest;
+    std::deque<Vulkan::InstanceFeatureRequest> m_instanceLayerRequest;
+    std::deque<Vulkan::InstanceFeatureRequest> m_instanceExtensionRequest;
+    ConfigControl m_layerConfigControl{ConfigControl::Default};
+    ConfigControl m_extensionConfigControl{ConfigControl::Default};
 
   public:
     DemoAppHostConfigVulkan();
-    DemoAppHostConfigVulkan(const VulkanDemoAppMode demoAppMode);
+    // DemoAppHostConfigVulkan(const VulkanDemoAppMode demoAppMode);
 
 
-    VulkanDemoAppMode GetDemoAppMode() const
+    // VulkanDemoAppMode GetDemoAppMode() const
+    //{
+    //  return m_demoAppMode;
+    //}
+
+    ConfigControl GetInstanceLayerConfigControl() const
     {
-      return m_demoAppMode;
+      return m_layerConfigControl;
+    }
+
+    ConfigControl GetInstanceExtensionConfigControl() const
+    {
+      return m_extensionConfigControl;
+    }
+
+
+    void SetInstanceLayerConfigControl(const ConfigControl value)
+    {
+      m_layerConfigControl = value;
+    }
+
+
+    void SetInstanceExtensionConfigControl(const ConfigControl value)
+    {
+      m_extensionConfigControl = value;
+    }
+
+    //! @brief Add a physical device feature
+    void AddPhysicalDeviceFeatureRequest(const Vulkan::PhysicalDeviceFeature feature, const Vulkan::FeatureRequirement requirement)
+    {
+      if (feature == Vulkan::PhysicalDeviceFeature::Invalid || requirement == Vulkan::FeatureRequirement::Invalid)
+      {
+        throw std::invalid_argument("Not a valid feature requirement");
+      }
+
+      if (m_physicalDeviceFeatureRequest.end() !=
+          std::find_if(m_physicalDeviceFeatureRequest.begin(), m_physicalDeviceFeatureRequest.end(),
+                       [feature](const Vulkan::PhysicalDeviceFeatureRequest& entry) { return (entry.Feature == feature); }))
+      {
+        throw UsageErrorException("feature already requested");
+      }
+
+      m_physicalDeviceFeatureRequest.emplace_back(feature, requirement);
+    }
+
+    //! @brief Add a instance layer request
+    void AddInstanceLayerRequest(const std::string& name, const Vulkan::FeatureRequirement requirement)
+    {
+      if (name.empty() || requirement == Vulkan::FeatureRequirement::Invalid)
+      {
+        throw std::invalid_argument("Not a valid instance layer request");
+      }
+
+      if (m_instanceLayerRequest.end() != std::find_if(m_instanceLayerRequest.begin(), m_instanceLayerRequest.end(),
+                                                       [name](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == name); }))
+      {
+        throw UsageErrorException("instance layer already requested: " + name);
+      }
+
+      m_instanceLayerRequest.emplace_back(name, requirement);
+    }
+
+
+    //! @brief Add a instance extension request
+    void AddInstanceExtensionRequest(const std::string& name, const Vulkan::FeatureRequirement requirement)
+    {
+      if (name.empty() || requirement == Vulkan::FeatureRequirement::Invalid)
+      {
+        throw std::invalid_argument("Not a valid instance layer request");
+      }
+
+      if (m_instanceExtensionRequest.end() != std::find_if(m_instanceExtensionRequest.begin(), m_instanceExtensionRequest.end(),
+                                                           [name](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == name); }))
+      {
+        throw UsageErrorException("instance extension already requested: " + name);
+      }
+
+      m_instanceExtensionRequest.emplace_back(name, requirement);
+    }
+
+
+    void ExtractDeviceRequiredFeatures(std::deque<Vulkan::PhysicalDeviceFeatureRequest>& rTarget) const
+    {
+      rTarget.clear();
+      for (auto entry : m_physicalDeviceFeatureRequest)
+      {
+        rTarget.push_back(entry);
+      }
+    }
+
+
+    const std::deque<Vulkan::InstanceFeatureRequest>& GetInstanceLayerRequests() const
+    {
+      return m_instanceLayerRequest;
+    }
+
+
+    const std::deque<Vulkan::InstanceFeatureRequest>& GetInstanceExtensionRequests() const
+    {
+      return m_instanceExtensionRequest;
+    }
+
+
+    bool HasDeviceRequiredFeatures() const
+    {
+      return !m_physicalDeviceFeatureRequest.empty();
     }
   };
 }

@@ -45,7 +45,7 @@ namespace Fsl
     class GLRenderBuffer
     {
       GLuint m_handle;
-      GLenum m_format;
+      GLenum m_format{0};
       Point2 m_size;
 
     public:

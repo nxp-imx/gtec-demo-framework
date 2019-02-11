@@ -119,7 +119,8 @@ namespace Fsl
 
     const T result = m_queue.front();
     m_queue.pop();
-    return result;
+    rValue = result;
+    return true;
   }
 
 

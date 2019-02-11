@@ -33,10 +33,10 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES3/Common.hpp>
-#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Noncopyable.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <cstdlib>
 #include <GLES3/gl3.h>
 
@@ -109,7 +109,7 @@ namespace Fsl
       //! @param elementStride the size of one element in bytes
       GLBuffer(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage);
 
-      ~GLBuffer();
+      virtual ~GLBuffer();
 
       //! @brief If a buffer is allocated this will releases it.
       virtual void Reset() noexcept;

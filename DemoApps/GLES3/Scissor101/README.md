@@ -1,12 +1,21 @@
 <!-- #AG_DEMOAPP_HEADER_BEGIN# -->
 # Scissor101
-<img src="./Example.jpg" height="135px" style="float:right">
+<img src="Example.jpg" height="135px">
 
 <!-- #AG_DEMOAPP_HEADER_END# -->
 <!-- #AG_BRIEF_BEGIN# -->
 A simple example of how glScissor works.
-This sample also allows you to force set a invalid scissor rect from the command line.
+
+This is showcased by rendering the insides of a rotating cube and using a animated scissor rectangle to clip.
 <!-- #AG_BRIEF_END# -->
+
+Key | Description
+----|------------
+1   | Toggle scissor x animation
+2   | Toggle scissor y animation
+3   | Enable scissor x+y animation
+4   | Disable scissor x+y animation
+
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->
 
 Command line arguments':

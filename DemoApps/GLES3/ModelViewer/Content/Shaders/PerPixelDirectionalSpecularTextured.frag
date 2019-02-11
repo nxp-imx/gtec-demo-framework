@@ -3,22 +3,22 @@
 
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
- 
+
 uniform sampler2D Texture0;
- 
+
 // Camera space
 uniform vec3 LightDirection;
 
- // Material
+// Material
 uniform vec4 MatAmbient;
 uniform vec4 MatSpecular;
 uniform float MatShininess;
 
- 
+
 in vec4 v_Color;
 in vec3 v_Eye;
 in vec3 v_Normal;
@@ -30,7 +30,7 @@ void main()
 {
   // set the specular term to black
   vec4 spec = vec4(0.0);
- 
+
   // Normalize the input normal
   vec3 n = normalize(v_Normal);
 
@@ -38,15 +38,15 @@ void main()
   float intensity = max(dot(n, LightDirection), 0.0);
 
   // if the vertex is lit calc the specular term
-  if (intensity > 0.0) 
+  if (intensity > 0.0)
   {
     // Calc the half vector
     vec3 h = normalize(LightDirection + normalize(v_Eye));
- 
+
     // Calc the specular term into spec
-    float intSpec = max(dot(h,n), 0.0);
+    float intSpec = max(dot(h, n), 0.0);
     spec = MatSpecular * pow(intSpec, MatShininess);
   }
 
-  o_fragColor = texture(Texture0,v_TexCoord) * ((v_Color * intensity) + spec + MatAmbient);
+  o_fragColor = texture(Texture0, v_TexCoord) * ((v_Color * intensity) + spec + MatAmbient);
 }

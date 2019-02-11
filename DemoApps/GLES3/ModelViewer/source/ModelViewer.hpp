@@ -37,12 +37,12 @@
 #include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
 #include <FslDemoApp/Base/Service/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
+#include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBufferArray.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBufferArray.hpp>
-#include <vector>
-#include <FslGraphics3D/Camera/ArcballCamera.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -53,33 +53,39 @@ namespace Fsl
 
   class ModelViewer : public DemoAppGLES3
   {
+    struct Resources
+    {
+      GLES3::GLProgram Program;
+      GLES3::GLTexture Texture;
+      GLES3::GLTexture TextureSpecular;
+      GLES3::GLTexture TextureNormal;
+      GLES3::GLIndexBufferArray IndexBuffers;
+      GLES3::GLVertexBufferArray VertexBuffers;
+
+      GLint LocWorld = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocWorldView = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocWorldViewProjection = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocNormalMatrix = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocTexture0 = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocTextureSpecular = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocTextureNormal = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocLightDirection = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocLightColor = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocMatAmbient = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocMatSpecular = GLES3::GLValues::INVALID_LOCATION;
+      GLint LocMatShininess = GLES3::GLValues::INVALID_LOCATION;
+
+      std::array<GLES3::GLVertexAttribLink, 5> AttribLink;
+    };
+
     std::shared_ptr<IProfilerService> m_profilerService;
     ScopedProfilerCustomCounterHandle m_hCounterBind;
     ScopedProfilerCustomCounterHandle m_hCounterEnable;
     ScopedProfilerCustomCounterHandle m_hCounterDraw;
     ScopedProfilerCustomCounterHandle m_hCounterTotal;
     Graphics3D::ArcballCamera m_camera;
-    GLES3::GLProgram m_program;
-    GLES3::GLTexture m_texture;
-    GLES3::GLTexture m_textureSpecular;
-    GLES3::GLTexture m_textureNormal;
-    GLES3::GLIndexBufferArray m_indexBuffers;
-    GLES3::GLVertexBufferArray m_vertexBuffers;
 
-    GLint m_locWorld;
-    GLint m_locWorldView;
-    GLint m_locWorldViewProjection;
-    GLint m_locNormalMatrix;
-    GLint m_locTexture0;
-    GLint m_locTextureSpecular;
-    GLint m_locTextureNormal;
-    GLint m_locLightDirection;
-    GLint m_locLightColor;
-    GLint m_locMatAmbient;
-    GLint m_locMatSpecular;
-    GLint m_locMatShininess;
-
-    std::vector<GLES3::GLVertexAttribLink> m_attribLink;
+    Resources m_resources;
 
     std::shared_ptr<Graphics3D::SceneNode> m_rootNode;
     Vector3 m_rotationSpeedOld;

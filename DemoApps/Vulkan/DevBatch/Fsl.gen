@@ -2,11 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="Vulkan.DevBatch" NoInclude="true">
     <Requirement Name="EarlyAccess" Type="feature"/>
-    <ImportTemplate Name="DemoAppWindow"/>
-    <Dependency Name="FslUtil.Vulkan1_0"/>
-    <Dependency Name="FslNativeWindow.Vulkan"/>
-    <Dependency Name="FslDemoHost.Window"/>
-    <Dependency Name="Shared.VulkanWindowExperimental"/>
+    <ImportTemplate Name="DemoAppVulkan"/>
     <Platform Name="Windows" ProjectId="10B03ED4-CF85-4810-ADC9-EBBB8D88DDD3"/>
   </Executable>
 </FslBuildGen>

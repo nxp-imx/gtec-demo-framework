@@ -76,8 +76,8 @@ namespace Fsl
         Bitmap::ScopedDirectAccess directAccess(srcBitmap, rawBitmap);
 
         assert(PixelFormatUtil::CalcMinimumStride(rawBitmap.Width(), rawBitmap.GetPixelFormat()) == rawBitmap.Stride());
-        assert(rawBitmap.GetBufferLength() <= (HeightData.size() * sizeof(uint16_t)));
-        std::memcpy(HeightData.data(), rawBitmap.Content(), rawBitmap.GetBufferLength());
+        assert(rawBitmap.GetByteSize() <= (HeightData.size() * sizeof(uint16_t)));
+        std::memcpy(HeightData.data(), rawBitmap.Content(), rawBitmap.GetByteSize());
       };
 
       float GetHeight(const uint32_t x, const uint32_t y) const
@@ -347,7 +347,7 @@ namespace Fsl
   void DynamicTerrainTessellation::LoadMeshes()
   {
     FSLLOG("LoadMeshes");
-    m_meshes.Skysphere = LoadMesh("models/geosphere.obj", g_vertexLayout, 1.0f);
+    m_meshes.Skysphere = LoadMesh("Models/Geosphere/geosphere.obj", g_vertexLayout, 1.0f);
   }
 
 
@@ -358,23 +358,23 @@ namespace Fsl
     if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC compression");
-      m_textures.SkySphere = m_textureLoader->LoadTexture("textures/skysphere_bc3.ktx");
+      m_textures.SkySphere = m_textureLoader->LoadTexture("Textures/SphereMap/Sky/skysphere_bc3.ktx");
       // Terrain textures are stored in a texture array with layers corresponding to terrain height
-      m_textures.TerrainArray = m_textureLoader->LoadTextureArray("textures/terrain_texturearray_bc3.ktx");
+      m_textures.TerrainArray = m_textureLoader->LoadTextureArray("Textures/Terrain/terrain_texturearray_bc3.ktx");
     }
     else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 compression");
-      m_textures.SkySphere = m_textureLoader->LoadTexture("textures/skysphere_etc2.ktx");
+      m_textures.SkySphere = m_textureLoader->LoadTexture("Textures/SphereMap/Sky/skysphere_etc2.ktx");
       // Terrain textures are stored in a texture array with layers corresponding to terrain height
-      m_textures.TerrainArray = m_textureLoader->LoadTextureArray("textures/terrain_texturearray_etc2.ktx");
+      m_textures.TerrainArray = m_textureLoader->LoadTextureArray("Textures/Terrain/terrain_texturearray_etc2.ktx");
     }
     else
     {
       FSLLOG("Using no compression");
-      m_textures.SkySphere = m_textureLoader->LoadTexture("textures/skysphere.png", VK_FORMAT_R8G8B8A8_UNORM);
+      m_textures.SkySphere = m_textureLoader->LoadTexture("Textures/SphereMap/Sky/skysphere.png", VK_FORMAT_R8G8B8A8_UNORM);
       // Terrain textures are stored in a texture array with layers corresponding to terrain height
-      m_textures.TerrainArray = m_textureLoader->LoadTextureArray("textures/terrain_texturearray.ktx", VK_FORMAT_R8G8B8A8_UNORM);
+      m_textures.TerrainArray = m_textureLoader->LoadTextureArray("Textures/Terrain/terrain_texturearray.ktx", VK_FORMAT_R8G8B8A8_UNORM);
     }
 
     // Height data is stored in a one-channel texture
@@ -383,12 +383,12 @@ namespace Fsl
                                                                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0, imageFormatProperties))
     {
       FSLLOG("Heightmap using R16");
-      m_textures.HeightMap = m_textureLoader->LoadTexture("textures/terrain_heightmap_r16.ktx", VK_FORMAT_R16_UNORM);
+      m_textures.HeightMap = m_textureLoader->LoadTexture("Textures/Terrain/terrain_heightmap_r16.ktx", VK_FORMAT_R16_UNORM);
     }
     else
     {
       FSLLOG("Heightmap using R8");
-      m_textures.HeightMap = m_textureLoader->LoadTexture("textures/terrain_heightmap_r8.ktx", VK_FORMAT_R8_UNORM);
+      m_textures.HeightMap = m_textureLoader->LoadTexture("Textures/Terrain/terrain_heightmap_r8.ktx", VK_FORMAT_R8_UNORM);
     }
 
     // Setup a mirroring sampler for the height map
@@ -467,7 +467,7 @@ namespace Fsl
       }
     }
 
-    const Bitmap heightBitmap = GetContentManager()->ReadBitmap("textures/terrain_heightmap_r16.ktx");
+    const Bitmap heightBitmap = GetContentManager()->ReadBitmap("Textures/Terrain/terrain_heightmap_r16.ktx");
 
     // Calculate normals from height map using a sobel filter
     HeightMap heightMap(heightBitmap, PATCH_SIZE);

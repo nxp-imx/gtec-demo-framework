@@ -9,8 +9,10 @@
 /Blur_Wayland_d
 /Blur_X11
 /Blur_X11_d
+/Blur_c
 /Blur_d
 /CMakeLists.txt
+/Content/Textures/Cubemap/Stairs/Raw/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES2.Blur

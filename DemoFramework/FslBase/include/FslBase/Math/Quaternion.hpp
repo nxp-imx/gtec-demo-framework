@@ -42,10 +42,10 @@ namespace Fsl
     float Z{0};
     float W{0};
 
-    Quaternion() = default;
+    constexpr Quaternion() = default;
     // coverity[uninit_member]
     // Quaternion(const OptimizationFlag flag){};
-    Quaternion(const float x, const float y, const float z, const float w)
+    constexpr Quaternion(const float x, const float y, const float z, const float w)
       : X(x)
       , Y(y)
       , Z(z)
@@ -55,7 +55,7 @@ namespace Fsl
 
     Quaternion(const Vector3& vectorPart, const float scalarPart);
 
-    static Quaternion Identity()
+    static constexpr Quaternion Identity()
     {
       return Quaternion(0, 0, 0, 1);
     }
@@ -66,7 +66,7 @@ namespace Fsl
     static void Concatenate(Quaternion& rResult, const Quaternion& lhs, const Quaternion& rhs);
 
     void Conjugate();
-    Quaternion Conjugate(const Quaternion& value);
+    static Quaternion Conjugate(const Quaternion& value);
     static void Conjugate(Quaternion& rResult, const Quaternion& value);
 
     static Quaternion CreateFromAxisAngle(const Vector3& axis, const float angle);

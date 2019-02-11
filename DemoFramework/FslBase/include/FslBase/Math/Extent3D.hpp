@@ -54,6 +54,8 @@ namespace Fsl
     //{
     //}
 
+    Extent3D(const int32_t width, const int32_t height, const int32_t depth);
+
     constexpr Extent3D(const element_type width, const element_type height, const element_type depth)
       : Width(width)
       , Height(height)
@@ -97,18 +99,18 @@ namespace Fsl
       return *this;
     }
 
-    bool operator==(const Extent3D& rhs) const
+    constexpr bool operator==(const Extent3D& rhs) const
     {
       return Width == rhs.Width && Height == rhs.Height && Depth == rhs.Depth;
     }
 
-    bool operator!=(const Extent3D& rhs) const
+    constexpr bool operator!=(const Extent3D& rhs) const
     {
       return Width != rhs.Width || Height != rhs.Height || Depth != rhs.Depth;
     }
 
     // @brief Returns a Extent3D with all components being zero (0, 0)
-    static Extent3D Zero()
+    static constexpr Extent3D Zero()
     {
       return {};
     }

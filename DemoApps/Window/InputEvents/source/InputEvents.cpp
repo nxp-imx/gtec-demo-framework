@@ -35,25 +35,14 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   InputEvents::InputEvents(const DemoAppConfig& config)
     : DemoAppWindow(config)
-    , m_gamepads(config.DemoServiceProvider.Get<IGamepads>())
-
+    , m_logger(config.DemoServiceProvider)
   {
     // Alternative way to access the mouse state
     // std::shared_ptr<IMouse> mouse = config.DemoServiceProvider.Get<IMouse>();
     // Alternative way to access the keyboard state
     // std::shared_ptr<IKeyboard> keyboard = config.DemoServiceProvider.Get<IKeyboard>();
-
-    const auto maxGamepads = m_gamepads->GetCount();
-    m_gamepadStates.resize(maxGamepads);
-    FSLLOG("Max gamepads: " << maxGamepads);
-    UpdateGamepadStates();
   }
 
 
@@ -62,61 +51,43 @@ namespace Fsl
 
   void InputEvents::OnKeyEvent(const KeyEvent& event)
   {
-    FSLLOG("OnKeyEvent key: " << event.GetKey() << " pressed: " << event.IsPressed());
+    m_logger.OnKeyEvent(event);
   }
 
 
   void InputEvents::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
-    FSLLOG("OnMouseButtonEvent key: " << event.GetButton() << " pressed: " << event.IsPressed() << " position: " << event.GetPosition().X << ","
-                                      << event.GetPosition().Y);
+    m_logger.OnMouseButtonEvent(event);
   }
 
 
   void InputEvents::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    FSLLOG("OnMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y);
+    m_logger.OnMouseMoveEvent(event);
   }
 
 
   void InputEvents::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    FSLLOG("OnMouseWheelEvent delta: " << event.GetDelta() << " position: " << event.GetPosition().X << "," << event.GetPosition().Y);
+    m_logger.OnMouseWheelEvent(event);
   }
 
 
   void InputEvents::OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
   {
-    FSLLOG("OnRawMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y);
+    m_logger.OnRawMouseMoveEvent(event);
   }
 
 
   void InputEvents::Update(const DemoTime& demoTime)
   {
-    UpdateGamepadStates();
+    m_logger.UpdateGamepadStates();
   }
 
 
   void InputEvents::Draw(const DemoTime& demoTime)
   {
+    m_logger.Draw(GetScreenResolution());
   }
 
-
-  void InputEvents::UpdateGamepadStates()
-  {
-    for (uint32_t i = 0; i < m_gamepadStates.size(); ++i)
-    {
-      auto newState = m_gamepads->GetState(i);
-
-      if (newState != m_gamepadStates[i])
-      {
-        m_gamepadStates[i] = newState;
-
-        FSLLOG("Id: " << i << " IsConnected: " << newState.IsConnected << " Buttons: " << newState.Buttons.State
-                      << " LeftTrigger: " << static_cast<uint32_t>(newState.LeftTrigger.Value)
-                      << " RightTrigger: " << static_cast<uint32_t>(newState.RightTrigger.Value) << " LeftThumb: " << newState.LeftThumb.X << ","
-                      << newState.LeftThumb.Y << " RightThumb: " << newState.RightThumb.X << "," << newState.RightThumb.Y);
-      }
-    }
-  }
 }

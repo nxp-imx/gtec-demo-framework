@@ -43,10 +43,6 @@ namespace Fsl
   {
     GLBuffer::GLBuffer()
       : m_handle(GLValues::INVALID_HANDLE)
-      , m_target(0)
-      , m_capacity(0)
-      , m_elementStride(0)
-      , m_usage(0)
     {
     }
 

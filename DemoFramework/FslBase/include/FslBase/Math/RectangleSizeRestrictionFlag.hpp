@@ -39,6 +39,7 @@ namespace Fsl
   {
     enum Enum
     {
+      NoRestrictions = 0x00,
       Power2 = 0x01,
       Square = 0x02
     };

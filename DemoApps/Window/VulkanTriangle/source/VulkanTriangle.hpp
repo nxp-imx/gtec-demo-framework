@@ -28,7 +28,6 @@
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample02)
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <Shared/VulkanWindowExperimental/VulkanWindowDemoApp.hpp>
 #include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
@@ -44,6 +43,7 @@
 #include <RapidVulkan/Semaphore.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
 #include <vector>
+#include "VulkanWindowDemoApp.hpp"
 
 namespace Fsl
 {

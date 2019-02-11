@@ -29,14 +29,16 @@
  *
  ****************************************************************************************************************************************************/
 
+// Included first since OpenCV currently has a conflict with the X11 header, so this is a workaround for that
+#include <opencv2/highgui.hpp>
+#include <opencv2/opencv.hpp>
+// Normal includes that dont conflict
+#include "OpenCV101.hpp"
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include "OpenCV101.hpp"
 #include <GLES3/gl3.h>
 #include <iostream>
-#include <opencv/cv.hpp>
-#include <opencv/highgui.h>
 
 namespace Fsl
 {

@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUnitTest/LogTypes.hpp>
 #include <FslUnitTest/TestCustomChecks.hpp>
 #include <FslUnitTest/TestMacro.hpp>
 #include <gtest/gtest.h>

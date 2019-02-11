@@ -31,6 +31,7 @@
 /T3DStressTest_Wayland_d
 /T3DStressTest_X11
 /T3DStressTest_X11_d
+/T3DStressTest_c
 /T3DStressTest_d
 /build/
 /resource.h

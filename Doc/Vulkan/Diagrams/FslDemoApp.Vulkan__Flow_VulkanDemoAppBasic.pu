@@ -1,0 +1,159 @@
+@startuml VulkanDemoAppBasic Flow Overview
+
+box "Framework" #LightBlue
+    participant IGraphicsService
+    participant NativeGraphicsService
+    participant ServiceProvider
+    participant DemoHostManager
+    participant DemoAppManager
+    participant VulkanDemoHost
+end box
+
+== Init ==
+
+Activate IGraphicsService
+Activate NativeGraphicsService
+Activate ServiceProvider
+Activate DemoHostManager
+Activate DemoAppManager
+Activate VulkanDemoHost
+Activate CustomDemoApp
+VulkanDemoHost->NativeGraphicsService: VulkanInit
+' Actually called by the app factory
+->CustomDemoApp: Construct
+CustomDemoApp->DemoAppVulkanBasic++: Construct
+
+box "AppTemplate" #LightBlue
+    participant DemoAppVulkanBasic
+    participant DemoAppVulkan
+    participant ADemoApp
+end box
+
+
+DemoAppVulkanBasic->DemoAppVulkan++: Construct
+DemoAppVulkan->ADemoApp++: Construct
+DemoAppVulkan->VulkanDeviceSetupUtil: CreateSetup
+VulkanDeviceSetupUtil->Device++: Construct
+DemoAppVulkan->ServiceProvider: Get<NativeGraphicsService>
+DemoAppVulkan->NativeGraphicsService: VulkanDeviceInit
+' QuadBatch does not exist at this point so this call is not excuted
+'NativeGraphicsService->QuadBatch: CreateDeviceResources
+CustomDemoApp->IGraphicsService: GetNativeBatch2D
+IGraphicsService->NativeGraphicsService: CreateNativeBatch2D
+NativeGraphicsService->QuadBatch++: Construct
+' Since the device has been initialized, we call create resources here right away
+NativeGraphicsService->QuadBatch: CreateDeviceResources
+' Since VulkanCreateDependentResources has not been called we do not call this
+' NativeGraphicsService->QuadBatch: CreateDependentResources
+NativeGraphicsService->NativeBatch2D++: Construct
+
+'
+->ADemoApp: _PostConstruct
+ADemoApp->CustomDemoApp: OnConstructed
+CustomDemoApp->DemoAppVulkanBasic: OnConstructed
+DemoAppVulkanBasic->DemoAppVulkan: OnConstructed
+DemoAppVulkan->ADemoApp: OnConstructed
+DemoAppVulkanBasic->DemoAppVulkanBasic++: BuildResources
+DemoAppVulkanBasic->SwapchainKHRUtil: CreateSwapchain
+DemoAppVulkanBasic->CommandBuffers++: Reset(swapChainImageCount)
+DemoAppVulkanBasic->CustomDemoApp: OnBuildResources
+CustomDemoApp->RenderPass++: Construct
+DemoAppVulkanBasic->SwapchainRecords++: Create
+DemoAppVulkanBasic->NativeGraphicsService: VulkanCreateDependentResources
+NativeGraphicsService->QuadBatch: CreateDependentResources
+Deactivate DemoAppVulkanBasic
+...
+== Render frame ==
+DemoHostManager->DemoHostManager++: AppProcess
+DemoHostManager->DemoAppManager: Prepare
+DemoAppManager->ADemoApp: _PreUpdate
+DemoAppManager->ADemoApp: _FixedUpdate
+DemoAppManager->ADemoApp: _Update
+DemoAppManager->ADemoApp: _PostUpdate
+DemoHostManager->DemoHostManager++: AppDrawAndSwapBuffers
+DemoHostManager->DemoAppManager: TryDraw
+DemoAppManager->ADemoApp: _TryPrepareDraw
+ADemoApp->DemoAppVulkanBasic: TryPrepareDraw
+DemoAppManager->DemoAppVulkanBasic: _Draw
+DemoAppVulkanBasic->NativeGraphicsService: VulkanBeginFrame
+NativeGraphicsService->QuadBatch: BeginFrame
+DemoAppVulkanBasic->ADemoApp: _Draw
+ADemoApp->CustomDemoApp: Draw
+CustomDemoApp->NativeBatch2D: Begin
+CustomDemoApp->NativeBatch2D: Draw
+CustomDemoApp->NativeBatch2D: Draw
+CustomDemoApp->NativeBatch2D: Draw
+CustomDemoApp->NativeBatch2D: End
+NativeBatch2D->NativeBatch2D++: FlushQuads
+NativeBatch2D->QuadBatch: DrawQuads
+Deactivate NativeBatch2D
+CustomDemoApp->DemoAppVulkanBasic: AddSystemUI
+DemoAppVulkanBasic->NativeGraphicsService: VulkanEndFrame
+NativeGraphicsService->QuadBatch: EndFrame
+DemoHostManager->VulkanDemoHost: TrySwapBuffers
+DemoHostManager->DemoAppManager: TryAppSwapBuffers
+DemoAppManager->ADemoApp: _TrySwapBuffers
+ADemoApp->DemoAppVulkanBasic: TrySwapBuffers
+Deactivate DemoHostManager
+Deactivate DemoHostManager
+...
+== Shutdown ==
+
+DemoAppManager->ADemoApp: _OnPreDestruct
+ADemoApp->DemoAppVulkanBasic: OnDestroy
+DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
+DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForIdle
+DemoAppVulkanBasic->NativeGraphicsService: VulkanDestroyDependentResources
+NativeGraphicsService->QuadBatch: DestroyDependentResources
+DemoAppVulkanBasic->SwapchainRecords: Clear
+Deactivate SwapchainRecords
+DemoAppVulkanBasic->CustomDemoApp: OnFreeResources
+CustomDemoApp->RenderPass: Destruct
+Deactivate RenderPass
+DemoAppVulkanBasic->CommandBuffers: Reset
+Deactivate CommandBuffers
+DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForIdle
+DemoAppVulkanBasic->DemoAppVulkan: OnDestroy
+DemoAppVulkan->DemoAppVulkan++: SafeShutdown
+DemoAppVulkan->DemoAppVulkan++: SafeWaitForIdle
+Deactivate DemoAppVulkan
+DemoAppVulkan->NativeGraphicsService: VulkanDeviceShutdown
+Deactivate DemoAppVulkan
+DemoAppVulkan->ADemoApp: OnDestroy
+Deactivate DemoAppVulkanBasic
+
+->CustomDemoApp: Destruct
+CustomDemoApp->DemoAppVulkanBasic: Destruct
+DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
+Deactivate DemoAppVulkanBasic
+
+DemoAppVulkanBasic->DemoAppVulkan: Destruct
+DemoAppVulkan->DemoAppVulkan++: SafeShutdown
+DemoAppVulkan->DemoAppVulkan++: SafeWaitForDeviceIdle
+Deactivate DemoAppVulkan
+' This will already have been called in this sequence
+' DemoAppVulkan->NativeGraphicsService: VulkanDeviceShutdown
+Deactivate DemoAppVulkan
+NativeGraphicsService->QuadBatch: DestroyDeviceResources
+
+DemoAppVulkan->ADemoApp: Destruct
+Deactivate ADemoApp
+Deactivate DemoAppVulkan
+Deactivate DemoAppVulkanBasic
+Deactivate CustomDemoApp
+VulkanDemoHost->NativeGraphicsService: VulkanShutdown
+Deactivate VulkanDemoHost
+Deactivate DemoAppManager
+->DemoHostManager: Destruct
+DemoHostManager->IGraphicsService: Reset
+DemoHostManager->NativeBatch2D: MarkDestroyed
+IGraphicsService->NativeBatch2D: Destruct
+NativeBatch2D->QuadBatch: Destruct
+Deactivate QuadBatch
+Deactivate NativeBatch2D
+Deactivate DemoHostManager
+Deactivate ServiceProvider
+Deactivate NativeGraphicsService
+Deactivate IGraphicsService
+@enduml
+

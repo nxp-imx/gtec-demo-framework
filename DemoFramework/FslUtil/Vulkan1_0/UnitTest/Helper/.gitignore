@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/Android.mk
+/CMakeLists.txt
+/FslUtil.Vulkan1_0.UnitTest.Helper.VC.VC.opendb
+/FslUtil.Vulkan1_0.UnitTest.Helper.VC.db
+/FslUtil.Vulkan1_0.UnitTest.Helper.manifest
+/FslUtil.Vulkan1_0.UnitTest.Helper.opensdf
+/FslUtil.Vulkan1_0.UnitTest.Helper.sdf
+/FslUtil.Vulkan1_0.UnitTest.Helper.sln
+/FslUtil.Vulkan1_0.UnitTest.Helper.v12.sdf
+/FslUtil.Vulkan1_0.UnitTest.Helper.v12.suo
+/FslUtil.Vulkan1_0.UnitTest.Helper.vcxproj
+/FslUtil.Vulkan1_0.UnitTest.Helper.vcxproj.filters
+/FslUtil.Vulkan1_0.UnitTest.Helper.vcxproj.user
+/GNUmakefile
+/build/

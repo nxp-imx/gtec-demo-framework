@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/Equirectangular/
 /Content/_ContentSyncCache.fsl
 /EquirectangularToCubemap
 /EquirectangularToCubemap_FB
@@ -11,6 +12,7 @@
 /EquirectangularToCubemap_Wayland_d
 /EquirectangularToCubemap_X11
 /EquirectangularToCubemap_X11_d
+/EquirectangularToCubemap_c
 /EquirectangularToCubemap_d
 /FslSDKIcon.ico
 /GLES3.EquirectangularToCubemap.VC.VC.opendb

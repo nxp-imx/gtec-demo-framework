@@ -60,13 +60,16 @@ namespace Fsl
     }
 
     void _PostConstruct() override;
+    void _PreDestruct() override;
     void _OnEvent(IEvent* const pEvent) override;
     void _Resized(const Point2& size) override;
     void _PreUpdate(const DemoTime& demoTime) override;
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;
     void _PostUpdate(const DemoTime& demoTime) override;
+    AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) override;
     void _Draw(const DemoTime& demoTime) override;
+    AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override;
 
   private:
     void SafeDispose();

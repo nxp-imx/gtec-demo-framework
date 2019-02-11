@@ -31,25 +31,25 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
+#include <typeindex>
 
 namespace Fsl
 {
   class OptionParserId
   {
-    TypeInfo m_typeInfo;
+    std::type_index m_typeInfo;
 
   public:
-    using value_type = TypeInfo;
+    using value_type = std::type_index;
 
     explicit OptionParserId(const std::type_info& typeInfo);
-    explicit OptionParserId(const TypeInfo& typeInfo);
+    explicit OptionParserId(const std::type_index& typeInfo);
 
     //! @brief  Get the service id value.
-    TypeInfo Get() const;
+    std::type_index Get() const;
 
     //! @brief  Return a invalid service id
-    static OptionParserId Invalid();
+    // static OptionParserId Invalid();
 
     bool operator==(const OptionParserId& rhs) const
     {
@@ -71,8 +71,8 @@ namespace Fsl
       return m_typeInfo > rhs.m_typeInfo;
     }
 
-  private:
-    OptionParserId();
+    // private:
+    //  OptionParserId();
   };
 }
 

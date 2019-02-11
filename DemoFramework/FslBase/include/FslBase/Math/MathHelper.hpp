@@ -36,36 +36,36 @@ namespace Fsl
 {
   namespace MathHelper
   {
-    const float PI = 3.1415926535897932384626433832795028841971693f;
+    constexpr float PI = 3.1415926535897932384626433832795028841971693f;
     //! PI / 180.0f
-    const float TO_RADS = 0.017453292519943295769236907684886f;
+    constexpr float TO_RADS = 0.017453292519943295769236907684886f;
     //! 1.0f / (PI / 180.0f)
-    const float TO_DEGREES = 57.295779513082320876798154814105f;
+    constexpr float TO_DEGREES = 57.295779513082320876798154814105f;
 
     //! @brief Represents the log base ten of e(0.4342945).
-    const float Log10E = 0.4342945f;
+    constexpr float Log10E = 0.4342945f;
 
     //! @brief Represents the log base two of e(1.442695).
-    const float Log2E = 1.442695f;
+    constexpr float Log2E = 1.442695f;
 
     /// Represents the value of pi divided by two(1.57079637).
-    const float PiOver2 = static_cast<float>(PI / 2.0);
+    constexpr float PiOver2 = static_cast<float>(PI / 2.0);
 
     /// Represents the value of pi divided by four(0.7853982).
-    const float PiOver4 = static_cast<float>(PI / 4.0);
+    constexpr float PiOver4 = static_cast<float>(PI / 4.0);
 
     /// Represents the value of pi times two(6.28318548).
-    const float TwoPi = static_cast<float>(PI * 2.0);
+    constexpr float TwoPi = static_cast<float>(PI * 2.0);
 
-    const float RADS360 = (360.0f * TO_RADS);
-    const float RADS315 = (315.0f * TO_RADS);
-    const float RADS270 = (270.0f * TO_RADS);
-    const float RADS225 = (225.0f * TO_RADS);
-    const float RADS180 = (180.0f * TO_RADS);
-    const float RADS135 = (135.0f * TO_RADS);
-    const float RADS90 = (90.0f * TO_RADS);
-    const float RADS45 = (45.0f * TO_RADS);
-    const float RADS0 = (0);
+    constexpr float RADS360 = (360.0f * TO_RADS);
+    constexpr float RADS315 = (315.0f * TO_RADS);
+    constexpr float RADS270 = (270.0f * TO_RADS);
+    constexpr float RADS225 = (225.0f * TO_RADS);
+    constexpr float RADS180 = (180.0f * TO_RADS);
+    constexpr float RADS135 = (135.0f * TO_RADS);
+    constexpr float RADS90 = (90.0f * TO_RADS);
+    constexpr float RADS45 = (45.0f * TO_RADS);
+    constexpr float RADS0 = (0);
 
     //! @brief Returns the Cartesian coordinate for one axis of a point that is defined by a given triangle and two normalized barycentric (areal)
     //! coordinates.
@@ -94,7 +94,7 @@ namespace Fsl
     {
       // Using formula from http://www.mvps.org/directx/articles/catmull/
       // Internally using doubles not to lose precision
-      const double amountSquared = amount * amount;
+      const double amountSquared = static_cast<double>(amount) * amount;
       const double amountCubed = amountSquared * amount;
       return static_cast<float>(0.5 *
                                 (2.0 * value2 + (value3 - value1) * amount + (2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared +

@@ -41,7 +41,6 @@ namespace Fsl
   {
     GLRenderBuffer::GLRenderBuffer()
       : m_handle(GLValues::INVALID_HANDLE)
-      , m_format(0)
     {
     }
 

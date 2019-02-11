@@ -31,15 +31,53 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <RapidVulkan/Debug/Strings/VkFormat.hpp>
 #include <vulkan/vulkan.h>
+#include <ios>
 #include <ostream>
 
-namespace Fsl
+struct EncodedVulkanVersion
 {
-  inline std::ostream& operator<<(std::ostream& o, const VkExtent2D& value)
+  uint32_t Value;
+
+  EncodedVulkanVersion(const uint32_t value)
   {
-    return o << "width=" << value.width << ", height=" << value.height;
+    Value = value;
   }
+};
+
+// https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#fundamentals-versionnum
+// The Vulkan version number is used in several places in the API.In each such use, the API major version number, minor version number,
+// and patch version number are packed into a 32 - bit integer as follows :
+// The major version number is a 10 - bit integer packed into bits 31 - 22.
+// The minor version number is a 10 - bit integer packed into bits 21 - 12.
+// The patch version number is a 12 - bit integer packed into bits 11 - 0.
+inline std::ostream& operator<<(std::ostream& o, const EncodedVulkanVersion& value)
+{
+  uint32_t major = (value.Value >> 22) & ((1 << 10) - 1);
+  uint32_t minor = (value.Value >> 12) & ((1 << 10) - 1);
+  uint32_t patch = value.Value & ((1 << 12) - 1);
+  return o << major << '.' << minor << '.' << patch;
+}
+
+inline std::ostream& operator<<(std::ostream& o, const VkExtent2D& value)
+{
+  return o << "width=" << value.width << ", height=" << value.height;
+}
+
+inline std::ostream& operator<<(std::ostream& o, const VkExtent3D& value)
+{
+  return o << "width=" << value.width << ", height=" << value.height << ", depth=" << value.depth;
+}
+
+inline std::ostream& operator<<(std::ostream& o, const VkFormat& value)
+{
+  auto psz = RapidVulkan::Debug::TryToString(value);
+  if (psz != nullptr)
+  {
+    return o << psz;
+  }
+  return o << "0x" << std::hex << static_cast<uint32_t>(value);
 }
 
 #endif

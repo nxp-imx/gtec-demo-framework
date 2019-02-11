@@ -1,0 +1,14 @@
+/.StartProject.bat
+/.vs/
+/FslDemoHost.OpenGLES3.VC.VC.opendb
+/FslDemoHost.OpenGLES3.VC.db
+/FslDemoHost.OpenGLES3.manifest
+/FslDemoHost.OpenGLES3.opensdf
+/FslDemoHost.OpenGLES3.sdf
+/FslDemoHost.OpenGLES3.sln
+/FslDemoHost.OpenGLES3.v12.sdf
+/FslDemoHost.OpenGLES3.v12.suo
+/FslDemoHost.OpenGLES3.vcxproj
+/FslDemoHost.OpenGLES3.vcxproj.filters
+/FslDemoHost.OpenGLES3.vcxproj.user
+/build/

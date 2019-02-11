@@ -43,6 +43,7 @@ class ToolEnvironmentVariableName(object):
 class ToolAddedVariantConfigOption(object):
     Debug = "Debug"
     Release = "Release"
+    Coverage = "Coverage"
 
 
 class ToolAddedVariant(object):

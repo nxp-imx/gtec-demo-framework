@@ -25,6 +25,10 @@
           <Define Name="EGL_API_WL" Access="Public"/>
           <Define Name="EGL_API_FB" Access="Public"/>
         </Option>
+        <Option Name="Wayland_IVI">
+          <Define Name="EGL_API_WL" Access="Public"/>
+          <Define Name="EGL_API_FB" Access="Public"/>
+        </Option>
         <Option Name="X11">
           <Define Name="EGL_USE_X11" Access="Public"/>
         </Option>

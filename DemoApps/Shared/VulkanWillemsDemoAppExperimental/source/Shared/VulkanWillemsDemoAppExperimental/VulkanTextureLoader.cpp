@@ -198,7 +198,7 @@ namespace Fsl
         {
           RawTexture rawTexture;
           Texture::ScopedDirectAccess directAccess(texture, rawTexture);
-          std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetContentByteSize());
+          std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetByteSize());
         }
         stagingMemory.UnmapMemory();
 

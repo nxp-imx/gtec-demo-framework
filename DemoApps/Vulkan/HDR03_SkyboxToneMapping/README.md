@@ -1,0 +1,71 @@
+<!-- #AG_DEMOAPP_HEADER_BEGIN# -->
+# HDR03_SkyboxToneMapping
+<img src="Example.jpg" height="135px">
+
+<!-- #AG_DEMOAPP_HEADER_END# -->
+<!-- #AG_BRIEF_BEGIN# -->
+Render a HDR skybox and apply various tonemapping algorithms to it.
+
+This sample outputs to a LDR screen.
+<!-- #AG_BRIEF_END# -->
+
+
+Inspired by:
+- [Filmic Tonemapping Operators](http://filmicworlds.com/blog/filmic-tonemapping-operators/)
+- [Tone mapping](https://www.shadertoy.com/view/lslGzl)
+- [HDR](https://learnopengl.com/Advanced-Lighting/HDR)
+
+The app can be controlled using:
+
+Key          | Result
+-------------|----------------------------------
+1            | Toggle LinearNoGamma
+2            | Toggle Linear
+3            | Toggle ReinhardLum
+4            | Toggle Uncharted2Lum
+5            | Toggle Custom
+6            | Enable all (default)
+Q            | Decrease exposure
+E            | Increase exposure
+R            | Reset exposure
+A            | Strafe left
+W            | Strafe right
+S            | Move forward
+D            | Move backward
+Right Mouse  | Mouse look (hold it)
+Middle mouse | Reset camera
+
+<!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->
+
+Command line arguments':
+
+Argument                       |Description                                                                                                                                                                                                                                                                                                                |Source
+-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------
+--Mask \<arg>                  |Select the tonemappers using a mask                                                                                                                                                                                                                                                                                        |Demo
+-s, --Scene \<arg>             |Select the scene to run (0 to 5)                                                                                                                                                                                                                                                                                           |Demo
+--DisplayId \<arg>             |DisplayId \<number>                                                                                                                                                                                                                                                                                                        |DemoHost
+--LogExtensions                |Output the extensions to the log                                                                                                                                                                                                                                                                                           |DemoHost
+--LogLayers                    |Output the layers to the log                                                                                                                                                                                                                                                                                               |DemoHost
+--LogSurfaceFormats            |Output the supported surface formats to the log                                                                                                                                                                                                                                                                            |DemoHost
+--VkApiDump                    |Enable the VK_LAYER_LUNARG_api_dump layer.                                                                                                                                                                                                                                                                                 |DemoHost
+--VkPhysicalDevice \<arg>      |Set the physical device index.                                                                                                                                                                                                                                                                                             |DemoHost
+--VkPresentMode \<arg>         |Override the present mode with the supplied value. Known values: VK_PRESENT_MODE_IMMEDIATE_KHR (0), VK_PRESENT_MODE_MAILBOX_KHR (1), VK_PRESENT_MODE_FIFO_KHR (2), VK_PRESENT_MODE_FIFO_RELAXED_KHR (3), VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR (1000111000), VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR (1000111001)|DemoHost
+--VkValidate \<arg>            |Enable/disable the VK_LAYER_LUNARG_standard_validation layer.                                                                                                                                                                                                                                                              |DemoHost
+--Window \<arg>                |Window mode [left,top,width,height]                                                                                                                                                                                                                                                                                        |DemoHost
+--AppFirewall                  |Enable the app firewall, reporting crashes on-screen instead of exiting                                                                                                                                                                                                                                                    |DemoHostManager
+--ContentMonitor               |Monitor the Content directory for changes and restart the app on changes. WARNING: Might not work on all platforms and it might impact app performance (experimental)                                                                                                                                                      |DemoHostManager
+--ExitAfterDuration \<arg>     |Exit after the given duration has passed. The value can be specified in seconds or milliseconds. For example 10s or 10ms.                                                                                                                                                                                                  |DemoHostManager
+--ExitAfterFrame \<arg>        |Exit after the given number of frames has been rendered                                                                                                                                                                                                                                                                    |DemoHostManager
+--ForceUpdateTime \<arg>       |Force the update time to be the given value in microseconds (can be useful when taking a lot of screen-shots). If 0 this option is disabled                                                                                                                                                                                |DemoHostManager
+--LogStats                     |Log basic rendering stats (this is equal to setting LogStatsMode to latest)                                                                                                                                                                                                                                                |DemoHostManager
+--LogStatsMode \<arg>          |Set the log stats mode, more advanced version of LogStats. Can be disabled, latest, average                                                                                                                                                                                                                                |DemoHostManager
+--ScreenshotFormat \<arg>      |Chose the format for the screenshot: bmp, jpg, png or tga (defaults to png)                                                                                                                                                                                                                                                |DemoHostManager
+--ScreenshotFrequency \<arg>   |Create a screenshot at the given frame frequency                                                                                                                                                                                                                                                                           |DemoHostManager
+--ScreenshotNamePrefix \<arg>  |Chose the screenshot name prefix (defaults to 'Screenshot')                                                                                                                                                                                                                                                                |DemoHostManager
+--ScreenshotNameScheme \<arg>  |Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)                                                                                                                                                                                                                                             |DemoHostManager
+--Stats                        |Display basic frame profiling stats                                                                                                                                                                                                                                                                                        |DemoHostManager
+--Profiler.AverageEntries \<arg>|The number of frames used to calculate the average frame-time. Defaults to: 60                                                                                                                                                                                                                                             |ProfilerService
+--ghelp \<arg>                 |Display option groups: all, demo or host                                                                                                                                                                                                                                                                                   |base
+-h, --help                     |Display options                                                                                                                                                                                                                                                                                                            |base
+-v, --verbose                  |Enable verbose output                                                                                                                                                                                                                                                                                                      |base
+<!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_END# -->

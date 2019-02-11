@@ -33,16 +33,16 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Noncopyable.hpp>
-#include <FslUtil/Vulkan1_0/Extend/BufferEx.hpp>
-#include <FslUtil/Vulkan1_0/Extend/DeviceMemoryEx.hpp>
+#include <FslUtil/Vulkan1_0/VUBuffer.hpp>
+#include <FslUtil/Vulkan1_0/VUDeviceMemory.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl
 {
   class DeviceBuffer : Noncopyable
   {
-    Vulkan::BufferEx m_buffer;
-    Vulkan::DeviceMemoryEx m_memory;
+    Vulkan::VUBuffer m_buffer;
+    Vulkan::VUDeviceMemory m_memory;
     // VkFormat m_imageFormat;
   public:
     // move assignment operator
@@ -51,22 +51,22 @@ namespace Fsl
     DeviceBuffer(DeviceBuffer&& other) noexcept;
 
     DeviceBuffer();
-    DeviceBuffer(Vulkan::BufferEx&& buffer, Vulkan::DeviceMemoryEx&& deviceMemory);
+    DeviceBuffer(Vulkan::VUBuffer&& buffer, Vulkan::VUDeviceMemory&& deviceMemory);
 
     void Reset() noexcept;
-    void Reset(Vulkan::BufferEx&& buffer, Vulkan::DeviceMemoryEx&& deviceMemory);
+    void Reset(Vulkan::VUBuffer&& buffer, Vulkan::VUDeviceMemory&& deviceMemory);
 
-    const Vulkan::BufferEx& GetBuffer() const
+    const Vulkan::VUBuffer& GetBuffer() const
     {
       return m_buffer;
     }
 
-    Vulkan::BufferEx& GetBuffer2()
+    Vulkan::VUBuffer& GetBuffer2()
     {
       return m_buffer;
     }
 
-    const Vulkan::DeviceMemoryEx& GetDeviceMemory() const
+    const Vulkan::VUDeviceMemory& GetDeviceMemory() const
     {
       return m_memory;
     }
@@ -76,7 +76,12 @@ namespace Fsl
       m_memory.MapMemory(offset, size, flags);
     }
 
-    void* GetMappedMemoryPointer() const
+    const void* GetMappedMemoryPointer() const
+    {
+      return m_memory.GetMappedMemoryPointer();
+    }
+
+    void* GetMappedMemoryPointer()
     {
       return m_memory.GetMappedMemoryPointer();
     }

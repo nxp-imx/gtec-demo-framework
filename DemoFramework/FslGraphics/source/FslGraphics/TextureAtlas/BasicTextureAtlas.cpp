@@ -42,7 +42,7 @@ namespace Fsl
 
   NamedAtlasTexture BasicTextureAtlas::GetEntry(const int32_t index) const
   {
-    if (index < 0 || static_cast<std::size_t>(index) > m_entries.size())
+    if (index < 0 || static_cast<std::size_t>(index) >= m_entries.size())
     {
       throw std::invalid_argument("Out of bounds");
     }
@@ -58,7 +58,7 @@ namespace Fsl
 
   void BasicTextureAtlas::SetEntry(const int32_t index, const Rectangle& srcRect, const Rectangle& trimmedRect, const UTF8String& name)
   {
-    if (index < 0 || static_cast<std::size_t>(index) > m_entries.size())
+    if (index < 0 || static_cast<std::size_t>(index) >= m_entries.size())
     {
       throw std::invalid_argument("out of bounds");
     }

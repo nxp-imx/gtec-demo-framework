@@ -94,6 +94,13 @@ class GeneratorPlugin(GeneratorPluginBase2):
             raise Exception("The variant name already exist '{0}'".format(generatorVariant.Name))
         self.GeneratorVariants[generatorVariant.Name] = generatorVariant
 
+    def AddGeneratorVariantConfigOption(self, optionName: str) -> None:
+        variant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
+        variant.Options.append(optionName)
+        if len(variant.Description) > 0:
+            variant.Description = "{0},{1}".format(variant.Description, optionName)
+        else:
+            variant.Description = optionName
 
 
 

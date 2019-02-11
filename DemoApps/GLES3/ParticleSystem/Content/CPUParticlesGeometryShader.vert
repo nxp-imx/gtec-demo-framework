@@ -2,24 +2,25 @@
 #extension GL_EXT_geometry_shader : enable
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 in vec3 VertexPosition;
-//in vec4 VertexColor;
+// in vec4 VertexColor;
 in float VertexPointSize;
 
-out block 
+out block
 {
-  //vec4 Color;
+  // vec4 Color;
   float Size;
-} Out;
+}
+Out;
 
 void main()
 {
   gl_Position = vec4(VertexPosition, 1.0);
-  //Out.Color = VertexColor;
+  // Out.Color = VertexColor;
   Out.Size = VertexPointSize;
 }

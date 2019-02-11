@@ -1,0 +1,14 @@
+/.StartProject.bat
+/.vs/
+/FslDemoService.Graphics.VC.VC.opendb
+/FslDemoService.Graphics.VC.db
+/FslDemoService.Graphics.manifest
+/FslDemoService.Graphics.opensdf
+/FslDemoService.Graphics.sdf
+/FslDemoService.Graphics.sln
+/FslDemoService.Graphics.v12.sdf
+/FslDemoService.Graphics.v12.suo
+/FslDemoService.Graphics.vcxproj
+/FslDemoService.Graphics.vcxproj.filters
+/FslDemoService.Graphics.vcxproj.user
+/build/

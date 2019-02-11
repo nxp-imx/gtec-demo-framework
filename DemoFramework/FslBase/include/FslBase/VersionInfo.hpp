@@ -40,9 +40,9 @@ namespace Fsl
     uint16_t Major{0};
     uint16_t Minor{0};
 
-    VersionInfo() = default;
+    constexpr VersionInfo() = default;
 
-    VersionInfo(const uint16_t major, const uint16_t minor)
+    constexpr VersionInfo(const uint16_t major, const uint16_t minor)
       : Major(major)
       , Minor(minor)
     {

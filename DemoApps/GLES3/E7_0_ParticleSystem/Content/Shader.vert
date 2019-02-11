@@ -9,7 +9,7 @@ out float v_lifetime;
 
 void main()
 {
-  if ( u_time <= a_lifetime )
+  if (u_time <= a_lifetime)
   {
     gl_Position.xyz = a_startPosition + (u_time * a_endPosition);
     gl_Position.xyz += u_centerPosition;
@@ -17,9 +17,9 @@ void main()
   }
   else
   {
-    gl_Position = vec4( -1000, -1000, 0, 0 );
+    gl_Position = vec4(-1000, -1000, 0, 0);
   }
-  v_lifetime = 1.0 - ( u_time / a_lifetime );
-  v_lifetime = clamp ( v_lifetime, 0.0, 1.0 );
-  gl_PointSize = ( v_lifetime * v_lifetime ) * 40.0;
+  v_lifetime = 1.0 - (u_time / a_lifetime);
+  v_lifetime = clamp(v_lifetime, 0.0, 1.0);
+  gl_PointSize = (v_lifetime * v_lifetime) * 40.0;
 }

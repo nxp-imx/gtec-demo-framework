@@ -4,7 +4,7 @@
     <Dependency Name="Recipe.BuildTool.clang"/>
     <ExperimentalRecipe>
       <Installation>
-        <FindExecutableFileInPath Name="clang-tidy" Alternatives="clang-tidy-6.0" MinVersion="6.0" VersionCommand="-version" VersionRegEx="LLVM version\s*([\d.]+)" Help="Please install clang-tidy 6.0+ as its needed for tidy (http://releases.llvm.org/download.html)"/>
+        <FindExecutableFileInPath Name="clang-tidy" Alternatives="clang-tidy-7.0" MinVersion="7.0" VersionCommand="-version" VersionRegEx="LLVM version\s*([\d.]+)" Help="Please install clang-tidy 7.0+ as its needed for tidy (http://releases.llvm.org/download.html)"/>
       </Installation>
     </ExperimentalRecipe>
   </ToolRecipe>

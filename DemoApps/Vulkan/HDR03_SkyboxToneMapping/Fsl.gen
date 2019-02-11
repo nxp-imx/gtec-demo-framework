@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.HDR03_SkyboxToneMapping" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="Shared.CubeMapping.API.Vulkan"/>
+    <Dependency Name="Shared.HDR.SkyboxTonemapping"/>
+    <Platform Name="Windows" ProjectId="1C9CA11A-E452-47BB-AF11-80D0BD682DAB"/>
+  </Executable>
+</FslBuildGen>

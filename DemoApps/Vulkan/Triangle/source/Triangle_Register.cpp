@@ -29,9 +29,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "Triangle.hpp"
 
 namespace Fsl
@@ -39,8 +38,8 @@ namespace Fsl
   // Configure the demo environment to run this demo app in a Window host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem);
+    DemoAppHostConfigVulkan config;
 
-    DemoAppRegister::Window::Register<Triangle, OptionParser>(rSetup, "Vulkan.Triangle", config);
+    DemoAppRegister::Vulkan::Register<Triangle>(rSetup, "Vulkan.Triangle", config);
   }
 }

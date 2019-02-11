@@ -36,11 +36,11 @@
 #include <linux/videodev2.h>
 #include <malloc.h>
 #include <pthread.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
+#include <cstring>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <csignal>
 #include <sys/mman.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -113,7 +113,7 @@ namespace Fsl
 
       static void print_pixelformat(char* prefix, int val)
       {
-        printf("%s: %c%c%c%c\n", prefix ? prefix : "pixelformat", val & 0xff, (val >> 8) & 0xff, (val >> 16) & 0xff, (val >> 24) & 0xff);
+        printf("%s: %c%c%c%c\n", prefix != nullptr ? prefix : "pixelformat", val & 0xff, (val >> 8) & 0xff, (val >> 16) & 0xff, (val >> 24) & 0xff);
       }
 
       int init_video_channel(int ch_id, int cameraWidth, int cameraHeight)
@@ -167,11 +167,11 @@ namespace Fsl
             }
 
             video_ch[ch_id].buffers[i].length = buf.m.planes->length;
-            video_ch[ch_id].buffers[i].offset = (size_t)buf.m.planes->m.mem_offset;
-            video_ch[ch_id].buffers[i].start = (unsigned char*)mmap(NULL, video_ch[ch_id].buffers[i].length, PROT_READ | PROT_WRITE, MAP_SHARED,
-                                                                    fd_v4l, video_ch[ch_id].buffers[i].offset);
+            video_ch[ch_id].buffers[i].offset = static_cast<size_t>(buf.m.planes->m.mem_offset);
+            video_ch[ch_id].buffers[i].start = static_cast<unsigned char*>(
+              mmap(nullptr, video_ch[ch_id].buffers[i].length, PROT_READ | PROT_WRITE, MAP_SHARED, fd_v4l, video_ch[ch_id].buffers[i].offset));
             memset(video_ch[ch_id].buffers[i].start, 0xFF, video_ch[ch_id].buffers[i].length);
-            printf("buffer[%d] startAddr=0x%x, offset=0x%x, buf_size=%d\n", i, (unsigned int*)video_ch[ch_id].buffers[i].start,
+            printf("buffer[%d] startAddr=0x%x, offset=0x%x, buf_size=%d\n", i, reinterpret_cast<unsigned int*>(video_ch[ch_id].buffers[i].start),
                    video_ch[ch_id].buffers[i].offset, video_ch[ch_id].buffers[i].length);
           }
         }
@@ -187,9 +187,13 @@ namespace Fsl
           buf.m.planes->length = video_ch[ch_id].buffers[i].length;
           buf.length = 1;
           if (mem_type == V4L2_MEMORY_USERPTR)
-            buf.m.planes->m.userptr = (unsigned long)video_ch[ch_id].buffers[i].start;
+          {
+            buf.m.planes->m.userptr = reinterpret_cast<unsigned long>(video_ch[ch_id].buffers[i].start);
+          }
           else
+          {
             buf.m.planes->m.mem_offset = video_ch[ch_id].buffers[i].offset;
+          }
 
           if (ioctl(fd_v4l, VIDIOC_QBUF, &buf) < 0)
           {
@@ -243,7 +247,7 @@ namespace Fsl
         if (ioctl(fd_v4l, VIDIOC_QUERYCAP, &cap) == 0)
         {
           printf("cap=0x%x\n", cap.capabilities);
-          if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE))
+          if ((cap.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE) == 0u)
           {
             printf("%s not support v4l2 capture device.\n", video_ch[ch_id].v4l_dev_name);
             return -1;
@@ -394,7 +398,7 @@ namespace Fsl
         throw std::runtime_error("v4l_capture_setup failed");
       }
 
-      if (video_ch[0].on)
+      if (video_ch[0].on != 0)
       {
         if (prepare_capturing(0) < 0)
         {
@@ -431,7 +435,7 @@ namespace Fsl
       int ret;
       for (int i = 0; i < 8; i++)
       {
-        if (video_ch[i].on)
+        if (video_ch[i].on != 0)
         {
           ret = get_video_channel_buffer(i);
           if (ret < 0)
@@ -444,13 +448,16 @@ namespace Fsl
             throw std::runtime_error("get_video_channel_buffer failed");
           }
           int buf_id = video_ch[i].cur_buf_id;
-          memcpy(rTargetBitmap.Content(), (void*)video_ch[i].buffers[buf_id].start, rTargetBitmap.Height() * rTargetBitmap.Stride());
+          memcpy(rTargetBitmap.Content(), reinterpret_cast<void*>(video_ch[i].buffers[buf_id].start),
+                 rTargetBitmap.Height() * rTargetBitmap.Stride());
           put_video_channel_buffer(i);
         }
       }
       ++m_frameId;
       if (m_frameId == 0)
+      {
         ++m_frameId;
+      }
       rFrameId = m_frameId;
       return true;
     }

@@ -39,9 +39,6 @@
 
 namespace Fsl
 {
-  const uint32_t ParticleSystemOneArray::SIZE_PARTICLE_RECORD = static_cast<uint32_t>(sizeof(ParticleSystemOneArray::ParticleRecord));
-
-
   ParticleSystemOneArray::ParticleSystemOneArray(const std::shared_ptr<IParticleDraw>& particleDraw, const std::size_t capacity)
     : m_particles(capacity)
     , m_particleDraw(particleDraw)
@@ -72,8 +69,8 @@ namespace Fsl
     }
 
 
-    HighResolutionTimer timer;
-    auto start = timer.GetTime();
+    // HighResolutionTimer timer;
+    // auto start = timer.GetTime();
 
     const float deltaTime = demoTime.DeltaTime;
     Vector3 accumulatedGravityVelocity = m_gravity * deltaTime;
@@ -89,9 +86,9 @@ namespace Fsl
       rParticle.Size = rParticle.StartSize + ((rParticle.EndSize - rParticle.StartSize) * (1.0f - (rParticle.Energy / rParticle.StartEnergy)));
 
       // Add gravity to velocity
-      rParticle.Velocity.X += accumulatedGravityVelocity.X * deltaTime;
-      rParticle.Velocity.Y += accumulatedGravityVelocity.Y * deltaTime;
-      rParticle.Velocity.Z += accumulatedGravityVelocity.Z * deltaTime;
+      rParticle.Velocity.X += accumulatedGravityVelocity.X;
+      rParticle.Velocity.Y += accumulatedGravityVelocity.Y;
+      rParticle.Velocity.Z += accumulatedGravityVelocity.Z;
 
       // Add the velocity
       rParticle.Position.X += rParticle.Velocity.X * deltaTime;
@@ -112,8 +109,8 @@ namespace Fsl
       // FSLLOG("GC: Time: " << end - start << " Count: " << dstIndex);
     }
 
-    auto end = timer.GetTime();
-    FSLLOG("ParticleSystem update time: " << end - start);
+    // auto end = timer.GetTime();
+    // FSLLOG("ParticleSystem update time: " << end - start);
   }
 
   void ParticleSystemOneArray::Draw(const ParticleDrawContext& context)

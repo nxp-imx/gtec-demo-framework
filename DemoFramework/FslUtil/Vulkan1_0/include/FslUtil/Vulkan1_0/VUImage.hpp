@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUIMAGE_HPP
 #define FSLUTIL_VULKAN1_0_VUIMAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2018 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,48 +31,86 @@
  *
  ****************************************************************************************************************************************************/
 
+// Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-//#include <FslUtil/Vulkan1_0/Extend/DeviceMemoryEx.hpp>
-#include <FslUtil/Vulkan1_0/Extend/ImageEx.hpp>
-#include <RapidVulkan/CommandBuffer.hpp>
-#include <RapidVulkan/ImageView.hpp>
-#include <RapidVulkan/Memory.hpp>
-#include <string>
+#include <RapidVulkan/Image.hpp>
+#include <vector>
+#include <vulkan/vulkan.h>
 
 namespace Fsl
 {
   namespace Vulkan
   {
-    class VUDevice;
-
-    //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+    // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
     class VUImage
     {
-      ImageEx m_image;
-      RapidVulkan::Memory m_memory;
-      RapidVulkan::ImageView m_imageView;
+      RapidVulkan::Image m_image;
+      VkImageCreateFlags m_flags = 0;
+      VkFormat m_format = VK_FORMAT_UNDEFINED;
+      VkExtent3D m_extent{};
+      uint32_t m_mipLevels = 0;
+      VkImageLayout m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
     public:
       VUImage(const VUImage&) = delete;
       VUImage& operator=(const VUImage&) = delete;
 
-      //! @brief Move assignment operator
-      VUImage& operator=(VUImage&& other) noexcept;
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      VUImage(VUImage&& other) noexcept;
+      // move assignment operator
+      VUImage& operator=(VUImage&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          Reset();
 
-      //! @brief Create a 'invalid' instance (use Reset to populate it)
-      VUImage();
+          // Claim ownership here
+          m_image = std::move(other.m_image);
+          m_flags = other.m_flags;
+          m_format = other.m_format;
+          m_extent = other.m_extent;
+          m_mipLevels = other.m_mipLevels;
+          m_layout = other.m_layout;
 
-      VUImage(const VUDevice& device, const VkCommandBuffer commandBuffer, const VkImageCreateInfo& imageCreateInfo,
-              const VkAccessFlags srcAccessMask, const VkAccessFlags dstAccessMask, const VkImageLayout newLayout,
-              const VkImageSubresourceRange& subresourceRange, const VkMemoryPropertyFlags memoryPropertyFlags, const std::string& name);
+          // Remove the data from other
+          other.m_flags = 0;
+          other.m_format = VK_FORMAT_UNDEFINED;
+          other.m_extent = {};
+          other.m_mipLevels = 0;
+          other.m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+        }
+        return *this;
+      }
 
-      VUImage(ImageEx&& image, RapidVulkan::Memory&& memory, RapidVulkan::ImageView&& imageView, const std::string& name);
+      // move constructor
+      VUImage(VUImage&& other) noexcept
+        : m_image(std::move(other.m_image))
+        , m_flags(other.m_flags)
+        , m_format(other.m_format)
+        , m_extent(other.m_extent)
+        , m_mipLevels(other.m_mipLevels)
+        , m_layout(other.m_layout)
+      {
+        // Remove the data from other
+        other.m_flags = 0;
+        other.m_format = VK_FORMAT_UNDEFINED;
+        other.m_extent = {};
+        other.m_mipLevels = 0;
+        other.m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+      }
 
-      ~VUImage()
+      VUImage() = default;
+
+      //! @brief Create a new VUImage.
+      VUImage(const VkDevice device, const VkImageCreateInfo& createInfo);
+
+      //! @brief Create a new VUImage.
+      VUImage(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format, const VkExtent3D& extent,
+              const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples, const VkImageTiling tiling,
+              const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
+              const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout);
+
+      ~VUImage() noexcept
       {
         Reset();
       }
@@ -80,43 +118,79 @@ namespace Fsl
       //! @brief Destroys any owned resources and resets the object to its default state.
       void Reset() noexcept;
 
-      void Reset(const VUDevice& device, const VkCommandBuffer commandBuffer, const VkImageCreateInfo& imageCreateInfo,
-                 const VkAccessFlags srcAccessMask, const VkAccessFlags dstAccessMask, const VkImageLayout newLayout,
-                 const VkImageSubresourceRange& subresourceRange, const VkMemoryPropertyFlags memoryPropertyFlags, const std::string& name);
-      void Reset(ImageEx&& image, RapidVulkan::Memory&& memory, RapidVulkan::ImageView&& imageView, const std::string& name);
+      //! @brief Destroys any owned resources and then creates the requested one
+      //! @note  Function: vkCreateImage
+      void Reset(const VkDevice device, const VkImageCreateInfo& createInfo);
 
+      //! @brief Replaces the managed object with a new one (releasing the old)
+      void Reset(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format, const VkExtent3D& extent,
+                 const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples, const VkImageTiling tiling,
+                 const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
+                 const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout);
 
-      //! @brief Check if this object contains a valid resource
-      inline bool IsValid() const
-      {
-        return m_image.IsValid();
-      }
-
+      //! @brief Get the device associated with this object
       VkDevice GetDevice() const
       {
         return m_image.GetDevice();
       }
 
-      //! @brief Get the Image associated with this object
-      const ImageEx& Image() const
+      //! @brief Get the handle associated with this object
+      VkImage Get() const
       {
-        return m_image;
+        return m_image.Get();
       }
 
-      //! @brief Get the ImageView associated with this object
-      const RapidVulkan::ImageView& ImageView() const
+
+      //! @brief Check if this object is valid
+      bool IsValid() const
       {
-        return m_imageView;
+        return m_image.IsValid();
       }
 
-      //! @brief Get the Memory associated with this object
-      const RapidVulkan::Memory& Memory() const
+
+      VkImageCreateFlags GetFlags() const
       {
-        return m_memory;
+        return m_flags;
       }
 
-    private:
-      inline void DoReset();
+
+      VkFormat GetFormat() const
+      {
+        return m_format;
+      }
+
+      VkMemoryRequirements GetImageMemoryRequirements() const
+      {
+        return m_image.GetImageMemoryRequirements();
+      }
+
+      VkSubresourceLayout GetImageSubresourceLayout(const VkImageSubresource& imageSubresource) const
+      {
+        return m_image.GetImageSubresourceLayout(imageSubresource);
+      }
+
+      uint32_t GetMipLevels() const
+      {
+        return m_mipLevels;
+      }
+
+      VkExtent3D GetExtent() const
+      {
+        return m_extent;
+      }
+
+      //! @brief Beware that the image layout can easily be changed outside of this classes control,
+      //         so its up to you to keep it up to date with SetImageLayout
+      VkImageLayout GetImageLayout() const
+      {
+        return m_layout;
+      }
+
+      //! @brief Beware this does not actually do anything to the image, it just sets the stored layout variable
+      void SetImageLayout(const VkImageLayout newLayout)
+      {
+        m_layout = newLayout;
+      }
     };
   }
 }

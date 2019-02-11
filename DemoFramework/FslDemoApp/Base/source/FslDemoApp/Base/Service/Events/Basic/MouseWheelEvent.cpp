@@ -30,30 +30,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 
 namespace Fsl
 {
-  MouseWheelEvent::MouseWheelEvent(const BasicEvent& encodedEvent)
-    : BasicEvent(encodedEvent)
-  {
-    if (m_type != EventType::MouseWheel)
-    {
-      throw std::invalid_argument("The supplied argument is of a wrong type");
-    }
-  }
-
-
   MouseWheelEvent::MouseWheelEvent(const int32_t delta, const Point2& position)
     : BasicEvent(EventType::MouseWheel, delta, NativeWindowEventHelper::EncodePosition(position))
   {
-  }
-
-
-  int32_t MouseWheelEvent::GetDelta() const
-  {
-    return m_arg1;
   }
 
 

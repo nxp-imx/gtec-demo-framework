@@ -233,7 +233,7 @@ namespace Fsl
 
     const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
+    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
     {
       GrowCapacity();
     }
@@ -306,7 +306,7 @@ namespace Fsl
 
     const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
+    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
     {
       GrowCapacity();
     }
@@ -379,7 +379,7 @@ namespace Fsl
 
     const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
+    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
     {
       GrowCapacity();
     }
@@ -493,7 +493,7 @@ namespace Fsl
 
     const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
+    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
     {
       GrowCapacity();
     }
@@ -579,7 +579,7 @@ namespace Fsl
 
     const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
+    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
     {
       GrowCapacity();
     }
@@ -726,7 +726,7 @@ namespace Fsl
     }
 
     int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
-    const auto minimumCapacity = static_cast<size_t>(vertexIndex + (dstPositionsLength * VERTICES_PER_QUAD));
+    const auto minimumCapacity = static_cast<std::size_t>(vertexIndex + (dstPositionsLength * VERTICES_PER_QUAD));
     // Ensure that we have enough room for the quad
     if (minimumCapacity > m_vertices.size())
     {

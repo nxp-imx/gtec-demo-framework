@@ -45,6 +45,7 @@ namespace Fsl
     bool m_isConsoleBasedHost = false;
     DemoHostFeature m_activeAPI;
     std::shared_ptr<DemoAppHostConfig> m_appHostConfig;
+    HostConfig m_hostConfig;
 
   public:
     HostInfoService(const ServiceProvider& serviceProvider);
@@ -54,10 +55,13 @@ namespace Fsl
     bool IsConsoleBasedHost() const override;
     DemoHostFeature GetActiveAPI() const override;
     std::shared_ptr<DemoAppHostConfig> TryGetAppHostConfig() const override;
+    HostConfig GetConfig() const override;
+
     // From IHostInfoControl
     void SetIsConsoleBasedHost(const bool isConsoleBasedHost) override;
     void SetActiveAPI(const DemoHostFeature feature) override;
     void SetAppHostConfig(std::shared_ptr<DemoAppHostConfig> appHostConfig) override;
+    void SetConfig(const HostConfig& config) override;
 
   private:
   };

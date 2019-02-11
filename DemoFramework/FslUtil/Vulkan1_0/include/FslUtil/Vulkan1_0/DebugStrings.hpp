@@ -46,6 +46,7 @@ namespace Fsl
       //! @brief Convert the error code to a string
       const char* ToString(const VkResult value);
       const char* ToString(const VkPresentModeKHR value);
+      const char* ToString(const VkFormat value);
     };
   }
 }

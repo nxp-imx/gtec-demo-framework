@@ -40,7 +40,7 @@ namespace Fsl
     void* m_pContent{nullptr};
 
   public:
-    RawBitmapEx() = default;
+    constexpr RawBitmapEx() = default;
 
     RawBitmapEx(void* const pContent, const Extent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
       : RawBitmap(pContent, extent, pixelFormat, origin)
@@ -83,7 +83,7 @@ namespace Fsl
     using RawBitmap::Content;
 
     //! @brief Get a pointer to the content
-    void* Content()
+    constexpr void* Content()
     {
       return m_pContent;
     }

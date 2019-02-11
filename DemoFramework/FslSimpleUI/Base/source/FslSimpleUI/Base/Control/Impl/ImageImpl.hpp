@@ -54,7 +54,6 @@ namespace Fsl
         }
 
         // FIX: check if the image needs to be rendered using alpha blend or not
-        batch2D->ChangeTo(BlendState::AlphaBlend);
         batch2D->Draw(content, context.TargetRect, color);
       }
 

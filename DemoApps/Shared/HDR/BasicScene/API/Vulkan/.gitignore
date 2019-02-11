@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.HDR.BasicScene.API.Vulkan.VC.VC.opendb
+/Shared.HDR.BasicScene.API.Vulkan.VC.db
+/Shared.HDR.BasicScene.API.Vulkan.manifest
+/Shared.HDR.BasicScene.API.Vulkan.opensdf
+/Shared.HDR.BasicScene.API.Vulkan.sdf
+/Shared.HDR.BasicScene.API.Vulkan.sln
+/Shared.HDR.BasicScene.API.Vulkan.v12.sdf
+/Shared.HDR.BasicScene.API.Vulkan.v12.suo
+/Shared.HDR.BasicScene.API.Vulkan.vcxproj
+/Shared.HDR.BasicScene.API.Vulkan.vcxproj.filters
+/Shared.HDR.BasicScene.API.Vulkan.vcxproj.user
+/build/

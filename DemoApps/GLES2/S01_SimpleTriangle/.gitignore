@@ -31,6 +31,7 @@
 /S01_SimpleTriangle_Wayland_d
 /S01_SimpleTriangle_X11
 /S01_SimpleTriangle_X11_d
+/S01_SimpleTriangle_c
 /S01_SimpleTriangle_d
 /build/
 /resource.h

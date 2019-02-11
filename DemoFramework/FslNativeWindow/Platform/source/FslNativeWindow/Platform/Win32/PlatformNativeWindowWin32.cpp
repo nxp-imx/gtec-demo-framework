@@ -1000,7 +1000,7 @@ namespace Fsl
     auto eventQueue = TryGetEventQueue();
     if (eventQueue)
     {
-      eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowDPIChanged());
+      eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowDPIChanged(value));
     }
   }
 

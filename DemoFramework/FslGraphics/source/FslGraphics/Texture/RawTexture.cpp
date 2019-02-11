@@ -33,6 +33,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <cmath>
+#include <algorithm>
 
 
 namespace Fsl
@@ -41,7 +42,9 @@ namespace Fsl
   {
     constexpr Extent3D DoGetExtent(const Extent3D& maxExtent, const std::size_t level)
     {
-      return level == 0 ? maxExtent : Extent3D(maxExtent.Width >> level, maxExtent.Height >> level, maxExtent.Depth >> level);
+      return level == 0
+               ? maxExtent
+               : Extent3D(std::max(maxExtent.Width >> level, 1u), std::max(maxExtent.Height >> level, 1u), std::max(maxExtent.Depth >> level, 1u));
     }
   }
 

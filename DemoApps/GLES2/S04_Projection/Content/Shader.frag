@@ -1,12 +1,12 @@
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 varying vec3 g_vVSColor;
 
 void main()
 {
-  gl_FragColor = vec4( g_vVSColor, 1.0 );
+  gl_FragColor = vec4(g_vVSColor, 1.0);
 }

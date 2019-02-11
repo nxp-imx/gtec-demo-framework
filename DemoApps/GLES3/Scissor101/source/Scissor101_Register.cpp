@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
+#include <Shared/Scissor101/OptionParser.hpp>
 #include <EGL/egl.h>
 #include "Scissor101.hpp"
-#include "OptionParser.hpp"
 
 namespace Fsl
 {

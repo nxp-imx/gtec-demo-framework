@@ -43,37 +43,37 @@ TEST_F(TestUITree_ActiveWindow, Add)
   auto callIdManager = std::make_shared<WindowCallIdManager>(WindowMethod::WinInit | WindowMethod::WinUpdate | WindowMethod::WinResolve);
   auto startCallId = callIdManager->GetCurrentValue();
 
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
   window->SetCallIdManager(callIdManager);
   m_tree->AddChild(m_mainWindow, window);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // The everything except WinInit does not called before the next update call
   auto callCount = window->GetCallCount();
-  ASSERT_EQ(1, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinInit);
   auto callId = window->GetCallId();
   ASSERT_EQ(startCallId + 1, callId.WinInit);
   CheckZeroExcept(callCount, WindowMethod::WinInit);
 
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCount = window->GetCallCount();
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
 
   CheckZeroExcept(callCount, WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve);
 
   // Check that the methods got called in the expected order
   auto callIdNewWindow = window->GetCallId();
-  ASSERT_EQ(startCallId + 1, callIdNewWindow.WinInit);
-  ASSERT_EQ(startCallId + 2, callIdNewWindow.WinUpdate);
-  ASSERT_EQ(startCallId + 3, callIdNewWindow.WinResolve);
+  ASSERT_EQ(startCallId + 1u, callIdNewWindow.WinInit);
+  ASSERT_EQ(startCallId + 2u, callIdNewWindow.WinUpdate);
+  ASSERT_EQ(startCallId + 3u, callIdNewWindow.WinResolve);
 }
 
 TEST_F(TestUITree_ActiveWindow, Add_NoFlags)
@@ -84,26 +84,26 @@ TEST_F(TestUITree_ActiveWindow, Add_NoFlags)
   auto window = std::make_shared<UI::BaseWindowTest>(m_windowContext);
   window->SetCallIdManager(callIdManager);
 
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->AddChild(m_mainWindow, window);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // The window does not called before the next update call
   auto callCount = window->GetCallCount();
   CheckZero(callCount, WindowMethod::All);
 
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   CheckZero(callCount, WindowMethod::All);
 
   // Check that the methods got called in the expected order
   auto callIdNewWindow = window->GetCallId();
-  ASSERT_EQ(0, callIdNewWindow.WinInit);
-  ASSERT_EQ(0, callIdNewWindow.WinUpdate);
-  ASSERT_EQ(0, callIdNewWindow.WinResolve);
+  ASSERT_EQ(0u, callIdNewWindow.WinInit);
+  ASSERT_EQ(0u, callIdNewWindow.WinUpdate);
+  ASSERT_EQ(0u, callIdNewWindow.WinResolve);
 }
 
 // Add a child window during the main windows update using the window manager directly.
@@ -129,16 +129,16 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_NoLayout)
 
   // Update the tree which adds the new window during the update call using the above callback
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
@@ -148,10 +148,10 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_NoLayout)
   m_tree->Draw();
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
-  ASSERT_EQ(1, callCount.WinDraw);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinDraw);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -159,10 +159,10 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_NoLayout)
 
   // Check that the methods got called in the expected order
   auto callIdNewWindow = newWindow->GetCallId();
-  ASSERT_EQ(startCallId + 1, callIdNewWindow.WinInit);
-  ASSERT_EQ(startCallId + 2, callIdNewWindow.WinUpdate);
-  ASSERT_EQ(startCallId + 3, callIdNewWindow.WinResolve);
-  ASSERT_EQ(startCallId + 4, callIdNewWindow.WinDraw);
+  ASSERT_EQ(startCallId + 1u, callIdNewWindow.WinInit);
+  ASSERT_EQ(startCallId + 2u, callIdNewWindow.WinUpdate);
+  ASSERT_EQ(startCallId + 3u, callIdNewWindow.WinResolve);
+  ASSERT_EQ(startCallId + 4u, callIdNewWindow.WinDraw);
 }
 
 
@@ -198,24 +198,24 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_NoLayout)
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(3, m_tree->GetNodeCount());
+  ASSERT_EQ(3u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -224,30 +224,30 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_NoLayout)
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
   auto callIdNewWindow1 = newWindow1->GetCallId();
   auto callIdNewWindow2 = newWindow2->GetCallId();
-  ASSERT_EQ(startCallId + 1, callIdNewWindow1.WinInit);
-  ASSERT_EQ(startCallId + 2, callIdNewWindow1.WinUpdate);
-  ASSERT_EQ(startCallId + 3, callIdNewWindow2.WinInit);
-  ASSERT_EQ(startCallId + 4, callIdNewWindow2.WinUpdate);
-  ASSERT_EQ(startCallId + 5, callIdNewWindow1.WinResolve);
-  ASSERT_EQ(startCallId + 6, callIdNewWindow2.WinResolve);
-  ASSERT_EQ(startCallId + 7, callIdNewWindow1.WinDraw);
-  ASSERT_EQ(startCallId + 8, callIdNewWindow2.WinDraw);
+  ASSERT_EQ(startCallId + 1u, callIdNewWindow1.WinInit);
+  ASSERT_EQ(startCallId + 2u, callIdNewWindow1.WinUpdate);
+  ASSERT_EQ(startCallId + 3u, callIdNewWindow2.WinInit);
+  ASSERT_EQ(startCallId + 4u, callIdNewWindow2.WinUpdate);
+  ASSERT_EQ(startCallId + 5u, callIdNewWindow1.WinResolve);
+  ASSERT_EQ(startCallId + 6u, callIdNewWindow2.WinResolve);
+  ASSERT_EQ(startCallId + 7u, callIdNewWindow1.WinDraw);
+  ASSERT_EQ(startCallId + 8u, callIdNewWindow2.WinDraw);
 }
 
 
@@ -282,24 +282,24 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_NoLayout)
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its resolve it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(3, m_tree->GetNodeCount());
+  ASSERT_EQ(3u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -308,30 +308,30 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_NoLayout)
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
   auto callIdNewWindow1 = newWindow1->GetCallId();
   auto callIdNewWindow2 = newWindow2->GetCallId();
-  ASSERT_EQ(startCallId + 1, callIdNewWindow1.WinInit);
-  ASSERT_EQ(startCallId + 2, callIdNewWindow1.WinUpdate);
-  ASSERT_EQ(startCallId + 3, callIdNewWindow1.WinResolve);
-  ASSERT_EQ(startCallId + 4, callIdNewWindow2.WinInit);
-  ASSERT_EQ(startCallId + 5, callIdNewWindow2.WinUpdate);
-  ASSERT_EQ(startCallId + 6, callIdNewWindow2.WinResolve);
-  ASSERT_EQ(startCallId + 7, callIdNewWindow1.WinDraw);
-  ASSERT_EQ(startCallId + 8, callIdNewWindow2.WinDraw);
+  ASSERT_EQ(startCallId + 1u, callIdNewWindow1.WinInit);
+  ASSERT_EQ(startCallId + 2u, callIdNewWindow1.WinUpdate);
+  ASSERT_EQ(startCallId + 3u, callIdNewWindow1.WinResolve);
+  ASSERT_EQ(startCallId + 4u, callIdNewWindow2.WinInit);
+  ASSERT_EQ(startCallId + 5u, callIdNewWindow2.WinUpdate);
+  ASSERT_EQ(startCallId + 6u, callIdNewWindow2.WinResolve);
+  ASSERT_EQ(startCallId + 7u, callIdNewWindow1.WinDraw);
+  ASSERT_EQ(startCallId + 8u, callIdNewWindow2.WinDraw);
 }
 
 // Add a child window during the main windows Resolve using the window manager directly.
@@ -357,16 +357,16 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_NoLayout)
 
   // Update the tree which adds the new window during the update call using the above callback
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(2, m_tree->GetNodeCount());
+  ASSERT_EQ(2u, m_tree->GetNodeCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
@@ -376,10 +376,10 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_NoLayout)
   m_tree->Draw();
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
-  ASSERT_EQ(1, callCount.WinDraw);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinDraw);
 
   ignoreFlags |= WindowMethod::WinDraw;
 
@@ -426,24 +426,24 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_NoLayout)
   // Update the tree which adds the new window during the resolve call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(3, m_tree->GetNodeCount());
+  ASSERT_EQ(3u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -452,17 +452,17 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_NoLayout)
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -509,24 +509,24 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_NoLayout)
   // Update the tree which adds the new window during the resolve call using the above callback and
   // as the new window adds newWindow2 during its resolve it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(3, m_tree->GetNodeCount());
+  ASSERT_EQ(3u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -535,17 +535,17 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_NoLayout)
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -611,30 +611,30 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_UpdateAddChild
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -643,24 +643,24 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_UpdateAddChild
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -718,30 +718,30 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_ResolveAddChil
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -750,24 +750,24 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_UpdateAddChild_ResolveAddChil
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -826,30 +826,30 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_UpdateAddChil
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -858,24 +858,24 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_UpdateAddChil
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -934,30 +934,30 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_ResolveAddChi
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -966,24 +966,24 @@ TEST_F(TestUITree_ActiveWindow, MainUpdateAddChild_ResolveAddChild_ResolveAddChi
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -1044,30 +1044,30 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_UpdateAddChil
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -1076,24 +1076,24 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_UpdateAddChil
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -1151,30 +1151,30 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_ResolveAddChi
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -1183,24 +1183,24 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_UpdateAddChild_ResolveAddChi
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -1259,30 +1259,30 @@ TEST_F(TestUITree_ActiveWindow, MainesolveAddChild_ResolveAddChild_UpdateAddChil
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -1291,24 +1291,24 @@ TEST_F(TestUITree_ActiveWindow, MainesolveAddChild_ResolveAddChild_UpdateAddChil
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order
@@ -1367,30 +1367,30 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_ResolveAddCh
   // Update the tree which adds the new window during the update call using the above callback and
   // as the new window adds newWindow2 during its update it should also be called
   const DemoTime demoTime(0, 0);
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
   m_tree->Update(demoTime);
-  ASSERT_EQ(4, m_tree->GetNodeCount());
+  ASSERT_EQ(4u, m_tree->GetNodeCount());
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCountNewWindow = newWindow1->GetCallCount();
 
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // When draw is called the new window should also be drawn
@@ -1399,24 +1399,24 @@ TEST_F(TestUITree_ActiveWindow, MainResolveAddChild_ResolveAddChild_ResolveAddCh
   ignoreFlags |= WindowMethod::WinDraw;
 
   callCountNewWindow = newWindow1->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow2->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   callCountNewWindow = newWindow3->GetCallCount();
-  ASSERT_EQ(1, callCountNewWindow.WinInit);
-  ASSERT_EQ(1, callCountNewWindow.WinUpdate);
-  ASSERT_EQ(1, callCountNewWindow.WinResolve);
-  ASSERT_EQ(1, callCountNewWindow.WinDraw);
+  ASSERT_EQ(1u, callCountNewWindow.WinInit);
+  ASSERT_EQ(1u, callCountNewWindow.WinUpdate);
+  ASSERT_EQ(1u, callCountNewWindow.WinResolve);
+  ASSERT_EQ(1u, callCountNewWindow.WinDraw);
   CheckZeroExcept(callCountNewWindow, ignoreFlags);
 
   // Check that the methods got called in the expected order

@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/Bricks/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.HDR02_FBBasicToneMapping.VC.VC.opendb
@@ -27,6 +28,7 @@
 /HDR02_FBBasicToneMapping_Wayland_d
 /HDR02_FBBasicToneMapping_X11
 /HDR02_FBBasicToneMapping_X11_d
+/HDR02_FBBasicToneMapping_c
 /HDR02_FBBasicToneMapping_d
 /build/
 /resource.h

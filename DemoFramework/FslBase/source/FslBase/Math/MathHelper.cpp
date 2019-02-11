@@ -31,6 +31,7 @@
 
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
@@ -38,6 +39,61 @@ namespace Fsl
 {
   namespace MathHelper
   {
+    namespace
+    {
+      inline Point2 CalcOptimalSizePow2(const int32_t totalArea, const Point2& unitSize, const int32_t unitCount)
+      {
+        int32_t newSize = MathHelper::ToPowerOfTwo(static_cast<int32_t>(std::ceil(::sqrt(totalArea))));
+
+        const int32_t unitsX = newSize / unitSize.X;
+        const int32_t unitsY = newSize / unitSize.Y;
+
+        int32_t newSizeY = newSize;
+        if ((unitsX * unitsY) < unitCount)
+        {
+          newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.X);
+        }
+        else if (((unitsX * unitsY) / 2) >= unitCount)
+        {
+          newSizeY /= 2;
+        }
+        return Point2(newSize, newSizeY);
+      }
+
+
+      inline Point2 CalcOptimalSizeSquare(const int32_t totalArea, const Point2& unitSize, const int32_t unitCount)
+      {
+        auto newSize = static_cast<int32_t>(std::ceil(std::sqrt(totalArea)));
+
+        const int32_t unitsX = newSize / unitSize.X;
+        const int32_t unitsY = newSize / unitSize.Y;
+        if ((unitsX * unitsY) < unitCount)
+        {
+          int32_t result1 = (unitsX + 1) * unitSize.X;
+          int32_t result2 = (unitsY + 1) * unitSize.Y;
+          int32_t result = std::min(result1, result2);
+          return Point2(result, result);
+        }
+
+        int32_t result = unitsX * unitSize.X;
+        return Point2(result, result);
+      }
+
+
+      inline Point2 CalcOptimalSizeSquarePow2(const int32_t totalArea, const Point2& unitSize, const int32_t unitCount)
+      {
+        int32_t newSize = MathHelper::ToPowerOfTwo(static_cast<int32_t>(std::ceil(std::sqrt(totalArea))));
+
+        const int32_t unitsX = newSize / unitSize.X;
+        const int32_t unitsY = newSize / unitSize.Y;
+        if ((unitsX * unitsY) < unitCount)
+        {
+          newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.X);
+        }
+        return Point2(newSize, newSize);
+      }
+    }
+
     float DistBetweenAngles(const float from, const float to)
     {
       float delta = to - from;
@@ -72,18 +128,20 @@ namespace Fsl
 
     float WrapAngle(const float angle)
     {
+      if ((angle > -MathHelper::PI) && (angle <= MathHelper::PI))
+      {
+        return angle;
+      }
+
       using namespace std;
       auto result = static_cast<float>(remainder(static_cast<double>(angle), 6.2831854820251465));
       if (result <= -3.14159274f)
       {
-        result += 6.28318548f;
+        return result + 6.28318548f;
       }
-      else
+      if (result > 3.14159274f)
       {
-        if (result > 3.14159274f)
-        {
-          result -= 6.28318548f;
-        }
+        return result - 6.28318548f;
       }
       return result;
     }
@@ -107,58 +165,20 @@ namespace Fsl
         }
         else
         {
-          auto newSize = static_cast<int32_t>(std::sqrt(totalArea));
-
-          const int32_t unitsX = newSize / unitSize.X;
-          const int32_t unitsY = newSize / unitSize.Y;
-          if ((unitsX * unitsY) < unitCount)
-          {
-            newSize = (unitsX + 1) * unitSize.X;
-          }
-          else
-          {
-            newSize = unitsX * unitSize.X;
-          }
-
-          result = Point2(newSize, newSize);
+          result = CalcOptimalSizeSquare(totalArea, unitSize, unitCount);
         }
       }
       else
       {
         if ((restrictionFlags & RectangleSizeRestrictionFlag::Square) == 0)    // not square
         {
-          int32_t newSize = MathHelper::ToPowerOfTwo(static_cast<int32_t>(std::sqrt(totalArea)));
-
-          const int32_t unitsX = newSize / unitSize.X;
-          const int32_t unitsY = newSize / unitSize.Y;
-
-          int32_t newSizeY = newSize;
-          if ((unitsX * unitsY) < unitCount)
-          {
-            newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.X);
-          }
-          else if (((unitsX * unitsY) / 2) >= unitCount)
-          {
-            newSizeY /= 2;
-          }
-
-          result = Point2(newSize, newSizeY);
+          result = CalcOptimalSizePow2(totalArea, unitSize, unitCount);
         }
         else
         {
-          int32_t newSize = MathHelper::ToPowerOfTwo(static_cast<int32_t>(std::sqrt(totalArea)));
-
-          const int32_t unitsX = newSize / unitSize.X;
-          const int32_t unitsY = newSize / unitSize.Y;
-          if ((unitsX * unitsY) < unitCount)
-          {
-            newSize = MathHelper::ToPowerOfTwo((unitsX + 1) * unitSize.X);
-          }
-
-          result = Point2(newSize, newSize);
+          result = CalcOptimalSizeSquarePow2(totalArea, unitSize, unitCount);
         }
       }
-
       assert(((result.X / unitSize.X) * (result.Y / unitSize.Y)) >= unitCount);
       return result;
     }

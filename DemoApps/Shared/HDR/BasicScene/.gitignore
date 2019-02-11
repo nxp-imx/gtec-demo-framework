@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.HDR.BasicScene.VC.VC.opendb
+/Shared.HDR.BasicScene.VC.db
+/Shared.HDR.BasicScene.manifest
+/Shared.HDR.BasicScene.opensdf
+/Shared.HDR.BasicScene.sdf
+/Shared.HDR.BasicScene.sln
+/Shared.HDR.BasicScene.v12.sdf
+/Shared.HDR.BasicScene.v12.suo
+/Shared.HDR.BasicScene.vcxproj
+/Shared.HDR.BasicScene.vcxproj.filters
+/Shared.HDR.BasicScene.vcxproj.user
+/build/

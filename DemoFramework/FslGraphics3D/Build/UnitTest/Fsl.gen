@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="FslGraphics3D.Build.UnitTest" NoInclude="true">
+    <Dependency Name="FslGraphics3D.Build"/>
+    <Dependency Name="FslBase.UnitTest.Helper"/>
+    <Platform Name="Windows" ProjectId="79896F00-0121-4777-A726-777317CDE4A4"/>
+  </Executable>
+</FslBuildGen>

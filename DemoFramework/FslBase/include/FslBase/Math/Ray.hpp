@@ -41,9 +41,9 @@ namespace Fsl
     Vector3 Position;
     Vector3 Direction;
 
-    Ray() = default;
+    constexpr Ray() = default;
 
-    Ray(const Vector3& position, const Vector3& direction)
+    constexpr Ray(const Vector3& position, const Vector3& direction)
       : Position(position)
       , Direction(direction)
     {
@@ -54,13 +54,13 @@ namespace Fsl
     bool Intersects(const Plane& plane, float& rResult) const;
 
     //! @brief Tests for equality.
-    bool operator==(const Ray& rhs) const
+    constexpr bool operator==(const Ray& rhs) const
     {
       return Direction == rhs.Direction && Position == rhs.Position;
     }
 
     //! @brief Tests for inequality.
-    bool operator!=(const Ray& rhs) const
+    constexpr bool operator!=(const Ray& rhs) const
     {
       return Direction != rhs.Direction || Position != rhs.Position;
     }

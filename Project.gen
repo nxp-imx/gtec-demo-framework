@@ -22,7 +22,7 @@
     <BuildDocConfiguration>
       <Requirement Name="GoogleUnitTest" Skip="true"/>
     </BuildDocConfiguration>
-    <ClangFormatConfiguration FileExtensions=".cpp;.hpp" Recipe="Recipe.BuildTool.clang_format"/>
+    <ClangFormatConfiguration FileExtensions=".cpp;.hpp;.frag;.geom;.tesc;.tese;.vert" Recipe="Recipe.BuildTool.clang_format"/>
     <ClangTidyConfiguration FileExtensions=".cpp;.hpp" Recipe="Recipe.BuildTool.clang_tidy">
       <Platform Name="All">
         <Compiler Flags="-Wall;-Wno-invalid-token-paste;-Wno-unknown-pragmas;-Wno-unused-variable;-Wno-unused-value"/>
@@ -30,27 +30,33 @@
           clang-analyzer-core.*
           clang-analyzer-cplusplus.*
           bugprone-assert-side-effect
+          bugprone-misplaced-widening-cast
+          bugprone-parent-virtual-call 
+          bugprone-suspicious-semicolon
+          bugprone-suspicious-string-compare
+          bugprone-terminating-continue
+          bugprone-throw-keyword-missing
+          bugprone-undelegated-constructor
           bugprone-use-after-move
           cppcoreguidelines-c-copy-assignment-signature
+          cppcoreguidelines-narrowing-conversions
           cppcoreguidelines-pro-type-member-init
           cppcoreguidelines-slicing
           google-global-names-in-headers
           misc-definitions-in-headers
-          misc-misplaced-widening-cast
           misc-non-copyable-objects
-          misc-suspicious-semicolon
-          misc-suspicious-string-compare
-          misc-undelegated-constructor
           misc-unused-using-decls
           modernize-redundant-void-arg
           modernize-replace-auto-ptr
           modernize-use-bool-literals
           modernize-use-default-member-init
+          modernize-use-uncaught-exceptions
           performance-unnecessary-value-param
           readability-named-parameter
           readability-non-const-parameter
           readability-redundant-control-flow
           readability-redundant-declaration
+          readability-simplify-subscript-expr
           readability-static-definition-in-anonymous-namespace
         </StrictChecks>
       </Platform>
@@ -79,7 +85,7 @@
       <DefaultThirdPartyInstallReadonlyCacheDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_READONLY_CACHE_DIR)"/>
       <!--Android NDKToolchain="clang" StlType="c++_shared"/-->
       <Platform Name="Yocto">
-        <Recipes.DefaultValue Value="*"/>
+        <Recipes.DefaultValue Value=""/>
       </Platform>
     </Experimental>
   </Project>

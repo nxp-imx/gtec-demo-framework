@@ -32,8 +32,11 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfoControl.hpp>
+#include <FslDemoHost/Vulkan/Config/InstanceConfigUtil.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHost.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostOptionParser.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslNativeWindow/Vulkan/VulkanNativeWindowSystemFactory.hpp>
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
@@ -42,17 +45,25 @@
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslNativeWindow/Base/NativeWindowProcessMessagesArgs.hpp>
+#include <FslUtil/Vulkan1_0/Log/All.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
+#include <RapidVulkan/Debug/Strings/VkFormat.hpp>
+#include <RapidVulkan/Debug/Strings/VkPhysicalDeviceType.hpp>
+//#include <RapidVulkan/Debug/Strings/VkColorSpaceKHR.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Semaphore.hpp>
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <iostream>
 #include <limits>
 #include <vector>
+#include "Service/VulkanHost/VulkanHostService.hpp"
+// Included last as a workaround
+#include <FslUtil/Vulkan1_0/Debug/BitFlags.hpp>
 
 #if 0
 #define LOCAL_LOG(X) FSLLOG("VulkanDemoHost: " << X)
@@ -78,141 +89,44 @@ namespace Fsl
 
   namespace
   {
-    uint32_t GetCommandQueueFamily(VkPhysicalDevice physicalDevice, VkSurfaceKHR vulkanSurface)
+    void LogExtensions()
     {
-      std::vector<VkQueueFamilyProperties> queueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice);
-
-      uint32_t queueIndex = 0;
-
-      for (uint32_t currentQueueFamilyIndex = 0; currentQueueFamilyIndex < queueFamilyProperties.size(); currentQueueFamilyIndex++)
+      auto extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(nullptr);
+      FSLLOG("Core extensions: " << extensionProperties.size());
+      for (const auto& extension : extensionProperties)
       {
-        VkBool32 supported;
-        RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, currentQueueFamilyIndex, vulkanSurface, &supported));
+        FSLLOG("- Extension: '" << extension.extensionName << "' specVersion: " << extension.specVersion);
+      }
+    }
 
-        // FIX: queueIndex is always zero, what was the intention?
-        if ((supported != 0u) && ((queueFamilyProperties[currentQueueFamilyIndex].queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u) &&
-            queueFamilyProperties[currentQueueFamilyIndex].queueCount > queueIndex)
+    void LogLayers()
+    {
+      auto layerProperties = InstanceUtil::EnumerateInstanceLayerProperties();
+      FSLLOG("Instance layer properties: " << layerProperties.size());
+      for (const auto& layer : layerProperties)
+      {
+        FSLLOG("- layer: '" << layer.layerName << "' specVersion: " << EncodedVulkanVersion(layer.specVersion)
+                            << " implementationVersion: " << layer.implementationVersion << " description: '" << layer.description << "'");
+        auto extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(layer.layerName);
+        if (!extensionProperties.empty())
         {
-          return currentQueueFamilyIndex;
+          for (const auto& prop : extensionProperties)
+          {
+            FSLLOG("  - Extension: '" << prop.extensionName << "' specVersion: " << prop.specVersion);
+          }
         }
       }
-
-      throw GraphicsException("Vulkan could not locate a queue with the VK_QUEUE_GRAPHICS_BIT enabled");
     }
 
-
-    void InitImageView(RapidVulkan::ImageView& rImageView, const VkDevice device, const VkImage image, const VkFormat imageFormat)
+    void LogSurfaceFormats(const VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface)
     {
-      VkImageViewCreateInfo imageViewCreateInfo{};
-      imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-      imageViewCreateInfo.flags = 0;
-      imageViewCreateInfo.image = image;
-      imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-      imageViewCreateInfo.format = imageFormat;
-      imageViewCreateInfo.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
-      imageViewCreateInfo.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
-
-      rImageView.Reset(device, imageViewCreateInfo);
-    }
-
-
-    void InitFramebuffer(RapidVulkan::Framebuffer& rFramebuffers, const VkDevice device, const VkRenderPass renderPass, const VkImageView imageView,
-                         const uint32_t width, const uint32_t height)
-    {
-      VkFramebufferCreateInfo framebufferCreateInfo{};
-      framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      framebufferCreateInfo.flags = 0;
-      framebufferCreateInfo.renderPass = renderPass;
-      framebufferCreateInfo.attachmentCount = 1;
-      framebufferCreateInfo.pAttachments = &imageView;
-      framebufferCreateInfo.width = width;
-      framebufferCreateInfo.height = height;
-      framebufferCreateInfo.layers = 1;
-
-      rFramebuffers.Reset(device, framebufferCreateInfo);
-    }
-
-
-    void InitCommandBuffer(RapidVulkan::CommandBuffer& rCommandBuffer, const VkDevice device, const VkCommandPool commandPool,
-                           const VkRenderPass renderPass, const VkImage image, const VkExtent2D& imageExtent, const VkFramebuffer framebuffer)
-    {
-      VkCommandBufferAllocateInfo cmdBufferCreateInfo{};
-      cmdBufferCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-      cmdBufferCreateInfo.commandPool = commandPool;
-      cmdBufferCreateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-      cmdBufferCreateInfo.commandBufferCount = 1;
-
-      rCommandBuffer.Reset(device, cmdBufferCreateInfo);
-
-      VkCommandBufferInheritanceInfo commandBufferInheritanceInfo{};
-      commandBufferInheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
-      commandBufferInheritanceInfo.renderPass = VK_NULL_HANDLE;
-      commandBufferInheritanceInfo.subpass = 0;
-      commandBufferInheritanceInfo.framebuffer = VK_NULL_HANDLE;
-      commandBufferInheritanceInfo.occlusionQueryEnable = VK_FALSE;
-      commandBufferInheritanceInfo.queryFlags = 0;
-      commandBufferInheritanceInfo.pipelineStatistics = 0;
-
-      VkCommandBufferBeginInfo commandBufferBeginInfo{};
-      commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-      commandBufferBeginInfo.flags = 0;
-      commandBufferBeginInfo.pInheritanceInfo = &commandBufferInheritanceInfo;
-
-      rCommandBuffer.Begin(commandBufferBeginInfo);
+      const auto surfaceFormats = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
+      FSLLOG("Supported surface formats: " << surfaceFormats.size());
+      for (auto& entry : surfaceFormats)
       {
-        VkImageMemoryBarrier imageMemoryBarrier{};
-        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        imageMemoryBarrier.srcAccessMask = 0;
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.image = image;
-        imageMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
-
-        vkCmdPipelineBarrier(rCommandBuffer.Get(), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, nullptr, 0,
-                             nullptr, 1, &imageMemoryBarrier);
-
-        VkClearColorValue clearColorValue{};
-        clearColorValue.float32[0] = 0.0f;
-        clearColorValue.float32[1] = 0.0f;
-        clearColorValue.float32[2] = 1.0f;
-        clearColorValue.float32[3] = 1.0f;
-
-        VkClearValue clearValues[1] = {clearColorValue};
-
-        VkRenderPassBeginInfo renderPassBeginInfo{};
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = renderPass;
-        renderPassBeginInfo.framebuffer = framebuffer;
-        renderPassBeginInfo.renderArea.offset.x = 0;
-        renderPassBeginInfo.renderArea.offset.y = 0;
-        renderPassBeginInfo.renderArea.extent = imageExtent;
-        renderPassBeginInfo.clearValueCount = 1;
-        renderPassBeginInfo.pClearValues = clearValues;
-
-        vkCmdBeginRenderPass(rCommandBuffer.Get(), &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-        {
-          // The window is cleaned with above defined blue color due to the VK_ATTACHMENT_LOAD_OP_CLEAR (see render pass creation).
-        }
-        vkCmdEndRenderPass(rCommandBuffer.Get());
-
-        memset(&imageMemoryBarrier, 0, sizeof(VkImageMemoryBarrier));
-        imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        imageMemoryBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-        imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imageMemoryBarrier.image = image;
-        imageMemoryBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
-
-        vkCmdPipelineBarrier(rCommandBuffer.Get(), VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 0,
-                             nullptr, 1, &imageMemoryBarrier);
+        FSLLOG("- Format: " << entry.format << " (" << RapidVulkan::Debug::ToString(entry.format) << "), ColorSpace: " << entry.colorSpace);
+        //<< " (" << RapidVulkan::Debug::ToString(entry.colorSpace) << ")");
       }
-      rCommandBuffer.End();
     }
   }
 
@@ -220,33 +134,48 @@ namespace Fsl
   VulkanDemoHost::VulkanDemoHost(const DemoHostConfig& demoHostConfig)
     : ADemoHost(demoHostConfig)
     , m_options(demoHostConfig.GetOptions<VulkanDemoHostOptionParser>())
-    , m_nativeWindowSetup()
+    , m_nativeGraphicsService(demoHostConfig.GetServiceProvider().Get<Vulkan::NativeGraphicsService>())
+    , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
     , m_demoHostConfig(demoHostConfig)
-    , m_isActivated(true)
-    , m_activeApi(DemoHostFeatureName::OpenGLES, 0)
-    , m_physicalDevice(VK_NULL_HANDLE)
-    , m_queue(VK_NULL_HANDLE)
-    , m_imageExtend()
-    , m_imageFormat()
+    , m_activeApi(DemoHostFeatureName::Vulkan, 0)
   {
+    if (m_options->IsLogExtensionsEnabled())
+    {
+      LogExtensions();
+    }
+    if (m_options->IsLogLayersEnabled())
+    {
+      LogLayers();
+    }
+
     const NativeWindowSystemSetup nativeWindowSystemSetup(demoHostConfig.GetEventQueue(), demoHostConfig.GetVerbosityLevel(),
                                                           m_options->GetNativeWindowConfig(), m_options->GetNativeWindowTag());
 
     m_windowSystem = VulkanNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
-
-    const DemoHostAppSetup& hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
-
-    if (hostAppSetup.DemoHostFeatures->empty())
+    try
     {
-      throw NotSupportedException("Must use at least one feature");
+      // Set the window system in the host service so that any services or app that is interested will be able to access it
+      m_windowHostInfoControl->SetWindowSystem(m_windowSystem);
+
+      const DemoHostAppSetup& hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
+
+      if (hostAppSetup.DemoHostFeatures->empty())
+      {
+        throw NotSupportedException("Must use at least one feature");
+      }
+
+      m_activeApi = hostAppSetup.DemoHostFeatures->front();
+
+      m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
+                                                      m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel()));
+
+      Init();
     }
-
-    m_activeApi = hostAppSetup.DemoHostFeatures->front();
-
-    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
-                                                    m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel()));
-
-    Init();
+    catch (const std::exception&)
+    {
+      m_windowHostInfoControl->ClearWindowSystem();
+      throw;
+    }
   }
 
 
@@ -288,83 +217,23 @@ namespace Fsl
 
   Point2 VulkanDemoHost::GetScreenResolution() const
   {
-    // FIX: this is the only real invalid data that we return
+    Point2 size;
+    if (m_window && m_window->TryGetSize(size))
+    {
+      return size;
+    }
     return Point2(0, 0);
   }
 
 
-  bool VulkanDemoHost::SwapBuffers()
+  SwapBuffersResult VulkanDemoHost::TrySwapBuffers()
   {
     if (!m_isActivated)
     {
-      return true;
+      return SwapBuffersResult::Completed;
     }
-
-    const Semaphore imageAcquiredSemaphore(m_device.Get(), 0);
-    const Semaphore renderingCompleteSemaphore(m_device.Get(), 0);
-
-    //
-
-    // TODO: Check, if surface/window did resize and react on it.
-
-    //
-
-    uint32_t currentBuffer;
-
-    auto result = vkAcquireNextImageKHR(m_device.Get(), m_swapchain.Get(), UINT64_MAX, imageAcquiredSemaphore.Get(), VK_NULL_HANDLE, &currentBuffer);
-    if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR)
-    {
-      const VkSemaphore waitSemaphores = imageAcquiredSemaphore.Get();
-      const VkSemaphore signalSemaphores = renderingCompleteSemaphore.Get();
-
-      VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
-      VkSubmitInfo submitInfo{};
-      submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-      submitInfo.waitSemaphoreCount = 1;
-      submitInfo.pWaitSemaphores = &waitSemaphores;
-      submitInfo.pWaitDstStageMask = &waitDstStageMask;
-
-      // TODO Add commands.
-      submitInfo.commandBufferCount = 1;
-      submitInfo.pCommandBuffers = m_commandBuffers[currentBuffer].GetPointer();
-
-      submitInfo.signalSemaphoreCount = 1;
-      submitInfo.pSignalSemaphores = &signalSemaphores;
-
-      RAPIDVULKAN_CHECK(vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE));
-
-      const VkSwapchainKHR swapchains = m_swapchain.Get();
-
-      VkPresentInfoKHR presentInfo{};
-      presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-      presentInfo.waitSemaphoreCount = 1;
-      presentInfo.pWaitSemaphores = &signalSemaphores;
-      presentInfo.swapchainCount = 1;
-      presentInfo.pSwapchains = &swapchains;
-      presentInfo.pImageIndices = &currentBuffer;
-      presentInfo.pResults = nullptr;
-
-      result = vkQueuePresentKHR(m_queue, &presentInfo);
-
-      if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR)
-      {
-        RAPIDVULKAN_CHECK(vkQueueWaitIdle(m_queue));
-      }
-    }
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
-    {
-      // TODO: Rebuild swapchain etc.
-    }
-    else if (result != VK_SUCCESS)
-    {
-      return false;
-    }
-
-    //
-
-    // Validate that we are not suspended
-    return true;
+    // We rely on the DemoApp doing the actual swap
+    return SwapBuffersResult::AppControlled;
   }
 
 
@@ -385,36 +254,31 @@ namespace Fsl
       // Get the basic Vulkan configuration ready
       InitVulkan();
 
-      const NativeVulkanSetup nativeVulkanSetup(m_instance.Get(), m_physicalDevice);
+      const NativeVulkanSetup nativeVulkanSetup(m_instance.Get(), m_physicalDevice.Device);
       m_window = m_windowSystem->CreateNativeWindow(*m_nativeWindowSetup, nativeVulkanSetup);
+      m_windowHostInfoControl->AddWindow(m_window);
 
-      InitDeviceQueueCommandPool();
-      InitRenderPass(m_imageFormat);
 
-      // Create command ImageView, Framebuffer and CommandBuffer per swapchain image
+      m_vulkanHostService = m_demoHostConfig.GetServiceProvider().Get<VulkanHostService>();
+      m_vulkanHostService->SetLaunchOptions(m_options->GetLaunchOptions());
+      m_vulkanHostService->SetInstance(m_instance.Get());
+      m_vulkanHostService->SetPhysicalDevice(m_physicalDevice);
+      auto surface = m_window->GetVulkanSurface();
+      m_vulkanHostService->SetSurfaceKHR(surface);
+
+      if (m_options->IsLogSurfaceFormatsEnabled())
       {
-        const auto device = m_device.Get();
-        const auto renderPass = m_renderPass.Get();
-        const auto commandPool = m_commandPool.Get();
+        LogSurfaceFormats(m_physicalDevice.Device, surface);
+      }
 
-        m_swapchainImages = SwapchainKHRUtil::GetSwapchainImagesKHR(device, m_swapchain.Get());
-
-        m_imageViews.resize(m_swapchainImages.size());
-        m_framebuffers.resize(m_swapchainImages.size());
-        m_commandBuffers.resize(m_swapchainImages.size());
-
-        for (std::size_t i = 0; i < m_swapchainImages.size(); ++i)
-        {
-          InitImageView(m_imageViews[i], device, m_swapchainImages[i], m_imageFormat);
-          InitFramebuffer(m_framebuffers[i], device, renderPass, m_imageViews[i].Get(), static_cast<uint32_t>(m_imageExtend.width),
-                          static_cast<uint32_t>(m_imageExtend.height));
-          InitCommandBuffer(m_commandBuffers[i], device, commandPool, renderPass, m_swapchainImages[i], m_imageExtend, m_framebuffers[i].Get());
-        }
+      if (m_nativeGraphicsService)
+      {
+        m_nativeGraphicsService->VulkanInit();
       }
     }
-    catch (const std::exception&)
+    catch (const std::exception& ex)
     {
-      LOCAL_LOG("Init failed with exception: " << ex.what());
+      FSLLOG_ERROR("Init failed with exception: " << ex.what());
       Shutdown();
       throw;
     }
@@ -424,11 +288,17 @@ namespace Fsl
   void VulkanDemoHost::Shutdown()
   {
     LOCAL_LOG("Shutdown");
-    m_commandBuffers.clear();
-    m_framebuffers.clear();
-    m_imageViews.clear();
-    ShutdownRenderPass();
-    ShutdownDeviceQueueCommandPool();
+
+    if (m_vulkanHostService)
+    {
+      m_vulkanHostService->Clear();
+    }
+    if (m_nativeGraphicsService)
+    {
+      m_nativeGraphicsService->VulkanShutdown();
+    }
+
+    m_windowHostInfoControl->RemoveWindow(m_window);
     m_window.reset();
     ShutdownVulkan();
   }
@@ -436,215 +306,43 @@ namespace Fsl
 
   void VulkanDemoHost::InitVulkan()
   {
-    VkApplicationInfo applicationInfo{};
-    applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    applicationInfo.pApplicationName = "DemoApp";
-    applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.pEngineName = "DemoFramework";
-    applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.apiVersion = VK_MAKE_VERSION(1, 0, 0);
+    {    // Init the Vulkan instance
+      const auto userChoiceValidationLayer = m_options->GetValidationLayerChoice();
+      const auto userChoiceApiDump = m_options->GetApiDumpChoice();
+      const auto khrSurfaceExtensionName = m_windowSystem->GetKHRSurfaceExtensionName();
+      const auto& applicationName = m_demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName;
 
-    // FIXME: Gather dynamically, also depending on platform.
-    assert(m_windowSystem);
-    const auto surfaceExtensionName = m_windowSystem->GetKHRSurfaceExtensionName();
-    const char* enabledExtensionNames[2] = {VK_KHR_SURFACE_EXTENSION_NAME, surfaceExtensionName.c_str()};
+      const auto demoHostConfig = m_demoHostConfig.GetDemoHostAppSetup().GetDemoAppHostConfig<DemoAppHostConfigVulkan>();
 
-    VkInstanceCreateInfo instanceCreateInfo{};
-    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    instanceCreateInfo.flags = 0;
-    instanceCreateInfo.pApplicationInfo = &applicationInfo;
-    instanceCreateInfo.enabledLayerCount = 0;
-    instanceCreateInfo.ppEnabledLayerNames = nullptr;
-    instanceCreateInfo.enabledExtensionCount = 2;
-    instanceCreateInfo.ppEnabledExtensionNames = enabledExtensionNames;
+      InstanceConfigUtil::InstanceUserChoice instanceUserChoice(userChoiceValidationLayer, userChoiceApiDump);
 
-    // Acquire a Vulkan instance
-    m_instance.Reset(instanceCreateInfo);
+      const auto instanceConfig = InstanceConfigUtil::InstanceConfigAsCharArrays(
+        InstanceConfigUtil::BuildInstanceConfig(khrSurfaceExtensionName, instanceUserChoice, demoHostConfig));
 
-    std::vector<VkPhysicalDevice> allPhysicalDevices = InstanceUtil::EnumeratePhysicalDevices(m_instance.Get());
-    if (allPhysicalDevices.empty())
-    {
-      throw GraphicsException("Did not find any Vulkan enabled devices");
+      m_instance = InstanceUtil::CreateInstance(applicationName, VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0, 0, instanceConfig.Layers,
+                                                instanceConfig.Extensions, m_instanceCreateInfo.get());
     }
 
-    // TODO: all app device selection and or command line selection
+    // Select the physical device
+    const auto physicialDeviceIndex = m_options->GetPhysicalDeviceIndex();
+    m_physicalDevice = VUPhysicalDeviceRecord(InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicialDeviceIndex));
 
-    // For now we just use the first device
-    m_physicalDevice = allPhysicalDevices[0];
+    if (Fsl::Logger::GetLogLevel() >= LogType::Verbose2)
+    {
+      FSLLOG("Vulkan physical device #" << physicialDeviceIndex << " properties:");
+      FSLLOG("- apiVersion: " << EncodedVulkanVersion(m_physicalDevice.Properties.apiVersion));
+      FSLLOG("- driverVersion: " << EncodedVulkanVersion(m_physicalDevice.Properties.driverVersion));
+      FSLLOG("- vendorID: " << m_physicalDevice.Properties.vendorID);
+      FSLLOG("- deviceID: " << m_physicalDevice.Properties.deviceID);
+      FSLLOG("- deviceType: " << Debug::GetBitflagsString(m_physicalDevice.Properties.deviceType));    // VkPhysicalDeviceType
+      FSLLOG("- deviceName: " << m_physicalDevice.Properties.deviceName);
+    }
   }
 
 
   void VulkanDemoHost::ShutdownVulkan()
   {
+    m_physicalDevice.Reset();
     m_instance.Reset();
-  }
-
-
-  void VulkanDemoHost::InitDeviceQueueCommandPool()
-  {
-    const uint32_t queueFamilyIndex = GetCommandQueueFamily(m_physicalDevice, m_window->GetVulkanSurface());
-
-    float queuePriorities[1] = {0.0f};
-    VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
-    deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    deviceQueueCreateInfo.flags = 0;
-    deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
-    deviceQueueCreateInfo.queueCount = 1;
-    deviceQueueCreateInfo.pQueuePriorities = queuePriorities;
-
-    VkDeviceCreateInfo deviceCreateInfo{};
-    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.flags = 0;
-    deviceCreateInfo.queueCreateInfoCount = 1;
-    deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
-    deviceCreateInfo.enabledLayerCount = 0;
-    deviceCreateInfo.ppEnabledLayerNames = nullptr;
-    deviceCreateInfo.enabledExtensionCount = 1;
-    // FIXME: Gather dynamically, also depending on platform.
-    const char* enabledExtensionNames[1] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    deviceCreateInfo.ppEnabledExtensionNames = enabledExtensionNames;
-    deviceCreateInfo.pEnabledFeatures = nullptr;
-
-    m_device.Reset(m_physicalDevice, deviceCreateInfo);
-
-    // FIX: queueIndex came from the code that was re-factored into GetCommandQueueFamily, however in that code it was initialized
-    //      to zero and never modified.
-    uint32_t queueIndex = 0;
-    vkGetDeviceQueue(m_device.Get(), queueFamilyIndex, queueIndex, &m_queue);
-
-    //
-
-    VkCommandPoolCreateInfo commandPoolCreateInfo{};
-    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    commandPoolCreateInfo.flags = 0;
-    commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndex;
-
-    m_commandPool.Reset(m_device.Get(), commandPoolCreateInfo);
-
-    //
-    // Gather surface capabilities.
-    //
-
-    VkSurfaceCapabilitiesKHR surfaceCapabilities;
-
-    RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevice, m_window->GetVulkanSurface(), &surfaceCapabilities));
-
-    VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
-
-    if ((surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) == 0u)
-    {
-      preTransform = surfaceCapabilities.currentTransform;
-    }
-
-    const std::vector<VkPresentModeKHR> surfacePresentModes =
-      PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, m_window->GetVulkanSurface());
-    const std::vector<VkSurfaceFormatKHR> surfaceFormats =
-      PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(m_physicalDevice, m_window->GetVulkanSurface());
-
-    // Regarding specification, this present mode has to be supported.
-    VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
-    VkFormat format = VK_FORMAT_B8G8R8A8_UNORM;
-    VkColorSpaceKHR imageColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
-    VkBool32 surfaceFormatFound = VK_FALSE;
-
-    for (size_t i = 0; i < surfaceFormats.size(); i++)
-    {
-      if (surfaceFormats[i].format == format && surfaceFormats[i].colorSpace == imageColorSpace)
-      {
-        surfaceFormatFound = VK_TRUE;
-        break;
-      }
-    }
-
-    // The requested format was not found, default to the first format
-    if (surfaceFormatFound == 0u)
-    {
-      format = surfaceFormats[0].format;
-      imageColorSpace = surfaceFormats[0].colorSpace;
-    }
-
-    // Create the swap chain
-    VkSwapchainCreateInfoKHR swapchainCreateInfo{};
-    swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    swapchainCreateInfo.flags = 0;
-    swapchainCreateInfo.surface = m_window->GetVulkanSurface();
-    // FIMXE
-    swapchainCreateInfo.minImageCount = (surfaceCapabilities.maxImageCount > 1) ? 2 : surfaceCapabilities.maxImageCount;
-    swapchainCreateInfo.imageFormat = format;
-    swapchainCreateInfo.imageColorSpace = imageColorSpace;
-    swapchainCreateInfo.imageExtent = surfaceCapabilities.currentExtent;
-    swapchainCreateInfo.imageArrayLayers = 1;
-    swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    swapchainCreateInfo.queueFamilyIndexCount = 0;
-    swapchainCreateInfo.pQueueFamilyIndices = nullptr;
-    swapchainCreateInfo.preTransform = preTransform;
-    swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    swapchainCreateInfo.presentMode = presentMode;
-    swapchainCreateInfo.clipped = VK_TRUE;
-    // FIXME
-    swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
-
-    m_swapchain.Reset(m_device.Get(), swapchainCreateInfo);
-
-    m_imageExtend = surfaceCapabilities.currentExtent;
-    m_imageFormat = format;
-  }
-
-
-  void VulkanDemoHost::ShutdownDeviceQueueCommandPool()
-  {
-    m_swapchain.Reset();
-    m_commandPool.Reset();
-    m_device.Reset();
-  }
-
-
-  void VulkanDemoHost::InitRenderPass(const VkFormat imageFormat)
-  {
-    VkAttachmentDescription attachmentDescription{};
-    attachmentDescription.flags = 0;
-    attachmentDescription.format = imageFormat;
-    attachmentDescription.samples = VK_SAMPLE_COUNT_1_BIT;
-    attachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    attachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-    attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    attachmentDescription.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    attachmentDescription.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkAttachmentReference colorAttachmentReference{};
-    colorAttachmentReference.attachment = 0;
-    colorAttachmentReference.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpassDescription{};
-    subpassDescription.flags = 0;
-    subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpassDescription.inputAttachmentCount = 0;
-    subpassDescription.pInputAttachments = nullptr;
-    subpassDescription.colorAttachmentCount = 1;
-    subpassDescription.pColorAttachments = &colorAttachmentReference;
-    subpassDescription.pResolveAttachments = nullptr;
-    subpassDescription.pDepthStencilAttachment = nullptr;
-    subpassDescription.preserveAttachmentCount = 0;
-    subpassDescription.pPreserveAttachments = nullptr;
-
-    VkRenderPassCreateInfo renderPassCreateInfo{};
-    renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassCreateInfo.flags = 0;
-    renderPassCreateInfo.attachmentCount = 1;
-    renderPassCreateInfo.pAttachments = &attachmentDescription;
-    renderPassCreateInfo.subpassCount = 1;
-    renderPassCreateInfo.pSubpasses = &subpassDescription;
-    renderPassCreateInfo.dependencyCount = 0;
-    renderPassCreateInfo.pDependencies = nullptr;
-
-    m_renderPass.Reset(m_device.Get(), renderPassCreateInfo);
-  }
-
-
-  void VulkanDemoHost::ShutdownRenderPass()
-  {
-    m_renderPass.Reset();
   }
 }

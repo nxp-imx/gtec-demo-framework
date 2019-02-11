@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.Scissor101" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="Shared.Scissor101"/>
+    <Platform Name="Windows" ProjectId="2FBE3923-A44F-43EB-9BF3-D6B167B25B66"/>
+  </Executable>
+</FslBuildGen>

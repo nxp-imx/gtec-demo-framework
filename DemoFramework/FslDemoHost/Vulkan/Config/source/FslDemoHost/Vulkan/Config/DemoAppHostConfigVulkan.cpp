@@ -35,14 +35,14 @@
 
 namespace Fsl
 {
-  DemoAppHostConfigVulkan::DemoAppHostConfigVulkan()
-    : m_demoAppMode(VulkanDemoAppMode::Managed)
-  {
-  }
+  DemoAppHostConfigVulkan::DemoAppHostConfigVulkan() = default;
+  //: m_demoAppMode(VulkanDemoAppMode::Managed)
+  //{
+  //}
 
 
-  DemoAppHostConfigVulkan::DemoAppHostConfigVulkan(const VulkanDemoAppMode demoAppMode)
-    : m_demoAppMode(demoAppMode)
-  {
-  }
+  // DemoAppHostConfigVulkan::DemoAppHostConfigVulkan(const VulkanDemoAppMode demoAppMode)
+  //  : m_demoAppMode(demoAppMode)
+  //{
+  //}
 }

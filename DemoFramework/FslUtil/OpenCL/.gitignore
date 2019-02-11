@@ -1,2 +1,15 @@
-/build/
+/.StartProject.bat
+/.vs/
 /CMakeLists.txt
+/FslUtil.OpenCL.VC.VC.opendb
+/FslUtil.OpenCL.VC.db
+/FslUtil.OpenCL.manifest
+/FslUtil.OpenCL.opensdf
+/FslUtil.OpenCL.sdf
+/FslUtil.OpenCL.sln
+/FslUtil.OpenCL.v12.sdf
+/FslUtil.OpenCL.v12.suo
+/FslUtil.OpenCL.vcxproj
+/FslUtil.OpenCL.vcxproj.filters
+/FslUtil.OpenCL.vcxproj.user
+/build/

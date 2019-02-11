@@ -38,22 +38,31 @@ from FslBuildGen.Packages.Package import Package
 
 def GetPackageFromFilename(topLevelPackage: Package, filename: str) -> Package:
     for entry in topLevelPackage.ResolvedAllDependencies:
-        if entry.Package.GenFile and entry.Package.GenFile.SourcePackageFile and entry.Package.GenFile.SourcePackageFile.AbsoluteFilePath == filename:
+        if entry.Package.GenFile is not None and entry.Package.GenFile.SourcePackageFile is not None and entry.Package.GenFile.SourcePackageFile.AbsoluteFilePath == filename:
             return entry.Package
     raise Exception("Could not find package for '{0}'".format(filename))
 
 
-def TryGetPackageListFromFilenames(topLevelPackage: Package, requestedFiles: Optional[List[str]]) -> Optional[List[Package]]:
+def TryGetPackageListFromFilenames(topLevelPackage: Package, requestedFiles: Optional[List[str]], ignoreNotFound: bool) -> Optional[List[Package]]:
     if requestedFiles is None:
         return None
+
+    filenameToPackageDict = {}  # type: Dict [str,Package]
+    for entry in topLevelPackage.ResolvedAllDependencies:
+        if entry.Package.GenFile is not None and entry.Package.GenFile.SourcePackageFile is not None:
+            filenameToPackageDict[entry.Package.GenFile.SourcePackageFile.AbsoluteFilePath] = entry.Package
+
     uniqueDict = {} # type: Dict[str, Package]
     for file in requestedFiles:
-        filePackage = GetPackageFromFilename(topLevelPackage, file)
-        if not filePackage.Name in uniqueDict:
-            uniqueDict[filePackage.Name] = filePackage
+        if file in filenameToPackageDict:
+            filePackage = filenameToPackageDict[file]
+            if not filePackage.Name in uniqueDict:
+                uniqueDict[filePackage.Name] = filePackage
+        elif not ignoreNotFound:
+            raise Exception("Could not find package for '{0}'".format(file))
     return list(uniqueDict.values())
 
 
-def GetPackageListFromFilenames(topLevelPackage: Package, requestedFiles: Optional[List[str]]) -> List[Package]:
-    result = TryGetPackageListFromFilenames(topLevelPackage, requestedFiles)
+def GetPackageListFromFilenames(topLevelPackage: Package, requestedFiles: Optional[List[str]], ignoreNotFound: bool = False) -> List[Package]:
+    result = TryGetPackageListFromFilenames(topLevelPackage, requestedFiles, ignoreNotFound)
     return [] if result is None else result

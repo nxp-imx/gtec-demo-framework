@@ -31,10 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/UnitTest/Helper/TestCustomChecks.hpp>
-#include <FslBase/UnitTest/Helper/LogTypes.hpp>
+#include <FslBase/Log/Math/LogExtent3D.hpp>
+#include <FslGraphics/UnitTest/Helper/Log/LogPixelUInt8.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslUnitTest/FormatDebugInfo.hpp>
+#include <FslUnitTest/TestCustomChecks.hpp>
 
 namespace Fsl
 {

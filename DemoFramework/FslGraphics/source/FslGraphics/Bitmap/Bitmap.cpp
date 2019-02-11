@@ -47,6 +47,9 @@ namespace Fsl
     {
       return origin != BitmapOrigin::Undefined ? origin : BitmapOrigin::UpperLeft;
     }
+
+    // Dummy area we use to get a content pointer for zero sized bitmaps size the vector data methods returns a nullptr
+    uint32_t g_dummyAreaForZeroSizedBitmaps = 0;
   }
 
 
@@ -229,57 +232,9 @@ namespace Fsl
   }
 
 
-  uint32_t Bitmap::Width() const
-  {
-    return m_extent.Width;
-  }
-
-
-  uint32_t Bitmap::Height() const
-  {
-    return m_extent.Height;
-  }
-
-
-  Point2 Bitmap::Size() const
-  {
-    return Point2(m_extent.Width, m_extent.Height);
-  }
-
-
-  uint32_t Bitmap::Stride() const
-  {
-    return m_stride;
-  }
-
-  //! @brief The size of the bitmap in pixels
-  Extent2D Bitmap::GetExtent() const
-  {
-    return m_extent;
-  }
-
-
-  PixelFormat Bitmap::GetPixelFormat() const
-  {
-    return m_pixelFormat;
-  }
-
-
   PixelFormatLayout Bitmap::GetPixelFormatLayout() const
   {
     return PixelFormatUtil::GetPixelFormatLayout(m_pixelFormat);
-  }
-
-
-  StrideRequirement Bitmap::GetStrideRequirement() const
-  {
-    return m_strideRequirement;
-  }
-
-
-  BitmapOrigin Bitmap::GetOrigin() const
-  {
-    return m_origin;
   }
 
 
@@ -614,7 +569,14 @@ namespace Fsl
         throw UsageErrorException("The bitmap is already locked");
       }
       m_isLocked = true;
-      return RawBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
+      const auto pData = m_content.data();
+      if (pData != nullptr)
+      {
+        return RawBitmap(pData, m_extent, m_pixelFormat, m_stride, m_origin);
+      }
+      assert(m_extent.Width == 0u);
+      assert(m_extent.Height == 0u);
+      return RawBitmap(&g_dummyAreaForZeroSizedBitmaps, m_extent, m_pixelFormat, 0u, m_origin);
     }
     catch (const std::exception&)
     {
@@ -633,7 +595,14 @@ namespace Fsl
         throw UsageErrorException("The bitmap is already locked");
       }
       m_isLocked = true;
-      return RawBitmapEx(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
+      auto pData = m_content.data();
+      if (pData != nullptr)
+      {
+        return RawBitmapEx(pData, m_extent, m_pixelFormat, m_stride, m_origin);
+      }
+      assert(m_extent.Width == 0u);
+      assert(m_extent.Height == 0u);
+      return RawBitmapEx(&g_dummyAreaForZeroSizedBitmaps, Extent2D(), m_pixelFormat, 0u, m_origin);
     }
     catch (const std::exception&)
     {

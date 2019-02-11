@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.HDR.SkyboxTonemapping">
+    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Platform Name="Windows" ProjectId="33E97665-5B96-42BF-A8D4-B994AD99D6F6"/>
+  </Library>
+</FslBuildGen>

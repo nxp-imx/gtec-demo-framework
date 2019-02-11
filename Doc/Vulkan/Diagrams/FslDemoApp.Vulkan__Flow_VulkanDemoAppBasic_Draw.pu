@@ -1,0 +1,97 @@
+@startuml VulkanDemoAppBasic Draw Flow
+
+activate CustomDemoApp
+activate DemoAppVulkanBasic
+activate DemoAppVulkan
+activate ADemoApp
+
+box "AppTemplate" #LightBlue
+    participant DemoAppVulkanBasic
+    participant DemoAppVulkan
+    participant ADemoApp
+end box
+
+activate Device
+activate DeviceQueue
+activate Swapchain
+activate CommandBuffers
+activate RenderPass
+activate SwapchainRecords
+activate NativeGraphicsService
+activate QuadBatch
+activate NativeBatch2D
+activate ProfilerOverlay
+
+->CustomDemoApp: _PreUpdate
+CustomDemoApp->ADemoApp: _PreUpdate
+ADemoApp->CustomDemoApp: PreUpdate
+
+->CustomDemoApp: _FixedUpdate
+CustomDemoApp->ADemoApp: _FixedUpdate
+ADemoApp->CustomDemoApp: FixedUpdate
+
+->CustomDemoApp: _Update
+CustomDemoApp->ADemoApp: _Update
+ADemoApp->CustomDemoApp: Update
+
+->CustomDemoApp: _PostUpdate
+CustomDemoApp->ADemoApp: _PostUpdate
+ADemoApp->CustomDemoApp: PostUpdate
+
+->CustomDemoApp: _TryPrepareDraw
+CustomDemoApp->ADemoApp: _TryPrepareDraw
+ADemoApp->CustomDemoApp: TryPrepareDraw
+CustomDemoApp->DemoAppVulkanBasic: TryPrepareDraw
+
+->CustomDemoApp: _Draw
+CustomDemoApp->DemoAppVulkanBasic: _Draw
+DemoAppVulkanBasic->NativeGraphicsService: VulkanBeginFrame
+NativeGraphicsService->QuadBatch: BeginFrame
+DemoAppVulkanBasic->ADemoApp: _Draw
+ADemoApp->DemoAppVulkanBasic: Draw
+DemoAppVulkanBasic->CustomDemoApp: VulkanDraw
+
+CustomDemoApp->CommandBuffers: Custom rendering
+
+' If app uses the native batch directly
+CustomDemoApp->NativeBatch2D: Begin
+CustomDemoApp->NativeBatch2D: Draw
+CustomDemoApp->NativeBatch2D: Draw
+CustomDemoApp->NativeBatch2D: Draw
+CustomDemoApp->NativeBatch2D: End
+NativeBatch2D->NativeBatch2D++: FlushQuads
+NativeBatch2D->QuadBatch: DrawQuads
+QuadBatch->CommandBuffers: VkCmds
+deactivate NativeBatch2D
+' App issues custom render command here
+CustomDemoApp->CommandBuffers: Custom rendering
+' As last thing we add the system UI
+CustomDemoApp->DemoAppVulkanBasic: AddSystemUI
+' App profiler overlay is added in AddSystemUI
+DemoAppVulkanBasic->ProfilerOverlay: Draw
+ProfilerOverlay->NativeBatch2D: Begin
+ProfilerOverlay->NativeBatch2D: Draw
+ProfilerOverlay->NativeBatch2D: Draw
+ProfilerOverlay->NativeBatch2D: End
+NativeBatch2D->NativeBatch2D++: FlushQuads
+NativeBatch2D->QuadBatch: DrawQuads
+QuadBatch->CommandBuffers: VkCmds
+deactivate NativeBatch2D
+
+' VulkanDraw is finished, and control is returned to DemoAppVUlkanBaic
+' so finish the frame
+DemoAppVulkanBasic->NativeGraphicsService: VulkanEndFrame
+NativeGraphicsService->QuadBatch: EndFrame
+DemoAppVulkanBasic->DeviceQueue: Submit
+
+->CustomDemoApp: _TrySwapBuffers
+CustomDemoApp->ADemoApp: _TrySwapBuffers
+ADemoApp->DemoAppVulkanBasic: TrySwapBuffers
+DemoAppVulkanBasic->DemoAppVulkanBasic++: TryDoSwapBufers
+DemoAppVulkanBasic->Swapchain: TryQueuePresent
+DemoAppVulkanBasic->DemoAppVulkanBasic++: SetAppState
+deactivate DemoAppVulkanBasic
+deactivate DemoAppVulkanBasic
+
+@enduml
+

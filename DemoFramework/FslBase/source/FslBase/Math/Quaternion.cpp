@@ -28,14 +28,16 @@ SOFTWARE.
 #include <FslBase/Math/Quaternion.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
-#include "MatrixFields.hpp"
 
 namespace Fsl
 {
+  using namespace MatrixFields;
+
   Quaternion::Quaternion(const Vector3& vectorPart, const float scalarPart)
     : X(vectorPart.X)
     , Y(vectorPart.Y)

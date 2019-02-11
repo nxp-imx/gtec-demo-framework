@@ -111,6 +111,28 @@ namespace Fsl
     }
   }
 
+  void DemoAppFirewall::_PreDestruct()
+  {
+    if (!m_app)
+    {
+      ADemoApp::_PreDestruct();
+      return;
+    }
+
+    try
+    {
+      m_app->_PreDestruct();
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG_ERROR("App._PreDestruct threw exception: " << message);
+      SafeDispose();
+      BuildErrorString("App._PreDestruct threw exception:", message);
+    }
+  }
+
 
   void DemoAppFirewall::_OnEvent(IEvent* const pEvent)
   {
@@ -249,6 +271,30 @@ namespace Fsl
     }
   }
 
+
+  AppDrawResult DemoAppFirewall::_TryPrepareDraw(const DemoTime& demoTime)
+  {
+    if (!m_app)
+    {
+      return AppDrawResult::Completed;
+    }
+
+    try
+    {
+      return m_app->_TryPrepareDraw(demoTime);
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG_ERROR("App._TryPrepareDraw threw exception: " << message);
+      SafeDispose();
+      BuildErrorString("App._TryPrepareDraw threw exception:", message);
+      return AppDrawResult::Completed;
+    }
+  }
+
+
   void DemoAppFirewall::_Draw(const DemoTime& demoTime)
   {
     if (!m_app)
@@ -282,6 +328,28 @@ namespace Fsl
       FSLLOG_ERROR("App._Draw threw exception: " << message);
       SafeDispose();
       BuildErrorString("App._Draw threw exception:", message);
+    }
+  }
+
+  AppDrawResult DemoAppFirewall::_TrySwapBuffers(const DemoTime& demoTime)
+  {
+    if (!m_app)
+    {
+      return AppDrawResult::Completed;
+    }
+
+    try
+    {
+      return m_app->_TrySwapBuffers(demoTime);
+    }
+    catch (const std::exception& ex)
+    {
+      std::string message;
+      message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
+      FSLLOG_ERROR("App._TrySwapBuffers threw exception: " << message);
+      SafeDispose();
+      BuildErrorString("App._TrySwapBuffers threw exception:", message);
+      return AppDrawResult::Completed;
     }
   }
 

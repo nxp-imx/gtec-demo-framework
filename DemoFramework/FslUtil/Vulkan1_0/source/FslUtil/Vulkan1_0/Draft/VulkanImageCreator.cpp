@@ -31,6 +31,10 @@
 
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Bitmap/RawCubeBitmap.hpp>
+#include <FslGraphics/Texture/RawTexture.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreatorUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
@@ -68,6 +72,24 @@ namespace Fsl
 
         return ImageView(device, imageViewCreateInfo);
       }
+
+      template <typename T>
+      inline VUImageMemoryView DoCreateImage(const VUPhysicalDeviceRecord& physicalDevice, RapidVulkan::CommandBuffer& rCommandBuffer,
+                                             const VkQueue queue, const T& src, const TextureType textureType, const std::string& name,
+                                             const VkImageUsageFlags imageUsageFlags)
+      {
+        const VkAccessFlags accessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+
+        VUImage image;
+        Memory memory;
+        VulkanImageCreatorUtil::Create(image, memory, physicalDevice, rCommandBuffer.GetDevice(), queue, rCommandBuffer.Get(), src, accessMask,
+                                       imageUsageFlags);
+
+        const TextureInfo info(1, 1, 1);
+        auto imageView = CreateImageView(rCommandBuffer.GetDevice(), image.Get(), image.GetFormat(), textureType, info);
+
+        return VUImageMemoryView(std::move(image), std::move(memory), std::move(imageView), name);
+      }
     }
 
 
@@ -90,34 +112,81 @@ namespace Fsl
     VulkanImageCreator::~VulkanImageCreator() = default;
 
 
-    VUImage VulkanImageCreator::CreateImage(const Bitmap& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    VUImageMemoryView VulkanImageCreator::CreateImage(const Bitmap& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
     {
-      const VkAccessFlags accessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
-
-      ImageEx image;
-      Memory memory;
-      VulkanImageCreatorUtil::Create(image, memory, m_physicalDevice, m_commandBuffer.GetDevice(), m_queue, m_commandBuffer.Get(), src, accessMask,
-                                     imageUsageFlags);
-
-      const TextureInfo info(1, 1, 1);
-      auto imageView = CreateImageView(m_commandBuffer.GetDevice(), image.Get(), image.GetFormat(), TextureType::Tex2D, info);
-
-      return VUImage(std::move(image), std::move(memory), std::move(imageView), name);
+      return DoCreateImage(m_physicalDevice, m_commandBuffer, m_queue, src, TextureType::Tex2D, name, imageUsageFlags);
     }
 
 
-    VUImage VulkanImageCreator::CreateImage(const Texture& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    VUImageMemoryView VulkanImageCreator::CreateImage(const Texture& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
     {
       const VkAccessFlags accessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
 
-      ImageEx image;
+      VUImage image;
       Memory memory;
       VulkanImageCreatorUtil::Create(image, memory, m_physicalDevice, m_commandBuffer.GetDevice(), m_queue, m_commandBuffer.Get(), src, accessMask,
                                      imageUsageFlags);
 
       auto imageView = CreateImageView(m_commandBuffer.GetDevice(), image.Get(), image.GetFormat(), src.GetTextureType(), src.GetTextureInfo());
 
-      return VUImage(std::move(image), std::move(memory), std::move(imageView), name);
+      return VUImageMemoryView(std::move(image), std::move(memory), std::move(imageView), name);
+    }
+
+
+    VUImageMemoryView VulkanImageCreator::CreateImage(const RawBitmap& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    {
+      return DoCreateImage(m_physicalDevice, m_commandBuffer, m_queue, src, TextureType::Tex2D, name, imageUsageFlags);
+    }
+
+
+    VUImageMemoryView VulkanImageCreator::CreateImage(const RawCubeBitmap& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    {
+      return DoCreateImage(m_physicalDevice, m_commandBuffer, m_queue, src, TextureType::TexCube, name, imageUsageFlags);
+    }
+
+
+    VUImageMemoryView VulkanImageCreator::CreateImage(const RawTexture& src, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    {
+      const VkAccessFlags accessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
+
+      VUImage image;
+      Memory memory;
+      VulkanImageCreatorUtil::Create(image, memory, m_physicalDevice, m_commandBuffer.GetDevice(), m_queue, m_commandBuffer.Get(), src, accessMask,
+                                     imageUsageFlags);
+
+      auto imageView = CreateImageView(m_commandBuffer.GetDevice(), image.Get(), image.GetFormat(), src.GetTextureType(), src.GetTextureInfo());
+
+      return VUImageMemoryView(std::move(image), std::move(memory), std::move(imageView), name);
+    }
+
+
+    VUImageMemoryView VulkanImageCreator::CreateImage(const Bitmap& srcBitmapPosX, const Bitmap& srcBitmapNegX, const Bitmap& srcBitmapPosY,
+                                                      const Bitmap& srcBitmapNegY, const Bitmap& srcBitmapPosZ, const Bitmap& srcBitmapNegZ,
+                                                      const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    {
+      RawBitmap rawBitmapPosX;
+      RawBitmap rawBitmapNegX;
+      RawBitmap rawBitmapPosY;
+      RawBitmap rawBitmapNegY;
+      RawBitmap rawBitmapPosZ;
+      RawBitmap rawBitmapNegZ;
+      Bitmap::ScopedDirectAccess directAccessPosX(srcBitmapPosX, rawBitmapPosX);
+      Bitmap::ScopedDirectAccess directAccessNegX(srcBitmapNegX, rawBitmapNegX);
+      Bitmap::ScopedDirectAccess directAccessPosY(srcBitmapPosY, rawBitmapPosY);
+      Bitmap::ScopedDirectAccess directAccessNegY(srcBitmapNegY, rawBitmapNegY);
+      Bitmap::ScopedDirectAccess directAccessPosZ(srcBitmapPosZ, rawBitmapPosZ);
+      Bitmap::ScopedDirectAccess directAccessNegZ(srcBitmapNegZ, rawBitmapNegZ);
+      RawCubeBitmap rawCubeBitmap(rawBitmapPosX, rawBitmapNegX, rawBitmapPosY, rawBitmapNegY, rawBitmapPosZ, rawBitmapNegZ);
+      return CreateImage(rawCubeBitmap, name, imageUsageFlags);
+    }
+
+
+    VUImageMemoryView VulkanImageCreator::CreateImage(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
+                                                      const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+                                                      const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    {
+      RawCubeBitmap rawCubeBitmap(srcBitmapPosX, srcBitmapNegX, srcBitmapPosY, srcBitmapNegY, srcBitmapPosZ, srcBitmapNegZ);
+      return CreateImage(rawCubeBitmap, name, imageUsageFlags);
     }
 
 
@@ -149,6 +218,92 @@ namespace Fsl
                                                 const VkImageUsageFlags imageUsageFlags)
     {
       auto image = CreateImage(src, name, imageUsageFlags);
+      return VUTexture(std::move(image), std::move(sampler));
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      Sampler sampler(m_commandBuffer.GetDevice(), samplerCreateInfo);
+      return CreateTexture(src, std::move(sampler), name, imageUsageFlags);
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawCubeBitmap& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      Sampler sampler(m_commandBuffer.GetDevice(), samplerCreateInfo);
+      return CreateTexture(src, std::move(sampler), name, imageUsageFlags);
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawTexture& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      Sampler sampler(m_commandBuffer.GetDevice(), samplerCreateInfo);
+      return CreateTexture(src, std::move(sampler), name, imageUsageFlags);
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& src, RapidVulkan::Sampler&& sampler, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      auto image = CreateImage(src, name, imageUsageFlags);
+      return VUTexture(std::move(image), std::move(sampler));
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawCubeBitmap& src, RapidVulkan::Sampler&& sampler, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      auto image = CreateImage(src, name, imageUsageFlags);
+      return VUTexture(std::move(image), std::move(sampler));
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawTexture& src, RapidVulkan::Sampler&& sampler, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      auto image = CreateImage(src, name, imageUsageFlags);
+      return VUTexture(std::move(image), std::move(sampler));
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const Bitmap& srcBitmapPosX, const Bitmap& srcBitmapNegX, const Bitmap& srcBitmapPosY,
+                                                const Bitmap& srcBitmapNegY, const Bitmap& srcBitmapPosZ, const Bitmap& srcBitmapNegZ,
+                                                const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      Sampler sampler(m_commandBuffer.GetDevice(), samplerCreateInfo);
+      return CreateTexture(srcBitmapPosX, srcBitmapNegX, srcBitmapPosY, srcBitmapNegY, srcBitmapPosZ, srcBitmapNegZ, std::move(sampler), name,
+                           imageUsageFlags);
+    }
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
+                                                const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+                                                const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name,
+                                                const VkImageUsageFlags imageUsageFlags)
+    {
+      Sampler sampler(m_commandBuffer.GetDevice(), samplerCreateInfo);
+      return CreateTexture(srcBitmapPosX, srcBitmapNegX, srcBitmapPosY, srcBitmapNegY, srcBitmapPosZ, srcBitmapNegZ, std::move(sampler), name,
+                           imageUsageFlags);
+    }
+
+
+    VUTexture VulkanImageCreator::CreateTexture(const Bitmap& srcBitmapPosX, const Bitmap& srcBitmapNegX, const Bitmap& srcBitmapPosY,
+                                                const Bitmap& srcBitmapNegY, const Bitmap& srcBitmapPosZ, const Bitmap& srcBitmapNegZ,
+                                                RapidVulkan::Sampler&& sampler, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    {
+      auto image = CreateImage(srcBitmapPosX, srcBitmapNegX, srcBitmapPosY, srcBitmapNegY, srcBitmapPosZ, srcBitmapNegZ, name, imageUsageFlags);
+      return VUTexture(std::move(image), std::move(sampler));
+    }
+
+    VUTexture VulkanImageCreator::CreateTexture(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
+                                                const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+                                                RapidVulkan::Sampler&& sampler, const std::string& name, const VkImageUsageFlags imageUsageFlags)
+    {
+      auto image = CreateImage(srcBitmapPosX, srcBitmapNegX, srcBitmapPosY, srcBitmapNegY, srcBitmapPosZ, srcBitmapNegZ, name, imageUsageFlags);
       return VUTexture(std::move(image), std::move(sampler));
     }
   }

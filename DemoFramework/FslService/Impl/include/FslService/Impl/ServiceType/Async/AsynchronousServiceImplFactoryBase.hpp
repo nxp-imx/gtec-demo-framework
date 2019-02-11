@@ -38,10 +38,10 @@ namespace Fsl
 {
   class AsynchronousServiceImplFactoryBase : public IAsynchronousServiceImplFactory
   {
-    TypeInfo m_interfaceType;
+    std::type_index m_interfaceType;
 
   public:
-    AsynchronousServiceImplFactoryBase(const TypeInfo& interfaceType);
+    AsynchronousServiceImplFactoryBase(const std::type_index& interfaceType);
 
     std::shared_ptr<IService> Allocate(const AsynchronousServiceImplCreateInfo& createInfo, ServiceProvider& provider) override = 0;
   };

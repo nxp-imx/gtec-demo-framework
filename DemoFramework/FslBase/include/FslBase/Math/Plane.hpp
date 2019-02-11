@@ -103,10 +103,8 @@ namespace Fsl
     static void Normalize(const Plane& value, Plane& rResult);
 
     PlaneIntersectionType Intersects(const BoundingBox& box) const;
-    void Intersects(const BoundingBox& box, PlaneIntersectionType& rResult) const;
     PlaneIntersectionType Intersects(const BoundingFrustum& frustum) const;
     PlaneIntersectionType Intersects(const BoundingSphere& sphere) const;
-    void Intersects(const BoundingSphere& sphere, PlaneIntersectionType& rResult) const;
     PlaneIntersectionType Intersects(const Vector3& point) const;
 
     //! @brief Tests for equality.

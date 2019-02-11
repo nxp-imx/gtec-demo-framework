@@ -34,6 +34,7 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
@@ -46,12 +47,15 @@
 #include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Control/Button.hpp>
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
+#include <FslSimpleUI/Base/Control/FloatSlider.hpp>
+#include <FslSimpleUI/Base/Control/FloatSliderAndValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/ImageButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslSimpleUI/Base/Control/Slider.hpp>
 #include <FslSimpleUI/Base/Control/SliderAndValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/ValueLabel.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 
@@ -66,7 +70,7 @@ namespace Fsl
     std::shared_ptr<Label> CreateLabel(const std::shared_ptr<WindowContext>& context, const std::string& text, const ItemAlignment alignX,
                                        const ItemAlignment alignY, const std::shared_ptr<AtlasFont>& font)
     {
-      std::shared_ptr<Label> label(new Label(context));
+      auto label = std::make_shared<Label>(context);
       label->SetContent(text);
       label->SetAlignmentX(alignX);
       label->SetAlignmentY(alignY);
@@ -77,62 +81,41 @@ namespace Fsl
 
 
   Shared::Shared(const DemoAppConfig& config)
-    : m_uiManager(config.ScreenResolution)
-    , m_uiEventListener(this)
+    : m_uiEventListener(this)
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
-
   {
-    m_uiManager.RegisterEventListener(m_uiEventListener.GetListener());
-
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
+    auto atlasTexture = m_uiExtension->GetAtlasTexture();
+    auto windowContext = m_uiExtension->GetContext();
+
     // FIX: way too cumbersome to configure a font
-    BasicTextureAtlas atlas;
-    contentManager->Read(atlas, "MainAtlas.bta");
 
-    const auto winMgr = m_uiManager.GetWindowManager();
+    AtlasTexture2D tex1 = m_uiExtension->GetAtlasTexture2D("RectTex");
+    AtlasTexture2D texBackground = m_uiExtension->GetAtlasTexture2D("Background9R");
 
-    Bitmap fontBitmap;
-    contentManager->Read(fontBitmap, "MainAtlas.png", PixelFormat::R8G8B8A8_UNORM);
-    Texture2D atlasTexture(m_graphics->GetNativeGraphics(), fontBitmap, Texture2DFilterHint::Smooth);
-
-    AtlasTexture2D tex1(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "RectTex"));
-    AtlasTexture2D texBackground(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "Background9R"));
-
-    BasicFontKerning fontKerning;
     BasicFontKerning smallFontkerning;
-    contentManager->Read(fontKerning, "MainAtlasFont.fbk");
     contentManager->Read(smallFontkerning, "MainAtlasSmallFont.fbk");
 
-    TextureAtlasBitmapFont bitmapFont(atlas, fontKerning);
-    TextureAtlasBitmapFont bitmapFontSmall(atlas, smallFontkerning);
+    TextureAtlasBitmapFont bitmapFontSmall(m_uiExtension->GetDefaultTextureAtlas(), smallFontkerning);
 
-    std::shared_ptr<AtlasFont> font(new AtlasFont(atlasTexture, bitmapFont));
-    std::shared_ptr<AtlasFont> fontSmall(new AtlasFont(atlasTexture, bitmapFontSmall));
+    std::shared_ptr<AtlasFont> fontSmall = std::make_shared<AtlasFont>(atlasTexture, bitmapFontSmall);
 
-    // Setup the window context that is given to all windows
-    m_context.reset(new WindowContext(m_uiManager.GetUIContext(), m_graphics->GetNativeBatch2D(), font));
-
-
-    // m_complexButton.reset(new Button(m_context));
-    // m_complexButton->SetContent(stackLayout2);
-
-
-    auto stackLayout1 = CreateStack1(atlasTexture, atlas, fontSmall, tex1);
-    auto stackLayout2 = CreateStack2(atlasTexture, atlas, tex1);
-    auto stackLayout3 = CreateStack3(atlasTexture, atlas);
-    auto stackLayout4 = CreateStack4(atlasTexture, atlas);
-
+    auto stackLayout1 = CreateStack1(windowContext, atlasTexture, fontSmall, tex1);
+    auto stackLayout2 = CreateStack2(windowContext, atlasTexture, tex1);
+    auto stackLayout3 = CreateStack3(windowContext, atlasTexture);
+    auto stackLayout4 = CreateStack4(windowContext, atlasTexture);
 
     NineSlice backgroundNineSlice(32, 32, 32, 32);
-    std::shared_ptr<Background9Slice> background(new Background9Slice(m_context));
+    auto background = std::make_shared<Background9Slice>(windowContext);
     background->SetContent(stackLayout2);
     background->SetBackground(texBackground);
     background->SetNineSlice(backgroundNineSlice);
     background->SetPadding(ThicknessF(32, 32, 32, 32));
 
     // Create a stack which contains the other stacks
-    std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
+    auto stackLayout = std::make_shared<StackLayout>(windowContext);
     stackLayout->SetAlignmentX(ItemAlignment::Center);
     stackLayout->SetAlignmentY(ItemAlignment::Center);
     stackLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
@@ -145,19 +128,19 @@ namespace Fsl
 
 
     // Create labels for the corners
-    auto labelCorner1 = CreateLabel(m_context, "TopLeft", ItemAlignment::Near, ItemAlignment::Near, fontSmall);
-    auto labelCorner2 = CreateLabel(m_context, "TopRight", ItemAlignment::Far, ItemAlignment::Near, fontSmall);
-    auto labelCorner3 = CreateLabel(m_context, "BottomLeft", ItemAlignment::Near, ItemAlignment::Far, fontSmall);
-    auto labelCorner4 = CreateLabel(m_context, "BottomRight", ItemAlignment::Far, ItemAlignment::Far, fontSmall);
+    auto labelCorner1 = CreateLabel(windowContext, "TopLeft", ItemAlignment::Near, ItemAlignment::Near, fontSmall);
+    auto labelCorner2 = CreateLabel(windowContext, "TopRight", ItemAlignment::Far, ItemAlignment::Near, fontSmall);
+    auto labelCorner3 = CreateLabel(windowContext, "BottomLeft", ItemAlignment::Near, ItemAlignment::Far, fontSmall);
+    auto labelCorner4 = CreateLabel(windowContext, "BottomRight", ItemAlignment::Far, ItemAlignment::Far, fontSmall);
 
     // Create labels for the border centers
-    auto labelCenter1 = CreateLabel(m_context, "TopCenter", ItemAlignment::Center, ItemAlignment::Near, fontSmall);
-    auto labelCenter2 = CreateLabel(m_context, "BottomCenter", ItemAlignment::Center, ItemAlignment::Far, fontSmall);
-    auto labelCenter3 = CreateLabel(m_context, "LeftCenter", ItemAlignment::Near, ItemAlignment::Center, fontSmall);
-    auto labelCenter4 = CreateLabel(m_context, "RightCenter", ItemAlignment::Far, ItemAlignment::Center, fontSmall);
+    auto labelCenter1 = CreateLabel(windowContext, "TopCenter", ItemAlignment::Center, ItemAlignment::Near, fontSmall);
+    auto labelCenter2 = CreateLabel(windowContext, "BottomCenter", ItemAlignment::Center, ItemAlignment::Far, fontSmall);
+    auto labelCenter3 = CreateLabel(windowContext, "LeftCenter", ItemAlignment::Near, ItemAlignment::Center, fontSmall);
+    auto labelCenter4 = CreateLabel(windowContext, "RightCenter", ItemAlignment::Far, ItemAlignment::Center, fontSmall);
 
     // Create the root layout and add it to the window manager
-    m_fillLayout.reset(new FillLayout(m_context));
+    m_fillLayout = std::make_shared<FillLayout>(windowContext);
     m_fillLayout->AddChild(labelCorner1);
     m_fillLayout->AddChild(labelCorner2);
     m_fillLayout->AddChild(labelCorner3);
@@ -169,7 +152,7 @@ namespace Fsl
     m_fillLayout->AddChild(stackLayout);
 
     // Register the root layout with the window manager
-    winMgr->Add(m_fillLayout);
+    m_uiExtension->GetWindowManager()->Add(m_fillLayout);
   }
 
 
@@ -193,68 +176,20 @@ namespace Fsl
   }
 
 
-  void Shared::OnKeyEvent(const KeyEvent& event)
-  {
-  }
-
-
-  void Shared::OnMouseButtonEvent(const MouseButtonEvent& event)
-  {
-    if (!m_uiManager.SendMouseButtonEvent(event))
-    {
-      FSLLOG("Mouse did not hit a input enabled control");
-    }
-  }
-
-
-  void Shared::OnMouseMoveEvent(const MouseMoveEvent& event)
-  {
-    if (!m_uiManager.SendMouseMoveEvent(event))
-    {
-    }
-  }
-
-
-  void Shared::OnMouseWheelEvent(const MouseWheelEvent& event)
-  {
-  }
-
-
-  void Shared::Resized(const Point2& size)
-  {
-    m_uiManager.Resized(size);
-  }
-
-
-  void Shared::FixedUpdate(const DemoTime& demoTime)
-  {
-    m_uiManager.FixedUpdate(demoTime);
-  }
-
-
-  void Shared::Update(const DemoTime& demoTime)
-  {
-    m_uiManager.Update(demoTime);
-  }
-
-
   void Shared::Draw()
   {
-    auto batch2D = m_context->Batch2D;
-    batch2D->Begin();
-    m_uiManager.Draw();
-    batch2D->End();
+    m_uiExtension->Draw();
   }
 
 
-  std::shared_ptr<BaseWindow> Shared::CreateStack1(const Texture2D& atlasTexture, const ITextureAtlas& atlas,
+  std::shared_ptr<BaseWindow> Shared::CreateStack1(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture,
                                                    const std::shared_ptr<AtlasFont>& fontSmall, const AtlasTexture2D& texImage)
   {
     // Create items that we want to add to a stack layout
-    std::shared_ptr<Label> label1(new Label(m_context));
-    std::shared_ptr<Label> label2(new Label(m_context));
-    std::shared_ptr<Label> label3(new Label(m_context));
-    std::shared_ptr<Label> labelSmall(new Label(m_context));
+    auto label1 = std::make_shared<Label>(context);
+    auto label2 = std::make_shared<Label>(context);
+    auto label3 = std::make_shared<Label>(context);
+    auto labelSmall = std::make_shared<Label>(context);
     label1->SetContent("1");
     label2->SetContent("2");
     label3->SetContent("3");
@@ -265,40 +200,51 @@ namespace Fsl
     labelSmall->SetFont(fontSmall);
     labelSmall->SetAlignmentX(ItemAlignment::Center);
 
-    m_button1.reset(new LabelButton(m_context));
+    auto labelValue1 = std::make_shared<ValueLabel>(context);
+    labelValue1->SetContent(1337);
+    labelValue1->SetAlignmentX(ItemAlignment::Center);
+
+    auto labelValue2 = std::make_shared<FloatValueLabel>(context);
+    labelValue2->SetContent(3.14f);
+    labelValue2->SetAlignmentX(ItemAlignment::Center);
+
+    m_button1 = std::make_shared<LabelButton>(context);
     m_button1->SetAlignmentX(ItemAlignment::Center);
     m_button1->SetContent("Button1");
 
-    m_button2.reset(new ImageButton(m_context));
+    m_button2 = std::make_shared<ImageButton>(context);
     m_button2->SetAlignmentX(ItemAlignment::Center);
     m_button2->SetContent(texImage);
 
     // Create a stack layout and add various items to it
-    std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
+    auto stackLayout = std::make_shared<StackLayout>(context);
     stackLayout->SetAlignmentY(ItemAlignment::Center);
     stackLayout->AddChild(label1);
     stackLayout->AddChild(label2);
     stackLayout->AddChild(label3);
     stackLayout->AddChild(labelSmall);
+    stackLayout->AddChild(labelValue1);
+    stackLayout->AddChild(labelValue2);
     stackLayout->AddChild(m_button1);
     stackLayout->AddChild(m_button2);
     return stackLayout;
   }
 
 
-  std::shared_ptr<BaseWindow> Shared::CreateStack2(const Texture2D& atlasTexture, const ITextureAtlas& atlas, const AtlasTexture2D& texImage)
+  std::shared_ptr<BaseWindow> Shared::CreateStack2(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture,
+                                                   const AtlasTexture2D& texImage)
   {
-    std::shared_ptr<Label> label(new Label(m_context));
+    auto label = std::make_shared<Label>(context);
     label->SetContent("Images:");
 
     // Create items that we want to add to a another stack layout
-    std::shared_ptr<Image> image1(new Image(m_context));
-    std::shared_ptr<Image> image2(new Image(m_context));
-    std::shared_ptr<Image> image3(new Image(m_context));
-    std::shared_ptr<Image> image4N(new Image(m_context));
-    std::shared_ptr<Image> image4C(new Image(m_context));
-    std::shared_ptr<Image> image4F(new Image(m_context));
-    std::shared_ptr<Image> image4S(new Image(m_context));
+    auto image1 = std::make_shared<Image>(context);
+    auto image2 = std::make_shared<Image>(context);
+    auto image3 = std::make_shared<Image>(context);
+    auto image4N = std::make_shared<Image>(context);
+    auto image4C = std::make_shared<Image>(context);
+    auto image4F = std::make_shared<Image>(context);
+    auto image4S = std::make_shared<Image>(context);
     image1->SetContent(texImage);
     image2->SetContent(texImage);
     image3->SetContent(texImage);
@@ -331,7 +277,7 @@ namespace Fsl
     image4S->SetHeight(texImage.GetSize().Y / 4);
 
     // Create a stack layout and add various items to it
-    std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
+    auto stackLayout = std::make_shared<StackLayout>(context);
     stackLayout->SetAlignmentY(ItemAlignment::Center);
     stackLayout->AddChild(label);
     stackLayout->AddChild(image1);
@@ -345,18 +291,18 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<BaseWindow> Shared::CreateStack3(const Texture2D& atlasTexture, const ITextureAtlas& atlas)
+  std::shared_ptr<BaseWindow> Shared::CreateStack3(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture)
   {
-    AtlasTexture2D texTractbar(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "Slider"));
-    AtlasTexture2D texTractbarCursor(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "SliderCursor"));
+    AtlasTexture2D texTractbar = m_uiExtension->GetAtlasTexture2D("Slider");
+    AtlasTexture2D texTractbarCursor = m_uiExtension->GetAtlasTexture2D("SliderCursor");
     NineSlice sliderNineSlice(40, 0, 46, 0);
 
 
-    std::shared_ptr<Label> labelSliders(new Label(m_context));
+    auto labelSliders = std::make_shared<Label>(context);
     labelSliders->SetContent("Sliders:");
     labelSliders->SetWidth(200);
 
-    m_slider1.reset(new Slider(m_context));
+    m_slider1 = std::make_shared<Slider>(context);
     m_slider1->SetAlignmentX(ItemAlignment::Center);
     m_slider1->SetAlignmentY(ItemAlignment::Center);
     m_slider1->SetBackgroundTexture(texTractbar);
@@ -364,7 +310,7 @@ namespace Fsl
     m_slider1->SetCursorPadding(ThicknessF(32, 0, 32, 0));
     m_slider1->SetNineSlice(sliderNineSlice);
 
-    m_slider2.reset(new Slider(m_context));
+    m_slider2 = std::make_shared<Slider>(context);
     m_slider2->SetAlignmentX(ItemAlignment::Stretch);
     m_slider2->SetAlignmentY(ItemAlignment::Center);
     m_slider2->SetBackgroundTexture(texTractbar);
@@ -372,14 +318,14 @@ namespace Fsl
     m_slider2->SetCursorPadding(ThicknessF(32, 0, 32, 0));
     m_slider2->SetNineSlice(sliderNineSlice);
 
-    std::shared_ptr<SliderAndValueLabel> slider3(new SliderAndValueLabel(m_context));
+    auto slider3 = std::make_shared<SliderAndValueLabel>(context);
     slider3->SetAlignmentX(ItemAlignment::Stretch);
     slider3->SetBackgroundTexture(texTractbar);
     slider3->SetCursorTexture(texTractbarCursor);
     slider3->SetCursorPadding(ThicknessF(32, 0, 32, 0));
     slider3->SetNineSlice(sliderNineSlice);
 
-    std::shared_ptr<Slider> slider4(new Slider(m_context));
+    auto slider4 = std::make_shared<Slider>(context);
     slider4->SetAlignmentX(ItemAlignment::Stretch);
     slider4->SetBackgroundTexture(texTractbar);
     slider4->SetCursorTexture(texTractbarCursor);
@@ -387,7 +333,7 @@ namespace Fsl
     slider4->SetNineSlice(sliderNineSlice);
     slider4->SetValueLimits(0, 5);
 
-    std::shared_ptr<SliderAndValueLabel> slider5(new SliderAndValueLabel(m_context));
+    auto slider5 = std::make_shared<SliderAndValueLabel>(context);
     slider5->SetAlignmentX(ItemAlignment::Stretch);
     slider5->SetBackgroundTexture(texTractbar);
     slider5->SetCursorTexture(texTractbarCursor);
@@ -395,8 +341,24 @@ namespace Fsl
     slider5->SetNineSlice(sliderNineSlice);
     slider5->SetValueLimits(0, 5);
 
+    auto slider6 = std::make_shared<FloatSlider>(context);
+    slider6->SetAlignmentX(ItemAlignment::Stretch);
+    slider6->SetBackgroundTexture(texTractbar);
+    slider6->SetCursorTexture(texTractbarCursor);
+    slider6->SetCursorPadding(ThicknessF(32, 0, 32, 0));
+    slider6->SetNineSlice(sliderNineSlice);
+    slider6->SetValueLimits(0.0f, 5.0f);
+
+    auto slider7 = std::make_shared<FloatSliderAndValueLabel>(context);
+    slider7->SetAlignmentX(ItemAlignment::Stretch);
+    slider7->SetBackgroundTexture(texTractbar);
+    slider7->SetCursorTexture(texTractbarCursor);
+    slider7->SetCursorPadding(ThicknessF(32, 0, 32, 0));
+    slider7->SetNineSlice(sliderNineSlice);
+    slider7->SetValueLimits(0.0f, 5.0f);
+
     // Create a stack layout and add various items to it
-    std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
+    auto stackLayout = std::make_shared<StackLayout>(context);
     stackLayout->SetAlignmentY(ItemAlignment::Near);
     stackLayout->AddChild(labelSliders);
     stackLayout->AddChild(m_slider1);
@@ -404,29 +366,30 @@ namespace Fsl
     stackLayout->AddChild(slider3);
     stackLayout->AddChild(slider4);
     stackLayout->AddChild(slider5);
+    stackLayout->AddChild(slider6);
+    stackLayout->AddChild(slider7);
     return stackLayout;
   }
 
 
-  std::shared_ptr<BaseWindow> Shared::CreateStack4(const Texture2D& atlasTexture, const ITextureAtlas& atlas)
+  std::shared_ptr<BaseWindow> Shared::CreateStack4(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture)
   {
-    AtlasTexture2D texCheckBox1C(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "CheckBox1C"));
-    AtlasTexture2D texCheckBox1U(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "CheckBox1U"));
-    AtlasTexture2D texCheckBox2C(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "CheckBox2C"));
-    AtlasTexture2D texCheckBox2U(atlasTexture, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "CheckBox2U"));
+    AtlasTexture2D texCheckBox1C = m_uiExtension->GetAtlasTexture2D("CheckBox1C");
+    AtlasTexture2D texCheckBox1U = m_uiExtension->GetAtlasTexture2D("CheckBox1U");
+    AtlasTexture2D texCheckBox2C = m_uiExtension->GetAtlasTexture2D("CheckBox2C");
+    AtlasTexture2D texCheckBox2U = m_uiExtension->GetAtlasTexture2D("CheckBox2U");
 
-
-    std::shared_ptr<Label> labelSliders(new Label(m_context));
+    auto labelSliders = std::make_shared<Label>(context);
     labelSliders->SetContent("CheckBox:");
 
-    std::shared_ptr<CheckBox> checkBox1(new CheckBox(m_context));
+    auto checkBox1 = std::make_shared<CheckBox>(context);
     checkBox1->SetAlignmentX(ItemAlignment::Near);
     checkBox1->SetAlignmentY(ItemAlignment::Center);
     checkBox1->SetText("Hello");
     checkBox1->SetCheckedTexture(texCheckBox1C);
     checkBox1->SetUncheckedTexture(texCheckBox1U);
 
-    std::shared_ptr<CheckBox> checkBox2(new CheckBox(m_context));
+    auto checkBox2 = std::make_shared<CheckBox>(context);
     checkBox2->SetAlignmentX(ItemAlignment::Near);
     checkBox2->SetAlignmentY(ItemAlignment::Center);
     checkBox2->SetText("World");
@@ -434,7 +397,7 @@ namespace Fsl
     checkBox2->SetUncheckedTexture(texCheckBox2U);
 
     // Create a stack layout and add various items to it
-    std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
+    auto stackLayout = std::make_shared<StackLayout>(context);
     stackLayout->SetAlignmentY(ItemAlignment::Near);
     stackLayout->AddChild(labelSliders);
     stackLayout->AddChild(checkBox1);

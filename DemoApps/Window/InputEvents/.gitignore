@@ -14,6 +14,7 @@
 /InputEvents_Wayland_d
 /InputEvents_X11
 /InputEvents_X11_d
+/InputEvents_c
 /InputEvents_d
 /Window.InputEvents
 /Window.InputEvents.VC.VC.opendb

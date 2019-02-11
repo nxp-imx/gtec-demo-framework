@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
 
 namespace Fsl
 {
-  class OptionParserEx : public OptionParser
+  class OptionParserEx : public ADemoOptionParser
   {
     uint32_t m_instanceCount;
 

@@ -41,21 +41,12 @@ namespace Fsl
   {
     namespace MemoryTypeUtil
     {
-      uint32_t GetMemoryTypeIndex(const uint32_t memoryTypeCount, const VkMemoryType* const pMemoryType, const uint32_t memoryTypeBits,
-                                  const VkMemoryPropertyFlags propertyFlags);
+      uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const uint32_t memoryTypeBits,
+                                  const VkMemoryPropertyFlags desiredPropertyFlags, const VkMemoryPropertyFlags notSetPropertyFlags = 0);
 
-      inline uint32_t GetMemoryTypeIndex(const VkMemoryType* const pMemoryTypes, const uint32_t memoryTypeCount, const uint32_t memoryTypeBits,
-                                         const VkMemoryPropertyFlags propertyFlags)
-      {
-        return GetMemoryTypeIndex(memoryTypeCount, pMemoryTypes, memoryTypeBits, propertyFlags);
-      }
-
-      inline uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const uint32_t memoryTypeBits,
-                                         const VkMemoryPropertyFlags propertyFlags)
-      {
-        return GetMemoryTypeIndex(physicalDeviceMemoryProperties.memoryTypeCount, physicalDeviceMemoryProperties.memoryTypes, memoryTypeBits,
-                                  propertyFlags);
-      }
+      bool TryGetMemoryTypeIndex(uint32_t& rMemoryTypeIndex, const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties,
+                                 const uint32_t memoryTypeBits, const VkMemoryPropertyFlags desiredPropertyFlags,
+                                 const VkMemoryPropertyFlags notSetPropertyFlags = 0);
     }
   }
 }

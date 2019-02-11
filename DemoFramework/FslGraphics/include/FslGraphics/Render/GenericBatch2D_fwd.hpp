@@ -65,7 +65,7 @@ namespace Fsl
   {
     struct Normal
     {
-      inline static float Format(const float v)
+      inline static constexpr float Format(const float v)
       {
         return v;
       }
@@ -73,7 +73,7 @@ namespace Fsl
 
     struct Flipped
     {
-      inline static float Format(const float v)
+      inline static constexpr float Format(const float v)
       {
         return 1.0f - v;
       }

@@ -389,11 +389,11 @@ namespace Fsl
     switch (typeEx)
     {
     case ParticleSystemType::Points:
-      particleDraw = std::make_shared<ParticleDrawPointsGLES3>(GetContentManager(), PARTICLE_CAPACITY, ParticleSystemOneArray::SIZE_PARTICLE_RECORD);
+      particleDraw = std::make_shared<ParticleDrawPointsGLES3>(GetContentManager(), PARTICLE_CAPACITY, ParticleSystemOneArray::ParticleRecordSize());
       break;
     case ParticleSystemType::GeometryShader:
       particleDraw =
-        std::make_shared<ParticleDrawGeometryShaderGLES3>(GetContentManager(), PARTICLE_CAPACITY, ParticleSystemOneArray::SIZE_PARTICLE_RECORD);
+        std::make_shared<ParticleDrawGeometryShaderGLES3>(GetContentManager(), PARTICLE_CAPACITY, ParticleSystemOneArray::ParticleRecordSize());
       break;
     case ParticleSystemType::Instancing:
     default:

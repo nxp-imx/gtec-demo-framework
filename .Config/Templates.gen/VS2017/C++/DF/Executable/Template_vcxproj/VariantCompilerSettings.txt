@@ -18,6 +18,11 @@
     <PreBuildEvent>
       <Command>FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Validate</Command>
     </PreBuildEvent>
+    <CustomBuild>
+      <Command>echo 1 &gt; $(IntermediateOutputPath)%(Filename)%(Extension).force_build.fix</Command>
+      <Outputs>$(IntermediateOutputPath)%(Filename)%(Extension).force_build.fix</Outputs>
+      <Message />
+    </CustomBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x64'">
     <ClCompile>
@@ -42,4 +47,9 @@
     <PreBuildEvent>
       <Command>FslBuildContent.py -p windows --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Validate</Command>
     </PreBuildEvent>
+    <CustomBuild>
+      <Command>echo 1 &gt; $(IntermediateOutputPath)%(Filename)%(Extension).force_build.fix</Command>
+      <Outputs>$(IntermediateOutputPath)%(Filename)%(Extension).force_build.fix</Outputs>
+      <Message />
+    </CustomBuild>
   </ItemDefinitionGroup>

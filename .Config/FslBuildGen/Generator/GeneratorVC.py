@@ -173,6 +173,8 @@ class GeneratorVC(GeneratorBase):
                 if headerLibTemplate is not None:
                     self.__GenerateLibraryBuildFile(config, package, generatorConfig.PlatformName, headerLibTemplate,
                                                     template.GetBatTemplate(), generatorConfig.VsVersion, windows10SDKVersion)
+                else:
+                    self.__GenerateRunProjectFile(config, package, generatorConfig.PlatformName, template.GetBatTemplate(), generatorConfig.VsVersion)
 
         self.__ValidateProjectIds(packages)
 
@@ -368,6 +370,27 @@ class GeneratorVC(GeneratorBase):
         templateFileProcessor = TemplateFileProcessor(config, platformName)
         templateFileProcessor.Environment.Set("##FEATURE_LIST##", strFeatureList)
         templateFileProcessor.Process(config, template.TemplateFileRecordManager, package.AbsolutePath, package)
+
+
+    def __GenerateRunProjectFile(self, config: Config,
+                                 package: Package,
+                                 platformName: str,
+                                 batTemplate: CodeTemplateProjectBatFiles,
+                                 vsVersion: int) -> None:
+        if (package.AbsolutePath is None or package.ResolvedBuildPath is None):
+            raise Exception("Invalid package")
+
+        targetName = GeneratorVCUtil.GetTargetName(package)
+        featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
+        strFeatureList = ",".join(featureList)
+        runProjectFile = self.__TryPrepareProjectBatFile(config, package, batTemplate.TemplateRunBat, batTemplate.TemplateSnippetErrorCheck, vsVersion, targetName, strFeatureList, platformName)
+        buildBasePath = IOUtil.Join(package.AbsolutePath, package.ResolvedBuildPath)
+        dstFileRunProject = IOUtil.Join(buildBasePath, LocalMagicFilenames.RunProject)
+        if not config.DisableWrite:
+            IOUtil.SafeMakeDirs(buildBasePath)
+            if runProjectFile is not None:
+                IOUtil.WriteFileIfChanged(dstFileRunProject, runProjectFile)
+
 
     def __TryGenerateFilterFile(self, log: Log, package: Package, template: CodeTemplateVC, packageTargetName: str) -> Optional[str]:
         if template.FilterMaster is None:
@@ -1248,7 +1271,7 @@ class GeneratorVCUtil(object):
 
     @staticmethod
     def TryGenerateBuildReport(log: Log, generatorName: str, package: Package, variantHelper: VariantHelper) -> Optional[GeneratorBuildReport]:
-        if package.IsVirtual:
+        if package.IsVirtual and package.Type != PackageType.HeaderLibrary:
             return None
 
         if package.ResolvedBuildPath is None:
@@ -1305,7 +1328,8 @@ class GeneratorVCUtil(object):
         variableDict.Add("PACKAGE_TARGET_NAME", targetName)
         variableDict.Add("PACKAGE_NORMAL_VARIANT_NAME_HINT", normalVariantFormatString)
         variableDict.Add("CONFIGURATION", configVariantName)
-        variableDict.Add("PROJECT_VARIANT_NAME", package.ResolvedVirtualVariantNameHint)
+        if package.ResolvedVirtualVariantNameHint is not None:
+            variableDict.Add("PROJECT_VARIANT_NAME", package.ResolvedVirtualVariantNameHint)
         parsedBuildOutputLocation = ParsedFormatString(buildOutputLocation, variableDict)
         for var in parsedBuildOutputLocation.VarCommandList:
             parsedBuildOutputLocation.SplitList[var.SplitIndex] = var.Report.Options[0]
@@ -1318,11 +1342,12 @@ class GeneratorVCUtil(object):
     @staticmethod
     def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package,
                                           generatorConfig: GeneratorVSConfig,
-                                          generatorTemplateInfo: GeneratorVSTemplateInfo) -> Optional[PackageGeneratorReport]:
-        if package.IsVirtual:
+                                          generatorTemplateInfo: GeneratorVSTemplateInfo,
+                                          configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
+        if package.IsVirtual and package.Type != PackageType.HeaderLibrary:
             return None
 
-        variableReport = GeneratorVariableReport(log)
+        variableReport = GeneratorVariableReport(log, configVariantOptions=configVariantOptions)
         variableReport.Add(LocalMagicBuildVariants.GeneratorConfig, [LocalMagicBuildVariantOption.Debug, LocalMagicBuildVariantOption.Release], ToolAddedVariant.CONFIG)
         for variantEntry in package.ResolvedAllVariantDict.values():
             variantEntryOptions = [option.Name for option in variantEntry.Options]

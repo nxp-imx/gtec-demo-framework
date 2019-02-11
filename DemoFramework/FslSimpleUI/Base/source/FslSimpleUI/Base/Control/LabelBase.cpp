@@ -51,6 +51,7 @@ namespace Fsl
       , m_font(context->DefaultFont)
       , m_fontColor(Color::White())
     {
+      assert(m_font);
       Enable(WindowFlags(WindowFlags::DrawEnabled));
     }
 
@@ -95,7 +96,6 @@ namespace Fsl
 
       const auto pFont = m_font.get();
       assert(pFont != nullptr);
-      batch->ChangeTo(BlendState::AlphaBlend);
       batch->DrawString(pFont->GetAtlasTexture(), pFont->GetAtlasBitmapFont(), content, context.TargetRect.TopLeft(), m_fontColor);
     }
 

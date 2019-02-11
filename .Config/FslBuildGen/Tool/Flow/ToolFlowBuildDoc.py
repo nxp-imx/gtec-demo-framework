@@ -177,7 +177,8 @@ def TryInsertTableOfContents(basicConfig: BasicConfig, lines: List[str], depth: 
 def BuildDemoAppHeader(package: Package) -> List[str]:
     result = []  # type: List[str]
     result.append("# {0}".format(package.ShortName))
-    result.append('<img src="./Example.jpg" height="135px" style="float:right">')
+#    result.append('<img src="./Example.jpg" height="135px" style="float:right">')
+    result.append('<img src="Example.jpg" height="135px">')
     result.append("")
     return result
 
@@ -409,7 +410,7 @@ def TryExtractBrief(basicConfig: BasicConfig, lines: List[str], path: str) -> Op
 
 
 def ReadJsonFile(filename: str) -> JsonDictType:
-    content = IOUtil.ReadBinaryFile(filename)
+    content = IOUtil.ReadFile(filename)
     return cast(JsonDictType, json.loads(content))
 
 
@@ -525,8 +526,10 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
                 exampleImagePath = IOUtil.Join(package.AbsolutePath, "Example.jpg")
                 if IOUtil.IsFile(exampleImagePath):
                     exampleImagePath = exampleImagePath[len(rootDir.ResolvedPath)+1:]
-                    result.append('<a href="{0}">'.format(packageDir))
-                    result.append('<img src="{0}" height="108px" style="float:right;clear:both;display:table;margin:1px">'.format(exampleImagePath))
+                    #result.append('<a href="{0}">'.format(packageDir))
+                    result.append('<a href="{0}">'.format(exampleImagePath))
+                    #result.append('<img src="{0}" height="108px" style="float:right;clear:both;display:table;margin:1px">'.format(exampleImagePath))
+                    result.append('<img src="{0}" height="108px">'.format(exampleImagePath))
                     result.append('</a>')
                     result.append("")
 

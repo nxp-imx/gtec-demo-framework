@@ -48,12 +48,13 @@
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLVertexArray.hpp>
 #include <FslUtil/OpenGLES3/GLFrameBuffer.hpp>
+#include <Shared/HDR/BasicScene/MenuUI.hpp>
+#include <Shared/HDR/BasicScene/OptionParser.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/BasicProgramLocations.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/FragmentUBOData.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/SimpleMesh.hpp>
 #include <vector>
 #include <utility>
-#include <Shared/OpenGLES3/HDR/BasicScene/BasicProgramLocations.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/MenuUI.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/OptionParser.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/SimpleMesh.hpp>
 
 namespace Fsl
 {
@@ -61,6 +62,13 @@ namespace Fsl
     : public DemoAppGLES3
     , public UI::EventListener
   {
+    struct VertexUBOData
+    {
+      Matrix MatModel;
+      Matrix MatView;
+      Matrix MatProj;
+    };
+
     struct ProgramInfo
     {
       GLES3::GLProgram Program;
@@ -82,6 +90,20 @@ namespace Fsl
       TonemapProgramLocations Location;
     };
 
+    struct Resources
+    {
+      GLES3::GLTexture TexSRGB;
+
+      ProgramInfo Program;
+      TonemapProgramInfo ProgramTonemapLDR;
+      TonemapProgramInfo ProgramTonemapHDR;
+
+      GLES3::GLFrameBuffer HdrFrameBuffer;
+
+      SimpleMesh MeshTunnel;
+      SimpleMesh MeshQuad;
+    };
+
     MenuUI m_menuUI;
 
     std::shared_ptr<IKeyboard> m_keyboard;
@@ -89,22 +111,11 @@ namespace Fsl
     std::shared_ptr<IDemoAppControl> m_demoAppControl;
     bool m_mouseCaptureEnabled;
     Graphics3D::FirstPersonCamera m_camera;
-    Matrix m_matrixModel;
-    Matrix m_matrixView;
-    Matrix m_matrixProjection;
 
-    GLES3::GLTexture m_texSRGB;
+    Resources m_resources;
 
-    ProgramInfo m_program;
-    TonemapProgramInfo m_programTonemapLDR;
-    TonemapProgramInfo m_programTonemapHDR;
-    GLES3::GLFrameBuffer m_hdrFrameBuffer;
-
-    SimpleMesh m_meshTunnel;
-    SimpleMesh m_meshQuad;
-
-    std::vector<Vector3> m_lightPositions;
-    std::vector<Vector3> m_lightColors;
+    VertexUBOData m_vertexUboData;
+    FragmentUBOData m_fragmentUboData;
 
   public:
     HDR02_FBBasicToneMapping(const DemoAppConfig& config);
@@ -122,11 +133,8 @@ namespace Fsl
 
     void DrawScene(const ProgramInfo& programInfo);
     void DrawTonemappedScene(const TonemapProgramInfo& programInfo, const GLES3::GLTextureInfo& hdrFramebufferTexInfo);
-    void PrepareLights();
-    void CreateTextures(const std::shared_ptr<IContentManager>& contentManager);
     ProgramInfo CreateShader(const std::shared_ptr<IContentManager>& contentManager);
     TonemapProgramInfo CreateTonemapShader(const std::shared_ptr<IContentManager>& contentManager, const bool useHDR);
-    GLES3::GLFrameBuffer CreateHdrFrameBuffer();
   };
 }
 

@@ -353,7 +353,8 @@ namespace Fsl
   void SRGBFramebuffer::CreateTextures(const std::shared_ptr<IContentManager>& contentManager)
   {
     // The KTX reader does not extract the origin, so we force a upper left
-    auto tex = contentManager->ReadTexture("Floor/Floor_ETC2_RGB.ktx", PixelFormat::ETC2_R8G8B8_UNORM_BLOCK, BitmapOrigin::UpperLeft);
+    auto tex =
+      contentManager->ReadTexture("Textures/WoodFloor/Floor_ETC2_RGB_flipped.ktx", PixelFormat::ETC2_R8G8B8_UNORM_BLOCK, BitmapOrigin::UpperLeft);
     // Then override it to match the default GL setting since we know thats the way the texture is stored in the file
     tex.OverrideOrigin(BitmapOrigin::LowerLeft);
 

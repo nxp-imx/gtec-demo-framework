@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
 #include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/Registry/InterfaceCollisionChecker.hpp>
 #include <FslService/Impl/Registry/RegisteredServiceDeque.hpp>
@@ -42,6 +41,7 @@
 #include <algorithm>
 #include <map>
 #include <iterator>
+#include <typeindex>
 #include <utility>
 #include "ProviderIdGenerator.hpp"
 

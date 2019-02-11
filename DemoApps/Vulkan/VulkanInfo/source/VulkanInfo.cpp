@@ -32,7 +32,19 @@
 #include "VulkanInfo.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Log/All.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
+#include <FslUtil/Vulkan1_0/VUDevice.hpp>
+#include <RapidVulkan/Debug/Strings/VkFormatFeatureFlagBits.hpp>
+#include <RapidVulkan/Debug/Strings/VkMemoryHeapFlagBits.hpp>
+#include <RapidVulkan/Debug/Strings/VkMemoryPropertyFlagBits.hpp>
+#include <RapidVulkan/Debug/Strings/VkPhysicalDeviceType.hpp>
+#include <RapidVulkan/Debug/Strings/VkQueueFlagBits.hpp>
+#include <ios>
+// Included last as a workaround
+#include <FslUtil/Vulkan1_0/Debug/BitFlags.hpp>
 
 namespace Fsl
 {
@@ -40,30 +52,193 @@ namespace Fsl
 
   namespace
   {
-    struct DecodeVulkanVersion
-    {
-      uint32_t Value;
-
-      DecodeVulkanVersion(const uint32_t value)
-      {
-        Value = value;
-      }
+    std::array<VkFormat, 184> g_allFormats = {
+      VK_FORMAT_R4G4_UNORM_PACK8,              // = 1,
+      VK_FORMAT_R4G4B4A4_UNORM_PACK16,         // = 2,
+      VK_FORMAT_B4G4R4A4_UNORM_PACK16,         // = 3,
+      VK_FORMAT_R5G6B5_UNORM_PACK16,           // = 4,
+      VK_FORMAT_B5G6R5_UNORM_PACK16,           // = 5,
+      VK_FORMAT_R5G5B5A1_UNORM_PACK16,         // = 6,
+      VK_FORMAT_B5G5R5A1_UNORM_PACK16,         // = 7,
+      VK_FORMAT_A1R5G5B5_UNORM_PACK16,         // = 8,
+      VK_FORMAT_R8_UNORM,                      // = 9,
+      VK_FORMAT_R8_SNORM,                      // = 10,
+      VK_FORMAT_R8_USCALED,                    // = 11,
+      VK_FORMAT_R8_SSCALED,                    // = 12,
+      VK_FORMAT_R8_UINT,                       // = 13,
+      VK_FORMAT_R8_SINT,                       // = 14,
+      VK_FORMAT_R8_SRGB,                       // = 15,
+      VK_FORMAT_R8G8_UNORM,                    // = 16,
+      VK_FORMAT_R8G8_SNORM,                    // = 17,
+      VK_FORMAT_R8G8_USCALED,                  // = 18,
+      VK_FORMAT_R8G8_SSCALED,                  // = 19,
+      VK_FORMAT_R8G8_UINT,                     // = 20,
+      VK_FORMAT_R8G8_SINT,                     // = 21,
+      VK_FORMAT_R8G8_SRGB,                     // = 22,
+      VK_FORMAT_R8G8B8_UNORM,                  // = 23,
+      VK_FORMAT_R8G8B8_SNORM,                  // = 24,
+      VK_FORMAT_R8G8B8_USCALED,                // = 25,
+      VK_FORMAT_R8G8B8_SSCALED,                // = 26,
+      VK_FORMAT_R8G8B8_UINT,                   // = 27,
+      VK_FORMAT_R8G8B8_SINT,                   // = 28,
+      VK_FORMAT_R8G8B8_SRGB,                   // = 29,
+      VK_FORMAT_B8G8R8_UNORM,                  // = 30,
+      VK_FORMAT_B8G8R8_SNORM,                  // = 31,
+      VK_FORMAT_B8G8R8_USCALED,                // = 32,
+      VK_FORMAT_B8G8R8_SSCALED,                // = 33,
+      VK_FORMAT_B8G8R8_UINT,                   // = 34,
+      VK_FORMAT_B8G8R8_SINT,                   // = 35,
+      VK_FORMAT_B8G8R8_SRGB,                   // = 36,
+      VK_FORMAT_R8G8B8A8_UNORM,                // = 37,
+      VK_FORMAT_R8G8B8A8_SNORM,                // = 38,
+      VK_FORMAT_R8G8B8A8_USCALED,              // = 39,
+      VK_FORMAT_R8G8B8A8_SSCALED,              // = 40,
+      VK_FORMAT_R8G8B8A8_UINT,                 // = 41,
+      VK_FORMAT_R8G8B8A8_SINT,                 // = 42,
+      VK_FORMAT_R8G8B8A8_SRGB,                 // = 43,
+      VK_FORMAT_B8G8R8A8_UNORM,                // = 44,
+      VK_FORMAT_B8G8R8A8_SNORM,                // = 45,
+      VK_FORMAT_B8G8R8A8_USCALED,              // = 46,
+      VK_FORMAT_B8G8R8A8_SSCALED,              // = 47,
+      VK_FORMAT_B8G8R8A8_UINT,                 // = 48,
+      VK_FORMAT_B8G8R8A8_SINT,                 // = 49,
+      VK_FORMAT_B8G8R8A8_SRGB,                 // = 50,
+      VK_FORMAT_A8B8G8R8_UNORM_PACK32,         // = 51,
+      VK_FORMAT_A8B8G8R8_SNORM_PACK32,         // = 52,
+      VK_FORMAT_A8B8G8R8_USCALED_PACK32,       // = 53,
+      VK_FORMAT_A8B8G8R8_SSCALED_PACK32,       // = 54,
+      VK_FORMAT_A8B8G8R8_UINT_PACK32,          // = 55,
+      VK_FORMAT_A8B8G8R8_SINT_PACK32,          // = 56,
+      VK_FORMAT_A8B8G8R8_SRGB_PACK32,          // = 57,
+      VK_FORMAT_A2R10G10B10_UNORM_PACK32,      // = 58,
+      VK_FORMAT_A2R10G10B10_SNORM_PACK32,      // = 59,
+      VK_FORMAT_A2R10G10B10_USCALED_PACK32,    // = 60,
+      VK_FORMAT_A2R10G10B10_SSCALED_PACK32,    // = 61,
+      VK_FORMAT_A2R10G10B10_UINT_PACK32,       // = 62,
+      VK_FORMAT_A2R10G10B10_SINT_PACK32,       // = 63,
+      VK_FORMAT_A2B10G10R10_UNORM_PACK32,      // = 64,
+      VK_FORMAT_A2B10G10R10_SNORM_PACK32,      // = 65,
+      VK_FORMAT_A2B10G10R10_USCALED_PACK32,    // = 66,
+      VK_FORMAT_A2B10G10R10_SSCALED_PACK32,    // = 67,
+      VK_FORMAT_A2B10G10R10_UINT_PACK32,       // = 68,
+      VK_FORMAT_A2B10G10R10_SINT_PACK32,       // = 69,
+      VK_FORMAT_R16_UNORM,                     // = 70,
+      VK_FORMAT_R16_SNORM,                     // = 71,
+      VK_FORMAT_R16_USCALED,                   // = 72,
+      VK_FORMAT_R16_SSCALED,                   // = 73,
+      VK_FORMAT_R16_UINT,                      // = 74,
+      VK_FORMAT_R16_SINT,                      // = 75,
+      VK_FORMAT_R16_SFLOAT,                    // = 76,
+      VK_FORMAT_R16G16_UNORM,                  // = 77,
+      VK_FORMAT_R16G16_SNORM,                  // = 78,
+      VK_FORMAT_R16G16_USCALED,                // = 79,
+      VK_FORMAT_R16G16_SSCALED,                // = 80,
+      VK_FORMAT_R16G16_UINT,                   // = 81,
+      VK_FORMAT_R16G16_SINT,                   // = 82,
+      VK_FORMAT_R16G16_SFLOAT,                 // = 83,
+      VK_FORMAT_R16G16B16_UNORM,               // = 84,
+      VK_FORMAT_R16G16B16_SNORM,               // = 85,
+      VK_FORMAT_R16G16B16_USCALED,             // = 86,
+      VK_FORMAT_R16G16B16_SSCALED,             // = 87,
+      VK_FORMAT_R16G16B16_UINT,                // = 88,
+      VK_FORMAT_R16G16B16_SINT,                // = 89,
+      VK_FORMAT_R16G16B16_SFLOAT,              // = 90,
+      VK_FORMAT_R16G16B16A16_UNORM,            // = 91,
+      VK_FORMAT_R16G16B16A16_SNORM,            // = 92,
+      VK_FORMAT_R16G16B16A16_USCALED,          // = 93,
+      VK_FORMAT_R16G16B16A16_SSCALED,          // = 94,
+      VK_FORMAT_R16G16B16A16_UINT,             // = 95,
+      VK_FORMAT_R16G16B16A16_SINT,             // = 96,
+      VK_FORMAT_R16G16B16A16_SFLOAT,           // = 97,
+      VK_FORMAT_R32_UINT,                      // = 98,
+      VK_FORMAT_R32_SINT,                      // = 99,
+      VK_FORMAT_R32_SFLOAT,                    // = 100,
+      VK_FORMAT_R32G32_UINT,                   // = 101,
+      VK_FORMAT_R32G32_SINT,                   // = 102,
+      VK_FORMAT_R32G32_SFLOAT,                 // = 103,
+      VK_FORMAT_R32G32B32_UINT,                // = 104,
+      VK_FORMAT_R32G32B32_SINT,                // = 105,
+      VK_FORMAT_R32G32B32_SFLOAT,              // = 106,
+      VK_FORMAT_R32G32B32A32_UINT,             // = 107,
+      VK_FORMAT_R32G32B32A32_SINT,             // = 108,
+      VK_FORMAT_R32G32B32A32_SFLOAT,           // = 109,
+      VK_FORMAT_R64_UINT,                      // = 110,
+      VK_FORMAT_R64_SINT,                      // = 111,
+      VK_FORMAT_R64_SFLOAT,                    // = 112,
+      VK_FORMAT_R64G64_UINT,                   // = 113,
+      VK_FORMAT_R64G64_SINT,                   // = 114,
+      VK_FORMAT_R64G64_SFLOAT,                 // = 115,
+      VK_FORMAT_R64G64B64_UINT,                // = 116,
+      VK_FORMAT_R64G64B64_SINT,                // = 117,
+      VK_FORMAT_R64G64B64_SFLOAT,              // = 118,
+      VK_FORMAT_R64G64B64A64_UINT,             // = 119,
+      VK_FORMAT_R64G64B64A64_SINT,             // = 120,
+      VK_FORMAT_R64G64B64A64_SFLOAT,           // = 121,
+      VK_FORMAT_B10G11R11_UFLOAT_PACK32,       // = 122,
+      VK_FORMAT_E5B9G9R9_UFLOAT_PACK32,        // = 123,
+      VK_FORMAT_D16_UNORM,                     // = 124,
+      VK_FORMAT_X8_D24_UNORM_PACK32,           // = 125,
+      VK_FORMAT_D32_SFLOAT,                    // = 126,
+      VK_FORMAT_S8_UINT,                       // = 127,
+      VK_FORMAT_D16_UNORM_S8_UINT,             // = 128,
+      VK_FORMAT_D24_UNORM_S8_UINT,             // = 129,
+      VK_FORMAT_D32_SFLOAT_S8_UINT,            // = 130,
+      VK_FORMAT_BC1_RGB_UNORM_BLOCK,           // = 131,
+      VK_FORMAT_BC1_RGB_SRGB_BLOCK,            // = 132,
+      VK_FORMAT_BC1_RGBA_UNORM_BLOCK,          // = 133,
+      VK_FORMAT_BC1_RGBA_SRGB_BLOCK,           // = 134,
+      VK_FORMAT_BC2_UNORM_BLOCK,               // = 135,
+      VK_FORMAT_BC2_SRGB_BLOCK,                // = 136,
+      VK_FORMAT_BC3_UNORM_BLOCK,               // = 137,
+      VK_FORMAT_BC3_SRGB_BLOCK,                // = 138,
+      VK_FORMAT_BC4_UNORM_BLOCK,               // = 139,
+      VK_FORMAT_BC4_SNORM_BLOCK,               // = 140,
+      VK_FORMAT_BC5_UNORM_BLOCK,               // = 141,
+      VK_FORMAT_BC5_SNORM_BLOCK,               // = 142,
+      VK_FORMAT_BC6H_UFLOAT_BLOCK,             // = 143,
+      VK_FORMAT_BC6H_SFLOAT_BLOCK,             // = 144,
+      VK_FORMAT_BC7_UNORM_BLOCK,               // = 145,
+      VK_FORMAT_BC7_SRGB_BLOCK,                // = 146,
+      VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,       // = 147,
+      VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK,        // = 148,
+      VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK,     // = 149,
+      VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK,      // = 150,
+      VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK,     // = 151,
+      VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK,      // = 152,
+      VK_FORMAT_EAC_R11_UNORM_BLOCK,           // = 153,
+      VK_FORMAT_EAC_R11_SNORM_BLOCK,           // = 154,
+      VK_FORMAT_EAC_R11G11_UNORM_BLOCK,        // = 155,
+      VK_FORMAT_EAC_R11G11_SNORM_BLOCK,        // = 156,
+      VK_FORMAT_ASTC_4x4_UNORM_BLOCK,          // = 157,
+      VK_FORMAT_ASTC_4x4_SRGB_BLOCK,           // = 158,
+      VK_FORMAT_ASTC_5x4_UNORM_BLOCK,          // = 159,
+      VK_FORMAT_ASTC_5x4_SRGB_BLOCK,           // = 160,
+      VK_FORMAT_ASTC_5x5_UNORM_BLOCK,          // = 161,
+      VK_FORMAT_ASTC_5x5_SRGB_BLOCK,           // = 162,
+      VK_FORMAT_ASTC_6x5_UNORM_BLOCK,          // = 163,
+      VK_FORMAT_ASTC_6x5_SRGB_BLOCK,           // = 164,
+      VK_FORMAT_ASTC_6x6_UNORM_BLOCK,          // = 165,
+      VK_FORMAT_ASTC_6x6_SRGB_BLOCK,           // = 166,
+      VK_FORMAT_ASTC_8x5_UNORM_BLOCK,          // = 167,
+      VK_FORMAT_ASTC_8x5_SRGB_BLOCK,           // = 168,
+      VK_FORMAT_ASTC_8x6_UNORM_BLOCK,          // = 169,
+      VK_FORMAT_ASTC_8x6_SRGB_BLOCK,           // = 170,
+      VK_FORMAT_ASTC_8x8_UNORM_BLOCK,          // = 171,
+      VK_FORMAT_ASTC_8x8_SRGB_BLOCK,           // = 172,
+      VK_FORMAT_ASTC_10x5_UNORM_BLOCK,         // = 173,
+      VK_FORMAT_ASTC_10x5_SRGB_BLOCK,          // = 174,
+      VK_FORMAT_ASTC_10x6_UNORM_BLOCK,         // = 175,
+      VK_FORMAT_ASTC_10x6_SRGB_BLOCK,          // = 176,
+      VK_FORMAT_ASTC_10x8_UNORM_BLOCK,         // = 177,
+      VK_FORMAT_ASTC_10x8_SRGB_BLOCK,          // = 178,
+      VK_FORMAT_ASTC_10x10_UNORM_BLOCK,        // = 179,
+      VK_FORMAT_ASTC_10x10_SRGB_BLOCK,         // = 180,
+      VK_FORMAT_ASTC_12x10_UNORM_BLOCK,        // = 181,
+      VK_FORMAT_ASTC_12x10_SRGB_BLOCK,         // = 182,
+      VK_FORMAT_ASTC_12x12_UNORM_BLOCK,        // = 183,
+      VK_FORMAT_ASTC_12x12_SRGB_BLOCK,         // = 184,
     };
 
-
-    // https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#fundamentals-versionnum
-    // The Vulkan version number is used in several places in the API.In each such use, the API major version number, minor version number,
-    // and patch version number are packed into a 32 - bit integer as follows :
-    // The major version number is a 10 - bit integer packed into bits 31 - 22.
-    // The minor version number is a 10 - bit integer packed into bits 21 - 12.
-    // The patch version number is a 12 - bit integer packed into bits 11 - 0.
-    inline std::ostream& operator<<(std::ostream& o, const DecodeVulkanVersion& value)
-    {
-      uint32_t major = (value.Value >> 22) & ((1 << 10) - 1);
-      uint32_t minor = (value.Value >> 12) & ((1 << 10) - 1);
-      uint32_t patch = value.Value & ((1 << 12) - 1);
-      return o << major << '.' << minor << '.' << patch;
-    }
 
     void LogPhysicalDeviceLimits(const VkPhysicalDeviceLimits& limits)
     {
@@ -204,11 +379,11 @@ namespace Fsl
     void LogPhysicalProperties(const VkPhysicalDeviceProperties& properties)
     {
       FSLLOG("Physical device properties:");
-      FSLLOG("- apiVersion: " << DecodeVulkanVersion(properties.apiVersion));
-      FSLLOG("- driverVersion: " << DecodeVulkanVersion(properties.driverVersion));
+      FSLLOG("- apiVersion: " << EncodedVulkanVersion(properties.apiVersion));
+      FSLLOG("- driverVersion: " << EncodedVulkanVersion(properties.driverVersion));
       FSLLOG("- vendorID: " << properties.vendorID);
       FSLLOG("- deviceID: " << properties.deviceID);
-      FSLLOG("- deviceType: " << properties.deviceType);    // VkPhysicalDeviceType
+      FSLLOG("- deviceType: " << Debug::GetBitflagsString(properties.deviceType));    // VkPhysicalDeviceType
       FSLLOG("- deviceName: " << properties.deviceName);
       // uint8_t                             pipelineCacheUUID[VK_UUID_SIZE];
       LogPhysicalDeviceLimits(properties.limits);
@@ -276,15 +451,15 @@ namespace Fsl
       FSLLOG("- inheritedQueries: " << features.inheritedQueries);
     }
 
-
     inline std::ostream& operator<<(std::ostream& o, const VkMemoryType& value)
     {
-      return o << "{ propertyFlags: " << value.propertyFlags << ", heapIndex: " << value.heapIndex << " }";
+      return o << "{ propertyFlags: " << Debug::GetBitflagsString(static_cast<VkMemoryPropertyFlagBits>(value.propertyFlags))
+               << ", heapIndex: " << value.heapIndex << " }";
     }
 
     inline std::ostream& operator<<(std::ostream& o, const VkMemoryHeap& value)
     {
-      return o << "{ size: " << value.size << ", flags: " << value.flags << " }";
+      return o << "{ size: " << value.size << ", flags: " << Debug::GetBitflagsString(static_cast<VkMemoryHeapFlagBits>(value.flags)) << " }";
     }
 
 
@@ -293,18 +468,92 @@ namespace Fsl
       FSLLOG("Physical device memory properties:");
       FSLLOG("- memoryTypeCount: " << properties.memoryTypeCount);
       for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
+      {
         FSLLOG("- memoryTypes[" << i << "]: " << properties.memoryTypes[i]);
+      }
 
       FSLLOG("- memoryHeapCount: " << properties.memoryHeapCount);
       for (uint32_t i = 0; i < properties.memoryHeapCount; ++i)
+      {
         FSLLOG("- memoryHeaps[" << i << "]: " << properties.memoryHeaps[i]);
+      }
     }
 
-    void LogPhysicalDevice(const PhysicalDeviceRecord& physicalDevice)
+    void LogPhysicalDeviceQueueFamilyProperties(const std::vector<VkQueueFamilyProperties>& queueFamilyProperties)
     {
-      LogPhysicalProperties(physicalDevice.GetPhysicalDeviceProperties());
-      LogPhysicalDeviceFeatures(physicalDevice.GetPhysicalDeviceFeatures());
-      LogPhysicalDeviceMemoryProperties(physicalDevice.GetPhysicalDeviceMemoryProperties());
+      FSLLOG("Physical device queue family properties:");
+      for (std::size_t i = 0; i < queueFamilyProperties.size(); ++i)
+      {
+        FSLLOG("- Queue Famility #" << i);
+        FSLLOG("  - queueFlags: " << Debug::GetBitflagsString(static_cast<VkQueueFlagBits>(queueFamilyProperties[i].queueFlags)));
+        FSLLOG("  - queueCount: " << queueFamilyProperties[i].queueCount);
+        FSLLOG("  - timestampValidBits: " << queueFamilyProperties[i].timestampValidBits);
+        FSLLOG("  - minImageTransferGranularity: " << queueFamilyProperties[i].minImageTransferGranularity);
+      }
+    }
+
+    void LogAllFormats(const VUPhysicalDeviceRecord& physicalDevice)
+    {
+      FSLLOG("All phsycial device format properties:");
+      for (std::size_t i = 0; i < g_allFormats.size(); ++i)
+      {
+        const auto format = g_allFormats[i];
+        FSLLOG("- Format #" << i << " (" << format << ")");
+
+        VkFormatProperties formatProperties = PhysicalDeviceUtil::GetPhysicalDeviceFormatProperties(physicalDevice.Device, format);
+
+        FSLLOG("  - linearTilingFeatures: " << Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.linearTilingFeatures)));
+        FSLLOG(
+          "  - optimalTilingFeatures: " << Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.optimalTilingFeatures)));
+        FSLLOG("  - bufferFeatures: " << Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.bufferFeatures)));
+      }
+    }
+
+    void LogPhysicalDevice(const VUPhysicalDeviceRecord& physicalDevice)
+    {
+      LogPhysicalProperties(physicalDevice.Properties);
+      LogPhysicalDeviceFeatures(physicalDevice.Features);
+      LogPhysicalDeviceMemoryProperties(physicalDevice.MemoryProperties);
+
+      LogPhysicalDeviceQueueFamilyProperties(PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice.Device));
+
+      LogAllFormats(physicalDevice);
+    }
+
+    void LogInstanceLayerProperties(const std::vector<VkLayerProperties>& layerProperties)
+    {
+      FSLLOG("Instance layer properties: " << layerProperties.size());
+      for (std::size_t i = 0; i < layerProperties.size(); ++i)
+      {
+        FSLLOG("- layer #" << i);
+        FSLLOG("  - name: " << layerProperties[i].layerName);
+        FSLLOG("  - specVersion: " << EncodedVulkanVersion(layerProperties[i].specVersion));
+        FSLLOG("  - implementationVersion: " << layerProperties[i].implementationVersion);
+        FSLLOG("  - description: " << layerProperties[i].description);
+        auto extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(layerProperties[i].layerName);
+        if (!extensionProperties.empty())
+        {
+          FSLLOG("  - Extension properties:");
+          for (std::size_t j = 0; j < extensionProperties.size(); ++j)
+          {
+            FSLLOG("    - property #" << j);
+            FSLLOG("    - name: " << extensionProperties[j].extensionName);
+            FSLLOG("    - specVersion: " << extensionProperties[j].specVersion);
+          }
+        }
+      }
+    }
+
+    void LogVulkanCoreExtensions()
+    {
+      auto extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(nullptr);
+      FSLLOG("Core extensions: " << extensionProperties.size());
+      for (std::size_t j = 0; j < extensionProperties.size(); ++j)
+      {
+        FSLLOG("- Extension #" << j);
+        FSLLOG("  - name: " << extensionProperties[j].extensionName);
+        FSLLOG("  - specVersion: " << extensionProperties[j].specVersion);
+      }
     }
   }
 
@@ -320,17 +569,25 @@ namespace Fsl
 
   void VulkanInfo::Run()
   {
-    auto instance = InstanceUtil::CreateInstance("VulkanInfo", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0, nullptr, 0, nullptr);
+    auto instance = InstanceUtil::CreateInstance("VulkanInfo", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0, 0, 0, nullptr, 0, nullptr);
+
+    auto instanceLayerProperties = InstanceUtil::EnumerateInstanceLayerProperties();
+    LogInstanceLayerProperties(instanceLayerProperties);
+    LogVulkanCoreExtensions();
 
     const auto physicalDevices = InstanceUtil::EnumeratePhysicalDevices(instance.Get());
     FSLLOG("Physical device count: " << physicalDevices.size());
     for (std::size_t i = 0; i < physicalDevices.size(); ++i)
     {
       FSLLOG("*** Physical device #" << i << " ***");
-      LogPhysicalDevice(PhysicalDeviceRecord(physicalDevices[i]));
+      LogPhysicalDevice(VUPhysicalDeviceRecord(physicalDevices[i]));
     }
 
-
-    // Vulkan
+    // for (std::size_t i = 0; i < physicalDevices.size(); ++i)
+    //{
+    //  VkDeviceCreateInfo deviceCreateInfo{};
+    //  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    //  VUDevice device(physicalDevices[i], deviceCreateInfo);
+    //}
   }
 }

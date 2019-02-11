@@ -50,21 +50,59 @@ namespace Fsl
     mutable uint32_t m_flags{0};
 
   public:
-    BasicEvent();
+    BasicEvent() = default;
 
-    EventType GetEventType() const override;
+    EventType GetEventType() const override
+    {
+      return m_type;
+    }
+
 
     //! @brief Check if something has handled the event
-    bool IsHandled() const;
+    bool IsHandled() const
+    {
+      return (m_flags & Flags::Handled) != 0;
+    }
 
     //! @brief mark the event as handled
-    void Handled() const;
+    void Handled() const
+    {
+      m_flags |= Flags::Handled;
+    }
 
   protected:
-    BasicEvent(const EventType type);
-    BasicEvent(const EventType type, const int32_t arg1);
-    BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2);
-    BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2, const int32_t arg3);
+    BasicEvent(const EventType type)
+      : m_flags(0)
+      , m_type(type)
+    {
+    }
+
+
+    BasicEvent(const EventType type, const int32_t arg1)
+      : m_flags(0)
+      , m_type(type)
+      , m_arg1(arg1)
+    {
+    }
+
+
+    BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2)
+      : m_flags(0)
+      , m_type(type)
+      , m_arg1(arg1)
+      , m_arg2(arg2)
+    {
+    }
+
+
+    BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2, const int32_t arg3)
+      : m_flags(0)
+      , m_type(type)
+      , m_arg1(arg1)
+      , m_arg2(arg2)
+      , m_arg3(arg3)
+    {
+    }
 
     EventType m_type{EventType::Invalid};
     int32_t m_arg1{0};

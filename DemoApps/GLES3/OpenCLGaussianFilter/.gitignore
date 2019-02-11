@@ -33,6 +33,7 @@
 /OpenCLGaussianFilter_Wayland_d
 /OpenCLGaussianFilter_X11
 /OpenCLGaussianFilter_X11_d
+/OpenCLGaussianFilter_c
 /OpenCLGaussianFilter_d
 /Test_gauss.bmp
 /Test_gray.bmp

@@ -43,8 +43,15 @@ namespace Fsl
     float X2{0.0f};
     float Y2{0.0f};
 
-    NativeTextureArea();
-    NativeTextureArea(const float x1, const float y1, const float x2, const float y2);
+    constexpr NativeTextureArea() = default;
+
+    constexpr NativeTextureArea(const float x1, const float y1, const float x2, const float y2)
+      : X1(x1)
+      , Y1(y1)
+      , X2(x2)
+      , Y2(y2)
+    {
+    }
   };
 }
 

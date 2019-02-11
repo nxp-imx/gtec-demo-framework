@@ -55,6 +55,7 @@ from FslBuildGen.BuildConfig.CustomPackageFileFilter import CustomPackageFileFil
 from FslBuildGen.BuildConfig.FileFinder import FileFinder
 from FslBuildGen.BuildConfig.PerformClangTidyConfig import PerformClangTidyConfig
 from FslBuildGen.BuildConfig.PerformClangUtil import PerformClangUtil
+from FslBuildGen.BuildConfig.SimpleCancellationToken import SimpleCancellationToken
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.Build.BuildVariantUtil import BuildVariantUtil
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
@@ -88,26 +89,6 @@ class LocalVariantInfo(object):
         self.ResolvedVariantSettingsDict = resolvedVariantSettingsDict
         self.GeneratorReportDict = generatorReportDict
         self.PythonScriptRoot = pythonScriptRoot
-
-
-class SimpleCancellationToken(object):
-    def __init__(self) -> None:
-        self.__Lock = threading.Lock()
-        self.__IsCancelled = False
-
-    def IsCancelled(self) -> bool:
-        self.__Lock.acquire()
-        try:
-            return self.__IsCancelled
-        finally:
-            self.__Lock.release()
-
-    def Cancel(self) -> None:
-        self.__Lock.acquire()
-        try:
-            self.__IsCancelled = True
-        finally:
-            self.__Lock.release()
 
 
 def __TryGetEnvironmentVariable(virtualVariantEnvironmentCache: VirtualVariantEnvironmentCache, envVariable: str) -> str:

@@ -135,8 +135,6 @@ namespace Fsl
 
         Rect finalDstRect;
 
-        batch2D->ChangeTo(BlendState::AlphaBlend);
-
         const int32_t srcRightStart = srcLeftWidth + srcCenterWidth;
         const int32_t srcBottomStart = srcTopHeight + srcCenterHeight;
 

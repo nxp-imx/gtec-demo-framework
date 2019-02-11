@@ -1,9 +1,9 @@
 #version 300 es
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-   precision highp float;
+precision highp float;
 #else
-   precision mediump float;
+precision mediump float;
 #endif
 
 in vec2 v_TexCoord;
@@ -16,14 +16,14 @@ uniform sampler2D g_hdrTexture;
 out vec4 FragColor;
 
 void main()
-{           
+{
   vec3 hdrColor = texture(g_hdrTexture, v_TexCoord).rgb;
-  
-  // Exposure  
-  hdrColor *= g_exposure; 
+
+  // Exposure
+  hdrColor *= g_exposure;
 
   // Linear framebuffer so we dont need gamma correction.
-  //hdrColor = pow(hdrColor, vec3(1.0 / 2.2));
+  // hdrColor = pow(hdrColor, vec3(1.0 / 2.2));
 
   FragColor = vec4(hdrColor, 1.0);
 }

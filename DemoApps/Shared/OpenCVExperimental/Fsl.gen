@@ -2,7 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="Shared.OpenCVExperimental">
     <Dependency Name="FslGraphics"/>
-    <Dependency Name="OpenCV3"/>
+    <Dependency Name="OpenCV4"/>
     <Platform Name="Windows" ProjectId="D50CCDBA-D00F-44AA-82D2-0CDC206D3A71"/>
   </Library>
 </FslBuildGen>

@@ -45,68 +45,74 @@ namespace Fsl
     RawBitmap m_bitmapNegZ;
 
   public:
-    RawCubeBitmap();
+    constexpr RawCubeBitmap() = default;
     RawCubeBitmap(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                   const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ);
 
-    bool IsValid() const
+    constexpr bool IsValid() const
     {
       return m_bitmapPosX.IsValid();
     }
 
     //! The width of the bitmap in pixels
-    uint32_t Width() const
+    constexpr uint32_t Width() const
     {
       return m_bitmapPosX.Width();
     }
 
     //! The height of the bitmap in pixels
-    uint32_t Height() const
+    constexpr uint32_t Height() const
     {
       return m_bitmapPosX.Height();
     }
 
     //! @brief Get the extent
-    Extent2D GetExtent() const
+    constexpr Extent2D GetExtent() const
     {
       return m_bitmapPosX.GetExtent();
     }
 
     //! Get the pixel format of the raw bitmap
-    PixelFormat GetPixelFormat() const
+    constexpr PixelFormat GetPixelFormat() const
     {
       return m_bitmapPosX.GetPixelFormat();
     }
 
     //! Get the origin all the raw bitmaps
-    BitmapOrigin GetOrigin() const
+    constexpr BitmapOrigin GetOrigin() const
     {
       return m_bitmapPosX.GetOrigin();
     }
 
-    RawBitmap GetPosX() const
+    constexpr RawBitmap GetPosX() const
     {
       return m_bitmapPosX;
     }
-    RawBitmap GetNegX() const
+    constexpr RawBitmap GetNegX() const
     {
       return m_bitmapNegX;
     }
-    RawBitmap GetPosY() const
+    constexpr RawBitmap GetPosY() const
     {
       return m_bitmapPosY;
     }
-    RawBitmap GetNegY() const
+    constexpr RawBitmap GetNegY() const
     {
       return m_bitmapNegY;
     }
-    RawBitmap GetPosZ() const
+    constexpr RawBitmap GetPosZ() const
     {
       return m_bitmapPosZ;
     }
-    RawBitmap GetNegZ() const
+    constexpr RawBitmap GetNegZ() const
     {
       return m_bitmapNegZ;
+    }
+
+    constexpr uint32_t GetByteSize() const
+    {
+      return m_bitmapPosX.GetByteSize() + m_bitmapNegX.GetByteSize() + m_bitmapPosY.GetByteSize() + m_bitmapNegY.GetByteSize() +
+             m_bitmapPosZ.GetByteSize() + m_bitmapNegZ.GetByteSize();
     }
   };
 }

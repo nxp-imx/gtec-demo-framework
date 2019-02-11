@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/VUImage.hpp>
+#include <FslUtil/Vulkan1_0/VUImageMemoryView.hpp>
 #include <FslUtil/Vulkan1_0/VUTextureInfo.hpp>
 #include <RapidVulkan/Sampler.hpp>
 
@@ -42,7 +42,7 @@ namespace Fsl
     //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
     class VUTexture
     {
-      VUImage m_image;
+      VUImageMemoryView m_image;
       RapidVulkan::Sampler m_sampler;
 
     public:
@@ -58,8 +58,8 @@ namespace Fsl
 
       //! @brief Create a 'invalid' instance (use Reset to populate it)
       VUTexture();
-      VUTexture(VUImage&& image, const VkSamplerCreateInfo& createInfo);
-      VUTexture(VUImage&& image, RapidVulkan::Sampler&& sampler);
+      VUTexture(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo);
+      VUTexture(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler);
 
       ~VUTexture()
       {
@@ -68,8 +68,8 @@ namespace Fsl
 
       //! @brief Destroys any owned resources and resets the object to its default state.
       void Reset() noexcept;
-      void Reset(VUImage&& image, const VkSamplerCreateInfo& createInfo);
-      void Reset(VUImage&& image, RapidVulkan::Sampler&& sampler);
+      void Reset(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo);
+      void Reset(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler);
 
       //! @brief Check if this object contains a valid resource
       inline bool IsValid() const
@@ -83,10 +83,11 @@ namespace Fsl
       }
 
       //! @brief Get the Image associated with this object
-      const ImageEx& Image() const
+      const VUImage& Image() const
       {
         return m_image.Image();
       }
+
 
       //! @brief Get the ImageView associated with this object
       const RapidVulkan::ImageView& ImageView() const
@@ -109,12 +110,28 @@ namespace Fsl
       //! @brief Extract information about this texture as a GLTextureInfo struct
       operator VUTextureInfo() const
       {
-        return VUTextureInfo(m_sampler.Get(), m_image.ImageView().Get(), m_image.Image().GetImageLayout(0, 0), m_image.Image().GetExtent());
+        return VUTextureInfo(m_sampler.Get(), m_image.ImageView().Get(), m_image.Image().GetImageLayout(), m_image.Image().GetExtent());
       }
 
       VkExtent3D GetExtent() const
       {
         return m_image.Image().GetExtent();
+      }
+
+
+      VkDescriptorImageInfo GetDescriptorImageInfo() const
+      {
+        VkDescriptorImageInfo descriptorImageInfo{};
+        descriptorImageInfo.sampler = m_sampler.Get();
+        descriptorImageInfo.imageView = m_image.ImageView().Get();
+        descriptorImageInfo.imageLayout = m_image.Image().GetImageLayout();
+        return descriptorImageInfo;
+      }
+
+      //! @brief Beware this does not actually do anything to the image, it just sets the stored layout variable
+      void SetImageLayout(const VkImageLayout newLayout)
+      {
+        m_image.SetImageLayout(newLayout);
       }
 
     private:

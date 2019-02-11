@@ -33,7 +33,6 @@
 
 #include <FslUnitTest/Common.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
-#include <FslGraphics/UnitTest/Helper/LogTypes.hpp>
 #include <FslGraphics/UnitTest/Helper/TestCustomChecks.hpp>
 
 #endif

@@ -2,16 +2,17 @@
 #extension GL_EXT_geometry_shader : enable
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 
-in block 
+in block
 {
   vec4 VertexColor;
-} In;
+}
+In;
 
 
 out vec4 Out_FragColor;
@@ -19,6 +20,6 @@ out vec4 Out_FragColor;
 
 void main()
 {
-//  Out_FragColor = vec4(In.VertexColor.x, 1, 1, 1);
+  //  Out_FragColor = vec4(In.VertexColor.x, 1, 1, 1);
   Out_FragColor = In.VertexColor;
 }

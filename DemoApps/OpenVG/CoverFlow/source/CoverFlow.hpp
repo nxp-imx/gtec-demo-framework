@@ -61,9 +61,7 @@ namespace Fsl
     uint32_t AnimationState;
     uint32_t CoverFlowState;
 
-    CoverAlbum()
-    {
-    }
+    CoverAlbum() = default;
   };
 
 
@@ -75,11 +73,11 @@ namespace Fsl
 
   public:
     CoverFlow(const DemoAppConfig& config);
-    ~CoverFlow();
+    ~CoverFlow() override;
 
   protected:
-    virtual void Update(const DemoTime& demoTime) override;
-    virtual void Draw(const DemoTime& demoTime) override;
+    void Update(const DemoTime& demoTime) override;
+    void Draw(const DemoTime& demoTime) override;
   };
 }
 

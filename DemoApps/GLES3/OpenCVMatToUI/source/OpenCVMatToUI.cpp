@@ -29,6 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
+// Included first since OpenCV currently has a conflict with the X11 header, so this is a workaround for that
+#include <opencv2/opencv.hpp>
+// Normal includes that dont conflict
 #include "OpenCVMatToUI.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Vector2.hpp>
@@ -42,7 +45,6 @@
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <GLES3/gl3.h>
-#include <opencv/cv.hpp>
 
 namespace Fsl
 {

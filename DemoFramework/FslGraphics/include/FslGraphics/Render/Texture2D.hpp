@@ -49,12 +49,12 @@ namespace Fsl
   class Texture2D
   {
     std::shared_ptr<INativeTexture2D> m_native;
-    Point2 m_size;
+    Extent2D m_extent;
     PixelFormat m_pixelFormat{PixelFormat::Undefined};
 
   public:
     //! @brief Create a uninitialized texture (use SetData to add texture data to it)
-    Texture2D();
+    Texture2D() = default;
 
     //! @brief Create a initialized texture
     Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
@@ -75,7 +75,10 @@ namespace Fsl
     ~Texture2D();
 
     //! @brief Check if this contains a valid texture.
-    bool IsValid() const;
+    bool IsValid() const
+    {
+      return m_native != nullptr;
+    }
 
     //! @brief If a texture is allocated this will releases it.
     void Reset();
@@ -109,15 +112,27 @@ namespace Fsl
     void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
 
     //! @brief Get the texture size.
-    Extent2D GetExtent() const;
+    Extent2D GetExtent() const
+    {
+      return m_extent;
+    }
 
     //! @brief Get the texture size.
-    Point2 GetSize() const;
+    Point2 GetSize() const
+    {
+      return {static_cast<int32_t>(m_extent.Width), static_cast<int32_t>(m_extent.Height)};
+    }
 
-    PixelFormat GetPixelFormat() const;
+    PixelFormat GetPixelFormat() const
+    {
+      return m_pixelFormat;
+    }
 
     //! @brief Acquire the native texture (returns null if none exist)
-    std::shared_ptr<INativeTexture2D> TryGetNative() const;
+    std::shared_ptr<INativeTexture2D> TryGetNative() const
+    {
+      return m_native;
+    }
 
     //! @brief Acquire the native texture (throws if none exist)
     std::shared_ptr<INativeTexture2D> GetNative() const;
@@ -125,8 +140,9 @@ namespace Fsl
 
     bool operator==(const Texture2D& rhs) const
     {
-      return m_native == rhs.m_native && m_size == rhs.m_size;
+      return m_native == rhs.m_native && m_extent == rhs.m_extent;
     }
+
 
     bool operator!=(const Texture2D& rhs) const
     {

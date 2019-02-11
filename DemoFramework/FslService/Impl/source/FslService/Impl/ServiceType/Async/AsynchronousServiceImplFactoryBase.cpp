@@ -33,7 +33,7 @@
 
 namespace Fsl
 {
-  AsynchronousServiceImplFactoryBase::AsynchronousServiceImplFactoryBase(const TypeInfo& interfaceType)
+  AsynchronousServiceImplFactoryBase::AsynchronousServiceImplFactoryBase(const std::type_index& interfaceType)
     : m_interfaceType(interfaceType)
   {
   }

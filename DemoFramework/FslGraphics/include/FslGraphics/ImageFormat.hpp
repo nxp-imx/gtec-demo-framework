@@ -36,18 +36,18 @@ namespace Fsl
   enum class ImageFormat
   {
     Undefined = 0,
-    Bmp,
+    Bmp = 1,
     // DirectDraw Surface file format
     // https://msdn.microsoft.com/en-us/library/windows/desktop/bb943990%28v=vs.85%29.aspx
-    DDS,
-    Exr,
-    Hdr,
+    DDS = 2,
+    Exr = 3,
+    Hdr = 4,
+    Jpeg = 5,
     // Khronos Texture
     // https://www.khronos.org/opengles/sdk/tools/KTX/
-    KTX,
-    Png,
-    Jpeg,
-    Tga
+    KTX = 6,
+    Png = 7,
+    Tga = 8
   };
 }
 

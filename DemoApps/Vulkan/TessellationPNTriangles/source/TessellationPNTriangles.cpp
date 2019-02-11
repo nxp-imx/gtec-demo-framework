@@ -239,12 +239,12 @@ namespace Fsl
     if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC compression");
-      m_textures.ColorMap = m_textureLoader->LoadTexture("textures/deer_bc3.ktx");
+      m_textures.ColorMap = m_textureLoader->LoadTexture("Models/Deer/deer_bc3.ktx");
     }
     else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 compression");
-      m_textures.ColorMap = m_textureLoader->LoadTexture("textures/deer_etc2.ktx");
+      m_textures.ColorMap = m_textureLoader->LoadTexture("Models/Deer/deer_etc2.ktx");
     }
     else
     {
@@ -255,7 +255,7 @@ namespace Fsl
 
   void TessellationPNTriangles::LoadMeshes()
   {
-    m_meshes.Object = LoadMesh("models/deer.dae", g_vertexLayout, 1.0f);
+    m_meshes.Object = LoadMesh("Models/Deer/deer.dae", g_vertexLayout, 1.0f);
   }
 
 

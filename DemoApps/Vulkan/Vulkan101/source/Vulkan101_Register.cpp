@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "Vulkan101.hpp"
 
 namespace Fsl
@@ -37,8 +38,11 @@ namespace Fsl
   // Configure the demo environment to run this demo app in a Vulkan host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
+    CustomDemoAppConfig customDemoAppConfig;
+    customDemoAppConfig.RestartOnResize = false;
+
     DemoAppHostConfigVulkan config;
 
-    DemoAppRegister::Vulkan::Register<Vulkan101>(rSetup, "Vulkan.Vulkan101", config);
+    DemoAppRegister::Vulkan::Register<Vulkan101>(rSetup, "Vulkan.Vulkan101", config, customDemoAppConfig);
   }
 }

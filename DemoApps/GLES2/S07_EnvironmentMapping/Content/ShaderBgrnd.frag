@@ -1,14 +1,14 @@
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 varying vec3 texCoord0;
-varying vec3 texCoord1;  // view vector (eye - pixel position)
+varying vec3 texCoord1;    // view vector (eye - pixel position)
 uniform samplerCube samplerCb;
 
-void main (void) 
+void main(void)
 {
-  gl_FragColor  = textureCube(samplerCb, texCoord0);
+  gl_FragColor = textureCube(samplerCb, texCoord0);
 }

@@ -17,22 +17,22 @@ uniform vec3 AmbientColor;
 
 out vec4 o_fragColor;
 
-void main() 
+void main()
 {
   vec4 furColor = texture(Texture0, v_texcoord);
   vec4 furData = texture(Texture1, v_texcoord);
-  //based on layer depth, choose the amount of shading.
-  //we lerp between two values to avoid having the base of the fur pure black.
-    
-  float dist = mix(1.0,0.2, CurrentLayer);
-  float shadow = mix(0.4,1.0,CurrentLayer);
+  // based on layer depth, choose the amount of shading.
+  // we lerp between two values to avoid having the base of the fur pure black.
+
+  float dist = mix(1.0, 0.2, CurrentLayer);
+  float shadow = mix(0.4, 1.0, CurrentLayer);
   furColor *= shadow;
   float furVisibility = (CurrentLayer > furData.r) ? 0.0 : furData.a * dist;
   furColor.a = (CurrentLayer == 0.0) ? 1.0 : furVisibility;
   vec3 N = normalize(v_normal);
-  vec3 L1 = normalize( -LightDirection1 );
-  vec3 L2 = normalize( -LightDirection2 );
-  vec3 L3 = normalize( -LightDirection3 );
+  vec3 L1 = normalize(-LightDirection1);
+  vec3 L2 = normalize(-LightDirection2);
+  vec3 L3 = normalize(-LightDirection3);
   float lightAmount1 = max(dot(N, L1), 0.0);
   float lightAmount2 = max(dot(N, L2), 0.0);
   float lightAmount3 = max(dot(N, L3), 0.0);
@@ -40,4 +40,3 @@ void main()
   furColor.xyz *= lighting;
   o_fragColor = furColor;
 }
-

@@ -15,8 +15,6 @@
 /##PROJECT_NAME##.VC.db
 /##PROJECT_NAME##.VC.VC.opendb
 /FslSDKIcon.ico
-/Android.mk
-/Android/
 /Content/_ContentSyncCache.fsl
 /build/
 /CMakeLists.txt

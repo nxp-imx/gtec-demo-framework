@@ -1,6 +1,6 @@
 <!-- #AG_DEMOAPP_HEADER_BEGIN# -->
 # OpenCVMatToUI
-<img src="./Example.jpg" height="135px" style="float:right">
+<img src="Example.jpg" height="135px">
 
 <!-- #AG_DEMOAPP_HEADER_END# -->
 <!-- #AG_BRIEF_BEGIN# -->

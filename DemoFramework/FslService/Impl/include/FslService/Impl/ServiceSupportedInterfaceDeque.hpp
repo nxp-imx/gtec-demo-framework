@@ -32,11 +32,11 @@
  ****************************************************************************************************************************************************/
 
 #include <deque>
-#include <FslBase/RTTI/TypeInfo.hpp>
+#include <typeindex>
 
 namespace Fsl
 {
-  class ServiceSupportedInterfaceDeque : public std::deque<TypeInfo>
+  class ServiceSupportedInterfaceDeque : public std::deque<std::type_index>
   {
   };
 }

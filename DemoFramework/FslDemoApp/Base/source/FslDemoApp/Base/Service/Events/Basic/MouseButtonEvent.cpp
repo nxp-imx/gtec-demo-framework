@@ -30,21 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 
 namespace Fsl
 {
-  MouseButtonEvent::MouseButtonEvent(const BasicEvent& encodedEvent)
-    : BasicEvent(encodedEvent)
-  {
-    if (m_type != EventType::MouseButton)
-    {
-      throw std::invalid_argument("The supplied argument is of a wrong type");
-    }
-  }
-
-
   MouseButtonEvent::MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const Point2& position)
     : BasicEvent(EventType::MouseButton, button, isPressed ? 1 : 0, NativeWindowEventHelper::EncodePosition(position))
   {
@@ -54,12 +43,6 @@ namespace Fsl
   VirtualMouseButton::Enum MouseButtonEvent::GetButton() const
   {
     return static_cast<VirtualMouseButton::Enum>(m_arg1);
-  }
-
-
-  bool MouseButtonEvent::IsPressed() const
-  {
-    return m_arg2 != 0;
   }
 
 

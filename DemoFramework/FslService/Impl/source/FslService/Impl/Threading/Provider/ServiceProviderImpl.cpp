@@ -144,11 +144,11 @@ namespace Fsl
   void ServiceProviderImpl::Get(BasicServiceDeque& rServices, const ServiceId& serviceId) const
   {
     rServices.clear();
-    if (serviceId == ServiceId::Invalid())
-    {
-      FSLLOG_ERROR("No service can be returned for a invalid id");
-      return;
-    }
+    // if (serviceId == ServiceId::Invalid())
+    //{
+    //  FSLLOG_ERROR("No service can be returned for a invalid id");
+    //  return;
+    //}
 
     // See if we already have a instance of the service
     auto itrFind = m_serviceProviderMaps.InterfaceToService.find(serviceId.Get());
@@ -182,11 +182,11 @@ namespace Fsl
 
   ServiceLaunchRecord ServiceProviderImpl::TryGetNow(const ServiceId& serviceId) const
   {
-    if (serviceId == ServiceId::Invalid())
-    {
-      FSLLOG_ERROR("No service can be returned for a invalid id");
-      return ServiceLaunchRecord();
-    }
+    // if (serviceId == ServiceId::Invalid())
+    //{
+    //  FSLLOG_ERROR("No service can be returned for a invalid id");
+    //  return ServiceLaunchRecord();
+    //}
 
     // See if we already have a instance of the service
     auto itrService = m_serviceProviderMaps.InterfaceToService.find(serviceId.Get());
@@ -197,11 +197,11 @@ namespace Fsl
 
   ServiceLaunchRecord ServiceProviderImpl::TryGetNow(const ServiceId& serviceId, const ProviderId& providerId) const
   {
-    if (serviceId == ServiceId::Invalid())
-    {
-      FSLLOG_ERROR("No service can be returned for a invalid id");
-      return ServiceLaunchRecord();
-    }
+    // if (serviceId == ServiceId::Invalid())
+    //{
+    //  FSLLOG_ERROR("No service can be returned for a invalid id");
+    //  return ServiceLaunchRecord();
+    //}
 
     // See if we already have a instance of the service
     auto itrService = m_serviceProviderMaps.InterfaceMultipleServices.find(serviceId.Get());

@@ -1,0 +1,63 @@
+@startuml VulkanDemoAppBasic Resize Flow
+
+activate CustomDemoApp
+activate DemoAppVulkanBasic
+activate DemoAppVulkan
+activate ADemoApp
+
+box "AppTemplate" #LightBlue
+    participant DemoAppVulkanBasic
+    participant DemoAppVulkan
+    participant ADemoApp
+end box
+
+activate Device
+activate DeviceQueue
+activate Swapchain
+activate DepthBuffer
+activate CommandBuffers
+activate RenderPass
+activate SwapchainRecords
+activate NativeGraphicsService
+activate QuadBatch
+
+->CustomDemoApp: _Resized
+CustomDemoApp->ADemoApp: _Resized
+ADemoApp->CustomDemoApp: Resized
+CustomDemoApp->DemoAppVulkanBasic: Resized
+DemoAppVulkanBasic->DemoAppVulkanBasic++: IsResourcesAllocated
+deactivate DemoAppVulkanBasic
+DemoAppVulkanBasic->DemoAppVulkanBasic++: TryRebuildResources
+DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
+DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForDeviceIdle
+DemoAppVulkanBasic->NativeGraphicsService: VulkanDestroyDependentResources
+NativeGraphicsService->QuadBatch: DestroyDependentResources
+DemoAppVulkanBasic->SwapchainRecords: Clear
+deactivate SwapchainRecords
+DemoAppVulkanBasic->CustomDemoApp: OnFreeResources
+CustomDemoApp->RenderPass: Destroy
+deactivate RenderPass
+DemoAppVulkanBasic->CommandBuffers: Reset
+deactivate CommandBuffers
+DemoAppVulkanBasic->DepthBuffer: Reset
+deactivate DepthBuffer
+DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForDeviceIdle
+deactivate DemoAppVulkanBasic
+DemoAppVulkanBasic->DemoAppVulkanBasic++: BuildResources
+DemoAppVulkanBasic->SwapchainKHRUtil: CreateSwapchain
+deactivate Swapchain
+SwapchainKHRUtil->Swapchain++: Construct
+DemoAppVulkanBasic->DepthBuffer++: Construct
+DemoAppVulkanBasic->CommandBuffers++: Reset(swapChainImageCount)
+DemoAppVulkanBasic->CustomDemoApp: OnBuildResources
+CustomDemoApp->RenderPass++: Construct
+DemoAppVulkanBasic->SwapchainRecords++: Create
+DemoAppVulkanBasic->NativeGraphicsService: VulkanCreateDependentResources
+NativeGraphicsService->QuadBatch: CreateDependentResources
+deactivate DemoAppVulkanBasic
+deactivate DemoAppVulkanBasic
+DemoAppVulkanBasic->DemoAppVulkan: Resized
+DemoAppVulkan->ADemoApp: Resized
+
+@enduml
+

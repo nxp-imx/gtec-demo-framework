@@ -31,21 +31,30 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Any
 from typing import List
 from typing import Optional
+from typing import Tuple
+from concurrent.futures import ThreadPoolExecutor
 import os
 import os.path
+import queue
 import subprocess
 import sys
+import threading
 from FslBuildGen import IOUtil
+from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
+from FslBuildGen.BuildConfig.CaptureLog import CaptureLog
 from FslBuildGen.BuildConfig.ClangExeInfo import ClangExeInfo
 from FslBuildGen.BuildConfig.ClangFormatConfiguration import ClangFormatConfiguration
 from FslBuildGen.BuildConfig.CustomPackageFileFilter import CustomPackageFileFilter
 from FslBuildGen.BuildConfig.FileFinder import FileFinder
 from FslBuildGen.BuildConfig.PerformClangUtil import PerformClangUtil
+from FslBuildGen.BuildConfig.SimpleCancellationToken import SimpleCancellationToken
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.DataTypes import CheckType
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Exceptions import AggregateException
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
@@ -61,7 +70,6 @@ def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: 
                     repairEnabled: bool) -> None:
     if not package.ResolvedBuildAllIncludeFiles or not package.AllowCheck or package.IsVirtual:
         return
-    log.LogPrint("- {0}".format(package.Name))
 
     if package.AbsolutePath is None or package.ResolvedBuildSourceFiles is None:
         raise Exception("Invalid package")
@@ -79,6 +87,18 @@ def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: 
             fullPath = IOUtil.Join(package.AbsolutePath, fileName)
             if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
                 allFiles.append(fileName)
+
+        if package.ResolvedBuildContentFiles is not None:
+            for fileName in package.ResolvedBuildContentFiles:
+                fullPath = IOUtil.Join(package.AbsolutePath, fileName)
+                if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
+                    allFiles.append(fileName)
+
+        if package.ResolvedBuildContentSourceFiles is not None:
+            for fileName in package.ResolvedBuildContentSourceFiles:
+                fullPath = IOUtil.Join(package.AbsolutePath, fileName)
+                if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
+                    allFiles.append(fileName)
     else:
         allFiles += filteredFiles
 
@@ -109,14 +129,124 @@ def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: 
             raise
 
 
+class PerformClangFormatHelper(object):
+    @staticmethod
+    def Process(log: Log, toolConfig: ToolConfig, customPackageFileFilter: Optional[CustomPackageFileFilter],
+                clangFormatConfiguration: ClangFormatConfiguration, clangExeInfo: ClangExeInfo, packageList: List[Package],
+                repairEnabled: bool, buildThreads: int) -> int:
+        totalProcessedCount = 0
+        if buildThreads <= 1 or len(packageList) <= 1:
+            for package in packageList:
+                filteredFiles = None if customPackageFileFilter is None else customPackageFileFilter.TryLocateFilePatternInPackage(log, package,
+                                                                                                                                   clangFormatConfiguration.FileExtensions)
+                if customPackageFileFilter is None or filteredFiles is not None:
+                    totalProcessedCount += 1
+                    log.LogPrint("- {0}".format(package.Name))
+                    _RunClangFormat(log, toolConfig, clangFormatConfiguration, clangExeInfo, package, filteredFiles, repairEnabled)
+        else:
+            # Do some threading magic. We can do this because each package touches separate files
+            packageQueue = queue.Queue(len(packageList))  # type: Any
+            for package in packageList:
+                packageQueue.put(package)
+
+            # Ensure we dont start threads we dont need
+            finalBuildThreads = buildThreads if len(packageList) >= buildThreads else len(packageList)
+            exceptionList = []
+            cancellationToken = SimpleCancellationToken()
+            totalExaminedCount = 0
+            try:
+                with ThreadPoolExecutor(max_workers=finalBuildThreads) as executor:
+
+                    futures = []
+                    for index in range(0, buildThreads):
+                        taskFuture = executor.submit(PerformClangFormatHelper.RunInAnotherThread,
+                                                     packageQueue, cancellationToken,
+                                                     log, toolConfig, customPackageFileFilter,
+                                                     clangFormatConfiguration, clangExeInfo, repairEnabled)
+                        futures.append(taskFuture)
+                    # Wait for all futures to finish
+                    for future in futures:
+                        try:
+                            examinedCount, processedCount = future.result()
+                            totalExaminedCount += examinedCount
+                            totalProcessedCount += processedCount
+                        except Exception as ex:
+                            cancellationToken.Cancel()
+                            exceptionList.append(ex)
+            finally:
+                cancellationToken.Cancel()
+
+
+            if len(exceptionList) > 0:
+                raise AggregateException(exceptionList)
+
+            if totalExaminedCount != len(packageList):
+                raise Exception("internal error: we did not process the expected amount of packages Expected: {0} processed {1}".format(len(packageList), totalExaminedCount))
+        return totalProcessedCount
+
+    @staticmethod
+    def RunInAnotherThread(packageQueue: Any,
+                           cancellationToken: SimpleCancellationToken,
+                           mainLog: Log, toolConfig: ToolConfig, customPackageFileFilter: Optional[CustomPackageFileFilter],
+                           clangFormatConfiguration: ClangFormatConfiguration, clangExeInfo: ClangExeInfo, repairEnabled: bool) -> Tuple[int,int]:
+        threadId = threading.get_ident()
+        mainLog.LogPrintVerbose(4, "Starting thread {0}".format(threadId))
+        examinedCount = 0
+        processedCount = 0
+        keepWorking = True
+        package = None # type: Optional[Package]
+
+        try:
+            while keepWorking and not cancellationToken.IsCancelled():
+                try:
+                    # Since the queue is preloaded this is ok
+                    package = packageQueue.get_nowait()
+                except:
+                    package = None
+                if package is None:
+                    keepWorking = False
+                else:
+                    if mainLog.Verbosity >= 4:
+                        mainLog.LogPrint("- clang-format on package '{0}' on thread {1}".format(package.Name, threadId))
+                    else:
+                        mainLog.LogPrint("- clang-format on package '{0}'".format(package.Name))
+
+                    captureLog = CaptureLog(mainLog.Title, mainLog.Verbosity)
+                    try:
+                        filteredFiles = None
+                        if customPackageFileFilter is not None:
+                            filteredFiles = customPackageFileFilter.TryLocateFilePatternInPackage(captureLog, package, clangFormatConfiguration.FileExtensions)
+                        if customPackageFileFilter is None or filteredFiles is not None:
+                            processedCount += 1
+                            _RunClangFormat(captureLog, toolConfig, clangFormatConfiguration, clangExeInfo, package, filteredFiles, repairEnabled)
+                        examinedCount += 1
+                    finally:
+                        try:
+                            if len(captureLog.Captured) > 0:
+                                capturedLog = "Package: '{0}' result:\n{1}".format(package.Name, "\n".join(captureLog.Captured))
+                                mainLog.DoPrint(capturedLog)
+                        except:
+                            pass
+        except Exception as ex:
+            cancellationToken.Cancel()
+            mainLog.DoPrintError("Cancelling tasks due to exception: {0}")
+            raise
+        finally:
+            mainLog.LogPrintVerbose(4, "Ending thread {0}".format(threadId))
+
+        return (examinedCount, processedCount)
+
 
 class PerformClangFormat(object):
     @staticmethod
     def Run(log: Log, toolConfig: ToolConfig, formatPackageList: List[Package],
             customPackageFileFilter: Optional[CustomPackageFileFilter],
             packageRecipeResultManager: PackageRecipeResultManager,
-            clangFormatConfiguration: ClangFormatConfiguration, repairEnabled: bool) -> None:
+            clangFormatConfiguration: ClangFormatConfiguration, repairEnabled: bool, buildThreads: int) -> None:
         """ RunClangFormat on a package at a time """
+
+        # Lookup the recommended build threads using the standard build algorithm
+        buildThreads = PlatformBuildUtil.GetRecommendedBuildThreads(buildThreads)
 
         clangExeInfo = PerformClangUtil.LookupRecipeResults(packageRecipeResultManager, clangFormatConfiguration.RecipePackageName,
                                                             MagicValues.ClangFormatCommand)
@@ -131,8 +261,11 @@ class PerformClangFormat(object):
 
         sortedPackages = list(finalPackageList)
         sortedPackages.sort(key=lambda s: s.Name.lower())
-        for package in sortedPackages:
-            filteredFiles = None if customPackageFileFilter is None else customPackageFileFilter.TryLocateFilePatternInPackage(log, package,
-                                                                                                                               clangFormatConfiguration.FileExtensions)
-            if customPackageFileFilter is None or filteredFiles is not None:
-                _RunClangFormat(log, toolConfig, clangFormatConfiguration, clangExeInfo, package, filteredFiles, repairEnabled)
+
+        count = PerformClangFormatHelper.Process(log, toolConfig, customPackageFileFilter, clangFormatConfiguration, clangExeInfo, sortedPackages,
+                                                 repairEnabled, buildThreads)
+        if count == 0:
+            if customPackageFileFilter is None:
+                log.DoPrintWarning("No files processed")
+            else:
+                log.DoPrintWarning("No files processed, could not find a package that matches {0}".format(customPackageFileFilter))

@@ -51,4 +51,4 @@ if %errorlevel% neq 0 (
 )
 set FSL_TEST_REPORTS=%WORKSPACE%/.Reports/UnitTests
 
-set FSL_FEATURES=[EGL,EarlyAccess,G2D,OpenCL,OpenCL1.1,OpenCL1.2,OpenCV,OpenCV3,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1,Vulkan,GoogleUnitTest]
+set FSL_FEATURES=[EGL,EarlyAccess,G2D,OpenCL,OpenCL1.1,OpenCL1.2,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1,Vulkan,GoogleUnitTest]

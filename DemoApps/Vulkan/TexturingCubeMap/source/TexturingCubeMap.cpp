@@ -74,11 +74,11 @@ namespace Fsl
     // m_cubeMap = m_textureLoader->LoadCubemap("textures/cubemap_yokohama.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
     if (m_deviceActiveFeatures.textureCompressionBC != VK_FALSE)
     {
-      m_cubeMap = LoadCubemap("textures/cubemap_yokohama_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK, false);
+      m_cubeMap = LoadCubemap("Textures/Cubemap/Yokohama3/Yokohama3_1024_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK, false);
     }
     else if (m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      m_cubeMap = LoadCubemap("textures/cubemap_yokohama_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK, false);
+      m_cubeMap = LoadCubemap("Textures/Cubemap/Yokohama3/Yokohama3_1024_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK, false);
     }
     else
     {
@@ -249,12 +249,12 @@ namespace Fsl
   void TexturingCubeMap::LoadMeshes()
   {
     // Skybox
-    m_meshes.Skybox = LoadMesh("models/cube.obj", g_vertexLayout, 0.05f);
+    m_meshes.Skybox = LoadMesh("Models/Cube/cube.obj", g_vertexLayout, 0.05f);
     // Objects
     m_meshes.Objects.resize(3);
-    m_meshes.Objects[0] = LoadMesh("models/sphere.obj", g_vertexLayout, 0.05f);
-    m_meshes.Objects[1] = LoadMesh("models/teapot.dae", g_vertexLayout, 0.05f);
-    m_meshes.Objects[2] = LoadMesh("models/torusknot.obj", g_vertexLayout, 0.05f);
+    m_meshes.Objects[0] = LoadMesh("Models/Sphere/sphere.obj", g_vertexLayout, 0.05f);
+    m_meshes.Objects[1] = LoadMesh("Models/Teapot/teapot.dae", g_vertexLayout, 0.05f);
+    m_meshes.Objects[2] = LoadMesh("Models/TorusKnot/torusknot.obj", g_vertexLayout, 0.05f);
   }
 
 
@@ -402,8 +402,8 @@ namespace Fsl
       }
       RawTexture rawTexture;
       Texture::ScopedDirectAccess directAccess(texCube, rawTexture);
-      assert(rawTexture.GetContentByteSize() <= memReqs.size);
-      std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetContentByteSize());
+      assert(rawTexture.GetByteSize() <= memReqs.size);
+      std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetByteSize());
     }
     stagingMemory.UnmapMemory();
 

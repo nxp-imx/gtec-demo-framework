@@ -14,7 +14,7 @@
 // This class simulates the functionality found in VulkanExampleBase to make it easier
 // to port samples.
 
-#include <Shared/VulkanWindowExperimental/VulkanWindowDemoApp.hpp>
+#include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/Camera.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/DepthStencil.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/Swapchain.hpp>
@@ -45,7 +45,7 @@ namespace Fsl
 {
   namespace Willems
   {
-    class VulkanWillemsDemoApp : public VulkanWindowDemoApp
+    class VulkanWillemsDemoApp : public DemoAppVulkan
     {
     public:
       using MeshLoaderAllocFunc = std::function<std::unique_ptr<VulkanMeshLoader>(const std::shared_ptr<IContentManager>&)>;

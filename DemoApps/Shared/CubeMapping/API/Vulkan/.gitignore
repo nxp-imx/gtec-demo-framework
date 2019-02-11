@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.CubeMapping.API.Vulkan.VC.VC.opendb
+/Shared.CubeMapping.API.Vulkan.VC.db
+/Shared.CubeMapping.API.Vulkan.manifest
+/Shared.CubeMapping.API.Vulkan.opensdf
+/Shared.CubeMapping.API.Vulkan.sdf
+/Shared.CubeMapping.API.Vulkan.sln
+/Shared.CubeMapping.API.Vulkan.v12.sdf
+/Shared.CubeMapping.API.Vulkan.v12.suo
+/Shared.CubeMapping.API.Vulkan.vcxproj
+/Shared.CubeMapping.API.Vulkan.vcxproj.filters
+/Shared.CubeMapping.API.Vulkan.vcxproj.user
+/build/

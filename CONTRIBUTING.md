@@ -68,7 +68,6 @@ FslResourceScan.py --list -v .
 
 Fix all resource license issues.
 
-
 #### Create the appropriate meta data
 
 If you are submitting a new demo app you also need to:
@@ -90,7 +89,7 @@ If you are submitting a new demo app you also need to:
 
 ### C++ Styleguide
 
-All C++ code must adhere to format defined by the included ```.clang-format```. For now we utilize the layout provided by clang-format 6.0. It's recommended to utilize a editor that is clang format compatible. Like Visual Studio, Visual Studio Code, Emacs, Vim and lots of others. For more information about clang format check the official [documentation](https://clang.llvm.org/docs/ClangFormat.html).
+All C++ code must adhere to format defined by the included ```.clang-format```. For now we utilize the layout provided by clang-format 7.0. It's recommended to utilize a editor that is clang format compatible. Like Visual Studio, Visual Studio Code, Emacs, Vim and lots of others. For more information about clang format check the official [documentation](https://clang.llvm.org/docs/ClangFormat.html).
 
 To further ensure a common style is used in the code we also employ clang-tidy using our ```.clang-tidy``` file.
 For more information about clang tidy check the official [documentation](http://clang.llvm.org/extra/clang-tidy/).

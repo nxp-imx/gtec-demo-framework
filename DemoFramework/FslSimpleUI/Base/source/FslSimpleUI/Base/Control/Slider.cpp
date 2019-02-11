@@ -212,7 +212,6 @@ namespace Fsl
       // Do the actual drawing
       {
         const auto batch = m_windowContext->Batch2D;
-        batch->ChangeTo(BlendState::AlphaBlend);
 
         if (m_texBackground.IsValid())
         {

@@ -38,14 +38,11 @@ SOFTWARE.
 
 namespace Fsl
 {
-  const float* Vector3::DirectAccess() const
-  {
-    // Verify that our assumption about the structure packing is correct
-    assert(offsetof(Vector3, X) == (sizeof(float) * 0));
-    assert(offsetof(Vector3, Y) == (sizeof(float) * 1));
-    assert(offsetof(Vector3, Z) == (sizeof(float) * 2));
-    return &X;
-  }
+  // Verify that our assumption about the structure packing is correct
+  static_assert(offsetof(Vector3, X) == (sizeof(float) * 0), "Vector3.X component not at the expected offset");
+  static_assert(offsetof(Vector3, Y) == (sizeof(float) * 1), "Vector3.Y component not at the expected offset");
+  static_assert(offsetof(Vector3, Z) == (sizeof(float) * 2), "Vector3.Z component not at the expected offset");
+  static_assert(sizeof(Vector3) == (sizeof(float) * 3), "Vector3 not of the expected size");
 
 
   Vector3 Vector3::Barycentric(const Vector3& value1, const Vector3& value2, const Vector3& value3, const float amount1, const float amount2)
@@ -88,7 +85,7 @@ namespace Fsl
   }
 
 
-  void Vector3::Clamp(Vector3& rResult, const Vector3& value, const Vector3& min, const Vector3& max)
+  void Vector3::Clamp(const Vector3& value, const Vector3& min, const Vector3& max, Vector3& rResult)
   {
     rResult = Vector3(MathHelper::Clamp(value.X, min.X, max.X), MathHelper::Clamp(value.Y, min.Y, max.Y), MathHelper::Clamp(value.Z, min.Z, max.Z));
   }
@@ -98,12 +95,12 @@ namespace Fsl
   {
     // Vector3 result(OptimizationFlag::NoInitialization);
     Vector3 result;
-    Cross(result, vector1, vector2);
+    Cross(vector1, vector2, result);
     return result;
   }
 
 
-  void Vector3::Cross(Vector3& rResult, const Vector3& vector1, const Vector3& vector2)
+  void Vector3::Cross(const Vector3& vector1, const Vector3& vector2, Vector3& rResult)
   {
     rResult = Vector3(vector1.Y * vector2.Z - vector2.Y * vector1.Z, -(vector1.X * vector2.Z - vector2.X * vector1.Z),
                       vector1.X * vector2.Y - vector2.X * vector1.Y);
@@ -146,7 +143,7 @@ namespace Fsl
   }
 
 
-  void Vector3::Lerp(Vector3& rResult, const Vector3& value1, const Vector3 value2, const float amount)
+  void Vector3::Lerp(const Vector3& value1, const Vector3 value2, const float amount, Vector3& rResult)
   {
     rResult = Vector3(MathHelper::Lerp(value1.X, value2.X, amount), MathHelper::Lerp(value1.Y, value2.Y, amount),
                       MathHelper::Lerp(value1.Z, value2.Z, amount));
@@ -159,7 +156,7 @@ namespace Fsl
   }
 
 
-  void Vector3::Max(Vector3& rResult, const Vector3& value1, const Vector3& value2)
+  void Vector3::Max(const Vector3& value1, const Vector3& value2, Vector3& rResult)
   {
     rResult = Vector3(std::max(value1.X, value2.X), std::max(value1.Y, value2.Y), std::max(value1.Z, value2.Z));
   }
@@ -171,13 +168,13 @@ namespace Fsl
   }
 
 
-  void Vector3::Min(Vector3& rResult, const Vector3& value1, const Vector3& value2)
+  void Vector3::Min(const Vector3& value1, const Vector3& value2, Vector3& rResult)
   {
     rResult = Vector3(std::min(value1.X, value2.X), std::min(value1.Y, value2.Y), std::min(value1.Z, value2.Z));
   }
 
 
-  void Vector3::Negate(Vector3& rResult, const Vector3& value)
+  void Vector3::Negate(const Vector3& value, Vector3& rResult)
   {
     rResult.X = -value.X;
     rResult.Y = -value.Y;
@@ -187,7 +184,12 @@ namespace Fsl
 
   void Vector3::Normalize()
   {
-    Normalize(*this, *this);
+    float factor = Length();
+    assert(factor != 0.0f);
+    factor = 1.0f / factor;
+    X *= factor;
+    Y *= factor;
+    Z *= factor;
   }
 
 
@@ -195,12 +197,12 @@ namespace Fsl
   {
     // Vector3 result(OptimizationFlag::NoInitialization);
     Vector3 result;
-    Normalize(result, vector);
+    Normalize(vector, result);
     return result;
   }
 
 
-  void Vector3::Normalize(Vector3& rResult, const Vector3& value)
+  void Vector3::Normalize(const Vector3& value, Vector3& rResult)
   {
     float factor = value.Length();
     assert(factor != 0.0f);
@@ -222,7 +224,7 @@ namespace Fsl
   }
 
 
-  void Vector3::Reflect(Vector3& rResult, const Vector3& vector, const Vector3& normal)
+  void Vector3::Reflect(const Vector3& vector, const Vector3& normal, Vector3& rResult)
   {
     // I is the original array
     // N is the normal of the incident plane
@@ -258,7 +260,7 @@ namespace Fsl
   }
 
 
-  void Vector3::Transform(Vector3& rResult, const Vector3& position, const Matrix& matrix)
+  void Vector3::Transform(const Vector3& position, const Matrix& matrix, Vector3& rResult)
   {
     MatrixInternals::Transform(rResult, position, matrix);
   }
@@ -291,7 +293,7 @@ namespace Fsl
   }
 
 
-  void Vector3::TransformNormal(Vector3& rResult, const Vector3& position, const Matrix& matrix)
+  void Vector3::TransformNormal(const Vector3& position, const Matrix& matrix, Vector3& rResult)
   {
     MatrixInternals::TransformNormal(rResult, position, matrix);
   }

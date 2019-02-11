@@ -1,0 +1,13 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Models/Geosphere/*.*",
+        "Textures/SphereMap/Sky/*.*",
+        "Textures/Terrain/*.*"
+      ]
+    }
+  }
+}

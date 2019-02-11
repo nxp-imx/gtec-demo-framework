@@ -1,0 +1,12 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Models/Plane/*.*",
+        "Textures/Pattern36/*.*"
+      ]
+    }
+  }
+}

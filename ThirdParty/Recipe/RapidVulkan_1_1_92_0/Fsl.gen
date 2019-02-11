@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.RapidVulkan_1_1_92_0">
+    <Dependency Name="VulkanBase"/>
+    <ExperimentalRecipe Name="RapidVulkan-1.1.92.0">
+      <Pipeline>
+        <Download URL="https://github.com/Unarmed1000/RapidVulkan/archive/1.1.92.0.tar.gz" To="RapidVulkan-1.1.92.0.tar.gz" Hash="996be4c55207088f0c1ad4ab6c999aeecd47ba5bc46b28a1b3bc362158815236"/>
+        <Unpack File="RapidVulkan-1.1.92.0.tar.gz" OutputPath="RapidVulkan-1.1.92.0"/>
+      </Pipeline>
+      <Installation>
+        <AddHeaders Name="include"/>
+        <Path Name="include/RapidVulkan/Check.hpp" Method="IsFile"/>
+        <Path Name="include/RapidVulkan/CheckError.hpp" Method="IsFile"/>
+        <Path Name="include/RapidVulkan/Device.hpp" Method="IsFile"/>
+      </Installation>
+    </ExperimentalRecipe>
+  </ExternalLibrary>
+</FslBuildGen>

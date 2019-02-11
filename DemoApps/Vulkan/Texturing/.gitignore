@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GNUmakefile
@@ -25,6 +26,7 @@
 /Texturing_Wayland_d
 /Texturing_X11
 /Texturing_X11_d
+/Texturing_c
 /Texturing_d
 /Vulkan.Texturing
 /Vulkan.Texturing.VC.VC.opendb

@@ -95,6 +95,51 @@ namespace Fsl
       }
 
 
+      // FIX: implement all conversions
+      VkFormat TryConvert(const VertexElementFormat vertexFormat)
+      {
+        switch (vertexFormat)
+        {
+        case VertexElementFormat::Single:
+          return VK_FORMAT_R32_SFLOAT;
+        case VertexElementFormat::Vector2:
+          return VK_FORMAT_R32G32_SFLOAT;
+        case VertexElementFormat::Vector3:
+          return VK_FORMAT_R32G32B32_SFLOAT;
+        case VertexElementFormat::Vector4:
+          return VK_FORMAT_R32G32B32A32_SFLOAT;
+        case VertexElementFormat::Matrix4x4:
+        case VertexElementFormat::X8_UNORM:
+        case VertexElementFormat::X8_UINT:
+        case VertexElementFormat::X8Y8_UNORM:
+        case VertexElementFormat::X8Y8_UINT:
+        case VertexElementFormat::X8Y8Z8_UNORM:
+        case VertexElementFormat::X8Y8Z8_UINT:
+        case VertexElementFormat::X8Y8Z8W8_UNORM:
+        case VertexElementFormat::X8Y8Z8W8_UINT:
+        case VertexElementFormat::Undefined:
+        default:
+          return VK_FORMAT_UNDEFINED;
+        }
+      }
+
+
+      VkFormat Convert(const VertexElementFormat vertexFormat)
+      {
+        if (vertexFormat == VertexElementFormat::Undefined)
+        {
+          return VK_FORMAT_UNDEFINED;
+        }
+
+        const VkFormat result = TryConvert(vertexFormat);
+        if (result != VK_FORMAT_UNDEFINED)
+        {
+          return result;
+        }
+        throw UnsupportedVertexElementFormatException(vertexFormat);
+      }
+
+
       VkImageType ToImageType(const TextureType textureType)
       {
         switch (textureType)

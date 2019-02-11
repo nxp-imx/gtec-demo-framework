@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.DFSimpleUI100" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Platform Name="Windows" ProjectId="3C7DB649-B15F-430F-B095-AEDAFE2FBECA"/>
+  </Executable>
+</FslBuildGen>

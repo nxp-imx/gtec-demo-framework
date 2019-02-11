@@ -15,12 +15,10 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanWillemsDemoApp.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -64,7 +62,7 @@ namespace Fsl
 
     void VulkanWillemsDemoApp::_PostConstruct()
     {
-      VulkanWindowDemoApp::_PostConstruct();
+      DemoAppVulkan::_PostConstruct();
 
       // Done this way to ensure a app flow that follows the original example
       // with the added benefit of running this on a fully constructed object
@@ -124,13 +122,13 @@ namespace Fsl
         OnViewChanged();
       }
 
-      VulkanWindowDemoApp::_Update(demoTime);
+      DemoAppVulkan::_Update(demoTime);
     }
 
 
     void VulkanWillemsDemoApp::_Draw(const DemoTime& demoTime)
     {
-      VulkanWindowDemoApp::_Draw(demoTime);
+      DemoAppVulkan::_Draw(demoTime);
 
 
       if (m_device.IsValid())
@@ -143,7 +141,7 @@ namespace Fsl
 
     void VulkanWillemsDemoApp::OnKeyEvent(const KeyEvent& event)
     {
-      VulkanWindowDemoApp::OnKeyEvent(event);
+      DemoAppVulkan::OnKeyEvent(event);
       if (event.IsHandled())
       {
         return;
@@ -196,7 +194,7 @@ namespace Fsl
 
     void VulkanWillemsDemoApp::OnMouseButtonEvent(const MouseButtonEvent& event)
     {
-      VulkanWindowDemoApp::OnMouseButtonEvent(event);
+      DemoAppVulkan::OnMouseButtonEvent(event);
       if (event.IsHandled())
       {
         return;
@@ -227,7 +225,7 @@ namespace Fsl
 
     void VulkanWillemsDemoApp::OnMouseMoveEvent(const MouseMoveEvent& event)
     {
-      VulkanWindowDemoApp::OnMouseMoveEvent(event);
+      DemoAppVulkan::OnMouseMoveEvent(event);
       if (event.IsHandled())
       {
         return;
@@ -272,7 +270,7 @@ namespace Fsl
 
     void VulkanWillemsDemoApp::OnMouseWheelEvent(const MouseWheelEvent& event)
     {
-      VulkanWindowDemoApp::OnMouseWheelEvent(event);
+      DemoAppVulkan::OnMouseWheelEvent(event);
       if (event.IsHandled())
       {
         return;
@@ -287,7 +285,7 @@ namespace Fsl
 
 
     VulkanWillemsDemoApp::VulkanWillemsDemoApp(const DemoAppConfig& demoAppConfig, const MeshLoaderAllocFunc& meshLoaderAllocFunc)
-      : VulkanWindowDemoApp(demoAppConfig)
+      : DemoAppVulkan(demoAppConfig)
       , m_vulkanDevice(m_physicalDevice.Device, m_device.Get())
       , m_meshLoaderAllocFunc(meshLoaderAllocFunc)
       , m_viewChanged(false)
@@ -421,7 +419,7 @@ namespace Fsl
     void VulkanWillemsDemoApp::SetupSwapchain()
     {
       const auto screenExtent = GetScreenExtent();
-      m_swapchain.Reset(m_physicalDevice, m_device.Get(), m_surface, screenExtent, m_enableVSync);
+      m_swapchain.Reset(m_physicalDevice.Device, m_device.Get(), m_surface, screenExtent, m_enableVSync);
     }
 
 
@@ -458,9 +456,9 @@ namespace Fsl
       m_depthStencil.Image.Reset(m_device.Get(), image);
 
       const VkMemoryRequirements memReqs = m_depthStencil.Image.GetImageMemoryRequirements();
-      VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
-      const auto memoryTypeIndex = MemoryTypeUtil::GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes,
-                                                                      memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+      VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
+      const auto memoryTypeIndex =
+        MemoryTypeUtil::GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
       VkMemoryAllocateInfo memAlloc{};
       memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;

@@ -48,7 +48,11 @@ namespace Fsl
 
     bool Contains(const std::string& src, const std::string& str)
     {
-      return std::search(src.begin(), src.end(), str.begin(), str.end()) != src.end();
+      if (!str.empty())
+      {
+        return std::search(src.begin(), src.end(), str.begin(), str.end()) != src.end();
+      }
+      return true;
     }
 
 
@@ -107,6 +111,11 @@ namespace Fsl
 
     void Replace(std::string& rStr, const std::string& oldValue, const std::string& newValue)
     {
+      if (oldValue.empty())
+      {
+        return;
+      }
+
       for (std::size_t pos = 0;; pos += newValue.length())
       {
         pos = rStr.find(oldValue, pos);

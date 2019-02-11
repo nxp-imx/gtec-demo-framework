@@ -1,4 +1,4 @@
-# DemoFramework 5.2.0
+# DemoFramework 5.3.0
 
 A multi-platform framework for fast and easy demo development.
 
@@ -12,7 +12,7 @@ then compiled and deployed without code changes for other supported platforms.
 The framework also allows for ‘real’ comparative benchmarks between the different OS and windowing systems,
 since the exact same demo/benchmark code run on all of them.
 
-## Supported app templates:
+## Supported app templates
 
 * Console. A freestyle project that runs in a console like environment.
 * G2D (early access)
@@ -108,13 +108,13 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 
 ## Reasoning
 
-While writing this we currently have twenty-five OpenGL ES 2 samples, fifty-three OpenGL ES 3.x samples,
-fourteen Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
-two OpenVX sample and four other samples. Which is *113 sample applications*.
+While writing this we currently have twenty-six OpenGL ES 2 samples, fifty-seven OpenGL ES 3.x samples,
+thirty three Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+three OpenVX sample and four other samples. Which is *136 sample applications*.
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 113 * 4 = *452 build files* for the samples alone.
-Maintaining 452 or even just 114 build files would be an extremely time consuming and error prone process.
+maintain 138 * 4 = *552 build files* for the samples alone.
+Maintaining 552 or even just 138 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -550,8 +550,8 @@ The layers are rendered to the FB directly without having the need of using othe
 ## GLES2
 
 ### [Bloom](DemoApps/GLES2/Bloom)
-<a href="DemoApps/GLES2/Bloom">
-<img src="DemoApps/GLES2/Bloom/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/Bloom/Example.jpg">
+<img src="DemoApps/GLES2/Bloom/Example.jpg" height="108px">
 </a>
 
 A example of how to create a bloom effect. The idea is not to create the most accurate bloom,
@@ -563,8 +563,8 @@ using a relative small kernel and then finally rescaling the result to the origi
 
 
 ### [Blur](DemoApps/GLES2/Blur)
-<a href="DemoApps/GLES2/Blur">
-<img src="DemoApps/GLES2/Blur/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/Blur/Example.jpg">
+<img src="DemoApps/GLES2/Blur/Example.jpg" height="108px">
 </a>
 
 Showcases multiple ways to implement a gaussian blur.
@@ -586,8 +586,8 @@ The video data is obtained using gstreamer and using the DirectVIVMap extension 
 
 
 ### [DFGraphicsBasic2D](DemoApps/GLES2/DFGraphicsBasic2D)
-<a href="DemoApps/GLES2/DFGraphicsBasic2D">
-<img src="DemoApps/GLES2/DFGraphicsBasic2D/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/DFGraphicsBasic2D/Example.jpg">
+<img src="DemoApps/GLES2/DFGraphicsBasic2D/Example.jpg" height="108px">
 </a>
 
 Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
@@ -597,8 +597,8 @@ The functionality in Basic2D is used internally in the framework to render the p
 
 
 ### [DFNativeBatch2D](DemoApps/GLES2/DFNativeBatch2D)
-<a href="DemoApps/GLES2/DFNativeBatch2D">
-<img src="DemoApps/GLES2/DFNativeBatch2D/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/DFNativeBatch2D/Example.jpg">
+<img src="DemoApps/GLES2/DFNativeBatch2D/Example.jpg" height="108px">
 </a>
 
 Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
@@ -609,8 +609,8 @@ It is however not a optimized way of rendering things.
 
 
 ### [DFSimpleUI100](DemoApps/GLES2/DFSimpleUI100)
-<a href="DemoApps/GLES2/DFSimpleUI100">
-<img src="DemoApps/GLES2/DFSimpleUI100/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/DFSimpleUI100/Example.jpg">
+<img src="DemoApps/GLES2/DFSimpleUI100/Example.jpg" height="108px">
 </a>
 
 A very basic example of how to utilize the DemoFramework's UI library.
@@ -620,8 +620,8 @@ The UI framework that makes it easy to get a basic UI up and running. The main U
 
 
 ### [DFSimpleUI101](DemoApps/GLES2/DFSimpleUI101)
-<a href="DemoApps/GLES2/DFSimpleUI101">
-<img src="DemoApps/GLES2/DFSimpleUI101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/DFSimpleUI101/Example.jpg">
+<img src="DemoApps/GLES2/DFSimpleUI101/Example.jpg" height="108px">
 </a>
 
 A more complex example of how to utilize the DemoFramework's UI library.
@@ -635,8 +635,8 @@ This sample shows how to use Gstreamer and OpenGL ES to display a YUV video on a
 
 
 ### [EightLayerBlend](DemoApps/GLES2/EightLayerBlend)
-<a href="DemoApps/GLES2/EightLayerBlend">
-<img src="DemoApps/GLES2/EightLayerBlend/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/EightLayerBlend/Example.jpg">
+<img src="DemoApps/GLES2/EightLayerBlend/Example.jpg" height="108px">
 </a>
 
 Creates a simple parallax scrolling effect by blending eight 32 bit per pixel 1080p layers
@@ -647,8 +647,8 @@ The demo was created to compare GLES to the G2D eight blend blit functionality.
 
 
 ### [FractalShader](DemoApps/GLES2/FractalShader)
-<a href="DemoApps/GLES2/FractalShader">
-<img src="DemoApps/GLES2/FractalShader/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/FractalShader/Example.jpg">
+<img src="DemoApps/GLES2/FractalShader/Example.jpg" height="108px">
 </a>
 
 Can render both the julia and mandelbrot set using a fragment shader.
@@ -661,8 +661,8 @@ Use the commandline arguments to select the scene and quality.
 
 
 ### [InputEvents](DemoApps/GLES2/InputEvents)
-<a href="DemoApps/GLES2/InputEvents">
-<img src="DemoApps/GLES2/InputEvents/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/InputEvents/Example.jpg">
+<img src="DemoApps/GLES2/InputEvents/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
@@ -670,9 +670,18 @@ Demonstrates how to receive various input events and logs information about them
 This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
 
 
+### [LineBuilder101](DemoApps/GLES2/LineBuilder101)
+<a href="DemoApps/GLES2/LineBuilder101/Example.jpg">
+<img src="DemoApps/GLES2/LineBuilder101/Example.jpg" height="108px">
+</a>
+
+A simple example of dynamic line rendering using the LineBuilder helper class.
+The line builder has 'Add' methods for most FslBase.Math classes like BoundingBox, BoundingSphere, BoundingFrustrum, Ray, etc.
+
+
 ### [ModelLoaderBasics](DemoApps/GLES2/ModelLoaderBasics)
-<a href="DemoApps/GLES2/ModelLoaderBasics">
-<img src="DemoApps/GLES2/ModelLoaderBasics/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/ModelLoaderBasics/Example.jpg">
+<img src="DemoApps/GLES2/ModelLoaderBasics/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to use the FslSceneImporter and Assimp to load a scene and render it using OpenGLES2.
@@ -683,8 +692,8 @@ For a more complex example take a look at the ModelViewer example.
 
 
 ### [ModelViewer](DemoApps/GLES2/ModelViewer)
-<a href="DemoApps/GLES2/ModelViewer">
-<img src="DemoApps/GLES2/ModelViewer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/ModelViewer/Example.jpg">
+<img src="DemoApps/GLES2/ModelViewer/Example.jpg" height="108px">
 </a>
 
 Expands the ModelLoaderBasics example with:
@@ -695,8 +704,8 @@ Expands the ModelLoaderBasics example with:
 
 
 ### [OpenCV101](DemoApps/GLES2/OpenCV101)
-<a href="DemoApps/GLES2/OpenCV101">
-<img src="DemoApps/GLES2/OpenCV101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/OpenCV101/Example.jpg">
+<img src="DemoApps/GLES2/OpenCV101/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to use OpenCV from inside a OpenGL ES 2 project.
@@ -706,8 +715,8 @@ then it does some very basic OpenCV operations. It could be used as a good start
 
 
 ### [S01_SimpleTriangle](DemoApps/GLES2/S01_SimpleTriangle)
-<a href="DemoApps/GLES2/S01_SimpleTriangle">
-<img src="DemoApps/GLES2/S01_SimpleTriangle/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/S01_SimpleTriangle/Example.jpg">
+<img src="DemoApps/GLES2/S01_SimpleTriangle/Example.jpg" height="108px">
 </a>
 
 Shows how to render a single colored Triangle using OpenGL ES, this sample serves as a good introduction to
@@ -717,8 +726,8 @@ It's basically the typical 'Hello World' program for graphics.
 
 
 ### [S02_ColoredTriangle](DemoApps/GLES2/S02_ColoredTriangle)
-<a href="DemoApps/GLES2/S02_ColoredTriangle">
-<img src="DemoApps/GLES2/S02_ColoredTriangle/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/S02_ColoredTriangle/Example.jpg">
+<img src="DemoApps/GLES2/S02_ColoredTriangle/Example.jpg" height="108px">
 </a>
 
 Shows how to render a vertex colored Triangle using OpenGL ES, this demonstrates how to add more than vertex
@@ -728,8 +737,8 @@ This is basically the same as the S01 example it just adds vertex colors to the 
 
 
 ### [S03_Transform](DemoApps/GLES2/S03_Transform)
-<a href="DemoApps/GLES2/S03_Transform">
-<img src="DemoApps/GLES2/S03_Transform/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/S03_Transform/Example.jpg">
+<img src="DemoApps/GLES2/S03_Transform/Example.jpg" height="108px">
 </a>
 
 Renders a animated vertex colored triangle.
@@ -739,8 +748,8 @@ how to utilize demoTime.DeltaTime to do frame rate independent animation.
 
 
 ### [S04_Projection](DemoApps/GLES2/S04_Projection)
-<a href="DemoApps/GLES2/S04_Projection">
-<img src="DemoApps/GLES2/S04_Projection/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/S04_Projection/Example.jpg">
+<img src="DemoApps/GLES2/S04_Projection/Example.jpg" height="108px">
 </a>
 
 This example shows how to:
@@ -756,8 +765,8 @@ This currently only works on the Yocto platform.
 
 
 ### [S06_Texturing](DemoApps/GLES2/S06_Texturing)
-<a href="DemoApps/GLES2/S06_Texturing">
-<img src="DemoApps/GLES2/S06_Texturing/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/S06_Texturing/Example.jpg">
+<img src="DemoApps/GLES2/S06_Texturing/Example.jpg" height="108px">
 </a>
 
 This example shows how to use the Texture class to use a texture in a cube.
@@ -767,8 +776,8 @@ into a bitmap utility class which is then used to used to create a OpenGL ES tex
 
 
 ### [S07_EnvironmentMapping](DemoApps/GLES2/S07_EnvironmentMapping)
-<a href="DemoApps/GLES2/S07_EnvironmentMapping">
-<img src="DemoApps/GLES2/S07_EnvironmentMapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/S07_EnvironmentMapping/Example.jpg">
+<img src="DemoApps/GLES2/S07_EnvironmentMapping/Example.jpg" height="108px">
 </a>
 
 This sample shows how to use a cubemap texture to simulate a reflective material.
@@ -778,8 +787,8 @@ into a Texture utility class which is then used to used to create a OpenGL ES cu
 
 
 ### [S08_EnvironmentMappingRefraction](DemoApps/GLES2/S08_EnvironmentMappingRefraction)
-<a href="DemoApps/GLES2/S08_EnvironmentMappingRefraction">
-<img src="DemoApps/GLES2/S08_EnvironmentMappingRefraction/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/S08_EnvironmentMappingRefraction/Example.jpg">
+<img src="DemoApps/GLES2/S08_EnvironmentMappingRefraction/Example.jpg" height="108px">
 </a>
 
 This sample is a variation from the previous sample, again, a cubemap texture is used,
@@ -794,8 +803,8 @@ This sample shows how to use the Verisilicon extensions to create a texture with
 
 
 ### [T3DStressTest](DemoApps/GLES2/T3DStressTest)
-<a href="DemoApps/GLES2/T3DStressTest">
-<img src="DemoApps/GLES2/T3DStressTest/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES2/T3DStressTest/Example.jpg">
+<img src="DemoApps/GLES2/T3DStressTest/Example.jpg" height="108px">
 </a>
 
 Executes a highly configurable stress test for the OpenGL ES API.
@@ -812,9 +821,17 @@ This example shows how to use the DirectVIV extension to use an existing buffer 
 
 ## GLES3
 
+### [AssimpDoubleTexture](DemoApps/GLES3/AssimpDoubleTexture)
+<a href="DemoApps/GLES3/AssimpDoubleTexture/Example.jpg">
+<img src="DemoApps/GLES3/AssimpDoubleTexture/Example.jpg" height="108px">
+</a>
+
+A simple example of multi texturing.
+
+
 ### [Bloom](DemoApps/GLES3/Bloom)
-<a href="DemoApps/GLES3/Bloom">
-<img src="DemoApps/GLES3/Bloom/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/Bloom/Example.jpg">
+<img src="DemoApps/GLES3/Bloom/Example.jpg" height="108px">
 </a>
 
 A example of how to create a bloom effect. The idea is not to create the most accurate bloom,
@@ -826,8 +843,8 @@ using a relative small kernel and then finally rescaling the result to the origi
 
 
 ### [CameraDemo](DemoApps/GLES3/CameraDemo)
-<a href="DemoApps/GLES3/CameraDemo">
-<img src="DemoApps/GLES3/CameraDemo/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/CameraDemo/Example.jpg">
+<img src="DemoApps/GLES3/CameraDemo/Example.jpg" height="108px">
 </a>
 
 Showcases how to use the helios camera API.
@@ -839,8 +856,8 @@ Checks for the presence of known EGL color space extensions and outputs informat
 
 
 ### [D1_1_VBOs](DemoApps/GLES3/D1_1_VBOs)
-<a href="DemoApps/GLES3/D1_1_VBOs">
-<img src="DemoApps/GLES3/D1_1_VBOs/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/D1_1_VBOs/Example.jpg">
+<img src="DemoApps/GLES3/D1_1_VBOs/Example.jpg" height="108px">
 </a>
 
 This sample introduces you to the use of Vertex Buffer Objects.
@@ -852,8 +869,8 @@ make the code simpler.
 
 
 ### [D1_2_VAOs](DemoApps/GLES3/D1_2_VAOs)
-<a href="DemoApps/GLES3/D1_2_VAOs">
-<img src="DemoApps/GLES3/D1_2_VAOs/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/D1_2_VAOs/Example.jpg">
+<img src="DemoApps/GLES3/D1_2_VAOs/Example.jpg" height="108px">
 </a>
 
 This sample introduces you to the use of Vertex Array Objects.
@@ -865,8 +882,8 @@ make the code simpler.
 
 
 ### [DFGraphicsBasic2D](DemoApps/GLES3/DFGraphicsBasic2D)
-<a href="DemoApps/GLES3/DFGraphicsBasic2D">
-<img src="DemoApps/GLES3/DFGraphicsBasic2D/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/DFGraphicsBasic2D/Example.jpg">
+<img src="DemoApps/GLES3/DFGraphicsBasic2D/Example.jpg" height="108px">
 </a>
 
 Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
@@ -876,8 +893,8 @@ The functionality in Basic2D is used internally in the framework to render the p
 
 
 ### [DFNativeBatch2D](DemoApps/GLES3/DFNativeBatch2D)
-<a href="DemoApps/GLES3/DFNativeBatch2D">
-<img src="DemoApps/GLES3/DFNativeBatch2D/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/DFNativeBatch2D/Example.jpg">
+<img src="DemoApps/GLES3/DFNativeBatch2D/Example.jpg" height="108px">
 </a>
 
 Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
@@ -888,8 +905,8 @@ It is however not a optimized way of rendering things.
 
 
 ### [DFNativeBatchCamera](DemoApps/GLES3/DFNativeBatchCamera)
-<a href="DemoApps/GLES3/DFNativeBatchCamera">
-<img src="DemoApps/GLES3/DFNativeBatchCamera/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/DFNativeBatchCamera/Example.jpg">
+<img src="DemoApps/GLES3/DFNativeBatchCamera/Example.jpg" height="108px">
 </a>
 
 Showcases how to use the helios camera API.
@@ -897,8 +914,8 @@ It captures a image from the camera and renders it using the nativebatch.
 
 
 ### [DFSimpleUI100](DemoApps/GLES3/DFSimpleUI100)
-<a href="DemoApps/GLES3/DFSimpleUI100">
-<img src="DemoApps/GLES3/DFSimpleUI100/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/DFSimpleUI100/Example.jpg">
+<img src="DemoApps/GLES3/DFSimpleUI100/Example.jpg" height="108px">
 </a>
 
 A very basic example of how to utilize the DemoFramework's UI library.
@@ -908,8 +925,8 @@ The UI framework that makes it easy to get a basic UI up and running. The main U
 
 
 ### [DFSimpleUI101](DemoApps/GLES3/DFSimpleUI101)
-<a href="DemoApps/GLES3/DFSimpleUI101">
-<img src="DemoApps/GLES3/DFSimpleUI101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/DFSimpleUI101/Example.jpg">
+<img src="DemoApps/GLES3/DFSimpleUI101/Example.jpg" height="108px">
 </a>
 
 A more complex example of how to utilize the DemoFramework's UI library.
@@ -923,8 +940,8 @@ This sample shows how to use Gstreamer and OpenGL ES to display a YUV video on a
 
 
 ### [E1_1_VBOs](DemoApps/GLES3/E1_1_VBOs)
-<a href="DemoApps/GLES3/E1_1_VBOs">
-<img src="DemoApps/GLES3/E1_1_VBOs/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/E1_1_VBOs/Example.jpg">
+<img src="DemoApps/GLES3/E1_1_VBOs/Example.jpg" height="108px">
 </a>
 
 This sample introduces you to the use of Vertex Buffer Objects.
@@ -935,8 +952,8 @@ To see a simpler version of this code that utilize utility classes from the Demo
 
 
 ### [E1_2_VAOs](DemoApps/GLES3/E1_2_VAOs)
-<a href="DemoApps/GLES3/E1_2_VAOs">
-<img src="DemoApps/GLES3/E1_2_VAOs/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/E1_2_VAOs/Example.jpg">
+<img src="DemoApps/GLES3/E1_2_VAOs/Example.jpg" height="108px">
 </a>
 
 This sample introduces you to the use of Vertex Array Objects.
@@ -947,8 +964,8 @@ To see a simpler version of this code that utilize utility classes from the Demo
 
 
 ### [E2_1_CopyBuffer](DemoApps/GLES3/E2_1_CopyBuffer)
-<a href="DemoApps/GLES3/E2_1_CopyBuffer">
-<img src="DemoApps/GLES3/E2_1_CopyBuffer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/E2_1_CopyBuffer/Example.jpg">
+<img src="DemoApps/GLES3/E2_1_CopyBuffer/Example.jpg" height="108px">
 </a>
 
 This sample teaches you how to use the glCopyBufferSubData to copy data between 2 Vertex Buffer Objects.
@@ -958,8 +975,8 @@ In this sample we copy a Buffer for Positions and a Buffer for Indices.
 
 
 ### [E3_0_InstancingSimple](DemoApps/GLES3/E3_0_InstancingSimple)
-<a href="DemoApps/GLES3/E3_0_InstancingSimple">
-<img src="DemoApps/GLES3/E3_0_InstancingSimple/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/E3_0_InstancingSimple/Example.jpg">
+<img src="DemoApps/GLES3/E3_0_InstancingSimple/Example.jpg" height="108px">
 </a>
 
 This sample introduces the concept of instancing, this concept is useful to render several meshes that share geometry.
@@ -969,8 +986,8 @@ In this sample all cubes will share the same vertex positions, however the color
 
 
 ### [E4_0_PRestart](DemoApps/GLES3/E4_0_PRestart)
-<a href="DemoApps/GLES3/E4_0_PRestart">
-<img src="DemoApps/GLES3/E4_0_PRestart/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/E4_0_PRestart/Example.jpg">
+<img src="DemoApps/GLES3/E4_0_PRestart/Example.jpg" height="108px">
 </a>
 
 This sample shows you a new feature of OpenGL ES 3.0 called primitive restart.
@@ -982,8 +999,8 @@ This allows you to segment the geometry without the need of adding a degenerate 
 
 
 ### [E6_0_MultipleRenderTargets](DemoApps/GLES3/E6_0_MultipleRenderTargets)
-<a href="DemoApps/GLES3/E6_0_MultipleRenderTargets">
-<img src="DemoApps/GLES3/E6_0_MultipleRenderTargets/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/E6_0_MultipleRenderTargets/Example.jpg">
+<img src="DemoApps/GLES3/E6_0_MultipleRenderTargets/Example.jpg" height="108px">
 </a>
 
 This sample introduces multiple render targets (MRT). This feature allows you to define multiple outputs from your fragment shader.
@@ -993,8 +1010,8 @@ Please check the fragment shader under the Content folder, you will notice how 4
 
 
 ### [E7_0_ParticleSystem](DemoApps/GLES3/E7_0_ParticleSystem)
-<a href="DemoApps/GLES3/E7_0_ParticleSystem">
-<img src="DemoApps/GLES3/E7_0_ParticleSystem/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/E7_0_ParticleSystem/Example.jpg">
+<img src="DemoApps/GLES3/E7_0_ParticleSystem/Example.jpg" height="108px">
 </a>
 
 This sample creates a particle system using GL_POINTS.
@@ -1004,16 +1021,16 @@ It defines an initial point where the particles will be tightly packed and then,
 
 
 ### [EquirectangularToCubemap](DemoApps/GLES3/EquirectangularToCubemap)
-<a href="DemoApps/GLES3/EquirectangularToCubemap">
-<img src="DemoApps/GLES3/EquirectangularToCubemap/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/EquirectangularToCubemap/Example.jpg">
+<img src="DemoApps/GLES3/EquirectangularToCubemap/Example.jpg" height="108px">
 </a>
 
 Convert a [equirectangular map](https://en.wikipedia.org/wiki/Equirectangular_projection) to a cubemap using OpenGL ES3.
 
 
 ### [FractalShader](DemoApps/GLES3/FractalShader)
-<a href="DemoApps/GLES3/FractalShader">
-<img src="DemoApps/GLES3/FractalShader/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/FractalShader/Example.jpg">
+<img src="DemoApps/GLES3/FractalShader/Example.jpg" height="108px">
 </a>
 
 Can render both the julia and mandelbrot set.
@@ -1023,8 +1040,8 @@ No texture and no overdraw, minimal bandwidth requirements.
 
 
 ### [FurShellRendering](DemoApps/GLES3/FurShellRendering)
-<a href="DemoApps/GLES3/FurShellRendering">
-<img src="DemoApps/GLES3/FurShellRendering/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/FurShellRendering/Example.jpg">
+<img src="DemoApps/GLES3/FurShellRendering/Example.jpg" height="108px">
 </a>
 
 Illustrates how to render fur over several primitives.
@@ -1035,8 +1052,8 @@ The fur is rendered on a layered approach using a seamless texture as a base and
 
 
 ### [GammaCorrection](DemoApps/GLES3/GammaCorrection)
-<a href="DemoApps/GLES3/GammaCorrection">
-<img src="DemoApps/GLES3/GammaCorrection/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/GammaCorrection/Example.jpg">
+<img src="DemoApps/GLES3/GammaCorrection/Example.jpg" height="108px">
 </a>
 
 A simple example of how to do gamma correction it shows the difference that SRGB textures and gamma correction makes to the output by comparing
@@ -1044,8 +1061,8 @@ it to the uncorrected rendering methods.
 
 
 ### [HDR01_BasicToneMapping](DemoApps/GLES3/HDR01_BasicToneMapping)
-<a href="DemoApps/GLES3/HDR01_BasicToneMapping">
-<img src="DemoApps/GLES3/HDR01_BasicToneMapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/HDR01_BasicToneMapping/Example.jpg">
+<img src="DemoApps/GLES3/HDR01_BasicToneMapping/Example.jpg" height="108px">
 </a>
 
 As normal framebuffer values are clamped between 0.0 and 1.0 it means that any light value above 1.0 gets clamped.
@@ -1055,8 +1072,8 @@ preserve it. This demo applies the tonemapping right away in the lighting shader
 
 
 ### [HDR02_FBBasicToneMapping](DemoApps/GLES3/HDR02_FBBasicToneMapping)
-<a href="DemoApps/GLES3/HDR02_FBBasicToneMapping">
-<img src="DemoApps/GLES3/HDR02_FBBasicToneMapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/HDR02_FBBasicToneMapping/Example.jpg">
+<img src="DemoApps/GLES3/HDR02_FBBasicToneMapping/Example.jpg" height="108px">
 </a>
 
 As normal framebuffer values are clamped between 0.0 and 1.0 it means that any light value above 1.0 gets clamped.
@@ -1068,9 +1085,9 @@ so a temporary floating point framebuffer is needed.
 This sample outputs to a LDR screen.
 
 
-### [HDR03_SkyboxTonemapping](DemoApps/GLES3/HDR03_SkyboxTonemapping)
-<a href="DemoApps/GLES3/HDR03_SkyboxTonemapping">
-<img src="DemoApps/GLES3/HDR03_SkyboxTonemapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+### [HDR03_SkyboxToneMapping](DemoApps/GLES3/HDR03_SkyboxToneMapping)
+<a href="DemoApps/GLES3/HDR03_SkyboxToneMapping/Example.jpg">
+<img src="DemoApps/GLES3/HDR03_SkyboxToneMapping/Example.jpg" height="108px">
 </a>
 
 Render a HDR skybox and apply various tonemapping algorithms to it.
@@ -1079,8 +1096,8 @@ This sample outputs to a LDR screen.
 
 
 ### [HDR04_HDRFramebuffer](DemoApps/GLES3/HDR04_HDRFramebuffer)
-<a href="DemoApps/GLES3/HDR04_HDRFramebuffer">
-<img src="DemoApps/GLES3/HDR04_HDRFramebuffer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/HDR04_HDRFramebuffer/Example.jpg">
+<img src="DemoApps/GLES3/HDR04_HDRFramebuffer/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to enable HDRFramebuffer mode if available.
@@ -1089,9 +1106,18 @@ The render a test scene using a pattern that makes it easy to detect if the disp
 This sample outputs to a HDR screen if supported.
 
 
+### [LineBuilder101](DemoApps/GLES3/LineBuilder101)
+<a href="DemoApps/GLES3/LineBuilder101/Example.jpg">
+<img src="DemoApps/GLES3/LineBuilder101/Example.jpg" height="108px">
+</a>
+
+A simple example of dynamic line rendering using the LineBuilder helper class.
+The line builder has 'Add' methods for most FslBase.Math classes like BoundingBox, BoundingSphere, BoundingFrustrum, Ray, etc.
+
+
 ### [ModelLoaderBasics](DemoApps/GLES3/ModelLoaderBasics)
-<a href="DemoApps/GLES3/ModelLoaderBasics">
-<img src="DemoApps/GLES3/ModelLoaderBasics/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/ModelLoaderBasics/Example.jpg">
+<img src="DemoApps/GLES3/ModelLoaderBasics/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to use the FslSceneImporter and Assimp to load a scene and render it using OpenGLES2.
@@ -1102,8 +1128,8 @@ For a more complex example take a look at the ModelViewer example.
 
 
 ### [ModelViewer](DemoApps/GLES3/ModelViewer)
-<a href="DemoApps/GLES3/ModelViewer">
-<img src="DemoApps/GLES3/ModelViewer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/ModelViewer/Example.jpg">
+<img src="DemoApps/GLES3/ModelViewer/Example.jpg" height="108px">
 </a>
 
 Expands the ModelLoaderBasics example with:
@@ -1114,8 +1140,8 @@ Expands the ModelLoaderBasics example with:
 
 
 ### [MultipleViewportsFractalShader](DemoApps/GLES3/MultipleViewportsFractalShader)
-<a href="DemoApps/GLES3/MultipleViewportsFractalShader">
-<img src="DemoApps/GLES3/MultipleViewportsFractalShader/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/MultipleViewportsFractalShader/Example.jpg">
+<img src="DemoApps/GLES3/MultipleViewportsFractalShader/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to utilize multiple viewports.
@@ -1125,8 +1151,8 @@ No texture and no overdraw, minimal bandwidth requirements.
 
 
 ### [ObjectSelection](DemoApps/GLES3/ObjectSelection)
-<a href="DemoApps/GLES3/ObjectSelection">
-<img src="DemoApps/GLES3/ObjectSelection/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/ObjectSelection/Example.jpg">
+<img src="DemoApps/GLES3/ObjectSelection/Example.jpg" height="108px">
 </a>
 
 Shows how to select (pick) 3d objects using the mouse via Axis Aligned Bounding Boxes (AABB).
@@ -1136,8 +1162,8 @@ if there might be a collision and then utilize a more precise calculation to ver
 
 
 ### [OpenCL101](DemoApps/GLES3/OpenCL101)
-<a href="DemoApps/GLES3/OpenCL101">
-<img src="DemoApps/GLES3/OpenCL101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/OpenCL101/Example.jpg">
+<img src="DemoApps/GLES3/OpenCL101/Example.jpg" height="108px">
 </a>
 
 Simple application that allows you to get your system's OpenCL available platforms.
@@ -1149,8 +1175,8 @@ then it does some very basic OpenCL operations. It could be used as a good start
 
 
 ### [OpenCLGaussianFilter](DemoApps/GLES3/OpenCLGaussianFilter)
-<a href="DemoApps/GLES3/OpenCLGaussianFilter">
-<img src="DemoApps/GLES3/OpenCLGaussianFilter/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/OpenCLGaussianFilter/Example.jpg">
+<img src="DemoApps/GLES3/OpenCLGaussianFilter/Example.jpg" height="108px">
 </a>
 
 This sample uses OpenCL to execute a Gaussian Blur on an image.
@@ -1159,19 +1185,19 @@ The output will then be stored into a bmp image and also displayed as an OpenGL 
 
 
 ### [OpenCV101](DemoApps/GLES3/OpenCV101)
-<a href="DemoApps/GLES3/OpenCV101">
-<img src="DemoApps/GLES3/OpenCV101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/OpenCV101/Example.jpg">
+<img src="DemoApps/GLES3/OpenCV101/Example.jpg" height="108px">
 </a>
 
-Demonstrates how to use OpenCV from inside a OpenGL ES 2 project.
+Demonstrates how to use OpenCV from inside a OpenGL ES 3 project.
 
 This is a very basic example that mainly shows how to setup the correct dependency in the Fsl.gen file and
 then it does some very basic OpenCV operations. It could be used as a good starting point for a more complex example.
 
 
 ### [OpenCVMatToNativeBatch](DemoApps/GLES3/OpenCVMatToNativeBatch)
-<a href="DemoApps/GLES3/OpenCVMatToNativeBatch">
-<img src="DemoApps/GLES3/OpenCVMatToNativeBatch/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/OpenCVMatToNativeBatch/Example.jpg">
+<img src="DemoApps/GLES3/OpenCVMatToNativeBatch/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to take a OpenCV mat and convert it to a Bitmap which is then converted to a Texture2D for use with
@@ -1182,8 +1208,8 @@ The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
 
 
 ### [OpenCVMatToUI](DemoApps/GLES3/OpenCVMatToUI)
-<a href="DemoApps/GLES3/OpenCVMatToUI">
-<img src="DemoApps/GLES3/OpenCVMatToUI/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/OpenCVMatToUI/Example.jpg">
+<img src="DemoApps/GLES3/OpenCVMatToUI/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to take a OpenCV mat and convert it to a Bitmap which is then converted to a Texture2D for use with
@@ -1194,14 +1220,16 @@ The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
 
 
 ### [OpenVX101](DemoApps/GLES3/OpenVX101)
-<a href="DemoApps/GLES3/OpenVX101">
-<img src="DemoApps/GLES3/OpenVX101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/OpenVX101/Example.jpg">
+<img src="DemoApps/GLES3/OpenVX101/Example.jpg" height="108px">
 </a>
+
+Demonstrate how process a image with OpenVX then use it to render as a texture on the GPU.
 
 
 ### [ParticleSystem](DemoApps/GLES3/ParticleSystem)
-<a href="DemoApps/GLES3/ParticleSystem">
-<img src="DemoApps/GLES3/ParticleSystem/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/ParticleSystem/Example.jpg">
+<img src="DemoApps/GLES3/ParticleSystem/Example.jpg" height="108px">
 </a>
 
 Creates a configurable particle system where you can select the type of primitive each particle will have and the amount of particles.
@@ -1212,8 +1240,8 @@ Creates a configurable particle system where you can select the type of primitiv
 
 
 ### [S01_SimpleTriangle](DemoApps/GLES3/S01_SimpleTriangle)
-<a href="DemoApps/GLES3/S01_SimpleTriangle">
-<img src="DemoApps/GLES3/S01_SimpleTriangle/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/S01_SimpleTriangle/Example.jpg">
+<img src="DemoApps/GLES3/S01_SimpleTriangle/Example.jpg" height="108px">
 </a>
 
 Shows how to render a single colored Triangle using OpenGL ES, this sample serves as a good introduction to
@@ -1223,8 +1251,8 @@ It's basically the typical 'Hello World' program for graphics.
 
 
 ### [S02_ColoredTriangle](DemoApps/GLES3/S02_ColoredTriangle)
-<a href="DemoApps/GLES3/S02_ColoredTriangle">
-<img src="DemoApps/GLES3/S02_ColoredTriangle/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/S02_ColoredTriangle/Example.jpg">
+<img src="DemoApps/GLES3/S02_ColoredTriangle/Example.jpg" height="108px">
 </a>
 
 Shows how to render a vertex colored Triangle using OpenGL ES, this demonstrates how to add more than vertex
@@ -1234,8 +1262,8 @@ This is basically the same as the S01 example it just adds vertex colors to the 
 
 
 ### [S03_Transform](DemoApps/GLES3/S03_Transform)
-<a href="DemoApps/GLES3/S03_Transform">
-<img src="DemoApps/GLES3/S03_Transform/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/S03_Transform/Example.jpg">
+<img src="DemoApps/GLES3/S03_Transform/Example.jpg" height="108px">
 </a>
 
 Renders a animated vertex colored triangle.
@@ -1245,8 +1273,8 @@ how to utilize demoTime.DeltaTime to do frame rate independent animation.
 
 
 ### [S04_Projection](DemoApps/GLES3/S04_Projection)
-<a href="DemoApps/GLES3/S04_Projection">
-<img src="DemoApps/GLES3/S04_Projection/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/S04_Projection/Example.jpg">
+<img src="DemoApps/GLES3/S04_Projection/Example.jpg" height="108px">
 </a>
 
 This example shows how to:
@@ -1262,8 +1290,8 @@ This currently only works on the Yocto platform.
 
 
 ### [S06_Texturing](DemoApps/GLES3/S06_Texturing)
-<a href="DemoApps/GLES3/S06_Texturing">
-<img src="DemoApps/GLES3/S06_Texturing/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/S06_Texturing/Example.jpg">
+<img src="DemoApps/GLES3/S06_Texturing/Example.jpg" height="108px">
 </a>
 
 This example shows how to use the Texture class to use a texture in a cube.
@@ -1273,8 +1301,8 @@ into a bitmap utility class which is then used to used to create a OpenGL ES tex
 
 
 ### [S07_EnvironmentMapping](DemoApps/GLES3/S07_EnvironmentMapping)
-<a href="DemoApps/GLES3/S07_EnvironmentMapping">
-<img src="DemoApps/GLES3/S07_EnvironmentMapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/S07_EnvironmentMapping/Example.jpg">
+<img src="DemoApps/GLES3/S07_EnvironmentMapping/Example.jpg" height="108px">
 </a>
 
 This sample shows how to use a cubemap texture to simulate a reflective material.
@@ -1284,8 +1312,8 @@ into a Texture utility class which is then used to used to create a OpenGL ES cu
 
 
 ### [S08_EnvironmentMappingRefraction](DemoApps/GLES3/S08_EnvironmentMappingRefraction)
-<a href="DemoApps/GLES3/S08_EnvironmentMappingRefraction">
-<img src="DemoApps/GLES3/S08_EnvironmentMappingRefraction/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/S08_EnvironmentMappingRefraction/Example.jpg">
+<img src="DemoApps/GLES3/S08_EnvironmentMappingRefraction/Example.jpg" height="108px">
 </a>
 
 This sample is a variation from the previous sample, again, a cubemap texture is used,
@@ -1300,25 +1328,26 @@ This sample shows how to use the Verisilicon extensions to create a texture with
 
 
 ### [Scissor101](DemoApps/GLES3/Scissor101)
-<a href="DemoApps/GLES3/Scissor101">
-<img src="DemoApps/GLES3/Scissor101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/Scissor101/Example.jpg">
+<img src="DemoApps/GLES3/Scissor101/Example.jpg" height="108px">
 </a>
 
 A simple example of how glScissor works.
-This sample also allows you to force set a invalid scissor rect from the command line.
+
+This is showcased by rendering the insides of a rotating cube and using a animated scissor rectangle to clip.
 
 
 ### [Skybox](DemoApps/GLES3/Skybox)
-<a href="DemoApps/GLES3/Skybox">
-<img src="DemoApps/GLES3/Skybox/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/Skybox/Example.jpg">
+<img src="DemoApps/GLES3/Skybox/Example.jpg" height="108px">
 </a>
 
 Render a simple skybox using a cubemap.
 
 
 ### [SpringBackground](DemoApps/GLES3/SpringBackground)
-<a href="DemoApps/GLES3/SpringBackground">
-<img src="DemoApps/GLES3/SpringBackground/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/SpringBackground/Example.jpg">
+<img src="DemoApps/GLES3/SpringBackground/Example.jpg" height="108px">
 </a>
 
 Background test to showcase SPline animations used for simulating a fluid background that can be stimulated by either the spheres or mouse/touch input.
@@ -1330,8 +1359,8 @@ It is then demonstrated how to render the grid using:
 
 
 ### [SRGBFramebuffer](DemoApps/GLES3/SRGBFramebuffer)
-<a href="DemoApps/GLES3/SRGBFramebuffer">
-<img src="DemoApps/GLES3/SRGBFramebuffer/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/SRGBFramebuffer/Example.jpg">
+<img src="DemoApps/GLES3/SRGBFramebuffer/Example.jpg" height="108px">
 </a>
 
 Enables a SRGB Framebuffer if the extension EGL_KHR_gl_colorspace is available.
@@ -1339,8 +1368,8 @@ If unavailable it does normal gamma correction in the shader.
 
 
 ### [T3DStressTest](DemoApps/GLES3/T3DStressTest)
-<a href="DemoApps/GLES3/T3DStressTest">
-<img src="DemoApps/GLES3/T3DStressTest/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/T3DStressTest/Example.jpg">
+<img src="DemoApps/GLES3/T3DStressTest/Example.jpg" height="108px">
 </a>
 
 Executes a highly configurable stress test for the OpenGL ES API.
@@ -1351,8 +1380,8 @@ This will often showcase the worst case power consumption of the GPU.
 
 
 ### [Tessellation101](DemoApps/GLES3/Tessellation101)
-<a href="DemoApps/GLES3/Tessellation101">
-<img src="DemoApps/GLES3/Tessellation101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/Tessellation101/Example.jpg">
+<img src="DemoApps/GLES3/Tessellation101/Example.jpg" height="108px">
 </a>
 
 Simple tessellation sample that allows you to select the tessellation level to see how it modifies the level of detail on the selected geometry.
@@ -1361,8 +1390,8 @@ Simple tessellation sample that allows you to select the tessellation level to s
 
 
 ### [TessellationSample](DemoApps/GLES3/TessellationSample)
-<a href="DemoApps/GLES3/TessellationSample">
-<img src="DemoApps/GLES3/TessellationSample/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/TessellationSample/Example.jpg">
+<img src="DemoApps/GLES3/TessellationSample/Example.jpg" height="108px">
 </a>
 
 Shows how to load scenes via Assimp and then render them using
@@ -1371,8 +1400,8 @@ Shows how to load scenes via Assimp and then render them using
 
 
 ### [TextureCompression](DemoApps/GLES3/TextureCompression)
-<a href="DemoApps/GLES3/TextureCompression">
-<img src="DemoApps/GLES3/TextureCompression/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/TextureCompression/Example.jpg">
+<img src="DemoApps/GLES3/TextureCompression/Example.jpg" height="108px">
 </a>
 
 Load and render some ETC2 compressed textures.
@@ -1380,8 +1409,8 @@ It also outputs information about the found compression extensions.
 
 
 ### [VerletIntegration101](DemoApps/GLES3/VerletIntegration101)
-<a href="DemoApps/GLES3/VerletIntegration101">
-<img src="DemoApps/GLES3/VerletIntegration101/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/GLES3/VerletIntegration101/Example.jpg">
+<img src="DemoApps/GLES3/VerletIntegration101/Example.jpg" height="108px">
 </a>
 
 A very simple [verlet integration](https://en.wikipedia.org/wiki/Verlet_integration) example.
@@ -1407,8 +1436,8 @@ Information related to CL kernel compilers, number of buffers supported, extensi
 
 
 ### [SoftISP](DemoApps/OpenCL/SoftISP)
-<a href="DemoApps/OpenCL/SoftISP">
-<img src="DemoApps/OpenCL/SoftISP/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenCL/SoftISP/Example.jpg">
+<img src="DemoApps/OpenCL/SoftISP/Example.jpg" height="108px">
 </a>
 
 It is a software-based image signal processing(SoftISP) application optimized by GPU. SoftISP --Options
@@ -1432,8 +1461,8 @@ This test tries to read a couple of bitmaps, process them and show the result on
 ## OpenVG
 
 ### [BitmapFont](DemoApps/OpenVG/BitmapFont)
-<a href="DemoApps/OpenVG/BitmapFont">
-<img src="DemoApps/OpenVG/BitmapFont/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/BitmapFont/Example.jpg">
+<img src="DemoApps/OpenVG/BitmapFont/Example.jpg" height="108px">
 </a>
 
 Shows how to render text using a bitmap font in OpenVG.
@@ -1444,8 +1473,8 @@ Shows how to render text using a bitmap font in OpenVG.
 
 
 ### [CoverFlow](DemoApps/OpenVG/CoverFlow)
-<a href="DemoApps/OpenVG/CoverFlow">
-<img src="DemoApps/OpenVG/CoverFlow/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/CoverFlow/Example.jpg">
+<img src="DemoApps/OpenVG/CoverFlow/Example.jpg" height="108px">
 </a>
 
 This sample shows how to use image data in OpenVG. You can think of it as an OpenGL Texture on a Quad. A vgImage is a rectangular shape populated with color information from an image.
@@ -1455,8 +1484,8 @@ This sample also shows that you can transform those images as the paths in previ
 
 
 ### [DFGraphicsBasic2D](DemoApps/OpenVG/DFGraphicsBasic2D)
-<a href="DemoApps/OpenVG/DFGraphicsBasic2D">
-<img src="DemoApps/OpenVG/DFGraphicsBasic2D/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/DFGraphicsBasic2D/Example.jpg">
+<img src="DemoApps/OpenVG/DFGraphicsBasic2D/Example.jpg" height="108px">
 </a>
 
 Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
@@ -1466,8 +1495,8 @@ The functionality in Basic2D is used internally in the framework to render the p
 
 
 ### [Example1](DemoApps/OpenVG/Example1)
-<a href="DemoApps/OpenVG/Example1">
-<img src="DemoApps/OpenVG/Example1/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/Example1/Example.jpg">
+<img src="DemoApps/OpenVG/Example1/Example.jpg" height="108px">
 </a>
 
 Shows how to draw lines using OpenVG, this sample introduces the concept of Points and segments and
@@ -1477,8 +1506,8 @@ how to integrate them into paths that describe the final shapes that are rendere
 
 
 ### [Example2](DemoApps/OpenVG/Example2)
-<a href="DemoApps/OpenVG/Example2">
-<img src="DemoApps/OpenVG/Example2/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/Example2/Example.jpg">
+<img src="DemoApps/OpenVG/Example2/Example.jpg" height="108px">
 </a>
 
 This sample builds on top of Example1 and shows how to add color to the path strokes and
@@ -1490,8 +1519,8 @@ the path fill area by introducing the concept of "paints" in OpenVG.
 
 
 ### [Example3](DemoApps/OpenVG/Example3)
-<a href="DemoApps/OpenVG/Example3">
-<img src="DemoApps/OpenVG/Example3/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/Example3/Example.jpg">
+<img src="DemoApps/OpenVG/Example3/Example.jpg" height="108px">
 </a>
 
 This sample will introduce the transformation functions on OpenVG as well as the scissoring function.
@@ -1502,8 +1531,8 @@ The scissoring rectangle will be set at the beginning of the Draw method.
 
 
 ### [SimpleBench](DemoApps/OpenVG/SimpleBench)
-<a href="DemoApps/OpenVG/SimpleBench">
-<img src="DemoApps/OpenVG/SimpleBench/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/SimpleBench/Example.jpg">
+<img src="DemoApps/OpenVG/SimpleBench/Example.jpg" height="108px">
 </a>
 
 Small benchmarking application for benchmarking various ways to render points in OpenVG.
@@ -1516,8 +1545,8 @@ Small benchmarking application for benchmarking various ways to render points in
 
 
 ### [VGStressTest](DemoApps/OpenVG/VGStressTest)
-<a href="DemoApps/OpenVG/VGStressTest">
-<img src="DemoApps/OpenVG/VGStressTest/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVG/VGStressTest/Example.jpg">
+<img src="DemoApps/OpenVG/VGStressTest/Example.jpg" height="108px">
 </a>
 
 Executes a configurable stress test for the OpenVG API.
@@ -1531,8 +1560,8 @@ This will often showcase the worst case power consumption.
 ## OpenVX
 
 ### [SoftISP](DemoApps/OpenVX/SoftISP)
-<a href="DemoApps/OpenVX/SoftISP">
-<img src="DemoApps/OpenVX/SoftISP/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVX/SoftISP/Example.jpg">
+<img src="DemoApps/OpenVX/SoftISP/Example.jpg" height="108px">
 </a>
 
 It is a software-based image signal processing(SoftISP) application optimized by GPU. SoftISP --Options
@@ -1540,8 +1569,8 @@ It is a software-based image signal processing(SoftISP) application optimized by
 
 
 ### [Stereo](DemoApps/OpenVX/Stereo)
-<a href="DemoApps/OpenVX/Stereo">
-<img src="DemoApps/OpenVX/Stereo/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVX/Stereo/Example.jpg">
+<img src="DemoApps/OpenVX/Stereo/Example.jpg" height="108px">
 </a>
 
 It is a stereo vision implementations based on a multi resolution strategy running on GPU. GPU kernels are developed on i.MX8 series using extended vision instruction set (EVIS).
@@ -1549,8 +1578,8 @@ Input images are taken by fisheye camera, so they have some distortion.
 
 
 ### [VxTutorial1](DemoApps/OpenVX/VxTutorial1)
-<a href="DemoApps/OpenVX/VxTutorial1">
-<img src="DemoApps/OpenVX/VxTutorial1/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/OpenVX/VxTutorial1/Example.jpg">
+<img src="DemoApps/OpenVX/VxTutorial1/Example.jpg" height="108px">
 </a>
 
 
@@ -1558,8 +1587,8 @@ Input images are taken by fisheye camera, so they have some distortion.
 ## Vulkan
 
 ### [ComputeParticles](DemoApps/Vulkan/ComputeParticles)
-<a href="DemoApps/Vulkan/ComputeParticles">
-<img src="DemoApps/Vulkan/ComputeParticles/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/ComputeParticles/Example.jpg">
+<img src="DemoApps/Vulkan/ComputeParticles/Example.jpg" height="108px">
 </a>
 
 Attraction based particle system. A shader storage buffer is used to store particle on which the compute shader does some physics calculations.
@@ -1571,15 +1600,64 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 
 
 ### [DevBatch](DemoApps/Vulkan/DevBatch)
+<a href="DemoApps/Vulkan/DevBatch/Example.jpg">
+<img src="DemoApps/Vulkan/DevBatch/Example.jpg" height="108px">
+</a>
+
 Early development prototype of a basic quad batch implementation that can be used to implement the native batch for Vulkan.
 This will allow the UI library to work with Vulkan.
 
 .
 
 
+### [DFGraphicsBasic2D](DemoApps/Vulkan/DFGraphicsBasic2D)
+<a href="DemoApps/Vulkan/DFGraphicsBasic2D/Example.jpg">
+<img src="DemoApps/Vulkan/DFGraphicsBasic2D/Example.jpg" height="108px">
+</a>
+
+Shows how to use the Demo Frameworks 'basic' 2d rendering capabilities that work across all backends.
+The basic2D interface allows you to render ASCII strings using a system provided font and draw colored points.
+
+The functionality in Basic2D is used internally in the framework to render the profiling overlays like the frame rate counter and graph.
+
+
+### [DFNativeBatch2D](DemoApps/Vulkan/DFNativeBatch2D)
+<a href="DemoApps/Vulkan/DFNativeBatch2D/Example.jpg">
+<img src="DemoApps/Vulkan/DFNativeBatch2D/Example.jpg" height="108px">
+</a>
+
+Shows how to use the Demo Frameworks NativeBatch implementatin to render various graphics elements.
+The native batch functionality works across various 3D backends and also allows you to use the API native textures for rendering.
+
+The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
+It is however not a optimized way of rendering things.
+
+
+### [DFSimpleUI100](DemoApps/Vulkan/DFSimpleUI100)
+<a href="DemoApps/Vulkan/DFSimpleUI100/Example.jpg">
+<img src="DemoApps/Vulkan/DFSimpleUI100/Example.jpg" height="108px">
+</a>
+
+A very basic example of how to utilize the DemoFramework's UI library.
+The sample displays four buttons and reacts to clicks.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
+### [DFSimpleUI101](DemoApps/Vulkan/DFSimpleUI101)
+<a href="DemoApps/Vulkan/DFSimpleUI101/Example.jpg">
+<img src="DemoApps/Vulkan/DFSimpleUI101/Example.jpg" height="108px">
+</a>
+
+A more complex example of how to utilize the DemoFramework's UI library.
+It displays various UI controls and ways to utilize them.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
 ### [DisplacementMapping](DemoApps/Vulkan/DisplacementMapping)
-<a href="DemoApps/Vulkan/DisplacementMapping">
-<img src="DemoApps/Vulkan/DisplacementMapping/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/DisplacementMapping/Example.jpg">
+<img src="DemoApps/Vulkan/DisplacementMapping/Example.jpg" height="108px">
 </a>
 
 Uses tessellation shaders to generate additional details and displace geometry based on a heightmap.
@@ -1589,8 +1667,8 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 
 
 ### [DynamicTerrainTessellation](DemoApps/Vulkan/DynamicTerrainTessellation)
-<a href="DemoApps/Vulkan/DynamicTerrainTessellation">
-<img src="DemoApps/Vulkan/DynamicTerrainTessellation/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/DynamicTerrainTessellation/Example.jpg">
+<img src="DemoApps/Vulkan/DynamicTerrainTessellation/Example.jpg" height="108px">
 </a>
 
 Renders a terrain with dynamic tessellation based on screen space triangle size,
@@ -1602,9 +1680,18 @@ Based on a example called [Dynamic terrain tessellation](https://github.com/Sasc
 Recreated as a DemoFramework freestyle window sample in 2016.
 
 
+### [GammaCorrection](DemoApps/Vulkan/GammaCorrection)
+<a href="DemoApps/Vulkan/GammaCorrection/Example.jpg">
+<img src="DemoApps/Vulkan/GammaCorrection/Example.jpg" height="108px">
+</a>
+
+A simple example of how to do gamma correction it shows the difference that SRGB textures and gamma correction makes to the output by comparing
+it to the uncorrected rendering methods.
+
+
 ### [Gears](DemoApps/Vulkan/Gears)
-<a href="DemoApps/Vulkan/Gears">
-<img src="DemoApps/Vulkan/Gears/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/Gears/Example.jpg">
+<img src="DemoApps/Vulkan/Gears/Example.jpg" height="108px">
 </a>
 
 Vulkan interpretation of glxgears.
@@ -1615,9 +1702,63 @@ Based on a example called [Vulkan Gears](https://github.com/SaschaWillems/Vulkan
 Recreated as a DemoFramework freestyle window sample in 2016.
 
 
+### [HDR01_BasicToneMapping](DemoApps/Vulkan/HDR01_BasicToneMapping)
+<a href="DemoApps/Vulkan/HDR01_BasicToneMapping/Example.jpg">
+<img src="DemoApps/Vulkan/HDR01_BasicToneMapping/Example.jpg" height="108px">
+</a>
+
+As normal framebuffer values are clamped between 0.0 and 1.0 it means that any light value above 1.0 gets clamped.
+Because of this its not really possible to differentiate really bright lights from normal lights.
+To take advantage of the light information that normally gets discarded we use a tone mapping algorithm to try and
+preserve it. This demo applies the tonemapping right away in the lighting shader so no temporary floating point framebuffer is needed.
+
+
+### [HDR02_FBBasicToneMapping](DemoApps/Vulkan/HDR02_FBBasicToneMapping)
+<a href="DemoApps/Vulkan/HDR02_FBBasicToneMapping/Example.jpg">
+<img src="DemoApps/Vulkan/HDR02_FBBasicToneMapping/Example.jpg" height="108px">
+</a>
+
+As normal framebuffer values are clamped between 0.0 and 1.0 it means that any light value above 1.0 gets clamped.
+Because of this its not really possible to differentiate really bright lights from normal lights.
+To take advantage of the light information that normally gets discarded we use a tone mapping algorithm to try and
+preserve it. This demo applies the tonemapping as a postprocessing step on the fully lit scene,
+so a temporary floating point framebuffer is needed.
+
+This sample outputs to a LDR screen.
+
+
+### [HDR03_SkyboxToneMapping](DemoApps/Vulkan/HDR03_SkyboxToneMapping)
+<a href="DemoApps/Vulkan/HDR03_SkyboxToneMapping/Example.jpg">
+<img src="DemoApps/Vulkan/HDR03_SkyboxToneMapping/Example.jpg" height="108px">
+</a>
+
+Render a HDR skybox and apply various tonemapping algorithms to it.
+
+This sample outputs to a LDR screen.
+
+
+### [InputEvents](DemoApps/Vulkan/InputEvents)
+<a href="DemoApps/Vulkan/InputEvents/Example.jpg">
+<img src="DemoApps/Vulkan/InputEvents/Example.jpg" height="108px">
+</a>
+
+Demonstrates how to receive various input events and logs information about them onscreen and to to the log.
+
+This can also be used to do some basic real time tests of the input system when porting the framework to a new platform.
+
+
+### [LineBuilder101](DemoApps/Vulkan/LineBuilder101)
+<a href="DemoApps/Vulkan/LineBuilder101/Example.jpg">
+<img src="DemoApps/Vulkan/LineBuilder101/Example.jpg" height="108px">
+</a>
+
+A simple example of dynamic line rendering using the LineBuilder helper class.
+The line builder has 'Add' methods for most FslBase.Math classes like BoundingBox, BoundingSphere, BoundingFrustrum, Ray, etc.
+
+
 ### [MeshInstancing](DemoApps/Vulkan/MeshInstancing)
-<a href="DemoApps/Vulkan/MeshInstancing">
-<img src="DemoApps/Vulkan/MeshInstancing/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/MeshInstancing/Example.jpg">
+<img src="DemoApps/Vulkan/MeshInstancing/Example.jpg" height="108px">
 </a>
 
 Shows the use of instancing for rendering many copies of the same mesh using different attributes and textures.
@@ -1629,9 +1770,93 @@ Based on a example called [Mesh instancing](https://github.com/SaschaWillems/Vul
 Recreated as a DemoFramework freestyle window sample in 2016.
 
 
+### [OpenCL101](DemoApps/Vulkan/OpenCL101)
+<a href="DemoApps/Vulkan/OpenCL101/Example.jpg">
+<img src="DemoApps/Vulkan/OpenCL101/Example.jpg" height="108px">
+</a>
+
+Simple application that allows you to get your system's Vulkan available platforms.
+
+Demonstrates how to use OpenCL from inside a Vulkan project.
+
+This is a very basic example that mainly shows how to setup the correct dependency in the Fsl.gen file and
+then it does some very basic OpenCL operations. It could be used as a good starting point for a more complex example.
+
+
+### [OpenCLGaussianFilter](DemoApps/Vulkan/OpenCLGaussianFilter)
+<a href="DemoApps/Vulkan/OpenCLGaussianFilter/Example.jpg">
+<img src="DemoApps/Vulkan/OpenCLGaussianFilter/Example.jpg" height="108px">
+</a>
+
+This sample uses OpenCL to execute a Gaussian Blur on an image.
+
+The output will then be stored into a bmp image and also displayed as an Vulkan texture mapped to a cube.
+
+
+### [OpenCV101](DemoApps/Vulkan/OpenCV101)
+<a href="DemoApps/Vulkan/OpenCV101/Example.jpg">
+<img src="DemoApps/Vulkan/OpenCV101/Example.jpg" height="108px">
+</a>
+
+Demonstrates how to use OpenCV from inside a Vulkan project.
+
+This is a very basic example that mainly shows how to setup the correct dependency in the Fsl.gen file and
+then it does some very basic OpenCV operations. It could be used as a good starting point for a more complex example.
+
+
+### [OpenCVMatToNativeBatch](DemoApps/Vulkan/OpenCVMatToNativeBatch)
+<a href="DemoApps/Vulkan/OpenCVMatToNativeBatch/Example.jpg">
+<img src="DemoApps/Vulkan/OpenCVMatToNativeBatch/Example.jpg" height="108px">
+</a>
+
+Demonstrates how to take a OpenCV mat and convert it to a Bitmap which is then converted to a Texture2D for use with
+the NativeBatch. The texture is then shown on screen and can be compared to the same texture that was loaded using the
+normal DemoFramework methods.
+
+The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
+
+
+### [OpenCVMatToUI](DemoApps/Vulkan/OpenCVMatToUI)
+<a href="DemoApps/Vulkan/OpenCVMatToUI/Example.jpg">
+<img src="DemoApps/Vulkan/OpenCVMatToUI/Example.jpg" height="108px">
+</a>
+
+Demonstrates how to take a OpenCV mat and convert it to a Bitmap which is then converted to a Texture2D for use with
+the UI frmaework. The texture is then shown on screen and can be compared to the same texture that was loaded using the
+normal DemoFramework methods.
+
+The cv::Mat -> Bitmap routines used here are a very basic proof of concept.
+
+
+### [OpenVX101](DemoApps/Vulkan/OpenVX101)
+<a href="DemoApps/Vulkan/OpenVX101/Example.jpg">
+<img src="DemoApps/Vulkan/OpenVX101/Example.jpg" height="108px">
+</a>
+
+Demonstrate how process a image with OpenVX then use it to render as a texture on the GPU.
+
+
+### [Scissor101](DemoApps/Vulkan/Scissor101)
+<a href="DemoApps/Vulkan/Scissor101/Example.jpg">
+<img src="DemoApps/Vulkan/Scissor101/Example.jpg" height="108px">
+</a>
+
+A simple example of how scissoring works in Vulkan.
+
+This is showcased by rendering the insides of a rotating cube and using a animated scissor rectangle to clip.
+
+
+### [Skybox](DemoApps/Vulkan/Skybox)
+<a href="DemoApps/Vulkan/Skybox/Example.jpg">
+<img src="DemoApps/Vulkan/Skybox/Example.jpg" height="108px">
+</a>
+
+Render a simple skybox using a cubemap.
+
+
 ### [TessellationPNTriangles](DemoApps/Vulkan/TessellationPNTriangles)
-<a href="DemoApps/Vulkan/TessellationPNTriangles">
-<img src="DemoApps/Vulkan/TessellationPNTriangles/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/TessellationPNTriangles/Example.jpg">
+<img src="DemoApps/Vulkan/TessellationPNTriangles/Example.jpg" height="108px">
 </a>
 
 Generating curved PN-Triangles on the GPU using tessellation shaders to add details to low-polygon meshes,
@@ -1642,9 +1867,18 @@ Based on a example called [PN-Triangles](https://github.com/SaschaWillems/Vulkan
 Recreated as a DemoFramework freestyle window sample in 2016.
 
 
+### [TextureCompression](DemoApps/Vulkan/TextureCompression)
+<a href="DemoApps/Vulkan/TextureCompression/Example.jpg">
+<img src="DemoApps/Vulkan/TextureCompression/Example.jpg" height="108px">
+</a>
+
+Load and render the supported compressed textures.
+It also outputs information about the compression support.
+
+
 ### [Texturing](DemoApps/Vulkan/Texturing)
-<a href="DemoApps/Vulkan/Texturing">
-<img src="DemoApps/Vulkan/Texturing/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/Texturing/Example.jpg">
+<img src="DemoApps/Vulkan/Texturing/Example.jpg" height="108px">
 </a>
 
 Shows how to upload a 2D texture into video memory for sampling in a shader.
@@ -1658,8 +1892,8 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 
 
 ### [TexturingArrays](DemoApps/Vulkan/TexturingArrays)
-<a href="DemoApps/Vulkan/TexturingArrays">
-<img src="DemoApps/Vulkan/TexturingArrays/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/TexturingArrays/Example.jpg">
+<img src="DemoApps/Vulkan/TexturingArrays/Example.jpg" height="108px">
 </a>
 
 Texture arrays allow storing of multiple images in different layers without any interpolation between the layers.
@@ -1670,8 +1904,8 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 
 
 ### [TexturingCubeMap](DemoApps/Vulkan/TexturingCubeMap)
-<a href="DemoApps/Vulkan/TexturingCubeMap">
-<img src="DemoApps/Vulkan/TexturingCubeMap/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/TexturingCubeMap/Example.jpg">
+<img src="DemoApps/Vulkan/TexturingCubeMap/Example.jpg" height="108px">
 </a>
 
 Building on the basic texture loading example, a cubemap texture is loaded into a staging buffer and
@@ -1684,8 +1918,8 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 
 
 ### [Triangle](DemoApps/Vulkan/Triangle)
-<a href="DemoApps/Vulkan/Triangle">
-<img src="DemoApps/Vulkan/Triangle/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/Triangle/Example.jpg">
+<img src="DemoApps/Vulkan/Triangle/Example.jpg" height="108px">
 </a>
 
 Most basic example. Renders a colored triangle using an indexed vertex buffer.
@@ -1700,13 +1934,16 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 
 
 ### [Vulkan101](DemoApps/Vulkan/Vulkan101)
-This is a work in progress example using the 'in development' Vulkan demo host.
-Please ignore it for now.
+<a href="DemoApps/Vulkan/Vulkan101/Example.jpg">
+<img src="DemoApps/Vulkan/Vulkan101/Example.jpg" height="108px">
+</a>
+
+Renders a red triangle.
 
 
 ### [VulkanComputeMandelbrot](DemoApps/Vulkan/VulkanComputeMandelbrot)
-<a href="DemoApps/Vulkan/VulkanComputeMandelbrot">
-<img src="DemoApps/Vulkan/VulkanComputeMandelbrot/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Vulkan/VulkanComputeMandelbrot/Example.jpg">
+<img src="DemoApps/Vulkan/VulkanComputeMandelbrot/Example.jpg" height="108px">
 </a>
 
 Calculating and drawing of the Mandelbrot set using the core Vulkan API
@@ -1733,8 +1970,8 @@ This can also be used to do some basic real time tests of the input system when 
 
 
 ### [VulkanTriangle](DemoApps/Window/VulkanTriangle)
-<a href="DemoApps/Window/VulkanTriangle">
-<img src="DemoApps/Window/VulkanTriangle/Example.jpg" height="108px" style="float:right;clear:both;display:table;margin:1px">
+<a href="DemoApps/Window/VulkanTriangle/Example.jpg">
+<img src="DemoApps/Window/VulkanTriangle/Example.jpg" height="108px">
 </a>
 
 Demonstrates how to use the Freestyle window project type to create a window for use with Vulkan.

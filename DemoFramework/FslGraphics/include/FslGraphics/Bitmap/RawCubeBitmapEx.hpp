@@ -47,62 +47,79 @@ namespace Fsl
     RawBitmapEx m_bitmapNegZ;
 
   public:
-    RawCubeBitmapEx();
+    RawCubeBitmapEx() = default;
     RawCubeBitmapEx(const RawBitmapEx& bitmapPosX, const RawBitmapEx& bitmapNegX, const RawBitmapEx& bitmapPosY, const RawBitmapEx& bitmapNegY,
                     const RawBitmapEx& bitmapPosZ, const RawBitmapEx& bitmapNegZ);
 
-    bool IsValid() const
+    constexpr bool IsValid() const
     {
       return m_bitmapPosX.IsValid();
     }
 
     //! The width of the bitmap in pixels
-    uint32_t Width() const
+    constexpr uint32_t Width() const
     {
       return m_bitmapPosX.Width();
     }
 
     //! The height of the bitmap in pixels
-    uint32_t Height() const
+    constexpr uint32_t Height() const
     {
       return m_bitmapPosX.Height();
     }
 
     //! @brief Get the extent
-    Extent2D GetExtent() const
+    constexpr Extent2D GetExtent() const
     {
       return m_bitmapPosX.GetExtent();
     }
 
     //! Get the pixel format of the raw bitmap
-    PixelFormat GetPixelFormat() const
+    constexpr PixelFormat GetPixelFormat() const
     {
       return m_bitmapPosX.GetPixelFormat();
     }
 
-    RawBitmapEx GetPosX() const
+    //! Get the origin all the raw bitmaps
+    constexpr BitmapOrigin GetOrigin() const
+    {
+      return m_bitmapPosX.GetOrigin();
+    }
+
+    constexpr RawBitmapEx GetPosX() const
     {
       return m_bitmapPosX;
     }
-    RawBitmapEx GetNegX() const
+
+    constexpr RawBitmapEx GetNegX() const
     {
       return m_bitmapNegX;
     }
-    RawBitmapEx GetPosY() const
+
+    constexpr RawBitmapEx GetPosY() const
     {
       return m_bitmapPosY;
     }
-    RawBitmapEx GetNegY() const
+
+    constexpr RawBitmapEx GetNegY() const
     {
       return m_bitmapNegY;
     }
-    RawBitmapEx GetPosZ() const
+
+    constexpr RawBitmapEx GetPosZ() const
     {
       return m_bitmapPosZ;
     }
-    RawBitmapEx GetNegZ() const
+
+    constexpr RawBitmapEx GetNegZ() const
     {
       return m_bitmapNegZ;
+    }
+
+    constexpr uint32_t GetByteSize() const
+    {
+      return m_bitmapPosX.GetByteSize() + m_bitmapNegX.GetByteSize() + m_bitmapPosY.GetByteSize() + m_bitmapNegY.GetByteSize() +
+             m_bitmapPosZ.GetByteSize() + m_bitmapNegZ.GetByteSize();
     }
 
     //! Conversion operator for easy conversion to a RawBitmap

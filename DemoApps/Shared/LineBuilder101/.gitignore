@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.LineBuilder101.VC.VC.opendb
+/Shared.LineBuilder101.VC.db
+/Shared.LineBuilder101.manifest
+/Shared.LineBuilder101.opensdf
+/Shared.LineBuilder101.sdf
+/Shared.LineBuilder101.sln
+/Shared.LineBuilder101.v12.sdf
+/Shared.LineBuilder101.v12.suo
+/Shared.LineBuilder101.vcxproj
+/Shared.LineBuilder101.vcxproj.filters
+/Shared.LineBuilder101.vcxproj.user
+/build/

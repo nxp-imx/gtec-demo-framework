@@ -39,23 +39,23 @@ namespace Fsl
   }
 
 
-  OptionParserId::OptionParserId(const TypeInfo& typeInfo)
+  OptionParserId::OptionParserId(const std::type_index& typeInfo)
     : m_typeInfo(typeInfo)
   {
   }
 
 
-  TypeInfo OptionParserId::Get() const
+  std::type_index OptionParserId::Get() const
   {
     return m_typeInfo;
   }
 
 
-  OptionParserId OptionParserId::Invalid()
-  {
-    return {};
-  }
+  // OptionParserId OptionParserId::Invalid()
+  //{
+  //  return {};
+  //}
 
 
-  OptionParserId::OptionParserId() = default;
+  // OptionParserId::OptionParserId() = default;
 }

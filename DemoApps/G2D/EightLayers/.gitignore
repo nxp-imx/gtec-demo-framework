@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/EightLayers/
 /Content/_ContentSyncCache.fsl
 /EightLayers
 /EightLayers_d

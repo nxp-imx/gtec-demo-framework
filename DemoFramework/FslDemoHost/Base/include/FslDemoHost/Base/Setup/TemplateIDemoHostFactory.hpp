@@ -38,7 +38,21 @@ namespace Fsl
   template <typename T>
   class TemplateIDemoHostFactory : public IDemoHostFactory
   {
+    DemoHostCaps m_caps;
+
   public:
+    TemplateIDemoHostFactory() = default;
+
+    TemplateIDemoHostFactory(const DemoHostCaps& caps)
+      : m_caps(caps)
+    {
+    }
+
+    DemoHostCaps GetCaps() const override
+    {
+      return m_caps;
+    }
+
     std::shared_ptr<IDemoHost> Allocate(const DemoHostConfig& config) override
     {
       return std::shared_ptr<IDemoHost>(new T(config));

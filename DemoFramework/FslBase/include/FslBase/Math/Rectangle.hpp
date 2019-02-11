@@ -46,7 +46,7 @@ namespace Fsl
     int32_t m_height{0};
 
   public:
-    Rectangle() = default;
+    constexpr Rectangle() = default;
     Rectangle(const int32_t x, const int32_t y, const int32_t width, const int32_t height);
     Rectangle(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom, bool reserved);
 
@@ -55,43 +55,43 @@ namespace Fsl
       return Rectangle(0, 0, 0, 0);
     }
 
-    inline int32_t X() const
+    constexpr inline int32_t X() const
     {
       return m_x;
     }
 
-    inline int32_t Y() const
+    constexpr inline int32_t Y() const
     {
       return m_y;
     }
 
-    inline int32_t Width() const
+    constexpr inline int32_t Width() const
     {
       return m_width;
     }
 
-    inline int32_t Height() const
+    constexpr inline int32_t Height() const
     {
       return m_height;
     }
 
 
-    inline int32_t Left() const
+    constexpr inline int32_t Left() const
     {
       return m_x;
     }
 
-    inline int32_t Top() const
+    constexpr inline int32_t Top() const
     {
       return m_y;
     }
 
-    inline int32_t Right() const
+    constexpr inline int32_t Right() const
     {
       return m_x + m_width;
     }
 
-    inline int32_t Bottom() const
+    constexpr inline int32_t Bottom() const
     {
       return m_y + m_height;
     }
@@ -275,13 +275,13 @@ namespace Fsl
     }
 
 
-    bool operator==(const Rectangle& rhs) const
+    constexpr bool operator==(const Rectangle& rhs) const
     {
       return ((m_x == rhs.m_x) && (m_y == rhs.m_y) && (m_width == rhs.m_width) && (m_height == rhs.m_height));
     }
 
 
-    bool operator!=(const Rectangle& rhs) const
+    constexpr bool operator!=(const Rectangle& rhs) const
     {
       return ((m_x != rhs.m_x) || (m_y != rhs.m_y) || (m_width != rhs.m_width) || (m_height != rhs.m_height));
     }

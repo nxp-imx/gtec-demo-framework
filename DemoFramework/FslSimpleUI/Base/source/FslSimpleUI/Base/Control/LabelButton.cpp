@@ -116,7 +116,6 @@ namespace Fsl
       const auto batch = m_windowContext->Batch2D;
       const auto pFont = m_font.get();
       assert(pFont != nullptr);
-      batch->ChangeTo(BlendState::AlphaBlend);
       batch->DrawString(pFont->GetAtlasTexture(), pFont->GetAtlasBitmapFont(), m_content, context.TargetRect.TopLeft(), color);
     }
 

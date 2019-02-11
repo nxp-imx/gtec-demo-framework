@@ -115,8 +115,6 @@ namespace Fsl
 
     GLTexture::GLTexture()
       : m_handle(GLValues::INVALID_HANDLE)
-      , m_target(GL_TEXTURE_2D)
-
     {
     }
 

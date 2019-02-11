@@ -1,0 +1,15 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources/Models",
+      "Content": [
+        "Cog/Clean.jpg",
+        "Cog/CogUV.obj",
+        "Cog/CogUV.mtl",
+        "Cog/Dirty.jpg",
+        "Cog/License.json"
+      ]
+    }
+  }
+}

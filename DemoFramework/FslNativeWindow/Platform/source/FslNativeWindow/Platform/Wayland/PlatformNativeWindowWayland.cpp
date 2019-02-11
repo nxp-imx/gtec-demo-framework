@@ -38,6 +38,13 @@
 #include <wayland-cursor.h>
 #include <linux/input.h>
 #include <string.h>
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+#include <ilm/ivi-application-client-protocol.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#define IVI_SURFACE_ID 9000
+#endif
 
 // TODO: remove globals
 
@@ -73,6 +80,9 @@ namespace Fsl
       struct geometry geometry, window_size;
       wl_surface* surface;
       wl_shell_surface* shell_surface;
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+      struct ivi_surface *ivi_surface;
+#endif
       wl_callback* callback;
       int fullscreen, configured;
       std::function<void(void*, int, int, int, int)> resizeWindowCallback;
@@ -98,6 +108,10 @@ namespace Fsl
       VirtualMouseButton::Enum mouseButton;
       bool mouseIsPressed;
       struct window* window;
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+      struct ivi_application *ivi_application;
+#endif
+
     };
 
     struct display sdisplay = {nullptr};
@@ -161,7 +175,24 @@ namespace Fsl
 
 
     const wl_shell_surface_listener shell_surface_listener = {HandlePing, HandleConfigure, HandlePopUpDone};
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+  static void HandleIVISurfaceConfigure(void *data, struct ivi_surface *ivi_surface,
+                                     int32_t width, int32_t height)
+  {
+     struct window *window = (struct window *)data;
 
+     if (window->resizeWindowCallback)
+     {
+          window->resizeWindowCallback(window->native, width, height, 0, 0);
+     }
+     window->geometry.width = width;
+     window->geometry.height = height;
+     if (!window->fullscreen)
+          window->window_size = window->geometry;
+
+   }
+    const struct ivi_surface_listener iviSurfaceListener = {HandleIVISurfaceConfigure };
+#endif
 
     void ToggleFullScreen(struct window* window, int fullscreen)
     {
@@ -195,7 +226,7 @@ namespace Fsl
       {
         if (nullptr == (window->surface = wl_compositor_create_surface(display->compositor)))
           throw GraphicsException("wl_compositor_create_surface Failure");
-
+        if(display->shell){
         if (nullptr == (window->shell_surface = wl_shell_get_shell_surface(display->shell, window->surface)))
           throw GraphicsException("wl_shell_get_shell_surface Failure");
 
@@ -205,7 +236,7 @@ namespace Fsl
         wl_shell_surface_set_title(window->shell_surface, "FSL Framework");
 
         wl_shell_surface_set_fullscreen(window->shell_surface, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, nullptr);
-
+        }
         if (nullptr == (callback = wl_display_sync(window->display->display)))
           throw GraphicsException("wl_display_sync Failure");
 
@@ -224,7 +255,7 @@ namespace Fsl
       while (dummyRunning)
         wl_display_dispatch(sdisplay.display);
 
-      if (window->fullscreen)
+      if (window->fullscreen && display->shell)
       {
         wl_shell_surface_destroy(window->shell_surface);
         wl_surface_destroy(window->surface);
@@ -241,21 +272,38 @@ namespace Fsl
       {
         if (nullptr == (window->surface = wl_compositor_create_surface(display->compositor)))
           throw GraphicsException("wl_compositor_create_surface Failure");
-
+        if(display->shell)
+       {
         if (nullptr == (window->shell_surface = wl_shell_get_shell_surface(display->shell, window->surface)))
           throw GraphicsException("wl_shell_get_shell_surface Failure");
 
         if (wl_shell_surface_add_listener(window->shell_surface, &shell_surface_listener, window))
           throw GraphicsException("wl_shell_surface_add_listener Failure");
 
-        wl_shell_surface_set_title(window->shell_surface, "FSL Framework");
+           wl_shell_surface_set_title(window->shell_surface, "FSL Framework");
 
-        ToggleFullScreen(window, window->fullscreen);
+           ToggleFullScreen(window, window->fullscreen);
+        }
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+
+        if (display->ivi_application)
+        {
+           uint32_t id_ivisurf = IVI_SURFACE_ID + (uint32_t)getpid();
+           window->ivi_surface = ivi_application_surface_create(display->ivi_application,id_ivisurf, window->surface);
+           ivi_surface_add_listener(window->ivi_surface,&iviSurfaceListener, window);
+          }
+#endif
       }
       catch (const std::exception&)
       {
         if (window->shell_surface != nullptr)
           wl_shell_surface_destroy(window->shell_surface);
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+        if (window->ivi_surface !=nullptr)
+          ivi_surface_destroy(window->ivi_surface);
+        if (display->ivi_application)
+          ivi_application_destroy(display->ivi_application);
+#endif
         if (window->surface != nullptr)
           wl_surface_destroy(window->surface);
         throw;
@@ -578,6 +626,12 @@ namespace Fsl
         d->cursor_theme = wl_cursor_theme_load(nullptr, 32, d->shm);
         d->default_cursor = wl_cursor_theme_get_cursor(d->cursor_theme, "left_ptr");
       }
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+      else if (strcmp(interface, "ivi_application") == 0)
+      {
+        d->ivi_application =(struct ivi_application *)wl_registry_bind(registry, name,&ivi_application_interface, 1);
+      }
+#endif
     }
 
     const wl_registry_listener registry_listener = {RegistryHandleGlobal};
@@ -682,10 +736,16 @@ namespace Fsl
                       "Wayland only supports the main display. Using DisplayId 0 instead of " << nativeWindowSetup.GetConfig().GetDisplayId());
     if (nativeWindowConfig.GetWindowMode() != WindowMode::Window)
     {
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+           swindow.window_size.width = 480;
+           swindow.window_size.height = 504;
+           swindow.fullscreen = 0;
+#else
       FSLLOG("WARNING: Window Size/Position not defined, setting them to MAX Display Resolution");
       swindow.window_size.width = 250;
       swindow.window_size.height = 250;
       swindow.fullscreen = 1;
+#endif
     }
     else
     {
@@ -700,7 +760,7 @@ namespace Fsl
     sdisplay.mousePosition.X = 0;
     sdisplay.mousePosition.Y = 0;
 
-    if (swindow.fullscreen)
+    if (swindow.fullscreen && sdisplay.shell)
     {
       CreateWlDummySurface();
       swindow.fullscreen = 0;
@@ -752,7 +812,12 @@ namespace Fsl
       if (g_destroyWindowCallback)
         g_destroyWindowCallback(window->native);
     }
-    wl_shell_surface_destroy(window->shell_surface);
+    if (display->shell)
+       wl_shell_surface_destroy(window->shell_surface);
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+    if (window->ivi_surface)
+       ivi_surface_destroy(window->ivi_surface);
+#endif
     wl_surface_destroy(window->surface);
 
     if (window->callback)
@@ -765,6 +830,10 @@ namespace Fsl
 
     if (display->shell)
       wl_shell_destroy(display->shell);
+#ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
+    if (display->ivi_application)
+       ivi_application_destroy(display->ivi_application);
+#endif
   }
 
 

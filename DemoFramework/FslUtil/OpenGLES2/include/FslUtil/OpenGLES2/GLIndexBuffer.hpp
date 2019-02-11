@@ -45,7 +45,7 @@ namespace Fsl
   {
     class GLIndexBuffer : public GLBuffer
     {
-      GLenum m_type;
+      GLenum m_type{};
 
     public:
       //! @brief Move assignment operator

@@ -2,6 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES3.ObjectSelection" NoInclude="true">
     <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="FslGraphics3D.Build"/>
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="FslGraphics3D.Procedural"/>
     <Dependency Name="Shared.ObjectSelection"/>

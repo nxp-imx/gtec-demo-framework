@@ -1,0 +1,11 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Textures/Cubemap/Stairs/Raw/*.*"
+      ]
+    }
+  }
+}

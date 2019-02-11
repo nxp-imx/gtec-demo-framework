@@ -1,6 +1,6 @@
 <!-- #AG_DEMOAPP_HEADER_BEGIN# -->
 # GammaCorrection
-<img src="./Example.jpg" height="135px" style="float:right">
+<img src="Example.jpg" height="135px">
 
 <!-- #AG_DEMOAPP_HEADER_END# -->
 <!-- #AG_BRIEF_BEGIN# -->
@@ -18,6 +18,20 @@ BottomLeft  | RGB     | Off
 BottomRight | SRGB    | On
 
 The bottom right area produces the desired output.
+
+Key          | Result
+-------------|----------------------------------
+1            | Render TopLeft as fullscreen
+2            | Render TopRight as fullscreen
+3            | Render BottomLeft as fullscreen
+4            | Render BottomRight as fullscreen
+5 or space   | Splitscren view of all four (default)
+A            | Strafe left
+W            | Strafe right
+S            | Move forward
+D            | Move backward
+Right Mouse  | Mouse look (hold it)
+Middle mouse | Reset camera
 
 Inspired by:
 - https://learnopengl.com/Advanced-Lighting/Gamma-Correction

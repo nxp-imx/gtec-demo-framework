@@ -23,10 +23,8 @@ namespace Fsl
         // Create an image barrier object
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        imageMemoryBarrier.pNext = nullptr;
         imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
         imageMemoryBarrier.oldLayout = oldImageLayout;
         imageMemoryBarrier.newLayout = newImageLayout;
         imageMemoryBarrier.image = image;
@@ -101,7 +99,7 @@ namespace Fsl
         case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
           // Image layout will be used as a depth/stencil attachment
           // Make sure any writes to depth/stencil buffer have been finished
-          imageMemoryBarrier.dstAccessMask = imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+          imageMemoryBarrier.dstAccessMask |= VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
           break;
         case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
           // Image will be read in a shader (sampler, input attachment)

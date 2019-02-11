@@ -32,13 +32,59 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
+#include <FslDemoHost/Vulkan/Config/OptionUserChoice.hpp>
+#include <FslDemoHost/Vulkan/Config/VulkanLaunchOptions.hpp>
 
 namespace Fsl
 {
   class VulkanDemoHostOptionParser : public ADemoHostOptionParser
   {
+    uint32_t m_physicalDeviceIndex = 0;
+    OptionUserChoice m_validationLayer = OptionUserChoice::Default;
+    OptionUserChoice m_apiDump = OptionUserChoice::Off;
+    VulkanLaunchOptions m_launchOptions;
+    bool m_logExtensions = false;
+    bool m_logLayers = false;
+    bool m_logSurfaceFormats = false;
+
   public:
     VulkanDemoHostOptionParser();
+
+    uint32_t GetPhysicalDeviceIndex() const
+    {
+      return m_physicalDeviceIndex;
+    }
+
+    OptionUserChoice GetValidationLayerChoice() const
+    {
+      return m_validationLayer;
+    }
+
+    OptionUserChoice GetApiDumpChoice() const
+    {
+      return m_apiDump;
+    }
+
+    VulkanLaunchOptions GetLaunchOptions() const
+    {
+      return m_launchOptions;
+    }
+
+    bool IsLogExtensionsEnabled() const
+    {
+      return m_logExtensions;
+    }
+
+    bool IsLogLayersEnabled() const
+    {
+      return m_logLayers;
+    }
+
+    bool IsLogSurfaceFormatsEnabled() const
+    {
+      return m_logSurfaceFormats;
+    }
+
     void ArgumentSetup(std::deque<Option>& rOptions) override;
     OptionParseResult::Enum Parse(const int cmdId, const char* const pszOptArg) override;
     bool ParsingComplete() override;

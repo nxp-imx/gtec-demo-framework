@@ -57,8 +57,7 @@ namespace Fsl
           m_type = other.m_type;
           // Remove the data from other
           other.m_type = 0;
-
-          // Move base
+          // Move the base class part
           GLBuffer::operator=(std::move(other));
         }
         return *this;

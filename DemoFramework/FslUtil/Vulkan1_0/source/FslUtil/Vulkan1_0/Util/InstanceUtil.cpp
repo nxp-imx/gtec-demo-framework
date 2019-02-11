@@ -184,7 +184,7 @@ namespace Fsl
       }
 
 
-      PhysicalDeviceRecord GetPhysicalDevice(const VkInstance instance, const uint32_t index)
+      VkPhysicalDevice GetPhysicalDevice(const VkInstance instance, const uint32_t index)
       {
         if (instance == VK_NULL_HANDLE)
         {
@@ -197,7 +197,7 @@ namespace Fsl
           throw std::invalid_argument("physical device index out of bounds");
         }
 
-        return PhysicalDeviceRecord(physicalDevices[index]);
+        return physicalDevices[index];
       }
 
 

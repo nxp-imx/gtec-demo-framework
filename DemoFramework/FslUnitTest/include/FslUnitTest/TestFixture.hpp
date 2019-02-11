@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <gtest/gtest.h>
 #include <cstdlib>
 
@@ -44,85 +45,10 @@
 
 class TestFixture : public ::testing::Test
 {
-  // "$(FSL_GRAPHICS_INTERNAL)/UnitTests/Data"
-
-  std::string m_contentPathBase;
-  std::string m_tempPathBase;
-
 public:
-  TestFixture()
-  {
-    const auto rootPath = GetEnvVariable("FSL_GRAPHICS_SDK");
-    m_contentPathBase = CombinePath(rootPath, "UnitTests/Data");
-    m_tempPathBase = CombinePath(rootPath, "UnitTests/Data/Temp");
-  }
+  TestFixture() = default;
+
   ~TestFixture() override = default;
-
-  std::string GetContentPathBase() const
-  {
-    return m_contentPathBase;
-  }
-
-  std::string GetTempPathBase() const
-  {
-    return m_tempPathBase;
-  }
-
-  std::string GetContentPathBase(const std::string& relativePath) const
-  {
-    return CombinePath(m_contentPathBase, relativePath);
-  }
-
-  std::string GetContentTempPathBase(const std::string& relativePath) const
-  {
-    return CombinePath(m_contentPathBase, relativePath);
-  }
-
-protected:
-  static std::string GetEnvVariable(const std::string& envName)
-  {
-    const auto rootPath = std::getenv(envName.c_str());
-    if (rootPath == nullptr)
-    {
-      throw std::runtime_error(fmt::format("Environment variable '{0}' not found", envName));
-    }
-    return rootPath;
-  }
-
-  std::string CombinePath(const std::string& path1, const std::string& path2) const
-  {
-    if (IsPathRooted(path2))
-    {
-      return path2;
-    }
-
-    if (path1.empty())
-    {
-      return path2;
-    }
-    if (path2.empty())
-    {
-      return path1;
-    }
-    if (path1.back() != '/')
-    {
-      return path1 + '/' + path2;
-    }
-    return path1 + path2;
-  }
-
-
-  bool IsPathRooted(const std::string& path) const
-  {
-    // A fairly simple check for rooted paths
-    return !path.empty() && (path.front() == '/' || Contains(path, ':'));
-  }
-
-
-  bool Contains(const std::string& path, const char ch) const
-  {
-    return std::find(path.begin(), path.end(), ch) != path.end();
-  }
 };
 
 #ifdef _WIN32

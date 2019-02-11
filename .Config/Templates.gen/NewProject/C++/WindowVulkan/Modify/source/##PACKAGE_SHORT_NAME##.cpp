@@ -46,7 +46,7 @@ namespace Fsl
 
 
   ##PACKAGE_SHORT_NAME##::##PACKAGE_SHORT_NAME##(const DemoAppConfig& config)
-    : VulkanWindowDemoApp(config)
+    : DemoAppVulkan(config)
   {
   }
 

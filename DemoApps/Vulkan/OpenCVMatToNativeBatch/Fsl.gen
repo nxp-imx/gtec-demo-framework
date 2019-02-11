@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.OpenCVMatToNativeBatch" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="OpenCV4"/>
+    <Dependency Name="Shared.OpenCVExperimental"/>
+    <Platform Name="Windows" ProjectId="547F6E5B-9A2B-420E-B489-88F1BFB3293B"/>
+  </Executable>
+</FslBuildGen>

@@ -56,10 +56,7 @@ namespace Fsl
     }
 
 
-    GLIndexBufferArray::GLIndexBufferArray()
-      : m_type(0)
-    {
-    }
+    GLIndexBufferArray::GLIndexBufferArray() = default;
 
 
     GLIndexBufferArray::GLIndexBufferArray(const std::size_t capacity, const GLenum type)

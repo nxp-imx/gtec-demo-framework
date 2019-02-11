@@ -44,9 +44,9 @@ namespace Fsl
     int32_t m_bottom{0};
 
   public:
-    Thickness() = default;
+    constexpr Thickness() = default;
 
-    Thickness(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom)
+    constexpr Thickness(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom)
       : m_left(left)
       , m_top(top)
       , m_right(right)
@@ -54,36 +54,36 @@ namespace Fsl
     {
     }
 
-    int32_t Bottom() const
+    constexpr int32_t Bottom() const
     {
       return m_bottom;
     }
-    int32_t Left() const
+    constexpr int32_t Left() const
     {
       return m_left;
     }
-    int32_t Right() const
+    constexpr int32_t Right() const
     {
       return m_right;
     }
-    int32_t Top() const
+    constexpr int32_t Top() const
     {
       return m_top;
     }
-    int32_t SumX() const
+    constexpr int32_t SumX() const
     {
       return m_left + m_right;
     }
-    int32_t SumY() const
+    constexpr int32_t SumY() const
     {
       return m_top + m_bottom;
     }
 
-    bool operator==(const Thickness& rhs) const
+    constexpr bool operator==(const Thickness& rhs) const
     {
       return m_left == rhs.m_left && m_top == rhs.m_top && m_right == rhs.m_right && m_bottom == rhs.m_bottom;
     }
-    bool operator!=(const Thickness& rhs) const
+    constexpr bool operator!=(const Thickness& rhs) const
     {
       return !(*this == rhs);
     }

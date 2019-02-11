@@ -33,6 +33,7 @@
 
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
@@ -64,11 +65,12 @@ namespace Fsl
 
   class Shared : public UI::EventListener
   {
-    UI::UIManager m_uiManager;
+    // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
     UI::CallbackEventListenerScope m_uiEventListener;
+    // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
+    std::shared_ptr<UIDemoAppExtension> m_uiExtension;
 
     std::shared_ptr<IGraphicsService> m_graphics;
-    std::shared_ptr<UI::WindowContext> m_context;
     std::shared_ptr<UI::FillLayout> m_fillLayout;
     std::shared_ptr<UI::LabelButton> m_button1;
     std::shared_ptr<UI::ImageButton> m_button2;
@@ -80,25 +82,22 @@ namespace Fsl
     Shared(const DemoAppConfig& config);
     ~Shared() override;
 
+    std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
+    {
+      return m_uiExtension;
+    }
+
     // From EventListener
     void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
-
-
-    void OnKeyEvent(const KeyEvent& event);
-    void OnMouseButtonEvent(const MouseButtonEvent& event);
-    void OnMouseMoveEvent(const MouseMoveEvent& event);
-    void OnMouseWheelEvent(const MouseWheelEvent& event);
-    void Resized(const Point2& size);
-    void FixedUpdate(const DemoTime& demoTime);
-    void Update(const DemoTime& demoTime);
     void Draw();
 
   private:
-    std::shared_ptr<UI::BaseWindow> CreateStack1(const Texture2D& atlasTexture, const ITextureAtlas& atlas,
+    std::shared_ptr<UI::BaseWindow> CreateStack1(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture,
                                                  const std::shared_ptr<AtlasFont>& fontSmall, const AtlasTexture2D& texImage);
-    std::shared_ptr<UI::BaseWindow> CreateStack2(const Texture2D& atlasTexture, const ITextureAtlas& atlas, const AtlasTexture2D& texImage);
-    std::shared_ptr<UI::BaseWindow> CreateStack3(const Texture2D& atlasTexture, const ITextureAtlas& atlas);
-    std::shared_ptr<UI::BaseWindow> CreateStack4(const Texture2D& atlasTexture, const ITextureAtlas& atlas);
+    std::shared_ptr<UI::BaseWindow> CreateStack2(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture,
+                                                 const AtlasTexture2D& texImage);
+    std::shared_ptr<UI::BaseWindow> CreateStack3(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture);
+    std::shared_ptr<UI::BaseWindow> CreateStack4(const std::shared_ptr<UI::WindowContext>& context, const Texture2D& atlasTexture);
   };
 }
 

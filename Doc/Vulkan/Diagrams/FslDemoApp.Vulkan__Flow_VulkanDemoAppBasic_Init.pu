@@ -1,0 +1,47 @@
+@startuml VulkanDemoAppBasic Init Flow
+
+activate CustomDemoApp
+
+box "AppTemplate" #LightBlue
+    participant DemoAppVulkanBasic
+    participant DemoAppVulkan
+    participant ADemoApp
+end box
+
+participant Device
+participant DeviceQueue
+participant DepthBuffer
+participant Swapchain
+participant CommandBuffers
+participant RenderPass
+participant SwapchainRecords
+activate NativeGraphicsService
+
+->CustomDemoApp:Construct
+CustomDemoApp->DemoAppVulkanBasic++: Construct
+
+DemoAppVulkanBasic->DemoAppVulkan++: Construct
+DemoAppVulkan->ADemoApp++: Construct
+DemoAppVulkan->VulkanDeviceSetupUtil: CreateSetup
+VulkanDeviceSetupUtil->Device++: Construct
+VulkanDeviceSetupUtil->DeviceQueue++: Construct
+
+->CustomDemoApp:_PostConstruct
+CustomDemoApp->ADemoApp:_PostConstruct
+ADemoApp->CustomDemoApp:OnConstructed
+CustomDemoApp->DemoAppVulkanBasic:OnConstructed
+DemoAppVulkanBasic->DemoAppVulkan:OnConstructed
+DemoAppVulkan->ADemoApp:OnConstructed
+
+DemoAppVulkanBasic->DemoAppVulkanBasic++: BuildResources
+DemoAppVulkanBasic->SwapchainKHRUtil: CreateSwapchain
+SwapchainKHRUtil->Swapchain++: Construct
+DemoAppVulkanBasic->DepthBuffer++: Construct
+DemoAppVulkanBasic->CommandBuffers++: Reset(swapChainImageCount)
+DemoAppVulkanBasic->CustomDemoApp: OnBuildResources
+CustomDemoApp->RenderPass++: Construct
+DemoAppVulkanBasic->SwapchainRecords++: Create
+DemoAppVulkanBasic->NativeGraphicsService: VulkanCreateDependentResources
+deactivate DemoAppVulkanBasic
+
+@enduml

@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/WoodFloor/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.GammaCorrection.VC.VC.opendb
@@ -27,6 +28,7 @@
 /GammaCorrection_Wayland_d
 /GammaCorrection_X11
 /GammaCorrection_X11_d
+/GammaCorrection_c
 /GammaCorrection_d
 /build/
 /resource.h

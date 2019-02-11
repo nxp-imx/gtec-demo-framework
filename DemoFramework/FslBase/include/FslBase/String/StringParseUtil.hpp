@@ -81,17 +81,17 @@ namespace Fsl
     //! @param dstLength the length of the pDst array.
     //! @param psz the input string that should be parsed
     //! @return the number of characters that was consumed from psz
-    static const StringParseArrayResult ParseArray(bool* pDst, const int dstLength, const char* const psz);
-    static const StringParseArrayResult ParseArray(uint8_t* pDst, const int dstLength, const char* const psz);
-    static const StringParseArrayResult ParseArray(int8_t* pDst, const int dstLength, const char* const psz);
-    static const StringParseArrayResult ParseArray(uint16_t* pDst, const int dstLength, const char* const psz);
-    static const StringParseArrayResult ParseArray(int16_t* pDst, const int dstLength, const char* const psz);
-    static const StringParseArrayResult ParseArray(uint32_t* pDst, const int dstLength, const char* const psz);
-    static const StringParseArrayResult ParseArray(int32_t* pDst, const int dstLength, const char* const psz);
-    // static const StringParseArrayResult ParseArray(uint64_t* pDst, const int dstLength, const char*const psz);
-    // static const StringParseArrayResult ParseArray(int64_t* pDst, const int dstLength, const char*const psz);
-    static const StringParseArrayResult ParseArray(float* pDst, const int dstLength, const char* const psz);
-    static const StringParseArrayResult ParseArray(double* pDst, const int dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(bool* pDst, const std::size_t dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(uint8_t* pDst, const std::size_t dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(int8_t* pDst, const std::size_t dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(uint16_t* pDst, const std::size_t dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(int16_t* pDst, const std::size_t dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(uint32_t* pDst, const std::size_t dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(int32_t* pDst, const std::size_t dstLength, const char* const psz);
+    // static const StringParseArrayResult ParseArray(uint64_t* pDst, const std::size_t dstLength, const char*const psz);
+    // static const StringParseArrayResult ParseArray(int64_t* pDst, const std::size_t dstLength, const char*const psz);
+    static const StringParseArrayResult ParseArray(float* pDst, const std::size_t dstLength, const char* const psz);
+    static const StringParseArrayResult ParseArray(double* pDst, const std::size_t dstLength, const char* const psz);
 
     //! @brief Parse the input string into the correct type
     //! @param pDst the destination array.
@@ -100,26 +100,26 @@ namespace Fsl
     //! @param startIndex the start index in psz to start scanning from.
     //! @param length the number of characters that should be considered part of the psz string (from startIndex)
     //! @return the result of the parse
-    static StringParseArrayResult ParseArray(bool* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(bool* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    static StringParseArrayResult ParseArray(uint8_t* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(uint8_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    static StringParseArrayResult ParseArray(int8_t* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(int8_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    static StringParseArrayResult ParseArray(uint16_t* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(uint16_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    static StringParseArrayResult ParseArray(int16_t* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(int16_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    static StringParseArrayResult ParseArray(uint32_t* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(uint32_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    static StringParseArrayResult ParseArray(int32_t* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(int32_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    // static StringParseArrayResult ParseArray(uint64_t* pDst, const int dstLength, const char*const psz, const std::size_t startIndex, const
-    // std::size_t length);  static StringParseArrayResult ParseArray(int64_t* pDst, const int dstLength, const char*const psz, const std::size_t
-    // startIndex, const std::size_t length);
-    static StringParseArrayResult ParseArray(float* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    // static StringParseArrayResult ParseArray(uint64_t* pDst, const std::size_t dstLength, const char*const psz, const std::size_t startIndex, const
+    // std::size_t length);  static StringParseArrayResult ParseArray(int64_t* pDst, const std::size_t dstLength, const char*const psz, const
+    // std::size_t startIndex, const std::size_t length);
+    static StringParseArrayResult ParseArray(float* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
-    static StringParseArrayResult ParseArray(double* pDst, const int dstLength, const char* const psz, const std::size_t startIndex,
+    static StringParseArrayResult ParseArray(double* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
                                              const std::size_t length);
 
     static bool TryParse(int32_t& rValue, const char* const psz, const std::size_t startIndex, const std::size_t length, const int32_t radix = 10);

@@ -3,20 +3,20 @@
 
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
- 
+
 uniform sampler2D Texture0;
 uniform sampler2D TextureNormal;
 
- // Material
+// Material
 uniform vec4 MatAmbient;
 uniform vec4 MatSpecular;
 uniform float MatShininess;
 
- 
+
 in vec3 v_LightVec;
 in vec3 v_HalfVec;
 in vec2 v_TexCoord;
@@ -35,9 +35,9 @@ void main()
   float intensity = max(dot(normal, v_LightVec), 0.0);
 
   vec4 diffuse = texture(Texture0, v_TexCoord);
-  
+
   // if the vertex is lit calc the specular term
-  if (intensity > 0.0) 
+  if (intensity > 0.0)
   {
     // Calc the specular term into spec
     float intSpec = max(dot(normalize(v_HalfVec), normal), 0.0);

@@ -29,35 +29,22 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
-#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "ComputeParticles.hpp"
 #include "OptionParserEx.hpp"
 
 // Configure the demo environment to run this demo app in a Window host environment
 namespace Fsl
 {
-  namespace
-  {
-    class VulkanConfig : public DemoAppHostConfigVulkanEx
-    {
-    public:
-      VulkanConfig()
-        : DemoAppHostConfigVulkanEx(VulkanDemoAppMode::Freestyle)
-      {
-        using namespace Vulkan;
-
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
-      }
-    };
-  }
-
   // Configure the demo environment to run this demo app in a Window host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+    using namespace Vulkan;
 
-    DemoAppRegister::Window::Register<ComputeParticles, OptionParserEx>(rSetup, "Vulkan.ComputeParticles", config);
+    DemoAppHostConfigVulkan config;
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
+
+    DemoAppRegister::Vulkan::Register<ComputeParticles, OptionParserEx>(rSetup, "Vulkan.ComputeParticles", config);
   }
 }

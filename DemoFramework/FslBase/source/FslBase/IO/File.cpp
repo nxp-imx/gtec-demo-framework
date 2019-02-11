@@ -170,11 +170,12 @@ namespace Fsl
 
     bool File::Exists(const Path& path)
     {
-      // Use a portable way that checks if the file can be read
-      // Which of course isn't exactly the same as if it exists, but it ought to
-      // be good enough for our purpose.
-      std::ifstream file(PATH_GET_NAME(path));
-      return file.good();
+      FileAttributes attr;
+      if (!TryGetAttributes(path, attr))
+      {
+        return false;
+      }
+      return (attr.HasFlag(FileAttributes::File));
     }
 
 
@@ -360,18 +361,19 @@ namespace Fsl
     }
 
 
-    void File::WriteAllBytes(const IO::Path& path, const std::vector<uint8_t>& content)
+    void File::WriteAllBytes(const IO::Path& path, const void* const pContent, const std::size_t contentSizeInBytes)
     {
       try
       {
         std::ofstream file(PATH_GET_NAME(path), std::ios::out | std::ios::binary);
         // Write the entire content of the file
-        StreamWrite(file, path, content.data(), content.size());
+        StreamWrite(file, path, pContent, contentSizeInBytes);
       }
       catch (const std::ios_base::failure& ex)
       {
         throw IOException(ex.what());
       }
     }
+
   }
 }

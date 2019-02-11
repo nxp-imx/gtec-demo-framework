@@ -1,0 +1,79 @@
+@startuml Vulkan Demo App Class Diagram
+scale 1
+
+namespace RapidVulkan {
+    class CommandPool
+    class CommandBuffers
+    class Fence
+    class Framebuffer
+    class ImageView
+    class Semaphore
+}
+
+namespace FslDemoApp.Base {
+    interface IDemoApp
+    class ADemoApp
+
+    IDemoApp <|-- ADemoApp
+}
+
+namespace FslUtil.Vulkan1_0 {
+    class DeviceCreateInfoCopy
+    class VUDevice
+    class VUDeviceQueueRecord
+    class VUSwapchainKHR
+}
+
+namespace FslDemoService.NativeGraphics.Vulkan {
+    class NativeGraphicsService
+}
+
+namespace FslDemoApp.Vulkan {
+    class DemoAppVulkan {
+        -m_nativeGraphicsService
+        #m_surface
+        #m_physicalDevice
+        #m_deviceActiveFeatures
+        #m_device
+        #m_deviceCreateInfo
+        #m_deviceQueue
+        #GetNativeGraphicsService()
+    }
+    class DemoAppVulkanBasic {
+        #TryPrepareDraw()
+        #Draw()
+        #TrySwapBuffers()
+        #AddSystemUI()
+        #BuildResources()
+        #FreeResources()
+        #OnBuildResources()        
+        #OnFreeResources()
+    }
+    class DemoAppVulkanBasic_FrameDrawRecord
+    class DemoAppVulkanBasic_SwapchainRecord
+
+    FslDemoApp.Base.ADemoApp <|-- DemoAppVulkan
+    DemoAppVulkan <|-- DemoAppVulkanBasic
+
+    DemoAppVulkan o-- FslUtil.Vulkan1_0.DeviceCreateInfoCopy
+    DemoAppVulkan o-- FslUtil.Vulkan1_0.VUDevice
+    DemoAppVulkan o-- FslUtil.Vulkan1_0.VUDeviceQueueRecord
+
+    DemoAppVulkan o--  FslDemoService.NativeGraphics.Vulkan.NativeGraphicsService
+
+    DemoAppVulkanBasic *--  FslUtil.Vulkan1_0.VUSwapchainKHR
+
+    DemoAppVulkanBasic *-- RapidVulkan.CommandPool
+    DemoAppVulkanBasic *-- RapidVulkan.CommandBuffers
+
+    DemoAppVulkanBasic *-- DemoAppVulkanBasic_FrameDrawRecord
+    DemoAppVulkanBasic *-- DemoAppVulkanBasic_SwapchainRecord
+
+    DemoAppVulkanBasic_FrameDrawRecord *-- RapidVulkan.Fence
+    DemoAppVulkanBasic_FrameDrawRecord *-- RapidVulkan.Semaphore
+
+    DemoAppVulkanBasic_SwapchainRecord *-- RapidVulkan.ImageView
+    DemoAppVulkanBasic_SwapchainRecord *-- RapidVulkan.Framebuffer
+}
+
+@enduml

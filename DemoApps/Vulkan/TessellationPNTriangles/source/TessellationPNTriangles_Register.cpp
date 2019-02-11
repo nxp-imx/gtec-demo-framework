@@ -29,39 +29,26 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "TessellationPNTriangles.hpp"
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
-#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 
 namespace Fsl
 {
-  namespace
-  {
-    class VulkanConfig : public DemoAppHostConfigVulkanEx
-    {
-    public:
-      VulkanConfig()
-        : DemoAppHostConfigVulkanEx(VulkanDemoAppMode::Freestyle)
-      {
-        using namespace Vulkan;
-
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TessellationShader, FeatureRequirement::Mandatory);
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Mandatory);
-
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
-      }
-    };
-  }
-
   // Configure the demo environment to run this demo app in a Window host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+    using namespace Vulkan;
 
-    DemoAppRegister::Window::Register<TessellationPNTriangles, OptionParser>(rSetup, "Vulkan.TessellationPNTriangles", config);
+    DemoAppHostConfigVulkan config;
+
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TessellationShader, FeatureRequirement::Mandatory);
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Mandatory);
+
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
+
+    DemoAppRegister::Vulkan::Register<TessellationPNTriangles>(rSetup, "Vulkan.TessellationPNTriangles", config);
   }
 }

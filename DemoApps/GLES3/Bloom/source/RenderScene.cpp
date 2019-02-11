@@ -59,7 +59,7 @@ namespace Fsl
   }
 
 
-  RenderScene::RenderScene(const DemoAppConfig& config)
+  RenderScene::RenderScene(const DemoAppConfig& config, const int32_t sceneId)
     : m_locWorld(GLValues::INVALID_LOCATION)
     , m_locWorldView(GLValues::INVALID_LOCATION)
     , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
@@ -82,9 +82,10 @@ namespace Fsl
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
     std::string strFileName, strTextureFileName, strTextureGloss, strTextureSpecular, strTextureNormal;
-    switch (0)
+    switch (sceneId)
     {
     case 0:
+    case 2:
       strFileName = "Knight2/armor.fsf";
       strTextureFileName = "Knight2/armor_default_color.jpg";
       strTextureSpecular = "Knight2/armor_default_metalness.jpg";

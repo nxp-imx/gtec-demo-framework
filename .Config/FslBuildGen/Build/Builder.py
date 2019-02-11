@@ -462,7 +462,8 @@ def ShowRequirementList(log: Log,
                         showFeaturesOnly: bool = False) -> None:
     message = "Requirements" if not showFeaturesOnly else "Features"
     filterName = None if not showFeaturesOnly else PackageRequirementTypeString.Feature
-    requestedPackages = PackageUtil.GetPackageListFromFilenames(topLevelPackage, requestedFiles)
+    # As the packages in requestedFiles might have been filtered at this point (and any issues already caught), we just ignore not found
+    requestedPackages = PackageUtil.GetPackageListFromFilenames(topLevelPackage, requestedFiles, True)
     requirements = RequirementFilter.GetRequirementList(topLevelPackage, requestedPackages, filterName)
 
     if len(requirements) <= 0:
@@ -495,7 +496,8 @@ def ShowFeatureList(log: Log,
 def ShowExtensionList(log: Log,
                       topLevelPackage: Package,
                       requestedFiles: Optional[List[str]]) -> None:
-    requestedPackages = PackageUtil.GetPackageListFromFilenames(topLevelPackage, requestedFiles)
+    # As the packages in requestedFiles might have been filtered at this point (and any issues already caught), we just ignore not found
+    requestedPackages = PackageUtil.GetPackageListFromFilenames(topLevelPackage, requestedFiles, True)
     requirements = RequirementFilter.GetRequirementList(topLevelPackage, requestedPackages, PackageRequirementTypeString.Extension)
 
     if len(requirements) <= 0:

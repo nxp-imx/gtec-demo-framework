@@ -31,11 +31,11 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWindowExperimental/VulkanWindowDemoApp.hpp>
+#include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 
 namespace Fsl
 {
-  class ##PACKAGE_SHORT_NAME## : public VulkanWindowDemoApp
+  class ##PACKAGE_SHORT_NAME## : public DemoAppVulkan
   {
   public:
     ##PACKAGE_SHORT_NAME##(const DemoAppConfig& config);

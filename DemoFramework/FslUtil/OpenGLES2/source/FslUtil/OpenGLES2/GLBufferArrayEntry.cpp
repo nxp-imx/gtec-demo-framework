@@ -43,8 +43,6 @@ namespace Fsl
   {
     GLBufferArrayEntry::GLBufferArrayEntry()
       : Handle(GLValues::INVALID_HANDLE)
-      , Capacity(0)
-      , Usage(0)
     {
     }
 

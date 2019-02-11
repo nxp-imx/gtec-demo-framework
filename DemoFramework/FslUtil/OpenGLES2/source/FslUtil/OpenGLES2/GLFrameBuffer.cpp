@@ -78,7 +78,6 @@ namespace Fsl
 
     GLFrameBuffer::GLFrameBuffer()
       : m_handle(GLValues::INVALID_HANDLE)
-
     {
     }
 
@@ -170,7 +169,6 @@ namespace Fsl
       // Create the framebuffer and bind it.
       GL_CHECK(glGenFramebuffers(1, &m_handle));
       GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_handle));
-
 
       if (flags.IsEnabled(Flags::DepthBuffer))
       {

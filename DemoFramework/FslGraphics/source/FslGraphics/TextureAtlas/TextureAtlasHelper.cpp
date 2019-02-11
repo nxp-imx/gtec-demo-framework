@@ -45,6 +45,6 @@ namespace Fsl
         return entry.TextureInfo;
       }
     }
-    throw std::runtime_error(std::string("Unknown texture: ") + name.ToUTF8String());
+    throw NotFoundException(std::string("Unknown texture: ") + name.ToUTF8String());
   }
 }

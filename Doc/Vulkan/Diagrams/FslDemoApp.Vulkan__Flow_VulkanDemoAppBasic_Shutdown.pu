@@ -1,0 +1,70 @@
+@startuml VulkanDemoAppBasic Shutdown Flow
+
+activate CustomDemoApp
+activate DemoAppVulkanBasic
+activate DemoAppVulkan
+activate ADemoApp
+
+box "AppTemplate" #LightBlue
+    participant DemoAppVulkanBasic
+    participant DemoAppVulkan
+    participant ADemoApp
+end box
+
+activate Device
+activate DeviceQueue
+activate Swapchain
+activate DepthBuffer
+activate CommandBuffers
+activate RenderPass
+activate SwapchainRecords
+activate NativeGraphicsService
+
+->CustomDemoApp: _PreDestruct
+CustomDemoApp->ADemoApp: _PreDestruct
+ADemoApp->CustomDemoApp: OnDestroy
+CustomDemoApp->DemoAppVulkanBasic: OnDestroy
+DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
+DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForIdle
+DemoAppVulkanBasic->NativeGraphicsService: VulkanDestroyDependentResources
+DemoAppVulkanBasic->SwapchainRecords: Clear
+deactivate SwapchainRecords
+DemoAppVulkanBasic->CustomDemoApp: OnFreeResources
+CustomDemoApp->RenderPass: Destruct
+deactivate RenderPass
+DemoAppVulkanBasic->CommandBuffers: Reset
+deactivate CommandBuffers
+DemoAppVulkanBasic->DepthBuffer: Reset
+deactivate DepthBuffer
+DemoAppVulkanBasic->DemoAppVulkan: SafeWaitForIdle
+deactivate DemoAppVulkanBasic
+DemoAppVulkanBasic->Swapchain: Reset
+deactivate Swapchain
+DemoAppVulkanBasic->DemoAppVulkan: OnDestroy
+DemoAppVulkan->DemoAppVulkan++: SafeShutdown
+DemoAppVulkan->DemoAppVulkan++: SafeWaitForDeviceIdle
+deactivate DemoAppVulkan
+deactivate DemoAppVulkan
+DemoAppVulkan->ADemoApp: OnDestroy
+
+->CustomDemoApp: Destruct
+CustomDemoApp->DemoAppVulkanBasic: Destruct
+DemoAppVulkanBasic->DemoAppVulkanBasic++: FreeResources
+deactivate DemoAppVulkanBasic
+
+DemoAppVulkanBasic->DemoAppVulkan: Destruct
+DemoAppVulkan->DemoAppVulkan++: SafeShutdown
+DemoAppVulkan->DemoAppVulkan++: SafeWaitForDeviceIdle
+deactivate DemoAppVulkan
+deactivate DemoAppVulkan
+DemoAppVulkan->DeviceQueue: Destruct
+deactivate DeviceQueue
+DemoAppVulkan->Device: Destruct
+deactivate Device
+
+DemoAppVulkan->ADemoApp: Destruct
+deactivate ADemoApp
+deactivate DemoAppVulkan
+deactivate DemoAppVulkanBasic
+deactivate CustomDemoApp
+@enduml

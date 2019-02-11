@@ -2,9 +2,9 @@
 
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform mat4 WorldViewProjection;
@@ -26,5 +26,5 @@ void main()
   v_Normal = normalize(NormalMatrix * VertexNormal);
 
   // transform the vertex coordinates
-  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0);  
+  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0);
 }

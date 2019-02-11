@@ -1,0 +1,34 @@
+@startuml Vulkan NativeBatch Class Diagram
+scale 1
+
+' FslGraphics
+interface INativeBatch2D
+interface INativeTexture2D
+'typename TNativeBatch, typename TTexture, typename TVFormatter = GenericBatch2DFormat::Flipped
+class GenericBatch2D<TNativeBatch,TTexture>
+
+namespace FslUtil.Vulkan1_0 {
+    class Batch2D
+    class QuadBatch
+    class VUTexture
+    class VUTextureInfo
+    class VulkanImageCreator
+    class NativeBatch2D
+    class NativeTexture2D
+    class "GenericBatch2D<QuadBatch,VUTextureInfo>" as GenericBatch2D_QuadBatch_VUTextureInfo
+
+    .GenericBatch2D -- GenericBatch2D_QuadBatch_VUTextureInfo
+
+    GenericBatch2D_QuadBatch_VUTextureInfo <|-- Batch2D 
+    GenericBatch2D_QuadBatch_VUTextureInfo o-- QuadBatch
+    GenericBatch2D_QuadBatch_VUTextureInfo .. VUTextureInfo : uses
+    Batch2D <|-- NativeBatch2D
+    VUTexture .. VUTextureInfo : uses
+    NativeTexture2D *-- VUTexture
+    NativeTexture2D o-- VulkanImageCreator
+
+    .INativeBatch2D <|-- NativeBatch2D
+    .INativeTexture2D <|-- NativeTexture2D
+}
+
+@enduml

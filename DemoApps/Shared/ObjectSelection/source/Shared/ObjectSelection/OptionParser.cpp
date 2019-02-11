@@ -61,8 +61,8 @@ namespace Fsl
   OptionParser::OptionParser()
     : m_nearPlaneMouseEnabled(false)
     , m_farPlaneMouseEnabled(false)
-    , m_orientedBoundingBoxEnabled(false)
-    , m_axisAlignedBoundingBoxEnabled(false)
+    , m_orientedBoundingBoxEnabled(true)
+    , m_axisAlignedBoundingBoxEnabled(true)
     , m_randomSeedEnabled(false)
     , m_objectCount(32)
   {

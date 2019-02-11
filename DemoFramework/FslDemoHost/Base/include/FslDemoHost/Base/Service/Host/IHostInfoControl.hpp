@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <FslDemoApp/Base/Service/Host/HostConfig.hpp>
 #include <memory>
 
 namespace Fsl
@@ -46,6 +47,7 @@ namespace Fsl
     virtual void SetIsConsoleBasedHost(const bool isConsoleBasedHost) = 0;
     virtual void SetActiveAPI(const DemoHostFeature feature) = 0;
     virtual void SetAppHostConfig(std::shared_ptr<DemoAppHostConfig> appHostConfig) = 0;
+    virtual void SetConfig(const HostConfig& config) = 0;
   };
 }
 

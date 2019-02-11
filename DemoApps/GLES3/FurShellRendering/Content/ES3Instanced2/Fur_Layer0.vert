@@ -14,7 +14,7 @@ uniform vec3 Displacement;
 out mediump vec3 v_normal;
 out mediump vec2 v_texcoord;
 
-void main() 
+void main()
 {
   vec4 pos = vec4(VertexPosition, 1.0);
   vec4 worldPosition = World * pos;

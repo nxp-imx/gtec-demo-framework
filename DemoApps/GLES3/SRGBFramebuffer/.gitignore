@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/WoodFloor/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.SRGBFramebuffer.VC.VC.opendb
@@ -27,6 +28,7 @@
 /SRGBFramebuffer_Wayland_d
 /SRGBFramebuffer_X11
 /SRGBFramebuffer_X11_d
+/SRGBFramebuffer_c
 /SRGBFramebuffer_d
 /build/
 /resource.h

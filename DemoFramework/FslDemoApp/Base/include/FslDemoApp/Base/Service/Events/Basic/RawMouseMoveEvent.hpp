@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
@@ -41,11 +42,22 @@ namespace Fsl
   class RawMouseMoveEvent : public BasicEvent
   {
   public:
-    explicit RawMouseMoveEvent(const BasicEvent& encodedEvent);
+    explicit RawMouseMoveEvent(const BasicEvent& encodedEvent)
+      : BasicEvent(encodedEvent)
+    {
+      if (m_type != EventType::RawMouseMove)
+      {
+        throw std::invalid_argument("The supplied argument is of a wrong type");
+      }
+    }
+
     RawMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& mouseButtonFlags);
 
     //! @brief Get the current position
-    const Point2 GetPosition() const;
+    const Point2 GetPosition() const
+    {
+      return Point2(m_arg1, m_arg2);
+    }
 
     //! @brief Get the mouse button flags
     VirtualMouseButtonFlags GetMouseButtonFlags() const;

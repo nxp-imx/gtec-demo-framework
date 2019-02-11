@@ -34,6 +34,7 @@
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 
 namespace Fsl
@@ -44,6 +45,8 @@ namespace Fsl
 
     class Texture2DImage : public BaseWindow
     {
+      BlendState m_blendState = BlendState::AlphaBlend;
+
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
@@ -65,6 +68,11 @@ namespace Fsl
         return m_scalePolicy;
       }
       void SetScalePolicy(const ItemScalePolicy value);
+
+      void SetBlendState(const BlendState blendState)
+      {
+        m_blendState = blendState;
+      }
 
       void WinDraw(const UIDrawContext& context) override;
 

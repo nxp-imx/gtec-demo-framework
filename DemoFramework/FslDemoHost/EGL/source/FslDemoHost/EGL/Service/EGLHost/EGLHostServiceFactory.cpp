@@ -45,8 +45,8 @@ namespace Fsl
 
   void EGLHostServiceFactory::FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const
   {
-    rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(EGLHostService)));
-    rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(IEGLHostInfo)));
+    rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(EGLHostService)));
+    rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IEGLHostInfo)));
   }
 
 

@@ -2,6 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES3.Scissor101" NoInclude="true">
     <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="Shared.Scissor101"/>
     <Platform Name="Windows" ProjectId="5E145F4C-5747-4877-95C1-733A8CCFBAC0"/>
   </Executable>
 </FslBuildGen>

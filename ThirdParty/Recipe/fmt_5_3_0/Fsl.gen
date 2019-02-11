@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Recipe.fmt_5_3_0">
+    <Default.Platform.Supported Value="false"/>
+
+    <Platform Name="Ubuntu" Supported="true">
+      <ExperimentalRecipe Name="fmt-5.3.0">
+        <Pipeline>
+          <Download URL="https://github.com/fmtlib/fmt/archive/5.3.0.zip" To="fmt-5.3.0.zip" Hash="2ba1469c1f7677e70cb32bcd7dd0907e6952e16a161f07e05c7ffa388643b607"/> 
+          <Unpack File="fmt-5.3.0.zip" OutputPath="fmt-5.3.0"/>
+          <CMakeBuild Project="googletest-distribution" Target="install" Configuration="release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/libfmt.a"/>
+          <Path Name="include/fmt/format.h" Method="IsFile"/>
+          <Path Name="include/fmt/printf.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+    
+    <Platform Name="Windows" Supported="true">
+      <ExperimentalRecipe Name="fmt-5.3.0">
+        <Pipeline>
+          <Download URL="https://github.com/fmtlib/fmt/archive/5.3.0.zip" To="fmt-5.3.0.zip" Hash="2ba1469c1f7677e70cb32bcd7dd0907e6952e16a161f07e05c7ffa388643b607"/> 
+          <Unpack File="fmt-5.3.0.zip" OutputPath="fmt-5.3.0"/>
+          <CMakeBuild Project="googletest-distribution" Target="install" Configuration="debug;release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/fmt.lib" DebugName="lib/fmtd.lib"/>
+          <Path Name="include/fmt/format.h" Method="IsFile"/>
+          <Path Name="include/fmt/printf.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

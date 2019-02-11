@@ -36,13 +36,13 @@ namespace Fsl
   enum class BlendState
   {
     //! Additive blending without using alpha
-    Additive,
+    Additive = 0,
     //! Pre-multiplied alpha blending
-    AlphaBlend,
+    AlphaBlend = 1,
     //! Non pre-multiplied alpha blending
-    NonPremultiplied,
+    NonPremultiplied = 2,
     //! Opaque blending
-    Opaque
+    Opaque = 3
   };
 }
 

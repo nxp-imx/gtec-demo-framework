@@ -39,10 +39,7 @@ namespace Fsl
 {
   namespace GLES2
   {
-    GLIndexBuffer::GLIndexBuffer()
-      : m_type(0)
-    {
-    }
+    GLIndexBuffer::GLIndexBuffer() = default;
 
 
     GLIndexBuffer::GLIndexBuffer(const void* const pIndices, const std::size_t elementCount, const uint32_t elementStride, const GLenum usage,

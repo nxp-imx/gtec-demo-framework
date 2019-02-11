@@ -31,6 +31,7 @@
 
 #include <FslDemoApp/Base/ADemoApp.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Math/LogPoint2.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/IEvent.hpp>
@@ -268,9 +269,17 @@ namespace Fsl
     : m_demoAppConfig(demoAppConfig)
 
   {
+    FSLLOG2(LogType::Verbose, "ADemopApp::ADemopApp()");
+
     m_contentManger = demoAppConfig.DemoServiceProvider.Get<IContentManager>();
     m_persistentDataManager = demoAppConfig.DemoServiceProvider.Get<IPersistentDataManager>();
     m_demoAppControl = demoAppConfig.DemoServiceProvider.Get<IDemoAppControl>();
+  }
+
+
+  ADemoApp::~ADemoApp()
+  {
+    FSLLOG2(LogType::Verbose, "ADemopApp::~ADemopApp()");
   }
 
 
@@ -301,8 +310,30 @@ namespace Fsl
 
   void ADemoApp::_PostConstruct()
   {
+    FSLLOG2(LogType::Verbose, "ADemoApp::_PostConstruct()");
+
+    // When this method is called, the object should be successfully constructed (unless someone calls it from a constructor, but thats a usage error
+    // and its undetectable). So don't do that!
+    m_currentLifeCycleState = ObjectLifeCycle::Constructed;
+    OnConstructed();
   }
 
+  void ADemoApp::_PreDestruct()
+  {
+    FSLLOG2(LogType::Verbose, "ADemoApp::_PreDestruct()");
+
+    // Give the app a chance to cleanup
+    try
+    {
+      OnDestroy();
+      m_currentLifeCycleState = ObjectLifeCycle::Destroyed;
+    }
+    catch (const std::exception&)
+    {
+      m_currentLifeCycleState = ObjectLifeCycle::Destroyed;
+      throw;
+    }
+  }
 
   void ADemoApp::_OnEvent(IEvent* const pEvent)
   {
@@ -384,6 +415,8 @@ namespace Fsl
 
   void ADemoApp::_Resized(const Point2& size)
   {
+    FSLLOG2(LogType::Verbose, "ADemoApp::_Resized(" << size << ")");
+
     m_demoAppConfig.ScreenResolution = size;
 
     // Call all registered extensions
@@ -435,6 +468,12 @@ namespace Fsl
   }
 
 
+  AppDrawResult ADemoApp::_TryPrepareDraw(const DemoTime& demoTime)
+  {
+    return TryPrepareDraw(demoTime);
+  }
+
+
   void ADemoApp::_Draw(const DemoTime& demoTime)
   {
     // Call all registered extensions
@@ -442,6 +481,13 @@ namespace Fsl
 
     // Done this way to prevent common mistakes where people forget to call the base class
     Draw(demoTime);
+  }
+
+
+  AppDrawResult ADemoApp::_TrySwapBuffers(const DemoTime& demoTime)
+  {
+    // Done this way to prevent common mistakes where people forget to call the base class
+    return TrySwapBuffers(demoTime);
   }
 
 

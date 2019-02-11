@@ -195,12 +195,12 @@ namespace Fsl
     if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
       FSLLOG("Using BC texture compression");
-      m_textures.ColorMap = m_textureLoader->LoadTextureArray("textures/texturearray_rocks_bc3.ktx");
+      m_textures.ColorMap = m_textureLoader->LoadTextureArray("Textures/TextureArray/Rocks/texturearray_rocks_bc3.ktx");
     }
     else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
       FSLLOG("Using ETC2 texture compression");
-      m_textures.ColorMap = m_textureLoader->LoadTextureArray("textures/texturearray_rocks_etc2.ktx");
+      m_textures.ColorMap = m_textureLoader->LoadTextureArray("Textures/TextureArray/Rocks/texturearray_rocks_etc2.ktx");
     }
     else
     {
@@ -211,7 +211,7 @@ namespace Fsl
 
   void MeshInstancing::LoadMeshes()
   {
-    m_meshes.Example = LoadMesh("models/rock01.dae", g_vertexLayout, 0.1f);
+    m_meshes.Example = LoadMesh("Models/Rock/rock01.dae", g_vertexLayout, 0.1f);
   }
 
 

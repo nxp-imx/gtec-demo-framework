@@ -47,10 +47,10 @@ namespace Fsl
     class GLBuffer
     {
       GLuint m_handle;
-      GLenum m_target;
-      uint32_t m_capacity;
-      uint32_t m_elementStride;
-      GLenum m_usage;
+      GLenum m_target{0};
+      uint32_t m_capacity{0};
+      uint32_t m_elementStride{0};
+      GLenum m_usage{0};
 
     public:
       GLBuffer(const GLBuffer&) = delete;
@@ -109,10 +109,10 @@ namespace Fsl
       //! @param elementStride the size of one element in bytes
       GLBuffer(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride, const GLenum usage);
 
-      ~GLBuffer();
+      virtual ~GLBuffer();
 
       //! @brief If a buffer is allocated this will releases it.
-      void Reset() noexcept;
+      virtual void Reset() noexcept;
 
       //! @brief Check if this buffer contains a valid gl handle.
       bool IsValid() const

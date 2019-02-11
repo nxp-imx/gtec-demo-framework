@@ -665,58 +665,65 @@ namespace Fsl
     m_windowSystem = EGLNativeWindowSystemFactory::Allocate(nativeWindowSystemSetup);
     // Set the window system in the host service so that any services or app that is interested will be able to access it
     m_windowHostInfoControl->SetWindowSystem(m_windowSystem);
-
-    const DemoHostAppSetup& hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
-    // Retrieve the custom config
-    m_appHostConfig = hostAppSetup.GetDemoAppHostConfig<DemoAppHostConfigEGL>();
-
-    m_configControl = m_appHostConfig->GetConfigControl();
-
-    m_extensionRequests = m_appHostConfig->GetExtensionRequests();
-
-    // Check that its a OpenGLES demo app
-    m_featureConfig = ExamineFeatureRequest(hostAppSetup.DemoHostFeatures);
-    if (!m_featureConfig.EnableGLES && !m_featureConfig.EnableVG)
+    try
     {
-      throw UsageErrorException("The EGLDemo host currently expects that OpenGLES or OpenVG has to be enabled");
+      const DemoHostAppSetup& hostAppSetup = demoHostConfig.GetDemoHostAppSetup();
+      // Retrieve the custom config
+      m_appHostConfig = hostAppSetup.GetDemoAppHostConfig<DemoAppHostConfigEGL>();
+
+      m_configControl = m_appHostConfig->GetConfigControl();
+
+      m_extensionRequests = m_appHostConfig->GetExtensionRequests();
+
+      // Check that its a OpenGLES demo app
+      m_featureConfig = ExamineFeatureRequest(hostAppSetup.DemoHostFeatures);
+      if (!m_featureConfig.EnableGLES && !m_featureConfig.EnableVG)
+      {
+        throw UsageErrorException("The EGLDemo host currently expects that OpenGLES or OpenVG has to be enabled");
+      }
+
+      m_activeApi = m_featureConfig.Feature;
+      m_enableGLES = m_featureConfig.EnableGLES;
+      m_enableVG = m_featureConfig.EnableVG;
+
+      m_eglContextClientVersionMajor = m_featureConfig.ESVersionMajor;
+      m_eglContextClientVersionMinor = m_featureConfig.ESVersionMinor;
+      if (!m_appHostConfig->IsMinimumMiniorVersionSet())
+      {
+        m_eglContextClientVersionMinimumMinor = m_featureConfig.ESVersionMinor;
+      }
+      else
+      {
+        m_eglContextClientVersionMinimumMinor = std::min(m_featureConfig.ESVersionMinor, m_appHostConfig->GetMinimumMiniorVersion());
+      }
+
+      if (m_enableGLES)
+      {
+        std::shared_ptr<IImageServiceControl> imageControl = demoHostConfig.GetServiceProvider().Get<IImageServiceControl>();
+        imageControl->SetPreferredBitmapOrigin(BitmapOrigin::LowerLeft);
+      }
+
+      BuildAttribConfig(m_appEglConfigAttribs, m_appHostConfig->GetEglConfigAttribs());
+      BuildEGLConfig(m_finalConfigAttribs, m_appEglConfigAttribs, m_configControl, m_featureConfig, m_options, DEFAULT_RGB_CONFIG,
+                     DEFAULT_DEPTH_BUFFER_SIZE);
+      assert(m_finalConfigAttribs.size() > 0);
+
+      if (m_options->IsLogConfigEnabled())
+      {
+        DoLogConfig(m_finalConfigAttribs);
+        m_logSelectedConfig = true;
+      }
+      m_logExtensions = m_options->IsLogExtensionsEnabled();
+
+      // Prepare the native window setup
+      m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
+                                                      m_options->GetNativeWindowConfig(), m_demoHostConfig.GetVerbosityLevel()));
     }
-
-    m_activeApi = m_featureConfig.Feature;
-    m_enableGLES = m_featureConfig.EnableGLES;
-    m_enableVG = m_featureConfig.EnableVG;
-
-    m_eglContextClientVersionMajor = m_featureConfig.ESVersionMajor;
-    m_eglContextClientVersionMinor = m_featureConfig.ESVersionMinor;
-    if (!m_appHostConfig->IsMinimumMiniorVersionSet())
+    catch (const std::exception&)
     {
-      m_eglContextClientVersionMinimumMinor = m_featureConfig.ESVersionMinor;
+      m_windowHostInfoControl->ClearWindowSystem();
+      throw;
     }
-    else
-    {
-      m_eglContextClientVersionMinimumMinor = std::min(m_featureConfig.ESVersionMinor, m_appHostConfig->GetMinimumMiniorVersion());
-    }
-
-    if (m_enableGLES)
-    {
-      std::shared_ptr<IImageServiceControl> imageControl = demoHostConfig.GetServiceProvider().Get<IImageServiceControl>();
-      imageControl->SetPreferredBitmapOrigin(BitmapOrigin::LowerLeft);
-    }
-
-    BuildAttribConfig(m_appEglConfigAttribs, m_appHostConfig->GetEglConfigAttribs());
-    BuildEGLConfig(m_finalConfigAttribs, m_appEglConfigAttribs, m_configControl, m_featureConfig, m_options, DEFAULT_RGB_CONFIG,
-                   DEFAULT_DEPTH_BUFFER_SIZE);
-    assert(m_finalConfigAttribs.size() > 0);
-
-    if (m_options->IsLogConfigEnabled())
-    {
-      DoLogConfig(m_finalConfigAttribs);
-      m_logSelectedConfig = true;
-    }
-    m_logExtensions = m_options->IsLogExtensionsEnabled();
-
-    // Prepare the native window setup
-    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
-                                                    m_options->GetNativeWindowConfig(), m_demoHostConfig.GetVerbosityLevel()));
   }
 
 
@@ -788,11 +795,11 @@ namespace Fsl
   }
 
 
-  bool EGLDemoHost::SwapBuffers()
+  SwapBuffersResult EGLDemoHost::TrySwapBuffers()
   {
     if (!m_isActivated)
     {
-      return true;
+      return SwapBuffersResult::Completed;
     }
 
     // Validate that we are not suspended
@@ -801,7 +808,7 @@ namespace Fsl
     assert(m_hContext != EGL_NO_CONTEXT);
     assert(m_hSurface != EGL_NO_SURFACE);
     assert(m_hConfig != EMPTY_VALUE_EGLCONFIG);
-    return eglSwapBuffers(m_hDisplay, m_hSurface) == EGL_TRUE;
+    return (eglSwapBuffers(m_hDisplay, m_hSurface) == EGL_TRUE ? SwapBuffersResult::Completed : SwapBuffersResult::Failed);
   }
 
 

@@ -154,7 +154,7 @@ namespace Fsl
     m_depthStencil.Image.Reset(m_device.Get(), image);
 
     const VkMemoryRequirements memReqs = m_depthStencil.Image.GetImageMemoryRequirements();
-    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
+    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
     const auto memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     // Allocate memory for the image (device local) and bind it to our image
@@ -196,7 +196,7 @@ namespace Fsl
   {
     // This example will use a single render pass with one subpass
 
-    // Descriptors for the attachments used by this renderpass
+    // Descriptors for the attachments used by this renderPass
     std::array<VkAttachmentDescription, 2> attachments{};
 
     // Color attachment
@@ -248,10 +248,10 @@ namespace Fsl
     // The actual usage layout is preserved through the layout specified in the attachment reference
     // Each subpass dependency will introduce a memory and execution dependency between the source and dest subpass described by
     // srcStageMask, dstStageMask, srcAccessMask, dstAccessMask (and dependencyFlags is set)
-    // Note: VK_SUBPASS_EXTERNAL is a special constant that refers to all commands executed outside of the actual renderpass)
+    // Note: VK_SUBPASS_EXTERNAL is a special constant that refers to all commands executed outside of the actual renderPass)
     std::array<VkSubpassDependency, 2> dependencies{};
 
-    // First dependency at the start of the renderpass
+    // First dependency at the start of the renderPass
     // Does the transition from final to initial layout
     dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;    // Producer of the dependency
     dependencies[0].dstSubpass = 0;                      // Consumer is our single subpass that will wait for the execution depdendency
@@ -261,17 +261,17 @@ namespace Fsl
     dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-    // Second dependency at the end the renderpass
+    // Second dependency at the end the renderPass
     // Does the transition from the initial to the final layout
     dependencies[1].srcSubpass = 0;                      // Producer of the dependency is our single subpass
-    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;    // Consumer are all commands outside of the renderpass
+    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;    // Consumer are all commands outside of the renderPass
     dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
     dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
     dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
 
-    // Create the actual renderpass
+    // Create the actual renderPass
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());     // Number of attachments used by this render pass
@@ -301,7 +301,7 @@ namespace Fsl
 
       VkFramebufferCreateInfo frameBufferCreateInfo{};
       frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-      // All frame buffers use the same renderpass setup
+      // All frame buffers use the same renderPass setup
       frameBufferCreateInfo.renderPass = m_renderPass.Get();
       frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
       frameBufferCreateInfo.pAttachments = attachments.data();
@@ -405,11 +405,11 @@ namespace Fsl
   void Triangle::PrepareVertices(const bool useStagingBuffers)
   {
     using namespace MemoryTypeUtil;
-    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
+    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
     // A note on memory management in Vulkan in general:
     //  This is a very complex topic and while it's fine for an example application to do small individual memory allocations that is not
-    //  what should be done a real-world application, where you should allocate large chunkgs of memory at once isntead.
+    //  what should be done a real-world application, where you should allocate large chunks of memory at once instead.
 
     struct Vertex
     {
@@ -624,7 +624,7 @@ namespace Fsl
   void Triangle::PrepareUniformBuffers()
   {
     using namespace MemoryTypeUtil;
-    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
+    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
     // Prepare and initialize a uniform buffer block containing shader uniforms
     // Single uniforms like in OpenGL are no longer present in Vulkan. All Shader uniforms are passed via uniform buffer blocks

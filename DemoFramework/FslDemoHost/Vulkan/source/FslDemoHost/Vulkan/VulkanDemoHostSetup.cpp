@@ -38,7 +38,7 @@ namespace Fsl
 {
   const DemoHostSetup VulkanDemoHostSetup::Get()
   {
-    std::shared_ptr<IDemoHostFactory> demoHostFactory(new TemplateIDemoHostFactory<VulkanDemoHost>());
+    std::shared_ptr<IDemoHostFactory> demoHostFactory(new TemplateIDemoHostFactory<VulkanDemoHost>(DemoHostCaps::Flags::AppRenderedSystemOverlay));
     std::shared_ptr<ADemoHostOptionParser> optionParser(new VulkanDemoHostOptionParser());
     return DemoHostSetup(demoHostFactory, optionParser);
   }

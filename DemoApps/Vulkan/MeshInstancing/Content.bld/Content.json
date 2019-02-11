@@ -1,0 +1,12 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Models/Rock/*.*",
+        "Textures/TextureArray/Rocks/*.*"
+      ]
+    }
+  }
+}

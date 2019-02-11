@@ -12,10 +12,10 @@ uniform vec3 AmbientColor;
 
 out vec4 o_fragColor;
 
-void main() 
+void main()
 {
   vec4 furColor = texture(Texture0, v_texcoord);
-  
+
   furColor *= 0.4;
 
   float lightAmount = max(dot(v_normal, -LightDirection1), 0.0);
@@ -23,4 +23,3 @@ void main()
   furColor.xyz *= lighting;
   o_fragColor = furColor;
 }
-

@@ -3,6 +3,8 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Models/Rock/
+/Content/Textures/TextureArray/Rocks/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GNUmakefile
@@ -14,6 +16,7 @@
 /MeshInstancing_Wayland_d
 /MeshInstancing_X11
 /MeshInstancing_X11_d
+/MeshInstancing_c
 /MeshInstancing_d
 /Vulkan.MeshInstancing
 /Vulkan.MeshInstancing.VC.VC.opendb

@@ -1,0 +1,23 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Models/FuturisticCar/Futuristic_Car_C.jpg",
+        "Models/FuturisticCar/Futuristic_Car_N.jpg",
+        "Models/FuturisticCar/Futuristic_Car_S.jpg",
+        "Models/FuturisticCar/FuturisticCar.fsf",
+        "Models/FuturisticCar/License.json",
+        "Models/Knight2/armor.fsf",
+        "Models/Knight2/armor_default_color.jpg",
+        "Models/Knight2/armor_default_metalness.jpg",
+        "Models/Knight2/armor_default_nmap.jpg",
+        "Models/Knight2/armor_default_rough.jpg",
+        "Models/Knight2/armor_missing_tangents.fsf",
+        "Models/Knight2/License.json",
+        "Models/Knight2/license.txt"
+      ]
+    }
+  }
+}

@@ -42,13 +42,15 @@ purpose and non-infringement.
 
 #include <FslBase/Math/Viewport.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <cmath>
 #include <limits>
-#include "MatrixFields.hpp"
 
 namespace Fsl
 {
+  using namespace MatrixFields;
+
   namespace
   {
     bool WithinEpsilon(const float a, const float b)

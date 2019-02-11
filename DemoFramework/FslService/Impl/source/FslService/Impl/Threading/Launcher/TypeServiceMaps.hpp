@@ -70,7 +70,7 @@ namespace Fsl
     }
 
 
-    void AddProvider(const TypeInfo& serviceInterfaceType, const ServiceLaunchRecord& launchRecord)
+    void AddProvider(const std::type_index& serviceInterfaceType, const ServiceLaunchRecord& launchRecord)
     {
       auto itrFind = InterfaceToService.find(serviceInterfaceType);
       if (itrFind != InterfaceToService.end())

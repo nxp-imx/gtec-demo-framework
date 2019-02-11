@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/VUBuffer.hpp>
+#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
 #include <deque>
 #include <vector>
@@ -49,7 +49,7 @@ namespace Fsl
       VUPhysicalDeviceRecord m_physicalDevice;
       VkDevice m_device;
       uint32_t m_segmentVertexCount;
-      std::deque<VUBuffer> m_buckets;
+      std::deque<VUBufferMemory> m_buckets;
 
       uint32_t m_activeCount = 0;
 
@@ -74,6 +74,47 @@ namespace Fsl
 
       QuadBatchVertexBuffers(const QuadBatchVertexBuffers&) = delete;
       QuadBatchVertexBuffers& operator=(const QuadBatchVertexBuffers&) = delete;
+
+      //! @brief Move assignment operator
+      QuadBatchVertexBuffers& operator=(QuadBatchVertexBuffers&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          if (IsValid())
+          {
+            Reset();
+          }
+
+          // Claim ownership here
+          m_physicalDevice = other.m_physicalDevice;
+          m_device = other.m_device;
+          m_segmentVertexCount = other.m_segmentVertexCount;
+          m_buckets = std::move(other.m_buckets);
+          m_activeCount = other.m_activeCount;
+
+          // Remove the data from other
+          other.m_device = VK_NULL_HANDLE;
+          other.m_segmentVertexCount = 0;
+          other.m_activeCount = 0;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      QuadBatchVertexBuffers(QuadBatchVertexBuffers&& other) noexcept
+        : m_physicalDevice(other.m_physicalDevice)
+        , m_device(other.m_device)
+        , m_segmentVertexCount(other.m_segmentVertexCount)
+        , m_buckets(std::move(other.m_buckets))
+        , m_activeCount(other.m_activeCount)
+      {
+        // Remove the data from other
+        other.m_device = VK_NULL_HANDLE;
+        other.m_segmentVertexCount = 0;
+        other.m_activeCount = 0;
+      }
 
       QuadBatchVertexBuffers();
       QuadBatchVertexBuffers(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const uint32_t minimumVertexCountRequest);

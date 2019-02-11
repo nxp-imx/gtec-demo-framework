@@ -40,25 +40,37 @@
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLVertexArray.hpp>
 #include <FslBase/Math/Matrix.hpp>
-#include <Shared/OpenGLES3/CubeMapping/SkyboxMesh.hpp>
-#include <Shared/OpenGLES3/CubeMapping/SkyboxProgram.hpp>
+#include <Shared/CubeMapping/API/OpenGLES3/SkyboxMesh.hpp>
+#include <Shared/CubeMapping/API/OpenGLES3/SkyboxProgram.hpp>
 
 namespace Fsl
 {
   class Skybox : public DemoAppGLES3
   {
+    struct VertexUBOData
+    {
+      Matrix MatView;
+      Matrix MatProj;
+    };
+
+    struct Resources
+    {
+      GLES3::GLTexture CubemapTexture;
+      SkyboxProgram MainSkyboxProgram;
+      SkyboxMesh MainSkyboxMesh;
+    };
+
     std::shared_ptr<IKeyboard> m_keyboard;
     std::shared_ptr<IMouse> m_mouse;
     std::shared_ptr<IDemoAppControl> m_demoAppControl;
     bool m_mouseCaptureEnabled;
+    bool m_rightMouseDown = false;
     Graphics3D::FirstPersonCamera m_camera;
 
+    Resources m_resources;
 
-    GLES3::GLTexture m_cubemapTexture;
-    SkyboxProgram m_skyboxProgram;
-    SkyboxMesh m_skyboxMesh;
+    VertexUBOData m_vertexUboData;
 
-    Matrix m_matrixProjection;
     Vector2 m_rotationSpeed;
 
   public:
@@ -71,8 +83,7 @@ namespace Fsl
     void Draw(const DemoTime& demoTime) override;
 
   private:
-    static void DrawScene(const SkyboxProgram& programInfo, const SkyboxMesh& mesh, const GLES3::GLTexture& texture, const Matrix& matrixView,
-                          const Matrix& matrixProjection);
+    static void DrawScene(const SkyboxProgram& programInfo, const SkyboxMesh& mesh, const GLES3::GLTexture& texture, const VertexUBOData& uboData);
 
     void UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState);
   };

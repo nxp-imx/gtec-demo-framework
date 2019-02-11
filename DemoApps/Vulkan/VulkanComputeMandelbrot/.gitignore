@@ -32,6 +32,7 @@
 /VulkanComputeMandelbrot_Wayland_d
 /VulkanComputeMandelbrot_X11
 /VulkanComputeMandelbrot_X11_d
+/VulkanComputeMandelbrot_c
 /VulkanComputeMandelbrot_d
 /build/
 /mandelbrot.bmp

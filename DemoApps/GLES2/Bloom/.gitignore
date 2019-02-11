@@ -9,8 +9,10 @@
 /Bloom_Wayland_d
 /Bloom_X11
 /Bloom_X11_d
+/Bloom_c
 /Bloom_d
 /CMakeLists.txt
+/Content/Models/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES2.Bloom.VC.VC.opendb

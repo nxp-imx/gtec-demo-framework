@@ -1,10 +1,10 @@
 <!-- #AG_DEMOAPP_HEADER_BEGIN# -->
 # OpenCV101
-<img src="./Example.jpg" height="135px" style="float:right">
+<img src="Example.jpg" height="135px">
 
 <!-- #AG_DEMOAPP_HEADER_END# -->
 <!-- #AG_BRIEF_BEGIN# -->
-Demonstrates how to use OpenCV from inside a OpenGL ES 2 project.
+Demonstrates how to use OpenCV from inside a OpenGL ES 3 project.
 
 This is a very basic example that mainly shows how to setup the correct dependency in the Fsl.gen file and
 then it does some very basic OpenCV operations. It could be used as a good starting point for a more complex example.

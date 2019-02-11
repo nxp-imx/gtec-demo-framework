@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /FurShellRendering
@@ -12,6 +13,7 @@
 /FurShellRendering_Wayland_d
 /FurShellRendering_X11
 /FurShellRendering_X11_d
+/FurShellRendering_c
 /FurShellRendering_d
 /GLES3.FurShellRendering
 /GLES3.FurShellRendering.VC.VC.opendb

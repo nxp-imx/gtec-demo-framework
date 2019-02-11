@@ -31,55 +31,26 @@
 
 #include <FslBase/Log/Log.hpp>
 #include <FslGraphics/Color.hpp>
-#include <algorithm>
 
 namespace Fsl
 {
-  namespace
-  {
-    inline uint8_t Convert(const float value)
-    {
-      const auto asInt = static_cast<int32_t>(value * 255.0f);
-      return std::min(std::max(asInt, 0), 255);
-    }
-  }
-
-  Color::Color(const float r, const float g, const float b, const float a)
-    : m_value(static_cast<uint32_t>(Convert(b)) | (static_cast<uint32_t>(Convert(g)) << 8) | (static_cast<uint32_t>(Convert(r)) << 16) |
-              (static_cast<uint32_t>(Convert(a)) << 24))
-  {
-  }
-
-
-  Color::Color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
-    : m_value(static_cast<uint32_t>(b) | (static_cast<uint32_t>(g) << 8) | (static_cast<uint32_t>(r) << 16) | (static_cast<uint32_t>(a) << 24))
-  {
-  }
-
-
   Color::Color(const int32_t r, const int32_t g, const int32_t b, const int32_t a)
     : m_value(static_cast<uint32_t>(b & 0xFF) | (static_cast<uint32_t>(g & 0xFF) << 8) | (static_cast<uint32_t>(r & 0xFF) << 16) |
               (static_cast<uint32_t>(a & 0xFF) << 24))
   {
-    FSLLOG_WARNING_IF(r < 0 || r > 255, "Red is expected to be between 0-255 so " << r << " is not valid.");
-    FSLLOG_WARNING_IF(g < 0 || g > 255, "Green is expected to be between 0-255 so " << g << " is not valid.");
-    FSLLOG_WARNING_IF(b < 0 || b > 255, "Blue is expected to be between 0-255 so " << b << " is not valid.");
-    FSLLOG_WARNING_IF(a < 0 || a > 255, "Alpha is expected to be between 0-255 so " << a << " is not valid.");
+    FSLLOG_DEBUG_WARNING_IF(r < 0 || r > 255, "Red is expected to be between 0-255 so " << r << " is not valid.");
+    FSLLOG_DEBUG_WARNING_IF(g < 0 || g > 255, "Green is expected to be between 0-255 so " << g << " is not valid.");
+    FSLLOG_DEBUG_WARNING_IF(b < 0 || b > 255, "Blue is expected to be between 0-255 so " << b << " is not valid.");
+    FSLLOG_DEBUG_WARNING_IF(a < 0 || a > 255, "Alpha is expected to be between 0-255 so " << a << " is not valid.");
   }
 
 
   Color::Color(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a)
     : m_value((b & 0xFF) | ((g & 0xFF) << 8) | ((r & 0xFF) << 16) | ((a & 0xFF) << 24))
   {
-    FSLLOG_WARNING_IF(r > 255, "Red is expected to be between 0-255 so " << r << " is not valid.");
-    FSLLOG_WARNING_IF(g > 255, "Green is expected to be between 0-255 so " << g << " is not valid.");
-    FSLLOG_WARNING_IF(b > 255, "Blue is expected to be between 0-255 so " << b << " is not valid.");
-    FSLLOG_WARNING_IF(a > 255, "Alpha is expected to be between 0-255 so " << a << " is not valid.");
-  }
-
-
-  const Vector4 Color::ToVector4() const
-  {
-    return Vector4(R() / 255.0f, G() / 255.0f, B() / 255.0f, A() / 255.0f);
+    FSLLOG_DEBUG_WARNING_IF(r > 255, "Red is expected to be between 0-255 so " << r << " is not valid.");
+    FSLLOG_DEBUG_WARNING_IF(g > 255, "Green is expected to be between 0-255 so " << g << " is not valid.");
+    FSLLOG_DEBUG_WARNING_IF(b > 255, "Blue is expected to be between 0-255 so " << b << " is not valid.");
+    FSLLOG_DEBUG_WARNING_IF(a > 255, "Alpha is expected to be between 0-255 so " << a << " is not valid.");
   }
 }

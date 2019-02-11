@@ -31,6 +31,8 @@
 
 #include <FslGraphics/PrimitiveTypeUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <FslBase/Log/BasicLog.hpp>
+#include <algorithm>
 #include <cassert>
 
 namespace Fsl
@@ -43,13 +45,14 @@ namespace Fsl
       return indexCount / 2;
       break;
     case PrimitiveType::LineStrip:
-      return indexCount - 1;
+      return std::max(indexCount - 1, 0);
       break;
     case PrimitiveType::TriangleList:
       return indexCount / 3;
     case PrimitiveType::TriangleStrip:
-      return indexCount - 2;
+      return std::max(indexCount - 2, 0);
     default:
+      FSLBASICLOG_DEBUG_WARNING("Unsupported primitive type");
       return 0;
     }
   }

@@ -77,6 +77,7 @@ namespace Fsl
 
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;
     void OnMouseMoveEvent(const MouseMoveEvent& event) override;
+    void Resized(const Point2& size) override;
     void PreUpdate(const DemoTime& demoTime) override;
     void Update(const DemoTime& demoTime) override;
     void PostUpdate(const DemoTime& demoTime) override;
@@ -103,6 +104,11 @@ namespace Fsl
 
     //! @brief Get the transition cache
     std::shared_ptr<TransitionCache> GetTransitionCache() const;
+
+    const ITextureAtlas& GetDefaultTextureAtlas() const
+    {
+      return m_defaultTextureAtlas;
+    }
   };
 }
 

@@ -69,9 +69,9 @@ namespace Fsl
   }
 
 
-  NativeWindowEvent NativeWindowEventHelper::EncodeWindowDPIChanged()
+  NativeWindowEvent NativeWindowEventHelper::EncodeWindowDPIChanged(const Point2& newDPI)
   {
-    return NativeWindowEvent(NativeWindowEventType::WindowDPIChanged);
+    return NativeWindowEvent(NativeWindowEventType::WindowDPIChanged, newDPI.X, newDPI.Y);
   }
 
 

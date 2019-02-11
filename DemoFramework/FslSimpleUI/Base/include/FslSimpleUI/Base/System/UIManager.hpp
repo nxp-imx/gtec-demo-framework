@@ -73,7 +73,7 @@ namespace Fsl
       bool m_leftButtonDown;
 
     public:
-      UIManager(const Point2& size);
+      UIManager(const Point2& currentSize);
       ~UIManager();
 
       std::shared_ptr<UIContext> GetUIContext() const;
@@ -90,6 +90,7 @@ namespace Fsl
 
       void ProcessEvents();
 
+      void SetDPI(const Point2& dpi);
       void Resized(const Point2& size);
       void FixedUpdate(const DemoTime& demoTime);
       void Update(const DemoTime& demoTime);

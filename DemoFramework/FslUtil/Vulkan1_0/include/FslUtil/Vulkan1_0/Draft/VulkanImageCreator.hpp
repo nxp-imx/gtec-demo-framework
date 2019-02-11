@@ -34,13 +34,17 @@
 #include <RapidVulkan/CommandBuffer.hpp>
 #include <RapidVulkan/CommandPool.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslUtil/Vulkan1_0/VUImage.hpp>
+#include <FslUtil/Vulkan1_0/VUImageMemoryView.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 
 namespace Fsl
 {
   class Bitmap;
+  class RawBitmap;
   class Texture;
+  class RawTexture;
+  class RawCubeBitmap;
+
   namespace Vulkan
   {
     //! @brief A helper class for quickly creating VulkanImage's or VulkanTexture's from Bitmap's or Texture's
@@ -58,17 +62,65 @@ namespace Fsl
       VulkanImageCreator(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex);
       ~VulkanImageCreator();
 
-      VUImage CreateImage(const Bitmap& src, const std::string& name = std::string(),
-                          const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
-      VUImage CreateImage(const Texture& src, const std::string& name = std::string(),
-                          const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUImageMemoryView CreateImage(const Bitmap& src, const std::string& name = std::string(),
+                                    const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUImageMemoryView CreateImage(const Texture& src, const std::string& name = std::string(),
+                                    const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUImageMemoryView CreateImage(const RawBitmap& src, const std::string& name = std::string(),
+                                    const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUImageMemoryView CreateImage(const RawCubeBitmap& src, const std::string& name = std::string(),
+                                    const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUImageMemoryView CreateImage(const RawTexture& src, const std::string& name = std::string(),
+                                    const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
+      VUImageMemoryView CreateImage(const Bitmap& srcBitmapPosX, const Bitmap& srcBitmapNegX, const Bitmap& srcBitmapPosY,
+                                    const Bitmap& srcBitmapNegY, const Bitmap& srcBitmapPosZ, const Bitmap& srcBitmapNegZ,
+                                    const std::string& name = std::string(), const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
+      VUImageMemoryView CreateImage(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
+                                    const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+                                    const std::string& name = std::string(), const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
+
       VUTexture CreateTexture(const Bitmap& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name = std::string(),
                               const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
       VUTexture CreateTexture(const Texture& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name = std::string(),
                               const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
       VUTexture CreateTexture(const Bitmap& src, RapidVulkan::Sampler&& sampler, const std::string& name = std::string(),
                               const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
       VUTexture CreateTexture(const Texture& src, RapidVulkan::Sampler&& sampler, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
+      VUTexture CreateTexture(const RawBitmap& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUTexture CreateTexture(const RawCubeBitmap& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUTexture CreateTexture(const RawTexture& src, const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
+      VUTexture CreateTexture(const RawBitmap& src, RapidVulkan::Sampler&& sampler, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUTexture CreateTexture(const RawCubeBitmap& src, RapidVulkan::Sampler&& sampler, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUTexture CreateTexture(const RawTexture& src, RapidVulkan::Sampler&& sampler, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
+
+      VUTexture CreateTexture(const Bitmap& srcBitmapPosX, const Bitmap& srcBitmapNegX, const Bitmap& srcBitmapPosY, const Bitmap& srcBitmapNegY,
+                              const Bitmap& srcBitmapPosZ, const Bitmap& srcBitmapNegZ, const VkSamplerCreateInfo& samplerCreateInfo,
+                              const std::string& name = std::string(), const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUTexture CreateTexture(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
+                              const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+                              const VkSamplerCreateInfo& samplerCreateInfo, const std::string& name = std::string(),
+                              const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+
+      VUTexture CreateTexture(const Bitmap& srcBitmapPosX, const Bitmap& srcBitmapNegX, const Bitmap& srcBitmapPosY, const Bitmap& srcBitmapNegY,
+                              const Bitmap& srcBitmapPosZ, const Bitmap& srcBitmapNegZ, RapidVulkan::Sampler&& sampler,
+                              const std::string& name = std::string(), const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
+      VUTexture CreateTexture(const RawBitmap& srcBitmapPosX, const RawBitmap& srcBitmapNegX, const RawBitmap& srcBitmapPosY,
+                              const RawBitmap& srcBitmapNegY, const RawBitmap& srcBitmapPosZ, const RawBitmap& srcBitmapNegZ,
+                              RapidVulkan::Sampler&& sampler, const std::string& name = std::string(),
                               const VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT);
     };
   }

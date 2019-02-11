@@ -180,6 +180,7 @@ namespace Fsl
     m_elements.resize(elementCount);
 
     CopyElements(m_elements, pElements, static_cast<uint32_t>(elementCount));
+    m_vertexStride = vertexStride;
     VerifyElements(m_elements, m_vertexStride);
   }
 

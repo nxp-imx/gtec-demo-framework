@@ -2,9 +2,9 @@
 
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform mat4 WorldViewProjection;
@@ -26,14 +26,14 @@ void main()
 {
   // transform normal to camera space and normalize it
   vec3 n = normalize(NormalMatrix * VertexNormal);
- 
+
   // Calc the intensity as the dot product the max prevents negative intensity values
   float intensity = max(dot(n, LightDirection), 0.0);
- 
+
   // Calc the color per vertex
   v_Color = VertexColor * intensity;
   v_TexCoord = VertexTexCoord;
- 
+
   // transform the vertex coordinates
-  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0); 
+  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0);
 }

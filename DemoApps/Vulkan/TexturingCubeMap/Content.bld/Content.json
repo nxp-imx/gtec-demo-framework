@@ -1,0 +1,17 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Models/Cube/*.*",
+        "Models/Sphere/*.*",
+        "Models/Teapot/*.*",
+        "Models/TorusKnot/*.*",
+        "Textures/Cubemap/Yokohama3/Yokohama3_1024_bc3.ktx",
+        "Textures/Cubemap/Yokohama3/Yokohama3_1024_etc2.ktx",
+        "Textures/Cubemap/Yokohama3/License.json"
+      ]
+    }
+  }
+}

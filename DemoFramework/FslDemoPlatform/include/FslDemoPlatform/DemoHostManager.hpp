@@ -31,13 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
-#include <FslDemoPlatform/Setup/DemoSetup.hpp>
-#include <FslDemoPlatform/DurationExitConfig.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslDemoHost/Base/DemoHostCaps.hpp>
+#include <FslDemoHost/Base/SwapBuffersResult.hpp>
+#include <FslDemoPlatform/DurationExitConfig.hpp>
+#include <FslDemoPlatform/Setup/DemoSetup.hpp>
+#include <memory>
 
 namespace Fsl
 {
+  struct Point2;
   class DemoAppManager;
   class DemoHostManagerOptionParser;
   class IDemoHost;
@@ -62,6 +65,7 @@ namespace Fsl
     };
 
     DemoSetup m_demoSetup;
+    DemoHostCaps m_demoHostCaps;
     std::shared_ptr<NativeWindowEventQueue> m_eventQueue;
     std::shared_ptr<DemoAppManager> m_demoAppManager;
     std::shared_ptr<IDemoHost> m_demoHost;
@@ -86,6 +90,8 @@ namespace Fsl
     int Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper);
 
   private:
+    void AppProcess(const Point2& screenResolution, const bool isConsoleBasedHost);
+    SwapBuffersResult AppDrawAndSwapBuffers();
     void ProcessMessages();
     void CmdRestart();
     void CmdActivation(const bool bActivated);

@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Models/Knight2/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES2.ModelLoaderBasics
@@ -31,6 +32,7 @@
 /ModelLoaderBasics_Wayland_d
 /ModelLoaderBasics_X11
 /ModelLoaderBasics_X11_d
+/ModelLoaderBasics_c
 /ModelLoaderBasics_d
 /build/
 /resource.h

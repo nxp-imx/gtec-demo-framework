@@ -282,11 +282,8 @@ namespace Fsl
       //!       2. Immediately get the desired size of the child.
       //!       3. Compute the total desired size of this window based on the child element requirements.
       //!          During this process the child windows can return a larger DesiredSize than the initial AvailableSpace to
-      //!          indicate that it needs more space. Which can
-      //!       During this process, child elements might return a larger DesiredSize size than the initial availableSize to
-      //!       indicate that the child element wants more space. This might be handled in your own implementation by
-      //!       introducing a scrollable region, by resizing the parent control, by establishing some manner of stacked order,
-      //!       or any number of solutions for measuring or arranging content.
+      //!          indicate that it needs more space. Which can be handled by introducing a scrollable region, resizing the parent control, adding
+      //!          some form of stacked order or another appropriate solution for measuring and arranging.
       virtual Vector2 MeasureOverride(const Vector2& availableSize)
       {
         return Vector2::Zero();

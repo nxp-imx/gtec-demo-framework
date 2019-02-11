@@ -202,12 +202,12 @@ namespace Fsl
   {
     if (m_deviceActiveFeatures.textureCompressionBC != VK_FALSE)
     {
-      // m_textureArray = m_textureLoader->LoadTextureArray("textures/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
-      m_textureArray = LoadTextureArray("textures/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
+      // m_textureArray = m_textureLoader->LoadTextureArray("Textures/TextureArray/Test/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
+      m_textureArray = LoadTextureArray("Textures/TextureArray/Test/texturearray_bc3.ktx", VK_FORMAT_BC3_UNORM_BLOCK);
     }
     else if (m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      m_textureArray = LoadTextureArray("textures/texturearray_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
+      m_textureArray = LoadTextureArray("Textures/TextureArray/Test/texturearray_etc2.ktx", VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK);
     }
     else
     {
@@ -264,7 +264,7 @@ namespace Fsl
       }
       RawTexture rawTexture;
       Texture::ScopedDirectAccess directAccess(textureArray, rawTexture);
-      std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetContentByteSize());
+      std::memcpy(pData, rawTexture.GetContent(), rawTexture.GetByteSize());
     }
     stagingMemory.UnmapMemory();
 

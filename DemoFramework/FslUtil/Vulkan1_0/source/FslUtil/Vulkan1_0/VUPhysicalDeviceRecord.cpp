@@ -41,14 +41,6 @@ namespace Fsl
 {
   namespace Vulkan
   {
-    VUPhysicalDeviceRecord::VUPhysicalDeviceRecord()
-      : Properties{}
-      , Features{}
-      , MemoryProperties{}
-    {
-    }
-
-
     VUPhysicalDeviceRecord::VUPhysicalDeviceRecord(const VkPhysicalDevice physicalDevice)
       : VUPhysicalDeviceRecord()
     {
@@ -58,15 +50,20 @@ namespace Fsl
 
     void VUPhysicalDeviceRecord::Reset()
     {
-      Device = PhysicalDeviceRecord();
-      Properties = VkPhysicalDeviceProperties{};
-      Features = VkPhysicalDeviceFeatures{};
-      MemoryProperties = VkPhysicalDeviceMemoryProperties{};
+      Device = VK_NULL_HANDLE;
+      Properties = {};
+      Features = {};
+      MemoryProperties = {};
     }
 
 
     void VUPhysicalDeviceRecord::Reset(const VkPhysicalDevice physicalDevice)
     {
+      if (physicalDevice == VK_NULL_HANDLE)
+      {
+        throw std::invalid_argument("physicalDevice");
+      }
+
       // Free any currently allocated resource
       if (IsValid())
       {
@@ -75,10 +72,10 @@ namespace Fsl
 
       try
       {
-        Device = PhysicalDeviceRecord(physicalDevice);
-        Properties = Device.GetPhysicalDeviceProperties();
-        Features = Device.GetPhysicalDeviceFeatures();
-        MemoryProperties = Device.GetPhysicalDeviceMemoryProperties();
+        Device = physicalDevice;
+        vkGetPhysicalDeviceProperties(Device, &Properties);
+        vkGetPhysicalDeviceFeatures(Device, &Features);
+        vkGetPhysicalDeviceMemoryProperties(Device, &MemoryProperties);
       }
       catch (const std::exception&)
       {

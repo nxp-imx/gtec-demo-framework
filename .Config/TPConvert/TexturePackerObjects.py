@@ -77,7 +77,7 @@ class TexturePackerFrame(object):
         self.Trimmed = dict["trimmed"]
         self.SpriteSourceSize = TexturePackerRectangle(dict["spriteSourceSize"])
         self.SourceSize = TexturePackerSize(dict["sourceSize"])
-        self.Pivot = TexturePackerVector2(dict["pivot"])
+#        self.Pivot = TexturePackerVector2(dict["pivot"])
 
         self.FilenameWithoutExt = IOUtil.GetFileNameWithoutExtension(self.Filename)
         self.Path = IOUtil.ToUnixStylePath(os.path.dirname(self.Filename))

@@ -61,7 +61,7 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(IContentManager)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IContentManager)));
     }
 
     std::shared_ptr<IService> Allocate(ServiceProvider& provider) override

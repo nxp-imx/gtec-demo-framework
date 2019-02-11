@@ -105,10 +105,10 @@ namespace Fsl
       {
       case 1:
         Convert(static_cast<uint16_t*>(pDst), cbDst / dstIndexByteSize, static_cast<const uint8_t*>(pSrc), srcIndexCount);
-        break;
+        return;
       case 2:
         Convert(static_cast<uint16_t*>(pDst), cbDst / dstIndexByteSize, static_cast<const uint16_t*>(pSrc), srcIndexCount);
-        break;
+        return;
       default:
         throw NotSupportedException("source index size not supported");
       }
@@ -119,13 +119,14 @@ namespace Fsl
       {
       case 1:
         Convert(static_cast<uint8_t*>(pDst), cbDst / dstIndexByteSize, static_cast<const uint8_t*>(pSrc), srcIndexCount);
-        break;
+        return;
       case 2:
         Convert(static_cast<uint8_t*>(pDst), cbDst / dstIndexByteSize, static_cast<const uint16_t*>(pSrc), srcIndexCount);
-        break;
+        return;
       default:
         throw NotSupportedException("source index size not supported");
       }
     }
+    throw NotSupportedException("dest index size not supported");
   }
 }

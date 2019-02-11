@@ -40,7 +40,7 @@ namespace Fsl
   {
   public:
     AsynchronousServiceImplFactoryTemplate()
-      : AsynchronousServiceImplFactoryBase(TypeInfo(typeid(T)))
+      : AsynchronousServiceImplFactoryBase(std::type_index(typeid(T)))
     {
     }
 

@@ -1,0 +1,12 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Textures/Cubemap/Yokohama3/Yokohama3_512.dds",
+        "Textures/Cubemap/Yokohama3/License.json"
+      ]
+    }
+  }
+}

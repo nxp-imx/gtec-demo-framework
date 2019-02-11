@@ -33,19 +33,20 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <RapidOpenCL1/Check.hpp>
-#include <RapidOpenCL1/Program.hpp>
+#include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenCL1_1/ContextEx.hpp>
 #include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <RapidOpenCL1/Buffer.hpp>
+#include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/CommandQueue.hpp>
 #include <RapidOpenCL1/DebugStrings.hpp>
-#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
-#include <RapidOpenCL1/Buffer.hpp>
 #include <RapidOpenCL1/Kernel.hpp>
-#include <vector>
+#include <RapidOpenCL1/Program.hpp>
 #include <GLES3/gl3.h>
+#include <array>
+#include <vector>
 
 using namespace RapidOpenCL1;
 
@@ -144,191 +145,64 @@ namespace Fsl
 
 
     // OPENGLES STUFF
-    // The index in these variables should match the g_pszShaderAttributeArray ordering
-    const GLuint g_hVertexLoc = 0;
-    const GLuint g_hColorLoc = 1;
-    const GLuint g_hVertexTexLoc = 2;
-    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", "g_vTexCoord", nullptr};
 
-
-    const float g_vertexPositions[] = {
+    std::array<VertexPositionTexture, 24> g_vertices = {
       // Draw A Quad
 
       // Top Right Of The Quad (Top)
-      1.0f, 1.0f, -1.0f,
+      VertexPositionTexture(Vector3(1.0f, 1.0f, -1.0f), Vector2(0.0f, 0.0f)),
       // Top Left Of The Quad (Top)
-      -1.0f, 1.0f, -1.0f,
+      VertexPositionTexture(Vector3(-1.0f, 1.0f, -1.0f), Vector2(1.0f, 0.0f)),
       // Bottom Right Of The Quad (Top)
-      1.0f, 1.0f, 1.0f,
+      VertexPositionTexture(Vector3(1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
       // Bottom Left Of The Quad (Top)
-      -1.0f, 1.0f, 1.0f,
+      VertexPositionTexture(Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
       // Top Right Of The Quad (Bottom)
-      1.0f, -1.0f, 1.0f,
+      VertexPositionTexture(Vector3(1.0f, -1.0f, 1.0f), Vector2(1.0f, 1.0f)),
       // Top Left Of The Quad (Bottom)
-      -1.0f, -1.0f, 1.0f,
+      VertexPositionTexture(Vector3(-1.0f, -1.0f, 1.0f), Vector2(0.0f, 1.0f)),
       // Bottom Right Of The Quad (Bottom)
-      1.0f, -1.0f, -1.0f,
+      VertexPositionTexture(Vector3(1.0f, -1.0f, -1.0f), Vector2(1.0f, 0.0f)),
       // Bottom Left Of The Quad (Bottom)
-      -1.0f, -1.0f, -1.0f,
+      VertexPositionTexture(Vector3(-1.0f, -1.0f, -1.0f), Vector2(0.0f, 0.0f)),
       // Top Right Of The Quad (Front)
-      1.0f, 1.0f, 1.0f,
+      VertexPositionTexture(Vector3(1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
       // Top Left Of The Quad (Front)
-      -1.0f, 1.0f, 1.0f,
+      VertexPositionTexture(Vector3(-1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
       // Bottom Right Of The Quad (Front)
-      1.0f, -1.0f, 1.0f,
+      VertexPositionTexture(Vector3(1.0f, -1.0f, 1.0f), Vector2(1.0f, 0.0f)),
       // Bottom Left Of The Quad (Front)
-      -1.0f, -1.0f, 1.0f,
+      VertexPositionTexture(Vector3(-1.0f, -1.0f, 1.0f), Vector2(0.0f, 0.0f)),
 
       // Top Right Of The Quad (Back)
-      1.0f, -1.0f, -1.0f,
+      VertexPositionTexture(Vector3(1.0f, -1.0f, -1.0f), Vector2(0.0f, 0.0f)),
       // Top Left Of The Quad (Back)
-      -1.0f, -1.0f, -1.0f,
+      VertexPositionTexture(Vector3(-1.0f, -1.0f, -1.0f), Vector2(1.0f, 0.0f)),
       // Bottom Right Of The Quad (Back)
-      1.0f, 1.0f, -1.0f,
+      VertexPositionTexture(Vector3(1.0f, 1.0f, -1.0f), Vector2(0.0f, 1.0f)),
       // Bottom Left Of The Quad (Back)
-      -1.0f, 1.0f, -1.0f,
+      VertexPositionTexture(Vector3(-1.0f, 1.0f, -1.0f), Vector2(1.0f, 1.0f)),
 
       // Top Right Of The Quad (Left)
-      -1.0f, 1.0f, 1.0f,
+      VertexPositionTexture(Vector3(-1.0f, 1.0f, 1.0f), Vector2(1.0f, 1.0f)),
       // Top Left Of The Quad (Left)
-      -1.0f, 1.0f, -1.0f,
+      VertexPositionTexture(Vector3(-1.0f, 1.0f, -1.0f), Vector2(0.0f, 1.0f)),
       // Bottom Right Of The Quad (Left)
-      -1.0f, -1.0f, 1.0f,
+      VertexPositionTexture(Vector3(-1.0f, -1.0f, 1.0f), Vector2(1.0f, 0.0f)),
       // Bottom Left Of The Quad (Left)
-      -1.0f, -1.0f, -1.0f,
+      VertexPositionTexture(Vector3(-1.0f, -1.0f, -1.0f), Vector2(0.0f, 0.0f)),
       // Top Right Of The Quad (Right)
-      1.0f, 1.0f, -1.0f,
+      VertexPositionTexture(Vector3(1.0f, 1.0f, -1.0f), Vector2(1.0f, 1.0f)),
       // Top Left Of The Quad (Right)
-      1.0f, 1.0f, 1.0f,
+      VertexPositionTexture(Vector3(1.0f, 1.0f, 1.0f), Vector2(0.0f, 1.0f)),
       // Bottom Right Of The Quad (Right)
-      1.0f, -1.0f, -1.0f,
+      VertexPositionTexture(Vector3(1.0f, -1.0f, -1.0f), Vector2(1.0f, 0.0f)),
       // Bottom Left Of The Quad (Right)
-      1.0f, -1.0f, 1.0f};
-
-    const float g_vertexTexCoords[] = {
-      // Top Face
-      0.0f,
-      0.0f,
-      1.0f,
-      0.0f,
-      0.0f,
-      1.0f,
-      1.0f,
-      1.0f,
-      // Bottom Face
-      1.0f,
-      1.0f,
-      0.0f,
-      1.0f,
-      1.0f,
-      0.0f,
-      0.0f,
-      0.0f,
-
-      // Front Face
-
-      1.0f,
-      1.0f,
-      0.0f,
-      1.0f,
-      1.0f,
-      0.0f,
-      0.0f,
-      0.0f,
-      // Back Face
-      0.0f,
-      0.0f,
-      1.0f,
-      0.0f,
-      0.0f,
-      1.0f,
-      1.0f,
-      1.0f,
-      // left face
-      1.0f,
-      1.0f,
-      0.0f,
-      1.0f,
-      1.0f,
-      0.0f,
-      0.0f,
-      0.0f,
-
-      // Right face
-      1.0f,
-      1.0f,
-      0.0f,
-      1.0f,
-      1.0f,
-      0.0f,
-      0.0f,
-      0.0f,
-
-    };
-
-    const float g_vertexColors[] = {
-      // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
-      // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
-
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
-
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
-
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-
-      // Red
-      1.0f, 0.0, 0.0f, 1.0f,
-      // Red
-      1.0f, 0.0, 0.0f, 1.0f,
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
-      // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
-      // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-      // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
-      // Red
-      1.0f, 0.0f, 0.0f, 1.0f,
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f,
-      // Blue
-      0.0f, 0.0f, 1.0f, 1.0f,
-
-      // Green
-      0.0f, 1.0f, 0.0f, 1.0f};
+      VertexPositionTexture(Vector3(1.0f, -1.0f, 1.0f), Vector2(0.0f, 0.0f))};
   }
-
 
   OpenCLGaussianFilter::OpenCLGaussianFilter(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_hModelViewMatrixLoc(0)
-    , m_hProjMatrixLoc(0)
-
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
 
@@ -336,27 +210,35 @@ namespace Fsl
     content->Read(bitmap, "Test.png", PixelFormat::EX_ALPHA8_UNORM);
     GetPersistentDataManager()->Write("Test_gray.bmp", bitmap);
 
-    ProcessBitmapUsingOpenCL(bitmap, GetContentManager()->ReadAllText("gaussian_filter.cl"));
+    ProcessBitmapUsingOpenCL(bitmap, content->ReadAllText("gaussian_filter.cl"));
 
     // Write the result to a file so we can take a detailed look at it
     GetPersistentDataManager()->Write("Test_gauss.bmp", bitmap);
+
     // We also use it as a texture
     GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-    m_texture.SetData(bitmap, params);
+    m_resources.Texture.SetData(bitmap, params);
 
     // Open GL setup
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_resources.Program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"));
 
-    const GLuint hProgram = m_program.Get();
+    const GLuint hProgram = m_resources.Program.Get();
 
     // Get uniform locations
-    m_hModelViewMatrixLoc = glGetUniformLocation(hProgram, "g_matModelView");
-    m_hProjMatrixLoc = glGetUniformLocation(hProgram, "g_matProj");
+    m_resources.ModelViewMatrixLoc = glGetUniformLocation(hProgram, "g_matModelView");
+    m_resources.ProjMatrixLoc = glGetUniformLocation(hProgram, "g_matProj");
+    m_resources.VertexBuffer.Reset(g_vertices, GL_STATIC_DRAW);
 
-    const Point2 currentSize = GetScreenResolution();
-    const float aspectRatio = currentSize.X / float(currentSize.Y);
-    m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspectRatio, 1.0f, 1000.0f);
-    m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, -3.0f);
+    // prepare attribute links
+    auto vertexDecl = VertexPositionTexture::GetVertexDeclaration();
+    m_attribLink[0] =
+      GLVertexAttribLink(m_resources.Program.GetAttribLocation("g_vPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    m_attribLink[1] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("g_vTexCoord"),
+                                         vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+
+    PrepareMatrices(config.ScreenResolution);
+
+    GL_CHECK_FOR_ERROR();
   }
 
 
@@ -368,15 +250,15 @@ namespace Fsl
     m_angle.X -= 0.60f * demoTime.DeltaTime;
     m_angle.Y -= 0.50f * demoTime.DeltaTime;
     m_angle.Z -= 0.40f * demoTime.DeltaTime;
+
+    // Rotate and translate the model view matrix
+    m_vertexUboData.MatModel =
+      Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
   }
 
 
   void OpenCLGaussianFilter::Draw(const DemoTime& demoTime)
   {
-    // Rotate and translate the model view matrix
-    const Matrix matModel =
-      Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
-
     const Point2 currentSize = GetScreenResolution();
     glViewport(0, 0, currentSize.X, currentSize.Y);
 
@@ -392,25 +274,21 @@ namespace Fsl
     glCullFace(GL_BACK);
 
     // Set the shader program
-    glUseProgram(m_program.Get());
+    glUseProgram(m_resources.Program.Get());
 
     // Load the matrices
-    glUniformMatrix4fv(m_hModelViewMatrixLoc, 1, 0, matModel.DirectAccess());
-    glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matProj.DirectAccess());
+    glUniformMatrix4fv(m_resources.ModelViewMatrixLoc, 1, 0, m_vertexUboData.MatModel.DirectAccess());
+    glUniformMatrix4fv(m_resources.ProjMatrixLoc, 1, 0, m_vertexUboData.MatProj.DirectAccess());
+
+    // Set up VBO Vertex Attribute information
+    glBindBuffer(m_resources.VertexBuffer.GetTarget(), m_resources.VertexBuffer.Get());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions);
-    glEnableVertexAttribArray(g_hVertexLoc);
-
-    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors);
-    glEnableVertexAttribArray(g_hColorLoc);
-
-    glVertexAttribPointer(g_hVertexTexLoc, 2, GL_FLOAT, 0, 0, g_vertexTexCoords);
-    glEnableVertexAttribArray(g_hVertexTexLoc);
+    m_resources.VertexBuffer.EnableAttribArrays(m_attribLink);
 
     // Select Our Texture
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texture.Get());
+    glBindTexture(GL_TEXTURE_2D, m_resources.Texture.Get());
 
     // Drawing Using Triangle strips, draw triangle strips using 4 vertices
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -421,8 +299,14 @@ namespace Fsl
     glDrawArrays(GL_TRIANGLE_STRIP, 20, 4);
 
     // Cleanup
-    glDisableVertexAttribArray(g_hVertexLoc);
-    glDisableVertexAttribArray(g_hColorLoc);
-    glDisableVertexAttribArray(g_hVertexTexLoc);
+    m_resources.VertexBuffer.DisableAttribArrays();
+  }
+
+
+  void OpenCLGaussianFilter::PrepareMatrices(const Point2& currentSize)
+  {
+    const float aspectRatio = currentSize.X / float(currentSize.Y);
+    m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspectRatio, 1.0f, 1000.0f);
+    m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, -3.0f);
   }
 }

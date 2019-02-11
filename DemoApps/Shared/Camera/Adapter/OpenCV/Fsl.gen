@@ -2,7 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="Shared.Camera.Adapter.OpenCV">
 	<Define Name="FSL_ENABLE_CAMERA_ADAPTER_OPENCV" Access="Public"/>
-	<Dependency Name="OpenCV3"/>
+	<Dependency Name="OpenCV4"/>
 	<Dependency Name="Shared.Camera.Adapter.Interface"/>
     <Platform Name="Windows" ProjectId="6077FC76-37D9-4032-9F90-B941361A246C"/>
   </Library>

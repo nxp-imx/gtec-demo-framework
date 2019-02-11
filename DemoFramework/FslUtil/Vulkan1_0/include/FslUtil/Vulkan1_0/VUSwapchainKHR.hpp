@@ -33,7 +33,6 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-//#include <FslUtil/Vulkan1_0/SafeType/SwapchainCreateInfoKHRCopy.hpp>
 #include <FslBase/Noncopyable.hpp>
 #include <RapidVulkan/SwapchainKHR.hpp>
 #include <vulkan/vulkan.h>
@@ -55,7 +54,7 @@ namespace Fsl
       };
 
       RapidVulkan::SwapchainKHR m_swapchain;
-      // SwapchainCreateInfoKHRCopy m_createInfo;
+      VkImageUsageFlags m_imageUsageFlags;
       VkFormat m_imageFormat;
       VkExtent2D m_imageExtent;
       std::vector<VkImage> m_images;
@@ -128,6 +127,11 @@ namespace Fsl
 
       //! @brief Access the image at the given index
       VkImage operator[](const std::size_t arrayIndex) const;
+
+      VkImageUsageFlags GetImageUsageFlags() const
+      {
+        return m_imageUsageFlags;
+      }
 
       VkFormat GetImageFormat() const;
 

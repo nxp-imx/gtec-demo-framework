@@ -2,18 +2,19 @@
 #extension GL_EXT_shader_io_blocks : enable
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
-in block 
+in block
 {
   vec3 ParticlePosition;
   vec3 ParticleVelocity;
   float ParticleEnergy;
   float ParticleType;
-} In;
+}
+In;
 
 out vec4 Out_FragColor;
 

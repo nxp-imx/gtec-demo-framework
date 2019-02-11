@@ -34,8 +34,6 @@
 
 namespace Fsl
 {
-  RawCubeBitmap::RawCubeBitmap() = default;
-
   RawCubeBitmap::RawCubeBitmap(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                                const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ)
     : m_bitmapPosX(bitmapPosX)

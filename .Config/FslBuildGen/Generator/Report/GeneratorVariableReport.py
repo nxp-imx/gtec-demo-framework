@@ -97,7 +97,7 @@ class InvalidVariableOptionIndexException(InvalidVariableOptionException):
 
 
 class GeneratorVariableReport(VariableDict):
-    def __init__(self, log: Optional[Log] = None, allowAutoVariablesOverride: bool = False) -> None:
+    def __init__(self, log: Optional[Log] = None, allowAutoVariablesOverride: bool = False, configVariantOptions: Optional[List[str]]=None) -> None:
         """
              allowAutoVariablesOverride if true then the automatic defined variables can be overridden with a add call,
              however if the options are different a warning is logged. However it is stil not possible to change the 'LinkedTargetName'
@@ -108,7 +108,8 @@ class GeneratorVariableReport(VariableDict):
         self.__DefaultOption = {}   # type: Dict[str, int]
         self.__AllowAutoVariablesOverride = allowAutoVariablesOverride
 
-        self.Add(ToolAddedVariant.CONFIG, ToolAddedVariantOptions.CONFIG)
+        configVariantOptions = configVariantOptions if configVariantOptions is not None else ToolAddedVariantOptions.CONFIG
+        self.Add(ToolAddedVariant.CONFIG, configVariantOptions)
 
 
     def GetVariableReportList(self) -> List[VariableReport]:

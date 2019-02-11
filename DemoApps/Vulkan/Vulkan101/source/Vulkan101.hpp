@@ -31,19 +31,53 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
+#include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
+#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
+#include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
+#include <RapidVulkan/CommandBuffers.hpp>
+#include <RapidVulkan/CommandPool.hpp>
+#include <RapidVulkan/GraphicsPipeline.hpp>
+#include <RapidVulkan/PipelineLayout.hpp>
+#include <RapidVulkan/RenderPass.hpp>
+#include <RapidVulkan/ShaderModule.hpp>
 
 namespace Fsl
 {
-  class Vulkan101 : public DemoAppVulkan
+  class Vulkan101 : public VulkanBasic::DemoAppVulkanBasic
   {
+    struct Resources
+    {
+      Vulkan::VUBufferMemory m_vertexBuffer;
+      RapidVulkan::ShaderModule m_vertexShaderModule;
+      RapidVulkan::ShaderModule m_fragmentShaderModule;
+      RapidVulkan::PipelineLayout m_pipelineLayout;
+    };
+
+    struct DependentResources
+    {
+      RapidVulkan::RenderPass m_renderPass;
+      RapidVulkan::GraphicsPipeline m_pipeline;
+    };
+
+    Resources m_resources;
+    DependentResources m_dependentResources;
+
   public:
     Vulkan101(const DemoAppConfig& config);
     ~Vulkan101() override;
 
   protected:
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
+
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
+    void OnFreeResources() noexcept override;
+
+  private:
+    void CreateShaders();
+
+    void BuildCmdBuffer(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const VkExtent2D& swapchainImageExtent,
+                        const VkFramebuffer framebuffer);
   };
 }
 

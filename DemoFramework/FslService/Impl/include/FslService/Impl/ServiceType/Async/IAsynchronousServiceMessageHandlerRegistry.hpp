@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
 #include <FslService/Impl/Foundation/Message/Message.hpp>
 #include <functional>
+#include <typeindex>
 
 namespace Fsl
 {
@@ -42,7 +42,7 @@ namespace Fsl
   public:
     virtual ~IAsynchronousServiceMessageHandlerRegistry() = default;
 
-    virtual void Register(const TypeInfo& messageType, const std::function<void(Message& message)>& handler) = 0;
+    virtual void Register(const std::type_index& messageType, const std::function<void(Message& message)>& handler) = 0;
   };
 }
 

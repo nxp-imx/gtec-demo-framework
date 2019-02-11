@@ -50,8 +50,17 @@ namespace Fsl
   }
 
 
+  AConsoleDemoApp::~AConsoleDemoApp() = default;
+
+
   void AConsoleDemoApp::_PostConstruct()
   {
+  }
+
+
+  void AConsoleDemoApp::_PreDestruct()
+  {
+    m_destroyed = true;
   }
 
 
@@ -89,6 +98,12 @@ namespace Fsl
 
   void AConsoleDemoApp::_PostUpdate(const DemoTime& demoTime)
   {
+  }
+
+
+  AppDrawResult AConsoleDemoApp::_TryPrepareDraw(const DemoTime& demoTime)
+  {
+    return AppDrawResult::Completed;
   }
 
 

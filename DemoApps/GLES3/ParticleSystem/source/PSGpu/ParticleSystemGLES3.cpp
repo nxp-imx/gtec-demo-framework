@@ -250,7 +250,7 @@ namespace Fsl
 
     m_primitiveCount = numPrimitives;
 
-    FSLLOG("PrimitiveCount: " << m_primitiveCount);
+    // FSLLOG("PrimitiveCount: " << m_primitiveCount);
   }
 
 

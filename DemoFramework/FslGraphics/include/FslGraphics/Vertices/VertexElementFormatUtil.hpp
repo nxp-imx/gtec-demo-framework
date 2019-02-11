@@ -39,8 +39,10 @@ namespace Fsl
   class VertexElementFormatUtil
   {
   public:
-    static int32_t GetBytesPerElement(const VertexElementFormat format);
-    static int32_t GetElementCount(const VertexElementFormat format);
+    static uint32_t GetBytesPerElement(const VertexElementFormat format);
+    static int32_t TryGetBytesPerElement(const VertexElementFormat format);
+    static uint32_t GetElementCount(const VertexElementFormat format);
+    static int32_t TryGetElementCount(const VertexElementFormat format);
   };
 }
 

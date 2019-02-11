@@ -44,7 +44,7 @@ namespace Fsl
   {
     class GLShader
     {
-      GLint m_shaderType;
+      GLint m_shaderType{0};
       GLuint m_handle;
 
     public:

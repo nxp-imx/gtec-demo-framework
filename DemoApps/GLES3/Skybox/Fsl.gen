@@ -3,7 +3,7 @@
   <Executable Name="GLES3.Skybox" NoInclude="true">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslGraphics3D.Camera"/>
-    <Dependency Name="Shared.OpenGLES3.CubeMapping"/>
+    <Dependency Name="Shared.CubeMapping.API.OpenGLES3"/>
     <Platform Name="Windows" ProjectId="50017B39-41EB-4FD5-8858-342B1C25C79B"/>
   </Executable>
 </FslBuildGen>

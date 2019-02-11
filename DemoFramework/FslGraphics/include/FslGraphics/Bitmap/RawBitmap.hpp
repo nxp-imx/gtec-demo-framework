@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Extent2D.hpp>
 #include <FslGraphics/PixelFormat.hpp>
@@ -50,7 +51,7 @@ namespace Fsl
     BitmapOrigin m_origin{BitmapOrigin::UpperLeft};
 
   public:
-    RawBitmap();
+    constexpr RawBitmap() = default;
     RawBitmap(const void* const pContent, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
     RawBitmap(const void* const pContent, const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin origin);
 
@@ -80,59 +81,76 @@ namespace Fsl
     RawBitmap(const RawBitmapArea& rawBitmapArea, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
 
-    bool IsValid() const
+    constexpr bool IsValid() const
     {
       return m_pContent != nullptr;
     }
 
     //! @brief Get a pointer to the content
-    const void* Content() const
+    constexpr const void* Content() const
     {
       return m_pContent;
     }
 
     //! The width of the bitmap in pixels
-    Extent2D::element_type Width() const
+    constexpr Extent2D::element_type Width() const
     {
       return m_extent.Width;
     }
 
     //! The height of the bitmap in pixels
-    Extent2D::element_type Height() const
+    constexpr Extent2D::element_type Height() const
     {
       return m_extent.Height;
     }
 
     //! The number of bytes that represent one scan line of the bitmap.
-    uint32_t Stride() const
+    constexpr uint32_t Stride() const
     {
       return m_stride;
     }
 
     //! The number of bytes that can be stored in m_pContent
-    uint32_t GetBufferLength() const
+    FSL_ATTR_DEPRECATED uint32_t GetBufferLength() const
+    {
+      return GetByteSize();
+    }
+
+    //! The number of bytes that can be stored in m_pContent
+    constexpr uint32_t GetByteSize() const
     {
       return m_extent.Height * m_stride;
     }
 
-    Extent2D GetExtent() const
+    constexpr Extent2D GetExtent() const
     {
       return m_extent;
     }
 
     //! Get the origin of the bitmap
-    BitmapOrigin GetOrigin() const
+    constexpr BitmapOrigin GetOrigin() const
     {
       return m_origin;
     }
 
     //! Get the pixel format of the raw bitmap
-    PixelFormat GetPixelFormat() const
+    constexpr PixelFormat GetPixelFormat() const
     {
       return m_pixelFormat;
     }
 
     PixelFormatLayout GetPixelFormatLayout() const;
+
+    bool operator==(const RawBitmap& rhs) const
+    {
+      return m_pContent == rhs.m_pContent && m_extent == rhs.m_extent && m_stride == rhs.m_stride && m_pixelFormat == rhs.m_pixelFormat &&
+             m_origin == rhs.m_origin;
+    }
+
+    bool operator!=(const RawBitmap& rhs) const
+    {
+      return !(*this == rhs);
+    }
 
   protected:
     void DoSetPixelFormat(const PixelFormat value)

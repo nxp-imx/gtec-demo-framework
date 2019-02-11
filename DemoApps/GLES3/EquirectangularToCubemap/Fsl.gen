@@ -4,7 +4,7 @@
     <!--Requirement Name="GL_EXT_color_buffer_float" Type="extension" Extends="OpenGLES3"/-->
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslGraphics3D.Camera"/>
-    <Dependency Name="Shared.OpenGLES3.CubeMapping"/>
+    <Dependency Name="Shared.CubeMapping.API.OpenGLES3"/>
     <Dependency Name="glm"/>
     <Platform Name="Windows" ProjectId="6E796556-4B80-4CED-A0E2-DA4E1C40E980"/>
   </Executable>

@@ -40,12 +40,12 @@ namespace Fsl
   {
   public:
     ThreadLocalSingletonServiceFactoryTemplate0()
-      : ThreadLocalSingletonServiceFactoryBase(TypeInfo(typeid(T)))
+      : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(T)))
     {
     }
 
     ThreadLocalSingletonServiceFactoryTemplate0(const ServiceCaps::Flags flags)
-      : ThreadLocalSingletonServiceFactoryBase(TypeInfo(typeid(T)), flags)
+      : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(T)), flags)
     {
     }
 
@@ -61,12 +61,12 @@ namespace Fsl
   {
   public:
     ThreadLocalSingletonServiceFactoryTemplate()
-      : ThreadLocalSingletonServiceFactoryBase(TypeInfo(typeid(TItf)))
+      : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(TItf)))
     {
     }
 
     ThreadLocalSingletonServiceFactoryTemplate(const ServiceCaps::Flags flags)
-      : ThreadLocalSingletonServiceFactoryBase(TypeInfo(typeid(TItf)), flags)
+      : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(TItf)), flags)
     {
     }
 
@@ -104,8 +104,8 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf1)));
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf2)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf1)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf2)));
     }
 
 
@@ -136,9 +136,9 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf1)));
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf2)));
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf3)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf1)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf2)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf3)));
     }
 
 

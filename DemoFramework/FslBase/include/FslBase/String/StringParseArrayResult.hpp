@@ -39,9 +39,11 @@ namespace Fsl
   struct StringParseArrayResult
   {
     //! The number of characters that was consumed from psz
-    std::size_t CharactersConsumed;
+    std::size_t CharactersConsumed{0};
     //! The number of entries that was written to pDst
-    std::size_t ArrayEntries;
+    std::size_t ArrayEntries{0};
+
+    StringParseArrayResult() = default;
 
     StringParseArrayResult(const std::size_t charactersConsumed, const std::size_t arrayEntries)
       : CharactersConsumed(charactersConsumed)

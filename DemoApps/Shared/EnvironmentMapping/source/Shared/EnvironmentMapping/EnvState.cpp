@@ -68,7 +68,7 @@ namespace Fsl
 
     LookAt = Vector3::Zero();
 
-    Matrix::CreateLookAt(ViewMatrix, EyeVector, LookAt, UpVec);
+    Matrix::CreateLookAt(EyeVector, LookAt, UpVec, ViewMatrix);
 
     float fAspect = m_screenResolution.X / float(m_screenResolution.Y);
 

@@ -30,12 +30,22 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
-#include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
+//#include <RapidVulkan/Debug/Strings/VkColorSpaceKHR.hpp>
+#include <RapidVulkan/Debug/Strings/VkCompositeAlphaFlagBitsKHR.hpp>
+#include <RapidVulkan/Debug/Strings/VkFormat.hpp>
+#include <RapidVulkan/Debug/Strings/VkImageUsageFlagBits.hpp>
+#include <RapidVulkan/Debug/Strings/VkPresentModeKHR.hpp>
+#include <RapidVulkan/Debug/Strings/VkSharingMode.hpp>
+#include <RapidVulkan/Debug/Strings/VkSurfaceTransformFlagBitsKHR.hpp>
 #include <algorithm>
 #include <cassert>
+// Included last as a workaround to ensure all types are found
+#include <FslUtil/Vulkan1_0/Debug/BitFlags.hpp>
 
 namespace Fsl
 {
@@ -43,19 +53,51 @@ namespace Fsl
   {
     namespace SwapchainKHRUtil
     {
+      namespace
+      {
+        inline void LogCreate(const VkSwapchainCreateInfoKHR& swapchainCreateInfo)
+        {
+          if (Fsl::Logger::GetLogLevel() < LogType::Verbose2)
+          {
+            return;
+          }
+
+          FSLLOG("Creating swapchain with");
+          FSLLOG("- swapchainCreateInfo.minImageCount: " << swapchainCreateInfo.minImageCount);
+          FSLLOG("- swapchainCreateInfo.imageFormat: " << static_cast<uint32_t>(swapchainCreateInfo.imageFormat) << " ("
+                                                       << RapidVulkan::Debug::ToString(swapchainCreateInfo.imageFormat) << ")");
+          // FSLLOG("- swapchainCreateInfo.imageColorSpace: " << RapidVulkan::Debug::ToString(swapchainCreateInfo.imageColorSpace)
+          //                                                                    << " (" << static_cast<uint32_t>(swapchainCreateInfo.imageColorSpace)
+          //                                                                    << ")");
+          FSLLOG("- swapchainCreateInfo.imageColorSpace: " << static_cast<uint32_t>(swapchainCreateInfo.imageColorSpace));
+          FSLLOG("- swapchainCreateInfo.imageExtent: " << swapchainCreateInfo.imageExtent);
+          FSLLOG("- swapchainCreateInfo.imageUsage: " << Debug::GetBitflagsString(static_cast<VkImageUsageFlagBits>(swapchainCreateInfo.imageUsage)));
+
+          FSLLOG("- swapchainCreateInfo.imageSharingMode: " << static_cast<uint32_t>(swapchainCreateInfo.imageSharingMode) << " ("
+                                                            << RapidVulkan::Debug::ToString(swapchainCreateInfo.imageSharingMode) << ")");
+
+          FSLLOG("- swapchainCreateInfo.queueFamilyIndexCount: " << swapchainCreateInfo.queueFamilyIndexCount);
+          FSLLOG("- swapchainCreateInfo.preTransform: " << Debug::GetBitflagsString(swapchainCreateInfo.preTransform));
+          FSLLOG("- swapchainCreateInfo.compositeAlpha: " << Debug::GetBitflagsString(swapchainCreateInfo.compositeAlpha));
+          FSLLOG("- swapchainCreateInfo.presentMode: " << static_cast<uint32_t>(swapchainCreateInfo.presentMode) << " ("
+                                                       << RapidVulkan::Debug::ToString(swapchainCreateInfo.presentMode) << ")");
+          FSLLOG("- swapchainCreateInfo.clipped: " << (swapchainCreateInfo.clipped != VK_FALSE));
+        }
+      }
+
       VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
-                                     const VkSurfaceKHR surface, const uint32_t minImageCount, const uint32_t imageArrayLayers,
+                                     const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkBool32 clipped,
                                      const VkSwapchainKHR oldSwapchain)
       {
-        return CreateSwapchain(physicalDevice, device, flags, surface, minImageCount, imageArrayLayers, imageUsage, imageSharingMode,
+        return CreateSwapchain(physicalDevice, device, flags, surface, desiredMinImageCount, imageArrayLayers, imageUsage, imageSharingMode,
                                queueFamilyIndexCount, queueFamilyIndices, compositeAlpha, VK_PRESENT_MODE_FIFO_KHR, clipped, oldSwapchain);
       }
 
 
       VUSwapchainKHR CreateSwapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSwapchainCreateFlagsKHR flags,
-                                     const VkSurfaceKHR surface, const uint32_t minImageCount, const uint32_t imageArrayLayers,
+                                     const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
                                      const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain)
@@ -74,9 +116,7 @@ namespace Fsl
           preTransform = surfaceCapabilities.currentTransform;
         }
 
-        const auto surfacePresentModes = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface);
         const auto surfaceFormats = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
-
         VkFormat imageFormat = surfaceFormats[0].format;
         VkColorSpaceKHR imageColorSpace = surfaceFormats[0].colorSpace;
 
@@ -84,7 +124,7 @@ namespace Fsl
         swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
         swapchainCreateInfo.flags = flags;
         swapchainCreateInfo.surface = surface;
-        swapchainCreateInfo.minImageCount = std::min(minImageCount, surfaceCapabilities.maxImageCount);
+        swapchainCreateInfo.minImageCount = std::min(desiredMinImageCount, surfaceCapabilities.maxImageCount);
         swapchainCreateInfo.imageFormat = imageFormat;
         swapchainCreateInfo.imageColorSpace = imageColorSpace;
         swapchainCreateInfo.imageExtent = surfaceCapabilities.currentExtent;
@@ -99,9 +139,31 @@ namespace Fsl
         swapchainCreateInfo.clipped = clipped;
         swapchainCreateInfo.oldSwapchain = oldSwapchain;
 
-        FSLLOG_WARNING_IF(minImageCount > swapchainCreateInfo.minImageCount, "CreateSwapchain minImageCount was limited to "
-                                                                               << swapchainCreateInfo.minImageCount << " instead of " << minImageCount
-                                                                               << " due to device limits");
+        const auto surfacePresentModes = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface);
+        if (std::find(surfacePresentModes.begin(), surfacePresentModes.end(), swapchainCreateInfo.presentMode) == surfacePresentModes.end())
+        {
+          constexpr auto presentModeFallback = VK_PRESENT_MODE_FIFO_KHR;    // This is the only value of presentMode that is required to be supported
+          FSLLOG_WARNING("PresentMode: " << RapidVulkan::Debug::ToString(swapchainCreateInfo.presentMode)
+                                         << " not supported, using fallback: " << RapidVulkan::Debug::ToString(presentModeFallback));
+          swapchainCreateInfo.presentMode = presentModeFallback;
+        }
+
+        //// Default to allow VK_IMAGE_USAGE_TRANSFER_SRC_BIT so we can do screenshots
+        // if ((surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) != 0u)
+        //{
+        //  swapchainCreateInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        //}
+        //// Default ot allow VK_IMAGE_USAGE_TRANSFER_DST_BIT so we can do
+        // if ((surfaceCapabilities.supportedUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) != 0u)
+        //{
+        //  swapchainCreateInfo.imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        //}
+
+        FSLLOG_WARNING_IF(desiredMinImageCount > swapchainCreateInfo.minImageCount, "CreateSwapchain minImageCount was limited to "
+                                                                                      << swapchainCreateInfo.minImageCount << " instead of "
+                                                                                      << desiredMinImageCount << " due to device limits");
+
+        LogCreate(swapchainCreateInfo);
         return VUSwapchainKHR(device, swapchainCreateInfo);
       }
 

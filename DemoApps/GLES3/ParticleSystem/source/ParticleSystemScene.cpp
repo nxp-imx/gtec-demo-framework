@@ -675,14 +675,17 @@ namespace Fsl
       typeEx = ParticleSystemType::Instancing;
     }
 
+    using particle_system_type = ParticleSystemOneArray;
+    // using particle_system_type = ParticleSystemTwoArrays;
+
     switch (typeEx)
     {
     case ParticleSystemType::Points:
-      particleDraw = std::make_shared<ParticleDrawPointsGLES3>(GetContentManager(), PARTICLE_CAPACITY, ParticleSystemOneArray::SIZE_PARTICLE_RECORD);
+      particleDraw = std::make_shared<ParticleDrawPointsGLES3>(GetContentManager(), PARTICLE_CAPACITY, particle_system_type::ParticleRecordSize());
       break;
     case ParticleSystemType::GeometryShader:
       particleDraw =
-        std::make_shared<ParticleDrawGeometryShaderGLES3>(GetContentManager(), PARTICLE_CAPACITY, ParticleSystemOneArray::SIZE_PARTICLE_RECORD);
+        std::make_shared<ParticleDrawGeometryShaderGLES3>(GetContentManager(), PARTICLE_CAPACITY, particle_system_type::ParticleRecordSize());
       break;
     case ParticleSystemType::Quads:
     default:
@@ -691,8 +694,7 @@ namespace Fsl
     }
     if (particleDraw)
     {
-      m_particleSystem = std::make_shared<ParticleSystemOneArray>(particleDraw, PARTICLE_CAPACITY);
-      // m_particleSystem = std::make_shared<ParticleSystemTwoArrays>(particleDraw, PARTICLE_CAPACITY);
+      m_particleSystem = std::make_shared<particle_system_type>(particleDraw, PARTICLE_CAPACITY);
 
       m_boxEmitter.reset(new BoxEmitter());
       m_particleSystem->AddEmitter(m_boxEmitter);

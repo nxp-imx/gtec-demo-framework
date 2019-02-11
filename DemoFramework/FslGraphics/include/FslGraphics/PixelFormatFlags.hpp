@@ -101,7 +101,7 @@ namespace Fsl
   };
 
 
-  inline constexpr int FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(const PixelFormatLayout pfl)
+  constexpr inline int FSLGRAPHICS_PIXELFORMATFLAGS_ENCODE_LAYOUT(const PixelFormatLayout pfl)
   {
     return ((static_cast<int>((pfl)) & ((1 << PixelFormatFlags::BIT_COUNT_LAYOUT) - 1)) << PixelFormatFlags::BIT_INDEX_LAYOUT);
   }

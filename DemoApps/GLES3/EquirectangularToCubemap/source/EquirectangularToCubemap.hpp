@@ -38,8 +38,8 @@
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include <Shared/OpenGLES3/CubeMapping/SkyboxMesh.hpp>
-#include <Shared/OpenGLES3/CubeMapping/SkyboxProgram.hpp>
+#include <Shared/CubeMapping/API/OpenGLES3/SkyboxMesh.hpp>
+#include <Shared/CubeMapping/API/OpenGLES3/SkyboxProgram.hpp>
 
 namespace Fsl
 {

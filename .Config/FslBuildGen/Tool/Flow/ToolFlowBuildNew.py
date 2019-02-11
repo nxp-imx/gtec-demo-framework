@@ -41,6 +41,7 @@ from typing import Optional
 from typing import Set
 from typing import Tuple
 import argparse
+import difflib
 import subprocess
 import re
 import os
@@ -94,6 +95,10 @@ g_allowOverwriteOption = '--AllowOverwrite'
 
 class GlobalStrings:
     SanityCheckProjectName = "SC__"
+
+class UnknownTemplateException(Exception):
+    def __init__(self, msg: str) -> None:
+        super().__init__(msg)
 
 
 class ArgumentError(Exception):
@@ -221,12 +226,33 @@ class LocalConfig(object):
         raise Exception("Could not locate location for {0}".format(fullProjectPath))
 
 
+    def __FindTemplateCandidatesThatAreClose(self, allTemplates: List[XmlNewTemplateFile], invalidTemplateName: str, ignoreList: List[str], matchRating: float = 0.70) -> List[str]:
+        """ Find all candidates that have a close matchRating to the name we are looking for """
+        ratingList = []  # type: List[Tuple[float, str]]
+        for template in allTemplates:
+            name = template.Id
+            if name not in ignoreList:
+                ratio = difflib.SequenceMatcher(None, invalidTemplateName, name).ratio()
+                if ratio > matchRating:
+                    ratingList.append((ratio, template.Name))
+
+        ratingList.sort(key=lambda s: -s[0])
+
+        resultList = []  # type: List[str]
+        for entry in ratingList:
+            resultList.append(entry[1])
+        return resultList
+
     def __GetTemplate(self, templateDict: Dict[str, List[XmlNewTemplateFile]], strCurrentLanguage: str, projectTypeId: str) -> XmlNewTemplateFile:
         templates = templateDict[strCurrentLanguage]
         for template in templates:
             if template.Id == projectTypeId:
                 return template
-        raise Exception("Unknown package template '{0}'".format(projectTypeId))
+        # Lets be nice and try to guess what the user could have meant
+        candidateList = self.__FindTemplateCandidatesThatAreClose(templates, projectTypeId, [])
+        if len(candidateList) <= 0:
+            raise UnknownTemplateException("Unknown package template '{0}'".format(projectTypeId))
+        raise UnknownTemplateException("Unknown package template '{0}' did you mean {1}".format(projectTypeId, candidateList))
 
 
     def ValidateProjectName(self, projectName: str) -> None:
@@ -326,6 +352,7 @@ class DefaultValue:
     SanityCheck = "off"
     Template = "NotDefined"
     VisualStudioGUID = g_defaultVCID
+    ListTemplates = False
 
 
 class LocalToolConfig(ToolAppConfig):
@@ -343,6 +370,7 @@ class LocalToolConfig(ToolAppConfig):
         self.SanityCheck = DefaultValue.SanityCheck
         self.Template = DefaultValue.Template
         self.VisualStudioGUID = DefaultValue.VisualStudioGUID
+        self.ListTemplates = DefaultValue.ListTemplates
 
 
 def GetDefaultLocalConfig(defaultPackageLanguage: str, template: str, projectName: str, ) -> LocalToolConfig:
@@ -378,6 +406,7 @@ class ToolFlowBuildNew(AToolAppFlow):
         localToolConfig.SanityCheck = args.SanityCheck
         localToolConfig.Template = args.template
         localToolConfig.VisualStudioGUID = args.i
+        localToolConfig.ListTemplates = args.List
 
         self.Process(currentDirPath, toolConfig, localToolConfig, templateDict)
 
@@ -386,7 +415,9 @@ class ToolFlowBuildNew(AToolAppFlow):
                 localToolConfig: LocalToolConfig,
                 templateDict: Dict[str, List[XmlNewTemplateFile]]) -> None:
 
-        if localToolConfig.SanityCheck == 'off' and localToolConfig.ProjectName != '*':
+        if localToolConfig.ListTemplates:
+            self.__ToolMainListTemplates(currentDirPath, toolConfig, localToolConfig, templateDict)
+        elif localToolConfig.SanityCheck == 'off' and localToolConfig.ProjectName != '*':
             self.__ToolMainEx(currentDirPath, toolConfig, localToolConfig, templateDict)
         else:
             self.__ToolMainSanityCheck(currentDirPath, toolConfig, localToolConfig, templateDict)
@@ -402,6 +433,26 @@ class ToolFlowBuildNew(AToolAppFlow):
     def __PerformSanityCheck(self, basicConfig: Config, currentDir: str, projectName: str, template: XmlNewTemplateFile) -> None:
         projectDirName = IOUtil.Join(currentDir, projectName)
         self.__BuildNow(basicConfig, projectDirName)
+
+
+    def __ToolMainListTemplates(self,
+                                currentDir: str,
+                                toolConfig: ToolConfig,
+                                localToolConfig: LocalToolConfig,
+                                templateDict: Dict[str, List[XmlNewTemplateFile]],
+                                performSanityCheck: bool = False) -> None:
+        config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+        config.PrintTitle()
+
+        sortedLanguages = list(templateDict.keys())
+        sortedLanguages.sort(key=lambda s: s.lower())
+
+        for language in sortedLanguages:
+            sortedTemplateEntries = list(templateDict[language])
+            sortedTemplateEntries.sort(key=lambda s: s.Id.lower())
+            print("Language: {0}".format(language))
+            for templateEntry in sortedTemplateEntries:
+                print("- {0}".format(templateEntry.Name))
 
 
     def __ToolMainEx(self,
@@ -506,7 +557,7 @@ class ToolFlowBuildNew(AToolAppFlow):
             raise Exception("SanityCheck '{0}' is not valid, expected 'on' or 'debug'".format(localToolConfig.SanityCheck))
 
         if len(localToolConfig.Template) <= 0:
-            raise Exception("Tempate can not be a empty string")
+            raise UnknownTemplateException("Template can not be a empty string")
 
         debugMode = localToolConfig.SanityCheck == 'debug'
 
@@ -614,6 +665,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument(g_allowOverwriteOption, action='store_true', help='Allow existing files to be overwritten (for example if a directory already exist)')
         parser.add_argument('--GenFileOnly', action='store_true', help="Only write the gen file '{0}' file".format(toolConfig.GenFileName))
         parser.add_argument('--SanityCheck', default=DefaultValue.SanityCheck, help="off = disabled, on=enabled, debug=enabled, leave files behind. Combine this with a project name of '*' to start a template sanity check. If the template is set to '*' all templates are sanity checked")
+        parser.add_argument('--List', action='store_true', help="List all available templates and exit (this ignores the template and projectName)")
 
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:

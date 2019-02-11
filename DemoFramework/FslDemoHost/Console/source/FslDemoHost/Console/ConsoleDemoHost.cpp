@@ -100,15 +100,15 @@ namespace Fsl
   }
 
 
-  bool ConsoleDemoHost::SwapBuffers()
+  SwapBuffersResult ConsoleDemoHost::TrySwapBuffers()
   {
     if (!m_isActivated)
     {
-      return true;
+      return SwapBuffersResult::Completed;
     }
 
     // Validate that we are not suspended
-    return true;
+    return SwapBuffersResult::Completed;
   }
 
 

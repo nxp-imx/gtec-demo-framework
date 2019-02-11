@@ -30,30 +30,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Events/Basic/RawMouseMoveEvent.hpp>
-#include <FslBase/Exceptions.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 
 namespace Fsl
 {
-  RawMouseMoveEvent::RawMouseMoveEvent(const BasicEvent& encodedEvent)
-    : BasicEvent(encodedEvent)
-  {
-    if (m_type != EventType::RawMouseMove)
-    {
-      throw std::invalid_argument("The supplied argument is of a wrong type");
-    }
-  }
-
-
   RawMouseMoveEvent::RawMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& mouseButtonFlags)
     : BasicEvent(EventType::RawMouseMove, position.X, position.Y, NativeWindowEventHelper::EncodeVirtualMouseButtonFlags(mouseButtonFlags))
   {
-  }
-
-
-  const Point2 RawMouseMoveEvent::GetPosition() const
-  {
-    return Point2(m_arg1, m_arg2);
   }
 
 

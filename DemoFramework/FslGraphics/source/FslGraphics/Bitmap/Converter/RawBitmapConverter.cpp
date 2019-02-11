@@ -120,9 +120,9 @@ namespace Fsl
 
 
     const auto* const pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* const pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
 
     // The buffers can not overlap
     if (!(pSrc >= pDstEnd || pSrcEnd <= pDst))

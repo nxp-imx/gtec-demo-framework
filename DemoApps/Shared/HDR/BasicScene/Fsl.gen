@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.HDR.BasicScene">
+    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Platform Name="Windows" ProjectId="CCD65BF3-CAD8-43F3-A98A-34B3D3ACE508"/>
+  </Library>
+</FslBuildGen>

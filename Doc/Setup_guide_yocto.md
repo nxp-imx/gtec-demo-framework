@@ -5,6 +5,8 @@ First you need to decide how you are going to be building for Yocto
 - [Building using a prebuild Yocto SDK](#building-using-a-prebuild-Yocto_sdk)
 - [Building using a full Yocto build](#building-using-a-full-yocto-build)
 
+Third party software downloads are now disabled per default. To build using an old Yocto release that doesn't come with all third party software you need to add ```--Recipes [*]``` to your command line which will re-enable the download.
+
 -------------------------------------------------------------------------------
 
 ## Building using a prebuild Yocto SDK
@@ -329,33 +331,33 @@ automatically adds files and regenerate build files as needed.
 
 ## Building Vulkan demo framework apps
 
-To build vulkan demoes you need access to the glslangValidator tool which is used to compile shaders into SPIR-V format.
-The easiest way to get it is to install the linux [vulkan SDK](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html).
+To build Vulkan demoes you need access to the glslangValidator tool which is used to compile shaders into SPIR-V format.
+The easiest way to get it is to install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
 
-1. Download the vulkan sdk from https://vulkan.lunarg.com/sdk/home
-2. Make the downloaded file executable
-    ```bash
-    chmod ugo+x vulkansdk-linux-x86_64-1.0.68.0.run
-    ```
-3. Move the downloaded file to a sdk dir
+1. Download the Vulkan sdk from https://vulkan.lunarg.com/sdk/home
+2. Move the downloaded file to a sdk dir
     ```bash
     mkdir ~/vulkan
-    mv vulkansdk-linux-x86_64-1.0.68.0.run ~/vulkan
+    mv vulkansdk-linux-x86_64-1.1.92.1.tar.gz ~/vulkan
     ```
-4. Run it
+3. Unpack it it
     ```bash
     cd ~/vulkan
-    ./vulkansdk-linux-x86_64-1.0.68.0.run
+    tar zxf vulkansdk-linux-x86_64-1.1.92.1.tar.gz
     ```
-5. Install the necessary packages
+4. Install the necessary packages
     ```bash
-     sudo apt-get install libglm-dev graphviz libxcb-dri3-0 libxcb-present0 libpciaccess0 cmake libpng-dev libxcb-dri3-dev libx11-dev
+    sudo apt-get install libglm-dev cmake libxcb-dri3-0 libxcb-present0 libpciaccess0 libpng-dev libxcb-keysyms1-dev libxcb-dri3-dev libx11-dev libmirclient-dev libwayland-dev libxrandr-dev libxcb-ewmh-dev
     ```
-6. Setup the vulkan environment
+5. Setup the vulkan environment
     ```bash
-      pushd ~/vulkan/VulkanSDK/1.0.68.0
-      source setup-env.sh
-      popd
+    pushd ~/vulkan/1.1.92.1
+    source setup-env.sh
+    popd
+    ```
+6. Ensure that the LIBRARY_PATH is set for GCC
+    ```bash
+    export LIBRARY_PATH=$VULKAN_SDK/lib:$LIBRARY_PATH
     ```
 7. Run the normal setup.
 

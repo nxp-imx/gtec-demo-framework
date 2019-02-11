@@ -1,9 +1,9 @@
 #version 310 es
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform mat4 WorldView;
@@ -26,28 +26,28 @@ out vec2 v_TexCoord;
 void main()
 {
   // Build a 'matrix' to convert from 'Eye Space' to 'Tangent Space'
-  vec3 n = normalize (NormalMatrix * VertexNormal);
-  vec3 t = normalize (NormalMatrix * VertexTangent);
-  vec3 b = cross (n, t);
-  
+  vec3 n = normalize(NormalMatrix * VertexNormal);
+  vec3 t = normalize(NormalMatrix * VertexTangent);
+  vec3 b = cross(n, t);
+
   // Transform light from eye to tangent space
   vec3 lightDir;
-  lightDir.x = dot (LightDirection, t);
-  lightDir.y = dot (LightDirection, b);
-  lightDir.z = dot (LightDirection, n);
-  v_LightVec = normalize(lightDir);  
-  
+  lightDir.x = dot(LightDirection, t);
+  lightDir.y = dot(LightDirection, b);
+  lightDir.z = dot(LightDirection, n);
+  v_LightVec = normalize(lightDir);
+
   // Transform halfVec from eye to tangent space
-  vec3 vertexPosition = normalize(-(WorldView *  vec4(VertexPosition,1.0)).xyz);
+  vec3 vertexPosition = normalize(-(WorldView * vec4(VertexPosition, 1.0)).xyz);
   vec3 halfVector = normalize(vertexPosition + LightDirection);
   vec3 transformedHalfVec;
-  transformedHalfVec.x = dot (halfVector, t);
-  transformedHalfVec.y = dot (halfVector, b);
-  transformedHalfVec.z = dot (halfVector, n);
+  transformedHalfVec.x = dot(halfVector, t);
+  transformedHalfVec.y = dot(halfVector, b);
+  transformedHalfVec.z = dot(halfVector, n);
   // We dont normalize as t,b,n are normal vectors
-  v_HalfVec = transformedHalfVec;  
-  
+  v_HalfVec = transformedHalfVec;
+
   v_TexCoord = VertexTexCoord;
   // transform the vertex coordinates
-  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0);  
+  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0);
 }

@@ -52,7 +52,7 @@ namespace Fsl
 
     class GLIndexBufferArray : public GLBufferArray
     {
-      GLenum m_type;
+      GLenum m_type{0};
 
     public:
       //! @brief Move assignment operator

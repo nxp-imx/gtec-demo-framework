@@ -4,7 +4,9 @@
     <Dependency Name="FslBase"/>
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoHost.Base"/>
+    <Dependency Name="FslDemoHost.Vulkan.Config"/>
     <Dependency Name="FslUtil.Vulkan1_0"/>
+    <Dependency Name="FslDemoService.NativeGraphics.Vulkan" Access="Private"/>
     <Dependency Name="FslNativeWindow.Vulkan" Access="Private"/>
     <Platform Name="Windows" ProjectId="0522B384-CC2C-4E04-A59C-F54B89562F03"/>
   </Library>

@@ -1,9 +1,9 @@
 #version 300 es
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-   precision highp float;
+precision highp float;
 #else
-   precision mediump float;
+precision mediump float;
 #endif
 
 in vec2 v_TexCoord;
@@ -23,14 +23,14 @@ vec3 Uncharted2Tonemap(vec3 x)
   const float D = 0.20;
   const float E = 0.02;
   const float F = 0.30;
-  return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+  return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
 }
 
 void main()
-{           
+{
   vec3 hdrColor = texture(g_hdrTexture, v_TexCoord).rgb;
 
-  // Exposure  
+  // Exposure
   hdrColor *= g_exposure;
 
   const float exposureBias = 2.0f;
@@ -38,10 +38,10 @@ void main()
 
   const float W = 11.2;
   vec3 whiteScale = 1.0f / Uncharted2Tonemap(vec3(W));
-  hdrColor = curr * whiteScale;  
-  
+  hdrColor = curr * whiteScale;
+
   // Linear framebuffer so we dont need gamma correction.
-  //hdrColor = pow(hdrColor, vec3(1.0 / 2.2));
+  // hdrColor = pow(hdrColor, vec3(1.0 / 2.2));
 
   FragColor = vec4(hdrColor, 1.0);
 }

@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
 #include <map>
+#include <typeindex>
 #include "ServiceLaunchRecord.hpp"
 
 namespace Fsl
 {
-  class TypeServiceMap : public std::map<TypeInfo, ServiceLaunchRecord>
+  class TypeServiceMap : public std::map<std::type_index, ServiceLaunchRecord>
   {
   public:
   };

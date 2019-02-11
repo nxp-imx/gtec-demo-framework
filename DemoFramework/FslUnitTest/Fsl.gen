@@ -2,7 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="FslUnitTest">
     <Dependency Name="GoogleTest"/>
-    <Dependency Name="Recipe.fmt_4_0_0"/>
+    <Dependency Name="fmt"/>
     <Platform Name="Windows" ProjectId="F91BFD45-C0B9-47AE-AAB9-889FCF0974AF"/>
   </Library>
 </FslBuildGen>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.GammaCorrection" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Platform Name="Windows" ProjectId="D36DDBE7-DAC7-4F28-A628-5D7D643627A1"/>
+  </Executable>
+</FslBuildGen>

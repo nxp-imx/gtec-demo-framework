@@ -142,7 +142,6 @@ namespace Fsl
       //! If this goes of a mapped buffer is being reset, unmap it!
       if (m_pMapped != nullptr)
       {
-        FSLLOG_DEBUG_WARNING("Resetting a mapped buffer, please Unmap before calling Reset");
         Unmap();
       }
 

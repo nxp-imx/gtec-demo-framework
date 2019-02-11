@@ -65,6 +65,11 @@ namespace Fsl
     uint32_t m_particleCount;
 
   public:
+    static constexpr uint32_t ParticleRecordSize()
+    {
+      return static_cast<uint32_t>(sizeof(ParticleRecord));
+    }
+
     ParticleSystemTwoArrays(const std::shared_ptr<IParticleDraw>& particleDraw, const std::size_t capacity);
 
     uint32_t GetParticleCount() const override;

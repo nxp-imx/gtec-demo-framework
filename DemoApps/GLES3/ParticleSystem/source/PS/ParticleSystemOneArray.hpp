@@ -64,7 +64,10 @@ namespace Fsl
     uint32_t m_particleCount;
 
   public:
-    const static uint32_t SIZE_PARTICLE_RECORD;
+    static constexpr uint32_t ParticleRecordSize()
+    {
+      return static_cast<uint32_t>(sizeof(ParticleRecord));
+    }
 
     ParticleSystemOneArray(const std::shared_ptr<IParticleDraw>& particleDraw, const std::size_t capacity);
 

@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 
 namespace Fsl
 {
@@ -44,9 +45,9 @@ namespace Fsl
     Vector3 Position;
     Vector4 Color;
 
-    VertexPositionColor() = default;
+    constexpr VertexPositionColor() = default;
 
-    VertexPositionColor(const Vector3& position, const Vector4& color)
+    constexpr VertexPositionColor(const Vector3& position, const Vector4& color)
       : Position(position)
       , Color(color)
     {
@@ -56,6 +57,17 @@ namespace Fsl
 
     //! @brief Get the vertex declaration
     static VertexDeclaration GetVertexDeclaration();
+
+
+    constexpr bool operator==(const VertexPositionColor& rhs) const
+    {
+      return Position == rhs.Position && Color == rhs.Color;
+    }
+
+    constexpr bool operator!=(const VertexPositionColor& rhs) const
+    {
+      return !(*this == rhs);
+    }
   };
 }
 

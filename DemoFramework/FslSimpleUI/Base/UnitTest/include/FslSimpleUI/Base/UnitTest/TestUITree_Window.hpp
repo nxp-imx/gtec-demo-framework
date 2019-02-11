@@ -49,59 +49,59 @@ public:
   {
     if (checkFlags.IsEnabled(WindowMethod::WinInit))
     {
-      ASSERT_EQ(0, callCount.WinInit);
+      ASSERT_EQ(0u, callCount.WinInit);
     }
     if (checkFlags.IsEnabled(WindowMethod::WinMarkLayoutAsDirty))
     {
-      ASSERT_EQ(0, callCount.WinMarkLayoutAsDirty);
+      ASSERT_EQ(0u, callCount.WinMarkLayoutAsDirty);
     }
     if (checkFlags.IsEnabled(WindowMethod::WinGetContentRect))
     {
-      ASSERT_EQ(0, callCount.WinGetContentRect);
+      ASSERT_EQ(0u, callCount.WinGetContentRect);
     }
     if (checkFlags.IsEnabled(WindowMethod::WinHandleEvent))
     {
-      ASSERT_EQ(0, callCount.WinHandleEvent);
+      ASSERT_EQ(0u, callCount.WinHandleEvent);
     }
     if (checkFlags.IsEnabled(WindowMethod::WinUpdate))
     {
-      ASSERT_EQ(0, callCount.WinUpdate);
+      ASSERT_EQ(0u, callCount.WinUpdate);
     }
     if (checkFlags.IsEnabled(WindowMethod::WinResolve))
     {
-      ASSERT_EQ(0, callCount.WinResolve);
+      ASSERT_EQ(0u, callCount.WinResolve);
     }
     if (checkFlags.IsEnabled(WindowMethod::WinDraw))
     {
-      ASSERT_EQ(0, callCount.WinDraw);
+      ASSERT_EQ(0u, callCount.WinDraw);
     }
     if (checkFlags.IsEnabled(WindowMethod::OnClickInputPreview))
     {
-      ASSERT_EQ(0, callCount.OnClickInputPreview);
+      ASSERT_EQ(0u, callCount.OnClickInputPreview);
     }
     if (checkFlags.IsEnabled(WindowMethod::OnClickInput))
     {
-      ASSERT_EQ(0, callCount.OnClickInput);
+      ASSERT_EQ(0u, callCount.OnClickInput);
     }
     if (checkFlags.IsEnabled(WindowMethod::OnSelect))
     {
-      ASSERT_EQ(0, callCount.OnSelect);
+      ASSERT_EQ(0u, callCount.OnSelect);
     }
     if (checkFlags.IsEnabled(WindowMethod::OnContentChanged))
     {
-      ASSERT_EQ(0, callCount.OnContentChanged);
+      ASSERT_EQ(0u, callCount.OnContentChanged);
     }
     if (checkFlags.IsEnabled(WindowMethod::ArrangeOverride))
     {
-      ASSERT_EQ(0, callCount.ArrangeOverride);
+      ASSERT_EQ(0u, callCount.ArrangeOverride);
     }
     if (checkFlags.IsEnabled(WindowMethod::MeasureOverride))
     {
-      ASSERT_EQ(0, callCount.MeasureOverride);
+      ASSERT_EQ(0u, callCount.MeasureOverride);
     }
     if (checkFlags.IsEnabled(WindowMethod::OnPropertiesUpdated))
     {
-      ASSERT_EQ(0, callCount.OnPropertiesUpdated);
+      ASSERT_EQ(0u, callCount.OnPropertiesUpdated);
     }
   }
 };

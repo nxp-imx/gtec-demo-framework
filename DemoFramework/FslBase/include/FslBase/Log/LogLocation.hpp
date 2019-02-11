@@ -39,7 +39,12 @@ namespace Fsl
     const char* pszFunction;
     int line;
 
-    LogLocation(const char* const _pszFile, const char* const _pszFunction, const int _line);
+    constexpr LogLocation(const char* const _pszFile, const char* const _pszFunction, const int _line)
+      : pszFile(_pszFile)
+      , pszFunction(_pszFunction)
+      , line(_line)
+    {
+    }
   };
 }
 

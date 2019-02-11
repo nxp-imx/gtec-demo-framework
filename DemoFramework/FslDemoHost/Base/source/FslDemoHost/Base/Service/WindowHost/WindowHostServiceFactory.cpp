@@ -44,8 +44,8 @@ namespace Fsl
 
   void WindowHostServiceFactory::FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const
   {
-    rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(IWindowHostInfoControl)));
-    rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(IWindowHostInfo)));
+    rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IWindowHostInfoControl)));
+    rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IWindowHostInfo)));
   }
 
 

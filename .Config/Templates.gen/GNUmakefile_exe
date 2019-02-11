@@ -42,12 +42,15 @@ CXX ?= c++
 
 # Default to a release build
 config ?= Release
+# Default to coverage disabled
+coverage ?= Off
  
 ifeq ($(config),debug)
 override config := Debug
-endif
-ifeq ($(config),release)
+else ifeq ($(config),release)
 override config := Release
+else ifeq ($(config),coverage)
+override config := Coverage
 endif
 ifeq ($(config),Debug)
 TARGET_POSTFIX=_d
@@ -61,6 +64,12 @@ CPPFLAGS += -DNDEBUG
 CFLAGS += -O3
 CXXFLAGS += -O3
 LDFLAGS += -s
+else ifeq ($(config),Coverage)
+TARGET_POSTFIX=_c
+CPPFLAGS += -DNDEBUG
+CFLAGS += -fprofile-arcs -ftest-coverage -g -O0
+CXXFLAGS += -fprofile-arcs -ftest-coverage -g -O0
+LDFLAGS += -g -fprofile-arcs
 else ifneq (,$(config))
 $(warning Unknown configuration "$(config)")
 endif
@@ -73,6 +82,8 @@ VARIANT_NAME=##PACKAGE_VARIANT_NAME##
 
 TARGET=$(TARGET_NAME)$(VARIANT_NAME)$(TARGET_POSTFIX)
 OBJECTS = $(patsubst %.cpp,$(OBJ_PATH)/%.o,$(SOURCES)) 
+OBJECTS_COV1 = $(OBJECTS:.o=.gcno)
+OBJECTS_COV2 = $(OBJECTS:.o=.gcda)
 OBJECTS_DEPS = $(OBJECTS:.o=.d)
 INCLUDE_DIR_PARAMS=$(foreach d,$(INCLUDE_DIRS),-I$d)
 CPP_DEFINE_FLAG_PARAMS=$(foreach d,$(CPP_DEFINE_FLAG_NAMES),-D$d)
@@ -95,11 +106,17 @@ $(TARGET): $(OBJECTS) $(USER_LIB_DEPS)
 # Simple rule used for "cleaning" the build environment.
 clean:
 	@-rm -f $(OBJECTS)
+	@-rm -f $(OBJECTS_COV1)
+	@-rm -f $(OBJECTS_COV2)
 	@-rm -f $(OBJECTS_DEPS)
 	@-rm -f $(TARGET)
 	@-rm -f $(INSTALL_TARGET)
 	@-rm -f gmon.out
 	@echo Cleaned
+
+clean-coverage:
+	@-rm -f $(OBJECTS_COV2)
+	@echo Cleaned coverage
 
 install: all
 	@mkdir -p $(DESTDIR)

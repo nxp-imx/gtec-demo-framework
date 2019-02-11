@@ -345,7 +345,7 @@ namespace Fsl
       const int h = logo.Height();
 
       const uint8_t* pContent = static_cast<const uint8_t*>(logo.Content());
-      const std::size_t imgSize = (std::size_t)logo.GetBufferLength();
+      const std::size_t imgSize = (std::size_t)logo.GetByteSize();
       std::vector<uint8_t> img(imgSize);
       std::copy(pContent, pContent + imgSize, img.begin());
 

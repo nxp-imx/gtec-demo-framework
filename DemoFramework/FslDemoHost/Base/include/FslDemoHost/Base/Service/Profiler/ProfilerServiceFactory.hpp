@@ -64,8 +64,8 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(IProfilerService)));
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(IProfilerServiceControl)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IProfilerService)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IProfilerServiceControl)));
     }
 
 

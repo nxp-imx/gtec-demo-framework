@@ -135,7 +135,6 @@ namespace Fsl
       }
 
       const auto batch = m_windowContext->Batch2D;
-      batch->ChangeTo(BlendState::AlphaBlend);
 
       Vector2 position = context.TargetRect.TopLeft();
       if (!m_text.empty())

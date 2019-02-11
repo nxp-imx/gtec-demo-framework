@@ -32,6 +32,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
+#include <FslUtil/Vulkan1_0/Batch/Batch2D.hpp>
+#include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
+#include <FslUtil/Vulkan1_0/VUTexture.hpp>
+#include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
+#include <memory>
 
 namespace Fsl
 {
@@ -39,12 +44,24 @@ namespace Fsl
   {
     class NativeGraphicsBasic2D : public INativeGraphicsBasic2D
     {
+      struct Resources
+      {
+        bool IsValid = false;
+        std::shared_ptr<VulkanImageCreator> ImageCreator;
+        VUTexture FontTexture;
+      };
+
+      Batch2D m_batch2D;
       Point2 m_currentResolution;
       Point2 m_fontSize;
+      Rectangle m_fillPixelRect;
       bool m_inBegin;
+      Rectangle m_charRects[128 - 33];
+
+      Resources m_resources;
 
     public:
-      NativeGraphicsBasic2D(const Point2& currentResolution);
+      NativeGraphicsBasic2D(const std::shared_ptr<QuadBatch>& quadBatch, const Point2& currentResolution);
       ~NativeGraphicsBasic2D() override;
 
       // From INativeGraphicsBasic2D
@@ -55,7 +72,12 @@ namespace Fsl
       void DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition) override;
       Point2 FontSize() const override;
 
+      void VulkanDeviceInit(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex,
+                            const std::shared_ptr<VulkanImageCreator>& imageCreator);
+      void VulkanDeviceShutdown() noexcept;
+
     private:
+      VUTexture CreateFontTexture(VulkanImageCreator& rImageCreator);
     };
   }
 }

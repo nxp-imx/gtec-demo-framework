@@ -45,7 +45,7 @@ class GeneratorVariant(object):
     def __init__(self, name: str, options: List[str], description: str, variantType: int) -> None:
         super(GeneratorVariant, self).__init__()
         self.Name = name
-        self.Options = options
+        self.Options = list(options)
         self.Description = description.replace("##OPTIONS##", ",".join(options))
         self.Type = variantType
 

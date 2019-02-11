@@ -32,20 +32,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
-#include <FslDemoService/Graphics/IBasic2D.hpp>
-#include <FslDemoApp/Base/Service/Gamepad/IGamepads.hpp>
-#include <deque>
-#include <string>
-#include <vector>
+#include <Shared/InputEvents/InputLogger.hpp>
 
 namespace Fsl
 {
   class InputEvents : public DemoAppGLES2
   {
-    std::shared_ptr<IBasic2D> m_basic2D;
-    std::deque<std::string> m_console;
-    std::shared_ptr<IGamepads> m_gamepads;
-    std::vector<GamepadState> m_gamepadStates;
+    InputLogger m_logger;
 
   public:
     InputEvents(const DemoAppConfig& config);
@@ -60,9 +53,6 @@ namespace Fsl
   protected:
     void Update(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
-
-  private:
-    void UpdateGamepadStates();
   };
 }
 

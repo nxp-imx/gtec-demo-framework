@@ -29,18 +29,17 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "Gears.hpp"
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
 
 namespace Fsl
 {
   // Configure the demo environment to run this demo app in a Window host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem);
+    DemoAppHostConfigVulkan config;
 
-    DemoAppRegister::Window::Register<Gears, OptionParser>(rSetup, "Vulkan.Gears", config);
+    DemoAppRegister::Vulkan::Register<Gears>(rSetup, "Vulkan.Gears", config);
   }
 }

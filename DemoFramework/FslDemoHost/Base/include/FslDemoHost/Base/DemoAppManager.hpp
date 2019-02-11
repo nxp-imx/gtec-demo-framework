@@ -35,16 +35,17 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
+#include <FslDemoApp/Base/AppDrawResult.hpp>
 #include <FslDemoApp/Base/IDemoApp.hpp>
 #include <FslDemoApp/Base/TimeStepMode.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
-#include <FslDemoHost/Base/DemoAppProfilerOverlay.hpp>
 #include <FslDemoHost/Base/DemoState.hpp>
 #include <FslDemoHost/Base/LogStatsMode.hpp>
 
 namespace Fsl
 {
   class DemoAppManagerEventListener;
+  class DemoAppProfilerOverlay;
   class IDemoAppControlEx;
   class IGraphicsServiceControl;
   class IProfilerService;
@@ -52,7 +53,7 @@ namespace Fsl
 
   class DemoAppManager
   {
-    DemoAppProfilerOverlay m_demoAppProfilerOverlay;
+    std::unique_ptr<DemoAppProfilerOverlay> m_demoAppProfilerOverlay;
     std::shared_ptr<IDemoAppControlEx> m_demoAppControl;
     std::shared_ptr<IGraphicsServiceControl> m_graphicsService;
     std::shared_ptr<IProfilerServiceControl> m_profilerServiceControl;
@@ -72,9 +73,10 @@ namespace Fsl
     uint64_t m_timeStatsBeforeUpdate;
     uint64_t m_timeStatsAfterUpdate;
     uint64_t m_timeStatsAfterDraw;
-    uint64_t m_timeStatsLast;
     uint64_t m_accumulatedTotalTimeFixed;
     uint64_t m_accumulatedTotalTime;
+    uint64_t m_timeDiff = 0;
+    DemoTime m_currentDemoTimeUpdate;
     bool m_enableLogStats{};
     LogStatsMode m_logStatsMode;
     bool m_enableStats;
@@ -84,7 +86,8 @@ namespace Fsl
 
   public:
     DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode,
-                   const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime);
+                   const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime,
+                   const bool renderSystemOverlay);
     virtual ~DemoAppManager();
 
     void Suspend(const bool bSuspend);
@@ -92,6 +95,10 @@ namespace Fsl
     DemoState GetState() const;
 
     bool Process(const Point2& screenResolution, const bool isConsoleBasedApp);
+    AppDrawResult TryDraw();
+
+    //! @note Only called if the app is controlling the swap buffers.
+    AppDrawResult TryAppSwapBuffers();
 
     void OnActivate();
     void OnDeactivate();
@@ -111,6 +118,8 @@ namespace Fsl
     void ManageAppState(const Point2& screenResolution, const bool isConsoleBasedApp);
     void ResetTimer();
     void ApplyTimeStepMode(const TimeStepMode mode);
+
+    void DoShutdownAppNow();
   };
 }
 

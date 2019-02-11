@@ -131,6 +131,11 @@ namespace Fsl
     m_uiManager.SendMouseMoveEvent(event);
   }
 
+  void UIDemoAppExtension::Resized(const Point2& size)
+  {
+    m_uiManager.Resized(size);
+  }
+
   void UIDemoAppExtension::PreUpdate(const DemoTime& demoTime)
   {
     m_uiManager.ProcessEvents();

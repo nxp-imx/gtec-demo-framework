@@ -3,8 +3,11 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Models/Plane/
+/Content/Textures/Pattern36/
 /Content/_ContentSyncCache.fsl
 /DisplacementMapping
+/DisplacementMapping_c
 /DisplacementMapping_d
 /FslSDKIcon.ico
 /GNUmakefile

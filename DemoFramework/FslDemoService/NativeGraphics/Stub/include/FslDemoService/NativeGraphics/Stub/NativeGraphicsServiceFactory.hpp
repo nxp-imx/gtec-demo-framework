@@ -34,6 +34,7 @@
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>
 #include <memory>
+#include <typeindex>
 
 namespace Fsl
 {
@@ -45,7 +46,7 @@ namespace Fsl
 
     public:
       NativeGraphicsServiceFactory(const bool showWarning = true)
-        : ThreadLocalSingletonServiceFactoryBase(TypeInfo(typeid(INativeGraphicsService)))
+        : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(INativeGraphicsService)))
         , m_showWarning(showWarning)
       {
       }

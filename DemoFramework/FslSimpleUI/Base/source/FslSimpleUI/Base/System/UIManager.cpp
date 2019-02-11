@@ -57,7 +57,7 @@ namespace Fsl
     {
     }
 
-    UIManager::UIManager(const Point2& size)
+    UIManager::UIManager(const Point2& currentSize)
       : m_moduleCallbackRegistry(std::make_shared<ModuleCallbackRegistry>())
       , m_eventPool(std::make_shared<WindowEventPool>())
       , m_eventQueue(std::make_shared<WindowEventQueueEx>())
@@ -65,7 +65,7 @@ namespace Fsl
       , m_eventSender(std::make_shared<WindowEventSender>(m_eventQueue, m_eventPool, m_tree))
       , m_uiContext(std::make_shared<UIContext>(m_tree, m_eventSender))
       , m_baseWindowContext(std::make_shared<BaseWindowContext>(m_uiContext))
-      , m_rootWindow(std::make_shared<RootWindow>(m_baseWindowContext, Vector2(static_cast<float>(size.X), static_cast<float>(size.Y))))
+      , m_rootWindow(std::make_shared<RootWindow>(m_baseWindowContext, Vector2(static_cast<float>(currentSize.X), static_cast<float>(currentSize.Y))))
       , m_leftButtonDown(false)
     {
       m_tree->Init(m_rootWindow);
@@ -165,6 +165,10 @@ namespace Fsl
     void UIManager::ProcessEvents()
     {
       m_tree->ProcessEvents();
+    }
+
+    void UIManager::SetDPI(const Point2& dpi)
+    {
     }
 
     void UIManager::Resized(const Point2& size)

@@ -67,7 +67,7 @@ namespace Fsl
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
       VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const Extent2D& extent)
-        : VUTextureInfo(imageInfo, Extent3D(extent.Width, extent.Height, 1))
+        : VUTextureInfo(imageInfo, Extent3D(extent.Width, extent.Height, 1u))
       {
       }
 
@@ -83,6 +83,23 @@ namespace Fsl
       //! @brief Supply the object with information about a texture
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
+      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const VkExtent2D& extent)
+        : VUTextureInfo(imageInfo, Extent3D(extent.width, extent.height, 1u))
+      {
+      }
+
+      //! @brief Supply the object with information about a texture
+      //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
+      //! @param size the size of the texture
+      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const VkExtent3D& extent)
+        : ImageInfo(imageInfo)
+        , Extent(extent.width, extent.height, extent.depth)
+      {
+      }
+
+      //! @brief Supply the object with information about a texture
+      //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
+      //! @param size the size of the texture
       VUTextureInfo(const VkSampler sampler, const VkImageView imageView, const VkImageLayout imageLayout, const VkExtent3D& extent)
         : ImageInfo{sampler, imageView, imageLayout}
         , Extent(extent.width, extent.height, extent.depth)
@@ -92,8 +109,8 @@ namespace Fsl
 
       void Reset()
       {
-        ImageInfo = VkDescriptorImageInfo{};
-        Extent = Extent3D{};
+        ImageInfo = {};
+        Extent = {};
       }
 
 

@@ -29,12 +29,12 @@ SOFTWARE.
 #include <cassert>
 #include <cmath>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Plane.hpp>
 #include <FslBase/Math/Quaternion.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector4.hpp>
-#include "MatrixFields.hpp"
 #include "MatrixInternals.hpp"
 
 // Workaround a issue with qnx signbit
@@ -42,6 +42,10 @@ using namespace std;
 
 namespace Fsl
 {
+  using namespace MatrixFields;
+
+  static_assert(sizeof(Matrix) == (sizeof(float) * 4 * 4), "Matrix not of expected size");
+
   Matrix Matrix::Add(const Matrix& matrix1, const Matrix& matrix2)
   {
     return Matrix(
@@ -328,12 +332,12 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateFromAxisAngle(result, axis, angle);
+    CreateFromAxisAngle(axis, angle, result);
     return result;
   }
 
 
-  void Matrix::CreateFromAxisAngle(Matrix& rResult, const Vector3& axis, const float angle)
+  void Matrix::CreateFromAxisAngle(const Vector3& axis, const float angle, Matrix& rResult)
   {
     const float x = axis.X;
     const float y = axis.Y;
@@ -369,7 +373,7 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateFromYawPitchRoll(result, yaw, pitch, roll);
+    CreateFromYawPitchRoll(yaw, pitch, roll, result);
     return result;
   }
 
@@ -378,12 +382,12 @@ namespace Fsl
   {
     Matrix result;
     // Matrix result(OptimizationFlag::NoInitialization);
-    CreateFromQuaternion(result, quaternion);
+    CreateFromQuaternion(quaternion, result);
     return result;
   }
 
 
-  void Matrix::CreateFromQuaternion(Matrix& rResult, const Quaternion& quaternion)
+  void Matrix::CreateFromQuaternion(const Quaternion& quaternion, Matrix& rResult)
   {
     const float num9 = quaternion.X * quaternion.X;
     const float num8 = quaternion.Y * quaternion.Y;
@@ -413,12 +417,12 @@ namespace Fsl
   }
 
 
-  void Matrix::CreateFromYawPitchRoll(Matrix& rResult, const float yaw, const float pitch, const float roll)
+  void Matrix::CreateFromYawPitchRoll(const float yaw, const float pitch, const float roll, Matrix& rResult)
   {
     // Quaternion quaternion(OptimizationFlag::NoInitialization);
     Quaternion quaternion;
     Quaternion::CreateFromYawPitchRoll(quaternion, yaw, pitch, roll);
-    CreateFromQuaternion(rResult, quaternion);
+    CreateFromQuaternion(quaternion, rResult);
   }
 
 
@@ -426,12 +430,12 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateLookAt(result, cameraPosition, cameraTarget, cameraUpVector);
+    CreateLookAt(cameraPosition, cameraTarget, cameraUpVector, result);
     return result;
   }
 
 
-  void Matrix::CreateLookAt(Matrix& rResult, const Vector3& cameraPosition, const Vector3& cameraTarget, const Vector3& cameraUpVector)
+  void Matrix::CreateLookAt(const Vector3& cameraPosition, const Vector3& cameraTarget, const Vector3& cameraUpVector, Matrix& rResult)
   {
     const Vector3 f = Vector3::Normalize(cameraPosition - cameraTarget);
     const Vector3 s = Vector3::Normalize(Vector3::Cross(cameraUpVector, f));
@@ -459,12 +463,12 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateOrthographic(result, width, height, zNearPlane, zFarPlane);
+    CreateOrthographic(width, height, zNearPlane, zFarPlane, result);
     return result;
   }
 
 
-  void Matrix::CreateOrthographic(Matrix& rResult, const float width, const float height, const float zNearPlane, const float zFarPlane)
+  void Matrix::CreateOrthographic(const float width, const float height, const float zNearPlane, const float zFarPlane, Matrix& rResult)
   {
     if (width <= 0.0f)
     {
@@ -473,6 +477,14 @@ namespace Fsl
     if (height <= 0.0f)
     {
       throw std::invalid_argument("height <= 0.0f");
+    }
+    if (zNearPlane <= 0.0f)
+    {
+      throw std::invalid_argument("zNearPlane <= 0.0f");
+    }
+    if (zNearPlane >= zFarPlane)
+    {
+      throw std::invalid_argument("zNearPlane >= zFarPlane");
     }
 
     rResult.m[_M11] = 2.0f / width;
@@ -540,12 +552,12 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreatePerspective(result, width, height, nearPlaneDistance, farPlaneDistance);
+    CreatePerspective(width, height, nearPlaneDistance, farPlaneDistance, result);
     return result;
   }
 
 
-  void Matrix::CreatePerspective(Matrix& rResult, const float width, const float height, const float nearPlaneDistance, const float farPlaneDistance)
+  void Matrix::CreatePerspective(const float width, const float height, const float nearPlaneDistance, const float farPlaneDistance, Matrix& rResult)
   {
     if (width <= 0.0f)
     {
@@ -558,10 +570,6 @@ namespace Fsl
     if (nearPlaneDistance <= 0.0f)
     {
       throw std::invalid_argument("nearPlaneDistance <= 0.0f");
-    }
-    if (farPlaneDistance <= 0.0f)
-    {
-      throw std::invalid_argument("farPlaneDistance <= 0.0f");
     }
     if (nearPlaneDistance >= farPlaneDistance)
     {
@@ -592,17 +600,21 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreatePerspectiveFieldOfView(result, fieldOfView, aspectRatio, nearPlaneDistance, farPlaneDistance);
+    CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlaneDistance, farPlaneDistance, result);
     return result;
   }
 
-
-  void Matrix::CreatePerspectiveFieldOfView(Matrix& rResult, const float fieldOfView, const float aspectRatio, const float nearPlaneDistance,
-                                            const float farPlaneDistance)
+  // This produces a similar matrix to GLM::perspectiveRH with GLM_DEPTH_ZERO_TO_ONE
+  void Matrix::CreatePerspectiveFieldOfView(const float fieldOfView, const float aspectRatio, const float nearPlaneDistance,
+                                            const float farPlaneDistance, Matrix& rResult)
   {
     if ((fieldOfView <= 0.0f) || (fieldOfView >= 3.141593f))
     {
       throw std::invalid_argument("fieldOfView <= 0 or >= PI");
+    }
+    if (aspectRatio == 0.0f)
+    {
+      throw std::invalid_argument("aspectRatio can not be zero");
     }
     if (nearPlaneDistance <= 0.0f)
     {
@@ -617,14 +629,14 @@ namespace Fsl
       throw std::invalid_argument("nearPlaneDistance >= farPlaneDistance");
     }
 
-    const float num = 1.0f / (static_cast<float>(std::tan(fieldOfView * 0.5)));
-    const float num9 = num / aspectRatio;
+    const float oneDivTanHalfFovY = 1.0f / (static_cast<float>(std::tan(fieldOfView * 0.5)));
+    const float num9 = oneDivTanHalfFovY / aspectRatio;
     rResult.m[_M11] = num9;
     rResult.m[_M12] = 0.0f;
     rResult.m[_M13] = 0.0f;
     rResult.m[_M14] = 0.0f;
     rResult.m[_M21] = 0.0f;
-    rResult.m[_M22] = num;
+    rResult.m[_M22] = oneDivTanHalfFovY;
     rResult.m[_M23] = 0.0f;
     rResult.m[_M24] = 0.0f;
     rResult.m[_M31] = 0.0f;
@@ -727,12 +739,12 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateRotationX(result, radians);
+    CreateRotationX(radians, result);
     return result;
   }
 
 
-  void Matrix::CreateRotationX(Matrix& rResult, const float radians)
+  void Matrix::CreateRotationX(const float radians, Matrix& rResult)
   {
     rResult.SetIdentity();
 
@@ -750,12 +762,12 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateRotationY(result, radians);
+    CreateRotationY(radians, result);
     return result;
   }
 
 
-  void Matrix::CreateRotationY(Matrix& rResult, const float radians)
+  void Matrix::CreateRotationY(const float radians, Matrix& rResult)
   {
     rResult.SetIdentity();
 
@@ -773,12 +785,12 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateRotationZ(result, radians);
+    CreateRotationZ(radians, result);
     return result;
   }
 
 
-  void Matrix::CreateRotationZ(Matrix& rResult, const float radians)
+  void Matrix::CreateRotationZ(const float radians, Matrix& rResult)
   {
     rResult.SetIdentity();
 
@@ -792,28 +804,13 @@ namespace Fsl
   }
 
 
-  Matrix Matrix::CreateScale(const float scale)
+  void Matrix::CreateScale(const float scale, Matrix& rResult)
   {
-    // Matrix result(OptimizationFlag::NoInitialization);
-    Matrix result;
-    CreateScale(result, scale, scale, scale);
-    return result;
+    CreateScale(scale, scale, scale, rResult);
   }
 
-  void Matrix::CreateScale(Matrix& rResult, const float scale)
-  {
-    CreateScale(rResult, scale, scale, scale);
-  }
 
-  Matrix Matrix::CreateScale(const float scaleX, const float scaleY, const float scaleZ)
-  {
-    // Matrix result(OptimizationFlag::NoInitialization);
-    Matrix result;
-    CreateScale(result, scaleX, scaleY, scaleZ);
-    return result;
-  }
-
-  void Matrix::CreateScale(Matrix& rResult, const float scaleX, const float scaleY, const float scaleZ)
+  void Matrix::CreateScale(const float scaleX, const float scaleY, const float scaleZ, Matrix& rResult)
   {
     rResult.m[_M11] = scaleX;
     rResult.m[_M12] = 0;
@@ -833,15 +830,8 @@ namespace Fsl
     rResult.m[_M44] = 1;
   }
 
-  Matrix Matrix::CreateScale(const Vector3& scale)
-  {
-    // Matrix result(OptimizationFlag::NoInitialization);
-    Matrix result;
-    CreateScale(result, scale);
-    return result;
-  }
 
-  void Matrix::CreateScale(Matrix& rResult, const Vector3& scale)
+  void Matrix::CreateScale(const Vector3& scale, Matrix& rResult)
   {
     rResult.m[_M11] = scale.X;
     rResult.m[_M12] = 0;
@@ -897,16 +887,7 @@ namespace Fsl
   }
 
 
-  Matrix Matrix::CreateTranslation(const float x, const float y, const float z)
-  {
-    // Matrix result(OptimizationFlag::NoInitialization);
-    Matrix result;
-    CreateTranslation(result, x, y, z);
-    return result;
-  }
-
-
-  void Matrix::CreateTranslation(Matrix& rResult, const float x, const float y, const float z)
+  void Matrix::CreateTranslation(const float x, const float y, const float z, Matrix& rResult)
   {
     rResult.m[_M11] = 1.0f;
     rResult.m[_M12] = 0.0f;
@@ -927,16 +908,7 @@ namespace Fsl
   }
 
 
-  Matrix Matrix::CreateTranslation(const Vector3& value)
-  {
-    // Matrix result(OptimizationFlag::NoInitialization);
-    Matrix result;
-    CreateTranslation(result, value);
-    return result;
-  }
-
-
-  void Matrix::CreateTranslation(Matrix& rResult, const Vector3& value)
+  void Matrix::CreateTranslation(const Vector3& value, Matrix& rResult)
   {
     rResult.m[_M11] = 1.0f;
     rResult.m[_M12] = 0.0f;
@@ -961,17 +933,18 @@ namespace Fsl
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    CreateWorld(result, position, forward, up);
+    CreateWorld(position, forward, up, result);
     return result;
   }
 
 
-  void Matrix::CreateWorld(Matrix& rResult, const Vector3& position, const Vector3& forward, const Vector3& up)
+  void Matrix::CreateWorld(const Vector3& position, const Vector3& forward, const Vector3& up, Matrix& rResult)
   {
     Vector3 x, y, z;
-    Vector3::Normalize(z, forward);
-    Vector3::Cross(x, forward, up);
-    Vector3::Cross(y, x, forward);
+    Vector3::Normalize(forward, z);
+    Vector3::Cross(forward, up, x);
+    // Ugly cast due to deprecated overloads of Cross
+    Vector3::Cross(static_cast<const Vector3>(x), forward, y);
     x.Normalize();
     y.Normalize();
 
@@ -1040,82 +1013,16 @@ namespace Fsl
   }
 
 
-  Matrix Matrix::Divide(const Matrix& matrix1, const Matrix& matrix2)
-  {
-    return Matrix(
-      matrix1.m[_M11] / matrix2.m[_M11], matrix1.m[_M12] / matrix2.m[_M12], matrix1.m[_M13] / matrix2.m[_M13], matrix1.m[_M14] / matrix2.m[_M14],
-      matrix1.m[_M21] / matrix2.m[_M21], matrix1.m[_M22] / matrix2.m[_M22], matrix1.m[_M23] / matrix2.m[_M23], matrix1.m[_M24] / matrix2.m[_M24],
-      matrix1.m[_M31] / matrix2.m[_M31], matrix1.m[_M32] / matrix2.m[_M32], matrix1.m[_M33] / matrix2.m[_M33], matrix1.m[_M34] / matrix2.m[_M34],
-      matrix1.m[_M41] / matrix2.m[_M41], matrix1.m[_M42] / matrix2.m[_M42], matrix1.m[_M43] / matrix2.m[_M43], matrix1.m[_M44] / matrix2.m[_M44]);
-  }
-
-
-  void Matrix::Divide(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
-  {
-    rResult.m[_M11] = matrix1.m[_M11] / matrix2.m[_M11];
-    rResult.m[_M12] = matrix1.m[_M12] / matrix2.m[_M12];
-    rResult.m[_M13] = matrix1.m[_M13] / matrix2.m[_M13];
-    rResult.m[_M14] = matrix1.m[_M14] / matrix2.m[_M14];
-    rResult.m[_M21] = matrix1.m[_M21] / matrix2.m[_M21];
-    rResult.m[_M22] = matrix1.m[_M22] / matrix2.m[_M22];
-    rResult.m[_M23] = matrix1.m[_M23] / matrix2.m[_M23];
-    rResult.m[_M24] = matrix1.m[_M24] / matrix2.m[_M24];
-    rResult.m[_M31] = matrix1.m[_M31] / matrix2.m[_M31];
-    rResult.m[_M32] = matrix1.m[_M32] / matrix2.m[_M32];
-    rResult.m[_M33] = matrix1.m[_M33] / matrix2.m[_M33];
-    rResult.m[_M34] = matrix1.m[_M34] / matrix2.m[_M34];
-    rResult.m[_M41] = matrix1.m[_M41] / matrix2.m[_M41];
-    rResult.m[_M42] = matrix1.m[_M42] / matrix2.m[_M42];
-    rResult.m[_M43] = matrix1.m[_M43] / matrix2.m[_M43];
-    rResult.m[_M44] = matrix1.m[_M44] / matrix2.m[_M44];
-  }
-
-
-  Matrix Matrix::Divide(const Matrix& matrix1, const float divider)
-  {
-    // Multiply usually has better performance
-    const float num = 1.0f / divider;
-
-    return Matrix(matrix1.m[_M11] * num, matrix1.m[_M12] * num, matrix1.m[_M13] * num, matrix1.m[_M14] * num, matrix1.m[_M21] * num,
-                  matrix1.m[_M22] * num, matrix1.m[_M23] * num, matrix1.m[_M24] * num, matrix1.m[_M31] * num, matrix1.m[_M32] * num,
-                  matrix1.m[_M33] * num, matrix1.m[_M34] * num, matrix1.m[_M41] * num, matrix1.m[_M42] * num, matrix1.m[_M43] * num,
-                  matrix1.m[_M44] * num);
-  }
-
-
-  void Matrix::Divide(Matrix& rResult, const Matrix& matrix1, const float divider)
-  {
-    // Multiply usually has better performance
-    const float num = 1.0f / divider;
-    rResult.m[_M11] = matrix1.m[_M11] * num;
-    rResult.m[_M12] = matrix1.m[_M12] * num;
-    rResult.m[_M13] = matrix1.m[_M13] * num;
-    rResult.m[_M14] = matrix1.m[_M14] * num;
-    rResult.m[_M21] = matrix1.m[_M21] * num;
-    rResult.m[_M22] = matrix1.m[_M22] * num;
-    rResult.m[_M23] = matrix1.m[_M23] * num;
-    rResult.m[_M24] = matrix1.m[_M24] * num;
-    rResult.m[_M31] = matrix1.m[_M31] * num;
-    rResult.m[_M32] = matrix1.m[_M32] * num;
-    rResult.m[_M33] = matrix1.m[_M33] * num;
-    rResult.m[_M34] = matrix1.m[_M34] * num;
-    rResult.m[_M41] = matrix1.m[_M41] * num;
-    rResult.m[_M42] = matrix1.m[_M42] * num;
-    rResult.m[_M43] = matrix1.m[_M43] * num;
-    rResult.m[_M44] = matrix1.m[_M44] * num;
-  }
-
-
   Matrix Matrix::Invert(const Matrix& matrix)
   {
     // Matrix result(OptimizationFlag::NoInitialization);
     Matrix result;
-    Invert(result, matrix);
+    Invert(matrix, result);
     return result;
   }
 
 
-  void Matrix::Invert(Matrix& rResult, const Matrix& matrix)
+  void Matrix::Invert(const Matrix& matrix, Matrix& rResult)
   {
     const float num1 = matrix.m[_M11];
     const float num2 = matrix.m[_M12];
@@ -1255,7 +1162,7 @@ namespace Fsl
   }
 
 
-  void Matrix::Lerp(Matrix& rResult, const Matrix& value1, const Matrix& value2, const float amount)
+  void Matrix::Lerp(const Matrix& value1, const Matrix& value2, const float amount, Matrix& rResult)
   {
     const float* pMatrix1 = value1.m;
     const float* pMatrix2 = value2.m;
@@ -1283,138 +1190,7 @@ namespace Fsl
     pResult[_M44] = pMatrix1[_M44] + ((pMatrix2[_M44] - pMatrix1[_M44]) * amount);
   }
 
-  Matrix Matrix::Multiply(const Matrix& matrix1, const Matrix& matrix2)
-  {
-    return Matrix((((matrix1.m[_M11] * matrix2.m[_M11]) + (matrix1.m[_M12] * matrix2.m[_M21])) + (matrix1.m[_M13] * matrix2.m[_M31])) +
-                    (matrix1.m[_M14] * matrix2.m[_M41]),
-                  (((matrix1.m[_M11] * matrix2.m[_M12]) + (matrix1.m[_M12] * matrix2.m[_M22])) + (matrix1.m[_M13] * matrix2.m[_M32])) +
-                    (matrix1.m[_M14] * matrix2.m[_M42]),
-                  (((matrix1.m[_M11] * matrix2.m[_M13]) + (matrix1.m[_M12] * matrix2.m[_M23])) + (matrix1.m[_M13] * matrix2.m[_M33])) +
-                    (matrix1.m[_M14] * matrix2.m[_M43]),
-                  (((matrix1.m[_M11] * matrix2.m[_M14]) + (matrix1.m[_M12] * matrix2.m[_M24])) + (matrix1.m[_M13] * matrix2.m[_M34])) +
-                    (matrix1.m[_M14] * matrix2.m[_M44]),
-                  (((matrix1.m[_M21] * matrix2.m[_M11]) + (matrix1.m[_M22] * matrix2.m[_M21])) + (matrix1.m[_M23] * matrix2.m[_M31])) +
-                    (matrix1.m[_M24] * matrix2.m[_M41]),
-                  (((matrix1.m[_M21] * matrix2.m[_M12]) + (matrix1.m[_M22] * matrix2.m[_M22])) + (matrix1.m[_M23] * matrix2.m[_M32])) +
-                    (matrix1.m[_M24] * matrix2.m[_M42]),
-                  (((matrix1.m[_M21] * matrix2.m[_M13]) + (matrix1.m[_M22] * matrix2.m[_M23])) + (matrix1.m[_M23] * matrix2.m[_M33])) +
-                    (matrix1.m[_M24] * matrix2.m[_M43]),
-                  (((matrix1.m[_M21] * matrix2.m[_M14]) + (matrix1.m[_M22] * matrix2.m[_M24])) + (matrix1.m[_M23] * matrix2.m[_M34])) +
-                    (matrix1.m[_M24] * matrix2.m[_M44]),
-                  (((matrix1.m[_M31] * matrix2.m[_M11]) + (matrix1.m[_M32] * matrix2.m[_M21])) + (matrix1.m[_M33] * matrix2.m[_M31])) +
-                    (matrix1.m[_M34] * matrix2.m[_M41]),
-                  (((matrix1.m[_M31] * matrix2.m[_M12]) + (matrix1.m[_M32] * matrix2.m[_M22])) + (matrix1.m[_M33] * matrix2.m[_M32])) +
-                    (matrix1.m[_M34] * matrix2.m[_M42]),
-                  (((matrix1.m[_M31] * matrix2.m[_M13]) + (matrix1.m[_M32] * matrix2.m[_M23])) + (matrix1.m[_M33] * matrix2.m[_M33])) +
-                    (matrix1.m[_M34] * matrix2.m[_M43]),
-                  (((matrix1.m[_M31] * matrix2.m[_M14]) + (matrix1.m[_M32] * matrix2.m[_M24])) + (matrix1.m[_M33] * matrix2.m[_M34])) +
-                    (matrix1.m[_M34] * matrix2.m[_M44]),
-                  (((matrix1.m[_M41] * matrix2.m[_M11]) + (matrix1.m[_M42] * matrix2.m[_M21])) + (matrix1.m[_M43] * matrix2.m[_M31])) +
-                    (matrix1.m[_M44] * matrix2.m[_M41]),
-                  (((matrix1.m[_M41] * matrix2.m[_M12]) + (matrix1.m[_M42] * matrix2.m[_M22])) + (matrix1.m[_M43] * matrix2.m[_M32])) +
-                    (matrix1.m[_M44] * matrix2.m[_M42]),
-                  (((matrix1.m[_M41] * matrix2.m[_M13]) + (matrix1.m[_M42] * matrix2.m[_M23])) + (matrix1.m[_M43] * matrix2.m[_M33])) +
-                    (matrix1.m[_M44] * matrix2.m[_M43]),
-                  (((matrix1.m[_M41] * matrix2.m[_M14]) + (matrix1.m[_M42] * matrix2.m[_M24])) + (matrix1.m[_M43] * matrix2.m[_M34])) +
-                    (matrix1.m[_M44] * matrix2.m[_M44]));
-  }
-
-
-  void Matrix::Multiply(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
-  {
-    const float* pMatrix1 = matrix1.m;
-    const float* pMatrix2 = matrix2.m;
-
-    const float m11 = (((pMatrix1[_M11] * pMatrix2[_M11]) + (pMatrix1[_M12] * pMatrix2[_M21])) + (pMatrix1[_M13] * pMatrix2[_M31])) +
-                      (pMatrix1[_M14] * pMatrix2[_M41]);
-    const float m12 = (((pMatrix1[_M11] * pMatrix2[_M12]) + (pMatrix1[_M12] * pMatrix2[_M22])) + (pMatrix1[_M13] * pMatrix2[_M32])) +
-                      (pMatrix1[_M14] * pMatrix2[_M42]);
-    const float m13 = (((pMatrix1[_M11] * pMatrix2[_M13]) + (pMatrix1[_M12] * pMatrix2[_M23])) + (pMatrix1[_M13] * pMatrix2[_M33])) +
-                      (pMatrix1[_M14] * pMatrix2[_M43]);
-    const float m14 = (((pMatrix1[_M11] * pMatrix2[_M14]) + (pMatrix1[_M12] * pMatrix2[_M24])) + (pMatrix1[_M13] * pMatrix2[_M34])) +
-                      (pMatrix1[_M14] * pMatrix2[_M44]);
-    const float m21 = (((pMatrix1[_M21] * pMatrix2[_M11]) + (pMatrix1[_M22] * pMatrix2[_M21])) + (pMatrix1[_M23] * pMatrix2[_M31])) +
-                      (pMatrix1[_M24] * pMatrix2[_M41]);
-    const float m22 = (((pMatrix1[_M21] * pMatrix2[_M12]) + (pMatrix1[_M22] * pMatrix2[_M22])) + (pMatrix1[_M23] * pMatrix2[_M32])) +
-                      (pMatrix1[_M24] * pMatrix2[_M42]);
-    const float m23 = (((pMatrix1[_M21] * pMatrix2[_M13]) + (pMatrix1[_M22] * pMatrix2[_M23])) + (pMatrix1[_M23] * pMatrix2[_M33])) +
-                      (pMatrix1[_M24] * pMatrix2[_M43]);
-    const float m24 = (((pMatrix1[_M21] * pMatrix2[_M14]) + (pMatrix1[_M22] * pMatrix2[_M24])) + (pMatrix1[_M23] * pMatrix2[_M34])) +
-                      (pMatrix1[_M24] * pMatrix2[_M44]);
-    const float m31 = (((pMatrix1[_M31] * pMatrix2[_M11]) + (pMatrix1[_M32] * pMatrix2[_M21])) + (pMatrix1[_M33] * pMatrix2[_M31])) +
-                      (pMatrix1[_M34] * pMatrix2[_M41]);
-    const float m32 = (((pMatrix1[_M31] * pMatrix2[_M12]) + (pMatrix1[_M32] * pMatrix2[_M22])) + (pMatrix1[_M33] * pMatrix2[_M32])) +
-                      (pMatrix1[_M34] * pMatrix2[_M42]);
-    const float m33 = (((pMatrix1[_M31] * pMatrix2[_M13]) + (pMatrix1[_M32] * pMatrix2[_M23])) + (pMatrix1[_M33] * pMatrix2[_M33])) +
-                      (pMatrix1[_M34] * pMatrix2[_M43]);
-    const float m34 = (((pMatrix1[_M31] * pMatrix2[_M14]) + (pMatrix1[_M32] * pMatrix2[_M24])) + (pMatrix1[_M33] * pMatrix2[_M34])) +
-                      (pMatrix1[_M34] * pMatrix2[_M44]);
-    const float m41 = (((pMatrix1[_M41] * pMatrix2[_M11]) + (pMatrix1[_M42] * pMatrix2[_M21])) + (pMatrix1[_M43] * pMatrix2[_M31])) +
-                      (pMatrix1[_M44] * pMatrix2[_M41]);
-    const float m42 = (((pMatrix1[_M41] * pMatrix2[_M12]) + (pMatrix1[_M42] * pMatrix2[_M22])) + (pMatrix1[_M43] * pMatrix2[_M32])) +
-                      (pMatrix1[_M44] * pMatrix2[_M42]);
-    const float m43 = (((pMatrix1[_M41] * pMatrix2[_M13]) + (pMatrix1[_M42] * pMatrix2[_M23])) + (pMatrix1[_M43] * pMatrix2[_M33])) +
-                      (pMatrix1[_M44] * pMatrix2[_M43]);
-    const float m44 = (((pMatrix1[_M41] * pMatrix2[_M14]) + (pMatrix1[_M42] * pMatrix2[_M24])) + (pMatrix1[_M43] * pMatrix2[_M34])) +
-                      (pMatrix1[_M44] * pMatrix2[_M44]);
-
-    rResult.m[_M11] = m11;
-    rResult.m[_M12] = m12;
-    rResult.m[_M13] = m13;
-    rResult.m[_M14] = m14;
-    rResult.m[_M21] = m21;
-    rResult.m[_M22] = m22;
-    rResult.m[_M23] = m23;
-    rResult.m[_M24] = m24;
-    rResult.m[_M31] = m31;
-    rResult.m[_M32] = m32;
-    rResult.m[_M33] = m33;
-    rResult.m[_M34] = m34;
-    rResult.m[_M41] = m41;
-    rResult.m[_M42] = m42;
-    rResult.m[_M43] = m43;
-    rResult.m[_M44] = m44;
-  }
-
-
-  Matrix Matrix::Multiply(const Matrix& matrix1, const float factor)
-  {
-    return Matrix(matrix1.m[_M11] * factor, matrix1.m[_M12] * factor, matrix1.m[_M13] * factor, matrix1.m[_M14] * factor, matrix1.m[_M21] * factor,
-                  matrix1.m[_M22] * factor, matrix1.m[_M23] * factor, matrix1.m[_M24] * factor, matrix1.m[_M31] * factor, matrix1.m[_M32] * factor,
-                  matrix1.m[_M33] * factor, matrix1.m[_M34] * factor, matrix1.m[_M41] * factor, matrix1.m[_M42] * factor, matrix1.m[_M43] * factor,
-                  matrix1.m[_M44] * factor);
-  }
-
-  void Matrix::Multiply(Matrix& rResult, const Matrix& matrix1, const float factor)
-  {
-    rResult.m[_M11] = matrix1.m[_M11] * factor;
-    rResult.m[_M12] = matrix1.m[_M12] * factor;
-    rResult.m[_M13] = matrix1.m[_M13] * factor;
-    rResult.m[_M14] = matrix1.m[_M14] * factor;
-    rResult.m[_M21] = matrix1.m[_M21] * factor;
-    rResult.m[_M22] = matrix1.m[_M22] * factor;
-    rResult.m[_M23] = matrix1.m[_M23] * factor;
-    rResult.m[_M24] = matrix1.m[_M24] * factor;
-    rResult.m[_M31] = matrix1.m[_M31] * factor;
-    rResult.m[_M32] = matrix1.m[_M32] * factor;
-    rResult.m[_M33] = matrix1.m[_M33] * factor;
-    rResult.m[_M34] = matrix1.m[_M34] * factor;
-    rResult.m[_M41] = matrix1.m[_M41] * factor;
-    rResult.m[_M42] = matrix1.m[_M42] * factor;
-    rResult.m[_M43] = matrix1.m[_M43] * factor;
-    rResult.m[_M44] = matrix1.m[_M44] * factor;
-  }
-
-
-  Matrix Matrix::Negate(const Matrix& matrix) const
-  {
-    return Matrix(-matrix.m[_M11], -matrix.m[_M12], -matrix.m[_M13], -matrix.m[_M14], -matrix.m[_M21], -matrix.m[_M22], -matrix.m[_M23],
-                  -matrix.m[_M24], -matrix.m[_M31], -matrix.m[_M32], -matrix.m[_M33], -matrix.m[_M34], -matrix.m[_M41], -matrix.m[_M42],
-                  -matrix.m[_M43], -matrix.m[_M44]);
-  }
-
-
-  void Matrix::Negate(Matrix& rResult, const Matrix& matrix)
+  void Matrix::Negate(const Matrix& matrix, Matrix& rResult)
   {
     rResult.m[_M11] = -matrix.m[_M11];
     rResult.m[_M12] = -matrix.m[_M12];
@@ -1455,17 +1231,8 @@ namespace Fsl
     m[_M44] = 1.0f;
   }
 
-  Matrix Matrix::Subtract(const Matrix& matrix1, const Matrix& matrix2)
-  {
-    return Matrix(
-      matrix1.m[_M11] - matrix2.m[_M11], matrix1.m[_M12] - matrix2.m[_M12], matrix1.m[_M13] - matrix2.m[_M13], matrix1.m[_M14] - matrix2.m[_M14],
-      matrix1.m[_M21] - matrix2.m[_M21], matrix1.m[_M22] - matrix2.m[_M22], matrix1.m[_M23] - matrix2.m[_M23], matrix1.m[_M24] - matrix2.m[_M24],
-      matrix1.m[_M31] - matrix2.m[_M31], matrix1.m[_M32] - matrix2.m[_M32], matrix1.m[_M33] - matrix2.m[_M33], matrix1.m[_M34] - matrix2.m[_M34],
-      matrix1.m[_M41] - matrix2.m[_M41], matrix1.m[_M42] - matrix2.m[_M42], matrix1.m[_M43] - matrix2.m[_M43], matrix1.m[_M44] - matrix2.m[_M44]);
-  }
 
-
-  void Matrix::Subtract(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
+  void Matrix::Subtract(const Matrix& matrix1, const Matrix& matrix2, Matrix& rResult)
   {
     rResult.m[_M11] = matrix1.m[_M11] - matrix2.m[_M11];
     rResult.m[_M12] = matrix1.m[_M12] - matrix2.m[_M12];
@@ -1486,14 +1253,7 @@ namespace Fsl
   }
 
 
-  Matrix Matrix::Transpose(const Matrix& matrix)
-  {
-    return Matrix(matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M41], matrix.m[_M12], matrix.m[_M22], matrix.m[_M32], matrix.m[_M42],
-                  matrix.m[_M13], matrix.m[_M23], matrix.m[_M33], matrix.m[_M43], matrix.m[_M14], matrix.m[_M24], matrix.m[_M34], matrix.m[_M44]);
-  }
-
-
-  void Matrix::Transpose(Matrix& rResult, const Matrix& src)
+  void Matrix::Transpose(const Matrix& src, Matrix& rResult)
   {
     rResult = Transpose(src);
   }
@@ -1502,172 +1262,93 @@ namespace Fsl
   void MatrixInternals::Transform(Vector2& rResult, const Vector2& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector2((position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M21]) + pMatrix[_M41],
-                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M22]) + pMatrix[_M42]);
+    // Done like this to ensure that position and rResult can be the same.
+    const auto x = (position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + pMatrix[_M41];
+    const auto y = (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + pMatrix[_M42];
+    rResult.X = x;
+    rResult.Y = y;
   }
 
 
   void MatrixInternals::TransformNormal(Vector2& rResult, const Vector2& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector2((position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M21]), (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M22]));
+    // Done like this to ensure that position and rResult can be the same.
+    const auto x = (position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]);
+    const auto y = (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]);
+    rResult.X = x;
+    rResult.Y = y;
   }
+
 
   void MatrixInternals::Transform(Vector3& rResult, const Vector3& position, const Matrix& matrix)
   {
+    // rResult and Position can not be the same
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector3((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + pMatrix[_M41],
-                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42],
-                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43]);
+
+    // Done like this to ensure that position and rResult can be the same.
+    const auto x = (position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + pMatrix[_M41];
+    const auto y = (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42];
+    const auto z = (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43];
+    rResult.X = x;
+    rResult.Y = y;
+    rResult.Z = z;
   }
 
 
   void MatrixInternals::TransformNormal(Vector3& rResult, const Vector3& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector3((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]),
-                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]),
-                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]));
+
+    // Done like this to ensure that position and rResult can be the same.
+    const auto x = (position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]);
+    const auto y = (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]);
+    const auto z = (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]);
+    rResult.X = x;
+    rResult.Y = y;
+    rResult.Z = z;
   }
 
   void MatrixInternals::Transform(Vector4& rResult, const Vector2& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector4((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + pMatrix[_M41],
-                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + pMatrix[_M42],
-                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + pMatrix[_M43],
-                      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + pMatrix[_M44]);
+    // Done like this to ensure that position and rResult can be the same.
+    const auto x = (position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + pMatrix[_M41];
+    const auto y = (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + pMatrix[_M42];
+    const auto z = (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + pMatrix[_M43];
+    const auto w = (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + pMatrix[_M44];
+    rResult.X = x;
+    rResult.Y = y;
+    rResult.Z = z;
+    rResult.W = w;
   }
 
   void MatrixInternals::Transform(Vector4& rResult, const Vector3& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector4((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + pMatrix[_M41],
-                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42],
-                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43],
-                      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + pMatrix[_M44]);
+    // Done like this to ensure that position and rResult can be the same.
+    const auto x = (position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + pMatrix[_M41];
+    const auto y = (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + pMatrix[_M42];
+    const auto z = (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + pMatrix[_M43];
+    const auto w = (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + pMatrix[_M44];
+    rResult.X = x;
+    rResult.Y = y;
+    rResult.Z = z;
+    rResult.W = w;
   }
 
 
   void MatrixInternals::Transform(Vector4& rResult, const Vector4& position, const Matrix& matrix)
   {
     const float* pMatrix = matrix.DirectAccess();
-    rResult = Vector4((position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + (position.W * pMatrix[_M41]),
-                      (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + (position.W * pMatrix[_M42]),
-                      (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + (position.W * pMatrix[_M43]),
-                      (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + (position.W * pMatrix[_M44]));
+    // Done like this to ensure that position and rResult can be the same.
+    const auto x = (position.X * pMatrix[_M11]) + (position.Y * pMatrix[_M21]) + (position.Z * pMatrix[_M31]) + (position.W * pMatrix[_M41]);
+    const auto y = (position.X * pMatrix[_M12]) + (position.Y * pMatrix[_M22]) + (position.Z * pMatrix[_M32]) + (position.W * pMatrix[_M42]);
+    const auto z = (position.X * pMatrix[_M13]) + (position.Y * pMatrix[_M23]) + (position.Z * pMatrix[_M33]) + (position.W * pMatrix[_M43]);
+    const auto w = (position.X * pMatrix[_M14]) + (position.Y * pMatrix[_M24]) + (position.Z * pMatrix[_M34]) + (position.W * pMatrix[_M44]);
+    rResult.X = x;
+    rResult.Y = y;
+    rResult.Z = z;
+    rResult.W = w;
   }
-
-  Matrix Matrix::operator-() const
-  {
-    return Negate(*this);
-  }
-
-
-  Matrix& Matrix::operator*=(const Matrix& rhs)
-  {
-    const float* pRhs = rhs.DirectAccess();
-
-    const float m11 = (((m[_M11] * pRhs[_M11]) + (m[_M12] * pRhs[_M21]) + (m[_M13] * pRhs[_M31])) + (m[_M14] * pRhs[_M41]));
-    const float m12 = (((m[_M11] * pRhs[_M12]) + (m[_M12] * pRhs[_M22]) + (m[_M13] * pRhs[_M32])) + (m[_M14] * pRhs[_M42]));
-    const float m13 = (((m[_M11] * pRhs[_M13]) + (m[_M12] * pRhs[_M23]) + (m[_M13] * pRhs[_M33])) + (m[_M14] * pRhs[_M43]));
-    const float m14 = (((m[_M11] * pRhs[_M14]) + (m[_M12] * pRhs[_M24]) + (m[_M13] * pRhs[_M34])) + (m[_M14] * pRhs[_M44]));
-    const float m21 = (((m[_M21] * pRhs[_M11]) + (m[_M22] * pRhs[_M21]) + (m[_M23] * pRhs[_M31])) + (m[_M24] * pRhs[_M41]));
-    const float m22 = (((m[_M21] * pRhs[_M12]) + (m[_M22] * pRhs[_M22]) + (m[_M23] * pRhs[_M32])) + (m[_M24] * pRhs[_M42]));
-    const float m23 = (((m[_M21] * pRhs[_M13]) + (m[_M22] * pRhs[_M23]) + (m[_M23] * pRhs[_M33])) + (m[_M24] * pRhs[_M43]));
-    const float m24 = (((m[_M21] * pRhs[_M14]) + (m[_M22] * pRhs[_M24]) + (m[_M23] * pRhs[_M34])) + (m[_M24] * pRhs[_M44]));
-    const float m31 = (((m[_M31] * pRhs[_M11]) + (m[_M32] * pRhs[_M21]) + (m[_M33] * pRhs[_M31])) + (m[_M34] * pRhs[_M41]));
-    const float m32 = (((m[_M31] * pRhs[_M12]) + (m[_M32] * pRhs[_M22]) + (m[_M33] * pRhs[_M32])) + (m[_M34] * pRhs[_M42]));
-    const float m33 = (((m[_M31] * pRhs[_M13]) + (m[_M32] * pRhs[_M23]) + (m[_M33] * pRhs[_M33])) + (m[_M34] * pRhs[_M43]));
-    const float m34 = (((m[_M31] * pRhs[_M14]) + (m[_M32] * pRhs[_M24]) + (m[_M33] * pRhs[_M34])) + (m[_M34] * pRhs[_M44]));
-    const float m41 = (((m[_M41] * pRhs[_M11]) + (m[_M42] * pRhs[_M21]) + (m[_M43] * pRhs[_M31])) + (m[_M44] * pRhs[_M41]));
-    const float m42 = (((m[_M41] * pRhs[_M12]) + (m[_M42] * pRhs[_M22]) + (m[_M43] * pRhs[_M32])) + (m[_M44] * pRhs[_M42]));
-    const float m43 = (((m[_M41] * pRhs[_M13]) + (m[_M42] * pRhs[_M23]) + (m[_M43] * pRhs[_M33])) + (m[_M44] * pRhs[_M43]));
-    const float m44 = (((m[_M41] * pRhs[_M14]) + (m[_M42] * pRhs[_M24]) + (m[_M43] * pRhs[_M34])) + (m[_M44] * pRhs[_M44]));
-
-    m[_M11] = m11;
-    m[_M12] = m12;
-    m[_M13] = m13;
-    m[_M14] = m14;
-    m[_M21] = m21;
-    m[_M22] = m22;
-    m[_M23] = m23;
-    m[_M24] = m24;
-    m[_M31] = m31;
-    m[_M32] = m32;
-    m[_M33] = m33;
-    m[_M34] = m34;
-    m[_M41] = m41;
-    m[_M42] = m42;
-    m[_M43] = m43;
-    m[_M44] = m44;
-    return *this;
-  }
-
-
-  Matrix& Matrix::operator+=(const Matrix& rhs)
-  {
-    *this = Add(*this, rhs);
-    return *this;
-  }
-
-
-  Matrix& Matrix::operator-=(const Matrix& rhs)
-  {
-    *this = Subtract(*this, rhs);
-    return *this;
-  }
-
-
-  bool Matrix::operator==(const Matrix& rhs) const
-  {
-    return (m[_M11] == rhs.m[_M11] && m[_M12] == rhs.m[_M12] && m[_M13] == rhs.m[_M13] && m[_M14] == rhs.m[_M14] && m[_M21] == rhs.m[_M21] &&
-            m[_M22] == rhs.m[_M22] && m[_M23] == rhs.m[_M23] && m[_M24] == rhs.m[_M24] && m[_M31] == rhs.m[_M31] && m[_M32] == rhs.m[_M32] &&
-            m[_M33] == rhs.m[_M33] && m[_M34] == rhs.m[_M34] && m[_M41] == rhs.m[_M41] && m[_M42] == rhs.m[_M42] && m[_M43] == rhs.m[_M43] &&
-            m[_M44] == rhs.m[_M44]);
-  }
-
-
-  bool Matrix::operator!=(const Matrix& rhs) const
-  {
-    return (m[_M11] != rhs.m[_M11] || m[_M12] != rhs.m[_M12] || m[_M13] != rhs.m[_M13] || m[_M14] != rhs.m[_M14] || m[_M21] != rhs.m[_M21] ||
-            m[_M22] != rhs.m[_M22] || m[_M23] != rhs.m[_M23] || m[_M24] != rhs.m[_M24] || m[_M31] != rhs.m[_M31] || m[_M32] != rhs.m[_M32] ||
-            m[_M33] != rhs.m[_M33] || m[_M34] != rhs.m[_M34] || m[_M41] != rhs.m[_M41] || m[_M42] != rhs.m[_M42] || m[_M43] != rhs.m[_M43] ||
-            m[_M44] != rhs.m[_M44]);
-  }
-}
-
-
-const Fsl::Matrix operator*(const Fsl::Matrix& lhs, const Fsl::Matrix& rhs)
-{
-  const float* pLhs = lhs.DirectAccess();
-  const float* pRhs = rhs.DirectAccess();
-  return Fsl::Matrix((((pLhs[_M11] * pRhs[_M11]) + (pLhs[_M12] * pRhs[_M21])) + (pLhs[_M13] * pRhs[_M31])) + (pLhs[_M14] * pRhs[_M41]),
-                     (((pLhs[_M11] * pRhs[_M12]) + (pLhs[_M12] * pRhs[_M22])) + (pLhs[_M13] * pRhs[_M32])) + (pLhs[_M14] * pRhs[_M42]),
-                     (((pLhs[_M11] * pRhs[_M13]) + (pLhs[_M12] * pRhs[_M23])) + (pLhs[_M13] * pRhs[_M33])) + (pLhs[_M14] * pRhs[_M43]),
-                     (((pLhs[_M11] * pRhs[_M14]) + (pLhs[_M12] * pRhs[_M24])) + (pLhs[_M13] * pRhs[_M34])) + (pLhs[_M14] * pRhs[_M44]),
-                     (((pLhs[_M21] * pRhs[_M11]) + (pLhs[_M22] * pRhs[_M21])) + (pLhs[_M23] * pRhs[_M31])) + (pLhs[_M24] * pRhs[_M41]),
-                     (((pLhs[_M21] * pRhs[_M12]) + (pLhs[_M22] * pRhs[_M22])) + (pLhs[_M23] * pRhs[_M32])) + (pLhs[_M24] * pRhs[_M42]),
-                     (((pLhs[_M21] * pRhs[_M13]) + (pLhs[_M22] * pRhs[_M23])) + (pLhs[_M23] * pRhs[_M33])) + (pLhs[_M24] * pRhs[_M43]),
-                     (((pLhs[_M21] * pRhs[_M14]) + (pLhs[_M22] * pRhs[_M24])) + (pLhs[_M23] * pRhs[_M34])) + (pLhs[_M24] * pRhs[_M44]),
-                     (((pLhs[_M31] * pRhs[_M11]) + (pLhs[_M32] * pRhs[_M21])) + (pLhs[_M33] * pRhs[_M31])) + (pLhs[_M34] * pRhs[_M41]),
-                     (((pLhs[_M31] * pRhs[_M12]) + (pLhs[_M32] * pRhs[_M22])) + (pLhs[_M33] * pRhs[_M32])) + (pLhs[_M34] * pRhs[_M42]),
-                     (((pLhs[_M31] * pRhs[_M13]) + (pLhs[_M32] * pRhs[_M23])) + (pLhs[_M33] * pRhs[_M33])) + (pLhs[_M34] * pRhs[_M43]),
-                     (((pLhs[_M31] * pRhs[_M14]) + (pLhs[_M32] * pRhs[_M24])) + (pLhs[_M33] * pRhs[_M34])) + (pLhs[_M34] * pRhs[_M44]),
-                     (((pLhs[_M41] * pRhs[_M11]) + (pLhs[_M42] * pRhs[_M21])) + (pLhs[_M43] * pRhs[_M31])) + (pLhs[_M44] * pRhs[_M41]),
-                     (((pLhs[_M41] * pRhs[_M12]) + (pLhs[_M42] * pRhs[_M22])) + (pLhs[_M43] * pRhs[_M32])) + (pLhs[_M44] * pRhs[_M42]),
-                     (((pLhs[_M41] * pRhs[_M13]) + (pLhs[_M42] * pRhs[_M23])) + (pLhs[_M43] * pRhs[_M33])) + (pLhs[_M44] * pRhs[_M43]),
-                     (((pLhs[_M41] * pRhs[_M14]) + (pLhs[_M42] * pRhs[_M24])) + (pLhs[_M43] * pRhs[_M34])) + (pLhs[_M44] * pRhs[_M44]));
-}
-
-
-const Fsl::Matrix operator+(const Fsl::Matrix& lhs, const Fsl::Matrix& rhs)
-{
-  return Fsl::Matrix::Add(lhs, rhs);
-}
-
-
-const Fsl::Matrix operator-(const Fsl::Matrix& lhs, const Fsl::Matrix& rhs)
-{
-  return Fsl::Matrix::Subtract(lhs, rhs);
 }

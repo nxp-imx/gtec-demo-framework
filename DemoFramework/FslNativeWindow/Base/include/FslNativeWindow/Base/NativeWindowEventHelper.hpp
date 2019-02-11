@@ -61,7 +61,7 @@ namespace Fsl
     static NativeWindowEvent EncodeWindowResizedEvent();
 
     //! @brief Create window DPI updated event
-    static NativeWindowEvent EncodeWindowDPIChanged();
+    static NativeWindowEvent EncodeWindowDPIChanged(const Point2& newDPI);
 
     //! @brief Create a low memory event
     static NativeWindowEvent EncodeLowMemoryEvent();

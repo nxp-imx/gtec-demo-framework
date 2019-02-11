@@ -33,17 +33,17 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Noncopyable.hpp>
-#include <FslUtil/Vulkan1_0/Extend/BufferEx.hpp>
-#include <FslUtil/Vulkan1_0/Extend/DeviceMemoryEx.hpp>
-#include <FslUtil/Vulkan1_0/Extend/ImageEx.hpp>
+#include <FslUtil/Vulkan1_0/VUBuffer.hpp>
+#include <FslUtil/Vulkan1_0/VUDeviceMemory.hpp>
 #include <vulkan/vulkan.h>
+#include "ImageEx.hpp"
 
 namespace Fsl
 {
   class DeviceTexture : Noncopyable
   {
-    Vulkan::ImageEx m_image;
-    Vulkan::DeviceMemoryEx m_memory;
+    ImageEx m_image;
+    Vulkan::VUDeviceMemory m_memory;
     VkFormat m_imageFormat;
 
   public:
@@ -53,25 +53,25 @@ namespace Fsl
     DeviceTexture(DeviceTexture&& other) noexcept;
 
     DeviceTexture();
-    DeviceTexture(Vulkan::ImageEx&& image, Vulkan::DeviceMemoryEx&& deviceMemory, const VkFormat imageFormat);
+    DeviceTexture(ImageEx&& image, Vulkan::VUDeviceMemory&& deviceMemory, const VkFormat imageFormat);
     ~DeviceTexture();
 
     void Reset() noexcept;
-    void Reset(Vulkan::ImageEx&& image, Vulkan::DeviceMemoryEx&& deviceMemory, const VkFormat imageFormat);
+    void Reset(ImageEx&& image, Vulkan::VUDeviceMemory&& deviceMemory, const VkFormat imageFormat);
 
 
-    const Vulkan::ImageEx& GetImage() const
+    const ImageEx& GetImage() const
     {
       return m_image;
     }
 
     // FIX: need to decide how we handle this
-    Vulkan::ImageEx& GetImage2()
+    ImageEx& GetImage2()
     {
       return m_image;
     }
 
-    const Vulkan::DeviceMemoryEx& GetDeviceMemory() const
+    const Vulkan::VUDeviceMemory& GetDeviceMemory() const
     {
       return m_memory;
     }
@@ -98,7 +98,12 @@ namespace Fsl
       m_memory.MapMemory(offset, size, flags);
     }
 
-    void* GetMappedMemoryPointer() const
+    const void* GetMappedMemoryPointer() const
+    {
+      return m_memory.GetMappedMemoryPointer();
+    }
+
+    void* GetMappedMemoryPointer()
     {
       return m_memory.GetMappedMemoryPointer();
     }
@@ -121,12 +126,12 @@ namespace Fsl
       m_image.CmdPipelineBarrier(cmdBuffer, dstAccessMask, newLayout, subresourceRange);
     }
 
-    void CopyImage(const VkCommandBuffer cmdBuffer, Vulkan::ImageEx& rTargetImage, const VkImageCopy& imageCopy)
+    void CopyImage(const VkCommandBuffer cmdBuffer, ImageEx& rTargetImage, const VkImageCopy& imageCopy)
     {
       m_image.CopyImage(cmdBuffer, rTargetImage, imageCopy);
     }
 
-    void CopyImageToBuffer(const VkCommandBuffer cmdBuffer, Vulkan::BufferEx& rTargetBuffer, const VkBufferImageCopy& bufferImageCopy);
+    void CopyImageToBuffer(const VkCommandBuffer cmdBuffer, Vulkan::VUBuffer& rTargetBuffer, const VkBufferImageCopy& bufferImageCopy);
   };
 }
 

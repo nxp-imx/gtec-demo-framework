@@ -20,7 +20,6 @@
 // used in this framework
 
 #include <FslBase/Math/Extent2D.hpp>
-#include <FslUtil/Vulkan1_0/Extend/PhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/SwapchainKHR.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/SwapchainBuffers.hpp>
@@ -54,7 +53,7 @@ namespace Fsl
       Swapchain();
 
       //! @brief Create the requested resource
-      Swapchain(const Vulkan::PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+      Swapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
                 const bool enableVSync);
 
       ~Swapchain();
@@ -63,7 +62,7 @@ namespace Fsl
       void Reset() noexcept;
 
       //! @brief Destroys any owned resources and then creates the requested one
-      void Reset(const Vulkan::PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+      void Reset(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
                  const bool enableVSync);
 
       //! @brief Get the associated resource handle

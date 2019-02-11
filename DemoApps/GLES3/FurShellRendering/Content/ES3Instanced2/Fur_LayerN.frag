@@ -15,11 +15,11 @@ uniform vec3 AmbientColor;
 
 out vec4 o_fragColor;
 
-void main() 
+void main()
 {
   vec4 furColor = texture(Texture0, v_texcoord);
   vec4 furData = texture(Texture1, v_texcoord);
-  
+
   furColor *= v_shadow;
   furColor.a = (v_instanceId <= furData.r) ? furData.a * v_dist : 0.0;
 
@@ -28,4 +28,3 @@ void main()
   furColor.xyz *= lighting;
   o_fragColor = furColor;
 }
-

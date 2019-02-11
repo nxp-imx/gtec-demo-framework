@@ -41,6 +41,7 @@
 /OpenCVMatToNativeBatch_Wayland_d
 /OpenCVMatToNativeBatch_X11
 /OpenCVMatToNativeBatch_X11_d
+/OpenCVMatToNativeBatch_c
 /OpenCVMatToNativeBatch_d
 /build/
 /resource.h

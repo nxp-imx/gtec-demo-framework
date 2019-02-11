@@ -39,11 +39,21 @@ namespace Fsl
 {
   // Workaround for std::to_string not being available on android
   template <typename T>
-  std::string ToString(const T& n)
+  inline std::string ToString(const T& n)
   {
     std::ostringstream stm;
     stm << n;
     return stm.str();
+  }
+
+  inline std::string ToString(const uint8_t n)
+  {
+    return ToString<uint32_t>(n);
+  }
+
+  inline std::string ToString(const int8_t n)
+  {
+    return ToString<int32_t>(n);
   }
 }
 

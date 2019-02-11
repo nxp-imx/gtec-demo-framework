@@ -31,16 +31,20 @@ SOFTWARE.
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/BoundingFrustum.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/Plane.hpp>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <limits>
-#include "MatrixFields.hpp"
 
 namespace Fsl
 {
+  using namespace MatrixFields;
+
+
   BoundingSphere BoundingSphere::Transform(const Matrix& matrix)
   {
     const float* mat = matrix.DirectAccess();
@@ -70,8 +74,8 @@ namespace Fsl
   {
     // check if all corner is in sphere
     bool inside = true;
-    // FIX: Update this code so it doens't utilize dynamic memory
-    const auto corners = box.GetCorners();
+    std::array<Vector3, 8> corners;
+    box.GetCorners(corners);
     for (auto corner : corners)
     {
       if (Contains(corner) == ContainmentType::Disjoint)
@@ -125,18 +129,14 @@ namespace Fsl
     return ContainmentType::Disjoint;
   }
 
-  void BoundingSphere::Contains(const BoundingBox& box, ContainmentType& rResult) const
-  {
-    rResult = Contains(box);
-  }
 
   ContainmentType BoundingSphere::Contains(const BoundingFrustum& frustum) const
   {
     // check if all corner is in sphere
     bool inside = true;
 
-    // FIX: Update this code so it doens't utilize dynamic memory
-    const auto corners = frustum.GetCorners();
+    std::array<Vector3, 8> corners;
+    frustum.GetCorners(corners);
     for (auto corner : corners)
     {
       if (Contains(corner) == ContainmentType::Disjoint)
@@ -166,54 +166,32 @@ namespace Fsl
 
   ContainmentType BoundingSphere::Contains(const BoundingSphere& sphere) const
   {
-    ContainmentType result;
-    Contains(sphere, result);
-    return result;
-  }
-
-
-  void BoundingSphere::Contains(const BoundingSphere& sphere, ContainmentType& rResult) const
-  {
     const float sqDistance = Vector3::DistanceSquared(sphere.Center, Center);
-    if (sqDistance > (sphere.Radius + Radius) * (sphere.Radius + Radius))
+    if (sqDistance > ((sphere.Radius + Radius) * (sphere.Radius + Radius)))
     {
-      rResult = ContainmentType::Disjoint;
+      return ContainmentType::Disjoint;
     }
-    else if (sqDistance <= (Radius - sphere.Radius) * (Radius - sphere.Radius))
+    if (sqDistance <= ((Radius - sphere.Radius) * (Radius - sphere.Radius)) && Radius >= sphere.Radius)
     {
-      rResult = ContainmentType::Contains;
+      return ContainmentType::Contains;
     }
-    else
-    {
-      rResult = ContainmentType::Intersects;
-    }
+    return ContainmentType::Intersects;
   }
 
 
   ContainmentType BoundingSphere::Contains(const Vector3& point) const
   {
-    ContainmentType result;
-    Contains(point, result);
-    return result;
-  }
-
-
-  void BoundingSphere::Contains(const Vector3& point, ContainmentType& rResult) const
-  {
     const float sqRadius = Radius * Radius;
     const float sqDistance = Vector3::DistanceSquared(point, Center);
     if (sqDistance > sqRadius)
     {
-      rResult = ContainmentType::Disjoint;
+      return ContainmentType::Disjoint;
     }
-    else if (sqDistance < sqRadius)
+    if (sqDistance < sqRadius)
     {
-      rResult = ContainmentType::Contains;
+      return ContainmentType::Contains;
     }
-    else
-    {
-      rResult = ContainmentType::Intersects;
-    }
+    return ContainmentType::Intersects;
   }
 
 
@@ -371,50 +349,26 @@ namespace Fsl
   }
 
 
-  void BoundingSphere::Intersects(const BoundingBox& box, bool& rResult) const
-  {
-    box.Intersects(*this, rResult);
-  }
-
-
   bool BoundingSphere::Intersects(const BoundingSphere& sphere) const
   {
-    bool result;
-    Intersects(sphere, result);
-    return result;
-  }
-
-
-  void BoundingSphere::Intersects(const BoundingSphere& sphere, bool& rResult) const
-  {
     const float sqDistance = Vector3::DistanceSquared(sphere.Center, Center);
-    rResult = (sqDistance <= (sphere.Radius + Radius) * (sphere.Radius + Radius));
+    return (sqDistance <= (sphere.Radius + Radius) * (sphere.Radius + Radius));
   }
 
 
   PlaneIntersectionType BoundingSphere::Intersects(const Plane& plane) const
   {
-    PlaneIntersectionType result;
-    Intersects(plane, result);
-    return result;
-  }
-
-  void BoundingSphere::Intersects(const Plane& plane, PlaneIntersectionType& rResult) const
-  {
     auto distance = Vector3::Dot(plane.Normal, Center);
     distance += plane.D;
     if (distance > Radius)
     {
-      rResult = PlaneIntersectionType::Front;
+      return PlaneIntersectionType::Front;
     }
-    else if (distance < -Radius)
+    if (distance < -Radius)
     {
-      rResult = PlaneIntersectionType::Back;
+      return PlaneIntersectionType::Back;
     }
-    else
-    {
-      rResult = PlaneIntersectionType::Intersecting;
-    }
+    return PlaneIntersectionType::Intersecting;
   }
 
 

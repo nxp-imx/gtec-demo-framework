@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Matrix.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 
 namespace Fsl
 {
@@ -41,9 +42,9 @@ namespace Fsl
   {
     Fsl::Matrix Matrix;
 
-    VertexMatrix() = default;
+    constexpr VertexMatrix() = default;
 
-    VertexMatrix(const Fsl::Matrix& matrix)
+    constexpr VertexMatrix(const Fsl::Matrix& matrix)
       : Matrix(matrix)
     {
     }

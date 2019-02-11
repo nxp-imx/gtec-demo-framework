@@ -32,52 +32,13 @@
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Matrix.hpp>
-#include "Matrix3Fields.hpp"
+#include <FslBase/Math/Matrix3Fields.hpp>
 #include <cassert>
 #include <cmath>
 
 namespace Fsl
 {
-  void Matrix3::Clear()
-  {
-    m[_M11] = 0.0f;
-    m[_M12] = 0.0f;
-    m[_M13] = 0.0f;
-    m[_M21] = 0.0f;
-    m[_M22] = 0.0f;
-    m[_M23] = 0.0f;
-    m[_M31] = 0.0f;
-    m[_M32] = 0.0f;
-    m[_M33] = 0.0f;
-  }
-
-
-  void Matrix3::SetIdentity()
-  {
-    m[_M11] = 1.0f;
-    m[_M12] = 0.0f;
-    m[_M13] = 0.0f;
-    m[_M21] = 0.0f;
-    m[_M22] = 1.0f;
-    m[_M23] = 0.0f;
-    m[_M31] = 0.0f;
-    m[_M32] = 0.0f;
-    m[_M33] = 1.0f;
-  }
-
-
-  float Matrix3::Determinant() const
-  {
-    return (m[_M11] * (m[_M22] * m[_M33] - m[_M23] * m[_M32])) - (m[_M12] * (m[_M21] * m[_M33] - m[_M23] * m[_M31])) +
-           (m[_M13] * (m[_M21] * m[_M32] - m[_M22] * m[_M31]));
-  }
-
-
-  Matrix3 Matrix3::Transpose(const Matrix3& matrix)
-  {
-    return Matrix3(matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M12], matrix.m[_M22], matrix.m[_M32], matrix.m[_M13], matrix.m[_M23],
-                   matrix.m[_M33]);
-  }
+  using namespace Matrix3Fields;
 
 
   Matrix3 Matrix3::Invert(const Matrix3& matrix)
@@ -99,19 +60,5 @@ namespace Fsl
     result.m[_M23] = static_cast<float>(invDet * (pMatrix[_M13] * pMatrix[_M21] - pMatrix[_M11] * pMatrix[_M23]));
     result.m[_M33] = static_cast<float>(invDet * (pMatrix[_M11] * pMatrix[_M22] - pMatrix[_M12] * pMatrix[_M21]));
     return result;
-  }
-
-
-  bool Matrix3::operator==(const Matrix3& rhs) const
-  {
-    return (m[_M11] == rhs.m[_M11] && m[_M12] == rhs.m[_M12] && m[_M13] == rhs.m[_M13] && m[_M21] == rhs.m[_M21] && m[_M22] == rhs.m[_M22] &&
-            m[_M23] == rhs.m[_M23] && m[_M31] == rhs.m[_M31] && m[_M32] == rhs.m[_M32] && m[_M33] == rhs.m[_M33]);
-  }
-
-
-  bool Matrix3::operator!=(const Matrix3& rhs) const
-  {
-    return (m[_M11] != rhs.m[_M11] || m[_M12] != rhs.m[_M12] || m[_M13] != rhs.m[_M13] || m[_M21] != rhs.m[_M21] || m[_M22] != rhs.m[_M22] ||
-            m[_M23] != rhs.m[_M23] || m[_M31] != rhs.m[_M31] || m[_M32] != rhs.m[_M32] || m[_M33] != rhs.m[_M33]);
   }
 }

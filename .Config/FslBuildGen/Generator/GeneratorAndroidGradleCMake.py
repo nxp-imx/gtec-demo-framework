@@ -528,7 +528,7 @@ class GeneratorAndroidGradleCMakeUtil(object):
 
     @staticmethod
     def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package) -> Optional[PackageGeneratorReport]:
-        if package.IsVirtual:
+        if package.IsVirtual and package.Type != PackageType.HeaderLibrary:
             return None
         #
         buildReport = GeneratorAndroidGradleCMakeUtil.TryGenerateBuildReport(log, generatorName, package)

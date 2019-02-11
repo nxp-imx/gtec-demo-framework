@@ -4,7 +4,7 @@
     <Dependency Name="FslBase"/>
     <Dependency Name="FslGraphics"/>
     <Dependency Name="FslDemoApp.Base"/>
-    <Dependency Name="FslSimpleUI.Base"/>
+    <Dependency Name="FslSimpleUI.App"/>
     <Platform Name="Windows" ProjectId="B745CBFE-7999-4B84-830F-EE00A9A49330"/>
   </Library>
 </FslBuildGen>

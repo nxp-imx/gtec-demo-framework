@@ -23,6 +23,6 @@
       </Installation>
     </ExperimentalRecipe>
    
-    <Platform Name="QNX" Supported="false"/>
+    <!--Platform Name="QNX" Supported="false"/-->
   </ExternalLibrary>
 </FslBuildGen>

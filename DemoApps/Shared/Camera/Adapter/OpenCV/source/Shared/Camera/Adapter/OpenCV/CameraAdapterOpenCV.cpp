@@ -139,7 +139,7 @@ namespace Fsl
       }
 
       // FIX: proper conversion code might be able to skip this
-      cv::cvtColor(m_vidFrame, m_vidFrame, CV_BGR2RGB);
+      cv::cvtColor(m_vidFrame, m_vidFrame, cv::COLOR_BGR2RGB);
 
       // FIX: switch this to more robust conversion code
       if (!m_vidFrame.isContinuous())

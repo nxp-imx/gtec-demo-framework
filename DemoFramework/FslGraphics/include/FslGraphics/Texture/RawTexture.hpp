@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/BlobRecord.hpp>
 #include <FslBase/Math/Extent2D.hpp>
@@ -87,10 +88,14 @@ namespace Fsl
       return m_pContent;
     }
 
-
-    std::size_t GetContentByteSize() const
+    std::size_t GetByteSize() const
     {
       return m_contentByteSize;
+    }
+
+    FSL_ATTR_DEPRECATED std::size_t GetContentByteSize() const
+    {
+      return GetByteSize();
     }
 
     //! The stride at the given level (not valid for compressed textures)

@@ -1,0 +1,15 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_A1_flipped.ktx",
+        "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_flipped.ktx",
+        "Textures/GPUSdkTest/CustomTexture_ETC2_RGBA_flipped.ktx",
+        "Textures/GPUSdkTest/CustomTexture_R8G8B8A8_flipped.ktx",
+        "Textures/GPUSdkTest/License.json"
+      ]
+    }
+  }
+}

@@ -3,8 +3,11 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Models/Geosphere/
+/Content/Textures/
 /Content/_ContentSyncCache.fsl
 /DynamicTerrainTessellation
+/DynamicTerrainTessellation_c
 /DynamicTerrainTessellation_d
 /FslSDKIcon.ico
 /GNUmakefile

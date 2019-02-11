@@ -68,14 +68,14 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   m_tree->Update(demoTime);
 
   // Since the child was added directly on the window manager this returns zero
-  ASSERT_EQ(0, m_mainWindow->GetChildCount());
+  ASSERT_EQ(0u, m_mainWindow->GetChildCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
@@ -85,10 +85,10 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   m_tree->Draw();
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
-  ASSERT_EQ(1, callCount.WinDraw);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinDraw);
 
   ignoreFlags |= WindowMethod::WinDraw;
   CheckZeroExcept(callCount, ignoreFlags);
@@ -105,22 +105,22 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   auto callCount = newWindow->GetCallCount();
   CheckZero(callCount, WindowMethod::All);
 
-  ASSERT_EQ(1, m_tree->GetNodeCount());
+  ASSERT_EQ(1u, m_tree->GetNodeCount());
 
   // Update the tree which adds the new window during the update call using the above callback
   const DemoTime demoTime(0, 0);
   m_tree->Update(demoTime);
 
-  ASSERT_EQ(1, m_mainWindow->GetChildCount());
+  ASSERT_EQ(1u, m_mainWindow->GetChildCount());
 
   // Now verify that both WinInit and WinUpdate has been called (this ensures that the window appears the same frame it was added)
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
-  ASSERT_EQ(1, callCount.ArrangeOverride);
-  ASSERT_EQ(1, callCount.MeasureOverride);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.ArrangeOverride);
+  ASSERT_EQ(1u, callCount.MeasureOverride);
 
   auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve |
                      WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
@@ -130,12 +130,12 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   m_tree->Draw();
   callCount = newWindow->GetCallCount();
 
-  ASSERT_EQ(1, callCount.WinInit);
-  ASSERT_EQ(1, callCount.WinUpdate);
-  ASSERT_EQ(1, callCount.WinResolve);
-  ASSERT_EQ(1, callCount.WinDraw);
-  ASSERT_EQ(1, callCount.ArrangeOverride);
-  ASSERT_EQ(1, callCount.MeasureOverride);
+  ASSERT_EQ(1u, callCount.WinInit);
+  ASSERT_EQ(1u, callCount.WinUpdate);
+  ASSERT_EQ(1u, callCount.WinResolve);
+  ASSERT_EQ(1u, callCount.WinDraw);
+  ASSERT_EQ(1u, callCount.ArrangeOverride);
+  ASSERT_EQ(1u, callCount.MeasureOverride);
 
   ignoreFlags |= WindowMethod::WinDraw;
 

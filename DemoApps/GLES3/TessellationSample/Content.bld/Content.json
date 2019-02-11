@@ -1,0 +1,17 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Models/Face/License.json",
+        "Models/Face/Scene.fsf",
+        "Models/Face/TexColor.png",
+        "Models/Face/TexDisplace.png",
+        "Models/Face/TexNormal.png",
+        "Textures/Circles/*.*",
+        "Textures/Rocks/*.*"
+      ]
+    }
+  }
+}

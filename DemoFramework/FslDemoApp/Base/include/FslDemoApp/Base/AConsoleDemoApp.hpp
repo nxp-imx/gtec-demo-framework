@@ -55,17 +55,26 @@ namespace Fsl
     std::weak_ptr<IPersistentDataManager> m_persistentDataManager;
     std::weak_ptr<IDemoAppControl> m_demoAppControl;
     std::deque<std::weak_ptr<DemoAppExtension>> m_extensions;
+    bool m_destroyed = false;
 
   public:
     AConsoleDemoApp(const DemoAppConfig& demoAppConfig);
+    ~AConsoleDemoApp() override;
     void _PostConstruct() override;
+    void _PreDestruct() override;
     void _OnEvent(IEvent* const pEvent) override;
     void _Resized(const Point2& size) override;
     void _PreUpdate(const DemoTime& demoTime) override;
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;
     void _PostUpdate(const DemoTime& demoTime) override;
+    AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) override;
     void _Draw(const DemoTime& demoTime) override;
+    AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override
+    {
+      // No default implementation, so fail
+      return AppDrawResult::Failed;
+    }
 
   protected:
     virtual void Run(){};

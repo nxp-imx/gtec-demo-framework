@@ -1,4 +1,24 @@
 # Latest version
+* Enabled Unit Tests for Yocto builds.
+* Updated third-party library OpenCV from 3.4.5 to 4.0.1
+* Updated documentation for install the Vulkan sdk to recommend 1.1.92.1.
+* Updated third-party library OpenCV from 3.2.0 to 3.4.5
+* Updated third-party library fmt from 4.0.0 to 5.3.0
+* **Breaking change** Disable third party downloads per default for Yocto builds. To build using an old Yocto release that doesn't come with all third party software you need to add ```--Recipes [*]``` to your command line which will re-enable the download.
+* **Deprecation** Vector2+Vector3+Vector4+Matrix all static methods that outputs to a reference now takes the output as the last parameter 
+                  just as in MonoGame for consistency existing methods that took it as the first parameter was declared deprecated and 
+                  will be removed next release.
+* Added more unit tests
+* Most OriginalContent directories have been moved to Resources/Source.
+* Most large resources are now stored under Resources and then copied to the right locations during content building.
+* Added Vulkan.DFSimpleUI101
+* Added Vulkan.DFSimpleUI100
+* Added Vulkan.DFNativeBatch2D
+* Added new Vulkan app template that utilize the new VulkanDemoHost.
+* Switched to clang tidy 7.0
+* _PreDestruct added to IDemoApp. This allows for better way to do resource cleanup that can use 'virtual' methods and
+  allows us to handle exceptions in a controlled way that logs some information before crashing.
+* Upgraded to RapidVulkan 1.1.85.0
 * Fixed all vulkan 1.1.85.0 validation layer warnings in:
   * DisplacementMapping
   * DynamicTerrainTessellation

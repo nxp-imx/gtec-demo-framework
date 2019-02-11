@@ -29,18 +29,17 @@
 *
 ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "##PACKAGE_SHORT_NAME##.hpp"
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
 
 namespace Fsl
 {
-  // Configure the demo environment to run this demo app in a Window host environment
+  // Configure the demo environment to run this demo app in a Vulkan host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem);
+    DemoAppHostConfigVulkan config;
 
-    DemoAppRegister::Window::Register<##PACKAGE_SHORT_NAME##, OptionParser>(rSetup, "##PACKAGE_NAME##", config);
+    DemoAppRegister::Vulkan::Register<##PACKAGE_SHORT_NAME##>(rSetup, "##PACKAGE_NAME##", config);
   }
 }

@@ -46,12 +46,12 @@ namespace Fsl
       CameraSystemAdapterMipi8X& operator=(const CameraSystemAdapterMipi8X&) = delete;
 
       CameraSystemAdapterMipi8X();
-      ~CameraSystemAdapterMipi8X();
+      ~CameraSystemAdapterMipi8X() override;
 
-      virtual CameraType GetCameraType() const override;
-      virtual uint32_t GetCameraCount() const override;
+      CameraType GetCameraType() const override;
+      uint32_t GetCameraCount() const override;
 
-      virtual std::shared_ptr<ICameraAdapter> Allocate(const CameraAdapterAllocateInfo& allocateInfo) override;
+      std::shared_ptr<ICameraAdapter> Allocate(const CameraAdapterAllocateInfo& allocateInfo) override;
     };
   }
 }

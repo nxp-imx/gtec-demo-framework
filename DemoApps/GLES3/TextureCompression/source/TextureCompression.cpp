@@ -33,7 +33,7 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Log/IO/LogPath.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslGraphics/Log/PixelFormat.hpp>
+#include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
@@ -45,6 +45,7 @@
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <GLES3/gl3.h>
 
+
 namespace Fsl
 {
   using namespace UI;
@@ -52,27 +53,39 @@ namespace Fsl
 
   namespace
   {
-    std::shared_ptr<BaseWindow> CreateTextureControl(const std::shared_ptr<IContentManager>& contentManager,
-                                                     const std::shared_ptr<IGraphicsService>& graphicsService,
-                                                     const std::shared_ptr<UI::WindowContext>& context, const IO::Path& path,
+    const auto TEXTURE_PATH = "Textures/GPUSdkTest";
+
+    IO::Path ToTexPath(const char* const psz)
+    {
+      return IO::Path::Combine(TEXTURE_PATH, psz);
+    }
+
+    struct CreateContext
+    {
+      std::shared_ptr<IContentManager> ContentManager;
+      std::shared_ptr<IGraphicsService> GraphicsService;
+      std::shared_ptr<UI::WindowContext> WindowContext;
+    };
+
+    std::shared_ptr<BaseWindow> CreateTextureControl(const CreateContext& context, const IO::Path& path,
                                                      PixelFormat switchPF = PixelFormat::Undefined)
     {
       // Since we are loading a compressed texture the 'contentManager' wont modify it and
       // the KTX loader does not report the origin correctly and always returns 'UpperLeft',
       // so we 'request' that origin then override it below since we know the textures are stored with LowerLeft origin
-      auto texture = contentManager->ReadTexture(path, switchPF, BitmapOrigin::UpperLeft);
+      auto texture = context.ContentManager->ReadTexture(path, switchPF, BitmapOrigin::UpperLeft);
       texture.OverrideOrigin(BitmapOrigin::LowerLeft);
 
       try
       {
-        Texture2D sourceTexture(graphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+        Texture2D sourceTexture(context.GraphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
 
-        auto label = std::make_shared<Label>(context);
+        auto label = std::make_shared<Label>(context.WindowContext);
         label->SetAlignmentX(ItemAlignment::Center);
         label->SetAlignmentY(ItemAlignment::Far);
         label->SetContent(Fsl::Debug::ToString(texture.GetPixelFormat()));
 
-        auto tex = std::make_shared<Texture2DImage>(context);
+        auto tex = std::make_shared<Texture2DImage>(context.WindowContext);
         tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
         tex->SetContent(sourceTexture);
         tex->SetAlignmentX(ItemAlignment::Center);
@@ -80,7 +93,7 @@ namespace Fsl
         // tex1->SetWidth(256);
         // tex1->SetHeight(256);
 
-        auto stack = std::make_shared<StackLayout>(context);
+        auto stack = std::make_shared<StackLayout>(context.WindowContext);
         stack->SetLayoutOrientation(LayoutOrientation::Vertical);
         stack->AddChild(label);
         stack->AddChild(tex);
@@ -217,23 +230,22 @@ namespace Fsl
     // Give the UI a chance to intercept the various DemoApp events.
     RegisterExtension(m_uiExtension);
 
-    const auto contentManager = GetContentManager();
+    CreateContext createContext;
+    createContext.ContentManager = GetContentManager();
+    createContext.GraphicsService = serviceProvider.Get<IGraphicsService>();
     // Next up we prepare the actual UI
-    auto context = m_uiExtension->GetContext();
+    createContext.WindowContext = m_uiExtension->GetContext();
 
-    auto graphicsService = serviceProvider.Get<IGraphicsService>();
+    auto tex0 = CreateTextureControl(createContext, ToTexPath("CustomTexture_R8G8B8A8_flipped.ktx"), PixelFormat::R8G8B8A8_UNORM);
+    auto tex1 = CreateTextureControl(createContext, ToTexPath("CustomTexture_R8G8B8A8_flipped.ktx"), PixelFormat::R8G8B8A8_SRGB);
+    auto tex2 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_flipped.ktx"), PixelFormat::ETC2_R8G8B8_UNORM_BLOCK);
+    auto tex3 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_flipped.ktx"), PixelFormat::ETC2_R8G8B8_SRGB_BLOCK);
+    auto tex4 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_A1_flipped.ktx"), PixelFormat::ETC2_R8G8B8A1_UNORM_BLOCK);
+    auto tex5 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_A1_flipped.ktx"), PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK);
+    auto tex6 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGBA_flipped.ktx"), PixelFormat::ETC2_R8G8B8A8_UNORM_BLOCK);
+    auto tex7 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGBA_flipped.ktx"), PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK);
 
-    auto tex0 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_R8G8B8A8.ktx");
-    auto tex1 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_R8G8B8A8.ktx", PixelFormat::R8G8B8A8_SRGB);
-    auto tex2 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB.ktx");
-    auto tex3 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB.ktx", PixelFormat::ETC2_R8G8B8_SRGB_BLOCK);
-    auto tex4 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB_A1.ktx");
-    auto tex5 =
-      CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGB_A1.ktx", PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK);
-    auto tex6 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGBA.ktx");
-    auto tex7 = CreateTextureControl(contentManager, graphicsService, context, "CustomTexture_ETC2_RGBA.ktx", PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK);
-
-    auto wrapLayout = std::make_shared<WrapLayout>(context);
+    auto wrapLayout = std::make_shared<WrapLayout>(createContext.WindowContext);
     wrapLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
     wrapLayout->SetSpacing(Vector2(4, 4));
     wrapLayout->SetAlignmentX(ItemAlignment::Center);
@@ -249,7 +261,7 @@ namespace Fsl
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
-    auto fillLayout = std::make_shared<FillLayout>(context);
+    auto fillLayout = std::make_shared<FillLayout>(createContext.WindowContext);
     fillLayout->AddChild(wrapLayout);
 
     // Finally add everything to the window manager (to ensure its seen)

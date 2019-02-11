@@ -33,6 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <FslGraphics/Vertices/VertexElementFormat.hpp>
 #include <string>
 
 namespace Fsl
@@ -128,6 +129,29 @@ namespace Fsl
     PixelFormat GetPixelFormat() const
     {
       return m_pixelFormat;
+    }
+  };
+
+  class UnsupportedVertexElementFormatException : public GraphicsException
+  {
+    VertexElementFormat m_vertexElementFormat;
+
+  public:
+    UnsupportedVertexElementFormatException(const std::string& str, const VertexElementFormat vertexElementFormat)
+      : GraphicsException(str)
+      , m_vertexElementFormat(vertexElementFormat)
+    {
+    }
+
+    UnsupportedVertexElementFormatException(const VertexElementFormat vertexElementFormat)
+      : GraphicsException("Unsupported vertex element format")
+      , m_vertexElementFormat(vertexElementFormat)
+    {
+    }
+
+    VertexElementFormat GetVertexElementFormat() const
+    {
+      return m_vertexElementFormat;
     }
   };
 

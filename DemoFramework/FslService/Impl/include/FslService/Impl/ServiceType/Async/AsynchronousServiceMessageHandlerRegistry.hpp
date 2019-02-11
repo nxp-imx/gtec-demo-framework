@@ -32,10 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Noncopyable.hpp>
-#include <FslBase/RTTI/TypeInfo.hpp>
 #include <FslService/Impl/Foundation/Message/Message.hpp>
 #include <functional>
 #include <memory>
+#include <typeindex>
 
 namespace Fsl
 {
@@ -52,7 +52,7 @@ namespace Fsl
     ~AsynchronousServiceMessageHandlerRegistry();
 
 
-    void Register(const TypeInfo& messageType, const type_message_function& handler) const;
+    void Register(const std::type_index& messageType, const type_message_function& handler) const;
 
 
     template <typename TMessage>
@@ -61,7 +61,7 @@ namespace Fsl
       // Little lambda function that converts from the generic Message to a TMessage
       type_message_function typeConversionFunc = [handler](Message& message) { handler(dynamic_cast<TMessage&>(message)); };
 
-      Register(TypeInfo(typeid(TMessage)), typeConversionFunc);
+      Register(std::type_index(typeid(TMessage)), typeConversionFunc);
     }
   };
 }

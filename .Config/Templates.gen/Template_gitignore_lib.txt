@@ -11,6 +11,5 @@
 /##PROJECT_NAME##.vcxproj.user
 /##PROJECT_NAME##.VC.db
 /##PROJECT_NAME##.VC.VC.opendb
-/Android.mk
 /build/
 /CMakeLists.txt

@@ -40,12 +40,12 @@ namespace Fsl
   {
   public:
     AsynchronousServiceProxyFactoryTemplate0()
-      : AsynchronousServiceProxyFactoryBase(TypeInfo(typeid(T)))
+      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(T)))
     {
     }
 
     AsynchronousServiceProxyFactoryTemplate0(const ServiceCaps::Flags flags)
-      : AsynchronousServiceProxyFactoryBase(TypeInfo(typeid(T)), flags)
+      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(T)), flags)
     {
     }
 
@@ -61,12 +61,12 @@ namespace Fsl
   {
   public:
     AsynchronousServiceProxyFactoryTemplate()
-      : AsynchronousServiceProxyFactoryBase(TypeInfo(typeid(TItf)))
+      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(TItf)))
     {
     }
 
     AsynchronousServiceProxyFactoryTemplate(const ServiceCaps::Flags flags)
-      : AsynchronousServiceProxyFactoryBase(TypeInfo(typeid(TItf)), flags)
+      : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(TItf)), flags)
     {
     }
 
@@ -104,8 +104,8 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf1)));
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf2)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf1)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf2)));
     }
 
 
@@ -136,9 +136,9 @@ namespace Fsl
 
     void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
     {
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf1)));
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf2)));
-      rServiceInterfaceTypeDeque.push_back(TypeInfo(typeid(TItf3)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf1)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf2)));
+      rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(TItf3)));
     }
 
 

@@ -1,8 +1,8 @@
 #version 300 es
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform mat4 WorldViewProjection;
@@ -29,7 +29,7 @@ void main()
 
   // Offset to the left or right.
   position += rightVector * VertexNormal.x * VertexNormal.z;
-    
+
   // Offset upward if we are one of the top two vertices.
   position += upVector * VertexNormal.y * VertexNormal.z;
 

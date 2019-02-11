@@ -46,7 +46,7 @@ namespace Fsl
 
     // Lookup the actual type of the message, then determine if we have a handler registered for it
     const auto pMessage = message.get();
-    const auto messageTypeInfo = TypeInfo(typeid(*pMessage));
+    const auto messageTypeInfo = std::type_index(typeid(*pMessage));
 
     // Try to locate a handler for the message type
     auto itrFind = m_lookup.find(messageTypeInfo);
@@ -64,7 +64,8 @@ namespace Fsl
   }
 
 
-  void AsynchronousServiceMessageHandlerRegistryImpl::Register(const TypeInfo& messageType, const std::function<void(Message& message)>& handler)
+  void AsynchronousServiceMessageHandlerRegistryImpl::Register(const std::type_index& messageType,
+                                                               const std::function<void(Message& message)>& handler)
   {
     if (m_lookup.find(messageType) != m_lookup.end())
     {

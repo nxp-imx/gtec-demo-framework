@@ -100,12 +100,13 @@ namespace Fsl
     // See "Transforming Normals" in http://www.glprogramming.com/red/appendixf.html
     // for an explanation of how this works.
     Matrix transformedMatrix;
-    Matrix::Invert(transformedMatrix, matrix);
-    Matrix::Transpose(transformedMatrix, transformedMatrix);
+    Matrix::Invert(matrix, transformedMatrix);
+    // dumb cast necessary until we remove the deprecated static functions
+    Matrix::Transpose(static_cast<const Matrix>(transformedMatrix), transformedMatrix);
 
     auto vector = Vector4(plane.Normal, plane.D);
     Vector4 transformedVector;
-    Vector4::Transform(transformedVector, vector, transformedMatrix);
+    Vector4::Transform(vector, transformedMatrix, transformedVector);
     rResult = Plane(transformedVector);
   }
 
@@ -158,12 +159,6 @@ namespace Fsl
   }
 
 
-  void Plane::Intersects(const BoundingBox& box, PlaneIntersectionType& rResult) const
-  {
-    box.Intersects(*this, rResult);
-  }
-
-
   PlaneIntersectionType Plane::Intersects(const BoundingFrustum& frustum) const
   {
     return frustum.Intersects(*this);
@@ -173,12 +168,6 @@ namespace Fsl
   PlaneIntersectionType Plane::Intersects(const BoundingSphere& sphere) const
   {
     return sphere.Intersects(*this);
-  }
-
-
-  void Plane::Intersects(const BoundingSphere& sphere, PlaneIntersectionType& rResult) const
-  {
-    sphere.Intersects(*this, rResult);
   }
 
 

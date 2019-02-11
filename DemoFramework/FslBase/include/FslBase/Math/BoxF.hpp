@@ -42,17 +42,45 @@ namespace Fsl
     float X2{0.0f};
     float Y2{0.0f};
 
-    BoxF();
-    BoxF(const float x1, const float y1, const float x2, const float y2);
-    BoxF(const float x, const float y, const float width, const float height, const bool reserved);
+    constexpr BoxF() = default;
 
-    static BoxF Empty();
+    constexpr BoxF(const float x1, const float y1, const float x2, const float y2)
+      : X1(x1)
+      , Y1(y1)
+      , X2(x2)
+      , Y2(y2)
+    {
+    }
+
+    constexpr BoxF(const float x, const float y, const float width, const float height, const bool reserved)
+      : X1(x)
+      , Y1(y)
+      , X2(x + width)
+      , Y2(y + height)
+    {
+    }
+
+
+    static constexpr BoxF Empty()
+    {
+      return BoxF(0.0f, 0.0f, 0.0f, 0.0f);
+    }
 
     //! @brief Get the center of this box
-    Vector2 GetCenter() const;
+    Vector2 GetCenter() const
+    {
+      return Vector2(X1 + ((X2 - X1) * 0.5f), Y1 + ((Y2 - Y1) * 0.5f));
+    }
 
-    bool operator==(const BoxF& rhs) const;
-    bool operator!=(const BoxF& rhs) const;
+    constexpr bool operator==(const BoxF& rhs) const
+    {
+      return ((X1 == rhs.X1) && (Y1 == rhs.Y1) && (X2 == rhs.X2) && (Y2 == rhs.Y2));
+    }
+
+    constexpr bool operator!=(const BoxF& rhs) const
+    {
+      return ((X1 != rhs.X1) || (Y1 != rhs.Y1) || (X2 != rhs.X2) || (Y2 != rhs.Y2));
+    }
   };
 }
 

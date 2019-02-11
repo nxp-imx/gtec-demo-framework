@@ -32,6 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <array>
+#include <cassert>
 #include <vector>
 #include <vulkan/vulkan.h>
 
@@ -68,6 +71,56 @@ namespace Fsl
       bool IsImageTilingAvailable(const VkPhysicalDevice physicalDevice, const VkImageTiling imageTiling, const VkFormat format,
                                   const VkImageType type, const VkImageCreateFlags flags, const VkExtent3D& extent, const uint32_t mipLevels,
                                   const uint32_t arrayLayers, const VkSampleCountFlags sampleCounts, const VkDeviceSize resourceSize);
+
+
+      //! @brief Scan the candidate list and find a format that is supported.
+      //! @param candidates the candidate list with the preferred format first and the least preferred format last.
+      template <std::size_t TSize>
+      inline VkFormat TryFindSupportedFormat(const VkPhysicalDevice physicalDevice, const std::array<VkFormat, TSize>& candidates,
+                                             const VkImageTiling tiling, const VkFormatFeatureFlags features)
+      {
+        assert(physicalDevice != VK_NULL_HANDLE);
+        for (VkFormat format : candidates)
+        {
+          VkFormatProperties props;
+          vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+
+          if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+          {
+            return format;
+          }
+          if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+          {
+            return format;
+          }
+        }
+        return VK_FORMAT_UNDEFINED;
+      }
+
+      //! @brief Scan the candidate list and find a format that is supported.
+      //! @param candidates the candidate list with the preferred format first and the least preferred format last.
+      template <std::size_t TSize>
+      inline VkFormat FindSupportedFormat(const VkPhysicalDevice physicalDevice, const std::array<VkFormat, TSize>& candidates,
+                                          const VkImageTiling tiling, const VkFormatFeatureFlags features)
+      {
+        auto foundFormat = TryFindSupportedFormat(physicalDevice, candidates, tiling, features);
+        if (foundFormat != VK_FORMAT_UNDEFINED)
+        {
+          return foundFormat;
+        }
+        throw NotFoundException("No supported format found");
+      }
+
+      //! @brief Find a VK_IMAGE_TILING_OPTIMAL depth format
+      inline VkFormat FindDepthFormat(const VkPhysicalDevice physicalDevice)
+      {
+        assert(physicalDevice != VK_NULL_HANDLE);
+        std::array<VkFormat, 5> depthFormats = {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT,
+                                                VK_FORMAT_D16_UNORM_S8_UINT, VK_FORMAT_D16_UNORM};
+
+        return PhysicalDeviceUtil::FindSupportedFormat(physicalDevice, depthFormats, VK_IMAGE_TILING_OPTIMAL,
+                                                       VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+      }
     }
   }
 }

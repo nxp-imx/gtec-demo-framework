@@ -40,15 +40,15 @@ namespace Fsl
 
   class AsynchronousServiceProxyFactoryBase : public IAsynchronousServiceProxyFactory
   {
-    TypeInfo m_interfaceType;
+    std::type_index m_interfaceType;
     ServiceCaps::Flags m_flags;
 
   protected:
     std::shared_ptr<AServiceOptionParser> m_optionParser;
 
   public:
-    AsynchronousServiceProxyFactoryBase(const TypeInfo& interfaceType);
-    AsynchronousServiceProxyFactoryBase(const TypeInfo& interfaceType, const ServiceCaps::Flags flags);
+    AsynchronousServiceProxyFactoryBase(const std::type_index& interfaceType);
+    AsynchronousServiceProxyFactoryBase(const std::type_index& interfaceType, const ServiceCaps::Flags flags);
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
     {

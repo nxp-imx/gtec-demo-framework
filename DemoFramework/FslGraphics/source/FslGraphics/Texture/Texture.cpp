@@ -110,6 +110,9 @@ namespace Fsl
       }
       return totalTexelCount;
     }
+
+    // Dummy area we use to get a content pointer for zero sized bitmaps size the vector data methods returns a nullptr
+    uint32_t g_dummyAreaForZeroSizedBitmaps = 0;
   }
 
   // move assignment operator
@@ -574,6 +577,17 @@ namespace Fsl
     m_pixelFormat = compatiblePixelFormat;
   }
 
+  void Texture::ChangeCompatiblePixelFormatFlags(const PixelFormatFlags::Enum flag)
+  {
+    auto newFormat = PixelFormatUtil::TrySetCompatiblePixelFormatFlag(m_pixelFormat, flag);
+    if (newFormat == PixelFormat::Undefined)
+    {
+      throw NotSupportedException("Could not change pixel format flags");
+    }
+    m_pixelFormat = newFormat;
+  }
+
+
   bool Texture::TrySetCompatiblePixelFormatFlag(const PixelFormatFlags::Enum flag)
   {
     if (m_isLocked)
@@ -747,7 +761,7 @@ namespace Fsl
     }
 
     // We don't copy the content here size we 'moved' the source into this object
-    m_extent = Extent3D(extent.Width, extent.Height, 1);
+    m_extent = Extent3D(extent.Width, extent.Height, 1u);
     m_pixelFormat = pixelFormat;
     m_textureType = TextureType::Tex2D;
     m_textureInfo = TextureInfo(1, 1, 1);
@@ -787,7 +801,7 @@ namespace Fsl
     }
 
     // We don't copy the content here size we 'moved' the source into this object
-    m_extent = Extent3D(extent.Width, extent.Height, 1);
+    m_extent = Extent3D(extent.Width, extent.Height, 1u);
     m_pixelFormat = pixelFormat;
     m_textureType = TextureType::Tex2D;
     m_textureInfo = TextureInfo(1, 1, 1);
@@ -803,7 +817,15 @@ namespace Fsl
       throw UsageErrorException("The texture is already locked");
     }
     m_isLocked = true;
-    return RawTexture(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
+
+    const auto pData = m_content.data();
+    if (pData != nullptr)
+    {
+      return RawTexture(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
+                        m_bitmapOrigin);
+    }
+    assert((m_extent.Width * m_extent.Height * m_extent.Depth) == 0u);
+    return RawTexture(m_textureType, &g_dummyAreaForZeroSizedBitmaps, 0u, m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
                       m_bitmapOrigin);
   }
 
@@ -816,8 +838,15 @@ namespace Fsl
     }
 
     m_isLocked = true;
-    return RawTextureEx(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
-                        m_bitmapOrigin);
+    auto pData = m_content.data();
+    if (pData != nullptr)
+    {
+      return RawTextureEx(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
+                          m_bitmapOrigin);
+    }
+    assert((m_extent.Width * m_extent.Height * m_extent.Depth) == 0u);
+    return RawTextureEx(m_textureType, &g_dummyAreaForZeroSizedBitmaps, m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat,
+                        m_textureInfo, m_bitmapOrigin);
   }
 
 

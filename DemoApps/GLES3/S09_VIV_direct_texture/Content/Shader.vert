@@ -1,7 +1,7 @@
 #version 300 es
 
 in vec4 my_Vertex;
-uniform   mat4 my_TransformMatrix;
+uniform mat4 my_TransformMatrix;
 in vec2 my_Texcoor;
 out vec2 vTexcoor;
 

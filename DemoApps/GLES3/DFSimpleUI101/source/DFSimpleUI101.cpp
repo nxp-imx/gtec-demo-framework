@@ -41,51 +41,8 @@ namespace Fsl
     : DemoAppGLES3(config)
     , m_shared(config)
   {
-  }
-
-
-  DFSimpleUI101::~DFSimpleUI101() = default;
-
-
-  void DFSimpleUI101::OnKeyEvent(const KeyEvent& event)
-  {
-    m_shared.OnKeyEvent(event);
-  }
-
-
-  void DFSimpleUI101::OnMouseButtonEvent(const MouseButtonEvent& event)
-  {
-    m_shared.OnMouseButtonEvent(event);
-  }
-
-
-  void DFSimpleUI101::OnMouseMoveEvent(const MouseMoveEvent& event)
-  {
-    m_shared.OnMouseMoveEvent(event);
-  }
-
-
-  void DFSimpleUI101::OnMouseWheelEvent(const MouseWheelEvent& event)
-  {
-    m_shared.OnMouseWheelEvent(event);
-  }
-
-
-  void DFSimpleUI101::Resized(const Point2& size)
-  {
-    m_shared.Resized(size);
-  }
-
-
-  void DFSimpleUI101::FixedUpdate(const DemoTime& demoTime)
-  {
-    m_shared.FixedUpdate(demoTime);
-  }
-
-
-  void DFSimpleUI101::Update(const DemoTime& demoTime)
-  {
-    m_shared.Update(demoTime);
+    // Give the UI a chance to intercept the various DemoApp events.
+    RegisterExtension(m_shared.GetUIDemoAppExtension());
   }
 
 

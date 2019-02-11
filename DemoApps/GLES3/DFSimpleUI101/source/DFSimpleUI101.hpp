@@ -43,16 +43,8 @@ namespace Fsl
 
   public:
     DFSimpleUI101(const DemoAppConfig& config);
-    ~DFSimpleUI101() override;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-    void OnMouseWheelEvent(const MouseWheelEvent& event) override;
-    void Resized(const Point2& size) override;
-    void FixedUpdate(const DemoTime& demoTime) override;
-    void Update(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
   };
 }

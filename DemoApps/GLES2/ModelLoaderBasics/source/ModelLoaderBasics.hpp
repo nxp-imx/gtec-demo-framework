@@ -39,7 +39,7 @@
 #include <FslUtil/OpenGLES2/GLIndexBufferArray.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBufferArray.hpp>
-#include <vector>
+#include <array>
 
 namespace Fsl
 {
@@ -50,32 +50,55 @@ namespace Fsl
 
   class ModelLoaderBasics : public DemoAppGLES2
   {
-    GLES2::GLProgram m_program;
-    GLES2::GLTexture m_texture;
-    GLES2::GLIndexBufferArray m_indexBuffers;
-    GLES2::GLVertexBufferArray m_vertexBuffers;
-    GLint m_locWorldView;
-    GLint m_locWorldViewProjection;
-    GLint m_locNormalMatrix;
-    GLint m_locTexture0;
-    GLint m_locLightDirection;
-    GLint m_locLightColor;
-    GLint m_locAmbientColor;
+    struct Resources
+    {
+      GLES2::GLTexture Texture;
+      GLES2::GLIndexBufferArray IndexBuffers;
+      GLES2::GLVertexBufferArray VertexBuffers;
+      GLES2::GLProgram Program;
+      GLint LocWorldView = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocWorldViewProjection = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocNormalMatrix = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocTexture0 = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocLightDirection = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocLightColor = GLES2::GLValues::INVALID_LOCATION;
+      GLint LocAmbientColor = GLES2::GLValues::INVALID_LOCATION;
 
-    std::vector<GLES2::GLVertexAttribLink> m_attribLink;
+      std::array<GLES2::GLVertexAttribLink, 4> AttribLink{};
+    };
 
-    std::shared_ptr<Graphics3D::SceneNode> m_rootNode;
+    struct VertexUBOData
+    {
+      Matrix MatWorldView;
+      Matrix MatWorldViewProjection;
+      Matrix3 MatNormal;
+    };
+
+    struct FragUBOData
+    {
+      Vector3 LightDirection;
+      Vector3 LightColor;
+      Vector3 AmbientColor;
+
+      FragUBOData() = default;
+      FragUBOData(const Vector3& lightDirection, const Vector3& lightColor, const Vector3& ambientColor)
+        : LightDirection(lightDirection)
+        , LightColor(lightColor)
+        , AmbientColor(ambientColor)
+      {
+      }
+    };
+
+    Resources m_resources;
+
     Matrix m_matrixWorld;
     Matrix m_matrixView;
     Matrix m_matrixProjection;
-    Matrix m_matrixWorldView;
-    Matrix m_matrixWorldViewProjection;
-    Matrix3 m_matrixNormal;
     Vector3 m_rotationSpeed;
     Vector3 m_rotation;
-    Vector3 m_lightDirection;
-    Vector3 m_lightColor;
-    Vector3 m_ambientColor;
+
+    VertexUBOData m_vertexUboData;
+    FragUBOData m_fragUboData;
 
   public:
     ModelLoaderBasics(const DemoAppConfig& config);

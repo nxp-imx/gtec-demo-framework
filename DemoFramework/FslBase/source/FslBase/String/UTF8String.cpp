@@ -175,7 +175,11 @@ namespace Fsl
 
   bool UTF8String::Contains(const UTF8String& str) const
   {
-    return std::search(m_content.begin(), m_content.end(), str.m_content.begin(), str.m_content.end()) != m_content.end();
+    if (str.GetByteSize() != 0)
+    {
+      return std::search(m_content.begin(), m_content.end(), str.m_content.begin(), str.m_content.end()) != m_content.end();
+    }
+    return true;
   }
 
 

@@ -31,25 +31,25 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
+#include <typeindex>
 
 namespace Fsl
 {
   class ServiceId
   {
-    TypeInfo m_typeInfo;
+    std::type_index m_typeInfo;
 
   public:
-    using value_type = TypeInfo;
+    using value_type = std::type_index;
 
     explicit ServiceId(const std::type_info& typeInfo);
-    explicit ServiceId(const TypeInfo& typeInfo);
+    explicit ServiceId(const std::type_index& typeInfo);
 
     //! @brief  Get the service id value.
-    TypeInfo Get() const;
+    std::type_index Get() const;
 
     //! @brief  Return a invalid service id
-    static ServiceId Invalid();
+    // static ServiceId Invalid();
 
     bool operator==(const ServiceId& rhs) const
     {
@@ -68,8 +68,8 @@ namespace Fsl
       return m_typeInfo > rhs.m_typeInfo;
     }
 
-  private:
-    ServiceId();
+    // private:
+    // ServiceId();
   };
 }
 

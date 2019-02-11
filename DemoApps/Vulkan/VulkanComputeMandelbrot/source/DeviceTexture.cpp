@@ -35,6 +35,32 @@
 
 namespace Fsl
 {
+  namespace
+  {
+    void CmdPipelineBarrier(const VkBuffer srcCmdBuffer, const VkDeviceSize srcSize, const VkAccessFlags srcAccessMask,
+                            const VkCommandBuffer cmdBuffer, const VkAccessFlags dstAccessMask)
+    {
+      if (srcAccessMask == dstAccessMask)
+      {
+        return;
+      }
+
+      VkBufferMemoryBarrier bufferMemoryBarrier{};
+      bufferMemoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+      bufferMemoryBarrier.srcAccessMask = srcAccessMask;
+      bufferMemoryBarrier.dstAccessMask = dstAccessMask;
+      bufferMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+      bufferMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+      bufferMemoryBarrier.buffer = srcCmdBuffer;
+      bufferMemoryBarrier.offset = 0;
+      bufferMemoryBarrier.size = srcSize;
+
+      vkCmdPipelineBarrier(cmdBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, 0, 0, nullptr, 1, &bufferMemoryBarrier, 0,
+                           nullptr);
+    }
+  }
+
+
   // move assignment operator
   DeviceTexture& DeviceTexture::operator=(DeviceTexture&& other) noexcept
   {
@@ -68,7 +94,7 @@ namespace Fsl
   }
 
 
-  DeviceTexture::DeviceTexture(Vulkan::ImageEx&& image, Vulkan::DeviceMemoryEx&& deviceMemory, const VkFormat imageFormat)
+  DeviceTexture::DeviceTexture(ImageEx&& image, Vulkan::VUDeviceMemory&& deviceMemory, const VkFormat imageFormat)
     : m_image(std::move(image))
     , m_memory(std::move(deviceMemory))
     , m_imageFormat(imageFormat)
@@ -86,7 +112,7 @@ namespace Fsl
   }
 
 
-  void DeviceTexture::Reset(Vulkan::ImageEx&& image, Vulkan::DeviceMemoryEx&& deviceMemory, const VkFormat imageFormat)
+  void DeviceTexture::Reset(ImageEx&& image, Vulkan::VUDeviceMemory&& deviceMemory, const VkFormat imageFormat)
   {
     m_image = std::move(image);
     m_memory = std::move(deviceMemory);
@@ -94,7 +120,7 @@ namespace Fsl
   }
 
 
-  void DeviceTexture::CopyImageToBuffer(const VkCommandBuffer cmdBuffer, Vulkan::BufferEx& rTargetBuffer, const VkBufferImageCopy& bufferImageCopy)
+  void DeviceTexture::CopyImageToBuffer(const VkCommandBuffer cmdBuffer, Vulkan::VUBuffer& rTargetBuffer, const VkBufferImageCopy& bufferImageCopy)
   {
     if (!rTargetBuffer.IsValid())
     {
@@ -105,7 +131,6 @@ namespace Fsl
       m_image.GetImageLayout(bufferImageCopy.imageSubresource.mipLevel, bufferImageCopy.imageSubresource.baseArrayLayer);
     const VkAccessFlags sourceAccessMask =
       m_image.GetAccessMask(bufferImageCopy.imageSubresource.mipLevel, bufferImageCopy.imageSubresource.baseArrayLayer);
-    const VkAccessFlags targetAccessMask = rTargetBuffer.GetAccessMask();
 
     // Prepare source image for copy.
     const VkImageSubresourceRange imageSubresourceRange = {bufferImageCopy.imageSubresource.aspectMask, bufferImageCopy.imageSubresource.mipLevel, 1,
@@ -116,14 +141,15 @@ namespace Fsl
 
     // Prepare target buffer for copy.
 
-    rTargetBuffer.CmdPipelineBarrier(cmdBuffer, VK_ACCESS_TRANSFER_WRITE_BIT);
+    const auto tempAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+    CmdPipelineBarrier(rTargetBuffer.Get(), rTargetBuffer.GetSize(), rTargetBuffer.GetAccessMask(), cmdBuffer, tempAccess);
 
     // Copy image by command.
 
     vkCmdCopyImageToBuffer(cmdBuffer, m_image.Get(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, rTargetBuffer.Get(), 1, &bufferImageCopy);
 
     // Revert back.
-    rTargetBuffer.CmdPipelineBarrier(cmdBuffer, targetAccessMask);
+    CmdPipelineBarrier(rTargetBuffer.Get(), rTargetBuffer.GetSize(), tempAccess, cmdBuffer, rTargetBuffer.GetAccessMask());
 
     // Revert back.
     m_image.CmdPipelineBarrier(cmdBuffer, sourceAccessMask, sourceImageLayout, imageSubresourceRange);

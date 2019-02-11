@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="Vulkan.ComputeParticles" NoInclude="true">
-    <ImportTemplate Name="DemoAppWindow"/>
-    <Dependency Name="FslUtil.Vulkan1_0"/>
-    <Dependency Name="FslNativeWindow.Vulkan"/>
-    <Dependency Name="FslDemoHost.Window"/>
-    <Dependency Name="Shared.VulkanWindowExperimental"/>
+    <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.VulkanWillemsDemoAppExperimental"/>
     <Dependency Name="glm"/>
     <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>

@@ -31,16 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
 #include <FslService/Impl/Registry/ServiceTypeEx.hpp>
 #include <map>
+#include <typeindex>
 
 namespace Fsl
 {
   class ServiceSupportedInterfaceDeque;
   class InterfaceCollisionChecker
   {
-    std::map<TypeInfo, ServiceTypeEx> m_typeToServiceType;
+    std::map<std::type_index, ServiceTypeEx> m_typeToServiceType;
 
   public:
     void AddInterfaces(const ServiceSupportedInterfaceDeque& interfaces, const ServiceTypeEx serviceType);

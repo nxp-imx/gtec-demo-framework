@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/Bricks/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.HDR04_HDRFramebuffer.VC.VC.opendb
@@ -27,6 +28,7 @@
 /HDR04_HDRFramebuffer_Wayland_d
 /HDR04_HDRFramebuffer_X11
 /HDR04_HDRFramebuffer_X11_d
+/HDR04_HDRFramebuffer_c
 /HDR04_HDRFramebuffer_d
 /build/
 /resource.h

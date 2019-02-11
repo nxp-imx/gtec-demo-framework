@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Attributes.hpp>
 #include <FslGraphics/Vertices/VertexElementEx.hpp>
 #include <vector>
 
@@ -70,10 +71,6 @@ namespace Fsl
     //! @brief Get the number of elements
     uint32_t Count() const;
 
-    VertexElementEx At(const int32_t index) const
-    {
-      return m_elements[index];
-    }
 
     VertexElementEx At(const std::size_t index) const
     {

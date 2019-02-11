@@ -40,9 +40,7 @@ namespace Fsl
   class IGraphicsServiceControl
   {
   public:
-    virtual ~IGraphicsServiceControl()
-    {
-    }
+    virtual ~IGraphicsServiceControl() = default;
 
     virtual void Reset() = 0;
     virtual void Configure(const DemoHostFeature& activeAPI) = 0;

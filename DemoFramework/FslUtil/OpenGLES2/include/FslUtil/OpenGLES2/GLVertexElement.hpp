@@ -43,11 +43,11 @@ namespace Fsl
     struct GLVertexElement
     {
       VertexElementEx Source;
-      GLint Size;
-      GLenum Type;
-      GLboolean Normalized;
-      const GLvoid* Pointer;
-      uint32_t ExtendedIndex;
+      GLint Size{0};
+      GLenum Type{0};
+      GLboolean Normalized{GL_FALSE};
+      const GLvoid* Pointer{nullptr};
+      uint32_t ExtendedIndex{0};
 
       GLVertexElement();
 

@@ -3,6 +3,8 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/Cubemap/Test/Raw/
+/Content/Textures/Cubemap/Yokohama3/Raw/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.Skybox.VC.VC.opendb
@@ -27,6 +29,7 @@
 /Skybox_Wayland_d
 /Skybox_X11
 /Skybox_X11_d
+/Skybox_c
 /Skybox_d
 /build/
 /resource.h

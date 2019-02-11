@@ -65,7 +65,7 @@ namespace Fsl
     }
 
 
-    void CalcInterfaceHitCount(std::map<TypeInfo, int32_t>& rInterfaceMap, const RegisteredServiceDeque& services)
+    void CalcInterfaceHitCount(std::map<std::type_index, int32_t>& rInterfaceMap, const RegisteredServiceDeque& services)
     {
       auto itr = services.begin();
       const RegisteredServiceDeque::const_iterator itrEnd = services.end();
@@ -99,13 +99,13 @@ namespace Fsl
     }
 
 
-    void FindMultiProviderInterfaces(std::set<TypeInfo>& rMultiProviderInterfaces, const RegisteredServiceDeque& services)
+    void FindMultiProviderInterfaces(std::set<std::type_index>& rMultiProviderInterfaces, const RegisteredServiceDeque& services)
     {
-      std::map<TypeInfo, int32_t> interfaceMap;
+      std::map<std::type_index, int32_t> interfaceMap;
       CalcInterfaceHitCount(interfaceMap, services);
 
-      std::map<TypeInfo, int32_t>::const_iterator itr = interfaceMap.begin();
-      const std::map<TypeInfo, int32_t>::const_iterator itrEnd = interfaceMap.end();
+      std::map<std::type_index, int32_t>::const_iterator itr = interfaceMap.begin();
+      const std::map<std::type_index, int32_t>::const_iterator itrEnd = interfaceMap.end();
       while (itr != itrEnd)
       {
         if (itr->second > 1)
@@ -117,7 +117,7 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<IService> StartService(std::set<TypeInfo>& multiProviderInterfaces, ServiceProvider& provider,
+    std::shared_ptr<IService> StartService(std::set<std::type_index>& multiProviderInterfaces, ServiceProvider& provider,
                                            TypeServiceMaps& rServiceProviderMaps, const RegisteredServiceRecord& record)
     {
       ServiceSupportedInterfaceDeque deque;
@@ -145,22 +145,22 @@ namespace Fsl
       const ServiceSupportedInterfaceDeque::const_iterator itrEnd = deque.end();
       while (itr != itrEnd)
       {
-        if (multiProviderInterfaces.find(itr->Get()) == multiProviderInterfaces.end())
+        if (multiProviderInterfaces.find(*itr) == multiProviderInterfaces.end())
         {
-          assert(rServiceProviderMaps.InterfaceToService.find(itr->Get()) == rServiceProviderMaps.InterfaceToService.end());
-          rServiceProviderMaps.InterfaceToService[itr->Get()] = ServiceLaunchRecord(record.Id, ServiceLaunchType::Instance, service);
+          assert(rServiceProviderMaps.InterfaceToService.find(*itr) == rServiceProviderMaps.InterfaceToService.end());
+          rServiceProviderMaps.InterfaceToService[*itr] = ServiceLaunchRecord(record.Id, ServiceLaunchType::Instance, service);
         }
         else
         {
           // Register a multiple provider interface
-          rServiceProviderMaps.InterfaceToService[itr->Get()] = ServiceLaunchRecord(ProviderId::Invalid(), ServiceLaunchType::MultipleProviderTag);
+          rServiceProviderMaps.InterfaceToService[*itr] = ServiceLaunchRecord(ProviderId::Invalid(), ServiceLaunchType::MultipleProviderTag);
 
           std::shared_ptr<std::deque<ServiceLaunchRecord>> serviceDeque;
-          auto itrFind = rServiceProviderMaps.InterfaceMultipleServices.find(itr->Get());
+          auto itrFind = rServiceProviderMaps.InterfaceMultipleServices.find(*itr);
           if (itrFind == rServiceProviderMaps.InterfaceMultipleServices.end())
           {
             serviceDeque = std::make_shared<std::deque<ServiceLaunchRecord>>();
-            rServiceProviderMaps.InterfaceMultipleServices[itr->Get()] = serviceDeque;
+            rServiceProviderMaps.InterfaceMultipleServices[*itr] = serviceDeque;
           }
           else
           {
@@ -176,7 +176,8 @@ namespace Fsl
     }
 
 
-    void StartService(const RegisteredServiceDeque& services, TypeServiceMaps& rServiceProviderMaps, std::set<TypeInfo>& rMultiProviderInterfaces)
+    void StartService(const RegisteredServiceDeque& services, TypeServiceMaps& rServiceProviderMaps,
+                      std::set<std::type_index>& rMultiProviderInterfaces)
     {
       // Sort the services according to priority
       RegisteredServiceDeque sortedServices(services);
@@ -231,7 +232,7 @@ namespace Fsl
     if (!services.empty())
     {
       // Find all interfaces that have multiple providers
-      std::set<TypeInfo> multiProviderInterfaces;
+      std::set<std::type_index> multiProviderInterfaces;
       FindMultiProviderInterfaces(multiProviderInterfaces, services);
 
       StartService(services, serviceProviderMaps, multiProviderInterfaces);
@@ -252,7 +253,7 @@ namespace Fsl
     if (!services.empty())
     {
       // Find all interfaces that have multiple providers
-      std::set<TypeInfo> multiProviderInterfaces;
+      std::set<std::type_index> multiProviderInterfaces;
       FindMultiProviderInterfaces(multiProviderInterfaces, services);
 
       StartService(services, serviceProviderMaps, multiProviderInterfaces);

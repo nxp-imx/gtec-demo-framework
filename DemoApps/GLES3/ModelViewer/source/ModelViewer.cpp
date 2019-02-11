@@ -30,29 +30,24 @@
  ****************************************************************************************************************************************************/
 
 #include "ModelViewer.hpp"
-#include "OptionParser.hpp"
-
 #include <FslAssimp/SceneImporter.hpp>
-#include <FslGraphics3D/BasicScene/GenericMesh.hpp>
-#include <FslGraphics3D/BasicScene/GenericScene.hpp>
-
-#include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Math/MatrixConverter.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
-
-#include <FslBase/System/HighResolutionTimer.hpp>
-
-#include <GLES3/gl3.h>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
-
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/MatrixConverter.hpp>
+#include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
+#include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslGraphics3D/BasicScene/GenericScene.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <GLES3/gl3.h>
+#include "OptionParser.hpp"
 
 namespace Fsl
 {
@@ -68,6 +63,7 @@ namespace Fsl
   {
     const float DEFAULT_ZOOM = 10;
     const float DEFAULT_MODEL_SCALE = 5;
+    const auto SCENE_PATH = "Models";
   }
 
   ModelViewer::ModelViewer(const DemoAppConfig& config)
@@ -78,19 +74,6 @@ namespace Fsl
     , m_hCounterDraw(m_profilerService, m_profilerService->CreateCustomCounter("draw", 0, GRAPH_RES, Color(0x80, 0xFF, 0xFF, 0xFF)))
     , m_hCounterTotal(m_profilerService, m_profilerService->CreateCustomCounter("total", 0, GRAPH_RES, Color(0x80, 0x80, 0xFF, 0xFF)))
     , m_camera(config.ScreenResolution)
-    , m_locWorld(GLValues::INVALID_LOCATION)
-    , m_locWorldView(GLValues::INVALID_LOCATION)
-    , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
-    , m_locNormalMatrix(GLValues::INVALID_LOCATION)
-    , m_locTexture0(GLValues::INVALID_LOCATION)
-    , m_locTextureSpecular(GLValues::INVALID_LOCATION)
-    , m_locTextureNormal(GLValues::INVALID_LOCATION)
-    , m_locLightDirection(GLValues::INVALID_LOCATION)
-    , m_locLightColor(GLValues::INVALID_LOCATION)
-    , m_locMatAmbient(GLValues::INVALID_LOCATION)
-    , m_locMatSpecular(GLValues::INVALID_LOCATION)
-    , m_locMatShininess(GLValues::INVALID_LOCATION)
-    , m_attribLink(5)
     , m_rotationSpeed(0.5f, -0.6f, 0.7f)
     , m_lightDirection(1.0f, 1.0f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
@@ -170,21 +153,27 @@ namespace Fsl
     }
 
 
+    FSLLOG("Loading textures");
     if (!strTextureFileName.empty())
     {
       Bitmap bitmap;
-      auto texturePath = IO::Path::Combine("Scenes", strTextureFileName);
+      auto texturePath = IO::Path::Combine(SCENE_PATH, strTextureFileName);
 
       if (strTextureGloss.empty())
       {
+        FSLLOG("- Diffuse");
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8_UNORM);
       }
       else
       {
         Bitmap bitmapGloss;
-        auto texturePath = IO::Path::Combine("Scenes", strTextureFileName);
+        auto texturePath = IO::Path::Combine(SCENE_PATH, strTextureFileName);
+        FSLLOG("- Diffuse");
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        FSLLOG("- Gloss");
         contentManager->Read(bitmapGloss, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        FSLLOG("Combining diffuse and gloss texture");
+        // This is a slow and brute force way of combining the textures
         for (uint32_t y = 0; y < bitmap.Height(); ++y)
         {
           for (uint32_t x = 0; x < bitmap.Width(); ++x)
@@ -198,28 +187,29 @@ namespace Fsl
       }
 
       GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-      m_texture.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
+      m_resources.Texture.Reset(bitmap, texParams, TextureFlags::GenerateMipMaps);
 
       if (!strTextureSpecularFileName.empty())
       {
-        auto texturePath = IO::Path::Combine("Scenes", strTextureSpecularFileName);
+        auto texturePath = IO::Path::Combine(SCENE_PATH, strTextureSpecularFileName);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
-        m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
+        m_resources.TextureSpecular.Reset(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
       if (!strTextureNormalFileName.empty())
       {
-        auto texturePath = IO::Path::Combine("Scenes", strTextureNormalFileName);
+        auto texturePath = IO::Path::Combine(SCENE_PATH, strTextureNormalFileName);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
-        m_textureNormal.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
+        m_resources.TextureNormal.Reset(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
     }
 
+    FSLLOG("Loading scene");
     // Default is Fast
     // aiProcessPreset_TargetRealtime_Fast
     // aiProcessPreset_TargetRealtime_Quality
     // aiProcessPreset_TargetRealtime_MaxQuality
     // | aiProcess_TransformUVCoords
-    auto scenePath = IO::Path::Combine(contentPath, "Scenes");
+    auto scenePath = IO::Path::Combine(contentPath, SCENE_PATH);
     auto modelPath = IO::Path::Combine(scenePath, strFileName);
     SceneImporter sceneImporter;
     const std::shared_ptr<TestScene> scene = sceneImporter.Load<TestScene>(modelPath, DEFAULT_MODEL_SCALE * scaleMod, true);
@@ -235,18 +225,18 @@ namespace Fsl
       throw NotSupportedException(std::string("Scene did not contain a root node: ") + strFileName);
     }
 
-    PrepareShader(contentManager, !strTextureGloss.empty(), m_textureSpecular.IsValid(), m_textureNormal.IsValid());
+    PrepareShader(contentManager, !strTextureGloss.empty(), m_resources.TextureSpecular.IsValid(), m_resources.TextureNormal.IsValid());
 
     // Create index and vertex buffers for all the meshes.
-    m_indexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
-    m_vertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::GetVertexDeclaration());
+    m_resources.IndexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
+    m_resources.VertexBuffers.Resize(scene->Meshes.size(), TestMesh::vertex_type::GetVertexDeclaration());
     std::size_t vertexCount = 0;
     std::size_t indexCount = 0;
     for (std::size_t i = 0; i < scene->Meshes.size(); ++i)
     {
       auto mesh = scene->Meshes[i];
-      m_indexBuffers.Reset(i, mesh->GetIndexArray(), GL_STATIC_DRAW);
-      m_vertexBuffers.Reset(i, mesh->GetVertexArray(), GL_STATIC_DRAW);
+      m_resources.IndexBuffers.Reset(i, mesh->GetIndexArray(), GL_STATIC_DRAW);
+      m_resources.VertexBuffers.Reset(i, mesh->GetVertexArray(), GL_STATIC_DRAW);
 
       vertexCount += mesh->GetVertexCount();
       indexCount += mesh->GetIndexCount();
@@ -368,71 +358,71 @@ namespace Fsl
     glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     {
-      glUseProgram(m_program.Get());
+      glUseProgram(m_resources.Program.Get());
 
       // Select Our Texture
       glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, m_texture.Get());
-      if (m_textureSpecular.IsValid() && m_locTextureSpecular != GLValues::INVALID_LOCATION)
+      glBindTexture(GL_TEXTURE_2D, m_resources.Texture.Get());
+      if (m_resources.TextureSpecular.IsValid() && m_resources.LocTextureSpecular != GLValues::INVALID_LOCATION)
       {
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_textureSpecular.Get());
+        glBindTexture(GL_TEXTURE_2D, m_resources.TextureSpecular.Get());
 
-        glUniform1i(m_locTextureSpecular, 1);
+        glUniform1i(m_resources.LocTextureSpecular, 1);
       }
-      if (m_textureNormal.IsValid() && m_locTextureNormal != GLValues::INVALID_LOCATION)
+      if (m_resources.TextureNormal.IsValid() && m_resources.LocTextureNormal != GLValues::INVALID_LOCATION)
       {
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, m_textureNormal.Get());
+        glBindTexture(GL_TEXTURE_2D, m_resources.TextureNormal.Get());
 
-        glUniform1i(m_locTextureNormal, 2);
+        glUniform1i(m_resources.LocTextureNormal, 2);
       }
 
-      if (m_locLightDirection != GLValues::INVALID_LOCATION)
+      if (m_resources.LocLightDirection != GLValues::INVALID_LOCATION)
       {
-        glUniform3fv(m_locLightDirection, 1, m_cameraSpaceLightDirection.DirectAccess());
+        glUniform3fv(m_resources.LocLightDirection, 1, m_cameraSpaceLightDirection.DirectAccess());
       }
-      if (m_locLightColor != GLValues::INVALID_LOCATION)
+      if (m_resources.LocLightColor != GLValues::INVALID_LOCATION)
       {
-        glUniform3fv(m_locLightColor, 1, m_lightColor.DirectAccess());
+        glUniform3fv(m_resources.LocLightColor, 1, m_lightColor.DirectAccess());
       }
-      if (m_locMatAmbient != GLValues::INVALID_LOCATION)
+      if (m_resources.LocMatAmbient != GLValues::INVALID_LOCATION)
       {
-        glUniform4fv(m_locMatAmbient, 1, m_matAmbient.DirectAccess());
+        glUniform4fv(m_resources.LocMatAmbient, 1, m_matAmbient.DirectAccess());
       }
-      if (m_locMatSpecular != GLValues::INVALID_LOCATION)
+      if (m_resources.LocMatSpecular != GLValues::INVALID_LOCATION)
       {
-        glUniform4fv(m_locMatSpecular, 1, m_matSpecular.DirectAccess());
+        glUniform4fv(m_resources.LocMatSpecular, 1, m_matSpecular.DirectAccess());
       }
-      if (m_locMatShininess != GLValues::INVALID_LOCATION)
+      if (m_resources.LocMatShininess != GLValues::INVALID_LOCATION)
       {
-        glUniform1f(m_locMatShininess, m_matShininess);
+        glUniform1f(m_resources.LocMatShininess, m_matShininess);
       }
       // Load the matrices
-      if (m_locWorld != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorld != GLValues::INVALID_LOCATION)
       {
-        glUniformMatrix4fv(m_locWorld, 1, 0, m_matrixWorld.DirectAccess());
+        glUniformMatrix4fv(m_resources.LocWorld, 1, 0, m_matrixWorld.DirectAccess());
       }
-      if (m_locWorldView != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorldView != GLValues::INVALID_LOCATION)
       {
-        glUniformMatrix4fv(m_locWorldView, 1, 0, m_matrixWorldView.DirectAccess());
+        glUniformMatrix4fv(m_resources.LocWorldView, 1, 0, m_matrixWorldView.DirectAccess());
       }
-      if (m_locWorldViewProjection != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorldViewProjection != GLValues::INVALID_LOCATION)
       {
-        glUniformMatrix4fv(m_locWorldViewProjection, 1, 0, m_matrixWorldViewProjection.DirectAccess());
+        glUniformMatrix4fv(m_resources.LocWorldViewProjection, 1, 0, m_matrixWorldViewProjection.DirectAccess());
       }
-      if (m_locNormalMatrix != GLValues::INVALID_LOCATION)
+      if (m_resources.LocNormalMatrix != GLValues::INVALID_LOCATION)
       {
-        glUniformMatrix3fv(m_locNormalMatrix, 1, 0, m_matrixNormal.DirectAccess());
+        glUniformMatrix3fv(m_resources.LocNormalMatrix, 1, 0, m_matrixNormal.DirectAccess());
       }
 
 
       // Enable the attribs the meshes use once (since we use the same mesh layout for everything)
-      for (std::size_t i = 0; i < m_attribLink.size(); ++i)
+      for (const auto& attribLink : m_resources.AttribLink)
       {
-        if (m_attribLink[i].AttribIndex >= 0)
+        if (attribLink.AttribIndex >= 0)
         {
-          glEnableVertexAttribArray(m_attribLink[i].AttribIndex);
+          glEnableVertexAttribArray(attribLink.AttribIndex);
         }
       }
 
@@ -443,8 +433,8 @@ namespace Fsl
       // GL_CHECK_FOR_ERROR();
 
       // Disable everything
-      glBindBuffer(m_indexBuffers.GetTarget(), 0);
-      glBindBuffer(m_vertexBuffers.GetTarget(), 0);
+      glBindBuffer(m_resources.IndexBuffers.GetTarget(), 0);
+      glBindBuffer(m_resources.VertexBuffers.GetTarget(), 0);
       glBindTexture(GL_TEXTURE_2D, 0);
       glUseProgram(0);
     }
@@ -453,19 +443,19 @@ namespace Fsl
 
   void ModelViewer::DrawMeshes()
   {
-    const auto indexBufferType = m_indexBuffers.GetType();
-    for (int32_t i = 0; i < m_indexBuffers.Length(); ++i)
+    const auto indexBufferType = m_resources.IndexBuffers.GetType();
+    for (int32_t i = 0; i < m_resources.IndexBuffers.Length(); ++i)
     {
-      auto indexBuffer = m_indexBuffers.Get(i);
-      auto vertexBuffer = m_vertexBuffers.Get(i);
+      auto indexBuffer = m_resources.IndexBuffers.Get(i);
+      auto vertexBuffer = m_resources.VertexBuffers.Get(i);
       if (indexBuffer.GetCapacity() > 0)
       {
         // Bind and enable the vertex buffer
-        glBindBuffer(m_vertexBuffers.GetTarget(), vertexBuffer.Get());
-        glBindBuffer(m_indexBuffers.GetTarget(), indexBuffer.Get());
+        glBindBuffer(m_resources.VertexBuffers.GetTarget(), vertexBuffer.Get());
+        glBindBuffer(m_resources.IndexBuffers.GetTarget(), indexBuffer.Get());
 
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
-        m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
+        m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
 
         glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
       }
@@ -481,25 +471,25 @@ namespace Fsl
     uint64_t totalTimeEnable = 0;
     uint64_t totalTimeDraw = 0;
 
-    const auto indexBufferType = m_indexBuffers.GetType();
+    const auto indexBufferType = m_resources.IndexBuffers.GetType();
 
     uint64_t sequenceTimestampStart, sequenceTimestampEnd;
-    for (int32_t i = 0; i < m_indexBuffers.Length(); ++i)
+    for (int32_t i = 0; i < m_resources.IndexBuffers.Length(); ++i)
     {
-      auto indexBuffer = m_indexBuffers.Get(i);
-      auto vertexBuffer = m_vertexBuffers.Get(i);
+      auto indexBuffer = m_resources.IndexBuffers.Get(i);
+      auto vertexBuffer = m_resources.VertexBuffers.Get(i);
       if (indexBuffer.GetCapacity() > 0)
       {
         // Bind and enable the vertex buffer
         sequenceTimestampStart = timer.GetTime();
-        glBindBuffer(m_vertexBuffers.GetTarget(), vertexBuffer.Get());
-        glBindBuffer(m_indexBuffers.GetTarget(), indexBuffer.Get());
+        glBindBuffer(m_resources.VertexBuffers.GetTarget(), vertexBuffer.Get());
+        glBindBuffer(m_resources.IndexBuffers.GetTarget(), indexBuffer.Get());
         sequenceTimestampEnd = timer.GetTime();
         totalTimeBind += sequenceTimestampEnd - sequenceTimestampStart;
         sequenceTimestampStart = sequenceTimestampEnd;
 
         // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
-        m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
+        m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
         // m_vertexBuffers.EnableAttribArrays(m_attribLink.data(), m_attribLink.size());
         sequenceTimestampEnd = timer.GetTime();
         totalTimeEnable += sequenceTimestampEnd - sequenceTimestampStart;
@@ -540,7 +530,7 @@ namespace Fsl
       DrawMeshesUsingNodes(pNode->GetChildAt(i).get(), currentMatrix);
     }
 
-    const auto indexBufferType = m_indexBuffers.GetType();
+    const auto indexBufferType = m_resources.IndexBuffers.GetType();
 
     const int32_t meshCount = pNode->GetMeshCount();
     if (meshCount > 0)
@@ -548,31 +538,31 @@ namespace Fsl
       Matrix matrix = currentMatrix * m_matrixView * m_matrixProjection;
 
       // Load the matrices
-      if (m_locWorld != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorld != GLValues::INVALID_LOCATION)
       {
-        glUniformMatrix4fv(m_locWorld, 1, 0, currentMatrix.DirectAccess());
+        glUniformMatrix4fv(m_resources.LocWorld, 1, 0, currentMatrix.DirectAccess());
       }
       // if (m_locWorldView != GLValues::INVALID_LOCATION)
       //  glUniformMatrix4fv(m_locWorldView, 1, 0, currentMatrix.DirectAccess());
-      if (m_locWorldViewProjection != GLValues::INVALID_LOCATION)
+      if (m_resources.LocWorldViewProjection != GLValues::INVALID_LOCATION)
       {
-        glUniformMatrix4fv(m_locWorldViewProjection, 1, 0, matrix.DirectAccess());
+        glUniformMatrix4fv(m_resources.LocWorldViewProjection, 1, 0, matrix.DirectAccess());
       }
 
       for (int32_t i = 0; i < meshCount; ++i)
       {
         int32_t meshIndex = pNode->GetMeshAt(i);
 
-        auto indexBuffer = m_indexBuffers.Get(meshIndex);
-        auto vertexBuffer = m_vertexBuffers.Get(meshIndex);
+        auto indexBuffer = m_resources.IndexBuffers.Get(meshIndex);
+        auto vertexBuffer = m_resources.VertexBuffers.Get(meshIndex);
         if (indexBuffer.GetCapacity() > 0)
         {
           // Bind and enable the vertex buffer
-          glBindBuffer(m_vertexBuffers.GetTarget(), vertexBuffer.Get());
-          glBindBuffer(m_indexBuffers.GetTarget(), indexBuffer.Get());
+          glBindBuffer(m_resources.VertexBuffers.GetTarget(), vertexBuffer.Get());
+          glBindBuffer(m_resources.IndexBuffers.GetTarget(), indexBuffer.Get());
 
           // Since all our meshes use the same attrib pointers we dont have to enable/disable them all the time
-          m_vertexBuffers.SetVertexAttribPointers(m_attribLink.data(), m_attribLink.size());
+          m_resources.VertexBuffers.SetVertexAttribPointers(m_resources.AttribLink);
 
           glDrawElements(GL_TRIANGLES, indexBuffer.GetCapacity(), indexBufferType, nullptr);
         }
@@ -618,38 +608,38 @@ namespace Fsl
 
     const IO::Path strVertShaderPath = IO::Path::Combine(shaderPath, strVertShaderFilename);
     const IO::Path strFragShaderPath = IO::Path::Combine(shaderPath, strFragShaderFilename);
-    m_program.Reset(contentManager->ReadAllText(strVertShaderPath), contentManager->ReadAllText(strFragShaderPath));
+    m_resources.Program.Reset(contentManager->ReadAllText(strVertShaderPath), contentManager->ReadAllText(strFragShaderPath));
 
-    m_locWorld = glGetUniformLocation(m_program.Get(), "World");
-    m_locWorldView = glGetUniformLocation(m_program.Get(), "WorldView");
-    m_locWorldViewProjection = glGetUniformLocation(m_program.Get(), "WorldViewProjection");
-    m_locNormalMatrix = glGetUniformLocation(m_program.Get(), "NormalMatrix");
-    m_locTexture0 = glGetUniformLocation(m_program.Get(), "Texture0");
-    m_locTextureSpecular = glGetUniformLocation(m_program.Get(), "TextureSpecular");
-    m_locTextureNormal = glGetUniformLocation(m_program.Get(), "TextureNormal");
-    m_locLightDirection = glGetUniformLocation(m_program.Get(), "LightDirection");
-    m_locLightColor = glGetUniformLocation(m_program.Get(), "LightColor");
-    m_locMatAmbient = glGetUniformLocation(m_program.Get(), "MatAmbient");
-    m_locMatSpecular = glGetUniformLocation(m_program.Get(), "MatSpecular");
-    m_locMatShininess = glGetUniformLocation(m_program.Get(), "MatShininess");
+    m_resources.LocWorld = m_resources.Program.TryGetUniformLocation("World");
+    m_resources.LocWorldView = m_resources.Program.TryGetUniformLocation("WorldView");
+    m_resources.LocWorldViewProjection = m_resources.Program.TryGetUniformLocation("WorldViewProjection");
+    m_resources.LocNormalMatrix = m_resources.Program.TryGetUniformLocation("NormalMatrix");
+    m_resources.LocTexture0 = m_resources.Program.TryGetUniformLocation("Texture0");
+    m_resources.LocTextureSpecular = m_resources.Program.TryGetUniformLocation("TextureSpecular");
+    m_resources.LocTextureNormal = m_resources.Program.TryGetUniformLocation("TextureNormal");
+    m_resources.LocLightDirection = m_resources.Program.TryGetUniformLocation("LightDirection");
+    m_resources.LocLightColor = m_resources.Program.TryGetUniformLocation("LightColor");
+    m_resources.LocMatAmbient = m_resources.Program.TryGetUniformLocation("MatAmbient");
+    m_resources.LocMatSpecular = m_resources.Program.TryGetUniformLocation("MatSpecular");
+    m_resources.LocMatShininess = m_resources.Program.TryGetUniformLocation("MatShininess");
 
     auto vertexDecl = TestMesh::vertex_type::GetVertexDeclaration();
-    m_attribLink[0] =
-      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    m_attribLink[1] =
-      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
-    m_attribLink[2] =
-      GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-    m_attribLink[3] = GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTexCoord"),
-                                         vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    m_resources.AttribLink[0] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexPosition"),
+                                                   vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+    m_resources.AttribLink[1] =
+      GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexColor"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Color, 0));
+    m_resources.AttribLink[2] =
+      GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
+    m_resources.AttribLink[3] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexTexCoord"),
+                                                   vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
     if (useNormalMap)
     {
-      m_attribLink[4] =
-        GLVertexAttribLink(glGetAttribLocation(m_program.Get(), "VertexTangent"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
+      m_resources.AttribLink[4] = GLVertexAttribLink(m_resources.Program.GetAttribLocation("VertexTangent"),
+                                                     vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Tangent, 0));
     }
     else
     {
-      m_attribLink[4] = GLVertexAttribLink(-1, 0);
+      m_resources.AttribLink[4] = GLVertexAttribLink(-1, 0);
     }
   }
 }

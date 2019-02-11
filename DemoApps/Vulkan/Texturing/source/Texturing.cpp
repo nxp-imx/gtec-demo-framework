@@ -13,7 +13,6 @@
 #include "Texturing.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -21,8 +20,6 @@
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Fence.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
 #include <vulkan/vulkan.h>
 #include <array>
 #include <cstddef>
@@ -59,11 +56,11 @@ namespace Fsl
     //! @param size Size of the buffer in byes
     //! @param data Pointer to the data that should be copied to the buffer after creation (optional, if not set, no data is copied over)
     //! @return VK_SUCCESS if buffer handle and memory have been created and (optionally passed) data has been copied
-    VkResult DoCreateBuffer(BufferData& rBuffer, const PhysicalDeviceRecord& physicalDevice, VkDevice device, VkBufferUsageFlags usageFlags,
+    VkResult DoCreateBuffer(BufferData& rBuffer, const VUPhysicalDeviceRecord& physicalDevice, VkDevice device, VkBufferUsageFlags usageFlags,
                             VkMemoryPropertyFlags memoryPropertyFlags, VkDeviceSize size, void* data = nullptr)
     {
       using namespace MemoryTypeUtil;
-      const VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = physicalDevice.GetPhysicalDeviceMemoryProperties();
+      const VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = physicalDevice.MemoryProperties;
 
       // Create the buffer handle
       VkBufferCreateInfo bufferCreateInfo{};
@@ -82,8 +79,7 @@ namespace Fsl
       memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
       memAlloc.allocationSize = memReqs.size;
       // Find a memory type index that fits the properties of the buffer
-      memAlloc.memoryTypeIndex =
-        GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits, memoryPropertyFlags);
+      memAlloc.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, memoryPropertyFlags);
       rBuffer.Memory.Reset(device, memAlloc);
 
       rBuffer.Alignment = memReqs.alignment;
@@ -143,12 +139,12 @@ namespace Fsl
     bool forceLinearTiling = false;
     if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
-      LoadTexture("textures/pattern_02_bc2.ktx", forceLinearTiling);
-      // LoadTexture("textures/checkerboard_nomips_rgba.ktx", VK_FORMAT_BC2_UNORM_BLOCK, false);
+      LoadTexture("Textures/Pattern02/pattern_02_bc2.ktx", forceLinearTiling);
+      // LoadTexture("Textures/Checkerboard/checkerboard_nomips_rgba.ktx", VK_FORMAT_BC2_UNORM_BLOCK, false);
     }
     else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      LoadTexture("textures/pattern_02_etc2.ktx", forceLinearTiling);
+      LoadTexture("Textures/Pattern02/pattern_02_etc2.ktx", forceLinearTiling);
     }
     else
     {
@@ -419,7 +415,7 @@ namespace Fsl
     memAllocInfo.allocationSize = 0;
     memAllocInfo.memoryTypeIndex = 0;
 
-    const VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
+    const VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
     if (useStaging)
     {
@@ -443,7 +439,7 @@ namespace Fsl
       VkMemoryRequirements memReqs = stagingBuffer.GetBufferMemoryRequirements();
       memAllocInfo.allocationSize = memReqs.size;
       // Get memory type index for a host visible buffer
-      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits,
+      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits,
                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
       Memory stagingMemory(m_device.Get(), memAllocInfo);
@@ -456,7 +452,7 @@ namespace Fsl
         RawTexture rawTexture;
         Texture::ScopedDirectAccess directAccess(texture, rawTexture);
 
-        std::memcpy(data, rawTexture.GetContent(), rawTexture.GetContentByteSize());
+        std::memcpy(data, rawTexture.GetContent(), rawTexture.GetByteSize());
       }
       vkUnmapMemory(m_device.Get(), stagingMemory.Get());
 
@@ -497,8 +493,7 @@ namespace Fsl
       memReqs = m_texture.Image.GetImageMemoryRequirements();
 
       memAllocInfo.allocationSize = memReqs.size;
-      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits,
-                                                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
       m_texture.DeviceMemory.Reset(m_device.Get(), memAllocInfo);
       RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), m_texture.Image.Get(), m_texture.DeviceMemory.Get(), 0));
@@ -604,7 +599,7 @@ namespace Fsl
       // Set memory allocation size to required memory size
       memAllocInfo.allocationSize = memReqs.size;
       // Get memory type that can be mapped to host memory
-      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memReqs.memoryTypeBits,
+      memAllocInfo.memoryTypeIndex = GetMemoryTypeIndex(physicalDeviceMemoryProperties, memReqs.memoryTypeBits,
                                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
       // Allocate host memory
       m_texture.DeviceMemory.Reset(m_device.Get(), memAllocInfo);

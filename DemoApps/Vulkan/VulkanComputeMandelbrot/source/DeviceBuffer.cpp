@@ -65,7 +65,7 @@ namespace Fsl
   DeviceBuffer::DeviceBuffer() = default;
 
 
-  DeviceBuffer::DeviceBuffer(Vulkan::BufferEx&& buffer, Vulkan::DeviceMemoryEx&& deviceMemory)    //, const VkFormat imageFormat)
+  DeviceBuffer::DeviceBuffer(Vulkan::VUBuffer&& buffer, Vulkan::VUDeviceMemory&& deviceMemory)    //, const VkFormat imageFormat)
     : m_buffer(std::move(buffer))
     , m_memory(std::move(deviceMemory))
   //, m_imageFormat(imageFormat)
@@ -80,7 +80,7 @@ namespace Fsl
   }
 
 
-  void DeviceBuffer::Reset(Vulkan::BufferEx&& buffer, Vulkan::DeviceMemoryEx&& deviceMemory)    //, const VkFormat imageFormat)
+  void DeviceBuffer::Reset(Vulkan::VUBuffer&& buffer, Vulkan::VUDeviceMemory&& deviceMemory)    //, const VkFormat imageFormat)
   {
     m_buffer = std::move(buffer);
     m_memory = std::move(deviceMemory);

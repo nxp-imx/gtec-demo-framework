@@ -31,6 +31,7 @@ SOFTWARE.
 #include <FslBase/Math/ContainmentType.hpp>
 #include <FslBase/Math/PlaneIntersectionType.hpp>
 #include <FslBase/Math/Vector3.hpp>
+#include <array>
 #include <vector>
 
 namespace Fsl
@@ -47,21 +48,18 @@ namespace Fsl
     Vector3 Min;
     Vector3 Max;
 
-    BoundingBox() = default;
+    constexpr BoundingBox() = default;
 
-    BoundingBox(const Vector3& min, const Vector3& max)
+    constexpr BoundingBox(const Vector3& min, const Vector3& max)
       : Min(min)
       , Max(max)
     {
     }
 
     ContainmentType Contains(const BoundingBox& box) const;
-    void Contains(const BoundingBox& box, ContainmentType& rResult) const;
     // ContainmentType Contains(const BoundingFrustum& frustum) const;
     ContainmentType Contains(const BoundingSphere& sphere) const;
-    void Contains(const BoundingSphere& sphere, ContainmentType& rResult) const;
     ContainmentType Contains(const Vector3& point) const;
-    void Contains(const Vector3& point, ContainmentType& rResult) const;
 
     //! @brief Create a bounding box from the given list of points.
     //! @param points The list of Vector3 instances defining the point cloud to bound
@@ -75,14 +73,13 @@ namespace Fsl
 
     std::vector<Vector3> GetCorners() const;
     void GetCorners(std::vector<Vector3>& corners) const;
+    void GetCorners(std::array<Vector3, 8>& corners) const;
 
     bool Intersects(const BoundingBox& box) const;
     void Intersects(const BoundingBox& box, bool& rResult) const;
     bool Intersects(const BoundingFrustum& frustum) const;
     bool Intersects(const BoundingSphere& sphere) const;
-    void Intersects(const BoundingSphere& sphere, bool& rResult) const;
     PlaneIntersectionType Intersects(const Plane& plane) const;
-    void Intersects(const Plane& plane, PlaneIntersectionType& rResult) const;
     bool Intersects(const Ray& ray, float& rResult) const;
 
     //! @brief Tests for equality.

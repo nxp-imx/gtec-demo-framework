@@ -16,16 +16,16 @@ out mediump vec3 v_normal;
 out mediump vec2 v_texcoord;
 out mediump float v_layerDepth;
 
-void main() 
+void main()
 {
   float layerDepth = (float(gl_InstanceID) * InstanceDistance);
 
-  vec4 pos = vec4(VertexPosition  + (VertexNormal * MaxHairLength * layerDepth), 1.0);
+  vec4 pos = vec4(VertexPosition + (VertexNormal * MaxHairLength * layerDepth), 1.0);
   vec4 worldPosition = World * pos;
-  //make the displacement non linear, to make it look more like fur
+  // make the displacement non linear, to make it look more like fur
   float displacementFactor = pow(layerDepth, 3.0);
-  //apply the displacement
-  worldPosition.xyz += Displacement * displacementFactor ;
+  // apply the displacement
+  worldPosition.xyz += Displacement * displacementFactor;
   vec4 viewPosition = View * worldPosition;
   gl_Position = Projection * viewPosition;
   v_texcoord = TexCoord;

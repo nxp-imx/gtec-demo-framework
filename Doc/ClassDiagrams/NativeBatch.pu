@@ -1,0 +1,54 @@
+@startuml NativeBatch Class Diagram
+scale 1
+
+' FslGraphics
+interface INativeBatch2D
+interface INativeTexture2D
+'typename TNativeBatch, typename TTexture, typename TVFormatter = GenericBatch2DFormat::Flipped
+class GenericBatch2D<TNativeBatch,TTexture>
+
+namespace FslUtil.GLES2 {
+    class GLBatch2D
+    class GLBatch2DQuadRenderer
+    class GLTexture
+    class GLTextureInfo
+    class NativeBatch2D
+    class NativeTexture2D
+    class "GenericBatch2D<GLBatch2DQuadRenderer,GLTextureInfo>" as GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo
+
+    .GenericBatch2D -- GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo
+
+    GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo <|-- GLBatch2D 
+    GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo o-- GLBatch2DQuadRenderer
+    GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo .. GLTextureInfo : uses
+    GLBatch2D <|-- NativeBatch2D
+    GLTexture .. GLTextureInfo : uses
+    NativeTexture2D *-- GLTexture
+
+    .INativeBatch2D <|-- NativeBatch2D
+    .INativeTexture2D <|-- NativeTexture2D
+}
+
+namespace FslUtil.GLES3 {
+    class GLBatch2D
+    class GLBatch2DQuadRenderer
+    class GLTexture
+    class GLTextureInfo
+    class NativeBatch2D
+    class NativeTexture2D
+    class "GenericBatch2D<GLBatch2DQuadRenderer,GLTextureInfo>" as GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo
+
+    .GenericBatch2D -- GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo
+    GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo <|-- GLBatch2D 
+    GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo o-- GLBatch2DQuadRenderer
+    GenericBatch2D_GLBatch2DQuadRenderer_GLTextureInfo .. GLTextureInfo : uses
+    GLBatch2D <|-- NativeBatch2D
+    GLTexture .. GLTextureInfo : uses
+    NativeTexture2D *-- GLTexture
+
+    .INativeBatch2D <|-- NativeBatch2D
+    .INativeTexture2D <|-- NativeTexture2D
+}
+
+
+@enduml

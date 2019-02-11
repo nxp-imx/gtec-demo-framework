@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.InputEvents.VC.VC.opendb
+/Shared.InputEvents.VC.db
+/Shared.InputEvents.manifest
+/Shared.InputEvents.opensdf
+/Shared.InputEvents.sdf
+/Shared.InputEvents.sln
+/Shared.InputEvents.v12.sdf
+/Shared.InputEvents.v12.suo
+/Shared.InputEvents.vcxproj
+/Shared.InputEvents.vcxproj.filters
+/Shared.InputEvents.vcxproj.user
+/build/

@@ -2,6 +2,7 @@
 
 ## Yocto
 
+- If you are using a old version of the SDK that doesn't come with all required third party software you will need to add  ```--Recipes [*]``` to your build command as that will re-enable the download.
 - If you are using a old version of the SDK build tools to build you might get a error like:
   "ERROR: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:645)>"
   This is because the build tools are missing some required certificates.
@@ -42,6 +43,7 @@
 
 - Early access. Everything is subject to changes.
 - Limited platform support
+- The recommended AMD OpenCL implementation appears to be unsupported now and hard to find. For more information check this [discussion](https://community.amd.com/thread/228114).
 
 ## OpenVX
 
@@ -51,15 +53,13 @@
 
 ## Vulkan
 
+- Please see the Known Issues section of the Vulkan [README](Doc/Vulkan/README.md).
 - Early access. Everything is subject to changes.
-- DemoAppVulkan is a complete work in progress.
-- Limited platform support
-- Ubuntu X11 is in theory supported but has not been tested yet.
 - Qnx support is disabled.
 - Yocto support is available for WindowSystem=FB, WindowSystem=Wayland only.
 - Requires 1.0.42.2 or newer or windows
 
-## Helios 
+## Helios
 
 The new cross platform camera API.
 

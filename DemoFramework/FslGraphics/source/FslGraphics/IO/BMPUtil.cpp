@@ -463,7 +463,7 @@ namespace Fsl
       rawBitmap.SetBitmapOrigin(!bitmapHeader.IsYFlipped ? BitmapOrigin::UpperLeft : BitmapOrigin::LowerLeft);
 
       assert(rawBitmap.Stride() == minStride);
-      if (cbBitmap > rawBitmap.GetBufferLength())
+      if (cbBitmap > rawBitmap.GetByteSize())
       {
         throw FormatException("Decode BMP failed due to unexpected buffer size");
       }

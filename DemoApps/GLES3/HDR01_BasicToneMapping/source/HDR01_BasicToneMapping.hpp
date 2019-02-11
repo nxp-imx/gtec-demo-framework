@@ -47,10 +47,11 @@
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLVertexArray.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/BasicProgramLocations.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/MenuUI.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/OptionParser.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/SimpleMesh.hpp>
+#include <Shared/HDR/BasicScene/MenuUI.hpp>
+#include <Shared/HDR/BasicScene/OptionParser.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/BasicProgramLocations.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/FragmentUBOData.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/SimpleMesh.hpp>
 #include <vector>
 #include <utility>
 
@@ -60,6 +61,13 @@ namespace Fsl
     : public DemoAppGLES3
     , public UI::EventListener
   {
+    struct VertexUBOData
+    {
+      Matrix MatModel;
+      Matrix MatView;
+      Matrix MatProj;
+    };
+
     struct ProgramLocations : BasicProgramLocations
     {
       GLint Exposure;
@@ -75,6 +83,16 @@ namespace Fsl
       ProgramLocations Location;
     };
 
+    struct Resources
+    {
+      GLES3::GLTexture TexSRGB;
+
+      ProgramInfo ProgramHDR;
+      ProgramInfo ProgramLDR;
+
+      SimpleMesh MeshTunnel;
+    };
+
     MenuUI m_menuUI;
 
     std::shared_ptr<IKeyboard> m_keyboard;
@@ -82,19 +100,11 @@ namespace Fsl
     std::shared_ptr<IDemoAppControl> m_demoAppControl;
     bool m_mouseCaptureEnabled;
     Graphics3D::FirstPersonCamera m_camera;
-    Matrix m_matrixModel;
-    Matrix m_matrixView;
-    Matrix m_matrixProjection;
 
-    GLES3::GLTexture m_texSRGB;
+    Resources m_resources;
 
-    ProgramInfo m_programHDR;
-    ProgramInfo m_programLDR;
-
-    SimpleMesh m_meshTunnel;
-
-    std::vector<Vector3> m_lightPositions;
-    std::vector<Vector3> m_lightColors;
+    VertexUBOData m_vertexUboData;
+    FragmentUBOData m_fragmentUboData;
 
   public:
     HDR01_BasicToneMapping(const DemoAppConfig& config);
@@ -111,8 +121,6 @@ namespace Fsl
     void UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState);
 
     void DrawScene(const ProgramInfo& programInfo);
-    void PrepareLights();
-    void CreateTextures(const std::shared_ptr<IContentManager>& contentManager);
     ProgramInfo CreateShader(const std::shared_ptr<IContentManager>& contentManager, const bool useHDR);
   };
 }

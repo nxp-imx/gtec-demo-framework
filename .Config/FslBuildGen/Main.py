@@ -164,7 +164,7 @@ class PackageLoadAndResolveProcess(object):
 
             topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
             requestedFiles = self.SourceFiles
-            requestedPackages = PackageUtil.TryGetPackageListFromFilenames(topLevelPackage, requestedFiles)
+            requestedPackages = PackageUtil.TryGetPackageListFromFilenames(topLevelPackage, requestedFiles, False)
             resolvedBuildOrder = PackageFilter.Filter(self.Log, topLevelPackage, requestedPackages, packageFilters)
 
             # Now do a lookup of package -> Genfile to provide a filtered gen file list

@@ -39,10 +39,12 @@ namespace Fsl
   {
     //! @brief The total time that passed since the app was started in microseconds.
     //! @note This may not actually track the wall clock for various reasons.
-    uint64_t TotalTimeInMicroseconds;
+    uint64_t TotalTimeInMicroseconds{0};
 
-    uint64_t DeltaTimeInMicroseconds;
-    float DeltaTime;
+    uint64_t DeltaTimeInMicroseconds{0};
+    float DeltaTime{0.0f};
+
+    DemoTime() = default;
 
     DemoTime(const uint64_t& totalTimeInMicroseconds, const uint64_t& deltaTimeMicroseconds);
   };

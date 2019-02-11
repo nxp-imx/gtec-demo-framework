@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/RTTI/TypeInfo.hpp>
 #include <FslService/Impl/ServiceType/Async/IAsynchronousServiceMessageHandlerRegistry.hpp>
 #include <functional>
 #include <memory>
 #include <map>
+#include <typeindex>
 #include <utility>
 
 namespace Fsl
@@ -56,13 +56,13 @@ namespace Fsl
       }
     };
 
-    std::map<TypeInfo, AsyncServiceMessageHandler> m_lookup;
+    std::map<std::type_index, AsyncServiceMessageHandler> m_lookup;
 
   public:
     bool TryProcessMessage(const std::shared_ptr<Message>& message);
 
     // Inherited via IAsynchronousServiceMessageHandlerRegistry
-    void Register(const TypeInfo& messageType, const std::function<void(Message& message)>& handler) override;
+    void Register(const std::type_index& messageType, const std::function<void(Message& message)>& handler) override;
   };
 }
 

@@ -33,7 +33,6 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslUtil/Vulkan1_0/Extend/PhysicalDeviceRecord.hpp>
 #include <RapidVulkan/Instance.hpp>
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -71,7 +70,7 @@ namespace Fsl
       }
 
 
-      PhysicalDeviceRecord GetPhysicalDevice(const VkInstance instance, const uint32_t index);
+      VkPhysicalDevice GetPhysicalDevice(const VkInstance instance, const uint32_t index);
 
       //! @brief Enumerate the instance layer properties
       std::vector<VkLayerProperties> EnumerateInstanceLayerProperties();

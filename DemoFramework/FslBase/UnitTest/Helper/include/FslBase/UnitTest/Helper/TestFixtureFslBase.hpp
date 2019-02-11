@@ -32,34 +32,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUnitTest/TestFixture.hpp>
-#include <FslBase/IO/Path.hpp>
 
 class TestFixtureFslBase : public TestFixture
 {
-  Fsl::IO::Path m_contentPath;
-  Fsl::IO::Path m_tempPath;
-
 public:
-  TestFixtureFslBase()
-    : m_contentPath(GetContentPathBase())
-    , m_tempPath(GetTempPathBase())
-  {
-  }
+  TestFixtureFslBase() = default;
 
-  Fsl::IO::Path GetContentPath() const
-  {
-    return m_contentPath;
-  }
-
-  Fsl::IO::Path GetContentPath(const Fsl::IO::Path& relativePath) const
-  {
-    return Fsl::IO::Path::Combine(m_contentPath, relativePath);
-  }
-
-  Fsl::IO::Path GetTempPath(const Fsl::IO::Path& relativePath) const
-  {
-    return Fsl::IO::Path::Combine(m_tempPath, relativePath);
-  }
+private:
 };
 
 

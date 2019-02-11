@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2018 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,159 +30,97 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/VUImage.hpp>
-#include <FslUtil/Vulkan1_0/VUBuffer.hpp>
-#include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <RapidVulkan/Buffer.hpp>
+#include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
-#include <RapidVulkan/Fence.hpp>
-#include <vulkan/vulkan.h>
 #include <cassert>
-#include <limits>
+#include <cstring>
 #include <utility>
 
 namespace Fsl
 {
   namespace Vulkan
   {
-    VUImage& VUImage::operator=(VUImage&& other) noexcept
-    {
-      if (this != &other)
-      {
-        // Free existing resources then transfer the content of other to this one and fill other with default values
-        if (IsValid())
-        {
-          Reset();
-        }
-
-        // Claim ownership here
-        m_image = std::move(other.m_image);
-        m_memory = std::move(other.m_memory);
-        m_imageView = std::move(other.m_imageView);
-
-        // Remove the data from other
-      }
-      return *this;
-    }
-
-
-    VUImage::VUImage(VUImage&& other) noexcept
-      : m_image(std::move(other.m_image))
-      , m_memory(std::move(other.m_memory))
-      , m_imageView(std::move(other.m_imageView))
-    {
-      // Remove the data from other
-    }
-
-
-    VUImage::VUImage() = default;
-
-
-    VUImage::VUImage(const VUDevice& device, const VkCommandBuffer commandBuffer, const VkImageCreateInfo& imageCreateInfo,
-                     const VkAccessFlags srcAccessMask, const VkAccessFlags dstAccessMask, const VkImageLayout newLayout,
-                     const VkImageSubresourceRange& subresourceRange, const VkMemoryPropertyFlags memoryPropertyFlags, const std::string& name)
+    VUImage::VUImage(const VkDevice device, const VkImageCreateInfo& createInfo)
       : VUImage()
     {
-      Reset(device, commandBuffer, imageCreateInfo, srcAccessMask, dstAccessMask, newLayout, subresourceRange, memoryPropertyFlags, name);
+      Reset(device, createInfo);
     }
 
 
-    VUImage::VUImage(ImageEx&& image, RapidVulkan::Memory&& memory, RapidVulkan::ImageView&& imageView, const std::string& name)
+    VUImage::VUImage(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format,
+                     const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples,
+                     const VkImageTiling tiling, const VkImageUsageFlags usage, const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount,
+                     const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout)
       : VUImage()
     {
-      Reset(std::move(image), std::move(memory), std::move(imageView), name);
+      Reset(device, flags, imageType, format, extent, mipLevels, arrayLayers, samples, tiling, usage, sharingMode, queueFamilyIndexCount,
+            queueFamilyIndices, initialLayout);
     }
 
 
     void VUImage::Reset() noexcept
     {
-      if (!IsValid())
+      if (!m_image.IsValid())
       {
         return;
       }
 
-      assert(m_image.IsValid());
-      assert(m_memory.IsValid());
-      assert(m_imageView.IsValid());
-
-      DoReset();
-    }
-
-
-    void VUImage::Reset(const VUDevice& device, const VkCommandBuffer commandBuffer, const VkImageCreateInfo& imageCreateInfo,
-                        const VkAccessFlags srcAccessMask, const VkAccessFlags dstAccessMask, const VkImageLayout newLayout,
-                        const VkImageSubresourceRange& subresourceRange, const VkMemoryPropertyFlags memoryPropertyFlags, const std::string& name)
-    {
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        m_image.Reset(device.Get(), imageCreateInfo, srcAccessMask);
-
-        const auto imageMemoryRequirements = m_image.GetImageMemoryRequirements();
-
-        VkMemoryAllocateInfo memoryAllocateInfo{};
-        memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        memoryAllocateInfo.allocationSize = imageMemoryRequirements.size;
-        memoryAllocateInfo.memoryTypeIndex =
-          device.GetPhysicalDevice().GetMemoryTypeIndex(imageMemoryRequirements.memoryTypeBits, memoryPropertyFlags);
-
-        m_memory.Reset(device.Get(), memoryAllocateInfo);
-
-        RAPIDVULKAN_CHECK(vkBindImageMemory(device.Get(), m_image.Get(), m_memory.Get(), 0));
-
-        m_image.CmdPipelineBarrier(commandBuffer, dstAccessMask, newLayout, subresourceRange);
-
-        VkImageViewCreateInfo imageViewCreateInfo{};
-        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        imageViewCreateInfo.flags = 0;
-        imageViewCreateInfo.image = m_image.Get();
-        imageViewCreateInfo.viewType =
-          (m_image.GetFlags() & VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT) != 0u ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
-        imageViewCreateInfo.format = m_image.GetFormat();
-        imageViewCreateInfo.components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
-                                          VK_COMPONENT_SWIZZLE_IDENTITY};
-        imageViewCreateInfo.subresourceRange = subresourceRange;
-
-        m_imageView.Reset(device.Get(), imageViewCreateInfo);
-      }
-      catch (const std::exception&)
-      {
-        DoReset();
-        throw;
-      }
-    }
-
-
-    void VUImage::Reset(ImageEx&& image, RapidVulkan::Memory&& memory, RapidVulkan::ImageView&& imageView, const std::string& name)
-    {
-      if (IsValid())
-      {
-        Reset();
-      }
-
-      try
-      {
-        m_image = std::move(image);
-        m_memory = std::move(memory);
-        m_imageView = std::move(imageView);
-      }
-      catch (const std::exception&)
-      {
-        DoReset();
-        throw;
-      }
-    }
-
-
-    void VUImage::DoReset()
-    {
-      m_imageView.Reset();
-      m_memory.Reset();
       m_image.Reset();
+      m_flags = 0;
+      m_format = VK_FORMAT_UNDEFINED;
+      m_extent = {};
+      m_mipLevels = 0;
+      m_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    }
+
+
+    void VUImage::Reset(const VkDevice device, const VkImageCreateInfo& createInfo)
+    {
+      if (IsValid())
+      {
+        Reset();
+      }
+
+      try
+      {
+        m_image.Reset(device, createInfo);
+      }
+      catch (const std::exception&)
+      {
+        m_image.Reset();
+        throw;
+      }
+
+      m_flags = createInfo.flags;
+      m_format = createInfo.format;
+      m_extent = createInfo.extent;
+      m_mipLevels = createInfo.mipLevels;
+      m_layout = createInfo.initialLayout;
+    }
+
+
+    void VUImage::Reset(const VkDevice device, const VkImageCreateFlags flags, const VkImageType imageType, const VkFormat format,
+                        const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers, const VkSampleCountFlagBits samples,
+                        const VkImageTiling tiling, const VkImageUsageFlags usage, const VkSharingMode sharingMode,
+                        const uint32_t queueFamilyIndexCount, const uint32_t* queueFamilyIndices, const VkImageLayout initialLayout)
+    {
+      VkImageCreateInfo createInfo{};
+      createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+      createInfo.flags = flags;
+      createInfo.imageType = imageType;
+      createInfo.format = format;
+      createInfo.extent = extent;
+      createInfo.mipLevels = mipLevels;
+      createInfo.arrayLayers = arrayLayers;
+      createInfo.samples = samples;
+      createInfo.tiling = tiling;
+      createInfo.usage = usage;
+      createInfo.sharingMode = sharingMode;
+      createInfo.queueFamilyIndexCount = queueFamilyIndexCount;
+      createInfo.pQueueFamilyIndices = queueFamilyIndices;
+      createInfo.initialLayout = initialLayout;
+
+      Reset(device, createInfo);
     }
   }
 }

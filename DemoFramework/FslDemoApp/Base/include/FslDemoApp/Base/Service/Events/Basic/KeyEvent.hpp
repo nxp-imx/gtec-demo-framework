@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
 #include <FslNativeWindow/Base/VirtualKey.hpp>
 
@@ -40,17 +41,37 @@ namespace Fsl
   class KeyEvent : public BasicEvent
   {
   public:
-    explicit KeyEvent(const BasicEvent& encodedEvent);
-    KeyEvent(const VirtualKey::Enum key, const bool isPressed, const uint32_t deviceId);
+    explicit KeyEvent(const BasicEvent& encodedEvent)
+      : BasicEvent(encodedEvent)
+    {
+      if (m_type != EventType::KeyPressed)
+      {
+        throw std::invalid_argument("The supplied argument is of a wrong type");
+      }
+    }
+
+    KeyEvent(const VirtualKey::Enum key, const bool isPressed, const uint32_t deviceId)
+      : BasicEvent(EventType::KeyPressed, key, isPressed ? 1 : 0, static_cast<int32_t>(deviceId))
+    {
+    }
 
     //! @brief Get the key
-    VirtualKey::Enum GetKey() const;
+    VirtualKey::Enum GetKey() const
+    {
+      return static_cast<VirtualKey::Enum>(m_arg1);
+    }
 
     //! @brief Check if the key is considered pressed
-    bool IsPressed() const;
+    bool IsPressed() const
+    {
+      return m_arg2 != 0;
+    }
 
     //! @brief get the associated device id
-    uint32_t GetDeviceId() const;
+    uint32_t GetDeviceId() const
+    {
+      return static_cast<uint32_t>(m_arg3);
+    }
   };
 }
 

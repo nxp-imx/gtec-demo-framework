@@ -1,7 +1,7 @@
 #ifndef FSLUTIL_VULKAN1_0_VUBUFFER_HPP
 #define FSLUTIL_VULKAN1_0_VUBUFFER_HPP
 /****************************************************************************************************************************************************
- * Copyright 2017 NXP
+ * Copyright 2018 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,56 +31,76 @@
  *
  ****************************************************************************************************************************************************/
 
+// Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslUtil/Vulkan1_0/Extend/BufferEx.hpp>
-#include <FslUtil/Vulkan1_0/Extend/DeviceMemoryEx.hpp>
-#include <glm/matrix.hpp>
+#include <RapidVulkan/Buffer.hpp>
+#include <vulkan/vulkan.h>
 
 namespace Fsl
 {
-  struct Vector2;
-  struct Vector3;
-  struct Vector4;
-  struct Matrix;
-
   namespace Vulkan
   {
-    class VUDevice;
-    struct VUPhysicalDeviceRecord;
-
-    //! This object is movable so it can be thought of as behaving in the same was as a unique_ptr and is compatible with std containers
+    // Extends the Buffer class with 'VkBufferCreateInfo' and 'VkAccessFlags' so its available for query at a later time.
+    // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
     class VUBuffer
     {
-      BufferEx m_buffer;
-      DeviceMemoryEx m_memory;
-      VkDescriptorBufferInfo m_descriptor;
-      VkDeviceSize m_bufferSegments{};
-      void* m_pMapped;
+      RapidVulkan::Buffer m_buffer;
+      VkDeviceSize m_size{0};
+      VkBufferUsageFlags m_usage{0};
+      VkAccessFlags m_accessMask{0};
 
     public:
       VUBuffer(const VUBuffer&) = delete;
       VUBuffer& operator=(const VUBuffer&) = delete;
 
-      //! @brief Move assignment operator
-      VUBuffer& operator=(VUBuffer&& other) noexcept;
+      // move assignment operator
+      VUBuffer& operator=(VUBuffer&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          Reset();
 
-      //! @brief Move constructor
-      //! Transfer ownership from other to this
-      VUBuffer(VUBuffer&& other) noexcept;
+          // Claim ownership here
+          m_buffer = std::move(other.m_buffer);
+          // m_createInfo = std::move(other.m_createInfo);
+          m_size = other.m_size;
+          m_usage = other.m_usage;
+          m_accessMask = other.m_accessMask;
 
-      //! @brief Move objects into this object
-      VUBuffer(BufferEx&& buffer, DeviceMemoryEx&& deviceMemory, const VkDescriptorBufferInfo& descriptor);
+          // Remove the data from other
+          other.m_accessMask = 0;
+          other.m_size = 0;
+          other.m_usage = 0;
+        }
+        return *this;
+      }
 
-      //! @brief Create a 'invalid' instance (use Reset to populate it)
-      VUBuffer();
-      VUBuffer(const VUDevice& device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
-               const VkDeviceSize subBufferCount = 1);
-      VUBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
-               const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize subBufferCount = 1);
-      VUBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryAllocateInfo& memoryAllocationInfo,
-               const VkMemoryPropertyFlags memoryPropertyFlags);
+      // move constructor
+      VUBuffer(VUBuffer&& other) noexcept
+        : m_buffer(std::move(other.m_buffer))
+        , m_size(other.m_size)
+        , m_usage(other.m_usage)
+        , m_accessMask(other.m_accessMask)
+      {
+        // Remove the data from other
+        other.m_accessMask = 0;
+        other.m_size = 0;
+        other.m_usage = 0;
+      }
 
-      ~VUBuffer()
+
+      VUBuffer() = default;
+
+
+      //! @brief Create a new buffer.
+      VUBuffer(const VkDevice device, const VkBufferCreateFlags flags, const VkDeviceSize size, const VkBufferUsageFlags usage,
+               const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount, const uint32_t* const pQueueFamilyIndices);
+
+      //! @brief Create a new buffer.
+      VUBuffer(const VkDevice device, const VkBufferCreateInfo& createInfo);
+
+      ~VUBuffer() noexcept
       {
         Reset();
       }
@@ -88,144 +108,60 @@ namespace Fsl
       //! @brief Destroys any owned resources and resets the object to its default state.
       void Reset() noexcept;
 
-      void Reset(const VUDevice& device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryPropertyFlags memoryPropertyFlags,
-                 const VkDeviceSize bufferSegments = 1);
-      void Reset(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
-                 const VkMemoryPropertyFlags memoryPropertyFlags, const VkDeviceSize bufferSegments = 1);
-      void Reset(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo, const VkMemoryAllocateInfo& memoryAllocationInfo,
-                 const VkMemoryPropertyFlags memoryPropertyFlags);
+      //! @brief Replaces the managed object with a new one (releasing the old)
+      void Reset(const VkDevice device, const VkBufferCreateFlags flags, const VkDeviceSize size, const VkBufferUsageFlags usage,
+                 const VkSharingMode sharingMode, const uint32_t queueFamilyIndexCount, const uint32_t* const pQueueFamilyIndices);
 
-      //! @brief Get the associated 'Device'
+      //! @brief Replaces the managed object with a new one (releasing the old)
+      void Reset(const VkDevice device, const VkBufferCreateInfo& createInfo);
+
+      //! @brief Get the device associated with this object
       VkDevice GetDevice() const
       {
         return m_buffer.GetDevice();
       }
 
-      //! @brief Get the associated 'buffer'
-      VkBuffer GetBuffer() const
+      //! @brief Get the buffer handle associated with this object
+      VkBuffer Get() const
       {
         return m_buffer.Get();
       }
 
-      //! @brief Get the associated 'buffer'
-      const VkBuffer* GetBufferPointer() const
+      //! @brief Get a pointer to the associated resource handle
+      const VkBuffer* GetPointer() const
       {
         return m_buffer.GetPointer();
       }
 
-      //! @brief Get the associated 'memory'
-      VkDeviceMemory GetMemory() const
-      {
-        return m_memory.Get();
-      }
-
-      VkDescriptorBufferInfo GetDescriptor() const
-      {
-        return m_descriptor;
-      }
-
-      const VkDescriptorBufferInfo* GetDescriptorPointer() const
-      {
-        return &m_descriptor;
-      }
-
-      VkDeviceSize GetAllocationSize() const
-      {
-        return m_memory.GetAllocationSize();
-      }
-
-      VkDeviceSize GetSegmentCount() const
-      {
-        return m_bufferSegments;
-      }
-
-      VkDeviceSize GetSegmentSize() const
-      {
-        return GetAllocationSize() / m_bufferSegments;
-      }
-
-      VkBufferUsageFlags GetUsageFlags() const
-      {
-        return m_buffer.GetUsage();
-      }
-
-      VkMemoryPropertyFlags GetMemoryPropertyFlags() const
-      {
-        return m_memory.GetMemoryPropertyFlags();
-      }
-
-
-      const void* GetMappedPointer() const
-      {
-        return m_pMapped;
-      }
-
-
-      void* GetMappedPointer()
-      {
-        return m_pMapped;
-      }
-
-
-      //! @brief Check if this object contains a valid resource
-      inline bool IsValid() const
+      //! @brief Check if this buffer object is valid
+      bool IsValid() const
       {
         return m_buffer.IsValid();
       }
 
-      //! @brief Map a memory range of this buffer. If successful, mapped points to the specified buffer range.
-      //! @param offset (Optional) Byte offset from beginning
-      //! @param size (Optional) Size of the memory range to map. Pass VK_WHOLE_SIZE to map the complete buffer range.
-      //! @return the mapped pointer
-      void* Map(const VkDeviceSize offset = 0, const VkDeviceSize size = VK_WHOLE_SIZE);
 
-      //! @brief Unmap a mapped memory range
-      //! @note Does not return a result as vkUnmapMemory can't fail
-      void Unmap();
-
-      // @brief Attach the allocated memory block to the buffer
-      // @param offset (Optional) Byte offset (from the beginning) for the memory region to bind
-      // @return VkResult of the bindBufferMemory call
-      void Bind(const VkDeviceSize offset = 0);
-
-
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const int32_t scalar);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const float scalar);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const glm::vec2& vec);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const Vector2& vec);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const glm::vec3& vec);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const Vector3& vec);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const glm::vec4& vec);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const Vector4& vec);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const glm::mat3& mat);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const glm::mat2& mat);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const glm::mat4& mat);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const Matrix& mat);
-      void Upload(const uint32_t offset, const VkMemoryMapFlags flags, const void* const pData, const uint32_t dataSize);
-
-      //! @brief A 'exception safe' way of mapping a object
-      class ScopedMap
+      VkMemoryRequirements GetBufferMemoryRequirements() const
       {
-        VUBuffer& m_rBuffer;
+        return m_buffer.GetBufferMemoryRequirements();
+      }
 
-      public:
-        void* pMappedMemory;
 
-        ScopedMap(VUBuffer& rBuffer, const VkDeviceSize offset = 0, const VkDeviceSize size = VK_WHOLE_SIZE)
-          : m_rBuffer(rBuffer)
-        {
-          pMappedMemory = m_rBuffer.Map(offset, size);
-        }
+      VkAccessFlags GetAccessMask() const
+      {
+        return m_accessMask;
+      }
 
-        ~ScopedMap()
-        {
-          pMappedMemory = nullptr;
-          m_rBuffer.Unmap();
-        }
-      };
 
-    private:
-      void SetMemberVarsOnNewReset(const VkDeviceSize bufferSegments);
+      VkDeviceSize GetSize() const
+      {
+        return m_size;
+      }
+
+
+      VkBufferUsageFlags GetUsage() const
+      {
+        return m_usage;
+      }
     };
   }
 }

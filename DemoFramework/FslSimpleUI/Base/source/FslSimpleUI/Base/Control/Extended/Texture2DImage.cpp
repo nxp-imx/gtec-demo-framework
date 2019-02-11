@@ -77,7 +77,18 @@ namespace Fsl
     void Texture2DImage::WinDraw(const UIDrawContext& context)
     {
       BaseWindow::WinDraw(context);
+
+      if (m_blendState != BlendState::AlphaBlend)
+      {
+        m_windowContext->Batch2D->ChangeTo(m_blendState);
+      }
+
       m_windowContext->Batch2D->Draw(m_content, context.TargetRect, Color::White());
+
+      if (m_blendState != BlendState::AlphaBlend)
+      {
+        m_windowContext->Batch2D->ChangeTo(BlendState::AlphaBlend);
+      }
     }
 
 

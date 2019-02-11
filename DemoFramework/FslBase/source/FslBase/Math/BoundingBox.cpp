@@ -63,12 +63,6 @@ namespace Fsl
   }
 
 
-  void BoundingBox::Contains(const BoundingBox& box, ContainmentType& rResult) const
-  {
-    rResult = Contains(box);
-  }
-
-
   // ContainmentType BoundingBox::Contains(const BoundingFrustum& frustum) const
   //{
   //  //TODO: bad done here need a fix.
@@ -112,14 +106,13 @@ namespace Fsl
 
   ContainmentType BoundingBox::Contains(const BoundingSphere& sphere) const
   {
-    if (sphere.Center.X - Min.X >= sphere.Radius && sphere.Center.Y - Min.Y >= sphere.Radius && sphere.Center.Z - Min.Z >= sphere.Radius &&
-        Max.X - sphere.Center.X >= sphere.Radius && Max.Y - sphere.Center.Y >= sphere.Radius && Max.Z - sphere.Center.Z >= sphere.Radius)
+    if ((sphere.Center.X - Min.X) >= sphere.Radius && (sphere.Center.Y - Min.Y) >= sphere.Radius && (sphere.Center.Z - Min.Z) >= sphere.Radius &&
+        (Max.X - sphere.Center.X) >= sphere.Radius && (Max.Y - sphere.Center.Y) >= sphere.Radius && (Max.Z - sphere.Center.Z) >= sphere.Radius)
     {
       return ContainmentType::Contains;
     }
 
     double dmin = 0;
-
     double e = sphere.Center.X - Min.X;
     if (e < 0)
     {
@@ -186,7 +179,7 @@ namespace Fsl
       }
     }
 
-    if (dmin <= sphere.Radius * sphere.Radius)
+    if (dmin <= (sphere.Radius * sphere.Radius))
     {
       return ContainmentType::Intersects;
     }
@@ -194,35 +187,14 @@ namespace Fsl
   }
 
 
-  void BoundingBox::Contains(const BoundingSphere& sphere, ContainmentType& rResult) const
-  {
-    rResult = Contains(sphere);
-  }
-
-
   ContainmentType BoundingBox::Contains(const Vector3& point) const
-  {
-    ContainmentType result;
-    Contains(point, result);
-    return result;
-  }
-
-
-  void BoundingBox::Contains(const Vector3& point, ContainmentType& rResult) const
   {
     // first we get if point is out of box
     if (point.X < Min.X || point.X > Max.X || point.Y < Min.Y || point.Y > Max.Y || point.Z < Min.Z || point.Z > Max.Z)
     {
-      rResult = ContainmentType::Disjoint;
-    }    // or if point is on box because coordinate of point is lesser or equal
-    else if (point.X == Min.X || point.X == Max.X || point.Y == Min.Y || point.Y == Max.Y || point.Z == Min.Z || point.Z == Max.Z)
-    {
-      rResult = ContainmentType::Intersects;
+      return ContainmentType::Disjoint;
     }
-    else
-    {
-      rResult = ContainmentType::Contains;
-    }
+    return ContainmentType::Contains;
   }
 
 
@@ -331,6 +303,34 @@ namespace Fsl
     corners[7].Z = Min.Z;
   }
 
+  void BoundingBox::GetCorners(std::array<Vector3, 8>& corners) const
+  {
+    corners[0].X = Min.X;
+    corners[0].Y = Max.Y;
+    corners[0].Z = Max.Z;
+    corners[1].X = Max.X;
+    corners[1].Y = Max.Y;
+    corners[1].Z = Max.Z;
+    corners[2].X = Max.X;
+    corners[2].Y = Min.Y;
+    corners[2].Z = Max.Z;
+    corners[3].X = Min.X;
+    corners[3].Y = Min.Y;
+    corners[3].Z = Max.Z;
+    corners[4].X = Min.X;
+    corners[4].Y = Max.Y;
+    corners[4].Z = Min.Z;
+    corners[5].X = Max.X;
+    corners[5].Y = Max.Y;
+    corners[5].Z = Min.Z;
+    corners[6].X = Max.X;
+    corners[6].Y = Min.Y;
+    corners[6].Z = Min.Z;
+    corners[7].X = Min.X;
+    corners[7].Y = Min.Y;
+    corners[7].Z = Min.Z;
+  }
+
 
   bool BoundingBox::Intersects(const BoundingBox& box) const
   {
@@ -366,60 +366,50 @@ namespace Fsl
 
   bool BoundingBox::Intersects(const BoundingSphere& sphere) const
   {
-    if (sphere.Center.X - Min.X > sphere.Radius && sphere.Center.Y - Min.Y > sphere.Radius && sphere.Center.Z - Min.Z > sphere.Radius &&
-        Max.X - sphere.Center.X > sphere.Radius && Max.Y - sphere.Center.Y > sphere.Radius && Max.Z - sphere.Center.Z > sphere.Radius)
+    const double sphereRadius = sphere.Radius;
+    const double sphereX = sphere.Center.X;
+    const double sphereY = sphere.Center.Y;
+    const double sphereZ = sphere.Center.Z;
+    if ((sphereX - Min.X) > sphereRadius && (sphereY - Min.Y) > sphereRadius && (sphereZ - Min.Z) > sphereRadius &&
+        (Max.X - sphereX) > sphereRadius && (Max.Y - sphereY) > sphereRadius && (Max.Z - sphereZ) > sphereRadius)
     {
       return true;
     }
 
-    double dmin = 0;
+    double dmin = 0.0;
 
-    if (sphere.Center.X - Min.X <= sphere.Radius)
+    if (sphereX < Min.X)
     {
-      dmin += (sphere.Center.X - Min.X) * (sphere.Center.X - Min.X);
+      dmin += (Min.X - sphereX) * (Min.X - sphereX);
     }
-    else if (Max.X - sphere.Center.X <= sphere.Radius)
+    else if (sphereX > Min.X)
     {
-      dmin += (sphere.Center.X - Max.X) * (sphere.Center.X - Max.X);
-    }
-
-    if (sphere.Center.Y - Min.Y <= sphere.Radius)
-    {
-      dmin += (sphere.Center.Y - Min.Y) * (sphere.Center.Y - Min.Y);
-    }
-    else if (Max.Y - sphere.Center.Y <= sphere.Radius)
-    {
-      dmin += (sphere.Center.Y - Max.Y) * (sphere.Center.Y - Max.Y);
+      dmin += (sphereX - Max.X) * (sphereX - Max.X);
     }
 
-    if (sphere.Center.Z - Min.Z <= sphere.Radius)
+    if (sphereY < Min.Y)
     {
-      dmin += (sphere.Center.Z - Min.Z) * (sphere.Center.Z - Min.Z);
+      dmin += (Min.Y - sphereY) * (Min.Y - sphereY);
     }
-    else if (Max.Z - sphere.Center.Z <= sphere.Radius)
+    else if (sphereY > Max.Y)
     {
-      dmin += (sphere.Center.Z - Max.Z) * (sphere.Center.Z - Max.Z);
+      dmin += (sphereY - Max.Y) * (sphereY - Max.Y);
     }
 
-    return dmin <= sphere.Radius * sphere.Radius;
-  }
+    if (sphereZ < Min.Z)
+    {
+      dmin += (Min.Z - sphereY) * (Min.Z - sphereZ);
+    }
+    else if (sphereZ > Max.Z)
+    {
+      dmin += (sphereZ - Max.Z) * (sphereZ - Max.Z);
+    }
 
-
-  void BoundingBox::Intersects(const BoundingSphere& sphere, bool& rResult) const
-  {
-    rResult = Intersects(sphere);
+    return (dmin <= (sphereRadius * sphereRadius));
   }
 
 
   PlaneIntersectionType BoundingBox::Intersects(const Plane& plane) const
-  {
-    PlaneIntersectionType result;
-    Intersects(plane, result);
-    return result;
-  }
-
-
-  void BoundingBox::Intersects(const Plane& plane, PlaneIntersectionType& rResult) const
   {
     // See http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
 
@@ -463,19 +453,17 @@ namespace Fsl
     auto distance = plane.Normal.X * negativeVertex.X + plane.Normal.Y * negativeVertex.Y + plane.Normal.Z * negativeVertex.Z + plane.D;
     if (distance > 0)
     {
-      rResult = PlaneIntersectionType::Front;
-      return;
+      return PlaneIntersectionType::Front;
     }
 
     // Inline Vector3.Dot(plane.Normal, positiveVertex) + plane.D;
     distance = plane.Normal.X * positiveVertex.X + plane.Normal.Y * positiveVertex.Y + plane.Normal.Z * positiveVertex.Z + plane.D;
     if (distance < 0)
     {
-      rResult = PlaneIntersectionType::Back;
-      return;
+      return PlaneIntersectionType::Back;
     }
 
-    rResult = PlaneIntersectionType::Intersecting;
+    return PlaneIntersectionType::Intersecting;
   }
 
 

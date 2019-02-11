@@ -206,7 +206,7 @@ namespace Fsl
   {
     // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
     Bitmap bitmap;
-    contentManager->Read(bitmap, "Scenes/Rocks/TexColor.png", PixelFormat::R8G8B8_UNORM);
+    contentManager->Read(bitmap, "Textures/Rocks/TexColor.png", PixelFormat::R8G8B8_UNORM);
     GLTextureParameters texParams1(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
     m_textureDiffuse.SetData(bitmap, texParams1);
 
@@ -218,19 +218,19 @@ namespace Fsl
     {
     case 2:
     case 3:
-      strTexDisplace = "Scenes/Example/TexDisplace.png";
-      strTexNormal = "Scenes/Example/TexNormal.png";
+      strTexDisplace = "Textures/Circles/TexDisplace.png";
+      strTexNormal = "Textures/Circles/TexNormal.png";
       break;
     case 4:
-      strTexDisplace = "Scenes/Face/TexDisplace.png";
-      strTexNormal = "Scenes/Face/TexNormal.png";
+      strTexDisplace = "Models/Face/TexDisplace.png";
+      strTexNormal = "Modes/Face/TexNormal.png";
       isFloatTexture = true;
       break;
     case 0:
     case 1:
     default:
-      strTexDisplace = "Scenes/Rocks/TexDisplace.png";
-      strTexNormal = "Scenes/Rocks/TexNormal.png";
+      strTexDisplace = "Textures/Rocks/TexDisplace.png";
+      strTexNormal = "Textures/Rocks/TexNormal.png";
       break;
     }
 

@@ -69,8 +69,7 @@ namespace Fsl
     }
 
     GLShader::GLShader()
-      : m_shaderType(0)
-      , m_handle(GLValues::INVALID_HANDLE)
+      : m_handle(GLValues::INVALID_HANDLE)
     {
     }
 

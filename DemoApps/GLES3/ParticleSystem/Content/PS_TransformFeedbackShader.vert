@@ -2,25 +2,26 @@
 #extension GL_EXT_shader_io_blocks : enable
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform float DeltaTime;
 
-layout (location = 0) in vec3 ParticlePosition;
-layout (location = 1) in vec3 ParticleVelocity;
-layout (location = 2) in float ParticleEnergy;
-layout (location = 3) in float ParticleType;
+layout(location = 0) in vec3 ParticlePosition;
+layout(location = 1) in vec3 ParticleVelocity;
+layout(location = 2) in float ParticleEnergy;
+layout(location = 3) in float ParticleType;
 
-out block 
+out block
 {
   vec3 ParticlePosition;
   vec3 ParticleVelocity;
   float ParticleEnergy;
   float ParticleType;
-} Out;
+}
+Out;
 
 void main()
 {

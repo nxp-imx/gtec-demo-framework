@@ -112,7 +112,7 @@ namespace Fsl
 
       // https://www.khronos.org/opengles/sdk/docs/man3/html/glTexImage2D.xhtml
 
-
+      // clang-format off
       // Unsized               |                    |                               |                            |
       // Internal Format       | Format             | Type                          | RGBA and Luminance Values  |Internal Components
       // ----------------------------------------------------------------------------------------------------------------------------
@@ -138,8 +138,7 @@ namespace Fsl
       // - no prefix is unsigned normalized fixed-point
       //
       // Sized                 |                    |                                     | Red  | Green | Blue | Alpha | Shared   | Pixel
-      // Internal Format       | Format             | Type                                | Bits | Bits  | Bits | Bits  | Bits     | Format (-) means
-      // this would be a conversion operation
+      // Internal Format       | Format             | Type                                | Bits | Bits  | Bits | Bits  | Bits     | Format (-) means this would be a conversion operation
       //-------------------------------------------------------------------------------------------------------------------------  |--------
       // GL_R8                 | GL_RED             | GL_UNSIGNED_BYTE                    | 8    |       |      |       |          | R8_UNORM
       // GL_R8_SNORM           | GL_RED             | GL_BYTE                             | s8   |       |      |       |          | R8_SNORM
@@ -166,16 +165,12 @@ namespace Fsl
       // GL_RGB8               | GL_RGB             | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    |       |          | R8G8B8_UNORM
       // GL_SRGB8              | GL_RGB             | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    |       |          | R8G8B8_SRGB
       // GL_RGB565             | GL_RGB             | GL_UNSIGNED_BYTE                    | 5    | 6     | 5    |       |          | - R5G6B5_UNORM
-      //                       |                    | GL_UNSIGNED_SHORT_5_6_5 (P)         |      |       |      |       |          |
-      //                       R5G6B5_UNORM_PACK16
+      //                       |                    | GL_UNSIGNED_SHORT_5_6_5 (P)         |      |       |      |       |          | R5G6B5_UNORM_PACK16
       // GL_RGB8_SNORM         | GL_RGB             | GL_BYTE                             | s8   | s8    | s8   |       |          | R8G8B8_SNORM
-      // GL_R11F_G11F_B10F     | GL_RGB             | GL_UNSIGNED_INT_10F_11F_11F_REV (P) | f11  | f11   | f10  |       |          |
-      // B10G11R11_UFLOAT_PACK32??
-      //                       |                    | GL_HALF_FLOAT                       |      |       |      |       |          | -
-      //                       R11G11B10_SFLOAT |                    | GL_FLOAT                            |      |       |      |       |          |
-      //                       - R11G11B10_SFLOAT
-      // GL_RGB9_E5            | GL_RGB             | GL_UNSIGNED_INT_5_9_9_9_REV (P)     | 9    | 9     |9     | 5     |          |
-      // E5B9G9R9_UNORM_PACK32??  (no vulkan format or incorrect name?)
+      // GL_R11F_G11F_B10F     | GL_RGB             | GL_UNSIGNED_INT_10F_11F_11F_REV (P) | f11  | f11   | f10  |       |          | B10G11R11_UFLOAT_PACK32??
+      //                       |                    | GL_HALF_FLOAT                       |      |       |      |       |          | - R11G11B10_SFLOAT
+      //                       |                    | GL_FLOAT                            |      |       |      |       |          | - R11G11B10_SFLOAT
+      // GL_RGB9_E5            | GL_RGB             | GL_UNSIGNED_INT_5_9_9_9_REV (P)     | 9    | 9     |9     | 5     |          | E5B9G9R9_UNORM_PACK32??  (no vulkan format or incorrect name?)
       //                       |                    | GL_HALF_FLOAT                       |      |       |      |       |          | -
       //                       |                    | GL_FLOAT                            |      |       |      |       |          | -
       // GL_RGB16F             | GL_RGB             | GL_HALF_FLOAT                       | f16  | f16   | f16  |       |          | R16G16B16_SFLOAT
@@ -190,27 +185,22 @@ namespace Fsl
       // GL_RGBA8              | GL_RGBA            | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    | 8     |          | R8G8B8A8_UNORM
       // GL_SRGB8_ALPHA8       | GL_RGBA            | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    | 8     |          | R8G8B8A8_SRGB
       // GL_RGBA8_SNORM        | GL_RGBA            | GL_BYTE                             | s8   | s8    | s8   | s8    |          | R8G8B8A8_SNORM
-      // GL_RGB5_A1            | GL_RGBA            | GL_UNSIGNED_SHORT_5_5_5_1 (P)       | 5    | 5     | 5    | 1     |          |
-      // R5G5B5A1_UNORM_PACK16
+      // GL_RGB5_A1            | GL_RGBA            | GL_UNSIGNED_SHORT_5_5_5_1 (P)       | 5    | 5     | 5    | 1     |          | R5G5B5A1_UNORM_PACK16
       //                       |                    | GL_UNSIGNED_BYTE                    |      |       |      |       |          | - R5G5B5A1_UNORM?
-      //                       |                    | GL_UNSIGNED_INT_2_10_10_10_REV (P)  |      |       |      |       |          | -
-      //                       A2B10G10R10_UNORM_PACK32
-      // GL_RGBA4              | GL_RGBA            | GL_UNSIGNED_SHORT_4_4_4_4 (P)       | 4    | 4     | 4    | 4     |          |
-      // R4G4B4A4_UNORM_PACK16
+      //                       |                    | GL_UNSIGNED_INT_2_10_10_10_REV (P)  |      |       |      |       |          | - A2B10G10R10_UNORM_PACK32
+      // GL_RGBA4              | GL_RGBA            | GL_UNSIGNED_SHORT_4_4_4_4 (P)       | 4    | 4     | 4    | 4     |          | R4G4B4A4_UNORM_PACK16
       //                       |                    | GL_UNSIGNED_BYTE                    |      |       |      |       |          | - R4G4B4A4_UNORM
-      // GL_RGB10_A2           | GL_RGBA            | GL_UNSIGNED_INT_2_10_10_10_REV (P)  | 10   | 10    | 10   | 2     |          |
-      // A2B10G10R10_UNORM_PACK32 GL_RGBA16F            | GL_RGBA            | GL_HALF_FLOAT                       | f16  | f16   | f16  | f16   |
-      // | R16G16B16A16_SFLOAT
+      // GL_RGB10_A2           | GL_RGBA            | GL_UNSIGNED_INT_2_10_10_10_REV (P)  | 10   | 10    | 10   | 2     |          | A2B10G10R10_UNORM_PACK32
+      // GL_RGBA16F            | GL_RGBA            | GL_HALF_FLOAT                       | f16  | f16   | f16  | f16   |          | R16G16B16A16_SFLOAT
       //                       |                    | GL_FLOAT                            |      |       |      |       |          | -
-      // GL_RGBA32F            | GL_RGBA            | GL_FLOAT                            | f32  | f32   | f32  | f32   |          |
-      // R32G32B32A32_SFLOAT GL_RGBA8UI            | GL_RGBA_INTEGER    | GL_UNSIGNED_BYTE                    | ui8  | ui8   | ui8  | ui8   |
-      // | R8G8B8A8_UINT GL_RGBA8I             | GL_RGBA_INTEGER    | GL_BYTE                             | i8   | i8    | i8   | i8    |          |
-      // R8G8B8A8_SINT GL_RGB10_A2UI         | GL_RGBA_INTEGER    | GL_UNSIGNED_INT_2_10_10_10_REV (P)  | ui10 | ui10  | ui10 | ui2   |          |
-      // A2B10G10R10_UINT_PACK32 GL_RGBA16UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_SHORT                   | ui16 | ui16  | ui16 | ui16  |
-      // | R16G16B16A16_UINT GL_RGBA16I            | GL_RGBA_INTEGER    | GL_SHORT                            | i16  | i16   | i16  | i16   |
-      // | R16G16B16A16_SINT GL_RGBA32I            | GL_RGBA_INTEGER    | GL_INT                              | i32  | i32   | i32  | i32   |
-      // | R32G32B32A32_SINT GL_RGBA32UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_INT                     | ui32 | ui32  | ui32 | ui32  |
-      // | R32G32B32A32_UINT
+      // GL_RGBA32F            | GL_RGBA            | GL_FLOAT                            | f32  | f32   | f32  | f32   |          | R32G32B32A32_SFLOAT
+      // GL_RGBA8UI            | GL_RGBA_INTEGER    | GL_UNSIGNED_BYTE                    | ui8  | ui8   | ui8  | ui8   |          | R8G8B8A8_UINT
+      // GL_RGBA8I             | GL_RGBA_INTEGER    | GL_BYTE                             | i8   | i8    | i8   | i8    |          | R8G8B8A8_SINT
+      // GL_RGB10_A2UI         | GL_RGBA_INTEGER    | GL_UNSIGNED_INT_2_10_10_10_REV (P)  | ui10 | ui10  | ui10 | ui2   |          | A2B10G10R10_UINT_PACK32
+      // GL_RGBA16UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_SHORT                   | ui16 | ui16  | ui16 | ui16  |          | R16G16B16A16_UINT
+      // GL_RGBA16I            | GL_RGBA_INTEGER    | GL_SHORT                            | i16  | i16   | i16  | i16   |          | R16G16B16A16_SINT
+      // GL_RGBA32I            | GL_RGBA_INTEGER    | GL_INT                              | i32  | i32   | i32  | i32   |          | R32G32B32A32_SINT
+      // GL_RGBA32UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_INT                     | ui32 | ui32  | ui32 | ui32  |          | R32G32B32A32_UINT
       //
       // 61 entries (12 conversions, so 49 raw)
       //
@@ -243,392 +233,199 @@ namespace Fsl
       // GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 | GL_RGBA              | ceil(width / 4) * ceil(height / 4) * 8
       // GL_COMPRESSED_RGBA8_ETC2_EAC                 | GL_RGBA              | ceil(width / 4) * ceil(height / 4) * 16
       // GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC          | GL_RGBA              | ceil(width / 4) * ceil(height / 4) * 16
-
       FormatGL g_convert[] = {
-        // Internal Format       | Format             | Type                                | Bits | Bits  | Bits | Bits  | Bits     | Format (-)
-        // means this would be a conversion operation
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           Undefined
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R4G4_UNORM_PACK8
-        FormatGL(GL_RGBA4, GL_RGBA, GL_UNSIGNED_BYTE),    // GL_RGBA4              | GL_RGBA            | GL_UNSIGNED_SHORT_4_4_4_4 (P)       | 4    |
-                                                          // 4     | 4    | 4     |          | R4G4B4A4_UNORM_PACK16
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B4G4R4A4_UNORM_PACK16
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R5G6B5_UNORM_PACK16
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B5G6R5_UNORM_PACK16
-        FormatGL(GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1),    // GL_RGB5_A1            | GL_RGBA            | GL_UNSIGNED_SHORT_5_5_5_1 (P)
-                                                                     // | 5    | 5     | 5    | 1     |          | R5G5B5A1_UNORM_PACK16
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B5G5R5A1_UNORM_PACK16
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A1R5G5B5_UNORM_PACK16
-        FormatGL(GL_R8, GL_RED, GL_UNSIGNED_BYTE),    // GL_R8                 | GL_RED             | GL_UNSIGNED_BYTE                    | 8    |
-                                                      // |      |       |          | R8_UNORM
-        FormatGL(GL_R8_SNORM, GL_RED, GL_BYTE),       // GL_R8_SNORM           | GL_RED             | GL_BYTE                             | s8   |
-                                                      // |      |       |          | R8_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8_SSCALED
-        FormatGL(GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE),    // GL_R8UI               | GL_RED_INTEGER     | GL_UNSIGNED_BYTE                    |
-                                                                // ui8  |       |      |       |          | R8_UINT
-        FormatGL(GL_R8I, GL_RED_INTEGER, GL_BYTE),    // GL_R8I                | GL_RED_INTEGER     | GL_BYTE                             | i8   |
-                                                      // |      |       |          | R8_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8_SRGB
-        FormatGL(GL_RG8, GL_RG, GL_UNSIGNED_BYTE),    // GL_RG8                | GL_RG              | GL_UNSIGNED_BYTE                    | 8    | 8
-                                                      // |      |       |          | R8G8_UNORM
-        FormatGL(GL_RG8_SNORM, GL_RG, GL_BYTE),       // GL_RG8_SNORM          | GL_RG              | GL_BYTE                             | s8   | s8
-                                                      // |      |       |          | R8G8_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8G8_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8G8_SSCALED
-        FormatGL(GL_RG8UI, GL_RG_INTEGER, GL_UNSIGNED_BYTE),    // GL_RG8UI              | GL_RG_INTEGER      | GL_UNSIGNED_BYTE                    |
-                                                                // ui8  | ui8   |      |       |          | R8G8_UINT
-        FormatGL(GL_RG8I, GL_RG_INTEGER, GL_BYTE),    // GL_RG8I               | GL_RG_INTEGER      | GL_BYTE                             | i8   | i8
-                                                      // |      |       |          | R8G8_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8G8_SRGB
-        FormatGL(GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE),    // GL_RGB8               | GL_RGB             | GL_UNSIGNED_BYTE                    | 8    | 8
-                                                        // | 8    |       |          | R8G8B8_UNORM
-        FormatGL(GL_RGB8_SNORM, GL_RGB, GL_BYTE),    // GL_RGB8_SNORM         | GL_RGB             | GL_BYTE                             | s8   | s8
-                                                     // | s8   |       |          | R8G8B8_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8G8B8_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8G8B8_SSCALED
-        FormatGL(GL_RGB8UI, GL_RGB_INTEGER, GL_UNSIGNED_BYTE),    // GL_RGB8UI             | GL_RGB_INTEGER     | GL_UNSIGNED_BYTE
-                                                                  // | ui8  | ui8   | ui8  |       |          | R8G8B8_UINT
-        FormatGL(GL_RGB8I, GL_RGB_INTEGER, GL_BYTE),     // GL_RGB8I              | GL_RGB_INTEGER     | GL_BYTE                             | i8   |
-                                                         // i8    | i8   |       |          | R8G8B8_SINT
-        FormatGL(GL_SRGB8, GL_RGB, GL_UNSIGNED_BYTE),    // GL_SRGB8              | GL_RGB             | GL_UNSIGNED_BYTE                    | 8    |
-                                                         // 8     | 8    |       |          | R8G8B8_SRGB
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8_UNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8_SSCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8_SRGB
-        FormatGL(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),    // GL_RGBA8              | GL_RGBA            | GL_UNSIGNED_BYTE                    | 8    |
-                                                          // 8     | 8    | 8     |          | R8G8B8A8_UNORM
-        FormatGL(GL_RGBA8_SNORM, GL_RGBA, GL_BYTE),    // GL_RGBA8_SNORM        | GL_RGBA            | GL_BYTE                             | s8   | s8
-                                                       // | s8   | s8    |          | R8G8B8A8_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8G8B8A8_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R8G8B8A8_SSCALED
-        FormatGL(GL_RGBA8UI, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE),    // GL_RGBA8UI            | GL_RGBA_INTEGER    | GL_UNSIGNED_BYTE
-                                                                    // | ui8  | ui8   | ui8  | ui8   |          | R8G8B8A8_UINT
-        FormatGL(GL_RGBA8I, GL_RGBA_INTEGER, GL_BYTE),    // GL_RGBA8I             | GL_RGBA_INTEGER    | GL_BYTE                             | i8   |
-                                                          // i8    | i8   | i8    |          | R8G8B8A8_SINT
-        FormatGL(GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),    // GL_SRGB8_ALPHA8       | GL_RGBA            | GL_UNSIGNED_BYTE                    |
-                                                                 // 8    | 8     | 8    | 8     |          | R8G8B8A8_SRGB
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8A8_UNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8A8_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8A8_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8A8_SSCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8A8_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8A8_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           B8G8R8A8_SRGB
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A8B8G8R8_UNORM_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A8B8G8R8_SNORM_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A8B8G8R8_USCALED_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A8B8G8R8_SSCALED_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A8B8G8R8_UINT_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A8B8G8R8_SINT_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A8B8G8R8_SRGB_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2R10G10B10_UNORM_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2R10G10B10_SNORM_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2R10G10B10_USCALED_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2R10G10B10_SSCALED_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2R10G10B10_UINT_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2R10G10B10_SINT_PACK32
-        FormatGL(GL_RGB10_A2, GL_RGBA, GL_UNSIGNED_INT_2_10_10_10_REV),    // GL_RGB10_A2           | GL_RGBA            |
-                                                                           // GL_UNSIGNED_INT_2_10_10_10_REV (P)  | 10   | 10    | 10   | 2     |
-                                                                           // | A2B10G10R10_UNORM_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2B10G10R10_SNORM_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2B10G10R10_USCALED_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2B10G10R10_SSCALED_PACK32
-        FormatGL(GL_RGB10_A2UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT_2_10_10_10_REV),    // GL_RGB10_A2UI         | GL_RGBA_INTEGER    |
-                                                                                     // GL_UNSIGNED_INT_2_10_10_10_REV (P)  | ui10 | ui10  | ui10 |
-                                                                                     // ui2   |          | A2B10G10R10_UINT_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           A2B10G10R10_SINT_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16_UNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16_SSCALED
-        FormatGL(GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT),    // GL_R16UI              | GL_RED_INTEGER     | GL_UNSIGNED_SHORT
-                                                                  // | ui16 |       |      |       |          | R16_UINT
-        FormatGL(GL_R16I, GL_RED_INTEGER, GL_SHORT),    // GL_R16I               | GL_RED_INTEGER     | GL_SHORT                            | i16  |
-                                                        // |      |       |          | R16_SINT
-        FormatGL(GL_R16F, GL_RED, GL_HALF_FLOAT),       // GL_R16F               | GL_RED             | GL_HALF_FLOAT                       | f16  |
-                                                        // |      |       |          | R16_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16_UNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16_SSCALED
-        FormatGL(GL_RG16UI, GL_RG_INTEGER, GL_UNSIGNED_SHORT),    // GL_RG16UI             | GL_RG_INTEGER      | GL_UNSIGNED_SHORT
-                                                                  // | ui16 | ui16  |      |       |          | R16G16_UINT
-        FormatGL(GL_RG16I, GL_RG_INTEGER, GL_SHORT),    // GL_RG16I              | GL_RG_INTEGER      | GL_SHORT                            | i16  |
-                                                        // i16   |      |       |          | R16G16_SINT
-        FormatGL(GL_RG16F, GL_RG, GL_HALF_FLOAT),    // GL_RG16F              | GL_RG              | GL_HALF_FLOAT                       | f16  | f16
-                                                     // |      |       |          | R16G16_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16_UNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16_SSCALED
-        FormatGL(GL_RGB16UI, GL_RGB_INTEGER, GL_UNSIGNED_SHORT),    // GL_RGB16UI            | GL_RGB_INTEGER     | GL_UNSIGNED_SHORT
-                                                                    // | ui16 | ui16  | ui16 |       |          | R16G16B16_UINT
-        FormatGL(GL_RGB16I, GL_RGB_INTEGER, GL_SHORT),    // GL_RGB16I             | GL_RGB_INTEGER     | GL_SHORT                            | i16  |
-                                                          // i16   | i16  |       |          | R16G16B16_SINT
-        FormatGL(GL_RGB16F, GL_RGB, GL_HALF_FLOAT),       // GL_RGB16F             | GL_RGB             | GL_HALF_FLOAT                       | f16  |
-                                                          // f16   | f16  |       |          | R16G16B16_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16A16_UNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16A16_SNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16A16_USCALED
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R16G16B16A16_SSCALED
-        FormatGL(GL_RGBA16UI, GL_RGBA_INTEGER, GL_UNSIGNED_SHORT),    // GL_RGBA16UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_SHORT
-                                                                      // | ui16 | ui16  | ui16 | ui16  |          | R16G16B16A16_UINT
-        FormatGL(GL_RGBA16I, GL_RGBA_INTEGER, GL_SHORT),    // GL_RGBA16I            | GL_RGBA_INTEGER    | GL_SHORT                            | i16
-                                                            // | i16   | i16  | i16   |          | R16G16B16A16_SINT
-        FormatGL(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT),    // GL_RGBA16F            | GL_RGBA            | GL_HALF_FLOAT                       | f16  |
-                                                         // f16   | f16  | f16   |          | R16G16B16A16_SFLOAT
-        FormatGL(GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT),    // GL_R32UI              | GL_RED_INTEGER     | GL_UNSIGNED_INT                     |
-                                                                // ui32 |       |      |       |          | R32_UINT
-        FormatGL(GL_R32I, GL_RED_INTEGER, GL_INT),    // GL_R32I               | GL_RED_INTEGER     | GL_INT                              | i32  |
-                                                      // |      |       |          | R32_SINT
-        FormatGL(GL_R32F, GL_RED, GL_FLOAT),    // GL_R32F               | GL_RED             | GL_FLOAT                            | f32  |       |
-                                                // |       |          | R32_SFLOAT
-        FormatGL(GL_RG32UI, GL_RG_INTEGER, GL_UNSIGNED_INT),    // GL_RG32UI             | GL_RG_INTEGER      | GL_UNSIGNED_INT                     |
-                                                                // ui32 | ui32  |      |       |          | R32G32_UINT
-        FormatGL(GL_RG32I, GL_RG_INTEGER, GL_INT),    // GL_RG32I              | GL_RG_INTEGER      | GL_INT                              | i32  | i32
-                                                      // |      |       |          | R32G32_SINT
-        FormatGL(GL_RG32F, GL_RG, GL_FLOAT),    // GL_RG32F              | GL_RG              | GL_FLOAT                            | f32  | f32   |
-                                                // |       |          | R32G32_SFLOAT
-        FormatGL(GL_RGB32UI, GL_RGB_INTEGER, GL_UNSIGNED_INT),    // GL_RGB32UI            | GL_RGB_INTEGER     | GL_UNSIGNED_INT
-                                                                  // | ui32 | ui32  | ui32 |       |          | R32G32B32_UINT
-        FormatGL(GL_RGB32I, GL_RGB_INTEGER, GL_INT),    // GL_RGB32I             | GL_RGB_INTEGER     | GL_INT                              | i32  |
-                                                        // i32   | i32  |       |          | R32G32B32_SINT
-        FormatGL(GL_RGB32F, GL_RGB, GL_FLOAT),    // GL_RGB32F             | GL_RGB             | GL_FLOAT                            | f32  | f32   |
-                                                  // f32  |       |          | R32G32B32_SFLOAT
-        FormatGL(GL_RGBA32UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT),    // GL_RGBA32UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_INT
-                                                                    // | ui32 | ui32  | ui32 | ui32  |          | R32G32B32A32_UINT
-        FormatGL(GL_RGBA32I, GL_RGBA_INTEGER, GL_INT),    // GL_RGBA32I            | GL_RGBA_INTEGER    | GL_INT                              | i32  |
-                                                          // i32   | i32  | i32   |          | R32G32B32A32_SINT
-        FormatGL(GL_RGBA32F, GL_RGBA, GL_FLOAT),    // GL_RGBA32F            | GL_RGBA            | GL_FLOAT                            | f32  | f32
-                                                    // | f32  | f32   |          | R32G32B32A32_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64B64_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64B64_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64B64_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64B64A64_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64B64A64_SINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           R64G64B64A64_SFLOAT
-        FormatGL(GL_R11F_G11F_B10F, GL_RGB, GL_UNSIGNED_INT_10F_11F_11F_REV),    // GL_R11F_G11F_B10F     | GL_RGB             |
-                                                                                 // GL_UNSIGNED_INT_10F_11F_11F_REV (P) | f11  | f11   | f10  |
-                                                                                 // |          | B10G11R11_UFLOAT_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           E5B9G9R9_UFLOAT_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           D16_UNORM
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           X8_D24_UNORM_PACK32
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           D32_SFLOAT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           S8_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           D16_UNORM_S8_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           D24_UNORM_S8_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           D32_SFLOAT_S8_UINT
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC1_RGB_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC1_RGB_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC1_RGBA_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC1_RGBA_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC2_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC2_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC3_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC3_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC4_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC4_SNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC5_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC5_SNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC6H_UFLOAT_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC6H_SFLOAT_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC7_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           BC7_SRGB_BLOCK
-        FormatGL(GL_COMPRESSED_RGB8_ETC2, GL_RGB,
-                 FormatState::Compressed),    // GL_COMPRESSED_RGB8_ETC2                      | GL_RGB | ETC2_R8G8B8_UNORM_BLOCK
-        FormatGL(GL_COMPRESSED_SRGB8_ETC2, GL_RGB,
-                 FormatState::Compressed),    // GL_COMPRESSED_SRGB8_ETC2                     | GL_RGB | ETC2_R8G8B8_SRGB_BLOCK
-        FormatGL(GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_RGBA,
-                 FormatState::Compressed),    // GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2  | GL_RGBA | ETC2_R8G8B8A1_UNORM_BLOCK
-        FormatGL(GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_RGBA,
-                 FormatState::Compressed),    // GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 | GL_RGBA | ETC2_R8G8B8A1_SRGB_BLOCK
-        FormatGL(GL_COMPRESSED_RGBA8_ETC2_EAC, GL_RGBA,
-                 FormatState::Compressed),    // GL_COMPRESSED_RGBA8_ETC2_EAC                 | GL_RGBA | ETC2_R8G8B8A8_UNORM_BLOCK
-        FormatGL(GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_RGBA,
-                 FormatState::Compressed),    // GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC          | GL_RGBA | ETC2_R8G8B8A8_SRGB_BLOCK
-        FormatGL(GL_COMPRESSED_R11_EAC, GL_RED,
-                 FormatState::Compressed),    // GL_COMPRESSED_R11_EAC                        | GL_RED | EAC_R11_UNORM_BLOCK
-        FormatGL(GL_COMPRESSED_SIGNED_R11_EAC, GL_RED,
-                 FormatState::Compressed),    // GL_COMPRESSED_SIGNED_R11_EAC                 | GL_RED | EAC_R11_SNORM_BLOCK
-        FormatGL(GL_COMPRESSED_RG11_EAC, GL_RG,
-                 FormatState::Compressed),    // GL_COMPRESSED_RG11_EAC                       | GL_RG | EAC_R11G11_UNORM_BLOCK
-        FormatGL(GL_COMPRESSED_SIGNED_RG11_EAC, GL_RG,
-                 FormatState::Compressed),    // GL_COMPRESSED_SIGNED_RG11_EAC                | GL_RG | EAC_R11G11_SNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_4x4_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_4x4_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_5x4_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_5x4_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_5x5_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_5x5_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_6x5_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_6x5_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_6x6_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_6x6_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_8x5_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_8x5_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_8x6_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_8x6_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_8x8_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_8x8_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x5_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x5_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x6_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x6_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x8_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x8_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x10_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_10x10_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_12x10_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_12x10_SRGB_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_12x12_UNORM_BLOCK
-        FormatGL(),    //                                                                                                                           |
-        //                                                                                                                           ASTC_12x12_SRGB_BLOCK
+                                                                                                  // Internal Format       | Format             | Type                                | Bits | Bits  | Bits | Bits  | Bits     | Format (-) means this would be a conversion operation
+        FormatGL(),                                                                               //                                                                                                                           | Undefined
+        FormatGL(),                                                                               //                                                                                                                           | R4G4_UNORM_PACK8
+        FormatGL(GL_RGBA4, GL_RGBA, GL_UNSIGNED_BYTE),                                            // GL_RGBA4              | GL_RGBA            | GL_UNSIGNED_SHORT_4_4_4_4 (P)       | 4    | 4     | 4    | 4     |          | R4G4B4A4_UNORM_PACK16
+        FormatGL(),                                                                               //                                                                                                                           | B4G4R4A4_UNORM_PACK16
+        FormatGL(),                                                                               //                                                                                                                           | R5G6B5_UNORM_PACK16
+        FormatGL(),                                                                               //                                                                                                                           | B5G6R5_UNORM_PACK16
+        FormatGL(GL_RGB5_A1, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1),                                 // GL_RGB5_A1            | GL_RGBA            | GL_UNSIGNED_SHORT_5_5_5_1 (P)       | 5    | 5     | 5    | 1     |          | R5G5B5A1_UNORM_PACK16
+        FormatGL(),                                                                               //                                                                                                                           | B5G5R5A1_UNORM_PACK16
+        FormatGL(),                                                                               //                                                                                                                           | A1R5G5B5_UNORM_PACK16
+        FormatGL(GL_R8, GL_RED, GL_UNSIGNED_BYTE),                                                // GL_R8                 | GL_RED             | GL_UNSIGNED_BYTE                    | 8    |       |      |       |          | R8_UNORM
+        FormatGL(GL_R8_SNORM, GL_RED, GL_BYTE),                                                   // GL_R8_SNORM           | GL_RED             | GL_BYTE                             | s8   |       |      |       |          | R8_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R8_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R8_SSCALED
+        FormatGL(GL_R8UI, GL_RED_INTEGER, GL_UNSIGNED_BYTE),                                      // GL_R8UI               | GL_RED_INTEGER     | GL_UNSIGNED_BYTE                    | ui8  |       |      |       |          | R8_UINT
+        FormatGL(GL_R8I, GL_RED_INTEGER, GL_BYTE),                                                // GL_R8I                | GL_RED_INTEGER     | GL_BYTE                             | i8   |       |      |       |          | R8_SINT
+        FormatGL(),                                                                               //                                                                                                                           | R8_SRGB
+        FormatGL(GL_RG8, GL_RG, GL_UNSIGNED_BYTE),                                                // GL_RG8                | GL_RG              | GL_UNSIGNED_BYTE                    | 8    | 8     |      |       |          | R8G8_UNORM
+        FormatGL(GL_RG8_SNORM, GL_RG, GL_BYTE),                                                   // GL_RG8_SNORM          | GL_RG              | GL_BYTE                             | s8   | s8    |      |       |          | R8G8_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R8G8_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R8G8_SSCALED
+        FormatGL(GL_RG8UI, GL_RG_INTEGER, GL_UNSIGNED_BYTE),                                      // GL_RG8UI              | GL_RG_INTEGER      | GL_UNSIGNED_BYTE                    | ui8  | ui8   |      |       |          | R8G8_UINT
+        FormatGL(GL_RG8I, GL_RG_INTEGER, GL_BYTE),                                                // GL_RG8I               | GL_RG_INTEGER      | GL_BYTE                             | i8   | i8    |      |       |          | R8G8_SINT
+        FormatGL(),                                                                               //                                                                                                                           | R8G8_SRGB
+        FormatGL(GL_RGB8, GL_RGB, GL_UNSIGNED_BYTE),                                              // GL_RGB8               | GL_RGB             | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    |       |          | R8G8B8_UNORM
+        FormatGL(GL_RGB8_SNORM, GL_RGB, GL_BYTE),                                                 // GL_RGB8_SNORM         | GL_RGB             | GL_BYTE                             | s8   | s8    | s8   |       |          | R8G8B8_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R8G8B8_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R8G8B8_SSCALED
+        FormatGL(GL_RGB8UI, GL_RGB_INTEGER, GL_UNSIGNED_BYTE),                                    // GL_RGB8UI             | GL_RGB_INTEGER     | GL_UNSIGNED_BYTE                    | ui8  | ui8   | ui8  |       |          | R8G8B8_UINT
+        FormatGL(GL_RGB8I, GL_RGB_INTEGER, GL_BYTE),                                              // GL_RGB8I              | GL_RGB_INTEGER     | GL_BYTE                             | i8   | i8    | i8   |       |          | R8G8B8_SINT
+        FormatGL(GL_SRGB8, GL_RGB, GL_UNSIGNED_BYTE),                                             // GL_SRGB8              | GL_RGB             | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    |       |          | R8G8B8_SRGB
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8_UNORM
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8_SSCALED
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8_UINT
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8_SINT
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8_SRGB
+        FormatGL(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE),                                            // GL_RGBA8              | GL_RGBA            | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    | 8     |          | R8G8B8A8_UNORM
+        FormatGL(GL_RGBA8_SNORM, GL_RGBA, GL_BYTE),                                               // GL_RGBA8_SNORM        | GL_RGBA            | GL_BYTE                             | s8   | s8    | s8   | s8    |          | R8G8B8A8_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R8G8B8A8_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R8G8B8A8_SSCALED
+        FormatGL(GL_RGBA8UI, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE),                                  // GL_RGBA8UI            | GL_RGBA_INTEGER    | GL_UNSIGNED_BYTE                    | ui8  | ui8   | ui8  | ui8   |          | R8G8B8A8_UINT
+        FormatGL(GL_RGBA8I, GL_RGBA_INTEGER, GL_BYTE),                                            // GL_RGBA8I             | GL_RGBA_INTEGER    | GL_BYTE                             | i8   | i8    | i8   | i8    |          | R8G8B8A8_SINT
+        FormatGL(GL_SRGB8_ALPHA8, GL_RGBA, GL_UNSIGNED_BYTE),                                     // GL_SRGB8_ALPHA8       | GL_RGBA            | GL_UNSIGNED_BYTE                    | 8    | 8     | 8    | 8     |          | R8G8B8A8_SRGB
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8A8_UNORM
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8A8_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8A8_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8A8_SSCALED
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8A8_UINT
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8A8_SINT
+        FormatGL(),                                                                               //                                                                                                                           | B8G8R8A8_SRGB
+        FormatGL(),                                                                               //                                                                                                                           | A8B8G8R8_UNORM_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A8B8G8R8_SNORM_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A8B8G8R8_USCALED_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A8B8G8R8_SSCALED_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A8B8G8R8_UINT_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A8B8G8R8_SINT_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A8B8G8R8_SRGB_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2R10G10B10_UNORM_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2R10G10B10_SNORM_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2R10G10B10_USCALED_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2R10G10B10_SSCALED_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2R10G10B10_UINT_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2R10G10B10_SINT_PACK32
+        FormatGL(GL_RGB10_A2, GL_RGBA, GL_UNSIGNED_INT_2_10_10_10_REV),                           // GL_RGB10_A2           | GL_RGBA            | GL_UNSIGNED_INT_2_10_10_10_REV (P)  | 10   | 10    | 10   | 2     |          | A2B10G10R10_UNORM_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2B10G10R10_SNORM_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2B10G10R10_USCALED_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2B10G10R10_SSCALED_PACK32
+        FormatGL(GL_RGB10_A2UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT_2_10_10_10_REV),                 // GL_RGB10_A2UI         | GL_RGBA_INTEGER    | GL_UNSIGNED_INT_2_10_10_10_REV (P)  | ui10 | ui10  | ui10 | ui2   |          | A2B10G10R10_UINT_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | A2B10G10R10_SINT_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | R16_UNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R16_SSCALED
+        FormatGL(GL_R16UI, GL_RED_INTEGER, GL_UNSIGNED_SHORT),                                    // GL_R16UI              | GL_RED_INTEGER     | GL_UNSIGNED_SHORT                   | ui16 |       |      |       |          | R16_UINT
+        FormatGL(GL_R16I, GL_RED_INTEGER, GL_SHORT),                                              // GL_R16I               | GL_RED_INTEGER     | GL_SHORT                            | i16  |       |      |       |          | R16_SINT
+        FormatGL(GL_R16F, GL_RED, GL_HALF_FLOAT),                                                 // GL_R16F               | GL_RED             | GL_HALF_FLOAT                       | f16  |       |      |       |          | R16_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | R16G16_UNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16G16_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16G16_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R16G16_SSCALED
+        FormatGL(GL_RG16UI, GL_RG_INTEGER, GL_UNSIGNED_SHORT),                                    // GL_RG16UI             | GL_RG_INTEGER      | GL_UNSIGNED_SHORT                   | ui16 | ui16  |      |       |          | R16G16_UINT
+        FormatGL(GL_RG16I, GL_RG_INTEGER, GL_SHORT),                                              // GL_RG16I              | GL_RG_INTEGER      | GL_SHORT                            | i16  | i16   |      |       |          | R16G16_SINT
+        FormatGL(GL_RG16F, GL_RG, GL_HALF_FLOAT),                                                 // GL_RG16F              | GL_RG              | GL_HALF_FLOAT                       | f16  | f16   |      |       |          | R16G16_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16_UNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16_SSCALED
+        FormatGL(GL_RGB16UI, GL_RGB_INTEGER, GL_UNSIGNED_SHORT),                                  // GL_RGB16UI            | GL_RGB_INTEGER     | GL_UNSIGNED_SHORT                   | ui16 | ui16  | ui16 |       |          | R16G16B16_UINT
+        FormatGL(GL_RGB16I, GL_RGB_INTEGER, GL_SHORT),                                            // GL_RGB16I             | GL_RGB_INTEGER     | GL_SHORT                            | i16  | i16   | i16  |       |          | R16G16B16_SINT
+        FormatGL(GL_RGB16F, GL_RGB, GL_HALF_FLOAT),                                               // GL_RGB16F             | GL_RGB             | GL_HALF_FLOAT                       | f16  | f16   | f16  |       |          | R16G16B16_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16A16_UNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16A16_SNORM
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16A16_USCALED
+        FormatGL(),                                                                               //                                                                                                                           | R16G16B16A16_SSCALED
+        FormatGL(GL_RGBA16UI, GL_RGBA_INTEGER, GL_UNSIGNED_SHORT),                                // GL_RGBA16UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_SHORT                   | ui16 | ui16  | ui16 | ui16  |          | R16G16B16A16_UINT
+        FormatGL(GL_RGBA16I, GL_RGBA_INTEGER, GL_SHORT),                                          // GL_RGBA16I            | GL_RGBA_INTEGER    | GL_SHORT                            | i16  | i16   | i16  | i16   |          | R16G16B16A16_SINT
+        FormatGL(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT),                                             // GL_RGBA16F            | GL_RGBA            | GL_HALF_FLOAT                       | f16  | f16   | f16  | f16   |          | R16G16B16A16_SFLOAT
+        FormatGL(GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT),                                      // GL_R32UI              | GL_RED_INTEGER     | GL_UNSIGNED_INT                     | ui32 |       |      |       |          | R32_UINT
+        FormatGL(GL_R32I, GL_RED_INTEGER, GL_INT),                                                // GL_R32I               | GL_RED_INTEGER     | GL_INT                              | i32  |       |      |       |          | R32_SINT
+        FormatGL(GL_R32F, GL_RED, GL_FLOAT),                                                      // GL_R32F               | GL_RED             | GL_FLOAT                            | f32  |       |      |       |          | R32_SFLOAT
+        FormatGL(GL_RG32UI, GL_RG_INTEGER, GL_UNSIGNED_INT),                                      // GL_RG32UI             | GL_RG_INTEGER      | GL_UNSIGNED_INT                     | ui32 | ui32  |      |       |          | R32G32_UINT
+        FormatGL(GL_RG32I, GL_RG_INTEGER, GL_INT),                                                // GL_RG32I              | GL_RG_INTEGER      | GL_INT                              | i32  | i32   |      |       |          | R32G32_SINT
+        FormatGL(GL_RG32F, GL_RG, GL_FLOAT),                                                      // GL_RG32F              | GL_RG              | GL_FLOAT                            | f32  | f32   |      |       |          | R32G32_SFLOAT
+        FormatGL(GL_RGB32UI, GL_RGB_INTEGER, GL_UNSIGNED_INT),                                    // GL_RGB32UI            | GL_RGB_INTEGER     | GL_UNSIGNED_INT                     | ui32 | ui32  | ui32 |       |          | R32G32B32_UINT
+        FormatGL(GL_RGB32I, GL_RGB_INTEGER, GL_INT),                                              // GL_RGB32I             | GL_RGB_INTEGER     | GL_INT                              | i32  | i32   | i32  |       |          | R32G32B32_SINT
+        FormatGL(GL_RGB32F, GL_RGB, GL_FLOAT),                                                    // GL_RGB32F             | GL_RGB             | GL_FLOAT                            | f32  | f32   | f32  |       |          | R32G32B32_SFLOAT
+        FormatGL(GL_RGBA32UI, GL_RGBA_INTEGER, GL_UNSIGNED_INT),                                  // GL_RGBA32UI           | GL_RGBA_INTEGER    | GL_UNSIGNED_INT                     | ui32 | ui32  | ui32 | ui32  |          | R32G32B32A32_UINT
+        FormatGL(GL_RGBA32I, GL_RGBA_INTEGER, GL_INT),                                            // GL_RGBA32I            | GL_RGBA_INTEGER    | GL_INT                              | i32  | i32   | i32  | i32   |          | R32G32B32A32_SINT
+        FormatGL(GL_RGBA32F, GL_RGBA, GL_FLOAT),                                                  // GL_RGBA32F            | GL_RGBA            | GL_FLOAT                            | f32  | f32   | f32  | f32   |          | R32G32B32A32_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | R64_UINT
+        FormatGL(),                                                                               //                                                                                                                           | R64_SINT
+        FormatGL(),                                                                               //                                                                                                                           | R64_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64_UINT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64_SINT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64B64_UINT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64B64_SINT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64B64_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64B64A64_UINT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64B64A64_SINT
+        FormatGL(),                                                                               //                                                                                                                           | R64G64B64A64_SFLOAT
+        FormatGL(GL_R11F_G11F_B10F, GL_RGB, GL_UNSIGNED_INT_10F_11F_11F_REV),                     // GL_R11F_G11F_B10F     | GL_RGB             | GL_UNSIGNED_INT_10F_11F_11F_REV (P) | f11  | f11   | f10  |       |          | B10G11R11_UFLOAT_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | E5B9G9R9_UFLOAT_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | D16_UNORM
+        FormatGL(),                                                                               //                                                                                                                           | X8_D24_UNORM_PACK32
+        FormatGL(),                                                                               //                                                                                                                           | D32_SFLOAT
+        FormatGL(),                                                                               //                                                                                                                           | S8_UINT
+        FormatGL(),                                                                               //                                                                                                                           | D16_UNORM_S8_UINT
+        FormatGL(),                                                                               //                                                                                                                           | D24_UNORM_S8_UINT
+        FormatGL(),                                                                               //                                                                                                                           | D32_SFLOAT_S8_UINT
+        FormatGL(),                                                                               //                                                                                                                           | BC1_RGB_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC1_RGB_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC1_RGBA_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC1_RGBA_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC2_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC2_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC3_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC3_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC4_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC4_SNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC5_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC5_SNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC6H_UFLOAT_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC6H_SFLOAT_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC7_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | BC7_SRGB_BLOCK
+        FormatGL(GL_COMPRESSED_RGB8_ETC2, GL_RGB, FormatState::Compressed),                       // GL_COMPRESSED_RGB8_ETC2                      | GL_RGB                                                                     | ETC2_R8G8B8_UNORM_BLOCK
+        FormatGL(GL_COMPRESSED_SRGB8_ETC2, GL_RGB, FormatState::Compressed),                      // GL_COMPRESSED_SRGB8_ETC2                     | GL_RGB                                                                     | ETC2_R8G8B8_SRGB_BLOCK
+        FormatGL(GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_RGBA, FormatState::Compressed),  // GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2  | GL_RGBA                                                                    | ETC2_R8G8B8A1_UNORM_BLOCK
+        FormatGL(GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, GL_RGBA, FormatState::Compressed), // GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 | GL_RGBA                                                                    | ETC2_R8G8B8A1_SRGB_BLOCK
+        FormatGL(GL_COMPRESSED_RGBA8_ETC2_EAC, GL_RGBA, FormatState::Compressed),                 // GL_COMPRESSED_RGBA8_ETC2_EAC                 | GL_RGBA                                                                    | ETC2_R8G8B8A8_UNORM_BLOCK
+        FormatGL(GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, GL_RGBA, FormatState::Compressed),          // GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC          | GL_RGBA                                                                    | ETC2_R8G8B8A8_SRGB_BLOCK
+        FormatGL(GL_COMPRESSED_R11_EAC, GL_RED, FormatState::Compressed),                         // GL_COMPRESSED_R11_EAC                        | GL_RED                                                                     | EAC_R11_UNORM_BLOCK
+        FormatGL(GL_COMPRESSED_SIGNED_R11_EAC, GL_RED, FormatState::Compressed),                  // GL_COMPRESSED_SIGNED_R11_EAC                 | GL_RED                                                                     | EAC_R11_SNORM_BLOCK
+        FormatGL(GL_COMPRESSED_RG11_EAC, GL_RG, FormatState::Compressed),                         // GL_COMPRESSED_RG11_EAC                       | GL_RG                                                                      | EAC_R11G11_UNORM_BLOCK
+        FormatGL(GL_COMPRESSED_SIGNED_RG11_EAC, GL_RG, FormatState::Compressed),                  // GL_COMPRESSED_SIGNED_RG11_EAC                | GL_RG                                                                      | EAC_R11G11_SNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_4x4_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_4x4_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x4_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x4_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x5_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x5_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x5_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x5_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x6_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x6_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x5_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x5_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x6_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x6_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x8_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x8_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x5_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x5_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x6_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x6_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x8_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x8_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x10_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x10_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x10_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x10_SRGB_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x12_UNORM_BLOCK
+        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x12_SRGB_BLOCK
         // Extended formats
-        FormatGL(GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE),    // GL_ALPHA              | GL_ALPHA           | GL_UNSIGNED_BYTE              | Alpha
-                                                           // | A               | EX_ALPHA8_UINT
-        FormatGL(GL_LUMINANCE, GL_LUMINANCE, GL_UNSIGNED_BYTE),    // GL_LUMINANCE          | GL_LUMINANCE       | GL_UNSIGNED_BYTE              |
-                                                                   // Luminance                  | L               | EX_LUMINANCE8_UINT
-        FormatGL(GL_LUMINANCE_ALPHA, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE),    // GL_LUMINANCE_ALPHA    | GL_LUMINANCE_ALPHA | GL_UNSIGNED_BYTE
-                                                                               // | Luminance, Alpha           | L, A            |
-                                                                               // EX_LUMINANCE8_ALPHA8_UINT
+        FormatGL(GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE),                                           // GL_ALPHA              | GL_ALPHA           | GL_UNSIGNED_BYTE              | Alpha                      | A               | EX_ALPHA8_UINT
+        FormatGL(GL_LUMINANCE, GL_LUMINANCE, GL_UNSIGNED_BYTE),                                   // GL_LUMINANCE          | GL_LUMINANCE       | GL_UNSIGNED_BYTE              | Luminance                  | L               | EX_LUMINANCE8_UINT
+        FormatGL(GL_LUMINANCE_ALPHA, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE),                       // GL_LUMINANCE_ALPHA    | GL_LUMINANCE_ALPHA | GL_UNSIGNED_BYTE              | Luminance, Alpha           | L, A            | EX_LUMINANCE8_ALPHA8_UINT
       };
+      // clang-format on
 
       // Do some sanity checking
       static_assert(static_cast<uint32_t>(sizeof(g_convert) / sizeof(FormatGL)) == static_cast<uint32_t>(PixelFormat::ENUM_ID_RANGE_SIZE),

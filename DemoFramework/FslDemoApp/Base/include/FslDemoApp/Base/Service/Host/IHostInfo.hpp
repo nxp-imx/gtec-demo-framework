@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <FslDemoApp/Base/Service/Host/HostConfig.hpp>
 #include <memory>
 
 namespace Fsl
@@ -49,6 +50,8 @@ namespace Fsl
 
     //! @brief Get the DemoAppHostConfig user tag (beware this can return null if none was set)
     virtual std::shared_ptr<DemoAppHostConfig> TryGetAppHostConfig() const = 0;
+
+    virtual HostConfig GetConfig() const = 0;
   };
 }
 

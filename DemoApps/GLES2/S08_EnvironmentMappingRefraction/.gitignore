@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/Cubemap/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES2.S08_EnvironmentMappingRefraction
@@ -31,6 +32,7 @@
 /S08_EnvironmentMappingRefraction_Wayland_d
 /S08_EnvironmentMappingRefraction_X11
 /S08_EnvironmentMappingRefraction_X11_d
+/S08_EnvironmentMappingRefraction_c
 /S08_EnvironmentMappingRefraction_d
 /build/
 /resource.h

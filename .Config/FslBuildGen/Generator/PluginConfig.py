@@ -68,12 +68,13 @@ from FslBuildGen.PackageLoader import PackageLoader
 from FslBuildGen.PackageResolver import PackageResolver
 from FslBuildGen.SharedGeneration import AndroidABIOption
 from FslBuildGen.SharedGeneration import ToolAddedVariant
+from FslBuildGen.SharedGeneration import ToolAddedVariantConfigOption
 from FslBuildGen.SharedGeneration import GEN_MAGIC_VARIANT_ANDROID_ABI
 
 
 class GeneratorPluginAndroid(GeneratorPlugin):
     def __init__(self) -> None:
-        super(GeneratorPluginAndroid, self).__init__(PackageConfig.PlatformNameString.ANDROID)
+        super().__init__(PackageConfig.PlatformNameString.ANDROID)
         options = AndroidUtil.GetKnownABIList(True)
         self.VariantAndroidABI = GeneratorVariant(GEN_MAGIC_VARIANT_ANDROID_ABI, options, "##OPTIONS##", BuildVariantType.Static)
         self.OptionAndroidABI_all = AndroidUtil.GetKnownABIList(False)
@@ -120,19 +121,22 @@ class GeneratorPluginAndroid(GeneratorPlugin):
 
 class GeneratorPluginUbuntu(GeneratorPlugin):
     def __init__(self) -> None:
-        super(GeneratorPluginUbuntu, self).__init__(PackageConfig.PlatformNameString.UBUNTU)
+        super().__init__(PackageConfig.PlatformNameString.UBUNTU)
+        self.AddGeneratorVariantConfigOption(ToolAddedVariantConfigOption.Coverage)
 
     def DoGenerate(self, platformContext: PlatformContext, config: Config, packages: List[Package]) -> List[Package]:
-        generator = GeneratorGNUmakefile(config, packages, "GNUmakefile", "GNUmakefile_exe", "GNUmakefile_lib", self.Name)
+        configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
+        generator = GeneratorGNUmakefile(config, packages, "GNUmakefile", "GNUmakefile_exe", "GNUmakefile_lib", self.Name, configVariant.Options)
         # FslBuild handles this now so the scripts are not needed
         #GenerateBuildScript.GenerateBuildScriptAll(config, packages)
         return self.GenerateDone(config, packages, self.Name, generator)
 
 
     def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+        configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
         for package in packageList:
-            buildReport = GeneratorGNUmakefileUtil.TryGenerateGeneratorPackageReport(log, self.Name, package)
+            buildReport = GeneratorGNUmakefileUtil.TryGenerateGeneratorPackageReport(log, self.Name, package, configVariant.Options)
             if buildReport is not None:
                 resultDict[package] = buildReport
         return resultDict
@@ -140,7 +144,7 @@ class GeneratorPluginUbuntu(GeneratorPlugin):
 
 class GeneratorPluginQNX(GeneratorPlugin):
     def __init__(self) -> None:
-        super(GeneratorPluginQNX, self).__init__(PackageConfig.PlatformNameString.QNX)
+        super().__init__(PackageConfig.PlatformNameString.QNX)
         self.InDevelopment = True
 
     def DoGenerate(self, platformContext: PlatformContext, config: Config, packages: List[Package]) -> List[Package]:
@@ -152,20 +156,22 @@ class GeneratorPluginQNX(GeneratorPlugin):
 
 class GeneratorPluginYocto(GeneratorPlugin):
     def __init__(self) -> None:
-        super(GeneratorPluginYocto, self).__init__(PackageConfig.PlatformNameString.YOCTO)
+        super().__init__(PackageConfig.PlatformNameString.YOCTO)
 
 
     def DoGenerate(self, platformContext: PlatformContext, config: Config, packages: List[Package]) -> List[Package]:
-        generator = GeneratorGNUmakefile(config, packages, "GNUmakefile_Yocto", "GNUmakefile_Yocto_exe", "GNUmakefile_Yocto_lib", self.Name)
+        configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
+        generator = GeneratorGNUmakefile(config, packages, "GNUmakefile_Yocto", "GNUmakefile_Yocto_exe", "GNUmakefile_Yocto_lib", self.Name, configVariant.Options)
         # FslBuild handles this now so the scripts are not needed
         #GenerateBuildScript.GenerateBuildScriptAll(config, packages)
         return self.GenerateDone(config, packages, self.Name, generator)
 
 
     def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
+        configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
         for package in packageList:
-            buildReport = GeneratorGNUmakefileUtil.TryGenerateGeneratorPackageReport(log, self.Name, package)
+            buildReport = GeneratorGNUmakefileUtil.TryGenerateGeneratorPackageReport(log, self.Name, package, configVariant.Options)
             if buildReport is not None:
                 resultDict[package] = buildReport
         return resultDict
@@ -173,7 +179,7 @@ class GeneratorPluginYocto(GeneratorPlugin):
 
 class GeneratorPluginWindows(GeneratorPlugin):
     def __init__(self) -> None:
-        super(GeneratorPluginWindows, self).__init__(PackageConfig.PlatformNameString.WINDOWS)
+        super().__init__(PackageConfig.PlatformNameString.WINDOWS)
         self.InDevelopment = False
         self.ToolVersion = VisualStudioVersion.DEFAULT
         self.SupportContentBuild = True
@@ -214,6 +220,8 @@ class GeneratorPluginWindows(GeneratorPlugin):
     def _DoGenerateReport(self, log: Log, generatorConfig: GeneratorConfig, packageList: List[Package]) -> Dict[Package, PackageGeneratorReport]:
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
 
+        configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
+
         # vsVersion: int, platformName: str
         generatorVSConfig = GeneratorVSConfig(self.Name, self.ToolVersion)
         generatorTemplateInfo = GeneratorVSTemplateInfo(generatorConfig.ToolConfig.ProjectRootConfig.DefaultTemplate,
@@ -221,7 +229,7 @@ class GeneratorPluginWindows(GeneratorPlugin):
                                                         generatorConfig.SDKConfigTemplatePath)
 
         for package in packageList:
-            buildReport = GeneratorVCUtil.TryGenerateGeneratorPackageReport(log, self.Name, package, generatorVSConfig, generatorTemplateInfo)
+            buildReport = GeneratorVCUtil.TryGenerateGeneratorPackageReport(log, self.Name, package, generatorVSConfig, generatorTemplateInfo, configVariant.Options)
             if buildReport is not None:
                 resultDict[package] = buildReport
         return resultDict
@@ -229,7 +237,7 @@ class GeneratorPluginWindows(GeneratorPlugin):
 
 class GeneratorPluginCMake(GeneratorPlugin):
     def __init__(self) -> None:
-        super(GeneratorPluginCMake, self).__init__(PackageConfig.PlatformNameString.CMAKE)
+        super().__init__(PackageConfig.PlatformNameString.CMAKE)
         self.InDevelopment = True
         self.PackageResolveConfig_MarkExternalLibFirstUse = True
 

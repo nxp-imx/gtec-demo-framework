@@ -36,8 +36,8 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
 #include <GLES3/gl3.h>
-#include <Shared/OpenGLES3/CubeMapping/SkyboxVertices.hpp>
-#include <Shared/OpenGLES3/CubeMapping/TextureUtil.hpp>
+#include <Shared/CubeMapping/API/OpenGLES3/SkyboxVertices.hpp>
+#include <Shared/CubeMapping/API/OpenGLES3/TextureUtil.hpp>
 #include <array>
 #include "OptionParser.hpp"
 
@@ -58,7 +58,6 @@ namespace Fsl
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
-    , m_matrixProjection(Matrix::GetIdentity())
     , m_rotationSpeed(5.4f, 0.0f)
   {
     const auto options = config.GetOptions<OptionParser>();
@@ -68,15 +67,11 @@ namespace Fsl
 
     const auto contentManager = GetContentManager();
 
-    std::string texture = options->GetScene() == SceneState::Scene1 ? "Yokohama3" : "Test";
+    std::string texture = options->GetScene() == SceneState::Scene1 ? "Textures/Cubemap/Yokohama3/Raw" : "Textures/Cubemap/Test/Raw";
 
-    m_cubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, texture, PixelFormat::R8G8B8A8_UNORM);
-    m_skyboxProgram.Reset(contentManager->ReadAllText("skybox.vert"), contentManager->ReadAllText("skybox.frag"));
-    m_skyboxMesh.Reset(m_skyboxProgram.Program);
-
-    const auto screenResolution = GetScreenResolution();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 1000.0f);
+    m_resources.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, texture, PixelFormat::R8G8B8A8_UNORM);
+    m_resources.MainSkyboxProgram.Reset(contentManager->ReadAllText("skybox.vert"), contentManager->ReadAllText("skybox.frag"));
+    m_resources.MainSkyboxMesh.Reset(m_resources.MainSkyboxProgram.Program);
 
     GL_CHECK_FOR_ERROR();
   }
@@ -96,10 +91,10 @@ namespace Fsl
     {
     case VirtualMouseButton::Right:
     {
-      const bool mouseCapture = event.IsPressed();
-      if (m_demoAppControl->TryEnableMouseCaptureMode(mouseCapture))
+      m_rightMouseDown = event.IsPressed();
+      if (m_demoAppControl->TryEnableMouseCaptureMode(m_rightMouseDown))
       {
-        m_mouseCaptureEnabled = mouseCapture;
+        m_mouseCaptureEnabled = m_rightMouseDown;
       }
       else
       {
@@ -123,11 +118,17 @@ namespace Fsl
 
   void Skybox::Update(const DemoTime& demoTime)
   {
-    if (!m_mouseCaptureEnabled)
+    if (!m_rightMouseDown)
     {
       m_camera.RotateByRadians(m_rotationSpeed * demoTime.DeltaTime);
     }
     UpdateCameraControlInput(demoTime, m_keyboard->GetState());
+
+    const auto screenResolution = GetScreenResolution();
+    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;
+    m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 1000.0f);
+
+    m_vertexUboData.MatView = m_camera.GetViewMatrix();
   }
 
 
@@ -140,12 +141,11 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    DrawScene(m_skyboxProgram, m_skyboxMesh, m_cubemapTexture, m_camera.GetViewMatrix(), m_matrixProjection);
+    DrawScene(m_resources.MainSkyboxProgram, m_resources.MainSkyboxMesh, m_resources.CubemapTexture, m_vertexUboData);
   }
 
 
-  void Skybox::DrawScene(const SkyboxProgram& programInfo, const SkyboxMesh& mesh, const GLES3::GLTexture& texture, const Matrix& matrixView,
-                         const Matrix& matrixProjection)
+  void Skybox::DrawScene(const SkyboxProgram& programInfo, const SkyboxMesh& mesh, const GLES3::GLTexture& texture, const VertexUBOData& uboData)
   {
     const auto& program = programInfo.Program;
     const auto& location = programInfo.Location;
@@ -158,8 +158,8 @@ namespace Fsl
     assert(location.ProjMatrix != GLValues::INVALID_LOCATION);
     assert(location.SkyboxSampler != GLValues::INVALID_LOCATION);
 
-    glUniformMatrix4fv(location.ViewMatrix, 1, 0, matrixView.DirectAccess());
-    glUniformMatrix4fv(location.ProjMatrix, 1, 0, matrixProjection.DirectAccess());
+    glUniformMatrix4fv(location.ViewMatrix, 1, 0, uboData.MatView.DirectAccess());
+    glUniformMatrix4fv(location.ProjMatrix, 1, 0, uboData.MatProj.DirectAccess());
 
     // Bind the vertex array
     mesh.VertexArray.Bind();
@@ -180,7 +180,7 @@ namespace Fsl
     {    // Mouse camera rotation
       const auto mouseState = m_mouse->GetState();
 
-      if (!m_mouseCaptureEnabled)
+      if (!m_rightMouseDown)
       {
         const bool rotateCamera = mouseState.IsRightButtonPressed();
         m_camera.RotateViaPosition(rotateCamera, mouseState.Position);

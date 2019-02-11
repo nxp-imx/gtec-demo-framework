@@ -42,4 +42,6 @@ export FSL_TEST_REPORTS=$WORKSPACE/.Reports/UnitTests
 # Since a specific executor can run build multiple version of the %JOB_NAME% and there is no way 
 # to get information about that to create a unique directory name based on 'JOB_NAME' 'EXECUTOR_NUMBER' and this 'magic workspace #'
 # we force claim the install area instead bypassing a security check
-FslBuildExternal.py --ForceClaimInstallArea --VoidBuild
+echo Claiming persistent cache
+FslBuildExternal.py --ForceClaimInstallArea --VoidBuild -v --debug
+echo Prepare done

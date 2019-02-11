@@ -1,6 +1,6 @@
 <!-- #AG_DEMOAPP_HEADER_BEGIN# -->
 # DFGraphicsBasic2D
-<img src="./Example.jpg" height="135px" style="float:right">
+<img src="Example.jpg" height="135px">
 
 <!-- #AG_DEMOAPP_HEADER_END# -->
 <!-- #AG_BRIEF_BEGIN# -->

@@ -50,10 +50,10 @@ namespace Fsl
       CameraAdapterMipi8X& operator=(const CameraAdapterMipi8X&) = delete;
 
       CameraAdapterMipi8X(const CameraAdapterAllocateInfo& allocateInfo);
-      ~CameraAdapterMipi8X();
+      ~CameraAdapterMipi8X() override;
 
-      virtual CameraAdapterConfig GetConfig() const override;
-      virtual bool TryRender(RawBitmapEx& rTargetBitmap, uint32_t& rFrameId) override;
+      CameraAdapterConfig GetConfig() const override;
+      bool TryRender(RawBitmapEx& rTargetBitmap, uint32_t& rFrameId) override;
     };
   }
 }

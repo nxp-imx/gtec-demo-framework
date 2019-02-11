@@ -34,7 +34,7 @@
 
 namespace Fsl
 {
-  int32_t VertexElementFormatUtil::GetBytesPerElement(const VertexElementFormat format)
+  int32_t VertexElementFormatUtil::TryGetBytesPerElement(const VertexElementFormat format)
   {
     switch (format)
     {
@@ -61,11 +61,22 @@ namespace Fsl
     case VertexElementFormat::X8Y8Z8W8_UINT:
       return sizeof(uint8_t) * 4;
     default:
-      throw NotSupportedException("Unknown VertexElementFormat");
+      return -1;
     }
   }
 
-  int32_t VertexElementFormatUtil::GetElementCount(const VertexElementFormat format)
+  uint32_t VertexElementFormatUtil::GetBytesPerElement(const VertexElementFormat format)
+  {
+    auto res = TryGetBytesPerElement(format);
+    if (res >= 0)
+    {
+      return static_cast<uint32_t>(res);
+    }
+    throw NotSupportedException("Unknown VertexElementFormat");
+  }
+
+
+  int32_t VertexElementFormatUtil::TryGetElementCount(const VertexElementFormat format)
   {
     switch (format)
     {
@@ -92,7 +103,17 @@ namespace Fsl
     case VertexElementFormat::X8Y8Z8W8_UINT:
       return 4;
     default:
-      throw NotSupportedException("Unknown VertexElementFormat");
+      return -1;
     }
+  }
+
+  uint32_t VertexElementFormatUtil::GetElementCount(const VertexElementFormat format)
+  {
+    auto res = TryGetElementCount(format);
+    if (res >= 0)
+    {
+      return static_cast<uint32_t>(res);
+    }
+    throw NotSupportedException("Unknown VertexElementFormat");
   }
 }

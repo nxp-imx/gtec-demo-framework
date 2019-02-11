@@ -31,8 +31,8 @@
 
 #include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
 #include "VulkanTriangle.hpp"
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
+#include "VulkanWindowSystemAllocate.hpp"
+#include "OptionParser.hpp"
 
 namespace Fsl
 {

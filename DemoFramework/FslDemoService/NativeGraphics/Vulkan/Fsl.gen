@@ -3,6 +3,7 @@
   <Library Name="FslDemoService.NativeGraphics.Vulkan">
     <Dependency Name="FslDemoService.NativeGraphics.Base"/>
     <Dependency Name="FslService.Impl"/>
+    <Dependency Name="FslUtil.Vulkan1_0"/>
     <Platform Name="Windows" ProjectId="DED41996-4B0E-4963-9C6D-81334EAAA009"/>
   </Library>
 </FslBuildGen>

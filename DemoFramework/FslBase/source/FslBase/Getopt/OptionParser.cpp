@@ -29,13 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <algorithm>
-#include <cassert>
-#include <cstring>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
+#include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log.hpp>
@@ -43,9 +37,15 @@
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/IO/File.hpp>
-#include <FslBase/Getopt/OptionParser.hpp>
 #include "OptionParserTCLAP.hpp"
 #include "OptionRecord.hpp"
+#include <algorithm>
+#include <cassert>
+#include <cstring>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace Fsl
 {

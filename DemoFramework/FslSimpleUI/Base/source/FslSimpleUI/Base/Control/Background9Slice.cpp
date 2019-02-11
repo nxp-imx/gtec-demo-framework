@@ -84,7 +84,10 @@ namespace Fsl
     {
       ContentControl::WinDraw(context);
 
-      Draw9SliceImpl::WinDraw(m_windowContext->Batch2D, context.TargetRect, m_background, m_nineSlice, m_minimumBackgroundMargin, Color::White());
+      if (m_background.IsValid())
+      {
+        Draw9SliceImpl::WinDraw(m_windowContext->Batch2D, context.TargetRect, m_background, m_nineSlice, m_minimumBackgroundMargin, Color::White());
+      }
     }
   }
 }

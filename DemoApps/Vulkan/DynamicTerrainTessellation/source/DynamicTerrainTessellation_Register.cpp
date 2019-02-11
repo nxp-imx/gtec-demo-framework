@@ -29,47 +29,32 @@
  *
  ****************************************************************************************************************************************************/
 
-//#include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "DynamicTerrainTessellation.hpp"
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
-#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
 
 namespace Fsl
 {
-  namespace
-  {
-    class VulkanConfig : public DemoAppHostConfigVulkanEx
-    {
-    public:
-      VulkanConfig()
-        : DemoAppHostConfigVulkanEx(VulkanDemoAppMode::Freestyle)
-      {
-        using namespace Vulkan;
-
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TessellationShader, FeatureRequirement::Mandatory);
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::PipelineStatisticsQuery, FeatureRequirement::Optional);
-        // AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::PipelineStatisticsQuery, FeatureRequirement::Mandatory);
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Optional);
-
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
-        AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
-      }
-    };
-  }
-
-
   // Configure the demo environment to run this demo app in a Window host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+    using namespace Vulkan;
+
+    DemoAppHostConfigVulkan config;
+
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TessellationShader, FeatureRequirement::Mandatory);
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::PipelineStatisticsQuery, FeatureRequirement::Optional);
+    // config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::PipelineStatisticsQuery, FeatureRequirement::Mandatory);
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Optional);
+
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
+    config.AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
 
     // rSetup.CustomizeHost.Service.PreferAsyncImageService = true;
     // rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<Stub::NativeGraphicsService, INativeGraphicsService>
     // >(ServicePriorityList::NativeGraphicsService());
 
-    DemoAppRegister::Window::Register<DynamicTerrainTessellation, OptionParser>(rSetup, "Vulkan.DynamicTerrainTessellation", config);
+    DemoAppRegister::Vulkan::Register<DynamicTerrainTessellation>(rSetup, "Vulkan.DynamicTerrainTessellation", config);
   }
 }

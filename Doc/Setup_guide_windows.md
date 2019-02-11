@@ -94,9 +94,9 @@ If you add source files to a project or change the Fsl.gen file then run the
 FslBuildGen.py script in the project root folder to regenerate the various
 build files.
 
-## Building OpenCV 3.2 demo framework apps
+## Building OpenCV 4.0 demo framework apps
 
-1. See [Setup OpenCV 3.2]
+1. See [Setup OpenCV 4.0]
 2. Run `prepare.bat` as usual.
 3. Add a dependency to OpenCV to your "fsl.gen" file like this
     ```xml
@@ -130,17 +130,17 @@ build files.
 3. Run `FslBuildGen.py` to regenerate the project files.
 4. Start the project
 
-## Setup OpenCV 3.2
+## Setup OpenCV 4.0
 
-1. Install the 3.2 sdk files.
+1. Install the 4.0.1 sdk files.
 2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
     ```bash
-    set OPENCV_DIR=c:\_sdk\OpenCV-3.2.\build
+    set OPENCV_DIR=c:\_sdk\opencv-4.0.1\build
     ```
 
 ## Setup OpenVX
 
-1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV3.2)
+1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4.0)
 
 ## Legacy Git note
 

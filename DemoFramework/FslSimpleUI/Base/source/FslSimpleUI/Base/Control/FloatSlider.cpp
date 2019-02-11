@@ -216,8 +216,6 @@ namespace Fsl
       // Do the actual drawing
       {
         const auto batch = m_windowContext->Batch2D;
-        batch->ChangeTo(BlendState::AlphaBlend);
-
         if (m_texBackground.IsValid())
         {
           Draw9SliceImpl::WinDraw(batch, dstRect, m_texBackground, m_nineSlice, ThicknessF(), Color::White());

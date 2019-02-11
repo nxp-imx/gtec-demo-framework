@@ -37,8 +37,10 @@
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <Shared/OpenGLES3/HDR/BasicScene/SimpleMeshUtil.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/FragmentUBODataCreator.hpp>
+#include <Shared/HDR/BasicScene/API/OpenGLES3/SimpleMeshUtil.hpp>
 #include <GLES3/gl3.h>
+#include <algorithm>
 #include <array>
 #include <cmath>
 
@@ -51,6 +53,18 @@ namespace Fsl
   {
     const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
     const Vector3 DEFAULT_CAMERA_TARGET(0.0f, 0.0f, -4.0f);
+
+    GLES3::GLTexture CreateTexture(const std::shared_ptr<IContentManager>& contentManager)
+    {
+      // The KTX reader does not extract the origin, so we force a upper left
+      auto tex =
+        contentManager->ReadTexture("Textures/Bricks/Bricks_ETC2_rgb_flipped.ktx", PixelFormat::ETC2_R8G8B8_SRGB_BLOCK, BitmapOrigin::UpperLeft);
+      // Then override it to match the default GL setting since we know thats the way the texture is stored in the file
+      tex.OverrideOrigin(BitmapOrigin::LowerLeft);
+
+      GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
+      return GLES3::GLTexture(tex, texParams);
+    }
   }
 
 
@@ -64,17 +78,15 @@ namespace Fsl
   {
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
-
     m_camera.SetPosition(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET, Vector3::Up());
 
     const auto contentManager = GetContentManager();
 
-
-    PrepareLights();
-    CreateTextures(contentManager);
-    m_programLDR = CreateShader(contentManager, false);
-    m_programHDR = CreateShader(contentManager, true);
-    m_meshTunnel = SimpleMeshUtil::CreateTunnelVertexArray(m_programLDR.Program);
+    m_fragmentUboData = FragmentUBODataCreator::PrepareLights();
+    m_resources.TexSRGB = CreateTexture(contentManager);
+    m_resources.ProgramLDR = CreateShader(contentManager, false);
+    m_resources.ProgramHDR = CreateShader(contentManager, true);
+    m_resources.MeshTunnel = SimpleMeshUtil::CreateTunnelVertexArray(m_resources.ProgramLDR.Program);
   }
 
 
@@ -122,16 +134,17 @@ namespace Fsl
     }
   }
 
+
   void HDR01_BasicToneMapping::Update(const DemoTime& demoTime)
   {
-    m_menuUI.Update(demoTime);
     UpdateInput(demoTime);
+    m_menuUI.Update(demoTime);
 
     const auto screenResolution = GetScreenResolution();
-    m_matrixModel = Matrix::GetIdentity();
-    m_matrixView = m_camera.GetViewMatrix();
+    m_vertexUboData.MatModel = Matrix::GetIdentity();
+    m_vertexUboData.MatView = m_camera.GetViewMatrix();
     float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
+    m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
   }
 
 
@@ -146,8 +159,8 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue()));
-    const GLint remainderX = screenResolution.X - splitX;
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * screenResolution.X));
+    const GLint remainderX = std::min(std::max(screenResolution.X - splitX, 0), screenResolution.X);
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -165,7 +178,7 @@ namespace Fsl
       {
         glScissor(0, 0, splitX, screenResolution.Y);
       }
-      DrawScene(m_programLDR);
+      DrawScene(m_resources.ProgramLDR);
     }
     if (showingScene2)
     {
@@ -173,7 +186,7 @@ namespace Fsl
       {
         glScissor(splitX, 0, remainderX, screenResolution.Y);
       }
-      DrawScene(m_programHDR);
+      DrawScene(m_resources.ProgramHDR);
     }
 
     if (useClip)
@@ -251,50 +264,21 @@ namespace Fsl
     assert(location.LightPositions != GLValues::INVALID_LOCATION);
     assert(location.LightColors != GLValues::INVALID_LOCATION);
 
-    glUniformMatrix4fv(location.ModelMatrix, 1, 0, m_matrixModel.DirectAccess());
-    glUniformMatrix4fv(location.ViewMatrix, 1, 0, m_matrixView.DirectAccess());
-    glUniformMatrix4fv(location.ProjMatrix, 1, 0, m_matrixProjection.DirectAccess());
-    glUniform3fv(location.LightPositions, 4, m_lightPositions.data()->DirectAccess());
-    glUniform3fv(location.LightColors, 4, m_lightColors.data()->DirectAccess());
-    // The LDR shader dont use exposure
-    if (location.Exposure != GLValues::INVALID_LOCATION)
-    {
-      glUniform1f(location.Exposure, m_menuUI.GetExposure());
-    }
+    glUniformMatrix4fv(location.ModelMatrix, 1, 0, m_vertexUboData.MatModel.DirectAccess());
+    glUniformMatrix4fv(location.ViewMatrix, 1, 0, m_vertexUboData.MatView.DirectAccess());
+    glUniformMatrix4fv(location.ProjMatrix, 1, 0, m_vertexUboData.MatProj.DirectAccess());
+    glUniform3fv(location.LightPositions, 4, m_fragmentUboData.LightPositions->DirectAccess());
+    glUniform3fv(location.LightColors, 4, m_fragmentUboData.LightColors->DirectAccess());
+    glUniform1f(location.Exposure, m_menuUI.GetExposure());
 
     // Bind the vertex array
-    m_meshTunnel.VertexArray.Bind();
+    m_resources.MeshTunnel.VertexArray.Bind();
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texSRGB.Get());
-    glDrawArrays(GL_TRIANGLES, 0, m_meshTunnel.VertexBuffer.GetCapacity());
+    glBindTexture(GL_TEXTURE_2D, m_resources.TexSRGB.Get());
+    glDrawArrays(GL_TRIANGLES, 0, m_resources.MeshTunnel.VertexBuffer.GetCapacity());
 
-    m_meshTunnel.VertexArray.Unbind();
-  }
-
-
-  void HDR01_BasicToneMapping::PrepareLights()
-  {
-    // lighting info
-    m_lightPositions = {Vector3(0.0f, 0.0f, -31.5f), Vector3(-1.4f, -1.9f, -9.0f), Vector3(0.0f, -1.8f, -4.0f),
-                        // Vector3(0.0f, 0.0f, 0.0f)
-                        Vector3(0.8f, -1.7f, -6.0f)};
-    m_lightColors = {
-      Vector3(200.0f, 200.0f, 200.0f), Vector3(0.1f, 0.0f, 0.0f), Vector3(0.0f, 0.0f, 0.2f), Vector3(0.0f, 0.1f, 0.0f),
-      // Vector3(221.0f, 1.1f, 1.0f)
-    };
-  }
-
-
-  void HDR01_BasicToneMapping::CreateTextures(const std::shared_ptr<IContentManager>& contentManager)
-  {
-    // The KTX reader does not extract the origin, so we force a upper left
-    auto tex = contentManager->ReadTexture("Textures/Bricks_ETC2_rgb.ktx", PixelFormat::ETC2_R8G8B8_SRGB_BLOCK, BitmapOrigin::UpperLeft);
-    // Then override it to match the default GL setting since we know thats the way the texture is stored in the file
-    tex.OverrideOrigin(BitmapOrigin::LowerLeft);
-
-    GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
-    m_texSRGB.Reset(tex, texParams);
+    m_resources.MeshTunnel.VertexArray.Unbind();
   }
 
 
@@ -312,10 +296,7 @@ namespace Fsl
     // Get uniform locations (fragment shader)
     info.Location.LightPositions = info.Program.GetUniformLocation("g_lightPositions");
     info.Location.LightColors = info.Program.GetUniformLocation("g_lightColors");
-    if (useHDR)
-    {
-      info.Location.Exposure = info.Program.GetUniformLocation("g_exposure");
-    }
+    info.Location.Exposure = info.Program.GetUniformLocation("g_exposure");
     return info;
   }
 }

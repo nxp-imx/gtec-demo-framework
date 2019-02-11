@@ -36,8 +36,10 @@
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoHost/Base/Service/WindowHost/WindowHostServiceFactory.hpp>
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
+#include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 //#include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
@@ -52,6 +54,8 @@ namespace Fsl
   namespace
   {
     using GraphicsServiceFactory = ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl>;
+    using NativeGraphicsServiceFactory =
+      ThreadLocalSingletonServiceFactoryTemplate2<Vulkan::NativeGraphicsService, INativeGraphicsService, Vulkan::NativeGraphicsService>;
 
     const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
@@ -59,10 +63,11 @@ namespace Fsl
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::Vulkan);
       rSetup.TheHostRegistry.Register(hostFeatures, VulkanDemoHostSetup::Get());
+      rSetup.TheServiceRegistry.Register<VulkanHostServiceFactory>(ServicePriorityList::VulkanHostService());
       rSetup.TheServiceRegistry.Register<GraphicsServiceFactory>();
-      rSetup.TheServiceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<Vulkan::NativeGraphicsService, INativeGraphicsService>>(
-        ServicePriorityList::NativeGraphicsService());
-      // rSetup.TheServiceRegistry.Register<VulkanHostServiceFactory>(ServicePriorityList::VulkanHostService());
+      rSetup.TheServiceRegistry.Register<NativeGraphicsServiceFactory>(ServicePriorityList::NativeGraphicsService());
+      rSetup.TheServiceRegistry.Register<WindowHostServiceFactory>(ServicePriorityList::WindowHostService());
+
 
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);

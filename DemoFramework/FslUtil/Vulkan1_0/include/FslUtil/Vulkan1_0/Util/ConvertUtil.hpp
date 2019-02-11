@@ -36,6 +36,7 @@
 #include <FslBase/Math/Extent2D.hpp>
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <FslGraphics/Vertices/VertexElementFormat.hpp>
 #include <FslGraphics/Texture/TextureType.hpp>
 #include <vulkan/vulkan.h>
 
@@ -83,6 +84,14 @@ namespace Fsl
       //! @brief Convert the PixelFormat to a Vulkan VKFormat
       //! @note Throws a UnsupportedVulkanPixelFormatException if the conversion fails
       VkFormat Convert(const PixelFormat pixelFormat);
+
+      //! @brief Convert the VertexElementFormat to a Vulkan VKFormat
+      //! @returns the pixel format or VK_FORMAT_UNDEFINED if not successful
+      VkFormat TryConvert(const VertexElementFormat vertexFormat);
+
+      //! @brief Convert the VertexElementFormat to a Vulkan VKFormat
+      //! @note Throws a UnsupportedVulkanPixelFormatException if the conversion fails
+      VkFormat Convert(const VertexElementFormat vertexFormat);
 
       //! @brief Convert the textureType to a VkImageType
       VkImageType ToImageType(const TextureType textureType);

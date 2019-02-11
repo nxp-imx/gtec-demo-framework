@@ -340,6 +340,7 @@ class PackageCreationYearString:
 class BuildVariantConfig:
     Debug = 0
     Release = 1
+    Coverage = 2
 
     @staticmethod
     def ToString(value: int) -> str:
@@ -347,6 +348,8 @@ class BuildVariantConfig:
             return "release"
         elif value == BuildVariantConfig.Debug:
             return "debug"
+        elif value == BuildVariantConfig.Coverage:
+            return "coverage"
         else:
             raise Exception("Unsupported BuildVariantConfig '{0}'".format(value))
 
@@ -356,6 +359,8 @@ class BuildVariantConfig:
             return BuildVariantConfig.Release
         elif value == "debug":
             return BuildVariantConfig.Debug
+        elif value == "coverage":
+            return BuildVariantConfig.Coverage
         else:
             raise Exception("Unsupported BuildVariantConfig '{0}'".format(value))
 

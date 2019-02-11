@@ -32,7 +32,9 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLVertexElement.hpp>
 #include <FslGraphics/Vertices/VertexElementFormatUtil.hpp>
+#include <cassert>
 #include <cstdint>
+#include <limits>
 
 namespace Fsl
 {
@@ -87,6 +89,14 @@ namespace Fsl
           throw NotSupportedException("Unknown VertexElementFormat");
         }
       }
+
+      inline GLint GetElementCount(const VertexElementFormat format)
+      {
+        auto res = VertexElementFormatUtil::GetElementCount(format);
+        assert(res < static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+        assert(static_cast<GLint>(res) <= std::numeric_limits<GLint>::max());
+        return static_cast<GLint>(res);
+      }
     }
 
     GLVertexElement::GLVertexElement() = default;
@@ -94,7 +104,7 @@ namespace Fsl
 
     GLVertexElement::GLVertexElement(const VertexElementEx& source)
       : Source(source)
-      , Size(VertexElementFormatUtil::GetElementCount(source.Format))
+      , Size((GetElementCount(source.Format)))
       , Type(ConvertToNativeType(source.Format))
       , Normalized(IsNormalized(source.Format))
       , Pointer(reinterpret_cast<const GLvoid*>(intptr_t(source.Offset)))
@@ -106,7 +116,7 @@ namespace Fsl
     void GLVertexElement::Reset(const VertexElementEx& source)
     {
       Source = source;
-      Size = VertexElementFormatUtil::GetElementCount(source.Format);
+      Size = GetElementCount(source.Format);
       Type = ConvertToNativeType(source.Format);
       Normalized = IsNormalized(source.Format);
       Pointer = reinterpret_cast<const GLvoid*>(intptr_t(source.Offset));
@@ -117,7 +127,7 @@ namespace Fsl
     void GLVertexElement::Reset(const VertexElementEx& source, const VertexElementFormat internalFormat, const int32_t offsetAdd)
     {
       Source = source;
-      Size = VertexElementFormatUtil::GetElementCount(internalFormat);
+      Size = GetElementCount(internalFormat);
       Type = ConvertToNativeType(internalFormat);
       Normalized = IsNormalized(source.Format);
       Pointer = reinterpret_cast<const GLvoid*>(intptr_t(source.Offset + offsetAdd));

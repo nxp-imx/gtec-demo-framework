@@ -38,15 +38,15 @@ namespace Fsl
 {
   class ThreadLocalSingletonServiceFactoryBase : public IThreadLocalSingletonServiceFactory
   {
-    TypeInfo m_interfaceType;
+    std::type_index m_interfaceType;
     ServiceCaps::Flags m_flags;
 
   protected:
     std::shared_ptr<AServiceOptionParser> m_optionParser;
 
   public:
-    ThreadLocalSingletonServiceFactoryBase(const TypeInfo& interfaceType);
-    ThreadLocalSingletonServiceFactoryBase(const TypeInfo& interfaceType, const ServiceCaps::Flags flags);
+    ThreadLocalSingletonServiceFactoryBase(const std::type_index& interfaceType);
+    ThreadLocalSingletonServiceFactoryBase(const std::type_index& interfaceType, const ServiceCaps::Flags flags);
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
     {

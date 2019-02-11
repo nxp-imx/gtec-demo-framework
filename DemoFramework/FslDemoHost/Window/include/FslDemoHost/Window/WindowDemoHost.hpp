@@ -67,7 +67,7 @@ namespace Fsl
     void OnResume() override;
     DemoHostFeature GetActiveAPI() const override;
     Point2 GetScreenResolution() const override;
-    bool SwapBuffers() override;
+    SwapBuffersResult TrySwapBuffers() override;
     bool ProcessNativeMessages(const bool allowBlock) override;
 
   private:

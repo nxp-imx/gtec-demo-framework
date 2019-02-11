@@ -36,6 +36,7 @@
 #include <FslDemoApp/Base/Service/Events/IEventService.hpp>
 #include <FslDemoApp/Base/Service/ContentMonitor/IContentMonitor.hpp>
 #include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
+#include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
 #include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
 #include <FslDemoHost/Base/DemoAppManager.hpp>
@@ -57,8 +58,8 @@ namespace Fsl
 {
   DemoAppManager::DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats,
                                  const LogStatsMode logStatsMode, const bool enableFirewall, const bool enableContentMonitor,
-                                 const bool preallocateBasic2D, const uint32_t forcedUpdateTime)
-    : m_demoAppProfilerOverlay(demoAppSetup, demoAppConfig)
+                                 const bool preallocateBasic2D, const uint32_t forcedUpdateTime, const bool renderSystemOverlay)
+    : m_demoAppProfilerOverlay()
     , m_eventListener(std::make_shared<DemoAppManagerEventListener>())
     , m_demoAppSetup(demoAppSetup)
     , m_demoAppConfig(demoAppConfig)
@@ -73,15 +74,18 @@ namespace Fsl
     , m_timeStatsBeforeUpdate(0)
     , m_timeStatsAfterUpdate(0)
     , m_timeStatsAfterDraw(0)
-    , m_timeStatsLast(0)
     , m_accumulatedTotalTimeFixed(0)
     , m_accumulatedTotalTime(0)
     , m_logStatsMode(logStatsMode)
     , m_enableStats(enableStats)
     , m_useFirewall(enableFirewall)
     , m_preallocateBasic2D(preallocateBasic2D)
-
   {
+    if (renderSystemOverlay)
+    {
+      m_demoAppProfilerOverlay.reset(new DemoAppProfilerOverlay(demoAppConfig.DemoServiceProvider));
+    }
+
     m_expectedFrameTime = m_frameTimeConfig;
     m_demoAppControl = m_demoAppConfig.DemoServiceProvider.Get<IDemoAppControlEx>();
     m_graphicsService = m_demoAppConfig.DemoServiceProvider.TryGet<IGraphicsServiceControl>();
@@ -101,11 +105,21 @@ namespace Fsl
     //  throw std::invalid_argument("demoAppControl can not be null");
 
     ResetTimer();
-    m_timeStatsLast = m_timer.GetTime();
   }
 
 
-  DemoAppManager::~DemoAppManager() = default;
+  DemoAppManager::~DemoAppManager()
+  {
+    try
+    {
+      DoShutdownAppNow();
+    }
+    catch (const std::exception& ex)
+    {
+      FSLLOG_ERROR("DoShutdownAppNow failed: " << ex.what());
+      std::terminate();
+    }
+  }
 
 
   void DemoAppManager::Suspend(const bool bSuspend)
@@ -114,7 +128,7 @@ namespace Fsl
     {
       m_state = DemoState::Suspended;
       // Ensure that the app is released when we enter suspended state
-      m_demoApp.reset();
+      DoShutdownAppNow();
     }
     else
     {
@@ -209,6 +223,7 @@ namespace Fsl
       }
 
       m_accumulatedTime += timeDiff;
+      m_timeDiff = timeDiff;
       // if (m_accumulatedTime >= m_expectedFrameTime)
       //  FSLLOG("Time between draws: " << m_accumulatedTime);
       // else
@@ -227,8 +242,8 @@ namespace Fsl
         break;
       }
       m_accumulatedTotalTime += timeDiff;
-      const DemoTime demoTimeUpdate(m_accumulatedTotalTime, timeDiff);
-      m_demoApp->_PreUpdate(demoTimeUpdate);
+      m_currentDemoTimeUpdate = DemoTime(m_accumulatedTotalTime, timeDiff);
+      m_demoApp->_PreUpdate(m_currentDemoTimeUpdate);
 
       // We use m_frameTimeConfig instead of m_expectedFrameTime because m_expectedFrameTime might be modified
       // by the TimeStepMode.
@@ -245,24 +260,49 @@ namespace Fsl
       }
 
 
-      m_demoApp->_Update(demoTimeUpdate);
-      m_demoApp->_PostUpdate(demoTimeUpdate);
+      m_demoApp->_Update(m_currentDemoTimeUpdate);
+      m_demoApp->_PostUpdate(m_currentDemoTimeUpdate);
 
       m_timeStatsAfterUpdate = m_timer.GetTime();
-
-      m_demoApp->_Draw(demoTimeUpdate);
-
-      m_timeStatsAfterDraw = m_timer.GetTime();
-
-      if (m_enableStats && m_state == DemoState::Running)
-      {
-        m_demoAppProfilerOverlay.Draw(screenResolution);
-      }
     }
 
     ManageExitRequests(false);
-    // Returning true to let the caller know we called draw.
+
+    // Let the caller know update has been called
     return true;
+  }
+
+
+  AppDrawResult DemoAppManager::TryDraw()
+  {
+    auto result = m_demoApp->_TryPrepareDraw(m_currentDemoTimeUpdate);
+    if (result != AppDrawResult::Completed)
+    {
+      return result;
+    }
+
+    m_demoApp->_Draw(m_currentDemoTimeUpdate);
+
+    m_timeStatsAfterDraw = m_timer.GetTime();
+
+    if (m_enableStats && m_state == DemoState::Running && m_demoAppProfilerOverlay)
+    {
+      m_demoAppProfilerOverlay->Draw(m_demoAppConfig.ScreenResolution);
+    }
+
+    ManageExitRequests(false);
+
+    return result;
+  }
+
+
+  AppDrawResult DemoAppManager::TryAppSwapBuffers()
+  {
+    if (!m_demoApp)
+    {
+      return AppDrawResult::Completed;
+    }
+    return m_demoApp->_TrySwapBuffers(m_currentDemoTimeUpdate);
   }
 
 
@@ -288,19 +328,15 @@ namespace Fsl
   {
     if (m_state == DemoState::Running)
     {
-      const uint64_t currentTime = m_timer.GetTime();
-      const uint64_t deltaTime = currentTime - m_timeStatsLast;
       const uint64_t deltaTimeUpdate = m_timeStatsAfterUpdate - m_timeStatsBeforeUpdate;
       const uint64_t deltaTimeDraw = m_timeStatsAfterDraw - m_timeStatsAfterUpdate;
 
-      m_timeStatsLast = currentTime;
-
-      m_profilerServiceControl->AddFrameTimes(deltaTimeUpdate, deltaTimeDraw, deltaTime);
+      m_profilerServiceControl->AddFrameTimes(deltaTimeUpdate, deltaTimeDraw, m_timeDiff);
 
       const auto averageTime = m_profilerService->GetAverageFrameTime();
 
       FSLLOG_IF(m_logStatsMode == LogStatsMode::Latest,
-                "All: " << deltaTime << " FPS: " << (1000000.0f / deltaTime) << " Updates: " << deltaTimeUpdate << " Draw: " << deltaTimeDraw);
+                "All: " << m_timeDiff << " FPS: " << (1000000.0f / m_timeDiff) << " Updates: " << deltaTimeUpdate << " Draw: " << deltaTimeDraw);
       FSLLOG_IF(m_logStatsMode == LogStatsMode::Average, "Average All: " << averageTime.TotalTime << " FPS: " << (1000000.0f / averageTime.TotalTime)
                                                                          << " Updates: " << averageTime.UpdateTime
                                                                          << " Draw: " << averageTime.DrawTime);
@@ -334,7 +370,7 @@ namespace Fsl
     }
 
     // Free the app
-    m_demoApp.reset();
+    DoShutdownAppNow();
     return m_demoAppControl->GetExitCode();
   }
 
@@ -369,7 +405,7 @@ namespace Fsl
     if (m_demoApp && (restartRequest || (m_demoAppSetup.CustomAppConfig.RestartOnResize && screenResolution != m_demoAppConfig.ScreenResolution)))
     {
       // Release the app
-      m_demoApp.reset();
+      DoShutdownAppNow();
     }
 
     // Check if a exit request exist (this catches the rare case where the exit occurs during a screen resolution change was detected
@@ -408,7 +444,6 @@ namespace Fsl
   {
     m_timeThen = m_timer.GetTime() - m_expectedFrameTime;
     m_accumulatedTime = 0;
-    m_timeStatsLast = m_timeThen;
   }
 
 
@@ -436,6 +471,24 @@ namespace Fsl
     default:
       FSLLOG_WARNING("Unknown timestep mode");
       break;
+    }
+  }
+
+  void DemoAppManager::DoShutdownAppNow()
+  {
+    if (m_demoApp)
+    {
+      try
+      {
+        m_demoApp->_PreDestruct();
+      }
+      catch (const std::exception& ex)
+      {
+        FSLLOG_ERROR("Exception throw in _PreDestruct: " << ex.what());
+        m_demoApp.reset();
+        throw;
+      }
+      m_demoApp.reset();
     }
   }
 }

@@ -5,6 +5,7 @@
 /CMakeLists.txt
 /Content/_ContentSyncCache.fsl
 /FastFourierTransform
+/FastFourierTransform_c
 /FastFourierTransform_d
 /FslSDKIcon.ico
 /GNUmakefile

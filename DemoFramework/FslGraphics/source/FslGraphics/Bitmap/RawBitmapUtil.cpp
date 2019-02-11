@@ -115,22 +115,14 @@ namespace Fsl
     {
     case PixelFormatLayout::R8G8B8:
     case PixelFormatLayout::B8G8R8:
-      if (srcIdx0 == 2 && srcIdx1 == 1 && srcIdx2 == 0)
-      {
-        Swizzle24From012To210(rBitmap);
-      }
-      else
-      {
-        Swizzle24(rBitmap, srcIdx0, srcIdx1, srcIdx2);
-      }
+      Swizzle24(rBitmap, srcIdx0, srcIdx1, srcIdx2);
       break;
     case PixelFormatLayout::R8G8B8A8:
     case PixelFormatLayout::B8G8R8A8:
       Swizzle32(rBitmap, srcIdx0, srcIdx1, srcIdx2, srcIdx3);
       break;
     default:
-      throw UnsupportedPixelFormatException("Swizzle only supports R8G8B8_UINT, B8G8R8_UINT, R8G8B8A8_UINT or B8G8R8A8_UINT format",
-                                            rBitmap.GetPixelFormat());
+      throw UnsupportedPixelFormatException("Swizzle only supports R8G8B8, B8G8R8, R8G8B8A8 or B8G8R8A8 pixel layout", rBitmap.GetPixelFormat());
     }
   }
 
@@ -142,7 +134,14 @@ namespace Fsl
 
   void RawBitmapUtil::Swizzle24(RawBitmapEx& rBitmap, const uint32_t srcIdx0, const uint32_t srcIdx1, const uint32_t srcIdx2)
   {
-    Swizzle24(rBitmap, rBitmap, srcIdx0, srcIdx1, srcIdx2);
+    if (srcIdx0 == 2 && srcIdx1 == 1 && srcIdx2 == 0)
+    {
+      Swizzle24From012To210(rBitmap);
+    }
+    else
+    {
+      Swizzle24(rBitmap, rBitmap, srcIdx0, srcIdx1, srcIdx2);
+    }
   }
 
 
@@ -336,9 +335,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
 
     // The buffers can not overlap
     if (!(pSrc >= pDstEnd || pSrcEnd <= pDst))
@@ -366,8 +365,8 @@ namespace Fsl
     else
     {
       const std::size_t totalBytes = srcStride * srcBitmap.Height();
-      assert(totalBytes == srcBitmap.GetBufferLength());
-      assert(totalBytes == rDstBitmap.GetBufferLength());
+      assert(totalBytes == srcBitmap.GetByteSize());
+      assert(totalBytes == rDstBitmap.GetByteSize());
       std::memcpy(pDst, pSrc, totalBytes);
     }
   }
@@ -394,9 +393,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
 
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();
@@ -455,9 +454,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
 
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();
@@ -517,9 +516,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();
 
@@ -579,9 +578,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();
 
@@ -637,9 +636,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();
 
@@ -695,9 +694,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();
 
@@ -751,9 +750,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();
 
@@ -802,9 +801,9 @@ namespace Fsl
     }
 
     const auto* pSrc = static_cast<const uint8_t*>(srcBitmap.Content());
-    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetBufferLength();
+    const uint8_t* const pSrcEnd = pSrc + srcBitmap.GetByteSize();
     auto* pDst = static_cast<uint8_t*>(rDstBitmap.Content());
-    uint8_t* const pDstEnd = pDst + rDstBitmap.GetBufferLength();
+    uint8_t* const pDstEnd = pDst + rDstBitmap.GetByteSize();
 
     const uint32_t srcStride = srcBitmap.Stride();
     const uint32_t dstStride = rDstBitmap.Stride();

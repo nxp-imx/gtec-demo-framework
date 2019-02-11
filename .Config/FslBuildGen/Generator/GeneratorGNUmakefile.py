@@ -68,8 +68,9 @@ class LocalMagicBuildVariants:
 
 class GeneratorGNUmakefile(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], dstMakeFilename: str,
-                 templateExe: str, templateLib: str, generatorName: str) -> None:
+                 templateExe: str, templateLib: str, generatorName: str, configVariantOptions: List[str]) -> None:
         super(GeneratorGNUmakefile, self).__init__()
+        self.ConfigVariantOptions = configVariantOptions;
         self.BldTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "build.sh"))
         self.ExeTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, templateExe))
         self.LibTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, templateLib))
@@ -173,7 +174,7 @@ class GeneratorGNUmakefile(GeneratorBase):
             build = build.replace("##PACKAGE_EXTERNAL_DLL_PATHS##", strExtDllPaths)
             executableReport = GeneratorGNUmakefileUtil.TryGenerateExecutableReport(config, generatorName, package)
             if executableReport is not None:
-                variableReport = GeneratorGNUmakefileUtil.GenerateVariableReport(config, generatorName, package)
+                variableReport = GeneratorGNUmakefileUtil.GenerateVariableReport(config, generatorName, package, self.ConfigVariantOptions)
                 GitIgnoreHelper.AddFromBuildReport(self.GitIgnoreDict, package, executableReport, variableReport)
 
         dstFile = IOUtil.Join(package.AbsolutePath, dstMakeFilename)
@@ -312,15 +313,19 @@ class GeneratorGNUmakefileUtil(object):
 
 
     @staticmethod
-    def GenerateVariableReport(log: Log, generatorName: str, package: Package) -> GeneratorVariableReport:
-        variableReport = GeneratorVariableReport(log)
+    def GenerateVariableReport(log: Log, generatorName: str, package: Package, configVariantOptions: List[str]) -> GeneratorVariableReport:
+        variableReport = GeneratorVariableReport(log, configVariantOptions=configVariantOptions)
         # Add all the package variants
         for variantEntry in package.ResolvedAllVariantDict.values():
             variantEntryOptions = [option.Name for option in variantEntry.Options]
             variableReport.Add(variantEntry.Name, variantEntryOptions)
 
         # The make files generate executable files in debug mode with the postfix '_d'
-        variableReport.Add(LocalMagicBuildVariants.GeneratorExeFileExtension, ['_d', ''], ToolAddedVariant.CONFIG)
+        exeFileExtensionOptionList = ['_d', '']
+        # This is a bit ugly as we just assume coverage will be last
+        if ToolAddedVariantConfigOption.Coverage in configVariantOptions:
+            exeFileExtensionOptionList.append('_c')
+        variableReport.Add(LocalMagicBuildVariants.GeneratorExeFileExtension, exeFileExtensionOptionList, ToolAddedVariant.CONFIG)
 
         # make builds default to release
         variableReport.SetDefaultOption(ToolAddedVariant.CONFIG, ToolAddedVariantConfigOption.Release)
@@ -378,11 +383,11 @@ class GeneratorGNUmakefileUtil(object):
 
 
     @staticmethod
-    def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package) -> Optional[PackageGeneratorReport]:
-        if package.IsVirtual:
+    def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package, configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
+        if package.IsVirtual and package.Type != PackageType.HeaderLibrary:
             return None
 
         buildReport = GeneratorGNUmakefileUtil.TryGenerateBuildReport(log, generatorName, package)
         executableReport = GeneratorGNUmakefileUtil.TryGenerateExecutableReport(log, generatorName, package)
-        variableReport = GeneratorGNUmakefileUtil.GenerateVariableReport(log, generatorName, package)
+        variableReport = GeneratorGNUmakefileUtil.GenerateVariableReport(log, generatorName, package, configVariantOptions)
         return PackageGeneratorReport(buildReport, executableReport, variableReport)

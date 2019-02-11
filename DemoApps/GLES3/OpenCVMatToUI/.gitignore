@@ -28,6 +28,7 @@
 /OpenCVMatToUI_Wayland_d
 /OpenCVMatToUI_X11
 /OpenCVMatToUI_X11_d
+/OpenCVMatToUI_c
 /OpenCVMatToUI_d
 /build/
 /resource.h

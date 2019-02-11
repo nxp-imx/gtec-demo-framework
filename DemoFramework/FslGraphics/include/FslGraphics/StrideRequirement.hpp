@@ -37,17 +37,17 @@ namespace Fsl
   enum class StrideRequirement
   {
     //! Use the minimum stride
-    Minimum,
+    Minimum = 0,
     //! Use the minimum stride that is 16bit aligned.
-    MinimumAlign16Bit,
+    MinimumAlign16Bit = 1,
     //! Use the minimum stride that is 32bit aligned.
-    MinimumAlign32Bit,
+    MinimumAlign32Bit = 2,
     //! Use any stride that are 16bit aligned as long as its equal to or greater than the minimum stride.
-    Align16Bit,
+    Align16Bit = 3,
     //! Use any stride that are 32bit aligned as long as its equal to or greater than the minimum stride.
-    Align32Bit,
+    Align32Bit = 4,
     //! Use any stride that are equal to or greater than the minimum stride
-    Any
+    Any = 5
   };
 }
 

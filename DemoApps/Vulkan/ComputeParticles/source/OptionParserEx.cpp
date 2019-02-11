@@ -70,7 +70,7 @@ namespace Fsl
 
   void OptionParserEx::OnArgumentSetup(std::deque<Option>& rOptions)
   {
-    OptionParser::OnArgumentSetup(rOptions);
+    ADemoOptionParser::OnArgumentSetup(rOptions);
 
     rOptions.emplace_back("ParticleCount", OptionArgument::OptionRequired, CommandId::ParticleCount, "Set the particle count directly.");
     rOptions.emplace_back("Preset", OptionArgument::OptionRequired, CommandId::Preset,
@@ -119,7 +119,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     }
     default:
-      return OptionParser::OnParse(cmdId, pszOptArg);
+      return ADemoOptionParser::OnParse(cmdId, pszOptArg);
     }
   }
 
@@ -140,6 +140,6 @@ namespace Fsl
     }
 
     // If you return false, the app exits.
-    return OptionParser::OnParsingComplete();
+    return ADemoOptionParser::OnParsingComplete();
   }
 }

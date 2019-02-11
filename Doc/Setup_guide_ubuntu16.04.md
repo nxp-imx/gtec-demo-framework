@@ -108,42 +108,36 @@ automatically adds files and regenerate build files as needed.
 
 ## Building Vulkan demo framework apps
 
-See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
+Install the Vulkan SDK, See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)
 
-1. Download the vulkan sdk from https://vulkan.lunarg.com/sdk/home
-2. Make the downloaded file executable
-    ```bash
-    chmod ugo+x vulkansdk-linux-x86_64-1.0.51.0.run
-    ```
-3. Move the downloaded file to a sdk dir
+1. Download the Vulkan sdk from https://vulkan.lunarg.com/sdk/home
+2. Move the downloaded file to a sdk dir
     ```bash
     mkdir ~/vulkan
-    mv vulkansdk-linux-x86_64-1.0.51.0.run ~/vulkan
+    mv vulkansdk-linux-x86_64-1.1.92.1.tar.gz ~/vulkan
     ```
-4. Run it
+3. Unpack it it
     ```bash
     cd ~/vulkan
-    ./vulkansdk-linux-x86_64-1.0.51.0.run
+    tar zxf vulkansdk-linux-x86_64-1.1.92.1.tar.gz
     ```
-5. Install the necessary packages
+4. Install the necessary packages
     ```bash
-    sudo apt-get install libglm-dev graphviz libxcb-dri3-0 libxcb-present0 libpciaccess0 cmake libpng-dev libxcb-dri3-dev libx11-dev libmirclient-dev libwayland-dev libxrandr-dev
-    sudo apt-get install git libpython2.7
+    sudo apt-get install libglm-dev cmake libxcb-dri3-0 libxcb-present0 libpciaccess0 libpng-dev libxcb-keysyms1-dev libxcb-dri3-dev libx11-dev libmirclient-dev libwayland-dev libxrandr-dev libxcb-ewmh-dev
     ```
-6. Setup the vulkan environment
+5. Setup the vulkan environment
     ```bash
-    pushd ~/vulkan/VulkanSDK/1.0.51.0
+    pushd ~/vulkan/1.1.92.1
     source setup-env.sh
     popd
     ```
-7. Ensure that the LIBRARY_PATH is set for GCC
+6. Ensure that the LIBRARY_PATH is set for GCC
     ```bash
-    export LIBRARY_PATH=$VULKAN_SDK/lib:$LIBRARY_PATH     
+    export LIBRARY_PATH=$VULKAN_SDK/lib:$LIBRARY_PATH
     ```
-8. Run the normal setup.
+7. Run the normal setup.
 
-
-## Building OpenCV 3.2 demo framework apps
+## Building OpenCV 4.0 demo framework apps
 
 1. Follow the normal setup procedure for the sdk
 2. Install the required packages
@@ -159,32 +153,36 @@ See the [official SDK guide](https://vulkan.lunarg.com/doc/sdk/latest/linux/gett
     mkdir ~/sdk
     cd ~/sdk
     ```
-5. Download the 3.2 release for ubuntu, unzip it, remove the download, enter the directory
+5. Download the 4.0.1 release for ubuntu, unzip it, remove the download, enter the directory
     ```bash
-    wget https://github.com/opencv/opencv/archive/3.2.0.zip
-    unzip 3.2.0.zip
-    rm 3.2.0.zip
-    cd opencv-3.2.0
+    wget https://github.com/opencv/opencv/archive/4.0.1.zip
+    unzip 4.0.1.zip
+    rm 4.0.1.zip
+    cd opencv-4.0.1
     ```
 6. Build OpenCV
     ```bash
     mkdir release
     cd release
     cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ..
-    make
+    make -j $(nproc)
     sudo make install
     ```
-7. Ensure that you can locate the OpenCV .so files
+7. Ensure that the OpenCV 4 headers are where they used to be
+    ```bash
+    sudo ln -s /usr/local/include/opencv4/opencv2/ /usr/local/include/opencv2
+    ```
+8. Ensure that you can locate the OpenCV .so files
     ```bash
     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
     ```
-8. Add a dependency to OpenCV to your "fsl.gen" file like this
+9. Add a dependency to OpenCV to your "fsl.gen" file like this
     ```xml
     <Dependency Name="OpenCV3"/>
     ```
    See DemoApps/GLES2/OpenCV101/Fsl.gen for how its done.
 
-9. Run FslBuildGen.py to regenerate the project files.
+10. Run FslBuildGen.py to regenerate the project files.
 
 ## Building OpenCL demo framework apps
 

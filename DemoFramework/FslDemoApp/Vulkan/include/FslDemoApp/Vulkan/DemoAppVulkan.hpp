@@ -32,14 +32,51 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/ADemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/VulkanLaunchOptions.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/DeviceCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/VUDevice.hpp>
+#include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
+#include <memory>
+#include <vulkan/vulkan.h>
 
 namespace Fsl
 {
+  namespace Vulkan
+  {
+    class NativeGraphicsService;
+  }
+
   class DemoAppVulkan : public ADemoApp
   {
-  public:
+  protected:
+    std::shared_ptr<Vulkan::NativeGraphicsService> m_nativeGraphicsService;
+    VulkanLaunchOptions m_launchOptions;
+    VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+    Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
+    VkPhysicalDeviceFeatures m_deviceActiveFeatures{};
+    Vulkan::VUDevice m_device;
+    std::shared_ptr<Vulkan::DeviceCreateInfoCopy> m_deviceCreateInfo;
+
+    Vulkan::VUDeviceQueueRecord m_deviceQueue;
+
+
     DemoAppVulkan(const DemoAppConfig& demoAppConfig);
     ~DemoAppVulkan() override;
+    void OnDestroy() override;
+
+
+    AppDrawResult TrySwapBuffers(const DemoTime& demoTime) override
+    {
+      return AppDrawResult::Completed;
+    }
+
+    // Call this during destruction to ensure the device is idle before you destroy resources
+    void SafeWaitForDeviceIdle() noexcept;
+
+  private:
+    void SafeShutdown();
   };
 }
 

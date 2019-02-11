@@ -31,53 +31,42 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <vulkan/vulkan.h>
-#include <deque>
-#include <vector>
 #include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
-#include <RapidVulkan/CommandBuffer.hpp>
-#include <RapidVulkan/CommandPool.hpp>
-#include <RapidVulkan/Device.hpp>
-#include <RapidVulkan/Framebuffer.hpp>
-#include <RapidVulkan/Instance.hpp>
-#include <RapidVulkan/ImageView.hpp>
-#include <RapidVulkan/RenderPass.hpp>
-#include <RapidVulkan/SwapchainKHR.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
-#include <array>
+#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
+#include <RapidVulkan/Instance.hpp>
+#include <vulkan/vulkan.h>
 
 namespace Fsl
 {
-  class VulkanDemoHostOptionParser;
+  namespace Vulkan
+  {
+    class NativeGraphicsService;
+  }
+
   class IVulkanNativeWindowSystem;
   class IVulkanNativeWindow;
-  class IEGLNativeWindow;
-  class IEGLNativeWindowSystem;
+  class IWindowHostInfoControl;
+  class VulkanDemoHostOptionParser;
+  class VulkanHostService;
 
   class VulkanDemoHost : public ADemoHost
   {
     std::shared_ptr<VulkanDemoHostOptionParser> m_options;
+    std::shared_ptr<Vulkan::NativeGraphicsService> m_nativeGraphicsService;
     std::unique_ptr<NativeWindowSetup> m_nativeWindowSetup;
     std::shared_ptr<IVulkanNativeWindowSystem> m_windowSystem;
     std::shared_ptr<IVulkanNativeWindow> m_window;
+    std::shared_ptr<IWindowHostInfoControl> m_windowHostInfoControl;
+    std::shared_ptr<VulkanHostService> m_vulkanHostService;
     DemoHostConfig m_demoHostConfig;
-    bool m_isActivated;
+    bool m_isActivated = true;
     DemoHostFeature m_activeApi;
+    std::shared_ptr<Vulkan::InstanceCreateInfoCopy> m_instanceCreateInfo;
     RapidVulkan::Instance m_instance;
-    VkPhysicalDevice m_physicalDevice;
-    RapidVulkan::Device m_device;
-    VkQueue m_queue;
-    RapidVulkan::CommandPool m_commandPool;
-    RapidVulkan::SwapchainKHR m_swapchain;
-    VkExtent2D m_imageExtend;
-    VkFormat m_imageFormat;
-    RapidVulkan::RenderPass m_renderPass;
-    std::vector<VkImage> m_swapchainImages;
-
-    std::vector<RapidVulkan::ImageView> m_imageViews;
-    std::vector<RapidVulkan::Framebuffer> m_framebuffers;
-    std::vector<RapidVulkan::CommandBuffer> m_commandBuffers;
+    Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
 
   public:
     VulkanDemoHost(const DemoHostConfig& demoHostConfig);
@@ -89,7 +78,7 @@ namespace Fsl
     void OnResume() override;
     DemoHostFeature GetActiveAPI() const override;
     Point2 GetScreenResolution() const override;
-    bool SwapBuffers() override;
+    SwapBuffersResult TrySwapBuffers() override;
     bool ProcessNativeMessages(const bool allowBlock) override;
 
   private:
@@ -97,10 +86,6 @@ namespace Fsl
     void Shutdown();
     void InitVulkan();
     void ShutdownVulkan();
-    void InitDeviceQueueCommandPool();
-    void ShutdownDeviceQueueCommandPool();
-    void InitRenderPass(const VkFormat imageFormat);
-    void ShutdownRenderPass();
   };
 }
 

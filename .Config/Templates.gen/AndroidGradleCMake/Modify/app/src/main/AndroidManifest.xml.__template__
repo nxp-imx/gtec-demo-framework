@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.freescale.##PREFIXED_PROJECT_NAME_L##">
 
-    <uses-sdk android:minSdkVersion="##FSL_PACKAGE_MIN_ANDROID_SDK_VERSION##" android:targetSdkVersion="##FSL_PACKAGE_TARGET_ANDROID_SDK_VERSION##"/>
     <uses-feature android:glEsVersion="##FSL_PACKAGE_GLES_VERSION##" android:required="true"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <application

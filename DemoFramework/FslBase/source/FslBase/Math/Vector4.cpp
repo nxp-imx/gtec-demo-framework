@@ -39,6 +39,13 @@ SOFTWARE.
 
 namespace Fsl
 {
+  // Verify that our assumption about the structure packing is correct
+  static_assert(offsetof(Vector4, X) == (sizeof(float) * 0), "Vector4.X component not at the expected offset");
+  static_assert(offsetof(Vector4, Y) == (sizeof(float) * 1), "Vector4.Y component not at the expected offset");
+  static_assert(offsetof(Vector4, Z) == (sizeof(float) * 2), "Vector4.Z component not at the expected offset");
+  static_assert(offsetof(Vector4, W) == (sizeof(float) * 3), "Vector4.W component not at the expected offset");
+  static_assert(sizeof(Vector4) == (sizeof(float) * 4), "Vector4 not of the expected size");
+
   Vector4::Vector4(const Vector2& v, const float z, const float w)
     : X(v.X)
     , Y(v.Y)
@@ -54,16 +61,6 @@ namespace Fsl
     , Z(v.Z)
     , W(w)
   {
-  }
-
-  const float* Vector4::DirectAccess() const
-  {
-    // Verify that our assumption about the structure packing is correct
-    assert(offsetof(Vector4, X) == (sizeof(float) * 0));
-    assert(offsetof(Vector4, Y) == (sizeof(float) * 1));
-    assert(offsetof(Vector4, Z) == (sizeof(float) * 2));
-    assert(offsetof(Vector4, W) == (sizeof(float) * 3));
-    return &X;
   }
 
 
@@ -111,7 +108,7 @@ namespace Fsl
   }
 
 
-  void Vector4::Clamp(Vector4& rResult, const Vector4& value, const Vector4& min, const Vector4& max)
+  void Vector4::Clamp(const Vector4& value, const Vector4& min, const Vector4& max, Vector4& rResult)
   {
     rResult = Vector4(MathHelper::Clamp(value.X, min.X, max.X), MathHelper::Clamp(value.Y, min.Y, max.Y), MathHelper::Clamp(value.Z, min.Z, max.Z),
                       MathHelper::Clamp(value.W, min.W, max.W));
@@ -156,7 +153,7 @@ namespace Fsl
   }
 
 
-  void Vector4::Lerp(Vector4& rResult, const Vector4& value1, const Vector4 value2, const float amount)
+  void Vector4::Lerp(const Vector4& value1, const Vector4 value2, const float amount, Vector4& rResult)
   {
     rResult = Vector4(MathHelper::Lerp(value1.X, value2.X, amount), MathHelper::Lerp(value1.Y, value2.Y, amount),
                       MathHelper::Lerp(value1.Z, value2.Z, amount), MathHelper::Lerp(value1.W, value2.W, amount));
@@ -169,7 +166,7 @@ namespace Fsl
   }
 
 
-  void Vector4::Max(Vector4& rResult, const Vector4& value1, const Vector4& value2)
+  void Vector4::Max(const Vector4& value1, const Vector4& value2, Vector4& rResult)
   {
     rResult = Vector4(std::max(value1.X, value2.X), std::max(value1.Y, value2.Y), std::max(value1.Z, value2.Z), std::max(value1.W, value2.W));
   }
@@ -181,19 +178,13 @@ namespace Fsl
   }
 
 
-  void Vector4::Min(Vector4& rResult, const Vector4& value1, const Vector4& value2)
+  void Vector4::Min(const Vector4& value1, const Vector4& value2, Vector4& rResult)
   {
     rResult = Vector4(std::min(value1.X, value2.X), std::min(value1.Y, value2.Y), std::min(value1.Z, value2.Z), std::min(value1.W, value2.W));
   }
 
 
-  Vector4 Vector4::Negate(const Vector4& value)
-  {
-    return Vector4(-value.X, -value.Y, -value.Z, -value.W);
-  }
-
-
-  void Vector4::Negate(Vector4& rResult, const Vector4& value)
+  void Vector4::Negate(const Vector4& value, Vector4& rResult)
   {
     rResult.X = -value.X;
     rResult.Y = -value.Y;
@@ -204,7 +195,13 @@ namespace Fsl
 
   void Vector4::Normalize()
   {
-    Normalize(*this, *this);
+    float factor = Length();
+    assert(factor != 0.0f);
+    factor = 1.0f / factor;
+    X *= factor;
+    Y *= factor;
+    Z *= factor;
+    W *= factor;
   }
 
 
@@ -212,12 +209,12 @@ namespace Fsl
   {
     // Vector4 result(OptimizationFlag::NoInitialization);
     Vector4 result;
-    Normalize(result, vector);
+    Normalize(vector, result);
     return result;
   }
 
 
-  void Vector4::Normalize(Vector4& rResult, const Vector4& value)
+  void Vector4::Normalize(const Vector4& value, Vector4& rResult)
   {
     float factor = value.Length();
     assert(factor != 0.0f);
@@ -240,7 +237,7 @@ namespace Fsl
   }
 
 
-  void Vector4::Reflect(Vector4& rResult, const Vector4& vector, const Vector4& normal)
+  void Vector4::Reflect(const Vector4& vector, const Vector4& normal, Vector4& rResult)
   {
     // I is the original array
     // N is the normal of the incident plane
@@ -279,7 +276,7 @@ namespace Fsl
   }
 
 
-  void Vector4::Transform(Vector4& rResult, const Vector2& position, const Matrix& matrix)
+  void Vector4::Transform(const Vector2& position, const Matrix& matrix, Vector4& rResult)
   {
     MatrixInternals::Transform(rResult, position, matrix);
   }
@@ -294,7 +291,7 @@ namespace Fsl
   }
 
 
-  void Vector4::Transform(Vector4& rResult, const Vector3& position, const Matrix& matrix)
+  void Vector4::Transform(const Vector3& position, const Matrix& matrix, Vector4& rResult)
   {
     MatrixInternals::Transform(rResult, position, matrix);
   }
@@ -309,7 +306,7 @@ namespace Fsl
   }
 
 
-  void Vector4::Transform(Vector4& rResult, const Vector4& position, const Matrix& matrix)
+  void Vector4::Transform(const Vector4& position, const Matrix& matrix, Vector4& rResult)
   {
     MatrixInternals::Transform(rResult, position, matrix);
   }

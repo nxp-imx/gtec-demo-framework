@@ -3,9 +3,9 @@
 
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform mat4 WorldView;
@@ -33,7 +33,7 @@ void main()
 {
   // set the specular term to black
   vec4 spec = vec4(0.0);
- 
+
   // transform normal to camera space and normalize it
   vec3 n = normalize(NormalMatrix * VertexNormal);
 
@@ -41,24 +41,24 @@ void main()
   float intensity = max(dot(n, LightDirection), 0.0);
 
   // if the vertex is lit calc the specular term
-  if (intensity > 0.0) 
+  if (intensity > 0.0)
   {
     // Calc position in camera space
     vec3 pos = (WorldView * vec4(VertexPosition, 1)).xyz;
-    // Calc eye vector and normalize it 
+    // Calc eye vector and normalize it
     vec3 eye = normalize(-pos);
     // Calc the half vector
     vec3 h = normalize(LightDirection + eye);
- 
+
     // Calc the specular term into spec
-    float intSpec = max(dot(h,n), 0.0);
+    float intSpec = max(dot(h, n), 0.0);
     spec = MatSpecular * pow(intSpec, MatShininess);
   }
 
-  // add the specular term 
+  // add the specular term
   v_Color = max((VertexColor * intensity) + spec, MatAmbient);
   v_TexCoord = VertexTexCoord;
-  
+
   // transform the vertex coordinates
-  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0);  
+  gl_Position = WorldViewProjection * vec4(VertexPosition, 1.0);
 }

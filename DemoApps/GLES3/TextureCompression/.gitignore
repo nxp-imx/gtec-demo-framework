@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Textures/GPUSdkTest/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.TextureCompression.VC.VC.opendb
@@ -27,6 +28,7 @@
 /TextureCompression_Wayland_d
 /TextureCompression_X11
 /TextureCompression_X11_d
+/TextureCompression_c
 /TextureCompression_d
 /build/
 /resource.h

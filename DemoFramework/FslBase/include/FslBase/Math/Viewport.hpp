@@ -52,9 +52,6 @@ namespace Fsl
 
   struct Viewport
   {
-    /// <summary>
-    /// Attributes
-    /// </summary>
     int32_t X{0};
     int32_t Y{0};
     int32_t Width{0};
@@ -85,9 +82,9 @@ namespace Fsl
       Height = value.Height();
     }
 
-    Viewport() = default;
+    constexpr Viewport() = default;
 
-    Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height)
+    constexpr Viewport(const int32_t x, const int32_t y, const int32_t width, const int32_t height)
       : X(x)
       , Y(y)
       , Width(width)
@@ -96,7 +93,7 @@ namespace Fsl
     {
     }
 
-    Viewport(const Rectangle& bounds)
+    constexpr Viewport(const Rectangle& bounds)
       : Viewport(bounds.X(), bounds.Y(), bounds.Width(), bounds.Height())
     {
     }

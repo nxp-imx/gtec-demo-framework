@@ -39,9 +39,6 @@
 
 namespace Fsl
 {
-  RawBitmap::RawBitmap() = default;
-
-
   RawBitmap::RawBitmap(const void* const pContent, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
     : m_pContent(pContent)
     , m_extent(extent)

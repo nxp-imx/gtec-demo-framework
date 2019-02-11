@@ -45,15 +45,15 @@ namespace Fsl
       const uint32_t ARRAY_START_SIZE = BUCKET_SIZE;
       const uint32_t ARRAY_EXPAND_ENTRIES = BUCKET_SIZE;
 
-      inline VUBuffer CreateBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDeviceSize bufferByteSize,
-                                   const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags)
+      inline VUBufferMemory CreateBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDeviceSize bufferByteSize,
+                                         const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags)
       {
         VkBufferCreateInfo bufferCreateInfo{};
         bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferCreateInfo.size = bufferByteSize;
         bufferCreateInfo.usage = usageFlags;
         bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        return VUBuffer(physicalDevice, device, bufferCreateInfo, memoryPropertyFlags);
+        return VUBufferMemory(physicalDevice, device, bufferCreateInfo, memoryPropertyFlags);
       }
     }
 

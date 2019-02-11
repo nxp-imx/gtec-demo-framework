@@ -78,14 +78,14 @@ namespace Fsl
     VUTexture::VUTexture() = default;
 
 
-    VUTexture::VUTexture(VUImage&& image, const VkSamplerCreateInfo& createInfo)
+    VUTexture::VUTexture(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo)
       : VUTexture()
     {
       Reset(std::move(image), createInfo);
     }
 
 
-    VUTexture::VUTexture(VUImage&& image, RapidVulkan::Sampler&& sampler)
+    VUTexture::VUTexture(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler)
       : VUTexture()
     {
       Reset(std::move(image), std::move(sampler));
@@ -106,7 +106,7 @@ namespace Fsl
     }
 
 
-    void VUTexture::Reset(VUImage&& image, const VkSamplerCreateInfo& createInfo)
+    void VUTexture::Reset(VUImageMemoryView&& image, const VkSamplerCreateInfo& createInfo)
     {
       if (IsValid())
       {
@@ -126,7 +126,7 @@ namespace Fsl
     }
 
 
-    void VUTexture::Reset(VUImage&& image, RapidVulkan::Sampler&& sampler)
+    void VUTexture::Reset(VUImageMemoryView&& image, RapidVulkan::Sampler&& sampler)
     {
       if (IsValid())
       {

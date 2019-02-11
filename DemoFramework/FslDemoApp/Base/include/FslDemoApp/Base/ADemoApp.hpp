@@ -52,24 +52,50 @@ namespace Fsl
 
   class ADemoApp : public IDemoApp
   {
+  protected:
+    enum class ObjectLifeCycle
+    {
+      Constructing,
+      Constructed,
+      Destroyed
+    };
+
+  private:
     DemoAppConfig m_demoAppConfig;
     std::weak_ptr<IContentManager> m_contentManger;
     std::weak_ptr<IPersistentDataManager> m_persistentDataManager;
     std::weak_ptr<IDemoAppControl> m_demoAppControl;
     std::deque<std::weak_ptr<DemoAppExtension>> m_extensions;
+    ObjectLifeCycle m_currentLifeCycleState = ObjectLifeCycle::Constructing;
 
   public:
     ADemoApp(const DemoAppConfig& demoAppConfig);
+    ~ADemoApp() override;
     void _PostConstruct() override;
+    void _PreDestruct() override;
     void _OnEvent(IEvent* const pEvent) override;
     void _Resized(const Point2& size) override;
     void _PreUpdate(const DemoTime& demoTime) override;
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;
     void _PostUpdate(const DemoTime& demoTime) override;
+    AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) override;
     void _Draw(const DemoTime& demoTime) override;
+    AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override;
 
   protected:
+    //! @brief Called just after the object has been successfully constructed
+    virtual void OnConstructed()
+    {
+    }
+
+    //! @brief Called just before the object is destroyed.
+    //!        This allows having shutdown code the rely on virtual methods and limited exception support.
+    //!        So this should really be the preferred location to put shutdown code instead of using the destructor!
+    virtual void OnDestroy()
+    {
+    }
+
     virtual void OnKeyEvent(const KeyEvent& event)
     {
     }
@@ -119,6 +145,17 @@ namespace Fsl
     {
     }
 
+    virtual AppDrawResult TryPrepareDraw(const DemoTime& demoTime)
+    {
+      return AppDrawResult::Completed;
+    }
+
+    //! @note This will only be called if the DemoHost delegates SwapBuffers to the app (most dont).
+    virtual AppDrawResult TrySwapBuffers(const DemoTime& demoTime)
+    {
+      throw NotSupportedException("TrySwapBuffers");
+    }
+
     //! @brief Register a demo app extension
     void RegisterExtension(const std::shared_ptr<DemoAppExtension>& extension);
     void UnregisterExtension(const std::shared_ptr<DemoAppExtension>& extension);
@@ -142,6 +179,11 @@ namespace Fsl
     std::shared_ptr<IPersistentDataManager> GetPersistentDataManager() const;
 
     const ExceptionMessageFormatter& GetExceptionFormatter() const;
+
+    ObjectLifeCycle GetObjectLifeCycleState() const
+    {
+      return m_currentLifeCycleState;
+    }
 
   private:
     void UnhandledKeyFallback(const KeyEvent& keyEvent);

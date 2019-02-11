@@ -43,6 +43,9 @@ namespace Fsl
     Info = 2,
     // Things below require 'verbose'
     Verbose = 3,
+    Verbose2 = 4,
+    Verbose3 = 5,
+    Verbose4 = 6,
   };
 
 

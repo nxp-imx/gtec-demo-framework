@@ -35,6 +35,7 @@ from typing import List
 import subprocess
 from FslBuildGen.BuildConfig.ClangExeInfo import ClangExeInfo
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
+from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Log import Log
 
@@ -76,5 +77,5 @@ class PerformClangUtil(object):
 
     @staticmethod
     def CanProcessPackage(package: Package) -> bool:
-        return package.ResolvedBuildAllIncludeFiles is not None and package.AllowCheck and not package.IsVirtual
+        return package.ResolvedBuildAllIncludeFiles is not None and package.AllowCheck and (not package.IsVirtual or package.Type == PackageType.HeaderLibrary)
 

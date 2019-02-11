@@ -76,11 +76,7 @@ namespace Fsl
     }
 
 
-    GLBufferArray::GLBufferArray()
-      : m_target(0)
-      , m_elementStride(0)
-    {
-    }
+    GLBufferArray::GLBufferArray() = default;
 
 
     GLBufferArray::GLBufferArray(const std::size_t capacity, const GLenum target, const uint32_t elementStride)

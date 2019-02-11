@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/OpenGLES3/HDR/BasicScene/OptionParser.hpp>
+#include <Shared/HDR/BasicScene/OptionParser.hpp>
 
 namespace Fsl
 {

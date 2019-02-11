@@ -1,24 +1,24 @@
 #version 300 es
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform sampler2D Texture0;
 uniform vec3 LightDirection;
 uniform vec3 LightColor;
 uniform vec3 AmbientColor;
- 
+
 in vec3 v_Normal;
-//in vec3 v_Eye;
+// in vec3 v_Eye;
 in vec2 v_TexCoord;
 
 out vec4 o_fragColor;
 
 void main()
 {
-  vec4 color = texture(Texture0,v_TexCoord);
+  vec4 color = texture(Texture0, v_TexCoord);
 
   vec3 N = normalize(v_Normal);
   vec3 L = normalize(LightDirection);

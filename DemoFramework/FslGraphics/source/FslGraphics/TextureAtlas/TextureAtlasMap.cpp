@@ -53,7 +53,7 @@ namespace Fsl
     auto itr = m_map.find(name);
     if (itr == m_map.end())
     {
-      throw std::runtime_error(std::string("Unknown texture: ") + name.ToUTF8String());
+      throw NotFoundException(std::string("Unknown texture: ") + name.ToUTF8String());
     }
     return itr->second;
   }

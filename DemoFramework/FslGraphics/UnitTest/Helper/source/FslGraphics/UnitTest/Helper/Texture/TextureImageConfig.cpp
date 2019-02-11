@@ -31,7 +31,6 @@
 
 #include <FslGraphics/UnitTest/Helper/Texture/TextureImageConfig.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/UnitTest/Helper/LogTypes.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 
 

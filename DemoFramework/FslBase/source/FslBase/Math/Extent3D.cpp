@@ -37,9 +37,37 @@
 
 namespace Fsl
 {
-  Extent3D::Extent3D(const Point2& value, const element_type depth)
-    : Extent3D(value.X, value.Y, depth)
+  Extent3D::Extent3D(const int32_t width, const int32_t height, const int32_t depth)
+    : Width(static_cast<element_type>(width))
+    , Height(static_cast<element_type>(height))
+    , Depth(static_cast<element_type>(depth))
   {
+    if (width < 0)
+    {
+      throw std::invalid_argument("width is out of bounds");
+    }
+    if (height < 0)
+    {
+      throw std::invalid_argument("height is out of bounds");
+    }
+    if (depth < 0)
+    {
+      throw std::invalid_argument("depth is out of bounds");
+    }
+  }
+
+
+  Extent3D::Extent3D(const Point2& value, const element_type depth)
+    : Extent3D(static_cast<element_type>(value.X), static_cast<element_type>(value.Y), static_cast<element_type>(depth))
+  {
+    if (value.X < 0)
+    {
+      throw std::invalid_argument("width is out of bounds");
+    }
+    if (value.Y < 0)
+    {
+      throw std::invalid_argument("height is out of bounds");
+    }
   }
 
 

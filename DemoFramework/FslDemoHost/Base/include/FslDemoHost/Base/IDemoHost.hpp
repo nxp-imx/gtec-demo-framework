@@ -34,6 +34,7 @@
 #include <FslBase/Noncopyable.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <FslDemoHost/Base/SwapBuffersResult.hpp>
 
 namespace Fsl
 {
@@ -62,8 +63,8 @@ namespace Fsl
     //! @brief Get the current screen resolution
     virtual Point2 GetScreenResolution() const = 0;
     //! @brief Called to swap the main buffer.
-    //! @return true on success, false if a error occurred.
-    virtual bool SwapBuffers() = 0;
+    //! @return SwapBuffersResult::Completed on success, SwapBuffersResult::Failed if a error occurred.
+    virtual SwapBuffersResult TrySwapBuffers() = 0;
 
     //! @brief Called each frame to allow the demo host to do a bit of processing
     //! @param allowBlock if true the method is allowed to block for a extended period

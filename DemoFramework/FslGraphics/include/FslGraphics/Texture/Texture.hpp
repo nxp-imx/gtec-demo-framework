@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/BlobRecord.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
@@ -215,6 +215,8 @@ namespace Fsl
     //! @brief Allows the bitmap pixel format to be modified as long as the pixel formats memory layout is compatible
     //! @note This only changes the 'PixelFormat' type it does not modify any pixels. So if you call this beware of this!
     void SetCompatiblePixelFormat(const PixelFormat compatiblePixelFormat, const bool allowBytePerPixelCompatible = false);
+
+    void ChangeCompatiblePixelFormatFlags(const PixelFormatFlags::Enum flag);
 
     //! @brief Try to modify the pixel format flag.
     //! @return true if the format was changed or false if it failed

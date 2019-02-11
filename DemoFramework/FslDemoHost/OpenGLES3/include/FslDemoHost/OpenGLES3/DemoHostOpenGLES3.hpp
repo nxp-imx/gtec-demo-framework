@@ -54,16 +54,18 @@ namespace Fsl
 
   protected:
     //! @brief Called when the DemoHost API initialization has been completed
-    virtual void OnAPIInitialized() override
+    void OnAPIInitialized() override
     {
       if (IsLogExtensionsEnabled())
+      {
         DoLogExtensions();
+      }
 
       DoCheckExtensions(GetExtensionRequests());
     }
 
     //! @brief Called just before the API is being shutdown
-    virtual void OnAPIShutdown() override
+    void OnAPIShutdown() override
     {
     }
 

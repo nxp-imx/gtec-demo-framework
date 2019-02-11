@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
 
@@ -40,10 +41,22 @@ namespace Fsl
   class MouseWheelEvent : public BasicEvent
   {
   public:
-    explicit MouseWheelEvent(const BasicEvent& encodedEvent);
+    explicit MouseWheelEvent(const BasicEvent& encodedEvent)
+      : BasicEvent(encodedEvent)
+    {
+      if (m_type != EventType::MouseWheel)
+      {
+        throw std::invalid_argument("The supplied argument is of a wrong type");
+      }
+    }
+
     MouseWheelEvent(const int32_t delta, const Point2& position);
 
-    int32_t GetDelta() const;
+    int32_t GetDelta() const
+    {
+      return m_arg1;
+    }
+
     const Point2 GetPosition() const;
   };
 }

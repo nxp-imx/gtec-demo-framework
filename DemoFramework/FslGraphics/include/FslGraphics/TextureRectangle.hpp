@@ -43,14 +43,33 @@ namespace Fsl
     Point2 m_textureSize;
 
   public:
-    TextureRectangle();
-    TextureRectangle(const Rectangle& rectangle, const Point2& textureSize);
+    constexpr TextureRectangle() = default;
 
-    Rectangle GetRectangle() const;
-    Point2 GetTextureSize() const;
+    constexpr TextureRectangle(const Rectangle& rectangle, const Point2& textureSize)
+      : m_rectangle(rectangle)
+      , m_textureSize(textureSize)
+    {
+    }
 
-    bool operator==(const TextureRectangle& rhs) const;
-    bool operator!=(const TextureRectangle& rhs) const;
+    constexpr Rectangle GetRectangle() const
+    {
+      return m_rectangle;
+    }
+
+    constexpr Point2 GetTextureSize() const
+    {
+      return m_textureSize;
+    }
+
+    constexpr bool operator==(const TextureRectangle& rhs) const
+    {
+      return ((m_rectangle == rhs.m_rectangle) && (m_textureSize == rhs.m_textureSize));
+    }
+
+    constexpr bool operator!=(const TextureRectangle& rhs) const
+    {
+      return ((m_rectangle != rhs.m_rectangle) || (m_textureSize != rhs.m_textureSize));
+    }
   };
 }
 

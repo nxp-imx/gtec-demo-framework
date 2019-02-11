@@ -31,12 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <Shared/VulkanWindowExperimental/VulkanWindowDemoApp.hpp>
+#include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
 #include <FslUtil/Vulkan1_0/Batch/Batch2D.hpp>
-#include <FslUtil/Vulkan1_0/VUImage.hpp>
+#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
+#include <FslUtil/Vulkan1_0/VUImageMemoryView.hpp>
 #include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
+#include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/CommandBuffers.hpp>
 #include <RapidVulkan/CommandPool.hpp>
@@ -56,42 +59,40 @@
 
 namespace Fsl
 {
-  class DevBatch : public VulkanWindowDemoApp
+  class DevBatch : public VulkanBasic::DemoAppVulkanBasic
   {
-    struct FrameDrawRecord
+    std::shared_ptr<Vulkan::VMBufferManager> m_bufferManager;
+
+    struct AppTextures
     {
-      RapidVulkan::Semaphore ImageAcquiredSemaphore;
-      RapidVulkan::Semaphore RenderingCompleteSemaphore;
-      RapidVulkan::Fence InFlightFence;
+      Vulkan::VUTexture Texture1;
+      Vulkan::VUTexture Texture2;
+      Vulkan::VUTexture Texture3;
+      Vulkan::VUTexture Texture4;
+      Vulkan::VUTexture Texture4Pre;
     };
 
-    // m_surface
-    RapidVulkan::CommandPool m_commandPool;
-    RapidVulkan::Buffer m_vertexBuffer;
-    RapidVulkan::Memory m_deviceMemoryVertexBuffer;
-    RapidVulkan::ShaderModule m_vertexShaderModule;
-    RapidVulkan::ShaderModule m_fragmentShaderModule;
-    RapidVulkan::PipelineLayout m_pipelineLayout;
+    struct Resources
+    {
+      AppTextures Textures;
+      Vulkan::VMVertexBuffer VertexBuffer;
+      RapidVulkan::ShaderModule VertexShaderModule;
+      RapidVulkan::ShaderModule FragmentShaderModule;
+      RapidVulkan::PipelineLayout MainPipelineLayout;
+    };
 
-    Vulkan::VUSwapchainKHR m_swapchain;
-    std::vector<RapidVulkan::ImageView> m_swapchainImageView;
-    std::vector<RapidVulkan::Framebuffer> m_framebuffer;
-    RapidVulkan::CommandBuffers m_cmdBuffers;
-    RapidVulkan::RenderPass m_renderPass;
-    RapidVulkan::GraphicsPipeline m_pipeline;
+    struct DependentResources
+    {
+      RapidVulkan::RenderPass MainRenderPass;
+      RapidVulkan::GraphicsPipeline Pipeline;
+    };
 
-    std::vector<FrameDrawRecord> m_frames;
-    std::size_t m_currentFrame = 0;
+    Resources m_resources;
+    DependentResources m_dependentResources;
 
     std::shared_ptr<Vulkan::QuadBatch> m_test;
     std::shared_ptr<Vulkan::QuadBatch> m_batch2DQuad;
     std::shared_ptr<Vulkan::Batch2D> m_batch2D;
-
-    Vulkan::VUTexture m_texture;
-    Vulkan::VUTexture m_texture2;
-    Vulkan::VUTexture m_texture3;
-    Vulkan::VUTexture m_texture4;
-    Vulkan::VUTexture m_texture4Pre;
 
     float m_currentAngle = 0.0f;
     float m_currentSpeed = 0.5f;
@@ -102,27 +103,22 @@ namespace Fsl
 
   public:
     DevBatch(const DemoAppConfig& config);
-    ~DevBatch() override;
 
   protected:
+    void Resized(const Point2& size) override;
     void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
+
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
+    void OnFreeResources() override;
 
   private:
-    void CreateFrameSyncObjects();
-    void BuildVertexBuffer();
-    void BuildShader();
-    void BuildPipelineLayout();
-    void BuildResources();
+    static AppTextures CreateTextures(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
+                                      const std::shared_ptr<IContentManager>& contentManger);
 
-    void BuildRenderPass();
-    void BuildPipeline();
+    void CreateShaders();
 
-    void BuildSwapchainImageView(const uint32_t bufferIndex);
-    void BuildFramebuffer(const uint32_t bufferIndex);
-    void BuildCmdBuffer(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t bufferIndex);
-
-    void DrawQuads(const uint32_t bufferIndex, const VkCommandBuffer commandBuffer);
+    void DrawQuads(const uint32_t swapBufferIndex, const VkCommandBuffer commandBuffer);
   };
 }
 

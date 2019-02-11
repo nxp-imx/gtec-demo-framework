@@ -36,6 +36,7 @@
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <deque>
 #include <vector>
+#include <utility>
 
 namespace Fsl
 {
@@ -71,6 +72,47 @@ namespace Fsl
       QuadBatchDescriptorSets(const QuadBatchDescriptorSets&) = delete;
       QuadBatchDescriptorSets& operator=(const QuadBatchDescriptorSets&) = delete;
 
+      //! @brief Move assignment operator
+      QuadBatchDescriptorSets& operator=(QuadBatchDescriptorSets&& other) noexcept
+      {
+        if (this != &other)
+        {
+          // Free existing resources then transfer the content of other to this one and fill other with default values
+          if (IsValid())
+          {
+            Reset();
+          }
+
+          // Claim ownership here
+          m_device = other.m_device;
+          m_descriptorSetLayoutTexture = other.m_descriptorSetLayoutTexture;
+          m_buckets = std::move(other.m_buckets);
+          m_activeSets = std::move(other.m_activeSets);
+          m_activeCount = other.m_activeCount;
+
+          // Remove the data from other
+          other.m_device = VK_NULL_HANDLE;
+          other.m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
+          other.m_activeCount = 0;
+        }
+        return *this;
+      }
+
+      //! @brief Move constructor
+      //! Transfer ownership from other to this
+      QuadBatchDescriptorSets(QuadBatchDescriptorSets&& other) noexcept
+        : m_device(other.m_device)
+        , m_descriptorSetLayoutTexture(other.m_descriptorSetLayoutTexture)
+        , m_buckets(std::move(other.m_buckets))
+        , m_activeSets(std::move(other.m_activeSets))
+        , m_activeCount(other.m_activeCount)
+      {
+        // Remove the data from other
+        other.m_device = VK_NULL_HANDLE;
+        other.m_descriptorSetLayoutTexture = VK_NULL_HANDLE;
+        other.m_activeCount = 0;
+      }
+
       QuadBatchDescriptorSets();
       QuadBatchDescriptorSets(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout);
 
@@ -102,8 +144,6 @@ namespace Fsl
       {
         return m_activeSets.data();
       }
-
-    private:
     };
   }
 }

@@ -31,19 +31,27 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
+#include <FslDemoHost/Base/DemoHostCaps.hpp>
 #include <FslDemoHost/Base/DemoHostConfig.hpp>
 #include <FslDemoHost/Base/IDemoHost.hpp>
 #include <memory>
 
 namespace Fsl
 {
-  class IDemoHostFactory : public Noncopyable
+  class IDemoHostFactory
   {
   public:
+    IDemoHostFactory(const IDemoHostFactory&) = delete;
+    IDemoHostFactory& operator=(const IDemoHostFactory&) = delete;
+
     virtual ~IDemoHostFactory() = default;
 
+    virtual DemoHostCaps GetCaps() const = 0;
+
     virtual std::shared_ptr<IDemoHost> Allocate(const DemoHostConfig& config) = 0;
+
+  protected:
+    IDemoHostFactory() = default;
   };
 }
 

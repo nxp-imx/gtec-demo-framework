@@ -33,14 +33,14 @@
 
 namespace Fsl
 {
-  ThreadLocalSingletonServiceFactoryBase::ThreadLocalSingletonServiceFactoryBase(const TypeInfo& interfaceType)
+  ThreadLocalSingletonServiceFactoryBase::ThreadLocalSingletonServiceFactoryBase(const std::type_index& interfaceType)
     : m_interfaceType(interfaceType)
     , m_flags(ServiceCaps::Default)
   {
   }
 
 
-  ThreadLocalSingletonServiceFactoryBase::ThreadLocalSingletonServiceFactoryBase(const TypeInfo& interfaceType, const ServiceCaps::Flags flags)
+  ThreadLocalSingletonServiceFactoryBase::ThreadLocalSingletonServiceFactoryBase(const std::type_index& interfaceType, const ServiceCaps::Flags flags)
     : m_interfaceType(interfaceType)
     , m_flags(flags)
   {

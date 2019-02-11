@@ -11,5 +11,5 @@ out vec2 g_vVSTexCoord;
 void main()
 {
   g_vVSTexCoord = g_vTexCoord;
-  gl_Position = g_matProj * g_matView * g_matModel * vec4(g_vPosition,1.0);
+  gl_Position = g_matProj * g_matView * g_matModel * vec4(g_vPosition, 1.0);
 }

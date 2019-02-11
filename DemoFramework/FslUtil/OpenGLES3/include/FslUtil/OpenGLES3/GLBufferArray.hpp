@@ -68,7 +68,7 @@ namespace Fsl
       //! @param elementStride the size of one element in bytes
       GLBufferArray(const std::size_t capacity, const GLenum target, const uint32_t elementStride);
 
-      ~GLBufferArray();
+      virtual ~GLBufferArray();
 
       bool IsValid() const
       {
@@ -89,7 +89,7 @@ namespace Fsl
       int32_t Length() const;
 
       //! @brief Release the entire array.
-      void Reset() noexcept;
+      virtual void Reset() noexcept;
 
       //! @brief Get the entry at the arrayIndex
       GLBufferArrayEntry Get(const std::size_t arrayIndex) const;

@@ -164,7 +164,7 @@ namespace Fsl
       inline void WinHandleEvent(const RoutedEvent& routedEvent)
       {
         assert(m_flags.IsRunning());
-        return m_window->WinHandleEvent(routedEvent);
+        m_window->WinHandleEvent(routedEvent);
       }
 
       inline Vector2 CalcScreenTopLeftCorner() const

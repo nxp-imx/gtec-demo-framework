@@ -39,23 +39,24 @@ namespace Fsl
   }
 
 
-  ServiceId::ServiceId(const TypeInfo& typeInfo)
+  ServiceId::ServiceId(const std::type_index& typeInfo)
     : m_typeInfo(typeInfo)
   {
   }
 
 
-  TypeInfo ServiceId::Get() const
+  std::type_index ServiceId::Get() const
   {
     return m_typeInfo;
   }
 
+  // If we really need a invalid ServiceId we can create a type_index to a 'private invalid class" as that will be unique
 
-  ServiceId ServiceId::Invalid()
-  {
-    return {};
-  }
+  // ServiceId ServiceId::Invalid()
+  //{
+  //  return {};
+  //}
 
 
-  ServiceId::ServiceId() = default;
+  // ServiceId::ServiceId() = default;
 }

@@ -29,9 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/UnitTest/Helper/Bitmap/BitmapImageConfig.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslGraphics/UnitTest/Helper/LogTypes.hpp>
+#include <FslGraphics/UnitTest/Helper/Bitmap/BitmapImageConfig.hpp>
+#include <FslGraphics/UnitTest/Helper/Log/LogPixelUInt8.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 
 

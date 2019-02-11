@@ -29,41 +29,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkanEx.hpp>
-#include <FslDemoApp/Window/Setup/RegisterDemoApp.hpp>
-#include <Shared/VulkanWindowExperimental/VulkanWindowSystemAllocate.hpp>
-#include <Shared/VulkanWindowExperimental/OptionParser.hpp>
+#include <FslDemoApp/Vulkan/Setup/RegisterDemoApp.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include "DevBatch.hpp"
 
 namespace Fsl
 {
-  namespace
-  {
-    class VulkanConfig : public DemoAppHostConfigVulkanEx
-    {
-    public:
-      VulkanConfig()
-      {
-        using namespace Vulkan;
-
-        // AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TessellationShader, FeatureRequirement::Mandatory);
-        ////AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::FillModeNonSolid, FeatureRequirement::Optional);
-        ////AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
-        ////AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
-        ////AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::SamplerAnisotropy, FeatureRequirement::Optional);
-        // AddPhysicalDeviceFeatureRequest(PhysicalDeviceFeature::MultiViewport, FeatureRequirement::Mandatory);
-
-        // AddInstanceLayerRequest("VK_LAYER_LUNARG_standard_validation", FeatureRequirement::Optional);
-        // AddInstanceExtensionRequest("VK_EXT_debug_report", FeatureRequirement::Optional);
-      }
-    };
-  }
-
-  // Configure the demo environment to run this demo app in a Window host environment
+  // Configure the demo environment to run this demo app in a Vulkan host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigWindow config(AllocateVulkanWindowSystem, std::make_shared<Fsl::VulkanConfig>());
+    CustomDemoAppConfig customDemoAppConfig;
+    customDemoAppConfig.RestartOnResize = false;
 
-    DemoAppRegister::Window::Register<DevBatch, OptionParser>(rSetup, "Vulkan.DevBatch", config);
+    DemoAppHostConfigVulkan config;
+
+    DemoAppRegister::Vulkan::Register<DevBatch>(rSetup, "Vulkan.DevBatch", config, customDemoAppConfig);
   }
 }

@@ -30,6 +30,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Noncopyable.hpp>
@@ -431,7 +432,8 @@ namespace Fsl
       }
       catch (std::exception& ex)
       {
-        FSLLOG_WARNING("devIL image conversion not successfull (" << ex.what() << ").\n");
+        FSLLOG_DEBUG_WARNING("devIL image conversion not successfull (" << ex.what() << ").\n");
+        FSL_PARAM_NOT_USED(ex);
         return false;
       }
     }
@@ -468,7 +470,7 @@ namespace Fsl
   void ImageLibraryServiceDevIL::ExtractSupportedImageFormats(std::deque<ImageFormat>& rFormats)
   {
     rFormats.push_back(ImageFormat::Bmp);
-    rFormats.push_back(ImageFormat::DDS);
+    // rFormats.push_back(ImageFormat::DDS);
     // rFormats.push_back(ImageFormat::Exr);
     rFormats.push_back(ImageFormat::Hdr);
     rFormats.push_back(ImageFormat::Jpeg);
@@ -480,6 +482,10 @@ namespace Fsl
   bool ImageLibraryServiceDevIL::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
                                          const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
+    if (PixelFormatUtil::IsCompressed(pixelFormatHint))
+    {
+      return false;
+    }
     return TryReadNow(rBitmap, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint, m_lastOrigin);
   }
 
@@ -487,6 +493,10 @@ namespace Fsl
   bool ImageLibraryServiceDevIL::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
                                          const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
+    if (PixelFormatUtil::IsCompressed(pixelFormatHint))
+    {
+      return false;
+    }
     return TryReadNow(rTexture, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint, m_lastOrigin);
   }
 

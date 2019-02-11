@@ -30,6 +30,7 @@ SOFTWARE.
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/BoundingSphere.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/MatrixFields.hpp>
 #include <FslBase/Math/Plane.hpp>
 #include <FslBase/Math/PlaneHelper.hpp>
 #include <FslBase/Math/Ray.hpp>
@@ -37,10 +38,11 @@ SOFTWARE.
 #include <cmath>
 #include <cstddef>
 #include <limits>
-#include "MatrixFields.hpp"
 
 namespace Fsl
 {
+  using namespace MatrixFields;
+
   namespace
   {
     Vector3 IntersectionPoint(const Plane& a, const Plane& b, const Plane& c)
@@ -73,53 +75,11 @@ namespace Fsl
   }
 
 
-  Matrix BoundingFrustum::GetMatrix() const
-  {
-    return m_matrix;
-  }
-
-
   void BoundingFrustum::SetMatrix(const Matrix& value)
   {
     m_matrix = value;
     CreatePlanes();     // FIXME: The odds are the planes will be used a lot more often than the matrix
     CreateCorners();    // is updated, so this should help performance. I hope ;)
-  }
-
-
-  Plane BoundingFrustum::Near() const
-  {
-    return m_planes[0];
-  }
-
-
-  Plane BoundingFrustum::Far() const
-  {
-    return m_planes[1];
-  }
-
-
-  Plane BoundingFrustum::Left() const
-  {
-    return m_planes[2];
-  }
-
-
-  Plane BoundingFrustum::Right() const
-  {
-    return m_planes[3];
-  }
-
-
-  Plane BoundingFrustum::Top() const
-  {
-    return m_planes[4];
-  }
-
-
-  Plane BoundingFrustum::Bottom() const
-  {
-    return m_planes[5];
   }
 
 
@@ -133,22 +93,13 @@ namespace Fsl
 
   ContainmentType BoundingFrustum::Contains(const BoundingBox& box) const
   {
-    ContainmentType result;
-    Contains(box, result);
-    return result;
-  }
-
-
-  void BoundingFrustum::Contains(const BoundingBox& box, ContainmentType& rResult) const
-  {
     bool intersects = false;
     for (int32_t i = 0; i < PlaneCount; ++i)
     {
       switch (box.Intersects(m_planes[i]))
       {
       case PlaneIntersectionType::Front:
-        rResult = ContainmentType::Disjoint;
-        return;
+        return ContainmentType::Disjoint;
       case PlaneIntersectionType::Intersecting:
         intersects = true;
         break;
@@ -156,7 +107,7 @@ namespace Fsl
         break;
       }
     }
-    rResult = intersects ? ContainmentType::Intersects : ContainmentType::Contains;
+    return intersects ? ContainmentType::Intersects : ContainmentType::Contains;
   }
 
 
@@ -187,14 +138,6 @@ namespace Fsl
 
   ContainmentType BoundingFrustum::Contains(const BoundingSphere& sphere) const
   {
-    ContainmentType result;
-    Contains(sphere, result);
-    return result;
-  }
-
-
-  void BoundingFrustum::Contains(const BoundingSphere& sphere, ContainmentType& rResult) const
-  {
     bool intersects = false;
     for (int32_t i = 0; i < PlaneCount; ++i)
     {
@@ -202,8 +145,7 @@ namespace Fsl
       switch (sphere.Intersects(m_planes[i]))
       {
       case PlaneIntersectionType::Front:
-        rResult = ContainmentType::Disjoint;
-        return;
+        return ContainmentType::Disjoint;
       case PlaneIntersectionType::Intersecting:
         intersects = true;
         break;
@@ -211,29 +153,20 @@ namespace Fsl
         break;
       }
     }
-    rResult = intersects ? ContainmentType::Intersects : ContainmentType::Contains;
+    return intersects ? ContainmentType::Intersects : ContainmentType::Contains;
   }
 
 
   ContainmentType BoundingFrustum::Contains(const Vector3& point) const
   {
-    ContainmentType result;
-    Contains(point, result);
-    return result;
-  }
-
-
-  void BoundingFrustum::Contains(const Vector3& point, ContainmentType& rResult) const
-  {
     for (int32_t i = 0; i < PlaneCount; ++i)
     {
       if (PlaneHelper::ClassifyPoint(point, m_planes[i]) > 0)
       {
-        rResult = ContainmentType::Disjoint;
-        return;
+        return ContainmentType::Disjoint;
       }
     }
-    rResult = ContainmentType::Contains;
+    return ContainmentType::Contains;
   }
 
 
@@ -242,6 +175,15 @@ namespace Fsl
     std::vector<Vector3> result(CornerCount);
     GetCorners(result);
     return result;
+  }
+
+
+  void BoundingFrustum::GetCorners(std::array<Vector3, CornerCount>& rCorners) const
+  {
+    for (uint32_t i = 0; i < m_corners.size(); ++i)
+    {
+      rCorners[i] = m_corners[i];
+    }
   }
 
 
@@ -261,17 +203,7 @@ namespace Fsl
 
   bool BoundingFrustum::Intersects(const BoundingBox& box) const
   {
-    bool result = false;
-    Intersects(box, result);
-    return result;
-  }
-
-
-  void BoundingFrustum::Intersects(const BoundingBox& box, bool& rResult) const
-  {
-    ContainmentType containment;
-    Contains(box, containment);
-    rResult = containment != ContainmentType::Disjoint;
+    return Contains(box) != ContainmentType::Disjoint;
   }
 
 
@@ -283,38 +215,21 @@ namespace Fsl
 
   bool BoundingFrustum::Intersects(const BoundingSphere& sphere) const
   {
-    bool result;
-    Intersects(sphere, result);
-    return result;
-  }
-
-
-  void BoundingFrustum::Intersects(const BoundingSphere& sphere, bool& rResult) const
-  {
-    ContainmentType containment;
-    Contains(sphere, containment);
-    rResult = containment != ContainmentType::Disjoint;
+    return Contains(sphere) != ContainmentType::Disjoint;
   }
 
 
   PlaneIntersectionType BoundingFrustum::Intersects(const Plane& plane) const
   {
-    PlaneIntersectionType result;
-    Intersects(plane, result);
-    return result;
-  }
-
-
-  void BoundingFrustum::Intersects(const Plane& plane, PlaneIntersectionType& rResult) const
-  {
-    rResult = plane.Intersects(m_corners[0]);
+    auto result = plane.Intersects(m_corners[0]);
     for (uint32_t i = 1; i < m_corners.size(); ++i)
     {
-      if (plane.Intersects(m_corners[i]) != rResult)
+      if (plane.Intersects(m_corners[i]) != result)
       {
-        rResult = PlaneIntersectionType::Intersecting;
+        result = PlaneIntersectionType::Intersecting;
       }
     }
+    return result;
   }
 
 
@@ -399,13 +314,21 @@ namespace Fsl
 
   void BoundingFrustum::CreateCorners()
   {
+    //-                              near         left         top
     m_corners[0] = IntersectionPoint(m_planes[0], m_planes[2], m_planes[4]);
+    //-                              near         right        top
     m_corners[1] = IntersectionPoint(m_planes[0], m_planes[3], m_planes[4]);
+    //-                              near         right        bottom
     m_corners[2] = IntersectionPoint(m_planes[0], m_planes[3], m_planes[5]);
+    //-                              near         left         bottom
     m_corners[3] = IntersectionPoint(m_planes[0], m_planes[2], m_planes[5]);
+    //-                              far          left         top
     m_corners[4] = IntersectionPoint(m_planes[1], m_planes[2], m_planes[4]);
+    //-                              far          right        top
     m_corners[5] = IntersectionPoint(m_planes[1], m_planes[3], m_planes[4]);
+    //-                              far          right        bottom
     m_corners[6] = IntersectionPoint(m_planes[1], m_planes[3], m_planes[5]);
+    //-                              far          left         bottom
     m_corners[7] = IntersectionPoint(m_planes[1], m_planes[2], m_planes[5]);
   }
 

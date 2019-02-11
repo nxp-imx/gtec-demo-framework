@@ -50,6 +50,13 @@ namespace Fsl
       void WinInit() override;
 
     protected:
+      //! @brief This includes any padding set
+      Vector2 GetContentDesiredSize() const
+      {
+        auto padding = Vector2(m_padding.SumX(), m_padding.SumY());
+        return m_content ? m_content->DesiredSize() + padding : padding;
+      }
+
       ThicknessF DoGetPadding() const
       {
         return m_padding;
@@ -64,6 +71,9 @@ namespace Fsl
 
       Vector2 ArrangeOverride(const Vector2& finalSize) override;
       Vector2 MeasureOverride(const Vector2& availableSize) override;
+
+      //! @brief Alternative method to ArrangeOverride that can be called to tweak the content offset
+      Vector2 CustomArrange(const Vector2& finalSize, const Vector2& positionOffset);
     };
   }
 }

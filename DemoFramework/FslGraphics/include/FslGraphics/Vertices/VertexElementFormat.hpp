@@ -36,6 +36,8 @@ namespace Fsl
 {
   enum class VertexElementFormat
   {
+    // Undefined, should not be used for valid elements
+    Undefined = 0,
     // One component, 32-bit floating point
     Single,
     // two components, 32-bit floating point

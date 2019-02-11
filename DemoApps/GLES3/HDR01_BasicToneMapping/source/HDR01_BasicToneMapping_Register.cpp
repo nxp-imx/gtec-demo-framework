@@ -32,7 +32,7 @@
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "HDR01_BasicToneMapping.hpp"
-#include <Shared/OpenGLES3/HDR/BasicScene/OptionParser.hpp>
+#include <Shared/HDR/BasicScene/OptionParser.hpp>
 
 namespace Fsl
 {

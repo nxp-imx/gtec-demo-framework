@@ -43,6 +43,7 @@
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLVertexArray.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <vector>
 
 namespace Fsl
@@ -60,6 +61,37 @@ namespace Fsl
       Scene4
     };
 
+    struct VertexUboData
+    {
+      Matrix MatModelView;
+      Matrix MatProj;
+    };
+
+    struct FragmentUboData
+    {
+      Vector3 LightPositions[4];
+      Vector3 LightColors[4];
+      Vector3 ViewPos;
+      // bool Gamma = false;
+    };
+
+    struct Resources
+    {
+      GLES3::GLTexture TexLinear;
+      GLES3::GLTexture TexSRGB;
+
+      GLES3::GLProgram Program;
+      GLint ModelViewMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint ProjMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint LightPositionsLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint LightColorsLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint ViewPosLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint GammaLoc = GLES3::GLValues::INVALID_LOCATION;
+
+      GLES3::GLVertexBuffer VertexBuffer;
+      GLES3::GLVertexArray VertexArray;
+    };
+
     // The UI event listener is responsible for forwarding events to this classes implementation of the UI::EventListener (while its still alive).
     UI::CallbackEventListenerScope m_uiEventListener;
     // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
@@ -70,25 +102,11 @@ namespace Fsl
     std::shared_ptr<IDemoAppControl> m_demoAppControl;
     bool m_mouseCaptureEnabled;
     Graphics3D::FirstPersonCamera m_camera;
-    Matrix m_matrixWorldView;
-    Matrix m_matrixProjection;
 
-    GLES3::GLTexture m_texLinear;
-    GLES3::GLTexture m_texSRGB;
+    Resources m_resources;
 
-    GLES3::GLProgram m_program;
-    GLint m_hModelViewMatrixLoc;
-    GLint m_hProjMatrixLoc;
-    GLint m_hLightPositions;
-    GLint m_hLightColors;
-    GLint m_hViewPos;
-    GLint m_hGamma;
-
-    GLES3::GLVertexBuffer m_vertexBuffer;
-    GLES3::GLVertexArray m_vertexArray;
-
-    std::vector<Vector3> m_lightPositions;
-    std::vector<Vector3> m_lightColors;
+    VertexUboData m_vertexUboData;
+    FragmentUboData m_fragmentUboData;
 
     State m_state;
     TransitionCache m_transitionCache;

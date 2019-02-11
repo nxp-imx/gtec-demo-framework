@@ -1,0 +1,70 @@
+<!-- #AG_DEMOAPP_HEADER_BEGIN# -->
+# GammaCorrection
+<img src="Example.jpg" height="135px">
+
+<!-- #AG_DEMOAPP_HEADER_END# -->
+<!-- #AG_BRIEF_BEGIN# -->
+A simple example of how to do gamma correction it shows the difference that SRGB textures and gamma correction makes to the output by comparing
+it to the uncorrected rendering methods.
+<!-- #AG_BRIEF_END# -->
+
+It renders the same scene four times:
+
+Area        | Texture | Gamma correction
+------------|---------|------------------
+TopLeft     | SRGB    | Off
+TopRight    | RGB     | On
+BottomLeft  | RGB     | Off
+BottomRight | SRGB    | On
+
+The bottom right area produces the desired output.
+
+Key          | Result
+-------------|----------------------------------
+1            | Render TopLeft as fullscreen
+2            | Render TopRight as fullscreen
+3            | Render BottomLeft as fullscreen
+4            | Render BottomRight as fullscreen
+5 or space   | Splitscren view of all four (default)
+A            | Strafe left
+W            | Strafe right
+S            | Move forward
+D            | Move backward
+Right Mouse  | Mouse look (hold it)
+Middle mouse | Reset camera
+
+Inspired by:
+- https://learnopengl.com/Advanced-Lighting/Gamma-Correction
+
+<!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->
+
+Command line arguments':
+
+Argument                       |Description                                                                                                                                                                                                                                                                                                                |Source
+-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------
+--DisplayId \<arg>             |DisplayId \<number>                                                                                                                                                                                                                                                                                                        |DemoHost
+--LogExtensions                |Output the extensions to the log                                                                                                                                                                                                                                                                                           |DemoHost
+--LogLayers                    |Output the layers to the log                                                                                                                                                                                                                                                                                               |DemoHost
+--LogSurfaceFormats            |Output the supported surface formats to the log                                                                                                                                                                                                                                                                            |DemoHost
+--VkApiDump                    |Enable the VK_LAYER_LUNARG_api_dump layer.                                                                                                                                                                                                                                                                                 |DemoHost
+--VkPhysicalDevice \<arg>      |Set the physical device index.                                                                                                                                                                                                                                                                                             |DemoHost
+--VkPresentMode \<arg>         |Override the present mode with the supplied value. Known values: VK_PRESENT_MODE_IMMEDIATE_KHR (0), VK_PRESENT_MODE_MAILBOX_KHR (1), VK_PRESENT_MODE_FIFO_KHR (2), VK_PRESENT_MODE_FIFO_RELAXED_KHR (3), VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR (1000111000), VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR (1000111001)|DemoHost
+--VkValidate \<arg>            |Enable/disable the VK_LAYER_LUNARG_standard_validation layer.                                                                                                                                                                                                                                                              |DemoHost
+--Window \<arg>                |Window mode [left,top,width,height]                                                                                                                                                                                                                                                                                        |DemoHost
+--AppFirewall                  |Enable the app firewall, reporting crashes on-screen instead of exiting                                                                                                                                                                                                                                                    |DemoHostManager
+--ContentMonitor               |Monitor the Content directory for changes and restart the app on changes. WARNING: Might not work on all platforms and it might impact app performance (experimental)                                                                                                                                                      |DemoHostManager
+--ExitAfterDuration \<arg>     |Exit after the given duration has passed. The value can be specified in seconds or milliseconds. For example 10s or 10ms.                                                                                                                                                                                                  |DemoHostManager
+--ExitAfterFrame \<arg>        |Exit after the given number of frames has been rendered                                                                                                                                                                                                                                                                    |DemoHostManager
+--ForceUpdateTime \<arg>       |Force the update time to be the given value in microseconds (can be useful when taking a lot of screen-shots). If 0 this option is disabled                                                                                                                                                                                |DemoHostManager
+--LogStats                     |Log basic rendering stats (this is equal to setting LogStatsMode to latest)                                                                                                                                                                                                                                                |DemoHostManager
+--LogStatsMode \<arg>          |Set the log stats mode, more advanced version of LogStats. Can be disabled, latest, average                                                                                                                                                                                                                                |DemoHostManager
+--ScreenshotFormat \<arg>      |Chose the format for the screenshot: bmp, jpg, png or tga (defaults to png)                                                                                                                                                                                                                                                |DemoHostManager
+--ScreenshotFrequency \<arg>   |Create a screenshot at the given frame frequency                                                                                                                                                                                                                                                                           |DemoHostManager
+--ScreenshotNamePrefix \<arg>  |Chose the screenshot name prefix (defaults to 'Screenshot')                                                                                                                                                                                                                                                                |DemoHostManager
+--ScreenshotNameScheme \<arg>  |Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)                                                                                                                                                                                                                                             |DemoHostManager
+--Stats                        |Display basic frame profiling stats                                                                                                                                                                                                                                                                                        |DemoHostManager
+--Profiler.AverageEntries \<arg>|The number of frames used to calculate the average frame-time. Defaults to: 60                                                                                                                                                                                                                                             |ProfilerService
+--ghelp \<arg>                 |Display option groups: all, demo or host                                                                                                                                                                                                                                                                                   |base
+-h, --help                     |Display options                                                                                                                                                                                                                                                                                                            |base
+-v, --verbose                  |Enable verbose output                                                                                                                                                                                                                                                                                                      |base
+<!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_END# -->

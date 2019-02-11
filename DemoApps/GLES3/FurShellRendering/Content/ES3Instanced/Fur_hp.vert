@@ -18,17 +18,17 @@ out mediump float v_instanceId;
 out mediump float v_dist;
 out mediump float v_shadow;
 
-void main() 
+void main()
 {
   float instanceId = float(gl_InstanceID) * InstanceMul;
- 
-  vec4 pos = vec4(VertexPosition  + (VertexNormal * MaxHairLength * instanceId), 1.0);
+
+  vec4 pos = vec4(VertexPosition + (VertexNormal * MaxHairLength * instanceId), 1.0);
   vec4 worldPosition = World * pos;
-  
-  //make the displacement non linear, to make it look more like fur
+
+  // make the displacement non linear, to make it look more like fur
   float displacementFactor = pow(instanceId, 3.0);
-  
-  //apply the displacement
+
+  // apply the displacement
   worldPosition.xyz += Displacement * displacementFactor;
   vec4 viewPosition = View * worldPosition;
 
@@ -36,9 +36,9 @@ void main()
   v_texcoord = TexCoord;
   v_normal = normalize(World * vec4(VertexNormal, 1.0)).xyz;
   v_instanceId = instanceId;
-  
-  //based on layer depth, choose the amount of shading.
-  //we lerp between two values to avoid having the base of the fur pure black.
-  v_dist = mix(1.0,0.2, instanceId);
-  v_shadow = mix(0.4,1.0,instanceId);
+
+  // based on layer depth, choose the amount of shading.
+  // we lerp between two values to avoid having the base of the fur pure black.
+  v_dist = mix(1.0, 0.2, instanceId);
+  v_shadow = mix(0.4, 1.0, instanceId);
 }

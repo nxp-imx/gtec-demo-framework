@@ -35,19 +35,35 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslUtil/OpenGLES3/GLValues.hpp>
+#include <FslUtil/OpenGLES3/GLVertexAttribLink.hpp>
+#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 
 namespace Fsl
 {
   class OpenCLGaussianFilter : public DemoAppGLES3
   {
-    GLES3::GLProgram m_program;
-    GLES3::GLTexture m_texture;
-    GLuint m_hModelViewMatrixLoc;
-    GLuint m_hProjMatrixLoc;
-    Matrix m_matProj;
-    Matrix m_matTranslate;
-    Vector3 m_angle;
+    struct VertexUBOData
+    {
+      Matrix MatModel;
+      Matrix MatProj;
+    };
 
+    struct Resources
+    {
+      GLES3::GLProgram Program;
+      GLES3::GLTexture Texture;
+      GLES3::GLVertexBuffer VertexBuffer;
+      GLuint ModelViewMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLuint ProjMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
+    };
+
+    Resources m_resources;
+    VertexUBOData m_vertexUboData;
+
+    Vector3 m_angle;
+    Matrix m_matTranslate;
+    std::array<GLES3::GLVertexAttribLink, 2> m_attribLink;
 
   public:
     OpenCLGaussianFilter(const DemoAppConfig& config);
@@ -56,6 +72,9 @@ namespace Fsl
   protected:
     void Update(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
+
+  private:
+    void PrepareMatrices(const Point2& currentSize);
   };
 }
 

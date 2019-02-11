@@ -367,7 +367,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
         toolConfig.ClangFormatConfiguration.AdditionalUserArguments = localToolConfig.ClangFormatArgs
 
         PerformClangFormat.Run(log, toolConfig, formatPackageList, customPackageFileFilter, packageRecipeResultManager,
-                               toolConfig.ClangFormatConfiguration, localToolConfig.Repair)
+                               toolConfig.ClangFormatConfiguration, localToolConfig.Repair, localToolConfig.BuildThreads)
 
     def __ApplyScanSource(self, log: Log, localToolConfig: LocalToolConfig, isSdkBuild: bool, disableWrite: bool,
                           scanPackageList: List[Package], customPackageFileFilter: Optional[CustomPackageFileFilter]) -> None:

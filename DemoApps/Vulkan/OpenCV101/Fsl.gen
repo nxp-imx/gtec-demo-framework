@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.OpenCV101" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="OpenCV4"/>
+    <Platform Name="Yocto" Supported="false"/>
+    <Platform Name="Windows" ProjectId="E280D414-14EF-4F41-914B-CB73EA9F261B"/>
+  </Executable>
+</FslBuildGen>

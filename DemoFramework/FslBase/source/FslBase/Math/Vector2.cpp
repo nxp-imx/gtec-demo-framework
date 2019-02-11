@@ -37,13 +37,10 @@ SOFTWARE.
 
 namespace Fsl
 {
-  const float* Vector2::DirectAccess() const
-  {
-    // Verify that our assumption about the structure packing is correct
-    assert(offsetof(Vector2, X) == (sizeof(float) * 0));
-    assert(offsetof(Vector2, Y) == (sizeof(float) * 1));
-    return &X;
-  }
+  // Verify that our assumption about the structure packing is correct
+  static_assert(offsetof(Vector2, X) == (sizeof(float) * 0), "Vector2.X component not at the expected offset");
+  static_assert(offsetof(Vector2, Y) == (sizeof(float) * 1), "Vector2.Y component not at the expected offset");
+  static_assert(sizeof(Vector2) == (sizeof(float) * 2), "Vector2 not of the expected size");
 
 
   Vector2 Vector2::Barycentric(const Vector2& value1, const Vector2& value2, const Vector2& value3, const float amount1, const float amount2)
@@ -82,7 +79,7 @@ namespace Fsl
   }
 
 
-  void Vector2::Clamp(Vector2& rResult, const Vector2& value, const Vector2& min, const Vector2& max)
+  void Vector2::Clamp(const Vector2& value, const Vector2& min, const Vector2& max, Vector2& rResult)
   {
     rResult = Vector2(MathHelper::Clamp(value.X, min.X, max.X), MathHelper::Clamp(value.Y, min.Y, max.Y));
   }
@@ -121,7 +118,7 @@ namespace Fsl
   }
 
 
-  void Vector2::Lerp(Vector2& rResult, const Vector2& value1, const Vector2 value2, const float amount)
+  void Vector2::Lerp(const Vector2& value1, const Vector2 value2, const float amount, Vector2& rResult)
   {
     rResult = Vector2(MathHelper::Lerp(value1.X, value2.X, amount), MathHelper::Lerp(value1.Y, value2.Y, amount));
   }
@@ -133,7 +130,7 @@ namespace Fsl
   }
 
 
-  void Vector2::Max(Vector2& rResult, const Vector2& value1, const Vector2& value2)
+  void Vector2::Max(const Vector2& value1, const Vector2& value2, Vector2& rResult)
   {
     rResult = Vector2(std::max(value1.X, value2.X), std::max(value1.Y, value2.Y));
   }
@@ -145,28 +142,17 @@ namespace Fsl
   }
 
 
-  void Vector2::Min(Vector2& rResult, const Vector2& value1, const Vector2& value2)
+  void Vector2::Min(const Vector2& value1, const Vector2& value2, Vector2& rResult)
   {
     rResult = Vector2(std::min(value1.X, value2.X), std::min(value1.Y, value2.Y));
   }
 
 
-  Vector2 Vector2::Negate(const Vector2& value)
-  {
-    return Vector2(-value.X, -value.Y);
-  }
-
-
-  void Vector2::Negate(Vector2& rResult, const Vector2& value)
-  {
-    rResult.X = -value.X;
-    rResult.Y = -value.Y;
-  }
-
-
   void Vector2::Normalize()
   {
-    Normalize(*this, *this);
+    float factor = Length();
+    X /= factor;
+    Y /= factor;
   }
 
 
@@ -174,12 +160,12 @@ namespace Fsl
   {
     // Vector2 result(OptimizationFlag::NoInitialization);
     Vector2 result;
-    Normalize(result, vector);
+    Normalize(vector, result);
     return result;
   }
 
 
-  void Vector2::Normalize(Vector2& rResult, const Vector2& value)
+  void Vector2::Normalize(const Vector2& value, Vector2& rResult)
   {
     float factor = value.Length();
     rResult.X = value.X / factor;
@@ -198,7 +184,7 @@ namespace Fsl
   }
 
 
-  void Vector2::Reflect(Vector2& rResult, const Vector2& vector, const Vector2& normal)
+  void Vector2::Reflect(const Vector2& vector, const Vector2& normal, Vector2& rResult)
   {
     // I is the original array
     // N is the normal of the incident plane
@@ -231,7 +217,7 @@ namespace Fsl
   }
 
 
-  void Vector2::Transform(Vector2& rResult, const Vector2& position, const Matrix& matrix)
+  void Vector2::Transform(const Vector2& position, const Matrix& matrix, Vector2& rResult)
   {
     MatrixInternals::Transform(rResult, position, matrix);
   }
@@ -272,7 +258,7 @@ namespace Fsl
   }
 
 
-  void Vector2::TransformNormal(Vector2& rResult, const Vector2& position, const Matrix& matrix)
+  void Vector2::TransformNormal(const Vector2& position, const Matrix& matrix, Vector2& rResult)
   {
     MatrixInternals::TransformNormal(rResult, position, matrix);
   }

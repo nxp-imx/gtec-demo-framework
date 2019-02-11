@@ -74,7 +74,7 @@ namespace Fsl
     }
 
 
-    Swapchain::Swapchain(const PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+    Swapchain::Swapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
                          const bool enableVSync)
       : Swapchain()
     {
@@ -102,7 +102,7 @@ namespace Fsl
     }
 
 
-    void Swapchain::Reset(const PhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+    void Swapchain::Reset(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
                           const bool enableVSync)
     {
       try
@@ -113,9 +113,9 @@ namespace Fsl
 
         // Get physical device surface properties and formats
         VkSurfaceCapabilitiesKHR surfCaps{};
-        RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice.Device, surface, &surfCaps));
+        RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps));
 
-        const auto presentModes = GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.Device, surface);
+        const auto presentModes = GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface);
 
         // Select a present mode for the swapchain
 
@@ -160,7 +160,7 @@ namespace Fsl
           preTransform = surfCaps.currentTransform;
         }
 
-        const auto surfaceFormats = GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.Device, surface);
+        const auto surfaceFormats = GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
         VkFormat colorFormat;
         // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
         // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM

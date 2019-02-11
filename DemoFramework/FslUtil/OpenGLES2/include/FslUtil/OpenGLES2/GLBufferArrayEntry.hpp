@@ -44,8 +44,8 @@ namespace Fsl
     struct GLBufferArrayEntry
     {
       GLuint Handle;
-      uint32_t Capacity;
-      GLenum Usage;
+      uint32_t Capacity{0};
+      GLenum Usage{0};
 
       GLBufferArrayEntry();
 

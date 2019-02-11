@@ -42,37 +42,69 @@ namespace Fsl
   {
   public:
     //! The number of planes in the frustum.
-    static const int32_t PlaneCount = 6;
+    static constexpr const int32_t PlaneCount = 6;
 
     //! The number of corner points in the frustum.
-    static const int32_t CornerCount = 8;
+    static constexpr const int32_t CornerCount = 8;
 
   private:
     Matrix m_matrix;
+
+    // Corners
+    // 0 | near | left  | top
+    // 1 | near | right | top
+    // 2 | near | right | bottom
+    // 3 | near | left  | bottom
+    // 4 | far  | left  | top
+    // 5 | far  | right | top
+    // 6 | far  | right | bottom
+    // 7 | far  | left  | bottom
     std::array<Vector3, CornerCount> m_corners;
     std::array<Plane, PlaneCount> m_planes;
 
   public:
-    Matrix GetMatrix() const;
+    Matrix GetMatrix() const
+    {
+      return m_matrix;
+    }
+
     void SetMatrix(const Matrix& value);
 
     //! @brief Gets the near plane of the frustum.
-    Plane Near() const;
+    Plane Near() const
+    {
+      return m_planes[0];
+    }
 
     //! @brief Gets the far plane of the frustum.
-    Plane Far() const;
+    Plane Far() const
+    {
+      return m_planes[1];
+    }
 
     //! @brief Gets the left plane of the frustum.
-    Plane Left() const;
+    Plane Left() const
+    {
+      return m_planes[2];
+    }
 
     //! @brief Gets the right plane of the frustum.
-    Plane Right() const;
+    Plane Right() const
+    {
+      return m_planes[3];
+    }
 
     //! @brief Gets the top plane of the frustum.
-    Plane Top() const;
+    Plane Top() const
+    {
+      return m_planes[4];
+    }
 
     //! @brief Gets the bottom plane of the frustum.
-    Plane Bottom() const;
+    Plane Bottom() const
+    {
+      return m_planes[5];
+    }
 
     //! @brief Creates a new instance of BoundingFrustum
     //! @param value Combined matrix which usually is (View * Projection).
@@ -82,11 +114,6 @@ namespace Fsl
     //! @param box A BoundingBox for testing.
     //! @return Result of testing for containment between this BoundingFrustum and specified BoundingBox.
     ContainmentType Contains(const BoundingBox& box) const;
-
-    //! @brief Containment test between this BoundingFrustum and specified BoundingBox.
-    //! @param box A BoundingBox for testing.
-    //! @param rResult Result of testing for containment between this BoundingFrustum and specified BoundingBox.
-    void Contains(const BoundingBox& box, ContainmentType& rResult) const;
 
     //! @brief Containment test between this BoundingFrustum and specified BoundingFrustum.
     //! @param frustum A BoundingFrustum for testing.
@@ -98,24 +125,18 @@ namespace Fsl
     //! @return Result of testing for containment between this BoundingFrustumand specified BoundingSphere.
     ContainmentType Contains(const BoundingSphere& sphere) const;
 
-    //! @brief Containment test between this BoundingFrustum and specified BoundingSphere.
-    //! @param sphere A BoundingSphere for testing.
-    //! @param rResult Result of testing for containment between this BoundingFrustum and specified BoundingSphere as an output parameter.
-    void Contains(const BoundingSphere& sphere, ContainmentType& rResult) const;
-
     //! @brief Containment test between this BoundingFrustum and specified Vector3.
     //! @param point A Vector3 for testing.
     //! @return Result of testing for containment between this BoundingFrustum and specified Vector3.
     ContainmentType Contains(const Vector3& point) const;
 
-    //! @brief Containment test between this BoundingFrustum and specified Vector3.
-    //! @param point A Vector3 for testing.
-    //! @param result Result of testing for containment between this BoundingFrustum and specified Vector3 as an output parameter.
-    void Contains(const Vector3& point, ContainmentType& rResult) const;
-
     //! @brief Returns a copy of internal corners array.
     //! @return The array of corners.
     std::vector<Vector3> GetCorners() const;
+
+    //! @brief Returns a copy of internal corners array.
+    //! @param corners The array which values will be replaced to corner values of this instance. It must have size of BoundingFrustum.CornerCount.
+    void GetCorners(std::array<Vector3, CornerCount>& rCorners) const;
 
     //! @brief Returns a copy of internal corners array.
     //! @param corners The array which values will be replaced to corner values of this instance. It must have size of BoundingFrustum.CornerCount.
@@ -125,11 +146,6 @@ namespace Fsl
     //! @param box A BoundingBox for intersection test.
     //! @return true if specified BoundingBox intersects with this BoundingFrustum; false otherwise.
     bool Intersects(const BoundingBox& box) const;
-
-    //! @brief Gets whether or not a specified BoundingBox intersects with this BoundingFrustum.
-    //! @param box A BoundingBox for intersection test.
-    //! @param result true if specified BoundingBox intersects with this BoundingFrustum; false otherwise as an output parameter.
-    void Intersects(const BoundingBox& box, bool& rResult) const;
 
     //! @brief Gets whether or not a specified BoundingFrustum intersects with this BoundingFrustum.
     //! @param frustum An other BoundingFrustum for intersection test.
@@ -141,20 +157,10 @@ namespace Fsl
     //! @return true if specified BoundingSphere intersects with this BoundingFrustum; false otherwise.
     bool Intersects(const BoundingSphere& sphere) const;
 
-    /// @brief Gets whether or not a specified BoundingSphere intersects with this BoundingFrustum.
-    /// @param sphere A BoundingSphere for intersection test.
-    /// @param result true if specified BoundingSphere intersects with this BoundingFrustum; false otherwise as an output parameter.
-    void Intersects(const BoundingSphere& sphere, bool& rResult) const;
-
     //! @brief Gets type of intersection between specified Plane and this BoundingFrustum.
     //! @param plane A Plane for intersection test.
     //! @return A plane intersection type.
     PlaneIntersectionType Intersects(const Plane& plane) const;
-
-    //! @brief Gets type of intersection between specified Plane and this BoundingFrustum.
-    //! @param plane A Plane for intersection test.
-    //! @param result A plane intersection type as an output parameter.
-    void Intersects(const Plane& plane, PlaneIntersectionType& rResult) const;
 
     //! @brief Gets the distance of intersection of Ray and this BoundingFrustum or false if no intersection happens.
     //! @param ray A Ray for intersection test.

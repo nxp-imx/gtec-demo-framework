@@ -58,7 +58,7 @@ namespace Fsl
     class GLTexture
     {
       GLuint m_handle;
-      GLenum m_target;
+      GLenum m_target{GL_TEXTURE_2D};
       Extent3D m_extent;
 
     public:
@@ -79,7 +79,7 @@ namespace Fsl
       //! @param the target type specified to glBindTexture when the handle was created.
       //! @param extent the extent of the texture
       GLTexture(const GLuint handle, const Extent2D& extent, const GLenum target = GL_TEXTURE_2D)
-        : GLTexture(handle, Extent3D(extent.Width, extent.Height, 1), target)
+        : GLTexture(handle, Extent3D(extent.Width, extent.Height, 1u), target)
       {
       }
 
@@ -141,7 +141,7 @@ namespace Fsl
       //! @param extent the extent of the texture
       void Reset(const GLuint handle, const Extent2D& extent, const GLenum target = GL_TEXTURE_2D)
       {
-        Reset(handle, Extent3D(extent.Width, extent.Height, 1), target);
+        Reset(handle, Extent3D(extent.Width, extent.Height, 1u), target);
       }
 
       //! @brief Let this GLTexture object assume control over the given texture handle.

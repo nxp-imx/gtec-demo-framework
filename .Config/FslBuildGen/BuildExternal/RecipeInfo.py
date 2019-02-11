@@ -41,7 +41,7 @@ from FslBuildGen.Packages.Package import Package
 class RecipeInfo(object):
     @staticmethod
     def ShowRecipeList(log: Log, topLevelPackage: Package, requestedFiles: Optional[List[str]]) -> None:
-        requestedPackages = PackageUtil.GetPackageListFromFilenames(topLevelPackage, requestedFiles)
+        #requestedPackages = PackageUtil.GetPackageListFromFilenames(topLevelPackage, requestedFiles, True)
 
         recipeBuildOrder = topLevelPackage.ResolvedExperimentalRecipeBuildOrder
         if recipeBuildOrder is None or len(recipeBuildOrder) <= 0:

@@ -165,11 +165,11 @@ namespace Fsl
   }
 
 
-  bool WindowDemoHost::SwapBuffers()
+  SwapBuffersResult WindowDemoHost::TrySwapBuffers()
   {
     if (!m_isActivated)
     {
-      return true;
+      return SwapBuffersResult::Completed;
     }
 
     if (m_window)
@@ -177,12 +177,12 @@ namespace Fsl
       // Give the custom window system a chance to react and request a app restart if needed.
       if (m_customWindowSystem && !m_customWindowSystem->TryPostSwapModifications())
       {
-        return false;
+        return SwapBuffersResult::Failed;
       }
     }
 
     // Validate that we are not suspended
-    return true;
+    return SwapBuffersResult::Completed;
   }
 
 

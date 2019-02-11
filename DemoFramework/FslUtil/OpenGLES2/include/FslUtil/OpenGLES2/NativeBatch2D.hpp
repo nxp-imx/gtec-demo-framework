@@ -54,22 +54,27 @@ namespace Fsl
       {
         return GLBatch2D::Begin();
       }
+
       void Begin(const BlendState blendState) override
       {
         return GLBatch2D::Begin(blendState);
       }
+
       void Begin(const BlendState blendState, const bool restoreState) override
       {
         return GLBatch2D::Begin(blendState, restoreState);
       }
+
       void ChangeTo(const BlendState blendState) override
       {
         return GLBatch2D::ChangeTo(blendState);
       }
+
       void End() override
       {
         return GLBatch2D::End();
       }
+
       void SetScreenResolution(const Point2& resolution) override
       {
         GLBatch2D::SetScreenResolution(resolution);

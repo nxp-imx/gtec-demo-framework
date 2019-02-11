@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.OpenCLGaussianFilter" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="OpenCL"/>
+    <Dependency Name="FslUtil.OpenCL1_1"/>
+    <Platform Name="Windows" ProjectId="2FC9753B-045D-461C-A340-52A6877E6397"/>
+  </Executable>
+</FslBuildGen>

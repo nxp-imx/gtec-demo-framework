@@ -137,10 +137,10 @@ namespace Fsl
     GL_CHECK_FOR_ERROR();
 
 
-    m_sceneRender = std::make_shared<RenderScene>(config);
+    m_sceneRender = std::make_shared<RenderScene>(config, m_menuUI.GetSceneId());
     m_sceneWhiteRect = std::make_shared<WhiteRectScene>(config);
 
-    if (m_menuUI.GetSceneId() == 1)
+    if (m_menuUI.GetSceneId() == 2)
     {
       m_scene = m_sceneWhiteRect;
     }

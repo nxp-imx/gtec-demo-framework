@@ -116,7 +116,12 @@ namespace Fsl
 
       //! @brief Write the entire content of the array to the given file.
       //! @note If the target file exists its overwritten
-      static void WriteAllBytes(const IO::Path& path, const std::vector<uint8_t>& content);
+      static void WriteAllBytes(const IO::Path& path, const std::vector<uint8_t>& content)
+      {
+        WriteAllBytes(path, content.data(), content.size());
+      }
+
+      static void WriteAllBytes(const IO::Path& path, const void* const pContent, const std::size_t contentSizeInBytes);
     };
   }
 }

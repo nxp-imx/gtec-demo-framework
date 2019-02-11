@@ -14,7 +14,7 @@ pipeline
         FSL_JENKINS_DF_PLATFORM_NAME     = 'u16_04_mesa'
         FSL_JENKINS_DF_CACHE_DIR         = "DF-${FSL_JENKINS_DF_PLATFORM_NAME}"
         FSL_JENKINS_THIRD_PARTY_INSTALL  = "/PersistentCache/${FSL_JENKINS_DF_CACHE_DIR}"
-    }    
+    }
     options
     {
       buildDiscarder(logRotator(numToKeepStr: '5'))

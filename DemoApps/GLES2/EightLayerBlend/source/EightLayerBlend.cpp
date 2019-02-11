@@ -57,22 +57,22 @@ namespace Fsl
     {
       Bitmap bitmap;
       GLTextureParameters texParms(GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT);
-      // contentManager->Read(bitmap, "1_new.jpg", PixelFormat::R8G8B8_UNORM);
-      contentManager->Read(bitmap, "1_old.jpg", PixelFormat::R8G8B8_UNORM);
+      // contentManager->Read(bitmap, "Textures/EightLayers/1_new.jpg", PixelFormat::R8G8B8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/1_old.jpg", PixelFormat::R8G8B8_UNORM);
       m_layers[0].Texture.Reset(bitmap, texParms);
-      contentManager->Read(bitmap, "2.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/2.png", PixelFormat::R8G8B8A8_UNORM);
       m_layers[1].Texture.Reset(bitmap, texParms);
-      contentManager->Read(bitmap, "3.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/3.png", PixelFormat::R8G8B8A8_UNORM);
       m_layers[2].Texture.Reset(bitmap, texParms);
-      contentManager->Read(bitmap, "4.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/4.png", PixelFormat::R8G8B8A8_UNORM);
       m_layers[3].Texture.Reset(bitmap, texParms);
-      contentManager->Read(bitmap, "5.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/5.png", PixelFormat::R8G8B8A8_UNORM);
       m_layers[4].Texture.Reset(bitmap, texParms);
-      contentManager->Read(bitmap, "6.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/6.png", PixelFormat::R8G8B8A8_UNORM);
       m_layers[5].Texture.Reset(bitmap, texParms);
-      contentManager->Read(bitmap, "7.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/7.png", PixelFormat::R8G8B8A8_UNORM);
       m_layers[6].Texture.Reset(bitmap, texParms);
-      contentManager->Read(bitmap, "8.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Textures/EightLayers/8.png", PixelFormat::R8G8B8A8_UNORM);
       m_layers[7].Texture.Reset(bitmap, texParms);
     }
 

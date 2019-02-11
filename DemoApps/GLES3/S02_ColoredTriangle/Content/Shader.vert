@@ -10,6 +10,6 @@ out vec3 g_vVSColor;
 void main()
 {
   vec4 vPositionES = g_matModelView * g_vPosition;
-  gl_Position  = g_matProj * vPositionES;
+  gl_Position = g_matProj * vPositionES;
   g_vVSColor = g_vColor;
 }

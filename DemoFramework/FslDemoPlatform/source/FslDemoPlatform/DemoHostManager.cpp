@@ -44,6 +44,7 @@
 #include <FslService/Impl/Threading/IServiceHostLooper.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
 #include <cassert>
+#include <thread>
 
 #if 0
 #define LOCAL_LOG(X) FSLLOG("DemoHostManager: " << X)
@@ -67,6 +68,7 @@ namespace Fsl
 {
   DemoHostManager::DemoHostManager(const DemoSetup& demoSetup, const std::shared_ptr<DemoHostManagerOptionParser>& demoHostManagerOptionParser)
     : m_demoSetup(demoSetup)
+    , m_demoHostCaps(m_demoSetup.Host.Factory->GetCaps())
     , m_eventQueue(new NativeWindowEventQueue())
     , m_state(State::Idle)
     , m_exitAfterFrame(demoHostManagerOptionParser->GetExitAfterFrame())
@@ -80,6 +82,10 @@ namespace Fsl
     m_nativeWindowEventSender = serviceProvider.Get<INativeWindowEventSender>();
     m_hostInfoControl = serviceProvider.Get<IHostInfoControl>();
 
+    HostConfig hostConfig(demoHostManagerOptionParser->IsAppFirewallEnabled(), demoHostManagerOptionParser->IsContentMonitorEnabled(),
+                          demoHostManagerOptionParser->IsStatsEnabled());
+    m_hostInfoControl->SetConfig(hostConfig);
+
     // Set the config we are using for the app host so it can be retrieved from IHostInfo
     m_hostInfoControl->SetAppHostConfig(demoSetup.App.AppHostConfig);
 
@@ -91,13 +97,15 @@ namespace Fsl
     CmdRestart();
 
     VERBOSE_LOG("Starting demoAppManager");
+
+
     // Lets prepare the app manager.
     const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, demoSetup.ExceptionFormatter, m_demoHost->GetScreenResolution(),
                                       serviceProvider, demoSetup.App.AppSetup.CustomAppConfig);
     m_demoAppManager = std::make_shared<DemoAppManager>(
-      demoSetup.App.AppSetup, demoAppConfig, demoHostManagerOptionParser->IsStatsEnabled(), demoHostManagerOptionParser->GetLogStatsMode(),
-      demoHostManagerOptionParser->IsAppFirewallEnabled(), demoHostManagerOptionParser->IsContentMonitorEnabled(),
-      demoHostManagerOptionParser->IsBasic2DPreallocEnabled(), demoHostManagerOptionParser->GetForceUpdateTime());
+      demoSetup.App.AppSetup, demoAppConfig, hostConfig.StatOverlay, demoHostManagerOptionParser->GetLogStatsMode(), hostConfig.AppFirewall,
+      hostConfig.ContentMonitor, demoHostManagerOptionParser->IsBasic2DPreallocEnabled(), demoHostManagerOptionParser->GetForceUpdateTime(),
+      !m_demoHostCaps.IsEnabled(DemoHostCaps::Flags::AppRenderedSystemOverlay));
 
     VERBOSE_LOG("Processing messages");
 
@@ -146,43 +154,96 @@ namespace Fsl
             screenResolution = m_demoHost->GetScreenResolution();
             m_windowSizeIsDirty = false;
           }
-
-          if (m_demoAppManager->Process(screenResolution, isConsoleBasedHost))
-          {
-            assert(m_demoHost);
-            if (m_demoHost->SwapBuffers())
-            {
-              m_demoAppManager->OnFrameSwapCompleted();
-              m_testService->OnFrameSwapCompleted();
-
-              // Provide support for exiting after a number of successfully rendered frames
-              if (m_exitAfterFrame >= 0)
-              {
-                --m_exitAfterFrame;
-                if (m_exitAfterFrame <= 0)
-                {
-                  m_demoAppManager->RequestExit();
-                }
-              }
-              if (m_exitAfterDuration.Enabled)
-              {
-                if (std::chrono::microseconds(m_timer.GetTime()) >= m_exitTime)
-                {
-                  m_demoAppManager->RequestExit();
-                }
-              }
-            }
-            else
-            {
-              // The swap failed, lets try to restart the demo host
-              VERBOSE_LOG("Swap buffers failed, trying to restart");
-              CmdRestart();
-            }
-          }
+          AppProcess(screenResolution, isConsoleBasedHost);
         }
       }
     }
     return m_demoAppManager->CloseApp();
+  }
+
+  void DemoHostManager::AppProcess(const Point2& screenResolution, const bool isConsoleBasedHost)
+  {
+    if (m_demoAppManager->Process(screenResolution, isConsoleBasedHost))
+    {
+      auto swapBuffersResult = AppDrawAndSwapBuffers();
+      switch (swapBuffersResult)
+      {
+      case SwapBuffersResult::Completed:
+        m_demoAppManager->OnFrameSwapCompleted();
+        m_testService->OnFrameSwapCompleted();
+
+        // Provide support for exiting after a number of successfully rendered frames
+        if (m_exitAfterFrame >= 0)
+        {
+          --m_exitAfterFrame;
+          if (m_exitAfterFrame <= 0)
+          {
+            m_demoAppManager->RequestExit();
+          }
+        }
+        break;
+      case SwapBuffersResult::NotReady:
+        // While the swapchain is invalid we sleep during draw to prevent the app from consuming 100% CPU time busy waiting
+        std::this_thread::sleep_for(std::chrono::duration<uint64_t, std::milli>(8));
+        break;
+      case SwapBuffersResult::Failed:
+        // The swap failed, lets try to restart the demo host
+        VERBOSE_LOG("Swap buffers failed, trying to restart");
+        CmdRestart();
+        break;
+      case SwapBuffersResult::AppControlled:
+      default:
+        throw NotSupportedException("Unsupported state");
+      }
+
+      if (m_exitAfterDuration.Enabled)
+      {
+        if (std::chrono::microseconds(m_timer.GetTime()) >= m_exitTime)
+        {
+          m_demoAppManager->RequestExit();
+        }
+      }
+    }
+  }
+
+  SwapBuffersResult DemoHostManager::AppDrawAndSwapBuffers()
+  {
+    const uint32_t MAX_RETRY_COUNT = 5;
+    uint32_t retryCount = 0;
+    auto result = AppDrawResult::Retry;
+    while (result == AppDrawResult::Retry && retryCount < MAX_RETRY_COUNT)
+    {
+      result = m_demoAppManager->TryDraw();
+      if (result == AppDrawResult::Completed)
+      {
+        assert(m_demoHost);
+        auto swapBuffersResult = m_demoHost->TrySwapBuffers();
+        if (swapBuffersResult != SwapBuffersResult::AppControlled)
+        {
+          //  The swap buffer operation is not app controlled, so use a quick exit.
+          return swapBuffersResult;
+        }
+        // the swap is app controlled so delegate it to the app
+        result = m_demoAppManager->TryAppSwapBuffers();
+      }
+      ++retryCount;
+    }
+
+    switch (result)
+    {
+    case AppDrawResult::Completed:
+      // everything is ok
+      return SwapBuffersResult::Completed;
+    case AppDrawResult::Retry:
+      FSLLOG_WARNING("RetryDraw limit exceeded -> failing");
+      return SwapBuffersResult::Failed;
+    case AppDrawResult::NotReady:
+      return SwapBuffersResult::NotReady;
+    case AppDrawResult::Failed:
+      return SwapBuffersResult::Failed;
+    default:
+      throw NotSupportedException("Unsupported result");
+    }
   }
 
 

@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.CubeMapping.API.OpenGLES3.VC.VC.opendb
+/Shared.CubeMapping.API.OpenGLES3.VC.db
+/Shared.CubeMapping.API.OpenGLES3.manifest
+/Shared.CubeMapping.API.OpenGLES3.opensdf
+/Shared.CubeMapping.API.OpenGLES3.sdf
+/Shared.CubeMapping.API.OpenGLES3.sln
+/Shared.CubeMapping.API.OpenGLES3.v12.sdf
+/Shared.CubeMapping.API.OpenGLES3.v12.suo
+/Shared.CubeMapping.API.OpenGLES3.vcxproj
+/Shared.CubeMapping.API.OpenGLES3.vcxproj.filters
+/Shared.CubeMapping.API.OpenGLES3.vcxproj.user
+/build/

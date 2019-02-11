@@ -42,7 +42,7 @@ namespace Fsl
 
   public:
     PersistentDataManagerServiceFactory(const IO::Path& persistentDataPath)
-      : ThreadLocalSingletonServiceFactoryBase(TypeInfo(typeid(IPersistentDataManager)))
+      : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(IPersistentDataManager)))
       , m_persistentDataPath(persistentDataPath)
     {
     }

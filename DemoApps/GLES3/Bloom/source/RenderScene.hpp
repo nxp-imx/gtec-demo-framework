@@ -77,7 +77,7 @@ namespace Fsl
     Matrix3 m_matrixNormal;
 
   public:
-    RenderScene(const DemoAppConfig& config);
+    RenderScene(const DemoAppConfig& config, const int32_t sceneId);
     ~RenderScene() override;
     void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
                 const Point2& screenResolution) override;

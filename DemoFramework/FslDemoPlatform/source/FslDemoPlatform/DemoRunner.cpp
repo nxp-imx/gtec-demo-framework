@@ -184,11 +184,23 @@ namespace Fsl
     {
       // Early parsing to enable verbosity
       const uint32_t verbosityLevel = CheckVerbosityLevel(rArguments);
-      const bool verbose = verbosityLevel > 0;
-
-      if (verbose)
+      if (verbosityLevel > 0)
       {
-        Fsl::Logger::SetLogLevel(LogType::Verbose);
+        switch (verbosityLevel)
+        {
+        case 1:
+          Fsl::Logger::SetLogLevel(LogType::Verbose);
+          break;
+        case 2:
+          Fsl::Logger::SetLogLevel(LogType::Verbose2);
+          break;
+        case 3:
+          Fsl::Logger::SetLogLevel(LogType::Verbose3);
+          break;
+        default:
+          Fsl::Logger::SetLogLevel(LogType::Verbose4);
+          break;
+        }
       }
 
       bool enableFirewallRequest = false;

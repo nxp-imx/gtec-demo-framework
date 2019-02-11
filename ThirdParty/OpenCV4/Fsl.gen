@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <!-- Change the type here depending on how its integrated -->
+  <ExternalLibrary Name="OpenCV4">
+    <Default.Platform.Supported Value="false"/>
+
+    <Requirement Name="OpenCV4" Type="feature" Extends="OpenCV" Version="4"/>
+    <Define Name="FSL_ENABLE_OPENCV4" Access="Public"/> 
+    <Dependency Name="OpenCV"/>
+    <Platform Name="Ubuntu" Supported="true">
+      <ExternalDependency Name="opencv_calib3d" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_contrib" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_core" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_features2d" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_flann" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_gpu" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_highgui" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_imgcodecs" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_imgproc" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_legacy" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_ml" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_nonfree" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_objdetect" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_ocl" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_photo" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_shape" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_stitching" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_superres" Access="Public" Type="StaticLib"/-->
+      <!--ExternalDependency Name="opencv_ts" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_video" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_videoio" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_videostab" Access="Public" Type="StaticLib"/-->
+    </Platform>  
+    <Platform Name="Yocto" Supported="true">
+      <ExternalDependency Name="opencv_aruco" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_bgsegm" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_bioinspired" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_calib3d" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_ccalib" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_core" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_datasets" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_dpm" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_face" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_features2d" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_flann" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_fuzzy" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_highgui" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_imgcodecs" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_imgproc" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_line_descriptor" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_ml" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_objdetect" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_optflow" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_photo" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_plot" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_reg" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_rgbd" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_saliency" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_shape" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_stereo" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_stitching" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_structured_light" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_superres" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_surface_matching" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_text" Access="Public" Type="StaticLib"/>
+      <!--ExternalDependency Name="opencv_ts" Access="Public" Type="StaticLib"/-->
+      <ExternalDependency Name="opencv_video" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_videoio" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_videostab" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_xfeatures2d" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_ximgproc" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_xobjdetect" Access="Public" Type="StaticLib"/>
+      <ExternalDependency Name="opencv_xphoto" Access="Public" Type="StaticLib"/>
+    </Platform>    
+    <Platform Name="Windows" Supported="true">
+      <Dependency Name="Recipe.OpenCV_4_0"/>
+    </Platform>    
+  </ExternalLibrary>
+</FslBuildGen>

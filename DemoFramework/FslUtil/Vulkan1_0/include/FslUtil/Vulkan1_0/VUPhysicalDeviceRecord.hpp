@@ -32,7 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslUtil/Vulkan1_0/Extend/PhysicalDeviceRecord.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <RapidVulkan/CheckError.hpp>
+#include <vulkan/vulkan.h>
 
 namespace Fsl
 {
@@ -44,25 +46,92 @@ namespace Fsl
     //! to change the physical device.
     struct VUPhysicalDeviceRecord
     {
-      PhysicalDeviceRecord Device;
-      VkPhysicalDeviceProperties Properties;
-      VkPhysicalDeviceFeatures Features;
-      VkPhysicalDeviceMemoryProperties MemoryProperties;
+      VkPhysicalDevice Device = VK_NULL_HANDLE;
+
+      VkPhysicalDeviceProperties Properties{};
+      VkPhysicalDeviceFeatures Features{};
+      VkPhysicalDeviceMemoryProperties MemoryProperties{};
 
       //! @brief Create a 'invalid' instance (use Reset to populate it)
-      VUPhysicalDeviceRecord();
-      VUPhysicalDeviceRecord(const VkPhysicalDevice physicalDevice);
+      VUPhysicalDeviceRecord() = default;
+
+      explicit VUPhysicalDeviceRecord(const VkPhysicalDevice physicalDevice);
 
       void Reset();
       void Reset(const VkPhysicalDevice physicalDevice);
 
       bool IsValid() const
       {
-        return Device.IsValid();
+        return Device != VK_NULL_HANDLE;
       }
 
       //! @brief
       uint32_t GetMemoryTypeIndex(const uint32_t typeBits, const VkMemoryPropertyFlags properties) const;
+
+
+      VkFormatProperties GetPhysicalDeviceFormatProperties(const VkFormat format) const
+      {
+        VkFormatProperties properties;
+        vkGetPhysicalDeviceFormatProperties(Device, format, &properties);
+        return properties;
+      }
+
+      void GetPhysicalDeviceFormatProperties(VkFormatProperties& rProperties, const VkFormat format) const
+      {
+        vkGetPhysicalDeviceFormatProperties(Device, format, &rProperties);
+      }
+
+
+      VkImageFormatProperties GetPhysicalDeviceImageFormatProperties(const VkFormat format, const VkImageType type, const VkImageTiling tiling,
+                                                                     const VkImageUsageFlags usage, const VkImageCreateFlags flags) const
+      {
+        VkImageFormatProperties properties;
+        RapidVulkan::CheckError(vkGetPhysicalDeviceImageFormatProperties(Device, format, type, tiling, usage, flags, &properties),
+                                "vkGetPhysicalDeviceImageFormatProperties", __FILE__, __LINE__);
+        return properties;
+      }
+
+
+      bool TryGetPhysicalDeviceImageFormatProperties(const VkFormat format, const VkImageType type, const VkImageTiling tiling,
+                                                     const VkImageUsageFlags usage, const VkImageCreateFlags flags,
+                                                     VkImageFormatProperties& rImageFormatProperties) const
+      {
+        return (vkGetPhysicalDeviceImageFormatProperties(Device, format, type, tiling, usage, flags, &rImageFormatProperties) == VK_SUCCESS);
+      }
+
+
+      bool IsImageTilingAvailable(const VkImageTiling imageTiling, const VkFormat format, const VkImageType type, const VkImageCreateFlags flags,
+                                  const VkExtent3D& extent, const uint32_t mipLevels, const uint32_t arrayLayers,
+                                  const VkSampleCountFlags sampleCounts, const VkDeviceSize resourceSize)
+      {
+        return PhysicalDeviceUtil::IsImageTilingAvailable(Device, imageTiling, format, type, flags, extent, mipLevels, arrayLayers, sampleCounts,
+                                                          resourceSize);
+      }
+
+
+      //! @brief Scan the candidate list and find a format that is supported.
+      //! @param candidates the candidate list with the preferred format first and the least preferred format last.
+      template <std::size_t TSize>
+      inline VkFormat TryFindSupportedFormat(const std::array<VkFormat, TSize>& candidates, const VkImageTiling tiling,
+                                             const VkFormatFeatureFlags features) const
+      {
+        return PhysicalDeviceUtil::TryFindSupportedFormat(Device, candidates, tiling, features);
+      }
+
+      //! @brief Scan the candidate list and find a format that is supported.
+      //! @param candidates the candidate list with the preferred format first and the least preferred format last.
+      template <std::size_t TSize>
+      inline VkFormat FindSupportedFormat(const std::array<VkFormat, TSize>& candidates, const VkImageTiling tiling,
+                                          const VkFormatFeatureFlags features) const
+      {
+        return PhysicalDeviceUtil::FindSupportedFormat(Device, candidates, tiling, features);
+      }
+
+      //! @brief Find a VK_IMAGE_TILING_OPTIMAL depth format
+      VkFormat FindDepthFormat() const
+      {
+        return PhysicalDeviceUtil::FindDepthFormat(Device);
+      }
     };
   }
 }

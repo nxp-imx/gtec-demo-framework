@@ -40,18 +40,30 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
+#include <FslGraphics3D/Build/LineBuilder.hpp>
+#include <FslGraphics3D/Procedural/BasicMesh.hpp>
+
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslUtil/OpenGLES3/GLIndexBuffer.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
+#include <FslUtil/OpenGLES3/Draw/GLLineDraw.hpp>
 #include <Shared/ObjectSelection/MenuUI.hpp>
+#include <array>
 #include <deque>
+#include <utility>
 
 namespace Fsl
 {
   class ObjectSelection : public DemoAppGLES3
   {
+    struct LightUBOData
+    {
+      Vector3 LightDirection;
+      Vector3 LightColor;
+      Vector3 AmbientColor;
+    };
     struct Mesh
     {
       GLES3::GLIndexBuffer IndexBuffer;
@@ -104,38 +116,51 @@ namespace Fsl
       }
     };
 
+    struct Resources
+    {
+      GLES3::GLTexture Texture;
+      GLES3::GLTexture TextureChessboard;
+
+      std::vector<Mesh> Meshes;
+      Mesh MeshPlane;
+      MeshObject PlaneObject;
+
+      ProgramDirectionalLight ProgDirectionalLight;
+      std::array<GLES3::GLVertexAttribLink, 3> AttribLink;
+
+      VertexDeclaration VertexDeclLine;
+      ProgramColor ProgramSolidColor;
+      std::array<GLES3::GLVertexAttribLink, 2> AttribLinkColoredToLine;
+
+      ProgramColor ProgramTextured;
+      std::array<GLES3::GLVertexAttribLink, 2> AttribLinkTextured;
+
+      std::vector<MeshObject> Objects;
+
+      Graphics3D::LineBuilder LineBuild;
+      GLES3::GLLineDraw LineDraw;
+
+      Resources(const std::size_t meshCapacity, VertexDeclaration vertexDeclaration)
+        : Meshes(meshCapacity)
+        , VertexDeclLine(std::move(vertexDeclaration))
+      {
+      }
+    };
+
     std::shared_ptr<IDemoAppControl> m_demoAppControl;
     bool m_mouseCaptureEnabled;
+    bool m_rightMouseDown = false;
     MenuUI m_menuUI;
     Graphics3D::FirstPersonCamera m_camera;
     std::shared_ptr<IKeyboard> m_keyboard;
     std::shared_ptr<IMouse> m_mouse;
-    GLES3::GLTexture m_texture;
-    GLES3::GLTexture m_textureChessboard;
 
-    std::vector<Mesh> m_meshes;
-    Mesh m_meshPlane;
-    MeshObject m_planeObject;
-
-    ProgramDirectionalLight m_programDirectionalLight;
-    std::vector<GLES3::GLVertexAttribLink> m_attribLink;
-
-    VertexDeclaration m_vertexDeclLine;
-    ProgramColor m_programSolidColor;
-    std::vector<GLES3::GLVertexAttribLink> m_attribLinkColoredToLine;
-
-    ProgramColor m_programTextured;
-    std::vector<GLES3::GLVertexAttribLink> m_attribLinkTextured;
+    Resources m_resources;
 
     Viewport m_viewPort;
     Matrix m_matrixView;
     Matrix m_matrixProjection;
     Matrix m_matrixViewProjection;
-    Vector3 m_lightDirection;
-    Vector3 m_lightColor;
-    Vector3 m_ambientColor;
-
-    std::vector<MeshObject> m_objects;
 
     Vector3 m_mousePositionNear;
     Vector3 m_mousePositionFar;
@@ -144,6 +169,8 @@ namespace Fsl
 
     bool m_hasSelectedObject;
     std::size_t m_selectedIndex;
+
+    LightUBOData m_lightFragUboData;
 
   public:
     ObjectSelection(const DemoAppConfig& config);
@@ -157,6 +184,8 @@ namespace Fsl
     void Draw(const DemoTime& demoTime) override;
 
   private:
+    void UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState);
+
     bool CheckCollision(const Point2& screenSpacePosition);
 
     void DrawMeshes();
@@ -164,18 +193,19 @@ namespace Fsl
     void DrawMesh(const Mesh& mesh, const bool bindMesh);
 
     void DrawDebugData();
-    void DrawBoundingBox(const BoundingBox& box, const Color& color);
-    void DrawLine(const Vector3& p1, const Vector3& p2, const Color& color);
 
-  private:
-    static void PreparePlaneMesh(Mesh& rMeshPlane, const GLES3::GLTexture& texture);
+    void CreateTextures(const std::shared_ptr<IContentManager>& contentManager);
+
+    static Mesh PreparePlaneMesh(const GLES3::GLTexture& texture);
     static void PrepareMeshes(std::vector<Mesh>& rMeshes, const GLES3::GLTexture& texture);
-    static void PrepareDirectionalLightProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramDirectionalLight& rProgram,
-                                               std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
-    static void PrepareSolidColorProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramColor& rProgram,
-                                         std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
-    static void PrepareTexturedProgram(const std::shared_ptr<IContentManager>& contentManager, ProgramColor& rProgram,
-                                       std::vector<GLES3::GLVertexAttribLink>& rAttribLink, const VertexDeclaration& vertexDecl);
+    static Mesh CreateMesh(const Procedural::BasicMesh& mesh);
+    static ProgramDirectionalLight PrepareDirectionalLightProgram(const std::shared_ptr<IContentManager>& contentManager,
+                                                                  std::array<GLES3::GLVertexAttribLink, 3>& rAttribLink,
+                                                                  const VertexDeclaration& vertexDecl);
+    static ProgramColor PrepareSolidColorProgram(const std::shared_ptr<IContentManager>& contentManager,
+                                                 std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink, const VertexDeclaration& vertexDecl);
+    static ProgramColor PrepareTexturedProgram(const std::shared_ptr<IContentManager>& contentManager,
+                                               std::array<GLES3::GLVertexAttribLink, 2>& rAttribLink, const VertexDeclaration& vertexDecl);
     static void GenerateObjects(std::vector<MeshObject>& rObjects, const uint32_t objectCount, const bool useRandomSeed);
   };
 }

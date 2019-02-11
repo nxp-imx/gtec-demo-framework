@@ -40,7 +40,7 @@ from FslBuildGen.PlatformUtil import PlatformUtil
 class AndroidUtil(object):
     @staticmethod
     def GetTargetSDKVersion() -> int:
-        return 27
+        return 28
 
     @staticmethod
     def GetMinimumSDKVersion() -> int:

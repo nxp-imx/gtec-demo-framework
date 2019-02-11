@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButton.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
@@ -41,16 +42,27 @@ namespace Fsl
   class MouseButtonEvent : public BasicEvent
   {
   public:
-    explicit MouseButtonEvent(const BasicEvent& encodedEvent);
+    explicit MouseButtonEvent(const BasicEvent& encodedEvent)
+      : BasicEvent(encodedEvent)
+    {
+      if (m_type != EventType::MouseButton)
+      {
+        throw std::invalid_argument("The supplied argument is of a wrong type");
+      }
+    }
+
     MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const Point2& position);
 
     //! @brief Get the button that was modified
     VirtualMouseButton::Enum GetButton() const;
 
     //! @brief Get the state of the button
-    bool IsPressed() const;
+    bool IsPressed() const
+    {
+      return m_arg2 != 0;
+    }
 
-    //! @brief Get the position it occured at
+    //! @brief Get the position it occurred at
     const Point2 GetPosition() const;
   };
 }

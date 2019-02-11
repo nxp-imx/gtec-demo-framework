@@ -35,18 +35,18 @@
 
 namespace Fsl
 {
-  class AlignmentUtil
+  namespace AlignmentUtil
   {
-  public:
+    //! @brief Figure out the final byte size for the buffer to fulfill a minimum chunk size
     template <typename T, typename T2>
-    static T GetByteSize(const T bufferSize, const T2 desiredAlignment)
+    inline T GetByteSize(const T bufferSize, const T2 minChunkSize)
     {
-      if (desiredAlignment <= 0)
+      if (minChunkSize <= 0)
       {
-        return 0;
+        return minChunkSize;
       }
-      auto res = (bufferSize % desiredAlignment);
-      return (res != 0 ? bufferSize + (desiredAlignment - res) : bufferSize);
+      auto res = (bufferSize % minChunkSize);
+      return (res != 0 ? bufferSize + (minChunkSize - res) : bufferSize);
     }
   };
 }

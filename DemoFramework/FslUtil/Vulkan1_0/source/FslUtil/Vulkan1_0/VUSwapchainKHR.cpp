@@ -55,14 +55,16 @@ namespace Fsl
         // Claim ownership here
         m_swapchain = std::move(other.m_swapchain);
         // m_createInfo = std::move(other.m_createInfo);
+        m_imageUsageFlags = other.m_imageUsageFlags;
         m_imageFormat = other.m_imageFormat;
         m_imageExtent = other.m_imageExtent;
         m_images = std::move(other.m_images);
         m_info = std::move(other.m_info);
 
         // Remove the data from other
+        other.m_imageUsageFlags = 0u;
         other.m_imageFormat = VK_FORMAT_UNDEFINED;
-        other.m_imageExtent = VkExtent2D{};
+        other.m_imageExtent = {};
       }
       return *this;
     }
@@ -71,21 +73,23 @@ namespace Fsl
     VUSwapchainKHR::VUSwapchainKHR(VUSwapchainKHR&& other) noexcept
       : m_swapchain(std::move(other.m_swapchain))
       //, m_createInfo(std::move(other.m_createInfo))
+      , m_imageUsageFlags(other.m_imageUsageFlags)
       , m_imageFormat(other.m_imageFormat)
       , m_imageExtent(other.m_imageExtent)
       , m_images(std::move(other.m_images))
       , m_info(std::move(other.m_info))
     {
       // Remove the data from other
+      other.m_imageUsageFlags = 0u;
       other.m_imageFormat = VK_FORMAT_UNDEFINED;
-      other.m_imageExtent = VkExtent2D{};
+      other.m_imageExtent = {};
     }
 
 
     VUSwapchainKHR::VUSwapchainKHR()
-      : m_imageFormat(VK_FORMAT_UNDEFINED)
+      : m_imageUsageFlags(0u)
+      , m_imageFormat(VK_FORMAT_UNDEFINED)
       , m_imageExtent{}
-
     {
     }
 
@@ -136,8 +140,9 @@ namespace Fsl
 
       m_swapchain.Reset();
       // m_createInfo.Reset();
+      m_imageUsageFlags = 0u;
       m_imageFormat = VK_FORMAT_UNDEFINED;
-      m_imageExtent = VkExtent2D{};
+      m_imageExtent = {};
       m_images.clear();
       m_info.clear();
     }
@@ -156,6 +161,7 @@ namespace Fsl
         m_swapchain.Reset(claimMode, device, swapchain);
         // Clear the old swapchain handle because it will most likely be invalid now
         // m_createInfo.Reset(createInfo, VK_NULL_HANDLE);
+        m_imageUsageFlags = createInfo.imageUsage;
         m_imageFormat = createInfo.imageFormat;
         m_imageExtent = createInfo.imageExtent;
         RefreshImages();
@@ -182,6 +188,7 @@ namespace Fsl
         // "manual reset" (since the VkSwapchainCreateInfoKHR might contain our old handle, meaning it needs to be valid for the create)
         // Clear the old swapchain handle because it will most likely be invalid now
         // m_createInfo.Reset(createInfo, VK_NULL_HANDLE);
+        m_imageUsageFlags = createInfo.imageUsage;
         m_imageFormat = createInfo.imageFormat;
         m_imageExtent = createInfo.imageExtent;
         m_images.clear();

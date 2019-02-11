@@ -213,7 +213,8 @@ namespace Fsl
       throw GraphicsException("This scene requires support for 'GL_EXT_color_buffer_float'");
     }
 
-    IO::Path texturePath(hdrEnabled ? "floral_tent/floral_tent_1k.hdr" : "Stairs/equirectangular.jpg");
+    IO::Path texturePath(hdrEnabled ? "Textures/Equirectangular/FloralTent/floral_tent_1k.hdr"
+                                    : "Textures/Equirectangular/Stairs/equirectangular.jpg");
 
     Point2 resolution(2048, 2048);
     m_cubemapTexture = GenerateCubemap(contentManager, texturePath, resolution, hdrEnabled);

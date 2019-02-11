@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <FslGraphics/Vertices/VertexDeclaration.hpp>
 
 namespace Fsl
 {

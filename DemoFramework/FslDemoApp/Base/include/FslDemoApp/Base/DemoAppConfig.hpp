@@ -49,7 +49,6 @@ namespace Fsl
   public:
     ExceptionMessageFormatter ExceptionFormatter;
 
-
     // The screen resolution (at launch)
     Point2 ScreenResolution;
 

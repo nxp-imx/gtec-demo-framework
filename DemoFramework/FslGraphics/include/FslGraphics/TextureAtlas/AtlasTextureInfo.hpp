@@ -45,11 +45,11 @@ namespace Fsl
     Rectangle TrimmedRect;
     Thickness TrimMargin;
 
-    AtlasTextureInfo() = default;
+    constexpr AtlasTextureInfo() = default;
 
     //! @param srcRect the untrimmed rect
     //! @param trimmedRect he trimmed rect
-    AtlasTextureInfo(const Rectangle& srcRect, const Rectangle& trimmedRect)
+    constexpr AtlasTextureInfo(const Rectangle& srcRect, const Rectangle& trimmedRect)
       : OriginalSize(srcRect.Width(), srcRect.Height())
       , Offset(srcRect.X(), srcRect.Y())
       , TrimmedRect(trimmedRect)
@@ -58,11 +58,12 @@ namespace Fsl
     {
     }
 
-    bool operator==(const AtlasTextureInfo& rhs) const
+    constexpr bool operator==(const AtlasTextureInfo& rhs) const
     {
       return OriginalSize == rhs.OriginalSize && Offset == rhs.Offset && TrimmedRect == rhs.TrimmedRect && TrimMargin == rhs.TrimMargin;
     }
-    bool operator!=(const AtlasTextureInfo& rhs) const
+
+    constexpr bool operator!=(const AtlasTextureInfo& rhs) const
     {
       return !(*this == rhs);
     }

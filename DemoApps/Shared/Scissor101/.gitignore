@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.Scissor101.VC.VC.opendb
+/Shared.Scissor101.VC.db
+/Shared.Scissor101.manifest
+/Shared.Scissor101.opensdf
+/Shared.Scissor101.sdf
+/Shared.Scissor101.sln
+/Shared.Scissor101.v12.sdf
+/Shared.Scissor101.v12.suo
+/Shared.Scissor101.vcxproj
+/Shared.Scissor101.vcxproj.filters
+/Shared.Scissor101.vcxproj.user
+/build/

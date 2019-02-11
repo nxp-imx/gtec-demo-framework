@@ -32,7 +32,5 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUnitTest/Common.hpp>
-#include <FslBase/UnitTest/Helper/LogTypes.hpp>
-#include <FslBase/UnitTest/Helper/TestCustomChecks.hpp>
 
 #endif

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.LineBuilder101" NoInclude="true">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="Shared.LineBuilder101"/>
+    <Platform Name="Windows" ProjectId="476B0908-A79E-4E09-9BBF-FB40520FFA2D"/>
+  </Executable>
+</FslBuildGen>

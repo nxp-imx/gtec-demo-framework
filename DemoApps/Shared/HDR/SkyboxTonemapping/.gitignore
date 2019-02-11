@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
+/Shared.HDR.SkyboxTonemapping.VC.VC.opendb
+/Shared.HDR.SkyboxTonemapping.VC.db
+/Shared.HDR.SkyboxTonemapping.manifest
+/Shared.HDR.SkyboxTonemapping.opensdf
+/Shared.HDR.SkyboxTonemapping.sdf
+/Shared.HDR.SkyboxTonemapping.sln
+/Shared.HDR.SkyboxTonemapping.v12.sdf
+/Shared.HDR.SkyboxTonemapping.v12.suo
+/Shared.HDR.SkyboxTonemapping.vcxproj
+/Shared.HDR.SkyboxTonemapping.vcxproj.filters
+/Shared.HDR.SkyboxTonemapping.vcxproj.user
+/build/

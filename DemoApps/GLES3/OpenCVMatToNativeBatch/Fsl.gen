@@ -2,7 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Executable Name="GLES3.OpenCVMatToNativeBatch" NoInclude="true">
     <ImportTemplate Name="DemoAppGLES3"/>
-    <Dependency Name="OpenCV3"/>
+    <Dependency Name="OpenCV4"/>
     <Dependency Name="Shared.OpenCVExperimental"/>
     <Platform Name="Windows" ProjectId="E88D2AB4-232F-4D9C-9AF0-86756967A31B"/>
   </Executable>

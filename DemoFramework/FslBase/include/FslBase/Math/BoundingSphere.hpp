@@ -45,9 +45,9 @@ namespace Fsl
     Vector3 Center;
     float Radius{0.0f};
 
-    BoundingSphere() = default;
+    constexpr BoundingSphere() = default;
 
-    BoundingSphere(Vector3 center, float radius)
+    constexpr BoundingSphere(Vector3 center, float radius)
       : Center(center)
       , Radius(radius)
     {
@@ -57,12 +57,9 @@ namespace Fsl
     void Transform(const Matrix& matrix, BoundingSphere& rResult);
 
     ContainmentType Contains(const BoundingBox& box) const;
-    void Contains(const BoundingBox& box, ContainmentType& rResult) const;
     ContainmentType Contains(const BoundingFrustum& frustum) const;
     ContainmentType Contains(const BoundingSphere& sphere) const;
-    void Contains(const BoundingSphere& sphere, ContainmentType& rResult) const;
     ContainmentType Contains(const Vector3& point) const;
-    void Contains(const Vector3& point, ContainmentType& rResult) const;
 
     static BoundingSphere CreateFromBoundingBox(const BoundingBox& box);
     static void CreateFromBoundingBox(const BoundingBox& box, BoundingSphere& rResult);
@@ -72,21 +69,18 @@ namespace Fsl
     static void CreateMerged(const BoundingSphere& original, const BoundingSphere& additional, BoundingSphere& rResult);
 
     bool Intersects(const BoundingBox& box) const;
-    void Intersects(const BoundingBox& box, bool& rResult) const;
     bool Intersects(const BoundingSphere& sphere) const;
-    void Intersects(const BoundingSphere& sphere, bool& rResult) const;
     PlaneIntersectionType Intersects(const Plane& plane) const;
-    void Intersects(const Plane& plane, PlaneIntersectionType& rResult) const;
     bool Intersects(const Ray& ray, float& rResult) const;
 
     //! @brief Tests for equality.
-    bool operator==(const BoundingSphere& rhs) const
+    constexpr bool operator==(const BoundingSphere& rhs) const
     {
       return Center == rhs.Center && Radius == rhs.Radius;
     }
 
     //! @brief Tests for inequality.
-    bool operator!=(const BoundingSphere& rhs) const
+    constexpr bool operator!=(const BoundingSphere& rhs) const
     {
       return Center != rhs.Center || Radius != rhs.Radius;
     }

@@ -33,14 +33,14 @@
 
 namespace Fsl
 {
-  AsynchronousServiceProxyFactoryBase::AsynchronousServiceProxyFactoryBase(const TypeInfo& interfaceType)
+  AsynchronousServiceProxyFactoryBase::AsynchronousServiceProxyFactoryBase(const std::type_index& interfaceType)
     : m_interfaceType(interfaceType)
     , m_flags(ServiceCaps::Default)
   {
   }
 
 
-  AsynchronousServiceProxyFactoryBase::AsynchronousServiceProxyFactoryBase(const TypeInfo& interfaceType, const ServiceCaps::Flags flags)
+  AsynchronousServiceProxyFactoryBase::AsynchronousServiceProxyFactoryBase(const std::type_index& interfaceType, const ServiceCaps::Flags flags)
     : m_interfaceType(interfaceType)
     , m_flags(flags)
   {

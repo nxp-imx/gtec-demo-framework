@@ -1,15 +1,15 @@
 #version 310 es
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform sampler2D TextureDiffuse;
 uniform sampler2D TextureNormal;
 
- // Material
+// Material
 uniform vec3 MatAmbient;
 uniform vec3 MatSpecular;
 uniform float MatShininess;
@@ -29,14 +29,14 @@ void main()
   float intensity = max(dot(normal, v_LightVec), 0.0);
 
   vec4 diffuse = vec4(0);
-  if(intensity > 0.0 )
+  if (intensity > 0.0)
   {
     diffuse = texture(TextureDiffuse, v_TexCoord);
-    
+
     // Calc the specular term into spec
     float intSpec = max(dot(v_HalfVec, normal), 0.0);
     diffuse.xyz *= vec3(intensity) + (MatSpecular * pow(intSpec, MatShininess));
-    // diffuse.xyz *= (MatSpecular * pow(intSpec, MatShininess));    
+    // diffuse.xyz *= (MatSpecular * pow(intSpec, MatShininess));
     // diffuse.xyz *= pow(intSpec, 10.0f);
   }
   diffuse.xyz += MatAmbient;

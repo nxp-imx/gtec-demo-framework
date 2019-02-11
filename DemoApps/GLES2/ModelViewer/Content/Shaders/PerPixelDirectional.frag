@@ -2,18 +2,18 @@
 
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
- 
+
 // Camera space
 uniform vec3 LightDirection;
 
- // Material
+// Material
 uniform vec4 MatAmbient;
 
- 
+
 varying vec4 v_Color;
 varying vec3 v_Normal;
 

@@ -42,29 +42,57 @@ namespace Fsl
   {
     namespace MemoryTypeUtil
     {
-      uint32_t GetMemoryTypeIndex(const uint32_t memoryTypeCount, const VkMemoryType* const pMemoryType, const uint32_t memoryTypeBits,
-                                  const VkMemoryPropertyFlags propertyFlags)
+      namespace
       {
-        if (memoryTypeCount == 0 || memoryTypeCount > VK_MAX_MEMORY_TYPES || (pMemoryType == nullptr) || memoryTypeBits == 0)
+        inline bool TryGetMemoryTypeIndexNow(uint32_t& rMemoryTypeIndex, const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties,
+                                             const uint32_t memoryTypeBits, const VkMemoryPropertyFlags desiredPropertyFlags,
+                                             const VkMemoryPropertyFlags notSetPropertyFlags)
         {
-          throw std::invalid_argument("GetMemoryTypeIndex");
-        }
-
-        const uint32_t maxMemoryTypes = std::max(32u, static_cast<uint32_t>(VK_MAX_MEMORY_TYPES));
-        uint32_t searchMemoryBits = memoryTypeBits;
-        for (uint32_t currentMemoryTypeIndex = 0; currentMemoryTypeIndex < maxMemoryTypes; ++currentMemoryTypeIndex)
-        {
-          if ((searchMemoryBits & 1) != 0u)
+          if (physicalDeviceMemoryProperties.memoryTypeCount == 0 || physicalDeviceMemoryProperties.memoryTypeCount > VK_MAX_MEMORY_TYPES ||
+              memoryTypeBits == 0)
           {
-            if ((pMemoryType[currentMemoryTypeIndex].propertyFlags & propertyFlags) == propertyFlags)
-            {
-              return currentMemoryTypeIndex;
-            }
+            throw std::invalid_argument("TryGetMemoryTypeIndex");
           }
-          // Lower bits first.
-          searchMemoryBits >>= 1;
+
+          rMemoryTypeIndex = 0;
+
+          const uint32_t maxMemoryTypes = physicalDeviceMemoryProperties.memoryTypeCount;
+          uint32_t searchMemoryBits = memoryTypeBits;
+          for (uint32_t currentMemoryTypeIndex = 0; currentMemoryTypeIndex < maxMemoryTypes; ++currentMemoryTypeIndex)
+          {
+            if ((searchMemoryBits & 1) != 0u)
+            {
+              if ((physicalDeviceMemoryProperties.memoryTypes[currentMemoryTypeIndex].propertyFlags & desiredPropertyFlags) == desiredPropertyFlags &&
+                  (physicalDeviceMemoryProperties.memoryTypes[currentMemoryTypeIndex].propertyFlags & notSetPropertyFlags) == 0u)
+              {
+                rMemoryTypeIndex = currentMemoryTypeIndex;
+                return true;
+              }
+            }
+            // Lower bits first.
+            searchMemoryBits >>= 1;
+          }
+          return false;
         }
-        throw NotSupportedException("Requested memory type not supported");
+      }
+
+
+      uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties, const uint32_t memoryTypeBits,
+                                  const VkMemoryPropertyFlags desiredPropertyFlags, const VkMemoryPropertyFlags notSetPropertyFlags)
+      {
+        uint32_t memoryTypeIndex = 0;
+        if (!TryGetMemoryTypeIndexNow(memoryTypeIndex, physicalDeviceMemoryProperties, memoryTypeBits, desiredPropertyFlags, notSetPropertyFlags))
+        {
+          throw NotSupportedException("Requested memory type not supported");
+        }
+        return memoryTypeIndex;
+      }
+
+      bool TryGetMemoryTypeIndex(uint32_t& rMemoryTypeIndex, const VkPhysicalDeviceMemoryProperties& physicalDeviceMemoryProperties,
+                                 const uint32_t memoryTypeBits, const VkMemoryPropertyFlags desiredPropertyFlags,
+                                 const VkMemoryPropertyFlags notSetPropertyFlags)
+      {
+        return TryGetMemoryTypeIndexNow(rMemoryTypeIndex, physicalDeviceMemoryProperties, memoryTypeBits, desiredPropertyFlags, notSetPropertyFlags);
       }
     }
   }

@@ -1,9 +1,9 @@
 #version 300 es
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-  precision highp float;
+precision highp float;
 #else
-  precision mediump float;
+precision mediump float;
 #endif
 
 uniform vec2 Coordinate;
@@ -20,16 +20,16 @@ void main()
   vec2 v = v_texcoord.xy;
 
   int count = MaxIterations;
-  for ( int i = 0 ; i < MaxIterations; ++i ) 
+  for (int i = 0; i < MaxIterations; ++i)
   {
-    v = c + vec2(v.x * v.x - v.y * v.y, v.x * v.y * 2.0 );
-    if ( dot( v, v ) > 4.0 ) 
+    v = c + vec2(v.x * v.x - v.y * v.y, v.x * v.y * 2.0);
+    if (dot(v, v) > 4.0)
     {
       count = i;
       break;
     }
   }
-    
-  float co = float( MaxIterations - count ) / float(MaxIterations);
+
+  float co = float(MaxIterations - count) / float(MaxIterations);
   o_fragColor = vec4(co, co, co, 1.0);
 }

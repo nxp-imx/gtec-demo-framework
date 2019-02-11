@@ -44,7 +44,7 @@ namespace Fsl
   AsynchronousServiceMessageHandlerRegistry::~AsynchronousServiceMessageHandlerRegistry() = default;
 
 
-  void AsynchronousServiceMessageHandlerRegistry::Register(const TypeInfo& messageType, const type_message_function& handler) const
+  void AsynchronousServiceMessageHandlerRegistry::Register(const std::type_index& messageType, const type_message_function& handler) const
   {
     m_registry->Register(messageType, handler);
   }

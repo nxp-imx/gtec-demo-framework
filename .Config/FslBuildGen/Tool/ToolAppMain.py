@@ -64,7 +64,8 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersionString = "2.9.4"
+CurrentVersionString = "3.0.1"
+CurrentBuildString = "4"
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -91,7 +92,7 @@ def __EarlyArgumentParser(allowStandaloneMode: bool) -> Optional[LowLevelToolCon
         profilerEnabled = True if args.profile else False
         standaloneEnabled = False if not allowStandaloneMode else (True if args.standalone else False)
         if args.version:
-            print("V{0}".format(CurrentVersionString))
+            print("V{0} Build {1}".format(CurrentVersionString, CurrentBuildString))
         return LowLevelToolConfig(verbosityLevel, debugEnabled, allowDevelopmentPlugins, profilerEnabled, standaloneEnabled)
     except (Exception) as ex:
         print("ERROR: {0}".format(str(ex)))
@@ -417,7 +418,7 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
 
 
 def Run(appFlowFactory: AToolAppFlowFactory, allowStandaloneMode: bool = False) -> None:
-    strToolAppTitle = "{0} V{1}".format(appFlowFactory.GetTitle(), CurrentVersionString)
+    strToolAppTitle = "{0} V{1} Build {2}".format(appFlowFactory.GetTitle(), CurrentVersionString, CurrentBuildString)
     appShortDesc = appFlowFactory.GetShortDesc()
     if appShortDesc is not None:
         strToolAppTitle = "{0} - {1}".format(strToolAppTitle, appShortDesc)

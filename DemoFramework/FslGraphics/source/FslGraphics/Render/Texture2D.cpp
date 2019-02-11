@@ -36,9 +36,6 @@
 
 namespace Fsl
 {
-  Texture2D::Texture2D() = default;
-
-
   Texture2D::Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
                        const TextureFlags& textureFlags)
     : Texture2D()
@@ -73,16 +70,10 @@ namespace Fsl
   Texture2D::~Texture2D() = default;
 
 
-  bool Texture2D::IsValid() const
-  {
-    return m_native != nullptr;
-  }
-
-
   void Texture2D::Reset()
   {
     m_native.reset();
-    m_size = Point2();
+    m_extent = {};
     m_pixelFormat = PixelFormat::Undefined;
   }
 
@@ -115,7 +106,7 @@ namespace Fsl
     Reset();
 
     m_native = nativeGraphics->CreateTexture2D(bitmap, filterHint, textureFlags);
-    m_size = Point2(bitmap.Width(), bitmap.Height());
+    m_extent = bitmap.GetExtent();
     m_pixelFormat = bitmap.GetPixelFormat();
   }
 
@@ -140,7 +131,7 @@ namespace Fsl
     {
       throw std::invalid_argument("bitmap is invalid");
     }
-    if (texture.GetExtent().Width < 1 || texture.GetExtent().Height < 1)
+    if (texture.GetExtent().Width < 1 || texture.GetExtent().Height < 1 || texture.GetExtent().Depth != 1)
     {
       throw std::invalid_argument("bitmap size is invalid");
     }
@@ -148,7 +139,7 @@ namespace Fsl
     Reset();
 
     m_native = nativeGraphics->CreateTexture2D(texture, filterHint, textureFlags);
-    m_size = Point2(texture.GetExtent().Width, texture.GetExtent().Height);
+    m_extent = Extent2D(texture.GetExtent().Width, texture.GetExtent().Height);
     m_pixelFormat = texture.GetPixelFormat();
   }
 
@@ -163,13 +154,21 @@ namespace Fsl
 
   void Texture2D::SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
   {
+    if (!m_native)
+    {
+      throw UsageErrorException("SetData called on a invalid object");
+    }
     if (!bitmap.IsValid())
     {
       throw std::invalid_argument("bitmap is invalid");
     }
-    if (bitmap.Width() < 1 || bitmap.Height() < 1)
+    if (bitmap.GetExtent() != m_extent)
     {
-      throw std::invalid_argument("bitmap size is invalid");
+      throw UsageErrorException("bitmap is not of the expected size");
+    }
+    if (bitmap.GetPixelFormat() != m_pixelFormat)
+    {
+      throw UsageErrorException("bitmap is not of the right pixel format");
     }
 
     m_native->SetData(bitmap, filterHint, textureFlags);
@@ -186,39 +185,26 @@ namespace Fsl
 
   void Texture2D::SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
   {
+    if (!m_native)
+    {
+      throw UsageErrorException("SetData called on a invalid object");
+    }
     if (!texture.IsValid())
     {
       throw std::invalid_argument("texture is invalid");
     }
-    if (texture.GetExtent().Width < 1 || texture.GetExtent().Height < 1)
+    if (texture.GetExtent().Width != m_extent.Width || texture.GetExtent().Height != m_extent.Height || texture.GetExtent().Depth != 1)
     {
-      throw std::invalid_argument("texture size is invalid");
+      throw UsageErrorException("texture is not of the expected size");
+    }
+    if (texture.GetPixelFormat() != m_pixelFormat)
+    {
+      throw UsageErrorException("texture is not of the right pixel format");
     }
 
     m_native->SetData(texture, filterHint, textureFlags);
   }
 
-  Extent2D Texture2D::GetExtent() const
-  {
-    return {m_size.X, m_size.Y};
-  }
-
-
-  Point2 Texture2D::GetSize() const
-  {
-    return m_size;
-  }
-
-  PixelFormat Texture2D::GetPixelFormat() const
-  {
-    return m_pixelFormat;
-  }
-
-
-  std::shared_ptr<INativeTexture2D> Texture2D::TryGetNative() const
-  {
-    return m_native;
-  }
 
   std::shared_ptr<INativeTexture2D> Texture2D::GetNative() const
   {

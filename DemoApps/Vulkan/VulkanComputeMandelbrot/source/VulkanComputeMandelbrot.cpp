@@ -69,7 +69,7 @@ namespace Fsl
           InstanceUtil::CreateInstance("VulkanComputeMandelbrot", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0, nullptr, 0, nullptr);
 
         const uint32_t physicalDeviceIndex = options->GetPhysicalDeviceIndex();
-        m_physicalDevice = InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicalDeviceIndex);
+        m_physicalDevice = VUPhysicalDeviceRecord(InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicalDeviceIndex));
 
         const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice.Device);
         const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_COMPUTE_BIT, 0, nullptr);
@@ -478,15 +478,15 @@ namespace Fsl
   DeviceBuffer VulkanComputeMandelbrot::CreateBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
                                                      const VkMemoryPropertyFlags memoryPropertyFlags) const
   {
-    BufferEx buffer(device, bufferCreateInfo.flags, bufferCreateInfo.size, bufferCreateInfo.usage, bufferCreateInfo.sharingMode,
+    VUBuffer buffer(device, bufferCreateInfo.flags, bufferCreateInfo.size, bufferCreateInfo.usage, bufferCreateInfo.sharingMode,
                     bufferCreateInfo.queueFamilyIndexCount, bufferCreateInfo.pQueueFamilyIndices);
 
     // Get the memory requirements
     const auto memoryRequirements = buffer.GetBufferMemoryRequirements();
-    const auto physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
+    const auto physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
-    DeviceMemoryEx deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties.memoryTypeCount,
-                                physicalDeviceMemoryProperties.memoryTypes, memoryPropertyFlags);
+    VUDeviceMemory deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties, memoryPropertyFlags,
+                                m_physicalDevice.Properties.limits.nonCoherentAtomSize);
 
     RAPIDVULKAN_CHECK(vkBindBufferMemory(device, buffer.Get(), deviceMemory.Get(), 0));
     return DeviceBuffer(std::move(buffer), std::move(deviceMemory));
@@ -505,9 +505,10 @@ namespace Fsl
 
     // Get the memory requirements
     const auto memoryRequirements = image.GetImageMemoryRequirements();
-    const auto physicalDeviceMemoryProperties = m_physicalDevice.GetPhysicalDeviceMemoryProperties();
+    const auto physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
-    DeviceMemoryEx deviceMemory(device, memoryRequirements, VK_MAX_MEMORY_TYPES, physicalDeviceMemoryProperties.memoryTypes, memoryPropertyFlagBits);
+    VUDeviceMemory deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties, memoryPropertyFlagBits,
+                                m_physicalDevice.Properties.limits.nonCoherentAtomSize);
 
     // Bind image to memory.
     RAPIDVULKAN_CHECK(vkBindImageMemory(device, image.Get(), deviceMemory.Get(), 0));

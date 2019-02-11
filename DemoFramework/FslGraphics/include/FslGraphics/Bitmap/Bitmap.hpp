@@ -119,28 +119,52 @@ namespace Fsl
     }
 
     //! @brief The width of the bitmap in pixels
-    uint32_t Width() const;
+    uint32_t Width() const
+    {
+      return m_extent.Width;
+    }
 
     //! @brief The height of the bitmap in pixels
-    uint32_t Height() const;
+    uint32_t Height() const
+    {
+      return m_extent.Height;
+    }
 
     //! @brief The size of the bitmap in pixels
-    Point2 Size() const;
+    Point2 Size() const
+    {
+      return Point2(m_extent.Width, m_extent.Height);
+    }
 
     //! @brief The stride of the bitmap in bytes
-    uint32_t Stride() const;
+    uint32_t Stride() const
+    {
+      return m_stride;
+    }
 
     //! @brief The size of the bitmap in pixels
-    Extent2D GetExtent() const;
+    Extent2D GetExtent() const
+    {
+      return m_extent;
+    }
 
     //! @brief Get the origin of the bitmap
-    BitmapOrigin GetOrigin() const;
+    BitmapOrigin GetOrigin() const
+    {
+      return m_origin;
+    }
 
     //! @brief Get the bitmap stride preference.
-    StrideRequirement GetStrideRequirement() const;
+    StrideRequirement GetStrideRequirement() const
+    {
+      return m_strideRequirement;
+    }
 
     //! @brief Get the pixel format of the raw bitmap
-    PixelFormat GetPixelFormat() const;
+    PixelFormat GetPixelFormat() const
+    {
+      return m_pixelFormat;
+    }
 
     //! @brief Get the pixel format layout of the raw bitmap
     PixelFormatLayout GetPixelFormatLayout() const;

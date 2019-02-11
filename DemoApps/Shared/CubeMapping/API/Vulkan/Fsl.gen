@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.CubeMapping.API.Vulkan">
+    <Dependency Name="FslUtil.Vulkan1_0"/>
+    <Dependency Name="FslDemoApp.Base"/>
+    <Platform Name="Windows" ProjectId="3F2BF233-0179-4E7D-BF80-3BF23297F1E8"/>
+  </Library>
+</FslBuildGen>

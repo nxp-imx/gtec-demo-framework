@@ -71,8 +71,10 @@ namespace Fsl
       {
       case ANIMATION_IDLE:
         if ((rObject.AnimationDuration - 1) == 0)
+        {
           rObject.AnimationDuration = 0;
-        if (rObject.PosAnimation)
+        }
+        if (rObject.PosAnimation != 0u)
         {
           // Animation Requested
 
@@ -91,7 +93,7 @@ namespace Fsl
           rObject.CurrentX = endPos.X;
           rObject.CurrentY = endPos.Y;
         }
-        if (rObject.ScaleAnimation)
+        if (rObject.ScaleAnimation != 0u)
         {
           rObject.ScaleAnimation = 0;
           rObject.ScaleX = 1;
@@ -230,9 +232,7 @@ namespace Fsl
   }
 
 
-  CoverFlow::~CoverFlow()
-  {
-  }
+  CoverFlow::~CoverFlow() = default;
 
 
   void CoverFlow::Update(const DemoTime& demoTime)
@@ -292,7 +292,7 @@ namespace Fsl
       }
       vgLoadIdentity();
       vgTranslate(m_coverAlbums[j].CurrentX, m_coverAlbums[j].CurrentY);
-      if (m_coverAlbums[j].AnimationDuration)
+      if (m_coverAlbums[j].AnimationDuration != 0u)
       {
         vgTranslate(64, 64);
         vgRotate(m_coverAlbums[j].CurrentAngle);

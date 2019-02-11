@@ -1,0 +1,14 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Models/Knight2/armor.obj",
+        "Models/Knight2/armor_default_color.jpg",
+        "Models/Knight2/License.json",
+        "Models/Knight2/license.txt"
+      ]
+    }
+  }
+}

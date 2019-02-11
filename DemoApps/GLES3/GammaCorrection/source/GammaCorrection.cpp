@@ -37,8 +37,8 @@
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
+#include <array>
 
 namespace Fsl
 {
@@ -59,12 +59,6 @@ namespace Fsl
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
     , m_mouseCaptureEnabled(false)
-    , m_hModelViewMatrixLoc(GLValues::INVALID_LOCATION)
-    , m_hProjMatrixLoc(GLValues::INVALID_LOCATION)
-    , m_hLightPositions(GLValues::INVALID_LOCATION)
-    , m_hLightColors(GLValues::INVALID_LOCATION)
-    , m_hViewPos(GLValues::INVALID_LOCATION)
-    , m_hGamma(GLValues::INVALID_LOCATION)
     , m_state(State::Split4)
     , m_splitX(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
     , m_splitY(m_transitionCache, TransitionTimeSpan(400, TransitionTimeUnit::Milliseconds), TransitionType::Smooth)
@@ -81,8 +75,8 @@ namespace Fsl
     PrepareLights();
     CreateUI();
     CreateTextures(contentManager);
-    m_program = CreateShader(contentManager);
-    CreateVertexArray(m_program);
+    m_resources.Program = CreateShader(contentManager);
+    CreateVertexArray(m_resources.Program);
   }
 
 
@@ -165,14 +159,16 @@ namespace Fsl
     auto matrixWorld = Matrix::GetIdentity();
     auto matrixView = m_camera.GetViewMatrix();
     float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
-    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
-    m_matrixWorldView = matrixWorld * matrixView;
+    m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
+    m_vertexUboData.MatModelView = matrixWorld * matrixView;
+
+    m_fragmentUboData.ViewPos = m_camera.GetPosition();
   }
 
 
   void GammaCorrection::Draw(const DemoTime& demoTime)
   {
-    glUseProgram(m_program.Get());
+    glUseProgram(m_resources.Program.Get());
 
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
@@ -234,12 +230,10 @@ namespace Fsl
 
   void GammaCorrection::UpdateSceneTransition(const DemoTime& demoTime)
   {
-    const auto res = Vector2(GetScreenResolution().X, GetScreenResolution().Y);
-
     switch (m_state)
     {
     case State::Scene1:
-      m_splitX.SetValue(res.X);
+      m_splitX.SetValue(1.0f);
       m_splitY.SetValue(0.0f);
       m_scene1LabelAlpha.SetValue(1.0f);
       m_scene2LabelAlpha.SetValue(0.0f);
@@ -255,8 +249,8 @@ namespace Fsl
       m_scene4LabelAlpha.SetValue(0.0f);
       break;
     case State::Scene3:
-      m_splitX.SetValue(res.X);
-      m_splitY.SetValue(res.Y);
+      m_splitX.SetValue(1.0f);
+      m_splitY.SetValue(1.0f);
       m_scene1LabelAlpha.SetValue(0.0f);
       m_scene2LabelAlpha.SetValue(0.0f);
       m_scene3LabelAlpha.SetValue(1.0f);
@@ -264,7 +258,7 @@ namespace Fsl
       break;
     case State::Scene4:
       m_splitX.SetValue(0.0f);
-      m_splitY.SetValue(res.Y);
+      m_splitY.SetValue(1.0f);
       m_scene1LabelAlpha.SetValue(0.0f);
       m_scene2LabelAlpha.SetValue(0.0f);
       m_scene3LabelAlpha.SetValue(0.0f);
@@ -272,8 +266,8 @@ namespace Fsl
       break;
     case State::Split4:
     default:
-      m_splitX.SetValue(res.X / 2.0f);
-      m_splitY.SetValue(res.Y / 2.0f);
+      m_splitX.SetValue(0.5f);
+      m_splitY.SetValue(0.5f);
       m_scene1LabelAlpha.SetValue(1.0f);
       m_scene2LabelAlpha.SetValue(1.0f);
       m_scene3LabelAlpha.SetValue(1.0f);
@@ -303,43 +297,43 @@ namespace Fsl
     const auto screenResolution = GetScreenResolution();
 
     // Set the shader program
-    glUseProgram(m_program.Get());
+    glUseProgram(m_resources.Program.Get());
 
     // Load the matrices
-    assert(m_hModelViewMatrixLoc != GLValues::INVALID_HANDLE);
-    assert(m_hProjMatrixLoc != GLValues::INVALID_HANDLE);
-    assert(m_hLightPositions != GLValues::INVALID_HANDLE);
-    assert(m_hLightColors != GLValues::INVALID_HANDLE);
-    assert(m_hViewPos != GLValues::INVALID_HANDLE);
+    assert(m_resources.ModelViewMatrixLoc != GLValues::INVALID_HANDLE);
+    assert(m_resources.ProjMatrixLoc != GLValues::INVALID_HANDLE);
+    assert(m_resources.LightPositionsLoc != GLValues::INVALID_HANDLE);
+    assert(m_resources.LightColorsLoc != GLValues::INVALID_HANDLE);
+    assert(m_resources.ViewPosLoc != GLValues::INVALID_HANDLE);
 
-    glUniformMatrix4fv(m_hModelViewMatrixLoc, 1, 0, m_matrixWorldView.DirectAccess());
-    glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matrixProjection.DirectAccess());
-    glUniform3fv(m_hLightPositions, 4, m_lightPositions.data()->DirectAccess());
-    glUniform3fv(m_hLightColors, 4, m_lightColors.data()->DirectAccess());
-    glUniform3fv(m_hViewPos, 1, m_camera.GetPosition().DirectAccess());
+    glUniformMatrix4fv(m_resources.ModelViewMatrixLoc, 1, 0, m_vertexUboData.MatModelView.DirectAccess());
+    glUniformMatrix4fv(m_resources.ProjMatrixLoc, 1, 0, m_vertexUboData.MatProj.DirectAccess());
+    glUniform3fv(m_resources.LightPositionsLoc, 4, m_fragmentUboData.LightPositions[0].DirectAccess());
+    glUniform3fv(m_resources.LightColorsLoc, 4, m_fragmentUboData.LightColors[0].DirectAccess());
+    glUniform3fv(m_resources.ViewPosLoc, 1, m_fragmentUboData.ViewPos.DirectAccess());
 
     // Bind the vertex array
-    m_vertexArray.Bind();
+    m_resources.VertexArray.Bind();
 
-    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue()));
-    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue()));
+    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue() * screenResolution.X));
+    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue() * screenResolution.Y));
     const GLint remainderX = screenResolution.X - splitX;
     const GLint remainderY = screenResolution.Y - splitY;
 
-    glBindTexture(GL_TEXTURE_2D, m_texLinear.Get());
+    glBindTexture(GL_TEXTURE_2D, m_resources.TexLinear.Get());
 
     // bottom left (no gamma correction, rgb texture)
     glViewport(0, 0, splitX, splitY);
-    glUniform1i(m_hGamma, 0);
+    glUniform1i(m_resources.GammaLoc, 0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     // top right (gamma correction enabled, rgb texture)
     glViewport(splitX, splitY, remainderX, remainderY);
-    glUniform1i(m_hGamma, 1);
+    glUniform1i(m_resources.GammaLoc, 1);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texSRGB.Get());
+    glBindTexture(GL_TEXTURE_2D, m_resources.TexSRGB.Get());
 
     // Bottom right (gamma correction, srgb texture)
     glViewport(splitX, 0, remainderX, splitY);
@@ -348,10 +342,10 @@ namespace Fsl
 
     // top left (no gamma correction, srgb texture)
     glViewport(0, splitY, splitX, remainderY);
-    glUniform1i(m_hGamma, 0);
+    glUniform1i(m_resources.GammaLoc, 0);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
-    m_vertexArray.Unbind();
+    m_resources.VertexArray.Unbind();
 
     // Restore the viewport
     glViewport(0, 0, screenResolution.X, screenResolution.Y);
@@ -361,9 +355,8 @@ namespace Fsl
   void GammaCorrection::PrepareTransition()
   {
     // Force set the initial value so we dont begin with a transition
-    const auto res = Vector2(GetScreenResolution().X, GetScreenResolution().Y);
-    m_splitX.SetActualValue(res.X / 2.0f);
-    m_splitY.SetActualValue(res.Y / 2.0f);
+    m_splitX.SetActualValue(0.5f);
+    m_splitY.SetActualValue(0.5f);
     m_scene1LabelAlpha.SetActualValue(1.0f);
     m_scene2LabelAlpha.SetActualValue(1.0f);
     m_scene3LabelAlpha.SetActualValue(1.0f);
@@ -374,23 +367,31 @@ namespace Fsl
   void GammaCorrection::PrepareLights()
   {
     // lighting info
-    m_lightPositions = {Vector3(0.0f, 0.0f, -3.0f), Vector3(0.0f, 0.0f, -1.0f), Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 3.0f)};
-    m_lightColors = {Vector3(0.25f, 0.25f, 0.25f), Vector3(0.50f, 0.50f, 0.50f), Vector3(0.75f, 0.75f, 0.75f), Vector3(1.00f, 1.00f, 1.00f)};
+    m_fragmentUboData.LightPositions[0] = Vector3(0.0f, 0.0f, -3.0f);
+    m_fragmentUboData.LightPositions[1] = Vector3(0.0f, 0.0f, -1.0f);
+    m_fragmentUboData.LightPositions[2] = Vector3(0.0f, 0.0f, 1.0f);
+    m_fragmentUboData.LightPositions[3] = Vector3(0.0f, 0.0f, 3.0f);
+
+    m_fragmentUboData.LightColors[0] = Vector3(0.25f, 0.25f, 0.25f);
+    m_fragmentUboData.LightColors[1] = Vector3(0.50f, 0.50f, 0.50f);
+    m_fragmentUboData.LightColors[2] = Vector3(0.75f, 0.75f, 0.75f);
+    m_fragmentUboData.LightColors[3] = Vector3(1.00f, 1.00f, 1.00f);
   }
 
 
   void GammaCorrection::CreateTextures(const std::shared_ptr<IContentManager>& contentManager)
   {
     // The KTX reader does not extract the origin, so we force a upper left
-    auto tex = contentManager->ReadTexture("Floor/Floor_ETC2_RGB.ktx", PixelFormat::ETC2_R8G8B8_UNORM_BLOCK, BitmapOrigin::UpperLeft);
+    auto tex =
+      contentManager->ReadTexture("Textures/WoodFloor/Floor_ETC2_RGB_flipped.ktx", PixelFormat::ETC2_R8G8B8_UNORM_BLOCK, BitmapOrigin::UpperLeft);
     // Then override it to match the default GL setting since we know thats the way the texture is stored in the file
     tex.OverrideOrigin(BitmapOrigin::LowerLeft);
 
     GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
     // m_texLinear.Reset(tex, texParams, TextureFlags::GenerateMipMaps);
-    m_texLinear.Reset(tex, texParams);
+    m_resources.TexLinear.Reset(tex, texParams);
     tex.SetCompatiblePixelFormat(PixelFormat::ETC2_R8G8B8_SRGB_BLOCK);
-    m_texSRGB.Reset(tex, texParams);
+    m_resources.TexSRGB.Reset(tex, texParams);
   }
 
 
@@ -399,13 +400,13 @@ namespace Fsl
     GLProgram program(contentManager->ReadAllText("GammaCorrection.vert"), contentManager->ReadAllText("GammaCorrection.frag"));
 
     // Get uniform locations (vertex shader)
-    m_hModelViewMatrixLoc = program.GetUniformLocation("g_matModelView");
-    m_hProjMatrixLoc = program.GetUniformLocation("g_matProj");
+    m_resources.ModelViewMatrixLoc = program.GetUniformLocation("g_matModelView");
+    m_resources.ProjMatrixLoc = program.GetUniformLocation("g_matProj");
     // Get uniform locations (fragment shader)
-    m_hLightPositions = program.GetUniformLocation("lightPositions");
-    m_hLightColors = program.GetUniformLocation("lightColors");
-    m_hViewPos = program.GetUniformLocation("viewPos");
-    m_hGamma = program.GetUniformLocation("gamma");
+    m_resources.LightPositionsLoc = program.GetUniformLocation("lightPositions");
+    m_resources.LightColorsLoc = program.GetUniformLocation("lightColors");
+    m_resources.ViewPosLoc = program.GetUniformLocation("viewPos");
+    m_resources.GammaLoc = program.GetUniformLocation("gamma");
     return program;
   }
 
@@ -426,7 +427,7 @@ namespace Fsl
     const float v0 = 10.0f;
     const float v1 = 0.0f;
     const Vector3 normal(0.0f, 1.0f, 0.0f);
-    VertexPositionNormalTexture vertices[6] = {
+    std::array<VertexPositionNormalTexture, 6> vertices = {
       VertexPositionNormalTexture(Vector3(x0, y, z0), normal, Vector2(u0, v0)),
       VertexPositionNormalTexture(Vector3(x0, y, z1), normal, Vector2(u0, v1)),
       VertexPositionNormalTexture(Vector3(x1, y, z1), normal, Vector2(u1, v1)),
@@ -437,27 +438,24 @@ namespace Fsl
     };
 
     auto vertexDecl = VertexPositionNormalTexture::GetVertexDeclaration();
-    std::vector<GLES3::GLVertexAttribLink> attribLink(3);
-    attribLink[0] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-    attribLink[1] = GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0));
-    attribLink[2] =
-      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
+    std::array<GLVertexAttribLink, 3> attribLink = {
+      GLVertexAttribLink(program.GetAttribLocation("VertexPosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0)),
+      GLVertexAttribLink(program.GetAttribLocation("VertexNormal"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Normal, 0)),
+      GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0))};
 
-
-    m_vertexBuffer.Reset(vertices, sizeof(vertices) / sizeof(VertexPositionNormalTexture), GL_STATIC_DRAW);
+    m_resources.VertexBuffer.Reset(vertices, GL_STATIC_DRAW);
 
     // Prepare the vertex arrays
-    m_vertexArray.Reset(true);
-    m_vertexArray.Bind();
+    m_resources.VertexArray.Reset(true);
+    m_resources.VertexArray.Bind();
     {
       // Set up VBO Vertex Attribute information
-      GL_CHECK(glBindBuffer(m_vertexBuffer.GetTarget(), m_vertexBuffer.Get()));
+      GL_CHECK(glBindBuffer(m_resources.VertexBuffer.GetTarget(), m_resources.VertexBuffer.Get()));
 
       // - We assume that the vertex format is listed in the same order as the shader requires them.
-      m_vertexBuffer.EnableAttribArrays(attribLink);
+      m_resources.VertexBuffer.EnableAttribArrays(attribLink);
     }
-    m_vertexArray.Unbind();
+    m_resources.VertexArray.Unbind();
   }
 
 

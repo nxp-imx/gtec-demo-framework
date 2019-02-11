@@ -3,6 +3,9 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/Models/Face/
+/Content/Textures/Circles/
+/Content/Textures/Rocks/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.TessellationSample
@@ -31,6 +34,7 @@
 /TessellationSample_Wayland_d
 /TessellationSample_X11
 /TessellationSample_X11_d
+/TessellationSample_c
 /TessellationSample_d
 /build/
 /resource.h

@@ -66,7 +66,7 @@ namespace Fsl
     // strPath = "Brudslojan"; // Nice
     // strPath = "LarnacaCastle"; // Nice
     // strPath = "SanFrancisco3"; // nice
-    strPath = "Stairs";
+    strPath = "Textures/Cubemap/Stairs/Raw";
     // strPath = "SaintLazarusChurch2"; // Nice
     // strPath = "SaintLazarusChurch3"; // Nice
 

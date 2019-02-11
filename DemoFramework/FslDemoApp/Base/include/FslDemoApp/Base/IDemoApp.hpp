@@ -31,29 +31,36 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Base/AppDrawResult.hpp>
 
 namespace Fsl
 {
   class IEvent;
 
-  class IDemoApp : public Noncopyable
+  class IDemoApp
   {
   public:
+    IDemoApp(const IDemoApp&) = delete;
+    IDemoApp& operator=(const IDemoApp&) = delete;
+    IDemoApp() = default;
     virtual ~IDemoApp() = default;
-    ;
 
     //! @brief Called just after the app has been constructed
     virtual void _PostConstruct() = 0;
+    //! brief Called just before the app is destroyed (this is a good place for shutdown code that can throw exceptions)
+    virtual void _PreDestruct() = 0;
     virtual void _OnEvent(IEvent* const pEvent) = 0;
     virtual void _Resized(const Point2& size) = 0;
     virtual void _PreUpdate(const DemoTime& demoTime) = 0;
     virtual void _FixedUpdate(const DemoTime& demoTime) = 0;
     virtual void _Update(const DemoTime& demoTime) = 0;
     virtual void _PostUpdate(const DemoTime& demoTime) = 0;
+    virtual AppDrawResult _TryPrepareDraw(const DemoTime& demoTime) = 0;
     virtual void _Draw(const DemoTime& demoTime) = 0;
+    // @brief If the demo host says the swap buffers is app controlled then this will be called to execute the swap buffers.
+    virtual AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) = 0;
   };
 }
 

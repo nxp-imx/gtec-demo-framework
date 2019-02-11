@@ -46,7 +46,7 @@ namespace Fsl
 
     TransitionTimeSpan() = default;
 
-    TransitionTimeSpan(const int64_t ticks)
+    constexpr explicit TransitionTimeSpan(const int64_t ticks)
       : Ticks(ticks)
     {
     }
@@ -55,6 +55,16 @@ namespace Fsl
     TransitionTimeSpan(const uint32_t time, TransitionTimeUnit unit);
     TransitionTimeSpan(const int64_t time, TransitionTimeUnit unit);
     TransitionTimeSpan(const uint64_t time, TransitionTimeUnit unit);
+
+    constexpr bool operator==(const TransitionTimeSpan& rhs) const
+    {
+      return Ticks == rhs.Ticks;
+    }
+
+    constexpr bool operator!=(const TransitionTimeSpan& rhs) const
+    {
+      return Ticks != rhs.Ticks;
+    }
   };
 }
 
