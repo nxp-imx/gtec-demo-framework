@@ -1,7 +1,7 @@
-#ifndef WINDOW_VULKANTRIANGLE_VULKANWINDOWDEMOAPP_HPP
-#define WINDOW_VULKANTRIANGLE_VULKANWINDOWDEMOAPP_HPP
+#ifndef VULKAN_NATIVEWINDOWTEST_NATIVEWINDOWTEST_HPP
+#define VULKAN_NATIVEWINDOWTEST_NATIVEWINDOWTEST_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2019 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,42 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Window/DemoAppWindow.hpp>
-#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
-#include <FslUtil/Vulkan1_0/SafeType/DeviceCreateInfoCopy.hpp>
-#include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
-#include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
-#include <memory>
-#include <vulkan/vulkan.h>
-
+#include <Shared/VulkanCustom/VulkanWindowDemoApp.hpp>
 
 namespace Fsl
 {
-  class IVulkanNativeWindow;
-
-  class VulkanWindowDemoApp : public DemoAppWindow
+  class NativeWindowTest : public VulkanWindowDemoApp
   {
-    std::shared_ptr<IVulkanNativeWindow> m_nativeWindow;
-
-  protected:
-    VkInstance m_instance;
-    std::shared_ptr<const Vulkan::InstanceCreateInfoCopy> m_instanceCreateInfo;
-    VkSurfaceKHR m_surface;
-    Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
-    VkPhysicalDeviceFeatures m_deviceActiveFeatures;
-    Vulkan::VUDevice m_device;
-    std::shared_ptr<Vulkan::DeviceCreateInfoCopy> m_deviceCreateInfo;
-
-    Vulkan::VUDeviceQueueRecord m_deviceQueue;
-
-    VulkanWindowDemoApp(const DemoAppConfig& demoAppConfig);
-    ~VulkanWindowDemoApp() override;
-
-    void OnDestroy() override;
-
-    // Call this during destruction to ensure the device is idle before you destroy resources
-    void SafeWaitForDeviceIdle() noexcept;
+  public:
+    NativeWindowTest(const DemoAppConfig& config);
   };
 }
 

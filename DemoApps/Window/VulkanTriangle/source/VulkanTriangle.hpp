@@ -42,8 +42,8 @@
 #include <RapidVulkan/RenderPass.hpp>
 #include <RapidVulkan/Semaphore.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
+#include <Shared/VulkanCustom/VulkanWindowDemoApp.hpp>
 #include <vector>
-#include "VulkanWindowDemoApp.hpp"
 
 namespace Fsl
 {

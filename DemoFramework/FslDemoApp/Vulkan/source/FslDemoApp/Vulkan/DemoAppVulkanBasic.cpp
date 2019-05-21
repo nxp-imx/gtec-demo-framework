@@ -37,6 +37,7 @@
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Debug/Strings/VkResult.hpp>
@@ -308,6 +309,7 @@ namespace Fsl
         FSLLOG2(LogType::Verbose2, "DemoAppVulkanBasic::BuildResources(): Creating swapchain");
         // m_launchOptions.ScreenshotsEnabled
 
+        auto fallbackExtent = ConvertUtil::Convert(GetScreenExtent());
         const VkPresentModeKHR presentMode =
           !m_launchOptions.OverridePresentMode ? m_appSetup.DesiredSwapchainPresentMode : m_launchOptions.PresentMode;
         const auto supportedImageUsageFlags =
@@ -316,7 +318,7 @@ namespace Fsl
 
         m_swapchain = SwapchainKHRUtil::CreateSwapchain(m_physicalDevice.Device, m_device.Get(), 0, m_surface, DESIRED_MIN_SWAP_BUFFER_COUNT, 1,
                                                         desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr,
-                                                        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, m_swapchain.Get());
+                                                        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, m_swapchain.Get(), fallbackExtent);
 
         uint32_t swapchainImageCount = m_swapchain.GetImageCount();
         if (swapchainImageCount == 0)

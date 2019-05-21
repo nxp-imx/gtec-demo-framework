@@ -1,5 +1,5 @@
-#ifndef WINDOW_VULKANTRIANGLE_VULKANWINDOWSYSTEM_HPP
-#define WINDOW_VULKANTRIANGLE_VULKANWINDOWSYSTEM_HPP
+#ifndef SHARED_VULKANCUSTOM_VULKANWINDOWDEMOAPP_HPP
+#define SHARED_VULKANCUSTOM_VULKANWINDOWDEMOAPP_HPP
 /****************************************************************************************************************************************************
  * Copyright (c) 2016 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -31,47 +31,46 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslNativeWindow/Base/INativeWindowSystem.hpp>
-#include <FslDemoApp/Base/Host/DemoHostCustomWindowSystem.hpp>
+#include <FslDemoApp/Window/DemoAppWindow.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/SafeType/DeviceCreateInfoCopy.hpp>
+#include <FslUtil/Vulkan1_0/VUDevice.hpp>
+#include <FslUtil/Vulkan1_0/VUDeviceQueueRecord.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
-#include <RapidVulkan/Instance.hpp>
+#include <memory>
+#include <vulkan/vulkan.h>
+
 
 namespace Fsl
 {
-  struct DemoHostCustomWindowSystemSetup;
-  namespace Vulkan
-  {
-    class InstanceCreateInfoCopy;
-  }
+  class IVulkanNativeWindow;
 
-  class VulkanWindowSystem : public DemoHostCustomWindowSystem
+  class VulkanWindowDemoApp : public DemoAppWindow
   {
-    RapidVulkan::Instance m_instance;
-    std::shared_ptr<Vulkan::InstanceCreateInfoCopy> m_instanceCreateInfo;
+    std::shared_ptr<IVulkanNativeWindow> m_nativeWindow;
+
+  protected:
+    VkInstance m_instance;
+    std::shared_ptr<const Vulkan::InstanceCreateInfoCopy> m_instanceCreateInfo;
+    VkSurfaceKHR m_surface;
     Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
+    VkPhysicalDeviceFeatures m_deviceActiveFeatures;
+    Vulkan::VUDevice m_device;
+    std::shared_ptr<Vulkan::DeviceCreateInfoCopy> m_deviceCreateInfo;
 
-  public:
-    VulkanWindowSystem(const DemoHostCustomWindowSystemSetup& setup);
-    ~VulkanWindowSystem() override;
+    Vulkan::VUDeviceQueueRecord m_deviceQueue;
 
-    std::shared_ptr<INativeWindow>
-      CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,
-                         const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams = nullptr) override;
+    VulkanWindowDemoApp(const DemoAppConfig& demoAppConfig);
+    ~VulkanWindowDemoApp() override;
 
+    void OnDestroy() override;
 
-    VkInstance GetInstance() const
+    // Call this during destruction to ensure the device is idle before you destroy resources
+    void SafeWaitForDeviceIdle() noexcept;
+
+    std::shared_ptr<IVulkanNativeWindow> GetNativeWindow()
     {
-      return m_instance.Get();
-    }
-
-    Vulkan::VUPhysicalDeviceRecord GetPhysicalDevice() const
-    {
-      return m_physicalDevice;
-    }
-
-    std::shared_ptr<const Vulkan::InstanceCreateInfoCopy> GetInstanceCreateInfo() const
-    {
-      return m_instanceCreateInfo;
+      return m_nativeWindow;
     }
   };
 }

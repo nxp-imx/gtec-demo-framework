@@ -30,7 +30,7 @@ pipeline
             steps
             {
                 sh '.Config/Jenkins/ubuntu/Review_DF_UbuntuX11_coverage_FslGraphics.sh'
-                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+                recordIssues(tools: [gcc4()])
                 junit allowEmptyResults: true, testResults: '.Reports/UnitTests/*.xml'
             }
             post 

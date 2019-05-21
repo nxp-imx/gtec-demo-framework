@@ -6,7 +6,7 @@ pipeline
         docker
         {
             label 'ubuntu'
-            image 'sigil/android-ndk-sdk:r16b'
+            image 'sigil/android-ndk-sdk:r19'
             args '-v $HOME/PersistentCache:/PersistentCache:rw'
         }
     }
@@ -27,8 +27,8 @@ pipeline
             steps
             {
                 sh '.Config/Jenkins/android/Review_DF_Android.sh'
-                // warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
-                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'Clang (LLVM based)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''                
+                // recordIssues(tools: [gcc4()])
+                recordIssues(tools: [clang()])
             }
         }
         stage('Test')

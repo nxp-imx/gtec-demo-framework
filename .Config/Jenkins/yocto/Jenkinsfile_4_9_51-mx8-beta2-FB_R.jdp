@@ -31,7 +31,7 @@ pipeline
             steps
             {
                 sh ".Config/Jenkins/yocto/Review_DF_${FSL_JENKINS_DF_SDK_VARIANT_NAME}.sh"
-                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+                recordIssues(tools: [gcc4()])
             }
         }
         stage('Test')

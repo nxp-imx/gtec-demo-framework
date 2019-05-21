@@ -263,7 +263,7 @@ namespace Fsl
 
     if (durationFormat == DurationFormat::Invalid || input.empty())
     {
-      FSLLOG("Unsupported duration string '" << input << "' expected a duration value like this 10s or 10ms");
+      FSLLOG_ERROR("Unsupported duration string '" << input << "' expected a duration value like this 10s or 10ms");
       return OptionParseResult::Failed;
     }
 
@@ -291,7 +291,7 @@ namespace Fsl
     ImageFormat format = ImageFormatUtil::TryDetectImageFormat(std::string(pszOptArg));
     if (format == ImageFormat::Undefined)
     {
-      FSLLOG("Unsupported image format '" << pszOptArg << "' expected 'bmp', 'jpg', 'png' or 'tga'");
+      FSLLOG_ERROR("Unsupported image format '" << pszOptArg << "' expected 'bmp', 'jpg', 'png' or 'tga'");
       return OptionParseResult::Failed;
     }
     switch (format)
@@ -304,7 +304,7 @@ namespace Fsl
       m_screenshotConfig.Format = format;
       break;
     default:
-      FSLLOG("Unsupported image format '" << pszOptArg << "' expected 'bmp', 'jpg', 'png' or 'tga'");
+      FSLLOG_ERROR("Unsupported image format '" << pszOptArg << "' expected 'bmp', 'jpg', 'png' or 'tga'");
       return OptionParseResult::Failed;
     }
     return OptionParseResult::Parsed;

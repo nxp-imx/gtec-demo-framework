@@ -31,7 +31,6 @@
 
 #include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
 #include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
@@ -39,9 +38,8 @@
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/VulkanDeviceSetupUtil.hpp>
+#include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
-#include <FslUtil/Vulkan1_0/Log/All.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
@@ -50,23 +48,6 @@
 namespace Fsl
 {
   using namespace Vulkan;
-
-  namespace
-  {
-    std::string ToString(const Extent2D& extent)
-    {
-      std::stringstream stream;
-      stream << extent;
-      return stream.str();
-    }
-
-    std::string ToString(const VkExtent2D& extent)
-    {
-      std::stringstream stream;
-      stream << extent;
-      return stream.str();
-    }
-  }
 
   DemoAppVulkan::DemoAppVulkan(const DemoAppConfig& demoAppConfig)
     : ADemoApp(demoAppConfig)
@@ -106,13 +87,7 @@ namespace Fsl
       m_deviceQueue = vulkanDeviceSetup.DeviceQueueRecord;
     }
 
-    VkSurfaceCapabilitiesKHR surfaceCapabilities;
-    RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_physicalDevice.Device, m_surface, &surfaceCapabilities));
-    if (ConvertUtil::Convert(surfaceCapabilities.currentExtent) != GetScreenExtent())
-    {
-      throw InitFailedException("The Vulkan surface extent did not match the window extent. Screen: " + ToString(GetScreenExtent()) +
-                                " vs surface: " + ToString(surfaceCapabilities.currentExtent));
-    }
+    VulkanValidationUtil::CheckWindowAndSurfaceExtent(m_physicalDevice.Device, m_surface, GetScreenExtent());
 
     // We do this last to ensure that we dont have to call VulkanDeviceShutdown as nothing else can go wrong
     if (m_nativeGraphicsService)
@@ -157,5 +132,4 @@ namespace Fsl
       m_nativeGraphicsService.reset();
     }
   }
-
 }

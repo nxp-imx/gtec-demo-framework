@@ -1,3 +1,5 @@
+#ifndef SHARED_VULKANCUSTOM_OPTIONPARSER_HPP
+#define SHARED_VULKANCUSTOM_OPTIONPARSER_HPP
 /****************************************************************************************************************************************************
  * Copyright (c) 2016 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -29,49 +31,35 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "VulkanWindowSystemHelper.hpp"
-#include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
+#include <FslDemoApp/Base/ADemoOptionParser.hpp>
+#include <FslDemoHost/Vulkan/Config/OptionUserChoice.hpp>
 
 namespace Fsl
 {
-  namespace VulkanWindowSystemHelper
+  class OptionParser : public ADemoOptionParser
   {
-    std::shared_ptr<VulkanWindowSystem> GetWindowSystem(const std::shared_ptr<IWindowHostInfo>& windowHostInfo)
+    uint32_t m_physicalDeviceIndex;
+    OptionUserChoice m_validationLayer;
+
+  public:
+    OptionParser();
+    ~OptionParser() override;
+
+    uint32_t GetPhysicalDeviceIndex() const
     {
-      auto baseActiveWindowSystem = windowHostInfo->GetWindowSystem().lock();
-      if (!baseActiveWindowSystem)
-      {
-        throw std::runtime_error("Failed to get the active window system");
-      }
-      auto ptr = std::dynamic_pointer_cast<VulkanWindowSystem>(baseActiveWindowSystem);
-      if (!ptr)
-      {
-        throw std::runtime_error("The window system is not of the expected type");
-      }
-      return ptr;
+      return m_physicalDeviceIndex;
     }
 
-
-    std::shared_ptr<IVulkanNativeWindow> GetActiveWindow(const std::shared_ptr<IWindowHostInfo>& windowHostInfo)
+    OptionUserChoice GetValidationLayer() const
     {
-      auto windows = windowHostInfo->GetWindows();
-      if (windows.size() != 1)
-      {
-        throw NotSupportedException("One active window required");
-      }
-
-      auto baseWindow = windows.front().lock();
-      if (!baseWindow)
-      {
-        throw std::runtime_error("Failed to get the active window");
-      }
-
-      auto ptr = std::dynamic_pointer_cast<IVulkanNativeWindow>(baseWindow);
-      if (!ptr)
-      {
-        throw std::runtime_error("The window is not of the expected type");
-      }
-      return ptr;
+      return m_validationLayer;
     }
-  }
+
+  protected:
+    void OnArgumentSetup(std::deque<Option>& rOptions) override;
+    OptionParseResult::Enum OnParse(const int32_t cmdId, const char* const pszOptArg) override;
+    bool OnParsingComplete() override;
+  };
 }
+
+#endif

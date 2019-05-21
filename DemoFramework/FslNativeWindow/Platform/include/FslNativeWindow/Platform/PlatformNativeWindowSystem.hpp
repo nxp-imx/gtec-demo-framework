@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/BasicTypes.hpp>
 #include <FslNativeWindow/Base/INativeWindowSystem.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 
@@ -48,6 +49,7 @@ namespace Fsl
     PlatformNativeWindowSystem(const NativeWindowSystemSetup& setup, PlatformNativeDisplayType platformDisplay)
       : m_platformDisplay(platformDisplay)
     {
+      FSL_PARAM_NOT_USED(setup);
     }
 
     PlatformNativeDisplayType GetPlatformDisplay() const
@@ -58,6 +60,6 @@ namespace Fsl
     // @note If you override this then 'dont' call the this version
     bool IsDisplayHDRCompatible(const int32_t displayId) const override;
   };
-}    // namespace Fsl
+}
 
 #endif

@@ -1,4 +1,10 @@
 # Latest version
+
+* Added Vulkan.NativeWindowTest app.
+* Added vulkan wayland improvements.
+
+## 5.3.0
+
 * Enabled Unit Tests for Yocto builds.
 * Updated third-party library OpenCV from 3.4.5 to 4.0.1
 * Updated documentation for install the Vulkan sdk to recommend 1.1.92.1.

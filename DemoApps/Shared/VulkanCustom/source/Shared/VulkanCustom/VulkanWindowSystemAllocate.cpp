@@ -1,5 +1,3 @@
-#ifndef WINDOW_VULKANTRIANGLE_OPTIONPARSER_HPP
-#define WINDOW_VULKANTRIANGLE_OPTIONPARSER_HPP
 /****************************************************************************************************************************************************
  * Copyright (c) 2016 Freescale Semiconductor, Inc.
  * All rights reserved.
@@ -31,35 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/Base/ADemoOptionParser.hpp>
-#include <FslDemoHost/Vulkan/Config/OptionUserChoice.hpp>
+#include <Shared/VulkanCustom/VulkanWindowSystemAllocate.hpp>
+#include <Shared/VulkanCustom/VulkanWindowSystem.hpp>
 
 namespace Fsl
 {
-  class OptionParser : public ADemoOptionParser
+  std::shared_ptr<DemoHostCustomWindowSystem> AllocateVulkanWindowSystem(const DemoHostCustomWindowSystemSetup& setup)
   {
-    uint32_t m_physicalDeviceIndex;
-    OptionUserChoice m_validationLayer;
-
-  public:
-    OptionParser();
-    ~OptionParser() override;
-
-    uint32_t GetPhysicalDeviceIndex() const
-    {
-      return m_physicalDeviceIndex;
-    }
-
-    OptionUserChoice GetValidationLayer() const
-    {
-      return m_validationLayer;
-    }
-
-  protected:
-    void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult::Enum OnParse(const int32_t cmdId, const char* const pszOptArg) override;
-    bool OnParsingComplete() override;
-  };
+    return std::make_shared<VulkanWindowSystem>(setup);
+  }
 }
-
-#endif

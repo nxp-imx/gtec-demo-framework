@@ -58,10 +58,11 @@ namespace Fsl
 
     bool TryGetSize(Point2& rSize) const override
     {
-      if (TryGetVulkanSurfaceSize(rSize))
-      {
-        return true;
-      }
+      return TryDoGetSize(rSize);
+    }
+
+    bool TryGetActualSize(Point2& rSize) const override
+    {
       return PlatformNativeWindowWin32::TryGetSize(rSize);
     }
 

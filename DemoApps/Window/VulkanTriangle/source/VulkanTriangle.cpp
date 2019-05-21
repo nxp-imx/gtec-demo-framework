@@ -31,11 +31,10 @@
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
-//#include <Shared/VulkanWindowExperimental/VulkanWindowSystem.hpp>
-//#include <Shared/VulkanWindowExperimental/VulkanWindowSystemHelper.hpp>
 #include "VulkanTriangle.hpp"
 #include <vulkan/vulkan.h>
 #include <array>
@@ -86,7 +85,7 @@ namespace Fsl
     }
     catch (const std::exception& ex)
     {
-      // We log and swallow it since destructors are not allowed to throw
+      // We log and swallow it since destructor's are not allowed to throw
       FSLLOG_ERROR("Exception during destruction: " << ex.what());
     }
   }
@@ -113,7 +112,7 @@ namespace Fsl
 
     ////
 
-    uint32_t currentBuffer;
+    uint32_t currentBuffer = 0;
     if (result == VK_SUCCESS)
     {
       result = vkAcquireNextImageKHR(m_device.Get(), m_swapchain.Get(), UINT64_MAX, m_imageAcquiredSemaphore.Get(), VK_NULL_HANDLE, &currentBuffer);
@@ -234,9 +233,10 @@ namespace Fsl
 
   void VulkanTriangle::BuildResources()
   {
+    auto fallbackExtent = ConvertUtil::Convert(GetScreenExtent());
     m_swapchain = SwapchainKHRUtil::CreateSwapchain(m_physicalDevice.Device, m_device.Get(), 0, m_surface, VKTS_NUMBER_BUFFERS, 1,
                                                     VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr,
-                                                    VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get());
+                                                    VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get(), fallbackExtent);
 
     uint32_t swapchainImagesCount = m_swapchain.GetImageCount();
     if (swapchainImagesCount == 0)

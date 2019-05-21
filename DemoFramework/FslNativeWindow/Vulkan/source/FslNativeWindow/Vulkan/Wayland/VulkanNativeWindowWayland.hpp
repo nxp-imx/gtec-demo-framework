@@ -56,11 +56,14 @@ namespace Fsl
       return PlatformNativeWindowWayland::TryGetDPI(rDPI);
     }
 
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    virtual bool TryGetSize(Point2& rSize) const override
+    bool TryGetSize(Point2& rSize) const override
     {
-      if (TryGetVulkanSurfaceSize(rSize))
-        return true;
+      return TryDoGetSize(rSize);
+    }
+
+    //! Done this way instead a 'using' to prevent warnings from some compilers
+    virtual bool TryGetActualSize(Point2& rSize) const override
+    {
       return PlatformNativeWindowWayland::TryGetSize(rSize);
     }
 

@@ -26,7 +26,7 @@ pipeline
             steps
             {
                 sh '.Config/Jenkins/ubuntu/Review_DF_UbuntuX11_TestContentSync.sh'
-                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'GNU Make + GNU C Compiler (gcc)']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+                recordIssues(tools: [gcc4()])
             }
         }
         stage('Test')

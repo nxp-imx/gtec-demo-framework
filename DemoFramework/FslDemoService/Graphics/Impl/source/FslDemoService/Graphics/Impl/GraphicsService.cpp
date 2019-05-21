@@ -76,6 +76,11 @@ namespace Fsl
     }
 
     m_nativeService->Capture(rBitmap, srcRectangle);
+    if (!rBitmap.IsValid())
+    {
+      FSLLOG_WARNING("Capture failed");
+      return;
+    }
 
     if (desiredPixelFormat == rBitmap.GetPixelFormat())
     {

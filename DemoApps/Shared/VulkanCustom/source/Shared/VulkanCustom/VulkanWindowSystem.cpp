@@ -29,8 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include "VulkanWindowSystem.hpp"
-#include "OptionParser.hpp"
+#include <Shared/VulkanCustom/VulkanWindowSystem.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
@@ -44,6 +43,7 @@
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindowSystem.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
+#include <Shared/VulkanCustom/OptionParser.hpp>
 #include <array>
 #include <algorithm>
 
@@ -74,7 +74,7 @@ namespace Fsl
       const auto instanceConfig = InstanceConfigUtil::InstanceConfigAsCharArrays(InstanceConfigUtil::BuildInstanceConfig(
         khrSurfaceExtensionName, userChoiceValidationLayer, std::dynamic_pointer_cast<DemoAppHostConfigVulkan>(setup.CustomDemoAppHostConfig)));
 
-      m_instance = InstanceUtil::CreateInstance("VulkanWindowSystem", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, instanceConfig.Layers,
+      m_instance = InstanceUtil::CreateInstance("VulkanWindowSystem", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0, 0, instanceConfig.Layers,
                                                 instanceConfig.Extensions, m_instanceCreateInfo.get());
     }
     m_physicalDevice = VUPhysicalDeviceRecord(InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicialDeviceIndex));

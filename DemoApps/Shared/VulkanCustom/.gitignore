@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/Shared.VulkanCustom.VC.VC.opendb
+/Shared.VulkanCustom.VC.db
+/Shared.VulkanCustom.manifest
+/Shared.VulkanCustom.opensdf
+/Shared.VulkanCustom.sdf
+/Shared.VulkanCustom.sln
+/Shared.VulkanCustom.v12.sdf
+/Shared.VulkanCustom.v12.suo
+/Shared.VulkanCustom.vcxproj
+/Shared.VulkanCustom.vcxproj.filters
+/Shared.VulkanCustom.vcxproj.user
+/build/

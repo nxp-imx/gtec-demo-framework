@@ -16,7 +16,7 @@ pipeline
             steps
             {
                 bat '.Config/Jenkins/windows/Review_DF_WinArm_FslBuildNewSanityCheck.bat'
-                warnings canComputeNew: false, canResolveRelativePaths: false, categoriesPattern: '', consoleParsers: [[parserName: 'MSBuild']], defaultEncoding: '', excludePattern: '', healthy: '', includePattern: '', messagesPattern: '', unHealthy: ''
+                recordIssues(tools: [msBuild()])
             }
         }
         stage('Test')

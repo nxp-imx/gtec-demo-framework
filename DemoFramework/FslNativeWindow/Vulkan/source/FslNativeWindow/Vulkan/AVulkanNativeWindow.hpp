@@ -49,7 +49,19 @@ namespace Fsl
     ~AVulkanNativeWindow() override;
     VkSurfaceKHR GetVulkanSurface() const override;
 
+
+    virtual bool TryGetActualSize(Point2& rSize) const = 0;
+
   protected:
+    bool TryDoGetSize(Point2& rSize) const
+    {
+      if (TryGetVulkanSurfaceSize(rSize))
+      {
+        return true;
+      }
+      return TryGetActualSize(rSize);
+    }
+
     bool TryGetVulkanSurfaceSize(Point2& rSize) const;
   };
 }    // namespace Fsl

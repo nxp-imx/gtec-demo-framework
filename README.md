@@ -1,4 +1,4 @@
-# DemoFramework 5.3.0
+# DemoFramework 5.3.1
 
 A multi-platform framework for fast and easy demo development.
 
@@ -1768,6 +1768,10 @@ The instance data also contains a texture layer index for having different textu
 
 Based on a example called [Mesh instancing](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
 Recreated as a DemoFramework freestyle window sample in 2016.
+
+
+### [NativeWindowTest](DemoApps/Vulkan/NativeWindowTest)
+Check that vkGetPhysicalDeviceSurfaceCapabilitiesKHR reports the expected values before and after swapchain creation for the given native window implementation.
 
 
 ### [OpenCL101](DemoApps/Vulkan/OpenCL101)

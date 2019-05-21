@@ -89,10 +89,11 @@ namespace Fsl
                                      const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkBool32 clipped,
-                                     const VkSwapchainKHR oldSwapchain)
+                                     const VkSwapchainKHR oldSwapchain, const VkExtent2D& fallbackExtent)
       {
         return CreateSwapchain(physicalDevice, device, flags, surface, desiredMinImageCount, imageArrayLayers, imageUsage, imageSharingMode,
-                               queueFamilyIndexCount, queueFamilyIndices, compositeAlpha, VK_PRESENT_MODE_FIFO_KHR, clipped, oldSwapchain);
+                               queueFamilyIndexCount, queueFamilyIndices, compositeAlpha, VK_PRESENT_MODE_FIFO_KHR, clipped, oldSwapchain,
+                               fallbackExtent);
       }
 
 
@@ -100,7 +101,8 @@ namespace Fsl
                                      const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
-                                     const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain)
+                                     const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain,
+                                     const VkExtent2D& fallbackExtent)
       {
         if (physicalDevice == VK_NULL_HANDLE || device == VK_NULL_HANDLE)
         {
@@ -114,6 +116,14 @@ namespace Fsl
         if ((surfaceCapabilities.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) == 0u)
         {
           preTransform = surfaceCapabilities.currentTransform;
+        }
+
+        // currentExtent is the current width and height of the surface, or the special value (0xFFFFFFFF, 0xFFFFFFFF) indicating that the surface
+        // size will be determined by the extent of a swapchain targeting the surface.
+        if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF && surfaceCapabilities.currentExtent.height == 0xFFFFFFFF)
+        {
+          FSLLOG2(LogType::Verbose, "Using fallback extent as surface will be determined by the extent of a swapchain targeting the surface");
+          surfaceCapabilities.currentExtent = fallbackExtent;
         }
 
         const auto surfaceFormats = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);

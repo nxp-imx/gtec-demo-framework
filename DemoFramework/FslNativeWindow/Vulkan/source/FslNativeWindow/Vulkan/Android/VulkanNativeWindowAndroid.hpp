@@ -56,10 +56,13 @@ namespace Fsl
       return PlatformNativeWindowAndroid::TryGetDPI(rDPI);
     }
 
-    virtual bool TryGetSize(Point2& rSize) const override
+    bool TryGetSize(Point2& rSize) const override
     {
-      if (TryGetVulkanSurfaceSize(rSize))
-        return true;
+      return TryDoGetSize(rSize);
+    }
+
+    virtual bool TryGetActualSize(Point2& rSize) const override
+    {
       return PlatformNativeWindowAndroid::TryGetSize(rSize);
     }
 

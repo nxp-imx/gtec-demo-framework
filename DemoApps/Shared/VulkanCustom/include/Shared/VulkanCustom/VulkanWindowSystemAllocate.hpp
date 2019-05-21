@@ -1,5 +1,5 @@
-#ifndef WINDOW_VULKANTRIANGLE_VULKANWINDOWSYSTEMALLOCATE_HPP
-#define WINDOW_VULKANTRIANGLE_VULKANWINDOWSYSTEMALLOCATE_HPP
+#ifndef SHARED_VULKANCUSTOM_VULKANWINDOWSYSTEMALLOCATE_HPP
+#define SHARED_VULKANCUSTOM_VULKANWINDOWSYSTEMALLOCATE_HPP
 /****************************************************************************************************************************************************
  * Copyright (c) 2016 Freescale Semiconductor, Inc.
  * All rights reserved.

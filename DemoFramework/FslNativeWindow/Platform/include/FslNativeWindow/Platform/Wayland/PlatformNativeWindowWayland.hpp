@@ -38,7 +38,7 @@ namespace Fsl
 {
   class PlatformNativeWindowWayland : public PlatformNativeWindow
   {
-    std::function<void(void*)> g_destroyWindowCallback;
+    std::function<void(void*)> m_destroyWindowCallback;
     wl_surface* m_platformSurface;
 
   public:

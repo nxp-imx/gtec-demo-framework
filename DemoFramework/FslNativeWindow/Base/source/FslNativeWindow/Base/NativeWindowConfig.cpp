@@ -80,6 +80,6 @@ namespace Fsl
 
   void NativeWindowConfig::SetDisplayId(const int32_t displayId)
   {
-    m_displayId = std::max(displayId, 0);
+    m_displayId = std::max(displayId, static_cast<int32_t>(0));
   }
 }
