@@ -31,8 +31,8 @@
 #****************************************************************************************************************************************************
 
 class GeneratorPluginBase(object):
-    def __init__(self, name: str) -> None:
-        super(GeneratorPluginBase, self).__init__()
-        self.Name = name  # type: str
-        self.Id = name.lower()  # type: str
+    def __init__(self, platformName: str) -> None:
+        super().__init__()
+        self.PlatformName = platformName  # type: str
+        self.PlatformId = platformName.lower()  # type: str
         self.ToolVersion = 0  # type: int

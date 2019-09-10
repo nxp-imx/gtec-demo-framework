@@ -115,7 +115,7 @@ namespace Fsl
                                         const Vulkan::VUTexture& texture)
 
     {
-      assert(descriptorSet != nullptr);
+      assert(descriptorSet != VK_NULL_HANDLE);
       assert(vertUboBuffer.IsValid());
       assert(texture.IsValid());
 

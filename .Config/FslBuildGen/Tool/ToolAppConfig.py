@@ -35,9 +35,11 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from FslBuildGen.DataTypes import BuildThreads
+from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.PackageFilters import PackageFilters
+from FslBuildGen.Tool.UserCMakeConfig import UserCMakeConfig
 
 class DefaultValue(object):
     UseFeatures = "*"
@@ -49,8 +51,12 @@ class DefaultValue(object):
     AllowDevelopmentPlugins = False
     ForceClaimInstallArea = False
     PlatformName = PlatformNameString.INVALID
+    Generator = GeneratorType.Default
     RemainingArgs = []  # type: List[str]
     BuildThreads = BuildThreads.Auto  # Not set
+    CMakeBuildDir = None # type: Optional[str]
+    CMakeInstallPrefix = None # type: Optional[str]
+    CMakeGeneratorName = None # type: Optional[str]
 
 
 class ToolAppConfig(object):
@@ -60,12 +66,17 @@ class ToolAppConfig(object):
         self.DefaultPlatformName = DefaultValue.PlatformName
         self.ForceClaimInstallArea = DefaultValue.ForceClaimInstallArea
         self.PlatformName = DefaultValue.PlatformName
+        self.Generator = DefaultValue.Generator
         self.RemainingArgs = DefaultValue.RemainingArgs
         self.VSVersion = None  # type: Optional[int]
 
         self.BuildPackageFilters = PackageFilters()
         self.BuildVariantsDict = {}  # type: Dict[str, str]
         self.Recursive = False
+
+        self.CMakeBuildDir = DefaultValue.CMakeBuildDir
+        self.CMakeInstallPrefix = DefaultValue.CMakeInstallPrefix
+        self.CMakeGeneratorName = DefaultValue.CMakeGeneratorName
 
 
     def SetToolAppConfigValues(self, toolAppConfig: 'ToolAppConfig') -> None:
@@ -77,9 +88,17 @@ class ToolAppConfig(object):
         self.DefaultPlatformName = toolAppConfig.DefaultPlatformName
         self.ForceClaimInstallArea = toolAppConfig.ForceClaimInstallArea
         self.PlatformName = toolAppConfig.PlatformName
+        self.Generator = toolAppConfig.Generator
         self.RemainingArgs = toolAppConfig.RemainingArgs
         self.VSVersion = toolAppConfig.VSVersion
 
         self.BuildPackageFilters = toolAppConfig.BuildPackageFilters
         self.BuildVariantsDict = toolAppConfig.BuildVariantsDict
         self.Recursive = toolAppConfig.Recursive
+
+        self.CMakeBuildDir = toolAppConfig.CMakeBuildDir
+        self.CMakeInstallPrefix = toolAppConfig.CMakeInstallPrefix
+        self.CMakeGeneratorName = toolAppConfig.CMakeGeneratorName
+
+    def GetUserCMakeConfig(self) -> UserCMakeConfig:
+        return UserCMakeConfig(self.CMakeBuildDir, self.CMakeGeneratorName, self.CMakeInstallPrefix)

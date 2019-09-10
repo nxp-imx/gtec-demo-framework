@@ -39,7 +39,7 @@ from FslBuildGen.Xml.XmlGenFileRequirement import XmlGenFileRequirement
 
 class PackageRequirement(PackageElement):
     def __init__(self, base: XmlGenFileRequirement, introducedByPackageName: str) -> None:
-        super(PackageRequirement, self).__init__(base.Name, base.XMLElement)
+        super().__init__(base.Name, base.XMLElement)
         self.Id = self.Name.lower()
         # type#extends
         self.GroupId = "{0}#{1}".format(base.Type.lower(), base.Extends.lower())

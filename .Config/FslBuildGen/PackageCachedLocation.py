@@ -36,7 +36,7 @@ from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 
 class PackageCachedLocation(object):
     def __init__(self, path: str, location: ToolConfigPackageLocation) -> None:
-        super(PackageCachedLocation, self).__init__()
+        super().__init__()
 
         if not isinstance(location, ToolConfigPackageLocation):
             raise UsageErrorException("the supplied location was not of the type ToolConfigPackageLocation")

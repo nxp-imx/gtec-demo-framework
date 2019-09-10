@@ -44,6 +44,7 @@ from FslBuildGen.Log import Log
 from FslBuildGen.DataTypes import MagicStrings
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import FileNotFoundException
+from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.Xml.Exceptions import XmlException
 from FslBuildGen.Vars.VariableProcessor import VariableEnvironment
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
@@ -52,6 +53,7 @@ from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.Exceptions import XmlInvalidRootElement
 from FslBuildGen.Xml.Project.XmlBuildDocConfiguration import XmlBuildDocConfiguration
 from FslBuildGen.Xml.Project.XmlClangTidyConfiguration import XmlClangTidyConfiguration
+from FslBuildGen.Xml.Project.XmlCMakeConfiguration import XmlCMakeConfiguration
 from FslBuildGen.Xml.Project.XmlExperimentalPlatform import XmlExperimentalPlatform
 from FslBuildGen.Xml.ToolConfig import LoadUtil
 from FslBuildGen.Xml.ToolConfig.XmlConfigFileAddNewProjectTemplatesRootDirectory import XmlConfigFileAddNewProjectTemplatesRootDirectory
@@ -63,12 +65,20 @@ class LocalInvalidValues(object):
     INVALID_FILE_NAME = "**NotDefined**"
     INVALID_COMPANY_NAME = "**INVALID_COMPANY_NAME**"
 
-class XmlConfigFileAddRootDirectory(XmlBase):
+
+class XmlConfigFileAddBasePackage(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super().__init__(log, xmlElement)
+        self.Name = self._ReadAttrib(xmlElement, 'Name')
+
+
+class XmlConfigFileAddRootDirectory(XmlBase):
+    def __init__(self, log: Log, xmlElement: ET.Element, projectId: ProjectId) -> None:
         super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.Id = self.Name.lower()
         self.Create = self._ReadBoolAttrib(xmlElement, 'Create', False)
+        self.ProjectId = projectId
 
 
 class XmlClangFormatConfiguration(XmlBase):
@@ -164,11 +174,19 @@ def _LoadPackageConfigurations(log: Log, projectElem: ET.Element, filename: str)
     return xmlPackageConfigurations
 
 
-def _LoadAddRootDirectory(log: Log, xmlElement: ET.Element, filename: str) -> List[XmlConfigFileAddRootDirectory]:
+def _LoadAddBasePackage(log: Log, xmlElement: ET.Element, filename: str) -> List[XmlConfigFileAddBasePackage]:
+    res = []
+    foundElements = xmlElement.findall("AddBasePackage")
+    for foundElement in foundElements:
+        res.append(XmlConfigFileAddBasePackage(log, foundElement))
+    return res
+
+
+def _LoadAddRootDirectory(log: Log, xmlElement: ET.Element, filename: str, projectId: ProjectId) -> List[XmlConfigFileAddRootDirectory]:
     res = []
     foundElements = xmlElement.findall("AddRootDirectory")
     for foundElement in foundElements:
-        res.append(XmlConfigFileAddRootDirectory(log, foundElement))
+        res.append(XmlConfigFileAddRootDirectory(log, foundElement, projectId))
 
     if len(res) < 1:
         raise XmlException("The file '{0}' did not contain at least one AddRootDirectory element".format(filename))
@@ -186,6 +204,13 @@ def _LoadBuildDocConfiguration(log: Log, xmlElement: ET.Element, filename: str) 
 
     return res
 
+
+def _LoadCMakeConfiguration(log: Log, xmlElement: ET.Element, filename: str) -> List[XmlCMakeConfiguration]:
+    res = []
+    foundElements = xmlElement.findall("CMakeConfiguration")
+    for foundElement in foundElements:
+        res.append(XmlCMakeConfiguration(log, foundElement))
+    return res
 
 def _LoadClangFormatConfiguration(log: Log, xmlElement: ET.Element, filename: str) -> List[XmlClangFormatConfiguration]:
     res = []
@@ -215,24 +240,31 @@ def _TryLoadExperimental(log: Log, xmlElement: ET.Element, filename: str) -> Opt
         return None
     return XmlExperimental(log, extendedElement)
 
-
 class XmlExtendedProject(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element, filename: str) -> None:
         super().__init__(log, xmlElement)
         #raise Exception("ExtendedProject not implemented");
+        self.ProjectName = self._ReadAttrib(xmlElement, 'Name') # type: str
+        self.ProjectVersion = self._ReadAttrib(xmlElement, 'Version', "1.0.0.0") # type: str
+        self.RootDirectory = IOUtil.GetDirectoryName(filename)
         self.Parent = self._ReadAttrib(xmlElement, 'Parent')  # type: str
         self.ParentRoot = self._ReadAttrib(xmlElement, 'ParentRoot')  # type: str
         configFilename = IOUtil.GetFileName(filename)   # type: str
         self.ParentConfigFilename = IOUtil.Join(self.ParentRoot, configFilename)  # type: str
+        self.SourceFileName = filename  # type: str
+
+        self.ProjectId = ProjectId(self.ProjectName)
 
         variableProcessor = VariableProcessor(log)
         self.AbsoluteParentConfigFilename = variableProcessor.ResolveAbsolutePathWithLeadingEnvironmentVariablePath(self.ParentConfigFilename)
         self.XmlPackageConfiguration = _LoadPackageConfigurations(log, xmlElement, filename)  # type: List[XmlConfigPackageConfiguration]
-        self.XmlRootDirectories = _LoadAddRootDirectory(log, xmlElement, filename) # type: List[XmlConfigFileAddRootDirectory]
+        self.XmlBasePackages = _LoadAddBasePackage(log, xmlElement, filename) # type: List[XmlConfigFileAddBasePackage]
+        self.XmlRootDirectories = _LoadAddRootDirectory(log, xmlElement, filename, self.ProjectId) # type: List[XmlConfigFileAddRootDirectory]
         self.XmlNewProjectTemplatesRootDirectories = LoadUtil.LoadAddNewProjectTemplatesRootDirectory(log, xmlElement, filename)
         self.XmlBuildDocConfiguration = _LoadBuildDocConfiguration(log, xmlElement, filename)  # type: List[XmlBuildDocConfiguration]
         self.XmlClangFormatConfiguration = _LoadClangFormatConfiguration(log, xmlElement, filename)  # type: List[XmlClangFormatConfiguration]
         self.XmlClangTidyConfiguration = _LoadClangTidyConfiguration(log, xmlElement, filename)  # type: List[XmlClangTidyConfiguration]
+        self.XmlCMakeConfiguration = _LoadCMakeConfiguration(log, xmlElement, filename)  # type: List[XmlCMakeConfiguration]
         self.XmlCompilerConfiguration = _LoadCompilerConfiguration(log, xmlElement, filename)  # type: List[XmlConfigCompilerConfiguration]
         self.XmlExperimental = _TryLoadExperimental(log, xmlElement, filename)  # type: Optional[XmlExperimental]
 
@@ -263,6 +295,8 @@ class XmlProjectRootConfigFile(XmlBase):
 
     def __LoadFromXml(self, log: Log, xmlElement: ET.Element, filename: str, canExtend: bool = True) -> None:
         self.Version = '1'  # type: str
+        self.ProjectName = "not set"
+        self.ProjectVersion = "0.0.0.0"
         self.RootDirectory = LocalInvalidValues.INVALID_FILE_NAME  # type: str
         self.DefaultPackageLanguage = PackageLanguage.CPP  # type: int
         self.DefaultCompany = LocalInvalidValues.INVALID_COMPANY_NAME  # type: str
@@ -270,6 +304,7 @@ class XmlProjectRootConfigFile(XmlBase):
         self.RequirePackageCreationYear = False
         self.XmlExperimental = None # type: Optional[XmlExperimental]
         self.XmlPackageConfiguration = []  # type: List[XmlConfigPackageConfiguration]
+        self.XmlBasePackages = [] # type: List[XmlConfigFileAddBasePackage]
         self.XmlRootDirectories = []  #  type: List[XmlConfigFileAddRootDirectory]
         self.XmlNewProjectTemplatesRootDirectories = []  # type: List[XmlConfigFileAddNewProjectTemplatesRootDirectory]
         self.XmlCompilerConfiguration = []  # type: List[XmlConfigCompilerConfiguration]
@@ -286,6 +321,9 @@ class XmlProjectRootConfigFile(XmlBase):
                 self.Version = self._ReadAttrib(xmlElement, 'Version')
                 self.RootDirectory = rootDirectory
                 projectElem = XmlBase._GetElement(self, xmlElement, "Project") # type: ET.Element
+                self.ProjectName = self._ReadAttrib(projectElem, 'Name') # type: str
+                self.ProjectId = ProjectId(self.ProjectName)
+                self.ProjectVersion = self._ReadAttrib(projectElem, 'Version', "1.0.0.0") # type: str
                 toolConfigFilePath = self._ReadAttrib(projectElem, 'ToolConfigFile')  # type: str
                 self.DefaultPackageLanguage = self.__GetDefaultPackageLanguage(projectElem)
                 self.DefaultCompany = self._ReadAttrib(projectElem, 'DefaultCompany')
@@ -293,11 +331,13 @@ class XmlProjectRootConfigFile(XmlBase):
                 self.RequirePackageCreationYear = self._ReadBoolAttrib(projectElem, 'RequirePackageCreationYear', False)
                 self.ToolConfigFile = variableProcessor.ResolvePathToAbsolute(toolConfigFilePath, self.XMLElement)
                 self.XmlPackageConfiguration = _LoadPackageConfigurations(log, projectElem, filename)
-                self.XmlRootDirectories = _LoadAddRootDirectory(log, projectElem, filename)
+                self.XmlBasePackages = _LoadAddBasePackage(log, projectElem, filename)
+                self.XmlRootDirectories = _LoadAddRootDirectory(log, projectElem, filename, self.ProjectId)
                 self.XmlNewProjectTemplatesRootDirectories = LoadUtil.LoadAddNewProjectTemplatesRootDirectory(log, projectElem, filename)
                 self.XmlBuildDocConfiguration = _LoadBuildDocConfiguration(log, projectElem, filename)
                 self.XmlClangFormatConfiguration = _LoadClangFormatConfiguration(log, projectElem, filename)
                 self.XmlClangTidyConfiguration = _LoadClangTidyConfiguration(log, projectElem, filename)
+                self.XmlCMakeConfiguration = _LoadCMakeConfiguration(log, projectElem, filename)
                 self.XmlCompilerConfiguration = _LoadCompilerConfiguration(log, projectElem, filename)
                 self.XmlExperimental = _TryLoadExperimental(log, projectElem, filename)
                 self.SourceFileName = filename
@@ -331,12 +371,12 @@ class XmlProjectRootConfigFile(XmlBase):
             raise Exception("There can only be one ClangFormatConfiguration entry")
         if len(self.XmlClangTidyConfiguration) > 1:
             raise Exception("There can only be one ClangTidyConfiguration entry")
-
+        if len(self.XmlCMakeConfiguration) > 1:
+            raise Exception("There can only be one CMakeConfiguration entry")
 
     def __ApplyExtendedExperimental(self, dst: Optional[XmlExperimental], src: Optional[XmlExperimental]) -> None:
         if dst is not None:
             dst.Merge(src)
-
 
     def __GetDefaultPackageLanguage(self, xmlElement: ET.Element) -> int:
         defaultPackageLanguage = self._ReadAttrib(xmlElement, 'DefaultPackageLanguage', "C++")

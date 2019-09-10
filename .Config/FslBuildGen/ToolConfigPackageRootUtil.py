@@ -56,6 +56,16 @@ class ToolConfigPackageRootUtil(object):
         """
         convert to a path that we know reside in one of the package roots
         """
+        foundPath = ToolConfigPackageRootUtil.TryToPath(rootDirectories, path)
+        if foundPath is not None:
+            return foundPath
+        raise UsageErrorException("the folder '{0}' does not reside inside one of the root dirs".format(path))
+
+    @staticmethod
+    def TryToPath(rootDirectories: List[ToolConfigRootDirectory], path: str) -> Optional[str]:
+        """
+        convert to a path that we know reside in one of the package roots
+        """
         if path.find("\\") >= 0:
             raise UsageErrorException("Backslash found in the supplied path '{0}'".format(path))
         for rootDir in rootDirectories:
@@ -65,5 +75,5 @@ class ToolConfigPackageRootUtil(object):
                 return rootDir.Name + "/" + Util.UTF8ToAscii(path)
             elif path == rootDir.ResolvedPath:
                 return rootDir.Name + "/"
-        raise UsageErrorException("the folder '{0}' does not reside inside one of the root dirs".format(path))
+        return None
 

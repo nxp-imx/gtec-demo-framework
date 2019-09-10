@@ -48,7 +48,7 @@ from FslBuildGen.Xml.XmlNewVSProjectTemplateFile import XmlNewVSProjectTemplateF
 
 class GeneratorVCTemplateManager(object):
     def __init__(self, log: Log, pathTemplateRoot: ToolConfigTemplateFolder, vsVersion: int) -> None:
-        super(GeneratorVCTemplateManager, self).__init__()
+        super().__init__()
         self.TemplateFileName = "Template.xml"
         # Language to template lookup
         # key =  the packageLanguage

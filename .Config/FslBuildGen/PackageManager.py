@@ -33,6 +33,7 @@
 
 from typing import Dict
 from typing import List
+from typing import Optional
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Exceptions import DependencyNotFoundException
@@ -41,21 +42,38 @@ from FslBuildGen.Exceptions import InvalidDependencyException
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackageDependency
+from FslBuildGen.Packages.PackageProjectContext import PackageProjectContext
+from FslBuildGen.Packages.PackageProjectContextBasePackage import PackageProjectContextBasePackage
+from FslBuildGen.ProjectId import ProjectId
+from FslBuildGen.ToolConfigBasePackage import ToolConfigBasePackage
+from FslBuildGen.ToolConfigPackageProjectContextUtil import ToolConfigPackageProjectContextUtil
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 
 
-def _AllocatePackage(config: Config, genFile: XmlGenFile) -> Package:
-    return Package(config, genFile)
+def _AllocatePackage(config: Config, genFile: XmlGenFile, packageProjectContext: PackageProjectContext) -> Package:
+    return Package(config, packageProjectContext, genFile)
 
+class ProjectContextCache(object):
+    def __init__(self) -> None:
+        super().__init__()
+        self.__Cache = dict()  # type: Dict[str, PackageProjectContext]
+
+    def Add(self, projectContext: PackageProjectContext) -> None:
+        self.__Cache[projectContext.ProjectName] = projectContext
+
+    def TryGet(self, projectName: str) -> Optional[PackageProjectContext]:
+        return self.__Cache[projectName] if projectName in self.__Cache else None
 
 class PackageManager(object):
     def __init__(self, config: Config, platformName: str, genFiles: List[XmlGenFile]) -> None:
-        super(PackageManager, self).__init__()
+        super().__init__()
+        self.__ProjectContextCache = ProjectContextCache()
         self.__PackageFactoryFunction = _AllocatePackage
         uniqueDict = {}  # type: Dict[str, Package]
         for genFile in genFiles:
             if not genFile.Name in uniqueDict:
-                uniqueDict[genFile.Name] = self.__PackageFactoryFunction(config, genFile)
+                packageProjectContext = self.__FindProjectContext(config, genFile)
+                uniqueDict[genFile.Name] = self.__PackageFactoryFunction(config, genFile, packageProjectContext)
             else:
                 raise InternalErrorException("Package has been defined multiple times, this ought to have been caught earlier")
 
@@ -66,11 +84,38 @@ class PackageManager(object):
         for package in self.Packages:
             self.__ResolvePackageDependencies(platformName, package)
 
+    def __FindProjectContext(self, config: Config, genFile: XmlGenFile) -> PackageProjectContext:
+        """
+        Associate the package with the 'project' that it belongs to
+        """
+        if genFile.PackageLocation is None:
+            if genFile.Type != PackageType.TopLevel:
+                raise UsageErrorException("Package '{0}' did not contain a valid location".format(genFile.Name))
+            # The top level package is not associated with a project context
+            topLevelProjectContext = PackageProjectContext(ProjectId("__TopLevel__"), "__TopLevel__", "0.0.0.0", [])
+            self.__ProjectContextCache.Add(topLevelProjectContext)
+            return topLevelProjectContext
+        projectContext = ToolConfigPackageProjectContextUtil.FindProjectContext(config.ToolConfig.ProjectInfo.Contexts, genFile.PackageLocation.ResolvedPath)
+        basePackages = self.__CreateBasePackageList(projectContext.BasePackages)
+        packageProjectContext = self.__ProjectContextCache.TryGet(projectContext.ProjectName)
+        if packageProjectContext is None:
+            packageProjectContext = PackageProjectContext(projectContext.ProjectId, projectContext.ProjectName, projectContext.ProjectVersion, basePackages)
+            self.__ProjectContextCache.Add(packageProjectContext)
+        return packageProjectContext
+
+    def __CreateBasePackageList(self, basePackages: List[ToolConfigBasePackage]) -> List[PackageProjectContextBasePackage]:
+        res = [] # type: List[PackageProjectContextBasePackage]
+        for basePackage in basePackages:
+            res.append(PackageProjectContextBasePackage(basePackage.Name))
+        return res
+
+
 
     def CreatePackage(self, config: Config, platformName: str, genFile: XmlGenFile, insertAtFront: bool = False) -> Package:
         if genFile.Name in self.OriginalPackageDict:
             raise UsageErrorException("Package '{0}' already exist".format(genFile.Name))
-        package = self.__PackageFactoryFunction(config, genFile)
+        packageProjectContext = self.__FindProjectContext(config, genFile)
+        package = self.__PackageFactoryFunction(config, genFile, packageProjectContext)
         self.__ResolvePackageDependencies(platformName, package)
         if not insertAtFront:
             self.Packages.append(package)

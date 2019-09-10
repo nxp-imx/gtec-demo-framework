@@ -39,7 +39,7 @@ from FslBuildGen.Template.TemplateFileRecord import TemplateFileRecord
 # Scans template directory for files to copy or modify
 class TemplateFileRecordManager(object):
     def __init__(self, path: str) -> None:
-        super(TemplateFileRecordManager, self).__init__()
+        super().__init__()
 
         copyPath = IOUtil.Join(path, "Copy")
         modifyPath = IOUtil.Join(path, "Modify")

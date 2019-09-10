@@ -1,0 +1,11 @@
+######################
+# Content for Target #
+######################
+
+add_custom_command(
+  OUTPUT ##OUTPUT_FILE##
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E touch
+    ##OUTPUT_FILE##
+  DEPENDS ##INPUT_FILES##
+)

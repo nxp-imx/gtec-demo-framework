@@ -41,6 +41,8 @@ namespace Fsl
 {
   namespace Vulkan
   {
+    struct SurfaceFormatInfo;
+
     namespace SwapchainKHRUtil
     {
       //! @param fallbackExtent The desired extent to use for the cases where the surface size will be determined by the extent of the swapchain
@@ -52,7 +54,7 @@ namespace Fsl
                                      const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkBool32 clipped,
-                                     const VkSwapchainKHR oldSwapchain, const VkExtent2D& fallbackExtent);
+                                     const VkSwapchainKHR oldSwapchain, const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo);
 
       //! @param fallbackExtent The desired extent to use for the cases where the surface size will be determined by the extent of the swapchain
       //!                       targeting it. Unfortunately such platforms exist, one being Wayland. Instead of behaving properly and
@@ -64,7 +66,7 @@ namespace Fsl
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
                                      const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain,
-                                     const VkExtent2D& fallbackExtent);
+                                     const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo);
 
       //! @brief Get the swap chain images
       std::vector<VkImage> GetSwapchainImagesKHR(const VkDevice device, const VkSwapchainKHR swapchain);

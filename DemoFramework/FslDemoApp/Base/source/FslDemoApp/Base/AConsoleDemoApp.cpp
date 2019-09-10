@@ -66,6 +66,7 @@ namespace Fsl
 
   void AConsoleDemoApp::_OnEvent(IEvent* const pEvent)
   {
+    FSL_PARAM_NOT_USED(pEvent);
     //// Done this way to prevent common mistakes where people forget to call the base class
     // const EventType eventType = pEvent->GetEventType();
 
@@ -78,37 +79,44 @@ namespace Fsl
 
   void AConsoleDemoApp::_Resized(const Point2& size)
   {
+    FSL_PARAM_NOT_USED(size);
   }
 
 
   void AConsoleDemoApp::_PreUpdate(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
   }
 
 
   void AConsoleDemoApp::_FixedUpdate(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
   }
 
 
   void AConsoleDemoApp::_Update(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
   }
 
 
   void AConsoleDemoApp::_PostUpdate(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
   }
 
 
   AppDrawResult AConsoleDemoApp::_TryPrepareDraw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
     return AppDrawResult::Completed;
   }
 
 
   void AConsoleDemoApp::_Draw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
     Run();
 
     // Ensure that app is shutdown

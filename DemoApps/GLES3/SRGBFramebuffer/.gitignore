@@ -25,6 +25,8 @@
 /SRGBFramebuffer_FB
 /SRGBFramebuffer_FB_d
 /SRGBFramebuffer_Wayland
+/SRGBFramebuffer_Wayland_IVI
+/SRGBFramebuffer_Wayland_IVI_d
 /SRGBFramebuffer_Wayland_d
 /SRGBFramebuffer_X11
 /SRGBFramebuffer_X11_d

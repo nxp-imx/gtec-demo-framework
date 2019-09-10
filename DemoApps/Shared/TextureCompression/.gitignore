@@ -1,0 +1,14 @@
+/.StartProject.bat
+/.vs/
+/Shared.TextureCompression.VC.VC.opendb
+/Shared.TextureCompression.VC.db
+/Shared.TextureCompression.manifest
+/Shared.TextureCompression.opensdf
+/Shared.TextureCompression.sdf
+/Shared.TextureCompression.sln
+/Shared.TextureCompression.v12.sdf
+/Shared.TextureCompression.v12.suo
+/Shared.TextureCompression.vcxproj
+/Shared.TextureCompression.vcxproj.filters
+/Shared.TextureCompression.vcxproj.user
+/build/

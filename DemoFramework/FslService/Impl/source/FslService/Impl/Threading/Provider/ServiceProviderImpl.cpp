@@ -31,7 +31,7 @@
 
 #include "ServiceProviderImpl.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslService/Consumer/ServiceId.hpp>
 #include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
@@ -64,8 +64,8 @@ namespace Fsl
   std::shared_ptr<IBasicService> ServiceProviderImpl::TryGet(const ServiceId& serviceId) const
   {
     auto res = TryGetNow(serviceId);
-    FSLLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag,
-                            "Service has multiple providers, please specify which one you want.");
+    FSLBASICLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag,
+                                 "Service has multiple providers, please specify which one you want.");
 
     if (res.LaunchType == ServiceLaunchType::InstanceAllocator)
     {
@@ -104,8 +104,8 @@ namespace Fsl
   std::shared_ptr<IBasicService> ServiceProviderImpl::TryGet(const ServiceId& serviceId, const ProviderId& providerId) const
   {
     auto res = TryGetNow(serviceId, providerId);
-    FSLLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag,
-                            "Service has multiple providers, please specify which one you want.");
+    FSLBASICLOG_DEBUG_WARNING_IF(res.LaunchType == ServiceLaunchType::MultipleProviderTag,
+                                 "Service has multiple providers, please specify which one you want.");
 
     if (res.LaunchType == ServiceLaunchType::InstanceAllocator)
     {
@@ -146,7 +146,7 @@ namespace Fsl
     rServices.clear();
     // if (serviceId == ServiceId::Invalid())
     //{
-    //  FSLLOG_ERROR("No service can be returned for a invalid id");
+    //  FSLBASICLOG_ERROR("No service can be returned for a invalid id");
     //  return;
     //}
 
@@ -184,7 +184,7 @@ namespace Fsl
   {
     // if (serviceId == ServiceId::Invalid())
     //{
-    //  FSLLOG_ERROR("No service can be returned for a invalid id");
+    //  FSLBASICLOG_ERROR("No service can be returned for a invalid id");
     //  return ServiceLaunchRecord();
     //}
 
@@ -199,7 +199,7 @@ namespace Fsl
   {
     // if (serviceId == ServiceId::Invalid())
     //{
-    //  FSLLOG_ERROR("No service can be returned for a invalid id");
+    //  FSLBASICLOG_ERROR("No service can be returned for a invalid id");
     //  return ServiceLaunchRecord();
     //}
 

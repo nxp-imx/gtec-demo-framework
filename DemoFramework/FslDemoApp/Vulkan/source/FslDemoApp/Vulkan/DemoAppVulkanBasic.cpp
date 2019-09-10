@@ -34,11 +34,13 @@
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
+#include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
-#include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsSwapchainInfo.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Debug/Strings/VkResult.hpp>
 #include <RapidVulkan/Debug/Strings/VkImageUsageFlagBits.hpp>
@@ -103,6 +105,33 @@ namespace Fsl
         }
         return supportedFlags;
       }
+
+
+      Vulkan::SurfaceFormatInfo FindPreferredSurfaceInfo(VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface,
+                                                         const std::deque<Vulkan::SurfaceFormatInfo>& preferredFormats)
+      {
+        auto supportedFormats = Vulkan::PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
+        if (!preferredFormats.empty())
+        {
+          for (auto entry : preferredFormats)
+          {
+            for (auto candidate : supportedFormats)
+            {
+              if (entry.Format == candidate.format && entry.ColorSpace == candidate.colorSpace)
+              {
+                return entry;
+              }
+            }
+          }
+          FSLLOG2(LogType::Verbose, "None of the preferred surface formats found, using default");
+        }
+        if (supportedFormats.empty())
+        {
+          throw NotSupportedException("No surface formats found");
+        }
+        // Default to the first supported format (not optimal but at least its something)
+        return Vulkan::SurfaceFormatInfo(supportedFormats[0].format, supportedFormats[0].colorSpace);
+      }
     }
 
     DemoAppVulkanBasic::DemoAppVulkanBasic(const DemoAppConfig& demoAppConfig, const DemoAppVulkanSetup& demoAppVulkanSetup)
@@ -115,6 +144,18 @@ namespace Fsl
       {
         m_demoAppProfilerOverlay.reset(new DemoAppProfilerOverlay(demoAppConfig.DemoServiceProvider));
       }
+      auto demoHostConfig = hostInfo->TryGetAppHostConfig();
+      if (!demoHostConfig)
+      {
+        throw NotSupportedException("Could not access the demo host config");
+      }
+      m_demoHostConfig = std::dynamic_pointer_cast<DemoAppHostConfigVulkan>(demoHostConfig);
+      if (!m_demoHostConfig)
+      {
+        throw NotSupportedException("DemoHostConfig not of the expected type");
+      }
+
+      m_surfaceFormatInfo = FindPreferredSurfaceInfo(m_physicalDevice.Device, m_surface, m_demoHostConfig->GetPreferredSurfaceFormats());
 
       auto renderConfig = GetRenderConfig();
 
@@ -191,6 +232,16 @@ namespace Fsl
     {
       auto result = TryDoPrepareDraw(demoTime);
       SetAppState(result);
+
+      if (result == AppDrawResult::Completed && m_dependentResources.NGScreenshotLink && m_swapchain.IsValid())
+      {
+        *m_dependentResources.NGScreenshotLink = Vulkan::NativeGraphicsSwapchainInfo(m_swapchain[m_dependentResources.CurrentSwapBufferIndex],
+                                                                                     m_swapchain.GetImageFormat(), m_swapchain.GetImageUsageFlags());
+      }
+      else
+      {
+        *m_dependentResources.NGScreenshotLink = {};
+      }
       return result;
     }
 
@@ -309,16 +360,22 @@ namespace Fsl
         FSLLOG2(LogType::Verbose2, "DemoAppVulkanBasic::BuildResources(): Creating swapchain");
         // m_launchOptions.ScreenshotsEnabled
 
+        auto desiredSwapchainImageUsageFlags = m_appSetup.DesiredSwapchainImageUsageFlags;
+        if (m_launchOptions.ScreenshotsEnabled != OptionUserChoice::Off)
+        {
+          // Add this to allow for screenshot support and we rely on the filtering below to remove it if its unsupported
+          desiredSwapchainImageUsageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        }
+
         auto fallbackExtent = ConvertUtil::Convert(GetScreenExtent());
         const VkPresentModeKHR presentMode =
           !m_launchOptions.OverridePresentMode ? m_appSetup.DesiredSwapchainPresentMode : m_launchOptions.PresentMode;
-        const auto supportedImageUsageFlags =
-          FilterUnsupportedImageUsageFlags(m_physicalDevice.Device, m_surface, m_appSetup.DesiredSwapchainImageUsageFlags);
+        const auto supportedImageUsageFlags = FilterUnsupportedImageUsageFlags(m_physicalDevice.Device, m_surface, desiredSwapchainImageUsageFlags);
         const VkImageUsageFlags desiredImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | supportedImageUsageFlags;
 
-        m_swapchain = SwapchainKHRUtil::CreateSwapchain(m_physicalDevice.Device, m_device.Get(), 0, m_surface, DESIRED_MIN_SWAP_BUFFER_COUNT, 1,
-                                                        desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr,
-                                                        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, m_swapchain.Get(), fallbackExtent);
+        m_swapchain = SwapchainKHRUtil::CreateSwapchain(
+          m_physicalDevice.Device, m_device.Get(), 0, m_surface, DESIRED_MIN_SWAP_BUFFER_COUNT, 1, desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE,
+          0, nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, m_swapchain.Get(), fallbackExtent, m_surfaceFormatInfo);
 
         uint32_t swapchainImageCount = m_swapchain.GetImageCount();
         if (swapchainImageCount == 0)
@@ -367,10 +424,16 @@ namespace Fsl
           m_dependentResources.SwapchainRecords[i].Framebuffer = CreateFramebuffer(frameBufferCreateContext);
         }
 
+        // Create a struct containing all relevant information to be able to capture a screenshot on demand
+        m_dependentResources.NGScreenshotLink = std::make_shared<Vulkan::NativeGraphicsSwapchainInfo>();
+
         if (m_nativeGraphicsService)
         {
           FSLLOG2(LogType::Verbose2, "DemoAppVulkanBasic::BuildResources(): NativeGraphicsService::VulkanCreateDependentResources");
           m_nativeGraphicsService->VulkanCreateDependentResources(swapchainImageCount, mainRenderPass, m_appSetup.SubpassSystemUI, GetScreenExtent());
+
+          // link the swapchain info with the native graphics service this information is used for enabling the screenshot capabilities.
+          m_nativeGraphicsService->SetSwapchainInfoLink(m_dependentResources.NGScreenshotLink);
         }
       }
       catch (const std::exception& ex)
@@ -639,6 +702,8 @@ namespace Fsl
 
     AppDrawResult DemoAppVulkanBasic::TryDoPrepareDraw(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
+
       if (m_currentAppState == AppState::WaitForSwapchainRecreation)
       {
         switch (TryRecreateSwapchain())
@@ -697,6 +762,8 @@ namespace Fsl
 
     AppDrawResult DemoAppVulkanBasic::TryDoSwapBuffers(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
+
       auto renderConfig = GetRenderConfig();
 
       const auto signalSemaphore = m_resources.Frames[m_resources.CurrentFrame].RenderingCompleteSemaphore.Get();

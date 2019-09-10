@@ -50,7 +50,7 @@ namespace Fsl
     VkSurfaceKHR GetVulkanSurface() const override;
 
 
-    virtual bool TryGetActualSize(Point2& rSize) const = 0;
+    bool TryGetActualSize(Point2& rSize) const override = 0;
 
   protected:
     bool TryDoGetSize(Point2& rSize) const

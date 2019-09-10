@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <HeaderLibrary Name="FslUtil.OpenCL">
+  <HeaderLibrary Name="FslUtil.OpenCL" CreationYear="2017">
     <Dependency Name="OpenCL"/>
     <Dependency Name="FslBase"/>
     <Platform Name="Windows" ProjectId="7408B620-0D0B-426C-8F05-22C11C47C7F2"/>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../FslBuildGen.xsd">
+  <Library Name="FslUnitTest.TestPackages.Access.P2_LinkP1" CreationYear="2019">
+    <Dependency Name="FslUnitTest.TestPackages.Access.P1" Access="Link"/>
+    <Platform Name="Windows" ProjectId="E071E651-792C-4C99-A014-CF15F1E12027"/>
+  </Library>
+</FslBuildGen>

@@ -41,12 +41,14 @@ from FslBuildGen import IOUtil
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildContent.ContentRootRecord import ContentRootRecord
 from FslBuildGen.BuildContent.Processor.ContentFileRecord import ContentFileRecord
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 
 
 class Content(object):
+    #def __init__(self, log: Log, resolvedSourcePath: ResolvedPath, includeSourcePathContent: bool, additionalFiles: Optional[List[PathRecord]] = None) -> None:
     def __init__(self, log: Log, sourcePath: str, includeSourcePathContent: bool, additionalFiles: Optional[List[PathRecord]] = None) -> None:
-        super(Content, self).__init__()
-
+        super().__init__()
+        #sourcePath = resolvedSourcePath.ResolvedPath
         folderRoot = ContentRootRecord(log, sourcePath)
 
         pathDirRecords = []  # type: List[PathRecord]

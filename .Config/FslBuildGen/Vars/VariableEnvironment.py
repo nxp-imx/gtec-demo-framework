@@ -36,7 +36,7 @@ from FslBuildGen.Log import Log
 
 class VariableEnvironment(object):
     def __init__(self, log: Log) -> None:
-        super(VariableEnvironment, self).__init__()
+        super().__init__()
         self._Log = log  # type: Log
         self.Dict = {}   # type: Dict[str, str]
 

@@ -34,7 +34,6 @@
 from typing import Optional
 from typing import List
 from typing import Union
-import hashlib
 import shutil
 import shlex
 import time
@@ -79,11 +78,7 @@ class PipelineCommandFetch(PipelineCommand):
 
     @staticmethod
     def GenerateFileHash(filename: str) -> str:
-        m = hashlib.sha256()
-        with open(filename, "rb") as f:
-            for chunk in iter(lambda: f.read(1024*64), b""):
-                m.update(chunk)
-        return m.hexdigest()
+        return IOUtil.HashFile(filename)
 
 
 class PipelineCommandNOP(PipelineCommandFetch):
@@ -223,13 +218,14 @@ class PipelineCommandCMakeBuild(PipelineCommand):
         self.VariableDict = self.__BuildVariableDict(basicConfig)
         self._IsAndroid = pipelineInfo.SourcePackage.ResolvedPlatform.Name == PlatformNameString.ANDROID if pipelineInfo.SourcePackage.ResolvedPlatform is not None else False
         if self._IsAndroid:
+            minVersion = CMakeUtil.GetMinimumVersion()
             try:
                 version = CMakeUtil.GetVersion()
-                self.BasicConfig.LogPrint("CMake version {0}.{1}".format(version.Major, version.Minor))
-                if version.Major < 3 or (version.Major == 3 and version.Minor < 10):
-                    raise Exception ("CMake version 3.10 or greater is required")
+                self.BasicConfig.LogPrint("CMake version {0}.{1}.{2}".format(version.Major, version.Minor, version.Build))
+                if version < minVersion:
+                    raise Exception ("CMake version {0}.{1}.{2} or greater is required".format(minVersion.Major, minVersion.Minor, minVersion.Build))
             except Exception as e:
-                self.BasicConfig.DoPrintWarning("Failed to determine CMake version, please ensure you have 3.10 or better available.")
+                self.BasicConfig.DoPrintWarning("Failed to determine CMake version, please ensure you have {0}.{1}.{2} or better available.".format(minVersion.Major, minVersion.Minor, minVersion.Build))
                 self.BasicConfig.LogPrintWarning(str(e))
 
     def DoExecute(self) -> None:
@@ -274,8 +270,12 @@ class PipelineCommandCMakeBuild(PipelineCommand):
 
                 if self._IsAndroid:
                     # FIX: Set this depending on package type
-                    optionList = ["-DCMAKE_SYSTEM_VERSION={0}".format(AndroidUtil.GetMinimumSDKVersion()),
-                                  "-DCMAKE_ANDROID_ARCH_ABI={0}".format(variant)]
+                    if not AndroidUtil.UseNDKCMakeToolchain():
+                        optionList = ["-DCMAKE_SYSTEM_VERSION={0}".format(AndroidUtil.GetMinimumSDKVersion()),
+                                      "-DCMAKE_ANDROID_ARCH_ABI={0}".format(variant)]
+                    else:
+                        optionList = ["-DANDROID_PLATFORM=android-{0}".format(AndroidUtil.GetMinimumSDKVersion()),
+                                      "-DANDROID_ABI={0}".format(variant)]
                     cmakeOptionListCopy += optionList
 
                 installPathCopy = IOUtil.Join(installPath, variant)
@@ -299,8 +299,8 @@ class PipelineCommandCMakeBuild(PipelineCommand):
         dependencyDirList = []
         for package in resolvedBuildOrder:
             if package != sourcePackage and package.Type != PackageType.ToolRecipe:
-                if package.ResolvedDirectExperimentalRecipe is not None and package.ResolvedDirectExperimentalRecipe.ResolvedInstallPath is not None:
-                    dependencyDirList.append(package.ResolvedDirectExperimentalRecipe.ResolvedInstallPath)
+                if package.ResolvedDirectExperimentalRecipe is not None and package.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation is not None:
+                    dependencyDirList.append(package.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation.ResolvedPath)
         return dependencyDirList
 
 
@@ -425,7 +425,7 @@ class PipelineCommandBuilder(object):
         self.__SourcePackage = sourcePackage
         self.__SourceRecipe = sourceRecipe
         self.__CommandInputRootPath = sourcePackage.AbsolutePath
-        self.__PipelineInstallPath = sourceRecipe.ResolvedInstallPath
+        self.__PipelineInstallPath = sourceRecipe.ResolvedInstallLocation.ResolvedPath if sourceRecipe.ResolvedInstallLocation is not None else None
 
 
     def Add(self, sourceCommand: XmlRecipePipelineCommand, skip: bool) -> None:

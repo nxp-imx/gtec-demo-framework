@@ -56,7 +56,7 @@ from FslBuildGen.Xml.XmlNewVSProjectTemplateFile import XmlNewVSProjectTemplateF
 
 class TemplateOptimizationSetting(object):
     def __init__(self, optimizationType: int, snippetOptimizationType: str, snippetOptimizationOptions: str) -> None:
-        super(TemplateOptimizationSetting, self).__init__()
+        super().__init__()
         self.OptimizationType = optimizationType
         self.SnippetOptimizationType = snippetOptimizationType
         self.SnippetOptimizationOptions = snippetOptimizationOptions
@@ -64,7 +64,7 @@ class TemplateOptimizationSetting(object):
 
 class NuGetPackageConfigSnippets(object):
     def __init__(self, log: Log, path: str, master: str) -> None:
-        super(NuGetPackageConfigSnippets, self).__init__()
+        super().__init__()
         self.Master = master
         self.PackageEntry = IOUtil.ReadFile(IOUtil.Join(path, "PackageEntry.txt"))
 
@@ -73,7 +73,7 @@ class CodeTemplateVC(object):
     def __init__(self, log: Log, template: XmlNewVSProjectTemplateFile,
                 subDirectory: str, vsVersion: int, useLinuxTools: bool,
                 customization: XmlNewVSProjectTemplateCustomizationFile) -> None:
-        super(CodeTemplateVC, self).__init__()
+        super().__init__()
         strVSPath = template.Path
 
         strTemplatePath = IOUtil.Join(strVSPath, subDirectory)
@@ -117,6 +117,12 @@ class CodeTemplateVC(object):
         self.WindowsTargetPlatformVersion = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "WindowsTargetPlatformVersion.txt"), "")
         externalFileToOutput = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "ExternalFileToOutput.txt"))
         self.ExternalFileToOutput = "" if externalFileToOutput is None else externalFileToOutput
+        copyFileToFolders = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "CopyFileToFolders.txt"))
+        self.CopyFileToFolders = ""
+        self.CopyFileToFoldersCopyConditions = ""
+        if copyFileToFolders is not None:
+            self.CopyFileToFolders = copyFileToFolders
+            self.CopyFileToFoldersCopyConditions = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "CopyFileToFolders_CopyConditions.txt"))
         self.Snippet9 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "CustomBuildFiles.txt"))
         self.Snippet9_1 = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "CustomBuildFiles_1.txt"))
 
@@ -164,7 +170,7 @@ class CodeTemplateVC(object):
 
 class CodeTemplateProjectBatFiles(object):
     def __init__(self, log: Log, sdkConfigTemplatePath: str) -> None:
-        super(CodeTemplateProjectBatFiles, self).__init__()
+        super().__init__()
         self.TemplateStartBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinStartProject.txt"))
         self.TemplateBuildBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinBuildProject.txt"))
         self.TemplateRunBat = IOUtil.TryReadFile(IOUtil.Join(sdkConfigTemplatePath, "Template_WinRunProject.txt"))
@@ -175,7 +181,7 @@ class CodeTemplateProjectBatFiles(object):
 class GeneratorVCTemplate(object):
     def __init__(self, log: Log, platformName: str, vsVersion: int, languageTemplates: VSVersionLanguageTemplates,
                  activeTemplate: str, sdkConfigTemplatePath: str) -> None:
-        super(GeneratorVCTemplate, self).__init__()
+        super().__init__()
         self.__TemplateExecutablePrefix = "Executable"
         self.__TemplateLibraryPrefix = "Library"
 

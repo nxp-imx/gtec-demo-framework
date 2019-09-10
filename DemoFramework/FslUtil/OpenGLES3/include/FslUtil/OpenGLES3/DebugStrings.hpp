@@ -43,6 +43,9 @@ namespace Fsl
     {
       //! @brief Convert the error code to a string
       extern const char* ErrorCodeToString(const GLenum errorCode);
+
+      //! @brief Try to convert the texture format to a string
+      extern const char* TryTextureFormatToString(const GLint format);
     };
   }
 }

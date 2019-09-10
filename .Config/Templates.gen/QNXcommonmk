@@ -21,7 +21,7 @@ STATIC_LIBS += ##STATIC_LIBS##
 ##PACKAGE_EXTERNAL_LIBRARY_DEPENDENCIES##
 CPP_DEFINE_FLAG_NAMES=##PACKAGE_DEFINES##
 
-CCFLAGS+=-lang-c++ -std=gnu++11 $(foreach d,$(CPP_DEFINE_FLAG_NAMES),-D$d)
+CCFLAGS+=-lang-c++ -std=gnu++14 $(foreach d,$(CPP_DEFINE_FLAG_NAMES),-D$d)
 
 LIBS += m -Bstatic $(STATIC_LIBS) -Bdynamic
 

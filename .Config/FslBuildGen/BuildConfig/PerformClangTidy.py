@@ -59,6 +59,7 @@ from FslBuildGen.BuildConfig.SimpleCancellationToken import SimpleCancellationTo
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.Build.BuildVariantUtil import BuildVariantUtil
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
+from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Build.VirtualVariantEnvironmentCache import VirtualVariantEnvironmentCache
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import BuildThreads
@@ -529,8 +530,9 @@ class PerformClangTidy(object):
         # Filter the package list so it only contains things we can process
         finalPackageList = [package for package in tidyPackageList if PerformClangUtil.CanProcessPackage(package)]
 
-        generatorConfig = GeneratorConfig(sdkConfigTemplatePath, toolConfig)
-        generatorReportDict = generatorContext.Generator.GenerateReport(log, generatorConfig, finalPackageList)
+        generatorConfig = GeneratorConfig(generatorContext.Generator.PlatformName, sdkConfigTemplatePath, toolConfig, buildThreads, CommandType.Build)
+        generatorReport = generatorContext.Generator.GenerateReport(log, generatorConfig, finalPackageList)
+        generatorReportDict = generatorReport.PackageReportDict
 
         # Validate report dict
         for package in finalPackageList:

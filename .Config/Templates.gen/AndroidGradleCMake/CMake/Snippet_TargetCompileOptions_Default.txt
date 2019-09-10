@@ -1,0 +1,5 @@
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  target_compile_options(##PACKAGE_NAME## PRIVATE -Wall)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  target_compile_options(##PACKAGE_NAME## PRIVATE -Wall -Wempty-body -Wmissing-field-initializers -Wtype-limits -Wuninitialized)
+endif()

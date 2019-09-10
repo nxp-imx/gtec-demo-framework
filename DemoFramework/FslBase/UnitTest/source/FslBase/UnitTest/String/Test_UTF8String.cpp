@@ -56,9 +56,9 @@ TEST(TestString_UTF8String, Construct_CStyle)
   const char* psz = "old school";
   UTF8String src(psz);
 
-  EXPECT_EQ(std::strlen(psz), static_cast<std::size_t>(src.GetByteSize()));
-  EXPECT_EQ(std::string(psz), src.ToAsciiString());
-  EXPECT_EQ(std::string(psz), src.ToUTF8String());
+  EXPECT_EQ(static_cast<std::size_t>(src.GetByteSize()), std::strlen(psz));
+  EXPECT_EQ(src.ToAsciiString(), std::string(psz));
+  EXPECT_EQ(src.ToUTF8String(), std::string(psz));
 }
 
 TEST(TestString_UTF8String, Construct_nullptr)
@@ -69,8 +69,8 @@ TEST(TestString_UTF8String, Construct_nullptr)
   UTF8String n1(psz);
   UTF8String n2(nullptr);
 
-  EXPECT_EQ(0, n1.GetByteSize());
-  EXPECT_EQ(0, n2.GetByteSize());
+  EXPECT_EQ(n1.GetByteSize(), 0);
+  EXPECT_EQ(n2.GetByteSize(), 0);
 }
 
 
@@ -80,9 +80,9 @@ TEST(TestString_UTF8String, Construct_StdString)
   std::string str("hello world");
   UTF8String src(str);
 
-  EXPECT_EQ(str.size(), static_cast<std::size_t>(src.GetByteSize()));
-  EXPECT_EQ(str, src.ToAsciiString());
-  EXPECT_EQ(str, src.ToUTF8String());
+  EXPECT_EQ(static_cast<std::size_t>(src.GetByteSize()), str.size());
+  EXPECT_EQ(src.ToAsciiString(), str);
+  EXPECT_EQ(src.ToUTF8String(), str);
 }
 
 
@@ -92,8 +92,8 @@ TEST(TestString_UTF8String, Construct_UTF8String)
   UTF8String str("hello world");
   UTF8String src(str);
 
-  EXPECT_EQ(str.GetByteSize(), src.GetByteSize());
-  EXPECT_EQ(str, src);
+  EXPECT_EQ(src.GetByteSize(), str.GetByteSize());
+  EXPECT_EQ(src, str);
 }
 
 
@@ -103,9 +103,9 @@ TEST(TestString_UTF8String, ConstructSubString_StdString)
   std::string str("hello world");
   UTF8String src(str, 6, 5);
 
-  EXPECT_EQ(5, src.GetByteSize());
-  EXPECT_EQ(std::string("world"), src.ToAsciiString());
-  EXPECT_EQ(std::string("world"), src.ToUTF8String());
+  EXPECT_EQ(src.GetByteSize(), 5);
+  EXPECT_EQ(src.ToAsciiString(), std::string("world"));
+  EXPECT_EQ(src.ToUTF8String(), std::string("world"));
 }
 
 
@@ -115,9 +115,9 @@ TEST(TestString_UTF8String, ConstructSubString_UTF8String)
   UTF8String str("hello world");
   UTF8String src(str, 6, 5);
 
-  EXPECT_EQ(5, src.GetByteSize());
-  EXPECT_EQ(std::string("world"), src.ToAsciiString());
-  EXPECT_EQ(std::string("world"), src.ToUTF8String());
+  EXPECT_EQ(src.GetByteSize(), 5);
+  EXPECT_EQ(src.ToAsciiString(), std::string("world"));
+  EXPECT_EQ(src.ToUTF8String(), std::string("world"));
 }
 
 
@@ -143,11 +143,11 @@ TEST(TestString_UTF8String, Clear)
   UTF8String str("hello world");
   UTF8String src(str);
 
-  EXPECT_EQ(str.GetByteSize(), src.GetByteSize());
-  EXPECT_EQ(str, src);
+  EXPECT_EQ(src.GetByteSize(), str.GetByteSize());
+  EXPECT_EQ(src, str);
   src.Clear();
-  EXPECT_EQ(0, src.GetByteSize());
-  EXPECT_NE(str, src);
+  EXPECT_EQ(src.GetByteSize(), 0);
+  EXPECT_NE(src, str);
 }
 
 
@@ -334,15 +334,15 @@ TEST(TestString_UTF8String, ReplaceChar)
   UTF8String src("old school");
   src.Replace('o', 'O');
 
-  EXPECT_EQ(UTF8String("Old schOOl"), src);
+  EXPECT_EQ(src, UTF8String("Old schOOl"));
 
   src.Replace('q', 'Q');
 
-  EXPECT_EQ(UTF8String("Old schOOl"), src);
+  EXPECT_EQ(src, UTF8String("Old schOOl"));
 
   UTF8String src2("");
   src.Replace('o', 'O');
-  EXPECT_EQ(UTF8String(""), src2);
+  EXPECT_EQ(src2, UTF8String(""));
 }
 
 
@@ -351,27 +351,27 @@ TEST(TestString_UTF8String, IndexOfChar)
   //--------------0123456789
   UTF8String src("old school");
 
-  EXPECT_EQ(0, src.IndexOf('o'));
-  EXPECT_EQ(1, src.IndexOf('l'));
-  EXPECT_EQ(2, src.IndexOf('d'));
-  EXPECT_EQ(3, src.IndexOf(' '));
-  EXPECT_EQ(4, src.IndexOf('s'));
-  EXPECT_EQ(5, src.IndexOf('c'));
-  EXPECT_EQ(6, src.IndexOf('h'));
+  EXPECT_EQ(src.IndexOf('o'), 0);
+  EXPECT_EQ(src.IndexOf('l'), 1);
+  EXPECT_EQ(src.IndexOf('d'), 2);
+  EXPECT_EQ(src.IndexOf(' '), 3);
+  EXPECT_EQ(src.IndexOf('s'), 4);
+  EXPECT_EQ(src.IndexOf('c'), 5);
+  EXPECT_EQ(src.IndexOf('h'), 6);
 
-  EXPECT_EQ(7, src.IndexOf('o', 1));
-  EXPECT_EQ(7, src.IndexOf('o', 7));
-  EXPECT_EQ(8, src.IndexOf('o', 8));
-  EXPECT_EQ(9, src.IndexOf('l', 2));
+  EXPECT_EQ(src.IndexOf('o', 1), 7);
+  EXPECT_EQ(src.IndexOf('o', 7), 7);
+  EXPECT_EQ(src.IndexOf('o', 8), 8);
+  EXPECT_EQ(src.IndexOf('l', 2), 9);
 
-  EXPECT_GE(0, src.IndexOf('O'));
-  EXPECT_GE(0, src.IndexOf('a'));
-  EXPECT_GE(0, src.IndexOf('D'));
+  EXPECT_LT(src.IndexOf('O'), 0);
+  EXPECT_LT(src.IndexOf('a'), 0);
+  EXPECT_LT(src.IndexOf('D'), 0);
 
-  EXPECT_GE(0, src.IndexOf('o', 9));
-  EXPECT_GE(0, src.IndexOf('o', 10));
-  EXPECT_GE(0, src.IndexOf('o', 11));
-  EXPECT_GE(0, src.IndexOf('o', 12));
+  EXPECT_LT(src.IndexOf('o', 9), 0);
+  EXPECT_LT(src.IndexOf('o', 10), 0);
+  EXPECT_LT(src.IndexOf('o', 11), 0);
+  EXPECT_LT(src.IndexOf('o', 12), 0);
 }
 
 
@@ -380,18 +380,18 @@ TEST(TestString_UTF8String, LastIndexOfChar)
   //--------------0123456789
   UTF8String src("old school");
 
-  EXPECT_EQ(9, src.LastIndexOf('l'));
-  EXPECT_EQ(8, src.LastIndexOf('o'));
-  EXPECT_EQ(6, src.LastIndexOf('h'));
-  EXPECT_EQ(5, src.LastIndexOf('c'));
-  EXPECT_EQ(4, src.LastIndexOf('s'));
-  EXPECT_EQ(3, src.LastIndexOf(' '));
-  EXPECT_EQ(2, src.LastIndexOf('d'));
+  EXPECT_EQ(src.LastIndexOf('l'), 9);
+  EXPECT_EQ(src.LastIndexOf('o'), 8);
+  EXPECT_EQ(src.LastIndexOf('h'), 6);
+  EXPECT_EQ(src.LastIndexOf('c'), 5);
+  EXPECT_EQ(src.LastIndexOf('s'), 4);
+  EXPECT_EQ(src.LastIndexOf(' '), 3);
+  EXPECT_EQ(src.LastIndexOf('d'), 2);
 
 
-  EXPECT_GE(0, src.LastIndexOf('O'));
-  EXPECT_GE(0, src.LastIndexOf('a'));
-  EXPECT_GE(0, src.LastIndexOf('D'));
+  EXPECT_LT(src.LastIndexOf('O'), 0);
+  EXPECT_LT(src.LastIndexOf('a'), 0);
+  EXPECT_LT(src.LastIndexOf('D'), 0);
 }
 
 
@@ -401,7 +401,7 @@ TEST(TestString_UTF8String, Reset)
   UTF8String src("old school");
   //---------0123456789
   src.Reset("the quick brown fox", 4, 5);
-  EXPECT_EQ(UTF8String("quick"), src);
+  EXPECT_EQ(src, UTF8String("quick"));
 }
 
 

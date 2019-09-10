@@ -55,15 +55,15 @@ TEST(TestMath_Plane_MonoGame, BoxContainsVector3)
 {
   BoundingBox box(Vector3::Zero(), Vector3::One());
 
-  EXPECT_EQ(ContainmentType::Disjoint, box.Contains(-Vector3::One()));
-  EXPECT_EQ(ContainmentType::Disjoint, box.Contains(Vector3(0.5f, 0.5f, -1.0f)));
-  EXPECT_EQ(ContainmentType::Contains, box.Contains(Vector3::Zero()));
-  EXPECT_EQ(ContainmentType::Contains, box.Contains(Vector3(0.0f, 0.0f, 0.5f)));
-  EXPECT_EQ(ContainmentType::Contains, box.Contains(Vector3(0.0f, 0.5f, 0.5f)));
-  EXPECT_EQ(ContainmentType::Contains, box.Contains(Vector3::One()));
-  EXPECT_EQ(ContainmentType::Contains, box.Contains(Vector3(1.0f, 1.0f, 0.5f)));
-  EXPECT_EQ(ContainmentType::Contains, box.Contains(Vector3(1.0f, 0.5f, 0.5f)));
-  EXPECT_EQ(ContainmentType::Contains, box.Contains(Vector3(0.5f, 0.5f, 0.5f)));
+  EXPECT_EQ(box.Contains(-Vector3::One()), ContainmentType::Disjoint);
+  EXPECT_EQ(box.Contains(Vector3(0.5f, 0.5f, -1.0f)), ContainmentType::Disjoint);
+  EXPECT_EQ(box.Contains(Vector3::Zero()), ContainmentType::Contains);
+  EXPECT_EQ(box.Contains(Vector3(0.0f, 0.0f, 0.5f)), ContainmentType::Contains);
+  EXPECT_EQ(box.Contains(Vector3(0.0f, 0.5f, 0.5f)), ContainmentType::Contains);
+  EXPECT_EQ(box.Contains(Vector3::One()), ContainmentType::Contains);
+  EXPECT_EQ(box.Contains(Vector3(1.0f, 1.0f, 0.5f)), ContainmentType::Contains);
+  EXPECT_EQ(box.Contains(Vector3(1.0f, 0.5f, 0.5f)), ContainmentType::Contains);
+  EXPECT_EQ(box.Contains(Vector3(0.5f, 0.5f, 0.5f)), ContainmentType::Contains);
 }
 
 
@@ -72,20 +72,20 @@ TEST(TestMath_Plane_MonoGame, BoxContainsIdenticalBox)
   const BoundingBox b1(Vector3::Zero(), Vector3::One());
   const BoundingBox b2(Vector3::Zero(), Vector3::One());
 
-  EXPECT_EQ(ContainmentType::Contains, b1.Contains(b2));
+  EXPECT_EQ(b1.Contains(b2), ContainmentType::Contains);
 }
 
 
 TEST(TestMath_Plane_MonoGame, BoundingSphereTests)
 {
   auto zeroPoint = BoundingSphere::CreateFromPoints({Vector3::Zero()});
-  EXPECT_EQ(BoundingSphere(), zeroPoint);
+  EXPECT_EQ(zeroPoint, BoundingSphere());
 
   auto onePoint = BoundingSphere::CreateFromPoints({Vector3::One()});
-  EXPECT_EQ(BoundingSphere(Vector3::One(), 0.0f), onePoint);
+  EXPECT_EQ(onePoint, BoundingSphere(Vector3::One(), 0.0f));
 
   auto twoPoint = BoundingSphere::CreateFromPoints({Vector3::Zero(), Vector3::One()});
-  EXPECT_EQ(BoundingSphere(Vector3(0.5f, 0.5f, 0.5f), 0.8660254f), twoPoint);
+  EXPECT_EQ(twoPoint, BoundingSphere(Vector3(0.5f, 0.5f, 0.5f), 0.8660254f));
 
   auto threePoint = BoundingSphere::CreateFromPoints({Vector3(0.0f, 0.0f, 0.0f), Vector3(-1.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.0f)});
   EXPECT_TRUE(Fsl::Test::IsFloatEqual(BoundingSphere(Vector3(0.0f, 0.5f, 0.5f), 1.224745f), threePoint));
@@ -97,7 +97,7 @@ TEST(TestMath_Plane_MonoGame, BoundingSphereTests)
   auto eightPoint = BoundingSphere::CreateFromPoints(eightPointTestInput);
   for (std::size_t i = 0; i < eightPointTestInput.size(); ++i)
   {
-    EXPECT_NE(ContainmentType::Disjoint, eightPoint.Contains(eightPointTestInput[i]));
+    EXPECT_NE(eightPoint.Contains(eightPointTestInput[i]), ContainmentType::Disjoint);
   }
 
   std::vector<Vector3> empty;
@@ -110,15 +110,15 @@ TEST(TestMath_Plane_MonoGame, BoundingBoxContainsBoundingSphere)
   BoundingSphere testSphere(Vector3::Zero(), 1.0f);
   const BoundingBox testBox(-Vector3::One(), Vector3::One());
 
-  EXPECT_EQ(ContainmentType::Contains, testBox.Contains(testSphere));
+  EXPECT_EQ(testBox.Contains(testSphere), ContainmentType::Contains);
 
   testSphere.Center -= Vector3::One();
 
-  EXPECT_EQ(ContainmentType::Intersects, testBox.Contains(testSphere));
+  EXPECT_EQ(testBox.Contains(testSphere), ContainmentType::Intersects);
 
   testSphere.Center -= Vector3::One();
 
-  EXPECT_EQ(ContainmentType::Disjoint, testBox.Contains(testSphere));
+  EXPECT_EQ(testBox.Contains(testSphere), ContainmentType::Disjoint);
 }
 
 
@@ -129,19 +129,19 @@ TEST(TestMath_Plane_MonoGame, BoundingFrustumToBoundingBoxTests)
   auto testFrustum = BoundingFrustum(view * projection);
 
   BoundingBox bbox1(Vector3(0.0f, 0.0f, 0.0f), Vector3(1.0f, 1.0f, 1.f));
-  EXPECT_EQ(ContainmentType::Contains, testFrustum.Contains(bbox1));
+  EXPECT_EQ(testFrustum.Contains(bbox1), ContainmentType::Contains);
   EXPECT_TRUE(testFrustum.Intersects(bbox1));
 
   BoundingBox bbox2(Vector3(-1000.0f, -1000.0f, -1000.0f), Vector3(1000.0f, 1000.0f, 1000.0f));
-  EXPECT_EQ(ContainmentType::Intersects, testFrustum.Contains(bbox2));
+  EXPECT_EQ(testFrustum.Contains(bbox2), ContainmentType::Intersects);
   EXPECT_TRUE(testFrustum.Intersects(bbox2));
 
   BoundingBox bbox3(Vector3(-1000.0f, -1000.0f, -1000.0f), Vector3(0.0f, 0.0f, 0.0f));
-  EXPECT_EQ(ContainmentType::Intersects, testFrustum.Contains(bbox3));
+  EXPECT_EQ(testFrustum.Contains(bbox3), ContainmentType::Intersects);
   EXPECT_TRUE(testFrustum.Intersects(bbox3));
 
   BoundingBox bbox4(Vector3(-1000.0f, -1000.0f, -1000.0f), Vector3(-500.0f, -500.0f, -500.0f));
-  EXPECT_EQ(ContainmentType::Disjoint, testFrustum.Contains(bbox4));
+  EXPECT_EQ(testFrustum.Contains(bbox4), ContainmentType::Disjoint);
   EXPECT_FALSE(testFrustum.Intersects(bbox4));
 }
 
@@ -153,7 +153,7 @@ TEST(TestMath_Plane_MonoGame, BoundingFrustumToBoundingFrustumTests)
   BoundingFrustum testFrustum(view * projection);
 
   // Same frustum.
-  EXPECT_EQ(ContainmentType::Contains, testFrustum.Contains(testFrustum));
+  EXPECT_EQ(testFrustum.Contains(testFrustum), ContainmentType::Contains);
   EXPECT_TRUE(testFrustum.Intersects(testFrustum));
 
   BoundingFrustum otherFrustum(Matrix::GetIdentity());
@@ -163,20 +163,20 @@ TEST(TestMath_Plane_MonoGame, BoundingFrustumToBoundingFrustumTests)
   auto projection2 = Matrix::CreatePerspectiveFieldOfView(MathHelper::PiOver4, 1.0f, 1.0f, 50.0f);
   otherFrustum.SetMatrix(view2 * projection2);
 
-  EXPECT_EQ(ContainmentType::Contains, testFrustum.Contains(otherFrustum));
+  EXPECT_EQ(testFrustum.Contains(otherFrustum), ContainmentType::Contains);
   EXPECT_TRUE(testFrustum.Intersects(otherFrustum));
 
   // Same size frustum, pointing in the same direction and offset by a small amount.
   otherFrustum.SetMatrix(view2 * projection);
 
-  EXPECT_EQ(ContainmentType::Intersects, testFrustum.Contains(otherFrustum));
+  EXPECT_EQ(testFrustum.Contains(otherFrustum), ContainmentType::Intersects);
   EXPECT_TRUE(testFrustum.Intersects(otherFrustum));
 
   // Same size frustum, pointing in the opposite direction and not overlapping.
   auto view3 = Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 6.0f), Vector3(0.0f, 0.0f, 7.0f), Vector3::Up());
   otherFrustum.SetMatrix(view3 * projection);
 
-  EXPECT_EQ(ContainmentType::Disjoint, testFrustum.Contains(otherFrustum));
+  EXPECT_EQ(testFrustum.Contains(otherFrustum), ContainmentType::Disjoint);
   EXPECT_FALSE(testFrustum.Intersects(otherFrustum));
 
   // Larger frustum, entirely containing test frustum.
@@ -184,7 +184,7 @@ TEST(TestMath_Plane_MonoGame, BoundingFrustumToBoundingFrustumTests)
   auto projection4 = Matrix::CreatePerspectiveFieldOfView(MathHelper::PiOver4, 1.0f, 1.0f, 1000.0f);
   otherFrustum.SetMatrix(view4 * projection4);
 
-  EXPECT_EQ(ContainmentType::Intersects, testFrustum.Contains(otherFrustum));
+  EXPECT_EQ(testFrustum.Contains(otherFrustum), ContainmentType::Intersects);
   EXPECT_TRUE(testFrustum.Intersects(otherFrustum));
 
   BoundingFrustum bf(Matrix::CreateLookAt(Vector3(0.0f, 1.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3::Up()) *
@@ -196,5 +196,5 @@ TEST(TestMath_Plane_MonoGame, BoundingFrustumToBoundingFrustumTests)
   float value2 = 42.0f;
   EXPECT_TRUE(bf.Intersects(ray, value));
   EXPECT_FALSE(bf.Intersects(ray2, value2));
-  EXPECT_EQ(0.0f, value);
+  EXPECT_EQ(value, 0.0f);
 }

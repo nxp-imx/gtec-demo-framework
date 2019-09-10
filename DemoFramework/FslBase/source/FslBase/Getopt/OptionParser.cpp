@@ -30,14 +30,17 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Getopt/OptionParser.hpp>
+#include <FslBase/Arguments/ArgumentParser.hpp>
+#include <FslBase/Arguments/ArgumentParserErrorStrings.hpp>
+#include <FslBase/Arguments/ParseErrorInfo.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/IO/File.hpp>
-#include "OptionParserTCLAP.hpp"
 #include "OptionRecord.hpp"
 #include <algorithm>
 #include <cassert>
@@ -46,6 +49,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+//#include <fmt/core.h>
 
 namespace Fsl
 {
@@ -103,18 +107,19 @@ namespace Fsl
     }
 
 
-    void ArgumentSetup(const std::deque<OptionParser::ParserRecord>& inputArgs, std::deque<OptionRecord>& rCombinedOptions)
+    std::deque<OptionRecord> ArgumentSetup(const std::deque<OptionParser::ParserRecord>& inputArgs)
     {
+      std::deque<OptionRecord> combinedOptions;
       const auto source = std::make_shared<OptionSourceRecord>("base");
 
       // Configure the standard options
-      rCombinedOptions.emplace_back(source, Option("h", "help", OptionArgument::OptionNone, 'h', "Display options"));
-      rCombinedOptions.emplace_back(source, Option("ghelp", OptionArgument::OptionRequired, 1, "Display option groups: all, demo or host"));
-      rCombinedOptions.emplace_back(source, Option("v", "verbose", OptionArgument::OptionNone, 'v', "Enable verbose output"));
+      combinedOptions.emplace_back(source, Option("h", "help", OptionArgument::OptionNone, 'h', "Display options"));
+      combinedOptions.emplace_back(source, Option("ghelp", OptionArgument::OptionRequired, 1, "Display option groups: all, demo or host"));
+      combinedOptions.emplace_back(source, Option("v", "verbose", OptionArgument::OptionNone, 'v', "Enable verbose output"));
       // rCombinedOptions.push_back(OptionRecord(source, Option("VerbosityLevel", OptionArgument::OptionRequired, 3, "Set a specific verbosity
       // level")));
-      rCombinedOptions.emplace_back(source, Option("System.Arguments.Save", OptionArgument::OptionRequired, 2,
-                                                   "Save all command line arguments to the given file name.", OptionGroup::Hidden));
+      combinedOptions.emplace_back(source, Option("System.Arguments.Save", OptionArgument::OptionRequired, 2,
+                                                  "Save all command line arguments to the given file name.", OptionGroup::Hidden));
       // rCombinedOptions.push_back(Option("Test1", OptionArgument::Required, nullptr, 10, "test required arg"));
       // rCombinedOptions.push_back(Option("Test2", OptionArgument::Optional, nullptr, 11, "test required arg"));
 
@@ -138,9 +143,10 @@ namespace Fsl
           rOption.CmdId += inputEntry.CmdIdOffset;
         }
 
-        const auto source = std::make_shared<OptionSourceRecord>(inputEntry.Parser->GetName());
-        AppendArguments(rCombinedOptions, source, options);
+        const auto source2 = std::make_shared<OptionSourceRecord>(inputEntry.Parser->GetName());
+        AppendArguments(combinedOptions, source2, options);
       }
+      return combinedOptions;
     }
 
     std::size_t FindMaxNameLength(const std::deque<OptionRecord>& args, const int32_t optionGroupFlags)
@@ -282,7 +288,7 @@ namespace Fsl
         ++itr;
       }
 
-      FSLLOG(stream.str());
+      FSLBASICLOG(stream.str());
     }
 
 
@@ -314,7 +320,7 @@ namespace Fsl
         else
         {
           bSuccess = false;
-          FSLLOG("ERROR: Unknown help argument '" << strOptionParam << "'");
+          FSLLOG_ERROR("Unknown help argument '" << strOptionParam << "'");
         }
       }
       return bSuccess;
@@ -341,7 +347,7 @@ namespace Fsl
     {
       if (strOptionParam.empty())
       {
-        FSLLOG_ERROR("No filename specified");
+        FSLBASICLOG_ERROR("No filename specified");
         return false;
       }
 
@@ -360,6 +366,22 @@ namespace Fsl
         for (auto& entry : combinedOptions)
         {
           ++index;
+          // stream << fmt::format(
+          //  "    {{\n"
+          //  "      \"CmdId\": \"{0}\",\n"
+          //  "      \"Description\": \"{1}\",\n"
+          //  "      \"Group\": \"{2}\",\n"
+          //  "      \"HasArg\": \"{3}\",\n"
+          //  "      \"IsPositional\": \"{4}\",\n"
+          //  "      \"Name\": \"{5}\",\n"
+          //  "      \"ShortName\": \"{6}\",\n"
+          //  "      \"Type\": \"{7}\",\n"
+          //  "      \"Help_FormattedName\": \"{8}\",\n"
+          //  "      \"SourceName\": \"{9}\"\n",
+          //  SafeJsonString(entry.SourceOption.CmdId), SafeJsonString(entry.SourceOption.Description), SafeJsonString(entry.SourceOption.Group),
+          //  SafeJsonString(entry.SourceOption.HasArg), SafeJsonString(entry.SourceOption.IsPositional), SafeJsonString(entry.SourceOption.Name),
+          //  SafeJsonString(entry.SourceOption.ShortName), SafeJsonString(entry.SourceOption.Type),
+          //  SafeJsonString(GetFormattedName(entry.SourceOption)), SafeJsonString(entry.Source->Name));
           stream << "    {\n";
           stream << R"(      "CmdId": ")" << SafeJsonString(entry.SourceOption.CmdId) << "\",\n";
           stream << R"(      "Description": ")" << SafeJsonString(entry.SourceOption.Description) << "\",\n";
@@ -391,6 +413,68 @@ namespace Fsl
         FSLLOG_ERROR("Failed to save arguments to file due to exception: " << ex.what());
       }
       return false;
+    }
+
+    class ParseErrorFormatter : public Arguments::ArgumentParser::ErrorFormatter
+    {
+    public:
+      std::string Format(const char* const pszFormat, const char* const pszArg0) override
+      {
+        // FIX: replace with the 'fmt' library
+        std::string strResult(pszFormat);
+        StringUtil::Replace(strResult, "{}", pszArg0);
+        return strResult;
+      }
+      std::string Format(const char* const pszFormat, const std::string& str) override
+      {
+        // FIX: replace with the 'fmt' library
+        std::string strResult(pszFormat);
+        StringUtil::Replace(strResult, "{}", str);
+        return strResult;
+      }
+      std::string Format(const char* const pszFormat, const uint32_t arg0) override
+      {
+        // FIX: replace with the 'fmt' library
+        std::string strResult(pszFormat);
+        StringUtil::Replace(strResult, "{}", ToString(arg0));
+        return strResult;
+      }
+    };
+
+    inline const char* SafeCString(const char* const psz)
+    {
+      return psz != nullptr ? psz : "";
+    }
+
+    std::deque<Arguments::Command> ToCommands(const std::deque<OptionRecord>& options)
+    {
+      using namespace Arguments;
+      std::deque<Command> commands;
+
+      for (const auto& option : options)
+      {
+        switch (option.SourceOption.HasArg)
+        {
+        case OptionArgument::OptionNone:
+          commands.emplace_back(Command(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::Switch));
+          break;
+        case OptionArgument::OptionRequired:
+          if (!option.SourceOption.IsPositional)
+          {
+            commands.emplace_back(Command(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::Value));
+          }
+          else
+          {
+            const bool required = (option.SourceOption.HasArg == OptionArgument::OptionRequired);
+            commands.emplace_back(
+              Command(option.SourceOption.ShortName, option.SourceOption.Name, option.SourceOption.CmdId, CommandType::PositionalValue, required));
+          }
+          break;
+        default:
+          throw NotSupportedException("OptionArgument not supported");
+        }
+      }
+      return commands;
     }
   }
 
@@ -425,20 +509,30 @@ namespace Fsl
   OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers,
                                                 const char* const pszHelpCaption)
   {
-    std::deque<OptionRecord> combinedOptions;
-    ArgumentSetup(inputOptionParsers, combinedOptions);
+    assert(argc > 0);
+    assert(argv != nullptr);
+    std::deque<OptionRecord> combinedOptions = ArgumentSetup(inputOptionParsers);
 
     uint32_t verbosityLevel = 0;
     bool bForceExit = false;
     int32_t showHelpOptionGroupFlags = 0;
     int optionErrors = 0;
     {    // Parse input arguments
-      int value;
-      std::string strOptArg;
-      OptionParserTCLAP parser(argc, argv, combinedOptions);
-      while (parser.Next(value, strOptArg))
+      auto commands = ToCommands(combinedOptions);
+      Arguments::ParseErrorInfo parseErrorInfo;
+      std::deque<Arguments::EncodedCommand> encodedCommands;
+      auto parseResult = Arguments::ArgumentParser::TryParse(encodedCommands, argc - 1, argv + 1, commands, &parseErrorInfo);
+      if (parseResult != Arguments::ParseResult::Completed)
       {
-        switch (value)
+        ParseErrorFormatter formatter;
+        auto strParseError = Arguments::ArgumentParser::GetErrorString(parseResult, parseErrorInfo, argc - 1, argv + 1, commands, formatter);
+        throw std::runtime_error(strParseError);
+      }
+
+      for (const auto& encodedCommand : encodedCommands)
+      {
+        auto pszOptArg = SafeCString(encodedCommand.pszOptArg);
+        switch (encodedCommand.Id)
         {
         case 'v':    // verbose
           ++verbosityLevel;
@@ -447,13 +541,15 @@ namespace Fsl
           showHelpOptionGroupFlags |= (0x7FFFFFFF & (~OptionGroup::Hidden));
           break;
         case 1:    // ghelp
-          if (!ProcessHelpOption(strOptArg, showHelpOptionGroupFlags))
+          assert(encodedCommand.Type == Arguments::CommandType::Value);
+          if (!ProcessHelpOption(pszOptArg, showHelpOptionGroupFlags))
           {
             ++optionErrors;
           }
           break;
         case 2:    // System.Arguments.Save
-          if (!TrySaveArgumentsToJsonFile(strOptArg, combinedOptions))
+          assert(encodedCommand.Type == Arguments::CommandType::Value);
+          if (!TrySaveArgumentsToJsonFile(pszOptArg, combinedOptions))
           {
             ++optionErrors;
           }
@@ -471,12 +567,12 @@ namespace Fsl
             try
             {
               // Remove the offset before we call the parser
-              const int32_t cmdId = value - itr->CmdIdOffset;
-              result = itr->Parser->Parse(cmdId, strOptArg.c_str());
+              const int32_t cmdId = encodedCommand.Id - itr->CmdIdOffset;
+              result = itr->Parser->Parse(cmdId, pszOptArg);
             }
             catch (const std::exception& ex)
             {
-              FSLLOG("ERROR: Parse option failed with: " << ex.what());
+              FSLLOG_ERROR("Parse option failed with: " << ex.what());
               result = OptionParseResult::Failed;
             }
             ++itr;

@@ -20,6 +20,8 @@ namespace Fsl
                           const VkImageLayout oldImageLayout, const VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange,
                           const VkPipelineStageFlags srcStageMask, const VkPipelineStageFlags dstStageMask)
       {
+        FSL_PARAM_NOT_USED(aspectMask);
+
         // Create an image barrier object
         VkImageMemoryBarrier imageMemoryBarrier{};
         imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

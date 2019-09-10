@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <ExternalLibrary Name="WindowSystem">
-    <Platform Name="QNX">
+  <ExternalLibrary Name="WindowSystem" CreationYear="2016">
+    <Default.Platform.Supported Value="false"/>
+    <Platform Name="Android" Supported="true"/>
+    <Platform Name="QNX" Supported="true">
       <ExternalDependency Name="screen" Type="StaticLib"/>
     </Platform>
-    <Platform Name="Ubuntu">
+    <Platform Name="Ubuntu" Supported="true">
       <!--ExternalDependency Name="Xi" Type="StaticLib"/-->
       <ExternalDependency Name="Xrandr" Type="StaticLib"/>
       <ExternalDependency Name="X11" Type="StaticLib"/>
       <Define Name="FSL_WINDOWSYSTEM_X11" Access="Public"/>
     </Platform>
-    <Platform Name="Windows">
+    <Platform Name="Windows" Supported="true">
       <!--ExternalDependency Name="Shcore.lib" Type="StaticLib"/-->
     </Platform>
-    <Platform Name="Yocto">
+    <Platform Name="Yocto" Supported="true">
       <Variant Name="WindowSystem">
         <Option Name="FB">
           <Define Name="FSL_WINDOWSYSTEM_FRAMEBUFFER" Access="Public"/>

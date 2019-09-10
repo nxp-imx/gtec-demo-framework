@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- This is only intended for test compiling projects that include linux specific headers on windows. All calls are basically dummies unless otherwise stated -->
-  <Library Name="DevCompat" PackageNameBasedIncludePath="false" AllowCheck="false">
+  <Library Name="DevCompat" PackageNameBasedIncludePath="false" AllowCheck="false" CreationYear="2016">
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Windows" ProjectId="AC20AA64-226E-405E-AE78-ECE2E03BBA61" Supported="true"/>

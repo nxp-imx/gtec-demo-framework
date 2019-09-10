@@ -37,9 +37,11 @@ class LowLevelToolConfig(object):
                  debugEnabled: bool,
                  allowDevelopmentPlugins: bool,
                  profilerEnabled: bool,
-                 standaloneEnabled: bool) -> None:
+                 standaloneEnabled: bool,
+                 currentDir: str) -> None:
         self.VerbosityLevel = verbosityLevel
         self.DebugEnabled = debugEnabled
         self.AllowDevelopmentPlugins = allowDevelopmentPlugins
         self.ProfilerEnabled = profilerEnabled
         self.StandaloneEnabled = standaloneEnabled
+        self.CurrentDir = currentDir

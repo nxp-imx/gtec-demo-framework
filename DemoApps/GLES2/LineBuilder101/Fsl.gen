@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES2.LineBuilder101" NoInclude="true">
+  <Executable Name="GLES2.LineBuilder101" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="Shared.LineBuilder101"/>
     <Platform Name="Windows" ProjectId="8D99FD56-5B17-4BF4-9458-37A804704A18"/>

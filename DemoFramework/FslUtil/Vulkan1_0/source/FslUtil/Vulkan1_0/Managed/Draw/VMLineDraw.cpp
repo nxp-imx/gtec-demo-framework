@@ -115,7 +115,7 @@ namespace Fsl
       VkDescriptorSet UpdateDescriptorSet(const VkDevice device, const VkDescriptorSet descriptorSet, const Vulkan::VUBufferMemory& vertUboBuffer)
 
       {
-        assert(descriptorSet != nullptr);
+        assert(descriptorSet != VK_NULL_HANDLE);
         assert(vertUboBuffer.IsValid());
 
         std::array<VkWriteDescriptorSet, 1> writeDescriptorSets{};

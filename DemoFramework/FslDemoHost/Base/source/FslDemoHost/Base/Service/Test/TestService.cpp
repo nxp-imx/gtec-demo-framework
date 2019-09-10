@@ -99,6 +99,11 @@ namespace Fsl
 
     if ((saveNow || hasRequest) && m_graphicsService)
     {
+      if (hasRequest)
+      {
+        m_demoAppControlService->ClearScreenshotRequestRequest();
+      }
+
       // Reset the update timer since the screenshot functionality is slow
       // We do this to allow a perfect timed capture of the frames
       m_demoAppControlService->RequestUpdateTimerReset();
@@ -115,8 +120,6 @@ namespace Fsl
 
         if (hasRequest)
         {
-          m_demoAppControlService->ClearScreenshotRequestRequest();
-
           // When not auto saving we use the same routine to save images
           if (m_config.Frequency <= 0)
           {

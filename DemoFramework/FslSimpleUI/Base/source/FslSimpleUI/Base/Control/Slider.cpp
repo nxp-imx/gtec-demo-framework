@@ -228,6 +228,8 @@ namespace Fsl
 
     void Slider::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
     {
+      FSL_PARAM_NOT_USED(args);
+
       auto pos = PointFromScreen(theEvent->GetScreenPosition());
       if (m_dragState == DragState::Idle)
       {
@@ -268,6 +270,8 @@ namespace Fsl
 
     Vector2 Slider::MeasureOverride(const Vector2& availableSize)
     {
+      FSL_PARAM_NOT_USED(availableSize);
+
       if (!m_texBackground.IsValid())
       {
         return Vector2();

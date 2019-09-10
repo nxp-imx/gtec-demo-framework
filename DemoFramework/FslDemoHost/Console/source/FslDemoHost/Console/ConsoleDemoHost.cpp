@@ -114,6 +114,7 @@ namespace Fsl
 
   bool ConsoleDemoHost::ProcessNativeMessages(const bool allowBlock)
   {
+    FSL_PARAM_NOT_USED(allowBlock);
     return true;
   }
 }

@@ -37,6 +37,6 @@ from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementEx
 
 class ExtensionListManager(object):
     def __init__(self, allowAllExtensions: bool, content: List[QualifiedRequirementExtensionName]) -> None:
-        super(ExtensionListManager, self).__init__()
+        super().__init__()
         self.AllowAllExtensions = allowAllExtensions
         self.Content = [] if allowAllExtensions else content

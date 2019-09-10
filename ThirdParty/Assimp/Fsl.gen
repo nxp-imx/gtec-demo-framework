@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- Change the type here depending on how its integrated -->
-  <ExternalLibrary Name="Assimp">
+  <ExternalLibrary Name="Assimp" CreationYear="2015">
+    <Default.Platform.Supported Value="false"/>
     <Define Name="FSL_ENABLE_ASSIMP" Access="Public"/> 
-    <Platform Name="Android">
+    <Platform Name="Android" Supported="true">
       <Dependency Name="Recipe.assimp_4_1_0"/>
     </Platform>  
-    <Platform Name="QNX" Supported="false"/>
-    <Platform Name="Ubuntu">
+    <Platform Name="Ubuntu" Supported="true">
       <Dependency Name="Recipe.assimp_4_1_0"/>
     </Platform>  
-    <Platform Name="Yocto">
+    <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="assimp" Type="StaticLib"/>
     </Platform>    
-    <Platform Name="Windows">
+    <Platform Name="Windows" Supported="true">
       <Dependency Name="Recipe.assimp_4_1_0"/>
     </Platform>    
   </ExternalLibrary>

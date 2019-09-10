@@ -112,6 +112,7 @@ namespace Fsl
     void VUImageMemoryView::Reset(const VUDevice& device, const VkImageCreateInfo& imageCreateInfo, const VkImageSubresourceRange& subresourceRange,
                                   const VkMemoryPropertyFlags memoryPropertyFlags, const std::string& name)
     {
+      FSL_PARAM_NOT_USED(name);
       if (IsValid())
       {
         Reset();
@@ -156,6 +157,8 @@ namespace Fsl
 
     void VUImageMemoryView::Reset(VUImage&& image, RapidVulkan::Memory&& memory, RapidVulkan::ImageView&& imageView, const std::string& name)
     {
+      FSL_PARAM_NOT_USED(name);
+
       if (IsValid())
       {
         Reset();

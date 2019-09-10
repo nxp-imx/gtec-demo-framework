@@ -108,6 +108,16 @@ namespace Fsl
       return std::min(std::max(value, min), max);
     }
 
+    inline int32_t Clamp(const int32_t value, const int32_t min, const int32_t max)
+    {
+      return std::min(std::max(value, min), max);
+    }
+
+    inline uint32_t Clamp(const uint32_t value, const uint32_t min, const uint32_t max)
+    {
+      return std::min(std::max(value, min), max);
+    }
+
 
     //! @brief Calculates the absolute value of the difference of two values.
     //! @param value1 Source value.

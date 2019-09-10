@@ -61,6 +61,20 @@ namespace Fsl
         }
       };
 
+      struct CompressedResult
+      {
+        GLint InternalFormat;    // compressed internal format
+        GLint BaseInternalFormat;
+        GLint Alignment;
+
+        CompressedResult(const GLint internalFormat, const GLint baseInternalFormat, const GLint alignment)
+          : InternalFormat(internalFormat)
+          , BaseInternalFormat(baseInternalFormat)
+          , Alignment(alignment)
+        {
+        }
+      };
+
       //! @brief Convert the rawBitmap to a texture description suitable for glTexImage2D
       //! @param exactMatch if this is true we require a exact texture format to pixel format match.
       //                    if false then we allow OpenGL to find something good enough.
@@ -73,6 +87,8 @@ namespace Fsl
       //! @param exactMatch if this is true we require a exact texture format to pixel format match.
       //                    if false then we allow OpenGL to find something good enough.
       static Result Convert(const PixelFormat pixelFormat, const uint32_t width, const uint32_t stride, const bool exactMatch);
+
+      static CompressedResult ConvertCompressed(const PixelFormat pixelFormat, const uint32_t width);
     };
   }
 }

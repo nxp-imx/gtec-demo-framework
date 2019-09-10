@@ -54,6 +54,7 @@ namespace Fsl
       : Scene(MeshAllocator::Allocate<TMesh>)
       , Meshes()    // We dont initialize to capacity here since the deque doesnt play nice with that
     {
+      FSL_PARAM_NOT_USED(numMeshes);
     }
 
 

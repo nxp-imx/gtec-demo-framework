@@ -1,0 +1,2 @@
+option(INSTALL_EXE "Install executables" ON)
+# message(STATUS "INSTALL_LIB='${INSTALL_EXE}'")

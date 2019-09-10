@@ -110,6 +110,8 @@ namespace Fsl
 
   void MenuUI::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
   {
+    FSL_PARAM_NOT_USED(args);
+
     if (theEvent->GetSource() == m_btnMenu)
     {
       theEvent->Handled();
@@ -120,6 +122,8 @@ namespace Fsl
 
   void MenuUI::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
+    FSL_PARAM_NOT_USED(args);
+
     if (theEvent->GetSource() == m_cbMenuRotate)
     {
       theEvent->Handled();

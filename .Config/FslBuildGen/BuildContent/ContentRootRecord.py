@@ -37,7 +37,7 @@ from FslBuildGen.BuildContent.PathVariables import PathVariables
 
 class ContentRootRecord(object):
     def __init__(self, log: Log, sourcePath: str, pathVariables: Optional[PathVariables] = None) -> None:
-        super(ContentRootRecord, self).__init__()
+        super().__init__()
         expandedSourcePath = self.__ExpandSourcePath(sourcePath, pathVariables) if pathVariables is not None else sourcePath
 
         self.Id = expandedSourcePath.lower()

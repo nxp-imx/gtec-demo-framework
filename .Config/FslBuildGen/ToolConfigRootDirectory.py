@@ -35,6 +35,7 @@ from typing import Optional
 from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
+from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
 
@@ -42,11 +43,13 @@ from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddRoo
 class ToolConfigRootDirectory(object):
     def __init__(self, log: Log,
                  basedUponXML: Optional[XmlConfigFileAddRootDirectory],
+                 projectId: ProjectId,
                  dynamicSourceRootDir: Union[Optional[XmlConfigFileAddRootDirectory], Optional['ToolConfigRootDirectory']] = None,
                  dynamicRootName: Optional[str] = None,
                  dynamicPath: Optional[str] = None) -> None:
-        super(ToolConfigRootDirectory, self).__init__()
+        super().__init__()
         dirMustExist = True
+        self.ProjectId = projectId
         if basedUponXML is not None:
             self.BasedOn = basedUponXML  # type: Union[XmlConfigFileAddRootDirectory, 'ToolConfigRootDirectory']
             self.Name = basedUponXML.Name # type: str
@@ -62,7 +65,6 @@ class ToolConfigRootDirectory(object):
             self.BasedOn = dynamicSourceRootDir
             self.Name = dynamicRootName
             self.DynamicName = dynamicPath
-
         variableProcessor = VariableProcessor(log)
         # NOTE: workaround Union of tuples not being iterable bug in mypy https://github.com/python/mypy/issues/1575
         tupleResult = variableProcessor.TryExtractLeadingEnvironmentVariableNameAndPath(self.DynamicName, dynamicSourceRootDir != None)
@@ -86,4 +88,7 @@ class ToolConfigRootDirectory(object):
 
 
     def TryGetEnvironmentVariableName(self) -> str:
+        return self.__EnvironmentVariableName
+
+    def GetEnvironmentVariableName(self) -> str:
         return self.__EnvironmentVariableName

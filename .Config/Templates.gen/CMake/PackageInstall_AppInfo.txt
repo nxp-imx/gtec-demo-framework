@@ -1,0 +1,22 @@
+# Generate and Install .AppInfo.json
+IF (WIN32)
+install(CODE
+  "execute_process(
+    COMMAND
+      FslBuildInfo.bat --SaveJson ${CMAKE_CURRENT_BINARY_DIR}/.AppInfo.json --IncludeGeneratorReport --PackageType [Executable] --input ${PROJECT_SOURCE_DIR}
+  )"
+)
+else()
+install(CODE
+  "execute_process(
+    COMMAND
+      FslBuildInfo.py --SaveJson ${CMAKE_CURRENT_BINARY_DIR}/.AppInfo.json --IncludeGeneratorReport --PackageType [Executable] --input ${PROJECT_SOURCE_DIR}
+  )"
+)
+ENDIF()
+
+INSTALL(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/.AppInfo.json
+  DESTINATION
+    ${CMAKE_INSTALL_BINDIR}##PACKAGE_TARGET_INSTALL_PATH##
+)

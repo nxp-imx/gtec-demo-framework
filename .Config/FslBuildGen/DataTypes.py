@@ -168,9 +168,10 @@ class CompilerNames:
 class VisualStudioVersion:
     VS2015 = 2015
     VS2017 = 2017
-    DEFAULT = VS2015
+    VS2019 = 2019
+    DEFAULT = VS2017
 
-    AllEntries = [VS2015, VS2017]
+    AllEntries = [VS2015, VS2017, VS2019]
 
     @staticmethod
     def ToString(value: int) -> str:
@@ -178,6 +179,8 @@ class VisualStudioVersion:
             return "2015"
         elif value == VisualStudioVersion.VS2017:
             return "2017"
+        elif value == VisualStudioVersion.VS2019:
+            return "2019"
         return "Unknown"
 
     @staticmethod
@@ -195,6 +198,8 @@ class VisualStudioVersion:
             return VisualStudioVersion.VS2015
         elif strValue == "2017":
             return VisualStudioVersion.VS2017
+        elif strValue == "2019":
+            return VisualStudioVersion.VS2019
         return None
 
 
@@ -204,7 +209,7 @@ class BuildPlatformType:
     Unknown = -1
 
 
-class GeneratorType:
+class LegacyGeneratorType:
     Default = 0
     Experimental = 1
     Deprecated = 2
@@ -451,7 +456,6 @@ class BuildThreads:
         except ValueError:
             raise Exception("Unsupported BuildThreads '{0}'".format(value))
 
-
 class BoolStringHelper(object):
     @staticmethod
     def FromString(value: str) -> bool:
@@ -471,3 +475,40 @@ class BoolStringHelper(object):
 
 class PackageString(object):
     PLATFORM_WILDCARD = '*'
+
+
+class GeneratorNameString:
+    Default = "default"
+    CMake = "cmake"
+
+    @staticmethod
+    def AllStrings() -> List[str]:
+        return [GeneratorNameString.Default, GeneratorNameString.CMake]
+
+
+class GeneratorType:
+    Default = 0
+    CMake = 1
+
+    @staticmethod
+    def FromString(value: str) -> int:
+        if value == GeneratorNameString.Default:
+            return GeneratorType.Default
+        elif value == GeneratorNameString.CMake:
+            return GeneratorType.CMake
+        raise Exception("Unsupported GeneratorName '{0}'".format(value))
+
+    @staticmethod
+    def ToString(value: int) -> str:
+        result = GeneratorType.TryToString(value)
+        if result is None:
+            raise Exception("Unsupported GeneratorName '{0}'".format(value))
+        return result
+
+    @staticmethod
+    def TryToString(value: int, returnValueStringIfUnknown: bool = False) -> Optional[str]:
+        if value == GeneratorType.Default:
+            return GeneratorNameString.Default
+        elif value == GeneratorType.CMake:
+            return GeneratorNameString.CMake
+        return None if not returnValueStringIfUnknown else "{0}".format(value)

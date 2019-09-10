@@ -30,11 +30,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
+#include <FslBase/BasicTypes.hpp>
 
 namespace Fsl
 {
   ThreadLocalService::ThreadLocalService(const ServiceProvider& serviceProvider)
   {
+    FSL_PARAM_NOT_USED(serviceProvider);
   }
 
 
@@ -43,6 +45,7 @@ namespace Fsl
 
   void ThreadLocalService::Link(const ServiceProvider& serviceProvider)
   {
+    FSL_PARAM_NOT_USED(serviceProvider);
   }
 
 

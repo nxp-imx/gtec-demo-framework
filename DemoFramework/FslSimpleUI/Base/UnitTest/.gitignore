@@ -19,6 +19,7 @@
 /FslSimpleUI.Base.UnitTest.vcxproj.filters
 /FslSimpleUI.Base.UnitTest.vcxproj.user
 /GNUmakefile
+/GNUmakefile_Yocto
 /UnitTest
 /UnitTest_c
 /UnitTest_d

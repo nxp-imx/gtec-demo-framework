@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics3D/BasicScene/Scene.hpp>
 #include <deque>
+#include <stdexcept>
 
 namespace Fsl
 {

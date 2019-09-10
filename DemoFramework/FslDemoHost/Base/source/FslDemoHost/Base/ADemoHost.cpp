@@ -36,6 +36,7 @@ namespace Fsl
   ADemoHost::ADemoHost(const DemoHostConfig& demoHostConfig, const bool isConsoleBasedHost)
     : m_isConsoleBasedHost(isConsoleBasedHost)
   {
+    FSL_PARAM_NOT_USED(demoHostConfig);
   }
 
 

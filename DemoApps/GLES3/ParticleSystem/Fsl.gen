@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES3.ParticleSystem" NoInclude="true">
+  <Executable Name="GLES3.ParticleSystem" NoInclude="true" CreationYear="2015">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslUtil.OpenGLES3_1"/>
     <Dependency Name="FslGraphics3D.BasicScene"/>

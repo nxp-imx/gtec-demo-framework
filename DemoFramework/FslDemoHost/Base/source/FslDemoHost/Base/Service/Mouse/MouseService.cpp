@@ -110,7 +110,7 @@ namespace Fsl
     else
     {
       // Check if the button was pressed before
-      if ((m_buttonState.Flags & button) == button)
+      if ((m_buttonState.Flags & static_cast<uint32_t>(button)) == static_cast<uint32_t>(button))
       {
         m_buttonState.Flags &= ~button;
 

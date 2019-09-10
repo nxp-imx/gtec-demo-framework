@@ -44,7 +44,7 @@ class SourceContent(object):
     def __init__(self, log: Log, contentPath: str, contentSourcePath: str, contentBuildCommandFile: ContentBuildCommandFile,
                  includeContentPathContent: bool,
                  removeCommandFilename: Optional[str] = None) -> None:
-        super(SourceContent, self).__init__()
+        super().__init__()
 
         contentSourceFiles = []  # type: List[PathRecord]
         contentBuildSourceFiles = []  # type: List[PathRecord]
@@ -60,6 +60,7 @@ class SourceContent(object):
 
         self.ContentSource = Content(log, contentPath, includeContentPathContent, contentSourceFiles)
         self.ContentBuildSource = Content(log, contentSourcePath, True, contentBuildSourceFiles)
+        # All content source files except files from "Content"
         self.AllContentSource = Content(log, contentSourcePath, True, contentBuildSourceFiles + contentSourceFiles)
 
         if removeCommandFilename is not None:

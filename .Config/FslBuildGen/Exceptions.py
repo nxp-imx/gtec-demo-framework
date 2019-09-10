@@ -139,6 +139,14 @@ class DuplicatedConfigRootPath(Exception):
         super().__init__(msg)
 
 
+class DuplicatedConfigBasePackage(Exception):
+    """ E
+    """
+    def __init__(self, name: str, configFileName: str) -> None:
+        msg = "Base package '{0}' listed multiple times in {1}".format(name, configFileName)
+        super().__init__(msg)
+
+
 class DuplicatedConfigPackageLocation(Exception):
     """ E
     """
@@ -223,6 +231,13 @@ class ToolDependencyNotFoundException(Exception):
             message += " {0}".format(additionalMessage)
         super().__init__(message)
 
+
+class BasePackageNotFoundException(Exception):
+    def __init__(self, depName: str, additionalMessage: str = "") -> None:
+        message = "Base package not found '{0}' (added by project)".format(depName)
+        if len(additionalMessage) > 0:
+            message += " {0}".format(additionalMessage)
+        super().__init__(message)
 
 class DependencyNotFoundException(Exception):
     def __init__(self, packageName: str, depName: str, candidateList: Optional[List[str]] = None, additionalMessage: str = "") -> None:

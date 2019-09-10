@@ -57,7 +57,8 @@ namespace Fsl
   public:
     BasicLogger(const BasicLogger&) = delete;
     BasicLogger& operator=(const BasicLogger&) = delete;
-
+    BasicLogger() = delete;
+    ~BasicLogger() = delete;
 
     static LogType GetLogLevel()
     {
@@ -69,6 +70,8 @@ namespace Fsl
       g_logLevel = level;
     }
 
+    static void WriteLine(const LogType logType, const char* const psz);
+    static void WriteLine(const LogType logType, const std::string& str);
     static void WriteLine(const LogType logType, const char* const psz, const LogLocation& location);
     static void WriteLine(const LogType logType, const std::string& str, const LogLocation& location);
   };

@@ -67,7 +67,7 @@ TEST(TestFixtureFslBase_TestLogBasicLog, SetLogLevel)
   ScopedLogLevel scope;
 
   BasicLogger::SetLogLevel(LogType::Verbose4);
-  EXPECT_EQ(LogType::Verbose4, BasicLogger::GetLogLevel());
+  EXPECT_EQ(BasicLogger::GetLogLevel(), LogType::Verbose4);
 }
 
 

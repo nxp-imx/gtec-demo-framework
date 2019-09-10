@@ -37,6 +37,7 @@
 #include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
@@ -141,12 +142,12 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG("ERROR: Input argument parsing failed with: " << ex.what());
+        FSLLOG_ERROR("Input argument parsing failed with: " << ex.what());
         return OptionParser::ParseResult(OptionParser::Result::Failed, 0);
       }
       catch (...)
       {
-        FSLLOG("ERROR: A critical error occurred during input argument parsing.");
+        FSLBASICLOG_ERROR("A critical error occurred during input argument parsing.");
         return OptionParser::ParseResult(OptionParser::Result::Failed, 0);
       }
     }
@@ -237,7 +238,7 @@ namespace Fsl
       // This really should not happen, but just check anyway
       if (!serviceProvider)
       {
-        FSLLOG("ServiceProvider not present");
+        FSLBASICLOG_ERROR("ServiceProvider not present");
         return EXIT_FAILURE;
       }
 
@@ -258,17 +259,17 @@ namespace Fsl
         std::string message;
         if (rExceptionMessageFormatter.TryFormatException(ex, message))
         {
-          FSLLOG("ERROR: " << message);
+          FSLBASICLOG_ERROR(message);
         }
         else
         {
-          FSLLOG("ERROR: demo setup failed with: " << ex.what());
+          FSLLOG_ERROR("demo setup failed with: " << ex.what());
         }
         return EXIT_FAILURE;
       }
       catch (...)
       {
-        FSLLOG("ERROR: A critical error occurred in the demo setup");
+        FSLBASICLOG_ERROR("A critical error occurred in the demo setup");
         return EXIT_FAILURE;
       }
 
@@ -315,17 +316,17 @@ namespace Fsl
       std::string message;
       if (exceptionMessageFormatter.TryFormatException(ex, message))
       {
-        FSLLOG("ERROR: " << message);
+        FSLBASICLOG_ERROR(message);
       }
       else
       {
-        FSLLOG("ERROR: " << ex.what());
+        FSLBASICLOG_ERROR(ex.what());
       }
       return EXIT_FAILURE;
     }
     catch (...)
     {
-      FSLLOG("ERROR: A critical error occurred.");
+      FSLBASICLOG_ERROR("A critical error occurred.");
       return EXIT_FAILURE;
     }
   }

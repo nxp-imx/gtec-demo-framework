@@ -163,12 +163,9 @@ namespace Fsl
           // Calculate the actual available space.
           const float availW = finalWidth - marginWidth;
           const float availH = finalHeight - marginHeight;
-          const float finalW = finalRect.Width() - marginWidth;
-          const float finalH = finalRect.Height() - marginHeight;
 
-          const Vector2 availableSize((availW >= 0.0f ? availW : 0.0f), (availH >= 0.0f ? availH : 0.0f));
-          const Vector2 actualAvailableSize((finalW >= 0.0f ? finalW : 0.0f), (finalH >= 0.0f ? finalH : 0.0f));
-          Vector2 renderSize = ArrangeOverride(availableSize);
+          const Vector2 arrangeSize((availW >= 0.0f ? availW : 0.0f), (availH >= 0.0f ? availH : 0.0f));
+          Vector2 renderSize = ArrangeOverride(arrangeSize);
 
           // validate the result
           assert(!isnan(renderSize.X));
@@ -182,6 +179,10 @@ namespace Fsl
           renderSize.X = std::max(renderSize.X, 0.0f);
           renderSize.Y = std::max(renderSize.Y, 0.0f);
 
+          // Calc alignment
+          const float finalW = finalRect.Width() - marginWidth;
+          const float finalH = finalRect.Height() - marginHeight;
+          const Vector2 actualAvailableSize((finalW >= 0.0f ? finalW : 0.0f), (finalH >= 0.0f ? finalH : 0.0f));
           const float dx = (actualAvailableSize.X - renderSize.X);
           const float dy = (actualAvailableSize.Y - renderSize.Y);
           const float alignmentOffsetX = CalcAlignment(m_alignmentX, dx);

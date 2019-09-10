@@ -34,6 +34,7 @@
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <cassert>
+#include <FslUtil/OpenGLES3/GLCompressedFormat.hpp>
 
 namespace Fsl
 {
@@ -66,14 +67,14 @@ namespace Fsl
         GLenum Type;
         ByteAlignment Alignment{ByteAlignment::Undefined};
 
-        FormatGL()
+        constexpr FormatGL()
           : InternalFormat{}
           , Format{}
           , Type{}
         {
         }
 
-        FormatGL(const GLint internalFormat, const GLint format, const GLenum type)
+        constexpr FormatGL(const GLint internalFormat, const GLint format, const GLenum type)
           : State(FormatState::Normal)
           , InternalFormat(internalFormat)
           , Format(format)
@@ -82,7 +83,7 @@ namespace Fsl
         {
         }
 
-        FormatGL(const GLint internalFormat, const GLint format, const GLenum type, const ByteAlignment alignment)
+        constexpr FormatGL(const GLint internalFormat, const GLint format, const GLenum type, const ByteAlignment alignment)
           : State(FormatState::Normal)
           , InternalFormat(internalFormat)
           , Format(format)
@@ -91,7 +92,7 @@ namespace Fsl
         {
         }
 
-        FormatGL(const GLint internalFormat, const GLint format, const ByteAlignment alignment, const FormatState formatState)
+        constexpr FormatGL(const GLint internalFormat, const GLint format, const ByteAlignment alignment, const FormatState formatState)
           : State(formatState)
           , InternalFormat(internalFormat)
           , Format(format)
@@ -100,12 +101,17 @@ namespace Fsl
         {
         }
 
-        FormatGL(const GLint internalFormat, const GLint format, const FormatState formatState)
+        constexpr FormatGL(const GLint internalFormat, const GLint format, const FormatState formatState)
           : State(formatState)
           , InternalFormat(internalFormat)
           , Format(format)
           , Type{}
           , Alignment(ByteAlignment::B4)
+        {
+        }
+
+        constexpr FormatGL(const GLCompressedFormat internalFormat, const GLint format, const FormatState formatState)
+          : FormatGL(static_cast<GLint>(internalFormat), format, formatState)
         {
         }
       };
@@ -392,34 +398,35 @@ namespace Fsl
         FormatGL(GL_COMPRESSED_SIGNED_R11_EAC, GL_RED, FormatState::Compressed),                  // GL_COMPRESSED_SIGNED_R11_EAC                 | GL_RED                                                                     | EAC_R11_SNORM_BLOCK
         FormatGL(GL_COMPRESSED_RG11_EAC, GL_RG, FormatState::Compressed),                         // GL_COMPRESSED_RG11_EAC                       | GL_RG                                                                      | EAC_R11G11_UNORM_BLOCK
         FormatGL(GL_COMPRESSED_SIGNED_RG11_EAC, GL_RG, FormatState::Compressed),                  // GL_COMPRESSED_SIGNED_RG11_EAC                | GL_RG                                                                      | EAC_R11G11_SNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_4x4_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_4x4_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x4_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x4_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x5_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_5x5_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x5_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x5_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x6_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_6x6_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x5_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x5_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x6_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x6_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x8_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_8x8_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x5_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x5_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x6_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x6_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x8_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x8_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x10_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_10x10_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x10_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x10_SRGB_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x12_UNORM_BLOCK
-        FormatGL(),                                                                               //                                                                                                                           | ASTC_12x12_SRGB_BLOCK
+        // OpenGLES 3.2
+        FormatGL(GLCompressedFormat::RGBA_ASTC_4x4, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_4x4_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_4x4, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_4x4_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_5x4, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_5x4_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_5x4, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_5x4_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_5x5, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_5x5_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_5x5, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_5x5_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_6x5, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_6x5_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_6x5, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_6x5_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_6x6, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_6x6_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_6x6, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_6x6_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_8x5, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_8x5_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_8x5, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_8x5_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_8x6, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_8x6_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_8x6, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_8x6_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_8x8, GL_RGBA, FormatState::Compressed),            //                                                                                                                           | ASTC_8x8_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_8x8, GL_RGBA, FormatState::Compressed),    //                                                                                                                           | ASTC_8x8_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_10x5, GL_RGBA, FormatState::Compressed),           //                                                                                                                           | ASTC_10x5_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_10x5, GL_RGBA, FormatState::Compressed),   //                                                                                                                           | ASTC_10x5_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_10x6, GL_RGBA, FormatState::Compressed),           //                                                                                                                           | ASTC_10x6_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_10x6, GL_RGBA, FormatState::Compressed),   //                                                                                                                           | ASTC_10x6_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_10x8, GL_RGBA, FormatState::Compressed),           //                                                                                                                           | ASTC_10x8_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_10x8, GL_RGBA, FormatState::Compressed),   //                                                                                                                           | ASTC_10x8_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_10x10, GL_RGBA, FormatState::Compressed),          //                                                                                                                           | ASTC_10x10_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_10x10, GL_RGBA, FormatState::Compressed),  //                                                                                                                           | ASTC_10x10_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_12x10, GL_RGBA, FormatState::Compressed),          //                                                                                                                           | ASTC_12x10_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_12x10, GL_RGBA, FormatState::Compressed),  //                                                                                                                           | ASTC_12x10_SRGB_BLOCK
+        FormatGL(GLCompressedFormat::RGBA_ASTC_12x12, GL_RGBA, FormatState::Compressed),          //                                                                                                                           | ASTC_12x12_UNORM_BLOCK
+        FormatGL(GLCompressedFormat::SRGB8_ALPHA8_ASTC_12x12, GL_RGBA, FormatState::Compressed),  //                                                                                                                           | ASTC_12x12_SRGB_BLOCK
         // Extended formats
         FormatGL(GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE),                                           // GL_ALPHA              | GL_ALPHA           | GL_UNSIGNED_BYTE              | Alpha                      | A               | EX_ALPHA8_UINT
         FormatGL(GL_LUMINANCE, GL_LUMINANCE, GL_UNSIGNED_BYTE),                                   // GL_LUMINANCE          | GL_LUMINANCE       | GL_UNSIGNED_BYTE              | Luminance                  | L               | EX_LUMINANCE8_UINT
@@ -457,6 +464,7 @@ namespace Fsl
 
       GLRawBitmapUtil::CompressedResult ConvertCompressedPixelFormat(const PixelFormat pixelFormat, const uint32_t width)
       {
+        FSL_PARAM_NOT_USED(width);
         // Simplified format conversion
         const auto index = PixelFormatUtil::GetFormatRangeIndex(pixelFormat);
         const auto format = g_convert[index];

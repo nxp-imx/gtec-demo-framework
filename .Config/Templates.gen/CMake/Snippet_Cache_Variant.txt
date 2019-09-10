@@ -1,0 +1,4 @@
+set(##VARIANT_NAME## "##VARIANT_DEFAULT_OPTION##" CACHE STRING "##VARIANT_NAME## chosen by the user at CMake configure time")
+set_property(CACHE ##VARIANT_NAME## PROPERTY STRINGS ##VARIANT_OPTIONS##)
+
+# message(STATUS "##VARIANT_NAME##='${##VARIANT_NAME##}'")

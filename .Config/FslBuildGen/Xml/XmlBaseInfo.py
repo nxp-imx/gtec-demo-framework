@@ -36,6 +36,6 @@ from FslBuildGen.Log import Log
 
 class XmlBaseInfo(object):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
-        super(XmlBaseInfo, self).__init__()
+        super().__init__()
         self.Log = log
         self.XMLElement = xmlElement

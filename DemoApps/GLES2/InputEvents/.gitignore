@@ -28,6 +28,8 @@
 /InputEvents_FB
 /InputEvents_FB_d
 /InputEvents_Wayland
+/InputEvents_Wayland_IVI
+/InputEvents_Wayland_IVI_d
 /InputEvents_Wayland_d
 /InputEvents_X11
 /InputEvents_X11_d

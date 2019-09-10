@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
@@ -120,7 +120,7 @@ namespace Fsl
   {
     if (!m_inBegin)
     {
-      FSLLOG_WARNING("ChangeTo called outside begin/end block, call ignored");
+      FSLBASICLOG_WARNING("ChangeTo called outside begin/end block, call ignored");
       return;
     }
 
@@ -712,8 +712,8 @@ namespace Fsl
     }
     if (pDstPositions == nullptr || dstPositionsLength <= 0)
     {
-      FSLLOG_WARNING_IF(pDstPositions == nullptr, "It's invalid to specify null for positions");
-      FSLLOG_WARNING_IF(dstPositionsLength < 0, "Its invalid to specify a negative length");
+      FSLBASICLOG_WARNING_IF(pDstPositions == nullptr, "It's invalid to specify null for positions");
+      FSLBASICLOG_WARNING_IF(dstPositionsLength < 0, "Its invalid to specify a negative length");
       return;
     }
 

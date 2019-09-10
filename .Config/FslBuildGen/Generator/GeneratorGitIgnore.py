@@ -43,8 +43,9 @@ from FslBuildGen.Packages.Package import Package
 
 class GeneratorGitIgnore(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], platformName: str, activeGenerator: GeneratorBase) -> None:
-        super(GeneratorGitIgnore, self).__init__()
+        super().__init__()
 
+        virtualTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_virtual.txt"))
         headerLibTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_headerlib.txt"))
         libTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_lib.txt"))
         exeTemplate = IOUtil.TryReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "Template_gitignore_exe.txt"))
@@ -58,6 +59,8 @@ class GeneratorGitIgnore(GeneratorBase):
                 self.__GenerateLibraryBuildFile(config, package, platformName, exeTemplate, generatorIgnoreDict)
             elif package.Type == PackageType.HeaderLibrary:
                 self.__GenerateLibraryBuildFile(config, package, platformName, headerLibTemplate, generatorIgnoreDict)
+            else:
+                self.__GenerateLibraryBuildFile(config, package, platformName, virtualTemplate, generatorIgnoreDict)
 
 
     def __GenerateLibraryBuildFile(self, config: Config, package: Package,

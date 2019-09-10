@@ -51,7 +51,7 @@ class BuildConfigRecord(object):
                  runCommand: Optional[str],
                  generator: Optional[GeneratorPluginBase2],
                  buildThreads: int) -> None:
-        super(BuildConfigRecord, self).__init__()
+        super().__init__()
         self.PlatformName = platformName
         self.VariantSettingsDict = variantSettingsDict
         self.BuildCommand = buildCommand

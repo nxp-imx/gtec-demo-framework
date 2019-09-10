@@ -60,6 +60,8 @@ namespace Fsl
 
       void SYS_Destruct() override
       {
+        m_contentId = 0;
+        m_payload.reset();
         WindowEvent::SYS_Destruct();
       }
 

@@ -1,6 +1,8 @@
 /.StartProject.bat
 /.vs/
 /CMakeLists.txt
+/GNUmakefile
+/GNUmakefile_Yocto
 /Shared.VulkanCustom.VC.VC.opendb
 /Shared.VulkanCustom.VC.db
 /Shared.VulkanCustom.manifest

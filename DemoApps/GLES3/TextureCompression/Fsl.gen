@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES3.TextureCompression" NoInclude="true">
+  <Executable Name="GLES3.TextureCompression" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="Shared.TextureCompression"/>
     <Platform Name="Windows" ProjectId="5B34C6E7-731B-4C69-B094-F73B8ACF7C23"/>
   </Executable>
 </FslBuildGen>

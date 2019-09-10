@@ -35,8 +35,8 @@ from typing import Optional
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildExternal.DataTypes import RecipeType
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
-
 
 class PackageExperimentalRecipe(object):
     def __init__(self, log: Log, packageName: str, xmlExperimentalRecipe: XmlExperimentalRecipe, forceDisable: bool) -> None:
@@ -57,7 +57,7 @@ class PackageExperimentalRecipe(object):
             self.IsLocalSourceBuild = True
 
         # The installation path of the package
-        self.ResolvedInstallPath = None  # type: Optional[str]
+        self.ResolvedInstallLocation = None  # type: Optional[ResolvedPath]
 
         if self.Type == RecipeType.Undefined:
             log.DoPrintWarning("No installation or validation available for package '{0}' recipe '{1}'".format(packageName, self.Name))

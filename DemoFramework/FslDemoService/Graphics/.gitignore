@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /FslDemoService.Graphics.VC.VC.opendb
 /FslDemoService.Graphics.VC.db
 /FslDemoService.Graphics.manifest

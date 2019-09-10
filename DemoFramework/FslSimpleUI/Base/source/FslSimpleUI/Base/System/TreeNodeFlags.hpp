@@ -53,9 +53,7 @@ namespace Fsl
       };
 
 
-      TreeNodeFlags()
-
-        = default;
+      TreeNodeFlags() = default;
 
       TreeNodeFlags(const Enum flag)
         : Value(static_cast<uint32_t>(flag))
@@ -86,7 +84,7 @@ namespace Fsl
 
       inline bool IsFlagged(Enum flag) const
       {
-        return ((Value & flag) == flag);
+        return ((Value & static_cast<uint32_t>(flag)) == static_cast<uint32_t>(flag));
       }
 
 

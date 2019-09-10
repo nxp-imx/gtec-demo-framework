@@ -38,8 +38,8 @@ from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageConfig import PlatformNameIdString
 #from FslBuildGen import PluginSharedValues
 
-g_posixPlatforms = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.QNX]
-g_ntPlatforms = [PlatformNameString.ANDROID, PlatformNameString.WINDOWS]
+g_posixPlatforms = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.FREERTOS, PlatformNameString.QNX]
+g_ntPlatforms = [PlatformNameString.ANDROID, PlatformNameString.WINDOWS, PlatformNameString.FREERTOS]
 
 g_posixPlatformIds = [name.lower() for name in g_posixPlatforms]
 g_ntPlatformIds = [name.lower() for name in g_ntPlatforms]

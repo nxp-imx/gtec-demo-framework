@@ -60,7 +60,7 @@ TEST(TestTextureAtlas_TextureAtlasMap, Construct)
   atlas.Reset(1);
   atlas.SetEntry(0, Rectangle(1, 2, 20, 30), Rectangle(4, 6, 8, 12), UTF8String("hello"));
 
-  EXPECT_NO_THROW(TextureAtlasMap(atlas));
+  EXPECT_NO_THROW(TextureAtlasMap dummy(atlas));
 }
 
 

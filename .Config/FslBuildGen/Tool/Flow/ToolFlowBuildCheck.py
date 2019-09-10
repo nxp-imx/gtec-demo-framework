@@ -90,7 +90,7 @@ class DefaultValue(object):
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
         self.DryRun = DefaultValue.DryRun
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
         self.Project = DefaultValue.Project
@@ -134,7 +134,7 @@ def ForceBuildExternals(config: Config, generatorContext: GeneratorContext, pack
 
 class ToolFlowBuildCheck(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildCheck, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
     def __SplitAndTrim(self, strInput: str) -> List[str]:
         entries = strInput.split(',')
@@ -213,11 +213,12 @@ class ToolFlowBuildCheck(AToolAppFlow):
         packageFilters = localToolConfig.BuildPackageFilters
 
         # Get the platform and see if its supported
-        platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
-        PlatformUtil.CheckBuildPlatform(platform.Name)
-        generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
+        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        PlatformUtil.CheckBuildPlatform(generator.PlatformName)
+        generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
 
-        config.LogPrint("Active platform: {0}".format(platform.Name))
+        config.LogPrint("Active platform: {0}".format(generator.PlatformName))
 
         packageRecipeResultManager = None # type: Optional[PackageRecipeResultManager]
         toolPackageNames = []
@@ -289,7 +290,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
 
         if applyClangTidy:
             self.__ApplyClangTidy(self.Log, toolConfig, localToolConfig, packageRecipeResultManager, theTopLevelPackage,
-                                  filteredPackageList, platform, config, generatorContext, customPackageFileFilter)
+                                  filteredPackageList, generator, config, generatorContext, customPackageFileFilter)
 
         if applyClangFormat:
             self.__ApplyClangFormat(self.Log, toolConfig, localToolConfig, packageRecipeResultManager, filteredPackageList, customPackageFileFilter)
@@ -330,7 +331,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
 
     def __ApplyClangTidy(self, log: Log, toolConfig: ToolConfig, localToolConfig: LocalToolConfig,
                          packageRecipeResultManager: Optional[PackageRecipeResultManager],
-                         topLevelPackage: Optional[Package], tidyPackageList: List[Package], platform: GeneratorPlugin,
+                         topLevelPackage: Optional[Package], tidyPackageList: List[Package], generator: GeneratorPlugin,
                          config: Config, generatorContext: GeneratorContext, customPackageFileFilter: Optional[CustomPackageFileFilter]) -> None:
         """
         The only reason we take optionals here is because they are optional in the main program, so its just easier to do the check here
@@ -341,7 +342,7 @@ class ToolFlowBuildCheck(AToolAppFlow):
 
         # Generate the build files (so that the run scripts exist)
         log.LogPrint("Generating build files")
-        platform.Generate(generatorContext, config, tidyPackageList)
+        generator.Generate(generatorContext, config, tidyPackageList)
 
         clangFormatFilename = None if toolConfig.ClangFormatConfiguration is None else toolConfig.ClangFormatConfiguration.CustomFormatFile
 
@@ -349,9 +350,10 @@ class ToolFlowBuildCheck(AToolAppFlow):
         performClangTidyConfig = PerformClangTidyConfig(toolConfig.ClangTidyConfiguration, localToolConfig.ClangTidyArgs,
                                                         localToolConfig.ClangTidyPostfixArgs, localToolConfig.TidyOverrideChecks,
                                                         localToolConfig.ClangTidyStrictChecks, localToolConfig.Repair)
-        PerformClangTidy.Run(log, toolConfig, generatorContext.Platform.Id, topLevelPackage, tidyPackageList, localToolConfig.BuildVariantsDict,
-                             pythonScriptRoot, generatorContext, config.SDKConfigTemplatePath, packageRecipeResultManager,
-                             performClangTidyConfig, customPackageFileFilter, clangFormatFilename, localToolConfig.BuildThreads)
+        PerformClangTidy.Run(log, toolConfig, generatorContext.Generator.PlatformId, topLevelPackage, tidyPackageList,
+                             localToolConfig.BuildVariantsDict, pythonScriptRoot, generatorContext, config.SDKConfigTemplatePath,
+                             packageRecipeResultManager, performClangTidyConfig, customPackageFileFilter, clangFormatFilename,
+                             localToolConfig.BuildThreads)
 
 
     def __ApplyClangFormat(self, log: Log, toolConfig: ToolConfig, localToolConfig: LocalToolConfig,

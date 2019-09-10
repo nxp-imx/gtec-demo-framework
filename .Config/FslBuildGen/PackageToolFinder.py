@@ -60,9 +60,9 @@ class PackageToolFinder(object):
 
         self.__ToolPackageByPackageNameDict = toolPackageByPackageNameDict
         self.__ToolPackageByToolNameDict = self.__BuildToolPackageByName(toolPackages)
-        self.ToolPaths = [package.ResolvedDirectExperimentalRecipe.ResolvedInstallPath
+        self.ToolPaths = [package.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation.ResolvedPath
                           for package in toolPackages
-                          if package.ResolvedDirectExperimentalRecipe is not None and package.ResolvedDirectExperimentalRecipe.ResolvedInstallPath is not None]
+                          if package.ResolvedDirectExperimentalRecipe is not None and package.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation is not None]
 
 
     def TryGetToolPackageByPackageName(self, packageName: str) -> Optional[Package]:
@@ -94,7 +94,7 @@ class PackageToolFinder(object):
         resDict = {} # type: Dict[str, PackageToolRecord]
         for package in toolPackages:
             recipe = package.ResolvedDirectExperimentalRecipe
-            if recipe is not None and recipe.ResolvedInstallPath is not None and recipe.ValidateInstallation is not None:
+            if recipe is not None and recipe.ResolvedInstallLocation is not None and recipe.ValidateInstallation is not None:
                 addToolList = [] # type: List[XmlRecipeValidateCommand]
                 validation = recipe.ValidateInstallation
 
@@ -106,7 +106,7 @@ class PackageToolFinder(object):
                             if resDict[toolName] != package:
                                 raise Exception("Tool already registered by {0}".format(package.Name))
                         else:
-                            resDict[toolName] = PackageToolRecord(package, recipe.ResolvedInstallPath, commandEx)
+                            resDict[toolName] = PackageToolRecord(package, recipe.ResolvedInstallLocation.ResolvedPath, commandEx)
         return resDict
 
 

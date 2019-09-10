@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="Vulkan.InputEvents" NoInclude="true">
+  <Executable Name="Vulkan.InputEvents" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.InputEvents"/>
     <Platform Name="Windows" ProjectId="09ED28A8-4ACA-41AD-BB9D-DA8DA421DCF3"/>

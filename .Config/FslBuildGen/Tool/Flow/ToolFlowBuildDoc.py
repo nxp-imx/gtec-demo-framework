@@ -51,6 +51,7 @@ from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFilters import PackageFilters
@@ -224,7 +225,7 @@ class OptionGroup:
 
 class ProgramArgument(object):
     def __init__(self, basicConfig: BasicConfig, entry: Dict[str, Any]) -> None:
-        super(ProgramArgument, self).__init__()
+        super().__init__()
         self.SourceName = self.__ReadEntry(entry, "SourceName")
         self.Description = self.__ReadEntry(entry, "Description")
         self.Group = self.__ReadOptionGroup(entry, "Group")
@@ -440,10 +441,10 @@ def TryBuildAndRun(toolAppContext: ToolAppContext, config: Config, package: Pack
         IOUtil.RemoveFile(tmpOutputFilename)
 
 
-def ExtractArguments(toolAppContext: ToolAppContext, config: Config, exePackages: List[Package], extractArguments: str) -> Dict[Package, JsonDictType]:
+def ExtractArguments(toolAppContext: ToolAppContext, config: Config, exePackages: List[Package], extractArguments: str, currentDir: str) -> Dict[Package, JsonDictType]:
     config.LogPrint("Building all executable packages to extract their command line arguments")
 
-    filterDir = None if extractArguments == '*' else IOUtil.GetCurrentWorkingDirectory()
+    filterDir = None if extractArguments == '*' else currentDir
 
     res = {}  # type: Dict[Package, JsonDictType]
     for package in exePackages:
@@ -476,7 +477,7 @@ def __RemoveIgnored(log: Log, packages: List[Package], ignoreRequirementSet: Set
     return filteredPackages
 
 def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: List[Package], activeRootDir: ToolConfigRootDirectory,
-                    extractArguments: Optional[str], buildDocConfiguration: BuildDocConfiguration) -> List[str]:
+                    extractArguments: Optional[str], buildDocConfiguration: BuildDocConfiguration, currentDir: str) -> List[str]:
     log = config # type: Log
     ignoreRequirementSet = set() # type: Set[str]
     for requirement in buildDocConfiguration.Requirements:
@@ -485,11 +486,12 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
 
     exePackages = ExtractPackages(packages, PackageType.Executable)
     exePackages = __RemoveIgnored(log, exePackages, ignoreRequirementSet)
+    exePackages = [package for package in exePackages if package.ShowInMainReadme]
     exePackages.sort(key=lambda s: None if s.AbsolutePath is None else s.AbsolutePath.lower())
 
     packageArgumentsDict = {}  # type: Dict[Package, JsonDictType]
     if extractArguments is not None:
-        packageArgumentsDict = ExtractArguments(toolAppContext, config, exePackages, extractArguments)
+        packageArgumentsDict = ExtractArguments(toolAppContext, config, exePackages, extractArguments, currentDir)
 
     uniqueDict = {}  # type: Dict[str, List[Package]]
     for package in exePackages:
@@ -557,7 +559,7 @@ class DefaultValue(object):
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
 
         self.DryRun = DefaultValue.DryRun
         self.ToCDepth = DefaultValue.ToCDepth
@@ -570,7 +572,7 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 class ToolFlowBuildDoc(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildDoc, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -588,6 +590,11 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
         self.Process(currentDirPath, toolConfig, localToolConfig)
 
+    def __TryLocateRootDirectory(self, toolRootDirs: List[ToolConfigRootDirectory], findLocation: ResolvedPath) -> Optional[ToolConfigRootDirectory]:
+        for rootDir in toolRootDirs:
+            if rootDir.ResolvedPath == findLocation.ResolvedPath:
+                return rootDir
+        return None
 
     def Process(self, currentDirPath: str, toolConfig: ToolConfig, localToolConfig: LocalToolConfig) -> None:
         config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
@@ -601,26 +608,35 @@ class ToolFlowBuildDoc(AToolAppFlow):
 
         config.PrintTitle()
 
-        # Get the platform and see if its supported
-        platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
-        PlatformUtil.CheckBuildPlatform(platform.Name)
+        # Get the generator and see if its supported
+        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        PlatformUtil.CheckBuildPlatform(generator.PlatformName)
 
-        config.LogPrint("Active platform: {0}".format(platform.Name))
+        config.LogPrint("Active platform: {0}".format(generator.PlatformName))
 
         packageFilters = localToolConfig.BuildPackageFilters
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
-        generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
+        generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
         #featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
 
-        for rootDir in config.ToolConfig.RootDirectories:
+        for projectContext in config.ToolConfig.ProjectInfo.Contexts:
+            rootDir = self.__TryLocateRootDirectory(config.ToolConfig.RootDirectories, projectContext.Location)
+            if rootDir is None:
+                raise Exception("Root directory not found for location {0}".format(projectContext.Location))
             readmePath = IOUtil.Join(rootDir.ResolvedPath, "README.md")
             packageReadMeLines = TryLoadReadMe(config, readmePath)
             result = ProcessPackages(self.ToolAppContext, config, packages, rootDir, localToolConfig.ExtractArguments,
-                                     toolConfig.BuildDocConfiguration)
+                                     toolConfig.BuildDocConfiguration, currentDirPath)
             if packageReadMeLines is not None:
+                projectCaption = "# {0} {1}".format(projectContext.ProjectName, projectContext.ProjectVersion)
+                packageReadMeLinesNew = TryReplaceSection(config, packageReadMeLines, "AG_PROJECT_CAPTION", [projectCaption], readmePath)
+                if packageReadMeLinesNew is not None:
+                    packageReadMeLines = packageReadMeLinesNew
+
                 packageReadMeLinesNew = TryReplaceSection(config, packageReadMeLines, "AG_DEMOAPPS", result, readmePath)
                 if packageReadMeLinesNew is not None:
                     packageReadMeLines = packageReadMeLinesNew
@@ -646,6 +662,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
     def GetToolCommonArgConfig(self) -> ToolCommonArgConfig:
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
+        argConfig.AddGeneratorSelection = True
         argConfig.SupportBuildTime = True
         #argConfig.AllowVSVersion = True
         # These are used when: --ExtractArguments is enabled

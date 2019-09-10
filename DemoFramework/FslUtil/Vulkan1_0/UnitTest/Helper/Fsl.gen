@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="FslUtil.Vulkan1_0.UnitTest.Helper">
+  <Library Name="FslUtil.Vulkan1_0.UnitTest.Helper" CreationYear="2018">
     <Dependency Name="FslUnitTest"/>
     <Dependency Name="FslUtil.Vulkan1_0"/>
     <Platform Name="Windows" ProjectId="B6581D2D-B3CF-4B33-B2E5-B4A94F4276F2"/>

@@ -45,7 +45,7 @@ class BuildAreaInfoFileElements(object):
 
 class BuildAreaInfoFile(object):
     def __init__(self, jsonDict: JsonDictType) -> None:
-        super(BuildAreaInfoFile, self).__init__()
+        super().__init__()
         self.FileFormatVersion = jsonDict[BuildAreaInfoFileElements.FileFormatVersion]
         self.SDKPath = IOUtil.NormalizePath(jsonDict[BuildAreaInfoFileElements.SDKPath])
 

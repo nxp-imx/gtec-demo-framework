@@ -324,7 +324,7 @@ namespace Fsl
       uint32_t dstIndex = 0;
       for (uint32_t index = startIndex; index < length; ++index)
       {
-        rDst[dstIndex] = FontGlyphPosition(Vector2(0, 0), Rectangle(), 0);
+        rDst[dstIndex] = FontGlyphPosition(Vector2(0.0f, 0.0f), Rectangle(), 0);
         ++dstIndex;
       }
       return;
@@ -348,7 +348,8 @@ namespace Fsl
         currentGlyphIndex = m_unknownGlyphIndex;
       }
 
-      const Vector2 dstOffset = Vector2(layoutOffsetX + m_glyphs[currentGlyphIndex].Kerning.OffsetX, m_glyphs[currentGlyphIndex].Kerning.OffsetY);
+      const Vector2 dstOffset = Vector2(static_cast<float>(layoutOffsetX + m_glyphs[currentGlyphIndex].Kerning.OffsetX),
+                                        static_cast<float>(m_glyphs[currentGlyphIndex].Kerning.OffsetY));
       rDst[dstIndex] = FontGlyphPosition(dstOffset, m_glyphs[currentGlyphIndex].SrcRect, m_glyphs[currentGlyphIndex].Kerning.LayoutWidth);
       layoutOffsetX += m_glyphs[currentGlyphIndex].Kerning.LayoutWidth;
       ++dstIndex;
@@ -369,7 +370,7 @@ namespace Fsl
     if (!m_ranges.empty())
     {
       m_minGlyphId = m_ranges.front().From;
-      m_maxGlyphId = (m_ranges.back().From + std::max(m_ranges.back().Length, 0));
+      m_maxGlyphId = (m_ranges.back().From + std::max(m_ranges.back().Length, static_cast<int32_t>(0)));
     }
 
     // Extract the glyph entries from the texture atlas

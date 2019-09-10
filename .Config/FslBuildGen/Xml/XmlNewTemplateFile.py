@@ -49,7 +49,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlNewTemplate(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
-        super(XmlNewTemplate, self).__init__(log, xmlElement)
+        super().__init__(log, xmlElement)
         self.NoInclude = self._ReadBoolAttrib(xmlElement, 'NoInclude', False)
         self.Force = self._ReadBoolAttrib(xmlElement, 'Force', False)
         self.Warning = self._ReadAttrib(xmlElement, 'Warning', '')
@@ -65,7 +65,7 @@ class XmlNewTemplateFile(XmlBase):
         if elem.tag != 'FslBuildNewTemplate':
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGenConfig'")
 
-        super(XmlNewTemplateFile, self).__init__(log, elem)
+        super().__init__(log, elem)
         fileVersion = self._ReadAttrib(elem, 'Version')
         if fileVersion != '1':
             raise Exception("The template file version was not correct")

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <ExternalLibrary Name="Recipe.openvg_ri">
+  <ExternalLibrary Name="Recipe.openvg_ri" CreationYear="2017">
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Windows" Supported="true">
@@ -8,7 +8,7 @@
         <Pipeline>
           <GitClone URL="https://github.com/luismreis/openvg-ri.git" Hash="952aaf2699729203731e8a28eefacd2d47366d50"/>
           <Copy>
-            <Copy From="{RECIPE_PATH}/CMakeLists.txt" To="CMakeLists.txt"/>
+            <Copy From="{RECIPE_PATH}/CMakeLists_mod.txt" To="CMakeLists.txt"/>
             <Copy From="{RECIPE_PATH}/DummyEGL.cpp" To="DummyEGL.cpp"/>
             <GitApply From="{RECIPE_PATH}/X64patch.patch"/>
             <Delete Path=".git"/>

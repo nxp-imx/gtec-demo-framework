@@ -29,6 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoHost/Base/ADemoHost.hpp>
@@ -235,7 +236,7 @@ namespace Fsl
       // everything is ok
       return SwapBuffersResult::Completed;
     case AppDrawResult::Retry:
-      FSLLOG_WARNING("RetryDraw limit exceeded -> failing");
+      FSLBASICLOG_WARNING("RetryDraw limit exceeded -> failing");
       return SwapBuffersResult::Failed;
     case AppDrawResult::NotReady:
       return SwapBuffersResult::NotReady;
@@ -361,13 +362,13 @@ namespace Fsl
       // Quick exit if we are in the correct state
       if (m_state == State::Suspended)
       {
-        FSLLOG_WARNING("Already in suspended state, ignoring.");
+        FSLBASICLOG_WARNING("Already in suspended state, ignoring.");
         return;
       }
 
       if (m_state == State::Activated)
       {
-        FSLLOG_WARNING("Forcing window deactivation on suspend (missing activation)");
+        FSLBASICLOG_WARNING("Forcing window deactivation on suspend (missing activation)");
         CmdActivation(false);
       }
 
@@ -382,7 +383,7 @@ namespace Fsl
       // Quick exit if we are in the correct state
       if (m_state != State::Suspended)
       {
-        FSLLOG_WARNING("Not in suspended state, ignoring.");
+        FSLBASICLOG_WARNING("Not in suspended state, ignoring.");
         return;
       }
 

@@ -35,7 +35,7 @@ from FslBuildGen.Log import Log
 
 class BasicConfig(Log):
     def __init__(self, log: Log) -> None:
-        super(BasicConfig, self).__init__(log.Title, log.Verbosity, not log.GetTitlePrinted())
+        super().__init__(log.Title, log.Verbosity, not log.GetTitlePrinted())
         self.__Log = log
 
     # We override all the log functions to make sure that all output goes to the same log

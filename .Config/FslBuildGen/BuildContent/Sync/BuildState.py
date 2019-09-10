@@ -36,7 +36,6 @@ from typing import Dict
 from typing import List
 from typing import Optional
 import datetime
-import hashlib
 import os
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildContent.Sync.Content import Content
@@ -69,7 +68,7 @@ def GetCacheVersionString() -> str:
 
 class BasicContentState(object):
     def __init__(self) -> None:
-        super(BasicContentState, self).__init__()
+        super().__init__()
         self.Name = ""
         self.Length = 0
         self.ModifiedDate = ""
@@ -86,7 +85,7 @@ class BasicContentState(object):
 
 class ContentState(BasicContentState):
     def __init__(self) -> None:
-        super(ContentState, self).__init__()
+        super().__init__()
         self.CacheState = CacheState.New
         self.ModificationComment = ""
 
@@ -125,7 +124,7 @@ def CreateDirEntry(path: str) -> ContentState:
 
 class BasicContent(object):
     def __init__(self) -> None:
-        super(BasicContent, self).__init__()
+        super().__init__()
         self.Directories = []  # type: List[str]
         self.Files = []  # type: List[BasicContentState]
 
@@ -136,7 +135,7 @@ class BasicContent(object):
 
 class SyncState(object):
     def __init__(self, absoluteCacheFileName: str) -> None:
-        super(SyncState, self).__init__()
+        super().__init__()
         self.AbsoluteCacheFileName = absoluteCacheFileName
         self.__Clear()
 
@@ -313,7 +312,7 @@ class SyncState(object):
             log.LogPrintVerbose(2, "Using cached checksum for '{0}'".format(fileState.Name))
         else:
             log.LogPrintVerbose(2, "Calculating checksum for '{0}'".format(fileState.Name))
-            fileState.Checksum = self.__HashFile(pathFileRecord.ResolvedPath)
+            fileState.Checksum = IOUtil.HashFile(pathFileRecord.ResolvedPath)
         # Mark the entry as being new
         #if (cachedState is None or CacheState.New) and allowNew:
         if cachedState is None and allowNew:
@@ -324,18 +323,6 @@ class SyncState(object):
         else:
             fileState.CacheState = CacheState.Unmodified
         return fileState
-
-
-    def __HashFile(self, filename: str, blocksize: int = 65536) -> str:
-        hasher = hashlib.sha256()
-        with open(filename, "rb") as theFile:
-            buf = theFile.read(blocksize)
-            while len(buf) > 0:
-                hasher.update(buf)
-                buf = theFile.read(blocksize)
-            return hasher.hexdigest()
-
-
 
 
 

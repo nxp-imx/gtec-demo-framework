@@ -75,6 +75,8 @@ namespace Fsl
 
   OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
+    FSL_PARAM_NOT_USED(pszOptArg);
+
     switch (cmdId)
     {
     case CommandId::NoScissorX:

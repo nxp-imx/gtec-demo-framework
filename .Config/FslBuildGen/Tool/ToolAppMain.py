@@ -48,10 +48,13 @@ from FslBuildGen import PluginSharedValues
 from FslBuildGen import Util
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import BaseConfig
+from FslBuildGen.DataTypes import BuildThreads
+from FslBuildGen.DataTypes import GeneratorType
+from FslBuildGen.DataTypes import GeneratorNameString
+from FslBuildGen.DataTypes import VisualStudioVersion
 from FslBuildGen.Exceptions import AggregateException
 from FslBuildGen.Exceptions import ExitException
 from FslBuildGen.Exceptions import GroupedException
-from FslBuildGen.DataTypes import BuildThreads
 from FslBuildGen.Log import Log
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.ToolConfig import ToolConfig
@@ -64,8 +67,8 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersionString = "3.0.1"
-CurrentBuildString = "4"
+CurrentVersionString = "3.0.7"
+CurrentBuildString = "9"
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:
@@ -74,6 +77,8 @@ def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bo
     parser.add_argument('--dev', action='store_true', help='Allow plugins in development')
     parser.add_argument('--version', action='store_true', help='The tool version')
     parser.add_argument('--profile', action='store_true', help='Enable tool profiling')
+    parser.add_argument('--input', default=None, help='Set the input directory (defaults to current working directory)')
+    #parser.add_argument('--buildDir', default=None, help='Set the build directory (experimental only supported with cmake)')
     if allowStandaloneMode:
         parser.add_argument('--standalone', action='store_true', help='Allow the tool to run without the SDK present. This is a experimental option.')
 
@@ -91,9 +96,18 @@ def __EarlyArgumentParser(allowStandaloneMode: bool) -> Optional[LowLevelToolCon
         allowDevelopmentPlugins = True if args.dev else False
         profilerEnabled = True if args.profile else False
         standaloneEnabled = False if not allowStandaloneMode else (True if args.standalone else False)
+        currentDir = IOUtil.NormalizePath(args.input) if args.input is not None else None
+
+        if currentDir is None:
+            currentDir = IOUtil.GetCurrentWorkingDirectory()
+        elif not IOUtil.IsDirectory(currentDir):
+            raise Exception("Path '{0}' specified by --input is not a directory".format(currentDir))
+        elif verbosityLevel > 4:
+            print("Using custom path from --input '{0}'".format(currentDir))
+
         if args.version:
             print("V{0} Build {1}".format(CurrentVersionString, CurrentBuildString))
-        return LowLevelToolConfig(verbosityLevel, debugEnabled, allowDevelopmentPlugins, profilerEnabled, standaloneEnabled)
+        return LowLevelToolConfig(verbosityLevel, debugEnabled, allowDevelopmentPlugins, profilerEnabled, standaloneEnabled, currentDir)
     except (Exception) as ex:
         print("ERROR: {0}".format(str(ex)))
         if not debugEnabled:
@@ -114,7 +128,7 @@ def __ProcessRemainingArgs(args: Optional[List[str]]) -> List[str]:
 
 class BuildTimer(object):
     def __init__(self) -> None:
-        super(BuildTimer, self).__init__()
+        super().__init__()
         self.StartTime = time.time()
 
     def GetTimePassed(self) -> float:
@@ -169,7 +183,8 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
         toolAppConfig.RemainingArgs = args.RemainingArgs
     if toolCommonArgConfig.AllowForceClaimInstallArea:
         toolAppConfig.ForceClaimInstallArea = args.ForceClaimInstallArea
-    toolAppConfig.VSVersion = int(args.VSVersion) #if toolCommonArgConfig.AllowVSVersion else defaultVSVersion
+
+    toolAppConfig.VSVersion = int(args.VSVersion) if hasattr(args, 'VSVersion') else defaultVSVersion
 
     if toolCommonArgConfig.AddBuildFiltering or toolCommonArgConfig.AddUseFeatures:
         toolAppConfig.BuildPackageFilters.FeatureNameList = ParseUtil.ParseFeatureList(args.UseFeatures)
@@ -188,13 +203,25 @@ def __CreateToolAppConfig(args: Any, defaultPlatform: str, toolCommonArgConfig: 
     if toolCommonArgConfig.AllowRecursive:
         toolAppConfig.Recursive = args.recursive
 
+    if hasattr(args, 'Generator'):
+        # Convert to the internal value instead of string
+        toolAppConfig.Generator = GeneratorType.FromString(args.Generator)
+
+    # Handle the CMake parameters
+    if hasattr(args, 'CMakeBuildDir'):
+        toolAppConfig.CMakeBuildDir = None if args.CMakeBuildDir is None else IOUtil.NormalizePath(args.CMakeBuildDir)
+    if hasattr(args, 'CMakeInstallPrefix'):
+        toolAppConfig.CMakeInstallPrefix = None if args.CMakeInstallPrefix is None else IOUtil.NormalizePath(args.CMakeInstallPrefix)
+    if hasattr(args, 'CMakeGeneratorName'):
+        toolAppConfig.CMakeGeneratorName = args.CMakeGeneratorName
+
     return toolAppConfig
 
 
 def __PrepareGeneratorPlugins(lowLevelToolConfig: LowLevelToolConfig,
                               toolCommonArgConfig: ToolCommonArgConfig) -> List[str]:
     generatorPlugins = PluginConfig.GetGeneratorPlugins(lowLevelToolConfig.AllowDevelopmentPlugins)
-    generatorIds = [entry.Id for entry in generatorPlugins]
+    generatorIds = [entry.PlatformId for entry in generatorPlugins]
     if toolCommonArgConfig.AllowPlaformAll:
         generatorIds.append(PluginSharedValues.PLATFORM_ID_ALL)
     return generatorIds
@@ -203,27 +230,41 @@ def __PrepareGeneratorPlugins(lowLevelToolConfig: LowLevelToolConfig,
 def __CreateParser(toolCommonArgConfig: ToolCommonArgConfig, allowStandaloneMode: bool) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='FslBuildTools')
     __AddDefaultOptions(parser, allowStandaloneMode)
+
+
     if toolCommonArgConfig.ProcessRemainingArgs:
         parser.add_argument('RemainingArgs', nargs=argparse.REMAINDER)
     if toolCommonArgConfig.SupportBuildTime:
         parser.add_argument('--BuildTime', action='store_true', help='Time the build')
     if toolCommonArgConfig.AddBuildFiltering or toolCommonArgConfig.AddUseFeatures:
-        parser.add_argument('--UseFeatures', default=DefaultValue.UseFeatures, help='The list of available features to build for. For example [OpenGLES2,OpenGLES3.1] or * for everything')
+        parser.add_argument('--UseFeatures', default=DefaultValue.UseFeatures,
+                            help='The list of available features to build for. For example [OpenGLES2,OpenGLES3.1] or * for everything')
     if toolCommonArgConfig.AddBuildFiltering:
-        parser.add_argument('--RequireFeatures', default=DefaultValue.RequireFeatures, help='The list of features that are required for a executable to be build. For example [OpenGLES2] to build all executables that use OpenGLES2.')
-        parser.add_argument('--UseExtensions', default=DefaultValue.UseExtensions, help='The list of available extensions to build for. For example [OpenGLES3.1:EXT_geometry_shader,OpenGLES3.1:EXT_tessellation_shader] to allow the OpenGLES3.1 extensions EXT_geometry_shader and EXT_tessellation_shader. You can also specify * for all extensions (default).')
+        parser.add_argument('--RequireFeatures', default=DefaultValue.RequireFeatures,
+                            help='The list of features that are required for a executable to be build. For example [OpenGLES2] to build all executables that use OpenGLES2.')
+        parser.add_argument('--UseExtensions', default=DefaultValue.UseExtensions,
+                            help='The list of available extensions to build for. For example [OpenGLES3.1:EXT_geometry_shader,OpenGLES3.1:EXT_tessellation_shader] to allow the OpenGLES3.1 extensions EXT_geometry_shader and EXT_tessellation_shader. You can also specify * for all extensions (default).')
         #parser.add_argument('--RequireExtensions', default=DefaultValue.RequireExtensionsList, help='The list of extensions that are required for a executable to be saved. For example [OpenGLES3.1:EXT_geometry_shader] to build all executables that use OpenGLES3.1:EXT_geometry_shader beware this allows OpenGLES3.2 apps that use EXT_geometry_shader since OpenGLES3.2 extends OpenGLES3.1.')
-        parser.add_argument('--Recipes', default=DefaultValue.Recipes, help='The modifies the list of recipes. For example [Recipe.gli_0_8_2_0,-Recipe.Vulkan] will enable the glm and disable the vulkan recipe.')
+        parser.add_argument('--Recipes', default=DefaultValue.Recipes,
+                            help='The modifies the list of recipes. For example [Recipe.gli_0_8_2_0,-Recipe.Vulkan] will enable the glm and disable the vulkan recipe.')
 
     if toolCommonArgConfig.AddBuildThreads:
-        parser.add_argument('--BuildThreads', default=str(DefaultValue.BuildThreads), help='Configures how many threads the builder should use, beware this is a hint that may be ignored by the builder, can be a number or "auto".')
+        parser.add_argument('--BuildThreads', default=str(DefaultValue.BuildThreads),
+                            help='Configures how many threads the builder should use, beware this is a hint that may be ignored by the builder, can be a number or "auto".')
+
+    if toolCommonArgConfig.AddGeneratorSelection:
+        parser.add_argument('-g', '--Generator', default=GeneratorNameString.Default,
+                            help='Select the generator to use (experimental feature): {0}'.format(", ".join(GeneratorNameString.AllStrings())))
+        parser.add_argument('--CMakeBuildDir', default=DefaultValue.CMakeBuildDir, help='Select the build dir to use for cmake (experimental feature and work in progress argument name). Only used by the cmake generator.')
+        parser.add_argument('--CMakeInstallPrefix', default=DefaultValue.CMakeInstallPrefix, help='Select the install prefix for cmake (experimental feature and work in progress argument name). Only used by the cmake generator.')
+        parser.add_argument('--CMakeGeneratorName', default=DefaultValue.CMakeGeneratorName, help='Select the cmake generator name (experimental feature and work in progress argument name).  Only used by the cmake generator.')
 
     if toolCommonArgConfig.AddBuildVariants:
         parser.add_argument('--Variants', help='Configure the variants you wish to use for the build [WindowSystem=X11]')
     if toolCommonArgConfig.AllowRecursive:
-        parser.add_argument('-r', '--recursive', action='store_true', help='From the current package location we scan all sub directories for packages and process them')
+        parser.add_argument('-r', '--recursive', action='store_true',
+                            help='From the current package location we scan all sub directories for packages and process them')
     return parser
-
 
 
 def __RunStandalone(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
@@ -249,7 +290,7 @@ def __RunStandalone(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
         if toolCommonArgConfig.SupportBuildTime and args.BuildTime:
             buildTiming = BuildTimer()
 
-        currentDir = IOUtil.GetCurrentWorkingDirectory()
+        currentDir = lowLevelToolConfig.CurrentDir
 
         toolAppConfig = __CreateToolAppConfig(args, args.platform, toolCommonArgConfig, 0)
         toolAppContext = ToolAppContext(log, lowLevelToolConfig, toolAppConfig)
@@ -328,7 +369,7 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
     baseConfig = None
     try:
         basicConfig = BasicConfig(log)
-        currentDir = IOUtil.GetCurrentWorkingDirectory()
+        currentDir = lowLevelToolConfig.CurrentDir
 
         # Try to locate a project root configuration file
         projectRootConfig = GetProjectRootConfig(lowLevelToolConfig, basicConfig, currentDir)
@@ -348,7 +389,7 @@ def __Run(appFlowFactory: AToolAppFlowFactory, strToolAppTitle: str,
     try:
         defaultVSVersion = toolConfig.GetVisualStudioDefaultVersion()
         #if toolCommonArgConfig.AllowVSVersion:
-        parser.add_argument('--VSVersion', default=str(defaultVSVersion), help='Choose a specific visual studio version (2015,2017), This project defaults to: {0}'.format(toolConfig.GetVisualStudioDefaultVersion()))
+        parser.add_argument('--VSVersion', default=str(defaultVSVersion), help='Choose a specific visual studio version (2015,2017), This project defaults to: {0}'.format(defaultVSVersion))
 
         userTag = appFlowFactory.CreateUserTag(baseConfig)
         appFlowFactory.AddCustomArguments(parser, toolConfig, userTag)

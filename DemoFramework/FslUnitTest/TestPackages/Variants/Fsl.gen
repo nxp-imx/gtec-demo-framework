@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="FslUnitTest.TestPackages.Variants">
+  <Library Name="FslUnitTest.TestPackages.Variants" CreationYear="2019">
+    <Requirement Name="Test_TestPackage" Type="feature"/>
     <Dependency Name="FslUnitTest.TestPackages.DynamicVariant"/>
     <Dependency Name="FslUnitTest.TestPackages.StaticVariants"/>
     <Platform Name="Windows" ProjectId="279B6BBD-604F-4787-B83F-4CFBCF4F1734"/>

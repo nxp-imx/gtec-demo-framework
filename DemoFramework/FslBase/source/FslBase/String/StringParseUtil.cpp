@@ -31,7 +31,7 @@
 
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <cassert>
 #include <cerrno>
 #include <cmath>
@@ -765,7 +765,7 @@ namespace Fsl
     rValue = 0;
     if (psz == nullptr)
     {
-      FSLLOG_DEBUG_WARNING("psz can not be null");
+      FSLBASICLOG_DEBUG_WARNING("psz can not be null");
       return false;
     }
 
@@ -773,12 +773,12 @@ namespace Fsl
     const auto endIndex = startIndex + length;
     if (endIndex > actualLength)
     {
-      FSLLOG_DEBUG_WARNING("startIndex or length out of bounds");
+      FSLBASICLOG_DEBUG_WARNING("startIndex or length out of bounds");
       return false;
     }
     if (length < 1)
     {
-      FSLLOG_DEBUG_WARNING("length too small to contain a int32");
+      FSLBASICLOG_DEBUG_WARNING("length too small to contain a int32");
       return false;
     }
 
@@ -802,7 +802,7 @@ namespace Fsl
 
       if (length >= 32)
       {
-        FSLLOG_DEBUG_WARNING("string is too long");
+        FSLBASICLOG_DEBUG_WARNING("string is too long");
         return false;
       }
       char tmpBuffer[32];

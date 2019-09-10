@@ -115,10 +115,11 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
+        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
-        generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)

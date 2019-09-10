@@ -36,7 +36,7 @@ from typing import List
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.DataTypes import BuildVariantType
-from FslBuildGen.DataTypes import GeneratorType
+from FslBuildGen.DataTypes import LegacyGeneratorType
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
@@ -52,23 +52,26 @@ from FslBuildGen.SharedGeneration import ToolAddedVariantOptions
 
 
 GENERATOR_TYPES = {
-    "default" : GeneratorType.Default,
-    "deprecated" : GeneratorType.Deprecated,
-    "experimental" : GeneratorType.Experimental
+    "default" : LegacyGeneratorType.Default,
+    "deprecated" : LegacyGeneratorType.Deprecated,
+    "experimental" : LegacyGeneratorType.Experimental
 }
 
 
 
 class GeneratorPlugin(GeneratorPluginBase2):
-    def __init__(self, name: str) -> None:
-        super(GeneratorPlugin, self).__init__(name)
-        self.OriginalId = self.Id
+    def __init__(self, platformName: str) -> None:
+        super().__init__(platformName)
+        self.OriginalPlatformId = self.PlatformId
         self.InDevelopment = False
         self.DotEnabled = False
+        self.IsCMake = False
         # If this is set the native build file is expected to run FslBuildContent
         # If it is false FslBuild will run it during the build
         self.SupportContentBuild = False
-        self.GeneratorType = GeneratorType.Default
+        self.SupportCommandClean = False
+        self.SupportCommandInstall = False
+        self.LegacyGeneratorType = LegacyGeneratorType.Default
         self.PackageResolveConfig_MarkExternalLibFirstUse = False
         # Add the default 'config' variant
         self.AddGeneratorVariant(GeneratorVariant(ToolAddedVariant.CONFIG, ToolAddedVariantOptions.CONFIG, "##OPTIONS##", BuildVariantType.Dynamic))
@@ -81,11 +84,11 @@ class GeneratorPlugin(GeneratorPluginBase2):
         #self.Id = name.lower()
 
 
-    def SetGeneratorType(self, generatorType: str) -> None:
-        if generatorType in GENERATOR_TYPES:
-            self.GeneratorType = GENERATOR_TYPES[generatorType]
+    def SetLegacyGeneratorType(self, legacyGeneratorType: str) -> None:
+        if legacyGeneratorType in GENERATOR_TYPES:
+            self.LegacyGeneratorType = GENERATOR_TYPES[legacyGeneratorType]
         else:
-            raise Exception("Unsupported generator type: '{0}'".format(generatorType))
+            raise Exception("Unsupported generator type: '{0}'".format(legacyGeneratorType))
 
 
     def AddGeneratorVariant(self, generatorVariant: GeneratorVariant) -> None:
@@ -107,7 +110,7 @@ class GeneratorPlugin(GeneratorPluginBase2):
     def Generate(self, platformContext: PlatformContext, config: Config, packages: List[Package]) -> List[Package]:
         """ General generate method, does a bit of processing then calls the plugin DoGenerate method """
         if not config.ToolConfig.DefaultPackageLanguage in self.SupportedPackageLanguages:
-            raise UnsupportedException("The package language '{0}' is not supported by the generator '{1}'".format(PackageLanguage.ToString(config.ToolConfig.DefaultPackageLanguage), self.Name))
+            raise UnsupportedException("The package language '{0}' is not supported by the generator '{1}'".format(PackageLanguage.ToString(config.ToolConfig.DefaultPackageLanguage), self.PlatformName))
         return self.DoGenerate(platformContext, config, packages)
 
 

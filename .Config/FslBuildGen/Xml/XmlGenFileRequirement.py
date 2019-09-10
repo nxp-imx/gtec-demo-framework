@@ -43,7 +43,7 @@ from FslBuildGen.Xml.Exceptions import XmlRequirementTypeExtensionRequiresAValid
 
 class XmlGenFileRequirement(XmlBase):
     def __init__(self, config: Config, xmlElement: ET.Element) -> None:
-        super(XmlGenFileRequirement, self).__init__(config, xmlElement)
+        super().__init__(config, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')        # type: str
         self.Type = self._ReadAttrib(xmlElement, 'Type')        # type: str
         self.Extends = self._ReadAttrib(xmlElement, 'Extends', '') # type: str

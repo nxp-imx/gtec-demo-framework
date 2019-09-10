@@ -56,6 +56,9 @@ namespace Fsl
   {
     bool TrySwizzle(gli::texture& tex, const PixelFormatLayout srcFormatLayout, const PixelFormatLayout dstFormatLayout)
     {
+      FSL_PARAM_NOT_USED(tex);
+      FSL_PARAM_NOT_USED(srcFormatLayout);
+      FSL_PARAM_NOT_USED(dstFormatLayout);
       // switch (dstFormatLayout)
       //{
       // case PixelFormatLayout::R8G8B8:
@@ -121,6 +124,9 @@ namespace Fsl
   bool ImageLibraryGLIService::TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
                                        const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
+    FSL_PARAM_NOT_USED(pixelFormatHint);
+    FSL_PARAM_NOT_USED(preferredChannelOrderHint);
+    FSL_PARAM_NOT_USED(originHint);
     if (!IO::Path::IsPathRooted(absolutePath))
     {
       return false;
@@ -179,6 +185,8 @@ namespace Fsl
   bool ImageLibraryGLIService::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
                                        const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
+    FSL_PARAM_NOT_USED(originHint);
+    FSL_PARAM_NOT_USED(preferredChannelOrderHint);
     if (!IO::Path::IsPathRooted(absolutePath))
     {
       return false;
@@ -274,6 +282,9 @@ namespace Fsl
 
   bool ImageLibraryGLIService::TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const bool allowOverwrite)
   {
+    FSL_PARAM_NOT_USED(bitmap);
+    FSL_PARAM_NOT_USED(imageFormat);
+    FSL_PARAM_NOT_USED(allowOverwrite);
     if (!IO::Path::IsPathRooted(absolutePath))
     {
       return false;

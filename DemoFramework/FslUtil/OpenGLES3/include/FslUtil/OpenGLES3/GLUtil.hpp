@@ -72,6 +72,9 @@ namespace Fsl
 
       //! @brief Convert the primitive type to the corresponding GL primitive type
       static GLenum Convert(const PrimitiveType primitiveType);
+
+      //! @brief Get a list of all compressed texture formats by querying glGetIntegerv with GL_COMPRESSED_TEXTURE_FORMATS
+      static std::vector<GLint> GetCompressedTextureFormats();
     };
   }
 }

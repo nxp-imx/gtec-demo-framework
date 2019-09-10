@@ -4,7 +4,8 @@
 
 <!-- #AG_DEMOAPP_HEADER_END# -->
 <!-- #AG_BRIEF_BEGIN# -->
-Shows how to create a freestyle console based application using the demoframework.
+Shows how to create a freestyle  console based application using the demoframework.
+This console app has access to the normal graphics libraries.
 <!-- #AG_BRIEF_END# -->
 
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->

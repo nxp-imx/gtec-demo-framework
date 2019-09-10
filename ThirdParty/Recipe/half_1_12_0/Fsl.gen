@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <ExternalLibrary Name="Recipe.half_1_12_0">
+  <ExternalLibrary Name="Recipe.half_1_12_0" CreationYear="2017">
     <Define Name="FSL_FEATURE_HALF" Access="Public"/>
     <ExperimentalRecipe Name="half-1.12.0">
       <Pipeline>

@@ -31,8 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/SimpleLayout.hpp>
+#include <FslSimpleUI/Base/Layout/Layout.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
+#include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
 #include <deque>
 
 namespace Fsl

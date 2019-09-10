@@ -160,7 +160,7 @@ def SavePackageMetaDataToJson(generatorContext: GeneratorContext,
         log.LogPrint("WARNING: No packages left to write to json file '{0}'".format(dstFilePath))
         resolvedBuildOrder = []
 
-    generatorReportDict = None if not includeGeneratorReport else generatorContext.Generator.GenerateReport(log, generatorConfig, resolvedBuildOrder)
+    generatorReportDict = None if not includeGeneratorReport else generatorContext.Generator.GenerateReport(log, generatorConfig, resolvedBuildOrder).PackageReportDict
 
     jsonRootDict = {} # type: Dict[str, Any]
     jsonRootDict["PlatformName"] = topLevelPackage.ResolvedPlatformName

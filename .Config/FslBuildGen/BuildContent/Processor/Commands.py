@@ -37,16 +37,16 @@ from FslBuildGen.BuildContent.Processor.ContentFileRecord import ContentFileReco
 
 class Command(object):
     def __init__(self, log: Log) -> None:
-        super(Command, self).__init__()
+        super().__init__()
 
 
 class CommandContentSync(Command):
     def __init__(self, log: Log, files: List[ContentFileRecord]) -> None:
-        super(CommandContentSync, self).__init__(log)
+        super().__init__(log)
         self.Files = files
 
 
 class CommandContentBuildSync(Command):
     def __init__(self, log: Log, files: List[ContentFileRecord]) -> None:
-        super(CommandContentBuildSync, self).__init__(log)
+        super().__init__(log)
         self.Files = files

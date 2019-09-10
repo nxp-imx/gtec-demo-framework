@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../FslBuildGen.xsd">
+  <Library Name="FslUnitTest.TestPackages.Access.P1" CreationYear="2019">
+    <Requirement Name="Test_TestPackage" Type="feature"/>
+    <Platform Name="Windows" ProjectId="D489C4A1-1872-4240-9B81-BD4EF93123B1"/>
+  </Library>
+</FslBuildGen>

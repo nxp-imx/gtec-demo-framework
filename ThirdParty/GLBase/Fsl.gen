@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <ExternalLibrary Name="GLBase">
+  <ExternalLibrary Name="GLBase" CreationYear="2014">
     <Platform Name="Windows">
       <Variant Name="$(FSL_GLES_NAME)" Type="Virtual">
         <Option Name="$(FSL_GLES_NAME)"/>

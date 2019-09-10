@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES3.S09_VIV_direct_texture" NoInclude="true">
+  <Executable Name="GLES3.S09_VIV_direct_texture" NoInclude="true" CreationYear="2014">
     <Default.Platform.Supported Value="false"/>
     <ImportTemplate Name="DemoAppGLES3"/>
     <Platform Name="Yocto" Supported="true"/>

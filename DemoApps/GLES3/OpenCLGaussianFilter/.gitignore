@@ -30,6 +30,8 @@
 /OpenCLGaussianFilter_FB
 /OpenCLGaussianFilter_FB_d
 /OpenCLGaussianFilter_Wayland
+/OpenCLGaussianFilter_Wayland_IVI
+/OpenCLGaussianFilter_Wayland_IVI_d
 /OpenCLGaussianFilter_Wayland_d
 /OpenCLGaussianFilter_X11
 /OpenCLGaussianFilter_X11_d

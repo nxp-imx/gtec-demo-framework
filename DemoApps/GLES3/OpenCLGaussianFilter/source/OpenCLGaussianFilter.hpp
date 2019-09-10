@@ -54,8 +54,8 @@ namespace Fsl
       GLES3::GLProgram Program;
       GLES3::GLTexture Texture;
       GLES3::GLVertexBuffer VertexBuffer;
-      GLuint ModelViewMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
-      GLuint ProjMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint ModelViewMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
+      GLint ProjMatrixLoc = GLES3::GLValues::INVALID_LOCATION;
     };
 
     Resources m_resources;

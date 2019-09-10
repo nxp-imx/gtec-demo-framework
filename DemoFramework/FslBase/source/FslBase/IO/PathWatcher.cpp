@@ -50,7 +50,8 @@ namespace Fsl
       std::shared_ptr<PlatformPathMonitorToken> Token;
 
       PathWatcherInternalRecord(const Path& fullPath, std::shared_ptr<PlatformPathMonitorToken> token)
-        : Token(std::move(token))
+        : FullPath(fullPath)
+        , Token(std::move(token))
       {
       }
 

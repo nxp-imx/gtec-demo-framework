@@ -34,11 +34,12 @@
 from typing import List
 from typing import Optional
 
-
 class GeneratorCommandReport(object):
     def __init__(self, useAsRelative: bool, commandFormatString: str,
-                 arguments: List[str], currentWorkingDirectoryFormatString: Optional[str] = None,
-                 runInEnvScript: Optional[str] = None) -> None:
+                 arguments: List[str], nativeArguments: List[str],
+                 currentWorkingDirectoryFormatString: Optional[str] = None,
+                 runInEnvScript: Optional[str] = None,
+                 nativeArgumentSeparator: Optional[str] = None) -> None:
         """
             The information stored in a format string can contain both variables and environment variables and
             it need to be formatted/converted using the ReportVariableFormatter before being used.
@@ -58,6 +59,8 @@ class GeneratorCommandReport(object):
             raise Exception("currentWorkingDirectoryFormatString can not be absolute")
         if runInEnvScript is not None and (runInEnvScript.startswith('/') or ':' in runInEnvScript):
             raise Exception("runInEnvScript can not be absolute")
+        if len(nativeArguments) != 0 and nativeArgumentSeparator is None:
+            raise Exception("When native args are supplied there should be a native argument separator")
 
         # if this is true the exe should be run via as 'relative' command.
         # if this is false it will be run as a absolute path command relative to the package absolute path
@@ -68,6 +71,11 @@ class GeneratorCommandReport(object):
         # Relative paths are considered relative to the cwdFormatString
         self.CommandFormatString = commandFormatString
         self.Arguments = arguments
+
+        # The argument that indicates that the rest of the arguments are native arguments
+        self.NativeArgumentSeparator = nativeArgumentSeparator;
+        # Arguments that should be send to the native command
+        self.NativeArguments = nativeArguments
 
         # if this is None, the package absolute path should be used instead
         self.CurrentWorkingDirectoryFormatString = currentWorkingDirectoryFormatString

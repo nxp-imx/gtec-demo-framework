@@ -282,6 +282,8 @@ namespace Fsl
 
   void Bloom::Draw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     if (!m_scene)
     {
       return;

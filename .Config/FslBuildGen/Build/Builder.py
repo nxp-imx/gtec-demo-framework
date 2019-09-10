@@ -38,6 +38,7 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Set
+import json
 import os
 import multiprocessing
 import shlex
@@ -46,8 +47,10 @@ import subprocess
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageUtil
 from FslBuildGen import PackageListUtil
+from FslBuildGen import ToolSharedValues
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Build.BuildConfigRecord import BuildConfigRecord
+from FslBuildGen.Build.BuildConfigureCache import BuildConfigureCache
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
 from FslBuildGen.Build.BuildVariantUtil import BuildVariantUtil
 from FslBuildGen.Build.DataTypes import CommandType
@@ -74,10 +77,14 @@ from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorPluginBase2
 from FslBuildGen.Generator.GeneratorVC import GeneratorVCUtil
+from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
+from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
+from FslBuildGen.Generator.Report.PackageGeneratorBuildExecutableInfo import PackageGeneratorBuildExecutableInfo
+from FslBuildGen.Generator.Report.PackageGeneratorConfigReport import PackageGeneratorConfigReport
+from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
 from FslBuildGen.Generator.VariantHelper import VariantHelper
 from FslBuildGen.PackageConfig import PlatformNameString
-from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackagePlatformVariant
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
@@ -86,26 +93,23 @@ from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Log import Log
 from FslBuildGen.SharedGeneration import GEN_BUILD_ENV_VARIANT_SETTING
 from FslBuildGen.SharedGeneration import ToolAddedVariant
+from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
 from FslBuildGen.Xml.XmlStuff import XmlGenFileVariantOption
 
 
 class LocalPlatformBuildContext(object):
-    def __init__(self, log: Log, generatorOriginalName: str, buildCommand: int, buildThreads: int) -> None:
+    def __init__(self, log: Log, generatorOriginalName: str, isCMakeGenerator: bool, buildThreads: int) -> None:
         self.Log = log
         self.AdditionalBuildArguments = [] # type: List[str]
-        PlatformBuildUtil.AddBuildThreads(log, self.AdditionalBuildArguments, generatorOriginalName, buildThreads)
-        if buildCommand == CommandType.Clean:
-            self.__HandleCleanBuilds(self.AdditionalBuildArguments, generatorOriginalName)
-
-
-    def __HandleCleanBuilds(self, rArgumentList: List[str], generatorOriginalName: str) -> None:
-        platformName = generatorOriginalName
-        if platformName == PlatformNameString.QNX or platformName == PlatformNameString.YOCTO or platformName == PlatformNameString.UBUNTU:
-            rArgumentList += ['clean']
-        elif platformName == PlatformNameString.WINDOWS:
-            rArgumentList += ['/t:Clean']
+        # The CMake generator adds the necessary parameters automatically
+        # A future pass on this code should move the AddBuildThreads arguments to the generators instead as its more appropriate.
+        numBuildThreads = 1
+        if not isCMakeGenerator:
+            numBuildThreads = PlatformBuildUtil.AddBuildThreads(log, self.AdditionalBuildArguments, generatorOriginalName, buildThreads)
         else:
-            self.Log.LogPrintWarning("The builder ignored --Command: clean")
+            numBuildThreads = PlatformBuildUtil.GetRecommendedBuildThreads(buildThreads)
+        self.NumBuildThreads = numBuildThreads
+
 
 
 class LocalBuildContext(object):
@@ -128,12 +132,11 @@ class Builder(object):
                  buildConfig: BuildConfigRecord,
                  enableContentBuilder: bool,
                  forceClaimInstallArea: bool) -> None:
-        super(Builder, self).__init__()
+        super().__init__()
         self.Log = config
 
-        localPlatformBuildContext = LocalPlatformBuildContext(config, generatorContext.Generator.OriginalName,
-                                                              buildConfig.BuildCommand, buildConfig.BuildThreads)
-
+        localPlatformBuildContext = LocalPlatformBuildContext(config, generatorContext.Generator.OriginalPlatformName, generatorContext.Generator.IsCMake,
+                                                              buildConfig.BuildThreads)
 
         # Do a final filter that removes all unsupported packages
         resolvedBuildOrder = topLevelPackage.ResolvedBuildOrder
@@ -155,53 +158,211 @@ class Builder(object):
             config.DoPrint("Nothing to build!")
             return
 
-        generatorConfig = GeneratorConfig(config.SDKConfigTemplatePath, config.ToolConfig)
-        generatorReportDict = generatorContext.Generator.GenerateReport(self.Log, generatorConfig, resolvedBuildOrderBuildable)
+        generatorConfig = GeneratorConfig(generatorContext.PlatformName, config.SDKConfigTemplatePath, config.ToolConfig,
+                                          localPlatformBuildContext.NumBuildThreads, buildConfig.BuildCommand)
+        generatorConfigReport = generatorContext.Generator.TryGenerateConfigReport(self.Log, generatorConfig, topLevelPackage)
 
         packageCount = len(resolvedBuildOrderBuildable)
 
         resolvedBuildOrderBuildable = self.__ApplyPlatformOrderChanges(resolvedBuildOrderBuildable, buildConfig.PlatformName)
-
         originalBuildArgs = buildConfig.BuildArgs
 
+        # Handle the configure step
+        masterBuildReport = None # type: Optional[GeneratorBuildReport]
+        masterBuildVariableReport = None # type: Optional[GeneratorVariableReport]
+        if generatorConfigReport is not None:
+            # Setup some extra variables for configure
+            self.__AddCustomVariables(generatorConfigReport.VariableReport, config.ToolConfig.ProjectInfo)
+
+            self.__ConfigureBuild(generatorConfigReport, buildConfig)
+            masterBuildReport = generatorConfigReport.MasterBuildReport
+            masterBuildVariableReport = generatorConfigReport.MasterBuildVariableReport
+            if masterBuildVariableReport is not None:
+                self.__AddCustomVariables(masterBuildVariableReport, config.ToolConfig.ProjectInfo)
+
+        # Acquire information about the build step
+        generatorReport = generatorContext.Generator.GenerateReport(self.Log, generatorConfig, resolvedBuildOrderBuildable)
+        generatorReportDict = generatorReport.PackageReportDict
+        for generatorEntry in generatorReportDict.values():
+            if generatorEntry.VariableReport is not None:
+                self.__AddCustomVariables(generatorEntry.VariableReport, config.ToolConfig.ProjectInfo)
+
+
         # Default content building for all platform (for those generators that don't add it to the build file)
-        if enableContentBuilder:
+        builderCanBuildContent = (generatorConfigReport is not None and generatorConfigReport.CanBuildContent)
+        if enableContentBuilder and not builderCanBuildContent:
             for package in resolvedBuildOrderBuildable:
                 if package.Type == PackageType.Executable:
                     featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
-                    if package.AbsolutePath is None:
+                    if package.Path is None:
                         raise Exception("Invalid package")
-                    ContentBuilder.Build(config, package.AbsolutePath, featureList)
+                    ContentBuilder.Build(config, package.Path, featureList)
 
         # Windows runs its validation checks slightly differently
         runValidationChecks = (buildConfig.PlatformName != PlatformNameString.WINDOWS)
 
         buildContext = LocalBuildContext(config, localPlatformBuildContext, generatorReportDict, generatorContext.GeneratorName)
-        for package in resolvedBuildOrderBuildable:
-            config.LogPrint("Building package: {0}".format(package.Name))
-            config.LogPrint("Package location: {0}".format(package.AbsolutePath))
-            if not config.IsDryRun:
-                buildEnv = os.environ.copy()  # type: Dict[str, str]
-                buildEnv[CONFIG_FSLBUILDCONTENT_ENABLED] = "false"
-                BuildVariantUtil.ExtendEnvironmentDictWithVariants(config, buildEnv, package, buildConfig.VariantSettingsDict)
-                buildConfig.BuildArgs = list(originalBuildArgs)
-                if config.Verbosity > 4:
-                    config.DoPrint("Package build arguments1: {0}".format(buildConfig.BuildArgs))
-                    config.DoPrint("General build arguments2: {0}".format(originalBuildArgs))
-                strRunCommands = buildConfig.RunCommand
-                runCommands = None  # type: Optional[List[str]]
-                if strRunCommands is not None:
-                    userRunCommands = shlex.split(strRunCommands)
-                    runCommands = self.__TryGenerateRunCommandForExecutable(buildContext, package, buildConfig.VariantSettingsDict, userRunCommands)
-                if runValidationChecks:
-                    featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
-                    Validate.ValidatePlatform(config, buildConfig.PlatformName, featureList, 4)
-                self.__BuildPackage(buildContext, package, buildConfig, buildEnv, runCommands)
+
+        if masterBuildReport is not None:
+            if masterBuildVariableReport is None:
+                raise Exception("master-build must have a variable report")
+            self.__BuildMaster(buildConfig, buildContext, masterBuildReport, masterBuildVariableReport, topLevelPackage,
+                               originalBuildArgs, builderCanBuildContent, runValidationChecks, config.IsDryRun)
+
+        # Build and run all the packages in the resolvedBuildOrderBuildable
+        self.__BuildAndRunPackages(config, buildConfig, buildContext, resolvedBuildOrderBuildable, originalBuildArgs,
+                                   builderCanBuildContent, runValidationChecks, masterBuildReport is None, config.IsDryRun,
+                                   generatorConfig)
 
         if packageCount > 0:
             config.LogPrint("Build {0} packages".format(packageCount))
         else:
             config.DoPrint("Nothing build!")
+
+        if generatorContext.Generator.IsCMake and buildConfig.BuildCommand == CommandType.Clean:
+            self.Log.DoPrint("*** To do a full cmake clean build delete the out of source build folder ***")
+        if not generatorContext.Generator.SupportCommandClean and buildConfig.BuildCommand == CommandType.Clean:
+            self.Log.DoPrint("*** clean not supported by this builder ***")
+        if not generatorContext.Generator.SupportCommandInstall and buildConfig.BuildCommand == CommandType.Install:
+            self.Log.DoPrint("*** install not supported by this builder ***")
+
+
+
+    def __AddCustomVariables(self, variableReport: GeneratorVariableReport, projectInfo: ToolConfigProjectInfo) -> None:
+        variableReport.Add('TopProjectRoot', [projectInfo.TopProjectContext.Location.ResolvedPath])
+
+
+    def __BuildMaster(self, buildConfig: BuildConfigRecord, buildContext: LocalBuildContext,
+                      masterBuildReport: GeneratorBuildReport, masterBuildVariableReport: GeneratorVariableReport,
+                      topLevelPackage: Package, originalBuildArgs: List[str], builderCanBuildContent: bool,
+                      runValidationChecks: bool, isDryRun: bool) -> None:
+        self.Log.LogPrintVerbose(2, "Using master-build for better performance")
+        buildEnv = self.__CreateBuildEnv(self.Log, buildConfig, buildContext, topLevelPackage, builderCanBuildContent)
+        buildConfig.BuildArgs = list(originalBuildArgs)
+
+        if runValidationChecks:
+            self.__RunValidationChecks(buildConfig, topLevelPackage)
+
+        self.__Build(buildContext, buildConfig, buildEnv, masterBuildReport, masterBuildVariableReport, None, "build-master")
+
+
+    def __BuildAndRunPackages(self, log: Log, buildConfig: BuildConfigRecord, buildContext: LocalBuildContext,
+                              resolvedBuildOrderBuildable: List[Package], originalBuildArgs: List[str],
+                              builderCanBuildContent: bool, runValidationChecks: bool, allowBuild: bool, isDryRun: bool,
+                              generatorConfig: GeneratorConfig) -> None:
+        for package in resolvedBuildOrderBuildable:
+            if allowBuild:
+                log.LogPrint("Building package: {0}".format(package.Name))
+                log.LogPrint("Package location: {0}".format(package.AbsolutePath))
+            if not isDryRun:
+                buildEnv = self.__CreateBuildEnv(log, buildConfig, buildContext, package, builderCanBuildContent)
+                buildConfig.BuildArgs = list(originalBuildArgs)
+                if log.Verbosity > 4:
+                    log.DoPrint("Package build arguments1: {0}".format(buildConfig.BuildArgs))
+                    log.DoPrint("General build arguments2: {0}".format(originalBuildArgs))
+
+                if runValidationChecks:
+                    self.__RunValidationChecks(buildConfig, package)
+
+                # Do the actual package build and then run the package if so desired
+                if allowBuild:
+                    self.__BuildPackage(buildContext, buildConfig, buildEnv, package)
+
+                # Run commands
+                strRunCommands = buildConfig.RunCommand
+                runCommands = None  # type: Optional[List[str]]
+                if strRunCommands is not None:
+                    userRunCommands = shlex.split(strRunCommands)
+                    runCommands = self.__TryGenerateRunCommandForExecutable(buildContext, package, buildConfig, userRunCommands,
+                                                                            generatorConfig)
+                    self.__RunPackage(buildContext, package, buildEnv, runCommands)
+
+
+    def __RunValidationChecks(self, buildConfig: BuildConfigRecord, package: Package) -> None:
+        featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
+        Validate.ValidatePlatform(self.Log, buildConfig.PlatformName, featureList, 4)
+
+
+    def __CreateBuildEnv(self, log: Log, buildConfig: BuildConfigRecord, buildContext: LocalBuildContext, package: Package, builderCanBuildContent: bool) -> Dict[str, str]:
+        buildEnv = os.environ.copy()  # type: Dict[str, str]
+        if not builderCanBuildContent:
+            buildEnv[CONFIG_FSLBUILDCONTENT_ENABLED] = "false"
+
+        BuildVariantUtil.ExtendEnvironmentDictWithVariants(log, buildEnv, package, buildConfig.VariantSettingsDict)
+        return buildEnv
+
+    def __CheckBuildConfigureModifications(self, cacheFilename: str, generatedFileSet: Set[str],
+                                           command: List[str]) -> Optional[BuildConfigureCache]:
+        """
+        Generate hashes for all files in the set and compare them to the previously saved hashes
+        Returns the new cache if its dirty else None if nothing was changed.
+        """
+        # Generate a hash for all generated files and compare them to the previous "hash"
+        self.Log.LogPrintVerbose(4, "Checking current configuration")
+        generatedFileDictCache = {} # type: Dict[str,str]
+        for filename in generatedFileSet:
+            generatedFileDictCache[filename] = IOUtil.HashFile(filename)
+        configureCache = BuildConfigureCache(generatedFileDictCache, command)
+
+        isDirty = True
+        self.Log.LogPrintVerbose(5, "- Loading previous configuration cache if present")
+        previousConfigureCache = BuildConfigureCache.TryLoad(self.Log, cacheFilename)
+        self.Log.LogPrintVerbose(5, "- Comparing cache entries")
+        isDirty = previousConfigureCache is None or not BuildConfigureCache.IsEqual(configureCache, previousConfigureCache)
+
+        return configureCache if isDirty else None
+
+
+    def __ConfigureBuild(self, report: PackageGeneratorConfigReport, buildConfig: BuildConfigRecord) -> None:
+        configReport = report.ConfigReport.ConfigCommandReport
+        variableReport = report.VariableReport
+
+
+        buildArgumentList = []
+        for buildArgument in configReport.Arguments:
+            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantSettingsDict)
+            buildArgumentList.append(buildArgument)
+
+        configCommandStr = ReportVariableFormatter.Format(configReport.CommandFormatString, variableReport, buildConfig.VariantSettingsDict)
+
+        currentWorkingDirectory = ReportVariableFormatter.Format(configReport.CurrentWorkingDirectoryFormatString,
+                                                                 variableReport, buildConfig.VariantSettingsDict)
+
+        configCommand = [configCommandStr] + buildArgumentList # + buildConfig.BuildConfigArgs
+        #if len(buildContext.Platform.AdditionalBuildConfigArguments) > 0:
+        #    buildCommand += buildContext.Platform.AdditionalBuildConfigArguments
+
+        try:
+            IOUtil.SafeMakeDirs(currentWorkingDirectory)
+
+            cacheFilename = IOUtil.Join(currentWorkingDirectory, '.FslConfigureCache.json')
+
+            dirtyBuildConfigureCache = self.__CheckBuildConfigureModifications(cacheFilename, report.GeneratedFileSet, configCommand)
+            if dirtyBuildConfigureCache is None:
+                self.Log.LogPrint("Build configuration not modified, skipping configure")
+                return
+            self.Log.LogPrint("Build configuration modifed, running configure")
+
+            if self.Log.Verbosity >= 1:
+                self.Log.LogPrint("Running build config command '{0}' in '{1}'".format(self.__SafeJoinCommandArguments(configCommand), currentWorkingDirectory))
+
+            result = subprocess.call(configCommand, cwd=currentWorkingDirectory)
+            if result != 0:
+                self.Log.LogPrintWarning("The build config command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(self.__SafeJoinCommandArguments(configCommand), result, currentWorkingDirectory))
+                sys.exit(result)
+            else:
+                BuildConfigureCache.Save(self.Log, cacheFilename, dirtyBuildConfigureCache)
+        except FileNotFoundError:
+                self.Log.DoPrintWarning("The build config command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(self.__SafeJoinCommandArguments(configCommand), currentWorkingDirectory))
+                raise
+
+    def __SafeJoinCommandArguments(self, strings: List[str]) -> str:
+        res = []
+        for entry in strings:
+            if ' ' in entry:
+                entry = '"{0}"'.format(entry)
+            res.append(entry)
+        return " ".join(res)
 
 
     def __ApplyPlatformOrderChanges(self, resolvedBuildOrder: List[Package], platformName: str) -> List[Package]:
@@ -223,31 +384,41 @@ class Builder(object):
 
 
     def __BuildPackage(self, buildContext: LocalBuildContext,
-                       package: Package,
                        buildConfig: BuildConfigRecord,
                        buildEnv: Dict[str, str],
-                       runCommands: Optional[List[str]]) -> None:
+                       package: Package) -> None:
         if package.AbsolutePath is None or package.ResolvedBuildPath is None:
             raise Exception("Invalid package")
         if buildContext.GeneratorReportDict is None:
             raise Exception("Build not supported by generator '{0}' for package: {1}".format(buildContext.GeneratorName, package.Name))
         if package not in buildContext.GeneratorReportDict:
             raise Exception("Build not supported by generator '{0}' for package: {1}".format(buildContext.GeneratorName, package.Name))
+
         generatorReport = buildContext.GeneratorReportDict[package]
         buildReport = generatorReport.BuildReport
-        variableReport = generatorReport.VariableReport
         if buildReport is None:
             raise Exception("Build report not supported by generator '{0}' for package: {1}".format(buildContext.GeneratorName, package.Name))
+        variableReport = generatorReport.VariableReport
+
+        currentWorkingDirectory = package.AbsolutePath
+        strHelpContext = "package: '{0}'".format(package.Name)
+        self.__Build(buildContext, buildConfig, buildEnv, buildReport, variableReport, currentWorkingDirectory, strHelpContext)
+
+
+    def __Build(self, buildContext: LocalBuildContext, buildConfig: BuildConfigRecord, buildEnv: Dict[str, str],
+                buildReport: GeneratorBuildReport, variableReport: GeneratorVariableReport,
+                currentWorkingDirectory: Optional[str], strHelpContext: str) -> None:
         buildCommandReport = buildReport.BuildCommandReport
         if buildCommandReport is None:
             if self.Log.Verbosity >= 5:
-                self.Log.LogPrint("Skipping package '{0}' as its build command was None".format(package.Name))
+                self.Log.LogPrint("Skipping {0} as its build command was None".format(strHelpContext))
             return
 
-        currentWorkingDirectory = package.AbsolutePath
         if buildCommandReport.CurrentWorkingDirectoryFormatString is not None:
             currentWorkingDirectory = ReportVariableFormatter.Format(buildCommandReport.CurrentWorkingDirectoryFormatString,
                                                                      variableReport, buildConfig.VariantSettingsDict)
+        if currentWorkingDirectory is None:
+            raise Exception("No current working directory supplied")
 
         buildCommandStr = ReportVariableFormatter.Format(buildCommandReport.CommandFormatString, variableReport, buildConfig.VariantSettingsDict)
         if not buildCommandReport.UseAsRelative:
@@ -258,38 +429,78 @@ class Builder(object):
             buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantSettingsDict)
             buildArgumentList.append(buildArgument)
 
+        nativeBuildArgumentList = []
+        for buildArgument in buildCommandReport.NativeArguments:
+            buildArgument = ReportVariableFormatter.Format(buildArgument, variableReport, buildConfig.VariantSettingsDict)
+            nativeBuildArgumentList.append(buildArgument)
 
-        buildCommand = [buildCommandStr] + buildArgumentList + buildConfig.BuildArgs
-        if len(buildContext.Platform.AdditionalBuildArguments) > 0:
-            buildCommand += buildContext.Platform.AdditionalBuildArguments
+        self.__AppendToRightArgumentList(buildArgumentList, nativeBuildArgumentList, buildCommandReport.NativeArgumentSeparator, buildConfig.BuildArgs)
+        self.__AppendToRightArgumentList(buildArgumentList, nativeBuildArgumentList, buildCommandReport.NativeArgumentSeparator, buildContext.Platform.AdditionalBuildArguments)
+
+        buildCommand = [buildCommandStr] + buildArgumentList
+
+        if buildCommandReport.NativeArgumentSeparator is not None and len(nativeBuildArgumentList) > 0:
+            buildCommand.append(buildCommandReport.NativeArgumentSeparator)
+            buildCommand += nativeBuildArgumentList
 
         try:
+            if self.Log.Verbosity >= 1:
+                self.Log.LogPrint("Running build command '{0}' in '{1}'".format(self.__SafeJoinCommandArguments(buildCommand), currentWorkingDirectory))
             result = subprocess.call(buildCommand, cwd=currentWorkingDirectory, env=buildEnv)
             if result != 0:
-                self.Log.LogPrintWarning("The build command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(buildCommand), result, currentWorkingDirectory))
+                self.Log.LogPrintWarning("The build command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(self.__SafeJoinCommandArguments(buildCommand), result, currentWorkingDirectory))
                 sys.exit(result)
         except FileNotFoundError:
-                self.Log.DoPrintWarning("The build command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
+                self.Log.DoPrintWarning("The build command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(self.__SafeJoinCommandArguments(buildCommand), currentWorkingDirectory))
                 raise
 
-        if runCommands:
-            try:
-                # TODO: Allow the working directory for the run command to be changed too. For now use the original choice of absolute path for the package
-                currentWorkingDirectory = package.AbsolutePath
-                result = subprocess.call(runCommands, cwd=currentWorkingDirectory, env=buildEnv)
-                if result != 0:
-                    self.Log.LogPrintWarning("The run command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(runCommands), result, currentWorkingDirectory))
-                    sys.exit(result)
-            except FileNotFoundError:
-                    self.Log.LogPrintWarning("The run command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(runCommands), currentWorkingDirectory))
-                    raise
+    def __AppendToRightArgumentList(self, buildArgumentList: List[str], nativeBuildArgumentList: List[str], nativeArgumentSeparator: Optional[str],
+                                    newArguments: List[str]) -> None:
+        if len(newArguments) <= 0:
+            return
+        if nativeArgumentSeparator is None:
+            for entry in newArguments:
+                buildArgumentList.append(entry)
+            return
+        # Complex merging
+        isNativeArg = False
+        for customArg in newArguments:
+            if customArg == nativeArgumentSeparator:
+                isNativeArg = True
+            elif not isNativeArg:
+                buildArgumentList.append(customArg)
+            else:
+                nativeBuildArgumentList.append(customArg)
+
+
+    def __RunPackage(self, buildContext: LocalBuildContext,
+                     package: Package,
+                     buildEnv: Dict[str, str],
+                     runCommands: Optional[List[str]]) -> None:
+        if runCommands is None:
+            return
+        if package.AbsolutePath is None:
+            raise Exception("Invalid package")
+        try:
+            # TODO: Allow the working directory for the run command to be changed too. For now use the original choice of absolute path for the package
+            currentWorkingDirectory = package.AbsolutePath
+            if self.Log.Verbosity >= 1:
+                self.Log.LogPrint("Running run command '{0}' in '{1}'".format(self.__SafeJoinCommandArguments(runCommands), currentWorkingDirectory))
+            result = subprocess.call(runCommands, cwd=currentWorkingDirectory, env=buildEnv)
+            if result != 0:
+                self.Log.LogPrintWarning("The run command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(self.__SafeJoinCommandArguments(runCommands), result, currentWorkingDirectory))
+                sys.exit(result)
+        except FileNotFoundError:
+                self.Log.LogPrintWarning("The run command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(self.__SafeJoinCommandArguments(runCommands), currentWorkingDirectory))
+                raise
 
 
 
     def __TryGenerateRunCommandForExecutable(self, buildContext: LocalBuildContext,
                                              package: Package,
-                                             userVariantSettingDict: Dict[str, str],
-                                             runCommands: Optional[List[str]]) -> Optional[List[str]]:
+                                             buildConfig: BuildConfigRecord,
+                                             runCommands: Optional[List[str]],
+                                             generatorConfig: GeneratorConfig) -> Optional[List[str]]:
         if package.Type != PackageType.Executable or runCommands is None or len(runCommands) <= 0:
             return None
         if package.ResolvedBuildPath is None or package.AbsolutePath is None:
@@ -305,13 +516,21 @@ class Builder(object):
             raise Exception("ForAllExe not supported by generator for package {0} as it didnt contain a executable record".format(package.Name))
 
         foundVariantExePath = ReportVariableFormatter.Format(executableReport.ExeFormatString,
-                                                             variableReport, userVariantSettingDict,
+                                                             variableReport, buildConfig.VariantSettingsDict,
                                                              executableReport.EnvironmentVariableResolveMethod)
+
+        if buildConfig.Generator is None:
+            raise Exception("Generator is missing")
+        buildExecutableInfo = buildConfig.Generator.TryGetBuildExecutableInfo(self.Log, generatorConfig, package, generatorReport, buildConfig.VariantSettingsDict)
+        if buildExecutableInfo is not None:
+            # Override the "install-type" path with the "development" exe path
+            foundVariantExePath = buildExecutableInfo.BuildExePath
+
         packagePath = package.AbsolutePath
         fullPathExe = IOUtil.Join(packagePath, foundVariantExePath)
         exeName = IOUtil.GetFileName(foundVariantExePath)
         exePath = IOUtil.GetDirectoryName(fullPathExe)
-        contentPath = IOUtil.Join(packagePath, "Content")
+        contentPath = IOUtil.Join(packagePath, ToolSharedValues.CONTENT_FOLDER_NAME)
         fullBuildDirPath = IOUtil.Join(packagePath, package.ResolvedBuildPath)
         fullBuildDirPath = buildContext.Config.ToCurrentOSPathDirectConversion(fullBuildDirPath)
         fullPathExe = buildContext.Config.ToCurrentOSPathDirectConversion(fullPathExe)

@@ -54,8 +54,9 @@ namespace Fsl
     inline Extent3D CalcExtent(const Extent3D& startExtent, const std::size_t level)
     {
       return level == 0 ? startExtent
-                        : Extent3D(std::max(startExtent.Width >> level, 1u), std::max(startExtent.Height >> level, 1u),
-                                   std::max(startExtent.Depth >> level, 1u));
+                        : Extent3D(std::max(startExtent.Width >> level, static_cast<uint32_t>(1u)),
+                                   std::max(startExtent.Height >> level, static_cast<uint32_t>(1u)),
+                                   std::max(startExtent.Depth >> level, static_cast<uint32_t>(1u)));
     }
 
     //! @brief Returns the total texel count
@@ -104,9 +105,9 @@ namespace Fsl
             totalTexelCount += currentTexelCount;
           }
         }
-        currentExtent.Width = std::max(currentExtent.Width >> 1, 1u);
-        currentExtent.Height = std::max(currentExtent.Height >> 1, 1u);
-        currentExtent.Depth = std::max(currentExtent.Depth >> 1, 1u);
+        currentExtent.Width = std::max(currentExtent.Width >> 1, static_cast<uint32_t>(1u));
+        currentExtent.Height = std::max(currentExtent.Height >> 1, static_cast<uint32_t>(1u));
+        currentExtent.Depth = std::max(currentExtent.Depth >> 1, static_cast<uint32_t>(1u));
       }
       return totalTexelCount;
     }
@@ -217,7 +218,7 @@ namespace Fsl
 
   Texture::~Texture()
   {
-    FSLLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
+    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
   }
 
 
@@ -465,10 +466,10 @@ namespace Fsl
   {
     if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat))
     {
-      FSLLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant modify a compressed pixel format");
+      FSLBASICLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant modify a compressed pixel format");
       return;
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
@@ -476,9 +477,9 @@ namespace Fsl
     const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
     if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
     {
-      FSLLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
       return;
     }
 
@@ -501,10 +502,10 @@ namespace Fsl
   {
     if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat))
     {
-      FSLLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant read from a compressed pixel format");
+      FSLBASICLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant read from a compressed pixel format");
       return 0;
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
@@ -512,9 +513,9 @@ namespace Fsl
     const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
     if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
     {
-      FSLLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
-      FSLLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
+      FSLBASICLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
       return 0;
     }
 
@@ -592,7 +593,7 @@ namespace Fsl
   {
     if (m_isLocked)
     {
-      FSLLOG_DEBUG_WARNING("The texture is already locked");
+      FSLBASICLOG_DEBUG_WARNING("The texture is already locked");
       return false;
     }
 
@@ -751,7 +752,7 @@ namespace Fsl
       m_blobs[0].Offset = 0;
       m_blobs[0].Size = totalByteSize;
 
-      std::fill(m_content.begin(), m_content.end(), 0);
+      std::fill(m_content.begin(), m_content.end(), static_cast<uint8_t>(0));
     }
     catch (const std::exception&)
     {
@@ -879,7 +880,7 @@ namespace Fsl
 
   void Texture::ResetNoThrow()
   {
-    FSLLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
+    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
     m_content.clear();
     m_blobs.clear();
     m_extent = Extent3D();

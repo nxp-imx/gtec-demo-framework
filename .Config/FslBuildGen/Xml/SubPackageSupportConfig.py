@@ -37,7 +37,7 @@ from FslBuildGen.DataTypes import SubPackageSupport
 
 class SubPackageSupportConfig(object):
     def __init__(self, packageType: int, subPackageSupport: int) -> None:
-        super(SubPackageSupportConfig, self).__init__()
+        super().__init__()
         self.Type = packageType                                                         # type: int
         self.Support = subPackageSupport                                                # type: int
         self.AllowSubPackages = self.__AllowSubPackages(packageType, subPackageSupport) # type: bool

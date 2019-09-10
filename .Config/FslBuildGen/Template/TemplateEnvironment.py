@@ -38,7 +38,7 @@ from FslBuildGen.Packages.Package import Package
 
 class TemplateEnvironment(object):
     def __init__(self, config: Config, platformName: str) -> None:
-        super(TemplateEnvironment, self).__init__()
+        super().__init__()
         self.Dict = {}  # type: Dict[str, Optional[str]]
         self.Dict["##PLATFORM_NAME##"] = platformName
         self.Dict["##CURRENT_YEAR##"] = config.CurrentYearString
@@ -48,8 +48,8 @@ class TemplateEnvironment(object):
         self.Dict[key] = value
 
 
-    def SetPackage(self, package: Package) -> None:
-        if package.PackageLocation is None or package.ShortName is None:
+    def SetPackage(self, package: Package, androidProjectPath: Optional[str]) -> None:
+        if package.PackageLocation is None or package.ShortName is None or package.ContentPath is None:
             raise Exception("Invalid package")
 
         location = package.PackageLocation.Name  # type: str
@@ -59,19 +59,31 @@ class TemplateEnvironment(object):
             platformProjectId = package.ResolvedPlatform.ProjectId
         creationYear = package.CreationYear  # type: Optional[str]
         companyName = package.CompanyName  # type: str
-        self.SetPackageValues(location, package.Name, package.ShortName, targetName, platformProjectId, creationYear, companyName)
+
+        packageContentPath = package.ContentPath.AbsoluteDirPath
+        #androidProjectDir = buildCMakeFile.replace("##PACKAGE_ANDROID_PROJECT_PATH##", androidProjectDir)
+
+        self.SetPackageValues(location, package.Name, package.ShortName, targetName, packageContentPath, platformProjectId, creationYear, companyName,
+                              androidProjectPath)
 
 
-    def SetPackageValues(self, packageLocation: str, packageName: str, packageShortName: str, packageTargetName: str, platformProjectId: Optional[str], creationYear: Optional[str], companyName: str) -> None:
+    def SetPackageValues(self, packageLocation: str, packageName: str, packageShortName: str, packageTargetName: str,
+                         packageContentPath: Optional[str],
+                         platformProjectId: Optional[str], creationYear: Optional[str], companyName: str,
+                         androidProjectPath: Optional[str] = None) -> None:
         platformProjectId = platformProjectId if platformProjectId != None else "ERROR_PLATFORM_PROJECT_ID_NOT_DEFINED"
         self.Dict["##PACKAGE_LOCATION##"] = packageLocation
         self.Dict["##PACKAGE_NAME##"] = packageName
         self.Dict["##DIRS_PACKAGE_NAME##"] = packageName.replace('.','/')
         self.Dict["##PACKAGE_SHORT_NAME##"] = packageShortName
         self.Dict["##PACKAGE_TARGET_NAME##"] = packageTargetName
+        if packageContentPath is not None:
+            self.Dict["##PACKAGE_CONTENT_PATH##"] = packageContentPath
         self.Dict["##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"] = platformProjectId
         self.Dict["##PACKAGE_CREATION_YEAR##"] = creationYear if creationYear != None else self.Dict["##CURRENT_YEAR##"]
         self.Dict["##PACKAGE_COMPANY_NAME##"] = companyName
         self.Dict["##{$(PACKAGE_NAME).upper().replace('.','_')}##"] = packageName.upper().replace('.', '_')
+        if androidProjectPath is not None:
+            self.Dict["##PACKAGE_ANDROID_PROJECT_PATH##"] = androidProjectPath
         # deprecated
         self.Dict["##PACKAGE_PLATFORM_PROJECT_ID##"] = platformProjectId

@@ -128,7 +128,7 @@ class AppInfoRequirementTree(object):
         rAppInfoGlobalRequirementTree.Merge(requirementsDict)
 
 
-    def __ProcessAllRequirements(self, allRequirementList: List[RequirementInfo], sourceFilename: str) -> Dict:
+    def __ProcessAllRequirements(self, allRequirementList: List[RequirementInfo], sourceFilename: str) -> Dict[str, RequirementInfo]:
         treeDict = {"": g_rootRequirement} # type: Dict[str, RequirementInfo]
 
         laterQueue = list(allRequirementList)

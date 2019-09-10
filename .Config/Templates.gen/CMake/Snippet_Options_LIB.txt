@@ -1,0 +1,2 @@
+option(INSTALL_LIB "Install all libs" OFF)
+# message(STATUS "INSTALL_LIB='${INSTALL_LIB}'")

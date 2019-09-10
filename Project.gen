@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" Version="5.4.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+    <!-- Add a base package that all other packages dependent on -->
+    <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)" Create="true"/>
     <PackageConfiguration Name="default">
@@ -22,6 +24,13 @@
     <BuildDocConfiguration>
       <Requirement Name="GoogleUnitTest" Skip="true"/>
     </BuildDocConfiguration>
+    <CMakeConfiguration DefaultBuildDir="${TopProjectRoot}/build" MinVersion="3.10.2">
+      <Platform Name="Ubuntu" DefaultGeneratorName="Unix Makefiles"/>
+      <!-- For now we rely on FslBuild to select the default generator based on CompilerConfiguration from this file, as that was the old way to do it instead of using 
+           DefaultGeneratorName="Visual Studio 15 2017 Win64"-->
+      <Platform Name="Windows"/>
+      <Platform Name="Yocto" DefaultGeneratorName="Unix Makefiles"/>
+    </CMakeConfiguration>
     <ClangFormatConfiguration FileExtensions=".cpp;.hpp;.frag;.geom;.tesc;.tese;.vert" Recipe="Recipe.BuildTool.clang_format"/>
     <ClangTidyConfiguration FileExtensions=".cpp;.hpp" Recipe="Recipe.BuildTool.clang_tidy">
       <Platform Name="All">
@@ -61,10 +70,10 @@
         </StrictChecks>
       </Platform>
       <Platform Name="Android">
-        <Compiler Flags="-std=c++11"/>
+        <Compiler Flags="-std=c++14"/>
       </Platform>
       <Platform Name="Ubuntu">
-        <Compiler Flags="-std=c++11"/>
+        <Compiler Flags="-std=c++14"/>
         <Defines All="FSL_PLATFORM_UBUNTU;PIC" Debug="DEBUG" Release="NDEBUG"/>
       </Platform>
       <Platform Name="Windows">
@@ -73,7 +82,7 @@
         <Defines All="_UNICODE;UNICODE;NOMINMAX;VC_EXTRALEAN;WIN32_LEAN_AND_MEAN;WIN32;_CONSOLE" Debug="_DEBUG" Release="NDEBUG"/>
       </Platform>
       <Platform Name="Yocto">
-        <Compiler Flags="-std=c++11;-I$(ROOTFS)/usr/include"/>
+        <Compiler Flags="-std=c++14;-I$(ROOTFS)/usr/include"/>
         <Defines All="FSL_PLATFORM_YOCTO;PIC;LINUX" Debug="DEBUG;_DEBUG" Release="NDEBUG"/>
       </Platform>
     </ClangTidyConfiguration>

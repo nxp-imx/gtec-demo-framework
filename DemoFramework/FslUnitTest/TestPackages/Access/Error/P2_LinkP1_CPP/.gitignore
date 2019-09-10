@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.VC.VC.opendb
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.VC.db
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.manifest
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.opensdf
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.sdf
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.sln
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.v12.sdf
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.v12.suo
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.vcxproj
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.vcxproj.filters
+/FslUnitTest.TestPackages.Access.Error.P2_LinkP1_CPP.vcxproj.user
+/build/

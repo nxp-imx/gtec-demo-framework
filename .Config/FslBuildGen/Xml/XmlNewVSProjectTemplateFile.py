@@ -46,7 +46,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlNewVSProjectTemplate(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
-        super(XmlNewVSProjectTemplate, self).__init__(log, xmlElement)
+        super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.Description = self._ReadAttrib(xmlElement, 'Description')
         packageLanguage = self._ReadAttrib(xmlElement, 'PackageLanguage')
@@ -68,7 +68,7 @@ class XmlNewVSProjectTemplateFile(XmlBase):
         else:
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildGeneratorVSProjectTemplate'")
 
-        super(XmlNewVSProjectTemplateFile, self).__init__(log, elem)
+        super().__init__(log, elem)
         strVersion = self._ReadAttrib(elem, 'Version')
         if strVersion != "1":
             raise Exception("Unsupported version")

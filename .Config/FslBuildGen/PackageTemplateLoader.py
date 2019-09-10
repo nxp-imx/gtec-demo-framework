@@ -42,7 +42,7 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileImportTemplate
 
 class PackageTemplateLoader(object):
     def __init__(self, config: Config, templateLocationCache: Dict[str, str]) -> None:
-        super(PackageTemplateLoader, self).__init__()
+        super().__init__()
         self.__Config = config  # type: Config
         self.BasicConfig = config  # type: BasicConfig
         self.TemplateLocationCache = templateLocationCache

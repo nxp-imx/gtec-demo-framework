@@ -37,15 +37,16 @@ from typing import Optional
 import argparse
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
-from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
+from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.BuildExternal.RecipeInfo import RecipeInfo
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.ExtensionListManager import ExtensionListManager
+from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageFilters import PackageFilters
@@ -80,7 +81,7 @@ class DefaultValue(object):
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self, packageTypeList: List[str]) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
 
         self.PackageTypeList = packageTypeList
 
@@ -104,7 +105,7 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 class ToolFlowBuildInfo(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildInfo, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -145,10 +146,11 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
+        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
-        generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
@@ -160,7 +162,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
             config.LogPrint("Saving to json file '{0}'".format(localToolConfig.SaveJson))
 
 
-            generatorConfig = GeneratorConfig(config.SDKConfigTemplatePath, config.ToolConfig)
+            generatorConfig = GeneratorConfig(generator.PlatformName, config.SDKConfigTemplatePath, config.ToolConfig, 1, CommandType.Build)
             InfoSaver.SavePackageMetaDataToJson(generatorContext,
                                                 generatorConfig,
                                                 localToolConfig.SaveJson,
@@ -196,6 +198,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
     def GetToolCommonArgConfig(self) -> ToolCommonArgConfig:
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
+        argConfig.AddGeneratorSelection = True
         argConfig.ProcessRemainingArgs = False
         argConfig.SupportBuildTime = True
         argConfig.AddBuildFiltering = True

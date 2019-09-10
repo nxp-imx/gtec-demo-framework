@@ -79,7 +79,7 @@ class LocalNodeVisitor(ast.NodeVisitor):
 
 class ConditionNodeVisitor(LocalNodeVisitor):
     def __init__(self, contentProcessorName: str, source: str) -> None:
-        super(ConditionNodeVisitor, self).__init__(contentProcessorName, source)
+        super().__init__(contentProcessorName, source)
 
     def generic_visit(self, node: Any) -> None:
         self.CheckNodeType(node)

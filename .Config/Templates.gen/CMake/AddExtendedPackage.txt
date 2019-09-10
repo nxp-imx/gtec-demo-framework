@@ -1,0 +1,2 @@
+# Link to the parent project (its ugly but it works)
+add_subdirectory(##PARENT_ROOT## _##PARENT_NAME##)

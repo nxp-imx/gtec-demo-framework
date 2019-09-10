@@ -49,8 +49,8 @@ TEST(Test_BlobRecord, Empty)
 {
   BlobRecord record;
 
-  EXPECT_EQ(0u, record.Offset);
-  EXPECT_EQ(0u, record.Size);
+  EXPECT_EQ(record.Offset, 0u);
+  EXPECT_EQ(record.Size, 0u);
 }
 
 
@@ -58,6 +58,6 @@ TEST(Test_BlobRecord, Construct)
 {
   BlobRecord record(1, 2);
 
-  EXPECT_EQ(1u, record.Offset);
-  EXPECT_EQ(2u, record.Size);
+  EXPECT_EQ(record.Offset, 1u);
+  EXPECT_EQ(record.Size, 2u);
 }

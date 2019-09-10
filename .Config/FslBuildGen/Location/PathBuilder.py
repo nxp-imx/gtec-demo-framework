@@ -37,7 +37,7 @@ from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 
 class PathBuilder(object):
     def __init__(self, log: Log, variableProcessor: VariableProcessor, platformName: str) -> None:
-        super(PathBuilder, self).__init__()
+        super().__init__()
 
         self.__Log = log                             # type: Log
         self.__VariableProcessor = variableProcessor # type: VariableProcessor
@@ -61,4 +61,3 @@ class PathBuilder(object):
 
         resolvedPath = self.__VariableProcessor.ResolveAbsolutePathWithLeadingEnvironmentVariablePathAsDir(sourcePath, checkExists=checkExists)
         return ResolvedPath(sourcePath, resolvedPath)
-    

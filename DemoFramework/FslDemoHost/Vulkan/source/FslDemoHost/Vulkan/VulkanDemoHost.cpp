@@ -50,10 +50,14 @@
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
+#include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Debug/Strings/VkFormat.hpp>
 #include <RapidVulkan/Debug/Strings/VkPhysicalDeviceType.hpp>
-//#include <RapidVulkan/Debug/Strings/VkColorSpaceKHR.hpp>
-#include <RapidVulkan/Check.hpp>
+#ifdef RAPIDVULKAN_VULKAN_VERSION_MAJOR
+// Be sure to include "RapidVulkan/Check.hpp" before this check since it defines it if present.
+// Versions of RapidVulkan before this define is set has a bug in this header
+#include <RapidVulkan/Debug/Strings/VkColorSpaceKHR.hpp>
+#endif
 #include <RapidVulkan/Semaphore.hpp>
 #include <array>
 #include <cassert>
@@ -124,7 +128,12 @@ namespace Fsl
       FSLLOG("Supported surface formats: " << surfaceFormats.size());
       for (auto& entry : surfaceFormats)
       {
+#ifdef RAPIDVULKAN_VULKAN_VERSION_MAJOR
+        FSLLOG("- Format: " << entry.format << " (" << RapidVulkan::Debug::ToString(entry.format) << "), ColorSpace: " << entry.colorSpace << " ("
+                            << RapidVulkan::Debug::ToString(entry.colorSpace) << ")");
+#else
         FSLLOG("- Format: " << entry.format << " (" << RapidVulkan::Debug::ToString(entry.format) << "), ColorSpace: " << entry.colorSpace);
+#endif
         //<< " (" << RapidVulkan::Debug::ToString(entry.colorSpace) << ")");
       }
     }
@@ -222,6 +231,7 @@ namespace Fsl
     {
       return size;
     }
+    FSLLOG2(LogType::Verbose4, "Failed to get window size");
     return Point2(0, 0);
   }
 

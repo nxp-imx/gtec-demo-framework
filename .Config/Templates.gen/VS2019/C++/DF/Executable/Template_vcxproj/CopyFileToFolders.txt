@@ -1,0 +1,2 @@
+    <CopyFileToFolders Include="##FILE_PATH##">##COPY_CONDITIONS##
+    </CopyFileToFolders>

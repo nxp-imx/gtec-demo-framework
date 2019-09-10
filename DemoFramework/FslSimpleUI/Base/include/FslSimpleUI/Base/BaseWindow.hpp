@@ -101,6 +101,7 @@ namespace Fsl
       //! @note This is only called if enabled.
       virtual void WinUpdate(const DemoTime& demoTime)
       {
+        FSL_PARAM_NOT_USED(demoTime);
       }
 
       //! @brief Called by the UITree to request a draw operation.
@@ -108,12 +109,14 @@ namespace Fsl
       //! @note This is only called if enabled.
       virtual void WinDraw(const UIDrawContext& context)
       {
+        FSL_PARAM_NOT_USED(context);
       }
 
       //! @brief Called by the UITree to request a resolve operation.
       //! @note This is only called if enabled (WindowFlags::ResolveEnabled).
       virtual void WinResolve(const DemoTime& demoTime)
       {
+        FSL_PARAM_NOT_USED(demoTime);
       }
 
       void Arrange(const Rect& finalRect);
@@ -204,15 +207,23 @@ namespace Fsl
     protected:
       void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
       {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
       }
       void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
       {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
       }
       void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
       {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
       }
       void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
       {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
       }
 
       bool IsReadyToSendEvents();
@@ -286,6 +297,7 @@ namespace Fsl
       //!          some form of stacked order or another appropriate solution for measuring and arranging.
       virtual Vector2 MeasureOverride(const Vector2& availableSize)
       {
+        FSL_PARAM_NOT_USED(availableSize);
         return Vector2::Zero();
       }
 
@@ -293,7 +305,10 @@ namespace Fsl
       void PropertyUpdated(const PropertyTypeFlags& flags);
 
       //! @brief Override this to get property update notifications
-      virtual void OnPropertiesUpdated(const PropertyTypeFlags& flags){};
+      virtual void OnPropertiesUpdated(const PropertyTypeFlags& flags)
+      {
+        FSL_PARAM_NOT_USED(flags);
+      }
 
       //! @brief Control the layout dirty flag
       void SetLayoutDirty(const bool isDirty);

@@ -162,6 +162,10 @@ namespace Fsl
     bool TryReadHDR(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint,
                     const PixelChannelOrder preferredChannelOrderHint)
     {
+      FSL_PARAM_NOT_USED(pixelFormatHint);
+      FSL_PARAM_NOT_USED(originHint);
+      FSL_PARAM_NOT_USED(preferredChannelOrderHint);
+
       int width = 0;
       int height = 0;
       int channels = 0;
@@ -191,6 +195,10 @@ namespace Fsl
     bool TryReadPNG(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint,
                     const PixelChannelOrder preferredChannelOrderHint)
     {
+      FSL_PARAM_NOT_USED(pixelFormatHint);
+      FSL_PARAM_NOT_USED(originHint);
+      FSL_PARAM_NOT_USED(preferredChannelOrderHint);
+
       int width = 0;
       int height = 0;
       int channels = 0;
@@ -256,13 +264,17 @@ namespace Fsl
     default:
       return false;
     }
-    return false;
   }
 
 
   bool ImageLibrarySTBService::TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint,
                                        const BitmapOrigin originHint, const PixelChannelOrder preferredChannelOrderHint)
   {
+    FSL_PARAM_NOT_USED(rTexture);
+    FSL_PARAM_NOT_USED(absolutePath);
+    FSL_PARAM_NOT_USED(pixelFormatHint);
+    FSL_PARAM_NOT_USED(originHint);
+    FSL_PARAM_NOT_USED(preferredChannelOrderHint);
     return false;
   }
 

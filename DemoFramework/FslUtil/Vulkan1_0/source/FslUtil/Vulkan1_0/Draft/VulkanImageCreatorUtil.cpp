@@ -253,6 +253,8 @@ namespace Fsl
                                   const VkQueue queue, const VkCommandBuffer commandBuffer, const TTexture& src, const VkAccessFlags accessMask,
                                   const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
         {
+          FSL_PARAM_NOT_USED(accessMask);
+
           const TextureInfo textureInfo = src.GetTextureInfo();
 
           VkBufferCreateInfo bufferCreateInfo{};
@@ -354,6 +356,10 @@ namespace Fsl
                         const VkQueue queue, const VkCommandBuffer commandBuffer, const RawBitmap& src, const VkAccessFlags accessMask,
                         const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
       {
+        FSL_PARAM_NOT_USED(accessMask);
+        FSL_PARAM_NOT_USED(commandBuffer);
+        FSL_PARAM_NOT_USED(queue);
+
         const auto minimumStride = PixelFormatUtil::CalcMinimumStride(src.Width(), src.GetPixelFormat());
         if (minimumStride != src.Stride())
         {
@@ -398,6 +404,17 @@ namespace Fsl
                         const VkQueue queue, const VkCommandBuffer commandBuffer, const RawCubeBitmap& src, const VkAccessFlags accessMask,
                         const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
       {
+        FSL_PARAM_NOT_USED(rDstImage);
+        FSL_PARAM_NOT_USED(rDstMemory);
+        FSL_PARAM_NOT_USED(physicalDevice);
+        FSL_PARAM_NOT_USED(device);
+        FSL_PARAM_NOT_USED(queue);
+        FSL_PARAM_NOT_USED(commandBuffer);
+        FSL_PARAM_NOT_USED(src);
+        FSL_PARAM_NOT_USED(accessMask);
+        FSL_PARAM_NOT_USED(samples);
+        FSL_PARAM_NOT_USED(imageUsageFlags);
+
         // const auto minimumStride = PixelFormatUtil::CalcMinimumStride(src.Width(), src.GetPixelFormat());
         // if (minimumStride != src.Stride())
         //{
@@ -423,6 +440,16 @@ namespace Fsl
                         const VkQueue queue, const VkCommandBuffer commandBuffer, const RawTexture& src, const VkAccessFlags accessMask,
                         const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
       {
+        FSL_PARAM_NOT_USED(rDstImage);
+        FSL_PARAM_NOT_USED(rDstMemory);
+        FSL_PARAM_NOT_USED(physicalDevice);
+        FSL_PARAM_NOT_USED(device);
+        FSL_PARAM_NOT_USED(queue);
+        FSL_PARAM_NOT_USED(commandBuffer);
+        FSL_PARAM_NOT_USED(src);
+        FSL_PARAM_NOT_USED(accessMask);
+        FSL_PARAM_NOT_USED(samples);
+        FSL_PARAM_NOT_USED(imageUsageFlags);
         // FIX: implement
         throw NotImplementedException("VulkanImageCreatorUtil::CreateLinear not implemented");
       }
@@ -448,6 +475,8 @@ namespace Fsl
                               const VkQueue queue, const VkCommandBuffer commandBuffer, const RawBitmap& src, const VkAccessFlags accessMask,
                               const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
       {
+        FSL_PARAM_NOT_USED(accessMask);
+
         const auto minimumStride = PixelFormatUtil::CalcMinimumStride(src.Width(), src.GetPixelFormat());
         if (minimumStride != src.Stride())
         {
@@ -511,6 +540,8 @@ namespace Fsl
                               const VkDevice device, const VkQueue queue, const VkCommandBuffer commandBuffer, const RawCubeBitmap& src,
                               const VkAccessFlags accessMask, const VkSampleCountFlagBits samples, const VkImageUsageFlags imageUsageFlags)
       {
+        FSL_PARAM_NOT_USED(accessMask);
+
         const auto minimumStride = PixelFormatUtil::CalcMinimumStride(src.Width(), src.GetPixelFormat());
         if (minimumStride != src.GetPosX().Stride() || minimumStride != src.GetNegX().Stride() || minimumStride != src.GetPosY().Stride() ||
             minimumStride != src.GetNegY().Stride() || minimumStride != src.GetPosZ().Stride() || minimumStride != src.GetNegZ().Stride())

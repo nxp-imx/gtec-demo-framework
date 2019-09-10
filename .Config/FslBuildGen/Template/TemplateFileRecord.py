@@ -35,7 +35,7 @@ from FslBuildGen import IOUtil
 
 class TemplateFileRecord(object):
     def __init__(self, filename: str, srcPath: str) -> None:
-        super(TemplateFileRecord, self).__init__()
+        super().__init__()
         self.FileName = IOUtil.GetFileName(filename)
         self.AbsoluteSourcePath = IOUtil.Join(srcPath, filename)
         if not filename.endswith(".__template__"):

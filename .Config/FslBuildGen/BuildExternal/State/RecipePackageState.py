@@ -37,21 +37,22 @@ from FslBuildGen import IOUtil
 from FslBuildGen.BuildContent.Sync.Content import Content
 from FslBuildGen.BuildContent.Sync import BuildState
 from FslBuildGen.BuildExternal.State.JsonRecipePackageContentState import JsonRecipePackageContentState
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 
 
 class RecipePackageState(object):
-    def __init__(self, log: Log, packageName: str, path: str, cacheFilename: str, sourceHash: str,
+    def __init__(self, log: Log, packageName: str, resolvedPath: ResolvedPath, cacheFilename: str, sourceHash: str,
                  cachedContentState: Optional[JsonRecipePackageContentState]) -> None:
         super().__init__()
         # Reuse the BuildContent.Sync
-        content = Content(log, path, True)
-        cacheFile = IOUtil.Join(path, cacheFilename)
+        content = Content(log, resolvedPath.ResolvedPath, True)
+        cacheFile = IOUtil.Join(resolvedPath.ResolvedPath, cacheFilename)
 
         cachedSyncState = self.__GetCachedSyncState(cachedContentState)
         syncState = BuildState.GenerateSyncState2(log, cacheFile, content, cachedSyncState, True)
         self.PackageName = packageName
-        self.Path = path
+        self.Path = resolvedPath.ResolvedPath
         self.ContentState = self.__ConvertFromSync(syncState.ExtractContent())
         self.ContentStateHash = self.__GenerateHash(sourceHash, self.ContentState)
 

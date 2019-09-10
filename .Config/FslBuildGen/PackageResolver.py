@@ -40,13 +40,16 @@ from typing import Optional
 from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
+from FslBuildGen import ToolSharedValues
 from FslBuildGen import Util
 from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildContent.PathVariables import PathVariables
 from FslBuildGen.BuildContent.Processor.ContentBuildCommandFile import ContentBuildCommandFile
 from FslBuildGen.BuildContent.Processor.SourceContent import SourceContent
+from FslBuildGen.BuildContent.Sync.Content import Content
 #from FslBuildGen.BuildContent.Sync.Content import Content
+from FslBuildGen.BuildContent import ContentBuilder
 from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
@@ -66,6 +69,7 @@ from FslBuildGen.Exceptions import PackageRequirementExtendsUnusedFeatureExcepti
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.Location.PathBuilder import PathBuilder
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageBuilder import PackageBuilder
 from FslBuildGen.Packages.ExceptionsXml import ExternalDependencyDuplicatedException
@@ -95,7 +99,7 @@ from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddDLL
 
 class PackageResolvedInclude(object):
     def __init__(self, path: str, fromPackageAccess: int) -> None:
-        super(PackageResolvedInclude, self).__init__()
+        super().__init__()
         self.Path = path
         # the access to the package this was received from
         self.FromPackageAccess = fromPackageAccess
@@ -206,7 +210,7 @@ class PackageResolver(object):
 
     def __ResolveExperimentalRecipeEntry(self, platformContext: PlatformContext, package: Package,
                                          rRecipe: PackageExperimentalRecipe, resolveInstallPath: bool) -> None:
-        rRecipe.ResolvedInstallPath = platformContext.RecipePathBuilder.TryGetInstallPath(rRecipe.XmlSource) if resolveInstallPath else "NotResolved"
+        rRecipe.ResolvedInstallLocation = platformContext.RecipePathBuilder.TryGetInstallPath(rRecipe.XmlSource) if resolveInstallPath else ResolvedPath("NotResolved", "NotResolved")
 
 
     def __ResolveBuildToolDependencies(self,
@@ -220,7 +224,7 @@ class PackageResolver(object):
         dependencyDirList = []
         for package in resolvedBuildOrder:
             if package.Type == PackageType.ToolRecipe:
-                if package.ResolvedDirectExperimentalRecipe is not None and package.ResolvedDirectExperimentalRecipe.ResolvedInstallPath is not None:
+                if package.ResolvedDirectExperimentalRecipe is not None and package.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation is not None:
                     dependencyDirList.append(package)
         return dependencyDirList
 
@@ -242,6 +246,10 @@ class PackageResolver(object):
             virtualVariants.sort(key=lambda s: s.Name.lower())
 
             if len(normalVariants) > 0 or len(virtualVariants) > 0:
+                # NOTE: using unqualifying variant names is kind of dangerous as they could conflict with the build system
+                #       but changing it now could break a lot of things.
+                #       normalVariants = ["VARIANT_{0}".format(name) for name in normalVariants]
+                #       virtualVariants = ["VARIANT_{0}".format(name) for name in virtualVariants]
                 normalVariableVariantNames = Util.ExtractNamesAsVariables(normalVariants)
                 normalMakeVariantNames = Util.ExtractNamesAsMakeEnvironmentVariables(normalVariants)
                 virtualMakeVariantNames = Util.ExtractNamesAsMakeEnvironmentVariables(virtualVariants)
@@ -335,19 +343,24 @@ class PackageResolver(object):
                     raise Exception("invalid package")
                 startIdx = len(package.AbsolutePath) + 1
                 filesPub = [] if package.AbsoluteIncludePath is None else IOUtil.GetFilePaths(package.AbsoluteIncludePath, (".hpp", ".h", ".inl"))
+                filesPri = [] # type: List[str]
                 filesAll = list(filesPub)
                 if package.AbsoluteSourcePath:
                     filesSourceHeaders = IOUtil.GetFilePaths(package.AbsoluteSourcePath, (".hpp", ".h", ".inl"))
                     if self.__HasPathOverlap(package.AbsoluteIncludePath, package.AbsoluteSourcePath):
                         filesSourceHeaders = self.__RemoveDuplicatedFiles(filesSourceHeaders, filesPub)
+                    filesPri += filesSourceHeaders
                     filesAll += filesSourceHeaders
 
 
                 filesPub = [Util.UTF8ToAscii(file[startIdx:].replace("\\", "/")) for file in filesPub]
+                filesPri = [Util.UTF8ToAscii(file[startIdx:].replace("\\", "/")) for file in filesPri]
                 filesAll = [Util.UTF8ToAscii(file[startIdx:].replace("\\", "/")) for file in filesAll]
                 filesPub.sort(key=lambda s: s.lower())
+                filesPri.sort(key=lambda s: s.lower())
                 filesAll.sort(key=lambda s: s.lower())
                 package.ResolvedBuildPublicIncludeFiles = filesPub
+                package.ResolvedBuildPrivateIncludeFiles = filesPri
                 package.ResolvedBuildAllIncludeFiles = filesAll
                 if package.PackageNameBasedIncludePath:
                     self.__ValidateIncludePaths(package, filesPub)
@@ -361,29 +374,72 @@ class PackageResolver(object):
             if not package.IsVirtual:
                 sourceContent = self.__ProcesssContentCommandFile(basicConfig, package)
 
-                package.ResolvedBuildContentFiles = self.__ResolveContent(sourceContent.ContentSource.Files)
-                package.ResolvedBuildContentSourceFiles = self.__ResolveContent(sourceContent.ContentBuildSource.Files)
+                package.ResolvedContentBuilderBuildInputFiles = list(sourceContent.ContentBuildSource.Files)
+                package.ResolvedContentBuilderSyncInputFiles = list(sourceContent.ContentSource.Files)
+                package.ResolvedContentBuilderAllInputFiles = list(sourceContent.AllContentSource.Files)
+
+                package.ResolvedContentBuilderBuildOuputFiles = []
+                if len(package.ResolvedContentBuilderBuildInputFiles) > 0 and package.Path is not None:
+                    # Run through all files that will be build and determine what the output filename will be
+                    featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
+                    contentProcessorManager = ContentBuilder.GetContentProcessorManager(basicConfig, featureList)
+                    for contentEntry in package.ResolvedContentBuilderBuildInputFiles:
+                        contentProcessor = contentProcessorManager.TryFindContentProcessor(contentEntry)
+                        if contentProcessor is not None:
+                            packageContentOutputPath = ContentBuilder.GetContentOutputPath(package.Path)
+                            contentOutputFile = contentProcessor.GetOutputFileName(basicConfig, packageContentOutputPath, contentEntry)
+                            package.ResolvedContentBuilderBuildOuputFiles.append(contentOutputFile)
+                    package.ResolvedContentBuilderBuildOuputFiles.sort()
+
+                # Run through all sync files and determine their output filename
+                package.ResolvedContentBuilderSyncOutputFiles = []
+                if len(package.ResolvedContentBuilderSyncInputFiles) > 0 and package.Path is not None:
+                    packageContentOutputPath = ContentBuilder.GetContentOutputPath(package.Path)
+                    syncDstRoot = ContentBuilder.GetContentOuputContentRootRecord(basicConfig, packageContentOutputPath)
+                    for syncContentEntry in package.ResolvedContentBuilderSyncInputFiles:
+                        syncContentOutputFile = ContentBuilder.GetContentSyncOutputFilename(basicConfig, syncDstRoot, syncContentEntry)
+                        package.ResolvedContentBuilderSyncOutputFiles.append(syncContentOutputFile.ResolvedPath)
+                    package.ResolvedContentBuilderSyncOutputFiles.sort()
+
+                # Build the union of the sync files + build files
+                package.ResolvedContentBuilderAllOuputFiles = package.ResolvedContentBuilderBuildOuputFiles + package.ResolvedContentBuilderSyncOutputFiles
+                package.ResolvedContentBuilderAllOuputFiles.sort()
+
+                # Finally resolve the actual content files from the "Content" directory (excluding any files generated by the content builder)
+                package.ResolvedContentFiles = self.__ProcesssContentFiles(basicConfig, package, package.ResolvedContentBuilderAllOuputFiles)
 
             else:
-                package.ResolvedBuildContentFiles = []
-                package.ResolvedBuildContentSourceFiles = []
+                package.ResolvedContentBuilderBuildInputFiles = []
+                package.ResolvedContentBuilderSyncInputFiles = []
+                package.ResolvedContentBuilderAllInputFiles = []
+                package.ResolvedContentBuilderBuildOuputFiles = []
+                package.ResolvedContentBuilderSyncOutputFiles = []
+                package.ResolvedContentBuilderAllOuputFiles = []
+                package.ResolvedContentFiles = []
 
+
+    def __ProcesssContentFiles(self, log: Log, package: Package, resolvedContentBuilderAllOuputFiles: List[str]) -> List[PathRecord]:
+        if package.ContentPath is None or not IOUtil.IsDirectory(package.ContentPath.AbsoluteDirPath):
+            return []
+
+        absContentPath = package.ContentPath.AbsoluteDirPath
+        content = Content(log, absContentPath, True)
+        if len(content.Files) <= 0:
+            return []
+
+        generatedContentSet = set(resolvedContentBuilderAllOuputFiles)
+        # Blacklist the content sync cache
+        generatedContentSet.add(IOUtil.Join(absContentPath, ToolSharedValues.CONTENT_SYNC_CACHE_FILENAME))
+        res = [entry for entry in content.Files if entry.ResolvedPath not in generatedContentSet]
+        return res
 
     def __ProcesssContentCommandFile(self, config: Config, package: Package) -> SourceContent:
-        if package.AbsoluteBuildPath is None or package.AbsoluteContentSourcePath is None or package.AbsoluteContentPath is None:
+        if package.AbsoluteBuildPath is None or package.ContentSourcePath is None or package.ContentPath is None:
             raise Exception("Invalid package")
-        pathVariables = PathVariables(config, package.AbsoluteBuildPath, package.AbsoluteContentSourcePath, package.AbsoluteContentPath)
-        commandFilename = IOUtil.Join(package.AbsoluteContentSourcePath, "Content.json")
+        pathVariables = PathVariables(config, package.AbsoluteBuildPath, package.ContentSourcePath.AbsoluteDirPath, package.ContentPath.AbsoluteDirPath)
+        commandFilename = IOUtil.Join(package.ContentSourcePath.AbsoluteDirPath, ToolSharedValues.CONTENT_BUILD_FILE_NAME)
         commands = ContentBuildCommandFile(config, commandFilename, pathVariables)
-        return SourceContent(config, package.AbsoluteContentPath, package.AbsoluteContentSourcePath, commands, True)
-
-
-    def __ResolveContent(self, files: List[PathRecord]) -> List[str]:
-        result = []
-        for entry in files:
-            result.append(entry.ResolvedPath)
-        return result
-
+        return SourceContent(config, package.ContentPath.AbsoluteDirPath, package.ContentSourcePath.AbsoluteDirPath, commands, False)
 
 
     def __AddBuildIncludeDir(self, srcDir: str,
@@ -416,6 +472,7 @@ class PackageResolver(object):
             includeDirs = {}  # type: Dict[str, PackageResolvedInclude]
             publicIncludeDirs = [] # type: List[str]
             privateIncludeDirs = [] # type: List[str]
+            directPrivateIncludeDirs = [] # type: List[ResolvedPath]
 
             # First process the include paths present in this package
             if package.AbsoluteIncludePath != None:
@@ -452,19 +509,20 @@ class PackageResolver(object):
                         if config.Verbosity >= 4:
                             config.LogPrint("  Adding source {0} as include for unit test {1}".format(sourceDir, package.Name))
                         self.__AddBuildIncludeDir(sourceDir, AccessType.Private, AccessType.Private, includeDirs, privateIncludeDirs, publicIncludeDirs)
+                        directPrivateIncludeDirs.append(ResolvedPath(sourceDir, parentPackage.AbsoluteSourcePath))
 
             allIncludeDirs = list(includeDirs.keys())
             allIncludeDirs.sort(key=lambda s: s.lower())
             publicIncludeDirs.sort(key=lambda s: s.lower())
             privateIncludeDirs.sort(key=lambda s: s.lower())
+            directPrivateIncludeDirs.sort(key=lambda s: s.ResolvedPath.lower())
             if hasLocalIncludeDir:
                 allIncludeDirs.insert(0, package.BaseIncludePath)
                 publicIncludeDirs.insert(0, package.BaseIncludePath)
             package.ResolvedBuildPublicIncludeDirs = publicIncludeDirs
             package.ResolvedBuildPrivateIncludeDirs = privateIncludeDirs
             package.ResolvedBuildAllIncludeDirs = allIncludeDirs
-
-
+            package.ResolvedBuildDirectPrivateIncludeDirs = directPrivateIncludeDirs
 
 
     def __ResolveBuildDefines(self, config: Config, platformName: str, finalResolveOrder: List[Package]) -> None:
@@ -656,16 +714,19 @@ class PackageResolver(object):
         if IOUtil.IsAbsolutePath(command.Name):
             raise Exception("Path can not be absolute '{0}".format(command.Name))
 
-        if sourceRecipe.ResolvedInstallPath is None:
-            raise Exception("sourceRecipe is missing the expected ResolvedInstallPath")
+        if sourceRecipe.ResolvedInstallLocation is None:
+            raise Exception("sourceRecipe is missing the expected ResolvedInstallLocation")
 
-        sourcePath = sourceRecipe.ResolvedInstallPath
+        resolvedLocation = sourceRecipe.ResolvedInstallLocation
+        sourcePath = resolvedLocation.SourcePath if resolvedLocation.SourcePath.startswith("$(") else resolvedLocation.ResolvedPath
+
         if package.Type == PackageType.ExternalLibrary and len(package.ResolvedRecipeVariants) > 0:
             sourcePath = IOUtil.Join(sourcePath, Variable.RecipeVariant)
         absoluteLocation = IOUtil.Join(sourcePath, command.Name)
 
         self.__AutoHeaderCounter = self.__AutoHeaderCounter + 1
-        fakeEntry = FakeXmlGenFileExternalDependencyHeaders(basicConfig, "AutoHeaders{0}".format(self.__AutoHeaderCounter), absoluteLocation, AccessType.Public)
+        fakeEntry = FakeXmlGenFileExternalDependencyHeaders(basicConfig, "AutoHeaders{0}".format(self.__AutoHeaderCounter), absoluteLocation,
+                                                            AccessType.Public, True)
         return PackageExternalDependency(pathBuilder, fakeEntry, package.Name, AccessType.Public, True)
 
 
@@ -690,11 +751,16 @@ class PackageResolver(object):
         srcName = IOUtil.GetFileName(command.Name)
         srcDebugName = IOUtil.GetFileName(command.DebugName)
 
-        if sourceRecipe.ResolvedInstallPath is None:
-            raise Exception("sourceRecipe is missing the expected ResolvedInstallPath")
-        absoluteLocation = IOUtil.Join(sourceRecipe.ResolvedInstallPath, srcLocation)
+        if sourceRecipe.ResolvedInstallLocation is None:
+            raise Exception("sourceRecipe is missing the expected ResolvedInstallLocation")
 
-        fakeEntry = FakeXmlGenFileExternalDependencyStaticLib(basicConfig, srcName, srcDebugName, absoluteLocation, AccessType.Public)
+        resolvedLocation = sourceRecipe.ResolvedInstallLocation
+        sourcePath = resolvedLocation.SourcePath if resolvedLocation.SourcePath.startswith("$(") else resolvedLocation.ResolvedPath
+        if package.Type == PackageType.ExternalLibrary and len(package.ResolvedRecipeVariants) > 0:
+            sourcePath = IOUtil.Join(sourcePath, Variable.RecipeVariant)
+        absoluteLocation = IOUtil.Join(sourcePath, srcLocation)
+
+        fakeEntry = FakeXmlGenFileExternalDependencyStaticLib(basicConfig, srcName, srcDebugName, absoluteLocation, AccessType.Public, True)
         return PackageExternalDependency(pathBuilder, fakeEntry, package.Name, AccessType.Public, True)
 
 
@@ -719,11 +785,14 @@ class PackageResolver(object):
         srcName = IOUtil.GetFileName(command.Name)
         srcDebugName = IOUtil.GetFileName(command.DebugName)
 
-        if sourceRecipe.ResolvedInstallPath is None:
-            raise Exception("sourceRecipe is missing the expected ResolvedInstallPath")
-        absoluteLocation = IOUtil.Join(sourceRecipe.ResolvedInstallPath, srcLocation)
+        if sourceRecipe.ResolvedInstallLocation is None:
+            raise Exception("sourceRecipe is missing the expected ResolvedInstallLocation")
 
-        fakeEntry = FakeXmlGenFileExternalDependencyDLL(basicConfig, srcName, srcDebugName, absoluteLocation, AccessType.Public)
+        resolvedLocation = sourceRecipe.ResolvedInstallLocation
+        sourcePath = resolvedLocation.SourcePath if resolvedLocation.SourcePath.startswith("$(") else resolvedLocation.ResolvedPath
+        absoluteLocation = IOUtil.Join(sourcePath, srcLocation)
+
+        fakeEntry = FakeXmlGenFileExternalDependencyDLL(basicConfig, srcName, srcDebugName, absoluteLocation, AccessType.Public, True)
         return PackageExternalDependency(pathBuilder, fakeEntry, package.Name, AccessType.Public, True)
 
 
@@ -971,4 +1040,4 @@ class PackageResolver(object):
                 if package.Type == PackageType.Library or package.Type == PackageType.Executable: # or package.Type == PackageType.ExeLibCombo:
                     if package.ResolvedPlatform is not None:
                         if package.ResolvedPlatform.ProjectId is None:  # split into separate line to make MyPy happy
-                            raise XmlMissingWindowsVisualStudioProjectIdException(package.XMLElement)
+                            raise XmlMissingWindowsVisualStudioProjectIdException(package.XMLElement, package.Name)

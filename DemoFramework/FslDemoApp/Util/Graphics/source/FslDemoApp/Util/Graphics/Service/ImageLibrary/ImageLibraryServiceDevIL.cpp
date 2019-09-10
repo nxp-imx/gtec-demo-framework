@@ -503,6 +503,10 @@ namespace Fsl
 
   bool ImageLibraryServiceDevIL::TryWrite(const IO::Path& path, const Bitmap& bitmap, const ImageFormat imageFormat, const bool allowOverwrite)
   {
+    FSL_PARAM_NOT_USED(path);
+    FSL_PARAM_NOT_USED(bitmap);
+    FSL_PARAM_NOT_USED(imageFormat);
+    FSL_PARAM_NOT_USED(allowOverwrite);
     // TODO: implement DevIL save support
     return false;
   }

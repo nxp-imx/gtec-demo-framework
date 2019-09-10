@@ -1,4 +1,6 @@
-# DemoFramework 5.3.1
+<!-- #AG_PROJECT_CAPTION_BEGIN# -->
+# DemoFramework 5.4.0
+<!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
 
@@ -70,7 +72,7 @@ since the exact same demo/benchmark code run on all of them.
 
 ## Technical overview
 
-* Written in a limited subset of [C++ 11](https://en.wikipedia.org/wiki/C%2B%2B11) and
+* Written in a limited subset of [C++ 14](https://en.wikipedia.org/wiki/C%2B%2B11) and
 uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization) to manage resources.
 * Uses a limited subset of [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) to make it easier to port.
 * No copyleft restrictions from GPL / L-GPL licenses.
@@ -109,12 +111,13 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 ## Reasoning
 
 While writing this we currently have twenty-six OpenGL ES 2 samples, fifty-seven OpenGL ES 3.x samples,
-thirty three Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
-three OpenVX sample and four other samples. Which is *136 sample applications*.
+thirty six Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+three OpenVX sample and five other samples. Which is *142 sample applications*.
+
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 138 * 4 = *552 build files* for the samples alone.
-Maintaining 552 or even just 138 build files would be an extremely time consuming and error prone process.
+maintain 142 * 4 = *568 build files* for the samples alone.
+Maintaining 568 or even just 142 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -528,7 +531,13 @@ Home    | Toggle between normal and fast 4x playback.
 ## Console
 
 ### [Console101](DemoApps/Console/Console101)
-Shows how to create a freestyle console based application using the demoframework.
+Shows how to create a freestyle  console based application using the demoframework.
+This console app has access to the normal graphics libraries.
+
+
+### [ConsoleMinimal101](DemoApps/Console/ConsoleMinimal101)
+Shows how to create a freestyle minimal console based application using the demoframework.
+This minimal app does not pull in any of the graphics libraries.
 
 
 
@@ -812,6 +821,15 @@ Executes a highly configurable stress test for the OpenGL ES API.
 It will procedurally generate a mesh and fur texture that is then rendered to cover the entire screen.
 
 This will often showcase the worst case power consumption of the GPU.
+
+
+### [TextureCompression](DemoApps/GLES2/TextureCompression)
+<a href="DemoApps/GLES2/TextureCompression/Example.jpg">
+<img src="DemoApps/GLES2/TextureCompression/Example.jpg" height="108px">
+</a>
+
+Load and render the supported compressed textures.
+It also outputs information about the compression support.
 
 
 ### [VIVDirectTextureMultiSampling](DemoApps/GLES2/VIVDirectTextureMultiSampling)
@@ -1774,6 +1792,17 @@ Recreated as a DemoFramework freestyle window sample in 2016.
 Check that vkGetPhysicalDeviceSurfaceCapabilitiesKHR reports the expected values before and after swapchain creation for the given native window implementation.
 
 
+### [ObjectSelection](DemoApps/Vulkan/ObjectSelection)
+<a href="DemoApps/Vulkan/ObjectSelection/Example.jpg">
+<img src="DemoApps/Vulkan/ObjectSelection/Example.jpg" height="108px">
+</a>
+
+Shows how to select (pick) 3d objects using the mouse via Axis Aligned Bounding Boxes (AABB).
+
+Beware that AABB's often represent quite a rough fit and therefore is best used as a quick way to determine
+if there might be a collision and then utilize a more precise calculation to verify it.
+
+
 ### [OpenCL101](DemoApps/Vulkan/OpenCL101)
 <a href="DemoApps/Vulkan/OpenCL101/Example.jpg">
 <img src="DemoApps/Vulkan/OpenCL101/Example.jpg" height="108px">
@@ -1850,12 +1879,29 @@ A simple example of how scissoring works in Vulkan.
 This is showcased by rendering the insides of a rotating cube and using a animated scissor rectangle to clip.
 
 
+### [Screenshot](DemoApps/Vulkan/Screenshot)
+<a href="DemoApps/Vulkan/Screenshot/Example.jpg">
+<img src="DemoApps/Vulkan/Screenshot/Example.jpg" height="108px">
+</a>
+
+Shows how to take a screenshot from code.
+
+
 ### [Skybox](DemoApps/Vulkan/Skybox)
 <a href="DemoApps/Vulkan/Skybox/Example.jpg">
 <img src="DemoApps/Vulkan/Skybox/Example.jpg" height="108px">
 </a>
 
 Render a simple skybox using a cubemap.
+
+
+### [SRGBFramebuffer](DemoApps/Vulkan/SRGBFramebuffer)
+<a href="DemoApps/Vulkan/SRGBFramebuffer/Example.jpg">
+<img src="DemoApps/Vulkan/SRGBFramebuffer/Example.jpg" height="108px">
+</a>
+
+Enables a SRGB Framebuffer if its available.
+If unavailable it does normal gamma correction in the shader.
 
 
 ### [TessellationPNTriangles](DemoApps/Vulkan/TessellationPNTriangles)

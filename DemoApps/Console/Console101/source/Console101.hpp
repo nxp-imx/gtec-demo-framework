@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/ConsoleMinimal/DemoAppConsoleMinimal.hpp>
+#include <FslDemoApp/Console/DemoAppConsole.hpp>
 
 namespace Fsl
 {
-  class Console101 : public DemoAppConsoleMinimal
+  class Console101 : public DemoAppConsole
   {
   public:
     Console101(const DemoAppConfig& config);

@@ -35,7 +35,6 @@ import xml.etree.ElementTree as ET
 from FslBuildGen.Log import Log
 from FslBuildGen.Xml.XmlBase import XmlBase
 
-
 class XmlConfigFileAddNewProjectTemplatesRootDirectory(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element, sourceFileName: str) -> None:
         super().__init__(log, xmlElement)

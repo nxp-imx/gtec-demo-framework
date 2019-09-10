@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="Shared.Camera.Adapter.Interface">
+  <Library Name="Shared.Camera.Adapter.Interface" CreationYear="2018">
     <Requirement Name="EarlyAccess" Type="feature"/>
   	<Dependency Name="FslGraphics"/>
     <Platform Name="Windows" ProjectId="604B42AE-9F73-46AC-B148-A58CA8490042"/>

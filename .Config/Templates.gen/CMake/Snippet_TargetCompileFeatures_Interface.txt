@@ -1,0 +1,4 @@
+target_compile_features(##PACKAGE_NAME##
+  INTERFACE
+    cxx_std_14 # Enable C++14
+)

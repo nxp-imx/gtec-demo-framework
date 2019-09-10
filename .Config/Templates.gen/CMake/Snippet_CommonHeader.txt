@@ -1,0 +1,5 @@
+# stop if cmake version below ##CMAKE_MINIMUM_VERSION##
+cmake_minimum_required(VERSION ##CMAKE_MINIMUM_VERSION## FATAL_ERROR)
+
+# Generate folders for IDE's
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)

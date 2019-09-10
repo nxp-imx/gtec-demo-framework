@@ -33,32 +33,24 @@
 
 from typing import Optional
 from FslBuildGen import IOUtil
-#from FslBuildGen.DataTypes import *
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 
 
-class PackageFile(object):
+class PackageFile(PackagePath):
     def __init__(self, filename: str, strPackageName: Optional[str], packageLocation: ToolConfigPackageLocation) -> None:
-        super(PackageFile, self).__init__()
-
+        filename = IOUtil.NormalizePath(filename)
         if not IOUtil.IsAbsolutePath(filename):
             raise UsageErrorException()
 
-        if not isinstance(packageLocation, ToolConfigPackageLocation):
-            raise UsageErrorException()
-
-        filename = IOUtil.NormalizePath(filename)
-        if not filename.startswith(packageLocation.ResolvedPathEx):
-            raise UsageErrorException("The filename '{0}' does not belong to the supplied location '{1}'".format(filename, packageLocation.ResolvedPathEx))
+        rootRelativePath = filename[len(packageLocation.ResolvedPathEx):]
+        super().__init__(IOUtil.GetDirectoryName(rootRelativePath), packageLocation, False)
 
         self.Filename = IOUtil.GetFileName(filename)
-        self.RelativeFilePath = filename[len(packageLocation.ResolvedPathEx):] # The full relative path to the file
-        self.RelativeDirPath = IOUtil.GetDirectoryName(self.RelativeFilePath)  # The relative containing directory
+        self.RootRelativeFilePath = rootRelativePath # The full root relative path to the file
         self.AbsoluteFilePath = filename  # type: str
-        self.AbsoluteDirPath = IOUtil.GetDirectoryName(filename)  # type: str
-        self.PackageRootLocation = packageLocation  # type: ToolConfigPackageLocation
-        self.PackageName = self.__DeterminePackageNameFromRelativeName(self.RelativeDirPath) if strPackageName is None else strPackageName # type: str
+        self.PackageName = self.__DeterminePackageNameFromRelativeName(self.RootRelativeDirPath) if strPackageName is None else strPackageName # type: str
 
 
     def __DeterminePackageNameFromRelativeName(self, relativeDirPath: str) -> str:

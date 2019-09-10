@@ -32,14 +32,18 @@
 #include "TextureCompression.hpp"
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Log/IO/LogPath.hpp>
+#include <FslBase/String/StringUtil.hpp>
+#include <FslBase/String/ToString.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
+#include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
 #include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslUtil/OpenGLES3/DebugStrings.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
@@ -55,55 +59,208 @@ namespace Fsl
   {
     const auto TEXTURE_PATH = "Textures/GPUSdkTest";
 
-    IO::Path ToTexPath(const char* const psz)
+    struct TextureCapabilities
     {
-      return IO::Path::Combine(TEXTURE_PATH, psz);
-    }
+      // ASTC (Adaptive scalable texture compression)
+      // https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_texture_compression_astc_hdr.txt
+      bool HasASTC_LDR{false};
+      bool HasASTC_HDR{false};
+      // https://www.khronos.org/registry/OpenGL/extensions/OES/OES_texture_compression_astc.txt
+      // Extends GL_KHR_texture_compression_astc_ldr and GL_KHR_texture_compression_astc_hdr
+      bool HasASTC_OES{false};
+      // https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_texture_compression_astc_sliced_3d.txt
+      // Extends GL_KHR_texture_compression_astc_ldr
+      bool HasASTC_Sliced3D{false};
+      // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_compression_astc_decode_mode.txt
+      // Requires GL_KHR_texture_compression_astc_hdr, GL_KHR_texture_compression_astc_ldr or GL_OES_texture_compression_astc
+      bool HasASTC_DecodeMode{false};
+      bool HasASTC_DecodeModeRGB9E5{false};
+
+      // ATITC (ATI texture compression), also known as ATC
+      bool HasATITC1{false};
+      bool HasATITC2{false};
+
+      // ETC1 (Ericsson Texture Compression)
+      bool HasETC1{false};
+
+      // PVRTC - PowerVR texture compression
+      bool HasPVRTC{false};
+
+      // PVRTC2 - PowerVR texture compression
+      bool HasPVRTC2{false};
+
+      // S3TC (S3 texture compression), also called DXTn, DXTC or BCn
+      // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_compression_s3tc.txt
+      bool HasS3TC{false};
+      bool HasS3TC_dxt1{false};
+    };
 
     struct CreateContext
     {
       std::shared_ptr<IContentManager> ContentManager;
       std::shared_ptr<IGraphicsService> GraphicsService;
       std::shared_ptr<UI::WindowContext> WindowContext;
+      TextureCapabilities TextureCaps;
     };
 
-    std::shared_ptr<BaseWindow> CreateTextureControl(const CreateContext& context, const IO::Path& path,
-                                                     PixelFormat switchPF = PixelFormat::Undefined)
+    TextureCapabilities GetTextureCapabilities()
     {
-      // Since we are loading a compressed texture the 'contentManager' wont modify it and
+      TextureCapabilities caps{};
+      // ASTC (Adaptive scalable texture compression)
+      caps.HasASTC_LDR = GLUtil::HasExtension("GL_KHR_texture_compression_astc_ldr");
+      caps.HasASTC_HDR = GLUtil::HasExtension("GL_KHR_texture_compression_astc_hdr");
+      caps.HasASTC_OES = GLUtil::HasExtension("GL_OES_texture_compression_astc");
+      caps.HasASTC_Sliced3D = GLUtil::HasExtension("GL_KHR_texture_compression_astc_sliced_3d");
+      caps.HasASTC_DecodeMode = GLUtil::HasExtension("GL_EXT_texture_compression_astc_decode_mode");
+      caps.HasASTC_DecodeModeRGB9E5 = GLUtil::HasExtension("GL_EXT_texture_compression_astc_decode_mode_rgb9e5");
+
+      // ATITC (ATI texture compression), also known as ATC
+      caps.HasATITC1 = GLUtil::HasExtension("GL_AMD_compressed_ATC_texture");
+      caps.HasATITC2 = GLUtil::HasExtension("GL_ATI_texture_compression_atitc");
+
+      // ETC1 (Ericsson Texture Compression)
+      caps.HasETC1 = GLUtil::HasExtension("GL_OES_compressed_ETC1_RGB8_texture");
+
+      // ETC2 is mandatory in OpenGL ES3
+
+      // PVRTC - PowerVR texture compression
+      caps.HasPVRTC = GLUtil::HasExtension("GL_IMG_texture_compression_pvrtc");
+
+      // PVRTC2 - PowerVR texture compression
+      caps.HasPVRTC2 = GLUtil::HasExtension("GL_IMG_texture_compression_pvrtc2");
+
+      // S3TC (S3 texture compression), also called DXTn, DXTC or BCn
+      // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_compression_s3tc.txt
+      caps.HasS3TC = GLUtil::HasExtension("GL_EXT_texture_compression_s3tc");
+      caps.HasS3TC_dxt1 = GLUtil::HasExtension("GL_EXT_texture_compression_dxt1");
+      return caps;
+    }
+
+
+    std::shared_ptr<BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
+    {
+      Texture2D sourceTexture(context.GraphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+
+      auto label = std::make_shared<Label>(context.WindowContext);
+      label->SetAlignmentX(ItemAlignment::Center);
+      label->SetAlignmentY(ItemAlignment::Far);
+      label->SetContent(caption);
+
+      auto tex = std::make_shared<Texture2DImage>(context.WindowContext);
+      tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
+      tex->SetContent(sourceTexture);
+      tex->SetAlignmentX(ItemAlignment::Center);
+      tex->SetAlignmentY(ItemAlignment::Center);
+      tex->SetBlendState(BlendState::AlphaBlend);
+      // tex1->SetWidth(256);
+      // tex1->SetHeight(256);
+
+      auto stack = std::make_shared<StackLayout>(context.WindowContext);
+      stack->SetLayoutOrientation(LayoutOrientation::Vertical);
+      stack->AddChild(label);
+      stack->AddChild(tex);
+      return stack;
+    }
+
+    //! This assumes all uncompressed formats are supported (which most likely is not true, but its good enough for the current use case)
+    //! Querying the extensions on all format lookups is also slow and ought to be cached instead
+    bool IsSupported(const TextureCapabilities& textureCaps, const PixelFormat pixelFormat)
+    {
+      const bool isCompressed = PixelFormatUtil::IsCompressed(pixelFormat);
+      if (!isCompressed)
+      {
+        return true;
+      }
+
+      switch (PixelFormatUtil::GetPixelFormatLayout(pixelFormat))
+      {
+      case PixelFormatLayout::ASTC_4x4_BLOCK:
+      case PixelFormatLayout::ASTC_5x4_BLOCK:
+      case PixelFormatLayout::ASTC_5x5_BLOCK:
+      case PixelFormatLayout::ASTC_6x5_BLOCK:
+      case PixelFormatLayout::ASTC_6x6_BLOCK:
+      case PixelFormatLayout::ASTC_8x5_BLOCK:
+      case PixelFormatLayout::ASTC_8x6_BLOCK:
+      case PixelFormatLayout::ASTC_8x8_BLOCK:
+      case PixelFormatLayout::ASTC_10x5_BLOCK:
+      case PixelFormatLayout::ASTC_10x6_BLOCK:
+      case PixelFormatLayout::ASTC_10x8_BLOCK:
+      case PixelFormatLayout::ASTC_10x10_BLOCK:
+      case PixelFormatLayout::ASTC_12x10_BLOCK:
+      case PixelFormatLayout::ASTC_12x12_BLOCK:
+        return textureCaps.HasASTC_LDR;
+      case PixelFormatLayout::ETC2_R8G8B8_BLOCK:
+      case PixelFormatLayout::ETC2_R8G8B8A1_BLOCK:
+      case PixelFormatLayout::ETC2_R8G8B8A8_BLOCK:
+        return true;
+      default:
+        return false;
+      }
+    }
+
+
+    std::shared_ptr<BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const Texture& notSupportedTexture)
+    {
+      const auto pixelFormat = texture.GetPixelFormat();
+      bool isSupported = IsSupported(context.TextureCaps, pixelFormat);
+
+      std::string caption(Fsl::Debug::ToString(pixelFormat));
+      if (StringUtil::StartsWith(caption, "PixelFormat::"))
+      {
+        StringUtil::Replace(caption, "PixelFormat::", "");
+      }
+
+      FSLLOG("- " << caption << ": " << isSupported);
+      if (Fsl::Logger::GetLogLevel() >= LogType::Verbose)
+      {
+        //  FSLLOG("  - properties.linearTilingFeatures: " << GetBitflagsString(properties.linearTilingFeatures));
+        //  FSLLOG("  - properties.optimalTilingFeatures: " << GetBitflagsString(properties.optimalTilingFeatures));
+        //  FSLLOG("  - properties.bufferFeatures: " << GetBitflagsString(properties.bufferFeatures));
+      }
+
+      if (isSupported)
+      {
+        return CreateTextureControl(context, texture, caption);
+      }
+
+      return CreateTextureControl(context, notSupportedTexture, caption);
+    }
+
+
+    void CreateTextureControlsIfSupported(std::deque<std::shared_ptr<BaseWindow>>& rTextures, const CreateContext& context, const IO::Path& path,
+                                          const PixelFormat switchPF, const Texture& notSupportedTexture)
+    {
+      auto newPath = IO::Path::Combine(TEXTURE_PATH, path);
+
+      // If we are loading a compressed texture the 'contentManager' wont modify it and
       // the KTX loader does not report the origin correctly and always returns 'UpperLeft',
       // so we 'request' that origin then override it below since we know the textures are stored with LowerLeft origin
-      auto texture = context.ContentManager->ReadTexture(path, switchPF, BitmapOrigin::UpperLeft);
+      auto texture = context.ContentManager->ReadTexture(newPath, switchPF, BitmapOrigin::UpperLeft);
       texture.OverrideOrigin(BitmapOrigin::LowerLeft);
 
       try
       {
-        Texture2D sourceTexture(context.GraphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
+        rTextures.push_back(CreateTextureControl(context, texture, notSupportedTexture));
 
-        auto label = std::make_shared<Label>(context.WindowContext);
-        label->SetAlignmentX(ItemAlignment::Center);
-        label->SetAlignmentY(ItemAlignment::Far);
-        label->SetContent(Fsl::Debug::ToString(texture.GetPixelFormat()));
-
-        auto tex = std::make_shared<Texture2DImage>(context.WindowContext);
-        tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
-        tex->SetContent(sourceTexture);
-        tex->SetAlignmentX(ItemAlignment::Center);
-        tex->SetAlignmentY(ItemAlignment::Center);
-        // tex1->SetWidth(256);
-        // tex1->SetHeight(256);
-
-        auto stack = std::make_shared<StackLayout>(context.WindowContext);
-        stack->SetLayoutOrientation(LayoutOrientation::Vertical);
-        stack->AddChild(label);
-        stack->AddChild(tex);
-        return stack;
+        auto newPixelFormat = PixelFormatUtil::TryTransform(switchPF, PixelFormatFlags::NF_Srgb);
+        if (newPixelFormat != PixelFormat::Undefined)
+        {
+          texture.SetCompatiblePixelFormat(newPixelFormat);
+          // auto properties = context.PhysicalDevice.GetPhysicalDeviceFormatProperties(ConvertUtil::Convert(newPixelFormat));
+          rTextures.push_back(CreateTextureControl(context, texture, notSupportedTexture));
+        }
       }
       catch (const std::exception&)
       {
         FSLLOG("Failed to create texture from source: '" << path << "' with pixel format: " << texture.GetPixelFormat());
         throw;
       }
+    }
+
+    std::string TextureFormatToString(const GLint format)
+    {
+      auto psz = GLES3::Debug::TryTextureFormatToString(format);
+      return (psz != nullptr ? psz : "Unknown");
     }
   }
 
@@ -114,93 +271,65 @@ namespace Fsl
   {
     // https://developer.android.com/guide/topics/graphics/opengl.html
 
-    // ASTC (Adaptive scalable texture compression)
+    auto compressedTextureFormats = GLUtil::GetCompressedTextureFormats();
+    FSLLOG("Compressed texture formats:");
+    for (auto format : compressedTextureFormats)
+    {
+      FSLLOG("- Format: 0x" << std::hex << (GLint)format << std::dec << " (" << TextureFormatToString(format) << ")");
+    }
 
-    // https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_texture_compression_astc_hdr.txt
-    const bool hasASTC_LDR = GLUtil::HasExtension("GL_KHR_texture_compression_astc_ldr");
-    const bool hasASTC_HDR = GLUtil::HasExtension("GL_KHR_texture_compression_astc_hdr");
-    // https://www.khronos.org/registry/OpenGL/extensions/OES/OES_texture_compression_astc.txt
-    // Extends GL_KHR_texture_compression_astc_ldr and GL_KHR_texture_compression_astc_hdr
-    const bool hasASTC_OES = GLUtil::HasExtension("GL_OES_texture_compression_astc");
-    // https://www.khronos.org/registry/OpenGL/extensions/KHR/KHR_texture_compression_astc_sliced_3d.txt
-    // Extends GL_KHR_texture_compression_astc_ldr
-    const bool hasASTC_Sliced3D = GLUtil::HasExtension("GL_KHR_texture_compression_astc_sliced_3d");
-    // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_compression_astc_decode_mode.txt
-    // Requires GL_KHR_texture_compression_astc_hdr, GL_KHR_texture_compression_astc_ldr or GL_OES_texture_compression_astc
-    const bool hasASTC_DecodeMode = GLUtil::HasExtension("GL_EXT_texture_compression_astc_decode_mode");
-    const bool hasASTC_DecodeModeRGB9E5 = GLUtil::HasExtension("GL_EXT_texture_compression_astc_decode_mode_rgb9e5");
-
-    // ATITC (ATI texture compression), also known as ATC
-    //
-    const bool hasATITC1 = GLUtil::HasExtension("GL_AMD_compressed_ATC_texture");
-    const bool hasATITC2 = GLUtil::HasExtension("GL_ATI_texture_compression_atitc");
-    const bool hasATITC = hasATITC1 || hasATITC2;
-
-    // ETC1 (Ericsson Texture Compression)
-    const bool hasETC1 = GLUtil::HasExtension("GL_OES_compressed_ETC1_RGB8_texture");
-
-    // ETC2 is mandatory in OpenGL ES3
-    const bool hasETC2 = true;
-
-    // PVRTC - PowerVR texture compression
-    const bool hasPVRTC = GLUtil::HasExtension("GL_IMG_texture_compression_pvrtc");
-
-    // PVRTC2 - PowerVR texture compression
-    const bool hasPVRTC2 = GLUtil::HasExtension("GL_IMG_texture_compression_pvrtc2");
-
-    // S3TC (S3 texture compression), also called DXTn, DXTC or BCn
-    // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_texture_compression_s3tc.txt
-    const bool hasS3TC = GLUtil::HasExtension("GL_EXT_texture_compression_s3tc");
-    const bool hasS3TC_dxt1 = GLUtil::HasExtension("GL_EXT_texture_compression_dxt1");
-
+    const auto textureCaps = GetTextureCapabilities();
 
     FSLLOG("Compression extensions");
     FSLLOG("ASTC");
-    FSLLOG("- GL_KHR_texture_compression_astc_ldr: " << hasASTC_LDR);
-    FSLLOG("- GL_KHR_texture_compression_astc_hdr: " << hasASTC_HDR);
-    FSLLOG("- GL_OES_texture_compression_astc: " << hasASTC_OES);
-    FSLLOG("- GL_KHR_texture_compression_astc_sliced_3d: " << hasASTC_Sliced3D);
-    FSLLOG("- GL_EXT_texture_compression_astc_decode_mode: " << hasASTC_DecodeMode);
-    FSLLOG("- GL_EXT_texture_compression_astc_decode_mode_rgb9e5: " << hasASTC_DecodeModeRGB9E5);
+    FSLLOG("- GL_KHR_texture_compression_astc_ldr: " << textureCaps.HasASTC_LDR);
+    FSLLOG("- GL_KHR_texture_compression_astc_hdr: " << textureCaps.HasASTC_HDR);
+    FSLLOG("- GL_OES_texture_compression_astc: " << textureCaps.HasASTC_OES);
+    FSLLOG("- GL_KHR_texture_compression_astc_sliced_3d: " << textureCaps.HasASTC_Sliced3D);
+    FSLLOG("- GL_EXT_texture_compression_astc_decode_mode: " << textureCaps.HasASTC_DecodeMode);
+    FSLLOG("- GL_EXT_texture_compression_astc_decode_mode_rgb9e5: " << textureCaps.HasASTC_DecodeModeRGB9E5);
 
     FSLLOG("ATITC/ATC");
-    FSLLOG("- GL_AMD_compressed_ATC_texture: " << hasATITC1);
-    FSLLOG("- GL_AMD_compressed_ATC_texture: " << hasATITC2);
+    FSLLOG("- GL_AMD_compressed_ATC_texture: " << textureCaps.HasATITC1);
+    FSLLOG("- GL_AMD_compressed_ATC_texture: " << textureCaps.HasATITC2);
 
     FSLLOG("ETC1");
-    FSLLOG("- GL_OES_compressed_ETC1_RGB8_texture: " << hasETC1);
+    FSLLOG("- GL_OES_compressed_ETC1_RGB8_texture: " << textureCaps.HasETC1);
 
     FSLLOG("ETC2");
     FSLLOG("- Mandatory in OpenGL ES 3");
 
     FSLLOG("PVRTC");
-    FSLLOG("- GL_IMG_texture_compression_pvrtc: " << hasPVRTC);
+    FSLLOG("- GL_IMG_texture_compression_pvrtc: " << textureCaps.HasPVRTC);
 
     FSLLOG("PVRTC2");
-    FSLLOG("- GL_IMG_texture_compression_pvrtc2: " << hasPVRTC2);
+    FSLLOG("- GL_IMG_texture_compression_pvrtc2: " << textureCaps.HasPVRTC2);
 
     FSLLOG("S3TC");
-    FSLLOG("- GL_EXT_texture_compression_s3tc: " << hasS3TC);
-    FSLLOG("- GL_EXT_texture_compression_dxt1: " << hasS3TC_dxt1);
+    FSLLOG("- GL_EXT_texture_compression_s3tc: " << textureCaps.HasS3TC);
+    FSLLOG("- GL_EXT_texture_compression_dxt1: " << textureCaps.HasS3TC_dxt1);
 
     FSLLOG("");
     FSLLOG("");
+
+
+    std::string supportETC2("1");
 
     FSLLOG("ASTC (Adaptive scalable texture compression)");
-    FSLLOG("- LDR: " << hasASTC_LDR);
-    FSLLOG("- HDR: " << hasASTC_HDR);
-    FSLLOG("- OES: " << hasASTC_OES);
-    FSLLOG("- Sliced3D: " << hasASTC_Sliced3D);
-    FSLLOG("- DecodeMode: " << hasASTC_DecodeMode);
-    FSLLOG("- DecodeModeRGB9E5: " << hasASTC_DecodeModeRGB9E5);
-    FSLLOG("ETC1 (Ericsson Texture Compression): " << hasETC1);
-    FSLLOG("ETC2 (Ericsson Texture Compression): " << hasETC2);
-    FSLLOG("PVRTC - PowerVR texture compression: " << hasPVRTC);
-    FSLLOG("PVRTC2 - PowerVR texture compression: " << hasPVRTC2);
-    FSLLOG("ATITC (ATI texture compression) also known as ATC: " << hasATITC);
+    FSLLOG("- LDR: " << textureCaps.HasASTC_LDR);
+    FSLLOG("- HDR: " << textureCaps.HasASTC_HDR);
+    FSLLOG("- OES: " << textureCaps.HasASTC_OES);
+    FSLLOG("- Sliced3D: " << textureCaps.HasASTC_Sliced3D);
+    FSLLOG("- DecodeMode: " << textureCaps.HasASTC_DecodeMode);
+    FSLLOG("- DecodeModeRGB9E5: " << textureCaps.HasASTC_DecodeModeRGB9E5);
+    FSLLOG("ETC1 (Ericsson Texture Compression): " << textureCaps.HasETC1);
+    FSLLOG("ETC2 (Ericsson Texture Compression): " << supportETC2);
+    FSLLOG("PVRTC - PowerVR texture compression: " << textureCaps.HasPVRTC);
+    FSLLOG("PVRTC2 - PowerVR texture compression: " << textureCaps.HasPVRTC2);
+    FSLLOG("ATITC (ATI texture compression) also known as ATC: " << (textureCaps.HasATITC1 || textureCaps.HasATITC2));
     FSLLOG("S3TC (S3 texture compression) DXTn, DXTC or BCn texture compression");
-    FSLLOG("- All: " << hasS3TC);
-    FSLLOG("- DXT1 only: " << hasS3TC_dxt1);
+    FSLLOG("- All: " << textureCaps.HasS3TC);
+    FSLLOG("- DXT1 only: " << textureCaps.HasS3TC_dxt1);
 
     CreateUI(config.DemoServiceProvider);
   }
@@ -236,33 +365,70 @@ namespace Fsl
     // Next up we prepare the actual UI
     createContext.WindowContext = m_uiExtension->GetContext();
 
-    auto tex0 = CreateTextureControl(createContext, ToTexPath("CustomTexture_R8G8B8A8_flipped.ktx"), PixelFormat::R8G8B8A8_UNORM);
-    auto tex1 = CreateTextureControl(createContext, ToTexPath("CustomTexture_R8G8B8A8_flipped.ktx"), PixelFormat::R8G8B8A8_SRGB);
-    auto tex2 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_flipped.ktx"), PixelFormat::ETC2_R8G8B8_UNORM_BLOCK);
-    auto tex3 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_flipped.ktx"), PixelFormat::ETC2_R8G8B8_SRGB_BLOCK);
-    auto tex4 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_A1_flipped.ktx"), PixelFormat::ETC2_R8G8B8A1_UNORM_BLOCK);
-    auto tex5 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGB_A1_flipped.ktx"), PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK);
-    auto tex6 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGBA_flipped.ktx"), PixelFormat::ETC2_R8G8B8A8_UNORM_BLOCK);
-    auto tex7 = CreateTextureControl(createContext, ToTexPath("CustomTexture_ETC2_RGBA_flipped.ktx"), PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK);
+    createContext.TextureCaps = GetTextureCapabilities();
+
+    FSLLOG("Creating UI");
+
+    auto texDefault =
+      createContext.ContentManager->ReadTexture("Textures/NotSupported/NotSupported_pre.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
+
+    std::deque<std::shared_ptr<BaseWindow>> textures;
+
+    {    // Uncompressed
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_R8G8B8A8_flipped.ktx", PixelFormat::R8G8B8A8_UNORM, texDefault);
+    }
+    {    // ASTC
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_4x4_flipped.ktx", PixelFormat::ASTC_4x4_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_5x4_flipped.ktx", PixelFormat::ASTC_5x4_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_5x5_flipped.ktx", PixelFormat::ASTC_5x5_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_6x5_flipped.ktx", PixelFormat::ASTC_6x5_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_6x6_flipped.ktx", PixelFormat::ASTC_6x6_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_8x5_flipped.ktx", PixelFormat::ASTC_8x5_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_8x6_flipped.ktx", PixelFormat::ASTC_8x6_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_8x8_flipped.ktx", PixelFormat::ASTC_8x8_UNORM_BLOCK, texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_10x5_flipped.ktx", PixelFormat::ASTC_10x5_UNORM_BLOCK,
+                                       texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_10x6_flipped.ktx", PixelFormat::ASTC_10x6_UNORM_BLOCK,
+                                       texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_10x8_flipped.ktx", PixelFormat::ASTC_10x8_UNORM_BLOCK,
+                                       texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_10x10_flipped.ktx", PixelFormat::ASTC_10x10_UNORM_BLOCK,
+                                       texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_12x10_flipped.ktx", PixelFormat::ASTC_12x10_UNORM_BLOCK,
+                                       texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ASTC_12x12_flipped.ktx", PixelFormat::ASTC_12x12_UNORM_BLOCK,
+                                       texDefault);
+    }
+    {    // ETC2
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ETC2_RGB_flipped.ktx", PixelFormat::ETC2_R8G8B8_UNORM_BLOCK,
+                                       texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ETC2_RGB_A1_flipped.ktx", PixelFormat::ETC2_R8G8B8A1_UNORM_BLOCK,
+                                       texDefault);
+      CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ETC2_RGBA_flipped.ktx", PixelFormat::ETC2_R8G8B8A8_UNORM_BLOCK,
+                                       texDefault);
+    }
 
     auto wrapLayout = std::make_shared<WrapLayout>(createContext.WindowContext);
     wrapLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
     wrapLayout->SetSpacing(Vector2(4, 4));
     wrapLayout->SetAlignmentX(ItemAlignment::Center);
     wrapLayout->SetAlignmentY(ItemAlignment::Center);
-    wrapLayout->AddChild(tex0);
-    wrapLayout->AddChild(tex1);
-    wrapLayout->AddChild(tex2);
-    wrapLayout->AddChild(tex3);
-    wrapLayout->AddChild(tex4);
-    wrapLayout->AddChild(tex5);
-    wrapLayout->AddChild(tex6);
-    wrapLayout->AddChild(tex7);
+
+    for (const auto& tex : textures)
+    {
+      wrapLayout->AddChild(tex);
+    }
+
+    m_scrollable = std::make_shared<VerticalScroller>(createContext.WindowContext);
+    m_scrollable->SetContent(wrapLayout);
+    m_scrollable->SetScrollPadding(ThicknessF(0, 32, 0, 32));
+    // scrollLayout->SetAlignmentX(ItemAlignment::Stretch);
+    // scrollLayout->SetAlignmentY(ItemAlignment::Stretch);
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
     auto fillLayout = std::make_shared<FillLayout>(createContext.WindowContext);
-    fillLayout->AddChild(wrapLayout);
+    fillLayout->AddChild(m_scrollable);
 
     // Finally add everything to the window manager (to ensure its seen)
     m_uiExtension->GetWindowManager()->Add(fillLayout);

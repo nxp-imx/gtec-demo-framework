@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Exceptions.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
 #include <cassert>
@@ -486,7 +487,7 @@ namespace Fsl
     {
       if (searchBits == (static_cast<uint32_t>(g_pixelFormats[i]) & (~static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID))))
       {
-        FSLLOG_DEBUG_WARNING("Multiple candidates found");
+        FSLBASICLOG_DEBUG_WARNING("Multiple candidates found");
         return PixelFormat::Undefined;
       }
       ++i;

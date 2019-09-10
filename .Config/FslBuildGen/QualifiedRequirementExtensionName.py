@@ -35,7 +35,7 @@ from FslBuildGen import Util
 
 class QualifiedRequirementExtensionName(object):
     def __init__(self, featureName: str, extensionName: str) -> None:
-        super(QualifiedRequirementExtensionName, self).__init__()
+        super().__init__()
         self.FeatureName = featureName
         self.ExtensionName = extensionName
 

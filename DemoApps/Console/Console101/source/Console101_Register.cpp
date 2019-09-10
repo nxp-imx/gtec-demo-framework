@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoApp/ConsoleMinimal/Setup/RegisterDemoApp.hpp>
+#include <FslDemoApp/Console/Setup/RegisterDemoApp.hpp>
 #include "Console101.hpp"
 
 namespace Fsl

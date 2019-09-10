@@ -51,7 +51,7 @@ __g_thirdParty = '/ThirdParty/'
 
 class SourceFile(object):
     def __init__(self, package: Package, fileName: str) -> None:
-        super(SourceFile, self).__init__()
+        super().__init__()
         self.Package = package
         self.FileName = fileName
         self.Content = IOUtil.ReadFile(fileName)

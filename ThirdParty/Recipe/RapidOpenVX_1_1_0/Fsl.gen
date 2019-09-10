@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <ExternalLibrary Name="Recipe.RapidOpenVX_1_1_0">
+  <ExternalLibrary Name="Recipe.RapidOpenVX_1_1_0" CreationYear="2017">
     <Dependency Name="OpenVX"/>
     <ExperimentalRecipe Name="RapidOpenVX-1.1.0">
       <Pipeline>

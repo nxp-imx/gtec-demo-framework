@@ -167,11 +167,11 @@ namespace Fsl
       else
       {
         Bitmap bitmapGloss;
-        auto texturePath = IO::Path::Combine(SCENE_PATH, strTextureFileName);
+        auto glossTexturePath = IO::Path::Combine(SCENE_PATH, strTextureGloss);
         FSLLOG("- Diffuse");
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
         FSLLOG("- Gloss");
-        contentManager->Read(bitmapGloss, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        contentManager->Read(bitmapGloss, glossTexturePath, PixelFormat::R8G8B8A8_UNORM);
         FSLLOG("Combining diffuse and gloss texture");
         // This is a slow and brute force way of combining the textures
         for (uint32_t y = 0; y < bitmap.Height(); ++y)
@@ -191,14 +191,14 @@ namespace Fsl
 
       if (!strTextureSpecularFileName.empty())
       {
-        auto texturePath = IO::Path::Combine(SCENE_PATH, strTextureSpecularFileName);
-        contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        auto specTexturePath = IO::Path::Combine(SCENE_PATH, strTextureSpecularFileName);
+        contentManager->Read(bitmap, specTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_resources.TextureSpecular.Reset(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
       if (!strTextureNormalFileName.empty())
       {
-        auto texturePath = IO::Path::Combine(SCENE_PATH, strTextureNormalFileName);
-        contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        auto normTexturePath = IO::Path::Combine(SCENE_PATH, strTextureNormalFileName);
+        contentManager->Read(bitmap, normTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_resources.TextureNormal.Reset(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
     }
@@ -344,6 +344,8 @@ namespace Fsl
 
   void ModelViewer::Draw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     if (m_allowBackfaceCull)

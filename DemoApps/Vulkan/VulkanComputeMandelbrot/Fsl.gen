@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="Vulkan.VulkanComputeMandelbrot" NoInclude="true">
+  <Executable Name="Vulkan.VulkanComputeMandelbrot" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppConsole"/>
     <Dependency Name="FslUtil.Vulkan1_0"/>
     <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>

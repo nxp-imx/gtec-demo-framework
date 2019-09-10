@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <ExternalLibrary Name="EGL">
+  <ExternalLibrary Name="EGL" CreationYear="2014">
+    <Default.Platform.Supported Value="false"/>
     <Requirement Name="EGL" Type="feature"/>
     <Dependency Name="WindowSystem"/>
     <Dependency Name="GLBase"/>
-    <Platform Name="Android">
+    <Platform Name="Android" Supported="true">
       <ExternalDependency Name="EGL" Type="StaticLib"/>
     </Platform>
-    <Platform Name="Ubuntu">
+    <Platform Name="Ubuntu" Supported="true">
       <ExternalDependency Name="EGL" Type="StaticLib"/>
       <Define Name="MESA_EGL_NO_X11_HEADERS" Access="Public"/>
     </Platform>
-    <Platform Name="QNX">
+    <Platform Name="QNX" Supported="true">
       <ExternalDependency Name="EGL" Type="StaticLib"/>
       <!-- ExternalDependency Name="screen" Type="StaticLib"/ -->
     </Platform>
-    <Platform Name="Yocto">
+    <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="EGL" Type="StaticLib"/>
       <Variant Name="WindowSystem" Extend="true">
         <Option Name="FB">
@@ -34,14 +35,14 @@
         </Option>
       </Variant>
     </Platform>
-    <Platform Name="Windows">
+    <Platform Name="Windows" Supported="true">
       <Variant Name="$(FSL_GLES_NAME)" Type="Virtual" Extend="true">
         <Option Name="$(FSL_GLES_NAME)">
           <ExternalDependency Name="$(FSL_GLES_LIB_EGL)" Include="$(FSL_GLES_INCLUDE_PATH)" Access="Public" Location="$(FSL_GLES_LIB_PATH)" Type="StaticLib"/>
         </Option>
       </Variant>
     </Platform>
-    <Platform Name="CMake">
+    <Platform Name="CMake" Supported="true">
       <ExternalDependency Name="EGL" Type="Find"/>
     </Platform>
   </ExternalLibrary>

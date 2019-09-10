@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES3.TessellationSample" NoInclude="true">
+  <Executable Name="GLES3.TessellationSample" NoInclude="true" CreationYear="2015">
     <Requirement Name="GL_EXT_geometry_shader" Type="extension" Extends="OpenGLES3.1"/>
     <Requirement Name="GL_EXT_tessellation_shader" Type="extension" Extends="OpenGLES3.1"/>
     <ImportTemplate Name="DemoAppGLES3"/>

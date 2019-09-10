@@ -1,10 +1,25 @@
 # Latest version
 
+* Ported GLES3.SRGBFramebuffer to Vulkan.SRGBFramebuffer.
+* FslBuild now supports "-c install" for some builders.
+* Vulkan screenshot support
+* Replaced TCLAP with a custom argument parser to reduce executable size.
+* **Breaking change** Project.gen now sets RequirePackageCreationYear="true".
+  So its now mandatory for all Fsl.gen files to contain a CreationYear.
+* Experimental cmake support.
+* Ported GLES3.ObjectSelection to Vulkan.ObjectSelection.
+* **Breaking change** Now requires C++14.
+
+## Release 5.3.1
+
 * Added Vulkan.NativeWindowTest app.
 * Added vulkan wayland improvements.
 
-## 5.3.0
+## Release 5.3.0 or earlier
 
+* Upgraded to Android Studio 3.3.1
+* Upgraded to Android NDK R19
+* Switched to C++14 from C++11
 * Enabled Unit Tests for Yocto builds.
 * Updated third-party library OpenCV from 3.4.5 to 4.0.1
 * Updated documentation for install the Vulkan sdk to recommend 1.1.92.1.

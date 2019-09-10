@@ -35,8 +35,7 @@
 
 #include <android_native_app_glue.h>
 #include <FslDemoApp/Base/Setup/RegisterDemoApp_fwd.hpp>
-#include <FslDemoPlatform/Configuration/Android/DemoMainAndroid.hpp>
-//#include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
+#include <FslDemoPlatform/Link/Link.hpp>
 
 //-------------------------------------------------------------------------
 //Shared state for our app.
@@ -62,5 +61,5 @@ void android_main(android_app* state)
     Fsl::ConfigureDemoAppEnvironment(*pInvalid);
   }
 
-  Fsl::AndroidMain(state, HELPER_CLASS_NAME);
+  Fsl::FslDemoPlatform_Link(state, HELPER_CLASS_NAME);
 }

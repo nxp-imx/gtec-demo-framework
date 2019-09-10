@@ -38,7 +38,7 @@ from FslBuildGen.Xml.XmlNewVSProjectTemplateFile import XmlNewVSProjectTemplateF
 
 class VSVersionLanguageTemplates(object):
     def __init__(self, packageLanguage: int) -> None:
-        super(VSVersionLanguageTemplates, self).__init__()
+        super().__init__()
         self.PackageLanguage = packageLanguage
         self.TemplateDict = {}  # type: Dict[str, XmlNewVSProjectTemplateFile]
 

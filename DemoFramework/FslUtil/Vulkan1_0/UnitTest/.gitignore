@@ -19,6 +19,7 @@
 /FslUtil.Vulkan1_0.UnitTest.vcxproj.filters
 /FslUtil.Vulkan1_0.UnitTest.vcxproj.user
 /GNUmakefile
+/GNUmakefile_Yocto
 /UnitTest
 /UnitTest_c
 /UnitTest_d

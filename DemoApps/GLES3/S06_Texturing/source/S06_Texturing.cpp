@@ -266,6 +266,8 @@ namespace Fsl
 
   void S06_Texturing::Draw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     // Rotate and translate the model view matrix
     const Matrix matModel =
       Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;

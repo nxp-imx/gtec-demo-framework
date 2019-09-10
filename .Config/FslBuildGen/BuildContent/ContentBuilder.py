@@ -32,8 +32,10 @@
 #****************************************************************************************************************************************************
 
 from typing import List
+from typing import Optional
 import shutil
 from FslBuildGen import IOUtil
+from FslBuildGen import ToolSharedValues
 from FslBuildGen.Config import Config
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildContent.ToolFinder import ToolFinder
@@ -48,15 +50,21 @@ from FslBuildGen.BuildContent.Processor.Commands import CommandContentBuildSync
 from FslBuildGen.BuildContent.Processor.SourceContent import SourceContent
 from FslBuildGen.BuildContent.Sync import BuildState
 from FslBuildGen.BuildContent.Sync.Content import Content
+from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.ToolConfig import ToolConfigContentBuilderConfiguration
 #from FslBuildGen.BuildContent.VulkanContentProcessor import VulkanContentProcessor
 
-__CONTENT_BUILD_DIR = "Content.bld"
-__CONTENT_OUTPUT_DIR = "Content"
+def GetContentOuputContentRootRecord(log: Log, contentOutputPath: str) -> ContentRootRecord:
+    return ContentRootRecord(log, contentOutputPath)
+
+
+def GetContentSyncOutputFilename(log: Log, dstRoot: ContentRootRecord, contentFile: PathRecord) -> PathRecord:
+    return PathRecord(log, dstRoot, contentFile.RelativePath)
+
 
 class Features(object):
-    def __init__(self, config: Config, features: List[str]) -> None:
-        super(Features, self).__init__()
+    def __init__(self, log: Log, features: List[str]) -> None:
+        super().__init__()
         featureIds = [feature.lower() for feature in features]
         self.Features = features
         self.FeaturesIds = featureIds  # type: List[str]
@@ -64,20 +72,49 @@ class Features(object):
         self.UseOpenGLES = "opengles2" in features or "opengles3" in featureIds or "opengles3.1" in featureIds
 
 
-class Builder(object):
-    def __init__(self, config: Config, packageBuildPath: str, contentBuildPath: str, contentOutputPath: str, features: Features, toolFinder: ToolFinder) -> None:
-        super(Builder, self).__init__()
-        configPathVariables = PathVariables(config, packageBuildPath, contentBuildPath, contentOutputPath)
-        commandFilename = IOUtil.Join(contentBuildPath, "Content.json")
-        commandFile = ContentBuildCommandFile(config, commandFilename, configPathVariables)
-
-        # We don't include the files at 'Content' (contentOutputPath)
-        sourceContent = SourceContent(config, contentOutputPath, contentBuildPath, commandFile, False, commandFilename)
+class ContentProcessorManager(object):
+    def __init__(self, config: Config, features: Features, toolFinder: ToolFinder) -> None:
+        super().__init__()
 
         contentProcessors = []  # type: List[BasicContentProcessor]
 #        contentProcessors = [VulkanContentProcessor()]
         contentProcessors += self.__AddBasicContentProcessors(config, toolFinder, config.ToolConfig.ContentBuilderConfiguration)
-        contentProcessors = self.__FilterProcessorsBasedOnFeatures(contentProcessors, features)
+        self.__ContentProcessors = self.__FilterProcessorsBasedOnFeatures(contentProcessors, features)
+
+    def TryFindContentProcessor(self, contentFile: PathRecord) -> Optional[BasicContentProcessor]:
+        processors = self.__FindProcessors(self.__ContentProcessors, contentFile.ResolvedPath)
+
+        if len(processors) > 1:
+            contentProcessorNames = [processor.Name for processor in processors]
+            raise Exception("Multiple content processors '{0}' available for '{1}'".format(contentProcessorNames, contentFile.ResolvedPath))
+
+        return processors[0] if len(processors) == 1 else None
+
+
+    def __AddBasicContentProcessors(self, config: Config, toolFinder: ToolFinder, contentBuilderConfiguration: ToolConfigContentBuilderConfiguration) -> List[BasicContentProcessor]:
+        """ Add basic content builders from the tool config XML file """
+        contentBuilders = []  # type: List[BasicContentProcessor]
+        for contentBuilder in contentBuilderConfiguration.ContentBuilders:
+            contentBuilders.append(BasicContentProcessor(config, toolFinder, contentBuilder))
+        return contentBuilders
+
+    def __FilterProcessorsBasedOnFeatures(self, contentProcessors: List[BasicContentProcessor], features: Features) -> List[BasicContentProcessor]:
+        return [contentProcessor for contentProcessor in contentProcessors if contentProcessor.CheckFeatureRequirements(features.FeaturesIds)]
+
+    def __FindProcessors(self, contentProcessors: List[BasicContentProcessor], contentFile: str) -> List[BasicContentProcessor]:
+        extension = IOUtil.GetFileNameExtension(contentFile)[1:].lower()
+        return [contentProcessor for contentProcessor in contentProcessors if extension in contentProcessor.FileExtensionSet]
+
+
+class Builder(object):
+    def __init__(self, config: Config, packageBuildPath: str, contentBuildPath: str, contentOutputPath: str, contentProcessorManager: ContentProcessorManager) -> None:
+        super().__init__()
+        configPathVariables = PathVariables(config, packageBuildPath, contentBuildPath, contentOutputPath)
+        commandFilename = IOUtil.Join(contentBuildPath, ToolSharedValues.CONTENT_BUILD_FILE_NAME)
+        commandFile = ContentBuildCommandFile(config, commandFilename, configPathVariables)
+
+        # We don't include the files at "Content" (contentOutputPath)
+        sourceContent = SourceContent(config, contentOutputPath, contentBuildPath, commandFile, False, commandFilename)
 
         absoluteCacheFileName = IOUtil.Join(packageBuildPath, "_ContentBuildCache.fsl")
         absoluteOutputCacheFileName = IOUtil.Join(packageBuildPath, "_ContentBuildCacheOutput.fsl")
@@ -93,21 +130,9 @@ class Builder(object):
             IOUtil.SafeMakeDirs(contentOutputPath)
 
         self.__ProcessSyncFiles(config, contentBuildPath, contentOutputPath, sourceContent.ContentSource, srcsSyncState, outputSyncState)
-        self.__ProcessContentFiles(config, contentBuildPath, contentOutputPath, toolFinder, contentProcessors, sourceContent.ContentBuildSource, srcsSyncState, outputSyncState)
+        self.__ProcessContentFiles(config, contentBuildPath, contentOutputPath, contentProcessorManager, sourceContent.ContentBuildSource, srcsSyncState, outputSyncState)
         srcsSyncState.Save()
         outputSyncState.Save()
-
-
-    def __AddBasicContentProcessors(self, config: Config, toolFinder: ToolFinder, contentBuilderConfiguration: ToolConfigContentBuilderConfiguration) -> List[BasicContentProcessor]:
-        """ Add basic content builders from the tool config XML file """
-        contentBuilders = []  # type: List[BasicContentProcessor]
-        for contentBuilder in contentBuilderConfiguration.ContentBuilders:
-            contentBuilders.append(BasicContentProcessor(config, toolFinder, contentBuilder))
-        return contentBuilders
-
-
-    def __FilterProcessorsBasedOnFeatures(self, contentProcessors: List[BasicContentProcessor], features: Features) -> List[BasicContentProcessor]:
-        return [contentProcessor for contentProcessor in contentProcessors if contentProcessor.CheckFeatureRequirements(features.FeaturesIds)]
 
 
     def __GetSyncStateFileName(self, contentBuildPath: str, contentFile: str) -> str:
@@ -124,11 +149,11 @@ class Builder(object):
                            srcContent: Content,
                            syncState: BuildState.SyncState,
                            outputSyncState: BuildState.SyncState) -> None:
-        dstRoot = ContentRootRecord(log, contentOutputPath)
+        dstRoot = GetContentOuputContentRootRecord(log, contentOutputPath)
         for contentFile in srcContent.Files:
             # Generate the output file record
+            outputFileRecord = GetContentSyncOutputFilename(log, dstRoot, contentFile)
             outputFileName = contentFile.RelativePath
-            outputFileRecord = PathRecord(log, dstRoot, outputFileName)
 
             ## Query the sync state of the content file
             syncStateFileName = self.__GetSyncStateFileName(contentFile.SourceRoot.ResolvedPath, contentFile.RelativePath)
@@ -161,20 +186,16 @@ class Builder(object):
     def __ProcessContentFiles(self, config: Config,
                               contentBuildPath: str,
                               contentOutputPath: str,
-                              toolFinder: ToolFinder,
-                              contentProcessors: List[BasicContentProcessor],
+                              contentProcessorManager: ContentProcessorManager,
                               srcContent: Content,
                               syncState: BuildState.SyncState,
                               outputSyncState: BuildState.SyncState) -> None:
         dstRoot = ContentRootRecord(config, contentOutputPath)
         for contentFile in srcContent.Files:
-            processors = self.__FindProcessors(contentProcessors, contentFile.ResolvedPath)
-            if len(processors) > 1:
-                contentProcessorNames = [processor.Name for processor in processors]
-                raise Exception("Multiple content processors '%s' available for '%s'" % (contentProcessorNames, contentFile.ResolvedPath))
-            if len(processors) == 1:
+            processor = contentProcessorManager.TryFindContentProcessor(contentFile)
+            if processor is not None:
                 # Query the processor for the output filename
-                outputFileName = processors[0].GetOutputFileName(config, contentOutputPath, contentFile)
+                outputFileName = processor.GetOutputFileName(config, contentOutputPath, contentFile)
                 outputFileRecord = PathRecord(config, dstRoot, outputFileName[len(dstRoot.ResolvedPath)+1:])
 
                 # Query the sync state of the content file
@@ -191,7 +212,7 @@ class Builder(object):
 
                 if buildResource:
                     try:
-                        processors[0].Process(config, contentBuildPath, contentOutputPath, contentFile, toolFinder)
+                        processor.Process(config, contentBuildPath, contentOutputPath, contentFile)
                     except:
                         # Save if a exception occured to prevent reprocessing the working files, but we invalidate
                         outputSyncState.Save()
@@ -206,16 +227,23 @@ class Builder(object):
                     outputSyncState.Add(outputFileState)
 
 
-    def __FindProcessors(self, contentProcessors: List[BasicContentProcessor], contentFile: str) -> List[BasicContentProcessor]:
-        extension = IOUtil.GetFileNameExtension(contentFile)[1:].lower()
-        return [contentProcessor for contentProcessor in contentProcessors if extension in contentProcessor.FileExtensionSet]
+def GetContentProcessorManager(config: Config, featureList: List[str]) -> ContentProcessorManager:
+    toolFinder = ToolFinder(config)
+    features = Features(config, featureList)
+    return ContentProcessorManager(config, features, toolFinder)
 
 
-def Build(config: Config, currentPath: str, featureList: List[str]) -> None:
-    contentBuildDir = __CONTENT_BUILD_DIR
-    contentOutputDir = __CONTENT_OUTPUT_DIR
+def GetContentOutputPath(packagePath: PackagePath) -> str:
+    currentPath = packagePath.AbsoluteDirPath
+    return IOUtil.Join(currentPath, ToolSharedValues.CONTENT_FOLDER_NAME)
+
+def Build(config: Config, packagePath: PackagePath, featureList: List[str], outputPath: Optional[str] = None) -> None:
+    currentPath = packagePath.AbsoluteDirPath
+    contentBuildDir = ToolSharedValues.CONTENT_BUILD_FOLDER_NAME
     contentBuildPath = IOUtil.Join(currentPath, contentBuildDir)
-    contentOutputPath = IOUtil.Join(currentPath, contentOutputDir)
+
+    contentOutputPath = GetContentOutputPath(packagePath) if outputPath is None else outputPath
+
     if not IOUtil.IsDirectory(contentBuildPath):
         config.LogPrintVerbose(1, "No '{0}' directory present at '{1}' so there is no content to process.".format(contentBuildDir, currentPath))
         return
@@ -224,6 +252,7 @@ def Build(config: Config, currentPath: str, featureList: List[str]) -> None:
     if not config.DisableWrite:
         IOUtil.SafeMakeDirs(packageBuildPath)
 
-    toolFinder = ToolFinder(config)
-    features = Features(config, featureList)
-    Builder(config, packageBuildPath, contentBuildPath, contentOutputPath, features, toolFinder)
+    contentProcessorManager = GetContentProcessorManager(config, featureList)
+    Builder(config, packageBuildPath, contentBuildPath, contentOutputPath, contentProcessorManager)
+
+

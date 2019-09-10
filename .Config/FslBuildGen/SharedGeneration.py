@@ -45,7 +45,6 @@ class ToolAddedVariantConfigOption(object):
     Release = "Release"
     Coverage = "Coverage"
 
-
 class ToolAddedVariant(object):
     CONFIG = "config"
 

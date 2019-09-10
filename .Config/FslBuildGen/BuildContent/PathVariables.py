@@ -35,7 +35,7 @@ from FslBuildGen.Config import Config
 
 class PathVariables(object):
     def __init__(self, config: Config, packageBuildPath: str, contentBuildPath: str, contentPathPath: str) -> None:
-        super(PathVariables, self).__init__()
+        super().__init__()
         self.PackageBuild = packageBuildPath
         self.ContentBuild = contentBuildPath
         self.Content = contentPathPath

@@ -47,107 +47,107 @@ namespace
 
 TEST(TestBits_BitsUtil, Count)
 {
-  EXPECT_EQ(0, BitsUtil::Count(0));
+  EXPECT_EQ(BitsUtil::Count(0), 0);
 
-  EXPECT_EQ(1, BitsUtil::Count(0x00000001));
-  EXPECT_EQ(1, BitsUtil::Count(0x10000000));
+  EXPECT_EQ(BitsUtil::Count(0x00000001), 1);
+  EXPECT_EQ(BitsUtil::Count(0x10000000), 1);
 
-  EXPECT_EQ(2, BitsUtil::Count(0x10000001));
+  EXPECT_EQ(BitsUtil::Count(0x10000001), 2);
 
-  EXPECT_EQ(32, BitsUtil::Count(0xFFFFFFFF));
+  EXPECT_EQ(BitsUtil::Count(0xFFFFFFFF), 32);
 }
 
 
 TEST(TestBits_BitsUtil, IndexOf_unsigned)
 {
-  EXPECT_EQ(-1, BitsUtil::IndexOf(0u));
+  EXPECT_EQ(BitsUtil::IndexOf(0u), -1);
 
-  EXPECT_EQ(0, BitsUtil::IndexOf(0x00000001u));
-  EXPECT_EQ(1, BitsUtil::IndexOf(0x00000002u));
-  EXPECT_EQ(2, BitsUtil::IndexOf(0x00000004u));
-  EXPECT_EQ(3, BitsUtil::IndexOf(0x00000008u));
-  EXPECT_EQ(4, BitsUtil::IndexOf(0x00000010u));
-  EXPECT_EQ(5, BitsUtil::IndexOf(0x00000020u));
-  EXPECT_EQ(6, BitsUtil::IndexOf(0x00000040u));
-  EXPECT_EQ(7, BitsUtil::IndexOf(0x00000080u));
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000001u), 0);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000002u), 1);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000004u), 2);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000008u), 3);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000010u), 4);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000020u), 5);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000040u), 6);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000080u), 7);
 
-  EXPECT_EQ(28, BitsUtil::IndexOf(0x10000000u));
+  EXPECT_EQ(BitsUtil::IndexOf(0x10000000u), 28);
 
-  EXPECT_EQ(4, BitsUtil::IndexOf(0x10000010u));
+  EXPECT_EQ(BitsUtil::IndexOf(0x10000010u), 4);
 
-  EXPECT_EQ(0, BitsUtil::IndexOf(0xFFFFFFFFu));
+  EXPECT_EQ(BitsUtil::IndexOf(0xFFFFFFFFu), 0);
 }
 
 
 TEST(TestBits_BitsUtil, IndexOf_signed)
 {
-  EXPECT_EQ(-1, BitsUtil::IndexOf(0));
+  EXPECT_EQ(BitsUtil::IndexOf(0), -1);
 
-  EXPECT_EQ(0, BitsUtil::IndexOf(0x00000001));
-  EXPECT_EQ(1, BitsUtil::IndexOf(0x00000002));
-  EXPECT_EQ(2, BitsUtil::IndexOf(0x00000004));
-  EXPECT_EQ(3, BitsUtil::IndexOf(0x00000008));
-  EXPECT_EQ(4, BitsUtil::IndexOf(0x00000010));
-  EXPECT_EQ(5, BitsUtil::IndexOf(0x00000020));
-  EXPECT_EQ(6, BitsUtil::IndexOf(0x00000040));
-  EXPECT_EQ(7, BitsUtil::IndexOf(0x00000080));
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000001), 0);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000002), 1);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000004), 2);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000008), 3);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000010), 4);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000020), 5);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000040), 6);
+  EXPECT_EQ(BitsUtil::IndexOf(0x00000080), 7);
 
-  EXPECT_EQ(28, BitsUtil::IndexOf(0x10000000));
+  EXPECT_EQ(BitsUtil::IndexOf(0x10000000), 28);
 
-  EXPECT_EQ(4, BitsUtil::IndexOf(0x10000010));
+  EXPECT_EQ(BitsUtil::IndexOf(0x10000010), 4);
 
-  EXPECT_EQ(0, BitsUtil::IndexOf(0xFFFFFFFF));
+  EXPECT_EQ(BitsUtil::IndexOf(0xFFFFFFFF), 0);
 }
 
 
 TEST(TestBits_BitsUtil, NextPowerOfTwo_unsigned)
 {
-  EXPECT_EQ(1u, BitsUtil::NextPowerOfTwo(0u));
-  EXPECT_EQ(1u, BitsUtil::NextPowerOfTwo(1u));
-  EXPECT_EQ(2u, BitsUtil::NextPowerOfTwo(2u));
-  EXPECT_EQ(4u, BitsUtil::NextPowerOfTwo(3u));
-  EXPECT_EQ(4u, BitsUtil::NextPowerOfTwo(4u));
-  EXPECT_EQ(8u, BitsUtil::NextPowerOfTwo(5u));
-  EXPECT_EQ(8u, BitsUtil::NextPowerOfTwo(6u));
-  EXPECT_EQ(8u, BitsUtil::NextPowerOfTwo(7u));
-  EXPECT_EQ(8u, BitsUtil::NextPowerOfTwo(8u));
-  EXPECT_EQ(16u, BitsUtil::NextPowerOfTwo(9u));
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(0u), 1u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(1u), 1u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(2u), 2u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(3u), 4u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(4u), 4u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(5u), 8u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(6u), 8u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(7u), 8u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(8u), 8u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(9u), 16u);
 
-  EXPECT_EQ(32u, BitsUtil::NextPowerOfTwo(31u));
-  EXPECT_EQ(32u, BitsUtil::NextPowerOfTwo(32u));
-  EXPECT_EQ(64u, BitsUtil::NextPowerOfTwo(33u));
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(31u), 32u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(32u), 32u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(33u), 64u);
 
-  EXPECT_EQ(128u, BitsUtil::NextPowerOfTwo(127u));
-  EXPECT_EQ(128u, BitsUtil::NextPowerOfTwo(128u));
-  EXPECT_EQ(256u, BitsUtil::NextPowerOfTwo(129u));
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(127u), 128u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(128u), 128u);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(129u), 256u);
 }
 
 
 TEST(TestBits_BitsUtil, NextPowerOfTwo_signed)
 {
-  EXPECT_EQ(-64, BitsUtil::NextPowerOfTwo(-33));
-  EXPECT_EQ(-32, BitsUtil::NextPowerOfTwo(-32));
-  EXPECT_EQ(-32, BitsUtil::NextPowerOfTwo(-31));
-  EXPECT_EQ(-1, BitsUtil::NextPowerOfTwo(-1));
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(-33), -64);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(-32), -32);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(-31), -32);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(-1), -1);
 
-  EXPECT_EQ(1, BitsUtil::NextPowerOfTwo(0));
-  EXPECT_EQ(1, BitsUtil::NextPowerOfTwo(1));
-  EXPECT_EQ(2, BitsUtil::NextPowerOfTwo(2));
-  EXPECT_EQ(4, BitsUtil::NextPowerOfTwo(3));
-  EXPECT_EQ(4, BitsUtil::NextPowerOfTwo(4));
-  EXPECT_EQ(8, BitsUtil::NextPowerOfTwo(5));
-  EXPECT_EQ(8, BitsUtil::NextPowerOfTwo(6));
-  EXPECT_EQ(8, BitsUtil::NextPowerOfTwo(7));
-  EXPECT_EQ(8, BitsUtil::NextPowerOfTwo(8));
-  EXPECT_EQ(16, BitsUtil::NextPowerOfTwo(9));
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(0), 1);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(1), 1);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(2), 2);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(3), 4);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(4), 4);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(5), 8);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(6), 8);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(7), 8);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(8), 8);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(9), 16);
 
-  EXPECT_EQ(32, BitsUtil::NextPowerOfTwo(31));
-  EXPECT_EQ(32, BitsUtil::NextPowerOfTwo(32));
-  EXPECT_EQ(64, BitsUtil::NextPowerOfTwo(33));
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(31), 32);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(32), 32);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(33), 64);
 
-  EXPECT_EQ(128, BitsUtil::NextPowerOfTwo(127));
-  EXPECT_EQ(128, BitsUtil::NextPowerOfTwo(128));
-  EXPECT_EQ(256, BitsUtil::NextPowerOfTwo(129));
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(127), 128);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(128), 128);
+  EXPECT_EQ(BitsUtil::NextPowerOfTwo(129), 256);
 }
 
 TEST(TestBits_BitsUtil, IsPowerOfTwo)

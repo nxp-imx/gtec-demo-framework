@@ -49,6 +49,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cassert>
+#include <ios>
 #include <stdexcept>
 
 // MIPI defines
@@ -97,21 +98,21 @@ namespace Fsl
 
       struct video_channel video_ch[8];
 
-      int g_cam_max = 8; /* MAX support video channel */
+      //      int g_cam_max = 8; /* MAX support video channel */
 
-      int g_cam = 0; /* video channel select */
+      //      int g_cam = 0; /* video channel select */
       int g_cam_num = 0;
       int g_cap_fmt = V4L2_PIX_FMT_RGB24;
-      int g_capture_mode = 0;
-      int g_timeout = 10;
+      //      int g_capture_mode = 0;
+      //      int g_timeout = 10;
       int g_camera_framerate = 30; /* 30 fps */
-      int g_loop = 0;
+                                   //      int g_loop = 0;
       int g_mem_type = V4L2_MEMORY_MMAP;
 
       char g_v4l_device[8][100] = {"/dev/video0", "/dev/video1", "/dev/video2", "/dev/video3",
                                    "/dev/video4", "/dev/video5", "/dev/video6", "/dev/video7"};
 
-      static void print_pixelformat(char* prefix, int val)
+      static void print_pixelformat(const char* prefix, int val)
       {
         printf("%s: %c%c%c%c\n", prefix != nullptr ? prefix : "pixelformat", val & 0xff, (val >> 8) & 0xff, (val >> 16) & 0xff, (val >> 24) & 0xff);
       }
@@ -145,7 +146,7 @@ namespace Fsl
 
         if (ioctl(fd_v4l, VIDIOC_REQBUFS, &req) < 0)
         {
-          printf("VIDIOC_REQBUFS failed\n");
+          FSLLOG_ERROR("VIDIOC_REQBUFS failed");
           return -1;
         }
 
@@ -162,7 +163,7 @@ namespace Fsl
             buf.index = i;
             if (ioctl(fd_v4l, VIDIOC_QUERYBUF, &buf) < 0)
             {
-              printf("VIDIOC_QUERYBUF error\n");
+              FSLLOG_ERROR("VIDIOC_QUERYBUF error");
               return -1;
             }
 
@@ -171,8 +172,11 @@ namespace Fsl
             video_ch[ch_id].buffers[i].start = static_cast<unsigned char*>(
               mmap(nullptr, video_ch[ch_id].buffers[i].length, PROT_READ | PROT_WRITE, MAP_SHARED, fd_v4l, video_ch[ch_id].buffers[i].offset));
             memset(video_ch[ch_id].buffers[i].start, 0xFF, video_ch[ch_id].buffers[i].length);
-            printf("buffer[%d] startAddr=0x%x, offset=0x%x, buf_size=%d\n", i, reinterpret_cast<unsigned int*>(video_ch[ch_id].buffers[i].start),
-                   video_ch[ch_id].buffers[i].offset, video_ch[ch_id].buffers[i].length);
+
+
+            FSLLOG("buffer[" << i << "] startAddr=0x" << std::hex << reinterpret_cast<unsigned int*>(video_ch[ch_id].buffers[i].start)
+                             << ", offset=0x" << std::hex << video_ch[ch_id].buffers[i].offset << ", buf_size=" << std::dec
+                             << video_ch[ch_id].buffers[i].length);
           }
         }
 
@@ -197,7 +201,7 @@ namespace Fsl
 
           if (ioctl(fd_v4l, VIDIOC_QBUF, &buf) < 0)
           {
-            printf("VIDIOC_QBUF error\n");
+            FSLLOG_ERROR("VIDIOC_QBUF error");
             return -1;
           }
         }
@@ -211,7 +215,7 @@ namespace Fsl
         type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
         if (ioctl(fd_v4l, VIDIOC_STREAMON, &type) < 0)
         {
-          printf("VIDIOC_STREAMON error\n");
+          FSLLOG_ERROR("VIDIOC_STREAMON error");
           return -1;
         }
         printf("%s channel=%d, v4l_dev=0x%x\n", __func__, ch_id, fd_v4l);
@@ -237,10 +241,10 @@ namespace Fsl
         int fd_v4l;
         int i;
 
-        printf("Try to open device %s\n", video_ch[ch_id].v4l_dev_name);
+        FSLLOG("Try to open device" << video_ch[ch_id].v4l_dev_name);
         if ((fd_v4l = open(video_ch[ch_id].v4l_dev_name, O_RDWR, 0)) < 0)
         {
-          printf("unable to open v4l2 %s for capture device.\n", video_ch[ch_id].v4l_dev_name);
+          FSLLOG_ERROR("unable to open v4l2 " << video_ch[ch_id].v4l_dev_name << " for capture device.");
           return -1;
         }
 
@@ -266,10 +270,10 @@ namespace Fsl
           fmtdesc.index = i;
           if (ioctl(fd_v4l, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
           {
-            printf("VIDIOC ENUM FMT failed, index=%d \n", i);
+            FSLLOG("VIDIOC ENUM FMT failed, index=" << i);
             break;
           }
-          printf("index=%d\n", fmtdesc.index);
+          FSLLOG("index=" << fmtdesc.index);
           print_pixelformat("pixelformat (output by camera)", fmtdesc.pixelformat);
         }
 
@@ -281,19 +285,19 @@ namespace Fsl
         fmt.fmt.pix_mp.num_planes = 1; /* RGB */
         if (ioctl(fd_v4l, VIDIOC_S_FMT, &fmt) < 0)
         {
-          printf("Set format failed\n");
+          FSLLOG_ERROR("Set format failed");
           goto fail;
         }
         else
         {
-          printf("Set format Success\n");
+          FSLLOG("Set format Success");
         }
 
         memset(&fmt, 0, sizeof(fmt));
         fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
         if (ioctl(fd_v4l, VIDIOC_G_FMT, &fmt) < 0)
         {
-          printf("get format failed\n");
+          FSLLOG_ERROR("get format failed");
           goto fail;
         }
         printf("video_ch=%d, width=%d, height=%d, \n", ch_id, fmt.fmt.pix_mp.width, fmt.fmt.pix_mp.height);
@@ -303,7 +307,7 @@ namespace Fsl
         parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
         if (ioctl(fd_v4l, VIDIOC_G_PARM, &parm) < 0)
         {
-          printf("VIDIOC_G_PARM failed\n");
+          FSLLOG_ERROR("VIDIOC_G_PARM failed");
           parm.parm.capture.timeperframe.denominator = g_camera_framerate;
         }
 
@@ -336,7 +340,7 @@ namespace Fsl
         buf.length = 1;
         if (ioctl(fd_v4l, VIDIOC_DQBUF, &buf) < 0)
         {
-          printf("VIDIOC_DQBUF failed.\n");
+          FSLLOG_ERROR("VIDIOC_DQBUF failed.");
           return -1;
         }
 

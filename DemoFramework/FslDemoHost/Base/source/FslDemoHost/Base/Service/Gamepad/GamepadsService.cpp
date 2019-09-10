@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Service/Gamepad/GamepadsService.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 //#include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/Gamepad/GamepadsState.hpp>
@@ -65,14 +65,14 @@ namespace Fsl
 
   uint32_t GamepadsService::GetCount() const
   {
-    FSLLOG_DEBUG_WARNING_IF(!m_state->IsConfigured(), "GamepadsService.GetCount() called before gamepad configuration was received");
+    FSLBASICLOG_DEBUG_WARNING_IF(!m_state->IsConfigured(), "GamepadsService.GetCount() called before gamepad configuration was received");
     return m_state->GetCount();
   }
 
 
   GamepadState GamepadsService::GetState(const uint32_t gamepadIndex) const
   {
-    FSLLOG_DEBUG_WARNING_IF(!m_state->IsConfigured(), "GamepadsService.GetState() called before gamepad configuration was received");
+    FSLBASICLOG_DEBUG_WARNING_IF(!m_state->IsConfigured(), "GamepadsService.GetState() called before gamepad configuration was received");
     return m_state->GetState(gamepadIndex);
   }
 }

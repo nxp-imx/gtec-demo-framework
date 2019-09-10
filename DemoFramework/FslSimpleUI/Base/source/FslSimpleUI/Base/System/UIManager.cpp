@@ -169,6 +169,7 @@ namespace Fsl
 
     void UIManager::SetDPI(const Point2& dpi)
     {
+      FSL_PARAM_NOT_USED(dpi);
     }
 
     void UIManager::Resized(const Point2& size)
@@ -179,6 +180,7 @@ namespace Fsl
 
     void UIManager::FixedUpdate(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
 
 

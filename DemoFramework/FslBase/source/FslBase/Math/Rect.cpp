@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Rect.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -52,19 +52,20 @@ namespace Fsl
     , m_right(right)
     , m_bottom(bottom)
   {
+    FSL_PARAM_NOT_USED(reserved);
     assert(IsValid());
   }
 
 
   void Rect::SetWidth(const float value)
   {
-    FSLLOG_WARNING_IF(value < 0, "width can not be less than zero, capping it.");
+    FSLBASICLOG_WARNING_IF(value < 0, "width can not be less than zero, capping it.");
     m_right = m_left + std::max(value, 0.0f);
   }
 
   void Rect::SetHeight(const float value)
   {
-    FSLLOG_WARNING_IF(value < 0, "height can not be less than zero, capping it.");
+    FSLBASICLOG_WARNING_IF(value < 0, "height can not be less than zero, capping it.");
     m_bottom = m_top + std::max(value, 0.0f);
   }
 }

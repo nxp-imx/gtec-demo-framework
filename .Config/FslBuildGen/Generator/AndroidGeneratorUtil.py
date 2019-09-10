@@ -39,14 +39,14 @@ from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 
 class PackageDepByLocation(object):
     def __init__(self, location: ToolConfigPackageLocation) -> None:
-        super(PackageDepByLocation, self).__init__()
+        super().__init__()
         self.Location = location
         self.Packages = []  # type: List[Package]
 
 
 class AndroidSDKVersion(object):
     def __init__(self, version: int) -> None:
-        super(AndroidSDKVersion, self).__init__()
+        super().__init__()
         self.Version = version
         self.VersionString = "{0}".format(version)  # type: str
         self.AppPlatform = "android-{0}".format(version)  # type: str
@@ -78,7 +78,7 @@ def DetermineMinGLESVersion(package: Package) -> str:
 
 class AppPackageTemplateInfo(object):
     def __init__(self, package: Package) -> None:
-        super(AppPackageTemplateInfo, self).__init__()
+        super().__init__()
         self.ProjectPathName = package.Name.replace('.', '/')
         self.PrefixedProjectName = package.Name.replace('.', '_')
         self.TargetSDKVersion = GetTargetSDKVersion(package)

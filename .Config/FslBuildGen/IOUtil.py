@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 import errno
+import hashlib
 import io
 import os
 import os.path
@@ -267,6 +268,8 @@ def TryToUnixStylePath(path: Optional[str]) -> Optional[str]:
 def NormalizePath(path: str) -> str:
     return ToUnixStylePath(os.path.normpath(path))
 
+def RelativePath(path: str, start: str) -> str:
+    return NormalizePath(os.path.relpath(path, start))
 
 def Join(path1: str, path2: str) -> str:
     return ToUnixStylePath(os.path.join(path1, path2))
@@ -417,3 +420,14 @@ def TryFindFileInPath(filename: str) -> Optional[str]:
 
 def GetCurrentWorkingDirectory() -> str:
     return NormalizePath(os.getcwd())
+
+
+
+def HashFile(filename: str, blocksize: int = 65536) -> str:
+    hasher = hashlib.sha256()
+    with open(filename, "rb") as theFile:
+        buf = theFile.read(blocksize)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = theFile.read(blocksize)
+        return hasher.hexdigest()

@@ -33,6 +33,8 @@
 #include <Windows.h>
 #elif defined(__linux__) || defined(__QNXNTO__)
 #include <ctime>
+#elif defined(FSL_PLATFORM_FREERTOS)
+#include <FslBase/Log/BasicLog.hpp>
 #else
 #error Unsupported platform
 #endif
@@ -68,6 +70,11 @@ namespace Fsl
       time *= 1000000;
       time += (currentTime.tv_nsec / 1000);
       return time;
+    }
+#elif defined(FSL_PLATFORM_FREERTOS)
+    {
+      FSLBASICLOG_WARNING("HighResolutionTimer::GetTime() not implemented");
+      return 0;
     }
 #endif
   }

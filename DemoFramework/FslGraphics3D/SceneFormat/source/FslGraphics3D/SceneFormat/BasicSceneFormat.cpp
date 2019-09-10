@@ -547,7 +547,6 @@ namespace Fsl
 
         const auto& vertexDeclarations = scene.VertexDeclarations;
         const auto& meshes = scene.Meshes;
-        std::shared_ptr<Mesh> mesh;
 
         for (auto itr = meshes.begin(); itr != meshes.end(); ++itr)
         {
@@ -1143,7 +1142,6 @@ namespace Fsl
 
         const auto& vertexDeclarations = scene.VertexDeclarations;
         const auto& meshes = scene.Meshes;
-        std::shared_ptr<Mesh> mesh;
 
         std::vector<uint8_t> content(cbMeshes);
 
@@ -1241,6 +1239,9 @@ namespace Fsl
       std::size_t ReadNode(std::ifstream& rStream, std::deque<std::shared_ptr<SceneNode>>& rNodes, const std::vector<uint8_t>& srcBuffer,
                            const std::size_t srcOffset, const uint32_t sceneMeshCount, const bool hostIsLittleEndian)
       {
+        FSL_PARAM_NOT_USED(rStream);
+        FSL_PARAM_NOT_USED(hostIsLittleEndian);
+
         Matrix transform;
         auto* pTransform = reinterpret_cast<uint32_t*>(transform.DirectAccess());
 
@@ -1520,10 +1521,7 @@ namespace Fsl
       //! @return true if the host is little endian
       bool CheckEndianAssumptions()
       {
-        if (sizeof(float) != 4)
-        {
-          throw NotSupportedException("We expect a float to be four bytes");
-        }
+        static_assert(sizeof(float) == 4, "We expect a float to be four bytes");
 
         // Runtime verification of endian assumptions
         uint32_t tmp;

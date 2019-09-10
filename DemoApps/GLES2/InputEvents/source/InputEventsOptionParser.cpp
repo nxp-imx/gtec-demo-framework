@@ -74,7 +74,7 @@ namespace Fsl
                           "test setting a parameter that requires a argument, but validation always fails");
     rOptions.emplace_back("testE", OptionArgument::OptionNone, CommandId::TestE, "Test parameter");
     rOptions.emplace_back("f", "fail", OptionArgument::OptionNone, CommandId::Fail, "If this is set the app fails to launch :)");
-    rOptions.emplace_back("g", OptionArgument::OptionRequired, CommandId::TestD,
+    rOptions.emplace_back("g", OptionArgument::OptionRequired, CommandId::TestG,
                           "test setting a parameter that requires a argument, but validation always fails");
   }
 

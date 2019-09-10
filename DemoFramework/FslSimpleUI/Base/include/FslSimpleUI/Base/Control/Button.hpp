@@ -59,11 +59,16 @@ namespace Fsl
       }
 
       //! @brief Called when the button is pressed
-      virtual void Down(){};
+      virtual void Down()
+      {
+      }
 
       //! @brief Called when the button is released
       //! @param wasCanceled true if the press was canceled.
-      virtual void Up(bool wasCanceled){};
+      virtual void Up(bool wasCanceled)
+      {
+        FSL_PARAM_NOT_USED(wasCanceled);
+      }
     };
   }
 }

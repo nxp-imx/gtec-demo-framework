@@ -117,7 +117,7 @@ namespace Fsl
     {
       rPresentMode = VK_PRESENT_MODE_FIFO_KHR;
       // Try to see if we can parse it as a number
-      uint32_t value;
+      int32_t value;
       try
       {
         StringParseUtil::Parse(value, strOptArg.c_str());
@@ -171,8 +171,8 @@ namespace Fsl
     rOptions.emplace_back("LogLayers", OptionArgument::OptionNone, CommandId::LogLayers, "Output the layers to the log", OptionGroup::Host);
     rOptions.emplace_back("LogSurfaceFormats", OptionArgument::OptionNone, CommandId::LogSurfaceFormats,
                           "Output the supported surface formats to the log", OptionGroup::Host);
-    // rOptions.emplace_back("VkScreenshot", OptionArgument::OptionRequired, CommandId::VkScreenshot, "Enable/disable screenshot support",
-    //                      OptionGroup::Hidden);
+    rOptions.emplace_back("VkScreenshot", OptionArgument::OptionRequired, CommandId::VkScreenshot,
+                          "Enable/disable screenshot support (defaults to enabled)", OptionGroup::Host);
   }
 
 
@@ -193,7 +193,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     case CommandId::VkPresentMode:
     {
-      VkPresentModeKHR presentMode;
+      VkPresentModeKHR presentMode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
       if (pszOptArg != nullptr && TryParse(presentMode, pszOptArg))
       {
         m_launchOptions.OverridePresentMode = true;
@@ -213,10 +213,10 @@ namespace Fsl
     case CommandId::LogSurfaceFormats:
       m_logSurfaceFormats = true;
       return OptionParseResult::Parsed;
-    // case CommandId::VkScreenshot:
-    //  StringParseUtil::Parse(boolValue, pszOptArg);
-    //  m_launchOptions.ScreenshotsEnabled = boolValue ? OptionUserChoice::On : OptionUserChoice::Off;
-    //  return OptionParseResult::Parsed;
+    case CommandId::VkScreenshot:
+      StringParseUtil::Parse(boolValue, pszOptArg);
+      m_launchOptions.ScreenshotsEnabled = boolValue ? OptionUserChoice::On : OptionUserChoice::Off;
+      return OptionParseResult::Parsed;
     default:
       return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
     }

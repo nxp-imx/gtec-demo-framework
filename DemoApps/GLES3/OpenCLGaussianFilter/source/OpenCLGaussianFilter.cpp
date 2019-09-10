@@ -259,6 +259,8 @@ namespace Fsl
 
   void OpenCLGaussianFilter::Draw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     const Point2 currentSize = GetScreenResolution();
     glViewport(0, 0, currentSize.X, currentSize.Y);
 

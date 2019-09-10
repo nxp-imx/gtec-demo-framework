@@ -45,6 +45,7 @@ namespace Fsl
   namespace Vulkan
   {
     class NativeGraphicsBasic2D;
+    struct NativeGraphicsSwapchainInfo;
     class QuadBatch;
     class VulkanImageCreator;
 
@@ -62,6 +63,8 @@ namespace Fsl
       struct Resources
       {
         VkDevice Device = VK_NULL_HANDLE;
+        VkQueue Queue = VK_NULL_HANDLE;
+        uint32_t QueueFamilyIndex = 0u;
         VUPhysicalDeviceRecord PhysicalDevice;
         std::shared_ptr<VulkanImageCreator> ImageCreator;
       };
@@ -79,6 +82,7 @@ namespace Fsl
 
       Resources m_resources;
       DependentResources m_dependentResources;
+      std::weak_ptr<NativeGraphicsSwapchainInfo> m_swapchainInfo;
 
     public:
       NativeGraphicsService(const ServiceProvider& serviceProvider);
@@ -95,6 +99,9 @@ namespace Fsl
 
       void VulkanBeginFrame(const VkCommandBuffer commandBuffer, const uint32_t commandBufferIndex);
       void VulkanEndFrame();
+
+      //! @sets the swapchain info, this class will only keep a weak pointer to the information.
+      void SetSwapchainInfoLink(const std::weak_ptr<NativeGraphicsSwapchainInfo>& swapchainInfo);
 
       // From INativeGraphics
       std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,

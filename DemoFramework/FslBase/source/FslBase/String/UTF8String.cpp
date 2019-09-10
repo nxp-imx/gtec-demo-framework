@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <algorithm>
@@ -50,6 +50,8 @@ namespace Fsl
 
     bool IsValidUTF8(const char* const psz, const std::size_t startIndex, const std::size_t length)
     {
+      FSL_PARAM_NOT_USED(startIndex);
+      FSL_PARAM_NOT_USED(length);
       // FIX: add UTF8 validation check
       return psz != nullptr;
     }
@@ -96,7 +98,7 @@ namespace Fsl
   UTF8String::UTF8String(const char* const psz)
     : m_content(psz != nullptr ? psz : "")
   {
-    FSLLOG_WARNING_IF(psz == nullptr, "UTF8String was supplied a null pointer, using a empty string");
+    FSLBASICLOG_WARNING_IF(psz == nullptr, "UTF8String was supplied a null pointer, using a empty string");
     if (psz != nullptr && !IsValidUTF8(psz, 0, std::strlen(psz)))
     {
       throw InvalidUTF8StringException("The supplied UTF8 string is not valid");

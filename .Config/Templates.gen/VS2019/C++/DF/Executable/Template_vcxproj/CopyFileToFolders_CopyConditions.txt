@@ -1,0 +1,2 @@
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Debug|x64'">##DEBUG_ENABLED##</DeploymentContent>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='##VARIANT##Release|x64'">##RELEASE_ENABLED##</DeploymentContent>

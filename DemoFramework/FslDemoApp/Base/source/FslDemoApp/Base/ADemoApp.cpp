@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/ADemoApp.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
@@ -269,7 +270,7 @@ namespace Fsl
     : m_demoAppConfig(demoAppConfig)
 
   {
-    FSLLOG2(LogType::Verbose, "ADemopApp::ADemopApp()");
+    FSLBASICLOG2(LogType::Verbose, "ADemopApp::ADemopApp()");
 
     m_contentManger = demoAppConfig.DemoServiceProvider.Get<IContentManager>();
     m_persistentDataManager = demoAppConfig.DemoServiceProvider.Get<IPersistentDataManager>();
@@ -279,7 +280,7 @@ namespace Fsl
 
   ADemoApp::~ADemoApp()
   {
-    FSLLOG2(LogType::Verbose, "ADemopApp::~ADemopApp()");
+    FSLBASICLOG2(LogType::Verbose, "ADemopApp::~ADemopApp()");
   }
 
 
@@ -310,7 +311,7 @@ namespace Fsl
 
   void ADemoApp::_PostConstruct()
   {
-    FSLLOG2(LogType::Verbose, "ADemoApp::_PostConstruct()");
+    FSLBASICLOG2(LogType::Verbose, "ADemoApp::_PostConstruct()");
 
     // When this method is called, the object should be successfully constructed (unless someone calls it from a constructor, but thats a usage error
     // and its undetectable). So don't do that!
@@ -320,7 +321,7 @@ namespace Fsl
 
   void ADemoApp::_PreDestruct()
   {
-    FSLLOG2(LogType::Verbose, "ADemoApp::_PreDestruct()");
+    FSLBASICLOG2(LogType::Verbose, "ADemoApp::_PreDestruct()");
 
     // Give the app a chance to cleanup
     try

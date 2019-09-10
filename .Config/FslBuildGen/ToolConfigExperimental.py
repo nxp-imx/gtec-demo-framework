@@ -46,7 +46,7 @@ from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimentalDefa
 class ToolConfigExperimental(object):
     def __init__(self, log: Log, rootDirs: List[ToolConfigRootDirectory],
                  basedUponXML: XmlExperimental, configFileName: str, projectRootDirectory: str) -> None:
-        super(ToolConfigExperimental, self).__init__()
+        super().__init__()
         self.BasedOn = basedUponXML
 
         self.DefaultThirdPartyInstallReadonlyCacheDirectory = None  # type: Optional[ToolConfigExperimentalDefaultThirdPartyInstallDirectory]

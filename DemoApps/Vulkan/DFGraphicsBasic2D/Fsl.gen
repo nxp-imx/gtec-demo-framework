@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="Vulkan.DFGraphicsBasic2D" NoInclude="true">
+  <Executable Name="Vulkan.DFGraphicsBasic2D" NoInclude="true" CreationYear="2016">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="Shared.DFGraphicsBasic2D"/>
     <Platform Name="Windows" ProjectId="0F90FF07-5D47-4946-A7F9-8BE7B9DD592E"/>

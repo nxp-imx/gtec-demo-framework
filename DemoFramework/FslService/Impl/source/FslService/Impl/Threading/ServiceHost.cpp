@@ -31,6 +31,7 @@
 
 #include "ServiceHost.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslService/Impl/Foundation/Message/FireAndForgetBasicMessage.hpp>
 #include <FslService/Impl/Foundation/Message/ThreadShutdownBasicMessage.hpp>
@@ -133,7 +134,7 @@ namespace Fsl
       {
         m_asyncServiceImplHost->ProcessMessage(FireAndForgetBasicMessage::Decode(message));
       }
-      FSLLOG_WARNING_IF(!m_asyncServiceImplHost, "the expected handler has been destroyed");
+      FSLBASICLOG_WARNING_IF(!m_asyncServiceImplHost, "the expected handler has been destroyed");
       break;
     default:
       FSLLOG_DEBUG_WARNING("Unknown message type: " << static_cast<int32_t>(message.Type));

@@ -1,2 +1,2 @@
-# Dependencies
+##PACKAGE_FINDDIRECT_DEPENDENCIES##
 target_link_libraries(##PACKAGE_NAME## ##PACKAGE_DIRECT_DEPENDENCIES##)

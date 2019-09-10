@@ -39,7 +39,7 @@ from FslBuildGen.PlatformUtil import PlatformUtil
 
 class ToolFinder(object):
     def __init__(self, log: Log) -> None:
-        super(ToolFinder, self).__init__()
+        super().__init__()
         self.BuildPlatform = PlatformUtil.DetectBuildPlatformType()
         self.VulkanShaderCompiler = self.GetPlatformDependentExecuteableName("glslangValidator")
 

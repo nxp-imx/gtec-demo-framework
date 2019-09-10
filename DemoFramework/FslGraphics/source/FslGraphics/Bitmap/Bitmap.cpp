@@ -29,8 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
+#include <FslBase/Log/Log.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <algorithm>
@@ -131,20 +132,8 @@ namespace Fsl
 
   Bitmap::Bitmap(const void* const pContent, const std::size_t cbContent, const Extent2D& extent, const PixelFormat pixelFormat,
                  const BitmapOrigin bitmapOrigin)
-    : m_stride(0)
-    , m_bytesPerPixel(0)
-    , m_pixelFormat(pixelFormat)
-    , m_origin(CheckBitmapOrigin(bitmapOrigin))
+    : Bitmap(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat), bitmapOrigin)
   {
-    if (pContent == nullptr)
-    {
-      throw std::invalid_argument("pContent can not be null");
-    }
-
-    ResizeToFit(extent, pixelFormat, m_strideRequirement);
-    RawBitmap srcBitmap(pContent, extent, pixelFormat, m_stride, m_origin);
-    RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, m_origin);
-    RawBitmapUtil::MemoryCopy(dstBitmap, srcBitmap);
   }
 
 
@@ -162,6 +151,11 @@ namespace Fsl
     if (stride < PixelFormatUtil::CalcMinimumStride(m_extent.Width, pixelFormat))
     {
       throw std::invalid_argument("stride is smaller than the width allows");
+    }
+    const std::size_t extentHeight = extent.Height;
+    if (cbContent != (stride * extentHeight))
+    {
+      throw std::invalid_argument("The image buffer is not of the expected size for a image of that pixel format with the given stride");
     }
 
     ResizeToFit(extent, pixelFormat, m_strideRequirement);
@@ -228,7 +222,7 @@ namespace Fsl
 
   Bitmap::~Bitmap()
   {
-    FSLLOG_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
+    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
   }
 
 
@@ -313,26 +307,7 @@ namespace Fsl
   void Bitmap::Reset(const void* const pContent, const std::size_t cbContent, const Extent2D& extent, const PixelFormat pixelFormat,
                      const BitmapOrigin bitmapOrigin)
   {
-    if (m_isLocked)
-    {
-      throw UsageErrorException("The bitmap is locked");
-    }
-    if (pContent == nullptr)
-    {
-      throw std::invalid_argument("pContent can not be null");
-    }
-    const std::size_t extentHeight = extent.Height;
-    if (cbContent != (PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat) * extentHeight))
-    {
-      throw std::invalid_argument(
-        "The image buffer is not of the expected size for a image of that pixel format supplied without a stride parameter");
-    }
-
-    ResizeToFit(extent, pixelFormat, StrideRequirement::Any);
-    RawBitmap srcBitmap(pContent, extent, pixelFormat, bitmapOrigin);
-    RawBitmapEx dstBitmap(m_content.data(), m_extent, m_pixelFormat, m_stride, bitmapOrigin);
-    RawBitmapUtil::MemoryCopy(dstBitmap, srcBitmap);
-    m_origin = dstBitmap.GetOrigin();
+    Reset(pContent, cbContent, extent, pixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat), bitmapOrigin);
   }
 
 
@@ -546,7 +521,7 @@ namespace Fsl
   {
     if (m_isLocked)
     {
-      FSLLOG_DEBUG_WARNING("The bitmap is already locked");
+      FSLBASICLOG_DEBUG_WARNING("The bitmap is already locked");
       return false;
     }
 
@@ -680,7 +655,7 @@ namespace Fsl
     switch (clearMethod)
     {
     case BitmapClearMethod::Clear:
-      std::fill(m_content.begin(), m_content.end(), 0);
+      std::fill(m_content.begin(), m_content.end(), static_cast<uint8_t>(0));
       break;
     case BitmapClearMethod::DontClear:
       if (PixelFormatUtil::CalcMinimumStride(m_extent.Width, m_pixelFormat) != m_stride)
@@ -699,7 +674,7 @@ namespace Fsl
 
   void Bitmap::ResetNoThrow() noexcept
   {
-    FSLLOG_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
+    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
     m_content.clear();
     m_extent = Extent2D();
     m_stride = 0;

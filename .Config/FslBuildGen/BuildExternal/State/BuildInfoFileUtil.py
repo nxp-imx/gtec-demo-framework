@@ -55,12 +55,12 @@ class BuildInfoFileHelper(object):
                 return None
 
             sourceRecipe = sourcePackage.ResolvedDirectExperimentalRecipe
-            if sourceRecipe is None or sourceRecipe.ResolvedInstallPath is None:
+            if sourceRecipe is None or sourceRecipe.ResolvedInstallLocation is None:
                 raise Exception("Invalid recipe")
 
             # Generally this should not be called if there is no pipeline
 
-            srcFilePath = IOUtil.Join(sourceRecipe.ResolvedInstallPath, path)
+            srcFilePath = IOUtil.Join(sourceRecipe.ResolvedInstallLocation.ResolvedPath, path)
 
             fileContent = IOUtil.TryReadFile(srcFilePath)
             if fileContent is None:
@@ -165,10 +165,10 @@ class BuildInfoFileUtil(object):
     def SaveBuildInformation(log: Log, recipeRecord: Optional[RecipeRecord], recipePackageStateCache: RecipePackageStateCache, path: str) -> None:
         if recipeRecord is None or not PackageRecipeUtil.HasBuildPipeline(recipeRecord.SourcePackage):
             return
-        if recipeRecord.SourceRecipe is None or recipeRecord.SourceRecipe.ResolvedInstallPath is None:
+        if recipeRecord.SourceRecipe is None or recipeRecord.SourceRecipe.ResolvedInstallLocation is None:
             return
 
-        installPath = recipeRecord.SourceRecipe.ResolvedInstallPath
+        installPath = recipeRecord.SourceRecipe.ResolvedInstallLocation.ResolvedPath
 
         jsonRootDict = BuildInfoFile.TryCreateJsonBuildInfoRootDict(log, path, recipeRecord.SourcePackage, recipeRecord.SourceRecipe, recipePackageStateCache)
         if jsonRootDict is None:

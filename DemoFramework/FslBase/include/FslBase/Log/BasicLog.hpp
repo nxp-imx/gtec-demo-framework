@@ -36,7 +36,66 @@
 
 #include <FslBase/Log/BasicLogger.hpp>
 
+#ifdef NDEBUG
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLBASICLOG(sTRING)                                      \
+  {                                                              \
+    if (Fsl::BasicLogger::GetLogLevel() >= Fsl::LogType::Info)   \
+    {                                                            \
+      Fsl::BasicLogger::WriteLine(Fsl::LogType::Info, (sTRING)); \
+    }                                                            \
+  }
+
+// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLBASICLOG_IF(cOND, sTRING)                                     \
+  {                                                                      \
+    if ((cOND) && Fsl::BasicLogger::GetLogLevel() >= Fsl::LogType::Info) \
+    {                                                                    \
+      Fsl::BasicLogger::WriteLine(Fsl::LogType::Info, (sTRING));         \
+    }                                                                    \
+  }
+
+#define FSLBASICLOG_WARNING(sTRING)                                 \
+  {                                                                 \
+    if (Fsl::BasicLogger::GetLogLevel() >= Fsl::LogType::Warning)   \
+    {                                                               \
+      Fsl::BasicLogger::WriteLine(Fsl::LogType::Warning, (sTRING)); \
+    }                                                               \
+  }
+
+//! Log in debug builds only
+#define FSLBASICLOG_DEBUG(sTRING) \
+  {                               \
+  }
+#define FSLBASICLOG_DEBUG_IF(cONDITION, sTRING) \
+  {                                             \
+  }
+#define FSLBASICLOG_DEBUG_WARNING(sTRING) \
+  {                                       \
+  }
+#define FSLBASICLOG_DEBUG_WARNING_IF(cONDITION, sTRING) \
+  {                                                     \
+  }
+
+// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLBASICLOG2(tYPE, sTRING)                   \
+  {                                                  \
+    if (Fsl::BasicLogger::GetLogLevel() >= (tYPE))   \
+    {                                                \
+      Fsl::BasicLogger::WriteLine((tYPE), (sTRING)); \
+    }                                                \
+  }
+
+// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLBASICLOG2_IF(cOND, tYPE, sTRING)                                                              \
+  {                                                                                                      \
+    if ((cOND) && Fsl::BasicLogger::GetLogLevel() >= (tYPE))                                             \
+    {                                                                                                    \
+      Fsl::BasicLogger::WriteLine((tYPE), (sTRING), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                    \
+  }
+
+#else
 #define FSLBASICLOG(sTRING)                                                                                          \
   {                                                                                                                  \
     if (Fsl::BasicLogger::GetLogLevel() >= Fsl::LogType::Info)                                                       \
@@ -62,21 +121,7 @@
     }                                                                                                                   \
   }
 
-#ifdef NDEBUG
-//! Log in debug builds only
-#define FSLBASICLOG_DEBUG(sTRING) \
-  {                               \
-  }
-#define FSLBASICLOG_DEBUG_IF(cONDITION, sTRING) \
-  {                                             \
-  }
-#define FSLBASICLOG_DEBUG_WARNING(sTRING) \
-  {                                       \
-  }
-#define FSLBASICLOG_DEBUG_WARNING_IF(cONDITION, sTRING) \
-  {                                                     \
-  }
-#else
+
 //! Log in debug builds only
 #define FSLBASICLOG_DEBUG(sTRING)                                                                                  \
   {                                                                                                                \
@@ -105,6 +150,24 @@
       Fsl::BasicLogger::WriteLine(Fsl::LogType::Warning, (sTRING), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
     }                                                                                                                   \
   }
+
+// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLBASICLOG2(tYPE, sTRING)                                                                       \
+  {                                                                                                      \
+    if (Fsl::BasicLogger::GetLogLevel() >= (tYPE))                                                       \
+    {                                                                                                    \
+      Fsl::BasicLogger::WriteLine((tYPE), (sTRING), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                    \
+  }
+
+// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLBASICLOG2_IF(cOND, tYPE, sTRING)                                                              \
+  {                                                                                                      \
+    if ((cOND) && Fsl::BasicLogger::GetLogLevel() >= (tYPE))                                             \
+    {                                                                                                    \
+      Fsl::BasicLogger::WriteLine((tYPE), (sTRING), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                    \
+  }
 #endif
 
 
@@ -132,25 +195,6 @@
     {                                                                                                                 \
       Fsl::BasicLogger::WriteLine(Fsl::LogType::Error, (sTRING), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
     }                                                                                                                 \
-  }
-
-
-// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLBASICLOG2(tYPE, sTRING)                                                                       \
-  {                                                                                                      \
-    if (Fsl::BasicLogger::GetLogLevel() >= (tYPE))                                                       \
-    {                                                                                                    \
-      Fsl::BasicLogger::WriteLine((tYPE), (sTRING), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                    \
-  }
-
-// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLBASICLOG2_IF(cOND, tYPE, sTRING)                                                              \
-  {                                                                                                      \
-    if ((cOND) && Fsl::BasicLogger::GetLogLevel() >= (tYPE))                                             \
-    {                                                                                                    \
-      Fsl::BasicLogger::WriteLine((tYPE), (sTRING), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                    \
   }
 
 #endif

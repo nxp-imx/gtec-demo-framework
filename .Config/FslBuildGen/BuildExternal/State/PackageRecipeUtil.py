@@ -44,7 +44,7 @@ class PackageRecipeUtil(object):
 
     @staticmethod
     def HasBuildPipeline(sourcePackage: Package) -> bool:
-        if sourcePackage is None or sourcePackage.ResolvedDirectExperimentalRecipe is None or sourcePackage.ResolvedDirectExperimentalRecipe.ResolvedInstallPath is None:
+        if sourcePackage is None or sourcePackage.ResolvedDirectExperimentalRecipe is None or sourcePackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation is None:
             return False
         return not sourcePackage.ResolvedDirectExperimentalRecipe.Pipeline is None
 

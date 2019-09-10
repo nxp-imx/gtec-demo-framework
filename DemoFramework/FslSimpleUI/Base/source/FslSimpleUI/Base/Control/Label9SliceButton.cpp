@@ -217,6 +217,8 @@ namespace Fsl
 
     Vector2 Label9SliceButton::MeasureOverride(const Vector2& availableSize)
     {
+      FSL_PARAM_NOT_USED(availableSize);
+
       const auto fontInfo = m_font->GetAtlasBitmapFont();
       const auto measured = fontInfo.MeasureString(m_content.c_str(), 0, m_content.size());
       m_labelSize = Vector2(measured.X, fontInfo.LineSpacing());

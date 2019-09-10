@@ -49,8 +49,8 @@ namespace Fsl
   {
     struct ProgramLocation
     {
-      GLuint ModelViewMatrix;
-      GLuint ProjMatrix;
+      GLint ModelViewMatrix;
+      GLint ProjMatrix;
 
       ProgramLocation()
         : ModelViewMatrix(GLES3::GLValues::INVALID_LOCATION)

@@ -42,6 +42,7 @@ namespace Fsl
     : Offset(left, top)
     , Extent(static_cast<Extent2D::element_type>(right - left), static_cast<Extent2D::element_type>(bottom - top))
   {
+    FSL_PARAM_NOT_USED(reserved);
     static_assert(sizeof(Extent2D::element_type) >= sizeof(int32_t), "for the below check to work this has to be true");
 
     if (left > right || top > bottom)

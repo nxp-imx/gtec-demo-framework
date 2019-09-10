@@ -42,6 +42,8 @@ from typing import Union
 from FslBuildGen import IOUtil
 from FslBuildGen import Util
 from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Build.DataTypes import CommandType
+from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import BuildVariantConfig
@@ -54,6 +56,7 @@ from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Generator.ExceptionsVC import PackageDuplicatedWindowsVisualStudioProjectIdException
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorVCTemplate import CodeTemplateVC
 from FslBuildGen.Generator.GeneratorVCTemplate import CodeTemplateProjectBatFiles
 from FslBuildGen.Generator.GeneratorVCTemplate import GeneratorVCTemplate
@@ -70,7 +73,9 @@ from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGenerator
 from FslBuildGen.Generator.Report.ParsedFormatString import ParsedFormatString
 from FslBuildGen.Generator.Report.StringVariableDict import StringVariableDict
 from FslBuildGen.Generator.VariantHelper import VariantHelper
+#from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
+#from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackageDefine
 from FslBuildGen.Packages.Package import PackageExternalDependency
@@ -142,7 +147,7 @@ class LocalMagicBuildVariantOption:
 
 class GeneratorVC(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], generatorConfig: GeneratorVSConfig, activeThirdPartyLibsDir: Optional[str]) -> None:
-        super(GeneratorVC, self).__init__()
+        super().__init__()
         self.__ActiveThirdPartyLibsDir = activeThirdPartyLibsDir
 
         windows10SDKVersion = self.__DetectVS10SDKVersion(config, generatorConfig.VsVersion)
@@ -179,7 +184,7 @@ class GeneratorVC(GeneratorBase):
         self.__ValidateProjectIds(packages)
 
     def __DetectVS10SDKVersion(self, log: Log, vsVersion: int) -> Optional[str]:
-        if vsVersion != VisualStudioVersion.VS2017:
+        if vsVersion != VisualStudioVersion.VS2017 and vsVersion != VisualStudioVersion.VS2019:
             return None
         windows10SDKVersion = GeneratorVCUtil.TryGetWindows10SDKVersion(log)
         if windows10SDKVersion is not None:
@@ -221,7 +226,7 @@ class GeneratorVC(GeneratorBase):
 
         if package.ResolvedPlatform is None or package.ResolvedPlatform.ProjectId is None:
             raise XmlFormatException("Missing project id for windows platform for package {0}".format(package.Name))
-        if (package.ResolvedBuildSourceFiles is None or package.AbsolutePath is None or package.ResolvedBuildContentSourceFiles is None or
+        if (package.ResolvedBuildSourceFiles is None or package.AbsolutePath is None or package.ResolvedContentBuilderBuildInputFiles is None or
             package.ResolvedBuildPath is None):
             raise Exception("Invalid package")
 
@@ -271,7 +276,7 @@ class GeneratorVC(GeneratorBase):
         resolvedBuildAllIncludeFiles = self.__GetPackageResolvedBuildAllIncludeFiles(config.GenFileName, package)
         includeFiles = self.__CreateVisualStudioStyleFileList(template.AddHeaderFile, resolvedBuildAllIncludeFiles)
         sourceFiles = self.__CreateVisualStudioStyleFileList(template.AddSourceFile, package.ResolvedBuildSourceFiles)
-        contentSourceFiles = self.__CreateContentSourceFilesList(template.Snippet9, template.Snippet9_1, package.ResolvedBuildContentSourceFiles)
+        contentSourceFiles = self.__CreateContentSourceFilesList(template.Snippet9, template.Snippet9_1, package.ResolvedContentBuilderBuildInputFiles)
 
 
         variantConfigurations = self.__VariantSimpleReplace(variantHelper, template.VariantConfiguration, package)
@@ -281,6 +286,7 @@ class GeneratorVC(GeneratorBase):
         compilerSettingsGroups = self.__ApplyOptimizations(compilerSettingsGroups, config, template, package)
 
         externalFilesToOutput = self.__GenerateExternalFilesToOutput(config, variantHelper, template.ExternalFileToOutput, package)
+        copyFileToFolders = self.__GenerateCopyFileToFolders(config, variantHelper, template.CopyFileToFolders, template.CopyFileToFoldersCopyConditions, package)
 
         strWindowsTargetPlatformVersion = self.__GenerateWindowsTargetPlatformVersion(template.WindowsTargetPlatformVersion, windows10SDKVersion)
 
@@ -297,6 +303,7 @@ class GeneratorVC(GeneratorBase):
         build = build.replace("##ADD_PROPERTY_SHEETS##", importGroups)
         build = build.replace("##ADD_PROPERTY_GROUPS##", variantPropertyGroups)
         build = build.replace("##ADD_EXTENAL_FILES_TO_OUTPUT##", externalFilesToOutput)
+        build = build.replace("##ADD_COPY_FILES_TO_OUTPUT##", copyFileToFolders)
         build = build.replace("##SNIPPET8##", compilerSettingsGroups)
         build = build.replace("##ADD_CUSTOM_BUILD_FILES##", contentSourceFiles)
         build = build.replace("##PACKAGE_PLATFORM_PROJECT_ID##", package.ResolvedPlatform.ProjectId)
@@ -398,7 +405,7 @@ class GeneratorVC(GeneratorBase):
 
         headerFiles = package.ResolvedBuildAllIncludeFiles
         sourceFiles = package.ResolvedBuildSourceFiles
-        shaderFiles = package.ResolvedBuildContentSourceFiles
+        shaderFiles = [entry.ResolvedPath for entry in package.ResolvedContentBuilderBuildInputFiles] if package.ResolvedContentBuilderBuildInputFiles is not None else []
         itemGroupHeader = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemHeader, headerFiles)
         itemGroupSource = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemSource, sourceFiles)
         itemGroupShader = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemShader, shaderFiles)
@@ -466,6 +473,50 @@ class GeneratorVC(GeneratorBase):
                 result += "\n" + content
         return result
 
+    def __GenerateCopyFileToFolders(self, config: Config, variantHelper: VariantHelper, snippet: str, snippetConditions: str, package: Package) -> str:
+        if snippet is None or len(snippet) <= 0 or package.Type != PackageType.Executable or snippetConditions is None:
+            return ""
+
+        # By running though all our dependencies we don't rely on visual studio handling the copying correctly from libs to exe
+        allExternalDeps = self.__ExtractAllExternalDeps(package)
+
+        extDeps = Util.FilterByType(allExternalDeps, ExternalDependencyType.DLL)
+        if len(extDeps) <= 0:
+            return ""
+
+        allVariantNames = GeneratorVCUtil.GenerateSLNVariantNames(variantHelper)
+        if len(allVariantNames) < 1:
+            allVariantNames.append('')
+
+        result = ""
+
+        for entry in extDeps:
+            debugFilePath = IOUtil.Join(entry.ResolvedLocation.ResolvedPath, entry.DebugName)
+            filePath = IOUtil.Join(entry.ResolvedLocation.ResolvedPath, entry.Name)
+            content = snippet
+            contentCondition = ""
+            if debugFilePath is not None and debugFilePath != filePath:
+                newContent = self.__GenerateCopyFileToFoldersEntry(content, snippetConditions, allVariantNames, debugFilePath, "true", "false")
+                result += "\n" + newContent
+                newContent = self.__GenerateCopyFileToFoldersEntry(content, snippetConditions, allVariantNames, filePath, "false", "true")
+                result += "\n" + newContent
+            else:
+                newContent = self.__GenerateCopyFileToFoldersEntry(content, snippetConditions, allVariantNames, filePath, "true", "true")
+                result += "\n" + newContent
+        return result
+
+    def __GenerateCopyFileToFoldersEntry(self, content: str, snippetConditions: str, allVariantNames: List[str], filePath: str, debugEnabled: str, releaseEnabled: str) -> str:
+        contentCondition = ""
+        for variantName in allVariantNames:
+            contentCondition = snippetConditions
+            contentCondition = contentCondition.replace("##VARIANT##", variantName)
+            contentCondition = contentCondition.replace("##DEBUG_ENABLED##", debugEnabled)
+            contentCondition = contentCondition.replace("##RELEASE_ENABLED##", releaseEnabled)
+        if len(contentCondition) > 0:
+            contentCondition = "\n" + contentCondition
+        content = content.replace("##FILE_PATH##", filePath)
+        content = content.replace("##COPY_CONDITIONS##", contentCondition)
+        return content
 
     def __GetPackageResolvedBuildAllIncludeFiles(self, genFileName: str, package: Package) -> List[str]:
         if package.ResolvedBuildAllIncludeFiles is None:
@@ -643,10 +694,11 @@ class GeneratorVC(GeneratorBase):
         return "\n".join(res)
 
 
-    def __CreateContentSourceFilesList(self, snippet: str, snippetEntry: str, entries: List[str]) -> str:
+    def __CreateContentSourceFilesList(self, snippet: str, snippetEntry: str, entries: List[PathRecord]) -> str:
         if len(entries) <= 0:
             return ""
-        fileEntries = self.__CreateVisualStudioStyleFileList(snippetEntry, entries)
+        entriesList = [entry.ResolvedPath for entry in entries]
+        fileEntries = self.__CreateVisualStudioStyleFileList(snippetEntry, entriesList)
         result = snippet
         result = result.replace("##SNIPPET##", fileEntries)
         return result
@@ -1270,7 +1322,7 @@ class GeneratorVCUtil(object):
 
 
     @staticmethod
-    def TryGenerateBuildReport(log: Log, generatorName: str, package: Package, variantHelper: VariantHelper) -> Optional[GeneratorBuildReport]:
+    def _TryGenerateBuildReport(log: Log, generatorConfig: GeneratorConfig, generatorName: str, package: Package, variantHelper: VariantHelper) -> Optional[GeneratorBuildReport]:
         if package.IsVirtual and package.Type != PackageType.HeaderLibrary:
             return None
 
@@ -1280,19 +1332,22 @@ class GeneratorVCUtil(object):
         activeVariantName = "{0}${{{1}}}".format(variantHelper.ResolvedNormalVariantNameHint, LocalMagicBuildVariants.GeneratorConfig)
         buildCommandArguments = ["/p:Configuration={0}".format(activeVariantName)]
 
+        if generatorConfig.BuildCommand == CommandType.Clean:
+            buildCommandArguments.append('/t:Clean')
+
         # Unfortunately this causes the libs to not be copied from src -> target location too :(
         # buildCommandArguments += ["/p:BuildProjectReferences=false"]
 
         runInEnvScript = IOUtil.Join(package.ResolvedBuildPath, LocalMagicFilenames.RunProject)
         buildCommand = IOUtil.Join(package.ResolvedBuildPath, LocalMagicFilenames.BuildProject)
-        buildCommandReport = GeneratorCommandReport(False, buildCommand, buildCommandArguments, runInEnvScript=runInEnvScript)
+        buildCommandReport = GeneratorCommandReport(False, buildCommand, buildCommandArguments, [], runInEnvScript=runInEnvScript)
         return GeneratorBuildReport(buildCommandReport)
 
 
     @staticmethod
     def TryGenerateExecutableReport(log: Log, generatorName: str, package: Package,
                                     variantHelper: VariantHelper,
-                                    generatorConfig: GeneratorVSConfig,
+                                    generatorVSConfig: GeneratorVSConfig,
                                     generatorTemplateInfo: GeneratorVSTemplateInfo) -> Optional[GeneratorExecutableReport]:
         if package.Type != PackageType.Executable or package.IsVirtual:
             return None
@@ -1300,7 +1355,7 @@ class GeneratorVCUtil(object):
         if package.ResolvedBuildPath is None:
             raise Exception("Invalid package")
 
-        template = g_templateCache.GetTemplate(log, generatorConfig, package.PackageLanguage, generatorTemplateInfo)
+        template = g_templateCache.GetTemplate(log, generatorVSConfig, package.PackageLanguage, generatorTemplateInfo)
         exeTemplate = template.GetExecutableTemplate(package)
         # The template now supplied its buildOutputLocation 'pattern'
         buildOutputLocation = exeTemplate.BuildOutputLocation
@@ -1340,8 +1395,8 @@ class GeneratorVCUtil(object):
 
 
     @staticmethod
-    def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package,
-                                          generatorConfig: GeneratorVSConfig,
+    def TryGenerateGeneratorPackageReport(log: Log, generatorConfig: GeneratorConfig, generatorName: str, package: Package,
+                                          generatorVSConfig: GeneratorVSConfig,
                                           generatorTemplateInfo: GeneratorVSTemplateInfo,
                                           configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
         if package.IsVirtual and package.Type != PackageType.HeaderLibrary:
@@ -1354,9 +1409,9 @@ class GeneratorVCUtil(object):
             variableReport.Add(variantEntry.Name, variantEntryOptions)
 
         variantHelper = VariantHelper(package)
-        buildReport = GeneratorVCUtil.TryGenerateBuildReport(log, generatorName, package, variantHelper)
+        buildReport = GeneratorVCUtil._TryGenerateBuildReport(log, generatorConfig, generatorName, package, variantHelper)
         executableReport = GeneratorVCUtil.TryGenerateExecutableReport(log, generatorName, package, variantHelper,
-                                                                       generatorConfig, generatorTemplateInfo)
+                                                                       generatorVSConfig, generatorTemplateInfo)
 
         return PackageGeneratorReport(buildReport, executableReport, variableReport)
 

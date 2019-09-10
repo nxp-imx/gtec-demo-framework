@@ -44,6 +44,7 @@
     }                                                                                                         \
   }
 
+
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
 #define FSLLOG_IF(cOND, lINE)                                                                                 \
   {                                                                                                           \
@@ -197,5 +198,43 @@
       }                                                                                             \
     }                                                                                               \
   }
+
+// namespace Fsl
+//{
+//  namespace Log
+//  {
+//    inline void WriteLine(const LogType logType, const char* const psz)
+//    {
+//      if (BasicLogger::GetLogLevel() >= logType)
+//      {
+//        BasicLogger::WriteLine(logType, psz);
+//      }
+//    }
+//
+//    inline void WriteLine(const LogType logType, const std::string& str)
+//    {
+//      if (BasicLogger::GetLogLevel() >= logType)
+//      {
+//        BasicLogger::WriteLine(logType, str);
+//      }
+//    }
+//
+//    inline void WriteInfo(const char* const psz)
+//    {
+//      if (BasicLogger::GetLogLevel() >= Fsl::LogType::Info)
+//      {
+//        BasicLogger::WriteLine(LogType::Info, psz);
+//      }
+//    }
+//
+//    inline void WriteInfo(const std::string& str)
+//    {
+//      if (BasicLogger::GetLogLevel() >= Fsl::LogType::Info)
+//      {
+//        BasicLogger::WriteLine(LogType::Info, str);
+//      }
+//    }
+//  }
+//}
 
 #endif

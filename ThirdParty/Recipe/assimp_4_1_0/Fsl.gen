@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <ExternalLibrary Name="Recipe.assimp_4_1_0">
+  <ExternalLibrary Name="Recipe.assimp_4_1_0" CreationYear="2017">
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Android" Supported="true">
@@ -48,7 +48,7 @@
         <Pipeline>
           <Download URL="https://github.com/assimp/assimp/archive/v4.1.0.tar.gz" To="assimp-4.1.0.tar.gz" Hash="3520b1e9793b93a2ca3b797199e16f40d61762617e072f2d525fad70f9678a71"/> 
           <Unpack File="assimp-4.1.0.tar.gz" OutputPath="assimp-4.1.0">
-             <Copy From="{RECIPE_PATH}/CMakeLists.txt" To="{OUTPUT_PATH}/CMakeLists.txt" Overwrite="true"/>
+             <Copy From="{RECIPE_PATH}/CMakeLists_mod.txt" To="{OUTPUT_PATH}/CMakeLists.txt" Overwrite="true"/>
           </Unpack>
           <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DASSIMP_BUILD_ASSIMP_VIEW=OFF -DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
         </Pipeline>

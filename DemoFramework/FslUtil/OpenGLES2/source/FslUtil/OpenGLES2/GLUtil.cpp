@@ -145,5 +145,20 @@ namespace Fsl
         throw UnsupportedPrimitiveTypeException("Unknown primitive type");
       }
     }
+
+
+    std::vector<GLint> GLUtil::GetCompressedTextureFormats()
+    {
+      GLint count = 0;
+      glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &count);
+
+      std::vector<GLint> res(count);
+      if (count > 0)
+      {
+        glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, res.data());
+      }
+      return res;
+    }
+
   }
 }

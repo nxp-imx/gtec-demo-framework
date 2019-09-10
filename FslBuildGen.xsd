@@ -299,6 +299,7 @@
     <xs:attribute name="AllowCheck" type="_TP_Bool" use="optional"/>
     <xs:attribute name="PackageNameBasedIncludePath" type="_TP_Bool" use="optional"/>
     <xs:attribute name="UnitTest" type="_TP_Bool" use="optional"/>
+    <xs:attribute name="ShowInMainReadme" type="_TP_Bool" use="optional"/>
   </xs:complexType>
 
   <xs:complexType name="_T_Library">

@@ -62,7 +62,7 @@ class RequirementType(object):
 
 class RequirementInfo(object):
     def __init__(self, name: str, requirementType: int, version: Optional[str], extends: str = "") -> None:
-        super(RequirementInfo, self).__init__()
+        super().__init__()
         self.Name = name
         self.Type = requirementType
         self.Version = version

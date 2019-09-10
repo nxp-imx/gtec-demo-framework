@@ -108,7 +108,7 @@ namespace Fsl
         // 1,3,3 - 3,3,4 - 3,4,4 - 4,4,6
         // 4,6,5 - 6,5,7
 
-        int vertexIndex = 3;
+        uint16_t vertexIndex = 3;
         for (std::size_t i = 4; i < rIndices.size(); i += 6)
         {
           rIndices[i + 0] = vertexIndex;
@@ -181,7 +181,8 @@ namespace Fsl
 
     void GLBatch2DQuadRenderer::Begin(const Point2& screenResolution, const BlendState blendState, const bool restoreState)
     {
-      // Fix saving of state should be controlled by a parameter
+      FSL_PARAM_NOT_USED(restoreState);
+      // FIX: saving of state should be controlled by a parameter
       {
         m_oldState.Blend = glIsEnabled(GL_BLEND);
         m_oldState.CullFace = glIsEnabled(GL_CULL_FACE);
@@ -204,7 +205,9 @@ namespace Fsl
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &m_oldState.Attrib[i].Enabled);
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &m_oldState.Attrib[i].Size);
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &m_oldState.Attrib[i].Type);
-          glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &m_oldState.Attrib[i].Normalized);
+          GLint normalized;
+          glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &normalized);
+          m_oldState.Attrib[i].Normalized = (normalized != GL_FALSE ? GL_TRUE : GL_FALSE);
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &m_oldState.Attrib[i].Stride);
           glGetVertexAttribPointerv(m_link[i].AttribIndex, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_oldState.Attrib[i].Pointer);
         }

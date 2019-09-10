@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- Experimental file, work in progress so do not rely on it -->
-  <ToolRecipe Name="Recipe.BuildTool.ninja_1_8_2">
+  <ToolRecipe Name="Recipe.BuildTool.ninja_1_8_2" CreationYear="2017">
     <Default.Platform.Supported Value="false"/>
     <!--
     <ExperimentalRecipe Name="ninja-1.8.2">

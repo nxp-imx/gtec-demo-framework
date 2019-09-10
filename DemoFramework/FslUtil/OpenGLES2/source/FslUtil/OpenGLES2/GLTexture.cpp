@@ -489,10 +489,10 @@ namespace Fsl
 
       const auto texPixelFormat = texture.GetPixelFormat();
 
-      if (PixelFormatUtil::IsCompressed(texPixelFormat))
-      {
-        throw NotSupportedException("Compressed texture formats not supported");
-      }
+      // if (PixelFormatUtil::IsCompressed(texPixelFormat))
+      // {
+      //   throw NotSupportedException("Compressed texture formats not supported");
+      // }
 
       if (!textureParameters.IsValid())
       {
@@ -541,31 +541,53 @@ namespace Fsl
         {
           GL_CHECK(glGenTextures(1, &m_handle));
         }
+        GL_CHECK(glBindTexture(target, m_handle));
 
         const auto textureInfo = texture.GetTextureInfo();
         const auto* pContent = static_cast<const uint8_t*>(texture.GetContent());
         const auto srcPixelFormat = texture.GetPixelFormat();
-        const uint32_t srcBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(srcPixelFormat);
 
-        GL_CHECK(glBindTexture(target, m_handle));
-
-        for (uint32_t face = 0; face < textureInfo.Faces; ++face)
+        if (!PixelFormatUtil::IsCompressed(texPixelFormat))
         {
-          for (uint32_t level = 0; level < textureInfo.Levels; ++level)
+          const uint32_t srcBytesPerPixel = PixelFormatUtil::GetBytesPerPixel(srcPixelFormat);
+
+          for (uint32_t face = 0; face < textureInfo.Faces; ++face)
           {
-            const auto extent = texture.GetExtent(level);
-            const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width, srcBytesPerPixel);
+            for (uint32_t level = 0; level < textureInfo.Levels; ++level)
+            {
+              const auto extent = texture.GetExtent(level);
+              const auto srcStride = PixelFormatLayoutUtil::CalcMinimumStride(extent.Width, srcBytesPerPixel);
 
-            const auto rawBlob = texture.GetTextureBlob(level, face);
+              const auto rawBlob = texture.GetTextureBlob(level, face);
 
-            const auto result = GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width, srcStride, textureFlags.IsEnabled(TextureFlags::ExactFormat));
+              const auto result =
+                GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width, srcStride, textureFlags.IsEnabled(TextureFlags::ExactFormat));
 
-            // Verify our nasty little assumption
-            assert(pFaceTargetMapping[face].Face == face);
+              // Verify our nasty little assumption
+              assert(pFaceTargetMapping[face].Face == face);
 
-            GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, result.Alignment));
-            GL_CHECK(glTexImage2D(pFaceTargetMapping[face].Target, level, result.InternalFormat, extent.Width, extent.Height, 0, result.Format,
-                                  result.Type, pContent + rawBlob.Offset));
+              GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, result.Alignment));
+              GL_CHECK(glTexImage2D(pFaceTargetMapping[face].Target, level, result.InternalFormat, extent.Width, extent.Height, 0, result.Format,
+                                    result.Type, pContent + rawBlob.Offset));
+            }
+          }
+        }
+        else
+        {
+          for (uint32_t face = 0; face < textureInfo.Faces; ++face)
+          {
+            for (uint32_t level = 0; level < textureInfo.Levels; ++level)
+            {
+              const auto extent = texture.GetExtent(level);
+              const auto rawBlob = texture.GetTextureBlob(level, face);
+              const auto result = GLRawBitmapUtil::ConvertCompressed(srcPixelFormat, extent.Width);
+              // Verify our nasty little assumption
+              assert(pFaceTargetMapping[face].Face == face);
+
+              GL_CHECK(glPixelStorei(GL_UNPACK_ALIGNMENT, result.Alignment));
+              GL_CHECK(glCompressedTexImage2D(pFaceTargetMapping[face].Target, level, result.InternalFormat, extent.Width, extent.Height, 0,
+                                              static_cast<GLsizei>(rawBlob.Size), pContent + rawBlob.Offset));
+            }
           }
         }
 

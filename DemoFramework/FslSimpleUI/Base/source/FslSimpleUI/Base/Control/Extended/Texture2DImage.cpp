@@ -111,6 +111,8 @@ namespace Fsl
 
     Vector2 Texture2DImage::MeasureOverride(const Vector2& availableSize)
     {
+      FSL_PARAM_NOT_USED(availableSize);
+
       if (!m_content.IsValid())
       {
         return Vector2();

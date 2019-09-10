@@ -108,6 +108,8 @@ namespace Fsl
 
     Vector2 LabelBase::MeasureOverride(const Vector2& availableSize)
     {
+      FSL_PARAM_NOT_USED(availableSize);
+
       const auto content = DoGetContent();
       auto fontInfo = m_font->GetAtlasBitmapFont();
       auto measured = fontInfo.MeasureString(content.c_str(), 0, content.size());

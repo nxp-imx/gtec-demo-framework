@@ -88,18 +88,19 @@ def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: Valida
     if package.ResolvedDirectExperimentalRecipe is None:
         raise Exception("Invalid package")
     sourceRecipe = package.ResolvedDirectExperimentalRecipe
-    installPath = sourceRecipe.ResolvedInstallPath
-    if installPath is not None and not IOUtil.IsDirectory(installPath):
-        basicConfig.LogPrintVerbose(2, "Installation directory not located: {0}".format(installPath))
-        return False
-    elif basicConfig.Verbosity >= 2:
-        basicConfig.LogPrint("Installation directory located at '{0}'".format(installPath))
+    installPath = sourceRecipe.ResolvedInstallLocation
+    if installPath is not None:
+        if not IOUtil.IsDirectory(installPath.ResolvedPath):
+            basicConfig.LogPrintVerbose(2, "Installation directory not located: {0}".format(installPath.ResolvedPath))
+            return False
+        elif basicConfig.Verbosity >= 2:
+            basicConfig.LogPrint("Installation directory located at '{0}'".format(installPath.ResolvedPath))
 
     # Check if the user decided to do a build override by creating the required file.
     # This allows the user to tell the system that it has been build and it should mind its own buisness
     packageHasUserBuildOverride = False
     if not installPath is None:
-        overrideFilename = IOUtil.Join(installPath, __g_BuildPackageInformationOverrideFilename)
+        overrideFilename = IOUtil.Join(installPath.ResolvedPath, __g_BuildPackageInformationOverrideFilename)
         packageHasUserBuildOverride = IOUtil.IsFile(overrideFilename)
         if packageHasUserBuildOverride:
             basicConfig.LogPrint("Package {0} contained a build override file '{1}'".format(package.Name, __g_BuildPackageInformationOverrideFilename))
@@ -171,12 +172,12 @@ def ValidateInstallationForPackages(config: Config,
         basicConfig.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
         return
 
-    if generatorContext.RecipePathBuilder.TargetPath is None:
+    if generatorContext.RecipePathBuilder.TargetLocation is None:
         raise Exception("Invalid path builder")
 
     # Claim the 'package' install directory to prevent multiple builds from using the same
     # as it would give concurrency issues
-    BuildAreaInfoFileUtil.ProcessInstallDirClaim(basicConfig, generatorContext.RecipePathBuilder.TargetPath, config.SDKPath,
+    BuildAreaInfoFileUtil.ProcessInstallDirClaim(basicConfig, generatorContext.RecipePathBuilder.TargetLocation.ResolvedPath, config.SDKPath,
                                                  builderSettings.ForceClaimInstallArea, __g_installAreaInformationFilename)
 
     if resolvedBuildOrder is None:
@@ -214,12 +215,12 @@ def __DoBuildPackagesInOrder(config: Config,
     if not generatorContext.RecipePathBuilder.IsEnabled:
         basicConfig.LogPrintVerbose(3, "External building has been disabled in the Project.gen file")
         return
-    if generatorContext.RecipePathBuilder.TargetPath is None:
+    if generatorContext.RecipePathBuilder.TargetLocation is None:
         raise Exception("Invalid path builder")
 
     # Claim the 'package' install directory to prevent multiple builds from using the same
     # as it would give concurrency issues
-    BuildAreaInfoFileUtil.ProcessInstallDirClaim(basicConfig, generatorContext.RecipePathBuilder.TargetPath, config.SDKPath,
+    BuildAreaInfoFileUtil.ProcessInstallDirClaim(basicConfig, generatorContext.RecipePathBuilder.TargetLocation.ResolvedPath, config.SDKPath,
                                                  builderSettings.ForceClaimInstallArea, __g_installAreaInformationFilename)
 
     if resolvedBuildOrder is None:
@@ -267,7 +268,11 @@ def __DoBuildPackagesInOrder(config: Config,
                 # Since we are trying to build this it means that the installation validation failed earlier and
                 # we apparently have no pipelines that could remedy it, so force the install validation to occur so
                 # we fail early as 'dependent' pipes might fail to build due to this
-                basicConfig.DoPrintError("Missing installation of package '{0}' and no recipe for solving it is available".format(recipeRecord.SourcePackage.Name))
+                # generatorContext.RecipeFilterManager
+                if generatorContext.RecipeFilterManager.AllRecipesEnabled or recipeRecord.SourcePackage.Name in generatorContext.RecipeFilterManager.ContentDict:
+                    basicConfig.DoPrintWarning("Missing installation of package '{0}' and no recipe for solving it is available".format(recipeRecord.SourcePackage.Name))
+                else:
+                    basicConfig.LogPrintVerbose(4, "Package '{0}' recipe not enabled".format(recipeRecord.SourcePackage.Name))
                 validationEngine.Process(recipeRecord.SourcePackage)
         finally:
             basicConfig.PopIndent()
@@ -300,10 +305,10 @@ def BuildPackages(config: Config,
     if packageRecipeResultManager is None:
        packageRecipeResultManager = PackageRecipeResultManager(config)
 
-    PlatformUtil.CheckBuildPlatform(generatorContext.Platform.Name)
+    PlatformUtil.CheckBuildPlatform(generatorContext.Platform.PlatformName)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
-    buildConfig = BuildConfigRecord(generatorContext.Platform.Name, {}, CommandType.Build, [], None, None, 0)
+    buildConfig = BuildConfigRecord(generatorContext.Platform.PlatformName, {}, CommandType.Build, [], None, None, 0)
 
     basicConfig = generatorContext.BasicConfig
     try:

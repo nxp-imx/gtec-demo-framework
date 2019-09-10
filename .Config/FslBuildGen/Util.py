@@ -266,7 +266,7 @@ def ChangeToCMakeEnvVariables(path: str) -> str:
     start = path[:index]
     envName = path[index+2:endIndex]
     end = path[endIndex+1:]
-    path = "%s$ENV{%s}%s" % (start, envName, end)
+    path = "{0}$ENV{{{1}}}{2}".format(start, envName, end)
     return ChangeToCMakeEnvVariables(path)
 
 

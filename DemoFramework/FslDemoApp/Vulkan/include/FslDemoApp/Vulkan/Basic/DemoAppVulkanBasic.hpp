@@ -38,6 +38,7 @@
 #include <FslDemoApp/Vulkan/Basic/FrameBufferCreateContext.hpp>
 #include <FslDemoApp/Vulkan/Basic/RenderConfig.hpp>
 #include <FslDemoApp/Vulkan/Basic/SwapchainInfo.hpp>
+#include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <FslUtil/Vulkan1_0/VUSwapchainKHR.hpp>
 #include <FslUtil/Vulkan1_0/VUImageMemoryView.hpp>
 #include <RapidVulkan/CommandBuffers.hpp>
@@ -54,7 +55,13 @@
 
 namespace Fsl
 {
+  class DemoAppHostConfigVulkan;
   class DemoAppProfilerOverlay;
+
+  namespace Vulkan
+  {
+    struct NativeGraphicsSwapchainInfo;
+  }
 
   namespace VulkanBasic
   {
@@ -115,7 +122,11 @@ namespace Fsl
         RapidVulkan::CommandBuffers CmdBuffers;
         uint32_t CurrentSwapBufferIndex = 0;
         std::vector<SwapchainRecord> SwapchainRecords;
+        std::shared_ptr<Vulkan::NativeGraphicsSwapchainInfo> NGScreenshotLink;
       };
+
+      std::shared_ptr<DemoAppHostConfigVulkan> m_demoHostConfig;
+      Vulkan::SurfaceFormatInfo m_surfaceFormatInfo;
 
       DemoAppVulkanSetup m_appSetup;
       Resources m_resources;
@@ -196,6 +207,11 @@ namespace Fsl
       //         The created depth image view will be in the VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL layout.
       static Vulkan::VUImageMemoryView CreateBasicDepthImageView(const Vulkan::VUDevice& device, const VkExtent2D& swapchainImageExtent,
                                                                  const VkCommandPool commandPool);
+
+      const Vulkan::SurfaceFormatInfo& GetSurfaceFormatInfo() const
+      {
+        return m_surfaceFormatInfo;
+      }
 
     private:
       static std::vector<FrameDrawRecord> CreateFrameSyncObjects(const VkDevice device, const uint32_t maxFramesInFlight);

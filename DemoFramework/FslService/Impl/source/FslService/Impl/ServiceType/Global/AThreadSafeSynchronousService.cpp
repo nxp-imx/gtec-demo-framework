@@ -30,16 +30,19 @@
  ****************************************************************************************************************************************************/
 
 #include <FslService/Impl/ServiceType/Global/AThreadSafeSynchronousService.hpp>
+#include <FslBase/BasicTypes.hpp>
 
 namespace Fsl
 {
   AThreadSafeSynchronousService::AThreadSafeSynchronousService(const ServiceProvider& serviceProvider)
   {
+    FSL_PARAM_NOT_USED(serviceProvider);
   }
 
 
   void AThreadSafeSynchronousService::Link(const ServiceProvider& serviceProvider)
   {
+    FSL_PARAM_NOT_USED(serviceProvider);
   }
 
 

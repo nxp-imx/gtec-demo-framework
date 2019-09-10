@@ -48,6 +48,8 @@ namespace Fsl
       inline static void WinDraw(const UIDrawContext& context, const AtlasTexture2D& content, const ItemScalePolicy scalepolicy, const Color& color,
                                  const std::shared_ptr<INativeBatch2D>& batch2D)
       {
+        FSL_PARAM_NOT_USED(scalepolicy);
+
         if (!content.IsValid())
         {
           return;
@@ -75,6 +77,8 @@ namespace Fsl
 
       inline static Vector2 MeasureOverride(const Vector2& availableSize, const AtlasTexture2D& content)
       {
+        FSL_PARAM_NOT_USED(availableSize);
+
         if (!content.IsValid())
         {
           return Vector2();

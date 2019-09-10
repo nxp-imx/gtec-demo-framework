@@ -40,6 +40,9 @@ namespace Fsl
     std::shared_ptr<Mesh> MeshAllocator::AllocateComplex(const std::size_t vertexCount, const std::size_t indexCount,
                                                          const PrimitiveType primitiveType)
     {
+      FSL_PARAM_NOT_USED(vertexCount);
+      FSL_PARAM_NOT_USED(indexCount);
+      FSL_PARAM_NOT_USED(primitiveType);
       // FIX: for this to work the allocator needs to receive some information about the desired layout (a simplified VertexDeclaration)
       throw NotImplementedException("FIX: implement a mesh allocator for all basic VertexDeclaration's");
     }

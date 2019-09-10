@@ -101,7 +101,7 @@ Before applying all these recommendations manually make sure you take advantage 
 * If possible make sure you sample works on Windows and Yocto, testing on all platforms gives bonus points :)
 * Avoid platform dependent code when possible.
 * All code must have a license attached.
-* Use C++11
+* Use C++14
   * Use [RAII](https://en.cppreference.com/w/cpp/language/raii)
   * Use "enum class" for enums
   * Use 'nullptr' instead of NULL.
@@ -110,7 +110,7 @@ Before applying all these recommendations manually make sure you take advantage 
   * Use std::size_t not size_t.
   * Use exceptions for error handling.
     * On modern compilers exceptions are cheaper than error code checking (until the exception occurs).
-* Don't use these C++11 features:
+* Don't use these C++14 features:
   * [chrono](http://en.cppreference.com/w/cpp/chrono)
 * Don't use 'using namespace' in a header file!
 * Don't use global variables use members instead!

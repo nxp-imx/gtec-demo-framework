@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES2.ModelViewer" NoInclude="true">
+  <Executable Name="GLES2.ModelViewer" NoInclude="true" CreationYear="2015">
     <ImportTemplate Name="DemoAppGLES2"/>
     <Dependency Name="FslAssimp"/>
     <Dependency Name="FslGraphics3D.Camera"/>

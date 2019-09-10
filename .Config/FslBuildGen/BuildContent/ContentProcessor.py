@@ -41,7 +41,7 @@ from FslBuildGen.BuildContent.PathRecord import PathRecord
 
 class ContentProcessor(object):
     def __init__(self, name: str, featureRequirements: str, fileExtensionSet: Iterable[str]) -> None:
-        super(ContentProcessor, self).__init__()
+        super().__init__()
         self.Name = name
         self.FileExtensionSet = fileExtensionSet
         self.__FeatureConditionInterpreter = ConditionInterpreter(name, featureRequirements)

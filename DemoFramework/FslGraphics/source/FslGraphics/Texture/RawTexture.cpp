@@ -42,9 +42,10 @@ namespace Fsl
   {
     constexpr Extent3D DoGetExtent(const Extent3D& maxExtent, const std::size_t level)
     {
-      return level == 0
-               ? maxExtent
-               : Extent3D(std::max(maxExtent.Width >> level, 1u), std::max(maxExtent.Height >> level, 1u), std::max(maxExtent.Depth >> level, 1u));
+      return level == 0 ? maxExtent
+                        : Extent3D(std::max(maxExtent.Width >> level, static_cast<uint32_t>(1u)),
+                                   std::max(maxExtent.Height >> level, static_cast<uint32_t>(1u)),
+                                   std::max(maxExtent.Depth >> level, static_cast<uint32_t>(1u)));
     }
   }
 

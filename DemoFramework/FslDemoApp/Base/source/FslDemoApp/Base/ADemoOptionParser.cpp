@@ -54,12 +54,15 @@ namespace Fsl
 
   void ADemoOptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
+    FSL_PARAM_NOT_USED(rOptions);
     // Do nothing
   }
 
 
   OptionParseResult::Enum ADemoOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
+    FSL_PARAM_NOT_USED(cmdId);
+    FSL_PARAM_NOT_USED(pszOptArg);
     // Do nothing
     return OptionParseResult::NotHandled;
   }

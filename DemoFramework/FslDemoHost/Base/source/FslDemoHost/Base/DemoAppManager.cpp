@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
@@ -469,7 +470,7 @@ namespace Fsl
       m_expectedFrameTime = m_frameTimeConfig / 4;
       break;
     default:
-      FSLLOG_WARNING("Unknown timestep mode");
+      FSLBASICLOG_WARNING("Unknown timestep mode");
       break;
     }
   }

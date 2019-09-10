@@ -88,17 +88,20 @@ def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: 
             if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
                 allFiles.append(fileName)
 
-        if package.ResolvedBuildContentFiles is not None:
-            for fileName in package.ResolvedBuildContentFiles:
-                fullPath = IOUtil.Join(package.AbsolutePath, fileName)
-                if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
-                    allFiles.append(fileName)
+        if package.ResolvedContentFiles is not None:
+            for resolvedPath in package.ResolvedContentFiles:
+                if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
+                    allFiles.append(resolvedPath.ResolvedPath)
 
-        if package.ResolvedBuildContentSourceFiles is not None:
-            for fileName in package.ResolvedBuildContentSourceFiles:
-                fullPath = IOUtil.Join(package.AbsolutePath, fileName)
-                if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
-                    allFiles.append(fileName)
+        if package.ResolvedContentBuilderSyncInputFiles is not None:
+            for resolvedPath in package.ResolvedContentBuilderSyncInputFiles:
+                if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
+                    allFiles.append(resolvedPath.ResolvedPath)
+
+        if package.ResolvedContentBuilderBuildInputFiles is not None:
+            for resolvedPath in package.ResolvedContentBuilderBuildInputFiles:
+                if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
+                    allFiles.append(resolvedPath.ResolvedPath)
     else:
         allFiles += filteredFiles
 

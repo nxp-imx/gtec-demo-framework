@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES3.ColorspaceInfo" NoInclude="true">
+  <Executable Name="GLES3.ColorspaceInfo" NoInclude="true" CreationYear="2018">
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslUtil.EGL"/>
     <Platform Name="Windows" ProjectId="BF90AAFD-446C-4968-B705-C73E819B0532"/>

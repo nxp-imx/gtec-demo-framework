@@ -37,27 +37,65 @@ from FslBuildGen import IOUtil
 from FslBuildGen.PlatformUtil import PlatformUtil
 
 class CMakeVersion(object):
-    def __init__(self, major: int, minor: int) -> None:
+    def __init__(self, major: int, minor: int, build: int) -> None:
         super().__init__()
         self.Major = major
         self.Minor = minor
+        self.Build = build
 
+    #def __eq__(self, rhs: 'CMakeVersion') -> bool:
+    #    return (self.Major == rhs.Major and self.Minor == rhs.Minor and self.Build == rhs.Build)
 
-def RunCommand(cmd: List[str]) -> str:
-    try:
-        with subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True) as proc:
-            verStr = proc.stdout.read().strip()
-            proc.stdout.close()
-            if proc.wait() != 0:
-                raise Exception("Failed to get CMake version (1).")
-            if not isinstance(verStr, str):
-                raise Exception("Failed to get CMake version (2).")
-            return verStr
-    except OSError as e:
-        raise Exception("Failed to get CMake version (3).")
+    #def __ne__(self, rhs: 'CMakeVersion') -> bool:
+    #    return (self.Major != rhs.Major or self.Minor != rhs.Minor or self.Build != rhs.Build)
 
+    def __lt__(self, rhs: 'CMakeVersion') -> bool:
+        return ((self.Major < rhs.Major) or
+                (self.Major == rhs.Major and self.Minor < rhs.Minor) or
+                (self.Major == rhs.Major and self.Minor == rhs.Minor and self.Build < rhs.Build))
+
+    def __le__(self, rhs: 'CMakeVersion') -> bool:
+        return ((self.Major < rhs.Major) or
+                (self.Major == rhs.Major and self.Minor < rhs.Minor) or
+                (self.Major == rhs.Major and self.Minor == rhs.Minor and self.Build <= rhs.Build))
+
+    def __gt__(self, rhs: 'CMakeVersion') -> bool:
+        return ((self.Major > rhs.Major) or
+                (self.Major == rhs.Major and self.Minor > rhs.Minor) or
+                (self.Major == rhs.Major and self.Minor == rhs.Minor and self.Build > rhs.Build))
+
+    def __ge__(self, rhs: 'CMakeVersion') -> bool:
+        return ((self.Major > rhs.Major) or
+                (self.Major == rhs.Major and self.Minor > rhs.Minor) or
+                (self.Major == rhs.Major and self.Minor == rhs.Minor and self.Build >= rhs.Build))
 
 class CMakeUtil(object):
+    @staticmethod
+    def GetMinimumVersion() -> CMakeVersion:
+        return CMakeVersion(3, 10, 2)
+
+    @staticmethod
+    def RunCommand(cmd: List[str]) -> str:
+        try:
+            with subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, universal_newlines=True) as proc:
+                verStr = proc.stdout.read().strip()
+                proc.stdout.close()
+                if proc.wait() != 0:
+                    raise Exception("Failed to get CMake version (1).")
+                if not isinstance(verStr, str):
+                    raise Exception("Failed to get CMake version (2).")
+                return verStr
+        except OSError as e:
+            raise Exception("Failed to get CMake version (3).")
+
+
+    @staticmethod
+    def _FindNonDigit(strWithNumber: str) -> int:
+        for index, value in enumerate(strWithNumber):
+            if not value.isdigit():
+                return index
+        return len(strWithNumber)
+
     @staticmethod
     def GetVersion() -> CMakeVersion:
         exeName = PlatformUtil.GetPlatformDependentExecuteableName("cmake", PlatformUtil.DetectBuildPlatformType())
@@ -65,16 +103,20 @@ class CMakeUtil(object):
         if path is None:
             raise Exception("Could not locate cmake in path")
         cmd = [path, "--version"]
-        version = RunCommand(cmd)
+        version = CMakeUtil.RunCommand(cmd)
         versionString = "cmake version "
         if not version.startswith(versionString):
             raise Exception("Failed to parse cmake version string '{0}'".format(versionString))
         version = version[len(versionString):]
         indexEnd = version.find('\n')
         indexEnd = indexEnd if indexEnd >= 0 else len(version)
-        version = version[0:indexEnd]
-        indexEndMajor = version.index('.')
-        indexEndMinor = version.index('.', indexEndMajor+1)
-        versionMajor = version[0:indexEndMajor]
-        versionMinor = version[indexEndMajor+1:indexEndMinor]
-        return CMakeVersion(int(versionMajor), int(versionMinor))
+        version = version[0:indexEnd].strip()
+        parsedVersion = version.split('.')
+        if len(parsedVersion) < 3:
+            raise Exception("Failed to parse cmake version string: '{0}'".format(version))
+        while len(parsedVersion) < 3:
+            parsedVersion.append("0")
+
+        indexNonDigit = CMakeUtil._FindNonDigit(parsedVersion[2])
+        strBuild = parsedVersion[2][:indexNonDigit]
+        return CMakeVersion(int(parsedVersion[0]), int(parsedVersion[1]), int(strBuild))

@@ -50,7 +50,7 @@ from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 
 class GeneratorQNXmakefile(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], dstMakeFilename: str, templateExe: str, templateLib: str) -> None:
-        super(GeneratorQNXmakefile, self).__init__()
+        super().__init__()
         self.BldTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "build.sh"))
         self.TemplateMakefileCPU = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "QNXmakefileCPU"))
         self.TemplateMakefileVariant = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "QNXmakefileVariant"))

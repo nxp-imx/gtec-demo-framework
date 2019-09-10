@@ -325,7 +325,7 @@ def GenerateProject(config: Config, localConfig: LocalConfig, configVariant: Con
     templateFileRecordManager = TemplateFileRecordManager(localConfig.TemplatePathProjectType)
     templateFileProcessor = TemplateFileProcessor(config, "PlatformNotDefined", genFileOnly)
     templateFileProcessor.Environment.SetPackageValues(configVariant.ProjectPath, packageName, packageShortName,
-                                                       packageTargetName, visualStudioGUID, config.CurrentYearString, packageCompany)
+                                                       packageTargetName, None, visualStudioGUID, config.CurrentYearString, packageCompany)
     #templateFileProcessor.Environment.Set("##FEATURE_LIST##", featureList)
     templateFileProcessor.Process(config, templateFileRecordManager, configVariant.ProjectPath, None)
 
@@ -357,7 +357,7 @@ class DefaultValue:
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
 
         self.AllowOverwrite = DefaultValue.AllowOverwrite
         #self.DryRun = DefaultValue.DryRun
@@ -383,7 +383,7 @@ def GetDefaultLocalConfig(defaultPackageLanguage: str, template: str, projectNam
 
 class ToolFlowBuildNew(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildNew, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -472,11 +472,12 @@ class ToolFlowBuildNew(AToolAppFlow):
         reservedProjectNames = set()  # type: Set[str]
         packages = None  # type: Optional[List[Package]]
         if not localToolConfig.NoParse:
-            # Get the platform and see if its supported
-            platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
-            PlatformUtil.CheckBuildPlatform(platform.Name)
-            config.LogPrint("Active platform: {0}".format(platform.Name))
-            generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
+            # Get the generator and see if its supported on this platform
+            generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                            config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+            PlatformUtil.CheckBuildPlatform(generator.PlatformName)
+            config.LogPrint("Active platform: {0}".format(generator.PlatformName))
+            generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
             packages = ParsePackages(generatorContext, config, toolConfig.GetMinimalConfig(), currentDir, packageFilters)
 
         # Reserve the name of all packages
@@ -507,7 +508,8 @@ class ToolFlowBuildNew(AToolAppFlow):
                                    localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
 
             theFiles = MainFlow.DoGetFiles(projectConfig, toolConfig.GetMinimalConfig(), configVariant.ProjectPath)
-            platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
+            platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                                          config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
             MainFlow.DoGenerateBuildFiles(projectConfig, theFiles, platformGeneratorPlugin, packageFilters)
 
             if performSanityCheck:

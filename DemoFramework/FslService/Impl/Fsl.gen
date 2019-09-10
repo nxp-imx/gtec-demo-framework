@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="FslService.Impl">
+  <Library Name="FslService.Impl" CreationYear="2017">
     <Dependency Name="FslService.Consumer"/>
     <Dependency Name="FslBase"/>
     <Platform Name="Windows" ProjectId="1AAA09CE-9BA5-4A9C-B4D0-8CC8CD9CC35F"/>

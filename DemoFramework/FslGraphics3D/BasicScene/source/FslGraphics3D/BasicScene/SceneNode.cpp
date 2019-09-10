@@ -41,6 +41,7 @@ namespace Fsl
 
     SceneNode::SceneNode(const std::size_t meshCapacity)
     {
+      FSL_PARAM_NOT_USED(meshCapacity);
     }
 
 

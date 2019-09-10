@@ -68,7 +68,7 @@ class DefaultValue(object):
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
 
         self.CheckBuildCommands = DefaultValue.CheckBuildCommands
         self.ForceClaimInstallArea = DefaultValue.ForceClaimInstallArea
@@ -85,7 +85,7 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 class ToolFlowBuildExternal(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildExternal, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -112,13 +112,14 @@ class ToolFlowBuildExternal(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
+        platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                       config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
         theFiles = [] # type: List[str]
         if not localToolConfig.VoidBuild:
             theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
         else:
             self.Log.LogPrintVerbose(1, "Doing a void build")
-        generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
+        generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platform)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #packages = DoExperimentalGetRecipes(generatorContext, config, [])
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)

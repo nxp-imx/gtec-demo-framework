@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /FslUtil.OpenVX.VC.VC.opendb
 /FslUtil.OpenVX.VC.db
 /FslUtil.OpenVX.manifest

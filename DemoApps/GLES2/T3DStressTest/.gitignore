@@ -28,6 +28,8 @@
 /T3DStressTest_FB
 /T3DStressTest_FB_d
 /T3DStressTest_Wayland
+/T3DStressTest_Wayland_IVI
+/T3DStressTest_Wayland_IVI_d
 /T3DStressTest_Wayland_d
 /T3DStressTest_X11
 /T3DStressTest_X11_d

@@ -1,4 +1,4 @@
-#if defined(__linux__) || defined(__QNXNTO__)
+#ifdef FSLBASE_THREAD_BACKEND_PTHREAD
 /****************************************************************************************************************************************************
  * Copyright (c) 2015 Freescale Semiconductor, Inc.
  * All rights reserved.

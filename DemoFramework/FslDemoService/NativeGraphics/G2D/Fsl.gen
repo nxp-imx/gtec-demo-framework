@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslDemoService.NativeGraphics.G2D">
+  <Library Name="FslDemoService.NativeGraphics.G2D" CreationYear="2017">
     <Dependency Name="FslDemoService.NativeGraphics.Base"/>
     <Dependency Name="FslService.Impl"/>
     <Dependency Name="G2D" Access="Private"/>

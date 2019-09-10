@@ -47,6 +47,10 @@ namespace Fsl
 {
   void PlatformConfig::Configure(IDemoHostRegistry& registry, ServiceRegistry serviceRegistry, bool& rEnableFirewallRequest)
   {
+    FSL_PARAM_NOT_USED(registry);
+    FSL_PARAM_NOT_USED(serviceRegistry);
+    FSL_PARAM_NOT_USED(rEnableFirewallRequest);
+
     //// Use the EGLDemoHost for OpenGLES
     //// Use the EGLDemoHost for OpenGLVG
     // std::deque<DemoHostFeatureName::Enum> eglHostFeatures;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="##PACKAGE_NAME##" NoInclude="true">
+  <Executable Name="##PACKAGE_NAME##" NoInclude="true" CreationYear="##PACKAGE_CREATION_YEAR##">
     <ImportTemplate Name="DemoAppOpenCV4"/>
     <Platform Name="Windows" ProjectId="##PACKAGE_VISUAL_STUDIO_PROJECT_ID##"/>
   </Executable>

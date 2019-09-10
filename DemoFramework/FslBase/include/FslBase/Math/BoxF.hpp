@@ -58,6 +58,7 @@ namespace Fsl
       , X2(x + width)
       , Y2(y + height)
     {
+      // FSL_PARAM_NOT_USED(reserved);
     }
 
 

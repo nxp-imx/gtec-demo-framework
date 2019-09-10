@@ -47,16 +47,20 @@ from FslBuildGen.Generator.GeneratorBase import GeneratorBase
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackageDependency
 from FslBuildGen.Packages.Package import PackageExternalDependency
+from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 #from FslBuildGen.Exceptions import *
 
 class GeneratorDot(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], platformName: str) -> None:
-        super(GeneratorDot, self).__init__()
+        super().__init__()
 
         self.UseVariantNames = True
         self.RequireExecutable = True
         self.ShowExternals = False
         self.ColorNodesByType = True
+
+        # Find all base packages
+        basePackages = self.__FindBasePackages(config.ToolConfig.ProjectInfo.Contexts, packages)
 
         packageList = packages
         if self.RequireExecutable:
@@ -68,7 +72,7 @@ class GeneratorDot(GeneratorBase):
         #dotFile = self.CreateDirectDependencies(config, packageList, platformName)
         #dotFile = self.CreateAllDependencies(config, packageList, platformName)
         #dotFile = self.CreateSimpleDependencies(config, packageList, platformName)
-        dotFile = self.CreateSimpleDependencies2(config, packageList, platformName)
+        dotFile = self.CreateSimpleDependencies2(config, packageList, basePackages, platformName)
 
         content = "\n".join(dotFile)
 
@@ -85,6 +89,17 @@ class GeneratorDot(GeneratorBase):
             print("WARNING: Failed to execute dot, is it part of the path?")
             os.remove(tmpFile)
             raise
+
+    def __FindBasePackages(self, projectContexts: List[ToolConfigProjectContext], packages: List[Package]) -> List[Package]:
+        packageDict = {} # type: Dict[str, Package]
+        for package in packages:
+            packageDict[package.Name] = package
+
+        basePackages = [] # type: List[Package]
+        for projectContext in projectContexts:
+            for basePackage in projectContext.BasePackages:
+                basePackages.append(packageDict[basePackage.Name])
+        return basePackages
 
 
     def CreateDirectDependencies(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
@@ -247,9 +262,12 @@ class GeneratorDot(GeneratorBase):
         return groupDict
 
 
-    def CreateSimpleDependencies2(self, config: Config, packages: List[Package], platformName: str) -> List[str]:
+    def CreateSimpleDependencies2(self, config: Config, packages: List[Package], basePackages: List[Package], platformName: str) -> List[str]:
         groups = None # type: Optional[Dict[str, List[Package]]]
         #groups = self.GroupPackages(config, packages)
+
+        showDependenciesToBasePackages = False
+        showExternals = self.ShowExternals
 
         dotFile = []
         dotFile.append('digraph xmlTest')
@@ -280,28 +298,30 @@ class GeneratorDot(GeneratorBase):
         if self.ColorNodesByType:
             for package in packages:
                 packageName = self.GetName(package)
+                col = "black" if package not in basePackages else "gold"
                 if package.Type == PackageType.Executable:
-                    dotFile.append('  "{0}" [style=filled color=green]'.format(packageName))
+                    dotFile.append('  "{0}" [style=filled fillcolor=green color={1}]'.format(packageName, col))
                 elif package.Type == PackageType.ExternalLibrary:
-                    dotFile.append('  "{0}" [style=filled color=lightgrey]'.format(packageName))
+                    dotFile.append('  "{0}" [style=filled fillcolor=lightgrey color={1}]'.format(packageName, col))
                 elif package.Type == PackageType.HeaderLibrary:
-                    dotFile.append('  "{0}" [color=gray42]'.format(packageName))
+                    dotFile.append('  "{0}" [fillcolor=gray42 color={1}]'.format(packageName, col))
                 elif package.Type == PackageType.ToolRecipe:
-                    dotFile.append('  "{0}" [style=filled color=deepskyblue]'.format(packageName))
+                    dotFile.append('  "{0}" [style=filled fillcolor=deepskyblue color={1}]'.format(packageName, col))
                 #elif package.Type == PackageType.Library:
 
 
         for package in packages:
             if not package.Name.startswith('SYS_'):
                 for dep1 in package.ResolvedDirectDependencies:
-                    if dep1.Access == AccessType.Private:
-                        laterPrivate.append('  "{0}" -> "{1}"'.format(self.GetName(package), self.GetName(dep1.Package)))
-                    elif dep1.Access == AccessType.Link:
-                        laterLink.append('  "{0}" -> "{1}"'.format(self.GetName(package), self.GetName(dep1.Package)))
-                    else:
-                        if not self.IsAvailableFromDependentPackage2(dep1, package):
-                            dotFile.append('  "{0}" -> "{1}"'.format(self.GetName(package), self.GetName(dep1.Package)))
-                if self.ShowExternals:
+                    if showDependenciesToBasePackages or dep1.Package not in basePackages:
+                        if dep1.Access == AccessType.Private:
+                            laterPrivate.append('  "{0}" -> "{1}"'.format(self.GetName(package), self.GetName(dep1.Package)))
+                        elif dep1.Access == AccessType.Link:
+                            laterLink.append('  "{0}" -> "{1}"'.format(self.GetName(package), self.GetName(dep1.Package)))
+                        else:
+                            if not self.IsAvailableFromDependentPackage2(dep1, package):
+                                dotFile.append('  "{0}" -> "{1}"'.format(self.GetName(package), self.GetName(dep1.Package)))
+                if showExternals:
                     for dep2 in package.ResolvedDirectExternalDependencies:
                         if not self.IsExternalAvailableFromDependentPackage(dep2, package.ResolvedDirectDependencies):
                             dotFile.append('  "{0}" -> "ext: {1}"'.format(self.GetName(package), dep2.Name))

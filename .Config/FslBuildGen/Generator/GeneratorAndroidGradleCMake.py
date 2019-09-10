@@ -117,9 +117,9 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         templateFileProcessor = TemplateFileProcessor(config, platformName)
 
         strTemplatePath = IOUtil.Join(strAppTemplatePath, "CMake")
-        extTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Ext", False)
-        libTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Lib", False)
-        exeTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Exe", False)
+        extTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Ext", False, None)
+        libTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Lib", False, None)
+        exeTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Exe", False, None)
 
         templatePath = IOUtil.Join(config.SDKConfigTemplatePath, strAppTemplatePath)
         exeFileList = self.__ParseExeFileList(IOUtil.Join(templatePath, "ExeFiles.txt"))
@@ -190,36 +190,56 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         # this ignore is a workaround allowing us to build using the same info as the old Android builder
         ignoreLibs = ["android_native_app_glue"]
 
-        aliasPackageName = CMakeGeneratorUtil.GetAliasName(packageName)
-        targetIncludeDirectories = CMakeGeneratorUtil.BuildTargetIncludeDirectories(config, package, template.PackageTargetIncludeDirectories, template.PackageTargetIncludeDirEntry, pathType)
+        aliasPackageName = CMakeGeneratorUtil.GetAliasName(packageName, package.ProjectContext.ProjectName)
+        targetIncludeDirectories = CMakeGeneratorUtil.BuildTargetIncludeDirectories(config, package, template.PackageTargetIncludeDirectories,
+                                                                                    template.PackageTargetIncludeDirEntry, template.PackageTargetIncludeDirVirtualEntry, pathType)
         targetIncludeDirectories = targetIncludeDirectories.replace(Variable.RecipeVariant, "${ANDROID_ABI}")
 
+        publicIncludeFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildPublicIncludeFiles)
+        privateIncludeFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildPrivateIncludeFiles)
         includeFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildAllIncludeFiles)
         sourceFiles = self.__ExpandPathAndJoin(config, package, package.ResolvedBuildSourceFiles)
-        linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(config, package, template.PackageDependencyTargetLinkLibraries, ignoreLibs)
+        linkLibrariesDirectDependencies = CMakeGeneratorUtil.BuildTargetLinkLibrariesForDirectDependencies(config, package,
+                                                                                                           template.PackageDependencyTargetLinkLibraries,
+                                                                                                           template.PackageDependencyFindPackage,
+                                                                                                           ignoreLibs)
+        linkLibrariesDirectDependencies = linkLibrariesDirectDependencies.replace(Variable.RecipeVariant, "${ANDROID_ABI}")
         directDefinitions = CMakeGeneratorUtil.BuildDirectDefinitions(config, package, template.PackageDependencyTargetCompileDefinitions)
         findDirectExternalDependencies = CMakeGeneratorUtil.BuildFindDirectExternalDependencies(config, package, template.PackageDependencyFindPackage)
-
+        installInstructions = CMakeGeneratorUtil.BuildInstallInstructions(config, package, template.PackageInstall,
+                                                                          template.PackageInstallTargets,
+                                                                          template.PackageInstallHeaders,
+                                                                          template.PackageInstallContent,
+                                                                          template.PackageInstallDLL,
+                                                                          template.PackageInstallAppInfo)
+        targetCompileFeatures = CMakeGeneratorUtil.BuildCompileFeatures(config, package, template.SnippetTargetCompileFeaturesDefault,
+                                                                        template.SnippetTargetCompileFeaturesInterface)
+        targetCompileOptions = CMakeGeneratorUtil.BuildCompileOptions(config, package, template.SnippetTargetCompileOptionsDefault)
 
         buildCMakeFile = template.Master
 
         if package.Type == PackageType.Executable:
-            if package.AbsoluteContentPath is None:
+            if package.ContentPath is None:
                 raise Exception("Invalid package")
-            packageContentPath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, package.AbsoluteContentPath)
+            packageContentPath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, package.ContentPath.AbsoluteDirPath)
             buildCMakeFile = buildCMakeFile.replace("##PACKAGE_CONTENT_PATH##", packageContentPath)
             buildCMakeFile = buildCMakeFile.replace("##PACKAGE_ANDROID_PROJECT_PATH##", androidProjectDir)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_INCLUDE_FILES##", includeFiles)
+        buildCMakeFile = buildCMakeFile.replace("##PACKAGE_PUBLIC_INCLUDE_FILES##", publicIncludeFiles)
+        buildCMakeFile = buildCMakeFile.replace("##PACKAGE_PRIVATE_INCLUDE_FILES##", privateIncludeFiles)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_SOURCE_FILES##", sourceFiles)
         buildCMakeFile = buildCMakeFile.replace("##TARGET_INCLUDE_DIRECTORIES##", targetIncludeDirectories)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_DIRECT_DEPENDENCIES_TARGET_LINK_LIBRARIES##", linkLibrariesDirectDependencies)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_DIRECT_DEPENDENCIES_TARGET_COMPILE_DEFINITIONS##", directDefinitions)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGES_FIND_DIRECT_EXTERNAL_DEPENDENCIES##", findDirectExternalDependencies)
-        buildCMakeFile = buildCMakeFile.replace("##SNIPPET_DEFAULT_TARGET_COMPILE_OPTIONS##", template.SnippetDefaultTargetCompileOptions)
-        buildCMakeFile = buildCMakeFile.replace("##SNIPPET_DEFAULT_TARGET_COMPILE_FEATURES##", template.SnippetDefaultTargetCompileFeatures)
+        buildCMakeFile = buildCMakeFile.replace("##SNIPPET_DEFAULT_TARGET_COMPILE_OPTIONS##", targetCompileOptions)
+        buildCMakeFile = buildCMakeFile.replace("##SNIPPET_DEFAULT_TARGET_COMPILE_FEATURES##", template.SnippetTargetCompileFeaturesDefault)
+        buildCMakeFile = buildCMakeFile.replace("##PACKAGE_GENERATE_INSTALL_INSTRUCTIONS##", installInstructions)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_NAME!##", packageName.upper())
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_NAME##", packageName)
         buildCMakeFile = buildCMakeFile.replace("##ALIAS_PACKAGE_NAME##", aliasPackageName)
+        buildCMakeFile = buildCMakeFile.replace("##PROJECT_NAME##", package.ProjectContext.ProjectName)
+        buildCMakeFile = buildCMakeFile.replace("##PROJECT_VERSION##", package.ProjectContext.ProjectVersion)
 
         if not config.DisableWrite:
             # We store all cmake build files in their own dir inside the 'android' exe-project's folder
@@ -260,7 +280,6 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                                                             template, androidProjectCMakeDir, androidABIList,
                                                             templateFileProcessor, cmakePackageRootVariables)
 
-
         templateFileProcessor.Process(config, templateFileRecordManager, androidProjectDir, package, dstFilenameModifier)
 
         if not config.DisableWrite:
@@ -291,7 +310,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         packageVariantGradleAndroidABIList = self.__CreateGradleAndroidABIList(androidABIList)
 
         packageName = CMakeGeneratorUtil.GetPackageName(package)
-        cmakePackageExeLib = CMakeGeneratorUtil.GetAliasName(packageName)
+        cmakePackageExeLib = CMakeGeneratorUtil.GetAliasName(packageName, package.ProjectContext.ProjectName)
         cmakePackageFindDirectExternalDependencies = CMakeGeneratorUtil.BuildFindDirectExternalDependencies(config, package, template.PackageDependencyFindPackage)
         cmakePackageDirectDependenciesAndSubDirectories = self.__BuildCMakeAddSubDirectoriesForDirectDependencies(config, package, template, androidProjectCMakeDir)
 
@@ -450,12 +469,12 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
 
 
     def __TryAddAsCMakeLib(self, recipe: Optional[PackageExperimentalRecipe], package: Package) -> Optional[AndroidCMakeLib]:
-        if recipe is None or recipe.ResolvedInstallPath is None or recipe.Pipeline is None:
+        if recipe is None or recipe.ResolvedInstallLocation is None or recipe.Pipeline is None:
             return None
         if not PackageRecipeUtil.CommandListContainsBuildCMake(recipe.Pipeline.CommandList):
             return None
 
-        path = "{0}".format(recipe.ResolvedInstallPath)
+        path = "{0}".format(recipe.ResolvedInstallLocation)
         staticLibs = [] # type: List[AndroidCMakeLibRecord]
         if recipe.ValidateInstallation is not None and recipe.ValidateInstallation.CommandList is not None:
             for command in recipe.ValidateInstallation.CommandList:
@@ -522,7 +541,7 @@ class GeneratorAndroidGradleCMakeUtil(object):
         buildCommandArguments = [gradleBuildConfigVariable]
         buildCommand = GeneratorAndroidGradleCMakeUtil.GetPlatformGradleCommand()
         buildCommand = IOUtil.Join(commandCWD, buildCommand)
-        buildCommandReport = GeneratorCommandReport(False, buildCommand, buildCommandArguments, commandCWD)
+        buildCommandReport = GeneratorCommandReport(False, buildCommand, buildCommandArguments, [], commandCWD)
         return GeneratorBuildReport(buildCommandReport)
 
 
@@ -535,3 +554,4 @@ class GeneratorAndroidGradleCMakeUtil(object):
         executableReport = None  # We dont currently support running android apps
         variableReport = GeneratorAndroidGradleCMakeUtil.GenerateVariableReport(log, generatorName, package)
         return PackageGeneratorReport(buildReport, executableReport, variableReport)
+

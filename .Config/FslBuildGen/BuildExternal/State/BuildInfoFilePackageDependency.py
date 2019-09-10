@@ -35,7 +35,7 @@ from typing import List
 
 class BuildInfoFilePackageDependency(object):
     def __init__(self, jsonStr: str) -> None:
-        super(BuildInfoFilePackageDependency, self).__init__()
+        super().__init__()
         decoded = BuildInfoFilePackageDependency.DecodeDependency(jsonStr)
         self.Name = decoded[0]
         self.Revision = decoded[1]

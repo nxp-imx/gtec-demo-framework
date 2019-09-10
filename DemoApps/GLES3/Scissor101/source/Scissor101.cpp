@@ -211,7 +211,6 @@ namespace Fsl
     // Rotate and translate the model view matrix
     m_matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
-
     {    // Do some funky double sinus movement we can use for a bit of unpredictable clipping
       const auto resolution = GetScreenResolution();
       const Vector2 dist(resolution.X, resolution.Y);
@@ -241,6 +240,8 @@ namespace Fsl
 
   void Scissor101::Draw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     const auto screenResolution = GetScreenResolution();
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -255,23 +256,23 @@ namespace Fsl
     assert(m_clip2.X >= 0 && m_clip2.X <= screenResolution.X);
     assert(m_clip2.Y >= 0 && m_clip2.Y <= screenResolution.Y);
 
-    Point2 near = m_clip1;
-    Point2 far = m_clip2;
+    Point2 nearClip = m_clip1;
+    Point2 farClip = m_clip2;
     if (m_clip1.X > m_clip2.X)
     {
-      far.X = m_clip1.X;
-      near.X = m_clip2.X;
+      farClip.X = m_clip1.X;
+      nearClip.X = m_clip2.X;
     }
     if (m_clip1.Y > m_clip2.Y)
     {
-      far.Y = m_clip1.Y;
-      near.Y = m_clip2.Y;
+      farClip.Y = m_clip1.Y;
+      nearClip.Y = m_clip2.Y;
     }
 
-    int32_t clipX = m_clipX ? near.X : 0;
-    int32_t clipY = m_clipY ? near.Y : 0;
-    int32_t clipWidth = m_clipX ? (far.X - near.X) : screenResolution.X;
-    int32_t clipHeight = m_clipY ? (far.Y - near.Y) : screenResolution.Y;
+    int32_t clipX = m_clipX ? nearClip.X : 0;
+    int32_t clipY = m_clipY ? nearClip.Y : 0;
+    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : screenResolution.X;
+    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : screenResolution.Y;
 
     if (clipX < 0 || (clipX + clipWidth) > screenResolution.X || clipY < 0 || (clipY + clipHeight) > screenResolution.Y)
     {
@@ -299,6 +300,8 @@ namespace Fsl
 
   void Scissor101::DrawCube(const ProgramInfo& programInfo, const Matrix& matModel)
   {
+    FSL_PARAM_NOT_USED(matModel);
+
     const auto& vertexBuffer = m_vertexBufferInfo.VertexBuffer;
 
     // Set the shader program

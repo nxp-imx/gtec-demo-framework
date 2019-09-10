@@ -41,6 +41,7 @@ namespace Fsl
     , m_platformDisplay(platformWindowParams.PlatformDisplay)
     , m_platformWindow{}
   {
+    FSL_PARAM_NOT_USED(pPlatformCustomWindowAllocationParams);
   }
 
 

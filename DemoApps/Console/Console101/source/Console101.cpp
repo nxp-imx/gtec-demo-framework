@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Exceptions.hpp>
 #include "Console101.hpp"
 
@@ -41,7 +41,7 @@ namespace Fsl
 
 
   Console101::Console101(const DemoAppConfig& config)
-    : DemoAppConsoleMinimal(config)
+    : DemoAppConsole(config)
   {
   }
 
@@ -51,6 +51,6 @@ namespace Fsl
 
   void Console101::Run()
   {
-    FSLLOG("Hello world");
+    FSLBASICLOG("Hello world");
   }
 }

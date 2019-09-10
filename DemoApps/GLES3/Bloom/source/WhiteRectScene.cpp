@@ -80,6 +80,11 @@ namespace Fsl
   void WhiteRectScene::Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
                               const Point2& screenResolution)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+    FSL_PARAM_NOT_USED(cameraViewMatrix);
+    FSL_PARAM_NOT_USED(cameraRotation);
+    FSL_PARAM_NOT_USED(rotation);
+    FSL_PARAM_NOT_USED(screenResolution);
   }
 
 

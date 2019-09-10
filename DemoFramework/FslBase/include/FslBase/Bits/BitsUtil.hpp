@@ -129,7 +129,14 @@ namespace Fsl
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
     //! @brief Check if the value is a pow 2 value
-    static bool IsPowerOfTwo(int value)
+    static bool IsPowerOfTwo(int32_t value)
+    {
+      return value > 0 && (NextPowerOfTwo(value) == value);
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------
+
+    static bool IsPowerOfTwo(uint32_t value)
     {
       return value > 0 && (NextPowerOfTwo(value) == value);
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../FslBuildGen.xsd">
-  <ToolRecipe Name="Recipe.BuildTool.Git">
+  <ToolRecipe Name="Recipe.BuildTool.Git" CreationYear="2017">
     <ExperimentalRecipe>
       <Installation>
         <FindExecutableFileInPath Name="git" Help="Please install git as its needed to acquire source that needs to be build."/>

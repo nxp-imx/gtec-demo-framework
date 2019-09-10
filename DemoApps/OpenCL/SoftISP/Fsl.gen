@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="OpenCL.SoftISP" NoInclude="true">
+  <Executable Name="OpenCL.SoftISP" NoInclude="true" CreationYear="2016">
     <Default.Platform.Supported Value="false"/>
     <ImportTemplate Name="DemoAppOpenCL1_2"/>
     <Platform Name="Yocto" Supported="true"/>

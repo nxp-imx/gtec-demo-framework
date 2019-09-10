@@ -49,12 +49,13 @@ from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilderAddExtensio
 
 class BasicContentProcessor(ContentProcessor):
     def __init__(self, config: Config, toolFinder: ToolFinder, contentBuilderConfig: ToolContentBuilder) -> None:
-        super(BasicContentProcessor, self).__init__(contentBuilderConfig.Name, contentBuilderConfig.FeatureRequirements, self.__GetExtensionsSet(contentBuilderConfig.DefaultExtensions))
+        super().__init__(contentBuilderConfig.Name, contentBuilderConfig.FeatureRequirements, self.__GetExtensionsSet(contentBuilderConfig.DefaultExtensions))
         self.BasedUpon = contentBuilderConfig
         self.DefaultExtensions = contentBuilderConfig.DefaultExtensions
         self.ToolArguments = self.__ProcessToolParameters(contentBuilderConfig.Parameters)
         self.ToolCommand = toolFinder.GetPlatformDependentExecuteableName(contentBuilderConfig.Executable)
         self.ToolDescription = contentBuilderConfig.Description
+        self.__ToolFinder = toolFinder
 
 
     def __GetExtensionsSet(self, extensions: List[XmlConfigContentBuilderAddExtension]) -> Set[str]:
@@ -67,7 +68,7 @@ class BasicContentProcessor(ContentProcessor):
 
 
     def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
-        outputFilename = super(BasicContentProcessor, self).GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
+        outputFilename = super().GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
         extension = self.__TryFindExtension(contentFileRecord.RelativePath)
         if extension is None or extension.PostfixedOutputExtension is None or len(extension.PostfixedOutputExtension) <= 0:
             return outputFilename
@@ -93,7 +94,7 @@ class BasicContentProcessor(ContentProcessor):
         return res
 
 
-    def Process(self, config: Config, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord, toolFinder: ToolFinder) -> None:
+    def Process(self, config: Config, contentBuildPath: str, contentOutputPath: str, contentFileRecord: PathRecord) -> None:
         # we ask the tool to write to a temporary file so that we can ensure that the output file is only modified
         # if the content was changed
         tmpOutputFileName = self.GetTempFileName(contentBuildPath, contentFileRecord)
@@ -103,7 +104,7 @@ class BasicContentProcessor(ContentProcessor):
         if config.DisableWrite:
             # if write is disabled we do a "tool-command" check directly since the subprocess call can't fail
             # which would normally trigger the check
-            toolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
+            self.__ToolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
             return
 
         outputFileName = self.GetOutputFileName(config, contentOutputPath, contentFileRecord)
@@ -112,11 +113,11 @@ class BasicContentProcessor(ContentProcessor):
         try:
             result = subprocess.call(buildCommand, cwd=contentBuildPath)
             if result != 0:
-                toolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
+                self.__ToolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
                 raise Exception("{0}: Failed to process file '{1}' ({2})".format(self.ToolCommand, contentFileRecord.ResolvedPath, self.ToolDescription))
             IOUtil.CopySmallFile(tmpOutputFileName, outputFileName)
         except:
-            toolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
+            self.__ToolFinder.CheckToolCommand(self.ToolCommand, self.ToolDescription)
             raise
         finally:
             IOUtil.RemoveFile(tmpOutputFileName)

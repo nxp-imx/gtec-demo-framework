@@ -37,4 +37,4 @@ from FslBuildGen.Info.RequirementInfo import RequirementType
 
 class RequirementFeatureInfo(RequirementInfo):
     def __init__(self, name: str, version: str, extends: str) -> None:
-        super(RequirementFeatureInfo, self).__init__(name, RequirementType.Feature, version, extends)
+        super().__init__(name, RequirementType.Feature, version, extends)

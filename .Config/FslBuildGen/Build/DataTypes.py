@@ -36,6 +36,7 @@ from typing import Optional
 class CommandType(object):
     Build = 0
     Clean = 1
+    Install = 2
 
     @staticmethod
     def FromString(value: str) -> int:
@@ -43,6 +44,8 @@ class CommandType(object):
             return CommandType.Build
         elif value == "clean":
             return CommandType.Clean
+        elif value == "install":
+            return CommandType.Install
         raise Exception("Unsupported Command '{0}'".format(value))
 
     @staticmethod
@@ -59,4 +62,6 @@ class CommandType(object):
             return "build"
         elif value == CommandType.Clean:
             return "clean"
+        elif value == CommandType.Install:
+            return "install"
         return None

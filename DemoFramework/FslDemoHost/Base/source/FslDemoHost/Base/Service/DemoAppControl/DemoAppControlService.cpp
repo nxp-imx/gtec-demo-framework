@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
 #include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
@@ -101,9 +102,13 @@ namespace Fsl
     else
     {
       if (!m_hasExitRequest)
-        FSLLOG("WARNING: No exit request exists. Request ignored.");
+      {
+        FSLBASICLOG_WARNING("No exit request exists. Request ignored.");
+      }
       if (m_hasExitRequest)
-        FSLLOG("WARNING: Non default exit code is already set. Request ignored.");
+      {
+        FSLBASICLOG_WARNING("Non default exit code is already set. Request ignored.");
+      }
     }
   }
 
@@ -180,18 +185,18 @@ namespace Fsl
     const auto windows = m_windowHostInfo->GetWindows();
     if (windows.empty())
     {
-      FSLLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any active windows");
+      FSLBASICLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any active windows");
       return false;
     }
     if (windows.size() > 1)
     {
-      FSLLOG_DEBUG_WARNING("TryEnableMouseCaptureMode only support one window");
+      FSLBASICLOG_DEBUG_WARNING("TryEnableMouseCaptureMode only support one window");
       return false;
     }
     const auto activeWindow = windows.front().lock();
     if (!activeWindow)
     {
-      FSLLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any un-expired windows");
+      FSLBASICLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any un-expired windows");
       return false;
     }
 
@@ -246,7 +251,7 @@ namespace Fsl
     }
     else
     {
-      FSLLOG_WARNING("WARNING: exit has already been requested with status code: " << (int)m_exitCode << ". Request ignored.");
+      FSLLOG_WARNING("exit has already been requested with status code: " << m_exitCode << ". Request ignored.");
     }
   }
 }

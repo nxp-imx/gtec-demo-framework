@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.ObjectSelection" NoInclude="true" CreationYear="2019">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="FslGraphics3D.Build"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="FslGraphics3D.Procedural"/>
+    <Dependency Name="Shared.ObjectSelection"/>
+    <Platform Name="Windows" ProjectId="4CFD4E05-68E5-467E-8E5E-D3D459951EBD"/>
+  </Executable>
+</FslBuildGen>

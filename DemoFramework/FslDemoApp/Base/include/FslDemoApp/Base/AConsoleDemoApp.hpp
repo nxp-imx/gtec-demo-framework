@@ -73,6 +73,7 @@ namespace Fsl
     AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override
     {
       // No default implementation, so fail
+      FSL_PARAM_NOT_USED(demoTime);
       return AppDrawResult::Failed;
     }
 

@@ -31,12 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/ITag.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
 #include <FslDemoApp/Shared/Host/ConfigControl.hpp>
 #include <FslDemoHost/Vulkan/Config/InstanceFeatureRequest.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequest.hpp>
-#include <FslBase/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <vulkan/vulkan.h>
 #include <algorithm>
 #include <deque>
@@ -53,6 +54,7 @@ namespace Fsl
   class DemoAppHostConfigVulkan : public DemoAppHostConfig
   {
     // VulkanDemoAppMode m_demoAppMode;
+    std::deque<Vulkan::SurfaceFormatInfo> m_preferedSurfaceFormats;
     std::deque<Vulkan::PhysicalDeviceFeatureRequest> m_physicalDeviceFeatureRequest;
     std::deque<Vulkan::InstanceFeatureRequest> m_instanceLayerRequest;
     std::deque<Vulkan::InstanceFeatureRequest> m_instanceExtensionRequest;
@@ -79,6 +81,10 @@ namespace Fsl
       return m_extensionConfigControl;
     }
 
+    void AddPreferedSurfaceFormat(const Vulkan::SurfaceFormatInfo& surfaceFormatInfo)
+    {
+      m_preferedSurfaceFormats.push_back(surfaceFormatInfo);
+    }
 
     void SetInstanceLayerConfigControl(const ConfigControl value)
     {
@@ -152,6 +158,11 @@ namespace Fsl
       {
         rTarget.push_back(entry);
       }
+    }
+
+    const std::deque<Vulkan::SurfaceFormatInfo>& GetPreferredSurfaceFormats() const
+    {
+      return m_preferedSurfaceFormats;
     }
 
 

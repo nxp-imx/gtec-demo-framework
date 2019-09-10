@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/FileAttributes.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <string>
@@ -43,9 +42,14 @@ namespace Fsl
 {
   namespace IO
   {
-    class File : private Noncopyable
+    class File
     {
     public:
+      File() = delete;
+      ~File() = delete;
+      File(const File&) = delete;
+      File& operator=(const File&) = delete;
+
       //! @brief Check if a file exists
       static bool Exists(const Path& path);
 

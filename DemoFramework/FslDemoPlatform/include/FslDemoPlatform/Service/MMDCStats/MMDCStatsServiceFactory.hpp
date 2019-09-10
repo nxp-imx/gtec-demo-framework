@@ -46,8 +46,6 @@ namespace Fsl
       : ThreadLocalSingletonServiceFactoryBase(typeid(MMDCStatsService), ServiceCaps::AvailableOnDemand)
       , m_optionParser(std::make_shared<MMDCStatsServiceOptionParser>())
     {
-      // Setup the option parser
-      m_optionParser = m_optionParser;
     }
 
 

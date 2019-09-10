@@ -45,6 +45,9 @@ namespace Fsl
 
   int RawBitmapUtil::CalcAlignment(const PixelFormat pixelFormat, const uint32_t width, const uint32_t stride, const uint32_t bytesPerPixel)
   {
+    FSL_PARAM_NOT_USED(pixelFormat);
+    assert(PixelFormatUtil::GetBytesPerPixel(pixelFormat) == bytesPerPixel);
+
     const uint32_t minStride = width * bytesPerPixel;
     const uint32_t minStride8 = minStride + (((minStride & 7) != 0 ? (8 - (minStride & 7)) : 0));
     const uint32_t minStride4 = minStride + (((minStride & 3) != 0 ? (4 - (minStride & 3)) : 0));
@@ -171,6 +174,10 @@ namespace Fsl
     if (rBitmap.GetPixelFormatLayout() != PixelFormatLayout::R8G8B8A8 && rBitmap.GetPixelFormatLayout() != PixelFormatLayout::B8G8R8A8)
     {
       throw UnsupportedPixelFormatException("Swizzle32To8 only supports R8G8B8A8 or B8G8R8A8 format layout", rBitmap.GetPixelFormat());
+    }
+    if (PixelFormatUtil::GetBytesPerPixel(dstPixelFormat) != 1)
+    {
+      throw UnsupportedPixelFormatException("Swizzle32To8 only supports 8bit dstPixelFormats", dstPixelFormat);
     }
 
     // The Swizzle32To8 method relies on the dstStride being <= the existing stride to support inplace swizzle

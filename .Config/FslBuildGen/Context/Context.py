@@ -35,5 +35,5 @@ from FslBuildGen.Log import Log
 
 class Context(object):
     def __init__(self, log: Log) -> None:
-        super(Context, self).__init__()
+        super().__init__()
         self.Log = log

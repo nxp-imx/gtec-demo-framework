@@ -442,6 +442,8 @@ namespace Fsl
 
   void Scissor101::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     const auto currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
     const auto frameIndex = drawContext.CurrentFrameIndex;
     assert(frameIndex < m_resources.MainFrameResources.size());
@@ -553,6 +555,10 @@ namespace Fsl
 
   void Scissor101::DrawCube(const FrameResources& frame, const VkCommandBuffer commandBuffer, const ProgramInfo& programInfo, const Matrix& matModel)
   {
+    FSL_PARAM_NOT_USED(frame);
+    FSL_PARAM_NOT_USED(programInfo);
+    FSL_PARAM_NOT_USED(matModel);
+
     VkDeviceSize offsets[1] = {0};
     vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MainVertexBufferInfo.VertexBuffer.GetBufferPointer(), offsets);
     vkCmdDraw(commandBuffer, m_resources.MainVertexBufferInfo.VertexBuffer.GetVertexCount(), 1, 0, 0);

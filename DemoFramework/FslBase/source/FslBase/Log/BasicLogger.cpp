@@ -33,9 +33,15 @@
 // This is something we will need to expand upon later.
 
 #include <FslBase/Log/BasicLogger.hpp>
+#include <FslBase/BasicTypes.hpp>
 
 #ifdef __ANDROID__
 #include <android/log.h>
+#define IDE_LOG(lINE) \
+  {                   \
+  }
+#elif defined(FSL_PLATFORM_FREERTOS)
+#include <Platform/FreeRTOS/Stuff/PlatformStuff.hpp>
 #define IDE_LOG(lINE) \
   {                   \
   }
@@ -62,6 +68,17 @@ namespace Fsl
   namespace
   {
 #ifndef __ANDROID__
+#if defined(FSL_PLATFORM_FREERTOS)
+    inline void SafePrint(const char* const psz)
+    {
+      PlatformPrintF(psz);
+    }
+
+    inline void SafePrint(const std::string& str)
+    {
+      SafePrint(str.c_str());
+    }
+#else
     template <typename T>
     void SafePrint(const T& str)
     {
@@ -72,13 +89,54 @@ namespace Fsl
       std::cout << tmp.str();
     }
 #endif
+#endif
   }
 
   LogType BasicLogger::g_logLevel = LogType::Info;
 
+  void BasicLogger::WriteLine(const LogType logType, const char* const psz)
+  {
+    try
+    {
+      if (psz == nullptr)
+      {
+        return;
+      }
+
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "FSL_LOG_TAG", "%s", psz);
+#else
+      SafePrint(psz);
+      IDE_LOG(psz);
+#endif
+    }
+    catch (const std::exception&)
+    {
+      /// the logging functionality should never kill the program
+    }
+  }
+
+  void BasicLogger::WriteLine(const LogType logType, const std::string& str)
+  {
+    try
+    {
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_DEBUG, "FSL_LOG_TAG", "%s", str.c_str());
+#else
+      SafePrint(str);
+      IDE_LOG(str.c_str());
+#endif
+    }
+    catch (const std::exception&)
+    {
+      /// the logging functionality should never kill the program, so eat the exception silently
+    }
+  }
+
 
   void BasicLogger::WriteLine(const LogType logType, const char* const psz, const LogLocation& location)
   {
+    FSL_PARAM_NOT_USED(logType);
     try
     {
       if (psz == nullptr)
@@ -101,6 +159,7 @@ namespace Fsl
 
   void BasicLogger::WriteLine(const LogType logType, const std::string& str, const LogLocation& location)
   {
+    FSL_PARAM_NOT_USED(logType);
     try
     {
 #ifdef __ANDROID__

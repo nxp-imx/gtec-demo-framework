@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Texture/TextureUtil.hpp>
+#include <FslBase/Log/Log.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslGraphics/Texture/RawTextureEx.hpp>
@@ -338,7 +339,8 @@ namespace Fsl
     {
       return extent;
     }
-    return Extent3D(std::max(extent.Width >> level, 1u), std::max(extent.Height >> level, 1u), std::max(extent.Depth >> level, 1u));
+    return Extent3D(std::max(extent.Width >> level, static_cast<uint32_t>(1u)), std::max(extent.Height >> level, static_cast<uint32_t>(1u)),
+                    std::max(extent.Depth >> level, static_cast<uint32_t>(1u)));
   }
 
 

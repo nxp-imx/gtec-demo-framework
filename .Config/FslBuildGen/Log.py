@@ -35,7 +35,7 @@ import sys
 
 class Log(object):
     def __init__(self, title: str, verbosityLevel: int, showAppTitleIfVerbose: bool = False) -> None:
-        super(Log, self).__init__()
+        super().__init__()
         self.Title = title
         self.Verbosity = verbosityLevel
         self.IsVerbose = verbosityLevel > 0

@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "AsyncServiceImplHost.hpp"
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/Foundation/Message/FireAndForgetBasicMessage.hpp>
@@ -78,7 +79,7 @@ namespace Fsl
   {
     if (!message.Content)
     {
-      FSLLOG_WARNING("Missing content message, request ignored");
+      FSLBASICLOG_WARNING("Missing content message, request ignored");
       return;
     }
 

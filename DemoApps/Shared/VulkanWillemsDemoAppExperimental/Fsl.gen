@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="Shared.VulkanWillemsDemoAppExperimental">
+  <Library Name="Shared.VulkanWillemsDemoAppExperimental" CreationYear="2016">
     <Dependency Name="FslDemoApp.Vulkan"/>
     <Dependency Name="glm"/>
     <Platform Name="Windows" ProjectId="F674B21D-5782-4AD0-A28A-8ADE9A7DC5B0"/>

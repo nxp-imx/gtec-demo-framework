@@ -30,16 +30,20 @@
  ****************************************************************************************************************************************************/
 
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceImpl.hpp>
+#include <FslBase/BasicTypes.hpp>
 
 namespace Fsl
 {
   AsynchronousServiceImpl::AsynchronousServiceImpl(const AsynchronousServiceImplCreateInfo& createInfo, const ServiceProvider& serviceProvider)
   {
+    FSL_PARAM_NOT_USED(createInfo);
+    FSL_PARAM_NOT_USED(serviceProvider);
   }
 
 
   void AsynchronousServiceImpl::Link(const ServiceProvider& serviceProvider)
   {
+    FSL_PARAM_NOT_USED(serviceProvider);
   }
 
 

@@ -612,10 +612,10 @@ namespace Fsl
     {
       throw std::invalid_argument("fieldOfView <= 0 or >= PI");
     }
-    if (aspectRatio == 0.0f)
-    {
-      throw std::invalid_argument("aspectRatio can not be zero");
-    }
+    // if (aspectRatio == 0.0f)
+    //{
+    //  throw std::invalid_argument("aspectRatio can not be zero");
+    //}
     if (nearPlaneDistance <= 0.0f)
     {
       throw std::invalid_argument("nearPlaneDistance <= 0");

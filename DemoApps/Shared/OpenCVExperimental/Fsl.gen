@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="Shared.OpenCVExperimental">
+  <Library Name="Shared.OpenCVExperimental" CreationYear="2017">
     <Dependency Name="FslGraphics"/>
     <Dependency Name="OpenCV4"/>
     <Platform Name="Windows" ProjectId="D50CCDBA-D00F-44AA-82D2-0CDC206D3A71"/>

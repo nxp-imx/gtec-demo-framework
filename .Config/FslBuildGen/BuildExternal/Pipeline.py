@@ -45,12 +45,12 @@ from FslBuildGen.PackageConfig import PlatformNameString
 
 class Pipeline(object):
     def __init__(self, log: Log, builder: PipelineCommandBuilder, sourcePackage: Package, sourceRecipe: PackageExperimentalRecipe) -> None:
-        super(Pipeline, self).__init__()
+        super().__init__()
         self._Log = log
         self.SourcePackage = sourcePackage
         self.SourceRecipe = sourceRecipe
         self.SourcePipeline = sourceRecipe.Pipeline
-        self.InstallPath = sourceRecipe.ResolvedInstallPath
+        self.InstallPath = sourceRecipe.ResolvedInstallLocation
         self.BuildPath = builder.GetBuildPath(sourceRecipe)
         self.CommandList = self.__CreateCommandList(builder, self.SourcePackage, self.SourceRecipe)
 
@@ -82,7 +82,7 @@ class Pipeline(object):
 
 class RecipeRecord(object):
     def __init__(self, log: Log, builder: PipelineCommandBuilder, sourcePackage: Package) -> None:
-        super(RecipeRecord, self).__init__()
+        super().__init__()
 
         if sourcePackage.ResolvedDirectExperimentalRecipe is None:
             raise Exception("No build recipe in package {0}".format(sourcePackage.Name))
@@ -104,15 +104,15 @@ class RecipeRecord(object):
 
 
     def __RemoveInvalidInstallation(self, log: Log, sourceRecipe: PackageExperimentalRecipe) -> None:
-        if sourceRecipe is None or sourceRecipe.ResolvedInstallPath is None or sourceRecipe.Pipeline is None:
+        if sourceRecipe is None or sourceRecipe.ResolvedInstallLocation is None or sourceRecipe.Pipeline is None:
             return
 
         # the external installs dont have a associated pipeline so this should be safe
         # but we check the build type as well just to be safe
-        if IOUtil.IsDirectory(sourceRecipe.ResolvedInstallPath):
+        if IOUtil.IsDirectory(sourceRecipe.ResolvedInstallLocation.ResolvedPath):
             if sourceRecipe.Type != RecipeType.Build:
                 log.DoPrintWarning("The sourceRecipe type was not of the expected type, aborting delete to be safe")
                 return
 
-            log.LogPrint("Removing invalid content at '{0}'".format(sourceRecipe.ResolvedInstallPath))
-            IOUtil.SafeRemoveDirectoryTree(sourceRecipe.ResolvedInstallPath)
+            log.LogPrint("Removing invalid content at '{0}'".format(sourceRecipe.ResolvedInstallLocation.ResolvedPath))
+            IOUtil.SafeRemoveDirectoryTree(sourceRecipe.ResolvedInstallLocation.ResolvedPath)

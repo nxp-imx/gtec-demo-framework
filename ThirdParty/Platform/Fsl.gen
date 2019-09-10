@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="Platform" CreationYear="2019">
+    <Platform Name="Android" Supported="true">
+      <Define Name="FSL_PLATFORM_ANDROID" Access="Public"/> 
+    </Platform>
+    <Platform Name="FreeRTOS" Supported="true">
+      <Define Name="FSL_PLATFORM_FREERTOS" Access="Public"/> 
+    </Platform>
+    <Platform Name="QNX" Supported="true">
+      <Define Name="FSL_PLATFORM_QNX" Access="Public"/> 
+    </Platform>
+    <Platform Name="Ubuntu" Supported="true">
+      <Define Name="FSL_PLATFORM_UBUNTU" Access="Public"/> 
+    </Platform>
+    <Platform Name="Windows" Supported="true">
+      <Define Name="FSL_PLATFORM_WINDOWS" Access="Public"/> 
+      <Define Name="WIN32_LEAN_AND_MEAN" Access="Public"/> 
+      <Define Name="VC_EXTRALEAN" Access="Public"/> 
+      <Define Name="NOMINMAX" Access="Public"/> 
+      <Define Name="_UNICODE" Access="Public"/> 
+      <Define Name="UNICODE" Access="Public"/> 
+    </Platform>
+    <Platform Name="Yocto" Supported="true">
+      <Define Name="FSL_PLATFORM_YOCTO" Access="Public"/> 
+    </Platform>
+  </ExternalLibrary>
+</FslBuildGen>

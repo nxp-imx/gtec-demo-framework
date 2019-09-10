@@ -550,7 +550,9 @@ namespace Fsl
       const auto texPixelFormat = texture.GetPixelFormat();
 
       // if (PixelFormatUtil::IsCompressed(texPixelFormat))
-      //  throw NotSupportedException("Compressed texture formats not supported");
+      // {
+      //   throw NotSupportedException("Compressed texture formats not supported");
+      // }
 
       if (!textureParameters.IsValid())
       {
@@ -648,6 +650,7 @@ namespace Fsl
             }
           }
         }
+
         if (textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) && texture.GetLevels() == 1)
         {
           GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));

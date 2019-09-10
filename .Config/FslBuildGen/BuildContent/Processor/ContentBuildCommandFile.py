@@ -37,6 +37,7 @@ from typing import List
 import fnmatch
 import json
 from FslBuildGen import IOUtil
+from FslBuildGen import ToolSharedValues
 from FslBuildGen.Log import Log
 from FslBuildGen.BuildContent.ContentRootRecord import ContentRootRecord
 from FslBuildGen.BuildContent.PathVariables import PathVariables
@@ -48,7 +49,7 @@ from FslBuildGen.BuildContent.Processor.Commands import CommandContentSync
 
 class ContentBuildCommandFile(object):
     def __init__(self, log: Log, sourceFilename: str, pathVariables: PathVariables) -> None:
-        super(ContentBuildCommandFile, self).__init__()
+        super().__init__()
 
         self.__RootElement = "ContentBuilder"
         self.__VersionElement = "Version"
@@ -86,7 +87,8 @@ class ContentBuildCommandFile(object):
         commands = []  # type: List[Command]
         for key in jsonContent:
             if key != self.__VersionElement:
-                log.LogPrint("Parsing element {0}".format(key))
+                if log.Verbosity > 3:
+                    log.LogPrint("Parsing element {0}".format(key))
                 if key == "Content.Sync":
                     newCommand = self.__ParseContentSync(log, jsonContent[key], sourceFilename, key, pathVariables)  # type: Command
                     commands.append(newCommand)
@@ -167,7 +169,7 @@ class ContentBuildCommandFile(object):
                     defaultSourcePath: str, pathVariables: PathVariables) -> List[ContentFileRecord]:
         sourcePath = self.__TryReadKey(jsonContent, "SourcePath", defaultSourcePath)
         sourceRoot = ContentRootRecord(log, sourcePath, pathVariables)
-        contentKey = "Content"
+        contentKey = ToolSharedValues.CONTENT_FOLDER_NAME
         if not contentKey in jsonContent:
             raise Exception("The key '{0}' was not found under '{1}' in file '{2}".format(contentKey, parentElementName, sourceFilename))
         content = jsonContent[contentKey]

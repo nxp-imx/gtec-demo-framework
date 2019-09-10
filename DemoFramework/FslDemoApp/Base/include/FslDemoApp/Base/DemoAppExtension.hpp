@@ -47,36 +47,47 @@ namespace Fsl
   public:
     virtual void OnKeyEvent(const KeyEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
     virtual void OnMouseButtonEvent(const MouseButtonEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
     virtual void OnMouseMoveEvent(const MouseMoveEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
     virtual void OnMouseWheelEvent(const MouseWheelEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
     virtual void OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
     virtual void OnTimeStateEvent(const TimeStateEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
     virtual void Resized(const Point2& size)
     {
+      FSL_PARAM_NOT_USED(size);
     }
     virtual void PreUpdate(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
     virtual void FixedUpdate(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
     virtual void Update(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
     virtual void PostUpdate(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
     //    virtual void Draw() {}
   };

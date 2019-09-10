@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="Vulkan.HDR03_SkyboxToneMapping" NoInclude="true">
+  <Executable Name="Vulkan.HDR03_SkyboxToneMapping" NoInclude="true" CreationYear="2019">
     <ImportTemplate Name="DemoAppVulkan"/>
     <Dependency Name="FslSimpleUI.App"/>
     <Dependency Name="FslGraphics3D.Camera"/>

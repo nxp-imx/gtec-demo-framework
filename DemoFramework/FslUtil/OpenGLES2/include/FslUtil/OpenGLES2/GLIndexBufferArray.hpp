@@ -86,6 +86,8 @@ namespace Fsl
       //! @brief Create a initialized index buffer
       GLIndexBufferArray(const std::size_t capacity, const GLenum type);
 
+      using GLBufferArray::Reset;
+
       //! @brief Resize the array
       void Resize(const std::size_t capacity, const GLenum type);
 

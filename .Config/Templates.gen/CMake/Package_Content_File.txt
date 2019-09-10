@@ -1,0 +1,7 @@
+add_custom_command(
+  OUTPUT ##OUTPUT_FILE##
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ##INPUT_FILE## ##OUTPUT_FILE##
+  DEPENDS ##RELATIVE_INPUT_FILE##
+)

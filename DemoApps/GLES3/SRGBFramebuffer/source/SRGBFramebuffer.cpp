@@ -271,10 +271,8 @@ namespace Fsl
 
     const float alphaL = m_splitSceneAlphaL.GetValue();
     const float alphaR = m_splitSceneAlphaR.GetValue();
-    const Color colorL(alphaL, alphaL, alphaL, alphaL);
-    const Color colorR(alphaR, alphaR, alphaR, alphaR);
-    m_labelLeft->SetFontColor(colorL);
-    m_labelRight->SetFontColor(colorR);
+    m_labelLeft->SetFontColor(Color(alphaL, alphaL, alphaL, alphaL));
+    m_labelRight->SetFontColor(Color(alphaR, alphaR, alphaR, alphaR));
   }
 
 

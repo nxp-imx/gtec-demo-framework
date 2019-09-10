@@ -77,7 +77,6 @@ namespace Fsl
     uint64_t m_accumulatedTotalTime;
     uint64_t m_timeDiff = 0;
     DemoTime m_currentDemoTimeUpdate;
-    bool m_enableLogStats{};
     LogStatsMode m_logStatsMode;
     bool m_enableStats;
     bool m_useFirewall;

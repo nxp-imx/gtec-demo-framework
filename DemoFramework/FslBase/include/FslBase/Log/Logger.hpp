@@ -42,10 +42,12 @@ namespace Fsl
   public:
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
+    Logger() = delete;
+    ~Logger() = delete;
 
     static void WriteLine(const LogType logType, const std::stringstream& str, const LogLocation& location)
     {
-      BasicLogger::WriteLine(logType, str.str().c_str(), location);
+      BasicLogger::WriteLine(logType, str.str(), location);
     }
   };
 }

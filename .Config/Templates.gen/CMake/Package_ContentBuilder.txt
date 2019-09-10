@@ -1,0 +1,10 @@
+###################
+# Content builder #
+###################
+
+add_custom_command(
+  OUTPUT ##PACKAGE_CONTENTBUILDER_OUTPUT_FILES##
+  COMMAND FslBuildContent.py -p ##PLATFORM_NAME## --project ##PACKAGE_TARGET_NAME## --UseFeatures [##FEATURE_LIST##] --Validate --input ${PROJECT_SOURCE_DIR}##CUSTOM_ARGS##
+  DEPENDS ##PACKAGE_CONTENTBUILDER_INPUT_FILES##
+  COMMENT "Building content"
+)

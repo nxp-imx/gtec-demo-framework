@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
@@ -309,7 +310,7 @@ namespace Fsl
       if (!m_appNotAllocatedInfoShown)
       {
         m_appNotAllocatedInfoShown = true;
-        FSLLOG("App not allocated, press F5 to force reload");
+        FSLBASICLOG("App not allocated, press F5 to force reload");
       }
       // While the app is unallocated we sleep during draw to prevent the app from consuming 100% cpu time busy waiting
       std::this_thread::sleep_for(std::chrono::duration<uint64_t, std::milli>(8));

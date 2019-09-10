@@ -37,7 +37,7 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileBuildCustomization
 
 class PackageBuildCustomizationBase(object):
     def __init__(self) -> None:
-        super(PackageBuildCustomizationBase, self).__init__()
+        super().__init__()
 
 
     def ReadValue(self, srcDict: Dict[str, XmlGenFileBuildCustomization], name: str, defaultValue: int) -> int:
@@ -48,11 +48,11 @@ class PackageBuildCustomizationBase(object):
 
 class PackageBuildCustomization_Debug(PackageBuildCustomizationBase):
     def __init__(self, srcDict: Dict[str, XmlGenFileBuildCustomization]) -> None:
-        super(PackageBuildCustomization_Debug, self).__init__()
+        super().__init__()
         self.Optimization = self.ReadValue(srcDict, 'BuildCustomization.Debug.Optimization', OptimizationType.Disabled)
 
 
 class PackageBuildCustomization(PackageBuildCustomizationBase):
     def __init__(self, xmlBuildCustomizationDict: Dict[str, XmlGenFileBuildCustomization]) -> None:
-        super(PackageBuildCustomization, self).__init__()
+        super().__init__()
         self.Debug = PackageBuildCustomization_Debug(xmlBuildCustomizationDict)

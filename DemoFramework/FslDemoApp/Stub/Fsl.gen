@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslDemoApp.Stub">
+  <Library Name="FslDemoApp.Stub" CreationYear="2017">
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoApp.Util.Graphics" Access="Private"/>
     <Dependency Name="FslDemoService.NativeGraphics.Stub" Access="Private"/>
     <Dependency Name="FslDemoHost.Stub" Access="Private"/>
-    <Dependency Name="FslDemoPlatform" Access="Link"/>
+    <Dependency Name="FslDemoPlatform.Link" Access="Private"/>
     <Platform Name="Windows" ProjectId="351B1E55-FD8D-4149-989A-1BA64BB75723"/>
   </Library>
 </FslBuildGen>

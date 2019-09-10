@@ -172,6 +172,8 @@ namespace Fsl
 
     void CheckBox::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
     {
+      FSL_PARAM_NOT_USED(args);
+
       if (!theEvent->IsHandled() && theEvent->IsBegin() && !theEvent->IsRepeat())
       {
         theEvent->Handled();
@@ -188,6 +190,8 @@ namespace Fsl
 
     Vector2 CheckBox::MeasureOverride(const Vector2& availableSize)
     {
+      FSL_PARAM_NOT_USED(availableSize);
+
       Vector2 size;
       if (!m_text.empty())
       {

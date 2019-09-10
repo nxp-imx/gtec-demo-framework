@@ -37,5 +37,5 @@ from FslBuildGen.BuildContent.PathRecord import PathRecord
 
 class ContentFileRecord(PathRecord):
     def __init__(self, log: Log, sourceRoot: ContentRootRecord, sourceEntry: str, sourceFilename: str) -> None:
-        super(ContentFileRecord, self).__init__(log, sourceRoot, sourceFilename)
+        super().__init__(log, sourceRoot, sourceFilename)
         self.SourceEntry = sourceEntry

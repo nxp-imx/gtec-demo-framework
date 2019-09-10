@@ -40,7 +40,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlGenFileDefine(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
-        super(XmlGenFileDefine, self).__init__(log, xmlElement)
+        super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
         self.ConsumedBy = None
         access = self._ReadAttrib(xmlElement, 'Access')  # type: str

@@ -131,7 +131,6 @@ namespace Fsl
     default:
       return OptionParseResult::NotHandled;
     }
-    return OptionParseResult::NotHandled;
   }
 
 

@@ -49,6 +49,8 @@ namespace Fsl
   bool ImageConverterLibraryBasicService::TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat,
                                                      const BitmapOrigin desiredOriginHint)
   {
+    FSL_PARAM_NOT_USED(desiredOriginHint);
+
     // We do in-place conversion only for now
     if (&rDstBitmap != &srcBitmap)
     {

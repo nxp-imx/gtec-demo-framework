@@ -31,6 +31,7 @@
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
+#include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
@@ -234,9 +235,9 @@ namespace Fsl
   void VulkanTriangle::BuildResources()
   {
     auto fallbackExtent = ConvertUtil::Convert(GetScreenExtent());
-    m_swapchain = SwapchainKHRUtil::CreateSwapchain(m_physicalDevice.Device, m_device.Get(), 0, m_surface, VKTS_NUMBER_BUFFERS, 1,
-                                                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr,
-                                                    VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get(), fallbackExtent);
+    m_swapchain = SwapchainKHRUtil::CreateSwapchain(
+      m_physicalDevice.Device, m_device.Get(), 0, m_surface, VKTS_NUMBER_BUFFERS, 1, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_SHARING_MODE_EXCLUSIVE,
+      0, nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, VK_TRUE, m_swapchain.Get(), fallbackExtent, Vulkan::SurfaceFormatInfo());
 
     uint32_t swapchainImagesCount = m_swapchain.GetImageCount();
     if (swapchainImagesCount == 0)

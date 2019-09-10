@@ -1,0 +1,14 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx",
+        "Textures/WoodFloor/Floor_BC1_rgb.ktx",
+        "Textures/WoodFloor/Floor_ETC2_RGB.ktx",
+        "Textures/WoodFloor/License.json"
+      ]
+    }
+  }
+}

@@ -42,6 +42,7 @@ import hashlib
 import os
 import xml.etree.ElementTree as ET
 from FslBuildGen import IOUtil
+from FslBuildGen import ToolSharedValues
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageLanguage
@@ -53,8 +54,10 @@ from FslBuildGen.Exceptions import PackageMissingRequiredIncludeDirectoryExcepti
 from FslBuildGen.Exceptions import PackageMissingRequiredSourceDirectoryException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.PackageConfig import APPROVED_PLATFORM_NAMES
 from FslBuildGen.PackageFile import PackageFile
+from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.PackageTemplateLoader import PackageTemplateLoader
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 from FslBuildGen.Xml import FakeXmlElementFactory
@@ -85,13 +88,14 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
 
 class XmlGenFile(XmlCommonFslBuild):
     def __init__(self, config: Config, defaultPackageLanguage: int) -> None:
-        super(XmlGenFile, self).__init__(config, FakeXmlElementFactory.CreateWithName("FakeGenFile", "FSLBUILD_INVALID_INITIAL_VALUE"), SubPackageSupportConfig(PackageType.TopLevel, SubPackageSupport.Disabled))
+        super().__init__(config, FakeXmlElementFactory.CreateWithName("FakeGenFile", "FSLBUILD_INVALID_INITIAL_VALUE"), SubPackageSupportConfig(PackageType.TopLevel, SubPackageSupport.Disabled))
         self.SourceFilename = None # type: Optional[str]
         self.SourceFileHash = ""   # type: str
         self.Name = ''
         self.ShortName = None  # type: Optional[str]
         self.Namespace = None  # type: Optional[str]
-        self.PackageLocation = None  # type: Optional [ToolConfigPackageLocation]
+        self.PackageFile = None # type: Optional[PackageFile]
+        self.PackageLocation = None  # type: Optional[ToolConfigPackageLocation]
         self.Type = PackageType.Library
         self.IsVirtual = False
         self.DirectDependencies = []  # type: List[XmlGenFileDependency]
@@ -99,12 +103,10 @@ class XmlGenFile(XmlCommonFslBuild):
         self.DirectDefines = []
         self.DirectExperimentalRecipe = None    # type: Optional[XmlExperimentalRecipe]
         self.Platforms = {}  # type: Dict[str, XmlGenFilePlatform]
-        self.AbsolutePath = None  # type: Optional[str]
-        self.AbsoluteIncludePath = None  # type: Optional[str]
-        self.AbsoluteSourcePath = None  # type: Optional[str]
-        self.AbsoluteContentPath = None  # type: Optional[str]
-        self.AbsoluteContentSourcePath = None  # type: Optional[str]
-        self.SourcePackageFile = None  # type: Optional[PackageFile]
+        self.IncludePath = None  # type: Optional[PackagePath]
+        self.SourcePath = None  # type: Optional[PackagePath]
+        self.ContentPath = None  # type: Optional[PackagePath]
+        self.ContentSourcePath = None  # type: Optional[PackagePath]
         self.PackageLanguage = defaultPackageLanguage
         self.BaseIncludePath = "include"
         self.BaseSourcePath = "source"
@@ -119,6 +121,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.PlatformDefaultSupportedValue = True
         self.SystemDefaultValues = LocalPackageDefaultValues()
         self.UnitTest = False
+        self.ShowInMainReadme = True
 
 
     def Load(self, config: Config, packageTemplateLoader: PackageTemplateLoader, packageFile: PackageFile) -> None:
@@ -127,6 +130,7 @@ class XmlGenFile(XmlCommonFslBuild):
             raise FileNotFoundException("Could not locate gen file %s", filename)
 
         self.SourceFilename = filename
+        self.PackageFile = packageFile
         self.PackageLocation = packageFile.PackageRootLocation
 
         fileContent = IOUtil.ReadFile(filename)
@@ -141,6 +145,9 @@ class XmlGenFile(XmlCommonFslBuild):
         defaultValues = self.__GetDefaultValues(elem, packageName)
         allowNoInclude = self._ReadBoolAttrib(elem, 'NoInclude', False)
         companyName = self._ReadAttrib(elem, 'Company', config.ToolConfig.DefaultCompany)
+
+        # Used by FslBuildDoc to determine if it should be visible in the main readme
+        self.ShowInMainReadme = self._ReadBoolAttrib(elem, 'ShowInMainReadme', True)
 
         if config.ToolConfig.RequirePackageCreationYear:
             creationYear = self._ReadAttrib(elem, 'CreationYear')
@@ -177,7 +184,6 @@ class XmlGenFile(XmlCommonFslBuild):
         if self.BaseIncludePath == self.BaseSourcePath and not self.AllowCombinedDirectory:
             raise XmlException2(elem, "Package '{0}' uses the same directory for include and source '{1}'".format(packageName, self.BaseIncludePath))
 
-        self.SourcePackageFile = packageFile
         self.XMLElement = elem
         self.Name = packageName
         self.ShortName = None
@@ -185,9 +191,8 @@ class XmlGenFile(XmlCommonFslBuild):
         self.SetType(theType)
         self.Platforms = platforms
         self.DirectRequirements = requirements
-        self.AbsolutePath = None
-        self.AbsoluteIncludePath = None
-        self.AbsoluteSourcePath = None
+        self.IncludePath = None
+        self.SourcePath = None
         self.CompanyName = companyName
         self.CreationYear = creationYear
         self.TemplateType = templateType
@@ -200,7 +205,7 @@ class XmlGenFile(XmlCommonFslBuild):
         self.__ResolveNames(self.Name)
         self.__ValidateBasicDependencyCorrectness()
         self.__ValidateDefines()
-        self.__ResolvePaths(config, filename, allowNoInclude)
+        self.__ResolvePaths(config, packageFile, allowNoInclude)
         # FIX: check for clashes with platform addition
         #      check for platform variant name clashes
 
@@ -424,22 +429,20 @@ class XmlGenFile(XmlCommonFslBuild):
 
 
     def __ResolvePathIncludeDir(self, config: Config, allowNoInclude: bool) -> None:
-        if self.AbsolutePath is None:
-            raise Exception("AbsolutePath can not be None")
+        packagePath = self.PackageFile
+        if packagePath is None:
+            raise Exception("PackageFile can not be None")
 
-        self.AbsoluteIncludePath = IOUtil.NormalizePath(IOUtil.Join(self.AbsolutePath, self.BaseIncludePath))
-        includeDirExist = os.path.isdir(self.AbsoluteIncludePath)
-        if not includeDirExist and (os.path.exists(self.AbsoluteIncludePath) or not (allowNoInclude or config.DisableIncludeDirCheck)):
-            raise PackageMissingRequiredIncludeDirectoryException(self.AbsoluteIncludePath)
+        self.IncludePath = PackagePath(IOUtil.Join(packagePath.AbsoluteDirPath, self.BaseIncludePath), packagePath.PackageRootLocation)
+        includeDirExist = os.path.isdir(self.IncludePath.AbsoluteDirPath)
+        if not includeDirExist and (os.path.exists(self.IncludePath.AbsoluteDirPath) or not (allowNoInclude or config.DisableIncludeDirCheck)):
+            raise PackageMissingRequiredIncludeDirectoryException(self.IncludePath.AbsoluteDirPath)
         if not includeDirExist and allowNoInclude:
-            self.AbsoluteIncludePath = None
+            self.IncludePath = None
 
 
-    def __ResolvePaths(self, config: Config, filename: str, allowNoInclude: bool) -> None:
-        if not os.path.isabs(filename):
-            raise UsageErrorException()
-
-        self.AbsolutePath = IOUtil.GetDirectoryName(filename)
+    def __ResolvePaths(self, config: Config, packagePath: PackagePath, allowNoInclude: bool) -> None:
+        rootRelativeDirPath = packagePath.RootRelativeDirPath
         if not self.IsVirtual:
             sourcePath = self.BaseSourcePath
             if self.PackageLanguage == PackageLanguage.CPP:
@@ -449,11 +452,13 @@ class XmlGenFile(XmlCommonFslBuild):
                 pass
             else:
                 raise UnsupportedException("Unsupported package language: {0}".format(self.PackageLanguage))
-            self.AbsoluteSourcePath = IOUtil.Join(self.AbsolutePath, sourcePath)
-            self.AbsoluteContentPath = IOUtil.Join(self.AbsolutePath, "Content")
-            self.AbsoluteContentSourcePath = IOUtil.Join(self.AbsolutePath, "Content.bld")
-            if not os.path.isdir(self.AbsoluteSourcePath) and not config.DisableSourceDirCheck:
-                raise PackageMissingRequiredSourceDirectoryException(self.AbsoluteSourcePath)
+            self.SourcePath = PackagePath(IOUtil.Join(rootRelativeDirPath, sourcePath), packagePath.PackageRootLocation)
+
+            self.ContentPath = PackagePath(IOUtil.Join(rootRelativeDirPath, ToolSharedValues.CONTENT_FOLDER_NAME), packagePath.PackageRootLocation)
+            self.ContentSourcePath = PackagePath(IOUtil.Join(rootRelativeDirPath, ToolSharedValues.CONTENT_BUILD_FOLDER_NAME), packagePath.PackageRootLocation)
+
+            if not os.path.isdir(self.SourcePath.AbsoluteDirPath) and not config.DisableSourceDirCheck:
+                raise PackageMissingRequiredSourceDirectoryException(self.SourcePath.AbsoluteDirPath)
         elif self.Type == PackageType.HeaderLibrary:
             if self.PackageLanguage == PackageLanguage.CPP:
                 self.__ResolvePathIncludeDir(config, allowNoInclude)

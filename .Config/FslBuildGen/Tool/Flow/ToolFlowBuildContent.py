@@ -50,6 +50,7 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFilters import PackageFilters
+from FslBuildGen.PackagePath import PackagePath
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
@@ -58,9 +59,11 @@ from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
 from FslBuildGen.Tool.ToolAppContext import ToolAppContext
 from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.ToolConfig import ToolConfig
+from FslBuildGen.ToolConfig import ToolConfigPackageLocation
 from FslBuildGen.ToolMinimalConfig import ToolMinimalConfig
 
 class DefaultValue(object):
+    Output = None  # type: Optional[str]
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
     Project = None  # type: Optional[str]
     Validate = False
@@ -68,7 +71,8 @@ class DefaultValue(object):
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
+        self.Output = DefaultValue.Output
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
         self.Project = DefaultValue.Project
         self.Validate = DefaultValue.Validate
@@ -80,7 +84,7 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 class ToolFlowBuildContent(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildContent, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -91,6 +95,7 @@ class ToolFlowBuildContent(AToolAppFlow):
         localToolConfig.SetToolAppConfigValues(self.ToolAppContext.ToolAppConfig)
 
         # Configure the local part
+        localToolConfig.Output = IOUtil.NormalizePath(args.output) if args.output is not None else None
         localToolConfig.PackageConfigurationType = args.type
         localToolConfig.Project = args.project
         localToolConfig.Validate = args.Validate
@@ -109,18 +114,19 @@ class ToolFlowBuildContent(AToolAppFlow):
                         localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
 
         # Get the platform and see if its supported
-        platform = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, False)
-        PlatformUtil.CheckBuildPlatform(platform.Name)
-        generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platform)
+        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
+                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        PlatformUtil.CheckBuildPlatform(generator.PlatformName)
+        generatorContext = GeneratorContext(config, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
 
-        config.LogPrint("Active platform: {0}".format(platform.Name))
+        config.LogPrint("Active platform: {0}".format(generator.PlatformName))
 
         discoverFeatureList = '*' in featureList
         topLevelPackage = None
         if discoverFeatureList or localToolConfig.Project is None:
             if discoverFeatureList:
                 config.LogPrint("No features specified, so using package to determine them")
-            topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(), 
+            topLevelPackage = self.__ResolveAndGetTopLevelPackage(generatorContext, config, currentDirPath, toolConfig.GetMinimalConfig(),
                                                                   localToolConfig.Recursive)
             if discoverFeatureList:
                 featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]
@@ -137,10 +143,20 @@ class ToolFlowBuildContent(AToolAppFlow):
 
         if toolEnabled is not None and not ParseUtil.ParseBool(toolEnabled):
             if self.Log.Verbosity > 0:
-                print("FslBuildContent has been disabled by environment variable %s set to %s" % (CONFIG_FSLBUILDCONTENT_ENABLED, toolEnabled))
+                print("FslBuildContent has been disabled by environment variable {0} set to {1}".format(CONFIG_FSLBUILDCONTENT_ENABLED, toolEnabled))
             return
 
-        ContentBuilder.Build(config, currentDirPath, featureList)
+        locations = toolConfig.PackageConfiguration[localToolConfig.PackageConfigurationType].Locations
+        location = self.__FindLocation(locations, currentDirPath)
+        packagePath = PackagePath(currentDirPath, location)
+
+        ContentBuilder.Build(config, packagePath, featureList, localToolConfig.Output)
+
+    def __FindLocation(self, locations: List[ToolConfigPackageLocation], fullProjectPath: str) -> ToolConfigPackageLocation:
+        for location in locations:
+            if fullProjectPath.startswith(location.ResolvedPathEx):
+                return location
+        raise Exception("Could not locate location for {0}".format(fullProjectPath))
 
 
     def __ResolveAndGetTopLevelPackage(self, generatorContext: GeneratorContext, config: Config, currentDir: str,
@@ -176,6 +192,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('-t', '--type', default=DefaultValue.PackageConfigurationType, choices=[PluginSharedValues.TYPE_DEFAULT, 'sdk'], help='Select generator type')
         parser.add_argument('--project', default=DefaultValue.Project, help='The name of the project')
         parser.add_argument('--Validate', action='store_true', help='Do build config validation, like running FslBuildCheck')
+        parser.add_argument('--output', default=DefaultValue.Output, help='Set the build output directory, overriding the default "<package path>/Content" directory (experimental). Only allowed for single package builds')
 
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:

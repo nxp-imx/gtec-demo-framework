@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="Shared.Camera.Adapter.Mipi8X">
+  <Library Name="Shared.Camera.Adapter.Mipi8X" CreationYear="2018">
     <Default.Platform.Supported Value="false"/>
     <Requirement Name="HW_CAMERA_MIPI8X" Type="feature"/>
     <Define Name="FSL_ENABLE_CAMERA_ADAPTER_MIPI8X" Access="Public"/>

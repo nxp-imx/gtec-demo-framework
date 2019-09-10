@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../FslBuildGen.xsd">
-  <ToolRecipe Name="Recipe.BuildTool.clang_format">
+  <ToolRecipe Name="Recipe.BuildTool.clang_format" CreationYear="2017">
     <ExperimentalRecipe>
       <Installation>
         <FindExecutableFileInPath Name="clang-format" Alternatives="clang-format-7.0" MinVersion="7.0" VersionCommand="-version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang-format 7.0+ as its needed for formatting (http://releases.llvm.org/download.html)"/>

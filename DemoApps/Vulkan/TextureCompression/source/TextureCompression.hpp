@@ -33,7 +33,7 @@
 
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include "VerticalScroller.hpp"
+#include <Shared/TextureCompression/VerticalScroller.hpp>
 
 namespace Fsl
 {

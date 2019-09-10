@@ -30,6 +30,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/Path.hpp>
@@ -70,7 +71,7 @@ int main(int argc, char* argv[])
   // Get the current thread handle
   if (DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &g_currentMainThread, 0, 0, DUPLICATE_SAME_ACCESS) == 0)
   {
-    FSLLOG_ERROR("Failed to get the current thread");
+    FSLBASICLOG_ERROR("Failed to get the current thread");
     return EXIT_FAILURE;
   }
 

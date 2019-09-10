@@ -38,6 +38,7 @@ from typing import Set
 from FslBuildGen import IOUtil
 from FslBuildGen import MakeFileHelper
 from FslBuildGen import Util
+from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import ExternalDependencyType
@@ -45,6 +46,7 @@ from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Generator import GitIgnoreHelper
 from FslBuildGen.Generator.GeneratorBase import GeneratorBase
+from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.Report.GeneratorBuildReport import GeneratorBuildReport
 from FslBuildGen.Generator.Report.GeneratorCommandReport import GeneratorCommandReport
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
@@ -69,7 +71,7 @@ class LocalMagicBuildVariants:
 class GeneratorGNUmakefile(GeneratorBase):
     def __init__(self, config: Config, packages: List[Package], dstMakeFilename: str,
                  templateExe: str, templateLib: str, generatorName: str, configVariantOptions: List[str]) -> None:
-        super(GeneratorGNUmakefile, self).__init__()
+        super().__init__()
         self.ConfigVariantOptions = configVariantOptions;
         self.BldTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, "build.sh"))
         self.ExeTemplate = IOUtil.ReadFile(IOUtil.Join(config.SDKConfigTemplatePath, templateExe))
@@ -253,7 +255,7 @@ class GeneratorGNUmakefile(GeneratorBase):
         buildOrder.reverse()
         for entry in buildOrder:
             if entry.Type == PackageType.Library:
-                asSdkBasedPath = config.TryLegacyToPath(entry.AbsolutePath)
+                asSdkBasedPath = config.TryToPath(entry.AbsolutePath)
                 libPath = "%s/%s/lib%s$(TARGET_POSTFIX).a" % (asSdkBasedPath, entry.ResolvedMakeObjectPath, entry.Name)
                 #libPath = asSdkBasedPath + "/$(OBJ_PATH)/lib" + entry.Name +
                 #"$(TARGET_POSTFIX).a"
@@ -333,7 +335,7 @@ class GeneratorGNUmakefileUtil(object):
 
 
     @staticmethod
-    def TryGenerateBuildReport(log: Log, generatorName: str, package: Package) -> Optional[GeneratorBuildReport]:
+    def _TryGenerateBuildReport(log: Log, generatorName: str, package: Package, buildCommand: int) -> Optional[GeneratorBuildReport]:
         if package.IsVirtual:
             return None
 
@@ -356,8 +358,14 @@ class GeneratorGNUmakefileUtil(object):
         for normalVariant in package.ResolvedNormalVariantNameList:
             buildCommandArguments.append("{0}=${{{0}}}".format(normalVariant))
 
-        buildCommand = "make"
-        buildCommandReport = GeneratorCommandReport(True, buildCommand, buildCommandArguments)
+        #
+        if buildCommand == CommandType.Clean:
+            buildCommandArguments.append("clean")
+        elif buildCommand == CommandType.Install:
+            buildCommandArguments.append("install")
+
+        strBuildCommand = "make"
+        buildCommandReport = GeneratorCommandReport(True, strBuildCommand, buildCommandArguments, [])
         return GeneratorBuildReport(buildCommandReport)
 
 
@@ -383,11 +391,12 @@ class GeneratorGNUmakefileUtil(object):
 
 
     @staticmethod
-    def TryGenerateGeneratorPackageReport(log: Log, generatorName: str, package: Package, configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
+    def TryGenerateGeneratorPackageReport(log: Log, generatorConfig: GeneratorConfig, generatorName: str,
+                                          package: Package, configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
         if package.IsVirtual and package.Type != PackageType.HeaderLibrary:
             return None
 
-        buildReport = GeneratorGNUmakefileUtil.TryGenerateBuildReport(log, generatorName, package)
+        buildReport = GeneratorGNUmakefileUtil._TryGenerateBuildReport(log, generatorName, package, generatorConfig.BuildCommand)
         executableReport = GeneratorGNUmakefileUtil.TryGenerateExecutableReport(log, generatorName, package)
         variableReport = GeneratorGNUmakefileUtil.GenerateVariableReport(log, generatorName, package, configVariantOptions)
         return PackageGeneratorReport(buildReport, executableReport, variableReport)

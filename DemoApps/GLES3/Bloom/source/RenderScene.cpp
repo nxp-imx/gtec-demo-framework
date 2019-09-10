@@ -121,9 +121,9 @@ namespace Fsl
       else
       {
         Bitmap bitmapGloss;
-        auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureFileName);
+        auto glossTexturePath = IO::Path::Combine(MODELS_PATH, strTextureGloss);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
-        contentManager->Read(bitmapGloss, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        contentManager->Read(bitmapGloss, glossTexturePath, PixelFormat::R8G8B8A8_UNORM);
         for (uint32_t y = 0; y < bitmap.Height(); ++y)
         {
           for (uint32_t x = 0; x < bitmap.Width(); ++x)
@@ -141,15 +141,15 @@ namespace Fsl
 
       if (!strTextureSpecular.empty())
       {
-        auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
-        contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        auto specTexturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
+        contentManager->Read(bitmap, specTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
 
       if (!strTextureNormal.empty())
       {
-        auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
-        contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        auto normTexturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
+        contentManager->Read(bitmap, normTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureNormal.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
     }
@@ -182,6 +182,8 @@ namespace Fsl
   void RenderScene::Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
                            const Point2& screenResolution)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     m_matrixWorld = Matrix::CreateRotationX(rotation.X) * Matrix::CreateRotationY(rotation.Y) * Matrix::CreateRotationZ(rotation.Z);
     m_matrixView = cameraViewMatrix;
     m_matrixProjection =

@@ -44,7 +44,7 @@ from FslBuildGen.Template.TemplateFileRecordManager import TemplateFileRecordMan
 
 class TemplateFileProcessor(object):
     def __init__(self, config: Config, platformName: str, genFileOnly: bool = False) -> None:
-        super(TemplateFileProcessor, self).__init__()
+        super().__init__()
         self.GenFileOnly = genFileOnly
         self.Environment = TemplateEnvironment(config, platformName)
 
@@ -55,7 +55,7 @@ class TemplateFileProcessor(object):
                 package: Optional[Package],
                 dstFilenameModifier: Optional[Callable[[str], str]] = None) -> None:
         if package is not None:
-            self.Environment.SetPackage(package)
+            self.Environment.SetPackage(package, dstPath)
 
         # create folder structure
         IOUtil.SafeMakeDirs(dstPath)

@@ -92,6 +92,7 @@ namespace Fsl
       //! @brief Create a initialized index buffer
       GLIndexBuffer(const std::vector<uint16_t>& indices, const GLenum usage);
 
+      using GLBuffer::Reset;
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer

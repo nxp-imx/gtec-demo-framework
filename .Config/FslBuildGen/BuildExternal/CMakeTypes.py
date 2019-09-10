@@ -33,6 +33,7 @@
 
 from typing import List
 from typing import Optional
+from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
 from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.DataTypes import BuildPlatformType
@@ -45,6 +46,7 @@ class CMakeGeneratorName(object):
     UnixMakeFile = "Unix Makefiles"
     VisualStudio2015_X64 = "Visual Studio 14 2015 Win64"
     VisualStudio2017_X64 = "Visual Studio 15 2017 Win64"
+    VisualStudio2019_X64 = "Visual Studio 16 2019"    # this needs a "-A x64" option to generate x64 code
     Ninja = "Ninja"
     Android = "AndroidDummy"
 
@@ -54,8 +56,15 @@ class CMakeGeneratorName(object):
             return CMakeGeneratorName.VisualStudio2015_X64
         elif version == VisualStudioVersion.VS2017:
             return CMakeGeneratorName.VisualStudio2017_X64
+        elif version == VisualStudioVersion.VS2019:
+            return CMakeGeneratorName.VisualStudio2019_X64
         raise Exception("Unsupported visual studio version: {0}".format(version))
 
+
+class CMakeGeneratorMultiConfigCapability(object):
+    No = 0
+    Yes = 1
+    Unknown = 2
 
 class CMakeBuildType(object):
     Release = "RELEASE"
@@ -73,25 +82,30 @@ class CMakeBuildType(object):
 def DetermineCMakeCommand(platformName: str) -> str:
     return PlatformUtil.GetExecutableName('cmake', platformName)
 
-def TryDetermineCMakeGenerator(platform: GeneratorPluginBase) -> Optional[str]:
-    if platform.Name == PackageConfig.PlatformNameString.UBUNTU:
+def TryGetPlatformDefaultCMakeGenerator(platformName: str, compilerVersion: int) -> Optional[str]:
+    if platformName == PackageConfig.PlatformNameString.UBUNTU:
         return CMakeGeneratorName.UnixMakeFile
-    elif platform.Name == PackageConfig.PlatformNameString.YOCTO:
+    elif platformName == PackageConfig.PlatformNameString.YOCTO:
         return CMakeGeneratorName.UnixMakeFile
-    elif platform.Name == PackageConfig.PlatformNameString.QNX:
+    elif platformName == PackageConfig.PlatformNameString.FREERTOS:
         return CMakeGeneratorName.UnixMakeFile
-    elif platform.Name == PackageConfig.PlatformNameString.WINDOWS:
-        return CMakeGeneratorName.FromVisualStudioVersion(platform.ToolVersion)
-    elif platform.Name == PackageConfig.PlatformNameString.ANDROID:
+    elif platformName == PackageConfig.PlatformNameString.QNX:
+        return CMakeGeneratorName.UnixMakeFile
+    elif platformName == PackageConfig.PlatformNameString.WINDOWS:
+        return CMakeGeneratorName.FromVisualStudioVersion(compilerVersion)
+    elif platformName == PackageConfig.PlatformNameString.ANDROID:
         return CMakeGeneratorName.Android
     return None
 
-    #if platform.Name == PackageConfig.PlatformNameString.ANDROID:
+    #if generator.Name == PackageConfig.PlatformNameString.ANDROID:
     #    return "NotSupported"
-    #elif platform.Name == PackageConfig.PlatformNameString.YOCTO:
+    #elif generator.Name == PackageConfig.PlatformNameString.YOCTO:
     #    return "NotSupported"
-    #elif platform.Name == PackageConfig.PlatformNameString.QNX:
+    #elif generator.Name == PackageConfig.PlatformNameString.QNX:
     #    return "NotSupported"
+
+def TryDetermineCMakeGenerator(generator: GeneratorPluginBase) -> Optional[str]:
+    return TryGetPlatformDefaultCMakeGenerator(generator.PlatformName, generator.ToolVersion)
 
 
 def DetermineFinalCMakeGenerator(generatorName: str) -> str:
@@ -102,11 +116,18 @@ def DetermineFinalCMakeGenerator(generatorName: str) -> str:
     return CMakeGeneratorName.UnixMakeFile
 
 
-def DetermineCMakeGenerator(platform: GeneratorPluginBase) -> str:
-    result = TryDetermineCMakeGenerator(platform)
+def GetPlatformDefaultCMakeGenerator(platformName: str, compilerVersion: int) -> str:
+    result = TryGetPlatformDefaultCMakeGenerator(platformName, compilerVersion)
     if not result is None:
         return result
-    raise Exception("CMake generator name could not be determined for this platform '{0}".format(platform.Name))
+    raise Exception("CMake generator name could not be determined for this platform '{0}".format(platformName))
+
+
+def DetermineCMakeGenerator(generator: GeneratorPluginBase) -> str:
+    result = TryDetermineCMakeGenerator(generator)
+    if not result is None:
+        return result
+    raise Exception("CMake generator name could not be determined for this platform '{0}".format(generator.PlatformName))
 
 
 def TryGetCompilerShortIdFromGeneratorName(generatorName: str) -> Optional[str]:
@@ -116,8 +137,8 @@ def TryGetCompilerShortIdFromGeneratorName(generatorName: str) -> Optional[str]:
         return "VS2015_X64"
     elif generatorName == CMakeGeneratorName.VisualStudio2017_X64:
         return "VS2017_X64"
-    elif generatorName == CMakeGeneratorName.VisualStudio2017_X64:
-        return "VS2017_X64"
+    elif generatorName == CMakeGeneratorName.VisualStudio2019_X64:
+        return "VS2019_X64"
     elif generatorName == CMakeGeneratorName.Android:
         # For android we utilize a combination of the SDK and NDK version for the unique 'toolchain' name
         id = AndroidUtil.GetSDKNDKId()
@@ -140,8 +161,51 @@ def DeterminePlatformArguments(platformName: str) -> List[str]:
 
     androidToolchain = "clang"
     androidStlType = "c++_shared"
-    res.append("-DCMAKE_SYSTEM_NAME=Android")
-    res.append("-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION={0}".format(androidToolchain))
-    res.append("-DCMAKE_ANDROID_STL_TYPE={0}".format(androidStlType))
+    if not AndroidUtil.UseNDKCMakeToolchain():
+        # NDK before 19
+        res.append("-DCMAKE_SYSTEM_NAME=Android")
+        res.append("-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION={0}".format(androidToolchain))
+        res.append("-DCMAKE_ANDROID_STL_TYPE={0}".format(androidStlType))
+    else:
+        # NDK from 19
+        res.append("-DCMAKE_TOOLCHAIN_FILE={0}".format(IOUtil.Join(AndroidUtil.GetNDKPath(), "build/cmake/android.toolchain.cmake")))
+        res.append("-DANDROID_STL={0}".format(androidStlType))
+        res.append("-DANDROID_TOOLCHAIN={0}".format(androidToolchain))
+
     return res
 
+
+def DetermineGeneratorArguments(cmakeGeneratorName: str, platformName: str) -> List[str]:
+    res = DeterminePlatformArguments(platformName)
+    if cmakeGeneratorName != CMakeGeneratorName.VisualStudio2019_X64:
+        return res
+    # for now we always use x64
+    res.append("-A")
+    res.append("x64")
+    return res
+
+
+def GetNativeBuildThreadArguments(cmakeGeneratorName: str, numBuildThreads: int) -> List[str]:
+    if (cmakeGeneratorName == CMakeGeneratorName.UnixMakeFile or
+        cmakeGeneratorName == CMakeGeneratorName.Ninja):
+        return ['-j', str(numBuildThreads)]
+    elif (cmakeGeneratorName == CMakeGeneratorName.VisualStudio2015_X64 or
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2017_X64 or
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2019_X64):
+        return ['/maxcpucount:{0}'.format(numBuildThreads)]
+    return []
+
+
+def GetGeneratorMultiConfigCapabilities(cmakeGeneratorName: str) -> int:
+    """
+    Hardcode some knowledge about certain generators to avoid cmake warnings
+    """
+    if (cmakeGeneratorName == CMakeGeneratorName.UnixMakeFile or
+        cmakeGeneratorName == CMakeGeneratorName.Ninja):
+        return CMakeGeneratorMultiConfigCapability.No
+    elif (cmakeGeneratorName == CMakeGeneratorName.VisualStudio2015_X64 or
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2017_X64 or
+          cmakeGeneratorName == CMakeGeneratorName.VisualStudio2019_X64):
+        return CMakeGeneratorMultiConfigCapability.Yes
+    # Since we dont know, we just return false
+    return CMakeGeneratorMultiConfigCapability.Unknown

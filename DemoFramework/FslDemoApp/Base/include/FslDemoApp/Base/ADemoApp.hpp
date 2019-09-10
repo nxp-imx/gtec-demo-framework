@@ -98,61 +98,75 @@ namespace Fsl
 
     virtual void OnKeyEvent(const KeyEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
 
     virtual void OnMouseButtonEvent(const MouseButtonEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
 
     virtual void OnMouseMoveEvent(const MouseMoveEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
 
     virtual void OnMouseWheelEvent(const MouseWheelEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
 
     virtual void OnTimeStateEvent(const TimeStateEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
 
     virtual void OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
     {
+      FSL_PARAM_NOT_USED(event);
     }
 
     // Overload these methods instead of the original IDemoApp ones!
     virtual void Resized(const Point2& size)
     {
+      FSL_PARAM_NOT_USED(size);
     }
 
     virtual void PreUpdate(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
 
     virtual void FixedUpdate(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
 
     virtual void Update(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
 
     virtual void PostUpdate(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
 
     virtual void Draw(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
     }
 
     virtual AppDrawResult TryPrepareDraw(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
       return AppDrawResult::Completed;
     }
 
     //! @note This will only be called if the DemoHost delegates SwapBuffers to the app (most dont).
     virtual AppDrawResult TrySwapBuffers(const DemoTime& demoTime)
     {
+      FSL_PARAM_NOT_USED(demoTime);
       throw NotSupportedException("TrySwapBuffers");
     }
 

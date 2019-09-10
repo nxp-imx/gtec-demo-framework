@@ -47,33 +47,33 @@ namespace
 
 TEST(TestBits_AlignmentUtil, GetByteSize)
 {
-  EXPECT_EQ(0, AlignmentUtil::GetByteSize(0, 0));
+  EXPECT_EQ(AlignmentUtil::GetByteSize(0, 0), 0);
 
-  EXPECT_EQ(0, AlignmentUtil::GetByteSize(0, 1));
-  EXPECT_EQ(1, AlignmentUtil::GetByteSize(1, 1));
-  EXPECT_EQ(2, AlignmentUtil::GetByteSize(2, 1));
-  EXPECT_EQ(3, AlignmentUtil::GetByteSize(3, 1));
+  EXPECT_EQ(AlignmentUtil::GetByteSize(0, 1), 0);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(1, 1), 1);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(2, 1), 2);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(3, 1), 3);
 
-  EXPECT_EQ(2, AlignmentUtil::GetByteSize(1, 2));
-  EXPECT_EQ(2, AlignmentUtil::GetByteSize(2, 2));
-  EXPECT_EQ(4, AlignmentUtil::GetByteSize(3, 2));
-  EXPECT_EQ(4, AlignmentUtil::GetByteSize(4, 2));
-  EXPECT_EQ(6, AlignmentUtil::GetByteSize(5, 2));
-  EXPECT_EQ(6, AlignmentUtil::GetByteSize(6, 2));
+  EXPECT_EQ(AlignmentUtil::GetByteSize(1, 2), 2);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(2, 2), 2);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(3, 2), 4);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(4, 2), 4);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(5, 2), 6);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(6, 2), 6);
 
-  EXPECT_EQ(0, AlignmentUtil::GetByteSize(0, 4));
-  EXPECT_EQ(4, AlignmentUtil::GetByteSize(1, 4));
-  EXPECT_EQ(4, AlignmentUtil::GetByteSize(2, 4));
-  EXPECT_EQ(4, AlignmentUtil::GetByteSize(3, 4));
-  EXPECT_EQ(4, AlignmentUtil::GetByteSize(4, 4));
-  EXPECT_EQ(8, AlignmentUtil::GetByteSize(5, 4));
+  EXPECT_EQ(AlignmentUtil::GetByteSize(0, 4), 0);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(1, 4), 4);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(2, 4), 4);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(3, 4), 4);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(4, 4), 4);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(5, 4), 8);
 
-  EXPECT_EQ(0, AlignmentUtil::GetByteSize(0, 32));
-  EXPECT_EQ(32, AlignmentUtil::GetByteSize(1, 32));
-  EXPECT_EQ(32, AlignmentUtil::GetByteSize(31, 32));
-  EXPECT_EQ(32, AlignmentUtil::GetByteSize(32, 32));
-  EXPECT_EQ(64, AlignmentUtil::GetByteSize(33, 32));
-  EXPECT_EQ(64, AlignmentUtil::GetByteSize(63, 32));
-  EXPECT_EQ(64, AlignmentUtil::GetByteSize(64, 32));
-  EXPECT_EQ(96, AlignmentUtil::GetByteSize(65, 32));
+  EXPECT_EQ(AlignmentUtil::GetByteSize(0, 32), 0);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(1, 32), 32);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(31, 32), 32);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(32, 32), 32);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(33, 32), 64);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(63, 32), 64);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(64, 32), 64);
+  EXPECT_EQ(AlignmentUtil::GetByteSize(65, 32), 96);
 }

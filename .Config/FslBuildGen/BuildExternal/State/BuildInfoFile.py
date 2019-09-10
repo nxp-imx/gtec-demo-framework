@@ -64,7 +64,7 @@ class BuildInfoFileElements(object):
 
 class BuildInfoFile(object):
     def __init__(self, jsonDict: JsonDictType) -> None:
-        super(BuildInfoFile, self).__init__()
+        super().__init__()
         self.PackageName = jsonDict[BuildInfoFileElements.PackageName]                      # type: str
         self.PackageDependencies = jsonDict[BuildInfoFileElements.PackageDependencies]      # type: List[str]
         self.FileFormatVersion = jsonDict[BuildInfoFileElements.FileFormatVersion]          # type: str
@@ -110,17 +110,17 @@ class BuildInfoFile(object):
                                        cachedContentState: Optional[JsonRecipePackageContentState] = None,
                                        cachedSourceState: Optional[JsonRecipePackageContentState] = None) -> Optional[JsonDictType]:
         try:
-            if sourcePackage is None or sourceRecipe is None or sourceRecipe.ResolvedInstallPath is None:
+            if sourcePackage is None or sourceRecipe is None or sourceRecipe.ResolvedInstallLocation is None:
                 return None
 
             localSourceState = None
-            if sourceRecipe.IsLocalSourceBuild and sourcePackage.AbsolutePath is not None:
-                localSourceState = RecipePackageState(log, sourcePackage.Name, sourcePackage.AbsolutePath,
+            if sourceRecipe.IsLocalSourceBuild and sourcePackage.ResolvedPath is not None:
+                localSourceState = RecipePackageState(log, sourcePackage.Name, sourcePackage.ResolvedPath,
                                                       "fsl-cached-state", sourcePackage.SourceFileHash, cachedSourceState)
 
 
             # Generate the package state
-            recipePackageState = RecipePackageState(log, sourcePackage.Name, sourceRecipe.ResolvedInstallPath,
+            recipePackageState = RecipePackageState(log, sourcePackage.Name, sourceRecipe.ResolvedInstallLocation,
                                                     cacheFilename, sourcePackage.SourceFileHash, cachedContentState)
             recipePackageStateCache.Set(recipePackageState)
 

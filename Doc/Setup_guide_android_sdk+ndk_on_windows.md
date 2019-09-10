@@ -17,14 +17,14 @@
   Once its installed its a good idea to run "SDK Manager.exe" and make sure everything is up to date.
   
   **IMPORTANT!**
-  - Android studio must be at least 3.1
+  - Android studio must be at least 3.3.1
   - Get the android studio full package and enable the default packages.
   - Configure the SDK manager 
     - "SDK Platforms" add if necessary "Android 7.0 (Nougat)"
     - "SDK Tools" add if necessary "CMake, LLDB, NDK, Android Support Repository"
   - Make sure to configure ANDROID_HOME to point to the android sdk directory
   - Make sure to configure ANDROID_NDK to point to the android ndk directory
-  - Make sure you have at least android-ndk-r16b
+  - Make sure you have at least android-ndk-r19
   
 - [Python 3.4+](https://www.python.org/ftp/python/3.6.2/python-3.6.2-amd64.exe)
 

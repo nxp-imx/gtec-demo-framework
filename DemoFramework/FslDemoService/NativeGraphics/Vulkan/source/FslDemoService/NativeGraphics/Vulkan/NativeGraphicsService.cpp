@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
+#include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsSwapchainInfo.hpp>
 #include <FslBase/Log/Log.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
@@ -39,6 +40,8 @@
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/NativeBatch2D.hpp>
 #include <FslUtil/Vulkan1_0/NativeTexture2D.hpp>
+#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/ScreenshotUtil.hpp>
 #include "NativeGraphicsBasic2D.hpp"
 
 namespace Fsl
@@ -100,6 +103,8 @@ namespace Fsl
         m_state = State::DeviceInitialized;
 
         m_resources.Device = device.Get();
+        m_resources.Queue = queue;
+        m_resources.QueueFamilyIndex = queueFamilyIndex;
         m_resources.PhysicalDevice = device.GetPhysicalDevice();
         m_resources.ImageCreator = std::make_shared<VulkanImageCreator>(device, queue, queueFamilyIndex);
 
@@ -165,6 +170,7 @@ namespace Fsl
         }
       }
       m_resources = {};
+      m_swapchainInfo.reset();
     }
 
     void NativeGraphicsService::VulkanCreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass,
@@ -237,6 +243,7 @@ namespace Fsl
           itr = m_quadBatches.erase(itr);
         }
       }
+      m_swapchainInfo.reset();
     }
 
 
@@ -288,6 +295,12 @@ namespace Fsl
     }
 
 
+    void NativeGraphicsService::SetSwapchainInfoLink(const std::weak_ptr<NativeGraphicsSwapchainInfo>& swapchainInfo)
+    {
+      m_swapchainInfo = swapchainInfo;
+    }
+
+
     std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
                                                                              const TextureFlags& textureFlags)
     {
@@ -322,8 +335,17 @@ namespace Fsl
 
     void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
     {
-      FSLLOG_WARNING("Vulkan::NativeGraphicsService.Capture not implemented");
-      rBitmap.Reset(srcRectangle.Width(), srcRectangle.Height(), PixelFormat::R8G8B8A8_UNORM);
+      auto swapchainInfo = m_swapchainInfo.lock();
+      if (!swapchainInfo || m_resources.Device == VK_NULL_HANDLE)
+      {
+        FSLLOG_WARNING("Not ready, capture failed");
+        rBitmap.Reset();
+        return;
+      }
+
+      rBitmap = ScreenshotUtil::TryCaptureScreenshot(m_resources.PhysicalDevice.Device, m_resources.Device, m_resources.Queue,
+                                                     m_resources.QueueFamilyIndex, swapchainInfo->FrameImage, swapchainInfo->ImageFormat,
+                                                     swapchainInfo->ImageUsageFlags, ConvertUtil::Convert(m_dependentResources.ScreenResolution));
     }
 
 

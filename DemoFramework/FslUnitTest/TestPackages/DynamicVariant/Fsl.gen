@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="FslUnitTest.TestPackages.DynamicVariant">
-    <Requirement Name="Test_TestPackage_DynamicVariant" Type="feature"/>
+  <Library Name="FslUnitTest.TestPackages.DynamicVariant" CreationYear="2018">
+    <Requirement Name="Test_TestPackage" Type="feature"/>
+    <Requirement Name="Test_TestPackage_DynamicVariant" Type="feature" Extends="Test_TestPackage"/>
     <Platform Name="Windows" ProjectId="A6879CE4-73BE-43BE-8C65-AB9F494659C8">
-	  <!-- For now we only enable this test package on windows -->
+    <!-- For now we only enable this test package on windows -->
       <Variant Name="$(FSL_TEST_VIRTUAL_VARIANT1)" Type="Virtual" Extend="true">
-	    <Option Name="$(FSL_TEST_VIRTUAL_VARIANT1)">
-	      <ExternalDependency Name="$(FSL_TEST_VIRTUAL_VARIANT1_LIB)" Include="$(FSL_TEST_VIRTUAL_VARIANT1_INCLUDE)" Access="Public" Type="Headers"/>
-	    </Option>
-  	  </Variant>
-	</Platform>
+      <Option Name="$(FSL_TEST_VIRTUAL_VARIANT1)">
+        <ExternalDependency Name="$(FSL_TEST_VIRTUAL_VARIANT1_LIB)" Include="$(FSL_TEST_VIRTUAL_VARIANT1_INCLUDE)" Access="Public" Type="Headers"/>
+      </Option>
+      </Variant>
+  </Platform>
   </Library>
 </FslBuildGen>

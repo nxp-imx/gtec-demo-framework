@@ -54,7 +54,7 @@ namespace Fsl
     const std::shared_ptr<IContentManager> contentManager = GetContentManager();
     {
       Fsl::Bitmap bitmap;
-      contentManager->Read(bitmap, "Test.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Test/Test.png", PixelFormat::R8G8B8A8_UNORM);
       m_texture2D.Reset(m_graphics->GetNativeGraphics(), bitmap, Texture2DFilterHint::Nearest);
     }
     {
@@ -79,7 +79,7 @@ namespace Fsl
       samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
 
       Fsl::Bitmap bitmap;
-      contentManager->Read(bitmap, "Test2.png", PixelFormat::R8G8B8A8_UNORM);
+      contentManager->Read(bitmap, "Test/Test2.png", PixelFormat::R8G8B8A8_UNORM);
       m_nativeTexture = imageCreator.CreateTexture(bitmap, samplerCreateInfo);
     }
   }

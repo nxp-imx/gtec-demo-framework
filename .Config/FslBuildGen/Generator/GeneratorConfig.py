@@ -34,7 +34,15 @@
 from FslBuildGen.ToolConfig import ToolConfig
 
 class GeneratorConfig(object):
-    def __init__(self, sdkConfigTemplatePath: str, toolConfig: ToolConfig) -> None:
+    def __init__(self, platformName: str, sdkConfigTemplatePath: str, toolConfig: ToolConfig, numBuildThreads: int, buildCommand: int) -> None:
         super().__init__()
+        if numBuildThreads < 1:
+            raise Exception("numBuildThreads must be > 0")
+
+        self.PlatformName = platformName
         self.ToolConfig = toolConfig
         self.SDKConfigTemplatePath = sdkConfigTemplatePath
+        # The number of build threads that were chosen
+        self.NumBuildThreads = numBuildThreads
+        # the build command (build, clean, install, etc)
+        self.BuildCommand = buildCommand

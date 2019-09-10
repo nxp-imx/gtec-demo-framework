@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslUnitTest.TestPackages.Access.Error.P2_PriP1_HPP" CreationYear="2019">
+    <!-- 
+    We disable all platform per default. 
+    Since the package contains intentional errors.
+    -->
+    <Default.Platform.Supported Value="false"/>
+    <Dependency Name="FslUnitTest.TestPackages.Access.P1" Access="Private"/>
+    <Platform Name="Windows" ProjectId="7515C72E-5A50-4EA1-B2B3-5F8BFD7AF356"/>
+  </Library>
+</FslBuildGen>

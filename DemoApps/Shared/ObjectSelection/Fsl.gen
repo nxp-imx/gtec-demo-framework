@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="Shared.ObjectSelection">
+  <Library Name="Shared.ObjectSelection" CreationYear="2017">
     <Dependency Name="FslSimpleUI.App"/>
     <Platform Name="Windows" ProjectId="027DAB26-F1E3-4046-B190-47EA438323F7"/>
   </Library>

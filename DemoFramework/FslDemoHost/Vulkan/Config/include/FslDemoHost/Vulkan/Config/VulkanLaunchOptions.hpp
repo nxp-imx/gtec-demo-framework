@@ -45,7 +45,7 @@ namespace Fsl
 
     // Controls whether we enable screenshots.
     // By default applications allow it, but the app can configure it (the command line option always overrides any app choices)
-    // OptionUserChoice ScreenshotsEnabled{OptionUserChoice::Default};
+    OptionUserChoice ScreenshotsEnabled{OptionUserChoice::Default};
   };
 }
 

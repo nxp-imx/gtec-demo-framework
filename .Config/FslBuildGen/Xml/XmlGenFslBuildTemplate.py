@@ -51,7 +51,7 @@ class XmlGenFslBuildTemplate(XmlCommonFslBuild):
         if xmlElement.tag != 'FslBuildTemplate':
             raise XmlInvalidRootElement("The file did not contain the expected root tag 'FslBuildTemplate'")
 
-        super(XmlGenFslBuildTemplate, self).__init__(config, xmlElement, subPackageSupport)
+        super().__init__(config, xmlElement, subPackageSupport)
 
         self.Name = IOUtil.GetFileNameWithoutExtension(filename)
         self.DirectRequirements = self._GetXMLRequirements(xmlElement)

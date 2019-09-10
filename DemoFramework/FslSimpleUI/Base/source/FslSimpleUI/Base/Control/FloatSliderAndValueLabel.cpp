@@ -188,6 +188,8 @@ namespace Fsl
 
     void FloatSliderAndValueLabel::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
     {
+      FSL_PARAM_NOT_USED(args);
+
       UpdateLinkedContent();
       if (!theEvent->IsHandled())
       {

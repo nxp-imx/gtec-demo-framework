@@ -72,6 +72,8 @@ namespace Fsl
 
     void ButtonBase::OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent)
     {
+      FSL_PARAM_NOT_USED(args);
+
       if (!theEvent->IsSource(this))
       {
         return;

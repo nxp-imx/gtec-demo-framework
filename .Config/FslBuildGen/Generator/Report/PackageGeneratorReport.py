@@ -46,4 +46,4 @@ class PackageGeneratorReport(object):
         super().__init__()
         self.BuildReport  = buildReport                 # type: Optional[GeneratorBuildReport]
         self.ExecutableReport = executableReport        # type: Optional[GeneratorExecutableReport]
-        self.VariableReport = variableReport              # type: GeneratorVariableReport
+        self.VariableReport = variableReport            # type: GeneratorVariableReport

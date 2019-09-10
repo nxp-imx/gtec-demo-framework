@@ -99,6 +99,11 @@ namespace Fsl
   void IndexConverter::GenericConvert(void* const pDst, const std::size_t cbDst, const std::size_t dstIndexByteSize, const void* const pSrc,
                                       const std::size_t cbSrc, const std::size_t srcIndexByteSize, const std::size_t srcIndexCount)
   {
+    if ((srcIndexByteSize * srcIndexCount) > cbSrc)
+    {
+      throw std::invalid_argument("src index buffer not large enough for 'count' indices of the given size");
+    }
+
     if (dstIndexByteSize == 2)
     {
       switch (srcIndexByteSize)

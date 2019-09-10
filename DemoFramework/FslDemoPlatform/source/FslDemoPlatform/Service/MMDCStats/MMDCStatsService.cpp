@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsService.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsServiceOptionParser.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
@@ -134,13 +134,17 @@ namespace Fsl
   public:
     MmdcData(const char* const pszType, const bool useNativeLog)
     {
+      FSL_PARAM_NOT_USED(pszType);
+      FSL_PARAM_NOT_USED(useNativeLog);
     }
     bool BeginProfiling(const HighResolutionTimer& timer)
     {
+      FSL_PARAM_NOT_USED(timer);
       return false;
     }
     MmdcStats EndProfiling(const HighResolutionTimer& timer)
     {
+      FSL_PARAM_NOT_USED(timer);
       return {};
     }
   };
@@ -169,7 +173,7 @@ namespace Fsl
         throw InitFailedException("Failed to init mmdc code");
       }
 
-      FSLLOG("MMDC profiling enabled");
+      FSLBASICLOG("MMDC profiling enabled");
     }
 
     ~MmdcData()
@@ -186,7 +190,7 @@ namespace Fsl
     {
       if (auto_configuration_mmdc_profiling(&m_context, m_pszType, m_useMMDCLog ? 1 : 0) == 0)
       {
-        FSLLOG("MMDC configure failed");
+        FSLBASICLOG("MMDC configure failed");
         return false;
       }
 

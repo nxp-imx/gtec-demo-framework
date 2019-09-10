@@ -53,7 +53,7 @@ from FslBuildGen.Xml.XmlBase2 import FakeXmlGenFileDependency
 
 class PackageBuilder(object):
     def __init__(self, config: Config, platformName: str, genFiles: List[XmlGenFile], logVerbosity: int = 1) -> None:
-        super(PackageBuilder, self).__init__()
+        super().__init__()
 
         # create top level package and resolve build order
         config.LogPrintVerbose(logVerbosity, "Validating dependencies")

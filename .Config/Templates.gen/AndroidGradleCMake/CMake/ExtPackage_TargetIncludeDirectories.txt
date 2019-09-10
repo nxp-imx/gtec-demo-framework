@@ -1,2 +1,0 @@
-# Location of header files in this package
-target_include_directories(##PACKAGE_NAME####PACKAGE_PUBLIC_INCLUDE_DIRECTORIES####PACKAGE_PRIVATE_INCLUDE_DIRECTORIES##)

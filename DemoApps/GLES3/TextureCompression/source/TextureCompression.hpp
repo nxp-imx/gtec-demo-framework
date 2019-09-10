@@ -35,6 +35,7 @@
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <Shared/TextureCompression/VerticalScroller.hpp>
 
 namespace Fsl
 {
@@ -46,6 +47,8 @@ namespace Fsl
     UI::CallbackEventListenerScope m_uiEventListener;
     // The UIDemoAppExtension is a simple extension that sets up the basic UI framework and listens for the events it needs.
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
+
+    std::shared_ptr<UI::VerticalScroller> m_scrollable;
 
   public:
     TextureCompression(const DemoAppConfig& config);

@@ -138,11 +138,13 @@ namespace Fsl
 
   void UIDemoAppExtension::PreUpdate(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
     m_uiManager.ProcessEvents();
   }
 
   void UIDemoAppExtension::Update(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
     m_uiManager.ProcessEvents();
   }
 

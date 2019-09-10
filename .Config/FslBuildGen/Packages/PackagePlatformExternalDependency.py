@@ -40,10 +40,11 @@ from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDepen
 # TODO: eliminate this class and reuse the PackageExternalDependency if possible
 class PackagePlatformExternalDependency(PackageElement):
     def __init__(self, base: Union[XmlGenFileExternalDependency, 'PackagePlatformExternalDependency'], allowPrivate: bool) -> None:
-        super(PackagePlatformExternalDependency, self).__init__(base.Name, base.XMLElement)
+        super().__init__(base.Name, base.XMLElement)
         self.DebugName = base.DebugName # type: str
         self.Include = base.Include if base.Access != AccessType.Private or allowPrivate else None  # type: Optional[str]
         self.Location = base.Location  # type: Optional[str]
         self.Access = base.Access  # type: int
         self.Type = base.Type  # type: int
         self.IsFirstActualUse = False  # type: bool
+        self.IsManaged = False

@@ -33,9 +33,14 @@
 #include <FslBase/Log/Log.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
-//#include <RapidVulkan/Debug/Strings/VkColorSpaceKHR.hpp>
+#ifdef RAPIDVULKAN_VULKAN_VERSION_MAJOR
+// Be sure to include "RapidVulkan/Check.hpp" before this check since it defines it if present.
+// Versions of RapidVulkan before this define is set has a bug in this header
+#include <RapidVulkan/Debug/Strings/VkColorSpaceKHR.hpp>
+#endif
 #include <RapidVulkan/Debug/Strings/VkCompositeAlphaFlagBitsKHR.hpp>
 #include <RapidVulkan/Debug/Strings/VkFormat.hpp>
 #include <RapidVulkan/Debug/Strings/VkImageUsageFlagBits.hpp>
@@ -66,10 +71,12 @@ namespace Fsl
           FSLLOG("- swapchainCreateInfo.minImageCount: " << swapchainCreateInfo.minImageCount);
           FSLLOG("- swapchainCreateInfo.imageFormat: " << static_cast<uint32_t>(swapchainCreateInfo.imageFormat) << " ("
                                                        << RapidVulkan::Debug::ToString(swapchainCreateInfo.imageFormat) << ")");
-          // FSLLOG("- swapchainCreateInfo.imageColorSpace: " << RapidVulkan::Debug::ToString(swapchainCreateInfo.imageColorSpace)
-          //                                                                    << " (" << static_cast<uint32_t>(swapchainCreateInfo.imageColorSpace)
-          //                                                                    << ")");
+#ifdef RAPIDVULKAN_VULKAN_VERSION_MAJOR
+          FSLLOG("- swapchainCreateInfo.imageColorSpace: " << static_cast<uint32_t>(swapchainCreateInfo.imageColorSpace) << " ("
+                                                           << RapidVulkan::Debug::ToString(swapchainCreateInfo.imageColorSpace) << ")");
+#else
           FSLLOG("- swapchainCreateInfo.imageColorSpace: " << static_cast<uint32_t>(swapchainCreateInfo.imageColorSpace));
+#endif
           FSLLOG("- swapchainCreateInfo.imageExtent: " << swapchainCreateInfo.imageExtent);
           FSLLOG("- swapchainCreateInfo.imageUsage: " << Debug::GetBitflagsString(static_cast<VkImageUsageFlagBits>(swapchainCreateInfo.imageUsage)));
 
@@ -89,11 +96,11 @@ namespace Fsl
                                      const VkSurfaceKHR surface, const uint32_t desiredMinImageCount, const uint32_t imageArrayLayers,
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha, const VkBool32 clipped,
-                                     const VkSwapchainKHR oldSwapchain, const VkExtent2D& fallbackExtent)
+                                     const VkSwapchainKHR oldSwapchain, const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo)
       {
         return CreateSwapchain(physicalDevice, device, flags, surface, desiredMinImageCount, imageArrayLayers, imageUsage, imageSharingMode,
                                queueFamilyIndexCount, queueFamilyIndices, compositeAlpha, VK_PRESENT_MODE_FIFO_KHR, clipped, oldSwapchain,
-                               fallbackExtent);
+                               fallbackExtent, surfaceFormatInfo);
       }
 
 
@@ -102,7 +109,7 @@ namespace Fsl
                                      const VkImageUsageFlags imageUsage, const VkSharingMode imageSharingMode, const uint32_t queueFamilyIndexCount,
                                      const uint32_t* queueFamilyIndices, const VkCompositeAlphaFlagBitsKHR compositeAlpha,
                                      const VkPresentModeKHR presentMode, const VkBool32 clipped, const VkSwapchainKHR oldSwapchain,
-                                     const VkExtent2D& fallbackExtent)
+                                     const VkExtent2D& fallbackExtent, const SurfaceFormatInfo& surfaceFormatInfo)
       {
         if (physicalDevice == VK_NULL_HANDLE || device == VK_NULL_HANDLE)
         {
@@ -126,9 +133,20 @@ namespace Fsl
           surfaceCapabilities.currentExtent = fallbackExtent;
         }
 
-        const auto surfaceFormats = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
-        VkFormat imageFormat = surfaceFormats[0].format;
-        VkColorSpaceKHR imageColorSpace = surfaceFormats[0].colorSpace;
+        VkFormat imageFormat = surfaceFormatInfo.Format;
+        VkColorSpaceKHR imageColorSpace = surfaceFormatInfo.ColorSpace;
+
+        if (imageFormat == VK_FORMAT_UNDEFINED)
+        {
+          const auto surfaceFormats = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
+          if (surfaceFormats.empty())
+          {
+            throw NotFoundException("No surface formats found");
+          }
+          // We default to the first available surface format.
+          imageFormat = surfaceFormats[0].format;
+          imageColorSpace = surfaceFormats[0].colorSpace;
+        }
 
         VkSwapchainCreateInfoKHR swapchainCreateInfo{};
         swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;

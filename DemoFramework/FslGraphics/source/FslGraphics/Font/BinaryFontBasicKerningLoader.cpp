@@ -34,9 +34,12 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Compression/ValueCompression.hpp>
+#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/UTF8String.hpp>
+#include <algorithm>
 #include <cassert>
+#include <limits>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -63,7 +66,7 @@ namespace Fsl
     const uint32_t HEADER_MAGIC = 0x004B4246;
     const uint32_t EXPECTED_VERSION = 1;
 
-    const uint32_t MAX_ENCODED_VALUE_SIZE = 5;
+    // const uint32_t MAX_ENCODED_VALUE_SIZE = 5;
 
     struct FBKHeader
     {
@@ -173,7 +176,15 @@ namespace Fsl
         currentIndex += ValueCompression::ReadSimple(offsetX, content.data(), content.size(), currentIndex);
         currentIndex += ValueCompression::ReadSimple(offsetY, content.data(), content.size(), currentIndex);
         currentIndex += ValueCompression::ReadSimple(layoutWidth, content.data(), content.size(), currentIndex);
-        rTextureAtlas.SetGlyphKerning(i, FontGlyphBasicKerning(offsetX, offsetY, layoutWidth));
+
+        offsetX = MathHelper::Clamp(offsetX, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+        offsetY = MathHelper::Clamp(offsetY, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+        int32_t layoutWidth2 = std::min(layoutWidth, static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+        layoutWidth2 = MathHelper::Clamp(layoutWidth2, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+
+        assert(static_cast<int64_t>(i) <= std::numeric_limits<int32_t>::max());
+        rTextureAtlas.SetGlyphKerning(static_cast<int32_t>(i), FontGlyphBasicKerning(static_cast<int16_t>(offsetX), static_cast<int16_t>(offsetY),
+                                                                                     static_cast<int16_t>(layoutWidth2)));
       }
       assert(index <= currentIndex);
       return currentIndex - index;

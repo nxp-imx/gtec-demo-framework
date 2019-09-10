@@ -42,6 +42,7 @@ from FslBuildGen import PluginSharedValues
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import ScanMethod
+from FslBuildGen.Exceptions import BasePackageNotFoundException
 from FslBuildGen.Exceptions import DependencyNotFoundException
 from FslBuildGen.Exceptions import ToolDependencyNotFoundException
 from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
@@ -54,6 +55,7 @@ from FslBuildGen.PackageFinder import PackageFinder
 from FslBuildGen.PackageTemplateLoader import PackageTemplateLoader
 from FslBuildGen.ToolConfig import ToolConfigPackageConfiguration
 from FslBuildGen.ToolConfig import ToolConfigPackageLocation
+from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 from FslBuildGen.Xml.Exceptions import XmlInvalidPackageNameException
 from FslBuildGen.Xml.Exceptions import XmlInvalidSubPackageNameException
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
@@ -61,10 +63,16 @@ from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 def _CreateXmlGenFile(config: Config, defaultPackageLanguage: int) -> XmlGenFile:
     return XmlGenFile(config, defaultPackageLanguage)
 
+def _ThrowToolDependencyNotFoundException(packageName: str) -> None:
+    raise ToolDependencyNotFoundException(packageName)
+
+def _ThrowBasePackageNotFoundException(packageName: str) -> None:
+    raise BasePackageNotFoundException(packageName)
+
 
 class PackageLoader(object):
-    def __init__(self, config: Config, files: List[str], platform: GeneratorPluginBase, forceImportPackageNames: Optional[List[str]] = None) -> None:
-        super(PackageLoader, self).__init__()
+    def __init__(self, config: Config, files: List[str], generator: GeneratorPluginBase, forceImportPackageNames: Optional[List[str]] = None) -> None:
+        super().__init__()
         self.BasicConfig = config
 
         genFilename = config.GenFileName  # type: str
@@ -74,7 +82,7 @@ class PackageLoader(object):
 
         templateLocationCache = self.__CacheTemplateLocations(config)
         self.PackageTemplateLoader = PackageTemplateLoader(config, templateLocationCache)
-        self.PackageFinder = PackageFinder(config, platform, config.Type, packageConfigDict, genFilename, config.IsTestMode)
+        self.PackageFinder = PackageFinder(config, generator, config.Type, packageConfigDict, genFilename, config.IsTestMode)
 
         inputFiles = self.PackageFinder.LocateInputFiles(files)  # type: List[PackageFile]
 
@@ -86,28 +94,22 @@ class PackageLoader(object):
             if config.Type in packageConfigDict and packageConfigDict[config.Type].Preload:
                 inputFiles = self.PackageFinder.GetKnownPackageFiles(inputFiles)
 
-            internalNinjaToolPackageName = "Recipe.BuildTool.ninja"
-            if (platform.Name == PlatformNameString.ANDROID or platform.Name.lower() == PlatformNameString.ALL.lower()) and not self.__ContainsPackage(inputFiles, internalNinjaToolPackageName):
-                packageFile = self.PackageFinder.TryLocateMissingPackagesByName(internalNinjaToolPackageName)
-                if packageFile is None:
-                    raise ToolDependencyNotFoundException(internalNinjaToolPackageName)
-                if packageFile not in inputFiles:
-                    # prevent file duplicatin (FIX: this is a workaround due to 'initial' packages not being in the lookup cache)
-                    if not self.__ContainsName(inputFiles, internalNinjaToolPackageName):
-                        inputFiles.append(packageFile)
-                #files.append(packageFile.AbsoluteFilePath)
+            if (generator.PlatformName == PlatformNameString.ANDROID or generator.PlatformId == PlatformNameString.ALL.lower()):
+                internalNinjaToolPackageName = "Recipe.BuildTool.ninja"
+                config.LogPrintVerbose(4, "Adding package {0}".format(internalNinjaToolPackageName))
+                self.__AddPackageToList(inputFiles, internalNinjaToolPackageName, _ThrowToolDependencyNotFoundException)
+
+            #if generator.IsCMake:
+            #    internalCMakeToolPackageName = "Recipe.BuildTool.CMake"
+            #    config.LogPrintVerbose(4, "Adding package {0}".format(internalCMakeToolPackageName))
+            #    self.__AddPackageToList(inputFiles, internalCMakeToolPackageName, _ThrowToolDependencyNotFoundException)
 
             if forceImportPackageNames is not None:
                 for packageName in forceImportPackageNames:
-                    packageFile = self.PackageFinder.TryLocateMissingPackagesByName(packageName)
-                    if packageFile is None:
-                        raise ToolDependencyNotFoundException(packageName)
-                    if packageFile not in inputFiles:
-                        # prevent file duplicatin (FIX: this is a workaround due to 'initial' packages not being in the lookup cache)
-                        if not self.__ContainsName(inputFiles, packageName):
-                            inputFiles.append(packageFile)
-                            #files.append(packageFile.AbsoluteFilePath)
+                    self.__AddPackageToList(inputFiles, packageName, _ThrowToolDependencyNotFoundException)
 
+            # Ensure we load the project base package dependencies specified in the project.gen file
+            inputFiles = self.__AddBasePackages(inputFiles, config.ToolConfig.ProjectInfo.Contexts)
 
             # sort the input files to ensure a predictable 'initial' order
             inputFiles.sort(key=lambda s: s.AbsoluteDirPath.lower())
@@ -121,7 +123,7 @@ class PackageLoader(object):
             searchForPackages = True
             newGenFiles = genFiles
             while searchForPackages:
-                missingPackages = self.__DiscoverMissingPackages(config, platform, packageDict, newGenFiles)
+                missingPackages = self.__DiscoverMissingPackages(config, generator, packageDict, newGenFiles)
                 if len(missingPackages) > 0:
                     newFiles = self.PackageFinder.LocateMissingPackages(missingPackages)
                     newGenFiles = []
@@ -135,6 +137,25 @@ class PackageLoader(object):
             self.GenFiles = genFiles
         finally:
             config.PopIndent()
+
+
+    def __AddBasePackages(self, inputFiles: List[PackageFile], projectContexts: List[ToolConfigProjectContext]) -> List[PackageFile]:
+        newInputFiles = list(inputFiles)
+        for projectContext in projectContexts:
+            for basePackage in projectContext.BasePackages:
+                self.__AddPackageToList(newInputFiles, basePackage.Name, _ThrowBasePackageNotFoundException)
+        return newInputFiles
+
+
+    def __AddPackageToList(self, rInputFiles: List[PackageFile], packageName: str, throwFunc: Callable[[str],None]) -> None:
+        packageFile = self.PackageFinder.TryLocateMissingPackagesByName(packageName)
+        if packageFile is None:
+            throwFunc(packageName)
+            raise Exception("throwFunc did not throw")
+        # prevent file duplication (FIX: this is a workaround due to 'initial' packages not being in the lookup cache)
+        if not self.__ContainsName(rInputFiles, packageName):
+            rInputFiles.append(packageFile)
+
 
     def __ContainsName(self, packageFiles: List[PackageFile], name: str) -> bool:
         for entry in packageFiles:
@@ -171,7 +192,7 @@ class PackageLoader(object):
                     if config.Verbosity > 1:
                         config.LogPrint(".. {0} missing {1}".format(entry.Name, dep.Name))
             for platform in list(entry.Platforms.values()):
-                if activePlatform.Id == PluginSharedValues.PLATFORM_ID_ALL or platform.Name == activePlatform.Name:
+                if activePlatform.PlatformId == PluginSharedValues.PLATFORM_ID_ALL or platform.Name == activePlatform.PlatformName:
                     for dep in platform.DirectDependencies:
                         if not dep.Name in packageDict:
                             if not dep.Name in missingPackages:

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <ToolRecipe Name="##PACKAGE_NAME##">
+  <ToolRecipe Name="##PACKAGE_NAME##" CreationYear="##PACKAGE_CREATION_YEAR##">
     <ExperimentalRecipe>
       <Installation>
       </Installation>

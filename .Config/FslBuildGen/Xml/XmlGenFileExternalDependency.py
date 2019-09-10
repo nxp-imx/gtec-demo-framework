@@ -46,7 +46,7 @@ from FslBuildGen.Xml.XmlGenFileExternalDependencyPackageManager import XmlGenFil
 
 class XmlGenFileExternalDependency(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
-        super(XmlGenFileExternalDependency, self).__init__(log, xmlElement)
+        super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.DebugName = self._ReadAttrib(xmlElement, 'DebugName', self.Name) # type: str
         self.Include = self._TryReadAttrib(xmlElement, 'Include')  # type: Optional['str']
@@ -58,6 +58,8 @@ class XmlGenFileExternalDependency(XmlBase):
         self.ProcessorArchitecture = self._TryReadAttrib(xmlElement, 'ProcessorArchitecture')  # type: Optional['str']
         self.Culture = self._TryReadAttrib(xmlElement, 'Culture')  # type: Optional['str']
         self.PackageManager = self.__TryGetPackageManager(log, xmlElement)
+        # Can only be set from code, and it indicates that this dependency is managed by a recipe or similar
+        self.IsManaged = False # type: bool
         strAccess = self._TryReadAttrib(xmlElement, 'Access')  # type: Optional['str']
 
         access = None
@@ -105,7 +107,7 @@ class XmlGenFileExternalDependency(XmlBase):
 
 class FakeXmlGenFileExternalDependency(XmlGenFileExternalDependency):
     def __init__(self, log: Log, name: str, location: str, access: int, extDepType: int,
-                 debugName: Optional[str] = None, includeLocation: Optional[str] = None) -> None:
+                 debugName: Optional[str] = None, includeLocation: Optional[str] = None, isManaged: bool = False) -> None:
         strType = ExternalDependencyType.ToString(extDepType)
         fakeXmlElementAttribs = {'Name': name, 'Location': location, 'Access': AccessType.ToString(access), "Type": strType} # type: Dict[str, str]
 
@@ -115,7 +117,7 @@ class FakeXmlGenFileExternalDependency(XmlGenFileExternalDependency):
             fakeXmlElementAttribs['Include'] = location
 
         fakeXmlElement = FakeXmlElementFactory.Create("FakeExternalDep", fakeXmlElementAttribs)
-        super(FakeXmlGenFileExternalDependency, self).__init__(log, fakeXmlElement)
+        super().__init__(log, fakeXmlElement)
         if self.Name != name:
             raise Exception("Failed to setting fake element attribute Name")
         if self.Location != location:
@@ -126,21 +128,20 @@ class FakeXmlGenFileExternalDependency(XmlGenFileExternalDependency):
             raise Exception("Failed to setting fake element attribute DebugName")
         if includeLocation is not None and self.Include != includeLocation:
             raise Exception("Failed to setting fake element attribute IncludeLocation")
+        # Override the value set in the base class
+        self.IsManaged = isManaged
 
 
 class FakeXmlGenFileExternalDependencyHeaders(FakeXmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, location: str, access: int) -> None:
-        extDepType = ExternalDependencyType.Headers
-        super(FakeXmlGenFileExternalDependencyHeaders, self).__init__(log, name, location, access, extDepType, None, location)
+    def __init__(self, log: Log, name: str, location: str, access: int, isManaged: bool) -> None:
+        super().__init__(log, name, location, access, ExternalDependencyType.Headers, None, location, isManaged=isManaged)
 
 
 class FakeXmlGenFileExternalDependencyStaticLib(FakeXmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, debugName: str, location: str, access: int) -> None:
-        extDepType = ExternalDependencyType.StaticLib
-        super(FakeXmlGenFileExternalDependencyStaticLib, self).__init__(log, name, location, access, extDepType, debugName)
+    def __init__(self, log: Log, name: str, debugName: str, location: str, access: int, isManaged: bool) -> None:
+        super().__init__(log, name, location, access, ExternalDependencyType.StaticLib, debugName, isManaged=isManaged)
 
 
 class FakeXmlGenFileExternalDependencyDLL(FakeXmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, debugName: str, location: str, access: int) -> None:
-        extDepType = ExternalDependencyType.DLL
-        super(FakeXmlGenFileExternalDependencyDLL, self).__init__(log, name, location, access, extDepType, debugName)
+    def __init__(self, log: Log, name: str, debugName: str, location: str, access: int, isManaged: bool) -> None:
+        super().__init__(log, name, location, access, ExternalDependencyType.DLL, debugName, isManaged=isManaged)

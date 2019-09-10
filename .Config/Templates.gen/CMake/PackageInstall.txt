@@ -1,0 +1,52 @@
+#############################
+# Installation instructions #
+#############################
+
+include(GNUInstallDirs)
+
+#file(RELATIVE_PATH relDir
+#${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}##PACKAGE_TARGET_INSTALL_PATH##
+#${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+#set(CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/${relDir})
+
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/##PACKAGE_NAME##)
+
+##PACKAGE_INSTALL_TARGETS####PACKAGE_INSTALL_HEADERS####PACKAGE_INSTALL_CONTENT####PACKAGE_INSTALL_DLL####PACKAGE_INSTALL_APPINFO##
+
+# Create a ConfigVersion.cmake file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/##PACKAGE_NAME##ConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY ExactVersion
+)
+
+# Export the targets to a script
+install(EXPORT ##PACKAGE_NAME##Targets
+  FILE ##PACKAGE_NAME##Targets.cmake
+  NAMESPACE ##PROJECT_NAME##::
+  DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+# Install the config, configversion and custom find modules
+# FIX: configure_file(##PACKAGE_NAME##Config.cmake.in ##PACKAGE_NAME##Config.cmake @ONLY)
+install(
+  FILES
+# FIX:   "${CMAKE_CURRENT_BINARY_DIR}/##PACKAGE_NAME##Config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/##PACKAGE_NAME##ConfigVersion.cmake"
+  DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+#################################
+# Exporting from the build tree #
+#################################
+
+#export(
+#  TARGETS
+#    ##PACKAGE_NAME##Targets
+#  NAMESPACE ##PROJECT_NAME##::
+#  FILE ${CMAKE_CURRENT_BINARY_DIR}/##PACKAGE_NAME##Targets.cmake
+#)
+
+# Register package in user's package registry
+#export(PACKAGE ##PACKAGE_NAME##)

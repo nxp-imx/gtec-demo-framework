@@ -198,6 +198,8 @@ namespace Fsl
 
   void MenuUI::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
+    FSL_PARAM_NOT_USED(args);
+
     if (theEvent->IsHandled())
     {
       return;

@@ -49,11 +49,11 @@ g_vulkanFeatureName = "Vulkan"
 
 class VulkanContentProcessor(ContentProcessor):
     def __init__(self) -> None:
-        super(VulkanContentProcessor, self).__init__("VulkanContentProcessor", g_vulkanFeatureName, g_vulkanFileExtensionSet)
+        super().__init__("VulkanContentProcessor", g_vulkanFeatureName, g_vulkanFileExtensionSet)
 
 
     def GetOutputFileName(self, config: Config, contentOutputPath: str, contentFileRecord: PathRecord, removeExtension: bool = False) -> str:
-        outputFilename = super(VulkanContentProcessor, self).GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
+        outputFilename = super().GetOutputFileName(config, contentOutputPath, contentFileRecord, removeExtension)
         return outputFilename + ".spv"
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslNativeWindow.Platform">
+  <Library Name="FslNativeWindow.Platform" CreationYear="2017">
     <Dependency Name="WindowSystem"/>
     <Dependency Name="FslNativeWindow.Base"/>
     <Platform Name="Windows" ProjectId="8DF3A916-1DCB-4A88-B394-1BF37FC452A1">

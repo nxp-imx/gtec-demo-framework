@@ -319,11 +319,14 @@ namespace Fsl
 
   void DynamicTerrainTessellation::Update(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
   }
 
 
   void DynamicTerrainTessellation::Draw(const DemoTime& demoTime)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     if (!TryPrepareFrame())
     {
       return;

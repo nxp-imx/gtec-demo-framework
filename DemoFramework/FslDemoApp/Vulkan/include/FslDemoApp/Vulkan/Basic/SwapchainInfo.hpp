@@ -47,15 +47,15 @@ namespace Fsl
       //! If SwapchainCurrentImage == VK_NULL_HANDLE this will be VK_FORMAT_UNDEFINED
       VkFormat ImageFormat{VK_FORMAT_UNDEFINED};
 
-      VkImageUsageFlags ImageUsageFormats{0u};
+      VkImageUsageFlags ImageUsageFlags{0u};
 
       SwapchainInfo() = default;
 
-      SwapchainInfo(const VkExtent2D& imageExtent, const VkImage currentImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFormats)
+      SwapchainInfo(const VkExtent2D& imageExtent, const VkImage currentImage, const VkFormat imageFormat, const VkImageUsageFlags imageUsageFlags)
         : ImageExtent(imageExtent)
         , CurrentImage(currentImage)
         , ImageFormat(imageFormat)
-        , ImageUsageFormats(imageUsageFormats)
+        , ImageUsageFlags(imageUsageFlags)
       {
       }
     };

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslDemoApp.OpenGLES3">
+  <Library Name="FslDemoApp.OpenGLES3" CreationYear="2017">
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoApp.Util.Graphics" Access="Private"/>
     <Dependency Name="FslUtil.OpenGLES3"/>
     <Dependency Name="FslDemoHost.EGL.Config"/>
     <Dependency Name="FslDemoHost.OpenGLES3" Access="Private"/>
-    <Dependency Name="FslDemoPlatform" Access="Link"/>
+    <Dependency Name="FslDemoPlatform.Link" Access="Private"/>
     <Dependency Name="FslDemoService.Graphics.Impl" Access="Private"/>
     <Dependency Name="FslDemoService.NativeGraphics.OpenGLES3" Access="Private"/>
     <Platform Name="Windows" ProjectId="934EFA83-1168-4D5C-906E-9D554F814855"/>

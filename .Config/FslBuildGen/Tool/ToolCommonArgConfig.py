@@ -33,10 +33,11 @@
 
 class ToolCommonArgConfig(object):
     def __init__(self) -> None:
-        super(ToolCommonArgConfig, self).__init__()
+        super().__init__()
         self.AddBuildFiltering = False  # If this is set then AddUseFeatures will be added
         self.AddBuildThreads = False
         self.AddBuildVariants = False
+        self.AddGeneratorSelection = False
         self.AddUseFeatures = False
         self.AddPlatformArg = False
         self.AllowForceClaimInstallArea = False

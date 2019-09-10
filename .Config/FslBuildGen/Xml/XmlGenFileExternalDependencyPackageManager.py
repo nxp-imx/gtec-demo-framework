@@ -39,7 +39,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 
 class XmlGenFileExternalDependencyPackageManager(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
-        super(XmlGenFileExternalDependencyPackageManager, self).__init__(log, xmlElement)
+        super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
         self.PackageVersion = self._TryReadAttrib(xmlElement, 'PackageVersion')  # type: Optional[str]
         self.PackageTargetFramework = self._TryReadAttrib(xmlElement, 'PackageTargetFramework')  # type: Optional[str]

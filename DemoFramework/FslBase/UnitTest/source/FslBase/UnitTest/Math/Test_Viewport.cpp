@@ -50,13 +50,13 @@ TEST(TestMath_Viewport, Construct_Default)
 {
   Viewport value;
 
-  EXPECT_EQ(0, value.X);
-  EXPECT_EQ(0, value.Y);
-  EXPECT_EQ(0, value.Width);
-  EXPECT_EQ(0, value.Height);
-  EXPECT_EQ(0.0f, value.MinDepth);
-  EXPECT_EQ(0.0f, value.MaxDepth);
-  EXPECT_EQ(0.0f, value.GetAspectRatio());
+  EXPECT_EQ(value.X, 0);
+  EXPECT_EQ(value.Y, 0);
+  EXPECT_EQ(value.Width, 0);
+  EXPECT_EQ(value.Height, 0);
+  EXPECT_EQ(value.MinDepth, 0.0f);
+  EXPECT_EQ(value.MaxDepth, 0.0f);
+  EXPECT_EQ(value.GetAspectRatio(), 0.0f);
 }
 
 
@@ -68,13 +68,13 @@ TEST(TestMath_Viewport, Construct)
   const int32_t height = 21;
   Viewport value(x, y, width, height);
 
-  EXPECT_EQ(x, value.X);
-  EXPECT_EQ(y, value.Y);
-  EXPECT_EQ(width, value.Width);
-  EXPECT_EQ(height, value.Height);
-  EXPECT_EQ(0.0f, value.MinDepth);
-  EXPECT_EQ(1.0f, value.MaxDepth);
-  EXPECT_EQ(static_cast<float>(width) / static_cast<float>(height), value.GetAspectRatio());
+  EXPECT_EQ(value.X, x);
+  EXPECT_EQ(value.Y, y);
+  EXPECT_EQ(value.Width, width);
+  EXPECT_EQ(value.Height, height);
+  EXPECT_EQ(value.MinDepth, 0.0f);
+  EXPECT_EQ(value.MaxDepth, 1.0f);
+  EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(width) / static_cast<float>(height));
 }
 
 
@@ -83,11 +83,11 @@ TEST(TestMath_Viewport, Construct_Rectangle)
   const Rectangle rect(1, 2, 20, 21);
   Viewport value(rect);
 
-  EXPECT_EQ(rect.X(), value.X);
-  EXPECT_EQ(rect.Y(), value.Y);
-  EXPECT_EQ(rect.Width(), value.Width);
-  EXPECT_EQ(rect.Height(), value.Height);
-  EXPECT_EQ(0.0f, value.MinDepth);
-  EXPECT_EQ(1.0f, value.MaxDepth);
-  EXPECT_EQ(static_cast<float>(rect.Width()) / static_cast<float>(rect.Height()), value.GetAspectRatio());
+  EXPECT_EQ(value.X, rect.X());
+  EXPECT_EQ(value.Y, rect.Y());
+  EXPECT_EQ(value.Width, rect.Width());
+  EXPECT_EQ(value.Height, rect.Height());
+  EXPECT_EQ(value.MinDepth, 0.0f);
+  EXPECT_EQ(value.MaxDepth, 1.0f);
+  EXPECT_EQ(value.GetAspectRatio(), static_cast<float>(rect.Width()) / static_cast<float>(rect.Height()));
 }

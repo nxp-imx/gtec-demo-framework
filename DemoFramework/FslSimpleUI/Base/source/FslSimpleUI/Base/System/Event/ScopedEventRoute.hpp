@@ -58,6 +58,8 @@ namespace Fsl
 
       ScopedEventRoute(const std::shared_ptr<EventRoutePool>& pool, const std::shared_ptr<IEventHandler>& eventHandler, const WindowFlags& flags)
       {
+        FSL_PARAM_NOT_USED(eventHandler);
+
         if (!pool)
         {
           throw std::invalid_argument("pool can not be null");

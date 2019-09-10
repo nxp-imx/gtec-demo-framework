@@ -54,7 +54,7 @@ namespace Fsl
         GLint Enabled{0};
         GLint Size{0};
         GLint Type{0};
-        GLint Normalized{GL_FALSE};
+        GLboolean Normalized{GL_FALSE};
         GLint Stride{0};
         GLvoid* Pointer{nullptr};
 

@@ -45,7 +45,7 @@ from FslBuildGen.ToolConfig import ToolConfig
 
 class BaseConfig(BasicConfig):
     def __init__(self, log: Log, toolConfig: ToolConfig) -> None:
-        super(BaseConfig, self).__init__(log)
+        super().__init__(log)
 
         if toolConfig is None:
             raise Exception("Missing param")
@@ -69,7 +69,7 @@ class Config(BaseConfig):
     def __init__(self, log: Log,
                  toolConfig: ToolConfig, srcType: str,
                  variantsDict: Optional[Dict[str, str]], allowDevelopmentPlugins: bool) -> None:
-        super(Config, self).__init__(log, toolConfig)
+        super().__init__(log, toolConfig)
 
 
         self.IsTestMode = False
@@ -119,8 +119,8 @@ class Config(BaseConfig):
         self.IsDryRun = True
 
 
-    def TryLegacyToPath(self, path: Optional[str]) -> Optional[str]:
-        return self.ToolConfig.TryLegacyToPath(path)
+    def TryToPath(self, path: Optional[str]) -> Optional[str]:
+        return self.ToolConfig.TryToPath(path)
 
     def ToPath(self, path: str) -> str:
         return self.ToolConfig.ToPath(path)

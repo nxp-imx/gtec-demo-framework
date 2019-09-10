@@ -38,7 +38,7 @@ from FslBuildGen.Packages.Package import Package
 
 def GetPackageFromFilename(topLevelPackage: Package, filename: str) -> Package:
     for entry in topLevelPackage.ResolvedAllDependencies:
-        if entry.Package.GenFile is not None and entry.Package.GenFile.SourcePackageFile is not None and entry.Package.GenFile.SourcePackageFile.AbsoluteFilePath == filename:
+        if entry.Package.GenFile is not None and entry.Package.GenFile.PackageFile is not None and entry.Package.GenFile.PackageFile.AbsoluteFilePath == filename:
             return entry.Package
     raise Exception("Could not find package for '{0}'".format(filename))
 
@@ -49,8 +49,8 @@ def TryGetPackageListFromFilenames(topLevelPackage: Package, requestedFiles: Opt
 
     filenameToPackageDict = {}  # type: Dict [str,Package]
     for entry in topLevelPackage.ResolvedAllDependencies:
-        if entry.Package.GenFile is not None and entry.Package.GenFile.SourcePackageFile is not None:
-            filenameToPackageDict[entry.Package.GenFile.SourcePackageFile.AbsoluteFilePath] = entry.Package
+        if entry.Package.GenFile is not None and entry.Package.GenFile.PackageFile is not None:
+            filenameToPackageDict[entry.Package.GenFile.PackageFile.AbsoluteFilePath] = entry.Package
 
     uniqueDict = {} # type: Dict[str, Package]
     for file in requestedFiles:

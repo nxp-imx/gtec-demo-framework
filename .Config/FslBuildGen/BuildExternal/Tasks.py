@@ -118,7 +118,7 @@ class GitBaseTask(BasicTask):
 
 
     def __ConfigureForPlatform(self, generatorContext: GeneratorContext) -> None:
-        self.GitCommand = PlatformUtil.GetExecutableName('git', generatorContext.Platform.Name)
+        self.GitCommand = PlatformUtil.GetExecutableName('git', generatorContext.Generator.PlatformName)
 
 
 class GitCloneTask(GitBaseTask):
@@ -415,10 +415,10 @@ class CMakeAndBuildTask(BasicTask):
 
 
     def __ConfigureForPlatform(self, generatorContext: GeneratorContext, buildThreads: int) -> None:
-        self.CMakeCommand = CMakeTypes.DetermineCMakeCommand(generatorContext.Platform.Name)
+        self.CMakeCommand = CMakeTypes.DetermineCMakeCommand(generatorContext.Generator.PlatformName)
         self.CMakeGeneratorName = CMakeTypes.DetermineCMakeGenerator(generatorContext.Platform)
         self.CompilerShortId = CMakeTypes.GetCompilerShortIdFromGeneratorName(self.CMakeGeneratorName)
-        self.CMakeArguments = CMakeTypes.DeterminePlatformArguments(generatorContext.Platform.Name)
+        self.CMakeArguments = CMakeTypes.DetermineGeneratorArguments(self.CMakeGeneratorName, generatorContext.Generator.PlatformName)
         self.Builder = self.__DetermineBuilder(self.CMakeGeneratorName, generatorContext, buildThreads)
         self.CMakeFinalGeneratorName = CMakeTypes.DetermineFinalCMakeGenerator(self.CMakeGeneratorName)
 
@@ -426,7 +426,7 @@ class CMakeAndBuildTask(BasicTask):
     def __DetermineBuilder(self, generatorName: str, generatorContext: GeneratorContext, buildThreads: int) -> CMakeBuilder:
         if generatorName == CMakeTypes.CMakeGeneratorName.UnixMakeFile:
             return CMakeBuilderMake(generatorContext, buildThreads)
-        elif generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2017_X64:
+        elif generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2015_X64 or generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2017_X64 or generatorName == CMakeTypes.CMakeGeneratorName.VisualStudio2019_X64:
             return CMakeBuilderMSBuild(generatorContext, buildThreads)
         elif generatorName == CMakeTypes.CMakeGeneratorName.Android:
             if PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows:

@@ -42,7 +42,7 @@ from FslBuildGen.Xml.Exceptions import XmlRequiredAttributeMissingException
 
 class XmlBase(XmlBaseInfo):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
-        super(XmlBase, self).__init__(log, xmlElement)
+        super().__init__(log, xmlElement)
 
 
     def _GetElement(self, xmlElement: ET.Element, elementName: str) -> ET.Element:

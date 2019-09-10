@@ -1,0 +1,16 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/FslUnitTest.TestPackages.Access.P2_LinkP1.VC.VC.opendb
+/FslUnitTest.TestPackages.Access.P2_LinkP1.VC.db
+/FslUnitTest.TestPackages.Access.P2_LinkP1.manifest
+/FslUnitTest.TestPackages.Access.P2_LinkP1.opensdf
+/FslUnitTest.TestPackages.Access.P2_LinkP1.sdf
+/FslUnitTest.TestPackages.Access.P2_LinkP1.sln
+/FslUnitTest.TestPackages.Access.P2_LinkP1.v12.sdf
+/FslUnitTest.TestPackages.Access.P2_LinkP1.v12.suo
+/FslUnitTest.TestPackages.Access.P2_LinkP1.vcxproj
+/FslUnitTest.TestPackages.Access.P2_LinkP1.vcxproj.filters
+/FslUnitTest.TestPackages.Access.P2_LinkP1.vcxproj.user
+/GNUmakefile
+/build/

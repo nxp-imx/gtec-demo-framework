@@ -51,7 +51,7 @@ namespace Fsl
 
     Rectangle3D(const int32_t x, const int32_t y, int32_t z, const uint16_t width, const uint16_t height, const uint16_t depth)
       : Offset(x, y, z)
-      , Extent(width, height, depth)
+      , Extent(static_cast<Extent3D::element_type>(width), static_cast<Extent3D::element_type>(height), static_cast<Extent3D::element_type>(depth))
     {
     }
 

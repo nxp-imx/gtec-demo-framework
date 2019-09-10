@@ -32,19 +32,22 @@
 #****************************************************************************************************************************************************
 
 from typing import List
+from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import BuildPlatformType
 from FslBuildGen.SharedGeneration import AndroidABIOption
 from FslBuildGen.PlatformUtil import PlatformUtil
 
+g_cachedNDKVersionString = None # type: Optional[str]
+
 class AndroidUtil(object):
     @staticmethod
     def GetTargetSDKVersion() -> int:
-        return 28
+        return 29
 
     @staticmethod
     def GetMinimumSDKVersion() -> int:
-        return 21
+        return 26
 
     @staticmethod
     def GetSDKPath() -> str:
@@ -95,14 +98,38 @@ class AndroidUtil(object):
         return AndroidUtil.GetVersionStringFromSourceProperties(sdkPath)
 
     @staticmethod
-    def GetSDKNDKId() -> str:
+    def GetSDKVersion() -> str:
         sdkPath = AndroidUtil.GetSDKPath()
-        ndkPath = AndroidUtil.GetNDKPath()
-        sdkVersion = AndroidUtil.DetectSDKVersionString(sdkPath).replace('.', '_')
-        ndkVersion = AndroidUtil.DetectNDKVersionString(ndkPath).replace('.', '_')
+        return AndroidUtil.DetectSDKVersionString(sdkPath)
+
+    @staticmethod
+    def GetNDKVersion() -> str:
+        global g_cachedNDKVersionString
+        if g_cachedNDKVersionString is None:
+            ndkPath = AndroidUtil.GetNDKPath()
+            g_cachedNDKVersionString = AndroidUtil.DetectNDKVersionString(ndkPath)
+        return g_cachedNDKVersionString
+
+    @staticmethod
+    def GetSDKNDKId() -> str:
+        sdkVersion = AndroidUtil.GetSDKVersion().replace('.', '_')
+        ndkVersion = AndroidUtil.GetNDKVersion().replace('.', '_')
         hostType = "Win" if PlatformUtil.DetectBuildPlatformType() == BuildPlatformType.Windows else "Unix"
 
         return "S{0}N{1}{2}".format(sdkVersion, ndkVersion, hostType)
+
+    @staticmethod
+    def UseNDKCMakeToolchain() -> bool:
+        """
+        Check if the NDK cmake toolchain file should be utilized to build
+        """
+        strVersion = AndroidUtil.GetNDKVersion()
+        index = strVersion.find('.')
+        if index < 0:
+            return False
+        strVersion = strVersion[0:index]
+        version = int(strVersion)
+        return version >= 19
 
     @staticmethod
     def GetKnownABIList(allowAllId: bool) -> List[str]:

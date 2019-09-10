@@ -77,7 +77,7 @@ TEST(TestMath_Vector4_MonoGame, Dot)
   const Vector4 vector2(0.5f, 1.1f, -3.8f, 1.2f);
   const float expectedResult = -3.89999962f;
 
-  EXPECT_FLOAT_EQ(expectedResult, Vector4::Dot(vector1, vector2));
+  EXPECT_FLOAT_EQ(Vector4::Dot(vector1, vector2), expectedResult);
 
   // float result;
   // Vector4::Dot(vector1, vector2, result);
@@ -114,7 +114,7 @@ TEST(TestMath_Vector4_MonoGame, Length)
 {
   Vector4 vector1(1.0f, 2.0f, 3.0f, 4.0f);
 
-  EXPECT_FLOAT_EQ(5.477226f, vector1.Length());
+  EXPECT_FLOAT_EQ(vector1.Length(), 5.477226f);
 }
 
 
@@ -122,7 +122,7 @@ TEST(TestMath_Vector4_MonoGame, LengthSquared)
 {
   Vector4 vector1(1.0f, 2.0f, 3.0f, 4.0f);
 
-  EXPECT_FLOAT_EQ(30.0f, vector1.LengthSquared());
+  EXPECT_FLOAT_EQ(vector1.LengthSquared(), 30.0f);
 }
 
 
@@ -151,8 +151,8 @@ TEST(TestMath_Vector4_MonoGame, Construct)
   constexpr float w = -0.75f;
   Vector4 value(x, y, z, w);
 
-  EXPECT_EQ(x, value.X);
-  EXPECT_EQ(y, value.Y);
-  EXPECT_EQ(z, value.Z);
-  EXPECT_EQ(w, value.W);
+  EXPECT_EQ(value.X, x);
+  EXPECT_EQ(value.Y, y);
+  EXPECT_EQ(value.Z, z);
+  EXPECT_EQ(value.W, w);
 }

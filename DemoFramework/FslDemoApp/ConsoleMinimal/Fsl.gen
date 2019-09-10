@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslDemoApp.ConsoleMinimal">
+  <Library Name="FslDemoApp.ConsoleMinimal" CreationYear="2018">
     <Dependency Name="FslDemoApp.Base"/>
     <Dependency Name="FslDemoHost.Console" Access="Private"/>
-    <Dependency Name="FslDemoPlatform" Access="Link"/>
+    <Dependency Name="FslDemoPlatform.Link" Access="Private"/>
     <Platform Name="Windows" ProjectId="5D0FCE7C-1E7C-4131-B8B9-0F51816A2ED9"/>
   </Library>
 </FslBuildGen>

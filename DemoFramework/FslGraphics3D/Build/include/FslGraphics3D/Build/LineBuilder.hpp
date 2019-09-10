@@ -86,7 +86,7 @@ namespace Fsl
       }
 
       LineBuilder(const uint32_t initialLineCapacity)
-        : m_vertices(std::max(initialLineCapacity * static_cast<std::size_t>(VERTICES_PER_LINE), MIN_VERTEX_CAPACITY))
+        : m_vertices(std::max(static_cast<std::size_t>(initialLineCapacity) * static_cast<std::size_t>(VERTICES_PER_LINE), MIN_VERTEX_CAPACITY))
       {
       }
 

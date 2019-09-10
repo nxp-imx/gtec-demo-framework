@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../FslBuildGen.xsd">
-  <ToolRecipe Name="Recipe.BuildTool.CMake">
+  <ToolRecipe Name="Recipe.BuildTool.CMake" CreationYear="2017">
     <ExperimentalRecipe>
       <Installation>
-        <FindExecutableFileInPath Name="cmake" Help="Please install cmake (https://cmake.org/) as it is used to build solutions we depend upon."/>
+        <FindExecutableFileInPath Name="cmake" MinVersion="3.10.2" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install cmake 3.10.2+ (https://cmake.org/) as it is used to build solutions we depend upon."/>
       </Installation>
     </ExperimentalRecipe>
     <!-- Override the default recipe to provide a better help message -->
@@ -11,7 +11,7 @@
       <Dependency Name="Recipe.BuildTool.VisualStudio"/>
       <ExperimentalRecipe>
         <Installation>
-          <FindExecutableFileInPath Name="cmake" Help="Please install cmake (https://cmake.org/) as it is used to build solutions we depend upon."/>
+          <FindExecutableFileInPath Name="cmake" MinVersion="3.10.2" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install cmake 3.10.2+ (https://cmake.org/) as it is used to build solutions we depend upon."/>
         </Installation>
       </ExperimentalRecipe>
     </Platform>

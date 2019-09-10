@@ -40,35 +40,28 @@ from FslBuildGen.PackageConfig import PlatformNameString
 
 class PlatformBuildUtil(object):
     @staticmethod
-    def AddBuildThreads(log: Log, rArgumentList: List[str], generatorOriginalName: str, buildThreads: int, external: bool = False) -> None:
+    def AddBuildThreads(log: Log, rArgumentList: List[str], generatorOriginalName: str, buildThreads: int, external: bool = False) -> int:
+        numBuildThreads = PlatformBuildUtil.GetRecommendedBuildThreads(buildThreads)
         platformName = generatorOriginalName
         if (platformName == PlatformNameString.QNX or
             platformName == PlatformNameString.YOCTO or
             platformName == PlatformNameString.UBUNTU or
+            platformName == PlatformNameString.FREERTOS or
             (external and platformName == PlatformNameString.ANDROID)):
-            PlatformBuildUtil.__AppendMakeThreads(log, rArgumentList, buildThreads)
+            log.LogPrint("Builder using BuildThreads: {0}".format(numBuildThreads))
+            rArgumentList += ['-j', str(numBuildThreads)]
         elif platformName == PlatformNameString.WINDOWS:
-            if buildThreads == BuildThreads.Auto:
-                log.LogPrint("Builder using BuildThreads: auto")
-                rArgumentList += ['/maxcpucount']
-            elif buildThreads != BuildThreads.NotDefined and buildThreads > 0:
-                log.LogPrint("Builder using BuildThreads: {0}".format(buildThreads))
-                rArgumentList += ['/maxcpucount:{0}'.format(buildThreads)]
+            log.LogPrint("Builder using BuildThreads: {0}".format(numBuildThreads))
+            rArgumentList += ['/maxcpucount:{0}'.format(numBuildThreads)]
         else:
             if buildThreads != BuildThreads.NotDefined:
                 log.LogPrintWarning("The builder ignored 'BuildThreads'")
-
-    @staticmethod
-    def __AppendMakeThreads(log: Log, rBuildCommandList: List[str], buildThreads: int) -> None:
-        if buildThreads == BuildThreads.Auto:
-             buildThreads = multiprocessing.cpu_count()
-
-        if buildThreads != BuildThreads.NotDefined and buildThreads > 0:
-            log.LogPrint("Builder using BuildThreads: {0}".format(buildThreads))
-            rBuildCommandList += ['-j', str(buildThreads)]
+        return numBuildThreads
 
     @staticmethod
     def GetRecommendedBuildThreads(buildThreads: int) -> int:
         if buildThreads == BuildThreads.Auto:
-             return multiprocessing.cpu_count()
-        return buildThreads
+            return multiprocessing.cpu_count() + 2
+        elif buildThreads > 0:
+            return buildThreads
+        return 1

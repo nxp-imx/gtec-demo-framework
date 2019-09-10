@@ -173,6 +173,7 @@ namespace Fsl
                                          const VirtualGamepadState& oldState, const VirtualGamepadState& newState, const VirtualGamepadButton button,
                                          const VirtualKey::Enum key)
     {
+      FSL_PARAM_NOT_USED(deviceId);
       const bool isPressed = newState.IsPressed(button);
       if (oldState.IsPressed(button) == isPressed)
       {
@@ -368,6 +369,8 @@ namespace Fsl
 
     LRESULT OnKeyMessage(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam, const bool isPressed)
     {
+      FSL_PARAM_NOT_USED(hWnd);
+      FSL_PARAM_NOT_USED(lParam);
       VirtualKey::Enum keycode;
       if (TryConvert(wParam, keycode))
       {
@@ -381,6 +384,8 @@ namespace Fsl
     LRESULT OnMouseButton(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam,
                           const VirtualMouseButton::Enum button, const bool isPressed)
     {
+      FSL_PARAM_NOT_USED(hWnd);
+      FSL_PARAM_NOT_USED(wParam);
       const Point2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
       const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseButtonEvent(button, isPressed, position);
       eventQueue->PostEvent(event);
@@ -405,6 +410,7 @@ namespace Fsl
 
     LRESULT OnMouseMove(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(wParam);
       const Point2 position(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
       auto window = TryGetWindow(hWnd);
@@ -418,6 +424,7 @@ namespace Fsl
 
     LRESULT OnMouseWheel(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(hWnd);
       const int32_t zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
 
       // Unlike the other coordinates, this is in screen space instead, so we need to transform
@@ -442,6 +449,7 @@ namespace Fsl
 
     void OnRawInput(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(wParam);
       if (!m_activated)
       {
         return;
@@ -457,6 +465,8 @@ namespace Fsl
 
     LRESULT OnActivateMessage(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(hWnd);
+      FSL_PARAM_NOT_USED(lParam);
       const int hiWord = ((wParam >> 16) & 0xFFFF);
       const int lowWord = (wParam & 0xFFFF);
 
@@ -490,6 +500,8 @@ namespace Fsl
 
     LRESULT OnSize(HWND hWnd, const std::shared_ptr<INativeWindowEventQueue>& eventQueue, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(hWnd);
+      FSL_PARAM_NOT_USED(lParam);
       // The window has been resized, but neither the SIZE_MINIMIZED nor SIZE_MAXIMIZED value applies.
       if (wParam == SIZE_RESTORED || wParam == SIZE_MAXIMIZED)
       {
@@ -500,6 +512,7 @@ namespace Fsl
 
     LRESULT OnDPICHanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(lParam);
       // wParam = new DPI
       const auto newDpiX = LOWORD(wParam);
       const auto newDpiY = HIWORD(wParam);
@@ -525,6 +538,7 @@ namespace Fsl
 
     void OnWindowCaptureChanged(HWND hWnd, WPARAM wParam, LPARAM lParam)
     {
+      FSL_PARAM_NOT_USED(wParam);
       auto window = TryGetWindow(hWnd);
       if (window)
       {
@@ -634,6 +648,7 @@ namespace Fsl
 
     BOOL CALLBACK MonitorEnumProc(_In_ HMONITOR hMonitor, _In_ HDC hdcMonitor, _In_ LPRECT lprcMonitor, _In_ LPARAM dwData)
     {
+      FSL_PARAM_NOT_USED(dwData);
       if (hdcMonitor == nullptr && lprcMonitor != nullptr)
       {
         const int32_t left = lprcMonitor->left;
@@ -702,6 +717,7 @@ namespace Fsl
     , m_eventQueue(setup.GetEventQueue())
     , m_gamepadState(new std::vector<PlatformGamepadStateWin32>(XUSER_MAX_COUNT))
   {
+    FSL_PARAM_NOT_USED(systemParams);
     if (!g_windowSystemState.expired())
     {
       throw NotSupportedException("PlatformNativeWindowSystemWin32 is a singleton, please destroy any previously allocated instance first");
@@ -746,6 +762,7 @@ namespace Fsl
 
   bool PlatformNativeWindowSystemWin32::ProcessMessages(const NativeWindowProcessMessagesArgs& args)
   {
+    FSL_PARAM_NOT_USED(args);
     MSG sMessage;
     bool bQuit = false;
     while (PeekMessage(&sMessage, nullptr, 0, 0, PM_REMOVE) != 0)
@@ -1032,7 +1049,7 @@ namespace Fsl
       const int32_t deltaX = CapValue(pRawInput->data.mouse.lLastX, "x");
       const int32_t deltaY = CapValue(pRawInput->data.mouse.lLastY, "y");
 
-      uint32_t buttonFlags = 0;
+      // uint32_t buttonFlags = 0;
       if ((pRawInput->data.mouse.ulRawButtons & RI_MOUSE_LEFT_BUTTON_DOWN) != 0u)
       {
         m_rawMouseButtonFlags.SetFlag(VirtualMouseButton::Left, true);

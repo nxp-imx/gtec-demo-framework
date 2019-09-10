@@ -95,7 +95,7 @@ namespace Fsl
     };
 
     const int32_t DEFAULT_DEPTH_BUFFER_SIZE = 24;
-    const int32_t FALLBACK_DEPTH_BUFFER_SIZE = 16;
+    // const int32_t FALLBACK_DEPTH_BUFFER_SIZE = 16;
     const RGBConfig DEFAULT_RGB_CONFIG(8, 8, 8);
 
 
@@ -126,6 +126,7 @@ namespace Fsl
     void BuildDefaultConfigAttributes(std::deque<EGLint>& rConfigAttributes, const EGLDemoHostFeatureConfig& featureConfig,
                                       const bool bForceConformance, const RGBConfig& preferredRGBConfig, const int32_t preferredDepthBufferSize)
     {
+      FSL_PARAM_NOT_USED(bForceConformance);
       rConfigAttributes.push_back(EGL_RED_SIZE);
       rConfigAttributes.push_back(preferredRGBConfig.R);
 

@@ -1,5 +1,5 @@
 {
-  "Origin": "Mixed", 
-  "License": "Mixed",
-  "Comment": "See the source files for the texture atlas for their origin and license (DemoApps/GLES2/DFSimpleUI101/OriginalContent/TextureAtlas/Main)"
+  "Origin": "NXP;Justin Nichol", 
+  "Comment": "See the source files for the texture atlas for their origin and license (Resources/Source/DFNativeBatch2D)", 
+  "License": "CC0-1.0;CC-BY-SA-4.0"
 }

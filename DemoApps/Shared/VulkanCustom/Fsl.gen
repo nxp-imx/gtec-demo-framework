@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="Shared.VulkanCustom">
+  <Library Name="Shared.VulkanCustom" CreationYear="2019">
     <Dependency Name="FslDemoApp.Window"/>
     <Dependency Name="FslDemoHost.Window"/>
     <Dependency Name="FslDemoHost.Vulkan.Config"/>

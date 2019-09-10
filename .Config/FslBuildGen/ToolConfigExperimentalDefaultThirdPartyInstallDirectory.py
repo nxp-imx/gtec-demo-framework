@@ -44,7 +44,7 @@ class ToolConfigExperimentalDefaultThirdPartyInstallDirectory(object):
     def __init__(self, log: Log,
                  basedUponXML: Optional[Union[XmlExperimentalDefaultThirdPartyInstallDirectory, XmlExperimentalDefaultThirdPartyInstallReadonlyCacheDirectory]],
                  entryName: str, isReadonlyCache: bool) -> None:
-        super(ToolConfigExperimentalDefaultThirdPartyInstallDirectory, self).__init__()
+        super().__init__()
 
         if basedUponXML is None:
             raise Exception("No '{0}' was defined in the xml".format(entryName))

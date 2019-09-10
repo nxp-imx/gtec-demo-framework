@@ -32,14 +32,18 @@
  ****************************************************************************************************************************************************/
 
 #include <deque>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Getopt/IOptionParser.hpp>
 
 namespace Fsl
 {
-  class OptionParser : private Noncopyable
+  class OptionParser
   {
   public:
+    // Switched to C++11 way of doing it
+    OptionParser(const OptionParser&) = delete;
+    OptionParser& operator=(const OptionParser&) = delete;
+
+
     struct ParserRecord
     {
       IOptionParser* Parser{nullptr};

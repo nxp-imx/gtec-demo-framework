@@ -17,4 +17,3 @@
 /FslSDKIcon.ico
 /Content/_ContentSyncCache.fsl
 /build/
-/CMakeLists.txt

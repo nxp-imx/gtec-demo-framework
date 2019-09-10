@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/FslDemoPlatform.Link.VC.VC.opendb
+/FslDemoPlatform.Link.VC.db
+/FslDemoPlatform.Link.manifest
+/FslDemoPlatform.Link.opensdf
+/FslDemoPlatform.Link.sdf
+/FslDemoPlatform.Link.sln
+/FslDemoPlatform.Link.v12.sdf
+/FslDemoPlatform.Link.v12.suo
+/FslDemoPlatform.Link.vcxproj
+/FslDemoPlatform.Link.vcxproj.filters
+/FslDemoPlatform.Link.vcxproj.user
+/GNUmakefile
+/GNUmakefile_Yocto
+/build/

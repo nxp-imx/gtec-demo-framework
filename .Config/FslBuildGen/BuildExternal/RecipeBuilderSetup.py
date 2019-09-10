@@ -32,8 +32,9 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 
 class RecipeBuilderSetup(object):
-    def __init__(self, targetPath: str, readonlyCachePath: Optional[str] = None) -> None:
-        self.TargetPath = targetPath
+    def __init__(self, targetLocation: ResolvedPath, readonlyCachePath: Optional[str] = None) -> None:
+        self.TargetLocation = targetLocation
         self.ReadonlyCachePath = readonlyCachePath

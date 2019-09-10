@@ -62,6 +62,7 @@ namespace Fsl
     Path::Path(const std::string& str, const bool bUnchecked)
       : m_content(str)
     {
+      FSL_PARAM_NOT_USED(bUnchecked);
     }
 
 
@@ -170,7 +171,7 @@ namespace Fsl
         return Path();
       }
 
-      const int32_t index = std::max(path.m_content.LastIndexOf('/'), 0);
+      const int32_t index = std::max(path.m_content.LastIndexOf('/'), static_cast<int32_t>(0));
       if (dotIndex < index)
       {
         return Path();

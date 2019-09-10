@@ -34,6 +34,7 @@
 #include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <algorithm>
 #include <cassert>
+#include <stdexcept>
 
 namespace Fsl
 {

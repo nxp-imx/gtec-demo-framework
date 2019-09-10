@@ -1,0 +1,8 @@
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+# DLL's
+add_custom_command(
+  TARGET ##PACKAGE_NAME##
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ##FILES##
+)
+endif()

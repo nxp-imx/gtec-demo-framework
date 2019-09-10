@@ -52,6 +52,7 @@ from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
@@ -186,7 +187,7 @@ def DoGetPackages(generatorContext: GeneratorContext, config: Config, filePathLi
 
 def __ResolveAndGenerate(config: Config, platformGeneratorPlugin: GeneratorPlugin, packageLoader: PackageLoader,
                          packageFilters: PackageFilters, isSDKBuild: bool) -> List[Package]:
-    generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platformGeneratorPlugin)
+    generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
 
 
     process = PackageLoadAndResolveProcess(config, packageLoader, platformGeneratorPlugin)
@@ -212,12 +213,12 @@ def DoGenerateBuildFiles(config: Config,
     isSDKBuild = len(files) <= 0
     packageLoader = PackageLoader(config, files, platformGeneratorPlugin)
     res = []  # type: Union[List[Package], MultiPlatformPackageResultType]
-    if platformGeneratorPlugin.Id == PluginSharedValues.PLATFORM_ID_ALL:
+    if platformGeneratorPlugin.PlatformId == PluginSharedValues.PLATFORM_ID_ALL:
         resDict = {} # type: MultiPlatformPackageResultType
         for entry in PluginConfig.GetGeneratorPlugins(config.AllowDevelopmentPlugins):
             if not config.IsTestMode or not entry.InDevelopment:
                 packages = __ResolveAndGenerate(config, entry, copy.deepcopy(packageLoader), packageFilters, isSDKBuild)
-            resDict[entry.Name] = (packages, entry)
+            resDict[entry.PlatformName] = (packages, entry)
         res = resDict
     else:
         res = __ResolveAndGenerate(config, platformGeneratorPlugin, packageLoader, packageFilters, isSDKBuild)
@@ -231,7 +232,7 @@ def DoGenerateBuildFilesNoAll(config: Config,
                               packageFilters: PackageFilters) -> List[Package]:
     config.LogPrint("- Generating build files")
 
-    if platformGeneratorPlugin.Id == PluginSharedValues.PLATFORM_ID_ALL:
+    if platformGeneratorPlugin.PlatformId == PluginSharedValues.PLATFORM_ID_ALL:
         raise Exception("Can not use PLATFORM_ID_ALL")
 
     isSDKBuild = len(files) <= 0
@@ -245,13 +246,13 @@ def DoGenerateBuildFiles3(config: Config, files: List[str], platformGeneratorPlu
 
     isSDKBuild = len(files) <= 0
     packageLoader = PackageLoader(config, files, platformGeneratorPlugin)
-    if platformGeneratorPlugin.Id != PluginSharedValues.PLATFORM_ID_ALL:
+    if platformGeneratorPlugin.PlatformId != PluginSharedValues.PLATFORM_ID_ALL:
         raise Exception("This requires: PLATFORM_ID_ALL")
     resDict = {} # type: MultiPlatformPackageResultType
     for entry in PluginConfig.GetGeneratorPlugins(config.AllowDevelopmentPlugins):
         if not config.IsTestMode or not entry.InDevelopment:
             packages = __ResolveAndGenerate(config, entry, copy.deepcopy(packageLoader), packageFilters, isSDKBuild)
-            resDict[entry.Name] = (packages, entry)
+            resDict[entry.PlatformName] = (packages, entry)
     return resDict
 
 
@@ -304,7 +305,7 @@ def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: O
     log = Log(strToolAppTitle, 0)
     currentDir = IOUtil.GetEnvironmentVariableForDirectory("FSL_GRAPHICS_INTERNAL")
     basicConfig = BasicConfig(log)
-    localToolConfig = ToolAppMain.LowLevelToolConfig(log.Verbosity, False, False, False, False)
+    localToolConfig = ToolAppMain.LowLevelToolConfig(log.Verbosity, False, False, False, False, currentDir)
     projectRootConfig = ToolAppMain.GetProjectRootConfig(localToolConfig, basicConfig, currentDir)
     toolConfig = ToolConfig(basicConfig, projectRootConfig.ToolConfigFile, projectRootConfig)
     config = Config(log, toolConfig, PluginSharedValues.TYPE_UNIT_TEST, None, True)
@@ -318,14 +319,14 @@ def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: O
 
 def __TestGenerateBuildFiles(config: Config, files: List[str], platformId: str) -> Dict[str, List[Package]]:
     packageFilters = PackageFilters()
-    platform = PluginConfig.GetGeneratorPluginById(platformId, True)
+    platform = PluginConfig.GetGeneratorPluginById(platformId, GeneratorType.Default, True, config.ToolConfig.CMakeConfiguration, None)
     buildFilesDict = DoGenerateBuildFiles3(config, files, platform, packageFilters)
     return {dictKey: dictValue[0] for dictKey, dictValue in buildFilesDict.items()}
 
 
 def __TestGetPackageLoader(config: Config, files: List[str], platformId: str) -> PackageLoader:
     packageFilters = PackageFilters()
-    platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(platformId, True)
+    platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(platformId, GeneratorType.Default, True, config.ToolConfig.CMakeConfiguration, None)
     return PackageLoader(config, files, platformGeneratorPlugin)
 
 

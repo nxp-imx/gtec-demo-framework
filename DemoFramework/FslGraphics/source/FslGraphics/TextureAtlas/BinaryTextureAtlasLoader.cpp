@@ -64,7 +64,7 @@ namespace Fsl
     const uint32_t HEADER_MAGIC = 0x00415442;
     const uint32_t EXPECTED_VERSION = 1;
 
-    const uint32_t MAX_ENCODED_VALUE_SIZE = 5;
+    // const uint32_t MAX_ENCODED_VALUE_SIZE = 5;
 
     struct BTAHeader
     {

@@ -79,11 +79,13 @@ namespace Fsl
       //! Layout
       Vector2 ArrangeOverride(const Vector2& finalSize) override
       {
+        FSL_PARAM_NOT_USED(finalSize);
         return m_resolution;
       }
 
       Vector2 MeasureOverride(const Vector2& availableSize) override
       {
+        FSL_PARAM_NOT_USED(availableSize);
         return availableSize;
       }
     };

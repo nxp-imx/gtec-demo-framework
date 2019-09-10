@@ -33,6 +33,7 @@
 
 from typing import Optional
 from FslBuildGen import IOUtil
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
@@ -43,40 +44,45 @@ from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 
 class RecipePathBuilder(object):
     def __init__(self, log: Log, variableProcessor: VariableProcessor, recipeBuilderSetup: Optional[RecipeBuilderSetup], platformName: str, compilerGeneratorName: str) -> None:
-        super(RecipePathBuilder, self).__init__()
+        super().__init__()
 
         self.__Log = log  # type: Log
         self.__VariableProcessor = variableProcessor  # type: VariableProcessor
 
         self.IsEnabled = recipeBuilderSetup is not None  # type: bool
 
-        self.TargetPath = None  # Optional[str]
+        self.TargetLocation = None  # Optional[ResolvedPath]
         self.DownloadCacheRootPath = None  # Optional[str]
         self.__TempRootPath = None  # Optional[str]
         self.__TempPipelineRootPath = None  # Optional[str]
-        self.InstallRootPath = None  # Optional[str]
+        self.InstallRootLocation = None  # Optional[ResolvedPath]
         self.ReadonlyCache_DownloadCacheRootPath = None  # Optional[str]
 
         if self.IsEnabled and recipeBuilderSetup is not None:
-            targetPath = recipeBuilderSetup.TargetPath
+            targetLocation = recipeBuilderSetup.TargetLocation
             readonlyCachePath = recipeBuilderSetup.ReadonlyCachePath
 
-            if not IOUtil.IsAbsolutePath(targetPath):
-                raise Exception("Install area path is not absolute: '{0}'".format(targetPath))
+            if not IOUtil.IsAbsolutePath(targetLocation.ResolvedPath):
+                raise Exception("Install area path is not absolute: '{0}'".format(targetLocation.ResolvedPath))
             if not readonlyCachePath is None and not IOUtil.IsAbsolutePath(readonlyCachePath):
                 raise Exception("Install area readonly cache path is not absolute: '{0}'".format(readonlyCachePath))
 
-            self.TargetPath = targetPath
-            self.DownloadCacheRootPath = IOUtil.Join(targetPath, ".DownloadCache")
+            self.TargetLocation = targetLocation
+            self.DownloadCacheRootPath = IOUtil.Join(targetLocation.ResolvedPath, ".DownloadCache")
 
-            self.__TempRootPath = IOUtil.Join(targetPath, ".Temp")
+            self.__TempRootPath = IOUtil.Join(targetLocation.ResolvedPath, ".Temp")
 
             baseTempDirectory = IOUtil.Join(self.__TempRootPath, "pipeline")
             baseTempDirectory = IOUtil.Join(baseTempDirectory, platformName)
             self.__TempPipelineRootPath = IOUtil.Join(baseTempDirectory, compilerGeneratorName)
 
-            baseInstallDirectory = IOUtil.Join(targetPath, platformName)
-            self.InstallRootPath = IOUtil.Join(baseInstallDirectory, compilerGeneratorName)
+            sourceBaseInstallDirectory = IOUtil.Join(targetLocation.SourcePath, platformName)
+            sourceInstallRootPath = IOUtil.Join(sourceBaseInstallDirectory, compilerGeneratorName)
+
+            baseInstallDirectory = IOUtil.Join(targetLocation.ResolvedPath, platformName)
+            installRootPath = IOUtil.Join(baseInstallDirectory, compilerGeneratorName)
+
+            self.InstallRootLocation = ResolvedPath(sourceInstallRootPath, installRootPath)
 
             self.ReadonlyCache_DownloadCacheRootPath = None if readonlyCachePath is None else IOUtil.Join(readonlyCachePath, ".DownloadCache")
 
@@ -87,15 +93,21 @@ class RecipePathBuilder(object):
         return IOUtil.Join(self.__TempPipelineRootPath, sourceRecipe.Name)
 
 
-    def TryGetInstallPath(self, xmlSourceRecipe: XmlExperimentalRecipe) -> Optional[str]:
+    def TryGetInstallPath(self, xmlSourceRecipe: XmlExperimentalRecipe) -> Optional[ResolvedPath]:
         if xmlSourceRecipe is None:
             return None
         elif not xmlSourceRecipe.ExternalInstallDirectory is None:
             if not xmlSourceRecipe.Pipeline is None:
                 self.__Log.DoPrintWarning("SourceRecipe ExternalInstallDirectory overrides Pipeline '{0}'".format(xmlSourceRecipe.Name))
-            return self.__VariableProcessor.ResolveAbsolutePathWithLeadingEnvironmentVariablePathAsDir(xmlSourceRecipe.ExternalInstallDirectory)
+            sourcePath = xmlSourceRecipe.ExternalInstallDirectory
+            resolvedPath = self.__VariableProcessor.ResolveAbsolutePathWithLeadingEnvironmentVariablePathAsDir(sourcePath)
+            return ResolvedPath(sourcePath, resolvedPath)
 
-        if not self.IsEnabled or self.InstallRootPath is None:
+        if not self.IsEnabled or self.InstallRootLocation is None:
             raise Exception("Can not TryGetInstallPath since the builder functionality has been disabled, please enable the builder functionality for this project")
 
-        return None if xmlSourceRecipe.Pipeline is None else IOUtil.Join(self.InstallRootPath, xmlSourceRecipe.Name)
+        if xmlSourceRecipe.Pipeline is None:
+            return None
+        sourcePath = IOUtil.Join(self.InstallRootLocation.SourcePath, xmlSourceRecipe.Name)
+        resolvedPath = IOUtil.Join(self.InstallRootLocation.ResolvedPath, xmlSourceRecipe.Name)
+        return ResolvedPath(sourcePath, resolvedPath)

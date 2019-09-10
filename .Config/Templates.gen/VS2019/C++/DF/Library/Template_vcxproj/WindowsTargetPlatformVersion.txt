@@ -1,0 +1,1 @@
+    <WindowsTargetPlatformVersion>##WINDOWS_TARGET_PLATFORM_VERSION##</WindowsTargetPlatformVersion>

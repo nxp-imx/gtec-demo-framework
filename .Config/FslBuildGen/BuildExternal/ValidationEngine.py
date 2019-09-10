@@ -183,7 +183,7 @@ class ValidationEngine(object):
                                  recipeVariants: List[str], packageRecipeResult: PackageRecipeResult) -> None:
         self.__BasicConfig.PushIndent()
         try:
-            installationPath = sourceRecipe.ResolvedInstallPath
+            installationPath = sourceRecipe.ResolvedInstallLocation.ResolvedPath if sourceRecipe.ResolvedInstallLocation is not None else None
             validateInstallation = sourceRecipe.ValidateInstallation
             if validateInstallation is None:
                 raise Exception("Invalid recipe")

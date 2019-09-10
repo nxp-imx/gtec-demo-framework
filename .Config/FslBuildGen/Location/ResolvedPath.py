@@ -34,11 +34,14 @@
 
 class ResolvedPath(object):
     def __init__(self, sourcePath: str, resolvedPath: str) -> None:
-        super(ResolvedPath, self).__init__()
+        super().__init__()
         self.SourcePath = sourcePath                # type: str
         self.ResolvedPath = resolvedPath            # type: str
-        self.ResolvedPathEx = resolvedPath + '/'    # type: str 
+        self.ResolvedPathEx = resolvedPath + '/'    # type: str
 
         # setup common id's
         self.SourcePathId = sourcePath.lower()      # type: str
         self.ResolvedPathId = resolvedPath.lower()  # type: str
+
+    def __str__(self) -> str:
+        return self.ResolvedPath

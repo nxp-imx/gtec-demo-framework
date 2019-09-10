@@ -251,9 +251,15 @@ namespace Fsl
           }
 
           Swizzle = true;
-          SwizzleR = shiftR / 8;
-          SwizzleG = shiftG / 8;
-          SwizzleB = shiftB / 8;
+          assert((shiftR / 8) <= std::numeric_limits<int8_t>::max());
+          assert((shiftR / 8) >= std::numeric_limits<int8_t>::min());
+          assert((shiftG / 8) <= std::numeric_limits<int8_t>::max());
+          assert((shiftG / 8) >= std::numeric_limits<int8_t>::min());
+          assert((shiftB / 8) <= std::numeric_limits<int8_t>::max());
+          assert((shiftB / 8) >= std::numeric_limits<int8_t>::min());
+          SwizzleR = static_cast<int8_t>(shiftR / 8);
+          SwizzleG = static_cast<int8_t>(shiftG / 8);
+          SwizzleB = static_cast<int8_t>(shiftB / 8);
         }
 
         if (header.AlphaMask != 0xFF000000 && header.AlphaMask != 0x00000000)
@@ -271,7 +277,9 @@ namespace Fsl
           }
 
           assert(Swizzle);
-          SwizzleA = shiftA / 8;
+          assert((shiftA / 8) <= std::numeric_limits<int8_t>::max());
+          assert((shiftA / 8) >= std::numeric_limits<int8_t>::min());
+          SwizzleA = static_cast<int8_t>(shiftA / 8);
         }
 
         if (header.AlphaMask == 0xFF000000)
@@ -436,6 +444,7 @@ namespace Fsl
 
     uint32_t CalcBitmapSize(const BitmapHeader& bitmapHeader, const uint32_t minimumStride, const uint32_t bytesPerPixel, const bool allowZero)
     {
+      FSL_PARAM_NOT_USED(bytesPerPixel);
       const uint64_t calculatedSize = uint64_t(minimumStride) * uint64_t(bitmapHeader.ImageHeight);
       if (calculatedSize > MAX_BITMAP_SIZE)
       {
@@ -677,8 +686,8 @@ namespace Fsl
     {
       // Since its the minimum stride we can just write the entire image with one call
       const std::streamsize bitmapStride = bitmap.Stride();
-      const auto cbBitmap = bitmap.Height() * bitmapStride;
-      stream.write(reinterpret_cast<const char*>(bitmap.Content()), cbBitmap);
+      const auto cbBitmap2 = bitmap.Height() * bitmapStride;
+      stream.write(reinterpret_cast<const char*>(bitmap.Content()), cbBitmap2);
     }
     else
     {

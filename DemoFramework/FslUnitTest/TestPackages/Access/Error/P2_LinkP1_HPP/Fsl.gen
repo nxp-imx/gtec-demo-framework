@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslUnitTest.TestPackages.Access.Error.P2_LinkP1_HPP" CreationYear="2019">
+    <!-- 
+    We disable all platform per default. 
+    As this package intentionally can not compile since its trying to access headers it dont have access to. Which is the thing we are trying to verify.
+    -->
+    <Default.Platform.Supported Value="false"/>
+    <Dependency Name="FslUnitTest.TestPackages.Access.P1" Access="Link"/>
+    <Platform Name="Windows" ProjectId="CA5BD9C1-4BEF-4AD5-B2FC-10BC65F675C4"/>
+  </Library>
+</FslBuildGen>

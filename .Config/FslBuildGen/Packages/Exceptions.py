@@ -40,7 +40,7 @@ class PackageHasMultipleDefinitions2Exception(PackageHasMultipleDefinitionsExcep
     def __init__(self, xmlGenFileList: List[XmlGenFile]) -> None:
         locationList = [] # type: List[str]
         for genFile in xmlGenFileList:
-            foundPath = genFile.AbsolutePath if genFile.AbsolutePath is not None else "Unknown path"
+            foundPath = genFile.PackageFile.AbsoluteDirPath if genFile.PackageFile is not None else "Unknown path"
             locationList.append(foundPath)
         msg = "Package '{0}' defined by '{1}'".format(xmlGenFileList[0].Name, ", ".join(locationList))
-        super(PackageHasMultipleDefinitions2Exception, self).__init__(msg)
+        super().__init__(msg)

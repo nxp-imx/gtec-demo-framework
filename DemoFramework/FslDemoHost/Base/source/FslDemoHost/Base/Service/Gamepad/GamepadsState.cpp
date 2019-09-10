@@ -31,6 +31,7 @@
 
 #include <FslDemoHost/Base/Service/Gamepad/GamepadsState.hpp>
 #include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
@@ -117,7 +118,7 @@ namespace Fsl
 
       if (gamepadState.DeviceId >= rGamepads.size())
       {
-        FSLLOG_DEBUG_WARNING_IF(!isConfigured, "GamepadsService: event received before the service was configured, ignored");
+        FSLBASICLOG_DEBUG_WARNING_IF(!isConfigured, "GamepadsService: event received before the service was configured, ignored");
         FSLLOG_DEBUG_WARNING_IF(isConfigured, "GamepadsService: event from a invalid deviceId: " << gamepadState.DeviceId << ", event ignored");
         return;
       }
@@ -179,7 +180,7 @@ namespace Fsl
         return;
       }
 
-      FSLLOG_DEBUG_WARNING_IF(!isConfigured, "GamepadsService: gamepad key event received before the service was configured, ignored");
+      FSLBASICLOG_DEBUG_WARNING_IF(!isConfigured, "GamepadsService: gamepad key event received before the service was configured, ignored");
       FSLLOG_DEBUG_WARNING_IF(isConfigured && deviceId >= maxDevices,
                               "GamepadsService: gamepad key event from a invalid deviceId: " << deviceId << ", event ignored");
     }
@@ -221,7 +222,7 @@ namespace Fsl
     case NativeWindowEventType::GamepadConfiguration:
       if (m_isConfigured)
       {
-        FSLLOG_DEBUG_WARNING("Gamepad service is already configured, new config ignored");
+        FSLBASICLOG_DEBUG_WARNING("Gamepad service is already configured, new config ignored");
         return;
       }
       HandleGamepadConfigurationEvent(event, m_gamepads);

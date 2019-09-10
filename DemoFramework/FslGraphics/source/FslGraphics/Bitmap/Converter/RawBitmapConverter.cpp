@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Bitmap/Converter/RawBitmapConverter.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
@@ -47,7 +48,7 @@ namespace Fsl
   {
     if (!rDstBitmap.IsValid())
     {
-      FSLLOG_DEBUG_WARNING("TryConvert called with invalid bitmap");
+      FSLBASICLOG_DEBUG_WARNING("TryConvert called with invalid bitmap");
       return false;
     }
 
@@ -102,7 +103,7 @@ namespace Fsl
   {
     if (!rDstBitmap.IsValid() || !srcBitmap.IsValid())
     {
-      FSLLOG_DEBUG_WARNING("TryConvert called with invalid bitmap");
+      FSLBASICLOG_DEBUG_WARNING("TryConvert called with invalid bitmap");
       return false;
     }
     // Dimensions must be the same and they must have a positive stride
@@ -127,7 +128,7 @@ namespace Fsl
     // The buffers can not overlap
     if (!(pSrc >= pDstEnd || pSrcEnd <= pDst))
     {
-      FSLLOG_DEBUG_WARNING("TryConvert called with overlapping buffers, this is not supported");
+      FSLBASICLOG_DEBUG_WARNING("TryConvert called with overlapping buffers, this is not supported");
       return false;
     }
 

@@ -45,7 +45,7 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
 
 class PackagePlatform(object):
     def __init__(self, name: str, xmlGenFilePlatform: XmlGenFilePlatform) -> None:
-        super(PackagePlatform, self).__init__()
+        super().__init__()
         if xmlGenFilePlatform != None and xmlGenFilePlatform.Name != name:
             raise Exception("the xmlGenFilePlatform.Name and name must be equal")
         self.Name = name

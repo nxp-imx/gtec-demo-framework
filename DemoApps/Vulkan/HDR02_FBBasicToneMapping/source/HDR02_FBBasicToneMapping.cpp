@@ -425,6 +425,8 @@ namespace Fsl
   void HDR02_FBBasicToneMapping::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers,
                                             const VulkanBasic::DrawContext& drawContext)
   {
+    FSL_PARAM_NOT_USED(demoTime);
+
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
@@ -524,8 +526,10 @@ namespace Fsl
   {
     auto res = GetScreenExtent();
 
-    VkRect2D scissor{{0, 0}, ConvertUtil::Convert(res)};
-    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+    {
+      VkRect2D scissor{{0, 0}, ConvertUtil::Convert(res)};
+      vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+    }
 
     const auto splitX = static_cast<uint32_t>(std::round(m_menuUI.SplitX.GetValue() * res.Width));
     const uint32_t remainderX = std::min(std::max(res.Width - splitX, 0u), res.Width);
@@ -619,6 +623,8 @@ namespace Fsl
 
   void HDR02_FBBasicToneMapping::DrawScene(const FrameResources& frame, const VkCommandBuffer commandBuffer)
   {
+    FSL_PARAM_NOT_USED(frame);
+
     VkDeviceSize offsets[1] = {0};
     vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshTunnel.VertexBuffer.GetBufferPointer(), offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshTunnel.VertexBuffer.GetVertexCount(), 1, 0, 0);
@@ -627,6 +633,8 @@ namespace Fsl
 
   void HDR02_FBBasicToneMapping::DrawTonemappedScene(const FrameResources& frame, const VkCommandBuffer commandBuffer)
   {
+    FSL_PARAM_NOT_USED(frame);
+
     VkDeviceSize offsets[1] = {0};
     vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshQuad.VertexBuffer.GetBufferPointer(), offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshQuad.VertexBuffer.GetVertexCount(), 1, 0, 0);

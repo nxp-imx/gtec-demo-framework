@@ -73,6 +73,6 @@ namespace Fsl
           return "Unknown";
         }
       }
-    };
+    }
   }
 }

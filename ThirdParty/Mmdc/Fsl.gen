@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="Mmdc" PackageNameBasedIncludePath="false" AllowCheck="false">
+  <Library Name="Mmdc" PackageNameBasedIncludePath="false" AllowCheck="false" CreationYear="2016">
     <Default.Platform.Supported Value="false"/>
 
     <Define Name="FSL_MMDC_AS_LIBRARY" Access="Private"/> 

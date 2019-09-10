@@ -73,6 +73,7 @@ namespace Fsl
       inline void CommandAddChild(const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry, const std::shared_ptr<TreeNode>& parentNode,
                                   const std::shared_ptr<TreeNode>& node, FastTreeNodeDeque* pNewWindows, const TreeNodeFlags& filterFlags)
       {
+        FSL_PARAM_NOT_USED(moduleCallbackRegistry);
         TreeNode::AddChild(parentNode, node);
         if (pNewWindows != nullptr)
         {

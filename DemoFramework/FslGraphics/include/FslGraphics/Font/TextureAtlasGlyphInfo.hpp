@@ -62,7 +62,7 @@ namespace Fsl
     TextureAtlasGlyphInfo() = default;
 
     TextureAtlasGlyphInfo(const Flags::Enum flags)
-      : TheFlags(flags)
+      : TheFlags(static_cast<uint8_t>(flags))
     {
     }
 

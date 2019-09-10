@@ -58,6 +58,9 @@ namespace Fsl
 
     void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override
     {
+      FSL_PARAM_NOT_USED(filterHint);
+      FSL_PARAM_NOT_USED(textureFlags);
+
       m_content.clear();
       const auto pSrc = static_cast<const uint8_t*>(bitmap.Content());
       assert(pSrc != nullptr);
@@ -67,6 +70,9 @@ namespace Fsl
     //! @brief Set the data of the texture
     void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override
     {
+      FSL_PARAM_NOT_USED(filterHint);
+      FSL_PARAM_NOT_USED(textureFlags);
+
       m_content.clear();
       const auto pSrc = static_cast<const uint8_t*>(texture.GetContent());
       assert(pSrc != nullptr);

@@ -1,0 +1,2 @@
+		##VARIANT##Debug|x64 = ##VARIANT##Debug|x64
+		##VARIANT##Release|x64 = ##VARIANT##Release|x64

@@ -128,7 +128,7 @@ namespace Fsl
     // Update the mix Factor
     if (0 == m_dirtDirection)
     {
-      m_mixFactor += 0.01f;
+      m_mixFactor += 0.6f * demoTime.DeltaTime;
       if (m_mixFactor > 1.0f)
       {
         m_mixFactor = 1.0f;
@@ -137,7 +137,7 @@ namespace Fsl
     }
     else
     {
-      m_mixFactor -= 0.01f;
+      m_mixFactor -= 0.6f * demoTime.DeltaTime;
       if (m_mixFactor < 0.0f)
       {
         m_mixFactor = 0.0f;

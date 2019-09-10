@@ -35,6 +35,7 @@
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -155,9 +156,9 @@ namespace Fsl
     const VkPresentModeKHR presentMode = VK_PRESENT_MODE_FIFO_KHR;
     const VkImageUsageFlags desiredImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    auto swapchain = Vulkan::SwapchainKHRUtil::CreateSwapchain(m_physicalDevice.Device, m_device.Get(), 0, m_surface, DESIRED_MIN_SWAP_BUFFER_COUNT,
-                                                               1, desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE, 0, nullptr,
-                                                               VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, VK_NULL_HANDLE, windowExtent);
+    auto swapchain = Vulkan::SwapchainKHRUtil::CreateSwapchain(
+      m_physicalDevice.Device, m_device.Get(), 0, m_surface, DESIRED_MIN_SWAP_BUFFER_COUNT, 1, desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE, 0,
+      nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, VK_NULL_HANDLE, windowExtent, Vulkan::SurfaceFormatInfo());
 
     FSLLOG("Checking surface capabilities post-swapchain creation");
     CheckPhysicalDeviceSurfaceCapabilitiesPostSwapchain(m_physicalDevice.Device, m_surface, windowExtent, SWAPCHAIN_DEPENDENT_SURFACE);

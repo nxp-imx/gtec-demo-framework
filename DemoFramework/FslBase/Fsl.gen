@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
-  <Library Name="FslBase">
+  <Library Name="FslBase" CreationYear="2014">
     <Define Name="FSL_FEATURE_FSLBASE" Access="Public"/>
-    <Dependency Name="tclap_1_2" Access="Private"/>
+    <!--Dependency Name="fmt" Access="Public"/-->
+    <Platform Name="FreeRTOS">
+      <Define Name="FSLBASE_THREAD_BACKEND_NOT_SUPPORTED" Access="Private"/>
+    </Platform>
     <Platform Name="Windows" ProjectId="A2028A7B-F410-4034-9B31-A3C5DDE3E560"/>
   </Library>
 </FslBuildGen>

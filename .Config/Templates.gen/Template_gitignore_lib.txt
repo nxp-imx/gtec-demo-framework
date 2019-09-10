@@ -12,4 +12,3 @@
 /##PROJECT_NAME##.VC.db
 /##PROJECT_NAME##.VC.VC.opendb
 /build/
-/CMakeLists.txt

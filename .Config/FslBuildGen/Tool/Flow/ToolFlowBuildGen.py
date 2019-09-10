@@ -73,7 +73,7 @@ class DefaultValue(object):
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
         self.DontBuildRecipes = DefaultValue.DontBuildRecipes
         self.DryRun = DefaultValue.DryRun
         self.ForceClaimInstallArea = DefaultValue.ForceClaimInstallArea
@@ -91,7 +91,7 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 class ToolFlowBuildGen(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildGen, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
 
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
@@ -129,11 +129,12 @@ class ToolFlowBuildGen(AToolAppFlow):
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
 
-        PluginConfig.SetGeneratorType(localToolConfig.GenType)
+        PluginConfig.SetLegacyGeneratorType(localToolConfig.GenType)
 
 
-        platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, True)
-        generatorContext = GeneratorContext(config, config.ToolConfig.Experimental, platformGeneratorPlugin)
+        platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, True,
+                                                                      config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        generatorContext = GeneratorContext(config, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
         packages = MainFlow.DoGenerateBuildFiles(config, theFiles, platformGeneratorPlugin, localToolConfig.BuildPackageFilters)
 
         # If the platform was manually switched, then check if the build platform is supported,
@@ -168,8 +169,9 @@ class ToolFlowBuildGen(AToolAppFlow):
                     platformPackageList = platformResult[0]
                     if len(platformPackageList) > 0 and PlatformUtil.TryCheckBuildPlatform(platformName):
                         self.Log.DoPrint("Generator: {0}".format(platformName))
-                        tempPlatformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(platformName, True)
-                        tempGeneratorContext = GeneratorContext(config, config.ToolConfig.Experimental, tempPlatformGeneratorPlugin)
+                        tempPlatformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(platformName, localToolConfig.Generator, True,
+                                                                                          config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+                        tempGeneratorContext = GeneratorContext(config, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, tempPlatformGeneratorPlugin)
                         try:
                             self.Log.PushIndent()
                             self.__DoBuildRecipes(config, tempGeneratorContext, platformPackageList,  localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads)
@@ -208,6 +210,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
     def GetToolCommonArgConfig(self) -> ToolCommonArgConfig:
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
+        argConfig.AddGeneratorSelection = True
         argConfig.AllowPlaformAll = True
         #argConfig.AllowVSVersion = True
         argConfig.AllowForceClaimInstallArea = True

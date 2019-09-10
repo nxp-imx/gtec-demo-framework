@@ -30,7 +30,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/BasicLog.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
   else
   {
     strContentPath = Fsl::IO::Directory::GetCurrentWorkingDirectory();
-    FSLLOG_WARNING("Could not find the exe path, trying to use current working directory instead.");
+    FSLBASICLOG_WARNING("Could not find the exe path, trying to use current working directory instead.");
   }
 
   strContentPath = Fsl::IO::Path::GetFullPath(strContentPath);

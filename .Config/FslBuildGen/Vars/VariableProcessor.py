@@ -52,7 +52,7 @@ from FslBuildGen.Vars.VariableEnvironment import VariableEnvironment
 
 class VariableProcessor(object):
     def __init__(self, log: Log, variableEnvironment: Optional[VariableEnvironment] = None) -> None:
-        super(VariableProcessor, self).__init__()
+        super().__init__()
         self.Variables = VariableEnvironment(log) if variableEnvironment is None else variableEnvironment
 
     def TrySplitLeadingEnvironmentVariablesNameAndPath(self, entry: str, tag: Optional[object] = None) -> Union[Tuple[str, str], Tuple[None, None]]:

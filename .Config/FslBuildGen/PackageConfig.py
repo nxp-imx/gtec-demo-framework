@@ -42,6 +42,7 @@ class PlatformNameString(object):
     UBUNTU = "Ubuntu"
     YOCTO = "Yocto"
     WINDOWS = "Windows"
+    FREERTOS = "FreeRTOS"
     QNX = "QNX"
     # Special
     CMAKE = "CMake"
@@ -52,8 +53,10 @@ class PlatformNameIdString(object):
     UBUNTU = PlatformNameString.UBUNTU.lower()
     YOCTO = PlatformNameString.YOCTO.lower()
     WINDOWS = PlatformNameString.WINDOWS.lower()
+    FREERTOS = PlatformNameString.FREERTOS.lower()
     QNX = PlatformNameString.QNX.lower()
     # Special
     CMAKE = PlatformNameString.CMAKE.lower()
 
-APPROVED_PLATFORM_NAMES = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.WINDOWS, PlatformNameString.QNX, PlatformNameString.CMAKE]
+APPROVED_PLATFORM_NAMES = [PlatformNameString.ANDROID, PlatformNameString.UBUNTU, PlatformNameString.YOCTO, PlatformNameString.WINDOWS,
+                           PlatformNameString.FREERTOS, PlatformNameString.QNX, PlatformNameString.CMAKE]

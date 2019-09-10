@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Library Name="Shared.CubeMapping.API.OpenGLES3">
+  <Library Name="Shared.CubeMapping.API.OpenGLES3" CreationYear="2018">
     <Dependency Name="FslUtil.OpenGLES3"/>
     <Dependency Name="FslDemoApp.Base"/>
     <Platform Name="Windows" ProjectId="31D5AB05-3BCD-4834-A016-DF9E9F183306"/>

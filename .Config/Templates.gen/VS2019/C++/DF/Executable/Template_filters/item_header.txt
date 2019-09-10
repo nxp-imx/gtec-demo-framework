@@ -1,0 +1,3 @@
+    <ClInclude Include="##FILENAME##">
+      <Filter>Header Files</Filter>
+    </ClInclude>

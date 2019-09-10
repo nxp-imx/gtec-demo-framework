@@ -36,6 +36,7 @@ namespace Fsl
 {
   bool PlatformNativeWindowSystem::IsDisplayHDRCompatible(const int32_t displayId) const
   {
+    FSL_PARAM_NOT_USED(displayId);
     FSLLOG_WARNING("IsDisplayHDRCompatible() query not supported, defaulting to false");
     return false;
   }

@@ -115,7 +115,7 @@ class DefaultValueStandalone(object):
 
 class LocalToolConfig(ToolAppConfig):
     def __init__(self) -> None:
-        super(LocalToolConfig, self).__init__()
+        super().__init__()
 
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
 
@@ -126,7 +126,7 @@ def GetDefaultLocalConfig() -> LocalToolConfig:
 
 class ToolFlowBuildRun(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
-        super(ToolFlowBuildRun, self).__init__(toolAppContext)
+        super().__init__(toolAppContext)
 
     def ProcessFromStandaloneCommandLine(self, args: Any, currentDirPath: str,  userTag: Optional[object]) -> None:
         # Process the input arguments here, before calling the real work function
@@ -256,6 +256,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
     def GetToolCommonArgConfig(self) -> ToolCommonArgConfig:
         argConfig = ToolCommonArgConfig()
         argConfig.AddPlatformArg = True
+        argConfig.AddGeneratorSelection = True
         argConfig.ProcessRemainingArgs = False
         argConfig.SupportBuildTime = True
         argConfig.AddBuildFiltering = True

@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /FslDemoHost.OpenGLES3.VC.VC.opendb
 /FslDemoHost.OpenGLES3.VC.db
 /FslDemoHost.OpenGLES3.manifest

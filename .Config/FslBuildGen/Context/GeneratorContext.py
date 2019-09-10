@@ -38,11 +38,14 @@ from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
 
 class GeneratorContext(PlatformContext):
-    def __init__(self, basicConfig: BasicConfig, experimental: Optional[ToolConfigExperimental], generator: GeneratorPlugin) -> None:
+    def __init__(self, basicConfig: BasicConfig, recipeFilterManager: RecipeFilterManager, 
+                 experimental: Optional[ToolConfigExperimental], generator: GeneratorPlugin) -> None:
         cmakeGenerator = CMakeTypes.TryDetermineCMakeGenerator(generator)
         cmakeGeneratorShortName = None
         if cmakeGenerator is not None:
@@ -56,10 +59,11 @@ class GeneratorContext(PlatformContext):
         recipeBuilderSetup = None
         allowDownloads = False
         if experimental is not None:
-            targetPath = experimental.DefaultThirdPartyInstallDirectory.ResolvedPath
+            targetLocation = ResolvedPath(experimental.DefaultThirdPartyInstallDirectory.DynamicName,
+                                          experimental.DefaultThirdPartyInstallDirectory.ResolvedPath)
             installReadonlySource = experimental.DefaultThirdPartyInstallReadonlyCacheDirectory
             readonlyCachePath = None if installReadonlySource is None else installReadonlySource.ResolvedPath  # type: Optional[str]
-            recipeBuilderSetup = RecipeBuilderSetup(targetPath, readonlyCachePath)
+            recipeBuilderSetup = RecipeBuilderSetup(targetLocation, readonlyCachePath)
             if IOUtil.TryGetEnvironmentVariable(experimental.DisableDownloadEnv) != None:
                 allowDownloads = False
                 basicConfig.LogPrint("Downloads disabled since the environment variable {0} was defined".format(experimental.DisableDownloadEnv))
@@ -68,7 +72,7 @@ class GeneratorContext(PlatformContext):
             else:
                 basicConfig.LogPrint("Downloads disabled since the project has it disabled by default")
 
-        super().__init__(basicConfig, generator.Name, generator.Name, shortCompilerName, recipeBuilderSetup)
+        super().__init__(basicConfig, generator.PlatformName, generator.PlatformName, shortCompilerName, recipeBuilderSetup)
 
         #allowDownload=True, disableDownloadEnv=None
 
@@ -77,3 +81,4 @@ class GeneratorContext(PlatformContext):
         # for now the generator is also the platform and the existing code use that name so maintain compatibility for now
         self.Platform = generator
         self.AllowDownloads = allowDownloads
+        self.RecipeFilterManager = recipeFilterManager

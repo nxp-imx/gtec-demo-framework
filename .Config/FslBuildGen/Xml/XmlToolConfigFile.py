@@ -50,6 +50,7 @@ from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.Project.XmlBuildDocConfiguration import XmlBuildDocConfiguration
 from FslBuildGen.Xml.Project.XmlClangTidyConfiguration import XmlClangTidyConfiguration
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlClangFormatConfiguration
+from FslBuildGen.Xml.Project.XmlCMakeConfiguration import XmlCMakeConfiguration
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigCompilerConfiguration
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlExperimental
@@ -175,6 +176,7 @@ class XmlToolConfigFile(XmlBase):
         self.BuildDocConfiguration = projectRootConfig.XmlBuildDocConfiguration # type: List[XmlBuildDocConfiguration]
         self.ClangFormatConfiguration = projectRootConfig.XmlClangFormatConfiguration  # type: List[XmlClangFormatConfiguration]
         self.ClangTidyConfiguration = projectRootConfig.XmlClangTidyConfiguration  # type: List[XmlClangTidyConfiguration]
+        self.CMakeConfiguration = projectRootConfig.XmlCMakeConfiguration  # type: List[XmlCMakeConfiguration]
         self.CompilerConfiguration = projectRootConfig.XmlCompilerConfiguration  # type: List[XmlConfigCompilerConfiguration]
         self.Experimental = self.__ResolveExperimental(projectRootConfig.XmlExperimental)  # type: Optional[XmlExperimental]
 
