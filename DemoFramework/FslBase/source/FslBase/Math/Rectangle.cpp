@@ -31,7 +31,7 @@
 
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <algorithm>
 
 namespace Fsl
@@ -42,8 +42,8 @@ namespace Fsl
     , m_width(std::max(width, static_cast<int32_t>(0)))
     , m_height(std::max(height, static_cast<int32_t>(0)))
   {
-    FSLBASICLOG_WARNING_IF(width < 0, "Tried to set width to less than zero");
-    FSLBASICLOG_WARNING_IF(height < 0, "Tried to set height to less than zero");
+    FSLLOG3_WARNING_IF(width < 0, "Tried to set width to less than zero");
+    FSLLOG3_WARNING_IF(height < 0, "Tried to set height to less than zero");
   }
 
 
@@ -54,8 +54,8 @@ namespace Fsl
     , m_height(std::max(bottom - top, static_cast<int32_t>(0)))
   {
     FSL_PARAM_NOT_USED(reserved);
-    FSLBASICLOG_WARNING_IF((right - left) < 0, "Tried to set width to less than zero");
-    FSLBASICLOG_WARNING_IF((bottom - top) < 0, "Tried to set height to less than zero");
+    FSLLOG3_WARNING_IF((right - left) < 0, "Tried to set width to less than zero");
+    FSLLOG3_WARNING_IF((bottom - top) < 0, "Tried to set height to less than zero");
   }
 
 
@@ -64,7 +64,7 @@ namespace Fsl
     if (value < 0)
     {
       m_width = 0;
-      FSLBASICLOG_WARNING("Tried to set width to less than zero");
+      FSLLOG3_WARNING("Tried to set width to less than zero");
     }
     else
     {
@@ -78,7 +78,7 @@ namespace Fsl
     if (value < 0)
     {
       m_height = 0;
-      FSLBASICLOG_WARNING("Tried to set height to less than zero");
+      FSLLOG3_WARNING("Tried to set height to less than zero");
     }
     else
     {

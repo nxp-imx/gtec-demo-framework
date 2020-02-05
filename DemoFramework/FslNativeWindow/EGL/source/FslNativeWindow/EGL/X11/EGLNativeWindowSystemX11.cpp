@@ -33,7 +33,7 @@
 #include "EGLNativeWindowSystemX11.hpp"
 #include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
 #include <FslNativeWindow/Platform/X11/PlatformNativeWindowX11.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/EGL/Exceptions.hpp>
 #include <FslUtil/EGL/EGLCheck.hpp>
 

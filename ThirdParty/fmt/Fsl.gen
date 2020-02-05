@@ -2,14 +2,18 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="fmt" CreationYear="2019">
     <Default.Platform.Supported Value="false"/>
+    <Define Name="FSL_ENABLE_FMT" Access="Public"/>
+    <Platform Name="Android" Supported="true">
+      <Dependency Name="Recipe.fmt_6_1_2"/>
+    </Platform>    
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="fmt" Access="Public" Type="StaticLib"/>
     </Platform>
     <Platform Name="Ubuntu" Supported="true">
-      <Dependency Name="Recipe.fmt_6_0_0"/>
+      <Dependency Name="Recipe.fmt_6_1_2"/>
     </Platform>    
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.fmt_6_0_0"/>
+      <Dependency Name="Recipe.fmt_6_1_2"/>
     </Platform>    
   </ExternalLibrary>
 </FslBuildGen>

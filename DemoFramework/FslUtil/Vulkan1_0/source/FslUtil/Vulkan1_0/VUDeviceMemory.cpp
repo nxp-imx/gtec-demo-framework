@@ -96,7 +96,7 @@ namespace Fsl
 
       if (m_isMapped)
       {
-        // FSLBASICLOG_DEBUG_WARNING("Resetting DeviceMemory that is mapped, forcing unmap.");
+        // FSLLOG3_DEBUG_WARNING("Resetting DeviceMemory that is mapped, forcing unmap.");
         DoUnmapMemory();
       }
 
@@ -193,7 +193,7 @@ namespace Fsl
 
       if (IsMapped())
       {
-        FSLBASICLOG_DEBUG_WARNING("Mapping already mapped memory");
+        FSLLOG3_DEBUG_WARNING("Mapping already mapped memory");
         DoUnmapMemory();
       }
 
@@ -272,12 +272,12 @@ namespace Fsl
       }
       if (!m_isMapped)
       {
-        FSLBASICLOG_DEBUG_WARNING("Device memory is not mapped, call ignored.");
+        FSLLOG3_DEBUG_WARNING("Device memory is not mapped, call ignored.");
         return;
       }
       if ((m_memoryPropertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == 0u)
       {
-        FSLBASICLOG_DEBUG_WARNING("Can't unmap memory that is not host visible, call ignored");
+        FSLLOG3_DEBUG_WARNING("Can't unmap memory that is not host visible, call ignored");
         return;
       }
 

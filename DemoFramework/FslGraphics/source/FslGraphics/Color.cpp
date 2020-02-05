@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
 
 namespace Fsl
@@ -38,19 +38,19 @@ namespace Fsl
     : m_value(static_cast<uint32_t>(b & 0xFF) | (static_cast<uint32_t>(g & 0xFF) << 8) | (static_cast<uint32_t>(r & 0xFF) << 16) |
               (static_cast<uint32_t>(a & 0xFF) << 24))
   {
-    FSLLOG_DEBUG_WARNING_IF(r < 0 || r > 255, "Red is expected to be between 0-255 so " << r << " is not valid.");
-    FSLLOG_DEBUG_WARNING_IF(g < 0 || g > 255, "Green is expected to be between 0-255 so " << g << " is not valid.");
-    FSLLOG_DEBUG_WARNING_IF(b < 0 || b > 255, "Blue is expected to be between 0-255 so " << b << " is not valid.");
-    FSLLOG_DEBUG_WARNING_IF(a < 0 || a > 255, "Alpha is expected to be between 0-255 so " << a << " is not valid.");
+    FSLLOG3_DEBUG_WARNING_IF(r < 0 || r > 255, "Red is expected to be between 0-255 so {} is not valid.", r);
+    FSLLOG3_DEBUG_WARNING_IF(g < 0 || g > 255, "Green is expected to be between 0-255 so {} is not valid.", g);
+    FSLLOG3_DEBUG_WARNING_IF(b < 0 || b > 255, "Blue is expected to be between 0-255 so {} is not valid.", b);
+    FSLLOG3_DEBUG_WARNING_IF(a < 0 || a > 255, "Alpha is expected to be between 0-255 so {} is not valid.", a);
   }
 
 
   Color::Color(const uint32_t r, const uint32_t g, const uint32_t b, const uint32_t a)
     : m_value((b & 0xFF) | ((g & 0xFF) << 8) | ((r & 0xFF) << 16) | ((a & 0xFF) << 24))
   {
-    FSLLOG_DEBUG_WARNING_IF(r > 255, "Red is expected to be between 0-255 so " << r << " is not valid.");
-    FSLLOG_DEBUG_WARNING_IF(g > 255, "Green is expected to be between 0-255 so " << g << " is not valid.");
-    FSLLOG_DEBUG_WARNING_IF(b > 255, "Blue is expected to be between 0-255 so " << b << " is not valid.");
-    FSLLOG_DEBUG_WARNING_IF(a > 255, "Alpha is expected to be between 0-255 so " << a << " is not valid.");
+    FSLLOG3_DEBUG_WARNING_IF(r > 255, "Red is expected to be between 0-255 so {} is not valid.", r);
+    FSLLOG3_DEBUG_WARNING_IF(g > 255, "Green is expected to be between 0-255 so {} is not valid.", g);
+    FSLLOG3_DEBUG_WARNING_IF(b > 255, "Blue is expected to be between 0-255 so {} is not valid.", b);
+    FSLLOG3_DEBUG_WARNING_IF(a > 255, "Alpha is expected to be between 0-255 so {} is not valid.", a);
   }
 }

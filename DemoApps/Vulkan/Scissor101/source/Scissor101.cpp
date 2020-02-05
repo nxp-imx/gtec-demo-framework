@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "Scissor101.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
@@ -371,8 +371,8 @@ namespace Fsl
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(75.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
 
-    FSLLOG_ERROR_IF(m_options->ForceInvalidWidth, "Ignored: force invalid width")
-    FSLLOG_ERROR_IF(m_options->ForceInvalidHeight, "Ignored: force invalid height")
+    FSLLOG3_ERROR_IF(m_options->ForceInvalidWidth, "Ignored: force invalid width")
+    FSLLOG3_ERROR_IF(m_options->ForceInvalidHeight, "Ignored: force invalid height")
   }
 
 
@@ -532,7 +532,7 @@ namespace Fsl
 
     if (clipX < 0 || (clipX + clipWidth) > screenResolution.X || clipY < 0 || (clipY + clipHeight) > screenResolution.Y)
     {
-      FSLLOG_ERROR("Scissor rect out of bounds");
+      FSLLOG3_ERROR("Scissor rect out of bounds");
       clipX = 0;
       clipY = 0;
       clipWidth = screenResolution.X;

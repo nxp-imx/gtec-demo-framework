@@ -34,7 +34,7 @@
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
 
 namespace Fsl

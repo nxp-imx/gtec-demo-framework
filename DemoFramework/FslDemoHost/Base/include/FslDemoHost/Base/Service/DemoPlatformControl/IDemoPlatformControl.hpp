@@ -31,13 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
-
 namespace Fsl
 {
-  class IDemoPlatformControl : public Noncopyable
+  class IDemoPlatformControl
   {
   public:
+    IDemoPlatformControl(const IDemoPlatformControl&) = delete;
+    IDemoPlatformControl& operator=(const IDemoPlatformControl&) = delete;
     virtual ~IDemoPlatformControl() = default;
 
     // Exit with the default exit code.
@@ -45,6 +45,9 @@ namespace Fsl
 
     // Check if a exit request exist
     virtual bool HasExitRequest() const = 0;
+
+  protected:
+    IDemoPlatformControl() = default;
   };
 }
 

@@ -35,7 +35,7 @@
 #include <FslUtil/Vulkan1_0/VUBuffer.hpp>
 #include <FslUtil/Vulkan1_0/VUDeviceMemory.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <array>
 #include <vector>
 

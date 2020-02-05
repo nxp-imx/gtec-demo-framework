@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLVertexAttribLink.hpp>
 #include <FslUtil/OpenGLES3_1/GLProgramPipeline.hpp>
@@ -51,7 +50,7 @@ namespace Fsl
   class IContentManager;
   class VertexDeclaration;
 
-  class TessellationShader : private Noncopyable
+  class TessellationShader
   {
   public:
     GLES3::GLProgramPipeline Pipeline;
@@ -78,6 +77,9 @@ namespace Fsl
     GLint LocMatShininess;
 
     std::vector<GLES3::GLVertexAttribLink> AttribLink;
+
+    TessellationShader(const TessellationShader&) = delete;
+    TessellationShader& operator=(const TessellationShader&) = delete;
 
     TessellationShader(const std::shared_ptr<IContentManager>& contentManager, const VertexDeclaration& vertexDeclaration);
 

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DFNativeBatchCamera.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/Camera/Platform/PlatformCameraSystem.hpp>
@@ -58,7 +58,7 @@ namespace Fsl
     }
     catch (const std::exception& ex)
     {
-      FSLLOG_WARNING("Failed to create camera render: " << ex.what());
+      FSLLOG3_WARNING("Failed to create camera render: {}", ex.what());
     }
   }
 

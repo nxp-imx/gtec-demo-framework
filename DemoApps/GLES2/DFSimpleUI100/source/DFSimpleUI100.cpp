@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DFSimpleUI100.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>

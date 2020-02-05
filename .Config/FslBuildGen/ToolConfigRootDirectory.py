@@ -72,6 +72,7 @@ class ToolConfigRootDirectory(object):
         remainingPath = tupleResult[1]
         if env is None:
             raise Exception("Root dirs are expected to contain environment variables '{0}'".format(self.DynamicName))
+        remainingPath = remainingPath if remainingPath is not None else ""
 
         resolvedPath = IOUtil.GetEnvironmentVariableForDirectory(env, dirMustExist)
         if not IOUtil.Exists(resolvedPath):

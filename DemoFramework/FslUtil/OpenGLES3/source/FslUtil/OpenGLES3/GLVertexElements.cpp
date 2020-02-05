@@ -32,7 +32,7 @@
 #include <FslUtil/OpenGLES3/GLVertexElements.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -261,7 +261,7 @@ namespace Fsl
       {
         throw NotSupportedException("We only support 32bit of elements");
       }
-      FSLLOG_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
+      FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
 
       const auto vertexStride = VertexStride();
 
@@ -284,7 +284,7 @@ namespace Fsl
       {
         throw NotSupportedException("We only support 32bit of elements");
       }
-      FSLLOG_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
+      FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
 
       const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
       for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
@@ -363,7 +363,7 @@ namespace Fsl
         throw NotSupportedException("We only support 32bit of elements");
       }
 
-      FSLLOG_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
+      FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
 
       const auto vertexStride = VertexStride();
 

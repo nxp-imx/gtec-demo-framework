@@ -35,7 +35,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/Rect.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/EventDescription.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
@@ -74,12 +74,12 @@ namespace Fsl
 
       if (!theEvent)
       {
-        FSLLOG_WARNING("Can not send a null event, request ignored.");
+        FSLLOG3_WARNING("Can not send a null event, request ignored.");
         return;
       }
       if (!target)
       {
-        FSLLOG_WARNING("can not send to a null target, request ignored.");
+        FSLLOG3_WARNING("can not send to a null target, request ignored.");
         return;
       }
 
@@ -113,7 +113,7 @@ namespace Fsl
 
       if (!theEvent)
       {
-        FSLLOG_WARNING("Can not send a null event, request ignored.");
+        FSLLOG3_WARNING("Can not send a null event, request ignored.");
         return;
       }
 

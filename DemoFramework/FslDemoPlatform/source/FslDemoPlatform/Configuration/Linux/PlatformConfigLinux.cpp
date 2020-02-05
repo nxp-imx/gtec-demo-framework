@@ -33,6 +33,8 @@
 //#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 #include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
+#include <FslDemoService/CpuStats/Impl/CpuStatsServiceFactory.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 //#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
 //#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
@@ -69,6 +71,9 @@ namespace Fsl
     //    //serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceVG, INativeGraphicsService>
     //    >(ServicePriorityList::NativeGraphicsService());
     //#endif
+
+    auto cpuStatsServiceFactory = std::make_shared<CpuStatsServiceFactory>([]() { return std::make_unique<CpuStatsAdapterLinux>(); });
+    serviceRegistry.Register(cpuStatsServiceFactory);
   }
 }
 #endif

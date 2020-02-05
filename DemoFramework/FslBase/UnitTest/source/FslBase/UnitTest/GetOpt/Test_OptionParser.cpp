@@ -55,7 +55,7 @@ namespace
     {
     }
 
-    OptionParseResult::Enum Parse(const int32_t cmdId, const char* const pszOptArg) override
+    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override
     {
       return OptionParseResult::NotHandled;
     }

@@ -68,7 +68,7 @@ namespace
   // Bitmap -> Texture
   using TestTypes = ::testing::Types<TestType1A, TestType1B, TestType1C, TestType2A, TestType2B, TestType2C>;
 
-  TYPED_TEST_CASE(TestFixtureFslGraphics_Bitmap, TestTypes);
+  TYPED_TEST_SUITE(TestFixtureFslGraphics_Bitmap, TestTypes);
 }
 
 

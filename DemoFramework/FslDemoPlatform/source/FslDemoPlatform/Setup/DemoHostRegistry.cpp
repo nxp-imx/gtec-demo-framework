@@ -32,8 +32,8 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <fmt/format.h>
 #include <algorithm>
-#include <sstream>
 
 namespace Fsl
 {
@@ -75,19 +75,20 @@ namespace Fsl
 
     // None exists, so lets output a nice useful error message.
     {
-      std::stringstream errorMessage;
-      errorMessage << "There is no host available that supports: ";
+      fmt::memory_buffer errorMessage;
+
+      fmt::format_to(errorMessage, "There is no host available that supports: ");
       auto itr = features.begin();
       while (itr != features.end())
       {
-        errorMessage << DemoHostFeatureName::ToString(itr->Name);
+        fmt::format_to(errorMessage, DemoHostFeatureName::ToString(itr->Name));
         ++itr;
         if (itr != features.end())
         {
-          errorMessage << ", ";
+          fmt::format_to(errorMessage, ", ");
         }
       }
-      throw NotSupportedException(errorMessage.str());
+      throw NotSupportedException(fmt::to_string(errorMessage));
     }
   }
 

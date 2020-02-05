@@ -31,7 +31,7 @@
 
 #include <Shared/Bloom/GaussianShaderBuilder.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <cassert>
 #include <iomanip>
@@ -137,7 +137,7 @@ namespace Fsl
     }
   }
 
-  std::string GaussianShaderBuilder::Build5x5(const std::string& strTemplate, const float kernelWeightMod)
+  Gaussian5 GaussianShaderBuilder::Build5x5(const float kernelWeightMod)
   {
     const float actualKernel[] = {1, 4, 6, 4, 1};
     const std::size_t actualKernelLength = sizeof(actualKernel) / sizeof(float);
@@ -150,18 +150,10 @@ namespace Fsl
     // Normalize kernel coefficients
     NormalizeKernel(linearKernel, linearKernelLength, kernelWeightMod);
 
-
-    std::string res = strTemplate;
-    StringReplaceWithValue(res, "##REPLACE0_WEIGHT##", linearKernel[0].Weight);
-    StringReplaceWithValue(res, "##REPLACE0_OFFSET##", linearKernel[0].Offset);
-    StringReplaceWithValue(res, "##REPLACE1_WEIGHT##", linearKernel[1].Weight);
-
-    // FSLLOG(res);
-    return res;
+    return Gaussian5(linearKernel[0].Weight, linearKernel[1].Weight, linearKernel[0].Offset);
   }
 
-
-  std::string GaussianShaderBuilder::Build9x9(const std::string& strTemplate, const float kernelWeightMod)
+  Gaussian9 GaussianShaderBuilder::Build9x9(const float kernelWeightMod)
   {
     // yes we could take advantage of the fact that the kernel is mirrored around the middle but for now its not important and
     // the code is more 'clear' when we just ignore it
@@ -179,13 +171,32 @@ namespace Fsl
     // Normalize kernel coefficients
     NormalizeKernel(linearKernel, linearKernelLength, kernelWeightMod);
 
+    return Gaussian9(linearKernel[0].Weight, linearKernel[1].Weight, linearKernel[2].Weight, linearKernel[0].Offset, linearKernel[1].Offset);
+  }
+
+  std::string GaussianShaderBuilder::Build5x5(const std::string& strTemplate, const float kernelWeightMod)
+  {
+    const auto result = Build5x5(kernelWeightMod);
 
     std::string res = strTemplate;
-    StringReplaceWithValue(res, "##REPLACE0_WEIGHT##", linearKernel[0].Weight);
-    StringReplaceWithValue(res, "##REPLACE0_OFFSET##", linearKernel[0].Offset);
-    StringReplaceWithValue(res, "##REPLACE1_WEIGHT##", linearKernel[1].Weight);
-    StringReplaceWithValue(res, "##REPLACE1_OFFSET##", linearKernel[1].Offset);
-    StringReplaceWithValue(res, "##REPLACE2_WEIGHT##", linearKernel[2].Weight);
+    StringReplaceWithValue(res, "##REPLACE0_WEIGHT##", result.Weight0);
+    StringReplaceWithValue(res, "##REPLACE1_WEIGHT##", result.Weight1);
+    StringReplaceWithValue(res, "##REPLACE0_OFFSET##", result.Offset0);
+
+    // FSLLOG3_INFO(res);
+    return res;
+  }
+
+  std::string GaussianShaderBuilder::Build9x9(const std::string& strTemplate, const float kernelWeightMod)
+  {
+    const auto result = Build9x9(kernelWeightMod);
+
+    std::string res = strTemplate;
+    StringReplaceWithValue(res, "##REPLACE0_WEIGHT##", result.Weight0);
+    StringReplaceWithValue(res, "##REPLACE1_WEIGHT##", result.Weight1);
+    StringReplaceWithValue(res, "##REPLACE2_WEIGHT##", result.Weight2);
+    StringReplaceWithValue(res, "##REPLACE0_OFFSET##", result.Offset0);
+    StringReplaceWithValue(res, "##REPLACE1_OFFSET##", result.Offset1);
     return res;
   }
 }

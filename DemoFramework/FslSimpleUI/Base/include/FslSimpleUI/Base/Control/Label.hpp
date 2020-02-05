@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslSimpleUI/Base/Control/LabelBase.hpp>
 #include <string>
 
@@ -49,15 +50,17 @@ namespace Fsl
 
       const std::string& GetContent() const
       {
-        return DoGetContent();
+        return m_content;
       }
 
+      void SetContent(const char* const psz);
+      void SetContent(const StringViewLite& value);
       void SetContent(const std::string& value);
 
     protected:
-      const std::string& DoGetContent() const override
+      StringViewLite DoGetContent() const override
       {
-        return m_content;
+        return StringViewLite(m_content.data(), m_content.size());
       }
     };
   }

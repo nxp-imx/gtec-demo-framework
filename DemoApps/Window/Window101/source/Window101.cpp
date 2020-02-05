@@ -33,7 +33,9 @@
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <FslNativeWindow/Base/INativeWindowSystem.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtPoint2.hpp>
+#include <FslBase/Log/Math/FmtVector2.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
@@ -52,36 +54,36 @@ namespace Fsl
     auto windows = windowHostInfo->GetWindows();
 
     // Query them for information directly
-    FSLLOG("Active windows: " << windows.size());
+    FSLLOG3_INFO("Active windows: {}", windows.size());
     for (std::size_t i = 0; i < windows.size(); ++i)
     {
       auto window = windows[i].lock();
-      FSLLOG("Window #" << i);
+      FSLLOG3_INFO("Window #{}", i);
       if (window)
       {
         Point2 size;
         if (window->TryGetSize(size))
         {
-          FSLLOG("- Size: " << size.X << "x" << size.Y);
+          FSLLOG3_INFO("- Size: {}", size);
         }
         else
         {
-          FSLLOG("- Size: Failed");
+          FSLLOG3_INFO("- Size: Failed");
         }
 
         Vector2 dpi;
         if (window->TryGetDPI(dpi))
         {
-          FSLLOG("- DPI:  " << dpi.X << "," << dpi.Y);
+          FSLLOG3_INFO("- DPI:  {}", dpi);
         }
         else
         {
-          FSLLOG("- DPI:  Failed");
+          FSLLOG3_INFO("- DPI:  Failed");
         }
       }
       else
       {
-        FSLLOG("- has been closed");
+        FSLLOG3_INFO("- has been closed");
       }
     }
   }

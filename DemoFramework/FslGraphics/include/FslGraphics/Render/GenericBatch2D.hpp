@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/VectorHelper.hpp>
@@ -46,18 +46,15 @@ namespace Fsl
 {
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GenericBatch2D(const native_batch_type& nativeBatchType, const Point2& screenResolution)
-    : m_native(nativeBatchType)
-    , m_vertices(GenericBatch2D_DEFAULT_CAPACITY * VERTICES_PER_QUAD)
-    , m_drawRecords(GenericBatch2D_DEFAULT_CAPACITY)
-    , m_drawRecordIndex(0)
-    , m_quadCount(0)
+    : m_batchStrategy(GenericBatch2D_DEFAULT_CAPACITY)
+    , m_native(nativeBatchType)
     , m_screenRect(0, 0, screenResolution.X, screenResolution.Y)
     , m_inBegin(false)
-    , m_blendState(BlendState::AlphaBlend)
     , m_restoreState(false)
     , m_posScratchpad(128)
     , m_glyphScratchpad(128)
   {
+    m_batchStrategy.SetBlendState(BlendState::AlphaBlend);
   }
 
 
@@ -81,7 +78,7 @@ namespace Fsl
     }
 
     m_inBegin = true;
-    m_blendState = BlendState::AlphaBlend;
+    m_batchStrategy.SetBlendState(BlendState::AlphaBlend);
     m_restoreState = false;
   }
 
@@ -95,7 +92,7 @@ namespace Fsl
     }
 
     m_inBegin = true;
-    m_blendState = blendState;
+    m_batchStrategy.SetBlendState(blendState);
     m_restoreState = false;
   }
 
@@ -109,7 +106,7 @@ namespace Fsl
     }
 
     m_inBegin = true;
-    m_blendState = blendState;
+    m_batchStrategy.SetBlendState(blendState);
     m_restoreState = restoreState;
   }
 
@@ -120,15 +117,13 @@ namespace Fsl
   {
     if (!m_inBegin)
     {
-      FSLBASICLOG_WARNING("ChangeTo called outside begin/end block, call ignored");
+      FSLLOG3_WARNING("ChangeTo called outside begin/end block, call ignored");
       return;
     }
 
-    if (m_blendState != blendState)
+    if (blendState != m_batchStrategy.GetActiveBlendState())
     {
-      // If the blend state changes we need to flush our current queue :(
-      FlushQuads();
-      m_blendState = blendState;
+      m_batchStrategy.SetBlendState(blendState);
     }
   }
 
@@ -231,24 +226,12 @@ namespace Fsl
       return;
     }
 
-    const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
-    // Ensure that we have enough room for the quad
-    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
-    {
-      GrowCapacity();
-    }
+    m_batchStrategy.EnsureCapacityFor(1);
 
     // Basic quad vertex format
     // 0-1
     // | |
     // 2-3
-
-
-    m_vertices[vertexIndex + 0].Position = Vector3(dstPosition.X, dstPosition.Y, 0.0f);
-    m_vertices[vertexIndex + 1].Position = Vector3(dstPosition.X + clippedSrcRect.Width(), dstPosition.Y, 0.0f);
-    m_vertices[vertexIndex + 2].Position = Vector3(dstPosition.X, dstPosition.Y + clippedSrcRect.Height(), 0.0f);
-    m_vertices[vertexIndex + 3].Position = Vector3(dstPosition.X + clippedSrcRect.Width(), dstPosition.Y + clippedSrcRect.Height(), 0.0f);
-
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
@@ -256,17 +239,10 @@ namespace Fsl
     const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
     const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
-    m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-    m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-    m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-    m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-    const Vector4 col = color.ToVector4();
-    m_vertices[vertexIndex + 0].Color = col;
-    m_vertices[vertexIndex + 1].Color = col;
-    m_vertices[vertexIndex + 2].Color = col;
-    m_vertices[vertexIndex + 3].Color = col;
-    AddToDrawRecords(srcTexture);
+    m_batchStrategy.SetTexture(srcTexture);
+    m_batchStrategy.AddQuad(
+      dstPosition, Vector2(dstPosition.X + clippedSrcRect.Width(), dstPosition.Y), Vector2(dstPosition.X, dstPosition.Y + clippedSrcRect.Height()),
+      Vector2(dstPosition.X + clippedSrcRect.Width(), dstPosition.Y + clippedSrcRect.Height()), Vector2(u1, v1), Vector2(u2, v2), color.ToVector4());
   }
 
 
@@ -304,22 +280,12 @@ namespace Fsl
       return;
     }
 
-    const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
-    // Ensure that we have enough room for the quad
-    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
-    {
-      GrowCapacity();
-    }
+    m_batchStrategy.EnsureCapacityFor(1);
 
     // Basic quad vertex format
     // 0-1
     // | |
     // 2-3
-
-    m_vertices[vertexIndex + 0].Position = Vector3(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Top()), 0.0f);
-    m_vertices[vertexIndex + 1].Position = Vector3(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Top()), 0.0f);
-    m_vertices[vertexIndex + 2].Position = Vector3(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Bottom()), 0.0f);
-    m_vertices[vertexIndex + 3].Position = Vector3(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Bottom()), 0.0f);
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
@@ -328,18 +294,12 @@ namespace Fsl
     const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
     const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
-    m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-    m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-    m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-    m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-    const Vector4 col = color.ToVector4();
-    m_vertices[vertexIndex + 0].Color = col;
-    m_vertices[vertexIndex + 1].Color = col;
-    m_vertices[vertexIndex + 2].Color = col;
-    m_vertices[vertexIndex + 3].Color = col;
-
-    AddToDrawRecords(srcTexture);
+    m_batchStrategy.SetTexture(srcTexture);
+    m_batchStrategy.AddQuad(Vector2(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Top())),
+                            Vector2(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Top())),
+                            Vector2(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Bottom())),
+                            Vector2(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Bottom())), Vector2(u1, v1),
+                            Vector2(u2, v2), color.ToVector4());
   }
 
 
@@ -377,22 +337,13 @@ namespace Fsl
       return;
     }
 
-    const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
-    {
-      GrowCapacity();
-    }
+    m_batchStrategy.EnsureCapacityFor(1);
 
     // Basic quad vertex format
     // 0-1
     // | |
     // 2-3
-
-    m_vertices[vertexIndex + 0].Position = Vector3(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Top()), 0.0f);
-    m_vertices[vertexIndex + 1].Position = Vector3(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Top()), 0.0f);
-    m_vertices[vertexIndex + 2].Position = Vector3(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Bottom()), 0.0f);
-    m_vertices[vertexIndex + 3].Position = Vector3(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Bottom()), 0.0f);
 
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
@@ -401,18 +352,12 @@ namespace Fsl
     const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
     const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
-    m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-    m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-    m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-    m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-    const Vector4 col = color.ToVector4();
-    m_vertices[vertexIndex + 0].Color = col;
-    m_vertices[vertexIndex + 1].Color = col;
-    m_vertices[vertexIndex + 2].Color = col;
-    m_vertices[vertexIndex + 3].Color = col;
-
-    AddToDrawRecords(srcTexture);
+    m_batchStrategy.SetTexture(srcTexture);
+    m_batchStrategy.AddQuad(Vector2(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Top())),
+                            Vector2(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Top())),
+                            Vector2(static_cast<float>(dstRectangle.Left()), static_cast<float>(dstRectangle.Bottom())),
+                            Vector2(static_cast<float>(dstRectangle.Right()), static_cast<float>(dstRectangle.Bottom())), Vector2(u1, v1),
+                            Vector2(u2, v2), color.ToVector4());
   }
 
 
@@ -491,12 +436,8 @@ namespace Fsl
       return;
     }
 
-    const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
-    {
-      GrowCapacity();
-    }
+    m_batchStrategy.EnsureCapacityFor(1);
 
     // Basic quad vertex format
     // 0-1
@@ -505,12 +446,6 @@ namespace Fsl
 
     const float scaledSrcWidth = clippedSrcRect.Width() * scale.X;
     const float scaledSrcHeight = clippedSrcRect.Height() * scale.Y;
-
-    m_vertices[vertexIndex + 0].Position = Vector3(dstPos.X, dstPos.Y, 0.0f);
-    m_vertices[vertexIndex + 1].Position = Vector3(dstPos.X + scaledSrcWidth, dstPos.Y, 0.0f);
-    m_vertices[vertexIndex + 2].Position = Vector3(dstPos.X, dstPos.Y + scaledSrcHeight, 0.0f);
-    m_vertices[vertexIndex + 3].Position = Vector3(dstPos.X + scaledSrcWidth, dstPos.Y + scaledSrcHeight, 0.0f);
-
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
@@ -518,17 +453,9 @@ namespace Fsl
     const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
     const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
-    m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-    m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-    m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-    m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-    const Vector4 col = color.ToVector4();
-    m_vertices[vertexIndex + 0].Color = col;
-    m_vertices[vertexIndex + 1].Color = col;
-    m_vertices[vertexIndex + 2].Color = col;
-    m_vertices[vertexIndex + 3].Color = col;
-    AddToDrawRecords(srcTexture);
+    m_batchStrategy.SetTexture(srcTexture);
+    m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledSrcWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledSrcHeight),
+                            Vector2(dstPos.X + scaledSrcWidth, dstPos.Y + scaledSrcHeight), Vector2(u1, v1), Vector2(u2, v2), color.ToVector4());
   }
 
 
@@ -577,12 +504,8 @@ namespace Fsl
       return;
     }
 
-    const int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
     // Ensure that we have enough room for the quad
-    if (static_cast<std::size_t>(vertexIndex + VERTICES_PER_QUAD) > m_vertices.size())
-    {
-      GrowCapacity();
-    }
+    m_batchStrategy.EnsureCapacityFor(1);
 
     // Basic quad vertex format
     // 0-1
@@ -618,11 +541,6 @@ namespace Fsl
       vec3.Y += dy;
     }
 
-    m_vertices[vertexIndex + 0].Position = Vector3(vec0.X, vec0.Y, 0.0f);
-    m_vertices[vertexIndex + 1].Position = Vector3(vec1.X, vec1.Y, 0.0f);
-    m_vertices[vertexIndex + 2].Position = Vector3(vec2.X, vec2.Y, 0.0f);
-    m_vertices[vertexIndex + 3].Position = Vector3(vec3.X, vec3.Y, 0.0f);
-
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
     const float u1 = clippedSrcRect.Left() / srcWidth;
@@ -630,17 +548,8 @@ namespace Fsl
     const float v1 = TVFormatter::Format(clippedSrcRect.Top() / srcHeight);
     const float v2 = TVFormatter::Format(clippedSrcRect.Bottom() / srcHeight);
 
-    m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-    m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-    m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-    m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-    const Vector4 col = color.ToVector4();
-    m_vertices[vertexIndex + 0].Color = col;
-    m_vertices[vertexIndex + 1].Color = col;
-    m_vertices[vertexIndex + 2].Color = col;
-    m_vertices[vertexIndex + 3].Color = col;
-    AddToDrawRecords(srcTexture);
+    m_batchStrategy.SetTexture(srcTexture);
+    m_batchStrategy.AddQuad(vec0, vec1, vec2, vec3, Vector2(u1, v1), Vector2(u2, v2), color.ToVector4());
   }
 
 
@@ -712,8 +621,8 @@ namespace Fsl
     }
     if (pDstPositions == nullptr || dstPositionsLength <= 0)
     {
-      FSLBASICLOG_WARNING_IF(pDstPositions == nullptr, "It's invalid to specify null for positions");
-      FSLBASICLOG_WARNING_IF(dstPositionsLength < 0, "Its invalid to specify a negative length");
+      FSLLOG3_WARNING_IF(pDstPositions == nullptr, "It's invalid to specify null for positions");
+      FSLLOG3_WARNING_IF(dstPositionsLength < 0, "Its invalid to specify a negative length");
       return;
     }
 
@@ -725,13 +634,8 @@ namespace Fsl
       return;
     }
 
-    int32_t vertexIndex = m_quadCount * VERTICES_PER_QUAD;
-    const auto minimumCapacity = static_cast<std::size_t>(vertexIndex + (dstPositionsLength * VERTICES_PER_QUAD));
-    // Ensure that we have enough room for the quad
-    if (minimumCapacity > m_vertices.size())
-    {
-      GrowCapacity(minimumCapacity);
-    }
+    // Ensure that we have enough room for the quads
+    m_batchStrategy.EnsureCapacityFor(dstPositionsLength);
 
     // Basic quad vertex format
     // 0-1
@@ -749,27 +653,17 @@ namespace Fsl
     const Vector2* const pDstPositionEnd = pDstPositions + dstPositionsLength;
     const Vector4 col = color.ToVector4();
 
+    m_batchStrategy.SetTexture(srcTexture);
     while (pDstPosition < pDstPositionEnd)
     {
-      m_vertices[vertexIndex + 0].Position = Vector3(pDstPosition->X, pDstPosition->Y, 0.0f);
-      m_vertices[vertexIndex + 1].Position = Vector3(pDstPosition->X + clippedSrcRect.Width(), pDstPosition->Y, 0.0f);
-      m_vertices[vertexIndex + 2].Position = Vector3(pDstPosition->X, pDstPosition->Y + clippedSrcRect.Height(), 0.0f);
-      m_vertices[vertexIndex + 3].Position = Vector3(pDstPosition->X + clippedSrcRect.Width(), pDstPosition->Y + clippedSrcRect.Height(), 0.0f);
-
-      m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-      m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-      m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-      m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-      m_vertices[vertexIndex + 0].Color = col;
-      m_vertices[vertexIndex + 1].Color = col;
-      m_vertices[vertexIndex + 2].Color = col;
-      m_vertices[vertexIndex + 3].Color = col;
+      m_batchStrategy.AddQuad(*pDstPosition, Vector2(pDstPosition->X + clippedSrcRect.Width(), pDstPosition->Y),
+                              Vector2(pDstPosition->X, pDstPosition->Y + clippedSrcRect.Height()),
+                              Vector2(pDstPosition->X + clippedSrcRect.Width(), pDstPosition->Y + clippedSrcRect.Height()), Vector2(u1, v1),
+                              Vector2(u2, v2), col);
       ++pDstPosition;
-      vertexIndex += VERTICES_PER_QUAD;
     }
-    AddToDrawRecords(srcTexture, dstPositionsLength);
   }
+
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
@@ -780,7 +674,7 @@ namespace Fsl
       throw std::invalid_argument("psz can not be null");
     }
 
-    DrawString(srcTexture, font, psz, 0, static_cast<int32_t>(std::strlen(psz)), dstPosition, color);
+    DrawString(srcTexture, font, StringViewLite(psz, std::strlen(psz)), dstPosition, color);
   }
 
 
@@ -788,51 +682,41 @@ namespace Fsl
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
                                                                        const std::string& str, const Vector2& dstPosition, const Color& color)
   {
-    DrawString(srcTexture, font, str.c_str(), 0, static_cast<int32_t>(str.size()), dstPosition, color);
+    DrawString(srcTexture, font, StringViewLite(str.data(), str.size()), dstPosition, color);
   }
 
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
-                                                                       const char* const pStr, const int32_t startIndex, const int32_t length,
-                                                                       const Vector2& dstPosition, const Color& color)
+                                                                       const StringViewLite& strView, const Vector2& dstPosition, const Color& color)
   {
     if (!m_inBegin)
     {
       throw UsageErrorException("Draw can only occur inside a begin/end block");
     }
-
-    if (pStr == nullptr)
+    if (strView.empty())
     {
-      throw std::invalid_argument("psz can not be null");
-    }
-    if (startIndex < 0 || length < 0)
-    {
-      throw std::invalid_argument("startIndex or length is invalid");
+      return;
     }
 
     // Ensure we have enough room for our quads
-    int32_t vertexIndex = (m_quadCount * VERTICES_PER_QUAD);
-    const auto minQuadCapacity = std::size_t(m_quadCount + length);
-    if (minQuadCapacity > m_vertices.size())
-    {
-      GrowCapacity(minQuadCapacity);
-    }
+    m_batchStrategy.EnsureCapacityFor(strView.size());
 
     // Ensure capacity for our glyphs
-    if (m_glyphScratchpad.size() < std::size_t(length))
+    if (m_glyphScratchpad.size() < strView.size())
     {
-      m_glyphScratchpad.resize(length);
+      m_glyphScratchpad.resize(strView.size());
     }
 
     // Extract the render rules
-    font.ExtractRenderRules(m_glyphScratchpad, pStr, 0, length);
+    font.ExtractRenderRules(m_glyphScratchpad, strView);
 
     const Vector4 col = color.ToVector4();
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
 
-    for (int32_t i = 0; i < length; ++i)
+    m_batchStrategy.SetTexture(srcTexture);
+    for (std::size_t i = 0; i < strView.size(); ++i)
     {
       Vector2 dstPos = m_glyphScratchpad[i].DstOffset;
       dstPos.X += dstPosition.X;
@@ -845,44 +729,15 @@ namespace Fsl
         // | |
         // 2-3
 
-        m_vertices[vertexIndex + 0].Position = Vector3(dstPos.X, dstPos.Y, 0.0f);
-        m_vertices[vertexIndex + 1].Position = Vector3(dstPos.X + srcRect.Width(), dstPos.Y, 0.0f);
-        m_vertices[vertexIndex + 2].Position = Vector3(dstPos.X, dstPos.Y + srcRect.Height(), 0.0f);
-        m_vertices[vertexIndex + 3].Position = Vector3(dstPos.X + srcRect.Width(), dstPos.Y + srcRect.Height(), 0.0f);
-
         const float u1 = srcRect.Left() / srcWidth;
         const float u2 = srcRect.Right() / srcWidth;
         const float v1 = TVFormatter::Format(srcRect.Top() / srcHeight);
         const float v2 = TVFormatter::Format(srcRect.Bottom() / srcHeight);
 
-        m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-        m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-        m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-        m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-        m_vertices[vertexIndex + 0].Color = col;
-        m_vertices[vertexIndex + 1].Color = col;
-        m_vertices[vertexIndex + 2].Color = col;
-        m_vertices[vertexIndex + 3].Color = col;
-        vertexIndex += 4;
-
-        AddToDrawRecords(srcTexture);
+        m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + srcRect.Width(), dstPos.Y), Vector2(dstPos.X, dstPos.Y + srcRect.Height()),
+                                Vector2(dstPos.X + srcRect.Width(), dstPos.Y + srcRect.Height()), Vector2(u1, v1), Vector2(u2, v2), col);
       }
     }
-  }
-
-
-  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
-                                                                       const std::string& str, const int32_t startIndex, const int32_t length,
-                                                                       const Vector2& dstPosition, const Color& color)
-  {
-    if (startIndex < 0 || length < 0 || (static_cast<std::size_t>(startIndex) + static_cast<std::size_t>(length)) > str.size())
-    {
-      throw std::invalid_argument("startIndex or length is invalid");
-    }
-
-    DrawString(srcTexture, font, str.c_str(), startIndex, length, dstPosition, color);
   }
 
 
@@ -896,7 +751,7 @@ namespace Fsl
       throw std::invalid_argument("psz can not be null");
     }
 
-    DrawString(srcTexture, font, psz, 0, static_cast<int32_t>(std::strlen(psz)), dstPosition, color, origin, scale);
+    DrawString(srcTexture, font, StringViewLite(psz, std::strlen(psz)), dstPosition, color, origin, scale);
   }
 
 
@@ -905,58 +760,44 @@ namespace Fsl
                                                                        const std::string& str, const Vector2& dstPosition, const Color& color,
                                                                        const Vector2& origin, const Vector2& scale)
   {
-    DrawString(srcTexture, font, str.c_str(), 0, static_cast<int32_t>(str.size()), dstPosition, color, origin, scale);
+    DrawString(srcTexture, font, StringViewLite(str.data(), str.size()), dstPosition, color, origin, scale);
   }
 
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
-                                                                       const char* const pStr, const int32_t startIndex, const int32_t length,
-                                                                       const Vector2& dstPosition, const Color& color, const Vector2& origin,
-                                                                       const Vector2& scale)
+                                                                       const StringViewLite& strView, const Vector2& dstPosition, const Color& color,
+                                                                       const Vector2& origin, const Vector2& scale)
   {
     if (!m_inBegin)
     {
       throw UsageErrorException("Draw can only occur inside a begin/end block");
     }
 
-    if (pStr == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    if (startIndex < 0 || length < 0)
-    {
-      throw std::invalid_argument("startIndex or length is invalid");
-    }
-
-    if (scale.X <= 0.0f || scale.Y <= 0.0f)
+    if (strView.empty() || scale.X <= 0.0f || scale.Y <= 0.0f)
     {
       return;
     }
 
     // Ensure we have enough room for our quads
-    int32_t vertexIndex = (m_quadCount * VERTICES_PER_QUAD);
-    const auto minQuadCapacity = std::size_t(m_quadCount + length);
-    if (minQuadCapacity > m_vertices.size())
-    {
-      GrowCapacity(minQuadCapacity);
-    }
+    m_batchStrategy.EnsureCapacityFor(strView.size());
 
     // Ensure capacity for our glyphs
-    if (m_glyphScratchpad.size() < std::size_t(length))
+    if (m_glyphScratchpad.size() < strView.size())
     {
-      m_glyphScratchpad.resize(length);
+      m_glyphScratchpad.resize(strView.size());
     }
 
     // Extract the render rules
-    font.ExtractRenderRules(m_glyphScratchpad, pStr, 0, length);
+    font.ExtractRenderRules(m_glyphScratchpad, strView);
 
     const Vector2 dstPosModded(dstPosition.X - (origin.X * scale.X), dstPosition.Y - (origin.Y * scale.Y));
     const Vector4 col = color.ToVector4();
     const auto srcWidth = static_cast<float>(srcTexture.Extent.Width);
     const auto srcHeight = static_cast<float>(srcTexture.Extent.Height);
 
-    for (int32_t i = 0; i < length; ++i)
+    m_batchStrategy.SetTexture(srcTexture);
+    for (std::size_t i = 0; i < strView.size(); ++i)
     {
       const Vector2 dstPos((m_glyphScratchpad[i].DstOffset.X * scale.X) + dstPosModded.X,
                            (m_glyphScratchpad[i].DstOffset.Y * scale.Y) + dstPosModded.Y);
@@ -970,46 +811,15 @@ namespace Fsl
         // 2-3
         const float scaledSrcWidth = srcRect.Width() * scale.X;
         const float scaledSrcHeight = srcRect.Height() * scale.Y;
-
-        m_vertices[vertexIndex + 0].Position = Vector3(dstPos.X, dstPos.Y, 0.0f);
-        m_vertices[vertexIndex + 1].Position = Vector3(dstPos.X + scaledSrcWidth, dstPos.Y, 0.0f);
-        m_vertices[vertexIndex + 2].Position = Vector3(dstPos.X, dstPos.Y + scaledSrcHeight, 0.0f);
-        m_vertices[vertexIndex + 3].Position = Vector3(dstPos.X + scaledSrcWidth, dstPos.Y + scaledSrcHeight, 0.0f);
-
         const float u1 = srcRect.Left() / srcWidth;
         const float u2 = srcRect.Right() / srcWidth;
         const float v1 = TVFormatter::Format(srcRect.Top() / srcHeight);
         const float v2 = TVFormatter::Format(srcRect.Bottom() / srcHeight);
 
-        m_vertices[vertexIndex + 0].TextureCoordinate = Vector2(u1, v1);
-        m_vertices[vertexIndex + 1].TextureCoordinate = Vector2(u2, v1);
-        m_vertices[vertexIndex + 2].TextureCoordinate = Vector2(u1, v2);
-        m_vertices[vertexIndex + 3].TextureCoordinate = Vector2(u2, v2);
-
-        m_vertices[vertexIndex + 0].Color = col;
-        m_vertices[vertexIndex + 1].Color = col;
-        m_vertices[vertexIndex + 2].Color = col;
-        m_vertices[vertexIndex + 3].Color = col;
-        vertexIndex += 4;
-
-        AddToDrawRecords(srcTexture);
+        m_batchStrategy.AddQuad(dstPos, Vector2(dstPos.X + scaledSrcWidth, dstPos.Y), Vector2(dstPos.X, dstPos.Y + scaledSrcHeight),
+                                Vector2(dstPos.X + scaledSrcWidth, dstPos.Y + scaledSrcHeight), Vector2(u1, v1), Vector2(u2, v2), col);
       }
     }
-  }
-
-
-  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font,
-                                                                       const std::string& str, const int32_t startIndex, const int32_t length,
-                                                                       const Vector2& dstPosition, const Color& color, const Vector2& origin,
-                                                                       const Vector2& scale)
-  {
-    if (startIndex < 0 || length < 0 || (std::size_t(startIndex) + std::size_t(length)) > str.size())
-    {
-      throw std::invalid_argument("startIndex or length is invalid");
-    }
-
-    DrawString(srcTexture, font, str.c_str(), startIndex, length, dstPosition, color, origin, scale);
   }
 
 
@@ -1129,78 +939,38 @@ namespace Fsl
 
 
   template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GrowCapacity()
-  {
-    const auto growBy = static_cast<std::size_t>(EXPAND_QUAD_GROWTH);
-    const std::size_t growQuadBy = growBy * static_cast<std::size_t>(VERTICES_PER_QUAD);
-    m_vertices.resize(m_vertices.size() + growQuadBy);
-    m_drawRecords.resize(m_drawRecords.size() + growBy);
-  }
-
-
-  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::GrowCapacity(const std::size_t newMinimumCapacity)
-  {
-    assert(newMinimumCapacity > m_drawRecords.size());
-
-    const std::size_t newCapacity = newMinimumCapacity + EXPAND_QUAD_GROWTH;
-    const std::size_t newVertexCapacity = newCapacity * static_cast<std::size_t>(VERTICES_PER_QUAD);
-    m_vertices.resize(newVertexCapacity);
-    m_drawRecords.resize(newCapacity);
-  }
-
-
-  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
   void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::FlushQuads()
   {
     const Point2 screenResolution(m_screenRect.Width(), m_screenRect.Height());
-    m_native->Begin(screenResolution, m_blendState, m_restoreState);
-    std::size_t vertexStartIndex = 0;
-    for (int32_t i = 0; i < m_drawRecordIndex; ++i)
-    {
-      m_native->DrawQuads(m_vertices.data() + vertexStartIndex, m_drawRecords[i].QuadCount, m_drawRecords[i].NativeTexture);
-      // release the texture pointer so we don't keep it alive by accident
-      m_drawRecords[i].NativeTexture.Reset();
-      vertexStartIndex += m_drawRecords[i].QuadCount * VERTICES_PER_QUAD;
-    }
-    m_native->End();
 
-    m_drawRecordIndex = 0;
-    m_quadCount = 0;
-  }
+    auto vertexSpan = m_batchStrategy.GetSpan();
+    const auto segmentCount = m_batchStrategy.GetSegmentCount();
 
+    if (segmentCount > 0)
+    {
+      // With the new rendering strategy the Begin/End + 'DrawQuads' render method is not very effective
+      BlendState activeBlendState = m_batchStrategy.GetSegment(0).ActiveBlendState;
+      m_native->Begin(screenResolution, activeBlendState, m_restoreState);
 
-  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::AddToDrawRecords(const texture_type& srcNativeTexture)
-  {
-    // Only add a new draw record if the 'draw-state' changed
-    if (m_drawRecordIndex > 0 && srcNativeTexture == m_drawRecords[m_drawRecordIndex - 1].NativeTexture)
-    {
-      ++m_drawRecords[m_drawRecordIndex - 1].QuadCount;
-    }
-    else
-    {
-      m_drawRecords[m_drawRecordIndex] = DrawRecord(srcNativeTexture);
-      ++m_drawRecordIndex;
-    }
-    ++m_quadCount;
-  }
+      auto* pSrcVertices = vertexSpan.pVertices;
+      for (uint32_t i = 0; i < segmentCount; ++i)
+      {
+        auto segment = m_batchStrategy.GetSegment(i);
 
+        if (segment.ActiveBlendState != activeBlendState)
+        {
+          activeBlendState = segment.ActiveBlendState;
+          m_native->End();
+          m_native->Begin(screenResolution, activeBlendState, m_restoreState);
+        }
 
-  template <typename TNativeBatch, typename TTexture, typename TVFormatter>
-  void GenericBatch2D<TNativeBatch, TTexture, TVFormatter>::AddToDrawRecords(const texture_type& srcNativeTexture, const uint32_t quadCount)
-  {
-    // Only add a new draw record if the 'draw-state' changed
-    if (m_drawRecordIndex > 0 && srcNativeTexture == m_drawRecords[m_drawRecordIndex - 1].NativeTexture)
-    {
-      m_drawRecords[m_drawRecordIndex - 1].QuadCount += quadCount;
+        m_native->DrawQuads(pSrcVertices, segment.VertexCount / stategy_type::VERTICES_PER_QUAD, segment.TextureInfo);
+        pSrcVertices += segment.VertexCount;
+      }
+      m_native->End();
     }
-    else
-    {
-      m_drawRecords[m_drawRecordIndex] = DrawRecord(srcNativeTexture, quadCount);
-      ++m_drawRecordIndex;
-    }
-    m_quadCount += quadCount;
+
+    m_batchStrategy.Clear();
   }
 
 

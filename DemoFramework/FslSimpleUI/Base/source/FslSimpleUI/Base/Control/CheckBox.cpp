@@ -31,7 +31,7 @@
 
 #include <FslSimpleUI/Base/Control/CheckBox.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
@@ -139,7 +139,7 @@ namespace Fsl
       Vector2 position = context.TargetRect.TopLeft();
       if (!m_text.empty())
       {
-        auto fontInfo = m_font->GetAtlasBitmapFont();
+        const auto& fontInfo = m_font->GetAtlasBitmapFont();
         auto measured = fontInfo.MeasureString(m_text.c_str(), 0, m_text.size());
         measured.Y = fontInfo.LineSpacing();
 
@@ -195,7 +195,7 @@ namespace Fsl
       Vector2 size;
       if (!m_text.empty())
       {
-        auto fontInfo = m_font->GetAtlasBitmapFont();
+        const auto& fontInfo = m_font->GetAtlasBitmapFont();
         auto measured = fontInfo.MeasureString(m_text.c_str(), 0, m_text.size());
         size = Vector2(measured.X, fontInfo.LineSpacing());
       }

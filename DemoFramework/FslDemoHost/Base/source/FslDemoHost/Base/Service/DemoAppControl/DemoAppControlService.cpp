@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
 #include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/DemoAppControlService.hpp>
@@ -103,11 +103,11 @@ namespace Fsl
     {
       if (!m_hasExitRequest)
       {
-        FSLBASICLOG_WARNING("No exit request exists. Request ignored.");
+        FSLLOG3_WARNING("No exit request exists. Request ignored.");
       }
       if (m_hasExitRequest)
       {
-        FSLBASICLOG_WARNING("Non default exit code is already set. Request ignored.");
+        FSLLOG3_WARNING("Non default exit code is already set. Request ignored.");
       }
     }
   }
@@ -185,18 +185,18 @@ namespace Fsl
     const auto windows = m_windowHostInfo->GetWindows();
     if (windows.empty())
     {
-      FSLBASICLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any active windows");
+      FSLLOG3_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any active windows");
       return false;
     }
     if (windows.size() > 1)
     {
-      FSLBASICLOG_DEBUG_WARNING("TryEnableMouseCaptureMode only support one window");
+      FSLLOG3_DEBUG_WARNING("TryEnableMouseCaptureMode only support one window");
       return false;
     }
     const auto activeWindow = windows.front().lock();
     if (!activeWindow)
     {
-      FSLBASICLOG_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any un-expired windows");
+      FSLLOG3_DEBUG_WARNING("TryEnableMouseCaptureMode did not find any un-expired windows");
       return false;
     }
 
@@ -251,7 +251,7 @@ namespace Fsl
     }
     else
     {
-      FSLLOG_WARNING("exit has already been requested with status code: " << m_exitCode << ". Request ignored.");
+      FSLLOG3_WARNING("exit has already been requested with status code: {}. Request ignored.", m_exitCode);
     }
   }
 }

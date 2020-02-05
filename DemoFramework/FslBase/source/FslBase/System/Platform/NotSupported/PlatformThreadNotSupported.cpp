@@ -32,7 +32,6 @@
 
 #include <FslBase/System/Platform/PlatformThread.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
 
 namespace Fsl
 {

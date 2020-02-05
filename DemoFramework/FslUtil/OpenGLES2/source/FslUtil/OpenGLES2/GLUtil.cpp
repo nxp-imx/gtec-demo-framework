@@ -69,7 +69,7 @@ namespace Fsl
         return false;
       }
 
-      const auto lenExtensionName = strlen(pszExtensionName);
+      const auto lenExtensionName = std::strlen(pszExtensionName);
 
       const char* pszCurrentLocation = pszExtensions;
       while (pszCurrentLocation != nullptr)

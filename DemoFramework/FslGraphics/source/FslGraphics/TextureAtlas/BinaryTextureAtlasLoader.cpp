@@ -34,11 +34,12 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Compression/ValueCompression.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/UTF8String.hpp>
+#include <fmt/format.h>
 #include <cassert>
 #include <fstream>
-#include <sstream>
 #include <vector>
 
 
@@ -178,9 +179,7 @@ namespace Fsl
     }
     else
     {
-      std::stringstream strStream;
-      strStream << "File not found: '" << strFilename.ToAsciiString() << "'";
-      throw FormatException(strStream.str());
+      throw FormatException(fmt::format("File not found: '{}'", strFilename));
     }
   }
 

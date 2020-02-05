@@ -50,8 +50,7 @@ namespace Fsl
     {
     }
 
-    // improvement: make constexpr in C++14
-    inline VertexSpan(const vertex_type* pSrcVertices, const uint32_t vertexCount)
+    inline constexpr VertexSpan(const vertex_type* pSrcVertices, const uint32_t vertexCount)
       : pVertices(pSrcVertices)
       , VertexCount(vertexCount)
     {

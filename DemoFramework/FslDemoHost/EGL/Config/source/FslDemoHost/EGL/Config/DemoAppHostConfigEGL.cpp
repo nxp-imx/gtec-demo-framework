@@ -32,7 +32,7 @@
 #include <FslDemoHost/EGL/Config/DemoAppHostConfigEGL.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 
 namespace Fsl
 {
@@ -55,8 +55,8 @@ namespace Fsl
 
   void DemoAppHostConfigEGL::SetCallbackGetCreateWindowSurfaceAttribs(const EGLCallbackGetCreateWindowSurfaceAttribs& callback)
   {
-    FSLLOG_DEBUG_WARNING_IF(m_pEglCreateWindowAttribs != nullptr && callback,
-                            "EglCreateWindowAttribs set in constructor will be overridden by callback result");
+    FSLLOG3_DEBUG_WARNING_IF(m_pEglCreateWindowAttribs != nullptr && callback,
+                             "EglCreateWindowAttribs set in constructor will be overridden by callback result");
     m_callbackGetCreateWindowSurfaceAttribs = callback;
   }
 
@@ -92,7 +92,7 @@ namespace Fsl
 
   int32_t DemoAppHostConfigEGL::GetMinimumMiniorVersion() const
   {
-    FSLLOG_WARNING_IF(!m_isMinimumMinorVersionSet, "Minimum minor version not set");
+    FSLLOG3_WARNING_IF(!m_isMinimumMinorVersionSet, "Minimum minor version not set");
     return m_minimumMiniorVersion;
   }
 

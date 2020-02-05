@@ -57,9 +57,10 @@ namespace Fsl
       Vector2 MeasureRenderedValue(const int32_t value);
 
     protected:
-      const std::string& DoGetContent() const override
+      void DoSetContent(const int32_t value);
+      StringViewLite DoGetContent() const override
       {
-        return m_contentCache;
+        return StringViewLite(m_contentCache.data(), m_contentCache.size());
       }
     };
   }

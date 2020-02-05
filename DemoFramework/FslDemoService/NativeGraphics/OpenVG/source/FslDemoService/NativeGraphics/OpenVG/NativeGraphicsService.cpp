@@ -31,7 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/NativeGraphics/OpenVG/NativeGraphicsService.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include "NativeGraphicsBasic2D.hpp"

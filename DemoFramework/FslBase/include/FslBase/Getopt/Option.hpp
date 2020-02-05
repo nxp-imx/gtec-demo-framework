@@ -44,7 +44,7 @@ namespace Fsl
   {
     std::string ShortName;
     std::string Name;
-    OptionArgument::Enum HasArg{OptionArgument::OptionNone};
+    OptionArgument HasArg{OptionArgument::OptionNone};
     int32_t CmdId{0};
     std::string Description;
     OptionGroup::Enum Group{OptionGroup::Default};
@@ -52,19 +52,18 @@ namespace Fsl
     bool IsPositional{false};
 
     Option() = default;
-    Option(const std::string& smartName, const OptionArgument::Enum hasArg, const int32_t cmdId, std::string description);
-    Option(const std::string& smartName, const OptionArgument::Enum hasArg, const int32_t cmdId, std::string description,
-           const OptionGroup::Enum group);
-    Option(const std::string& shortName, const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId, std::string description);
-    Option(const std::string& shortName, const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId, std::string description,
+    Option(const std::string& smartName, const OptionArgument hasArg, const int32_t cmdId, std::string description);
+    Option(const std::string& smartName, const OptionArgument hasArg, const int32_t cmdId, std::string description, const OptionGroup::Enum group);
+    Option(const std::string& shortName, const std::string& name, const OptionArgument hasArg, const int32_t cmdId, std::string description);
+    Option(const std::string& shortName, const std::string& name, const OptionArgument hasArg, const int32_t cmdId, std::string description,
            const OptionGroup::Enum group);
   };
 
 
   struct PositionalOption : public Option
   {
-    PositionalOption(const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description);
-    PositionalOption(const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description,
+    PositionalOption(const std::string& name, const OptionArgument hasArg, const int32_t cmdId, const std::string& description);
+    PositionalOption(const std::string& name, const OptionArgument hasArg, const int32_t cmdId, const std::string& description,
                      const OptionGroup::Enum group);
   };
 }

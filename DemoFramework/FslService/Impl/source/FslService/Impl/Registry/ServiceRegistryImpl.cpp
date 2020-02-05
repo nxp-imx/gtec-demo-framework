@@ -31,7 +31,7 @@
 
 #include "ServiceRegistryImpl.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslService/Impl/Registry/InterfaceCollisionChecker.hpp>
 #include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/Priority.hpp>

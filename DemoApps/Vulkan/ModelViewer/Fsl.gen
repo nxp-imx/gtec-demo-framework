@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.ModelViewer" NoInclude="true" CreationYear="2019">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="Shared.ModelViewer"/>
+    <Platform Name="Windows" ProjectId="0CE112AF-FCD2-4838-8616-B26956686A48"/>
+  </Executable>
+</FslBuildGen>

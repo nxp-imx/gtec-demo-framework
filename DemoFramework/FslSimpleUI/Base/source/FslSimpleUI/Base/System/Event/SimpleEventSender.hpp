@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslSimpleUI/Base/Event/EventRoutingStrategy.hpp>
 #include "EventRouter.hpp"
 #include "EventRoute.hpp"
@@ -46,7 +45,7 @@ namespace Fsl
     class WindowEvent;
     class WindowEventPool;
 
-    class SimpleEventSender : private Noncopyable
+    class SimpleEventSender
     {
       std::shared_ptr<ITreeContextInfo> m_treeContextInfo;
       std::shared_ptr<WindowEventPool> m_windowEventPool;
@@ -55,6 +54,9 @@ namespace Fsl
       EventRouter m_eventRouter;
 
     public:
+      SimpleEventSender(const SimpleEventSender&) = delete;
+      SimpleEventSender& operator=(const SimpleEventSender&) = delete;
+
       SimpleEventSender(const std::shared_ptr<ITreeContextInfo>& treeContextInfo, const std::shared_ptr<WindowEventPool>& windowEventPool,
                         const std::shared_ptr<IEventHandler>& eventHandler, const std::shared_ptr<TreeNode>& rootNode,
                         const std::shared_ptr<ITreeNodeClickInputTargetLocator>& clickTargetLocator);

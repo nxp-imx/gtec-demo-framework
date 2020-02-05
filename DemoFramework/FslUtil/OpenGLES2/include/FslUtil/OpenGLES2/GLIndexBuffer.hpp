@@ -36,7 +36,6 @@
 #include <FslUtil/OpenGLES2/GLBuffer.hpp>
 #include <GLES2/gl2.h>
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <vector>
 
 namespace Fsl

@@ -31,21 +31,21 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <deque>
-#include <memory>
-#include <FslBase/Noncopyable.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
 #include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
+#include <deque>
+#include <memory>
 
 namespace Fsl
 {
-  class DemoHostAppSetupBuilder
-    : public IDemoAppRegistry
-    , private Noncopyable
+  class DemoHostAppSetupBuilder : public IDemoAppRegistry
   {
     std::deque<DemoHostAppSetup> m_records;
 
   public:
+    DemoHostAppSetupBuilder(const DemoHostAppSetupBuilder&) = delete;
+    DemoHostAppSetupBuilder& operator=(const DemoHostAppSetupBuilder&) = delete;
+
     DemoHostAppSetupBuilder();
 
     // From IDemoAppRegistry

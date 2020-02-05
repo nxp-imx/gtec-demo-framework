@@ -122,7 +122,7 @@ namespace Fsl
     {
       if (arrayIndex >= m_array.size())
       {
-        throw std::invalid_argument("arrayIndex out of range");
+        throw std::invalid_argument("Get arrayIndex out of range");
       }
 
       return m_array[arrayIndex];
@@ -133,7 +133,7 @@ namespace Fsl
     {
       if (arrayIndex >= m_array.size())
       {
-        throw std::invalid_argument("arrayIndex out of range");
+        throw std::invalid_argument("Set arrayIndex out of range");
       }
 
       m_array[arrayIndex] = value;
@@ -144,7 +144,7 @@ namespace Fsl
     {
       if (arrayIndex >= m_array.size())
       {
-        throw std::invalid_argument("arrayIndex out of range");
+        throw std::invalid_argument("SetData arrayIndex out of range");
       }
       const auto& arrayEntry = m_array[arrayIndex];
 
@@ -172,7 +172,7 @@ namespace Fsl
     {
       if (arrayIndex >= m_array.size())
       {
-        throw std::invalid_argument("arrayIndex out of range");
+        throw std::invalid_argument("SetDataFast arrayIndex out of range");
       }
       const auto& arrayEntry = m_array[arrayIndex];
 
@@ -198,7 +198,7 @@ namespace Fsl
     {
       if (arrayIndex >= m_array.size())
       {
-        throw std::invalid_argument("arrayIndex out of range");
+        throw std::invalid_argument("Reset arrayIndex out of range");
       }
       if (target != m_target)
       {

@@ -48,7 +48,7 @@
 #include <FslUtil/EGL/DebugStrings.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/DebugStrings.hpp>
-#include <sstream>
+#include <fmt/core.h>
 
 namespace Fsl
 {
@@ -83,10 +83,9 @@ namespace Fsl
       }
 
       const auto errorCode = pException->GetError();
-      std::stringstream stream;
-      stream << pException->what() << " failed with error code " << GLES2::Debug::ErrorCodeToString(static_cast<GLenum>(errorCode)) << " ("
-             << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
-      rMessage = stream.str();
+      rMessage = fmt::format("{} failed with error code {} ({}) at {}({})", pException->what(),
+                             GLES2::Debug::ErrorCodeToString(static_cast<GLenum>(errorCode)), errorCode, pException->GetFilename(),
+                             pException->GetLineNumber());
       return true;
     }
 
@@ -101,10 +100,9 @@ namespace Fsl
       }
 
       const auto errorCode = pException->GetError();
-      std::stringstream stream;
-      stream << pException->what() << " failed with error code " << EGL::Debug::ErrorCodeToString(static_cast<EGLenum>(errorCode)) << " ("
-             << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
-      rMessage = stream.str();
+      rMessage =
+        fmt::format("{} failed with error code {} ({}) at {}({})", pException->what(), EGL::Debug::ErrorCodeToString(static_cast<EGLenum>(errorCode)),
+                    errorCode, pException->GetFilename(), pException->GetLineNumber());
       return true;
     }
 

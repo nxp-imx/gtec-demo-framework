@@ -32,7 +32,7 @@
 #include <Shared/TextureCompression/VerticalScroller.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslSimpleUI/Base/LayoutHelper.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>

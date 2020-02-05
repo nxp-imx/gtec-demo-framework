@@ -31,15 +31,16 @@
 
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/IO/BMPUtil.hpp>
+#include <fmt/format.h>
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <limits>
-#include <sstream>
 
 // BMP format explained:
 // http://en.wikipedia.org/wiki/BMP_file_format#Bitmap_file_header
@@ -592,9 +593,7 @@ namespace Fsl
     }
     else
     {
-      std::stringstream strStream;
-      strStream << "File not found: '" << strFilename.ToAsciiString() << "'";
-      throw FormatException(strStream.str());
+      throw FormatException(fmt::format("File not found: '{}'", strFilename));
     }
   }
 

@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslDemoPlatform/Setup/DemoBasicSetup.hpp>
 #include <FslDemoPlatform/Setup/DemoSetupManagerConfig.hpp>
 
@@ -40,9 +39,12 @@ namespace Fsl
   class ExceptionMessageFormatter;
   class IServiceRegistry;
 
-  class DemoSetupManager : private Noncopyable
+  class DemoSetupManager
   {
   public:
+    DemoSetupManager(const DemoSetupManager&) = delete;
+    DemoSetupManager& operator=(const DemoSetupManager&) = delete;
+
     static DemoBasicSetup GetSetup(const DemoSetupManagerConfig& config, ExceptionMessageFormatter& rExceptionMessageFormatter,
                                    const std::weak_ptr<IServiceRegistry>& weakServiceRegistry, const uint32_t verbosityLevel,
                                    bool& rEnableFirewallRequest);

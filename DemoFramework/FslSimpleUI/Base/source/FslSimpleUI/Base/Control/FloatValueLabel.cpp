@@ -32,7 +32,7 @@
 #include <FslSimpleUI/Base/Control/FloatValueLabel.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringCompat.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <cassert>
@@ -56,7 +56,7 @@ namespace Fsl
         auto charsWritten = StringCompat::sprintf_s(tmpFormat, BUFFER_SIZE, "%%.%df", numDecimals);
         if (charsWritten < 0)
         {
-          FSLLOG_DEBUG_WARNING("Could not build format string");
+          FSLLOG3_DEBUG_WARNING("Could not build format string");
           return false;
         }
 
@@ -113,7 +113,7 @@ namespace Fsl
     }
 
 
-    const std::string& FloatValueLabel::DoGetContent() const
+    StringViewLite FloatValueLabel::DoGetContent() const
     {
       if (!m_cacheIsValid)
       {
@@ -126,7 +126,7 @@ namespace Fsl
         }
         m_contentCache = tmp;
       }
-      return m_contentCache;
+      return StringViewLite(m_contentCache.data(), m_contentCache.size());
     }
   }
 }

@@ -66,7 +66,7 @@ namespace
 
   using TestTypes = ::testing::Types<TestType1, TestType2, TestType3, TestType4>;
 
-  TYPED_TEST_CASE(TestFixtureFslGraphics_ContainerTypeConvert, TestTypes);
+  TYPED_TEST_SUITE(TestFixtureFslGraphics_ContainerTypeConvert, TestTypes);
 }
 
 

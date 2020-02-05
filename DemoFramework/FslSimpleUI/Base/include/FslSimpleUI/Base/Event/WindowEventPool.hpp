@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
 #include <deque>
@@ -51,13 +50,16 @@ namespace Fsl
 
     //! @brief A simple event object pool
     //! @note All events have to acquired and released to the pool.
-    class WindowEventPool : private Noncopyable
+    class WindowEventPool
     {
       std::deque<std::shared_ptr<WindowInputClickEvent>> m_poolWindowInputClickEvent;
       std::deque<std::shared_ptr<WindowSelectEvent>> m_poolWindowSelectEvent;
       std::deque<std::shared_ptr<WindowContentChangedEvent>> m_poolWindowContentChangedEvent;
 
     public:
+      WindowEventPool(const WindowEventPool&) = delete;
+      WindowEventPool& operator=(const WindowEventPool&) = delete;
+
       WindowEventPool();
       ~WindowEventPool();
 

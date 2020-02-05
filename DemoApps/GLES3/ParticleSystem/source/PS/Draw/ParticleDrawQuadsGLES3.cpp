@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ParticleDrawQuadsGLES3.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <algorithm>
@@ -136,7 +136,7 @@ namespace Fsl
     }
 
     // auto end = timer.GetTime();
-    // FSLLOG("Particles-ToVertices Time: " << end - start);
+    // FSLLOG3_INFO("Particles-ToVertices Time: " << end - start);
 
     glBindBuffer(m_pCurrentBuffer->GetTarget(), m_pCurrentBuffer->Get());
     m_pCurrentBuffer->SetDataFast(0, m_buffer.data(), particleCount * 6);

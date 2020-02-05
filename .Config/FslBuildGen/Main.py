@@ -63,6 +63,7 @@ from FslBuildGen.PackageLoader import PackageLoader
 from FslBuildGen.PackageResolver import PackageResolver
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Tool import ToolAppMain
+from FslBuildGen.Tool.LowLevelToolConfig import LowLevelToolConfig
 from FslBuildGen.ToolConfig import ToolConfig
 from FslBuildGen.ToolConfig import ToolConfigPackageConfigurationAddLocationType
 from FslBuildGen.ToolConfig import ToolConfigPackageConfigurationLocationSetup
@@ -305,7 +306,7 @@ def GetDefaultConfigForTest(enableTestMode: bool = False, customUnitTestRoots: O
     log = Log(strToolAppTitle, 0)
     currentDir = IOUtil.GetEnvironmentVariableForDirectory("FSL_GRAPHICS_INTERNAL")
     basicConfig = BasicConfig(log)
-    localToolConfig = ToolAppMain.LowLevelToolConfig(log.Verbosity, False, False, False, False, currentDir)
+    localToolConfig = LowLevelToolConfig(log.Verbosity, False, False, False, False, currentDir)
     projectRootConfig = ToolAppMain.GetProjectRootConfig(localToolConfig, basicConfig, currentDir)
     toolConfig = ToolConfig(basicConfig, projectRootConfig.ToolConfigFile, projectRootConfig)
     config = Config(log, toolConfig, PluginSharedValues.TYPE_UNIT_TEST, None, True)

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "HDR01_BasicToneMapping.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslSimpleUI/Base/Control/Background9Slice.hpp>

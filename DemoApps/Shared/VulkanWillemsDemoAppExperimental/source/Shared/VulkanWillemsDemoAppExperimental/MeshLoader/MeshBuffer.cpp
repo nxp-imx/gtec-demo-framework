@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>

@@ -31,20 +31,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/IDemoApp.hpp>
 #include <memory>
 
 namespace Fsl
 {
-  class IDemoAppFactory : public Noncopyable
+  class IDemoAppFactory
   {
   public:
+    IDemoAppFactory(const IDemoAppFactory&) = delete;
+    IDemoAppFactory& operator=(const IDemoAppFactory&) = delete;
     virtual ~IDemoAppFactory() = default;
-    ;
 
     virtual std::shared_ptr<IDemoApp> Allocate(const DemoAppConfig& config) = 0;
+
+  protected:
+    IDemoAppFactory() = default;
   };
 }
 

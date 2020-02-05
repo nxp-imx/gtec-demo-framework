@@ -31,7 +31,7 @@
 
 #include <FslUtil/OpenGLES2/GLRawBitmapUtil.hpp>
 #include <FslUtil/OpenGLES2/GLCompressedFormat.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
@@ -363,7 +363,7 @@ namespace Fsl
         throw UnsupportedStrideException(stride);
       }
 
-      FSLLOG_DEBUG_WARNING_IF(exactMatch, "GLES2 does not support exact matching of pixelFormats with the textureFormat");
+      FSLLOG3_DEBUG_WARNING_IF(exactMatch, "GLES2 does not support exact matching of pixelFormats with the textureFormat");
 
       switch (pixelFormat)
       {

@@ -31,7 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/Platform/Linux/ScopedSystemMemoryAccessLinux.hpp>
 #include <cstring>
 #include <cerrno>
@@ -84,7 +84,7 @@ namespace Fsl
   {
     if (munmap(m_pMem, MAP_SIZE) == -1)
     {
-      FSLLOG_WARNING("munmap failed with '" << safeStrerror() << "'");
+      FSLLOG3_WARNING("munmap failed with '{}'", safeStrerror());
     }
     close(m_fd);
   }

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include "VGStressTestOptionParser.hpp"
@@ -146,7 +146,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum VGStressTestOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult VGStressTestOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     bool boolValue;
     int intValue;

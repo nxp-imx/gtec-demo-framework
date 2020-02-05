@@ -33,7 +33,7 @@
 
 #include "ScopedFBHandle.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cstring>
 #include <fcntl.h>
 #include <linux/fb.h>
@@ -47,9 +47,9 @@ namespace Fsl
   {
     void LogIt(const std::string& str, fb_bitfield bf)
     {
-      FSLLOG(str << ".offset: " << bf.offset);
-      FSLLOG(str << ".length: " << bf.length);
-      FSLLOG(str << ".msb_right: " << bf.msb_right);
+      FSLLOG3_INFO("{}.offset: {}", str, bf.offset);
+      FSLLOG3_INFO("{}.length: {}", str, bf.length);
+      FSLLOG3_INFO("{}.msb_right: {}", str, bf.msb_right);
     }
   }
 
@@ -76,7 +76,7 @@ namespace Fsl
       if (ioctl(Handle, FBIOGET_VSCREENINFO, &OrgScreenInfo) == -1)
         throw GraphicsException("Failed to get FB variable screen info");
 
-      FSLLOG("fbInfo.smem_start: " << OrgFixInfo.smem_start);
+      FSLLOG3_INFO("fbInfo.smem_start: {}", OrgFixInfo.smem_start);
       Log(OrgScreenInfo, "org");
     }
     catch (const std::exception&)
@@ -94,7 +94,7 @@ namespace Fsl
       if (alignFrameBuffer)
       {
         m_alignedYOffset = ((m_alignedYOffset / 64) * 64) + (m_alignedYOffset % 64 == 0 ? 0 : 64);
-        FSLLOG("Aligning second FB from " << ScreenInfo.yres << " to " << m_alignedYOffset);
+        FSLLOG3_INFO("Aligning second FB from {} to {}", ScreenInfo.yres, m_alignedYOffset);
       }
 
       ScreenInfo.xres_virtual = ScreenInfo.xres;
@@ -127,13 +127,13 @@ namespace Fsl
       // Get fix screen info.
       if (ioctl(Handle, FBIOGET_FSCREENINFO, &FixInfo) == -1)
         throw GraphicsException("Failed to get FB screen info");
-      FSLLOG("fbInfo.smem_start: " << FixInfo.smem_start);
+      FSLLOG3_INFO("fbInfo.smem_start: {}", FixInfo.smem_start);
     }
     catch (const std::exception&)
     {
       if (ioctl(Handle, FBIOPUT_VSCREENINFO, &OrgScreenInfo) == -1)
       {
-        FSLLOG_ERROR("Could not restore variable screen info!");
+        FSLLOG3_ERROR("Could not restore variable screen info!");
       }
       close(Handle);
       throw;
@@ -144,52 +144,52 @@ namespace Fsl
 
   ScopedFBHandle::~ScopedFBHandle()
   {
-    FSLLOG("Resetting FB");
+    FSLLOG3_INFO("Resetting FB");
     Log(OrgScreenInfo, "Restoring fb to");
     if (ioctl(Handle, FBIOPUT_VSCREENINFO, &OrgScreenInfo) == -1)
     {
-      FSLLOG_ERROR("Could not restore variable screen info!");
+      FSLLOG3_ERROR("Could not restore variable screen info!");
     }
-    FSLLOG("Closing FB");
+    FSLLOG3_INFO("Closing FB");
     close(Handle);
-    FSLLOG("Closed FB");
+    FSLLOG3_INFO("Closed FB");
   }
 
   void ScopedFBHandle::Log(const fb_var_screeninfo& info, const char* const psz)
   {
-    FSLLOG(psz);
-    FSLLOG("fbScreenInfo.xres: " << info.xres);
-    FSLLOG("fbScreenInfo.yres: " << info.yres);
-    FSLLOG("fbScreenInfo.xres_virtual: " << info.xres_virtual);
-    FSLLOG("fbScreenInfo.yres_virtual: " << info.yres_virtual);
-    FSLLOG("fbScreenInfo.xoffset: " << info.xoffset);
-    FSLLOG("fbScreenInfo.yoffset: " << info.yoffset);
-    FSLLOG("fbScreenInfo.bits_per_pixel: " << info.bits_per_pixel);
-    FSLLOG("fbScreenInfo.grayscale: " << info.grayscale);
+    FSLLOG3_INFO(psz);
+    FSLLOG3_INFO("fbScreenInfo.xres: {}", info.xres);
+    FSLLOG3_INFO("fbScreenInfo.yres: {}", info.yres);
+    FSLLOG3_INFO("fbScreenInfo.xres_virtual: {}", info.xres_virtual);
+    FSLLOG3_INFO("fbScreenInfo.yres_virtual: {}", info.yres_virtual);
+    FSLLOG3_INFO("fbScreenInfo.xoffset: {}", info.xoffset);
+    FSLLOG3_INFO("fbScreenInfo.yoffset: {}", info.yoffset);
+    FSLLOG3_INFO("fbScreenInfo.bits_per_pixel: {}", info.bits_per_pixel);
+    FSLLOG3_INFO("fbScreenInfo.grayscale: {}", info.grayscale);
     LogIt("fbScreenInfo.red", info.red);
     LogIt("fbScreenInfo.green", info.green);
     LogIt("fbScreenInfo.blue", info.blue);
     LogIt("fbScreenInfo.transp", info.transp);
-    FSLLOG("fbScreenInfo.nonstd: " << info.nonstd);
-    FSLLOG("fbScreenInfo.activate: " << info.activate);
-    FSLLOG("fbScreenInfo.height: " << info.height);
-    FSLLOG("fbScreenInfo.width: " << info.width);
-    FSLLOG("fbScreenInfo.accel_flags: " << info.accel_flags);
-    FSLLOG("fbScreenInfo.pixclock: " << info.pixclock);
-    FSLLOG("fbScreenInfo.left_margin: " << info.left_margin);
-    FSLLOG("fbScreenInfo.right_margin: " << info.right_margin);
-    FSLLOG("fbScreenInfo.upper_margin: " << info.upper_margin);
-    FSLLOG("fbScreenInfo.lower_margin: " << info.lower_margin);
-    FSLLOG("fbScreenInfo.hsync_len: " << info.hsync_len);
-    FSLLOG("fbScreenInfo.vsync_len: " << info.vsync_len);
-    FSLLOG("fbScreenInfo.sync: " << info.sync);
-    FSLLOG("fbScreenInfo.vmode: " << info.vmode);
-    FSLLOG("fbScreenInfo.rotate: " << info.rotate);
-    FSLLOG("fbScreenInfo.colorspace: " << info.colorspace);
-    FSLLOG("fbScreenInfo.reserved[0]: " << info.reserved[0]);
-    FSLLOG("fbScreenInfo.reserved[1]: " << info.reserved[1]);
-    FSLLOG("fbScreenInfo.reserved[2]: " << info.reserved[2]);
-    FSLLOG("fbScreenInfo.reserved[3]: " << info.reserved[3]);
+    FSLLOG3_INFO("fbScreenInfo.nonstd: {}", info.nonstd);
+    FSLLOG3_INFO("fbScreenInfo.activate: {}", info.activate);
+    FSLLOG3_INFO("fbScreenInfo.height: {}", info.height);
+    FSLLOG3_INFO("fbScreenInfo.width: {}", info.width);
+    FSLLOG3_INFO("fbScreenInfo.accel_flags: {}", info.accel_flags);
+    FSLLOG3_INFO("fbScreenInfo.pixclock: {}", info.pixclock);
+    FSLLOG3_INFO("fbScreenInfo.left_margin: {}", info.left_margin);
+    FSLLOG3_INFO("fbScreenInfo.right_margin: {}", info.right_margin);
+    FSLLOG3_INFO("fbScreenInfo.upper_margin: {}", info.upper_margin);
+    FSLLOG3_INFO("fbScreenInfo.lower_margin: {}", info.lower_margin);
+    FSLLOG3_INFO("fbScreenInfo.hsync_len: {}", info.hsync_len);
+    FSLLOG3_INFO("fbScreenInfo.vsync_len: {}", info.vsync_len);
+    FSLLOG3_INFO("fbScreenInfo.sync: {}", info.sync);
+    FSLLOG3_INFO("fbScreenInfo.vmode: {}", info.vmode);
+    FSLLOG3_INFO("fbScreenInfo.rotate: {}", info.rotate);
+    FSLLOG3_INFO("fbScreenInfo.colorspace: {}", info.colorspace);
+    FSLLOG3_INFO("fbScreenInfo.reserved[0]: {}", info.reserved[0]);
+    FSLLOG3_INFO("fbScreenInfo.reserved[1]: {}", info.reserved[1]);
+    FSLLOG3_INFO("fbScreenInfo.reserved[2]: {}", info.reserved[2]);
+    FSLLOG3_INFO("fbScreenInfo.reserved[3]: {}", info.reserved[3]);
   }
 
 
@@ -197,7 +197,7 @@ namespace Fsl
   {
     const int yOffset = (ScreenInfo.yoffset == 0 ? m_alignedYOffset : 0);
     PhysicalMemStart = FixInfo.smem_start + (ScreenInfo.xres_virtual * yOffset * ScreenInfo.bits_per_pixel / 8);
-    // FSLLOG("yOffset: " << yOffset);
+    // FSLLOG3_INFO("yOffset: " << yOffset);
   }
 
   void ScopedFBHandle::WaitForVSync()
@@ -217,7 +217,7 @@ namespace Fsl
 
       if (ioctl(Handle, FBIOPAN_DISPLAY, &ScreenInfo) == -1)
       {
-        FSLLOG_WARNING("pan failed");
+        FSLLOG3_WARNING("pan failed");
       }
     }
 

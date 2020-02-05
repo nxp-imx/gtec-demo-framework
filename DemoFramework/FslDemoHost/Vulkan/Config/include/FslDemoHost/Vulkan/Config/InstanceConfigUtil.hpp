@@ -55,7 +55,7 @@ namespace Fsl
       std::vector<const char*> Layers;
       std::vector<const char*> Extensions;
 
-      InstanceConfigAsCharArrays(InstanceConfig config)
+      InstanceConfigAsCharArrays(const InstanceConfig& config)
         : Config(config)
         , Layers(config.Layers.size())
         , Extensions(config.Extensions.size())

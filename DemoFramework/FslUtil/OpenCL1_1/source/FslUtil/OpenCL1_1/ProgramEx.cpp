@@ -32,7 +32,7 @@
 #include <FslUtil/OpenCL1_1/ProgramEx.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -64,7 +64,7 @@ namespace Fsl
         errorCode = clBuildProgram(hProgram, 0, nullptr, "", nullptr, nullptr);
         if (errorCode != CL_SUCCESS)
         {
-          FSLLOG("*** Source start ***\n" << strProgram << "\n*** Source end ***\n\n");
+          FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", strProgram);
 
           // Determine the size of the log
           std::size_t logSize;
@@ -74,7 +74,7 @@ namespace Fsl
 
           // Retrieve the log
           RAPIDOPENCL_CHECK(clGetProgramBuildInfo(hProgram, deviceId, CL_PROGRAM_BUILD_LOG, errorLog.size(), errorLog.data(), nullptr));
-          FSLLOG("*** Error log start ***\n" << &errorLog[0] << "\n*** Error Log End ***\n\n");
+          FSLLOG3_INFO("*** Error log start ***\n{}\n*** Error Log End ***\n\n", &errorLog[0]);
 
           throw OpenCLErrorException("clBuildProgram failed", errorCode, __FILE__, __LINE__);
         }

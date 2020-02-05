@@ -37,7 +37,7 @@
 
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslBase/Math/Matrix.hpp>
@@ -157,7 +157,7 @@ namespace Fsl
 
     void ArcballCamera::BeginDrag(const Point2& position)
     {
-      FSLLOG_WARNING_IF(m_isDragging, "Already dragging. Please end the drag before starting a new one.");
+      FSLLOG3_WARNING_IF(m_isDragging, "Already dragging. Please end the drag before starting a new one.");
       m_isDragging = true;
       // Map the point to the sphere
       m_dragStart = MapToSphere(m_screenResolutionBounds, position);
@@ -182,7 +182,7 @@ namespace Fsl
 
     void ArcballCamera::EndDrag(const Point2& position)
     {
-      FSLLOG_WARNING_IF(!m_isDragging, "Not dragging, please start a drag before stopping it");
+      FSLLOG3_WARNING_IF(!m_isDragging, "Not dragging, please start a drag before stopping it");
       Drag(position);
       m_dragStart = MapToSphere(m_screenResolutionBounds, position);
       m_rotationMatrix *= Matrix::CreateFromQuaternion(m_dragRotation);

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Managed/Draw/VMLineDraw.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <array>
@@ -327,7 +327,7 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR("Exception: " << ex.what());
+        FSLLOG3_ERROR("Exception: {}", ex.what());
         Reset();
         throw ex;
       }
@@ -355,7 +355,7 @@ namespace Fsl
 
       if (m_dependentResources.IsValid)
       {
-        FSLLOG_WARNING("Resources were already allocated, freeing them, this could indicate that you forgot to free the resources earlier")
+        FSLLOG3_WARNING("Resources were already allocated, freeing them, this could indicate that you forgot to free the resources earlier")
         FreeResources();
       }
       m_dependentResources.IsValid = true;
@@ -403,7 +403,7 @@ namespace Fsl
     {
       if (!m_dependentResources.IsValid)
       {
-        FSLLOG_DEBUG_WARNING("Draw ignored, due to state");
+        FSLLOG3_DEBUG_WARNING("Draw ignored, due to state");
         return;
       }
 
@@ -430,8 +430,7 @@ namespace Fsl
       {
         std::size_t newCapacity = vertexCount;
         // Warn the developer in debug mode
-        FSLLOG_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: " << rFrame.LineVertBuffer.GetVertexCount() << " to "
-                                                                                   << newCapacity);
+        FSLLOG3_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: {} to {}", rFrame.LineVertBuffer.GetVertexCount(), newCapacity);
         // Dump the existing buffer and then create a new one
         rFrame.LineVertBuffer.Reset();
         rFrame.LineVertBuffer.Reset(m_resources.BufferManager, newCapacity, VertexPositionColor::GetVertexDeclaration());

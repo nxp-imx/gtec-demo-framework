@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/ITag.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Getopt/IOptionParser.hpp>
+#include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
 #include <FslDemoPlatform/DurationExitConfig.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslNativeWindow/Base/NativeWindowConfig.hpp>
@@ -44,21 +44,23 @@
 
 namespace Fsl
 {
-  class DemoHostManagerOptionParser
-    : public IOptionParser
-    , private Noncopyable
+  class DemoHostManagerOptionParser : public IOptionParser
   {
-    int32_t m_exitAfterFrame;
+    int32_t m_exitAfterFrame{-1};
     DurationExitConfig m_exitAfterDuration;
     TestScreenshotConfig m_screenshotConfig;
-    uint32_t m_forceUpdateTime;
-    LogStatsMode m_logStatsMode;
-    bool m_stats;
-    bool m_appFirewall;
-    bool m_enableBasic2DPrealloc;
-    bool m_contentMonitor;
+    uint32_t m_forceUpdateTime{0u};
+    LogStatsMode m_logStatsMode{LogStatsMode::Disabled};
+    DemoAppStatsFlags m_statFlags{static_cast<uint32_t>(DemoAppStatsFlags::Frame | DemoAppStatsFlags::CPU)};
+    bool m_stats{false};
+    bool m_appFirewall{false};
+    bool m_enableBasic2DPrealloc{false};
+    bool m_contentMonitor{false};
 
   public:
+    DemoHostManagerOptionParser(const DemoHostManagerOptionParser&) = delete;
+    DemoHostManagerOptionParser& operator=(const DemoHostManagerOptionParser&) = delete;
+
     DemoHostManagerOptionParser();
 
     std::string GetName() const override
@@ -67,7 +69,7 @@ namespace Fsl
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult::Enum Parse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override;
     bool ParsingComplete() override;
 
     //! Returns a negative value if we should render a unlimited amount of frames.
@@ -89,9 +91,22 @@ namespace Fsl
     LogStatsMode GetLogStatsMode() const;
 
     //! Check if stat is enabled
-    bool IsStatsEnabled() const;
+    bool IsStatsEnabled() const
+    {
+      return m_stats;
+    }
+
+    DemoAppStatsFlags GetAppStatsFlags() const
+    {
+      return m_statFlags;
+    }
+
     //! Check if the app firewall should be enabled by default
-    bool IsAppFirewallEnabled() const;
+    bool IsAppFirewallEnabled() const
+    {
+      return m_appFirewall;
+    }
+
     //! Check if basic2d preallocate is enabled
     bool IsBasic2DPreallocEnabled() const;
     //! Check if content monitoring is enabled
@@ -100,10 +115,10 @@ namespace Fsl
     void RequestEnableAppFirewall();
 
   private:
-    OptionParseResult::Enum ParseDurationExitConfig(const char* const pszOptArg);
-    OptionParseResult::Enum ParseScreenshotImageFormat(const char* const pszOptArg);
-    OptionParseResult::Enum ParseScreenshotNamePrefix(const char* const pszOptArg);
-    OptionParseResult::Enum ParseScreenshotNameScheme(const char* const pszOptArg);
+    OptionParseResult ParseDurationExitConfig(const char* const pszOptArg);
+    OptionParseResult ParseScreenshotImageFormat(const char* const pszOptArg);
+    OptionParseResult ParseScreenshotNamePrefix(const char* const pszOptArg);
+    OptionParseResult ParseScreenshotNameScheme(const char* const pszOptArg);
   };
 }
 

@@ -31,7 +31,6 @@
 
 #include <FslBase/Math/Rectangle3D.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>

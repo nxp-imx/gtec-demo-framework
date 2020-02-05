@@ -33,7 +33,7 @@
 #include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/PathDeque.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <fmt/format.h>
 #include <cstring>
 #include <dirent.h>
 #include <cerrno>
@@ -216,7 +216,7 @@ namespace Fsl
         const auto error = errno;
         if (error != EEXIST)
         {
-          throw IOException(std::string("Failed to create directory: '") + dir + "'");
+          throw IOException(fmt::format("Failed to create directory: '{}'", dir));
         }
       }
     }

@@ -20,5 +20,6 @@
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GNUmakefile
+/GNUmakefile_Yocto
 /build/
 /resource.h

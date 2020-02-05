@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -85,14 +85,14 @@ namespace Fsl
 
     // Ensure that the kernel size is correct
     int moddedKernelLength = UpdateKernelLength(blurConfig.KernelLength);
-    FSLLOG_WARNING_IF(moddedKernelLength != blurConfig.KernelLength,
-                      "The two pass linear scaled shader is not compatible with the supplied kernel length of " << blurConfig.KernelLength
-                                                                                                                << " using " << moddedKernelLength);
+    FSLLOG3_WARNING_IF(moddedKernelLength != blurConfig.KernelLength,
+                       "The two pass linear scaled shader is not compatible with the supplied kernel length of {} using {}", blurConfig.KernelLength,
+                       moddedKernelLength);
 
     // Simplistic scaling of the kernel so it handles the down-sampling of the image correctly
     moddedKernelLength = UpdateScaledKernelLength(moddedKernelLength / 2);
     float moddedSigma = blurConfig.Sigma / 2.0f;
-    FSLLOG("Scaled actual kernel length: " << moddedKernelLength << " which becomes a " << ((moddedKernelLength / 2) + 1) << " linear kernel");
+    FSLLOG3_INFO("Scaled actual kernel length: {} which becomes a {} linear kernel", moddedKernelLength, ((moddedKernelLength / 2) + 1));
 
     // The downscaled framebuffer needs to contain 'half of the kernel width' extra pixels on the left to ensure that we can use
     // them for the blur calc of the first pixel we are interested in

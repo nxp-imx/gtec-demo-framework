@@ -71,6 +71,7 @@ from FslBuildGen.Generator.Report.TheGeneratorBuildReport import TheGeneratorBui
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
+from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageLoader import PackageLoader
 from FslBuildGen.PackageResolver import PackageResolver
 from FslBuildGen.SharedGeneration import AndroidABIOption
@@ -155,12 +156,12 @@ class GeneratorPluginMakefile(GeneratorPlugin):
         return TheGeneratorBuildReport(resultDict)
 
 
-class GeneratorPluginUbuntu(GeneratorPluginMakefile):
+class GeneratorPluginUbuntuLegacy(GeneratorPluginMakefile):
     def __init__(self) -> None:
         super().__init__(PackageConfig.PlatformNameString.UBUNTU, "GNUmakefile", True)
 
 
-class GeneratorPluginYocto(GeneratorPluginMakefile):
+class GeneratorPluginYoctoLegacy(GeneratorPluginMakefile):
     def __init__(self) -> None:
         super().__init__(PackageConfig.PlatformNameString.YOCTO, "GNUmakefile_Yocto", False)
 
@@ -282,6 +283,15 @@ class GeneratorPluginCMakeBase(GeneratorPlugin):
         return GeneratorCMake.TryGetBuildExecutableInfo(log, generatorConfig, self.PlatformName, self.CMakeConfig,
                                                         package, generatorReport, variantSettingsDict, configVariant.Options)
 
+
+class GeneratorPluginUbuntu(GeneratorPluginCMakeBase):
+    def __init__(self) -> None:
+        super().__init__(PackageConfig.PlatformNameString.UBUNTU)
+
+class GeneratorPluginYocto(GeneratorPluginCMakeBase):
+    def __init__(self) -> None:
+        super().__init__(PackageConfig.PlatformNameString.YOCTO)
+
 class GeneratorPluginCMake(GeneratorPluginCMakeBase):
     def __init__(self) -> None:
         super().__init__(PackageConfig.PlatformNameString.CMAKE)
@@ -329,10 +339,13 @@ def GetGeneratorPlugins(allowDevelopmentPlugins: bool) -> List[GeneratorPlugin]:
         return __g_generatorPlugins
     return [entry for entry in __g_generatorPlugins if not entry.InDevelopment]
 
+def __PrepareGenerator(generator: GeneratorPlugin) -> None:
+    generator.DotEnabled =  __g_globalContext.DotEnabled
+    generator.ToolVersion = __g_globalContext.VSVersion
+    generator.SetLegacyGeneratorType(__g_globalContext.LegacyGeneratorType)
 
-def GetGeneratorPluginById(pluginId: str, generatorType: int, allowAll: bool,
-                           cmakeConfiguration: CMakeConfiguration,
-                           userCMakeConfig: Optional[UserCMakeConfig]) -> GeneratorPlugin:
+
+def __GetGenerator(pluginId: str, generatorType: int, allowAll: bool) -> GeneratorPlugin:
     pluginId = pluginId.lower()
     if not pluginId in __g_generatorPluginDict:
         raise UsageErrorException("Unknown platform: '{0}'".format(pluginId))
@@ -340,13 +353,32 @@ def GetGeneratorPluginById(pluginId: str, generatorType: int, allowAll: bool,
         raise UsageErrorException("Platform '{0}' is not allowed".format(pluginId))
     if  generatorType == GeneratorType.CMake:
         platformName = __g_generatorPluginDict[pluginId].PlatformName
-        cmakeGenerator = GeneratorPluginCMakeBase(platformName)
-        cmakeGenerator.DotEnabled =  __g_globalContext.DotEnabled
-        cmakeGenerator.ToolVersion = __g_globalContext.VSVersion
-        cmakeGenerator.CMakeConfig = CMakeConfigUtil.BuildGeneratorCMakeConfig(platformName, userCMakeConfig, cmakeConfiguration, cmakeGenerator.ToolVersion)
-        cmakeGenerator.SetLegacyGeneratorType(__g_globalContext.LegacyGeneratorType)
-        return cmakeGenerator
+        return GeneratorPluginCMakeBase(platformName)
+    elif  generatorType == GeneratorType.Legacy:
+        platformName = __g_generatorPluginDict[pluginId].PlatformName
+        if platformName == PlatformNameString.UBUNTU:
+            legacyUbuntuGenerator = GeneratorPluginUbuntuLegacy()
+            __PrepareGenerator(legacyUbuntuGenerator)
+            return legacyUbuntuGenerator
+        elif platformName == PlatformNameString.YOCTO:
+            legacyYoctoGenerator = GeneratorPluginYoctoLegacy()
+            __PrepareGenerator(legacyYoctoGenerator)
+            return legacyYoctoGenerator
     return __g_generatorPluginDict[pluginId]
+
+
+
+def GetGeneratorPluginById(pluginId: str, generatorType: int, allowAll: bool,
+                           cmakeConfiguration: CMakeConfiguration,
+                           userCMakeConfig: Optional[UserCMakeConfig]) -> GeneratorPlugin:
+    generator = __GetGenerator(pluginId, generatorType, allowAll)
+    # Patch the generator with the global variables
+    __PrepareGenerator(generator)
+    if isinstance(generator, GeneratorPluginCMakeBase):
+        # patch the cmake generators with configuration data
+        generator.CMakeConfig = CMakeConfigUtil.BuildGeneratorCMakeConfig(generator.PlatformName, userCMakeConfig, cmakeConfiguration, generator.ToolVersion)
+    return generator
+
 
 
 def EnableGraph() -> None:
@@ -364,6 +396,4 @@ def SetVSVersion(vsVersion: str) -> None:
 
 
 def SetLegacyGeneratorType(legacyGeneratorType: str) -> None:
-    for entry in list(__g_generatorPluginDict.values()):
-        entry.SetLegacyGeneratorType(legacyGeneratorType)
     __g_globalContext.LegacyGeneratorType = legacyGeneratorType

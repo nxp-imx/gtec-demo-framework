@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/IO/SearchOptions.hpp>
 
@@ -42,9 +41,12 @@ namespace Fsl
   {
     class PathDeque;
 
-    class Directory : private Noncopyable
+    class Directory
     {
     public:
+      Directory(const Directory&) = delete;
+      Directory& operator=(const Directory&) = delete;
+
       //! @brief Create the given directory (renamed form CreateDirectory to prevent issues with windows.h>
       //! @note Any and all directories specified in path are created, unless they already exist or unless some part of path is invalid
       static void CreateDir(const Path& path);

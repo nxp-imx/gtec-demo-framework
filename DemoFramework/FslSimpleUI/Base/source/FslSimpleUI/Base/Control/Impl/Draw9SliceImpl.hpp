@@ -34,7 +34,7 @@
 #include <FslBase/Math/NineSlice.hpp>
 #include <FslBase/Math/Rect.hpp>
 #include <FslBase/Math/ThicknessF.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
@@ -60,7 +60,7 @@ namespace Fsl
         const Point2 textureSize = texture.GetSize();
         if (textureSize.X < nineSlice.SumX() || textureSize.Y < nineSlice.SumY())
         {
-          FSLBASICLOG_WARNING("The nine slice is incompatible with the image");
+          FSLLOG3_WARNING("The nine slice is incompatible with the image");
           return;
         }
 

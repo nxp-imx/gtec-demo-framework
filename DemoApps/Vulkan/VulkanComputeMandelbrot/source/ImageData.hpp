@@ -32,14 +32,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <vulkan/vulkan.h>
 #include <vector>
 
 namespace Fsl
 {
-  class ImageData : Noncopyable
+  class ImageData
   {
     std::vector<uint8_t> m_data;
     mutable std::vector<std::size_t> m_scratchpadAllOffsets;
@@ -52,6 +51,9 @@ namespace Fsl
     uint32_t m_bytesPerPixel{};
 
   public:
+    ImageData(const ImageData&) = delete;
+    ImageData& operator=(const ImageData&) = delete;
+
     // move assignment operator
     ImageData& operator=(ImageData&& other) noexcept;
     // move constructor
@@ -97,13 +99,16 @@ namespace Fsl
 
 
     //! Provides direct access to the scoped bitmap during its lifetime.
-    class ScopedRawBitmapAccess : private Noncopyable
+    class ScopedRawBitmapAccess
     {
       const ImageData* m_pImageData1;
       // ImageData* m_pImageData2;
       RawBitmapEx* m_pRawBitmapEx;
 
     public:
+      ScopedRawBitmapAccess(const ScopedRawBitmapAccess&) = delete;
+      ScopedRawBitmapAccess& operator=(const ScopedRawBitmapAccess&) = delete;
+
       // Read only lock
       ScopedRawBitmapAccess(const ImageData& imageData, RawBitmap& rRawBitmap)
         : m_pImageData1(&imageData)

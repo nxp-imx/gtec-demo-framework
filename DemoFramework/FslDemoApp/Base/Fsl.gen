@@ -3,6 +3,7 @@
   <Library Name="FslDemoApp.Base" CreationYear="2017">
     <Dependency Name="FslBase"/>
     <Dependency Name="FslDemoApp.Shared"/>
+    <Dependency Name="FslDemoService.CpuStats" Access="Private"/>
     <Dependency Name="FslDemoService.Graphics"/>
     <Dependency Name="FslGraphics"/>
     <Dependency Name="FslNativeWindow.Base"/>

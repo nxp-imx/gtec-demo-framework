@@ -42,82 +42,61 @@ namespace Fsl
   MeshRenderBasic::MeshRenderBasic(const Procedural::BasicMesh& mesh)
     : m_vertexCount(mesh.GetVertexCount())
     , m_indexCount(mesh.GetIndexCount())
-    , m_pVertices(nullptr)
-    , m_pNormals(nullptr)
-    , m_pTextureCoords(nullptr)
-    , m_pIndices(nullptr)
+    , m_vertices(mesh.GetVertexCount())
+    , m_normals(mesh.GetVertexCount())
+    , m_textureCoords(mesh.GetVertexCount())
+    , m_indices(mesh.GetIndexCount())
     , m_primitiveType(GLUtil::Convert(mesh.GetPrimitiveType()))
   {
     const int indexCount = mesh.GetIndexCount();
     const uint16_t* pSrcIndices = mesh.GetIndices();
     const VertexPositionNormalTexture* const src = mesh.GetVertices();
     const int vertexCount = mesh.GetVertexCount();
-    m_pVertices = new float[3 * vertexCount];
-    m_pNormals = new float[3 * vertexCount];
-    m_pTextureCoords = new float[2 * vertexCount];
-    m_pIndices = new unsigned short[indexCount];
     for (int i = 0; i < vertexCount; ++i)
     {
-      m_pVertices[i * 3 + 0] = src[i].Position.X;
-      m_pVertices[i * 3 + 1] = src[i].Position.Y;
-      m_pVertices[i * 3 + 2] = src[i].Position.Z;
-
-      m_pNormals[i * 3 + 0] = src[i].Normal.X;
-      m_pNormals[i * 3 + 1] = src[i].Normal.Y;
-      m_pNormals[i * 3 + 2] = src[i].Normal.Z;
-
-      m_pTextureCoords[i * 2 + 0] = src[i].TextureCoordinate.X;
-      m_pTextureCoords[i * 2 + 1] = src[i].TextureCoordinate.Y;
+      m_vertices[i] = src[i].Position;
+      m_normals[i] = src[i].Normal;
+      m_textureCoords[i] = src[i].TextureCoordinate;
     }
 
     for (int i = 0; i < indexCount; ++i)
     {
-      m_pIndices[i] = static_cast<unsigned short>(pSrcIndices[i]);
+      m_indices[i] = static_cast<unsigned short>(pSrcIndices[i]);
     }
   }
 
-  MeshRenderBasic::~MeshRenderBasic()
-  {
-    delete[] m_pVertices;
-    m_pVertices = nullptr;
-    delete[] m_pNormals;
-    m_pNormals = nullptr;
-    delete[] m_pTextureCoords;
-    m_pTextureCoords = nullptr;
-    delete[] m_pIndices;
-    m_pIndices = nullptr;
-  }
+  MeshRenderBasic::~MeshRenderBasic() = default;
 
   void MeshRenderBasic::Bind(const ShaderBase& shader)
   {
     ShaderVertexConfig shaderConfig = shader.GetShaderConfig();
     if (shaderConfig.Position != GLValues::INVALID_LOCATION)
     {
-      glVertexAttribPointer(shaderConfig.Position, 3, GL_FLOAT, GL_FALSE, 0, m_pVertices);
+      glVertexAttribPointer(shaderConfig.Position, 3, GL_FLOAT, GL_FALSE, 0, m_vertices.data());
       glEnableVertexAttribArray(shaderConfig.Position);
     }
 
     if (shaderConfig.Normal != GLValues::INVALID_LOCATION)
     {
-      glVertexAttribPointer(shaderConfig.Normal, 3, GL_FLOAT, GL_FALSE, 0, m_pNormals);
+      glVertexAttribPointer(shaderConfig.Normal, 3, GL_FLOAT, GL_FALSE, 0, m_normals.data());
       glEnableVertexAttribArray(shaderConfig.Normal);
     }
 
     if (shaderConfig.TexCoord != GLValues::INVALID_LOCATION)
     {
-      glVertexAttribPointer(shaderConfig.TexCoord, 2, GL_FLOAT, GL_FALSE, 0, m_pTextureCoords);
+      glVertexAttribPointer(shaderConfig.TexCoord, 2, GL_FLOAT, GL_FALSE, 0, m_textureCoords.data());
       glEnableVertexAttribArray(shaderConfig.TexCoord);
     }
   }
 
   void MeshRenderBasic::Draw()
   {
-    glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_pIndices);
+    glDrawElements(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_indices.data());
   }
 
   void MeshRenderBasic::DrawInstanced(const int layerCount)
   {
-    glDrawElementsInstanced(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_pIndices, layerCount);
+    glDrawElementsInstanced(m_primitiveType, m_indexCount, GL_UNSIGNED_SHORT, m_indices.data(), layerCount);
   }
 
   void MeshRenderBasic::Unbind()

@@ -33,7 +33,7 @@
 #include <FslDemoApp/Base/Service/ImageLibrary/IImageLibraryService.hpp>
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryGLIService.hpp>
 #include <FslBase/BlobRecord.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
@@ -228,18 +228,18 @@ namespace Fsl
 
       if (tex.faces() > std::numeric_limits<uint32_t>::max())
       {
-        FSLLOG_DEBUG_WARNING("Face count exceeded uint32_t capacity");
+        FSLLOG3_DEBUG_WARNING("Face count exceeded uint32_t capacity");
         return false;
       }
 
       if (tex.max_level() > (std::numeric_limits<uint32_t>::max() - 1))
       {
-        FSLLOG_DEBUG_WARNING("levels count exceeded uint32_t capacity");
+        FSLLOG3_DEBUG_WARNING("levels count exceeded uint32_t capacity");
         return false;
       }
       if (tex.max_layer() > (std::numeric_limits<uint32_t>::max() - 1))
       {
-        FSLLOG_DEBUG_WARNING("layers count exceeded uint32_t capacity");
+        FSLLOG3_DEBUG_WARNING("layers count exceeded uint32_t capacity");
         return false;
       }
 
@@ -255,7 +255,7 @@ namespace Fsl
         Extent3D levelExtent(gliLevelExtent.x, gliLevelExtent.y, gliLevelExtent.z);
         if (levelExtent != blobBuilder.GetExtent(level))
         {
-          FSLLOG_DEBUG_WARNING("The blobBuilder and GLI did not agree on the extent size for level: " << level);
+          FSLLOG3_DEBUG_WARNING("The blobBuilder and GLI did not agree on the extent size for level: {}", level);
           return false;
         }
         const auto levelSize = tex.size(level);

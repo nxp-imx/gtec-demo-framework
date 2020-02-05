@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoService/Graphics/Impl/Basic2D.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
@@ -94,16 +94,12 @@ namespace Fsl
 
     if (psz == nullptr)
     {
-      FSLLOG_WARNING("psz is null");
+      FSLLOG3_WARNING("psz is null");
       return;
     }
-    const auto len = strlen(psz);
-    if (len > std::numeric_limits<uint32_t>::max())
-    {
-      throw NotSupportedException("string is too long");
-    }
+    const auto len = std::strlen(psz);
 
-    DrawString(psz, 0, static_cast<uint32_t>(len), dstPosition);
+    DrawString(StringViewLite(psz, len), dstPosition);
   }
 
 
@@ -114,27 +110,22 @@ namespace Fsl
       throw UsageErrorException("Not in a begin block");
     }
 
-    if (str.size() > std::numeric_limits<uint32_t>::max())
-    {
-      throw NotSupportedException("string is too long");
-    }
-    DrawString(str.c_str(), 0, static_cast<uint32_t>(str.size()), dstPosition);
+    DrawString(StringViewLite(str.c_str(), str.size()), dstPosition);
   }
 
 
-  void Basic2D::DrawString(const char* const characters, const uint32_t startIndex, const uint32_t length, const Vector2& dstPosition)
+  void Basic2D::DrawString(const StringViewLite& strView, const Vector2& dstPosition)
   {
     if (!m_inBegin)
     {
       throw UsageErrorException("Not in a begin block");
     }
 
-    if (characters == nullptr)
+    if (strView.empty())
     {
-      FSLLOG_WARNING("invalid arguments");
       return;
     }
-    m_native->DrawString(characters + startIndex, length, dstPosition);
+    m_native->DrawString(strView, dstPosition);
   }
 
 

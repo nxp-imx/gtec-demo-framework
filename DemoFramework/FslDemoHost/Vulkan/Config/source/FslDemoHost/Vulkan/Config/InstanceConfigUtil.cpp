@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Vulkan/Config/InstanceConfigUtil.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
@@ -51,12 +51,14 @@ namespace Fsl
     namespace
     {
 #ifdef NDEBUG
-      const bool LOCAL_VALIDATION_LAYER_ENABLED = false;
+      constexpr bool LOCAL_VALIDATION_LAYER_ENABLED = false;
 #else
-      const static bool LOCAL_VALIDATION_LAYER_ENABLED = true;
+      constexpr static bool LOCAL_VALIDATION_LAYER_ENABLED = true;
 #endif
 
-      const auto CONFIG_VALIDATION_LAYER_NAME = "VK_LAYER_LUNARG_standard_validation";
+
+      const auto CONFIG_VALIDATION_LAYER_OLD_NAME = "VK_LAYER_LUNARG_standard_validation";
+      const auto CONFIG_VALIDATION_LAYER_NAME = "VK_LAYER_KHRONOS_validation";
       const auto CONFIG_API_DUMP_LAYER_NAME = "VK_LAYER_LUNARG_api_dump";
 
       struct InstanceConfigRequest
@@ -93,15 +95,32 @@ namespace Fsl
         }
       }
 
+      void AppendUserChoice(std::deque<Vulkan::InstanceFeatureRequest>& rLayerRequests, const OptionUserChoice userChoice, const bool defaultChoice,
+                            const char* const pszLayerName, const char* const pszAlternativeLayerName)
+      {
+        assert(pszLayerName != nullptr);
+        assert(pszAlternativeLayerName != nullptr);
+
+        const auto buildDebugLayerRequirement = defaultChoice ? Vulkan::FeatureRequirement::Optional : Vulkan::FeatureRequirement::Invalid;
+        const auto debugLayerRequirement = ToFeatureRequirement(userChoice, buildDebugLayerRequirement);
+        if (debugLayerRequirement != Vulkan::FeatureRequirement::Invalid)
+        {
+          auto alternativeNames = std::make_shared<std::vector<std::string>>();
+          alternativeNames->push_back(pszAlternativeLayerName);
+          rLayerRequests.emplace_back(pszLayerName, debugLayerRequirement, alternativeNames);
+        }
+      }
+
+
       InstanceConfigRequest BuildHostInstanceConfigRequest(const std::string& khrSurfaceExtensionName, const InstanceUserChoice& instanceUserChoice,
                                                            const ConfigControl instanceLayerConfigControl,
                                                            const ConfigControl instanceExtensionConfigControl)
       {
         InstanceConfigRequest instanceConfig;
 
-        AppendUserChoice(instanceConfig.LayerRequests, instanceUserChoice.ValidationLayer, LOCAL_VALIDATION_LAYER_ENABLED,
-                         CONFIG_VALIDATION_LAYER_NAME);
         AppendUserChoice(instanceConfig.LayerRequests, instanceUserChoice.UserChoiceApiDump, false, CONFIG_API_DUMP_LAYER_NAME);
+        AppendUserChoice(instanceConfig.LayerRequests, instanceUserChoice.ValidationLayer, LOCAL_VALIDATION_LAYER_ENABLED,
+                         CONFIG_VALIDATION_LAYER_NAME, CONFIG_VALIDATION_LAYER_OLD_NAME);
 
         // Always add the SURFACE extensions the extension ConfigControl does not modify this
         instanceConfig.ExtensionRequests.emplace_back(VK_KHR_SURFACE_EXTENSION_NAME, Vulkan::FeatureRequirement::Mandatory);
@@ -160,19 +179,40 @@ namespace Fsl
 
 
       template <typename T>
-      void PrepareConfig(std::deque<std::string>& rDst, std::deque<Vulkan::InstanceFeatureRequest> requests, const std::vector<T>& properties,
+      void PrepareConfig(std::deque<std::string>& rDst, const std::deque<Vulkan::InstanceFeatureRequest>& requests, const std::vector<T>& properties,
                          const char* const pszDesc)
       {
-        FSLLOG2(LogType::Verbose, "Examining " << pszDesc << " requests");
+        FSLLOG3_VERBOSE("Examining {} requests", pszDesc);
         for (const auto& request : requests)
         {
-          const auto itrFind =
+          auto itrFind =
             std::find_if(properties.begin(), properties.end(), [request](const T& entry) { return (GetEntryName(entry) == request.Name); });
+
+          // If we didnt find the extension then check for the alternative name
+          if (itrFind == properties.end() && request.AlternativeNames)
+          {
+            auto itrAlternativeName = request.AlternativeNames->begin();
+            while (itrAlternativeName != request.AlternativeNames->end())
+            {
+              const std::string alternativeName = *itrAlternativeName;
+              itrFind = std::find_if(properties.begin(), properties.end(),
+                                     [alternativeName](const T& entry) { return (GetEntryName(entry) == alternativeName); });
+              if (itrFind != properties.end())
+              {
+                // Found, so just push it
+                rDst.push_back(alternativeName);
+                FSLLOG3_VERBOSE("- {} found", alternativeName, request.Name);
+                return;
+              }
+              ++itrAlternativeName;
+            }
+          }
+
           if (itrFind != properties.end())
           {
             // Found, so just push it
             rDst.push_back(request.Name);
-            FSLLOG2(LogType::Verbose, "- " << request.Name << " found");
+            FSLLOG3_VERBOSE("- {} found", request.Name);
           }
           else
           {
@@ -180,10 +220,24 @@ namespace Fsl
             switch (request.Requirement)
             {
             case Vulkan::FeatureRequirement::Mandatory:
-              FSLLOG2(LogType::Verbose, "- " << request.Name << " was mandatory and not found.");
+              FSLLOG3_VERBOSE("- {} was mandatory and not found.", request.Name);
+              if (request.AlternativeNames)
+              {
+                for (const auto& alternativeName : *request.AlternativeNames)
+                {
+                  FSLLOG3_VERBOSE("  - Neither was {}.", alternativeName);
+                }
+              }
               throw NotSupportedException(std::string("The ") + std::string(pszDesc) + std::string(" is not supported: ") + request.Name);
             case Vulkan::FeatureRequirement::Optional:
-              FSLLOG2(LogType::Verbose, "- " << request.Name << " was optional and not found.");
+              FSLLOG3_VERBOSE("- {} was optional and not found.", request.Name);
+              if (request.AlternativeNames)
+              {
+                for (const auto& alternativeName : *request.AlternativeNames)
+                {
+                  FSLLOG3_VERBOSE("  - Neither was {}.", alternativeName);
+                }
+              }
               break;
             default:
               throw NotSupportedException("The FeatureRequirement type is unsupported");
@@ -199,7 +253,7 @@ namespace Fsl
                                     [name](const Vulkan::InstanceFeatureRequest& entry) { return (entry.Name == name); });
         if (itrFind != rLayerRequests.end())
         {
-          FSLLOG2(LogType::Verbose, "Removing '" << name << "' due to command line option.");
+          FSLLOG3_VERBOSE("Removing '{}' due to command line option.", name);
           rLayerRequests.erase(itrFind);
         }
       }

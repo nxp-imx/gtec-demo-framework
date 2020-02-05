@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "AssimpDoubleTexture.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
@@ -205,7 +205,7 @@ namespace Fsl
       {
         throw IOException(std::string("Failed to read the requested model: ") + modelPath);
       }
-      FSLLOG("Scene Properly Imported");
+      FSLLOG3_INFO("Scene Properly Imported");
     }
     catch (const std::exception&)
     {

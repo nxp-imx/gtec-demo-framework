@@ -1,5 +1,37 @@
 # Latest version
 
+## Release 5.5.0
+
+* Upgraded RapidVulkan to 1.2.131.1
+* Upgraded OpenCV to 4.2.0
+* Upgraded STB to 2.35
+* Upgraded half to 2.1..0
+* Upgraded Assimp from 5.0.0 to 5.0.1
+* Upgraded fmt from 6.1.0 to 6.1.2
+* Upgraded TPConvert
+* Upgraded to Arm Mali Open GLES emulator v3.0.4-2
+* Converted GLES3.FractalShader to Vulkan.FractalShader
+* Experimental Angle support.
+* Upgraded fmt from 6.0.0 to 6.1.0
+* Ported GLES3.Bloom to Vulkan.Bloom
+* Added Vulkan.EffectOffscreen sample.
+* GLES2, GLES3, Vulkan ModelViewer now supports wireframe rendering and experimental custom mesh loader.
+* Added Vulkan.EffectSubpass sample.
+* Ported GLES3.ModelViewer to Vulkan.ModelViewer
+* Ported GLES3.ModelLoaderBasics to Vulkan.ModelLoaderBasics
+* Ported GLES3.T3DStressTest to Vulkan.T3DStressTest.
+* Ported GLES3.FurShellRendering to Vulkan.FurShellRendering.
+* Upgraded google test from 1.8.1 to 1.10.0
+* Upgraded ninja from 1.8.2 to 1.9.0
+* Upgraded Assimp from 4.1.0 to 5.0.0
+* Added Vulkan.HDR04_HDRFramebuffer
+* Clang tidy+format now requires clang 8 to be compatible with VS2019
+* Windows builds now default to VS2019.
+* Ubuntu builds now default to CMake. The old makefile based builds are available using "-g legacy".
+* **Deprecated** the FSLLOG and FSLLOG2 type macroes and replaced them by FSLLOG3 which utilize the fmt library which is a implementation of the C++20 std::format).
+
+## Release 5.4.0
+
 * Ported GLES3.SRGBFramebuffer to Vulkan.SRGBFramebuffer.
 * FslBuild now supports "-c install" for some builders.
 * Vulkan screenshot support

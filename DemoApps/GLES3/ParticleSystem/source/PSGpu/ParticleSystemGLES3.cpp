@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ParticleSystemGLES3.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -61,7 +61,7 @@ namespace Fsl
       errorLog[0] = 0;
 
       glGetProgramInfoLog(hProgram, static_cast<GLsizei>(errorLog.size()), &errorLength, &errorLog[0]);
-      FSLLOG("*** Error log start ***\n" << &errorLog[0] << "\n*** Error Log End ***\n\n");
+      FSLLOG3_INFO("*** Error log start ***\n{}\n*** Error Log End ***\n\n", &errorLog[0]);
     }
 
 
@@ -250,7 +250,7 @@ namespace Fsl
 
     m_primitiveCount = numPrimitives;
 
-    // FSLLOG("PrimitiveCount: " << m_primitiveCount);
+    // FSLLOG3_INFO("PrimitiveCount: " << m_primitiveCount);
   }
 
 

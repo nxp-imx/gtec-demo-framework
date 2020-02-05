@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureRequestUtil.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureUtil.hpp>
 
@@ -61,10 +61,10 @@ namespace Fsl
               throw NotSupportedException("The requested physical device feature was not supported: " +
                                           std::string(PhysicalDeviceFeatureUtil::ToString(entry.Feature)));
             case FeatureRequirement::Optional:
-              FSLLOG_DEBUG("VulkanPhysicalDevice optional feature '" << PhysicalDeviceFeatureUtil::ToString(entry.Feature) << "' is unavailable.");
+              FSLLOG3_DEBUG_INFO("VulkanPhysicalDevice optional feature '{}' is unavailable.", PhysicalDeviceFeatureUtil::ToString(entry.Feature));
               break;
             default:
-              FSLLOG_WARNING("Invalid requirement for feature: " << PhysicalDeviceFeatureUtil::ToString(entry.Feature));
+              FSLLOG3_WARNING("Invalid requirement for feature: {}", PhysicalDeviceFeatureUtil::ToString(entry.Feature));
               break;
             }
           }

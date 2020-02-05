@@ -35,7 +35,7 @@
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEventListener.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
-#include <set>
+#include <vector>
 
 namespace Fsl
 {
@@ -47,9 +47,7 @@ namespace Fsl
     , public IKeyboard
     , public INativeWindowEventListener
   {
-    using KeySet = std::set<VirtualKey::Enum>;
-
-    KeySet m_keys;
+    std::vector<VirtualKey::Enum> m_keys;
     std::shared_ptr<IEventPoster> m_eventPoster;
 
   public:

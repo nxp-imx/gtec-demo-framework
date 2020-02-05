@@ -12,7 +12,7 @@
 // This class simulates the functionality found in VulkanExampleBase to make it easier
 // to port samples.
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -24,6 +24,7 @@
 #include <cmath>
 #include <cstring>
 #include <iomanip>
+#include <sstream>
 //#include <chrono>
 
 using namespace std;
@@ -329,17 +330,17 @@ namespace Fsl
       m_submitInfo.pSignalSemaphores = m_semaphores.RenderComplete.GetPointer();
 
 #ifdef __ANDROID__
-      FSLLOG("Forcing vsync on");
+      FSLLOG3_INFO("Forcing vsync on");
       m_enableVSync = true;
 #endif
 
-      FSLLOG("VulkanWillemsDemoApp constructed");
+      FSLLOG3_INFO("VulkanWillemsDemoApp constructed");
     }
 
 
     VulkanWillemsDemoApp::~VulkanWillemsDemoApp()
     {
-      FSLLOG("VulkanWillemsDemoApp destroying");
+      FSLLOG3_INFO("VulkanWillemsDemoApp destroying");
       SafeWaitForDeviceIdle();
     }
 
@@ -648,7 +649,7 @@ namespace Fsl
     {
       if (!rCommandBuffer.IsValid())
       {
-        FSLLOG_DEBUG_WARNING("Can not flush a invalid command buffer");
+        FSLLOG3_DEBUG_WARNING("Can not flush a invalid command buffer");
         return;
       }
       rCommandBuffer.End();
@@ -783,7 +784,7 @@ namespace Fsl
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
       {
         // TODO: support 'soft restart'
-        FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
+        FSLLOG3_INFO("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
         GetDemoAppControl()->RequestAppRestart();
         return false;
       }
@@ -806,7 +807,7 @@ namespace Fsl
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
       {
         // TODO: support 'soft restart'
-        FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
+        FSLLOG3_INFO("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
         GetDemoAppControl()->RequestAppRestart();
         return;
       }

@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <memory>
@@ -62,7 +63,7 @@ namespace Fsl
     void DrawPoints(const Vector2* const pSrc, const int32_t length, const Color& color) override;
     void DrawString(const char* const psz, const Vector2& dstPosition) override;
     void DrawString(const std::string& str, const Vector2& dstPosition) override;
-    void DrawString(const char* const characters, const uint32_t startIndex, const uint32_t length, const Vector2& dstPosition) override;
+    void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
     const Point2 FontSize() const override;
   };
 }

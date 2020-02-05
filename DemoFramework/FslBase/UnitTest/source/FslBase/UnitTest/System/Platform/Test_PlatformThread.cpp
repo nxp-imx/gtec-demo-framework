@@ -53,7 +53,7 @@ namespace
 TEST(TestSystem_Platform_PlatformThread, Construct)
 {
   auto threadContext = std::make_shared<DummyThreadContext>();
-  auto dummyFunc = [](const std::shared_ptr<IThreadContext> threadContext) {};
+  auto dummyFunc = [](const std::shared_ptr<IThreadContext>& threadContext) {};
 
   PlatformThread thread(dummyFunc, threadContext);
 }
@@ -62,7 +62,7 @@ TEST(TestSystem_Platform_PlatformThread, Construct)
 TEST(TestSystem_Platform_PlatformThread, Join)
 {
   auto threadContext = std::make_shared<DummyThreadContext>();
-  auto dummyFunc = [](const std::shared_ptr<IThreadContext> threadContext) {};
+  auto dummyFunc = [](const std::shared_ptr<IThreadContext>& threadContext) {};
 
   PlatformThread thread(dummyFunc, threadContext);
   thread.Join();

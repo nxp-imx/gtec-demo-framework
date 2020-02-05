@@ -35,7 +35,7 @@
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/PathDeque.hpp>
 #include <FslBase/IO/PathWatcher.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
 #include <cassert>
 
@@ -128,7 +128,7 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR("ContentMonitorThread threw exception: " << ex.what());
+        FSLLOG3_ERROR("ContentMonitorThread threw exception: {}", ex.what());
       }
     }
   }

@@ -12,7 +12,7 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "ComputeParticles.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>

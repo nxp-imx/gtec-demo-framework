@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3_1/GLShaderProgram.hpp>
@@ -46,7 +46,7 @@ namespace Fsl
     {
       void DumpDebugInformation(const GLuint hProgram, const std::string& strShaderCode)
       {
-        FSLLOG("*** Source start ***\n" << strShaderCode << "\n*** Source end ***\n\n");
+        FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", strShaderCode);
 
         GLint errorBufSize, errorLength;
         glGetProgramiv(hProgram, GL_INFO_LOG_LENGTH, &errorBufSize);
@@ -58,8 +58,10 @@ namespace Fsl
 
         // GetShaderStageName(target)
 
-        FSLLOG("*** GLShaderProgram: Error log start ***\n"
-               << &errorLog[0] << "\n*** GLShaderProgram: Error Log End ***\n(If the log is empty try compiling with GLShader)\n\n");
+        FSLLOG3_INFO(
+          "*** GLShaderProgram: Error log start ***\n{}\n*** GLShaderProgram: Error Log End ***\n(If the log is empty try compiling with "
+          "GLShader)\n\n",
+          &errorLog[0]);
       }
     }
 

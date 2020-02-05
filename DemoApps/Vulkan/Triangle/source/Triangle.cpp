@@ -15,7 +15,7 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "Triangle.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
@@ -325,7 +325,7 @@ namespace Fsl
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
       // TODO: support 'soft restart'
-      FSLLOG("Restarting app due to VK_ERROR_OUT_OF_DATE_KHR");
+      FSLLOG3_INFO("Restarting app due to VK_ERROR_OUT_OF_DATE_KHR");
       GetDemoAppControl()->RequestAppRestart();
       return;
     }
@@ -362,7 +362,7 @@ namespace Fsl
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
       // TODO: support 'soft restart'
-      FSLLOG("Restarting app due to VK_ERROR_OUT_OF_DATE_KHR");
+      FSLLOG3_INFO("Restarting app due to VK_ERROR_OUT_OF_DATE_KHR");
       GetDemoAppControl()->RequestAppRestart();
       return;
     }

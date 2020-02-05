@@ -59,7 +59,7 @@ namespace Fsl
 
       const std::string& GetContent() const
       {
-        return DoGetContent();
+        return m_content;
       }
 
       void SetContent(const std::string& value);

@@ -31,7 +31,7 @@
 
 #include "HDR03_SkyboxToneMapping.hpp"
 #include <FslBase/Bits/BitsUtil.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -318,8 +318,8 @@ namespace Fsl
 
   void HDR03_SkyboxToneMapping::PrepareScene(const std::shared_ptr<IContentManager>& contentManager, Scene& rScene)
   {
-    FSLLOG("Preparing scene");
-    FSLLOG("- loading cubemaps")
+    FSLLOG3_INFO("Preparing scene");
+    FSLLOG3_INFO("- loading cubemaps")
     GLTextureParameters3 texParams(GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
     std::string texture = "test";
@@ -327,7 +327,7 @@ namespace Fsl
     rScene.CubemapTexture =
       TextureUtil::CreateCubemapTextureFromSix(contentManager, "Textures/Cubemap/HDR_Lookout/1024", PixelFormat::R16G16B16A16_SFLOAT);
 
-    FSLLOG("- loading shaders")
+    FSLLOG3_INFO("- loading shaders")
     rScene.Program.Reset(contentManager->ReadAllText("skybox.vert"), contentManager->ReadAllText("skybox.frag"));
     rScene.Mesh.Reset(rScene.Program.Program);
   }

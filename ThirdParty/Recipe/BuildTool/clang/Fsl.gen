@@ -3,7 +3,7 @@
   <ToolRecipe Name="Recipe.BuildTool.clang" CreationYear="2017">
     <ExperimentalRecipe>
       <Installation>
-        <FindExecutableFileInPath Name="clang" Alternatives="clang-7.0" MinVersion="7.0" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang 7.0+ (http://releases.llvm.org/download.html)"/>
+        <FindExecutableFileInPath Name="clang" Alternatives="clang-8" MinVersion="8.0" VersionCommand="--version" VersionRegEx="version\s*([\d.]+)" Help="Please install clang 8.0+ (http://releases.llvm.org/download.html)"/>
       </Installation>
     </ExperimentalRecipe>
   </ToolRecipe>

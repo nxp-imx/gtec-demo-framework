@@ -1,13 +1,13 @@
 #!/bin/bash
 
 pushd $1
-FslBuild.py -r --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest]
+FslBuild.py -g legacy -r --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest]
 
 # setup a baseline
 lcov --no-external --capture --initial --directory . --output-file coverage_base.info
 
 pushd UnitTest
-FslBuild.py --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --ForAllExe "(EXE) --gtest_output=xml:""$FSL_TEST_REPORTS/(PACKAGE_NAME).xml"""
+FslBuild.py -g legacy --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --ForAllExe "(EXE) --gtest_output=xml:""$FSL_TEST_REPORTS/(PACKAGE_NAME).xml"""
 popd
 
 echo Generating coverage html

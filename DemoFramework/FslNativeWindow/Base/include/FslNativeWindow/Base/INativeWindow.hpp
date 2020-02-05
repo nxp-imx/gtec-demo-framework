@@ -31,16 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
-
 namespace Fsl
 {
   struct Point2;
   struct Vector2;
 
-  class INativeWindow : private Noncopyable
+  class INativeWindow
   {
   public:
+    INativeWindow(const INativeWindow&) = delete;
+    INativeWindow& operator=(const INativeWindow&) = delete;
     virtual ~INativeWindow() = default;
 
     //! @brief Get the windows native DPI.
@@ -54,6 +54,9 @@ namespace Fsl
     //! @brief Try to enable mouse capture for the given window.
     //! @return true if the request succeeded.
     virtual bool TryCaptureMouse(const bool enableCapture) = 0;
+
+  protected:
+    INativeWindow() = default;
   };
 }
 

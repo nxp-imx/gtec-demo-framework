@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/HDR/BasicScene/API/Vulkan/CommonMethods.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 
 namespace Fsl
@@ -43,17 +43,17 @@ namespace Fsl
     {
       if (features.textureCompressionASTC_LDR != VK_FALSE)
       {
-        FSLLOG("Using ASTC texture");
+        FSLLOG3_INFO("Using ASTC texture");
         return IO::Path("Textures/Bricks/Bricks_ASTC8x8_rgb.ktx");
       }
       if (features.textureCompressionETC2 != VK_FALSE)
       {
-        FSLLOG("Using ETC2 texture");
+        FSLLOG3_INFO("Using ETC2 texture");
         return IO::Path("Textures/Bricks/Bricks_ETC2_rgb.ktx");
       }
       if (features.textureCompressionBC != VK_FALSE)
       {
-        FSLLOG("Using BC1 texture");
+        FSLLOG3_INFO("Using BC1 texture");
         return IO::Path("Textures/Bricks/Bricks_BC1_rgb.ktx");
       }
       throw NotSupportedException("No supported texture compression found");

@@ -47,6 +47,6 @@ class XmlGenFileDefine(XmlBase):
         if access == "Public":
             self.Access = AccessType.Public  # type: int
         elif access == "Private":
-            self.Access = AccessType.Private  # type: int
+            self.Access = AccessType.Private
         else:
             raise XmlFormatException("Unknown access type '{0}' on Define: '{1}'".format(access, self.Name))

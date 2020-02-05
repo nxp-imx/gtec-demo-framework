@@ -31,7 +31,7 @@
 
 #include <FslDemoHost/Base/Service/ContentMonitor/ContentMonitorService.hpp>
 #include <FslBase/Collections/Concurrent/ConcurrentQueue.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <cassert>
 #include "ContentMonitorThread.hpp"
@@ -69,7 +69,7 @@ namespace Fsl
       m_appControl->RequestAppRestart();
       break;
     default:
-      FSLLOG_WARNING("Unknown command: " << static_cast<int32_t>(command));
+      FSLLOG3_WARNING("Unknown command: {}", static_cast<int32_t>(command));
       break;
     }
   }

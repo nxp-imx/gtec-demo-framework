@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <memory>
 
 namespace Fsl
@@ -44,12 +43,15 @@ namespace Fsl
     class WindowEventPool;
     class WindowEventQueue;
 
-    class WindowEventSender : private Noncopyable
+    class WindowEventSender
     {
       const std::shared_ptr<WindowEventQueue> m_windowEventQueue;
       const std::shared_ptr<ITreeNodeLocator> m_treeNodeLocator;
 
     public:
+      WindowEventSender(const WindowEventSender&) = delete;
+      WindowEventSender& operator=(const WindowEventSender&) = delete;
+
       const std::shared_ptr<WindowEventPool> EventPool;
 
       WindowEventSender(const std::shared_ptr<WindowEventQueue>& windowEventQueue, const std::shared_ptr<WindowEventPool>& eventPool,

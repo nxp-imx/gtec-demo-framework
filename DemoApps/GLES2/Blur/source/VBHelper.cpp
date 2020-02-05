@@ -31,7 +31,6 @@
 
 #include "VBHelper.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <cassert>
 

@@ -31,7 +31,7 @@
 
 #include <Shared/HDR/SkyboxTonemapping/MenuUI.hpp>
 #include <FslBase/Bits/BitsUtil.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>

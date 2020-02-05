@@ -31,7 +31,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/System/Platform/PlatformThread.hpp>
-#include <FslBase/Log/Log.hpp>
 #include <pthread.h>
 #include <ctime>
 

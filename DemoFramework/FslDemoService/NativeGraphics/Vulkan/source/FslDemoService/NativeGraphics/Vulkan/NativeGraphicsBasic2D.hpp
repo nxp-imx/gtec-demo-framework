@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslUtil/Vulkan1_0/Batch/Batch2D.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
@@ -69,7 +70,7 @@ namespace Fsl
       void Begin() override;
       void End() override;
       void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) override;
-      void DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition) override;
+      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
       Point2 FontSize() const override;
 
       void VulkanDeviceInit(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex,

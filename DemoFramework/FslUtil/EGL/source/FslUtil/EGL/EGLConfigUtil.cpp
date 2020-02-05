@@ -31,7 +31,7 @@
 
 #include <FslUtil/EGL/EGLConfigUtil.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
 #include <algorithm>
 #include <cassert>
@@ -146,7 +146,7 @@ namespace Fsl
           EGLint configValue;
           if (eglGetConfigAttrib(hDisplay, config, key, &configValue) == 0u)
           {
-            FSLLOG_DEBUG_WARNING("Failed to retrieve attribute value for key: " << key);
+            FSLLOG3_DEBUG_WARNING("Failed to retrieve attribute value for key: {}", key);
             return 0;
           }
 

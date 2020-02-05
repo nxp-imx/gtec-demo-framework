@@ -34,7 +34,7 @@
 #elif defined(__linux__) || defined(__QNXNTO__)
 #include <ctime>
 #elif defined(FSL_PLATFORM_FREERTOS)
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #else
 #error Unsupported platform
 #endif
@@ -73,7 +73,7 @@ namespace Fsl
     }
 #elif defined(FSL_PLATFORM_FREERTOS)
     {
-      FSLBASICLOG_WARNING("HighResolutionTimer::GetTime() not implemented");
+      FSLLOG3_WARNING("HighResolutionTimer::GetTime() not implemented");
       return 0;
     }
 #endif

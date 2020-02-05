@@ -31,7 +31,7 @@
 
 #include <Shared/DFSimpleUI101/Shared.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
@@ -163,15 +163,15 @@ namespace Fsl
   {
     if (theEvent->GetSource() == m_button1)
     {
-      FSLLOG("Button1 selected");
+      FSLLOG3_INFO("Button1 selected");
     }
     else if (theEvent->GetSource() == m_button2)
     {
-      FSLLOG("Button2 selected");
+      FSLLOG3_INFO("Button2 selected");
     }
     else if (theEvent->GetSource() == m_complexButton)
     {
-      FSLLOG("Complex button selected");
+      FSLLOG3_INFO("Complex button selected");
     }
   }
 

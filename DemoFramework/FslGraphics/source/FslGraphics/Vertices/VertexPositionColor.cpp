@@ -32,6 +32,7 @@
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Color.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
@@ -44,9 +45,9 @@ namespace Fsl
 
   VertexDeclaration VertexPositionColor::GetVertexDeclaration()
   {
-    static VertexElementEx g_elements[] = {
+    constexpr static std::array<VertexElementEx, 2> g_elements = {
       VertexElementEx(offsetof(VertexPositionColor, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(VertexPositionColor, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0)};
-    return VertexDeclaration(g_elements, sizeof(g_elements) / sizeof(VertexElementEx), sizeof(VertexPositionColor));
+    return VertexDeclaration(g_elements.data(), g_elements.size(), sizeof(VertexPositionColor));
   }
 }

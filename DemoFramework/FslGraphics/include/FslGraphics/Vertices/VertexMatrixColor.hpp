@@ -44,9 +44,9 @@ namespace Fsl
     Fsl::Matrix Matrix;
     Vector4 Color;
 
-    VertexMatrixColor() = default;
+    constexpr VertexMatrixColor() = default;
 
-    VertexMatrixColor(const Fsl::Matrix& matrix, const Vector4& color)
+    constexpr VertexMatrixColor(const Fsl::Matrix& matrix, const Vector4& color)
       : Matrix(matrix)
       , Color(color)
     {

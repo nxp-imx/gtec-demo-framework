@@ -31,7 +31,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include "NativeTexture2D.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -40,7 +40,7 @@ namespace Fsl
   {
     NativeTexture2D::NativeTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint)
     {
-      FSLLOG_WARNING("NativeTexture2D is a stub");
+      FSLLOG3_WARNING("NativeTexture2D is a stub");
     }
 
     NativeTexture2D::~NativeTexture2D() = default;

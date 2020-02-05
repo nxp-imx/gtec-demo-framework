@@ -45,9 +45,9 @@ namespace Fsl
     Vector4 Color1;
     Vector4 Color2;
 
-    VertexMatrixColor2() = default;
+    constexpr VertexMatrixColor2() = default;
 
-    VertexMatrixColor2(const Fsl::Matrix& matrix, const Vector4& color1, const Vector4& color2)
+    constexpr VertexMatrixColor2(const Fsl::Matrix& matrix, const Vector4& color1, const Vector4& color2)
       : Matrix(matrix)
       , Color1(color1)
       , Color2(color2)

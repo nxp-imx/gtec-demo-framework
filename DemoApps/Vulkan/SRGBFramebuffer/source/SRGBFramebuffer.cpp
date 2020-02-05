@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "SRGBFramebuffer.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
@@ -59,17 +59,17 @@ namespace Fsl
     {
       if (features.textureCompressionASTC_LDR != VK_FALSE)
       {
-        FSLLOG("Using ASTC texture");
+        FSLLOG3_INFO("Using ASTC texture");
         return IO::Path("Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx");
       }
       if (features.textureCompressionETC2 != VK_FALSE)
       {
-        FSLLOG("Using ETC2 texture");
+        FSLLOG3_INFO("Using ETC2 texture");
         return IO::Path("Textures/WoodFloor/Floor_ETC2_RGB.ktx");
       }
       if (features.textureCompressionBC != VK_FALSE)
       {
-        FSLLOG("Using BC1 texture");
+        FSLLOG3_INFO("Using BC1 texture");
         return IO::Path("Textures/WoodFloor/Floor_BC1_rgb.ktx");
       }
       throw NotSupportedException("No supported texture compression found");

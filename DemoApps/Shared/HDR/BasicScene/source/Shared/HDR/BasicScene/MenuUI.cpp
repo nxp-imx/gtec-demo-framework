@@ -31,7 +31,7 @@
 
 #include <Shared/HDR/BasicScene/MenuUI.hpp>
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
@@ -79,7 +79,7 @@ namespace Fsl
   {
     if (!m_rootCanvas)
     {
-      FSLLOG_DEBUG_WARNING("No root canvas available");
+      FSLLOG3_DEBUG_WARNING("No root canvas available");
       return;
     }
     if (!m_labelNote)

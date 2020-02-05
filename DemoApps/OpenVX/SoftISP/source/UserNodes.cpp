@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 // OpenVX 1.1 project
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <RapidOpenVX/Check.hpp>
 #include "UserNodes.hpp"
@@ -1740,14 +1740,14 @@ namespace Fsl
     if (m_denoiseEn)
     {
       kernelNum = sizeof(kernels) / sizeof(kernels[0]);
-      FSLLOG("Please wait:");
-      FSLLOG("Building noise reduction kernel will take several minutes!");
+      FSLLOG3_INFO("Please wait:");
+      FSLLOG3_INFO("Building noise reduction kernel will take several minutes!");
     }
     else
     {
       kernelNum = sizeof(kernels) / sizeof(kernels[0]) - 3;
     }
-    FSLLOG("Please wait for compiling and building kernels...");
+    FSLLOG3_INFO("Please wait for compiling and building kernels...");
     for (std::size_t i = 0; i < kernelNum; i++)
     {
       kernelObj = vxAddKernelInProgram(programObj, kernels[i]->name, kernels[i]->enumeration, kernels[i]->numParams, kernels[i]->validate,
@@ -1763,7 +1763,7 @@ namespace Fsl
       if (VX_SUCCESS == status)
       {
         RAPIDOPENVX_CHECK(vxFinalizeKernel(kernelObj));
-        FSLLOG("Succeeded to finalize kernel[" << i << "]= " << kernels[i]->name);
+        FSLLOG3_INFO("Succeeded to finalize kernel[{}]= {}", i, kernels[i]->name);
       }
       else
       {

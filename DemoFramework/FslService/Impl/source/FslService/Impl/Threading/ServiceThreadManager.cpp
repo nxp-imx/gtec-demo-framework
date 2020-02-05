@@ -35,7 +35,7 @@
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
 #include <FslService/Impl/ServiceType/Async/IAsynchronousServiceProxyFactory.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 //#include <experimental/future>
 #include <cassert>
 #include <exception>
@@ -62,7 +62,7 @@ namespace Fsl
 
 
     std::deque<AsynchronousServiceImplLaunchFactoryRecord>
-      BuildAsyncServiceImplLaunchFactoryRecordDeque(const RegisteredAsynchronousServiceDeque asyncServices)
+      BuildAsyncServiceImplLaunchFactoryRecordDeque(const RegisteredAsynchronousServiceDeque& asyncServices)
     {
       std::deque<AsynchronousServiceImplLaunchFactoryRecord> res;
       for (const auto& entry : asyncServices)

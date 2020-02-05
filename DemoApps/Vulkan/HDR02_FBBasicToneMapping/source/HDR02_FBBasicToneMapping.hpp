@@ -65,8 +65,7 @@ namespace Fsl
     {
       Vulkan::VUBufferMemory VertUboBuffer;
       Vulkan::VUBufferMemory FragUboBuffer;
-      VkDescriptorSet DescriptorSetRender;
-      VkDescriptorSet DescriptorSetTonemap;
+      VkDescriptorSet DescriptorSetRender{VK_NULL_HANDLE};
     };
 
     struct VertexUBOData
@@ -108,7 +107,7 @@ namespace Fsl
     {
       RapidVulkan::RenderPass MainRenderPass;
       //! We only need one RenderAttachment as command buffers on the same queue are executed in order
-      Vulkan::VUTexture RenderAttachment;
+      Vulkan::VUImageMemoryView RenderAttachment;
 
       RapidVulkan::GraphicsPipeline PipelineRender;
       RapidVulkan::GraphicsPipeline PipelineTonemapperHDR;

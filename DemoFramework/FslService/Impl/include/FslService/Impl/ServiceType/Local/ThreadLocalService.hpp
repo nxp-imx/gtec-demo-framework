@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslService/Consumer/IService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 

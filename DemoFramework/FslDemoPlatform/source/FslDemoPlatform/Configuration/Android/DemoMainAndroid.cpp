@@ -40,7 +40,7 @@
 #include <android/native_window_jni.h>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/ITag.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include "NDKHelper.h"

@@ -387,8 +387,8 @@ namespace Fsl
     }
 
 
-    void NativeBatch2D::DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                                   const int32_t length, const Vector2& dstPosition, const Color& color)
+    void NativeBatch2D::DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
+                                   const Vector2& dstPosition, const Color& color)
     {
       const std::shared_ptr<NativeTexture2D> nativeTex = std::dynamic_pointer_cast<NativeTexture2D>(srcTexture.TryGetNative());
       if (!nativeTex)
@@ -396,20 +396,7 @@ namespace Fsl
         throw std::invalid_argument("srcTexture can not be a invalid texture");
       }
 
-      Batch2D::DrawString(Batch2D::texture_type(nativeTex->Get(), srcTexture.GetSize()), font, pStr, startIndex, length, dstPosition, color);
-    }
-
-
-    void NativeBatch2D::DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                                   const int32_t length, const Vector2& dstPosition, const Color& color)
-    {
-      const std::shared_ptr<NativeTexture2D> nativeTex = std::dynamic_pointer_cast<NativeTexture2D>(srcTexture.TryGetNative());
-      if (!nativeTex)
-      {
-        throw std::invalid_argument("srcTexture can not be a invalid texture");
-      }
-
-      Batch2D::DrawString(Batch2D::texture_type(nativeTex->Get(), srcTexture.GetSize()), font, str, startIndex, length, dstPosition, color);
+      Batch2D::DrawString(Batch2D::texture_type(nativeTex->Get(), srcTexture.GetSize()), font, strView, dstPosition, color);
     }
 
 
@@ -439,8 +426,8 @@ namespace Fsl
     }
 
 
-    void NativeBatch2D::DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                                   const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
+    void NativeBatch2D::DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
+                                   const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
     {
       const std::shared_ptr<NativeTexture2D> nativeTex = std::dynamic_pointer_cast<NativeTexture2D>(srcTexture.TryGetNative());
       if (!nativeTex)
@@ -448,22 +435,7 @@ namespace Fsl
         throw std::invalid_argument("srcTexture can not be a invalid texture");
       }
 
-      Batch2D::DrawString(Batch2D::texture_type(nativeTex->Get(), srcTexture.GetSize()), font, pStr, startIndex, length, dstPosition, color, origin,
-                          scale);
-    }
-
-
-    void NativeBatch2D::DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                                   const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale)
-    {
-      const std::shared_ptr<NativeTexture2D> nativeTex = std::dynamic_pointer_cast<NativeTexture2D>(srcTexture.TryGetNative());
-      if (!nativeTex)
-      {
-        throw std::invalid_argument("srcTexture can not be a invalid texture");
-      }
-
-      Batch2D::DrawString(Batch2D::texture_type(nativeTex->Get(), srcTexture.GetSize()), font, str, startIndex, length, dstPosition, color, origin,
-                          scale);
+      Batch2D::DrawString(Batch2D::texture_type(nativeTex->Get(), srcTexture.GetSize()), font, strView, dstPosition, color, origin, scale);
     }
 
 

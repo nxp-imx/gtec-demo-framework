@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <deque>
 #include <memory>
 
@@ -42,11 +41,14 @@ namespace Fsl
     class EventRoute;
     struct WindowFlags;
 
-    class EventRoutePool : private Noncopyable
+    class EventRoutePool
     {
       std::deque<std::shared_ptr<EventRoute>> m_pool;
 
     public:
+      EventRoutePool(const EventRoutePool&) = delete;
+      EventRoutePool& operator=(const EventRoutePool&) = delete;
+
       EventRoutePool();
       ~EventRoutePool();
 

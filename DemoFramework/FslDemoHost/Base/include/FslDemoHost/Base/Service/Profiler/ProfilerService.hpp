@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Collections/CircularFixedSizeBuffer.hpp>
 #include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
-#include <deque>
 #include <vector>
 
 namespace Fsl
@@ -74,8 +74,8 @@ namespace Fsl
       }
     };
 
-    std::deque<ProfilerRecord> m_entries;
     std::size_t m_maxCapacity;
+    CircularFixedSizeBuffer<ProfilerRecord> m_entries;
     ProfilerRecord m_combinedTime;
     std::vector<CustomCounter> m_customCounters;
     int32_t m_customCounterCount;

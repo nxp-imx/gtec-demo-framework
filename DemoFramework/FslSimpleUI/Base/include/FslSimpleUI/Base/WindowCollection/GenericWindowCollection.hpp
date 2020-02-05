@@ -154,33 +154,43 @@ namespace Fsl
         }
       }
 
+      bool Contains(const std::shared_ptr<BaseWindow>& window) const
+      {
+        return (std::find_if(m_entries.begin(), m_entries.end(), [window](const TRecord& record) { return record.Window == window; }) !=
+                m_entries.end());
+      }
 
-      inline bool empty() const
+      const std::shared_ptr<BaseWindow>& ChildAt(const uint32_t index) const
+      {
+        return m_entries[index].Window;
+      }
+
+      inline bool empty() const noexcept
       {
         return m_entries.empty();
       }
 
-      inline typename queue_type::size_type size() const
+      inline typename queue_type::size_type size() const noexcept
       {
         return m_entries.size();
       }
 
-      inline typename queue_type::const_iterator begin() const
+      inline typename queue_type::const_iterator begin() const noexcept
       {
         return m_entries.begin();
       }
 
-      inline typename queue_type::iterator begin()
+      inline typename queue_type::iterator begin() noexcept
       {
         return m_entries.begin();
       }
 
-      inline typename queue_type::const_iterator end() const
+      inline typename queue_type::const_iterator end() const noexcept
       {
         return m_entries.end();
       }
 
-      inline typename queue_type::iterator end()
+      inline typename queue_type::iterator end() noexcept
       {
         return m_entries.end();
       }

@@ -34,8 +34,6 @@ precision highp float;
 precision mediump float;
 #endif
 
-layout(location = 0) in vec2 v_TexCoord;
-
 layout(std140, binding = 0) uniform UBO
 {
   // Tonemapping
@@ -43,13 +41,13 @@ layout(std140, binding = 0) uniform UBO
 }
 g_ubo;
 
-layout(binding = 1) uniform sampler2D g_hdrTexture;
+mediump layout(input_attachment_index = 0, set = 0, binding = 1) uniform subpassInput g_hdrColorAttachment;
 
 layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-  vec3 hdrColor = texture(g_hdrTexture, v_TexCoord).rgb;
+  vec3 hdrColor = subpassLoad(g_hdrColorAttachment).rgb;
   // Exposure
   hdrColor *= g_ubo.Exposure;
 

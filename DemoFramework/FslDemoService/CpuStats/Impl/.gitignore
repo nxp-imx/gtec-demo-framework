@@ -1,0 +1,17 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/FslDemoService.CpuStats.Impl.VC.VC.opendb
+/FslDemoService.CpuStats.Impl.VC.db
+/FslDemoService.CpuStats.Impl.manifest
+/FslDemoService.CpuStats.Impl.opensdf
+/FslDemoService.CpuStats.Impl.sdf
+/FslDemoService.CpuStats.Impl.sln
+/FslDemoService.CpuStats.Impl.v12.sdf
+/FslDemoService.CpuStats.Impl.v12.suo
+/FslDemoService.CpuStats.Impl.vcxproj
+/FslDemoService.CpuStats.Impl.vcxproj.filters
+/FslDemoService.CpuStats.Impl.vcxproj.user
+/GNUmakefile
+/GNUmakefile_Yocto
+/build/

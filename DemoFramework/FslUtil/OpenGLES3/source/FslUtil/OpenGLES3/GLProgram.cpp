@@ -32,7 +32,7 @@
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -54,7 +54,7 @@ namespace Fsl
         errorLog[0] = 0;
 
         glGetProgramInfoLog(hProgram, static_cast<GLsizei>(errorLog.size()), &errorLength, errorLog.data());
-        FSLLOG("*** Error log start ***\n" << &errorLog[0] << "\n*** Error Log End ***\n\n");
+        FSLLOG3_INFO("*** Error log start ***\n{}\n*** Error Log End ***\n\n", &errorLog[0]);
       }
 
 

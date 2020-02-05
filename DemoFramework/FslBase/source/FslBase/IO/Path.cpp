@@ -162,6 +162,20 @@ namespace Fsl
       return Path(UTF8String(path.m_content, index, path.m_content.GetByteSize() - index));
     }
 
+    Path Path::GetFileNameWithoutExtension(const Path& path)
+    {
+      int32_t index = path.m_content.LastIndexOf('.');
+      if (index < 0)
+      {
+        return GetFileName(path);
+      }
+
+      int32_t charsToSkip = (path.m_content.GetByteSize() - index);
+      int32_t indexSlash = path.m_content.LastIndexOf('/');
+      indexSlash = indexSlash < 0 ? 0 : indexSlash + 1;
+      return Path(UTF8String(path.m_content, indexSlash, path.m_content.GetByteSize() - indexSlash - charsToSkip));
+    }
+
 
     Path Path::GetExtension(const Path& path)
     {
@@ -185,6 +199,30 @@ namespace Fsl
     Path Path::GetFullPath(const Path& path)
     {
       return Path(Platform::GetFullPath(path.m_content.ToUTF8String()));
+    }
+
+    extern bool operator==(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      const StringViewLite& rLhs = lhs;
+      return rLhs == pszRhs;
+    }
+
+    extern bool operator!=(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      const StringViewLite& rLhs = lhs;
+      return rLhs != pszRhs;
+    }
+
+    extern bool operator==(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      const StringViewLite& rRhs = rhs;
+      return rRhs == pszLhs;
+    }
+
+    extern bool operator!=(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      const StringViewLite& rRhs = rhs;
+      return rRhs != pszLhs;
     }
   }
 }

@@ -85,7 +85,7 @@ namespace Fsl
 
   protected:
     void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult::Enum OnParse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult OnParse(const int32_t cmdId, const char* const pszOptArg) override;
     bool OnParsingComplete() override;
   };
 }

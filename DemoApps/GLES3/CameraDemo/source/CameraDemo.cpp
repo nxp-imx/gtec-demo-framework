@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "CameraDemo.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
@@ -64,7 +64,7 @@ namespace Fsl
     }
     catch (const std::exception& ex)
     {
-      FSLLOG_WARNING("Failed to create camera render: " << ex.what());
+      FSLLOG3_WARNING("Failed to create camera render: {}", ex.what());
     }
   }
 

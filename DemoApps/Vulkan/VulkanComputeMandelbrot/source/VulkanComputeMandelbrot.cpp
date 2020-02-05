@@ -25,7 +25,7 @@
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample08)
 // Recreated as a DemoFramework freestyle console sample by Freescale (2016)
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
@@ -145,7 +145,7 @@ namespace Fsl
       //      It is demonstrated, that the CPU can execute in parallel.
       if (m_fence.GetFenceStatus() == VK_SUCCESS)
       {
-        FSLLOG("Compute shader done.");
+        FSLLOG3_INFO("Compute shader done.");
         //
         auto storedImage = GatherImageData();
 
@@ -157,14 +157,14 @@ namespace Fsl
           GetPersistentDataManager()->Write(IMAGE_NAME, bitmap);
         }
 
-        FSLLOG("Saved image data as '" << IMAGE_NAME << "'");
+        FSLLOG3_INFO("Saved image data as '{}'", IMAGE_NAME);
         // Returning false requests quitting the application.
         return false;
       }
 
       if (!rState.Informed)
       {
-        FSLLOG("Compute shader ongoing.");
+        FSLLOG3_INFO("Compute shader ongoing.");
         rState.Informed = VK_TRUE;
       }
 
@@ -185,7 +185,7 @@ namespace Fsl
     if (m_physicalDevice.IsImageTilingAvailable(VK_IMAGE_TILING_LINEAR, imageData.GetPixelFormat(), imageData.GetImageType(), 0,
                                                 imageData.GetExtent3D(), imageData.GetMipLevels(), 1, VK_SAMPLE_COUNT_1_BIT, imageData.GetSize()))
     {
-      FSLLOG("Gather data using image tiling");
+      FSLLOG3_INFO("Gather data using image tiling");
 
       DeviceTexture stageTexture = CreateTexture(m_device.Get(), VK_IMAGE_TILING_LINEAR, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
                                                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, 0);
@@ -251,7 +251,7 @@ namespace Fsl
     else
     {
       // As an alternative, use the buffer.
-      FSLLOG("Gather data using buffer");
+      FSLLOG3_INFO("Gather data using buffer");
 
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

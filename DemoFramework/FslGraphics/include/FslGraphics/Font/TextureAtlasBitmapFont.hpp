@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Font/FontGlyphRange.hpp>
 #include <FslGraphics/Font/FontGlyphPosition.hpp>
 #include <FslGraphics/Font/TextureAtlasGlyphInfo.hpp>
@@ -73,7 +74,17 @@ namespace Fsl
     Point2 MeasureString(const char* const psz) const;
 
     //! @brief
+    Point2 MeasureString(const StringViewLite& strView) const;
+
+    //! @brief
     Point2 MeasureString(const char* const pStr, const uint32_t startIndex, const std::size_t length) const;
+
+
+    //! @brief Extract render rules for the supplied string.
+    //! @param rDst a vector that can contain at least 'length' entries
+    //! @param startIndex the index in pStr to start reading characters at.
+    //! @param length the number of characters to read from pStr
+    void ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView) const;
 
     //! @brief Extract render rules for the supplied string.
     //! @param rDst a vector that can contain at least 'length' entries

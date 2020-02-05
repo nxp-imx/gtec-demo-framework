@@ -32,13 +32,12 @@
 #include <cassert>
 #include <cstdlib>
 #include <deque>
-#include <iostream>
 #include <csignal>
 #include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
@@ -142,12 +141,12 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR("Input argument parsing failed with: " << ex.what());
+        FSLLOG3_ERROR("Input argument parsing failed with: {}", ex.what());
         return OptionParser::ParseResult(OptionParser::Result::Failed, 0);
       }
       catch (...)
       {
-        FSLBASICLOG_ERROR("A critical error occurred during input argument parsing.");
+        FSLLOG3_ERROR("A critical error occurred during input argument parsing.");
         return OptionParser::ParseResult(OptionParser::Result::Failed, 0);
       }
     }
@@ -190,16 +189,16 @@ namespace Fsl
         switch (verbosityLevel)
         {
         case 1:
-          Fsl::Logger::SetLogLevel(LogType::Verbose);
+          Fsl::LogConfig::SetLogLevel(LogType::Verbose);
           break;
         case 2:
-          Fsl::Logger::SetLogLevel(LogType::Verbose2);
+          Fsl::LogConfig::SetLogLevel(LogType::Verbose2);
           break;
         case 3:
-          Fsl::Logger::SetLogLevel(LogType::Verbose3);
+          Fsl::LogConfig::SetLogLevel(LogType::Verbose3);
           break;
         default:
-          Fsl::Logger::SetLogLevel(LogType::Verbose4);
+          Fsl::LogConfig::SetLogLevel(LogType::Verbose4);
           break;
         }
       }
@@ -238,7 +237,7 @@ namespace Fsl
       // This really should not happen, but just check anyway
       if (!serviceProvider)
       {
-        FSLBASICLOG_ERROR("ServiceProvider not present");
+        FSLLOG3_ERROR("ServiceProvider not present");
         return EXIT_FAILURE;
       }
 
@@ -259,17 +258,17 @@ namespace Fsl
         std::string message;
         if (rExceptionMessageFormatter.TryFormatException(ex, message))
         {
-          FSLBASICLOG_ERROR(message);
+          FSLLOG3_ERROR(message);
         }
         else
         {
-          FSLLOG_ERROR("demo setup failed with: " << ex.what());
+          FSLLOG3_ERROR("demo setup failed with: {}", ex.what());
         }
         return EXIT_FAILURE;
       }
       catch (...)
       {
-        FSLBASICLOG_ERROR("A critical error occurred in the demo setup");
+        FSLLOG3_ERROR("A critical error occurred in the demo setup");
         return EXIT_FAILURE;
       }
 
@@ -316,17 +315,17 @@ namespace Fsl
       std::string message;
       if (exceptionMessageFormatter.TryFormatException(ex, message))
       {
-        FSLBASICLOG_ERROR(message);
+        FSLLOG3_ERROR("A exception occurred: {}", message);
       }
       else
       {
-        FSLBASICLOG_ERROR(ex.what());
+        FSLLOG3_ERROR("A exception occurred: {}", ex.what());
       }
       return EXIT_FAILURE;
     }
     catch (...)
     {
-      FSLBASICLOG_ERROR("A critical error occurred.");
+      FSLLOG3_ERROR("A critical error occurred.");
       return EXIT_FAILURE;
     }
   }

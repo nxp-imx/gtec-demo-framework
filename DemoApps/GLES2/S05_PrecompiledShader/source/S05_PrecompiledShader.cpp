@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "S05_PrecompiledShader.hpp"
@@ -53,7 +53,7 @@ namespace Fsl
       source[0] = 0;
       GL_ON_ERROR_LOG_AND_RETURN(glGetShaderSource(hShader, source.size(), nullptr, &source[0]));
 
-      FSLLOG("*** Source start ***\n" << &source[0] << "\n*** Source end ***\n\n");
+      FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", &source[0]);
 
       // Fetch the log
       GL_ON_ERROR_LOG_AND_RETURN(glGetShaderiv(hShader, GL_INFO_LOG_LENGTH, &length));
@@ -61,7 +61,7 @@ namespace Fsl
       errorLog[0] = 0;
       GL_ON_ERROR_LOG_AND_RETURN(glGetShaderInfoLog(hShader, errorLog.size(), nullptr, &errorLog[0]));
 
-      FSLLOG("*** Error log start ***\n" << &errorLog[0] << "\n*** Error Log End ***\n\n");
+      FSLLOG3_INFO("*** Error log start ***\n{}\n*** Error Log End ***\n\n", &errorLog[0]);
     }
     typedef enum
     {
@@ -194,18 +194,18 @@ namespace Fsl
       if (rendererString.compare("Vivante GC880"))
       {
         g_gpuType = GC400T;
-        FSLLOG("GPU = GC400T");
+        FSLLOG3_INFO("GPU = GC400T");
       }
       else
       {
         g_gpuType = GC880;
-        FSLLOG("GPU = GC880");
+        FSLLOG3_INFO("GPU = GC880");
       }
     }
     else
     {
       g_gpuType = GC2000;
-      FSLLOG("GPU = GC2000");
+      FSLLOG3_INFO("GPU = GC2000");
     }
     if (useSeparateShaders)
     {

@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslService/Impl/Priority.hpp>
 #include <FslService/Impl/Registry/ServiceGroupId.hpp>
 #include <memory>

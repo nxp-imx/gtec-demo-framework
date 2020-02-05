@@ -5,10 +5,9 @@ precision highp float;
 precision mediump float;
 #endif
 
-in vec3 g_vVSColor;
 out vec4 out_color;
 
 void main()
 {
-  out_color = vec4(g_vVSColor, 1.0);
+  out_color = vec4(1.0, 0.0, 0.0, 1.0);
 }

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceImpl.hpp>
 #include <FslDemoHost/Base/Service/AsyncImage/AsyncImageServiceProxy.hpp>
@@ -94,7 +94,7 @@ namespace Fsl
       auto imageServiceGroup = serviceRegistry.GetMainServiceGroup();
       if (useAsyncImage)
       {
-        FSLLOG2(LogType::Verbose, "AsyncImage service enabled");
+        FSLLOG3_VERBOSE("AsyncImage service enabled");
         // Setup all image loading and conversion to run in a separate thread
         imageServiceGroup = serviceRegistry.CreateServiceGroup(ServiceGroupName::Image());
         serviceRegistry.Register(

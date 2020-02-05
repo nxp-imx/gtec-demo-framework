@@ -31,15 +31,15 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Persistent/IPersistentDataManager.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
 #include <FslDemoHost/Base/Service/Test/TestService.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
+#include <fmt/format.h>
 #include <cassert>
 #include <iomanip>
-#include <sstream>
 
 namespace Fsl
 {
@@ -129,10 +129,10 @@ namespace Fsl
           {
             // If we are auto saving images then the user screenshots get a different name
             ++m_userScreenshotCount;
-            std::stringstream stringStream;
-            stringStream << "UserScreenshot-" << std::setw(10) << std::setfill('0') << m_userScreenshotCount
-                         << ImageFormatUtil::GetDefaultExtension(m_config.Format);
-            m_persistentDataManager->Write(stringStream.str(), m_screenshot, m_config.Format);
+            fmt::memory_buffer buf;
+            fmt::format_to(buf, "UserScreenshot-{:010}{}", m_userScreenshotCount, ImageFormatUtil::GetDefaultExtension(m_config.Format));
+
+            m_persistentDataManager->Write(fmt::to_string(buf), m_screenshot, m_config.Format);
           }
         }
       }
@@ -142,24 +142,22 @@ namespace Fsl
 
   void TestService::SaveBitmap()
   {
-    std::stringstream stringStream;
+    fmt::memory_buffer buf;
 
     if (m_config.NamingScheme == TestScreenshotNameScheme::Sequential)
     {
       ++m_screenshotNameCounter;
-      stringStream << m_config.FilenamePrefix << '-' << std::setw(10) << std::setfill('0') << m_screenshotNameCounter
-                   << ImageFormatUtil::GetDefaultExtension(m_config.Format);
+      fmt::format_to(buf, "{}-{:010}{}", m_config.FilenamePrefix, m_screenshotNameCounter, ImageFormatUtil::GetDefaultExtension(m_config.Format));
     }
     else if (m_config.NamingScheme == TestScreenshotNameScheme::FrameNumber)
     {
-      stringStream << m_config.FilenamePrefix << '-' << std::setw(10) << std::setfill('0') << m_frameCounter
-                   << ImageFormatUtil::GetDefaultExtension(m_config.Format);
+      fmt::format_to(buf, "{}-{:010}{}", m_config.FilenamePrefix, m_frameCounter, ImageFormatUtil::GetDefaultExtension(m_config.Format));
     }
     else
     {
-      stringStream << m_config.FilenamePrefix << ImageFormatUtil::GetDefaultExtension(m_config.Format);
+      fmt::format_to(buf, "{}{}", m_config.FilenamePrefix, ImageFormatUtil::GetDefaultExtension(m_config.Format));
     }
 
-    m_persistentDataManager->Write(stringStream.str(), m_screenshot, m_config.Format);
+    m_persistentDataManager->Write(fmt::to_string(buf), m_screenshot, m_config.Format);
   }
 }

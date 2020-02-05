@@ -32,7 +32,7 @@
 #include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Vertices/IndexConverter.hpp>
 #include <FslGraphics/Vertices/VertexConverter.hpp>
 #include <FslGraphics3D/SceneFormat/ChunkType.hpp>

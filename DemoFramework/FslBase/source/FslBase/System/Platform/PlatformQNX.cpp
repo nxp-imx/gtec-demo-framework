@@ -34,7 +34,6 @@
 #include <stdexcept>
 #include <time.h>
 #include <stdlib.h>
-#include <iostream>
 #include <unistd.h>
 
 namespace Fsl

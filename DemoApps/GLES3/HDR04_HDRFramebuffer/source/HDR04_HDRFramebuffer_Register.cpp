@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Options/IOptions.hpp>
 #include <FslDemoApp/Base/Service/Options/Options.hpp>
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
@@ -80,33 +80,33 @@ namespace Fsl
       const auto userTagEx = std::dynamic_pointer_cast<SharedData>(userTag);
       if (!userTagEx)
       {
-        FSLLOG("Expected user tag missing");
+        FSLLOG3_INFO("Expected user tag missing");
         return nullptr;
       }
 
       const bool hasExtensionBT2020 = EGLUtil::HasExtension(display, "EGL_EXT_gl_colorspace_bt2020_linear");
       const bool hasExtensionSCRGB = EGLUtil::HasExtension(display, "EGL_EXT_gl_colorspace_scrgb_linear");
 
-      FSLLOG("Config HDR compatible:               " << createInfo.IsConfigAttribsHDRCompatible);
+      FSLLOG3_INFO("Config HDR compatible:               {}", createInfo.IsConfigAttribsHDRCompatible);
       if (createInfo.IsConfigAttribsHDRCompatible)
       {
-        FSLLOG("Display HDR compatible:              " << createInfo.IsDisplayHDRCompatible);
+        FSLLOG3_INFO("Display HDR compatible:              {}", createInfo.IsDisplayHDRCompatible);
       }
       else
       {
-        FSLLOG("Display HDR compatible:              not checked");
+        FSLLOG3_INFO("Display HDR compatible:              not checked");
       }
-      FSLLOG("EGL_EXT_gl_colorspace_bt2020_linear: " << hasExtensionBT2020);
-      FSLLOG("EGL_EXT_gl_colorspace_scrgb_linear:  " << hasExtensionSCRGB);
+      FSLLOG3_INFO("EGL_EXT_gl_colorspace_bt2020_linear: {}", hasExtensionBT2020);
+      FSLLOG3_INFO("EGL_EXT_gl_colorspace_scrgb_linear: {}", hasExtensionSCRGB);
 
       Options optionsService(createInfo.TheServiceProvider.Get<IOptions>());
       const auto options = optionsService.GetOptionParser<OptionParserEx>();
       const auto disableDisplayHDRCheck = options->IsDisplayHDRCheckDisabled();
       bool IsDisplayHDRCompatible = disableDisplayHDRCheck ? true : createInfo.IsDisplayHDRCompatible;
-      FSLLOG_WARNING_IF(disableDisplayHDRCheck, "Display HDR check disabled from command line");
+      FSLLOG3_WARNING_IF(disableDisplayHDRCheck, "Display HDR check disabled from command line");
       if (!IsDisplayHDRCompatible || !createInfo.IsConfigAttribsHDRCompatible)
       {
-        FSLLOG("HDRFramebuffer not supported");
+        FSLLOG3_INFO("HDRFramebuffer not supported");
         return nullptr;
       }
 
@@ -114,7 +114,7 @@ namespace Fsl
       if (hasExtensionBT2020)
       {
         userTagEx->HDRFramebufferEnabled = true;
-        FSLLOG("EGL_EXT_gl_colorspace_bt2020_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_BT2020_LINEAR_EXT");
+        FSLLOG3_INFO("EGL_EXT_gl_colorspace_bt2020_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_BT2020_LINEAR_EXT");
         return g_eglCreateWindowAttribs_bt2020;
       }
 
@@ -122,7 +122,7 @@ namespace Fsl
       if (hasExtensionSCRGB)
       {
         userTagEx->HDRFramebufferEnabled = true;
-        FSLLOG("EGL_EXT_gl_colorspace_scrgb_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT");
+        FSLLOG3_INFO("EGL_EXT_gl_colorspace_scrgb_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT");
         return g_eglCreateWindowAttribs_scrgb;
       }
       return nullptr;

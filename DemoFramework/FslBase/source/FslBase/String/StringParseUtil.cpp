@@ -31,7 +31,7 @@
 
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <cassert>
 #include <cerrno>
 #include <cmath>
@@ -50,7 +50,7 @@ namespace Fsl
         throw std::invalid_argument("psz can not be null");
       }
 
-      const auto actualLength = strlen(psz);
+      const auto actualLength = std::strlen(psz);
       const auto endIndex = startIndex + length;
       if (endIndex > actualLength)
       {
@@ -91,7 +91,7 @@ namespace Fsl
         throw std::invalid_argument("psz can not be null");
       }
 
-      const auto actualLength = strlen(psz);
+      const auto actualLength = std::strlen(psz);
       const auto endIndex = startIndex + length;
       if (endIndex > actualLength)
       {
@@ -145,7 +145,7 @@ namespace Fsl
         throw std::invalid_argument("psz can not be null");
       }
 
-      const auto actualLength = strlen(psz);
+      const auto actualLength = std::strlen(psz);
       const auto endIndex = startIndex + length;
       if (endIndex > actualLength)
       {
@@ -187,7 +187,7 @@ namespace Fsl
         throw std::invalid_argument("psz can not be null");
       }
 
-      const auto actualLength = strlen(psz);
+      const auto actualLength = std::strlen(psz);
       const auto endIndex = startIndex + length;
       if (endIndex > actualLength)
       {
@@ -234,7 +234,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -244,7 +244,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -254,7 +254,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -264,7 +264,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -274,7 +274,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -284,7 +284,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -294,7 +294,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -302,7 +302,7 @@ namespace Fsl
   //{
   // if (psz == nullptr)
   //  throw std::invalid_argument("psz can not be null");
-  // return Parse(rResult, psz, 0, strlen(psz));
+  // return Parse(rResult, psz, 0, std::strlen(psz));
   //}
 
 
@@ -310,7 +310,7 @@ namespace Fsl
   //{
   // if (psz == nullptr)
   //  throw std::invalid_argument("psz can not be null");
-  // return Parse(rResult, psz, 0, strlen(psz));
+  // return Parse(rResult, psz, 0, std::strlen(psz));
   //}
 
 
@@ -320,7 +320,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -330,7 +330,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -340,7 +340,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -350,7 +350,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return Parse(rResult, psz, 0, strlen(psz));
+    return Parse(rResult, psz, 0, std::strlen(psz));
   }
 
 
@@ -362,7 +362,7 @@ namespace Fsl
       throw std::invalid_argument("psz can not be null");
     }
 
-    const auto actualLength = strlen(psz);
+    const auto actualLength = std::strlen(psz);
     const char* pszSrc = psz + startIndex;
     int charactersConsumed = 0;
 
@@ -536,7 +536,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -550,7 +550,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -564,7 +564,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -578,7 +578,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -592,7 +592,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -606,7 +606,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -620,7 +620,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -630,7 +630,7 @@ namespace Fsl
   //  throw std::invalid_argument("pDst can not be null");
   // if (psz == nullptr)
   //  throw std::invalid_argument("psz can not be null");
-  // return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+  // return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   //}
 
 
@@ -640,7 +640,7 @@ namespace Fsl
   //  throw std::invalid_argument("pDst can not be null");
   // if (psz == nullptr)
   //  throw std::invalid_argument("psz can not be null");
-  // return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+  // return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   //}
 
 
@@ -654,7 +654,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -668,7 +668,7 @@ namespace Fsl
     {
       throw std::invalid_argument("psz can not be null");
     }
-    return ParseArray(pDst, dstLength, psz, 0, strlen(psz));
+    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
   }
 
 
@@ -765,20 +765,20 @@ namespace Fsl
     rValue = 0;
     if (psz == nullptr)
     {
-      FSLBASICLOG_DEBUG_WARNING("psz can not be null");
+      FSLLOG3_DEBUG_WARNING("psz can not be null");
       return false;
     }
 
-    const auto actualLength = strlen(psz);
+    const auto actualLength = std::strlen(psz);
     const auto endIndex = startIndex + length;
     if (endIndex > actualLength)
     {
-      FSLBASICLOG_DEBUG_WARNING("startIndex or length out of bounds");
+      FSLLOG3_DEBUG_WARNING("startIndex or length out of bounds");
       return false;
     }
     if (length < 1)
     {
-      FSLBASICLOG_DEBUG_WARNING("length too small to contain a int32");
+      FSLLOG3_DEBUG_WARNING("length too small to contain a int32");
       return false;
     }
 
@@ -802,7 +802,7 @@ namespace Fsl
 
       if (length >= 32)
       {
-        FSLBASICLOG_DEBUG_WARNING("string is too long");
+        FSLLOG3_DEBUG_WARNING("string is too long");
         return false;
       }
       char tmpBuffer[32];

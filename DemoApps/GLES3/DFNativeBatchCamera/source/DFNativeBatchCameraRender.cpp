@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DFNativeBatchCamera.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <Shared/Camera/Platform/PlatformCameraSystem.hpp>
@@ -75,7 +75,7 @@ namespace Fsl
     GLTextureParameters textureParameters(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
     m_nativeTexture.SetData(m_cameraFrameBitmap, textureParameters);
 
-    FSLLOG_WARNING("FIX: Some of the camera adapters do not obey our origin request so the image is upside down");
+    FSLLOG3_WARNING("FIX: Some of the camera adapters do not obey our origin request so the image is upside down");
   }
 
 

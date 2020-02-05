@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "Skybox.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture3.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>

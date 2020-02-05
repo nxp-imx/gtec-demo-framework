@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "NativeGraphicsBasic2D.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
@@ -149,12 +149,11 @@ namespace Fsl
     }
 
 
-    void NativeGraphicsBasic2D::DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition)
+    void NativeGraphicsBasic2D::DrawString(const StringViewLite& strView, const Vector2& dstPosition)
     {
       assert(m_inBegin);
-      assert(characters != nullptr);
 
-      if (length == 0)
+      if (strView.empty())
       {
         return;
       }
@@ -162,10 +161,9 @@ namespace Fsl
       const Color colorWhite = Color::White();
       Vector2 dstPos = dstPosition;
 
-
       // build the arrays needed to render
-      const char* pSrc = characters;
-      const char* const pSrcEnd = pSrc + length;
+      const char* pSrc = strView.data();
+      const char* const pSrcEnd = pSrc + strView.size();
 
       const int32_t charWidth = m_fontSize.X;
 
@@ -183,7 +181,7 @@ namespace Fsl
         {
           m_batch2D.Draw(m_fontTexture, dstPos, m_charRects[*pSrc - MIN_VALUE], colorWhite);
         }
-        FSLLOG_WARNING_IF(*pSrc == 0, "Zero is not a valid character in a string!");
+        FSLLOG3_WARNING_IF(*pSrc == 0, "Zero is not a valid character in a string!");
         dstPos.X += charWidth;
         ++pSrc;
       }

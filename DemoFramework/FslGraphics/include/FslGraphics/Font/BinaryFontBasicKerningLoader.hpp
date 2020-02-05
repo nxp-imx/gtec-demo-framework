@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <fstream>
 
@@ -39,9 +38,12 @@ namespace Fsl
 {
   class BasicFontKerning;
 
-  class BinaryFontBasicKerningLoader : private Noncopyable
+  class BinaryFontBasicKerningLoader
   {
   public:
+    BinaryFontBasicKerningLoader(const BinaryFontBasicKerningLoader&) = delete;
+    BinaryFontBasicKerningLoader& operator=(const BinaryFontBasicKerningLoader&) = delete;
+
     //! @brief Load the font kerning from a file
     //! @param rTextureAtlas the atlas that will be filled with the loaded atlas
     //! @param strFilename the file to load.

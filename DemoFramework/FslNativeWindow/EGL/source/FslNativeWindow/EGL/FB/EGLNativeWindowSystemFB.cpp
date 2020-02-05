@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include "EGLNativeWindowSystemFB.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/EGL/Exceptions.hpp>
 #include <FslUtil/EGL/EGLCheck.hpp>
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
@@ -87,7 +87,7 @@ namespace Fsl
       auto display = static_cast<EGLNativeDisplayType>(windowParams.PlatformDisplay);
       if (nativeWindowConfig.GetWindowMode() != WindowMode::Window)
       {
-        FSLLOG("WARNING: Window Size/Position not defined, setting them to MAX Display Resolution");
+        FSLLOG3_INFO("Window Size/Position not defined, setting them to MAX Display Resolution");
         fbGetDisplayGeometry(display, &windowWidth, &windowHeight);
         windowX = 0;
         windowY = 0;
@@ -122,8 +122,8 @@ namespace Fsl
 
     PlatformNativeDisplayType GetDisplay(const NativeWindowSystemSetup& setup)
     {
-      FSLLOG_WARNING_IF(setup.GetConfig().GetDisplayId() > 3,
-                        "FB backend cannot supports more than 4 display. Using DisplayId 0-3 instead of " << setup.GetConfig().GetDisplayId());
+      FSLLOG3_WARNING_IF(setup.GetConfig().GetDisplayId() > 3, "FB backend cannot supports more than 4 display. Using DisplayId 0-3 instead of {}",
+                         setup.GetConfig().GetDisplayId());
 
       return fbGetDisplayByIndex(std::max(std::min(setup.GetConfig().GetDisplayId(), 3), 0));
     }

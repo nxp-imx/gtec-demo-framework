@@ -34,7 +34,7 @@
 #include <FslUtil/Vulkan1_0/NativeTexture2D.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -73,7 +73,7 @@ namespace Fsl
       void CheckTextureFlags(const TextureFlags& textureFlags)
       {
         // FIX: implement texture flags support
-        FSLLOG_WARNING_IF(textureFlags.Value != TextureFlags::NotDefined, "Vulkan::NativeTexture2D texture flags not supported yet")
+        FSLLOG3_WARNING_IF(textureFlags.Value != TextureFlags::NotDefined, "Vulkan::NativeTexture2D texture flags not supported yet")
       }
     }
 

@@ -33,15 +33,12 @@
 
 namespace Fsl
 {
-  struct RenderMode
+  enum class RenderMode
   {
-    enum Enum
-    {
-      ES3MultiPass = 0,
-      ES3MultiPassVB = 1,
-      ES3Instanced = 2,
-      ES3Instanced2 = 3,
-    };
+    MultiPass = 0,
+    MultiPassVB = 1,
+    Instanced = 2,
+    Instanced2 = 3,
   };
 }
 

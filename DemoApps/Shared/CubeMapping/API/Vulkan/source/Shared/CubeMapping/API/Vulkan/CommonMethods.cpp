@@ -143,6 +143,38 @@ namespace Fsl
     }
 
 
+    VkDescriptorSet UpdateDescriptorSet(const VkDevice device, const VkDescriptorSet descriptorSet, const Vulkan::VUBufferMemory& vertUboBuffer,
+                                        const Vulkan::VUImageMemoryView& attachment)
+
+    {
+      assert(descriptorSet != VK_NULL_HANDLE);
+      assert(vertUboBuffer.IsValid());
+      assert(attachment.IsValid());
+
+      std::array<VkWriteDescriptorSet, 2> writeDescriptorSets{};
+      // Binding 0 : Vertex shader uniform buffer
+      auto vertUboBufferInfo = vertUboBuffer.GetDescriptorBufferInfo();
+      writeDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      writeDescriptorSets[0].dstSet = descriptorSet;
+      writeDescriptorSets[0].dstBinding = 0;
+      writeDescriptorSets[0].descriptorCount = 1;
+      writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+      writeDescriptorSets[0].pBufferInfo = &vertUboBufferInfo;
+
+      // Binding 1 : input attachment
+      auto attachmentImageInfo = attachment.GetDescriptorImageInfo();
+      writeDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      writeDescriptorSets[1].dstSet = descriptorSet;
+      writeDescriptorSets[1].dstBinding = 1;
+      writeDescriptorSets[1].descriptorCount = 1;
+      writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+      writeDescriptorSets[1].pImageInfo = &attachmentImageInfo;
+
+      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      return descriptorSet;
+    }
+
+
     RapidVulkan::PipelineLayout CreatePipelineLayout(const RapidVulkan::DescriptorSetLayout& descripterSetLayout)
     {
       VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};

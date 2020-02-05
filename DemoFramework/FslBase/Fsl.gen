@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <Library Name="FslBase" CreationYear="2014">
+    <Dependency Name="fmt"/>
     <Define Name="FSL_FEATURE_FSLBASE" Access="Public"/>
+    <Define Name="FSL_FEATURE_FSLBASE_LOG3" Access="Public"/>
     <!--Dependency Name="fmt" Access="Public"/-->
     <Platform Name="FreeRTOS">
       <Define Name="FSLBASE_THREAD_BACKEND_NOT_SUPPORTED" Access="Private"/>

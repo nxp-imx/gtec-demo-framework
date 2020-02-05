@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include "TestUITree_Window.hpp"
-#include <FslSimpleUI/Base/UnitTest/FillLayoutWindowTest.hpp>
+#include <FslSimpleUI/Base/UnitTest/Layout/FillLayoutWindowTest.hpp>
 
 class TestUITree_ActiveLayout : public TestUITree_Window
 {

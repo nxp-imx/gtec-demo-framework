@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Color.hpp>
 #include <memory>
 #include <string>
@@ -75,7 +76,7 @@ namespace Fsl
     //! @param length the number of characters that the 'characters' contain.
     //! @param position the position to draw the string at
     //! @param the color to use for rendering
-    virtual void DrawString(const char* const characters, const uint32_t startIndex, const uint32_t length, const Vector2& dstPosition) = 0;
+    virtual void DrawString(const StringViewLite& strView, const Vector2& dstPosition) = 0;
 
     //! @brief Get the size of one monospaced font character
     virtual const Point2 FontSize() const = 0;

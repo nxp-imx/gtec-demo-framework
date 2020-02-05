@@ -39,8 +39,8 @@
 #include <FslNativeWindow/Base/VirtualGamepadState.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/LogRectangle.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtRectangle.hpp>
 #include <FslBase/System/Platform/PlatformWin32.hpp>
 #include <algorithm>
 #include <cassert>
@@ -53,8 +53,8 @@
 #include "DPIHelperWin32.hpp"
 
 #if 0
-#define VERBOSE_LOG(X) FSLLOG(X)
-#define VERBOSE_LOG_IF(cONDITION, X) FSLLOG_IF(cONDITION, X)
+#define VERBOSE_LOG(X) FSLLOG3_INFO(X)
+#define VERBOSE_LOG_IF(cONDITION, X) FSLLOG3_INFO_IF(cONDITION, X)
 #else
 #define VERBOSE_LOG(X) \
   {                    \
@@ -93,12 +93,12 @@ namespace Fsl
     {
       if (value > std::numeric_limits<int32_t>::max())
       {
-        FSLLOG_DEBUG_WARNING("Raw input, capping " << pszDebugHelp << " value to fit in a int32_t (max)");
+        FSLLOG3_DEBUG_WARNING("Raw input, capping {} value to fit in a int32_t (max)", pszDebugHelp);
         return std::numeric_limits<int32_t>::max();
       }
       if (value < std::numeric_limits<int32_t>::min())
       {
-        FSLLOG_DEBUG_WARNING("Raw input, capping " << pszDebugHelp << " value to fit in a int32_t (min)");
+        FSLLOG3_DEBUG_WARNING("Raw input, capping {} value to fit in a int32_t (min)", pszDebugHelp);
         return std::numeric_limits<int32_t>::min();
       }
       return static_cast<int32_t>(value);
@@ -437,11 +437,11 @@ namespace Fsl
 
         const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseWheelEvent(zDelta, position);
         eventQueue->PostEvent(event);
-        // FSLLOG("WHEEL: X: " << position.X << " Y: " << position.Y);
+        // FSLLOG3_INFO("WHEEL: X: " << position.X << " Y: " << position.Y);
       }
       else
       {
-        FSLLOG_ERROR("Failed to transform mouse wheel position to client space");
+        FSLLOG3_ERROR("Failed to transform mouse wheel position to client space");
       }
       return 0;
     }
@@ -687,7 +687,7 @@ namespace Fsl
       MonitorRecord record;
       if (!TryGetMonitor(requestedDisplayId, record, maxDisplayId))
       {
-        FSLLOG_WARNING("Backend max display Id is: " << maxDisplayId << " so " << requestedDisplayId << " is unsupported, using displayid 0.");
+        FSLLOG3_WARNING("Backend max display Id is: {} so {} is unsupported, using displayid 0.", maxDisplayId, requestedDisplayId);
         if (!TryGetMonitor(0, record, maxDisplayId))
         {
           throw GraphicsException("Could not find a valid monitor");
@@ -820,7 +820,7 @@ namespace Fsl
 
       if (oldState.State != newState.State)
       {
-        // FSLLOG("S" << newState.State.IsConnected << ", " << (int)newState.State.Buttons << ", " << (int)newState.State.LeftTrigger << ", " <<
+        // FSLLOG3_INFO("S" << newState.State.IsConnected << ", " << (int)newState.State.Buttons << ", " << (int)newState.State.LeftTrigger << ", " <<
         // (int)newState.State.RightTrigger << ", " << newState.State.LeftThumbX << ", " << newState.State.LeftThumbY << ", " <<
         // newState.State.RightThumbX << ", " << newState.State.RightThumbY);
 
@@ -874,14 +874,14 @@ namespace Fsl
       dwStyle = WS_POPUP | WS_VISIBLE | WS_SYSMENU;
       bFullscreen = true;
 
-      FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating fullscreen window: " << targetRectangle);
+      FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating fullscreen window: {}", targetRectangle);
     }
     break;
     case WindowMode::Window:
-      FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating window: " << targetRectangle);
+      FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWin32: Creating window: {}", targetRectangle);
       break;
     default:
-      FSLLOG("WARNING: Unknown window mode");
+      FSLLOG3_WARNING("Unknown window mode");
       break;
     }
 
@@ -936,7 +936,7 @@ namespace Fsl
 
     if (!m_dpiHelper->TryGetDPI(m_platformWindow, m_cachedDPIValue))
     {
-      FSLLOG_DEBUG_WARNING("Failed to cache DPI value, using default");
+      FSLLOG3_DEBUG_WARNING("Failed to cache DPI value, using default");
       m_cachedDPIValue = Point2(MAGIC_DEFAULT_DPI, MAGIC_DEFAULT_DPI);
     }
 
@@ -1088,7 +1088,7 @@ namespace Fsl
   {
     const NativeWindowEvent event = NativeWindowEventHelper::EncodeInputMouseMoveEvent(position);
     eventQueue->PostEvent(event);
-    // FSLLOG("MOVE: X: " << position.X << " Y: " << position.Y);
+    // FSLLOG3_INFO("MOVE: X: {} Y: {}", position.X, position.Y);
 
     if (!m_mouseCaptureEnabled)
     {
@@ -1187,7 +1187,7 @@ namespace Fsl
       RECT rect{};
       if (GetClientRect(m_platformWindow, &rect) == 0)
       {
-        FSLLOG_DEBUG_WARNING("Failed to get client rect");
+        FSLLOG3_DEBUG_WARNING("Failed to get client rect");
         return;
       }
 
@@ -1200,7 +1200,7 @@ namespace Fsl
 
       if (!TryToScreenSpace(m_platformWindow, rect) || (ClipCursor(&rect) == 0))
       {
-        FSLLOG_DEBUG_WARNING("Failed to ClipCursor to window");
+        FSLLOG3_DEBUG_WARNING("Failed to ClipCursor to window");
         return;
       }
       m_mouseCursorIsClipped = true;

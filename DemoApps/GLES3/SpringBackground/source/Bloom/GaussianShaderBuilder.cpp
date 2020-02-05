@@ -31,7 +31,7 @@
 
 #include "GaussianShaderBuilder.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <cassert>
 #include <iomanip>
@@ -156,7 +156,7 @@ namespace Fsl
     StringReplaceWithValue(res, "##REPLACE0_OFFSET##", linearKernel[0].Offset);
     StringReplaceWithValue(res, "##REPLACE1_WEIGHT##", linearKernel[1].Weight);
 
-    // FSLLOG(res);
+    // FSLLOG3_INFO(res);
     return res;
   }
 

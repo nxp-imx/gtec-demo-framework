@@ -30,8 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/InputEvents/InputLogger.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <fmt/format.h>
 #include <iostream>
 #include <sstream>
 
@@ -53,58 +55,47 @@ namespace Fsl
 
     const auto maxGamepads = m_gamepads->GetCount();
     m_gamepadStates.resize(maxGamepads);
-    FSLLOG("Max gamepads: " << maxGamepads);
+    FSLLOG3_INFO("Max gamepads: {}", maxGamepads);
     UpdateGamepadStates();
   }
 
 
   void InputLogger::OnKeyEvent(const KeyEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnKeyEvent key: " << event.GetKey() << " pressed: " << event.IsPressed();
-    auto str = stream.str();
-    FSLLOG(str);
+    auto str = fmt::format("OnKeyEvent key: {} pressed: {}", event.GetKey(), event.IsPressed());
+    FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
 
 
   void InputLogger::OnMouseButtonEvent(const MouseButtonEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnMouseButtonEvent key: " << event.GetButton() << " pressed: " << event.IsPressed() << " position: " << event.GetPosition().X << ","
-           << event.GetPosition().Y;
-    auto str = stream.str();
-    FSLLOG(str);
+    auto str = fmt::format("OnMouseButtonEvent key: {} pressed: {} position: {}", event.GetButton(), event.IsPressed(), event.GetPosition());
+    FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
 
 
   void InputLogger::OnMouseMoveEvent(const MouseMoveEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y;
-    auto str = stream.str();
-    FSLLOG(str);
+    auto str = fmt::format("OnMouseMoveEvent position: {}", event.GetPosition());
+    FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
 
 
   void InputLogger::OnMouseWheelEvent(const MouseWheelEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnMouseWheelEvent delta: " << event.GetDelta() << " position: " << event.GetPosition().X << "," << event.GetPosition().Y;
-    auto str = stream.str();
-    FSLLOG(str);
+    auto str = fmt::format("OnMouseWheelEvent delta: {} position: {}", event.GetDelta(), event.GetPosition());
+    FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
 
 
   void InputLogger::OnRawMouseMoveEvent(const RawMouseMoveEvent& event)
   {
-    std::stringstream stream;
-    stream << "OnRawMouseMoveEvent position: " << event.GetPosition().X << "," << event.GetPosition().Y;
-    auto str = stream.str();
-    FSLLOG(str);
+    auto str = fmt::format("OnRawMouseMoveEvent position: {}", event.GetPosition());
+    FSLLOG3_INFO(str);
     m_console.push_back(str);
   }
 
@@ -119,10 +110,10 @@ namespace Fsl
       {
         m_gamepadStates[i] = newState;
 
-        FSLLOG("Id: " << i << " IsConnected: " << newState.IsConnected << " Buttons: " << newState.Buttons.State
-                      << " LeftTrigger: " << static_cast<uint32_t>(newState.LeftTrigger.Value)
-                      << " RightTrigger: " << static_cast<uint32_t>(newState.RightTrigger.Value) << " LeftThumb: " << newState.LeftThumb.X << ","
-                      << newState.LeftThumb.Y << " RightThumb: " << newState.RightThumb.X << "," << newState.RightThumb.Y);
+        FSLLOG3_INFO("Id: {} IsConnected: {} Buttons: {} LeftTrigger: {} RightTrigger: {} LeftThumb: {},{} RightThumb: {},{}", i,
+                     newState.IsConnected, newState.Buttons.State, static_cast<uint32_t>(newState.LeftTrigger.Value),
+                     static_cast<uint32_t>(newState.RightTrigger.Value), newState.LeftThumb.X, newState.LeftThumb.Y, newState.RightThumb.X,
+                     newState.RightThumb.Y);
       }
     }
   }

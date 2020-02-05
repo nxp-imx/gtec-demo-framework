@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "OpenVX101.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
@@ -181,7 +181,7 @@ namespace Fsl
     CopyImagesFromGPUToCPU(bitmap, image1, image2);
 
 
-    FSLLOG("vx process success.");
+    FSLLOG3_INFO("vx process success.");
 
     m_texDst = ToTexture(bitmap, PixelFormat::R8G8B8A8_UNORM);
   }

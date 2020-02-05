@@ -1,0 +1,14 @@
+/.StartProject.bat
+/.vs/
+/Shared.ModelViewer.VC.VC.opendb
+/Shared.ModelViewer.VC.db
+/Shared.ModelViewer.manifest
+/Shared.ModelViewer.opensdf
+/Shared.ModelViewer.sdf
+/Shared.ModelViewer.sln
+/Shared.ModelViewer.v12.sdf
+/Shared.ModelViewer.v12.suo
+/Shared.ModelViewer.vcxproj
+/Shared.ModelViewer.vcxproj.filters
+/Shared.ModelViewer.vcxproj.user
+/build/

@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <memory>
-#include <FslBase/Noncopyable.hpp>
 #include <FslService/Consumer/IBasicService.hpp>
 #include <FslService/Consumer/BasicServiceDeque.hpp>
 

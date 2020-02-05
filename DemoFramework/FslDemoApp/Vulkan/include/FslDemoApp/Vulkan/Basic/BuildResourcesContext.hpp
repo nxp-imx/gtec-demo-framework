@@ -41,22 +41,31 @@ namespace Fsl
     struct BuildResourcesContext
     {
       VkExtent2D SwapchainImageExtent{};
-      VkFormat SwapchainImageFormat = VK_FORMAT_UNDEFINED;
-      uint32_t SwapchainImagesCount = 0;
-      uint32_t MaxFramesInFlight = 0;
+      VkFormat SwapchainImageFormat{VK_FORMAT_UNDEFINED};
+      uint32_t SwapchainImagesCount{0};
+      uint32_t MaxFramesInFlight{0};
 
+      //! If there is no depth buffer this will be set to VK_NULL_HANDLE
+      VkImageView DepthImageView{VK_NULL_HANDLE};
       //! If there is no depth buffer this will be set to VK_FORMAT_UNDEFINED
-      VkFormat DepthBufferImageFormat = VK_FORMAT_UNDEFINED;
+      VkFormat DepthBufferImageFormat{VK_FORMAT_UNDEFINED};
+      //! If there is no depth buffer this will be 0,0, if there is a depth buffer it will always be >= SwapchainImageExtent
+      VkExtent2D DepthBufferImageExtent{};
+      VkCommandPool MainCommandPool{VK_NULL_HANDLE};
 
       BuildResourcesContext() = default;
 
       BuildResourcesContext(const VkExtent2D& swapchainImageExtent, const VkFormat swapchainImageFormat, const uint32_t swapchainImagesCount,
-                            const uint32_t maxFramesInFlight, const VkFormat depthBufferImageFormat)
+                            const uint32_t maxFramesInFlight, const VkImageView depthImageView, const VkFormat depthBufferImageFormat,
+                            VkExtent2D depthBufferImageExtent, const VkCommandPool mainCommandPool)
         : SwapchainImageExtent(swapchainImageExtent)
         , SwapchainImageFormat(swapchainImageFormat)
         , SwapchainImagesCount(swapchainImagesCount)
         , MaxFramesInFlight(maxFramesInFlight)
+        , DepthImageView(depthImageView)
         , DepthBufferImageFormat(depthBufferImageFormat)
+        , DepthBufferImageExtent(depthBufferImageExtent)
+        , MainCommandPool(mainCommandPool)
       {
       }
     };

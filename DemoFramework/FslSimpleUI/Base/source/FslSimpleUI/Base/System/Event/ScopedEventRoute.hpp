@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <deque>
 #include <memory>
+#include <stdexcept>
 #include "EventRoute.hpp"
 #include "EventRoutePool.hpp"
 
@@ -51,6 +51,9 @@ namespace Fsl
       std::shared_ptr<EventRoute> m_route;
 
     public:
+      ScopedEventRoute(const ScopedEventRoute&) = delete;
+      ScopedEventRoute& operator=(const ScopedEventRoute&) = delete;
+
       const std::shared_ptr<EventRoute>& Route()
       {
         return m_route;

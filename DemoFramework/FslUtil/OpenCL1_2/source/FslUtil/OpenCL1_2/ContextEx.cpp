@@ -32,7 +32,7 @@
 #include <FslUtil/OpenCL1_2/ContextEx.hpp>
 #include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Exceptions.hpp>
 #include <cassert>
@@ -125,7 +125,7 @@ namespace Fsl
 
       if (allowFallback && deviceType != CL_DEVICE_TYPE_ALL)
       {
-        FSLLOG("Trying to locate a device using CL_DEVICE_TYPE_ALL");
+        FSLLOG3_INFO("Trying to locate a device using CL_DEVICE_TYPE_ALL");
         for (auto itr = platformIds.begin(); itr != platformIds.end(); ++itr)
         {
           const auto deviceIds = OpenCLHelper::GetDeviceIDs(*itr, CL_DEVICE_TYPE_ALL);

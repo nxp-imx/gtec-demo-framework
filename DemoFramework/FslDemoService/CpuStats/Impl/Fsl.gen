@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="FslDemoService.CpuStats.Impl" CreationYear="2019">
+    <Dependency Name="FslService.Impl"/>
+    <Dependency Name="FslDemoService.CpuStats"/>
+    <Dependency Name="fmt"/>
+    <Platform Name="Windows" ProjectId="B523AA11-FDA7-47B2-9C2B-90BD7C088BA7">
+    <Dependency Name="Platform.Windows.PerfCounters" Access="Private"/>
+    </Platform>
+  </Library>
+</FslBuildGen>

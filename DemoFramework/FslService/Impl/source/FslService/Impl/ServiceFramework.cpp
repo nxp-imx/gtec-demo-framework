@@ -35,7 +35,7 @@
 #include <FslService/Impl/Threading/IServiceHost.hpp>
 #include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <cassert>
 #include "Registry/RegisteredServices.hpp"
 #include "Registry/ServiceRegistryImpl.hpp"
@@ -114,7 +114,7 @@ namespace Fsl
     assert(!m_mainHost);
     assert(m_registeredGlobalServiceInfo);
 
-    FSLBASICLOG_WARNING_IF(m_registeredServices->ServiceGroups.empty(), "No service groups exist, we would expect at least one for the main ");
+    FSLLOG3_WARNING_IF(m_registeredServices->ServiceGroups.empty(), "No service groups exist, we would expect at least one for the main ");
 
     m_threadManager->PrepareServiceGroups(m_registeredServices->ServiceGroups);
 

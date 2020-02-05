@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/ADemoApp.hpp>
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/IEvent.hpp>
@@ -270,7 +270,7 @@ namespace Fsl
     : m_demoAppConfig(demoAppConfig)
 
   {
-    FSLBASICLOG2(LogType::Verbose, "ADemopApp::ADemopApp()");
+    FSLLOG3_VERBOSE("ADemopApp::ADemopApp()");
 
     m_contentManger = demoAppConfig.DemoServiceProvider.Get<IContentManager>();
     m_persistentDataManager = demoAppConfig.DemoServiceProvider.Get<IPersistentDataManager>();
@@ -280,7 +280,7 @@ namespace Fsl
 
   ADemoApp::~ADemoApp()
   {
-    FSLBASICLOG2(LogType::Verbose, "ADemopApp::~ADemopApp()");
+    FSLLOG3_VERBOSE("ADemopApp::~ADemopApp()");
   }
 
 
@@ -311,7 +311,7 @@ namespace Fsl
 
   void ADemoApp::_PostConstruct()
   {
-    FSLBASICLOG2(LogType::Verbose, "ADemoApp::_PostConstruct()");
+    FSLLOG3_VERBOSE("ADemoApp::_PostConstruct()");
 
     // When this method is called, the object should be successfully constructed (unless someone calls it from a constructor, but thats a usage error
     // and its undetectable). So don't do that!
@@ -321,7 +321,7 @@ namespace Fsl
 
   void ADemoApp::_PreDestruct()
   {
-    FSLBASICLOG2(LogType::Verbose, "ADemoApp::_PreDestruct()");
+    FSLLOG3_VERBOSE("ADemoApp::_PreDestruct()");
 
     // Give the app a chance to cleanup
     try
@@ -407,7 +407,7 @@ namespace Fsl
         break;
       }
       default:
-        FSLLOG_DEBUG_WARNING("Unhandled event: " << static_cast<int32_t>(pEvent->GetEventType()));
+        FSLLOG3_DEBUG_WARNING("Unhandled event: {}", static_cast<int32_t>(pEvent->GetEventType()));
         break;
       }
     }
@@ -416,7 +416,7 @@ namespace Fsl
 
   void ADemoApp::_Resized(const Point2& size)
   {
-    FSLLOG2(LogType::Verbose, "ADemoApp::_Resized(" << size << ")");
+    FSLLOG3_VERBOSE("ADemoApp::_Resized({})", size);
 
     m_demoAppConfig.ScreenResolution = size;
 

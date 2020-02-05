@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <memory>
 
 namespace Fsl
@@ -40,13 +39,18 @@ namespace Fsl
   class IService;
   class ServiceProvider;
 
-  class IAsynchronousServiceImplFactory : private Noncopyable
+  class IAsynchronousServiceImplFactory
   {
   public:
+    IAsynchronousServiceImplFactory(const IAsynchronousServiceImplFactory&) = delete;
+    IAsynchronousServiceImplFactory& operator=(const IAsynchronousServiceImplFactory&) = delete;
     virtual ~IAsynchronousServiceImplFactory() = default;
 
     //! @brief Allocate a service
     virtual std::shared_ptr<IService> Allocate(const AsynchronousServiceImplCreateInfo& createInfo, ServiceProvider& provider) = 0;
+
+  protected:
+    IAsynchronousServiceImplFactory() = default;
   };
 }
 

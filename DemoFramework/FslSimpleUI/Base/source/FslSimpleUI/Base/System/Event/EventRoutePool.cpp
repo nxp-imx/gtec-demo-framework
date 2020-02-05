@@ -31,7 +31,7 @@
 
 #include "EventRoutePool.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include "EventRoute.hpp"
 #include <cassert>
 
@@ -78,7 +78,9 @@ namespace Fsl
         m_pool.push_back(route);
       }
       else
-        FSLLOG_WARNING("Pool capacity reached for EventRoute");
+      {
+        FSLLOG3_WARNING("Pool capacity reached for EventRoute");
+      }
     }
   }
 }

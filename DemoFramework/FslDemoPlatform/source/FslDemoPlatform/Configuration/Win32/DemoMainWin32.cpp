@@ -30,12 +30,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
-#include <iostream>
 #include <windows.h>
 #include "../../DemoSignalHandlerInternal.hpp"
 
@@ -71,7 +70,7 @@ int main(int argc, char* argv[])
   // Get the current thread handle
   if (DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &g_currentMainThread, 0, 0, DUPLICATE_SAME_ACCESS) == 0)
   {
-    FSLBASICLOG_ERROR("Failed to get the current thread");
+    FSLLOG3_ERROR("Failed to get the current thread");
     return EXIT_FAILURE;
   }
 

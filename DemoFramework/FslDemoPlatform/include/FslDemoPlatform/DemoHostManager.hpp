@@ -54,14 +54,11 @@ namespace Fsl
 
   class DemoHostManager
   {
-    struct State
+    enum class State
     {
-      enum Enum
-      {
-        Suspended = 0,
-        Idle = 1,
-        Activated = 2
-      };
+      Suspended = 0,
+      Idle = 1,
+      Activated = 2
     };
 
     DemoSetup m_demoSetup;
@@ -73,7 +70,7 @@ namespace Fsl
     std::shared_ptr<IGraphicsServiceControl> m_graphicsService;
     std::shared_ptr<ITestService> m_testService;
 
-    State::Enum m_state;
+    State m_state;
     std::shared_ptr<INativeWindowEventSender> m_nativeWindowEventSender;
     //! Provide support for exiting after a number of successfully rendered frames (if negative, we render a unlimited amount of frames)
     int32_t m_exitAfterFrame;

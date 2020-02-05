@@ -32,14 +32,16 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <cstdlib>
 
 namespace Fsl
 {
-  class ValueCompression : private Noncopyable
+  class ValueCompression
   {
   public:
+    ValueCompression(const ValueCompression&) = delete;
+    ValueCompression& operator=(const ValueCompression&) = delete;
+
     //! @brief Read a int32 from pSrc at starting at index
     static int32_t ReadSimpleInt32(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
 

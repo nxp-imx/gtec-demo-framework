@@ -46,11 +46,14 @@ namespace Fsl
     bool m_isLoaded;
 
   public:
-    class ScopedUse : Noncopyable
+    class ScopedUse
     {
       ShaderBase& m_shader;
 
     public:
+      ScopedUse(const ScopedUse&) = delete;
+      ScopedUse& operator=(const ScopedUse&) = delete;
+
       ScopedUse(ShaderBase& shader)
         : m_shader(shader)
       {

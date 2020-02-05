@@ -32,9 +32,10 @@
 #include <FslBase/IO/File.hpp>
 #include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <fmt/format.h>
 #include <cassert>
 #include <fstream>
-#include <sstream>
 #include <limits>
 #include <vector>
 
@@ -69,10 +70,7 @@ namespace Fsl
       {
         if (!rStream.good())
         {
-          std::string str("File not found '");
-          str += path.ToAsciiString();
-          str += "'";
-          throw IOException(str);
+          throw IOException(fmt::format("File not found '{0}'", path));
         }
 
         // Dumb C++ way of getting the stream length
@@ -92,10 +90,7 @@ namespace Fsl
         }
         if (!rStream.good())
         {
-          std::string str("Failed to read entire file '");
-          str += path.ToAsciiString();
-          str += "'";
-          throw IOException(str);
+          throw IOException(fmt::format("Failed to read entire file '{}'", path));
         }
       }
 
@@ -109,10 +104,7 @@ namespace Fsl
         }
         if (!rStream.good())
         {
-          std::string str("Failed to write entire file '");
-          str += path.ToAsciiString();
-          str += "'";
-          throw IOException(str);
+          throw IOException(fmt::format("Failed to write entire file '{}'", path));
         }
       }
     }
@@ -201,9 +193,7 @@ namespace Fsl
       std::ifstream file(PATH_GET_NAME(path), std::ios::ate | std::ios::binary);
       if (!file.good())
       {
-        std::stringstream strstream;
-        strstream << "Failed to open file '" << path.ToAsciiString() << "'";
-        throw IOException(strstream.str());
+        throw IOException(fmt::format("Failed to open file '{0}'", path));
       }
       return file.tellg();
     }
@@ -243,10 +233,7 @@ namespace Fsl
         const std::size_t length = GetStreamLength(file, path);
         if (length > cbDstArrayEx)
         {
-          std::string str("Supplied array too small to hold '");
-          str += path.ToAsciiString();
-          str += "'";
-          throw IOException(str);
+          throw IOException(fmt::format("Supplied array too small to hold '{0}'", path));
         }
 
         StreamRead(file, path, pDstArray, length);

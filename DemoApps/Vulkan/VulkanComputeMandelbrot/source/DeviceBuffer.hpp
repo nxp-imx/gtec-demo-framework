@@ -32,19 +32,21 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslUtil/Vulkan1_0/VUBuffer.hpp>
 #include <FslUtil/Vulkan1_0/VUDeviceMemory.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl
 {
-  class DeviceBuffer : Noncopyable
+  class DeviceBuffer
   {
     Vulkan::VUBuffer m_buffer;
     Vulkan::VUDeviceMemory m_memory;
     // VkFormat m_imageFormat;
   public:
+    DeviceBuffer(const DeviceBuffer&) = delete;
+    DeviceBuffer& operator=(const DeviceBuffer&) = delete;
+
     // move assignment operator
     DeviceBuffer& operator=(DeviceBuffer&& other) noexcept;
     // move constructor

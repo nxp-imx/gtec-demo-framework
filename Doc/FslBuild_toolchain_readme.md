@@ -56,7 +56,7 @@ Platform | Build system
 ---------|--------------------------------
 Android  | ant
 Qnx      | make
-Ubuntu   | make
+Ubuntu   | cmake -> makefiles
 Windows  | Visual studio (IDE or nmake)
 Yocto    | make
 

@@ -30,14 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <limits>
-#include <sstream>
 #include <utility>
 
 namespace Fsl
@@ -98,7 +98,7 @@ namespace Fsl
   UTF8String::UTF8String(const char* const psz)
     : m_content(psz != nullptr ? psz : "")
   {
-    FSLBASICLOG_WARNING_IF(psz == nullptr, "UTF8String was supplied a null pointer, using a empty string");
+    FSLLOG3_WARNING_IF(psz == nullptr, "UTF8String was supplied a null pointer, using a empty string");
     if (psz != nullptr && !IsValidUTF8(psz, 0, std::strlen(psz)))
     {
       throw InvalidUTF8StringException("The supplied UTF8 string is not valid");
@@ -260,7 +260,7 @@ namespace Fsl
   std::string UTF8String::ToAsciiString() const
   {
     // Slow but it works
-    std::stringstream stream;
+    fmt::memory_buffer buf;
     std::string::const_iterator itr = m_content.begin();
     std::string::const_iterator itrEnd = m_content.end();
     bool bIsFirst = true;
@@ -269,17 +269,17 @@ namespace Fsl
       const uint32_t value = *itr;
       if (value <= static_cast<uint32_t>(UTF8_CHAR_MAX))
       {
-        stream << static_cast<char>(value);
+        fmt::format_to(buf, "{}", static_cast<char>(value));
         bIsFirst = true;
       }
       else if (bIsFirst)
       {
-        stream << '?';
+        fmt::format_to(buf, "?");
         bIsFirst = false;
       }
       ++itr;
     }
-    return stream.str();
+    return fmt::to_string(buf);
   }
 
 
@@ -295,5 +295,29 @@ namespace Fsl
     }
 
     m_content.assign(psz + startIndex, length);
+  }
+
+  bool operator==(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    const StringViewLite& rLhs = lhs;
+    return rLhs == pszRhs;
+  }
+
+  bool operator!=(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    const StringViewLite& rLhs = lhs;
+    return rLhs != pszRhs;
+  }
+
+  bool operator==(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    const StringViewLite& rRhs = rhs;
+    return rRhs == pszLhs;
+  }
+
+  bool operator!=(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    const StringViewLite& rRhs = rhs;
+    return rRhs != pszLhs;
   }
 }

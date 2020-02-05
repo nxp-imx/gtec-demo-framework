@@ -134,7 +134,8 @@ namespace Fsl
     void Shutdown();
     void InitEGL();
     bool TryInitEGLHDRConfig(const std::deque<EGLint>& appAglConfigAttribs);
-    bool TryInitEGLTryConfigFallback(const ConfigControl configControl, const std::deque<EGLint>& appEglConfigAttribs);
+    bool TryInitEGLTryConfigFallback(const ConfigControl configControl, const std::deque<EGLint>& appEglConfigAttribs,
+                                     const bool isLastResort = false);
     void ShutdownEGL();
     void InitSurfaceAndContext();
     void ShutdownSurfaceAndContext();

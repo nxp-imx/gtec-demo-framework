@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ParticleSystemOneArray.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <algorithm>
@@ -106,11 +106,11 @@ namespace Fsl
     {
       ParticleSystemGCFast(m_particles, m_particleCount, dstIndex);
       // ParticleSystemGC(m_particles, m_particleCount, dstIndex);
-      // FSLLOG("GC: Time: " << end - start << " Count: " << dstIndex);
+      // FSLLOG3_INFO("GC: Time: " << end - start << " Count: " << dstIndex);
     }
 
     // auto end = timer.GetTime();
-    // FSLLOG("ParticleSystem update time: " << end - start);
+    // FSLLOG3_INFO("ParticleSystem update time: " << end - start);
   }
 
   void ParticleSystemOneArray::Draw(const ParticleDrawContext& context)

@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -69,7 +69,7 @@ namespace Fsl
     m_program.Reset(contentManager->ReadAllText("BasicShader.vert"), gaussianFrag);
     // m_program.Reset(contentManager->ReadAllText("BasicShader.vert"), contentManager->ReadAllText("BasicShader.frag"));
 
-    // FSLLOG(gaussianFrag);
+    // FSLLOG3_INFO(gaussianFrag);
 
     // const GLuint hProgram = m_program.Get();
 

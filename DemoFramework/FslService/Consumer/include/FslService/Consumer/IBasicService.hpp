@@ -31,14 +31,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
-
 namespace Fsl
 {
-  class IBasicService : private Noncopyable
+  class IBasicService
   {
   public:
+    IBasicService(const IBasicService&) = delete;
+    IBasicService& operator=(const IBasicService&) = delete;
+
     virtual ~IBasicService() = default;
+
+  protected:
+    IBasicService() = default;
   };
 }
 

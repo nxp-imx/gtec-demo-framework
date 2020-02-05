@@ -67,7 +67,7 @@ from FslBuildGen.Tool.ToolCommonArgConfig import ToolCommonArgConfig
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfigFile
 
 
-CurrentVersionString = "3.0.7"
+CurrentVersionString = "3.0.8"
 CurrentBuildString = "9"
 
 

@@ -31,7 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/System/Platform/All/ScopedSystemMemoryAccessDummy.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 
 namespace Fsl
 {
@@ -42,7 +42,7 @@ namespace Fsl
   //, m_lastValue(0)
   {
     FSL_PARAM_NOT_USED(targetAddress);
-    FSLBASICLOG_WARNING("ScopedSystemMemoryAccess is a dummy implementation that does nothing");
+    FSLLOG3_WARNING("ScopedSystemMemoryAccess is a dummy implementation that does nothing");
   }
 
   ScopedSystemMemoryAccessDummy::~ScopedSystemMemoryAccessDummy() = default;

@@ -82,6 +82,7 @@ from FslBuildGen.Xml.Project.XmlClangTidyPlatformCompiler import XmlClangTidyPla
 from FslBuildGen.Xml.Project.XmlClangTidyPlatformDefines import XmlClangTidyPlatformDefines
 from FslBuildGen.Xml.Project.XmlClangTidyPlatformStrictChecks import XmlClangTidyPlatformStrictChecks
 from FslBuildGen.Xml.Project.XmlCMakeConfiguration import XmlCMakeConfiguration
+from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlClangFormatConfiguration
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigCompilerConfiguration
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddBasePackage
 from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlConfigFileAddRootDirectory
@@ -91,7 +92,6 @@ from FslBuildGen.Xml.ToolConfig.XmlConfigFileAddNewProjectTemplatesRootDirectory
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageConfiguration import XmlConfigPackageConfiguration
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageLocation import FakeXmlConfigPackageLocation
 from FslBuildGen.Xml.ToolConfig.XmlConfigPackageLocation import XmlConfigPackageLocation
-from FslBuildGen.Xml.XmlToolConfigFile import XmlClangFormatConfiguration
 from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilder
 from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigContentBuilderConfiguration
 from FslBuildGen.Xml.XmlToolConfigFile import XmlConfigFileAddTemplateImportDirectory
@@ -139,6 +139,7 @@ class NewProjectTemplateRootDirectory(object):
         remainingPath = tupleResult[1]
         if env is None:
             raise Exception("Root dirs are expected to contain environment variables '{0}'".format(self.DynamicName))
+        remainingPath = remainingPath if remainingPath is not None else ""
 
         resolvedPath = IOUtil.GetEnvironmentVariableForDirectory(env) + remainingPath
         self.BashName = '${0}{1}'.format(env, remainingPath)
@@ -163,6 +164,7 @@ class ToolConfigDirectory(object):
         rest = tupleResult[1]
         if envName is None:
             raise Exception("Template import dirs are expected to contain environment variables")
+        rest = rest if rest is not None else ""
 
         self.DecodedName = envName
         self.BashName = IOUtil.Join('$' + self.DecodedName, rest)

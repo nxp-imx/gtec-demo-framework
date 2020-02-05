@@ -36,12 +36,12 @@
 
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroidCallbackCombiner.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
 
 
 #if 0
-#define LOCAL_LOG(X) FSLLOG("EGLNativeWindowSystemAndroid: " << X)
+#define LOCAL_LOG(X) FSLLOG3_INFO("EGLNativeWindowSystemAndroid: {}", (X))
 #else
 #define LOCAL_LOG(X) \
   {                  \

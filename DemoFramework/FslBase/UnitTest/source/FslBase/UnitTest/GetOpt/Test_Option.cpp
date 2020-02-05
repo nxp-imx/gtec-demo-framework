@@ -64,7 +64,7 @@ TEST(TestGetOpt_Option, Construct_Default)
 TEST(TestGetOpt_Option, Construct_Smartname1)
 {
   std::string smartName("h");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
 
@@ -84,7 +84,7 @@ TEST(TestGetOpt_Option, Construct_Smartname1)
 TEST(TestGetOpt_Option, Construct_Smartname2)
 {
   std::string smartName("hello");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
 
@@ -104,7 +104,7 @@ TEST(TestGetOpt_Option, Construct_Smartname2)
 TEST(TestGetOpt_Option, Construct_Smartname1_Group)
 {
   std::string smartName("h");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
   OptionGroup::Enum group = OptionGroup::Custom1;
@@ -125,7 +125,7 @@ TEST(TestGetOpt_Option, Construct_Smartname1_Group)
 TEST(TestGetOpt_Option, Construct_Smartname2_Group)
 {
   std::string smartName("hello");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
   OptionGroup::Enum group = OptionGroup::Custom1;
@@ -147,7 +147,7 @@ TEST(TestGetOpt_Option, Construct_TwoNames)
 {
   std::string shortName("h");
   std::string name("hello");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
 
@@ -168,7 +168,7 @@ TEST(TestGetOpt_Option, Construct_TwoNamesAndGroup)
 {
   std::string shortName("h");
   std::string name("hello");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
   OptionGroup::Enum group = OptionGroup::Custom1;
@@ -189,7 +189,7 @@ TEST(TestGetOpt_Option, Construct_TwoNamesAndGroup)
 TEST(TestGetOpt_Option, Construct_PositionalOption)
 {
   std::string name("hello");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
 
@@ -209,7 +209,7 @@ TEST(TestGetOpt_Option, Construct_PositionalOption)
 TEST(TestGetOpt_Option, Construct_PositionalOption_Group)
 {
   std::string name("hello");
-  OptionArgument::Enum hasArg = OptionArgument::OptionRequired;
+  auto hasArg = OptionArgument::OptionRequired;
   int32_t cmdId = 42;
   std::string description("world");
   OptionGroup::Enum group = OptionGroup::Custom1;

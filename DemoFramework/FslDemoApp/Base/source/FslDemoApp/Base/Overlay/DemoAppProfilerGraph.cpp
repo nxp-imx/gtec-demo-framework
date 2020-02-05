@@ -42,6 +42,7 @@ namespace Fsl
     : m_minValue(minValue)
     , m_maxValue(maxValue)
     , m_size(size)
+    , m_entries(size.X)
     , m_coords(size.X)
   {
     if (m_maxValue < m_minValue)
@@ -60,18 +61,12 @@ namespace Fsl
   void DemoAppProfilerGraph::Add(const int32_t latestValue)
   {
     int32_t cappedValue = std::min(std::max(latestValue - m_minValue, 0), m_maxValue - m_minValue);
-
     m_entries.push_back(cappedValue);
-    while (m_entries.size() >= std::size_t(m_size.X))
-    {
-      m_entries.pop_front();
-    }
   }
 
 
   void DemoAppProfilerGraph::Draw(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPosition, const Color& color)
   {
-    std::deque<int32_t>::const_iterator itr = m_entries.begin();
     int32_t count = 0;
     const float scaleY = (m_size.Y - 1) / static_cast<float>(m_maxValue - m_minValue);
     float dstX = dstPosition.X;
@@ -80,11 +75,10 @@ namespace Fsl
       dstX += m_size.X - static_cast<int32_t>(m_entries.size());
     }
     const float dstY = dstPosition.Y + m_size.Y - 1;
-    while (itr != m_entries.end())
+    for (std::size_t i = 0; i < m_entries.size(); ++i)
     {
       m_coords[count].X = dstX + count;
-      m_coords[count].Y = dstY - (*itr * scaleY);
-      ++itr;
+      m_coords[count].Y = dstY - (m_entries[i] * scaleY);
       ++count;
     }
 

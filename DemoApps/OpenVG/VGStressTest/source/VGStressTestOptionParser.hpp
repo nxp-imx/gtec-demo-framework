@@ -95,7 +95,7 @@ namespace Fsl
 
   protected:
     virtual void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    virtual OptionParseResult::Enum OnParse(const int32_t cmdId, const char* const pszOptArg) override;
+    virtual OptionParseResult OnParse(const int32_t cmdId, const char* const pszOptArg) override;
     virtual bool OnParsingComplete() override;
   };
 }

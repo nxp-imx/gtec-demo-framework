@@ -107,6 +107,32 @@ TEST(TestMath_MathHelper, ToPowerOfTwo)
 }
 
 
+TEST(TestMath_MathHelper, Wrap)
+{
+  EXPECT_FLOAT_EQ(-2.0f, MathHelper::Wrap(-2.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(0.0f, MathHelper::Wrap(0.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-2.0f, MathHelper::Wrap(1.0f, -2.0f, 1.0f));
+
+  EXPECT_FLOAT_EQ(0.0f, MathHelper::Wrap(-3.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-0.5f, MathHelper::Wrap(-3.5f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-1.0f, MathHelper::Wrap(-4.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-1.5f, MathHelper::Wrap(-4.5f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-2.0f, MathHelper::Wrap(-5.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(0.5f, MathHelper::Wrap(-5.5f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(0.0f, MathHelper::Wrap(-6.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-0.5f, MathHelper::Wrap(-6.5f, -2.0f, 1.0f));
+
+  EXPECT_FLOAT_EQ(0.0f, MathHelper::Wrap(3.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(0.5f, MathHelper::Wrap(3.5f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-2.0f, MathHelper::Wrap(4.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-1.5f, MathHelper::Wrap(4.5f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-1.0f, MathHelper::Wrap(5.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(-0.5f, MathHelper::Wrap(5.5f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(0.0f, MathHelper::Wrap(6.0f, -2.0f, 1.0f));
+  EXPECT_FLOAT_EQ(0.5f, MathHelper::Wrap(6.5f, -2.0f, 1.0f));
+}
+
+
 TEST(TestMath_MathHelper, WrapAngle)
 {
   // EXPECT_FLOAT_EQ((MathHelper::RADS0 - MathHelper::RADS45), MathHelper::WrapAngle((MathHelper::RADS360 * 2.0f) - MathHelper::RADS45));

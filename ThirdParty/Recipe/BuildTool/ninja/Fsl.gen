@@ -2,6 +2,6 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <!-- Experimental file, work in progress so do not rely on it -->
   <ToolRecipe Name="Recipe.BuildTool.ninja" CreationYear="2017">
-    <Dependency Name="Recipe.BuildTool.ninja_1_8_2"/>
+    <Dependency Name="Recipe.BuildTool.ninja_1_9_0"/>
   </ToolRecipe >
 </FslBuildGen>

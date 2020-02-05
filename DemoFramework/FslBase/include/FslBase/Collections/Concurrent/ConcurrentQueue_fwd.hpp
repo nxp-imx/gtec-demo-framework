@@ -35,18 +35,21 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
-#include <FslBase/Noncopyable.hpp>
 
 namespace Fsl
 {
   template <typename T>
-  class ConcurrentQueue : private Noncopyable
+  class ConcurrentQueue
   {
     std::mutex m_mutex;
     std::condition_variable m_waitForMsgCondition;
     std::queue<T> m_queue;
 
   public:
+    ConcurrentQueue<T>(const ConcurrentQueue<T>&) = delete;
+    ConcurrentQueue<T>& operator=(const ConcurrentQueue<T>&) = delete;
+    ConcurrentQueue<T>() = default;
+
     using value_type = T;
 
     //! @brief Clear all elements from the queue

@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <Shared/FractalShader/DefaultValues.hpp>
 
 namespace Fsl
 {
@@ -72,8 +73,8 @@ namespace Fsl
   public:
     Quality TheQuality{Quality::Medium};
     RenderMode TheRenderMode{RenderMode::Col};
-    int32_t IterationsJ{20};
-    int32_t IterationsM{20};
+    int32_t IterationsJ{DefaultValues::JULIA_DEFAULT_ITERATIONS};
+    int32_t IterationsM{DefaultValues::MANDELBROT_DEFAULT_ITERATIONS};
     bool ForceUnroll{false};
     bool Show{false};
 

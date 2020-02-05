@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <deque>
-#include <memory>
-#include <vector>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Collections/CircularFixedSizeBuffer.hpp>
+#include <memory>
+#include <vector>
 
 namespace Fsl
 {
@@ -48,7 +48,7 @@ namespace Fsl
     int32_t m_minValue;
     int32_t m_maxValue;
     Point2 m_size;
-    std::deque<int32_t> m_entries;
+    CircularFixedSizeBuffer<int32_t> m_entries;
     std::vector<Vector2> m_coords;
 
   public:

@@ -31,7 +31,7 @@
 
 #include "Skybox.hpp"
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture3.hpp>

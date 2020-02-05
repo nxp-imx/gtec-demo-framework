@@ -105,14 +105,14 @@ namespace Fsl
   }
 
 
-  std::string ShaderUtil::GetFragmentShader(const BasicConfig& m_config, const std::shared_ptr<IContentManager>& contentManager,
+  std::string ShaderUtil::GetFragmentShader(const BasicConfig& config, const std::shared_ptr<IContentManager>& contentManager,
                                             const int32_t openGLESVersion)
   {
     std::string fragmentShader;
-    if (!m_config.ForceUnroll)
+    if (!config.ForceUnroll)
     {
       std::string fragmentShaderFile;
-      switch (m_config.TheRenderMode)
+      switch (config.TheRenderMode)
       {
         // case RenderMode::Tex:
         //  fragmentShaderFile = "Julia_tex.frag";
@@ -131,7 +131,7 @@ namespace Fsl
 
       // Dynamically patch the fragment shader with the desired iteration count
       fragmentShader = contentManager->ReadAllText(fragmentShaderFile);
-      StringUtil::Replace(fragmentShader, "##MAX_ITERATIONS##", ToString(m_config.IterationsJ));
+      StringUtil::Replace(fragmentShader, "##MAX_ITERATIONS##", ToString(config.IterationsJ));
     }
     else
     {
@@ -148,20 +148,20 @@ namespace Fsl
         break;
       }
 
-      switch (m_config.TheRenderMode)
+      switch (config.TheRenderMode)
       {
         // case RenderMode::Tex:
         //  fragmentShaderFile = "Julia_tex.frag";
         //  break;
       case RenderMode::Smooth:
-        ShaderGeneratorSmooth(m_config.IterationsJ, fragmentShader, fragmentName);
+        ShaderGeneratorSmooth(config.IterationsJ, fragmentShader, fragmentName);
         break;
       case RenderMode::Col:
-        ShaderGeneratorCol(m_config.IterationsJ, fragmentShader, fragmentName);
+        ShaderGeneratorCol(config.IterationsJ, fragmentShader, fragmentName);
         break;
       case RenderMode::Gray:
       default:
-        ShaderGeneratorGray(m_config.IterationsJ, fragmentShader, fragmentName);
+        ShaderGeneratorGray(config.IterationsJ, fragmentShader, fragmentName);
         break;
       }
     }

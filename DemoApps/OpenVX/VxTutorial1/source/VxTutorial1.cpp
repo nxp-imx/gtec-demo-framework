@@ -32,7 +32,7 @@
 // OpenVX 1.1 project
 #include "VxTutorial1.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <RapidOpenVX/Check.hpp>
 #include <RapidOpenVX/Exceptions.hpp>
@@ -175,6 +175,6 @@ namespace Fsl
     // Save result to image
     GetPersistentDataManager()->Write("Test_sobel.bmp", bitmap);
 
-    FSLLOG("vx process success.");
+    FSLLOG3_INFO("vx process success.");
   }
 }

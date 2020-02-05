@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <string>
 #include <g2d.h>
@@ -41,9 +40,12 @@
 
 namespace Fsl
 {
-  class G2DSurface : Noncopyable
+  class G2DSurface
   {
   public:
+    G2DSurface(const G2DSurface&) = delete;
+    G2DSurface& operator=(const G2DSurface&) = delete;
+
     g2d_buf* m_pBuf;
     g2d_surface m_surface;
     std::string Name;

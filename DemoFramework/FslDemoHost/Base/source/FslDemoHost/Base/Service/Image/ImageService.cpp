@@ -32,8 +32,8 @@
 #include <FslDemoHost/Base/Service/Image/ImageService.hpp>
 #include <FslDemoApp/Base/Service/ImageBasic/IImageBasicService.hpp>
 #include <FslDemoApp/Base/Service/AsyncImage/IAsyncImageService.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/IO/LogPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -77,11 +77,11 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      throw std::invalid_argument(std::string("Read only takes absolute paths: ") + absolutePath.ToUTF8String());
+      throw std::invalid_argument(fmt::format("Read only takes absolute paths: '{}'", absolutePath));
     }
 
     // if (!IO::File::Exists(absolutePath))
-    //  throw std::invalid_argument(std::string("File not found: ") + absolutePath.ToUTF8String());
+    //  throw std::invalid_argument(fmt::format("File not found: '{}'", absolutePath));
 
     const auto usedOrigin = (desiredOrigin != BitmapOrigin::Undefined ? desiredOrigin : m_bitmapOrigin);
 
@@ -101,11 +101,11 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      throw std::invalid_argument(std::string("Read only takes absolute paths: ") + absolutePath.ToUTF8String());
+      throw std::invalid_argument(fmt::format("Read only takes absolute paths: '{}'", absolutePath));
     }
 
     // if (!IO::File::Exists(absolutePath))
-    //  throw std::invalid_argument(std::string("File not found: ") + absolutePath.ToUTF8String());
+    //  throw std::invalid_argument(fmt::format("File not found: '{}'", absolutePath));
 
     const auto usedOrigin = (desiredOrigin != BitmapOrigin::Undefined ? desiredOrigin : m_bitmapOrigin);
 
@@ -124,7 +124,7 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      throw std::invalid_argument(std::string("Read only takes absolute paths: ") + absolutePath.ToUTF8String());
+      throw std::invalid_argument(fmt::format("Read only takes absolute paths: '{}'", absolutePath));
     }
 
     if (m_imageBasic)
@@ -143,7 +143,7 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      throw std::invalid_argument(std::string("Read only takes absolute paths: ") + absolutePath.ToUTF8String());
+      throw std::invalid_argument(fmt::format("Read only takes absolute paths: '{}'", absolutePath));
     }
 
     if (m_imageBasic)
@@ -162,13 +162,13 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("TryRead only takes absolute paths: " << absolutePath);
+      FSLLOG3_DEBUG_WARNING("TryRead only takes absolute paths: {}", absolutePath);
       return false;
     }
 
     if (!IO::File::Exists(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("File not found: " << absolutePath);
+      FSLLOG3_DEBUG_WARNING("File not found: {}", absolutePath);
       return false;
     }
 
@@ -192,7 +192,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       FSL_PARAM_NOT_USED(ex);
-      FSLLOG_DEBUG_WARNING("TryRead failed with: " << ex.what());
+      FSLLOG3_DEBUG_WARNING("TryRead failed with: {}", ex.what());
       return false;
     }
   }
@@ -202,7 +202,7 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("TryWrite only takes absolute paths: " << absolutePath);
+      FSLLOG3_DEBUG_WARNING("TryWrite only takes absolute paths: {}", absolutePath);
       return false;
     }
 
@@ -218,7 +218,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       FSL_PARAM_NOT_USED(ex);
-      FSLLOG_DEBUG_WARNING("TryWrite failed with: " << ex.what());
+      FSLLOG3_DEBUG_WARNING("TryWrite failed with: {}", ex.what());
       return false;
     }
   }
@@ -229,7 +229,7 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(absolutePath))
     {
-      FSLLOG_DEBUG_WARNING("TryWriteExactImage only takes absolute paths: " << absolutePath);
+      FSLLOG3_DEBUG_WARNING("TryWriteExactImage only takes absolute paths: {}", absolutePath);
       return false;
     }
 
@@ -245,7 +245,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       FSL_PARAM_NOT_USED(ex);
-      FSLLOG_DEBUG_WARNING("TryWriteExactImage failed with: " << ex.what());
+      FSLLOG3_DEBUG_WARNING("TryWriteExactImage failed with: {}", ex.what());
       return false;
     }
   }

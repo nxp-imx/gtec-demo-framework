@@ -46,7 +46,7 @@ from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.Exceptions import FileNotFoundException
 from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.Xml.Exceptions import XmlException
-from FslBuildGen.Vars.VariableProcessor import VariableEnvironment
+from FslBuildGen.Vars.VariableEnvironment import VariableEnvironment
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Exceptions import XmlException2
@@ -321,9 +321,9 @@ class XmlProjectRootConfigFile(XmlBase):
                 self.Version = self._ReadAttrib(xmlElement, 'Version')
                 self.RootDirectory = rootDirectory
                 projectElem = XmlBase._GetElement(self, xmlElement, "Project") # type: ET.Element
-                self.ProjectName = self._ReadAttrib(projectElem, 'Name') # type: str
+                self.ProjectName = self._ReadAttrib(projectElem, 'Name')
                 self.ProjectId = ProjectId(self.ProjectName)
-                self.ProjectVersion = self._ReadAttrib(projectElem, 'Version', "1.0.0.0") # type: str
+                self.ProjectVersion = self._ReadAttrib(projectElem, 'Version', "1.0.0.0")
                 toolConfigFilePath = self._ReadAttrib(projectElem, 'ToolConfigFile')  # type: str
                 self.DefaultPackageLanguage = self.__GetDefaultPackageLanguage(projectElem)
                 self.DefaultCompany = self._ReadAttrib(projectElem, 'DefaultCompany')

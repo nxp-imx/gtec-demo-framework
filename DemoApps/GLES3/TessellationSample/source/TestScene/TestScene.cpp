@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Point2.hpp>
@@ -117,7 +117,7 @@ namespace Fsl
     ConstructMesh(contentManager, sceneId);
     ConstructTextures(contentManager, embedNormalMap, sceneId);
 
-    FSLLOG("Ready");
+    FSLLOG3_INFO("Ready");
     GL_CHECK_FOR_ERROR();
   }
 

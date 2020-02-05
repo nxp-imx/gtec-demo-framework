@@ -1,0 +1,14 @@
+/.StartProject.bat
+/.vs/
+/Shared.FurShellRendering.VC.VC.opendb
+/Shared.FurShellRendering.VC.db
+/Shared.FurShellRendering.manifest
+/Shared.FurShellRendering.opensdf
+/Shared.FurShellRendering.sdf
+/Shared.FurShellRendering.sln
+/Shared.FurShellRendering.v12.sdf
+/Shared.FurShellRendering.v12.suo
+/Shared.FurShellRendering.vcxproj
+/Shared.FurShellRendering.vcxproj.filters
+/Shared.FurShellRendering.vcxproj.user
+/build/

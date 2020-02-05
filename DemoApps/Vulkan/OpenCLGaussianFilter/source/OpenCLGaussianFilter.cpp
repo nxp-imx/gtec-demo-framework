@@ -31,7 +31,7 @@
 
 #include "OpenCLGaussianFilter.hpp"
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
@@ -81,24 +81,24 @@ namespace Fsl
       const cl_device_info deviceAttributeTypes[arrSize] = {CL_DEVICE_NAME, CL_DEVICE_VENDOR, CL_DEVICE_VERSION, CL_DEVICE_PROFILE};
       const int attributeCount = sizeof(attributeNames) / sizeof(char*);
 
-      FSLLOG("\n-=-=-=- Platform and Device information -=-=-=-\n\n");
+      FSLLOG3_INFO("\n-=-=-=- Platform and Device information -=-=-=-\n\n");
 
       for (int count = 0; count < attributeCount; ++count)
       {
         const std::string info = OpenCLHelper::GetPlatformInfo<std::string>(rplatformId, attributeTypes[count]);
         const std::string deviceInfo = OpenCLHelper::GetDeviceInfo<std::string>(deviceId, deviceAttributeTypes[count]);
 
-        FSLLOG("Platform Attributes " << attributeNames[count] << ": " << info);
-        FSLLOG("Device Attributes " << attributeNames[count] << ": " << deviceInfo);
+        FSLLOG3_INFO("Platform Attributes {}: {}", attributeNames[count], info);
+        FSLLOG3_INFO("Device Attributes {}: {}", attributeNames[count], deviceInfo);
       }
 
       const auto deviceItems = OpenCLHelper::GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
-      FSLLOG("Device Max Work Item Dimensions: " << deviceItems << "-D");
+      FSLLOG3_INFO("Device Max Work Item Dimensions: {}-D", deviceItems);
 
       const auto deviceSize = OpenCLHelper::GetDeviceInfo<std::size_t>(deviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE);
-      FSLLOG("Device Max Work Group Size: " << deviceSize);
+      FSLLOG3_INFO("Device Max Work Group Size: {}", deviceSize);
 
-      FSLLOG("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
+      FSLLOG3_INFO("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     }
 
 
@@ -113,7 +113,7 @@ namespace Fsl
       if (error != CL_SUCCESS)
       {
         const auto buildInfo = OpenCLHelper::GetProgramBuildInfoString(program.Get(), deviceId, CL_PROGRAM_BUILD_LOG);
-        FSLLOG(buildInfo);
+        FSLLOG3_INFO(buildInfo);
         RAPIDOPENCL_CHECK(error);
       }
       return program;

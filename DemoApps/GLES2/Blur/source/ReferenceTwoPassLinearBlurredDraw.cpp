@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -75,9 +75,9 @@ namespace Fsl
     }
 
     const int moddedKernelLength = UpdateKernelLength(blurConfig.KernelLength);
-    FSLLOG_WARNING_IF(moddedKernelLength != blurConfig.KernelLength,
-                      "The two pass linear shader is not compatible with the supplied kernel length of " << blurConfig.KernelLength << " using "
-                                                                                                         << moddedKernelLength);
+    FSLLOG3_WARNING_IF(moddedKernelLength != blurConfig.KernelLength,
+                       "The two pass linear shader is not compatible with the supplied kernel length of {} using {}", blurConfig.KernelLength,
+                       moddedKernelLength);
 
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
 

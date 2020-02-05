@@ -115,7 +115,7 @@ class ConditionInterpreter(object):
         nodeVisitor.visit(astRootNode)
         self.__RootNode = astRootNode
 
-    def __Parse(self, featureRequirements: str) -> ast.Module:
+    def __Parse(self, featureRequirements: str) -> ast.AST:
         try:
             return ast.parse(featureRequirements, mode='eval')
         except SyntaxError as ex:

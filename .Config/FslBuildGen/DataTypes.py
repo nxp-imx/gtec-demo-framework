@@ -480,15 +480,17 @@ class PackageString(object):
 class GeneratorNameString:
     Default = "default"
     CMake = "cmake"
+    Legacy = "legacy"
 
     @staticmethod
     def AllStrings() -> List[str]:
-        return [GeneratorNameString.Default, GeneratorNameString.CMake]
+        return [GeneratorNameString.Default, GeneratorNameString.CMake, GeneratorNameString.Legacy]
 
 
 class GeneratorType:
     Default = 0
     CMake = 1
+    Legacy = 2
 
     @staticmethod
     def FromString(value: str) -> int:
@@ -496,6 +498,8 @@ class GeneratorType:
             return GeneratorType.Default
         elif value == GeneratorNameString.CMake:
             return GeneratorType.CMake
+        elif value == GeneratorNameString.Legacy:
+            return GeneratorType.Legacy
         raise Exception("Unsupported GeneratorName '{0}'".format(value))
 
     @staticmethod
@@ -511,4 +515,6 @@ class GeneratorType:
             return GeneratorNameString.Default
         elif value == GeneratorType.CMake:
             return GeneratorNameString.CMake
+        elif value == GeneratorType.Legacy:
+            return GeneratorNameString.Legacy
         return None if not returnValueStringIfUnknown else "{0}".format(value)

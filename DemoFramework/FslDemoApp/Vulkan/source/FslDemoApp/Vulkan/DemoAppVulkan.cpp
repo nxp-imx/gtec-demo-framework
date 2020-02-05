@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/DemoAppVulkan.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
 #include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include <FslDemoHost/Vulkan/Config/Service/IVulkanHostInfo.hpp>
@@ -119,7 +119,7 @@ namespace Fsl
     catch (const std::exception& ex)
     {
       // We log and swallow it since destructor's are not allowed to throw
-      FSLLOG_ERROR("DeviceWaitIdle, threw exception: " << ex.what());
+      FSLLOG3_ERROR("DeviceWaitIdle, threw exception: {}", ex.what());
     }
   }
 

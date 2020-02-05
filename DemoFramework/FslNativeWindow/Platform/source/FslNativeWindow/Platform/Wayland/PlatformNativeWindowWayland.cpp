@@ -30,7 +30,7 @@
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
@@ -67,54 +67,56 @@ namespace Fsl
 
     struct geometry
     {
-      int width;
-      int height;
+      int width{};
+      int height{};
     };
 
     struct display;
 
     struct window
     {
-      struct display* display;
-      PlatformNativeWindowType native;
-      struct geometry geometry, window_size;
-      wl_surface* surface;
-      wl_shell_surface* shell_surface;
+      struct display* display{nullptr};
+      PlatformNativeWindowType native{};
+      struct geometry geometry{};
+      struct geometry window_size{};
+      wl_surface* surface{nullptr};
+      wl_shell_surface* shell_surface{nullptr};
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
-      struct ivi_surface* ivi_surface;
+      struct ivi_surface* ivi_surface{nullptr};
 #endif
-      wl_callback* callback;
-      int fullscreen, configured;
+      wl_callback* callback{nullptr};
+      int fullscreen{0};
+      int configured{0};
       std::function<void(void*, int, int, int, int)> resizeWindowCallback;
     };
 
     struct display
     {
-      wl_display* display;
-      wl_registry* registry;
-      wl_compositor* compositor;
-      wl_shell* shell;
-      wl_seat* seat;
-      wl_pointer* pointer;
-      wl_keyboard* keyboard;
-      wl_shm* shm;
-      wl_cursor_theme* cursor_theme;
-      wl_cursor* default_cursor;
-      wl_surface* cursor_surface;
-      VirtualKey::Enum keycode;
-      bool isPressed;
+      wl_display* display{nullptr};
+      wl_registry* registry{nullptr};
+      wl_compositor* compositor{nullptr};
+      wl_shell* shell{nullptr};
+      wl_seat* seat{nullptr};
+      wl_pointer* pointer{nullptr};
+      wl_keyboard* keyboard{nullptr};
+      wl_shm* shm{nullptr};
+      wl_cursor_theme* cursor_theme{nullptr};
+      wl_cursor* default_cursor{nullptr};
+      wl_surface* cursor_surface{nullptr};
+      VirtualKey::Enum keycode{};
+      bool isPressed{false};
       Point2 mousePosition;
-      int zDelta;
-      VirtualMouseButton::Enum mouseButton;
-      bool mouseIsPressed;
-      struct window* window;
+      int zDelta{};
+      VirtualMouseButton::Enum mouseButton{};
+      bool mouseIsPressed{};
+      struct window* window{nullptr};
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
-      struct ivi_application* ivi_application;
+      struct ivi_application* ivi_application{nullptr};
 #endif
     };
 
-    struct display sdisplay = {nullptr};
-    struct window swindow = {nullptr};
+    struct display sdisplay{};
+    struct window swindow{};
     bool dummyRunning = true;
 
 
@@ -696,7 +698,7 @@ namespace Fsl
 
     if (-1 == (wl_display_flush(display->display)))
     {
-      FSLLOG_WARNING("wl_display_flush Failure");
+      FSLLOG3_WARNING("wl_display_flush Failure");
     }
 
     wl_display_disconnect(display->display);
@@ -732,11 +734,11 @@ namespace Fsl
     const NativeWindowConfig nativeWindowConfig = nativeWindowSetup.GetConfig();
     g_eventQueue = nativeWindowSetup.GetEventQueue();
 
-    FSLLOG_WARNING_IF(nativeWindowSetup.GetConfig().GetDisplayId() != 0,
-                      "Wayland only supports the main display. Using DisplayId 0 instead of " << nativeWindowSetup.GetConfig().GetDisplayId());
+    FSLLOG3_WARNING_IF(nativeWindowSetup.GetConfig().GetDisplayId() != 0, "Wayland only supports the main display. Using DisplayId 0 instead of {}",
+                       nativeWindowSetup.GetConfig().GetDisplayId());
     if (nativeWindowConfig.GetWindowMode() != WindowMode::Window)
     {
-      FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "Window Size/Position not defined, setting them to MAX Display Resolution");
+      FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "Window Size/Position not defined, setting them to MAX Display Resolution");
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
       swindow.window_size.width = 480;
       swindow.window_size.height = 504;
@@ -766,9 +768,8 @@ namespace Fsl
       swindow.fullscreen = 0;
     }
 
-    FSLLOG_IF(nativeWindowSetup.GetVerbosityLevel() > 0,
-              "PlatformNativeWindowWayland: Creating window: {Width = " << swindow.window_size.width << " Height = " << swindow.window_size.height
-                                                                        << " fullscreen: " << swindow.fullscreen << " }");
+    FSLLOG3_INFO_IF(nativeWindowSetup.GetVerbosityLevel() > 0, "PlatformNativeWindowWayland: Creating window: (Width={} Height={} fullscreen: {})",
+                    swindow.window_size.width, swindow.window_size.height, swindow.fullscreen);
 
 
     CreateWlSurface();
@@ -845,7 +846,7 @@ namespace Fsl
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
-        FSLLOG("PlatformNativeWindowWayland: TryGetDPI is not implemented on this backend.");
+        FSLLOG3_INFO("PlatformNativeWindowWayland: TryGetDPI is not implemented on this backend.");
         warnedNotImplementedOnce = true;
       }
     }

@@ -32,7 +32,7 @@
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "ModelViewer.hpp"
-#include "OptionParser.hpp"
+#include <Shared/ModelViewer/OptionParser.hpp>
 
 namespace Fsl
 {

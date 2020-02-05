@@ -95,6 +95,7 @@ g_allowOverwriteOption = '--AllowOverwrite'
 
 class GlobalStrings:
     SanityCheckProjectName = "SC__"
+    SanityCheckDir = "SC__TMP"
 
 class UnknownTemplateException(Exception):
     def __init__(self, msg: str) -> None:
@@ -324,7 +325,7 @@ def GenerateProject(config: Config, localConfig: LocalConfig, configVariant: Con
 
     templateFileRecordManager = TemplateFileRecordManager(localConfig.TemplatePathProjectType)
     templateFileProcessor = TemplateFileProcessor(config, "PlatformNotDefined", genFileOnly)
-    templateFileProcessor.Environment.SetPackageValues(configVariant.ProjectPath, packageName, packageShortName,
+    templateFileProcessor.Environment.SetPackageValues(configVariant.ProjectPath, packageName, packageShortName, configVariant.ProjectPath,
                                                        packageTargetName, None, visualStudioGUID, config.CurrentYearString, packageCompany)
     #templateFileProcessor.Environment.Set("##FEATURE_LIST##", featureList)
     templateFileProcessor.Process(config, templateFileRecordManager, configVariant.ProjectPath, None)
@@ -423,9 +424,10 @@ class ToolFlowBuildNew(AToolAppFlow):
             self.__ToolMainSanityCheck(currentDirPath, toolConfig, localToolConfig, templateDict)
 
 
-    def __BuildNow(self, config: Config, workDir: str) -> None:
+    def __BuildNow(self, config: Config, workDir: str, recursive: bool = False) -> None:
         toolFlowConfig = ToolFlowBuild.GetDefaultLocalConfig()
         toolFlowConfig.SetToolAppConfigValues(self.ToolAppContext.ToolAppConfig)
+        toolFlowConfig.Recursive = recursive
         buildFlow = ToolFlowBuild.ToolFlowBuild(self.ToolAppContext)
         buildFlow.Process(workDir, config.ToolConfig, toolFlowConfig)
 
@@ -521,29 +523,73 @@ class ToolFlowBuildNew(AToolAppFlow):
                                     toolConfig: ToolConfig,
                                     localToolConfig: LocalToolConfig,
                                     templateDict: Dict[str, List[XmlNewTemplateFile]],
-                                    debugMode: bool) -> None:
-        if localToolConfig.Template == '*':
-            raise Exception("Usage error")
+                                    debugMode: bool,
+                                    templateList: List[str]) -> None:
 
-        localToolConfig.ProjectName = "{0}_{1}".format(GlobalStrings.SanityCheckProjectName, localToolConfig.Template)
-        localToolConfig.Force = True
+        currentDir = IOUtil.Join(currentDir, GlobalStrings.SanityCheckDir)
+        IOUtil.SafeMakeDirs(currentDir)
+        if not IOUtil.IsDirectory(currentDir):
+            raise Exception("could not create work directory: '{0}'".format(currentDir))
+
+        isBuilding = False
         try:
-            if debugMode:
-                generatedDir = IOUtil.Join(currentDir, localToolConfig.ProjectName)
-                if IOUtil.IsDirectory(generatedDir):
-                    return
+            for currentTemplateName in templateList:
+                if currentTemplateName == '*' or currentTemplateName.startswith('/') or '..' in currentTemplateName:
+                    raise Exception("Usage error")
 
-            print(("Sanity check of template '{0}' begin".format(localToolConfig.Template)))
-            self.__ToolMainEx(currentDir, toolConfig, localToolConfig, templateDict, True)
-            print(("Sanity check of template '{0}' ended successfully".format(localToolConfig.Template)))
+                localToolConfig.Template = currentTemplateName
+
+                localToolConfig.ProjectName = "{0}_{1}".format(GlobalStrings.SanityCheckProjectName, localToolConfig.Template)
+                localToolConfig.Force = True
+
+                if debugMode:
+                    generatedDir = IOUtil.Join(currentDir, localToolConfig.ProjectName)
+                    if IOUtil.IsDirectory(generatedDir):
+                        continue
+
+                print(("Generating sanity project for template '{0}' begin".format(localToolConfig.Template)))
+                self.__ToolMainEx(currentDir, toolConfig, localToolConfig, templateDict, False)
+                print(("Generating sanity project for template '{0}' ended successfully".format(localToolConfig.Template)))
+
+            isBuilding = True
+            config = Config(self.Log, toolConfig, 'sdk', localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
+            print(("Building sanity projects for all template begin {0}".format(localToolConfig.Template)))
+            self.__BuildNow(config, currentDir, True)
+            print(("Building sanity project for template end {0}".format(localToolConfig.Template)))
         except:
-            print(("Sanity check of template '{0}' failed".format(localToolConfig.Template)))
+            if not isBuilding:
+                print("Sanity check of template '{0}' failed".format(localToolConfig.Template))
+            else:
+                print("Sanity build of templates failed")
             raise
         finally:
             if not debugMode:
-                projectDir = IOUtil.Join(currentDir, localToolConfig.ProjectName)
-                if IOUtil.IsDirectory(projectDir):
-                    shutil.rmtree(projectDir)
+                for currentTemplateName in templateList:
+                    if currentTemplateName == '*' or currentTemplateName.startswith('/') or '..' in currentTemplateName:
+                        raise Exception("Usage error")
+                    projectName = "{0}_{1}".format(GlobalStrings.SanityCheckProjectName, currentTemplateName)
+
+                    projectDir = IOUtil.Join(currentDir, projectName)
+                    if IOUtil.IsDirectory(projectDir):
+                        shutil.rmtree(projectDir)
+
+            #try:
+            #    if debugMode:
+            #        generatedDir = IOUtil.Join(currentDir, localToolConfig.ProjectName)
+            #        if IOUtil.IsDirectory(generatedDir):
+            #            return
+
+            #    print(("Sanity check of template '{0}' begin".format(localToolConfig.Template)))
+            #    self.__ToolMainEx(currentDir, toolConfig, localToolConfig, templateDict, True)
+            #    print(("Sanity check of template '{0}' ended successfully".format(localToolConfig.Template)))
+            #except:
+            #    print(("Sanity check of template '{0}' failed".format(localToolConfig.Template)))
+            #    raise
+            #finally:
+            #    if not debugMode:
+            #        projectDir = IOUtil.Join(currentDir, localToolConfig.ProjectName)
+            #        if IOUtil.IsDirectory(projectDir):
+            #            shutil.rmtree(projectDir)
 
 
     def __ToolMainSanityCheck(self,
@@ -564,7 +610,7 @@ class ToolFlowBuildNew(AToolAppFlow):
         debugMode = localToolConfig.SanityCheck == 'debug'
 
         if localToolConfig.Template != '*':
-            self.__RunToolMainForSanityCheck(currentDir, toolConfig, localToolConfig, templateDict, debugMode)
+            self.__RunToolMainForSanityCheck(currentDir, toolConfig, localToolConfig, templateDict, debugMode, [localToolConfig.Template])
         else:
             sortedLanguages = list(templateDict.keys())
             sortedLanguages.sort(key=lambda s: s.lower())
@@ -572,9 +618,8 @@ class ToolFlowBuildNew(AToolAppFlow):
             for language in sortedLanguages:
                 sortedTemplateEntries = list(templateDict[language])
                 sortedTemplateEntries.sort(key=lambda s: s.Id.lower())
-                for templateEntry in sortedTemplateEntries:
-                    localToolConfig.Template = templateEntry.Name
-                    self.__RunToolMainForSanityCheck(currentDir, toolConfig, localToolConfig, templateDict, debugMode)
+                allTemplates = [templateEntry.Name for templateEntry in sortedTemplateEntries]
+                self.__RunToolMainForSanityCheck(currentDir, toolConfig, localToolConfig, templateDict, debugMode, allTemplates)
 
 
 def TryFind(templates: List[XmlNewTemplateFile], newEntry: XmlNewTemplateFile) -> Optional[XmlNewTemplateFile]:

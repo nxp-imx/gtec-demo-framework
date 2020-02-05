@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Context.hpp>
@@ -68,15 +68,15 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
-          FSLLOG(rLog.Indent << "Platform version: 1.0");
+          rLog.Print("Platform version: 1.0");
           LogPlatformInfo1_0(rLog, platformId);
           break;
         case 1:
-          FSLLOG(rLog.Indent << "Platform version: 1.1");
+          rLog.Print("Platform version: 1.1");
           LogPlatformInfo1_1(rLog, platformId);
           break;
         case 2:
-          FSLLOG(rLog.Indent << "Platform version: 1.2");
+          rLog.Print("Platform version: 1.2");
           LogPlatformInfo1_2(rLog, platformId);
           break;
         default:
@@ -88,11 +88,11 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
-          FSLLOG(rLog.Indent << "Platform version: 2.0");
+          rLog.Print("Platform version: 2.0");
           LogPlatformInfo2_0(rLog, platformId);
           break;
         case 1:
-          FSLLOG(rLog.Indent << "Platform version: 2.1");
+          rLog.Print("Platform version: 2.1");
           LogPlatformInfo2_1(rLog, platformId);
           break;
         default:
@@ -101,7 +101,7 @@ namespace Fsl
       }
       if (useFallback)
       {
-        FSLLOG_WARNING("CL_PLATFORM_VERSION " << version.Major << "." << version.Minor << " is not supported.");
+        FSLLOG3_WARNING("CL_PLATFORM_VERSION {}.{} is not supported.", version.Major, version.Minor);
         return;
       }
     }
@@ -134,15 +134,15 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
-          FSLLOG(rLog.Indent << "Device version: 1.0");
+          rLog.Print("Device version: 1.0");
           LogDeviceInfo1_0(rLog, deviceId);
           break;
         case 1:
-          FSLLOG(rLog.Indent << "Device version: 1.1");
+          rLog.Print("Device version: 1.1");
           LogDeviceInfo1_1(rLog, deviceId);
           break;
         case 2:
-          FSLLOG(rLog.Indent << "Device version: 1.2");
+          rLog.Print("Device version: 1.2");
           LogDeviceInfo1_2(rLog, deviceId);
           break;
         default:
@@ -154,11 +154,11 @@ namespace Fsl
         switch (version.Minor)
         {
         case 0:
-          FSLLOG(rLog.Indent << "Device version: 2.0");
+          rLog.Print("Device version: 2.0");
           LogDeviceInfo2_0(rLog, deviceId);
           break;
         case 1:
-          FSLLOG(rLog.Indent << "Device version: 2.1");
+          rLog.Print("Device version: 2.1");
           LogDeviceInfo2_1(rLog, deviceId);
           break;
         default:
@@ -167,7 +167,7 @@ namespace Fsl
       }
       if (useFallback)
       {
-        FSLLOG_WARNING("CL_DEVICE_VERSION " << version.Major << "." << version.Minor << " is not supported.");
+        FSLLOG3_WARNING("CL_DEVICE_VERSION {}.{} is not supported.", version.Major, version.Minor);
         return;
       }
     }
@@ -175,20 +175,20 @@ namespace Fsl
 
     void LogPlatformInfo(LogHelp& rLog, const std::vector<cl_platform_id>& platformIds)
     {
-      FSLLOG(rLog.Indent << "Dumping platform info for " << platformIds.size() << " platforms.");
+      rLog.Print("Dumping platform info for {} platforms.", platformIds.size());
       for (std::size_t platformIndex = 0; platformIndex < platformIds.size(); ++platformIndex)
       {
         rLog.PushIndent();
-        FSLLOG(rLog.Indent << "*** Platform #" << platformIndex << " ***");
+        rLog.Print("*** Platform #{} ***", platformIndex);
         DumpPlatformInfo(rLog, platformIds[platformIndex]);
-        FSLLOG("");
+        FSLLOG3_INFO("");
         rLog.PopIndent();
       }
     }
 
     void LogDetailedInformation(LogHelp& rLog, const std::vector<cl_platform_id>& platformIds)
     {
-      FSLLOG(rLog.Indent << "Dumping detailed device info for " << platformIds.size() << " platforms.");
+      rLog.Print("Dumping detailed device info for {} platforms.", platformIds.size());
       rLog.PushIndent();
 
       cl_device_type deviceTypes[] = {CL_DEVICE_TYPE_CPU, CL_DEVICE_TYPE_GPU, CL_DEVICE_TYPE_ACCELERATOR,
@@ -200,12 +200,12 @@ namespace Fsl
 
       for (std::size_t platformIndex = 0; platformIndex < platformIds.size(); ++platformIndex)
       {
-        FSLLOG(rLog.Indent << "*** Platform #" << platformIndex << " ***");
+        rLog.Print("*** Platform #{} ***", platformIndex);
         DumpPlatformInfo(rLog, platformIds[platformIndex]);
 
         for (uint32_t deviceTypeIndex = 0; deviceTypeIndex < deviceTypeEntries; ++deviceTypeIndex)
         {
-          FSLLOG(rLog.Indent << "Enumerating devices of type: " << Debug::DeviceTypeTostring(deviceTypes[deviceTypeIndex]));
+          rLog.Print("Enumerating devices of type: {}", Debug::DeviceTypeTostring(deviceTypes[deviceTypeIndex]));
           rLog.PushIndent();
 
           std::vector<cl_device_id> deviceIds;
@@ -213,13 +213,13 @@ namespace Fsl
           {
             for (std::size_t deviceIndex = 0; deviceIndex < deviceIds.size(); ++deviceIndex)
             {
-              FSLLOG(rLog.Indent << "--- Device #" << deviceIndex << " ---");
+              rLog.Print("--- Device #{} ---", deviceIndex);
               LogDeviceInfo(rLog, deviceIds[deviceIndex]);
             }
           }
           else
           {
-            FSLLOG(rLog.Indent << "- Not supported");
+            rLog.Print("- Not supported");
           }
           rLog.PopIndent();
         }
@@ -250,7 +250,7 @@ namespace Fsl
 
     const auto platformIds = OpenCLHelper::GetPlatformIDs();
     LogPlatformInfo(log, platformIds);
-    FSLLOG("");
+    FSLLOG3_INFO("");
 
     LogDetailedInformation(log, platformIds);
   }

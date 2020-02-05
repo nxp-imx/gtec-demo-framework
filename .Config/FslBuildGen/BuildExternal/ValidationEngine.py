@@ -594,9 +594,10 @@ class ValidationEngine(object):
                 rErrorRecordList.append(ErrorRecord(ErrorClassification.Environment, "Path '{0}' tried to use a undefined install path. Is the recipe missing a Pipeline section, ExternalInstallDirectory or is the supplied path missing a environment variable to qualify it?".format(sourcePath)))
                 return False, None
             return True, IOUtil.Join(installationPath, sourcePath)
+        restPath = restPath if restPath is not None else ""
 
         value = os.environ.get(environmentVariableName)
-        if not value:
+        if value is None:
             rErrorRecordList.append(ErrorRecord(ErrorClassification.Environment, "Path '{0}' contained environment variable '{1}' which is not defined.".format(sourcePath, environmentVariableName)))
             return False, None
         path = IOUtil.Join(value, restPath)

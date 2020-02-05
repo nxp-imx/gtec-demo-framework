@@ -32,16 +32,18 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 
 namespace Fsl
 {
   // This can only be used for relative timer compares
-  class HighResolutionTimer : private Noncopyable
+  class HighResolutionTimer
   {
     double m_frequency{};
 
   public:
+    HighResolutionTimer(const HighResolutionTimer&) = delete;
+    HighResolutionTimer& operator=(const HighResolutionTimer&) = delete;
+
     HighResolutionTimer();
 
     // Returns the current time value in microseconds

@@ -36,7 +36,6 @@
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
 #include <FslBase/Attributes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <string>
 
 namespace Fsl

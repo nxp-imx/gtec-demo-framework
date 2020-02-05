@@ -31,12 +31,11 @@
 
 #include <FslDemoHost/Base/Service/Profiler/ProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/ProfilerServiceOptionParser.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
-#include <sstream>
 
 namespace Fsl
 {
@@ -53,6 +52,7 @@ namespace Fsl
   ProfilerService::ProfilerService(const ServiceProvider& serviceProvider, const std::shared_ptr<ProfilerServiceOptionParser>& optionParser)
     : ThreadLocalService(serviceProvider)
     , m_maxCapacity(optionParser->GetAverageEntries())
+    , m_entries(m_maxCapacity)
     , m_customCounters(MAX_CUSTOM_COUNTERS)
     , m_customCounterCount(0)
     , m_customConfigurationRevision(1)
@@ -210,16 +210,9 @@ namespace Fsl
     const int32_t cappedDrawTime = CapTime(drawTime);
     const int32_t cappedTotalTime = CapTime(totalTime);
 
-    m_entries.emplace_back(cappedUpdateTime, cappedDrawTime, cappedTotalTime);
-
-    m_combinedTime.UpdateTime += cappedUpdateTime;
-    m_combinedTime.DrawTime += cappedDrawTime;
-    m_combinedTime.TotalTime += cappedTotalTime;
-
-    if (m_entries.size() > m_maxCapacity)
+    if (m_entries.size() >= m_maxCapacity)
     {
       const ProfilerRecord frontEntry = m_entries.front();
-      m_entries.pop_front();
 
       m_combinedTime.UpdateTime -= frontEntry.UpdateTime;
       m_combinedTime.DrawTime -= frontEntry.DrawTime;
@@ -229,6 +222,12 @@ namespace Fsl
       assert(m_combinedTime.DrawTime >= 0);
       assert(m_combinedTime.TotalTime >= 0);
     }
+
+    m_entries.push_back(ProfilerRecord(cappedUpdateTime, cappedDrawTime, cappedTotalTime));
+
+    m_combinedTime.UpdateTime += cappedUpdateTime;
+    m_combinedTime.DrawTime += cappedDrawTime;
+    m_combinedTime.TotalTime += cappedTotalTime;
   }
 
 

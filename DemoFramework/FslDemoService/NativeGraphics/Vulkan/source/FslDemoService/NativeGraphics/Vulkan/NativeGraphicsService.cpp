@@ -31,7 +31,7 @@
 
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsSwapchainInfo.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -76,7 +76,7 @@ namespace Fsl
       {
         return;
       }
-      FSLLOG_WARNING_IF(m_state != State::Initialized, "A required shutdown method was not called.");
+      FSLLOG3_WARNING_IF(m_state != State::Initialized, "A required shutdown method was not called.");
       VulkanDeviceShutdown();
 
       assert(m_state == State::Initialized);
@@ -85,7 +85,7 @@ namespace Fsl
       m_state = State::Uninitialized;
       if (!m_quadBatches.empty())
       {
-        FSLLOG_ERROR("QuadBatch objects found during Vulkan shutdown sequence (NativeBatch usage error)");
+        FSLLOG3_ERROR("QuadBatch objects found during Vulkan shutdown sequence (NativeBatch usage error)");
         m_quadBatches.clear();
       }
     }
@@ -338,7 +338,7 @@ namespace Fsl
       auto swapchainInfo = m_swapchainInfo.lock();
       if (!swapchainInfo || m_resources.Device == VK_NULL_HANDLE)
       {
-        FSLLOG_WARNING("Not ready, capture failed");
+        FSLLOG3_WARNING("Not ready, capture failed");
         rBitmap.Reset();
         return;
       }

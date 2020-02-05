@@ -31,7 +31,7 @@
 
 // OpenVX 1.1 project
 #include "##PACKAGE_SHORT_NAME##.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <VX/vx.h>
 

@@ -109,7 +109,7 @@ namespace Fsl
   {
     if (m_locInstanceDistance == GLValues::INVALID_LOCATION)
     {
-      FSLLOG_WARNING("InstanceDistance not available, so request was ignored");
+      FSLLOG3_WARNING("InstanceDistance not available, so request was ignored");
       return;
     }
     assert(IsLoaded());

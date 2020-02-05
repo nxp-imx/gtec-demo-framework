@@ -39,8 +39,8 @@
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <GLES3/gl3.h>
+#include <array>
 #include <cmath>
-#include <iostream>
 #include <string>
 
 namespace Fsl
@@ -99,14 +99,14 @@ namespace Fsl
     const float v1 = (-1.0f) * scaleY;
     const float v2 = (1.0f) * scaleY;
 
-    VertexPositionTexture vertices[] = {
+    std::array<VertexPositionTexture, 4> vertices = {
       VertexPositionTexture(Vector3(-1.0f, 1.0f, 0.0f), Vector2(u1, v2)),
       VertexPositionTexture(Vector3(-1.0f, -1.0f, 0.0f), Vector2(u1, v1)),
       VertexPositionTexture(Vector3(1.0f, 1.0f, 0.0f), Vector2(u2, v2)),
       VertexPositionTexture(Vector3(1.0f, -1.0f, 0.0f), Vector2(u2, v1)),
     };
 
-    m_vertexBuffer.Reset(vertices, 4, GL_STATIC_DRAW);
+    m_vertexBuffer.Reset(vertices, GL_STATIC_DRAW);
     glViewport(0, 0, m_screenResolution.X, m_screenResolution.Y);
   }
 

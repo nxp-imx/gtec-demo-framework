@@ -31,31 +31,33 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Getopt/IOptionParser.hpp>
+#include <memory>
 
 namespace Fsl
 {
-  class AServiceOptionParser
-    : public IOptionParser
-    , private Noncopyable
+  class AServiceOptionParser : public IOptionParser
   {
   public:
+    AServiceOptionParser(const AServiceOptionParser&) = delete;
+    AServiceOptionParser& operator=(const AServiceOptionParser&) = delete;
+
     std::string GetName() const override
     {
       return std::string("ServiceOptionParser");
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult::Enum Parse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override;
     bool ParsingComplete() override;
 
   protected:
+    AServiceOptionParser() = default;
+
     //! @brief This is just a dummy implementation for you to override, there is no need to call it
     virtual void OnArgumentSetup(std::deque<Option>& rOptions);
     //! @brief This is just a dummy implementation for you to override, there is no need to call it
-    virtual OptionParseResult::Enum OnParse(const int32_t cmdId, const char* const pszOptArg);
+    virtual OptionParseResult OnParse(const int32_t cmdId, const char* const pszOptArg);
     //! @brief This is just a dummy implementation for you to override, there is no need to call it
     virtual bool OnParsingComplete();
   };

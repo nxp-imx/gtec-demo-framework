@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
 #include <FslUtil/EGL/EGLUtil.hpp>
 #include <EGL/egl.h>
@@ -71,13 +71,13 @@ namespace Fsl
       const bool hasExtension = EGLUtil::HasExtension(display, "EGL_KHR_gl_colorspace");
       if (!userTagEx || !hasExtension)
       {
-        FSLLOG_IF(!hasExtension, "EGL_KHR_gl_colorspace not detected");
-        FSLLOG_IF(!userTagEx, "Expected user tag missing");
+        FSLLOG3_INFO_IF(!hasExtension, "EGL_KHR_gl_colorspace not detected");
+        FSLLOG3_INFO_IF(!userTagEx, "Expected user tag missing");
         return nullptr;
       }
 
       userTagEx->SRGBFramebufferEnabled = true;
-      FSLLOG("EGL_KHR_gl_colorspace detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SRGB_KHR");
+      FSLLOG3_INFO("EGL_KHR_gl_colorspace detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SRGB_KHR");
       return g_eglCreateWindowAttribs;
     }
   }

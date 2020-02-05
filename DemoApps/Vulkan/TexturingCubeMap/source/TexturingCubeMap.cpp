@@ -11,7 +11,7 @@
 
 
 #include "TexturingCubeMap.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -25,6 +25,7 @@
 #include <array>
 #include <cstring>
 #include <iomanip>
+#include <sstream>
 
 using namespace RapidVulkan;
 

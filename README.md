@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.4.0
+# DemoFramework 5.5.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -186,9 +186,9 @@ android gradle+cmake build.
 Operating System | Build system
 --- | ---
 Android|gradle + cmake (Android Studio can be used with the generated projects)
-Ubuntu|make
-Windows|Visual studio 2015, 2017 (IDE or msbuild)
-Yocto|make
+Ubuntu|cmake (make)
+Windows|Visual studio 2019 (IDE or msbuild)
+Yocto|cmake (make)
 
 ## Scripts
 
@@ -809,6 +809,14 @@ into a Texture utility class which is then used to used to create a OpenGL ES cu
 
 ### [S09_VIV_direct_texture](DemoApps/GLES2/S09_VIV_direct_texture)
 This sample shows how to use the Verisilicon extensions to create a texture without having the need to copy the image data to GL.
+
+
+### [Stats](DemoApps/GLES2/Stats)
+<a href="DemoApps/GLES2/Stats/Example.jpg">
+<img src="DemoApps/GLES2/Stats/Example.jpg" height="108px">
+</a>
+
+Showcase the new stats services.
 
 
 ### [T3DStressTest](DemoApps/GLES2/T3DStressTest)
@@ -1604,6 +1612,19 @@ Input images are taken by fisheye camera, so they have some distortion.
 
 ## Vulkan
 
+### [Bloom](DemoApps/Vulkan/Bloom)
+<a href="DemoApps/Vulkan/Bloom/Example.jpg">
+<img src="DemoApps/Vulkan/Bloom/Example.jpg" height="108px">
+</a>
+
+A example of how to create a bloom effect. The idea is not to create the most accurate bloom,
+but something that is fairly fast to render.
+
+Instead of increasing the kernal size to get a good blur we do a fairly fast approximation by
+downscaling the original image to multiple smaller render-targets and then blurring these
+using a relative small kernel and then finally rescaling the result to the original size.
+
+
 ### [ComputeParticles](DemoApps/Vulkan/ComputeParticles)
 <a href="DemoApps/Vulkan/ComputeParticles/Example.jpg">
 <img src="DemoApps/Vulkan/ComputeParticles/Example.jpg" height="108px">
@@ -1698,6 +1719,45 @@ Based on a example called [Dynamic terrain tessellation](https://github.com/Sasc
 Recreated as a DemoFramework freestyle window sample in 2016.
 
 
+### [EffectOffscreen](DemoApps/Vulkan/EffectOffscreen)
+<a href="DemoApps/Vulkan/EffectOffscreen/Example.jpg">
+<img src="DemoApps/Vulkan/EffectOffscreen/Example.jpg" height="108px">
+</a>
+
+Shows how to render to a offscreen texture. The texture is then used to render the next pass where it applies a very simple 'water' like effect.
+
+
+### [EffectSubpass](DemoApps/Vulkan/EffectSubpass)
+<a href="DemoApps/Vulkan/EffectSubpass/Example.jpg">
+<img src="DemoApps/Vulkan/EffectSubpass/Example.jpg" height="108px">
+</a>
+
+Shows how to render to a subpass which is used as texture to render the next pass where it applies a very simple 'water' like effect.
+
+
+### [FractalShader](DemoApps/Vulkan/FractalShader)
+<a href="DemoApps/Vulkan/FractalShader/Example.jpg">
+<img src="DemoApps/Vulkan/FractalShader/Example.jpg" height="108px">
+</a>
+
+Can render both the julia and mandelbrot set.
+Was used to demonstrates GPU shader performance by using up to 515 instructions each fragment while generating the julia set.
+
+No texture and no overdraw, minimal bandwidth requirements.
+
+
+### [FurShellRendering](DemoApps/Vulkan/FurShellRendering)
+<a href="DemoApps/Vulkan/FurShellRendering/Example.jpg">
+<img src="DemoApps/Vulkan/FurShellRendering/Example.jpg" height="108px">
+</a>
+
+Illustrates how to render fur over several primitives.
+
+The fur is rendered on a layered approach using a seamless texture as a base and then creating a density bitmap.
+
+.
+
+
 ### [GammaCorrection](DemoApps/Vulkan/GammaCorrection)
 <a href="DemoApps/Vulkan/GammaCorrection/Example.jpg">
 <img src="DemoApps/Vulkan/GammaCorrection/Example.jpg" height="108px">
@@ -1755,6 +1815,17 @@ Render a HDR skybox and apply various tonemapping algorithms to it.
 This sample outputs to a LDR screen.
 
 
+### [HDR04_HDRFramebuffer](DemoApps/Vulkan/HDR04_HDRFramebuffer)
+<a href="DemoApps/Vulkan/HDR04_HDRFramebuffer/Example.jpg">
+<img src="DemoApps/Vulkan/HDR04_HDRFramebuffer/Example.jpg" height="108px">
+</a>
+
+Demonstrates how to enable HDRFramebuffer mode if available.
+The render a test scene using a pattern that makes it easy to detect if the display actually enabled HDR mode.
+
+This sample outputs to a HDR screen if supported.
+
+
 ### [InputEvents](DemoApps/Vulkan/InputEvents)
 <a href="DemoApps/Vulkan/InputEvents/Example.jpg">
 <img src="DemoApps/Vulkan/InputEvents/Example.jpg" height="108px">
@@ -1786,6 +1857,35 @@ The instance data also contains a texture layer index for having different textu
 
 Based on a example called [Mesh instancing](https://github.com/SaschaWillems/Vulkan) by Sascha Willems.
 Recreated as a DemoFramework freestyle window sample in 2016.
+
+
+### [ModelLoaderBasics](DemoApps/Vulkan/ModelLoaderBasics)
+<a href="DemoApps/Vulkan/ModelLoaderBasics/Example.jpg">
+<img src="DemoApps/Vulkan/ModelLoaderBasics/Example.jpg" height="108px">
+</a>
+
+
+### [ModelViewer](DemoApps/Vulkan/ModelViewer)
+<a href="DemoApps/Vulkan/ModelViewer/Example.jpg">
+<img src="DemoApps/Vulkan/ModelViewer/Example.jpg" height="108px">
+</a>
+
+Expands the ModelLoaderBasics example with:
+
+- A arcball camera
+- Multiple different scenes (Knight, Dragon, Car, etc)
+- More advanced shaders for directional per pixel specular light with support for gloss and normal maps.
+
+
+### [MultipleViewportsFractalShader](DemoApps/Vulkan/MultipleViewportsFractalShader)
+<a href="DemoApps/Vulkan/MultipleViewportsFractalShader/Example.jpg">
+<img src="DemoApps/Vulkan/MultipleViewportsFractalShader/Example.jpg" height="108px">
+</a>
+
+Demonstrates how to utilize multiple viewports.
+It reuses the fractal shaders from the FractalShader demo to render the julia and mandelbrot sets.
+
+No texture and no overdraw, minimal bandwidth requirements.
 
 
 ### [NativeWindowTest](DemoApps/Vulkan/NativeWindowTest)
@@ -1902,6 +2002,18 @@ Render a simple skybox using a cubemap.
 
 Enables a SRGB Framebuffer if its available.
 If unavailable it does normal gamma correction in the shader.
+
+
+### [T3DStressTest](DemoApps/Vulkan/T3DStressTest)
+<a href="DemoApps/Vulkan/T3DStressTest/Example.jpg">
+<img src="DemoApps/Vulkan/T3DStressTest/Example.jpg" height="108px">
+</a>
+
+Executes a highly configurable stress test for the Vulkan API.
+
+It will procedurally generate a mesh and fur texture that is then rendered to cover the entire screen.
+
+This will often showcase the worst case power consumption of the GPU.
 
 
 ### [TessellationPNTriangles](DemoApps/Vulkan/TessellationPNTriangles)

@@ -40,7 +40,7 @@ namespace Fsl
   public:
     WindowDemoHostOptionParser();
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult::Enum Parse(const int cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int cmdId, const char* const pszOptArg) override;
     bool ParsingComplete() override;
   };
 }

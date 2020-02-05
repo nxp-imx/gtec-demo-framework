@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <string>
 
@@ -181,24 +182,11 @@ namespace Fsl
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
     //! @param font the font to use for rendering the string
-    //! @param pStr a string that should be rendered
-    //! @param startIndex of the first character to render from pStr
-    //! @param length the number of characters to render from startIndex
+    //! @param strView the string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                            const int32_t length, const Vector2& dstPosition, const Color& color) = 0;
-
-    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
-    //! @param srcTexture the texture atlas that contains the font.
-    //! @param font the font to use for rendering the string
-    //! @param str a string that should be rendered
-    //! @param startIndex of the first character to render from str
-    //! @param length the number of characters to render from startIndex
-    //! @param the dstPosition to render the string at (top left corner)
-    //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                            const int32_t length, const Vector2& dstPosition, const Color& color) = 0;
+    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
+                            const Vector2& dstPosition, const Color& color) = 0;
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -221,25 +209,11 @@ namespace Fsl
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
     //! @param font the font to use for rendering the string
-    //! @param pStr a string that should be rendered
-    //! @param startIndex of the first character to render from pStr
-    //! @param length the number of characters to render from startIndex
+    //! @param strView the string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                            const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale) = 0;
-
-    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
-    //! @param srcTexture the texture atlas that contains the font.
-    //! @param font the font to use for rendering the string
-    //! @param str a string that should be rendered
-    //! @param startIndex of the first character to render from str
-    //! @param length the number of characters to render from startIndex
-    //! @param the dstPosition to render the string at (top left corner)
-    //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                            const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale) = 0;
-
+    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
+                            const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale) = 0;
 
     //! @brief Draw a rectangle at the given location using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for

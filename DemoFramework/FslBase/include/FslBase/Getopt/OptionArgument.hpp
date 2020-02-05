@@ -36,20 +36,17 @@
 
 namespace Fsl
 {
-  struct OptionArgument
+  // Please beware that the enum values matches the values that getopt option.has_flag expects
+  enum class OptionArgument
   {
-    // Please beware that the enum values matches the values that getopt option.has_flag expects
-    enum Enum
-    {
-      //! The option does not take a argument
-      // If you get an error at None it might be because you have accidentally been contaminated with x11 header files
-      // which define None. One known source is some EGL implementations that pull in the x11 headers.
-      OptionNone = 0,
-      //! The option requires a argument
-      OptionRequired = 1,
-      //! The option takes a optional argument
-      // OptionOptional = 2
-    };
+    //! The option does not take a argument
+    // If you get an error at None it might be because you have accidentally been contaminated with x11 header files
+    // which define None. One known source is some EGL implementations that pull in the x11 headers.
+    OptionNone = 0,
+    //! The option requires a argument
+    OptionRequired = 1,
+    //! The option takes a optional argument
+    // OptionOptional = 2
   };
 }
 

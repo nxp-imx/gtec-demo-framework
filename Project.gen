@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGenProjectRoot Version="1">
-  <Project Name="DemoFramework" Version="5.4.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
+  <Project Name="DemoFramework" Version="5.5.0" DefaultTemplate="DF" DefaultPackageLanguage="C++" DefaultCompany="NXP" RequirePackageCreationYear="true" ToolConfigFile=".Config/FslBuildGen.xml">
     <!-- Add a base package that all other packages dependent on -->
     <AddBasePackage Name="Platform"/>
     <AddRootDirectory Name="$(FSL_GRAPHICS_SDK)"/>
@@ -86,7 +86,7 @@
         <Defines All="FSL_PLATFORM_YOCTO;PIC;LINUX" Debug="DEBUG;_DEBUG" Release="NDEBUG"/>
       </Platform>
     </ClangTidyConfiguration>
-    <CompilerConfiguration Name="VisualStudio" Platform="Windows" DefaultVersion="2017"/>
+    <CompilerConfiguration Name="VisualStudio" Platform="Windows" DefaultVersion="2019"/>
     <Experimental AllowDownloads="true" DisableDownloadEnv="FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DISABLE_DOWNLOAD">
       <!-- Define the name of the default third party installation directory. -->
       <!-- This will be the directory where we install/build any thirdparty source that is needed -->

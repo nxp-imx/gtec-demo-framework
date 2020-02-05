@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/LineBuilder101/LineBuilderExample.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/BoundingFrustum.hpp>

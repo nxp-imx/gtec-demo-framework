@@ -93,6 +93,37 @@ namespace Fsl
         return m_image.GetDevice();
       }
 
+      //! @return the format or VK_FORMAT_UNDEFINED if the object is invalid
+      VkFormat GetFormat() const
+      {
+        return m_image.GetFormat();
+      }
+
+      //! @return the image (or VK_NULL_HANDLE if the object is invalid)
+      VkImage GetImage() const
+      {
+        return m_image.Get();
+      }
+
+      //! @return the imageview (or VK_NULL_HANDLE if the object is invalid)
+      VkImageView GetImageView() const
+      {
+        return m_imageView.Get();
+      }
+
+      //! @brief
+      //! @return the extent (or VkExtent3D{} if the object is invalid)
+      VkExtent3D GetExtent() const
+      {
+        return m_image.GetExtent();
+      }
+
+      //! @return the extent (or VkExtent2D{} if the object is invalid)
+      VkExtent2D GetExtent2D() const
+      {
+        return IsValid() ? VkExtent2D{m_image.GetExtent().width, m_image.GetExtent().height} : VkExtent2D{};
+      }
+
       //! @brief Get the Image associated with this object
       const VUImage& Image() const
       {
@@ -122,6 +153,14 @@ namespace Fsl
       void SetImageLayout(const VkImageLayout newLayout)
       {
         m_image.SetImageLayout(newLayout);
+      }
+
+      VkDescriptorImageInfo GetDescriptorImageInfo() const
+      {
+        VkDescriptorImageInfo descriptorImageInfo{};
+        descriptorImageInfo.imageView = m_imageView.Get();
+        descriptorImageInfo.imageLayout = m_image.GetImageLayout();
+        return descriptorImageInfo;
       }
 
     private:

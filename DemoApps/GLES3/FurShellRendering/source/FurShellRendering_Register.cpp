@@ -30,14 +30,24 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
+#include <Shared/FurShellRendering/OptionParser.hpp>
 #include <EGL/egl.h>
 #include "FurShellRendering.hpp"
-#include "OptionParser.hpp"
+#include "RenderMode.hpp"
 
 namespace Fsl
 {
   namespace
   {
+    class CustomOptionParser : public OptionParser
+    {
+    public:
+      CustomOptionParser()
+        : OptionParser(static_cast<int32_t>(RenderMode::Instanced2))
+      {
+      }
+    };
+
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
     const EGLint g_eglConfigAttribs[] = {EGL_SAMPLES,      0,
                                          EGL_RED_SIZE,     8,
@@ -54,6 +64,6 @@ namespace Fsl
   {
     DemoAppHostConfigEGL config(g_eglConfigAttribs);
 
-    DemoAppRegister::GLES3::Register<FurShellRendering, OptionParser>(rSetup, "GLES3.FurShellRendering", config);
+    DemoAppRegister::GLES3::Register<FurShellRendering, CustomOptionParser>(rSetup, "GLES3.FurShellRendering", config);
   }
 }

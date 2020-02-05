@@ -13,7 +13,7 @@
 
 #include "VulkanGear.hpp"
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cmath>
 #include <cstring>

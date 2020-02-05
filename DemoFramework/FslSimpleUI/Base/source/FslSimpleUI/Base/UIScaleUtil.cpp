@@ -32,7 +32,7 @@
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -242,7 +242,7 @@ namespace Fsl
       case ItemScalePolicy::DownscaleKeepAR:
         return CalcSizeKeepAspectRatioDownScaling(clampedTarget, srcSize);
       default:
-        FSLLOG_WARNING("Unsupported scaling policy, using src size");
+        FSLLOG3_WARNING("Unsupported scaling policy, using src size");
         return srcSize;
       }
     }

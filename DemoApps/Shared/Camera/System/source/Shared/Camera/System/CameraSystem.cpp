@@ -32,8 +32,8 @@
 #include <Shared/Camera/System/CameraSystem.hpp>
 #include <Shared/Camera/Adapter/Interface/ICameraSystemAdapter.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/LogExtent2D.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtExtent2D.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <algorithm>
 #include <cassert>
@@ -81,7 +81,7 @@ namespace Fsl
 
         if (allocateInfo.Flags.IsEnabled(CameraAdapterAllocateFlags::CustomExtent) && nativeConfig.Extent != allocateInfo.Extent)
         {
-          FSLLOG_WARNING("CameraAdapter extent different than requested: " << nativeConfig.Extent << " vs " << allocateInfo.Extent);
+          FSLLOG3_WARNING("CameraAdapter extent different than requested: {} vs {}", nativeConfig.Extent, allocateInfo.Extent);
         }
 
         CameraConfig finalCameraConfig(cameraType, nativeConfig.Extent, nativeConfig.ActivePixelFormat, nativeConfig.Stride);

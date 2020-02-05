@@ -31,7 +31,7 @@
 
 #include "##PACKAGE_SHORT_NAME##.hpp"
 #include <FslGraphics/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <g2d.h>
 
 namespace Fsl

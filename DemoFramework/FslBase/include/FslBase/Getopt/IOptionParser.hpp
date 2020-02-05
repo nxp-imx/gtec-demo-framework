@@ -53,7 +53,7 @@ namespace Fsl
     virtual void ArgumentSetup(std::deque<Option>& rOptions) = 0;
 
     //! @brief Parse a input option.
-    virtual OptionParseResult::Enum Parse(const int32_t cmdId, const char* const pszOptArg) = 0;
+    virtual OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) = 0;
 
     //! @brief Parse a input option.
     //! @return true to continue, false to exit

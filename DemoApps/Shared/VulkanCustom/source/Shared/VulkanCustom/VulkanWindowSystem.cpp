@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/VulkanCustom/VulkanWindowSystem.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
@@ -56,7 +56,7 @@ namespace Fsl
     : DemoHostCustomWindowSystem(VulkanNativeWindowSystemFactory::AllocateNative(setup.WindowSystemSetup))
     , m_instanceCreateInfo(std::make_shared<Vulkan::InstanceCreateInfoCopy>())
   {
-    FSLLOG("VulkanWindowSystem creating");
+    FSLLOG3_INFO("VulkanWindowSystem creating");
     Options optionsService(setup.Provider.Get<IOptions>());
     auto appOptionParser = optionsService.GetOptionParser<OptionParser>();
     const auto physicialDeviceIndex = appOptionParser->GetPhysicalDeviceIndex();
@@ -79,13 +79,13 @@ namespace Fsl
     }
     m_physicalDevice = VUPhysicalDeviceRecord(InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicialDeviceIndex));
 
-    FSLLOG("VulkanWindowSystem created");
+    FSLLOG3_INFO("VulkanWindowSystem created");
   }
 
 
   VulkanWindowSystem::~VulkanWindowSystem()
   {
-    FSLLOG("VulkanWindowSystem destroying");
+    FSLLOG3_INFO("VulkanWindowSystem destroying");
   }
 
 

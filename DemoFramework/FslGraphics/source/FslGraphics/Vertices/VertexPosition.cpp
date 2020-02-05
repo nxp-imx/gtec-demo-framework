@@ -31,15 +31,14 @@
 
 #include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
 {
   VertexDeclaration VertexPosition::GetVertexDeclaration()
   {
-    static VertexElementEx g_elements[] = {
-      VertexElementEx(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
-    };
-    return VertexDeclaration(g_elements, sizeof(g_elements) / sizeof(VertexElementEx), sizeof(VertexPosition));
+    constexpr static auto decl = GetVertexDeclarationArray();
+    return VertexDeclaration(decl.Data(), decl.Count(), decl.VertexStride());
   }
 }

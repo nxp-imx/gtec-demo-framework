@@ -90,11 +90,11 @@ namespace Fsl
     //! @param value4 The fourth position in the interpolation.
     //! @param amount Weighting factor.
     //! @return A position that is the result of the Catmull-Rom interpolation.
-    inline float CatmullRom(const float value1, const float value2, const float value3, const float value4, const float amount)
+    inline float CatmullRom(const double value1, const double value2, const double value3, const double value4, const double amount)
     {
       // Using formula from http://www.mvps.org/directx/articles/catmull/
       // Internally using doubles not to lose precision
-      const double amountSquared = static_cast<double>(amount) * amount;
+      const double amountSquared = amount * amount;
       const double amountCubed = amountSquared * amount;
       return static_cast<float>(0.5 *
                                 (2.0 * value2 + (value3 - value1) * amount + (2.0 * value1 - 5.0 * value2 + 4.0 * value3 - value4) * amountSquared +
@@ -253,6 +253,14 @@ namespace Fsl
     //! @brief Find the nearest power of two value that is greater or equal the input value (>=)
     //! @param value must be >= 0;
     int ToPowerOfTwo(const int value);
+
+
+    //! @brief Ensure the value is wrapped to fit between min and max.
+    //! @param value
+    //! @param value = min value (included)
+    //! @param value = max value (excluded)
+    //! @return The value that fits between min and max.
+    float Wrap(const float value, const float min, const float max);
 
 
     //! @brief Reduces a given angle to a value between PI and -PI.

@@ -35,7 +35,7 @@
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -58,7 +58,12 @@ namespace Fsl
     }
 
 
-    WindowEventPool::WindowEventPool() = default;
+    WindowEventPool::WindowEventPool()
+    {
+      GrowPool(m_poolWindowInputClickEvent, NUM_ENTRIES_TO_GROW);
+      GrowPool(m_poolWindowSelectEvent, NUM_ENTRIES_TO_GROW);
+      GrowPool(m_poolWindowContentChangedEvent, NUM_ENTRIES_TO_GROW);
+    }
 
 
     WindowEventPool::~WindowEventPool() = default;
@@ -138,7 +143,7 @@ namespace Fsl
         Release(std::dynamic_pointer_cast<WindowContentChangedEvent>(event));
         break;
       default:
-        FSLLOG_ERROR("Unknown event type");
+        FSLLOG3_ERROR("Unknown event type");
         break;
       }
     }
@@ -156,7 +161,7 @@ namespace Fsl
         m_poolWindowInputClickEvent.push_back(event);
       }
       else
-        FSLLOG_WARNING("Pool capacity reached for WindowInputClickEvent");
+        FSLLOG3_WARNING("Pool capacity reached for WindowInputClickEvent");
     }
 
 
@@ -172,7 +177,7 @@ namespace Fsl
         m_poolWindowSelectEvent.push_back(event);
       }
       else
-        FSLLOG_WARNING("Pool capacity reached for WindowSelectEvent");
+        FSLLOG3_WARNING("Pool capacity reached for WindowSelectEvent");
     }
 
 
@@ -189,7 +194,9 @@ namespace Fsl
         m_poolWindowContentChangedEvent.push_back(event);
       }
       else
-        FSLLOG_WARNING("Pool capacity reached for WindowContentChangedEvent");
+      {
+        FSLLOG3_WARNING("Pool capacity reached for WindowContentChangedEvent");
+      }
     }
   }
 }

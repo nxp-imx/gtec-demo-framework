@@ -34,7 +34,7 @@
 #include <opencv2/opencv.hpp>
 // Normal includes that dont conflict
 #include "OpenCV101.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>

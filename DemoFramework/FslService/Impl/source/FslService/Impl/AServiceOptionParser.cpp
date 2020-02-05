@@ -39,7 +39,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum AServiceOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult AServiceOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
   {
     return OnParse(cmdId, pszOptArg);
   }
@@ -58,7 +58,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum AServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult AServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     FSL_PARAM_NOT_USED(cmdId);
     FSL_PARAM_NOT_USED(pszOptArg);

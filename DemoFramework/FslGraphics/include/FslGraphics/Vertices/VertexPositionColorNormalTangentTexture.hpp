@@ -49,10 +49,10 @@ namespace Fsl
     Vector3 Tangent;
     Vector2 TextureCoordinate;
 
-    VertexPositionColorNormalTangentTexture() = default;
+    constexpr VertexPositionColorNormalTangentTexture() = default;
 
-    VertexPositionColorNormalTangentTexture(const Vector3& position, const Vector4& color, const Vector3& normal, const Vector3& tangent,
-                                            const Vector2& textureCoordinate)
+    constexpr VertexPositionColorNormalTangentTexture(const Vector3& position, const Vector4& color, const Vector3& normal, const Vector3& tangent,
+                                                      const Vector2& textureCoordinate)
       : Position(position)
       , Color(color)
       , Normal(normal)

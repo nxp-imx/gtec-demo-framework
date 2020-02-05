@@ -33,7 +33,6 @@
 #include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/PathDeque.hpp>
-#include <FslBase/Log/Log.hpp>
 #include <FslBase/System/Platform/PlatformWin32.hpp>
 #include <utility>
 #include <windows.h>

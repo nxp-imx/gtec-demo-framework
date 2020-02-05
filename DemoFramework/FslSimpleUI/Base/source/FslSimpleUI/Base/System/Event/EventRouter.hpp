@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslSimpleUI/Base/Event/EventRoutingStrategy.hpp>
 #include <memory>
 
@@ -46,12 +45,15 @@ namespace Fsl
     class TreeNode;
     struct WindowFlags;
 
-    class EventRouter : private Noncopyable
+    class EventRouter
     {
       std::shared_ptr<TreeNode> m_rootNode;
       std::shared_ptr<ITreeNodeClickInputTargetLocator> m_clickTargetLocator;
 
     public:
+      EventRouter(const EventRouter&) = delete;
+      EventRouter& operator=(const EventRouter&) = delete;
+
       EventRouter(const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocator>& clickTargetLocator);
       ~EventRouter();
 

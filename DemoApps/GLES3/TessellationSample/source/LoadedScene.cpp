@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Point2.hpp>
@@ -140,22 +140,22 @@ LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<Opti
   rootDir = IO::Path::Combine("Models", rootDir);
 
 
-  FSLLOG("Loading scene...");
+  FSLLOG3_INFO("Loading scene...");
   std::shared_ptr<TestScene> scene = LoadScene(contentManager, rootDir);
 
   {    // Create the main texture (we use a scope here so we throw away the bitmap as soon as we don't need it)
     Bitmap bitmap;
     GLTextureParameters texParams(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
 
-    FSLLOG("Loading color texture...");
+    FSLLOG3_INFO("Loading color texture...");
     contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexColor.png"), PixelFormat::R8G8B8_UNORM);
     m_textureDiffuse.SetData(bitmap, texParams);
 
-    FSLLOG("Loading normal texture...");
+    FSLLOG3_INFO("Loading normal texture...");
     contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexNormal.png"), PixelFormat::R8G8B8_UNORM);
     m_textureNormals.SetData(bitmap, texParams);
 
-    FSLLOG("Loading displace texture...");
+    FSLLOG3_INFO("Loading displace texture...");
     contentManager->Read(bitmap, IO::Path::Combine(rootDir, "TexDisplace.png"), PixelFormat::R8G8B8_UNORM);
     m_textureDisplacement.SetData(bitmap, texParams);
 
@@ -167,7 +167,7 @@ LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<Opti
     m_textureDiffuseWhite.SetData(bitmap, texParams);
   }
 
-  FSLLOG("Preparing meshes...");
+  FSLLOG3_INFO("Preparing meshes...");
 
   // Save the scene in bsf format
   // SceneFormat::BasicSceneFormat sceneFormat;
@@ -187,9 +187,9 @@ LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<Opti
 
     vertexCount += mesh->GetVertexCount();
     indexCount += mesh->GetIndexCount();
-    FSLLOG("Mesh #" << i << " vertex count: " << mesh->GetVertexCount() << ", Total index count : " << mesh->GetIndexCount());
+    FSLLOG3_INFO("Mesh #{} vertex count: {}, Total index count: {}", i, mesh->GetVertexCount(), mesh->GetIndexCount());
   }
-  FSLLOG("Total vertex count: " << vertexCount << ", Total index count : " << indexCount);
+  FSLLOG3_INFO("Total vertex count: {}, Total index count: {}", vertexCount, indexCount);
 
   GL_CHECK_FOR_ERROR();
 }

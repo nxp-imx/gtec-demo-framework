@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
@@ -170,8 +170,8 @@ namespace Fsl
 
     void VulkanBuffer::Unmap()
     {
-      FSLLOG_DEBUG_WARNING_IF(!IsValid(), "Unmap called on a invalid object, request ignored.");
-      FSLLOG_DEBUG_WARNING_IF(m_pMapped == nullptr, "Unmap called on a unmapped object, request ignored.");
+      FSLLOG3_DEBUG_WARNING_IF(!IsValid(), "Unmap called on a invalid object, request ignored.");
+      FSLLOG3_DEBUG_WARNING_IF(m_pMapped == nullptr, "Unmap called on a unmapped object, request ignored.");
       if (m_pMapped != nullptr)
       {
         vkUnmapMemory(m_buffer.GetDevice(), m_deviceMemory.Get());

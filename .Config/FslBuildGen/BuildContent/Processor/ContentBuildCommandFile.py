@@ -92,6 +92,8 @@ class ContentBuildCommandFile(object):
                 if key == "Content.Sync":
                     newCommand = self.__ParseContentSync(log, jsonContent[key], sourceFilename, key, pathVariables)  # type: Command
                     commands.append(newCommand)
+                elif key == "Content.SyncList":
+                    commands += self.__ParseContentSyncList(log, jsonContent[key], sourceFilename, key, pathVariables) 
                 elif key == "ContentBuild.Sync":
                     newCommand = self.__ParseContentBuildSync(log, jsonContent[key], sourceFilename, key, pathVariables)
                     commands.append(newCommand)
@@ -100,6 +102,13 @@ class ContentBuildCommandFile(object):
 
         return commands
 
+
+    def __ParseContentSyncList(self, log: Log, jsonContent: Any, sourceFilename: str, parentElementName: str, pathVariables: PathVariables) -> List[CommandContentSync]:
+        commands = [] # type: List[CommandContentSync]
+        for jsonSyncEntry in jsonContent:
+            newCommand = self.__ParseContentSync(log, jsonSyncEntry, sourceFilename, parentElementName, pathVariables)
+            commands.append(newCommand)
+        return commands
 
     def __ParseContentSync(self, log: Log, jsonContent: Any, sourceFilename: str, parentElementName: str, pathVariables: PathVariables) -> CommandContentSync:
         files = self.__ParseSync(log, jsonContent, sourceFilename, parentElementName, pathVariables.Content, pathVariables)

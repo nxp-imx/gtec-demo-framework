@@ -31,11 +31,12 @@
 
 #include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
 #include <RapidVulkan/Check.hpp>
+#include <sstream>
 
 namespace Fsl
 {
@@ -69,7 +70,7 @@ namespace Fsl
         // https://www.khronos.org/registry/vulkan/specs/1.0-extensions/html/vkspec.html#vkGetPhysicalDeviceSurfaceCapabilitiesKHR
         if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF && surfaceCapabilities.currentExtent.height == 0xFFFFFFFF)
         {
-          FSLLOG2(LogType::Verbose4, "Skipping vulkan native window and surface extent comparison due to the surface not being defined.")
+          FSLLOG3_VERBOSE4("Skipping vulkan native window and surface extent comparison due to the surface not being defined.")
         }
         else if (ConvertUtil::Convert(surfaceCapabilities.currentExtent) != windowExtent)
         {

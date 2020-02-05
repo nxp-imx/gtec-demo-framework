@@ -31,7 +31,7 @@
 
 #include <FslGraphics/PrimitiveTypeUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -52,7 +52,7 @@ namespace Fsl
     case PrimitiveType::TriangleStrip:
       return std::max(indexCount - 2, 0);
     default:
-      FSLBASICLOG_DEBUG_WARNING("Unsupported primitive type");
+      FSLLOG3_DEBUG_WARNING("Unsupported primitive type");
       return 0;
     }
   }

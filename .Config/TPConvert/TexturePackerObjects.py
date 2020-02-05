@@ -21,78 +21,96 @@
 #* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #****************************************************************************************************************************************************
 
-from TPConvert import IOUtil
+from typing import Any
+from typing import Dict
+from typing import List
 import os
-
-def ExtractEntries(frames):
-    list = []
-    for entry in frames:
-        list.append(TexturePackerFrame(entry))
-    return list
-
+from TPConvert import IOUtil
 
 class TexturePackerHeader(object):
-    def __init__(self, dict):
-        super(TexturePackerHeader, self).__init__()
+    def __init__(self, jsonDict: Dict[str,Any]) -> None:
+        super().__init__()
 
-        if not "app" in dict or not (dict["app"] == "http://www.codeandweb.com/texturepacker" or dict["app"] == "https://www.codeandweb.com/texturepacker"):
+        if not "app" in jsonDict or not (jsonDict["app"] == "http://www.codeandweb.com/texturepacker" or jsonDict["app"] == "https://www.codeandweb.com/texturepacker"):
             raise Exception("Unknown json format")
-        if not "version" in dict or dict["version"] != "1.0":
+        if not "version" in jsonDict or jsonDict["version"] != "1.0":
             raise Exception("Unknown json format")
-        self.Image = dict["image"]
-        self.Format = dict["format"]
-        self.Size = TexturePackerSize(dict["size"])
-        self.Scale = dict["scale"]
+        self.Image = jsonDict["image"]
+        self.Format = jsonDict["format"]
+        self.Size = TexturePackerSize(jsonDict["size"])
+        self.Scale = jsonDict["scale"]
 
 
 class TexturePackerSize(object):
-    def __init__(self, dict):
-        super(TexturePackerSize, self).__init__()
-        self.Width = dict["w"]
-        self.Height = dict["h"]
+    def __init__(self, jsonDict: Dict[str,Any]) -> None:
+        super().__init__()
+        self.Width = jsonDict["w"]
+        self.Height = jsonDict["h"]
 
 
 class TexturePackerVector2(object):
-    def __init__(self, dict):
-        super(TexturePackerVector2, self).__init__()
-        self.X = dict["x"]
-        self.Y = dict["y"]
+    def __init__(self, jsonDict: Dict[str,Any]) -> None:
+        super().__init__()
+        self.X = jsonDict["x"]
+        self.Y = jsonDict["y"]
 
 
 class TexturePackerRectangle(object):
-    def __init__(self, dict):
-        super(TexturePackerRectangle, self).__init__()
-        self.X = dict["x"]
-        self.Y = dict["y"]
-        self.Width = dict["w"]
-        self.Height = dict["h"]
+    def __init__(self, jsonDict: Dict[str,Any]) -> None:
+        super().__init__()
+        self.X = jsonDict["x"]
+        self.Y = jsonDict["y"]
+        self.Width = jsonDict["w"]
+        self.Height = jsonDict["h"]
 
 
 class TexturePackerFrame(object):
-    def __init__(self, dict):
-        super(TexturePackerFrame, self).__init__()
-        self.Filename = dict["filename"]
-        self.Frame = TexturePackerRectangle(dict["frame"])
-        self.Rotated = dict["rotated"]
-        self.Trimmed = dict["trimmed"]
-        self.SpriteSourceSize = TexturePackerRectangle(dict["spriteSourceSize"])
-        self.SourceSize = TexturePackerSize(dict["sourceSize"])
-#        self.Pivot = TexturePackerVector2(dict["pivot"])
+    def __init__(self, jsonDict: Dict[str,Any], defaultDP: int) -> None:
+        super().__init__()
+        self.Filename = jsonDict["filename"]
+        self.Frame = TexturePackerRectangle(jsonDict["frame"])
+        self.Rotated = jsonDict["rotated"]
+        self.Trimmed = jsonDict["trimmed"]
+        self.SpriteSourceSize = TexturePackerRectangle(jsonDict["spriteSourceSize"])
+        self.SourceSize = TexturePackerSize(jsonDict["sourceSize"])
+#        self.Pivot = TexturePackerVector2(jsonDict["pivot"])
 
         self.FilenameWithoutExt = IOUtil.GetFileNameWithoutExtension(self.Filename)
         self.Path = IOUtil.ToUnixStylePath(os.path.dirname(self.Filename))
         self.FullFilenameWithoutExt = IOUtil.Join(self.Path, self.FilenameWithoutExt)
 
+        self.DP = self.__ParseDPI_Tag(self.FilenameWithoutExt, defaultDP)
+
+    def __ParseDPI_Tag(self, strFilename: str, defaultValue: int) -> int:
+        strTag = "dp"
+        if self.FilenameWithoutExt.endswith(strTag):
+            index = self.FilenameWithoutExt.rfind('_')
+            if index >= 0:
+                strValue = self.FilenameWithoutExt[index+1:-len(strTag)]
+                return self.__ParseInt(strValue, defaultValue)
+        return defaultValue
+
+    def __ParseInt(self, strVal: str, defaultValue: int) -> int:
+        try:
+            return int(strVal)
+        except ValueError:
+            return defaultValue
+
+def ExtractEntries(frames: List[Dict[str,Any]], defaultDPI: int) -> List[TexturePackerFrame]:
+    entries = []
+    for entry in frames:
+        entries.append(TexturePackerFrame(entry, defaultDPI))
+    return entries
 
 class TexturePackerAtlas(object):
-    def __init__(self, dict):
-        super(TexturePackerAtlas, self).__init__()
+    def __init__(self, jsonDict: Dict[str,Any], defaultDPI: int) -> None:
+        super().__init__()
 
-        if not "frames" in dict or not "meta" in dict:
+        if not "frames" in jsonDict or not "meta" in jsonDict:
             raise Exception("Unknown json format")
 
-        self.Header = TexturePackerHeader(dict["meta"]);
-        self.Entries = ExtractEntries(dict["frames"]);
+        self.Header = TexturePackerHeader(jsonDict["meta"]);
+        self.Entries = ExtractEntries(jsonDict["frames"], defaultDPI) # type: List[TexturePackerFrame]
         self.Name = IOUtil.GetFileNameWithoutExtension(self.Header.Image)
 
 

@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include "VulkanInfo.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/Log/FmtAll.hpp>
 #include <FslUtil/Vulkan1_0/Util/InstanceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
@@ -42,9 +42,48 @@
 #include <RapidVulkan/Debug/Strings/VkMemoryPropertyFlagBits.hpp>
 #include <RapidVulkan/Debug/Strings/VkPhysicalDeviceType.hpp>
 #include <RapidVulkan/Debug/Strings/VkQueueFlagBits.hpp>
-#include <ios>
+#include <fmt/format.h>
 // Included last as a workaround
 #include <FslUtil/Vulkan1_0/Debug/BitFlags.hpp>
+
+namespace fmt
+{
+  template <>
+  struct formatter<VkMemoryType>
+  {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+      return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const VkMemoryType& value, FormatContext& ctx)
+    {
+      return format_to(ctx.out(), "{{propertyFlags: {}, heapIndex: {}}}",
+                       Fsl::Vulkan::Debug::GetBitflagsString(static_cast<VkMemoryPropertyFlagBits>(value.propertyFlags)), value.heapIndex);
+    }
+  };
+
+
+  template <>
+  struct formatter<VkMemoryHeap>
+  {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+      return ctx.begin();
+    }
+
+    template <typename FormatContext>
+    auto format(const VkMemoryHeap& value, FormatContext& ctx)
+    {
+      return format_to(ctx.out(), "{{size: {}, flags: {}}}", value.size,
+                       Fsl::Vulkan::Debug::GetBitflagsString(static_cast<VkMemoryHeapFlagBits>(value.flags)));
+    }
+  };
+}
+
 
 namespace Fsl
 {
@@ -239,320 +278,337 @@ namespace Fsl
       VK_FORMAT_ASTC_12x12_SRGB_BLOCK,         // = 184,
     };
 
-
-    void LogPhysicalDeviceLimits(const VkPhysicalDeviceLimits& limits)
+    class CustomWriter
     {
-      FSLLOG("- limits.maxImageDimension1D: " << limits.maxImageDimension1D);
-      FSLLOG("- limits.maxImageDimension2D: " << limits.maxImageDimension2D);
-      FSLLOG("- limits.maxImageDimension3D: " << limits.maxImageDimension3D);
-      FSLLOG("- limits.maxImageDimensionCube: " << limits.maxImageDimensionCube);
-      FSLLOG("- limits.maxImageArrayLayers: " << limits.maxImageArrayLayers);
-      FSLLOG("- limits.maxTexelBufferElements: " << limits.maxTexelBufferElements);
-      FSLLOG("- limits.maxUniformBufferRange: " << limits.maxUniformBufferRange);
-      FSLLOG("- limits.maxStorageBufferRange: " << limits.maxStorageBufferRange);
-      FSLLOG("- limits.maxPushConstantsSize: " << limits.maxPushConstantsSize);
-      FSLLOG("- limits.maxMemoryAllocationCount: " << limits.maxMemoryAllocationCount);
-      FSLLOG("- limits.maxSamplerAllocationCount: " << limits.maxSamplerAllocationCount);
-      FSLLOG("- limits.bufferImageGranularity: " << limits.bufferImageGranularity);
-      FSLLOG("- limits.sparseAddressSpaceSize: " << limits.sparseAddressSpaceSize);
-      FSLLOG("- limits.maxBoundDescriptorSets: " << limits.maxBoundDescriptorSets);
-      FSLLOG("- limits.maxPerStageDescriptorSamplers: " << limits.maxPerStageDescriptorSamplers);
-      FSLLOG("- limits.maxPerStageDescriptorUniformBuffers: " << limits.maxPerStageDescriptorUniformBuffers);
-      FSLLOG("- limits.maxPerStageDescriptorStorageBuffers: " << limits.maxPerStageDescriptorStorageBuffers);
-      FSLLOG("- limits.maxPerStageDescriptorSampledImages: " << limits.maxPerStageDescriptorSampledImages);
-      FSLLOG("- limits.maxPerStageDescriptorStorageImages: " << limits.maxPerStageDescriptorStorageImages);
-      FSLLOG("- limits.maxPerStageDescriptorInputAttachments: " << limits.maxPerStageDescriptorInputAttachments);
-      FSLLOG("- limits.maxPerStageResources: " << limits.maxPerStageResources);
-      FSLLOG("- limits.maxDescriptorSetSamplers: " << limits.maxDescriptorSetSamplers);
-      FSLLOG("- limits.maxDescriptorSetUniformBuffers: " << limits.maxDescriptorSetUniformBuffers);
-      FSLLOG("- limits.maxDescriptorSetUniformBuffersDynamic: " << limits.maxDescriptorSetUniformBuffersDynamic);
-      FSLLOG("- limits.maxDescriptorSetStorageBuffers: " << limits.maxDescriptorSetStorageBuffers);
-      FSLLOG("- limits.maxDescriptorSetStorageBuffersDynamic: " << limits.maxDescriptorSetStorageBuffersDynamic);
-      FSLLOG("- limits.maxDescriptorSetSampledImages: " << limits.maxDescriptorSetSampledImages);
-      FSLLOG("- limits.maxDescriptorSetStorageImages: " << limits.maxDescriptorSetStorageImages);
-      FSLLOG("- limits.maxDescriptorSetInputAttachments: " << limits.maxDescriptorSetInputAttachments);
-      FSLLOG("- limits.maxVertexInputAttributes: " << limits.maxVertexInputAttributes);
-      FSLLOG("- limits.maxVertexInputBindings: " << limits.maxVertexInputBindings);
-      FSLLOG("- limits.maxVertexInputAttributeOffset: " << limits.maxVertexInputAttributeOffset);
-      FSLLOG("- limits.maxVertexInputBindingStride: " << limits.maxVertexInputBindingStride);
-      FSLLOG("- limits.maxVertexOutputComponents: " << limits.maxVertexOutputComponents);
-      FSLLOG("- limits.maxTessellationGenerationLevel: " << limits.maxTessellationGenerationLevel);
-      FSLLOG("- limits.maxTessellationPatchSize: " << limits.maxTessellationPatchSize);
-      FSLLOG("- limits.maxTessellationControlPerVertexInputComponents: " << limits.maxTessellationControlPerVertexInputComponents);
-      FSLLOG("- limits.maxTessellationControlPerVertexOutputComponents: " << limits.maxTessellationControlPerVertexOutputComponents);
-      FSLLOG("- limits.maxTessellationControlPerPatchOutputComponents: " << limits.maxTessellationControlPerPatchOutputComponents);
-      FSLLOG("- limits.maxTessellationControlTotalOutputComponents: " << limits.maxTessellationControlTotalOutputComponents);
-      FSLLOG("- limits.maxTessellationEvaluationInputComponents: " << limits.maxTessellationEvaluationInputComponents);
-      FSLLOG("- limits.maxTessellationEvaluationOutputComponents: " << limits.maxTessellationEvaluationOutputComponents);
-      FSLLOG("- limits.maxGeometryShaderInvocations: " << limits.maxGeometryShaderInvocations);
-      FSLLOG("- limits.maxGeometryInputComponents: " << limits.maxGeometryInputComponents);
-      FSLLOG("- limits.maxGeometryOutputComponents: " << limits.maxGeometryOutputComponents);
+    public:
+      void Print(const char* const psz) noexcept
+      {
+        Logger::WriteLine(LogType::Info, psz);
+      }
 
-      FSLLOG("- limits.maxGeometryOutputVertices: " << limits.maxGeometryOutputVertices);
-      FSLLOG("- limits.maxGeometryTotalOutputComponents: " << limits.maxGeometryTotalOutputComponents);
-      FSLLOG("- limits.maxFragmentInputComponents: " << limits.maxFragmentInputComponents);
-      FSLLOG("- limits.maxFragmentOutputAttachments: " << limits.maxFragmentOutputAttachments);
-      FSLLOG("- limits.maxFragmentDualSrcAttachments: " << limits.maxFragmentDualSrcAttachments);
-      FSLLOG("- limits.maxFragmentCombinedOutputResources: " << limits.maxFragmentCombinedOutputResources);
-      FSLLOG("- limits.maxComputeSharedMemorySize: " << limits.maxComputeSharedMemorySize);
+      template <typename... Args>
+      void Print(const char* const pszFormat, const Args&... args) noexcept
+      {
+        Logger::WriteLine(LogType::Info, pszFormat, args...);
+      }
+    };
+
+
+    void LogPhysicalDeviceLimits(CustomWriter& rWriter, const VkPhysicalDeviceLimits& limits)
+    {
+      rWriter.Print("- limits.maxImageDimension1D: {}", limits.maxImageDimension1D);
+      rWriter.Print("- limits.maxImageDimension2D: {}", limits.maxImageDimension2D);
+      rWriter.Print("- limits.maxImageDimension3D: {}", limits.maxImageDimension3D);
+      rWriter.Print("- limits.maxImageDimensionCube: {}", limits.maxImageDimensionCube);
+      rWriter.Print("- limits.maxImageArrayLayers: {}", limits.maxImageArrayLayers);
+      rWriter.Print("- limits.maxTexelBufferElements: {}", limits.maxTexelBufferElements);
+      rWriter.Print("- limits.maxUniformBufferRange: {}", limits.maxUniformBufferRange);
+      rWriter.Print("- limits.maxStorageBufferRange: {}", limits.maxStorageBufferRange);
+      rWriter.Print("- limits.maxPushConstantsSize: {}", limits.maxPushConstantsSize);
+      rWriter.Print("- limits.maxMemoryAllocationCount: {}", limits.maxMemoryAllocationCount);
+      rWriter.Print("- limits.maxSamplerAllocationCount: {}", limits.maxSamplerAllocationCount);
+      rWriter.Print("- limits.bufferImageGranularity: {}", limits.bufferImageGranularity);
+      rWriter.Print("- limits.sparseAddressSpaceSize: {}", limits.sparseAddressSpaceSize);
+      rWriter.Print("- limits.maxBoundDescriptorSets: {}", limits.maxBoundDescriptorSets);
+      rWriter.Print("- limits.maxPerStageDescriptorSamplers: {}", limits.maxPerStageDescriptorSamplers);
+      rWriter.Print("- limits.maxPerStageDescriptorUniformBuffers: {}", limits.maxPerStageDescriptorUniformBuffers);
+      rWriter.Print("- limits.maxPerStageDescriptorStorageBuffers: {}", limits.maxPerStageDescriptorStorageBuffers);
+      rWriter.Print("- limits.maxPerStageDescriptorSampledImages: {}", limits.maxPerStageDescriptorSampledImages);
+      rWriter.Print("- limits.maxPerStageDescriptorStorageImages: {}", limits.maxPerStageDescriptorStorageImages);
+      rWriter.Print("- limits.maxPerStageDescriptorInputAttachments: {}", limits.maxPerStageDescriptorInputAttachments);
+      rWriter.Print("- limits.maxPerStageResources: {}", limits.maxPerStageResources);
+      rWriter.Print("- limits.maxDescriptorSetSamplers: {}", limits.maxDescriptorSetSamplers);
+      rWriter.Print("- limits.maxDescriptorSetUniformBuffers: {}", limits.maxDescriptorSetUniformBuffers);
+      rWriter.Print("- limits.maxDescriptorSetUniformBuffersDynamic: {}", limits.maxDescriptorSetUniformBuffersDynamic);
+      rWriter.Print("- limits.maxDescriptorSetStorageBuffers: {}", limits.maxDescriptorSetStorageBuffers);
+      rWriter.Print("- limits.maxDescriptorSetStorageBuffersDynamic: {}", limits.maxDescriptorSetStorageBuffersDynamic);
+      rWriter.Print("- limits.maxDescriptorSetSampledImages: {}", limits.maxDescriptorSetSampledImages);
+      rWriter.Print("- limits.maxDescriptorSetStorageImages: {}", limits.maxDescriptorSetStorageImages);
+      rWriter.Print("- limits.maxDescriptorSetInputAttachments: {}", limits.maxDescriptorSetInputAttachments);
+      rWriter.Print("- limits.maxVertexInputAttributes: {}", limits.maxVertexInputAttributes);
+      rWriter.Print("- limits.maxVertexInputBindings: {}", limits.maxVertexInputBindings);
+      rWriter.Print("- limits.maxVertexInputAttributeOffset: {}", limits.maxVertexInputAttributeOffset);
+      rWriter.Print("- limits.maxVertexInputBindingStride: {}", limits.maxVertexInputBindingStride);
+      rWriter.Print("- limits.maxVertexOutputComponents: {}", limits.maxVertexOutputComponents);
+      rWriter.Print("- limits.maxTessellationGenerationLevel: {}", limits.maxTessellationGenerationLevel);
+      rWriter.Print("- limits.maxTessellationPatchSize: {}", limits.maxTessellationPatchSize);
+      rWriter.Print("- limits.maxTessellationControlPerVertexInputComponents: {}", limits.maxTessellationControlPerVertexInputComponents);
+      rWriter.Print("- limits.maxTessellationControlPerVertexOutputComponents: {}", limits.maxTessellationControlPerVertexOutputComponents);
+      rWriter.Print("- limits.maxTessellationControlPerPatchOutputComponents: {}", limits.maxTessellationControlPerPatchOutputComponents);
+      rWriter.Print("- limits.maxTessellationControlTotalOutputComponents: {}", limits.maxTessellationControlTotalOutputComponents);
+      rWriter.Print("- limits.maxTessellationEvaluationInputComponents: {}", limits.maxTessellationEvaluationInputComponents);
+      rWriter.Print("- limits.maxTessellationEvaluationOutputComponents: {}", limits.maxTessellationEvaluationOutputComponents);
+      rWriter.Print("- limits.maxGeometryShaderInvocations: {}", limits.maxGeometryShaderInvocations);
+      rWriter.Print("- limits.maxGeometryInputComponents: {}", limits.maxGeometryInputComponents);
+      rWriter.Print("- limits.maxGeometryOutputComponents: {}", limits.maxGeometryOutputComponents);
+
+      rWriter.Print("- limits.maxGeometryOutputVertices: {}", limits.maxGeometryOutputVertices);
+      rWriter.Print("- limits.maxGeometryTotalOutputComponents: {}", limits.maxGeometryTotalOutputComponents);
+      rWriter.Print("- limits.maxFragmentInputComponents: {}", limits.maxFragmentInputComponents);
+      rWriter.Print("- limits.maxFragmentOutputAttachments: {}", limits.maxFragmentOutputAttachments);
+      rWriter.Print("- limits.maxFragmentDualSrcAttachments: {}", limits.maxFragmentDualSrcAttachments);
+      rWriter.Print("- limits.maxFragmentCombinedOutputResources: {}", limits.maxFragmentCombinedOutputResources);
+      rWriter.Print("- limits.maxComputeSharedMemorySize: {}", limits.maxComputeSharedMemorySize);
 
       for (uint32_t i = 0; i < 3; ++i)
-        FSLLOG("- limits.maxComputeWorkGroupCount[" << i << "]: " << limits.maxComputeWorkGroupCount[i]);
+      {
+        rWriter.Print("- limits.maxComputeWorkGroupCount[{}]: {}", i, limits.maxComputeWorkGroupCount[i]);
+      }
 
-      FSLLOG("- limits.maxComputeWorkGroupInvocations: " << limits.maxComputeWorkGroupInvocations);
+      rWriter.Print("- limits.maxComputeWorkGroupInvocations: {}", limits.maxComputeWorkGroupInvocations);
 
       for (uint32_t i = 0; i < 3; ++i)
-        FSLLOG("- limits.maxComputeWorkGroupSize[" << i << "]: " << limits.maxComputeWorkGroupSize[i]);
+      {
+        rWriter.Print("- limits.maxComputeWorkGroupSize[{}]: {}", i, limits.maxComputeWorkGroupSize[i]);
+      }
 
-      FSLLOG("- limits.subPixelPrecisionBits: " << limits.subPixelPrecisionBits);
-      FSLLOG("- limits.subTexelPrecisionBits: " << limits.subTexelPrecisionBits);
-      FSLLOG("- limits.mipmapPrecisionBits: " << limits.mipmapPrecisionBits);
-      FSLLOG("- limits.maxDrawIndexedIndexValue: " << limits.maxDrawIndexedIndexValue);
-      FSLLOG("- limits.maxDrawIndirectCount: " << limits.maxDrawIndirectCount);
-      FSLLOG("- limits.maxSamplerLodBias: " << limits.maxSamplerLodBias);
-      FSLLOG("- limits.maxSamplerAnisotropy: " << limits.maxSamplerAnisotropy);
-      FSLLOG("- limits.maxViewports: " << limits.maxViewports);
-
-      for (uint32_t i = 0; i < 2; ++i)
-        FSLLOG("- limits.maxViewportDimensions[" << i << "]: " << limits.maxViewportDimensions[i]);
-      for (uint32_t i = 0; i < 2; ++i)
-        FSLLOG("- limits.viewportBoundsRange[" << i << "]: " << limits.viewportBoundsRange[i]);
-
-      FSLLOG("- limits.viewportSubPixelBits: " << limits.viewportSubPixelBits);
-      FSLLOG("- limits.minMemoryMapAlignment: " << limits.minMemoryMapAlignment);
-      FSLLOG("- limits.minTexelBufferOffsetAlignment: " << limits.minTexelBufferOffsetAlignment);
-      FSLLOG("- limits.minUniformBufferOffsetAlignment: " << limits.minUniformBufferOffsetAlignment);
-      FSLLOG("- limits.minStorageBufferOffsetAlignment: " << limits.minStorageBufferOffsetAlignment);
-      FSLLOG("- limits.minTexelOffset: " << limits.minTexelOffset);
-      FSLLOG("- limits.maxTexelOffset: " << limits.maxTexelOffset);
-      FSLLOG("- limits.minTexelGatherOffset: " << limits.minTexelGatherOffset);
-      FSLLOG("- limits.maxTexelGatherOffset: " << limits.maxTexelGatherOffset);
-      FSLLOG("- limits.minInterpolationOffset: " << limits.minInterpolationOffset);
-      FSLLOG("- limits.maxInterpolationOffset: " << limits.maxInterpolationOffset);
-      FSLLOG("- limits.subPixelInterpolationOffsetBits: " << limits.subPixelInterpolationOffsetBits);
-      FSLLOG("- limits.maxFramebufferWidth: " << limits.maxFramebufferWidth);
-      FSLLOG("- limits.maxFramebufferHeight: " << limits.maxFramebufferHeight);
-      FSLLOG("- limits.maxFramebufferLayers: " << limits.maxFramebufferLayers);
-      FSLLOG("- limits.framebufferColorSampleCounts: " << limits.framebufferColorSampleCounts);
-      FSLLOG("- limits.framebufferDepthSampleCounts: " << limits.framebufferDepthSampleCounts);
-      FSLLOG("- limits.framebufferStencilSampleCounts: " << limits.framebufferStencilSampleCounts);
-      FSLLOG("- limits.framebufferNoAttachmentsSampleCounts: " << limits.framebufferNoAttachmentsSampleCounts);
-      FSLLOG("- limits.maxColorAttachments: " << limits.maxColorAttachments);
-      FSLLOG("- limits.sampledImageColorSampleCounts: " << limits.sampledImageColorSampleCounts);
-      FSLLOG("- limits.sampledImageIntegerSampleCounts: " << limits.sampledImageIntegerSampleCounts);
-      FSLLOG("- limits.sampledImageDepthSampleCounts: " << limits.sampledImageDepthSampleCounts);
-      FSLLOG("- limits.sampledImageStencilSampleCounts: " << limits.sampledImageStencilSampleCounts);
-      FSLLOG("- limits.storageImageSampleCounts: " << limits.storageImageSampleCounts);
-      FSLLOG("- limits.maxSampleMaskWords: " << limits.maxSampleMaskWords);
-      FSLLOG("- limits.timestampComputeAndGraphics: " << limits.timestampComputeAndGraphics);
-
-      FSLLOG("- limits.timestampPeriod: " << limits.timestampPeriod);
-      FSLLOG("- limits.maxClipDistances: " << limits.maxClipDistances);
-      FSLLOG("- limits.maxCullDistances: " << limits.maxCullDistances);
-      FSLLOG("- limits.maxCombinedClipAndCullDistances: " << limits.maxCombinedClipAndCullDistances);
-      FSLLOG("- limits.discreteQueuePriorities: " << limits.discreteQueuePriorities);
+      rWriter.Print("- limits.subPixelPrecisionBits: {}", limits.subPixelPrecisionBits);
+      rWriter.Print("- limits.subTexelPrecisionBits: {}", limits.subTexelPrecisionBits);
+      rWriter.Print("- limits.mipmapPrecisionBits: {}", limits.mipmapPrecisionBits);
+      rWriter.Print("- limits.maxDrawIndexedIndexValue: {}", limits.maxDrawIndexedIndexValue);
+      rWriter.Print("- limits.maxDrawIndirectCount: {}", limits.maxDrawIndirectCount);
+      rWriter.Print("- limits.maxSamplerLodBias: {}", limits.maxSamplerLodBias);
+      rWriter.Print("- limits.maxSamplerAnisotropy: {}", limits.maxSamplerAnisotropy);
+      rWriter.Print("- limits.maxViewports: {}", limits.maxViewports);
 
       for (uint32_t i = 0; i < 2; ++i)
-        FSLLOG("- limits.pointSizeRange[" << i << "]: " << limits.pointSizeRange[i]);
+      {
+        rWriter.Print("- limits.maxViewportDimensions[{}]: {}", i, limits.maxViewportDimensions[i]);
+      }
+      for (uint32_t i = 0; i < 2; ++i)
+      {
+        rWriter.Print("- limits.viewportBoundsRange[{}]: {}", i, limits.viewportBoundsRange[i]);
+      }
+
+      rWriter.Print("- limits.viewportSubPixelBits: {}", limits.viewportSubPixelBits);
+      rWriter.Print("- limits.minMemoryMapAlignment: {}", limits.minMemoryMapAlignment);
+      rWriter.Print("- limits.minTexelBufferOffsetAlignment: {}", limits.minTexelBufferOffsetAlignment);
+      rWriter.Print("- limits.minUniformBufferOffsetAlignment: {}", limits.minUniformBufferOffsetAlignment);
+      rWriter.Print("- limits.minStorageBufferOffsetAlignment: {}", limits.minStorageBufferOffsetAlignment);
+      rWriter.Print("- limits.minTexelOffset: {}", limits.minTexelOffset);
+      rWriter.Print("- limits.maxTexelOffset: {}", limits.maxTexelOffset);
+      rWriter.Print("- limits.minTexelGatherOffset: {}", limits.minTexelGatherOffset);
+      rWriter.Print("- limits.maxTexelGatherOffset: {}", limits.maxTexelGatherOffset);
+      rWriter.Print("- limits.minInterpolationOffset: {}", limits.minInterpolationOffset);
+      rWriter.Print("- limits.maxInterpolationOffset: {}", limits.maxInterpolationOffset);
+      rWriter.Print("- limits.subPixelInterpolationOffsetBits: {}", limits.subPixelInterpolationOffsetBits);
+      rWriter.Print("- limits.maxFramebufferWidth: {}", limits.maxFramebufferWidth);
+      rWriter.Print("- limits.maxFramebufferHeight: {}", limits.maxFramebufferHeight);
+      rWriter.Print("- limits.maxFramebufferLayers: {}", limits.maxFramebufferLayers);
+      rWriter.Print("- limits.framebufferColorSampleCounts: {}", limits.framebufferColorSampleCounts);
+      rWriter.Print("- limits.framebufferDepthSampleCounts: {}", limits.framebufferDepthSampleCounts);
+      rWriter.Print("- limits.framebufferStencilSampleCounts: {}", limits.framebufferStencilSampleCounts);
+      rWriter.Print("- limits.framebufferNoAttachmentsSampleCounts: {}", limits.framebufferNoAttachmentsSampleCounts);
+      rWriter.Print("- limits.maxColorAttachments: {}", limits.maxColorAttachments);
+      rWriter.Print("- limits.sampledImageColorSampleCounts: {}", limits.sampledImageColorSampleCounts);
+      rWriter.Print("- limits.sampledImageIntegerSampleCounts: {}", limits.sampledImageIntegerSampleCounts);
+      rWriter.Print("- limits.sampledImageDepthSampleCounts: {}", limits.sampledImageDepthSampleCounts);
+      rWriter.Print("- limits.sampledImageStencilSampleCounts: {}", limits.sampledImageStencilSampleCounts);
+      rWriter.Print("- limits.storageImageSampleCounts: {}", limits.storageImageSampleCounts);
+      rWriter.Print("- limits.maxSampleMaskWords: {}", limits.maxSampleMaskWords);
+      rWriter.Print("- limits.timestampComputeAndGraphics: {}", limits.timestampComputeAndGraphics);
+
+      rWriter.Print("- limits.timestampPeriod: {}", limits.timestampPeriod);
+      rWriter.Print("- limits.maxClipDistances: {}", limits.maxClipDistances);
+      rWriter.Print("- limits.maxCullDistances: {}", limits.maxCullDistances);
+      rWriter.Print("- limits.maxCombinedClipAndCullDistances: {}", limits.maxCombinedClipAndCullDistances);
+      rWriter.Print("- limits.discreteQueuePriorities: {}", limits.discreteQueuePriorities);
 
       for (uint32_t i = 0; i < 2; ++i)
-        FSLLOG("- limits.lineWidthRange[" << i << "]: " << limits.lineWidthRange[i]);
+      {
+        rWriter.Print("- limits.pointSizeRange[{}]: {}", i, limits.pointSizeRange[i]);
+      }
 
-      FSLLOG("- limits.pointSizeGranularity: " << limits.pointSizeGranularity);
-      FSLLOG("- limits.lineWidthGranularity: " << limits.lineWidthGranularity);
-      FSLLOG("- limits.strictLines: " << limits.strictLines);
-      FSLLOG("- limits.standardSampleLocations: " << limits.standardSampleLocations);
-      FSLLOG("- limits.optimalBufferCopyOffsetAlignment: " << limits.optimalBufferCopyOffsetAlignment);
-      FSLLOG("- limits.optimalBufferCopyRowPitchAlignment: " << limits.optimalBufferCopyRowPitchAlignment);
-      FSLLOG("- limits.nonCoherentAtomSize: " << limits.nonCoherentAtomSize);
+      for (uint32_t i = 0; i < 2; ++i)
+      {
+        rWriter.Print("- limits.lineWidthRange[{}]: {}", i, limits.lineWidthRange[i]);
+      }
+
+      rWriter.Print("- limits.pointSizeGranularity: {}", limits.pointSizeGranularity);
+      rWriter.Print("- limits.lineWidthGranularity: {}", limits.lineWidthGranularity);
+      rWriter.Print("- limits.strictLines: {}", limits.strictLines);
+      rWriter.Print("- limits.standardSampleLocations: {}", limits.standardSampleLocations);
+      rWriter.Print("- limits.optimalBufferCopyOffsetAlignment: {}", limits.optimalBufferCopyOffsetAlignment);
+      rWriter.Print("- limits.optimalBufferCopyRowPitchAlignment: {}", limits.optimalBufferCopyRowPitchAlignment);
+      rWriter.Print("- limits.nonCoherentAtomSize: {}", limits.nonCoherentAtomSize);
     }
 
-    void LogPhysicalDeviceSparseProperties(const VkPhysicalDeviceSparseProperties& properties)
+    void LogPhysicalDeviceSparseProperties(CustomWriter& rWriter, const VkPhysicalDeviceSparseProperties& properties)
     {
-      FSLLOG("- sparseProperties.residencyStandard2DBlockShape: " << properties.residencyStandard2DBlockShape);
-      FSLLOG("- sparseProperties.residencyStandard2DMultisampleBlockShape: " << properties.residencyStandard2DMultisampleBlockShape);
-      FSLLOG("- sparseProperties.residencyStandard3DBlockShape: " << properties.residencyStandard3DBlockShape);
-      FSLLOG("- sparseProperties.residencyAlignedMipSize: " << properties.residencyAlignedMipSize);
-      FSLLOG("- sparseProperties.residencyNonResidentStrict: " << properties.residencyNonResidentStrict);
+      rWriter.Print("- sparseProperties.residencyStandard2DBlockShape: {}", properties.residencyStandard2DBlockShape);
+      rWriter.Print("- sparseProperties.residencyStandard2DMultisampleBlockShape: {}", properties.residencyStandard2DMultisampleBlockShape);
+      rWriter.Print("- sparseProperties.residencyStandard3DBlockShape: {}", properties.residencyStandard3DBlockShape);
+      rWriter.Print("- sparseProperties.residencyAlignedMipSize: {}", properties.residencyAlignedMipSize);
+      rWriter.Print("- sparseProperties.residencyNonResidentStrict: {}", properties.residencyNonResidentStrict);
     }
 
-    void LogPhysicalProperties(const VkPhysicalDeviceProperties& properties)
+    void LogPhysicalProperties(CustomWriter& rWriter, const VkPhysicalDeviceProperties& properties)
     {
-      FSLLOG("Physical device properties:");
-      FSLLOG("- apiVersion: " << EncodedVulkanVersion(properties.apiVersion));
-      FSLLOG("- driverVersion: " << EncodedVulkanVersion(properties.driverVersion));
-      FSLLOG("- vendorID: " << properties.vendorID);
-      FSLLOG("- deviceID: " << properties.deviceID);
-      FSLLOG("- deviceType: " << Debug::GetBitflagsString(properties.deviceType));    // VkPhysicalDeviceType
-      FSLLOG("- deviceName: " << properties.deviceName);
+      rWriter.Print("Physical device properties:");
+      rWriter.Print("- apiVersion: {}", EncodedVulkanVersion(properties.apiVersion));
+      rWriter.Print("- driverVersion: {}", EncodedVulkanVersion(properties.driverVersion));
+      rWriter.Print("- vendorID: {}", properties.vendorID);
+      rWriter.Print("- deviceID: {}", properties.deviceID);
+      rWriter.Print("- deviceType: {}", Debug::GetBitflagsString(properties.deviceType));    // VkPhysicalDeviceType
+      rWriter.Print("- deviceName: {}", properties.deviceName);
       // uint8_t                             pipelineCacheUUID[VK_UUID_SIZE];
-      LogPhysicalDeviceLimits(properties.limits);
-      LogPhysicalDeviceSparseProperties(properties.sparseProperties);
+      LogPhysicalDeviceLimits(rWriter, properties.limits);
+      LogPhysicalDeviceSparseProperties(rWriter, properties.sparseProperties);
     }
 
 
-    void LogPhysicalDeviceFeatures(const VkPhysicalDeviceFeatures& features)
+    void LogPhysicalDeviceFeatures(CustomWriter& rWriter, const VkPhysicalDeviceFeatures& features)
     {
-      FSLLOG("Physical device features:");
-      FSLLOG("- robustBufferAccess: " << features.robustBufferAccess);
-      FSLLOG("- fullDrawIndexUint32: " << features.fullDrawIndexUint32);
-      FSLLOG("- imageCubeArray: " << features.imageCubeArray);
-      FSLLOG("- independentBlend: " << features.independentBlend);
-      FSLLOG("- geometryShader: " << features.geometryShader);
-      FSLLOG("- tessellationShader: " << features.tessellationShader);
-      FSLLOG("- sampleRateShading: " << features.sampleRateShading);
-      FSLLOG("- dualSrcBlend: " << features.dualSrcBlend);
-      FSLLOG("- logicOp: " << features.logicOp);
-      FSLLOG("- multiDrawIndirect: " << features.multiDrawIndirect);
-      FSLLOG("- drawIndirectFirstInstance: " << features.drawIndirectFirstInstance);
-      FSLLOG("- depthClamp: " << features.depthClamp);
-      FSLLOG("- depthBiasClamp: " << features.depthBiasClamp);
-      FSLLOG("- fillModeNonSolid: " << features.fillModeNonSolid);
-      FSLLOG("- depthBounds: " << features.depthBounds);
-      FSLLOG("- wideLines: " << features.wideLines);
-      FSLLOG("- largePoints: " << features.largePoints);
-      FSLLOG("- alphaToOne: " << features.alphaToOne);
-      FSLLOG("- multiViewport: " << features.multiViewport);
-      FSLLOG("- samplerAnisotropy: " << features.samplerAnisotropy);
-      FSLLOG("- textureCompressionETC2: " << features.textureCompressionETC2);
-      FSLLOG("- textureCompressionASTC_LDR: " << features.textureCompressionASTC_LDR);
-      FSLLOG("- textureCompressionBC: " << features.textureCompressionBC);
-      FSLLOG("- occlusionQueryPrecise: " << features.occlusionQueryPrecise);
-      FSLLOG("- pipelineStatisticsQuery: " << features.pipelineStatisticsQuery);
-      FSLLOG("- vertexPipelineStoresAndAtomics: " << features.vertexPipelineStoresAndAtomics);
-      FSLLOG("- fragmentStoresAndAtomics: " << features.fragmentStoresAndAtomics);
-      FSLLOG("- shaderTessellationAndGeometryPointSize: " << features.shaderTessellationAndGeometryPointSize);
-      FSLLOG("- shaderImageGatherExtended: " << features.shaderImageGatherExtended);
-      FSLLOG("- shaderStorageImageExtendedFormats: " << features.shaderStorageImageExtendedFormats);
-      FSLLOG("- shaderStorageImageMultisample: " << features.shaderStorageImageMultisample);
-      FSLLOG("- shaderStorageImageReadWithoutFormat: " << features.shaderStorageImageReadWithoutFormat);
-      FSLLOG("- shaderStorageImageWriteWithoutFormat: " << features.shaderStorageImageWriteWithoutFormat);
-      FSLLOG("- shaderUniformBufferArrayDynamicIndexing: " << features.shaderUniformBufferArrayDynamicIndexing);
-      FSLLOG("- shaderSampledImageArrayDynamicIndexing: " << features.shaderSampledImageArrayDynamicIndexing);
-      FSLLOG("- shaderStorageBufferArrayDynamicIndexing: " << features.shaderStorageBufferArrayDynamicIndexing);
-      FSLLOG("- shaderStorageImageArrayDynamicIndexing: " << features.shaderStorageImageArrayDynamicIndexing);
-      FSLLOG("- shaderClipDistance: " << features.shaderClipDistance);
-      FSLLOG("- shaderCullDistance: " << features.shaderCullDistance);
-      FSLLOG("- shaderFloat64: " << features.shaderFloat64);
-      FSLLOG("- shaderInt64: " << features.shaderInt64);
-      FSLLOG("- shaderInt16: " << features.shaderInt16);
-      FSLLOG("- shaderResourceResidency: " << features.shaderResourceResidency);
-      FSLLOG("- shaderResourceMinLod: " << features.shaderResourceMinLod);
-      FSLLOG("- sparseBinding: " << features.sparseBinding);
-      FSLLOG("- sparseResidencyBuffer: " << features.sparseResidencyBuffer);
-      FSLLOG("- sparseResidencyImage2D: " << features.sparseResidencyImage2D);
-      FSLLOG("- sparseResidencyImage3D: " << features.sparseResidencyImage3D);
-      FSLLOG("- sparseResidency2Samples: " << features.sparseResidency2Samples);
-      FSLLOG("- sparseResidency4Samples: " << features.sparseResidency4Samples);
-      FSLLOG("- sparseResidency8Samples: " << features.sparseResidency8Samples);
-      FSLLOG("- sparseResidency16Samples: " << features.sparseResidency16Samples);
-      FSLLOG("- sparseResidencyAliased: " << features.sparseResidencyAliased);
-      FSLLOG("- variableMultisampleRate: " << features.variableMultisampleRate);
-      FSLLOG("- inheritedQueries: " << features.inheritedQueries);
-    }
-
-    inline std::ostream& operator<<(std::ostream& o, const VkMemoryType& value)
-    {
-      return o << "{ propertyFlags: " << Debug::GetBitflagsString(static_cast<VkMemoryPropertyFlagBits>(value.propertyFlags))
-               << ", heapIndex: " << value.heapIndex << " }";
-    }
-
-    inline std::ostream& operator<<(std::ostream& o, const VkMemoryHeap& value)
-    {
-      return o << "{ size: " << value.size << ", flags: " << Debug::GetBitflagsString(static_cast<VkMemoryHeapFlagBits>(value.flags)) << " }";
+      rWriter.Print("Physical device features:");
+      rWriter.Print("- robustBufferAccess: {}", features.robustBufferAccess);
+      rWriter.Print("- fullDrawIndexUint32: {}", features.fullDrawIndexUint32);
+      rWriter.Print("- imageCubeArray: {}", features.imageCubeArray);
+      rWriter.Print("- independentBlend: {}", features.independentBlend);
+      rWriter.Print("- geometryShader: {}", features.geometryShader);
+      rWriter.Print("- tessellationShader: {}", features.tessellationShader);
+      rWriter.Print("- sampleRateShading: {}", features.sampleRateShading);
+      rWriter.Print("- dualSrcBlend: {}", features.dualSrcBlend);
+      rWriter.Print("- logicOp: {}", features.logicOp);
+      rWriter.Print("- multiDrawIndirect: {}", features.multiDrawIndirect);
+      rWriter.Print("- drawIndirectFirstInstance: {}", features.drawIndirectFirstInstance);
+      rWriter.Print("- depthClamp: {}", features.depthClamp);
+      rWriter.Print("- depthBiasClamp: {}", features.depthBiasClamp);
+      rWriter.Print("- fillModeNonSolid: {}", features.fillModeNonSolid);
+      rWriter.Print("- depthBounds: {}", features.depthBounds);
+      rWriter.Print("- wideLines: {}", features.wideLines);
+      rWriter.Print("- largePoints: {}", features.largePoints);
+      rWriter.Print("- alphaToOne: {}", features.alphaToOne);
+      rWriter.Print("- multiViewport: {}", features.multiViewport);
+      rWriter.Print("- samplerAnisotropy: {}", features.samplerAnisotropy);
+      rWriter.Print("- textureCompressionETC2: {}", features.textureCompressionETC2);
+      rWriter.Print("- textureCompressionASTC_LDR: {}", features.textureCompressionASTC_LDR);
+      rWriter.Print("- textureCompressionBC: {}", features.textureCompressionBC);
+      rWriter.Print("- occlusionQueryPrecise: {}", features.occlusionQueryPrecise);
+      rWriter.Print("- pipelineStatisticsQuery: {}", features.pipelineStatisticsQuery);
+      rWriter.Print("- vertexPipelineStoresAndAtomics: {}", features.vertexPipelineStoresAndAtomics);
+      rWriter.Print("- fragmentStoresAndAtomics: {}", features.fragmentStoresAndAtomics);
+      rWriter.Print("- shaderTessellationAndGeometryPointSize: {}", features.shaderTessellationAndGeometryPointSize);
+      rWriter.Print("- shaderImageGatherExtended: {}", features.shaderImageGatherExtended);
+      rWriter.Print("- shaderStorageImageExtendedFormats: {}", features.shaderStorageImageExtendedFormats);
+      rWriter.Print("- shaderStorageImageMultisample: {}", features.shaderStorageImageMultisample);
+      rWriter.Print("- shaderStorageImageReadWithoutFormat: {}", features.shaderStorageImageReadWithoutFormat);
+      rWriter.Print("- shaderStorageImageWriteWithoutFormat: {}", features.shaderStorageImageWriteWithoutFormat);
+      rWriter.Print("- shaderUniformBufferArrayDynamicIndexing: {}", features.shaderUniformBufferArrayDynamicIndexing);
+      rWriter.Print("- shaderSampledImageArrayDynamicIndexing: {}", features.shaderSampledImageArrayDynamicIndexing);
+      rWriter.Print("- shaderStorageBufferArrayDynamicIndexing: {}", features.shaderStorageBufferArrayDynamicIndexing);
+      rWriter.Print("- shaderStorageImageArrayDynamicIndexing: {}", features.shaderStorageImageArrayDynamicIndexing);
+      rWriter.Print("- shaderClipDistance: {}", features.shaderClipDistance);
+      rWriter.Print("- shaderCullDistance: {}", features.shaderCullDistance);
+      rWriter.Print("- shaderFloat64: {}", features.shaderFloat64);
+      rWriter.Print("- shaderInt64: {}", features.shaderInt64);
+      rWriter.Print("- shaderInt16: {}", features.shaderInt16);
+      rWriter.Print("- shaderResourceResidency: {}", features.shaderResourceResidency);
+      rWriter.Print("- shaderResourceMinLod: {}", features.shaderResourceMinLod);
+      rWriter.Print("- sparseBinding: {}", features.sparseBinding);
+      rWriter.Print("- sparseResidencyBuffer: {}", features.sparseResidencyBuffer);
+      rWriter.Print("- sparseResidencyImage2D: {}", features.sparseResidencyImage2D);
+      rWriter.Print("- sparseResidencyImage3D: {}", features.sparseResidencyImage3D);
+      rWriter.Print("- sparseResidency2Samples: {}", features.sparseResidency2Samples);
+      rWriter.Print("- sparseResidency4Samples: {}", features.sparseResidency4Samples);
+      rWriter.Print("- sparseResidency8Samples: {}", features.sparseResidency8Samples);
+      rWriter.Print("- sparseResidency16Samples: {}", features.sparseResidency16Samples);
+      rWriter.Print("- sparseResidencyAliased: {}", features.sparseResidencyAliased);
+      rWriter.Print("- variableMultisampleRate: {}", features.variableMultisampleRate);
+      rWriter.Print("- inheritedQueries: {}", features.inheritedQueries);
     }
 
 
-    void LogPhysicalDeviceMemoryProperties(const VkPhysicalDeviceMemoryProperties& properties)
+    void LogPhysicalDeviceMemoryProperties(CustomWriter& rWriter, const VkPhysicalDeviceMemoryProperties& properties)
     {
-      FSLLOG("Physical device memory properties:");
-      FSLLOG("- memoryTypeCount: " << properties.memoryTypeCount);
+      rWriter.Print("Physical device memory properties:");
+      rWriter.Print("- memoryTypeCount: {}", properties.memoryTypeCount);
       for (uint32_t i = 0; i < properties.memoryTypeCount; ++i)
       {
-        FSLLOG("- memoryTypes[" << i << "]: " << properties.memoryTypes[i]);
+        rWriter.Print("- memoryTypes[{}]: {}", i, properties.memoryTypes[i]);
       }
 
-      FSLLOG("- memoryHeapCount: " << properties.memoryHeapCount);
+      rWriter.Print("- memoryHeapCount: {}", properties.memoryHeapCount);
       for (uint32_t i = 0; i < properties.memoryHeapCount; ++i)
       {
-        FSLLOG("- memoryHeaps[" << i << "]: " << properties.memoryHeaps[i]);
+        rWriter.Print("- memoryHeaps[{}]: {}", i, properties.memoryHeaps[i]);
       }
     }
 
-    void LogPhysicalDeviceQueueFamilyProperties(const std::vector<VkQueueFamilyProperties>& queueFamilyProperties)
+    void LogPhysicalDeviceQueueFamilyProperties(CustomWriter& rWriter, const std::vector<VkQueueFamilyProperties>& queueFamilyProperties)
     {
-      FSLLOG("Physical device queue family properties:");
+      rWriter.Print("Physical device queue family properties:");
       for (std::size_t i = 0; i < queueFamilyProperties.size(); ++i)
       {
-        FSLLOG("- Queue Famility #" << i);
-        FSLLOG("  - queueFlags: " << Debug::GetBitflagsString(static_cast<VkQueueFlagBits>(queueFamilyProperties[i].queueFlags)));
-        FSLLOG("  - queueCount: " << queueFamilyProperties[i].queueCount);
-        FSLLOG("  - timestampValidBits: " << queueFamilyProperties[i].timestampValidBits);
-        FSLLOG("  - minImageTransferGranularity: " << queueFamilyProperties[i].minImageTransferGranularity);
+        rWriter.Print("- Queue Famility #{}", i);
+        rWriter.Print("  - queueFlags: {}", Debug::GetBitflagsString(static_cast<VkQueueFlagBits>(queueFamilyProperties[i].queueFlags)));
+        rWriter.Print("  - queueCount: {}", queueFamilyProperties[i].queueCount);
+        rWriter.Print("  - timestampValidBits: {}", queueFamilyProperties[i].timestampValidBits);
+        rWriter.Print("  - minImageTransferGranularity: {}", queueFamilyProperties[i].minImageTransferGranularity);
       }
     }
 
-    void LogAllFormats(const VUPhysicalDeviceRecord& physicalDevice)
+    void LogAllFormats(CustomWriter& rWriter, const VUPhysicalDeviceRecord& physicalDevice)
     {
-      FSLLOG("All phsycial device format properties:");
+      rWriter.Print("All phsycial device format properties:");
       for (std::size_t i = 0; i < g_allFormats.size(); ++i)
       {
         const auto format = g_allFormats[i];
-        FSLLOG("- Format #" << i << " (" << format << ")");
+        rWriter.Print("- Format #{} ({})", i, format);
 
         VkFormatProperties formatProperties = PhysicalDeviceUtil::GetPhysicalDeviceFormatProperties(physicalDevice.Device, format);
 
-        FSLLOG("  - linearTilingFeatures: " << Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.linearTilingFeatures)));
-        FSLLOG(
-          "  - optimalTilingFeatures: " << Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.optimalTilingFeatures)));
-        FSLLOG("  - bufferFeatures: " << Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.bufferFeatures)));
+        rWriter.Print("  - linearTilingFeatures: {}",
+                      Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.linearTilingFeatures)));
+        rWriter.Print("  - optimalTilingFeatures: {}",
+                      Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.optimalTilingFeatures)));
+        rWriter.Print("  - bufferFeatures: {}", Debug::GetBitflagsString(static_cast<VkFormatFeatureFlagBits>(formatProperties.bufferFeatures)));
       }
     }
 
-    void LogPhysicalDevice(const VUPhysicalDeviceRecord& physicalDevice)
+    void LogPhysicalDevice(CustomWriter& rWriter, const VUPhysicalDeviceRecord& physicalDevice)
     {
-      LogPhysicalProperties(physicalDevice.Properties);
-      LogPhysicalDeviceFeatures(physicalDevice.Features);
-      LogPhysicalDeviceMemoryProperties(physicalDevice.MemoryProperties);
+      LogPhysicalProperties(rWriter, physicalDevice.Properties);
+      LogPhysicalDeviceFeatures(rWriter, physicalDevice.Features);
+      LogPhysicalDeviceMemoryProperties(rWriter, physicalDevice.MemoryProperties);
 
-      LogPhysicalDeviceQueueFamilyProperties(PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice.Device));
+      LogPhysicalDeviceQueueFamilyProperties(rWriter, PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice.Device));
 
-      LogAllFormats(physicalDevice);
+      LogAllFormats(rWriter, physicalDevice);
     }
 
-    void LogInstanceLayerProperties(const std::vector<VkLayerProperties>& layerProperties)
+    void LogInstanceLayerProperties(CustomWriter& rWriter, const std::vector<VkLayerProperties>& layerProperties)
     {
-      FSLLOG("Instance layer properties: " << layerProperties.size());
+      rWriter.Print("Instance layer properties: {}", layerProperties.size());
       for (std::size_t i = 0; i < layerProperties.size(); ++i)
       {
-        FSLLOG("- layer #" << i);
-        FSLLOG("  - name: " << layerProperties[i].layerName);
-        FSLLOG("  - specVersion: " << EncodedVulkanVersion(layerProperties[i].specVersion));
-        FSLLOG("  - implementationVersion: " << layerProperties[i].implementationVersion);
-        FSLLOG("  - description: " << layerProperties[i].description);
+        rWriter.Print("- layer #{}", i);
+        rWriter.Print("  - name: {}", layerProperties[i].layerName);
+        rWriter.Print("  - specVersion: {}", EncodedVulkanVersion(layerProperties[i].specVersion));
+        rWriter.Print("  - implementationVersion: {}", layerProperties[i].implementationVersion);
+        rWriter.Print("  - description: {}", layerProperties[i].description);
         auto extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(layerProperties[i].layerName);
         if (!extensionProperties.empty())
         {
-          FSLLOG("  - Extension properties:");
+          rWriter.Print("  - Extension properties:");
           for (std::size_t j = 0; j < extensionProperties.size(); ++j)
           {
-            FSLLOG("    - property #" << j);
-            FSLLOG("    - name: " << extensionProperties[j].extensionName);
-            FSLLOG("    - specVersion: " << extensionProperties[j].specVersion);
+            rWriter.Print("    - property #{}", j);
+            rWriter.Print("    - name: {}", extensionProperties[j].extensionName);
+            rWriter.Print("    - specVersion: {}", extensionProperties[j].specVersion);
           }
         }
       }
     }
 
-    void LogVulkanCoreExtensions()
+    void LogVulkanCoreExtensions(CustomWriter& rWriter)
     {
       auto extensionProperties = InstanceUtil::EnumerateInstanceExtensionProperties(nullptr);
-      FSLLOG("Core extensions: " << extensionProperties.size());
+      rWriter.Print("Core extensions: {}", extensionProperties.size());
       for (std::size_t j = 0; j < extensionProperties.size(); ++j)
       {
-        FSLLOG("- Extension #" << j);
-        FSLLOG("  - name: " << extensionProperties[j].extensionName);
-        FSLLOG("  - specVersion: " << extensionProperties[j].specVersion);
+        rWriter.Print("- Extension #{}", j);
+        rWriter.Print("  - name: {}", extensionProperties[j].extensionName);
+        rWriter.Print("  - specVersion: {}", extensionProperties[j].specVersion);
       }
     }
   }
@@ -569,18 +625,20 @@ namespace Fsl
 
   void VulkanInfo::Run()
   {
+    CustomWriter writer;
+
     auto instance = InstanceUtil::CreateInstance("VulkanInfo", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0, 0, 0, nullptr, 0, nullptr);
 
     auto instanceLayerProperties = InstanceUtil::EnumerateInstanceLayerProperties();
-    LogInstanceLayerProperties(instanceLayerProperties);
-    LogVulkanCoreExtensions();
+    LogInstanceLayerProperties(writer, instanceLayerProperties);
+    LogVulkanCoreExtensions(writer);
 
     const auto physicalDevices = InstanceUtil::EnumeratePhysicalDevices(instance.Get());
-    FSLLOG("Physical device count: " << physicalDevices.size());
+    writer.Print("Physical device count: {}", physicalDevices.size());
     for (std::size_t i = 0; i < physicalDevices.size(); ++i)
     {
-      FSLLOG("*** Physical device #" << i << " ***");
-      LogPhysicalDevice(VUPhysicalDeviceRecord(physicalDevices[i]));
+      writer.Print("*** Physical device #{} ***", i);
+      LogPhysicalDevice(writer, VUPhysicalDeviceRecord(physicalDevices[i]));
     }
 
     // for (std::size_t i = 0; i < physicalDevices.size(); ++i)

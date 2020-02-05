@@ -35,9 +35,47 @@
 
 namespace Fsl
 {
+  struct Gaussian5
+  {
+    float Weight0{};
+    float Weight1{};
+    float Offset0{};
+
+    constexpr Gaussian5() = default;
+
+    constexpr Gaussian5(const float weight0, const float weight1, const float offset0)
+      : Weight0(weight0)
+      , Weight1(weight1)
+      , Offset0(offset0)
+    {
+    }
+  };
+
+  struct Gaussian9
+  {
+    float Weight0{};
+    float Weight1{};
+    float Weight2{};
+    float Offset0{};
+    float Offset1{};
+
+    constexpr Gaussian9() = default;
+
+    constexpr Gaussian9(const float weight0, const float weight1, const float weight2, const float offset0, const float offset1)
+      : Weight0(weight0)
+      , Weight1(weight1)
+      , Weight2(weight2)
+      , Offset0(offset0)
+      , Offset1(offset1)
+    {
+    }
+  };
+
   class GaussianShaderBuilder
   {
   public:
+    static Gaussian5 Build5x5(const float kernelWeightMod);
+    static Gaussian9 Build9x9(const float kernelWeightMod);
     static std::string Build5x5(const std::string& strTemplate, const float kernelWeightMod);
     static std::string Build9x9(const std::string& strTemplate, const float kernelWeightMod);
   };

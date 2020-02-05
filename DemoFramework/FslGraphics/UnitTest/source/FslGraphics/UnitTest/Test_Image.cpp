@@ -56,7 +56,7 @@ namespace
 
   using TestTypes = ::testing::Types<TestType1, TestType2, TestType3, TestType4>;
 
-  TYPED_TEST_CASE(Test_Image, TestTypes);
+  TYPED_TEST_SUITE(Test_Image, TestTypes);
 }
 
 

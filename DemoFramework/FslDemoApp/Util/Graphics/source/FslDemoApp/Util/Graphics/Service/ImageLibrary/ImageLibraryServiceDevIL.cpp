@@ -31,9 +31,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
@@ -44,7 +43,6 @@
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibraryServiceDevIL.hpp>
 #include <cassert>
-#include <sstream>
 #include <utility>
 #include <IL/il.h>
 #ifdef _WIN32
@@ -143,7 +141,7 @@ namespace Fsl
       case BitmapOrigin::LowerLeft:
         return IL_ORIGIN_LOWER_LEFT;
       default:
-        FSLLOG_WARNING("Unsupported origin " << (int32_t)rOriginHint);
+        FSLLOG3_WARNING("Unsupported origin {}", static_cast<int32_t>(rOriginHint));
         rOriginHint = BitmapOrigin::UpperLeft;
         return IL_ORIGIN_UPPER_LEFT;
       }
@@ -279,8 +277,11 @@ namespace Fsl
       }
     }
 
-    struct ScopedDevILImage : private Noncopyable
+    struct ScopedDevILImage
     {
+      ScopedDevILImage(const ScopedDevILImage&) = delete;
+      ScopedDevILImage& operator=(const ScopedDevILImage&) = delete;
+
       ILuint Id{};
 
       ScopedDevILImage()
@@ -352,8 +353,7 @@ namespace Fsl
       ILenum devilError = ilGetError();
       if (devilError != IL_NO_ERROR)
       {
-        FSLLOG_WARNING("devIL image loading of '" << path.ToUTF8String() << "' not successfull: " << GetDevILErrorString(devilError) << " ("
-                                                  << devilError << ").");
+        FSLLOG3_WARNING("devIL image loading of '{}' not successfull: {} ({}).", path.ToUTF8String(), GetDevILErrorString(devilError), devilError);
         return false;
       }
 
@@ -407,8 +407,8 @@ namespace Fsl
       devilError = ilGetError();
 
       // Log any error that occurs
-      FSLLOG_WARNING_IF(devilError != IL_NO_ERROR,
-                        "devIL image conversion not successfull: " << GetDevILErrorString(devilError) << " (" << devilError << ").\n");
+      FSLLOG3_WARNING_IF(devilError != IL_NO_ERROR, "devIL image conversion not successfull: {} ({}).\n", GetDevILErrorString(devilError),
+                         devilError);
       return (devilError == IL_NO_ERROR);
     }
 
@@ -432,7 +432,7 @@ namespace Fsl
       }
       catch (std::exception& ex)
       {
-        FSLLOG_DEBUG_WARNING("devIL image conversion not successfull (" << ex.what() << ").\n");
+        FSLLOG3_DEBUG_WARNING("devIL image conversion not successfull ({}).\n", ex.what());
         FSL_PARAM_NOT_USED(ex);
         return false;
       }

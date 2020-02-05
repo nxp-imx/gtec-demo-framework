@@ -36,7 +36,7 @@
 
 namespace Fsl
 {
-  Option::Option(const std::string& smartName, const OptionArgument::Enum hasArg, const int32_t cmdId, std::string description)
+  Option::Option(const std::string& smartName, const OptionArgument hasArg, const int32_t cmdId, std::string description)
     : HasArg(hasArg)
     , CmdId(cmdId)
     , Description(std::move(description))
@@ -56,7 +56,7 @@ namespace Fsl
   }
 
 
-  Option::Option(const std::string& smartName, const OptionArgument::Enum hasArg, const int32_t cmdId, std::string description,
+  Option::Option(const std::string& smartName, const OptionArgument hasArg, const int32_t cmdId, std::string description,
                  const OptionGroup::Enum group)
     : HasArg(hasArg)
     , CmdId(cmdId)
@@ -78,8 +78,7 @@ namespace Fsl
   }
 
 
-  Option::Option(const std::string& shortName, const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId,
-                 std::string description)
+  Option::Option(const std::string& shortName, const std::string& name, const OptionArgument hasArg, const int32_t cmdId, std::string description)
     : ShortName(shortName)
     , Name(name)
     , HasArg(hasArg)
@@ -98,8 +97,8 @@ namespace Fsl
   }
 
 
-  Option::Option(const std::string& shortName, const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId,
-                 std::string description, const OptionGroup::Enum group)
+  Option::Option(const std::string& shortName, const std::string& name, const OptionArgument hasArg, const int32_t cmdId, std::string description,
+                 const OptionGroup::Enum group)
     : ShortName(shortName)
     , Name(name)
     , HasArg(hasArg)
@@ -119,14 +118,14 @@ namespace Fsl
   }
 
 
-  PositionalOption::PositionalOption(const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description)
+  PositionalOption::PositionalOption(const std::string& name, const OptionArgument hasArg, const int32_t cmdId, const std::string& description)
     : Option(name, hasArg, cmdId, description)
   {
     IsPositional = true;
   }
 
 
-  PositionalOption::PositionalOption(const std::string& name, const OptionArgument::Enum hasArg, const int32_t cmdId, const std::string& description,
+  PositionalOption::PositionalOption(const std::string& name, const OptionArgument hasArg, const int32_t cmdId, const std::string& description,
                                      const OptionGroup::Enum group)
     : Option(name, hasArg, cmdId, description, group)
   {

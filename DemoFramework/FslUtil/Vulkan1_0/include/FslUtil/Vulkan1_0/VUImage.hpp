@@ -174,6 +174,11 @@ namespace Fsl
         return m_mipLevels;
       }
 
+      VkExtent2D GetExtent2D() const
+      {
+        return VkExtent2D{m_extent.width, m_extent.height};
+      }
+
       VkExtent3D GetExtent() const
       {
         return m_extent;

@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventHelper.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
@@ -131,7 +131,7 @@ namespace Fsl
     }
 
     m_eventPoster->Post(MouseMoveEvent(m_position, mouseButtonFlags));
-    // FSLLOG("X: " << m_position.X << " Y: " << m_position.Y);
+    // FSLLOG3_INFO("X: {} Y: {}", m_position.X, m_position.Y);
   }
 
 
@@ -154,7 +154,7 @@ namespace Fsl
     //  mouseButtonFlags = m_buttonState;
 
     m_eventPoster->Post(RawMouseMoveEvent(newRawPosition, mouseButtonFlags));
-    // FSLLOG("RawX: " << m_rawPosition.X << " RawY: " << m_rawPosition.Y);
+    // FSLLOG3_INFO("RawX: {} RawY: {}", m_rawPosition.X, m_rawPosition.Y);
 
     m_rawPosition += newRawPosition;
   }

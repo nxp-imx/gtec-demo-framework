@@ -31,7 +31,7 @@
 
 #include "HitBasedInputSender.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include "../IModuleHost.hpp"

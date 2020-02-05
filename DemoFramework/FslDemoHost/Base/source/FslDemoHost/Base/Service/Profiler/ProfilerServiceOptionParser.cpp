@@ -32,11 +32,10 @@
 #include <FslDemoHost/Base/Service/Profiler/ProfilerServiceOptionParser.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/String/ToString.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <sstream>
 
 namespace Fsl
 {
@@ -63,11 +62,11 @@ namespace Fsl
   void ProfilerServiceOptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
     rOptions.emplace_back("Profiler.AverageEntries", OptionArgument::OptionRequired, CommandId::AverageEntries,
-                          "The number of frames used to calculate the average frame-time. Defaults to: " + ToString(DEFAULT_ENTRIES));
+                          fmt::format("The number of frames used to calculate the average frame-time. Defaults to: {}", DEFAULT_ENTRIES));
   }
 
 
-  OptionParseResult::Enum ProfilerServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult ProfilerServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     switch (cmdId)
     {

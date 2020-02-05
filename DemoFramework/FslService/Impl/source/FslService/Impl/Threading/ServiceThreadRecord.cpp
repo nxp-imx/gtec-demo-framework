@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ServiceThreadRecord.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslService/Impl/Foundation/Message/BasicMessageQueue.hpp>
 #include <FslService/Impl/Foundation/Message/ThreadInitBasicMessage.hpp>
 #include <FslService/Impl/Foundation/Message/ThreadShutdownBeginBasicMessage.hpp>
@@ -39,6 +39,7 @@
 #include <FslService/Impl/Threading/IServiceHostFactory.hpp>
 #include "ServiceHostCreateInfo.hpp"
 #include <cassert>
+#include <fmt/ostream.h>
 
 namespace Fsl
 {
@@ -52,7 +53,7 @@ namespace Fsl
 
       const auto currentThreadId = std::this_thread::get_id();
 
-      FSLLOG2(LogType::Verbose, "Thread started for serviceGroupId " << serviceConfig.Id.GetValue() << " on " << currentThreadId);
+      FSLLOG3_VERBOSE("Thread started for serviceGroupId {} on {}", serviceConfig.Id.GetValue(), currentThreadId);
       try
       {
         ServiceHostContext hostContext(incomingProvider);
@@ -66,11 +67,11 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR("Thread serviceGroupId " << serviceConfig.Id.GetValue() << " on " << currentThreadId << " threw exception: " << ex.what());
+        FSLLOG3_ERROR("Thread serviceGroupId {} on {} threw exception: {}", serviceConfig.Id.GetValue(), currentThreadId, ex.what());
         // Notify the owner queue that we shutdown due to a exception
         ownerQueue->Push(ThreadShutdownBasicMessage(serviceConfig.Id, std::current_exception()));
       }
-      FSLLOG2(LogType::Verbose, "Thread stopped for serviceGroupId " << serviceConfig.Id.GetValue() << " on " << currentThreadId);
+      FSLLOG3_VERBOSE("Thread stopped for serviceGroupId {} on {}", serviceConfig.Id.GetValue(), currentThreadId);
     }
   }
 

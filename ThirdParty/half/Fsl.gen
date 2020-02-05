@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
+  <ExternalLibrary Name="half" CreationYear="2020">
+    <Default.Platform.Supported Value="false"/>
+    <Define Name="FSL_FEATURE_HALF" Access="Public"/>
+    <Platform Name="Android" Supported="true">
+      <Dependency Name="Recipe.half_2_1"/>
+    </Platform>    
+  </ExternalLibrary>
+</FslBuildGen>

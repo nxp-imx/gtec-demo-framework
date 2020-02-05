@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoHost/Base/Service/Options/OptionsService.hpp>
 
 namespace Fsl
@@ -101,8 +101,8 @@ namespace Fsl
 
     const OptionParserId optionParserId(typeid(*p));
 
-    FSLLOG_WARNING_IF(m_optionParsers.find(optionParserId) != m_optionParsers.end(),
-                      "A option parser for the given id has already been registered, request ignored");
+    FSLLOG3_WARNING_IF(m_optionParsers.find(optionParserId) != m_optionParsers.end(),
+                       "A option parser for the given id has already been registered, request ignored");
 
     m_optionParsers[optionParserId] = optionParser;
   }

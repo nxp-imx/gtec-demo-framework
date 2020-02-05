@@ -33,7 +33,6 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include "ImageData.hpp"
 
 namespace Fsl

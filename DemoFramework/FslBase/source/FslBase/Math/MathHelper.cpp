@@ -92,6 +92,11 @@ namespace Fsl
         }
         return Point2(newSize, newSize);
       }
+
+      float WrapMax(const float value, const float max)
+      {
+        return std::fmod(max + std::fmod(value, max), max);
+      }
     }
 
     float DistBetweenAngles(const float from, const float to)
@@ -125,6 +130,11 @@ namespace Fsl
       return 1;
     }
 
+
+    float Wrap(const float value, const float min, const float max)
+    {
+      return (value >= min && value < max) ? value : (min + WrapMax(value - min, max - min));
+    }
 
     float WrapAngle(const float angle)
     {

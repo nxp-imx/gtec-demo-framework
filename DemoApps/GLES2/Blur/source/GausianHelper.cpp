@@ -31,7 +31,7 @@
 
 #include "GausianHelper.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/String/StringUtil.hpp>
@@ -431,6 +431,6 @@ namespace Fsl
       }
       str << "\n";
     }
-    FSLLOG(str.str());
+    FSLLOG3_INFO(str.str());
   }
 }

@@ -32,6 +32,8 @@
 
 #include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoService/CpuStats/Impl/Adapter/Win32/CpuStatsAdapterWin32.hpp>
+#include <FslDemoService/CpuStats/Impl/CpuStatsServiceFactory.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 //#include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 
@@ -75,6 +77,9 @@ namespace Fsl
     //    serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceVG, INativeGraphicsService>
     //    >(ServicePriorityList::NativeGraphicsService());
     //#endif
+
+    auto cpuStatsServiceFactory = std::make_shared<CpuStatsServiceFactory>([]() { return std::make_unique<CpuStatsAdapterWin32>(); });
+    serviceRegistry.Register(cpuStatsServiceFactory);
   }
 }
 #endif

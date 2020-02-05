@@ -31,7 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DPIHelperWin32.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <VersionHelpers.h>
 #include <cassert>
 
@@ -56,7 +56,7 @@ namespace Fsl
         m_funcGetDpiForMonitor = reinterpret_cast<FuncGetDpiForMonitor>(GetProcAddress(m_shcore, "GetDpiForMonitor"));
         if (m_funcGetDpiForMonitor == nullptr)
         {
-          FSLLOG_WARNING("Failed to locate GetDpiForMonitor in SHCore.dll");
+          FSLLOG3_WARNING("Failed to locate GetDpiForMonitor in SHCore.dll");
           FreeLibrary(m_shcore);
           m_shcore = nullptr;
           m_mode = Mode::Basic;
@@ -64,7 +64,7 @@ namespace Fsl
       }
       else
       {
-        FSLLOG_WARNING("Failed to load SHCore.dll dynamically");
+        FSLLOG3_WARNING("Failed to load SHCore.dll dynamically");
         m_mode = Mode::Basic;
       }
     }

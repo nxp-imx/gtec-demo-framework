@@ -39,11 +39,12 @@ from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
 
 class BuildConfigureCache(object):
-    def __init__(self, fileHashDict: Dict[str,str], commandList: List[str]) -> None:
+    def __init__(self, fileHashDict: Dict[str,str], commandList: List[str], platformName: str) -> None:
         super().__init__()
-        self.Version = 1
+        self.Version = 2
         self.FileHashDict = fileHashDict
         self.CommandList = commandList
+        self.PlatformName = platformName;
 
     @staticmethod
     def TryLoad(log: Log, cacheFilename: str) -> Optional['BuildConfigureCache']:
@@ -52,7 +53,7 @@ class BuildConfigureCache(object):
             if strJson is None:
                 return None
             jsonDict = json.loads(strJson)
-            if jsonDict["Version"] != 1:
+            if jsonDict["Version"] != 2:
                 raise Exception("Unsupported version")
 
             jsonFileHashDict = jsonDict["FileHashDict"]
@@ -69,7 +70,8 @@ class BuildConfigureCache(object):
                     raise Exception("json decode failed")
                 finalCommandList.append(value)
 
-            return BuildConfigureCache(finalDict, finalCommandList)
+            platformName = jsonDict["PlatformName"] # type: str
+            return BuildConfigureCache(finalDict, finalCommandList, platformName)
         except:
             log.DoPrintWarning("Failed to decode cache file '{0}'".format(cacheFilename))
             return None
@@ -92,4 +94,5 @@ class BuildConfigureCache(object):
         for index, value in enumerate(lhs.CommandList):
             if value != rhs.CommandList[index]:
                 return False
-        return True
+
+        return lhs.PlatformName == rhs.PlatformName

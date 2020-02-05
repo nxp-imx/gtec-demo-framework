@@ -33,7 +33,7 @@
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <cassert>
 #include <cstring>
@@ -56,7 +56,7 @@ namespace Fsl
       {
         if (pszLayerName == nullptr)
         {
-          FSLLOG_DEBUG_WARNING("IsInstanceLayerAvailable called with nullptr, this always returns false.");
+          FSLLOG3_DEBUG_WARNING("IsInstanceLayerAvailable called with nullptr, this always returns false.");
           return false;
         }
 
@@ -94,7 +94,7 @@ namespace Fsl
       {
         if (pszExtensionName == nullptr)
         {
-          FSLLOG_DEBUG_WARNING("IsInstanceExtensionAvailable called with nullptr, this always returns false.");
+          FSLLOG3_DEBUG_WARNING("IsInstanceExtensionAvailable called with nullptr, this always returns false.");
           return false;
         }
 

@@ -70,7 +70,7 @@ class XmlBase2(XmlBase):
 
 
     def BaseLoad(self, xmlElement: ET.Element, subPackageSupport: SubPackageSupportConfig) -> None:
-        self.SystemSubPackageSupport = subPackageSupport  # type: SubPackageSupportConfig
+        self.SystemSubPackageSupport = subPackageSupport
         self.ExternalDependencies = self.__GetXMLExternalDependencies(xmlElement)
         self.DirectDefines = self.__GetXMLDefines(xmlElement)
         self.DirectDependencies = self._GetXMLDependencies(xmlElement)

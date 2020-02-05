@@ -8,7 +8,7 @@ echo We only support x64, please upgrade.
 exit /b 1
 
 :WIN64
-set FSL_GLES_EMULATOR_PATH=c:\Program Files\ARM\Mali Developer Tools\Mali OpenGL ES Emulator 3.0.2.g694a9
+set FSL_GLES_EMULATOR_PATH=c:\Program Files\ARM\Mali Developer Tools\Mali OpenGL ES Emulator 3.0.4-2-g8d905
 goto start
 
 :START

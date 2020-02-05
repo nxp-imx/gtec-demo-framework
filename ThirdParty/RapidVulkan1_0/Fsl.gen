@@ -7,7 +7,7 @@
     <Dependency Name="VulkanBase"/>
     <Define Name="FSL_DEMOFRAMEWORK" Access="Public"/>
     <Define Name="RAPIDVULKAN_ERRORFORMATTER_EXTERN" Access="Public"/>
-    <Dependency Name="Recipe.RapidVulkan_1_1_114_1000"/>
+    <Dependency Name="Recipe.RapidVulkan_1_2_131"/>
     <Platform Name="Windows" ProjectId="354EEE50-7F7B-44AD-94BB-3DD35938149C"/>
   </Library>
 </FslBuildGen>

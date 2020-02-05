@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexElementFormat.hpp>
 
 namespace Fsl
@@ -39,10 +40,83 @@ namespace Fsl
   class VertexElementFormatUtil
   {
   public:
-    static uint32_t GetBytesPerElement(const VertexElementFormat format);
-    static int32_t TryGetBytesPerElement(const VertexElementFormat format);
-    static uint32_t GetElementCount(const VertexElementFormat format);
-    static int32_t TryGetElementCount(const VertexElementFormat format);
+    constexpr static int32_t TryGetBytesPerElement(const VertexElementFormat format)
+    {
+      switch (format)
+      {
+      case VertexElementFormat::Single:
+        return sizeof(float) * 1;
+      case VertexElementFormat::Vector2:
+        return sizeof(float) * 2;
+      case VertexElementFormat::Vector3:
+        return sizeof(float) * 3;
+      case VertexElementFormat::Vector4:
+        return sizeof(float) * 4;
+      case VertexElementFormat::Matrix4x4:
+        return sizeof(float) * 4 * 4;
+      case VertexElementFormat::X8_UNORM:
+      case VertexElementFormat::X8_UINT:
+        return sizeof(uint8_t) * 1;
+      case VertexElementFormat::X8Y8_UNORM:
+      case VertexElementFormat::X8Y8_UINT:
+        return sizeof(uint8_t) * 2;
+      case VertexElementFormat::X8Y8Z8_UNORM:
+      case VertexElementFormat::X8Y8Z8_UINT:
+        return sizeof(uint8_t) * 3;
+      case VertexElementFormat::X8Y8Z8W8_UNORM:
+      case VertexElementFormat::X8Y8Z8W8_UINT:
+        return sizeof(uint8_t) * 4;
+      default:
+        return -1;
+      }
+    }
+
+    constexpr static uint32_t GetBytesPerElement(const VertexElementFormat format)
+    {
+      return ProcessResult(TryGetBytesPerElement(format));
+    }
+
+    constexpr static int32_t TryGetElementCount(const VertexElementFormat format)
+    {
+      switch (format)
+      {
+      case VertexElementFormat::Single:
+        return 1;
+      case VertexElementFormat::Vector2:
+        return 2;
+      case VertexElementFormat::Vector3:
+        return 3;
+      case VertexElementFormat::Vector4:
+        return 4;
+      case VertexElementFormat::Matrix4x4:
+        return 4 * 4;
+      case VertexElementFormat::X8_UNORM:
+      case VertexElementFormat::X8_UINT:
+        return 1;
+      case VertexElementFormat::X8Y8_UNORM:
+      case VertexElementFormat::X8Y8_UINT:
+        return 2;
+      case VertexElementFormat::X8Y8Z8_UNORM:
+      case VertexElementFormat::X8Y8Z8_UINT:
+        return 3;
+      case VertexElementFormat::X8Y8Z8W8_UNORM:
+      case VertexElementFormat::X8Y8Z8W8_UINT:
+        return 4;
+      default:
+        return -1;
+      }
+    }
+
+    constexpr static uint32_t GetElementCount(const VertexElementFormat format)
+    {
+      return ProcessResult(TryGetElementCount(format));
+    }
+
+  private:
+    constexpr inline static uint32_t ProcessResult(const int32_t res)
+    {
+      return res >= 0 ? static_cast<uint32_t>(res) : throw NotSupportedException("Unknown VertexElementFormat");
+    }
   };
 }
 

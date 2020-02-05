@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ConsoleMinimal101.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Exceptions.hpp>
 
 namespace Fsl
@@ -51,6 +51,6 @@ namespace Fsl
 
   void ConsoleMinimal101::Run()
   {
-    FSLBASICLOG("Hello world");
+    FSLLOG3_INFO("Hello world");
   }
 }

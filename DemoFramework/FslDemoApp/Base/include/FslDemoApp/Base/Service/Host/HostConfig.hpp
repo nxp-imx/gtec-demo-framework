@@ -31,6 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
+
 namespace Fsl
 {
   struct HostConfig
@@ -38,13 +40,15 @@ namespace Fsl
     bool AppFirewall = false;
     bool ContentMonitor = false;
     bool StatOverlay = false;
+    DemoAppStatsFlags LogStatsFlags{DemoAppStatsFlags::Nothing};
 
     HostConfig() = default;
 
-    HostConfig(const bool appFirewall, const bool contentMonitor, const bool statOverlay)
+    HostConfig(const bool appFirewall, const bool contentMonitor, const bool statOverlay, const DemoAppStatsFlags logStatsFlags)
       : AppFirewall(appFirewall)
       , ContentMonitor(contentMonitor)
       , StatOverlay(statOverlay)
+      , LogStatsFlags(logStatsFlags)
     {
     }
   };

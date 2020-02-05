@@ -45,9 +45,9 @@ namespace Fsl
     Vector3 Normal;
     Vector2 TextureCoordinate;
 
-    VertexPositionNormalTexture() = default;
+    constexpr VertexPositionNormalTexture() = default;
 
-    VertexPositionNormalTexture(const Vector3& position, const Vector3& normal, const Vector2& textureCoordinate)
+    constexpr VertexPositionNormalTexture(const Vector3& position, const Vector3& normal, const Vector2& textureCoordinate)
       : Position(position)
       , Normal(normal)
       , TextureCoordinate(textureCoordinate)

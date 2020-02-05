@@ -1,0 +1,16 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/GNUmakefile_Yocto
+/Shared.Stats.VC.VC.opendb
+/Shared.Stats.VC.db
+/Shared.Stats.manifest
+/Shared.Stats.opensdf
+/Shared.Stats.sdf
+/Shared.Stats.sln
+/Shared.Stats.v12.sdf
+/Shared.Stats.v12.suo
+/Shared.Stats.vcxproj
+/Shared.Stats.vcxproj.filters
+/Shared.Stats.vcxproj.user
+/build/

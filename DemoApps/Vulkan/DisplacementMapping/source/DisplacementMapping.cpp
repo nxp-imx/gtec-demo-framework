@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DisplacementMapping.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -43,6 +43,7 @@
 #include <cmath>
 #include <cstring>
 #include <iomanip>
+#include <sstream>
 
 namespace Fsl
 {
@@ -78,7 +79,7 @@ namespace Fsl
     }
     if (m_deviceActiveFeatures.fillModeNonSolid == VK_FALSE)
     {
-      FSLLOG("Disabling split screen");
+      FSLLOG3_INFO("Disabling split screen");
       m_splitScreen = false;
     }
   }
@@ -268,12 +269,12 @@ namespace Fsl
   {
     if (m_deviceActiveFeatures.textureCompressionBC != VK_FALSE)
     {
-      FSLLOG("Using BC compression");
+      FSLLOG3_INFO("Using BC compression");
       m_textures.ColorHeightMap = m_textureLoader->LoadTexture("Textures/Pattern36/pattern_36_bc3.ktx");
     }
     else if (m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      FSLLOG("Using ETC2 compression");
+      FSLLOG3_INFO("Using ETC2 compression");
       m_textures.ColorHeightMap = m_textureLoader->LoadTexture("Textures/Pattern36/pattern_36_etc2.ktx");
     }
     else
@@ -506,7 +507,7 @@ namespace Fsl
     pipelineCreateInfo.pStages = shaderStages.data();
     pipelineCreateInfo.renderPass = m_renderPass.Get();
 
-    FSLLOG("Creating solid pipe");
+    FSLLOG3_INFO("Creating solid pipe");
     // Solid pipeline
     rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
     m_pipelines.Solid.Reset(m_device.Get(), m_pipelineCache.Get(), pipelineCreateInfo);
@@ -524,7 +525,7 @@ namespace Fsl
 
       pipelineCreateInfo.pDynamicState = &dynamicState2;
 
-      FSLLOG("Creating wireless pipe");
+      FSLLOG3_INFO("Creating wireless pipe");
       rasterizationState.polygonMode = VK_POLYGON_MODE_LINE;
       rasterizationState.cullMode = VK_CULL_MODE_NONE;
       m_pipelines.Wireframe.Reset(m_device.Get(), m_pipelineCache.Get(), pipelineCreateInfo);

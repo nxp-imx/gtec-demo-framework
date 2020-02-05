@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <fstream>
 
@@ -39,9 +38,12 @@ namespace Fsl
 {
   class BasicTextureAtlas;
 
-  class BinaryTextureAtlasLoader : private Noncopyable
+  class BinaryTextureAtlasLoader
   {
   public:
+    BinaryTextureAtlasLoader(const BinaryTextureAtlasLoader&) = delete;
+    BinaryTextureAtlasLoader& operator=(const BinaryTextureAtlasLoader&) = delete;
+
     //! @brief Load the texture atlas from a file
     //! @param rTextureAtlas the atlas that will be filled with the loaded atlas
     //! @param strFilename the file to load.

@@ -21,7 +21,7 @@
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
 
 namespace Fsl

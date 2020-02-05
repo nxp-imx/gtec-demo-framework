@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
@@ -328,7 +328,7 @@ namespace Fsl
         }
         catch (const std::exception&)
         {
-          FSLBASICLOG_ERROR("ScopeDirectAccess unlock failed and destructor can not throw so aborting.");
+          FSLLOG3_ERROR("ScopeDirectAccess unlock failed and destructor can not throw so aborting.");
           std::abort();
         }
       }

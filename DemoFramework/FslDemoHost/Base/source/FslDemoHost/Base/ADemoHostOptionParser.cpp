@@ -31,7 +31,7 @@
 
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoHost/Base/ADemoHostOptionParser.hpp>
 #include <cstdlib>
 #include <cstring>
@@ -67,7 +67,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum ADemoHostOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult ADemoHostOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
   {
     Rectangle rectValue;
     int32_t intValue;
@@ -113,7 +113,7 @@ namespace Fsl
 
       if (psz != nullptr)
       {
-        FSLLOG("Using environment variable '" << ENV_PREFERRED_WINDOW_RESOLUTION << "' = '" << psz << "' to set window resolution.");
+        FSLLOG3_INFO("Using environment variable '{}' = '{}' to set window resolution.", ENV_PREFERRED_WINDOW_RESOLUTION, psz);
         Rectangle rectValue;
         StringParseUtil::Parse(rectValue, psz);
         m_nativeWindowConfig.SetWindowMode(WindowMode::Window);

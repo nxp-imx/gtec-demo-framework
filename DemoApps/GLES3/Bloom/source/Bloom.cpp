@@ -55,13 +55,15 @@ namespace Fsl
 
   namespace
   {
-    const float DEFAULT_ZOOM = 10;
-    const int SIZE_MOD = 2;
-    const int SIZE_16 = 16 * SIZE_MOD;
-    const int SIZE_32 = 32 * SIZE_MOD;
-    const int SIZE_64 = 64 * SIZE_MOD;
-    const int SIZE_128 = 128 * SIZE_MOD;
-    const int SIZE_256 = 256 * SIZE_MOD;
+    const constexpr float DEFAULT_ZOOM = 10;
+    const constexpr float DEFAULT_X_ROTATION = MathHelper::TO_RADS * 20.0f;
+
+    const constexpr int SIZE_MOD = 2;
+    const constexpr int SIZE_16 = 16 * SIZE_MOD;
+    const constexpr int SIZE_32 = 32 * SIZE_MOD;
+    const constexpr int SIZE_64 = 64 * SIZE_MOD;
+    const constexpr int SIZE_128 = 128 * SIZE_MOD;
+    const constexpr int SIZE_256 = 256 * SIZE_MOD;
 
     const char* const g_pszShaderAttributeArray[] = {"VertexPosition", "VertexTexCoord", nullptr};
 
@@ -72,7 +74,6 @@ namespace Fsl
   // The idea is not to create the most accurate bloom, but something that is fairly fast.
   // http://prideout.net/archive/bloom/
   // http://kalogirou.net/2006/05/20/how-to-do-good-bloom-for-hdr-rendering/
-
   Bloom::Bloom(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_menuUI(config)
@@ -108,9 +109,10 @@ namespace Fsl
     {
       int res;
       glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &res);
-      FSLLOG("GL_MAX_COLOR_ATTACHMENTS: " << res);
+      FSLLOG3_INFO("GL_MAX_COLOR_ATTACHMENTS: {}", res);
     }
 
+    m_camera.SetRotation(Matrix::CreateRotationX(DEFAULT_X_ROTATION));
     m_camera.SetZoom(DEFAULT_ZOOM);
     m_storedStartRotation = m_rotation;
 
@@ -136,8 +138,9 @@ namespace Fsl
 
     GL_CHECK_FOR_ERROR();
 
-
+    FSLLOG3_INFO("Preparing scene0");
     m_sceneRender = std::make_shared<RenderScene>(config, m_menuUI.GetSceneId());
+    FSLLOG3_INFO("Preparing scene1");
     m_sceneWhiteRect = std::make_shared<WhiteRectScene>(config);
 
     if (m_menuUI.GetSceneId() == 2)
@@ -148,6 +151,8 @@ namespace Fsl
     {
       m_scene = m_sceneRender;
     }
+
+    FSLLOG3_INFO("Ready");
   }
 
 
@@ -221,6 +226,7 @@ namespace Fsl
       if (event.IsPressed())
       {
         m_camera.ResetRotation();
+        m_camera.SetRotation(Matrix::CreateRotationX(DEFAULT_X_ROTATION));
         m_camera.SetZoom(DEFAULT_ZOOM);
         m_rotation = m_storedStartRotation;
         event.Handled();
@@ -351,14 +357,6 @@ namespace Fsl
     }
 
     DrawFinalComposite();
-
-
-    // Calling this last allows the UI to draw on top of everything.
-    // Beware that the UI drawing methods might alter the OpenGL state!
-    if (m_renderUI)
-    {
-      m_menuUI.Draw();
-    }
   }
 
   void Bloom::DrawFinalComposite()
@@ -421,7 +419,7 @@ namespace Fsl
     if (m_menuUI.IsShowBuffersEnabled())
     {
       float dstX = 0;
-      m_batch->Begin();
+      m_batch->Begin(BlendState::Opaque);
       m_batch->Draw(m_fbRender256, Vector2(dstX, 0), Color::White());
       dstX += m_fbRender256.GetSize().X;
       m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0.0f), Color::White());
@@ -435,6 +433,13 @@ namespace Fsl
       m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0.0f), Color::White());
       // dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
+    }
+
+    // Calling this last allows the UI to draw on top of everything.
+    // Beware that the UI drawing methods might alter the OpenGL state!
+    if (m_renderUI)
+    {
+      m_menuUI.Draw();
     }
   }
 
@@ -499,7 +504,7 @@ namespace Fsl
       m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), g_pszShaderAttributeArray);
       m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), g_pszShaderAttributeArray);
       break;
-    case Bloom::Gaussian9X9:
+    case BlurShaderType::Gaussian9X9:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9HPass.frag"), gaussianBlurKernelWeightMod),
@@ -509,7 +514,7 @@ namespace Fsl
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9VPass.frag"), gaussianBlurKernelWeightMod),
         g_pszShaderAttributeArray);
       break;
-    case Bloom::Gaussian5X5:
+    case BlurShaderType::Gaussian5X5:
     default:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,

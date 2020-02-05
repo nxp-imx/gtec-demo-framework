@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslService/Impl/Foundation/Message/Message.hpp>
 #include <functional>
 #include <memory>
@@ -41,11 +40,14 @@ namespace Fsl
 {
   class IAsynchronousServiceMessageHandlerRegistry;
 
-  class AsynchronousServiceMessageHandlerRegistry : private Noncopyable
+  class AsynchronousServiceMessageHandlerRegistry
   {
     std::shared_ptr<IAsynchronousServiceMessageHandlerRegistry> m_registry;
 
   public:
+    AsynchronousServiceMessageHandlerRegistry(const AsynchronousServiceMessageHandlerRegistry&) = delete;
+    AsynchronousServiceMessageHandlerRegistry& operator=(const AsynchronousServiceMessageHandlerRegistry&) = delete;
+
     using type_message_function = std::function<void(Message&)>;
 
     AsynchronousServiceMessageHandlerRegistry(const std::shared_ptr<IAsynchronousServiceMessageHandlerRegistry>& registry);

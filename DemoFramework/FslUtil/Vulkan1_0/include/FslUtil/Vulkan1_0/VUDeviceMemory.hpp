@@ -33,7 +33,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Math/Span.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <vulkan/vulkan.h>
@@ -179,13 +179,13 @@ namespace Fsl
 
       const void* GetMappedMemoryPointer() const
       {
-        FSLBASICLOG_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
+        FSLLOG3_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
         return m_pData;
       }
 
       void* GetMappedMemoryPointer()
       {
-        FSLBASICLOG_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
+        FSLLOG3_DEBUG_WARNING_IF(!m_isMapped, "Requested a memory pointer for unmapped device memory, this will be a nullptr.")
         return m_pData;
       }
 

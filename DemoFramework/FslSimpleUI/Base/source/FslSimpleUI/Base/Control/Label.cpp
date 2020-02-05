@@ -32,8 +32,9 @@
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
+#include <cstring>
 
 namespace Fsl
 {
@@ -42,6 +43,29 @@ namespace Fsl
     Label::Label(const std::shared_ptr<WindowContext>& context)
       : LabelBase(context)
     {
+    }
+
+
+    void Label::SetContent(const char* const psz)
+    {
+      if (psz == nullptr)
+      {
+        throw std::invalid_argument("psz can not be null");
+      }
+
+      SetContent(StringViewLite(psz, std::strlen(psz)));
+    }
+
+
+    void Label::SetContent(const StringViewLite& value)
+    {
+      if (value == StringViewLite(m_content.data(), m_content.size()))
+      {
+        return;
+      }
+
+      m_content.assign(value.data(), value.size());
+      PropertyUpdated(PropertyType::Content);
     }
 
 
@@ -55,5 +79,6 @@ namespace Fsl
       m_content = value;
       PropertyUpdated(PropertyType::Content);
     }
+
   }
 }

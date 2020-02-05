@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ParticleSystemTwoArrays.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <algorithm>
 #include <cassert>
@@ -109,7 +109,7 @@ namespace Fsl
     m_pOld = pParticles;
 
     // auto end = timer.GetTime();
-    // FSLLOG("ParticleSystem update time: " << end - start);
+    // FSLLOG3_INFO(  "ParticleSystem update time: " << end - start);
   }
 
   void ParticleSystemTwoArrays::Draw(const ParticleDrawContext& context)

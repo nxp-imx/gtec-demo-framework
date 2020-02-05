@@ -36,8 +36,8 @@ from typing import Optional
 from FslBuildGen.Log import Log
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildExternal.DataTypes import RecipeType
+from FslBuildGen.BuildExternal.PipelineCommand import PipelineCommand
 from FslBuildGen.BuildExternal.PipelineCommandBuilder import PipelineCommandBuilder
-from FslBuildGen.BuildExternal.PipelineCommandBuilder import PipelineCommand
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
 from FslBuildGen.Packages.Package import Package

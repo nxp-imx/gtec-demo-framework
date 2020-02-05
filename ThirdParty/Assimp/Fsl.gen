@@ -5,16 +5,16 @@
     <Default.Platform.Supported Value="false"/>
     <Define Name="FSL_ENABLE_ASSIMP" Access="Public"/> 
     <Platform Name="Android" Supported="true">
-      <Dependency Name="Recipe.assimp_4_1_0"/>
+      <Dependency Name="Recipe.assimp_5_0"/>
     </Platform>  
     <Platform Name="Ubuntu" Supported="true">
-      <Dependency Name="Recipe.assimp_4_1_0"/>
+      <Dependency Name="Recipe.assimp_5_0"/>
     </Platform>  
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="assimp" Type="StaticLib"/>
     </Platform>    
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.assimp_4_1_0"/>
+      <Dependency Name="Recipe.assimp_5_0"/>
     </Platform>    
   </ExternalLibrary>
 </FslBuildGen>

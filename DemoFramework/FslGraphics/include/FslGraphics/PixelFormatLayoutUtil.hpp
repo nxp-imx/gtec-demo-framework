@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormatLayout.hpp>
 #include <FslGraphics/StrideRequirement.hpp>
@@ -51,7 +51,7 @@ namespace Fsl
                PixelFormatLayoutFlags::BIT_INDEX_ENCODED_LAYOUT0_BYTES_PER_PIXEL;
       }
 
-      FSLBASICLOG_DEBUG_WARNING("PixelFormatLayoutUtil::GetBytesPerPixel called on compressed pixel format");
+      FSLLOG3_DEBUG_WARNING("PixelFormatLayoutUtil::GetBytesPerPixel called on compressed pixel format");
       return 0;
     }
 

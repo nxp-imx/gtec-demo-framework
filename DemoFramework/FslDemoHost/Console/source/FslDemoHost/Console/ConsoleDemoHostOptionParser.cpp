@@ -60,7 +60,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum ConsoleDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
+  OptionParseResult ConsoleDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
   {
     return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
   }

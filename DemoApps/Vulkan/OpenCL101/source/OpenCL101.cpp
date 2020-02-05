@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "OpenCL101.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
@@ -50,11 +50,11 @@ namespace Fsl
     cl_int err = clGetPlatformIDs(0, nullptr, &numPlatforms);
     if (err == CL_SUCCESS)
     {
-      FSLLOG("Detected OpenCL platforms: " << numPlatforms);
+      FSLLOG3_INFO("Detected OpenCL platforms: {}", numPlatforms);
     }
     else
     {
-      FSLLOG("Error calling clGetPlatformIDs. Error code: " << err);
+      FSLLOG3_INFO("Error calling clGetPlatformIDs. Error code: {}", err);
     }
   }
 

@@ -35,7 +35,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/Rect.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/EventDescription.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>

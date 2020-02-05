@@ -32,7 +32,7 @@
 #include <FslUtil/OpenGLES2/Draw/GLLineDraw.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
@@ -69,7 +69,7 @@ namespace Fsl
       {
         std::size_t newCapacity = vertexCount;
         // Warn the developer in debug mode
-        FSLLOG_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: " << LineVertexBuffer.GetCapacity() << " to " << newCapacity);
+        FSLLOG3_DEBUG_WARNING("Performance-issue: Resizing LineVertexBuffer from: {} to {}", LineVertexBuffer.GetCapacity(), newCapacity);
         // Dump the existing buffer and then create a new one
         LineVertexBuffer.Reset();
         LineVertexBuffer.Reset(nullptr, newCapacity, VertexPositionColor::GetVertexDeclaration(), GL_DYNAMIC_DRAW);

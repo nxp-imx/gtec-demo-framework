@@ -218,7 +218,7 @@ namespace Fsl
 
   Texture::~Texture()
   {
-    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
+    FSLLOG3_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
   }
 
 
@@ -466,10 +466,10 @@ namespace Fsl
   {
     if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat))
     {
-      FSLBASICLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant modify a compressed pixel format");
+      FSLLOG3_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant modify a compressed pixel format");
       return;
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
@@ -477,9 +477,9 @@ namespace Fsl
     const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
     if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
     {
-      FSLBASICLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
       return;
     }
 
@@ -502,10 +502,10 @@ namespace Fsl
   {
     if (level >= m_textureInfo.Levels || face >= m_textureInfo.Faces || layer >= m_textureInfo.Layers || PixelFormatUtil::IsCompressed(m_pixelFormat))
     {
-      FSLBASICLOG_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant read from a compressed pixel format");
+      FSLLOG3_DEBUG_WARNING_IF(level >= m_textureInfo.Levels, "level is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(face >= m_textureInfo.Faces, "face is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(layer >= m_textureInfo.Layers, "layer is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(PixelFormatUtil::IsCompressed(m_pixelFormat), "Cant read from a compressed pixel format");
       return 0;
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
@@ -513,9 +513,9 @@ namespace Fsl
     const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
     if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
     {
-      FSLBASICLOG_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
-      FSLBASICLOG_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(x >= levelWidthInBytes, "x is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(y >= levelExtent.Height, "y is out of bounds");
+      FSLLOG3_DEBUG_WARNING_IF(z >= levelExtent.Depth, "z is out of bounds");
       return 0;
     }
 
@@ -593,7 +593,7 @@ namespace Fsl
   {
     if (m_isLocked)
     {
-      FSLBASICLOG_DEBUG_WARNING("The texture is already locked");
+      FSLLOG3_DEBUG_WARNING("The texture is already locked");
       return false;
     }
 
@@ -880,7 +880,7 @@ namespace Fsl
 
   void Texture::ResetNoThrow()
   {
-    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
+    FSLLOG3_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
     m_content.clear();
     m_blobs.clear();
     m_extent = Extent3D();

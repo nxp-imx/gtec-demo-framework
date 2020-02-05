@@ -7,7 +7,7 @@
  */
 
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 
 namespace Fsl
 {
@@ -75,7 +75,7 @@ namespace Fsl
           imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
           break;
         default:
-          FSLBASICLOG_WARNING("Unhandled oldImageLayout");
+          FSLLOG3_WARNING("Unhandled oldImageLayout");
           break;
         }
 
@@ -113,7 +113,7 @@ namespace Fsl
           imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
           break;
         default:
-          FSLBASICLOG_WARNING("Unhandled newImageLayout");
+          FSLLOG3_WARNING("Unhandled newImageLayout");
           break;
         }
 

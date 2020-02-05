@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
@@ -222,7 +222,7 @@ namespace Fsl
 
   Bitmap::~Bitmap()
   {
-    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
+    FSLLOG3_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
   }
 
 
@@ -479,7 +479,7 @@ namespace Fsl
     const auto byteWidth = m_bytesPerPixel * m_extent.Width;
     if (x >= byteWidth || y >= m_extent.Height)
     {
-      FSLLOG_DEBUG_WARNING("SetUInt8 out of bounds x:" << x << " y: " << y);
+      FSLLOG3_DEBUG_WARNING("SetUInt8 out of bounds x: {} y: {}", x, y);
       return;
     }
 
@@ -493,7 +493,7 @@ namespace Fsl
     const auto byteWidth = m_bytesPerPixel * m_extent.Width;
     if (x >= byteWidth || y >= m_extent.Height)
     {
-      FSLLOG_DEBUG_WARNING("GetUInt8 out of bounds x:" << x << " y: " << y);
+      FSLLOG3_DEBUG_WARNING("GetUInt8 out of bounds x: {}, y: {}", x, y);
       return 0;
     }
 
@@ -521,7 +521,7 @@ namespace Fsl
   {
     if (m_isLocked)
     {
-      FSLBASICLOG_DEBUG_WARNING("The bitmap is already locked");
+      FSLLOG3_DEBUG_WARNING("The bitmap is already locked");
       return false;
     }
 
@@ -674,7 +674,7 @@ namespace Fsl
 
   void Bitmap::ResetNoThrow() noexcept
   {
-    FSLBASICLOG_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
+    FSLLOG3_WARNING_IF(m_isLocked, "Destroying a locked bitmap, the content being accessed will no longer be available");
     m_content.clear();
     m_extent = Extent2D();
     m_stride = 0;

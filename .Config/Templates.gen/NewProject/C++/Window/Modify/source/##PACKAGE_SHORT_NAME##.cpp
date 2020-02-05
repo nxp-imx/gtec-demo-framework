@@ -30,7 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include "##PACKAGE_SHORT_NAME##.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 
 namespace Fsl

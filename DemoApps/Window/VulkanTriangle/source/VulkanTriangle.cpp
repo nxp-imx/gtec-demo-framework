@@ -26,7 +26,7 @@
 // Based on a sample by Norbert Nopper from VKTS Examples (VKTS_Sample02)
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoHost/Base/Service/WindowHost/IWindowHostInfo.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
@@ -61,7 +61,7 @@ namespace Fsl
   VulkanTriangle::VulkanTriangle(const DemoAppConfig& config)
     : VulkanWindowDemoApp(config)
   {
-    FSLLOG("VulkanTriangle app creating");
+    FSLLOG3_INFO("VulkanTriangle app creating");
 
     m_commandPool.Reset(m_device.Get(), 0, m_deviceQueue.QueueFamilyIndex);
 
@@ -73,7 +73,7 @@ namespace Fsl
     m_imageAcquiredSemaphore.Reset(m_device.Get(), 0);
     m_renderingCompleteSemaphore.Reset(m_device.Get(), 0);
 
-    FSLLOG("VulkanTriangle app created");
+    FSLLOG3_INFO("VulkanTriangle app created");
   }
 
 
@@ -82,12 +82,12 @@ namespace Fsl
     try
     {
       // Wait for everything to be idle before we try to free it
-      FSLLOG("VulkanTriangle app destroying");
+      FSLLOG3_INFO("VulkanTriangle app destroying");
     }
     catch (const std::exception& ex)
     {
       // We log and swallow it since destructor's are not allowed to throw
-      FSLLOG_ERROR("Exception during destruction: " << ex.what());
+      FSLLOG3_ERROR("Exception during destruction: {}", ex.what());
     }
   }
 
@@ -123,7 +123,7 @@ namespace Fsl
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
       {
         // TODO: support 'soft restart'
-        FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
+        FSLLOG3_INFO("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
         GetDemoAppControl()->RequestAppRestart();
         return;
       }
@@ -159,7 +159,7 @@ namespace Fsl
       if (result == VK_ERROR_OUT_OF_DATE_KHR)
       {
         // TODO: support 'soft restart'
-        FSLLOG("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
+        FSLLOG3_INFO("Restaring app due to VK_ERROR_OUT_OF_DATE_KHR");
         GetDemoAppControl()->RequestAppRestart();
         return;
       }

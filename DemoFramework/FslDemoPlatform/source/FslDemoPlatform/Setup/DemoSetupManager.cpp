@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Setup/DemoSetupManager.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoPlatform/Setup/DemoHostAppSetupBuilder.hpp>
 #include <FslDemoPlatform/Setup/DemoHostRegistry.hpp>

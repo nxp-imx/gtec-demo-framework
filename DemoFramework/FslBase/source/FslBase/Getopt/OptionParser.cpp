@@ -35,21 +35,17 @@
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <FslBase/String/ToString.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/IO/File.hpp>
 #include "OptionRecord.hpp"
+#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
-//#include <fmt/core.h>
 
 namespace Fsl
 {
@@ -76,7 +72,7 @@ namespace Fsl
     void AppendArguments(std::deque<OptionRecord>& rCombinedOptions, const std::shared_ptr<OptionSourceRecord>& source,
                          const std::deque<Option>& sourceOptions)
     {
-      for (auto option : sourceOptions)
+      for (const auto& option : sourceOptions)
       {
         if (IsUniqueOption(rCombinedOptions, option))
         {
@@ -84,24 +80,25 @@ namespace Fsl
         }
         else
         {
-          std::stringstream stream("Option already defined: ");
+          fmt::memory_buffer buf;
+          fmt::format_to(buf, "Option already defined: ");
           if (!option.ShortName.empty())
           {
-            stream << "'" << option.ShortName << "'";
+            fmt::format_to(buf, "'{}'", option.ShortName);
           }
           if (!option.Name.empty())
           {
             if (!option.ShortName.empty())
             {
-              stream << "' ";
+              fmt::format_to(buf, "' ");
             }
             else
             {
-              stream << "'";
+              fmt::format_to(buf, "'");
             }
-            stream << option.Name << "'";
+            fmt::format_to(buf, "{}'", option.Name);
           }
-          throw UsageErrorException(stream.str());
+          throw UsageErrorException(fmt::to_string(buf));
         }
       }
     }
@@ -186,36 +183,39 @@ namespace Fsl
     }
 
 
-    const std::string GetFormattedDescription(const std::string& str, const std::size_t indentation)
+    std::string GetFormattedDescription(const std::string& str, const std::size_t indentation)
     {
-      std::stringstream stream;
+      auto itrFound = std::find(str.begin(), str.end(), '\n');
+      if (itrFound == str.end())
+      {
+        // No '\n' found, so quick exit
+        return str;
+      }
 
       std::string::const_iterator itrFrom = str.begin();
       std::string::const_iterator itrTo = str.end();
-      std::string::const_iterator itrFound;
-      const std::streamsize defaultWidth = 0;
+      std::string strFormat(fmt::format("\n{{:>{}}}", indentation));
+      fmt::memory_buffer buf;
+
       do
       {
         itrFound = std::find(itrFrom, itrTo, '\n');
-
         while (itrFrom != itrFound)
         {
-          stream << *itrFrom;
+          fmt::format_to(buf, "{}", *itrFrom);
           ++itrFrom;
         }
         if (itrFound != itrTo)
         {
-          stream << "\n";
-          stream.width(indentation);
-          stream << " ";
-          stream.width(defaultWidth);
+          fmt::format_to(buf, strFormat, "");
           ++itrFound;
           itrFrom = itrFound;
         }
       } while (itrFound != itrTo);
 
-      return stream.str();
+      return fmt::to_string(buf);
     }
+
 
     const std::string GetFormattedName(const Option& option)
     {
@@ -260,18 +260,18 @@ namespace Fsl
     void ShowHelp(const char* const pszHelpCaption, const std::deque<OptionRecord>& options, const int32_t optionGroupFlags)
     {
       const auto maxNameLength = FindMaxNameLength(options, optionGroupFlags);
-      std::stringstream stream;
+      fmt::memory_buffer buf;
 
       // Add the caption if supplied
       if (pszHelpCaption != nullptr)
       {
-        stream << pszHelpCaption << "\n";
+        fmt::format_to(buf, "{}\n", pszHelpCaption);
       }
 
       auto itr = options.begin();
       const std::deque<OptionRecord>::const_iterator itrEnd = options.end();
 
-      const std::streamsize defaultWidth = 0;
+      std::string strFormat(fmt::format("  {{:<{}}} = {{}}\n", maxNameLength));
       while (itr != itrEnd)
       {
         if ((optionGroupFlags & int32_t(itr->SourceOption.Group)) != 0)
@@ -279,16 +279,12 @@ namespace Fsl
           // 4 due to the "  --"
           // 3 due to the " = "
           std::string strDesc(GetFormattedDescription(itr->SourceOption.Description, 4 + 3 + maxNameLength));
-          stream << "  ";
-          stream.width(maxNameLength);
-          stream << std::left << GetFormattedName(itr->SourceOption);
-          stream.width(defaultWidth);
-          stream << " = " << strDesc << std::endl;
+          fmt::format_to(buf, strFormat, GetFormattedName(itr->SourceOption), strDesc);
         }
         ++itr;
       }
 
-      FSLBASICLOG(stream.str());
+      FSLLOG3_INFO(fmt::to_string(buf));
     }
 
 
@@ -320,7 +316,7 @@ namespace Fsl
         else
         {
           bSuccess = false;
-          FSLLOG_ERROR("Unknown help argument '" << strOptionParam << "'");
+          FSLLOG3_ERROR("Unknown help argument '{}'", strOptionParam);
         }
       }
       return bSuccess;
@@ -339,26 +335,31 @@ namespace Fsl
     template <typename T>
     std::string SafeJsonString(const T& value)
     {
-      return SafeJsonString(ToString(value));
+      return SafeJsonString(fmt::format("{}", value));
     }
 
+    std::string SafeJsonString(const OptionArgument& value)
+    {
+      return SafeJsonString(static_cast<uint32_t>(value));
+    }
 
     bool TrySaveArgumentsToJsonFile(const std::string& strOptionParam, const std::deque<OptionRecord>& combinedOptions)
     {
       if (strOptionParam.empty())
       {
-        FSLBASICLOG_ERROR("No filename specified");
+        FSLLOG3_ERROR("No filename specified");
         return false;
       }
 
       try
       {
-        FSLLOG("Saving command line arguments to the json file: '" << strOptionParam << "'");
+        FSLLOG3_INFO("Saving command line arguments to the json file: '{}'", strOptionParam);
 
-        std::stringstream stream;
-        stream << "{\n";
-        stream << "  \"arguments\":\n";
-        stream << "  [\n";
+        fmt::memory_buffer buf;
+        fmt::format_to(buf,
+                       "{{\n"
+                       "  \"arguments\":\n"
+                       "  [\n");
 
         std::size_t index = 0;
         const auto entries = combinedOptions.size();
@@ -382,35 +383,53 @@ namespace Fsl
           //  SafeJsonString(entry.SourceOption.HasArg), SafeJsonString(entry.SourceOption.IsPositional), SafeJsonString(entry.SourceOption.Name),
           //  SafeJsonString(entry.SourceOption.ShortName), SafeJsonString(entry.SourceOption.Type),
           //  SafeJsonString(GetFormattedName(entry.SourceOption)), SafeJsonString(entry.Source->Name));
-          stream << "    {\n";
-          stream << R"(      "CmdId": ")" << SafeJsonString(entry.SourceOption.CmdId) << "\",\n";
-          stream << R"(      "Description": ")" << SafeJsonString(entry.SourceOption.Description) << "\",\n";
-          stream << R"(      "Group": ")" << SafeJsonString(entry.SourceOption.Group) << "\",\n";
-          stream << R"(      "HasArg": ")" << SafeJsonString(entry.SourceOption.HasArg) << "\",\n";
-          stream << R"(      "IsPositional": ")" << SafeJsonString(entry.SourceOption.IsPositional) << "\",\n";
-          stream << R"(      "Name": ")" << SafeJsonString(entry.SourceOption.Name) << "\",\n";
-          stream << R"(      "ShortName": ")" << SafeJsonString(entry.SourceOption.ShortName) << "\",\n";
-          stream << R"(      "Type": ")" << SafeJsonString(entry.SourceOption.Type) << "\",\n";
-          stream << R"(      "Help_FormattedName": ")" << SafeJsonString(GetFormattedName(entry.SourceOption)) << "\",\n";
-          stream << R"(      "SourceName": ")" << SafeJsonString(entry.Source->Name) << "\"\n";
+          fmt::format_to(buf,
+                         "    {{\n"
+                         R"(      "CmdId": "{0}",)"
+                         "\n"
+                         R"(      "Description": "{1}",)"
+                         "\n"
+                         R"(      "Group": "{2}",)"
+                         "\n"
+                         R"(      "HasArg": "{3}",)"
+                         "\n"
+                         R"(      "IsPositional": "{4}",)"
+                         "\n"
+                         R"(      "Name": "{5}",)"
+                         "\n"
+                         R"(      "ShortName": "{6}",)"
+                         "\n"
+                         R"(      "Type": "{7}",)"
+                         "\n"
+                         R"(      "Help_FormattedName": "{8}",)"
+                         "\n"
+                         R"(      "SourceName": "{9}")"
+                         "\n",
+                         SafeJsonString(entry.SourceOption.CmdId), SafeJsonString(entry.SourceOption.Description),
+                         SafeJsonString(entry.SourceOption.Group), SafeJsonString(entry.SourceOption.HasArg),
+                         SafeJsonString(entry.SourceOption.IsPositional), SafeJsonString(entry.SourceOption.Name),
+                         SafeJsonString(entry.SourceOption.ShortName), SafeJsonString(entry.SourceOption.Type),
+                         SafeJsonString(GetFormattedName(entry.SourceOption)), SafeJsonString(entry.Source->Name));
           if (index < entries)
           {
-            stream << "    },\n";
+            fmt::format_to(buf, "    }},\n");
           }
           else
           {
-            stream << "    }\n";
+            fmt::format_to(buf, "    }}\n");
           }
         }
-        stream << "  ]\n";
-        stream << "}\n";
 
-        IO::File::WriteAllText(strOptionParam, stream.str());
+        fmt::format_to(buf,
+                       "  ]\n"
+                       "}}\n");
+
+        IO::File::WriteAllText(strOptionParam, fmt::to_string(buf));
         return true;
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR("Failed to save arguments to file due to exception: " << ex.what());
+        FSLLOG3_ERROR("Failed to save arguments to file due to exception: {}", ex.what());
       }
       return false;
     }
@@ -420,24 +439,15 @@ namespace Fsl
     public:
       std::string Format(const char* const pszFormat, const char* const pszArg0) override
       {
-        // FIX: replace with the 'fmt' library
-        std::string strResult(pszFormat);
-        StringUtil::Replace(strResult, "{}", pszArg0);
-        return strResult;
+        return fmt::format(pszFormat, pszArg0);
       }
       std::string Format(const char* const pszFormat, const std::string& str) override
       {
-        // FIX: replace with the 'fmt' library
-        std::string strResult(pszFormat);
-        StringUtil::Replace(strResult, "{}", str);
-        return strResult;
+        return fmt::format(pszFormat, str);
       }
       std::string Format(const char* const pszFormat, const uint32_t arg0) override
       {
-        // FIX: replace with the 'fmt' library
-        std::string strResult(pszFormat);
-        StringUtil::Replace(strResult, "{}", ToString(arg0));
-        return strResult;
+        return fmt::format(pszFormat, arg0);
       }
     };
 
@@ -560,7 +570,7 @@ namespace Fsl
         default:
         {
           // Parse the unknown option off to the supplied parsers
-          OptionParseResult::Enum result = OptionParseResult::NotHandled;
+          OptionParseResult result = OptionParseResult::NotHandled;
           auto itr = inputOptionParsers.begin();
           while (itr != inputOptionParsers.end() && result == OptionParseResult::NotHandled)
           {
@@ -572,7 +582,7 @@ namespace Fsl
             }
             catch (const std::exception& ex)
             {
-              FSLLOG_ERROR("Parse option failed with: " << ex.what());
+              FSLLOG3_ERROR("Parse option failed with: {}", ex.what());
               result = OptionParseResult::Failed;
             }
             ++itr;

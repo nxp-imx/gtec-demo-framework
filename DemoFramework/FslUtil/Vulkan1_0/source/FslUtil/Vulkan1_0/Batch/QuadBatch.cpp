@@ -33,7 +33,7 @@
 #include <FslBase/Bits/AlignmentUtil.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Vertices/VertexElementFormat.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
@@ -381,9 +381,9 @@ namespace Fsl
       {
         // We just log a warning about the QuadBatch operating in 'null' mode.
         // This means that all draw operations do nothing except log warnings if called.
-        FSLLOG_WARNING_IF(m_logEnabled && commandBuffer == VK_NULL_HANDLE, "Resources not ready, void mode enabled.");
-        FSLLOG_WARNING_IF(m_logEnabled && commandBuffer != VK_NULL_HANDLE,
-                          "Resources not ready, void mode enabled. Supplied command buffer in null mode ought to be VK_NULL_HANDLE");
+        FSLLOG3_WARNING_IF(m_logEnabled && commandBuffer == VK_NULL_HANDLE, "Resources not ready, void mode enabled.");
+        FSLLOG3_WARNING_IF(m_logEnabled && commandBuffer != VK_NULL_HANDLE,
+                           "Resources not ready, void mode enabled. Supplied command buffer in null mode ought to be VK_NULL_HANDLE");
         m_activeFrame.CurrentState = FrameState::DrawVoidFrame;
         return;
       }
@@ -603,7 +603,7 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR_IF(m_logEnabled, "Exception occurred during QuadBatch device resource creation: " << ex.what());
+        FSLLOG3_ERROR_IF(m_logEnabled, "Exception occurred during QuadBatch device resource creation: {}", ex.what());
         DestroyDeviceResources();
         throw;
       }
@@ -693,7 +693,7 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR_IF(m_logEnabled, "Exception occurred during QuadBatch dependent resource creation: " << ex.what());
+        FSLLOG3_ERROR_IF(m_logEnabled, "Exception occurred during QuadBatch dependent resource creation: {}", ex.what());
         DestroyDependentResources();
         throw;
       }
@@ -703,12 +703,12 @@ namespace Fsl
     {
       if (m_activeFrame.Block.IsValid)
       {
-        FSLLOG_ERROR_IF(m_logEnabled, "DestroyDependentResources called inside a Begin/End block, force ending it");
+        FSLLOG3_ERROR_IF(m_logEnabled, "DestroyDependentResources called inside a Begin/End block, force ending it");
         End();
       }
       if (m_activeFrame.CurrentState != FrameState::NotReady)
       {
-        FSLLOG_ERROR_IF(m_logEnabled, "DestroyDependentResources called inside a BeginFrame/EndFrame block, force ending it");
+        FSLLOG3_ERROR_IF(m_logEnabled, "DestroyDependentResources called inside a BeginFrame/EndFrame block, force ending it");
         EndFrame();
       }
 
@@ -721,8 +721,8 @@ namespace Fsl
       auto waitResult = vkDeviceWaitIdle(m_deviceResource.UniformBuffer.GetDevice());
       if (waitResult != VK_SUCCESS)
       {
-        FSLLOG_ERROR_IF(m_logEnabled, "vkDeviceWaitIdle failed with: " << RapidVulkan::Debug::ToString(waitResult) << "(" << waitResult << ") at "
-                                                                       << __FILE__ << " line: " << __LINE__);
+        FSLLOG3_ERROR_IF(m_logEnabled, "vkDeviceWaitIdle failed with: {}({}) at {} line: {}", RapidVulkan::Debug::ToString(waitResult), waitResult,
+                         __FILE__, __LINE__);
       }
 
       if (!m_dependentResource.IsValid)

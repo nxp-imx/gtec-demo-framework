@@ -42,6 +42,8 @@
 #include <FslUtil/OpenGLES2/GLIndexBufferArray.hpp>
 #include <FslUtil/OpenGLES2/GLTexture.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBufferArray.hpp>
+#include <Shared/ModelViewer/ModelSceneUtil.hpp>
+#include <Shared/ModelViewer/OptionParser.hpp>
 #include <array>
 
 namespace Fsl
@@ -78,6 +80,31 @@ namespace Fsl
       std::array<GLES2::GLVertexAttribLink, 5> AttribLink;
     };
 
+    struct VertexUBOData
+    {
+      Matrix MatWorldView;
+      Matrix MatWorldViewProjection;
+      Matrix3 MatNormal;
+    };
+
+    struct FragUBOData
+    {
+      Vector3 LightDirection;
+      Vector3 LightColor;
+      Vector4 MatAmbient;
+      Vector4 MatSpecular;
+      float MatShininess{0};
+
+      FragUBOData() = default;
+      FragUBOData(const Vector3& lightColor, const Vector4& matAmbient, const Vector4& matSpecular, const float matShininess)
+        : LightColor(lightColor)
+        , MatAmbient(matAmbient)
+        , MatSpecular(matSpecular)
+        , MatShininess(matShininess)
+      {
+      }
+    };
+
     std::shared_ptr<IProfilerService> m_profilerService;
     ScopedProfilerCustomCounterHandle m_hCounterBind;
     ScopedProfilerCustomCounterHandle m_hCounterEnable;
@@ -88,25 +115,19 @@ namespace Fsl
     Resources m_resources;
 
     std::shared_ptr<Graphics3D::SceneNode> m_rootNode;
+    ModelSceneUtil::RenderConfig m_renderConfig;
     Vector3 m_rotationSpeedOld;
-    Vector3 m_rotationSpeed;
-    Vector3 m_rotation;
     Vector3 m_storedStartRotation;
-    Vector3 m_lightDirection;
-    Vector3 m_lightColor;
-    Vector4 m_matAmbient;
-    Vector4 m_matSpecular;
-    float m_matShininess;
 
     Matrix m_matrixWorld;
     Matrix m_matrixView;
     Matrix m_matrixProjection;
-    Matrix m_matrixWorldView;
-    Matrix m_matrixWorldViewProjection;
-    Vector3 m_cameraSpaceLightDirection;
-    Matrix3 m_matrixNormal;
+    Vector3 m_lightDirection;
 
-    bool m_allowBackfaceCull;
+    VertexUBOData m_vertexUboData;
+    FragUBOData m_fragUboData;
+
+    bool m_wireframe{false};
 
   public:
     ModelViewer(const DemoAppConfig& config);
@@ -125,8 +146,10 @@ namespace Fsl
     void DrawMeshesAndProfile();
     void DrawMeshesUsingNodes(const Graphics3D::SceneNode* pNode, const Matrix& parentMatrix);
 
-    void PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useGlossMap, const bool useSpecularMap,
-                       const bool useNormalMap);
+    void PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useDiffuse, const bool useGlossMap,
+                       const bool useSpecularMap, const bool useNormalMap, const std::string& baseShaderName, const bool requireVertexNormal = true);
+
+    bool PrepareTextures(const IContentManager& contentManager, const ModelSceneUtil::ModelLoaderConfig& config);
   };
 }
 

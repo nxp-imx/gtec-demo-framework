@@ -16,7 +16,7 @@
 
 #include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
@@ -267,7 +267,7 @@ namespace Fsl
     {
       if (!rCommandBuffer.IsValid())
       {
-        FSLLOG_DEBUG_WARNING("Can not flush a invalid command buffer");
+        FSLLOG3_DEBUG_WARNING("Can not flush a invalid command buffer");
         return;
       }
       rCommandBuffer.End();

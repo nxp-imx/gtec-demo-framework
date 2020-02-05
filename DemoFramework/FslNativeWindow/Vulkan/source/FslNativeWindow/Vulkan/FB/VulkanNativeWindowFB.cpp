@@ -32,17 +32,17 @@
 
 #include "VulkanNativeWindowSystemFB.hpp"
 #include "VulkanNativeWindowFB.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
-#include <FslUtil/Vulkan1_0/Log/All.hpp>
+#include <FslUtil/Vulkan1_0/Log/FmtAll.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <algorithm>
 #include <vector>
 
 #if 0
-#define LOCAL_LOG(X) FSLLOG("VulkanNativeWindowFB: " << X)
+#define LOCAL_LOG(X) FSLLOG3_INFO("VulkanNativeWindowFB: {}", (X))
 #else
 #define LOCAL_LOG(X) \
   {                  \
@@ -157,29 +157,29 @@ namespace Fsl
 
     inline void Log(const VkDisplayPropertiesKHR& displayProperties)
     {
-      FSLLOG("- Name: " << (displayProperties.displayName != nullptr ? displayProperties.displayName : ""));
-      FSLLOG("- PhysicalDimensions: " << displayProperties.physicalDimensions);
-      FSLLOG("- PhysicalResolution: " << displayProperties.physicalResolution);
-      FSLLOG("- PhysicalResolution: " << static_cast<uint32_t>(displayProperties.supportedTransforms));
-      FSLLOG("- PlaneReorderPossible: " << (displayProperties.planeReorderPossible == VK_TRUE ? "true" : "false"));
-      FSLLOG("- persistentContent: " << (displayProperties.persistentContent == VK_TRUE ? "true" : "false"));
+      FSLLOG3_INFO("- Name: {}", (displayProperties.displayName != nullptr ? displayProperties.displayName : ""));
+      FSLLOG3_INFO("- PhysicalDimensions: {}", displayProperties.physicalDimensions);
+      FSLLOG3_INFO("- PhysicalResolution: {}", displayProperties.physicalResolution);
+      FSLLOG3_INFO("- PhysicalResolution: {}", static_cast<uint32_t>(displayProperties.supportedTransforms));
+      FSLLOG3_INFO("- PlaneReorderPossible: {}", (displayProperties.planeReorderPossible == VK_TRUE ? "true" : "false"));
+      FSLLOG3_INFO("- persistentContent: {}", (displayProperties.persistentContent == VK_TRUE ? "true" : "false"));
     }
 
 
     inline void Log(const VkDisplayModeParametersKHR& parameters)
     {
-      FSLLOG("- VisibleRegion: " << parameters.visibleRegion);
-      FSLLOG("- RefreshRate: " << parameters.refreshRate);
+      FSLLOG3_INFO("- VisibleRegion: {}", parameters.visibleRegion);
+      FSLLOG3_INFO("- RefreshRate: {}", parameters.refreshRate);
     }
 
 
     void Log(const std::vector<VkDisplayPropertiesKHR>& properties)
     {
-      FSLLOG("Found " << properties.size() << " display properties");
+      FSLLOG3_INFO("Found {} display properties", properties.size());
       std::size_t index = 0;
       for (const auto properties : properties)
       {
-        FSLLOG("- Display index: " << index);
+        FSLLOG3_INFO("- Display index: {}", index);
         Log(properties);
         ++index;
       }
@@ -193,11 +193,11 @@ namespace Fsl
 
     void Log(const std::vector<VkDisplayModePropertiesKHR>& displayModeProperties)
     {
-      FSLLOG("Found " << displayModeProperties.size() << " display mode properties");
+      FSLLOG3_INFO("Found {} display mode properties", displayModeProperties.size());
       std::size_t index = 0;
       for (const auto properties : displayModeProperties)
       {
-        FSLLOG("- Index: " << index);
+        FSLLOG3_INFO("- Index: {}", index);
         Log(properties);
         ++index;
       }
@@ -210,24 +210,24 @@ namespace Fsl
                                   [displayMode](const VkDisplayModePropertiesKHR& val) { return (val.displayMode == displayMode); });
       if (itrFind != displayModeProperties.end())
       {
-        FSLLOG("Selected");
+        FSLLOG3_INFO("Selected");
         Log(*itrFind);
       }
       else
       {
-        FSLLOG_WARNING("Could not find the displayModeProperties");
+        FSLLOG3_WARNING("Could not find the displayModeProperties");
       }
     }
 
 
     void Log(const std::vector<VkDisplayPlanePropertiesKHR>& deviceDisplayPlaneProperties)
     {
-      FSLLOG("Found " << deviceDisplayPlaneProperties.size() << " display plane properties");
+      FSLLOG3_INFO("Found {} display plane properties", deviceDisplayPlaneProperties.size());
       std::size_t index = 0;
       for (const auto properties : deviceDisplayPlaneProperties)
       {
-        FSLLOG("- Index: " << index);
-        FSLLOG("- CurrentStackIndex: " << properties.currentStackIndex);
+        FSLLOG3_INFO("- Index: {}", index);
+        FSLLOG3_INFO("- CurrentStackIndex: {}", properties.currentStackIndex);
         ++index;
       }
     }
@@ -248,14 +248,13 @@ namespace Fsl
       auto displayId = config.GetDisplayId();
       if (displayId < 0 || static_cast<std::size_t>(displayId) >= displayProperties.size())
       {
-        FSLLOG_WARNING("DisplayId " << displayId << " is invalid, expected a value between 0 and " << displayProperties.size()
-                                    << ", using displayId: 0");
+        FSLLOG3_WARNING("DisplayId {} is invalid, expected a value between 0 and {}, using displayId: 0", displayId, displayProperties.size());
         displayId = 0;
       }
 
       if (verbosityLevel >= 1)
       {
-        FSLLOG("User requested display index (id): " << displayId);
+        FSLLOG3_INFO("User requested display index (id): {}", displayId);
         if (verbosityLevel >= 2)
           Log(displayProperties[displayId]);
       }
@@ -287,7 +286,7 @@ namespace Fsl
       if (!TryFindSupportedPlaneIndex(physicalDevice, displayProperties[displayId].display, displayMode, imageExtent, deviceDisplayPlaneProperties,
                                       planeIndex))
       {
-        FSLLOG("No plane found. Falling back to plane with current resolution.");
+        FSLLOG3_INFO("No plane found. Falling back to plane with current resolution.");
         planeIndex = 0;
         // currentDisplay = deviceDisplayPlaneProperties[planeIndex].currentDisplay;
         VkDisplayPlaneCapabilitiesKHR displayPlaneCapabilities;
@@ -297,7 +296,7 @@ namespace Fsl
 
       if (verbosityLevel >= 1)
       {
-        FSLLOG("Selected planeIndex: " << planeIndex);
+        FSLLOG3_INFO("Selected planeIndex: {}", planeIndex);
       }
 
       VkDisplaySurfaceCreateInfoKHR surfaceCreateInfo{};

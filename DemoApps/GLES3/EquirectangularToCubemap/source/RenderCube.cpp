@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "RenderCube.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>

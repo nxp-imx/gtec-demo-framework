@@ -31,7 +31,7 @@
 
 #include "OptionParser.hpp"
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
@@ -102,7 +102,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     bool boolValue;
     int intValue;

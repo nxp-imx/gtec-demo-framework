@@ -166,7 +166,7 @@ class ToolFlowBuild(AToolAppFlow):
             Builder.BuildPackages(generatorContext, config, packages,
                                   localToolConfig.BuildVariantsDict, localToolConfig.RemainingArgs, localToolConfig.ForAllExe,
                                   platformGeneratorPlugin, localToolConfig.EnableContentBuilder, localToolConfig.ForceClaimInstallArea,
-                                  localToolConfig.BuildThreads, localToolConfig.Command)
+                                  localToolConfig.BuildThreads, localToolConfig.Command, True)
 
 
 

@@ -34,13 +34,13 @@
 #include "VulkanNativeWindowAndroid.hpp"
 #include <FslNativeWindow/Vulkan/NativeVulkanSetup.hpp>
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowSystemAndroidTag.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 
 
 #if 1
-#define LOCAL_LOG(X) FSLLOG("VulkanNativeWindowSystemAndroid: " << X)
+#define LOCAL_LOG(X) FSLLOG3_INFO("VulkanNativeWindowSystemAndroid: {}", (X))
 #else
 #define LOCAL_LOG(X) \
   {                  \

@@ -3,13 +3,13 @@
 ## Prerequisites
 
 - **IMPORTANT!**
-  The way gradle currently handles CMake builds on windows place some serious limits on 
+  The way gradle currently handles CMake builds on windows place some serious limits on
   the path length, so its recommended to either place the DemoFramework folder close to
-  the root of the drive or to set the environment variable 
+  the root of the drive or to set the environment variable
   FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR to a directory close to the root of the drive.
 
 - [JDK (64 bit)](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-  - Make sure to configure JAVA_HOME to point to the JDK directory. 
+  - Make sure to configure JAVA_HOME to point to the JDK directory.
   - Using the 32bit sdk might give you build memory issues.
 
 - [Android SDK](https://developer.android.com/studio/index.html)
@@ -17,18 +17,18 @@
   Once its installed its a good idea to run "SDK Manager.exe" and make sure everything is up to date.
   
   **IMPORTANT!**
-  - Android studio must be at least 3.3.1
+  - Android studio must be at least 3.5.3
   - Get the android studio full package and enable the default packages.
-  - Configure the SDK manager 
-    - "SDK Platforms" add if necessary "Android 7.0 (Nougat)"
+  - Configure the SDK manager
+    - "SDK Platforms" add if necessary "Android 9.0 (Pie)"
     - "SDK Tools" add if necessary "CMake, LLDB, NDK, Android Support Repository"
   - Make sure to configure ANDROID_HOME to point to the android sdk directory
   - Make sure to configure ANDROID_NDK to point to the android ndk directory
   - Make sure you have at least android-ndk-r19
   
-- [Python 3.4+](https://www.python.org/ftp/python/3.6.2/python-3.6.2-amd64.exe)
+- [Python 3.4+](https://www.python.org/ftp/python/3.8.1/python-3.8.1-amd64.exe)
 
-  To be able run python scripts, they are needed to build. 
+  To be able run python scripts, they are needed to build.
   If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
   
 - Download the source from git.
@@ -52,19 +52,24 @@ sets it to a default location.
 
 In this example we will utilize the GLES2 S06_Texturing app.
 
-1. Make sure that you performed the simple setup
+1. Make sure that you performed the [simple setup](#simple-setup)
 2. Change directory to the sample directory:
+
     ```bash
     cd DemoApps\GLES2\S06_Texturing
     ```
+
 3. Build a app for Android using gradle + cmake
+
     ```bash
     FslBuild.py -p android
     ```
+
 If you just want to regenerate the cmake build files then you can just run
-    ```bash
-    FslBuildGen.py -p android
-    ```
+
+```bash
+FslBuildGen.py -p android
+```
 
 If you want to save a bit of compilation time you can build for the ANDROID ABI you need by adding
 
@@ -80,20 +85,27 @@ FslBuild.py --Variants [ANDROID_ABI=armeabi-v7a]
 
 ## To create a new GLES2 demo project named 'CoolNewDemo'
   
-1. Make sure that you performed the simple setup
+1. Make sure that you performed the [simple setup](#simple-setup)
 2. Change directory to the GLES2 sample directory:
+
     ```bash
     cd DemoApps/GLES2
     ```
+
 3. Create the project template using the FslBuildNew.py script
+
     ```bash
     FslBuildNew.py GLES2 CoolNewDemo  
     ```
+
 4. Change directory to the newly created project folder 'CoolNewDemo'
+
     ```bash
     cd CoolNewDemo
     ```
+
 5. Build a app for Android using gradle + cmake
+
     ```bash
     FslBuild.py -p android
     ```
@@ -141,7 +153,7 @@ cd ~/sdk/android-studio/bin
 ./studio.sh  
 ```
 
-In the UI make sure to install the sdk in a directory you have access to for example 
+In the UI make sure to install the sdk in a directory you have access to for example
 
 ```bash
 ~/sdk/android-sdk-linux

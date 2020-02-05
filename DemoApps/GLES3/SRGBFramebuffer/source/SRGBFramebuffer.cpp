@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "SRGBFramebuffer.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>

@@ -29,18 +29,19 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
 #include <FslDemoHost/Base/Service/Content/ContentManagerService.hpp>
 #include <FslGraphics/Font/BinaryFontBasicKerningLoader.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
+#include <fmt/format.h>
 #include <cassert>
 #include <limits>
-#include <sstream>
 
 namespace Fsl
 {
@@ -53,15 +54,15 @@ namespace Fsl
       // Do a lot of extra validation
       if (notTrustedRelativePath.IsEmpty())
       {
-        throw std::invalid_argument(std::string("path is invalid: ") + notTrustedRelativePath.ToAsciiString());
+        throw std::invalid_argument(fmt::format("path is invalid: '{}'", notTrustedRelativePath));
       }
       if (IO::Path::IsPathRooted(notTrustedRelativePath))
       {
-        throw std::invalid_argument(std::string("not a relative path: ") + notTrustedRelativePath.ToAsciiString());
+        throw std::invalid_argument(fmt::format("not a relative path: '{}'", notTrustedRelativePath));
       }
       if (notTrustedRelativePath.Contains(".."))
       {
-        throw std::invalid_argument(std::string("\"..\" not allowed in the relative path: ") + notTrustedRelativePath.ToAsciiString());
+        throw std::invalid_argument(fmt::format("\"..\" not allowed in the relative path: '{}'", notTrustedRelativePath));
       }
 
       return IO::Path::Combine(trustedAbsPath, notTrustedRelativePath);
@@ -75,7 +76,7 @@ namespace Fsl
   {
     if (!IO::Path::IsPathRooted(m_contentPath))
     {
-      FSLLOG_WARNING("The supplied path is not rooted '" << contentPath.ToAsciiString() << "'");
+      FSLLOG3_WARNING("The supplied path is not rooted '{}'", contentPath);
     }
   }
 
@@ -108,9 +109,7 @@ namespace Fsl
     const auto length = IO::File::GetLength(absPath);
     if (length > std::numeric_limits<uint32_t>::max())
     {
-      std::stringstream strstream;
-      strstream << "File '" << absPath.ToAsciiString() << "' was larger than 4GB, which is unsupported";
-      throw IOException(strstream.str());
+      throw IOException(fmt::format(" File '{}' was larger than 4GB, which is unsupported ", absPath));
     }
     return length;
   }

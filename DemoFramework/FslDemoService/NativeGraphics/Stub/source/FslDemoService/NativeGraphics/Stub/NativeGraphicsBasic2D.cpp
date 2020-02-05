@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "NativeGraphicsBasic2D.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
@@ -45,7 +45,7 @@ namespace Fsl
       , m_fontSize(EmbeddedFont8x8::CharacterSize())
       , m_inBegin(false)
     {
-      FSLLOG_WARNING_IF(showWarning, "NativeGraphicsBasic2D is a stub");
+      FSLLOG3_WARNING_IF(showWarning, "NativeGraphicsBasic2D is a stub");
     }
 
 
@@ -80,10 +80,9 @@ namespace Fsl
     }
 
 
-    void NativeGraphicsBasic2D::DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition)
+    void NativeGraphicsBasic2D::DrawString(const StringViewLite& strView, const Vector2& dstPosition)
     {
       assert(m_inBegin);
-      assert(characters != nullptr);
     }
 
 

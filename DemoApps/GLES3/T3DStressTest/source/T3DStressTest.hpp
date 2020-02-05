@@ -37,7 +37,7 @@
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
-#include "Config.hpp"
+#include <Shared/T3DStressTest/Config.hpp>
 #include "MeshRenderBasic.hpp"
 #include "MeshRenderNormals.hpp"
 #include "MeshRenderVB.hpp"
@@ -49,11 +49,7 @@ namespace Fsl
 {
   class T3DStressTest : public DemoAppGLES3
   {
-    GLES3::GLProgram m_program;
-
-    Config m_config;
-
-    struct MeshStuff
+    struct MeshStuffRecord
     {
       Procedural::BasicMesh Mesh;
       MeshRenderBasic MeshRender1;
@@ -61,7 +57,7 @@ namespace Fsl
       MeshRenderNormals RenderNormals;
       MeshRender& Render;
 
-      MeshStuff(const Procedural::BasicMesh& mesh)
+      MeshStuffRecord(const Procedural::BasicMesh& mesh)
         : Mesh(mesh)
         , MeshRender1(mesh)
         , MeshRender2(mesh)
@@ -71,11 +67,16 @@ namespace Fsl
       }
     };
 
-    std::unique_ptr<MeshStuff> m_meshStuff;
+    struct Resources
+    {
+      GLES3::GLProgram Program;
+      std::unique_ptr<MeshStuffRecord> MeshStuff;
+      GLES3::GLTexture Tex1;
+      GLES3::GLTexture Tex2;
+    };
 
-    GLES3::GLTexture m_tex1;
-    GLES3::GLTexture m_tex2;
-
+    Config m_config;
+    Resources m_resources;
     FurShaderMultiPass m_shaderMultiPass;
     FurShaderInstanced m_shaderInstanced;
     WhiteShader m_shaderWhite;

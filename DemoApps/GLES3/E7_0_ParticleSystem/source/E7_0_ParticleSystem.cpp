@@ -184,7 +184,7 @@ namespace Fsl
     int glErr = glGetError();
     if (GL_NO_ERROR != glErr)
     {
-      FSLLOG_ERROR("Errors While Drawing 0x%x" << glErr);
+      FSLLOG3_ERROR("Errors While Drawing 0x{:x}", glErr);
     }
   }
 }

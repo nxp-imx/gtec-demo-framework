@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslUtil/Vulkan1_0/VUBuffer.hpp>
 #include <FslUtil/Vulkan1_0/VUDeviceMemory.hpp>
 #include <vulkan/vulkan.h>
@@ -40,13 +39,16 @@
 
 namespace Fsl
 {
-  class DeviceTexture : Noncopyable
+  class DeviceTexture
   {
     ImageEx m_image;
     Vulkan::VUDeviceMemory m_memory;
     VkFormat m_imageFormat;
 
   public:
+    DeviceTexture(const DeviceTexture&) = delete;
+    DeviceTexture& operator=(const DeviceTexture&) = delete;
+
     // move assignment operator
     DeviceTexture& operator=(DeviceTexture&& other) noexcept;
     // move constructor

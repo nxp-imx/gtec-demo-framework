@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/OpenVG/VGFontBuffer.hpp>
 #include <FslUtil/OpenVG/VGImageBuffer.hpp>
 
@@ -64,7 +65,7 @@ namespace Fsl
       void Begin() override;
       void End() override;
       void DrawPoints(const Vector2* const pSrc, const uint32_t length, const Color& color) override;
-      void DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition) override;
+      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
       Point2 FontSize() const override;
 
     private:

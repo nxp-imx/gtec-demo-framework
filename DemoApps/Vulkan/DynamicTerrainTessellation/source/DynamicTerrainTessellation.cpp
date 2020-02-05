@@ -11,7 +11,7 @@
 
 
 #include "DynamicTerrainTessellation.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -122,8 +122,8 @@ namespace Fsl
       throw NotSupportedException("Selected GPU does not support tessellation shaders!");
     }
 
-    FSLLOG_WARNING_IF(!m_deviceFeatures.fillModeNonSolid, "Selected GPU does not support non solid fill mode");
-    FSLLOG_WARNING_IF(!m_deviceFeatures.pipelineStatisticsQuery, "Selected GPU does not support pipeline statistics query");
+    FSLLOG3_WARNING_IF(!m_deviceFeatures.fillModeNonSolid, "Selected GPU does not support non solid fill mode");
+    FSLLOG3_WARNING_IF(!m_deviceFeatures.pipelineStatisticsQuery, "Selected GPU does not support pipeline statistics query");
   }
 
 
@@ -349,32 +349,32 @@ namespace Fsl
 
   void DynamicTerrainTessellation::LoadMeshes()
   {
-    FSLLOG("LoadMeshes");
+    FSLLOG3_INFO("LoadMeshes");
     m_meshes.Skysphere = LoadMesh("Models/Geosphere/geosphere.obj", g_vertexLayout, 1.0f);
   }
 
 
   void DynamicTerrainTessellation::LoadTextures()
   {
-    FSLLOG("LoadTextures");
+    FSLLOG3_INFO("LoadTextures");
 
     if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
-      FSLLOG("Using BC compression");
+      FSLLOG3_INFO("Using BC compression");
       m_textures.SkySphere = m_textureLoader->LoadTexture("Textures/SphereMap/Sky/skysphere_bc3.ktx");
       // Terrain textures are stored in a texture array with layers corresponding to terrain height
       m_textures.TerrainArray = m_textureLoader->LoadTextureArray("Textures/Terrain/terrain_texturearray_bc3.ktx");
     }
     else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      FSLLOG("Using ETC2 compression");
+      FSLLOG3_INFO("Using ETC2 compression");
       m_textures.SkySphere = m_textureLoader->LoadTexture("Textures/SphereMap/Sky/skysphere_etc2.ktx");
       // Terrain textures are stored in a texture array with layers corresponding to terrain height
       m_textures.TerrainArray = m_textureLoader->LoadTextureArray("Textures/Terrain/terrain_texturearray_etc2.ktx");
     }
     else
     {
-      FSLLOG("Using no compression");
+      FSLLOG3_INFO("Using no compression");
       m_textures.SkySphere = m_textureLoader->LoadTexture("Textures/SphereMap/Sky/skysphere.png", VK_FORMAT_R8G8B8A8_UNORM);
       // Terrain textures are stored in a texture array with layers corresponding to terrain height
       m_textures.TerrainArray = m_textureLoader->LoadTextureArray("Textures/Terrain/terrain_texturearray.ktx", VK_FORMAT_R8G8B8A8_UNORM);
@@ -385,12 +385,12 @@ namespace Fsl
     if (m_physicalDevice.TryGetPhysicalDeviceImageFormatProperties(VK_FORMAT_R16_UNORM, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
                                                                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0, imageFormatProperties))
     {
-      FSLLOG("Heightmap using R16");
+      FSLLOG3_INFO("Heightmap using R16");
       m_textures.HeightMap = m_textureLoader->LoadTexture("Textures/Terrain/terrain_heightmap_r16.ktx", VK_FORMAT_R16_UNORM);
     }
     else
     {
-      FSLLOG("Heightmap using R8");
+      FSLLOG3_INFO("Heightmap using R8");
       m_textures.HeightMap = m_textureLoader->LoadTexture("Textures/Terrain/terrain_heightmap_r8.ktx", VK_FORMAT_R8_UNORM);
     }
 
@@ -439,7 +439,7 @@ namespace Fsl
 
   void DynamicTerrainTessellation::GenerateTerrain()
   {
-    FSLLOG("GenerateTerrain");
+    FSLLOG3_INFO("GenerateTerrain");
 
     struct Vertex
     {
@@ -575,7 +575,7 @@ namespace Fsl
   // Setup pool and buffer for storing pipeline statistics results
   void DynamicTerrainTessellation::SetupQueryResultBuffer()
   {
-    FSLLOG("SetupQueryResultBuffer");
+    FSLLOG3_INFO("SetupQueryResultBuffer");
     assert(m_deviceFeatures.pipelineStatisticsQuery);
 
     const uint32_t bufSize = 2 * sizeof(uint64_t);
@@ -617,7 +617,7 @@ namespace Fsl
 
   void DynamicTerrainTessellation::SetupVertexDescriptions()
   {
-    FSLLOG("SetupVertexDescriptions");
+    FSLLOG3_INFO("SetupVertexDescriptions");
 
     // Binding description
     m_vertices.BindingDescriptions.resize(1);
@@ -660,7 +660,7 @@ namespace Fsl
 
   void DynamicTerrainTessellation::PrepareUniformBuffers()
   {
-    FSLLOG("PrepareUniformBuffers");
+    FSLLOG3_INFO("PrepareUniformBuffers");
     // Shared tessellation shader stages uniform buffer
     CreateBuffer(m_uniformData.TerrainTessellation.Buffer, m_uniformData.TerrainTessellation.Memory, m_uniformData.TerrainTessellation.Descriptor,
                  VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, sizeof(m_uboTess),
@@ -1008,7 +1008,7 @@ namespace Fsl
   {
     if (m_deviceFeatures.fillModeNonSolid == VK_FALSE)
     {
-      FSLLOG("The device does not support the non solid fill mode, so the wireframe toggle is disabled");
+      FSLLOG3_INFO("The device does not support the non solid fill mode, so the wireframe toggle is disabled");
       return;
     }
 

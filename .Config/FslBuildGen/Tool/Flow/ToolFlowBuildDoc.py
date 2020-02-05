@@ -285,7 +285,7 @@ def GetMaxFormattedNameLength(entries: List[ProgramArgument]) -> int:
     count = 0
     for entry in entries:
         if len(entry.Help_FormattedName) > count:
-            count = len(entry.Help_FormattedName)
+            count = len(SafeMarkdownString(entry.Help_FormattedName))
     return count
 
 
@@ -293,7 +293,7 @@ def GetMaxDescriptionLength(entries: List[ProgramArgument]) -> int:
     count = 0
     for entry in entries:
         if len(entry.Description) > count:
-            count = len(entry.Description)
+            count = len(SafeMarkdownString(entry.Description))
     return count
 
 
@@ -301,12 +301,12 @@ def GetMaxSourceNameLength(entries: List[ProgramArgument]) -> int:
     count = 0
     for entry in entries:
         if len(entry.SourceName) > count:
-            count = len(entry.Description)
+            count = len(SafeMarkdownString(entry.Description))
     return count
 
 
 def SafeMarkdownString(strSrc: str) -> str:
-    return strSrc.replace('<', '\\<')
+    return strSrc.replace('<', '\\<').replace('|', '\\|')
 
 
 #def GroupArgumentsBySourceName(basicConfig, arguments):

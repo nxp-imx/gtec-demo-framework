@@ -1,7 +1,7 @@
 set FSL_GRAPHICS_SDK=%WORKSPACE%
 PATH=%path%;%FSL_GRAPHICS_SDK%\.Config;
-echo FSL_MSVC_ENV_SETUP=%FSL_MSVC_ENV_SETUP%
-call %FSL_MSVC_ENV_SETUP%/vcvarsall.bat amd64
+echo FSL_MSVC_ENV_SETUP=%FSL_MSVC2019_ENV_SETUP%
+call %FSL_MSVC2019_ENV_SETUP%/vcvarsall.bat amd64
 if %errorlevel% neq 0 (
   exit /b %errorlevel%
 )

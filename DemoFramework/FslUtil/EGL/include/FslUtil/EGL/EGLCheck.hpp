@@ -33,8 +33,7 @@
 
 #include <FslUtil/EGL/CheckError.hpp>
 #include <FslUtil/EGL/DebugStrings.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <sstream>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <EGL/egl.h>
 
 #define EGL_CHECK_FOR_ERROR()                                \
@@ -52,15 +51,15 @@
 
 
 // TODO: implement a better version of this macro as it can give unexpected behavior
-#define EGL_LOG_ERROR(X)                                                                                                                         \
-  X;                                                                                                                                             \
-  {                                                                                                                                              \
-    const auto rESULT = eglGetError();                                                                                                           \
-    if (rESULT != EGL_SUCCESS)                                                                                                                   \
-    {                                                                                                                                            \
-      FSLLOG_ERROR(#X << " failed with error code " << Fsl::EGL::Debug::ErrorCodeToString(rESULT) << " (" << static_cast<int>(rESULT) << ") at " \
-                      << __FILE__ << "(" << __LINE__ << ")");                                                                                    \
-    }                                                                                                                                            \
+#define EGL_LOG_ERROR(X)                                                                                                                      \
+  X;                                                                                                                                          \
+  {                                                                                                                                           \
+    const auto rESULT = eglGetError();                                                                                                        \
+    if (rESULT != EGL_SUCCESS)                                                                                                                \
+    {                                                                                                                                         \
+      FSLLOG3_ERROR("{} failed with error code {} ({}) at {} ({})", #X, Fsl::EGL::Debug::ErrorCodeToString(rESULT), static_cast<int>(rESULT), \
+                    __FILE__, __LINE__);                                                                                                      \
+    }                                                                                                                                         \
   }
 
 #endif

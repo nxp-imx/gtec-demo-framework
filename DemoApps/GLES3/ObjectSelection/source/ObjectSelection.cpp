@@ -34,7 +34,7 @@
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/Viewport.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -239,7 +239,7 @@ namespace Fsl
       m_mousePositionNear = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
       sourcePos.Z = 1.0f;
       m_mousePositionFar = m_viewPort.Unproject(sourcePos, m_matrixProjection, m_matrixView, Matrix::GetIdentity());
-      // FSLLOG("2D: X: " << mouseState.Position.X << " Y: " << mouseState.Position.Y  << " 3D: X: " << m_mousePositionFar.X << " Y: " <<
+      // FSLLOG3_INFO("2D: X: " << mouseState.Position.X << " Y: " << mouseState.Position.Y  << " 3D: X: " << m_mousePositionFar.X << " Y: " <<
       // m_mousePositionFar.Y << " Z: " << m_mousePositionFar.Z);
 
 

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "OpenVX101.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -202,7 +202,7 @@ namespace Fsl
     CopyImagesFromGPUToCPU(bitmap, image1, image2);
 
 
-    FSLLOG("vx process success.");
+    FSLLOG3_INFO("vx process success.");
 
     m_texDst = ToTexture(imageCreator, bitmap, PixelFormat::R8G8B8A8_UNORM);
   }

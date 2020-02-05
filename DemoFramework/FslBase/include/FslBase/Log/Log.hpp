@@ -31,39 +31,40 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Logger.hpp>
+#include <FslBase/Log/Logger1.hpp>
+#include <sstream>
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLLOG(lINE)                                                                                          \
-  {                                                                                                           \
-    if (Fsl::Logger::GetLogLevel() >= Fsl::LogType::Info)                                                     \
-    {                                                                                                         \
-      std::stringstream sTREAM;                                                                               \
-      sTREAM << lINE;                                                                                         \
-      Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                         \
+#define FSLLOG(lINE)                                                                                                \
+  {                                                                                                                 \
+    if (Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Info)                                                        \
+    {                                                                                                               \
+      std::stringstream sTREAM;                                                                                     \
+      sTREAM << lINE;                                                                                               \
+      Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                               \
   }
 
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLLOG_IF(cOND, lINE)                                                                                 \
-  {                                                                                                           \
-    if ((cOND) && Fsl::Logger::GetLogLevel() >= Fsl::LogType::Info)                                           \
-    {                                                                                                         \
-      std::stringstream sTREAM;                                                                               \
-      sTREAM << lINE;                                                                                         \
-      Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                         \
+#define FSLLOG_IF(cOND, lINE)                                                                                       \
+  {                                                                                                                 \
+    if ((cOND) && Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Info)                                              \
+    {                                                                                                               \
+      std::stringstream sTREAM;                                                                                     \
+      sTREAM << lINE;                                                                                               \
+      Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                               \
   }
 
-#define FSLLOG_WARNING(lINE)                                                                                     \
-  {                                                                                                              \
-    if (Fsl::Logger::GetLogLevel() >= Fsl::LogType::Warning)                                                     \
-    {                                                                                                            \
-      std::stringstream sTREAM;                                                                                  \
-      sTREAM << "WARNING: " << lINE;                                                                             \
-      Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                            \
+#define FSLLOG_WARNING(lINE)                                                                                           \
+  {                                                                                                                    \
+    if (Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Warning)                                                        \
+    {                                                                                                                  \
+      std::stringstream sTREAM;                                                                                        \
+      sTREAM << lINE;                                                                                                  \
+      Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                                  \
   }
 
 #ifdef NDEBUG
@@ -82,159 +83,121 @@
   }
 #else
 //! Log in debug builds only
-#define FSLLOG_DEBUG(lINE)                                                                                  \
-  {                                                                                                         \
-    std::stringstream sTREAM;                                                                               \
-    sTREAM << lINE;                                                                                         \
-    Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+#define FSLLOG_DEBUG(lINE)                                                                                        \
+  {                                                                                                               \
+    std::stringstream sTREAM;                                                                                     \
+    sTREAM << lINE;                                                                                               \
+    Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
   }
 //! Log in debug builds only
-#define FSLLOG_DEBUG_IF(cONDITION, lINE)                                                                      \
-  {                                                                                                           \
-    if (cONDITION)                                                                                            \
-    {                                                                                                         \
-      std::stringstream sTREAM;                                                                               \
-      sTREAM << lINE;                                                                                         \
-      Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                         \
-  }
-
-//! Log in debug builds only
-#define FSLLOG_DEBUG_WARNING(lINE)                                                                             \
-  {                                                                                                            \
-    std::stringstream sTREAM;                                                                                  \
-    sTREAM << "WARNING: " << lINE;                                                                             \
-    Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+#define FSLLOG_DEBUG_IF(cONDITION, lINE)                                                                            \
+  {                                                                                                                 \
+    if (cONDITION)                                                                                                  \
+    {                                                                                                               \
+      std::stringstream sTREAM;                                                                                     \
+      sTREAM << lINE;                                                                                               \
+      Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                               \
   }
 
 //! Log in debug builds only
-#define FSLLOG_DEBUG_WARNING_IF(cONDITION, lINE)                                                                 \
-  {                                                                                                              \
-    if (cONDITION)                                                                                               \
-    {                                                                                                            \
-      std::stringstream sTREAM;                                                                                  \
-      sTREAM << "WARNING: " << lINE;                                                                             \
-      Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                            \
+#define FSLLOG_DEBUG_WARNING(lINE)                                                                                   \
+  {                                                                                                                  \
+    std::stringstream sTREAM;                                                                                        \
+    sTREAM << lINE;                                                                                                  \
+    Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+  }
+
+//! Log in debug builds only
+#define FSLLOG_DEBUG_WARNING_IF(cONDITION, lINE)                                                                       \
+  {                                                                                                                    \
+    if (cONDITION)                                                                                                     \
+    {                                                                                                                  \
+      std::stringstream sTREAM;                                                                                        \
+      sTREAM << lINE;                                                                                                  \
+      Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                                  \
   }
 #endif
 
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLLOG_WARNING_IF(cOND, lINE)                                                                            \
-  {                                                                                                              \
-    if ((cOND) && Fsl::Logger::GetLogLevel() >= Fsl::LogType::Warning)                                           \
-    {                                                                                                            \
-      std::stringstream sTREAM;                                                                                  \
-      sTREAM << "WARNING: " << lINE;                                                                             \
-      Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-    }                                                                                                            \
+#define FSLLOG_WARNING_IF(cOND, lINE)                                                                                  \
+  {                                                                                                                    \
+    if ((cOND) && Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Warning)                                              \
+    {                                                                                                                  \
+      std::stringstream sTREAM;                                                                                        \
+      sTREAM << lINE;                                                                                                  \
+      Fsl::Logger::WriteLine(Fsl::LogType::Warning, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+    }                                                                                                                  \
   }
 
-#define FSLLOG_ERROR(lINE)                                                                                       \
-  {                                                                                                              \
-    if (Fsl::Logger::GetLogLevel() >= Fsl::LogType::Error)                                                       \
-    {                                                                                                            \
-      try                                                                                                        \
-      {                                                                                                          \
-        std::stringstream sTREAM;                                                                                \
-        sTREAM << "ERROR: " << lINE;                                                                             \
-        Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-      }                                                                                                          \
-      catch (const std::exception&)                                                                              \
-      {                                                                                                          \
-      }                                                                                                          \
-    }                                                                                                            \
-  }
-
-// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLLOG_ERROR_IF(cOND, lINE)                                                                              \
-  {                                                                                                              \
-    if ((cOND) && Fsl::Logger::GetLogLevel() >= Fsl::LogType::Error)                                             \
-    {                                                                                                            \
-      try                                                                                                        \
-      {                                                                                                          \
-        std::stringstream sTREAM;                                                                                \
-        sTREAM << "ERROR: " << lINE;                                                                             \
-        Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-      }                                                                                                          \
-      catch (const std::exception&)                                                                              \
-      {                                                                                                          \
-      }                                                                                                          \
-    }                                                                                                            \
-  }
-
-
-// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLLOG2(tYPE, lINE)                                                                         \
-  {                                                                                                 \
-    if (Fsl::Logger::GetLogLevel() >= (tYPE))                                                       \
-    {                                                                                               \
-      try                                                                                           \
-      {                                                                                             \
-        std::stringstream sTREAM;                                                                   \
-        sTREAM << lINE;                                                                             \
-        Fsl::Logger::WriteLine((tYPE), sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-      }                                                                                             \
-      catch (const std::exception&)                                                                 \
-      {                                                                                             \
-      }                                                                                             \
-    }                                                                                               \
+#define FSLLOG_ERROR(lINE)                                                                                             \
+  {                                                                                                                    \
+    if (Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Error)                                                          \
+    {                                                                                                                  \
+      try                                                                                                              \
+      {                                                                                                                \
+        std::stringstream sTREAM;                                                                                      \
+        sTREAM << lINE;                                                                                                \
+        Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      }                                                                                                                \
+      catch (const std::exception&)                                                                                    \
+      {                                                                                                                \
+      }                                                                                                                \
+    }                                                                                                                  \
   }
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
-#define FSLLOG2_IF(cOND, tYPE, lINE)                                                                \
-  {                                                                                                 \
-    if ((cOND) && Fsl::Logger::GetLogLevel() >= (tYPE))                                             \
-    {                                                                                               \
-      try                                                                                           \
-      {                                                                                             \
-        std::stringstream sTREAM;                                                                   \
-        sTREAM << lINE;                                                                             \
-        Fsl::Logger::WriteLine((tYPE), sTREAM, Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
-      }                                                                                             \
-      catch (const std::exception&)                                                                 \
-      {                                                                                             \
-      }                                                                                             \
-    }                                                                                               \
+#define FSLLOG_ERROR_IF(cOND, lINE)                                                                                    \
+  {                                                                                                                    \
+    if ((cOND) && Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Error)                                                \
+    {                                                                                                                  \
+      try                                                                                                              \
+      {                                                                                                                \
+        std::stringstream sTREAM;                                                                                      \
+        sTREAM << lINE;                                                                                                \
+        Fsl::Logger::WriteLine(Fsl::LogType::Error, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      }                                                                                                                \
+      catch (const std::exception&)                                                                                    \
+      {                                                                                                                \
+      }                                                                                                                \
+    }                                                                                                                  \
   }
 
-// namespace Fsl
-//{
-//  namespace Log
-//  {
-//    inline void WriteLine(const LogType logType, const char* const psz)
-//    {
-//      if (BasicLogger::GetLogLevel() >= logType)
-//      {
-//        BasicLogger::WriteLine(logType, psz);
-//      }
-//    }
-//
-//    inline void WriteLine(const LogType logType, const std::string& str)
-//    {
-//      if (BasicLogger::GetLogLevel() >= logType)
-//      {
-//        BasicLogger::WriteLine(logType, str);
-//      }
-//    }
-//
-//    inline void WriteInfo(const char* const psz)
-//    {
-//      if (BasicLogger::GetLogLevel() >= Fsl::LogType::Info)
-//      {
-//        BasicLogger::WriteLine(LogType::Info, psz);
-//      }
-//    }
-//
-//    inline void WriteInfo(const std::string& str)
-//    {
-//      if (BasicLogger::GetLogLevel() >= Fsl::LogType::Info)
-//      {
-//        BasicLogger::WriteLine(LogType::Info, str);
-//      }
-//    }
-//  }
-//}
+
+// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLLOG2(tYPE, lINE)                                                                               \
+  {                                                                                                       \
+    if (Fsl::LogConfig::GetLogLevel() >= (tYPE))                                                          \
+    {                                                                                                     \
+      try                                                                                                 \
+      {                                                                                                   \
+        std::stringstream sTREAM;                                                                         \
+        sTREAM << lINE;                                                                                   \
+        Fsl::Logger::WriteLine((tYPE), sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      }                                                                                                   \
+      catch (const std::exception&)                                                                       \
+      {                                                                                                   \
+      }                                                                                                   \
+    }                                                                                                     \
+  }
+
+// WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+#define FSLLOG2_IF(cOND, tYPE, lINE)                                                                      \
+  {                                                                                                       \
+    if ((cOND) && Fsl::LogConfig::GetLogLevel() >= (tYPE))                                                \
+    {                                                                                                     \
+      try                                                                                                 \
+      {                                                                                                   \
+        std::stringstream sTREAM;                                                                         \
+        sTREAM << lINE;                                                                                   \
+        Fsl::Logger::WriteLine((tYPE), sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
+      }                                                                                                   \
+      catch (const std::exception&)                                                                       \
+      {                                                                                                   \
+      }                                                                                                   \
+    }                                                                                                     \
+  }
 
 #endif

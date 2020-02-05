@@ -32,14 +32,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 
 //#include <linux/mxcfb.h>
 #include <linux/fb.h>
 
 namespace Fsl
 {
-  struct ScopedFBHandle : Noncopyable
+  struct ScopedFBHandle
   {
     int Handle;
     fb_fix_screeninfo OrgFixInfo;
@@ -50,6 +49,8 @@ namespace Fsl
     uint32_t m_alignedYOffset;
     // uint32_t Size;
 
+    ScopedFBHandle(const ScopedFBHandle&) = delete;
+    ScopedFBHandle& operator=(const ScopedFBHandle&) = delete;
 
     ScopedFBHandle(const bool force32BPP, const bool alignFrameBuffer);
     ~ScopedFBHandle();

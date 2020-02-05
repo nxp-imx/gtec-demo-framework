@@ -111,7 +111,7 @@ namespace Fsl
         vertexCount += mesh->GetVertexCount();
         indexCount += mesh->GetIndexCount();
       }
-      FSLLOG("Total vertex count: " << vertexCount << ", Total index count : " << indexCount);
+      FSLLOG3_INFO("Total vertex count: {}, Total index count: {}", vertexCount, indexCount);
     }
 
 

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "GammaCorrection.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>

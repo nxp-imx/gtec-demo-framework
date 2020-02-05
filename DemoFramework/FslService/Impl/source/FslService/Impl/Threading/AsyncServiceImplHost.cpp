@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "AsyncServiceImplHost.hpp"
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/Foundation/Message/FireAndForgetBasicMessage.hpp>
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceImplCreateInfo.hpp>
@@ -79,21 +79,20 @@ namespace Fsl
   {
     if (!message.Content)
     {
-      FSLBASICLOG_WARNING("Missing content message, request ignored");
+      FSLLOG3_WARNING("Missing content message, request ignored");
       return;
     }
 
     auto itrFind = m_providerToMessageHandlerRegistry.find(message.TargetId.Get());
     if (itrFind == m_providerToMessageHandlerRegistry.end())
     {
-      FSLLOG_WARNING("No message handler registry found for providerId: " << message.TargetId.Get()
-                                                                          << " was the messsage send to the correct queue?");
+      FSLLOG3_WARNING("No message handler registry found for providerId: {}  was the messsage send to the correct queue?", message.TargetId.Get());
       return;
     }
 
     if (!itrFind->second->TryProcessMessage(message.Content))
     {
-      FSLLOG_WARNING("No message handler found for providerId: " << message.TargetId.Get());
+      FSLLOG3_WARNING("No message handler found for providerId: {}", message.TargetId.Get());
       return;
     }
   }

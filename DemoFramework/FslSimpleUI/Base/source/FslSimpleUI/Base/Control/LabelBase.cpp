@@ -31,7 +31,7 @@
 
 #include <FslSimpleUI/Base/Control/LabelBase.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
@@ -40,6 +40,7 @@
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
+#include <limits>
 
 namespace Fsl
 {
@@ -111,16 +112,16 @@ namespace Fsl
       FSL_PARAM_NOT_USED(availableSize);
 
       const auto content = DoGetContent();
-      auto fontInfo = m_font->GetAtlasBitmapFont();
-      auto measured = fontInfo.MeasureString(content.c_str(), 0, content.size());
+      const auto& fontInfo = m_font->GetAtlasBitmapFont();
+      auto measured = fontInfo.MeasureString(content.data(), 0, content.size());
       return Vector2(measured.X, fontInfo.LineSpacing());
     }
 
 
     Vector2 LabelBase::DoMeasureRenderedString(const std::string& value)
     {
-      auto fontInfo = m_font->GetAtlasBitmapFont();
-      auto measured = fontInfo.MeasureString(value.c_str(), 0, value.size());
+      const auto& fontInfo = m_font->GetAtlasBitmapFont();
+      auto measured = fontInfo.MeasureString(value.data(), 0, value.size());
       return Vector2(measured.X, fontInfo.LineSpacing());
     }
   }

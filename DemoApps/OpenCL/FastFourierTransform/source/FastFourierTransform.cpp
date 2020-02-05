@@ -29,7 +29,7 @@
 // Converted to a DemoFramework OpenCl sample.
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include "FastFourierTransform.hpp"
 #include <FslUtil/OpenCL1_1/ProgramEx.hpp>
@@ -172,16 +172,16 @@ namespace Fsl
     cl_uint GetNumComputeUnits(const cl_platform_id platform, const cl_device_type deviceType)
     {
       // Get all the devices
-      FSLLOG("Get the Device info and select Device...");
+      FSLLOG3_INFO("Get the Device info and select Device...");
       const auto devices = OpenCLHelper::GetDeviceIDs(platform, deviceType);
 
       // Set target device and Query number of compute units on targetDevice
-      FSLLOG("# of Devices Available = " << devices.size());
+      FSLLOG3_INFO("# of Devices Available = {}", devices.size());
 
       cl_uint numComputeUnits;
       RAPIDOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
 
-      FSLLOG("# of Compute Units = " << numComputeUnits);
+      FSLLOG3_INFO("# of Compute Units = {}", numComputeUnits);
       return numComputeUnits;
     }
 
@@ -231,9 +231,9 @@ namespace Fsl
     }
     m_length = length;
 
-    FSLLOG("Block size: " << m_blockSize);
-    FSLLOG("Length: " << m_length);
-    FSLLOG("Print result: " << (m_save ? "yes" : "no"));
+    FSLLOG3_INFO("Block size: {}", m_blockSize);
+    FSLLOG3_INFO("Length: {}", m_length);
+    FSLLOG3_INFO("Print result: {}", (m_save ? "yes" : "no"));
 
 
     {    // initExecution
@@ -246,7 +246,7 @@ namespace Fsl
         GetPersistentDataManager()->WriteAlltext("fft_input.csv", result);
       }
 
-      FSLLOG("Initializing device(s)...");
+      FSLLOG3_INFO("Initializing device(s)...");
       const cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
 
       // create the OpenCL context on available GPU devices
@@ -258,12 +258,12 @@ namespace Fsl
       }
 
       const cl_uint ciComputeUnitsCount = GetNumComputeUnits(m_context.GetPlatformId(), deviceType);
-      FSLLOG("# compute units = " << ciComputeUnitsCount);
+      FSLLOG3_INFO("# compute units = {}", ciComputeUnitsCount);
 
-      FSLLOG("Getting device id...");
+      FSLLOG3_INFO("Getting device id...");
       RAPIDOPENCL_CHECK(clGetContextInfo(m_context.Get(), CL_CONTEXT_DEVICES, sizeof(cl_device_id), &m_deviceId, nullptr));
 
-      FSLLOG("Creating Command Queue...");
+      FSLLOG3_INFO("Creating Command Queue...");
       m_commandQueue.Reset(m_context.Get(), m_deviceId, CL_QUEUE_PROFILING_ENABLE);
     }
   }
@@ -289,22 +289,22 @@ namespace Fsl
     // log2(n) is the # of kernels that will be invoked (for a radix-2 FFT)
     const unsigned int log2n = Log2NFFT(m_length);
 
-    FSLLOG("log2(fft size) = log2(" << m_length << ")=" << log2n);
-    FSLLOG("Compiling radix-" << rad << " FFT Program for GPU...");
+    FSLLOG3_INFO("log2(fft size) = log2({})={}", m_length, log2n);
+    FSLLOG3_INFO("Compiling radix-{} FFT Program for GPU...", rad);
 
     // compileProgram("fft.cl");
 
     const std::string strProgram = GetContentManager()->ReadAllText("fft.cl");
     ProgramEx program(m_context.Get(), m_deviceId, strProgram);
 
-    FSLLOG("creating radix-" << rad << " kernels...");
+    FSLLOG3_INFO("creating radix-{} kernels...", rad);
 
     Kernel kernels[FFT_MAX_LOG2N];
     if (2 == rad)
     {
       for (unsigned kk = 0; kk < log2n; kk++)
       {
-        FSLLOG("Creating kernel " << RADIX2_FFT_KERNEL << " " << kk << " (p=" << g_p[kk] << ")...");
+        FSLLOG3_INFO("Creating kernel {} {} (p={})...", RADIX2_FFT_KERNEL, kk, g_p[kk]);
         kernels[kk].Reset(program.Get(), RADIX2_FFT_KERNEL);
       }
     }
@@ -312,7 +312,7 @@ namespace Fsl
     {    // radix-4
       for (unsigned kk = 0; kk < log2n; kk += 2)
       {
-        FSLLOG("Creating kernel " << RADIX4_FFT_KERNEL << " " << (kk >> 1) << "...");
+        FSLLOG3_INFO("Creating kernel {} {}...", RADIX4_FFT_KERNEL, (kk >> 1));
         kernels[kk >> 1].Reset(program.Get(), RADIX4_FFT_KERNEL);
       }
     }
@@ -329,7 +329,7 @@ namespace Fsl
       {
         void* in = (0 == (kk & 1)) ? &m_deviceMemIntime : &m_deviceMemOutfft;
         void* out = (0 == (kk & 1)) ? &m_deviceMemOutfft : &m_deviceMemIntime;
-        FSLLOG("Setting kernel args for kernel " << kk << " (p=" << g_p[kk] << ")...");
+        FSLLOG3_INFO("Setting kernel args for kernel {} (p={})...", kk, g_p[kk]);
         const auto hKernel = kernels[kk].Get();
         clSetKernelArg(hKernel, 0, sizeof(cl_mem), in);
         clSetKernelArg(hKernel, 1, sizeof(cl_mem), out);
@@ -346,7 +346,7 @@ namespace Fsl
         int idx = kk >> 1;
         void* in = (0 == (idx & 1)) ? &m_deviceMemIntime : &m_deviceMemOutfft;
         void* out = (0 == (idx & 1)) ? &m_deviceMemOutfft : &m_deviceMemIntime;
-        FSLLOG("Setting kernel args for kernel " << idx << " (p=" << g_p[kk] << ")...");
+        FSLLOG3_INFO("Setting kernel args for kernel {} (p={})...", idx, g_p[kk]);
         const auto hKernel = kernels[kk].Get();
         clSetKernelArg(hKernel, 0, sizeof(cl_mem), in);
         clSetKernelArg(hKernel, 1, sizeof(cl_mem), out);
@@ -369,7 +369,7 @@ namespace Fsl
       for (unsigned kk = 0; kk < log2n; kk++)
       {
         // note to self: up to 8 it works, beyond that it does not
-        FSLLOG("running kernel " << kk << " (p=" << g_p[kk] << ")...");
+        FSLLOG3_INFO("running kernel {} (p={})...", kk, g_p[kk]);
 
         cl_event hEvent;
         RAPIDOPENCL_CHECK(
@@ -386,7 +386,7 @@ namespace Fsl
       for (unsigned kk = 0; kk < log2n; kk += 2)
       {
         int idx = kk >> 1;
-        FSLLOG("running kernel " << idx << " (p=" << g_p[kk] << ")...");
+        FSLLOG3_INFO("running kernel {},  (p={})...", idx, g_p[kk]);
 
         cl_event hEvent;
         RAPIDOPENCL_CHECK(
@@ -409,7 +409,7 @@ namespace Fsl
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hGPUDone));
     PrintGpuTime((2 == rad) ? log2n : (log2n >> 1));
 
-    FSLLOG("Successful.");
+    FSLLOG3_INFO("Successful.");
     if (m_save)
     {
       auto result = BuildResultString(m_length, m_outfft);
@@ -476,9 +476,9 @@ namespace Fsl
     for (uint32_t i = 0; i < kernelCount; ++i)
     {
       double t = GetExecutionTime(m_gpuExecution[i].Get());
-      FSLLOG("Kernel execution time on GPU (kernel " << i << "): " << std::setw(10) << std::fixed << t << " seconds");
+      FSLLOG3_INFO("Kernel execution time on GPU (kernel {}): {:10.6} seconds", i, t);
       total += t;
     }
-    FSLLOG("Total Kernel execution time on GPU: " << std::setw(10) << std::fixed << total << " seconds");
+    FSLLOG3_INFO("Total Kernel execution time on GPU: {:10.6} seconds", total);
   }
 }

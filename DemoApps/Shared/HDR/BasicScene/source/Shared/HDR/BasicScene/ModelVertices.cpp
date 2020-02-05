@@ -147,7 +147,7 @@ namespace Fsl
       VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),
 
       VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)), VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),
-      VertexPositionTexture(Vector3(x1, y1, zPos), Vector2(y1, v1)),
+      VertexPositionTexture(Vector3(x1, y1, zPos), Vector2(u1, v1)),
     };
     return vertices;
   }

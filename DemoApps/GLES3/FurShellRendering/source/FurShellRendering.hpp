@@ -39,11 +39,11 @@
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
-#include "Config.hpp"
+#include <Shared/FurShellRendering/Config.hpp>
 #include "Shader/FurShaderMultiPass.hpp"
-#include "Shader/FurShaderES3Instanced.hpp"
-#include "Shader/FurShaderES3InstancedLayer0.hpp"
-#include "Shader/FurShaderES3InstancedLayerN.hpp"
+#include "Shader/FurShaderInstanced.hpp"
+#include "Shader/FurShaderInstancedLayer0.hpp"
+#include "Shader/FurShaderInstancedLayerN.hpp"
 #include "MeshRenderBasic.hpp"
 #include "MeshRenderNormals.hpp"
 #include "MeshRenderVB.hpp"
@@ -54,38 +54,53 @@ namespace Fsl
 {
   class FurShellRendering : public DemoAppGLES3
   {
-    struct MeshStuff
+    struct MeshStuffRecord
     {
       Procedural::BasicMesh Mesh;
       MeshRenderBasic Render;
       MeshRenderVB RenderVB;
-      MeshRenderVBInstanced RenderES3Instanced;
-      MeshRenderVBInstanced RenderES3InstancedLayerN;
+      MeshRenderVBInstanced RenderInstanced;
+      MeshRenderVBInstanced RenderInstancedLayerN;
       MeshRenderNormals RenderNormals;
 
-      MeshStuff(const Procedural::BasicMesh& mesh)
+      MeshStuffRecord(const Procedural::BasicMesh& mesh)
         : Mesh(mesh)
         , Render(mesh)
         , RenderVB(mesh)
-        , RenderES3Instanced(mesh)
-        , RenderES3InstancedLayerN(mesh)
+        , RenderInstanced(mesh)
+        , RenderInstancedLayerN(mesh)
         , RenderNormals(mesh)
       {
       }
     };
 
+    struct LightInfo
+    {
+      Vector3 Direction;
+      Vector3 Color;
+      Vector3 AmbientColor;
+    };
+
+    struct Resources
+    {
+      GLES3::GLProgram Program;
+      std::unique_ptr<MeshStuffRecord> MeshStuff;
+      GLES3::GLTexture Tex1;
+      GLES3::GLTexture Tex2;
+      GLES3::GLTexture TexDescriptionAtlas;
+      AtlasTextureInfo TexDescription;
+      GLES3::GLProgram BasicProgram;
+      GLES3::GLVertexBuffer VBDescription;
+    };
+
     Config m_config;
-    GLES3::GLProgram m_program;
-    std::unique_ptr<MeshStuff> m_meshStuff;
-
-    GLES3::GLTexture m_tex1;
-    GLES3::GLTexture m_tex2;
-
-    FurShaderMultiPass m_shaderES3MultiPass;
-    FurShaderES3Instanced m_shaderES3Instanced;
-    FurShaderES3InstancedLayer0 m_shaderES3InstancedLayer0;
-    FurShaderES3InstancedLayerN m_shaderES3InstancedLayerN;
+    Resources m_resources;
+    FurShaderMultiPass m_shaderMultiPass;
+    FurShaderInstanced m_shaderInstanced;
+    FurShaderInstancedLayer0 m_shaderInstancedLayer0;
+    FurShaderInstancedLayerN m_shaderInstancedLayerN;
     WhiteShader m_shader2;
+
 
     float m_perspectiveZ;
     float m_xAngle;
@@ -111,11 +126,6 @@ namespace Fsl
     bool m_enableDepthTest;
     bool m_enableForce;
 
-    GLES3::GLTexture m_texDescriptionAtlas;
-    AtlasTextureInfo m_texDescription;
-    GLES3::GLProgram m_basicProgram;
-    GLES3::GLVertexBuffer m_vbDescription;
-
   public:
     FurShellRendering(const DemoAppConfig& config);
     ~FurShellRendering() override;
@@ -125,10 +135,10 @@ namespace Fsl
     void Draw(const DemoTime& demoTime) override;
 
   private:
-    static void DrawES3Multipass(FurShaderMultiPass& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view, const Matrix& perspective,
-                                 const Vector3& displacement, const int layerCount);
-    static void DrawES3Instanced(FurShaderBase& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view, const Matrix& perspective,
-                                 const Vector3& displacement);
+    static void DrawMultipass(FurShaderMultiPass& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view, const Matrix& perspective,
+                              const Vector3& displacement, const int layerCount);
+    static void DrawInstanced(FurShaderBase& rShader, MeshRender& rRender, const Matrix& world, const Matrix& view, const Matrix& perspective,
+                              const Vector3& displacement);
   };
 }
 

@@ -67,7 +67,7 @@ namespace Fsl
       Vector2 MeasureRenderedValue(const float value);
 
     protected:
-      const std::string& DoGetContent() const override;
+      StringViewLite DoGetContent() const override;
     };
   }
 }

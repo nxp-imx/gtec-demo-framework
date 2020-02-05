@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <HeaderLibrary Name="FslDemoService.CpuStats" CreationYear="2019">
+    <Dependency Name="FslBase"/>
+    <Platform Name="Windows" ProjectId="6CC10AF8-186F-4473-868D-36987D159816"/>
+  </HeaderLibrary>
+</FslBuildGen>

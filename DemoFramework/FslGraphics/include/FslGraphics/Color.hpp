@@ -54,8 +54,7 @@ namespace Fsl
     {
     }
 
-    // IMPROVEMENT: C++14 make this constexpr
-    Color(const float r, const float g, const float b, const float a)
+    constexpr Color(const float r, const float g, const float b, const float a)
       : m_value(static_cast<uint32_t>(Convert(b)) | (static_cast<uint32_t>(Convert(g)) << 8) | (static_cast<uint32_t>(Convert(r)) << 16) |
                 (static_cast<uint32_t>(Convert(a)) << 24))
     {
@@ -207,23 +206,11 @@ namespace Fsl
     }
 
   private:
-    // IMPROVEMENT: C++14 make this constexpr
-    static inline uint8_t Convert(const float value)
+    static constexpr inline uint8_t Convert(const float value)
     {
       const auto asInt = static_cast<int32_t>(value * 255.0f);
       // Since std::min and max are not constexpr in C++11
-      // return std::min(std::max(asInt, 0), 255);
-      return static_cast<uint8_t>(Min(Max(asInt, 0), 255));
-    }
-
-    static constexpr int32_t Min(const int32_t lhs, const int32_t rhs)
-    {
-      return (lhs < rhs ? lhs : rhs);
-    }
-
-    static constexpr int32_t Max(const int32_t lhs, const int32_t rhs)
-    {
-      return (lhs > rhs ? lhs : rhs);
+      return static_cast<uint8_t>(std::min(std::max(asInt, 0), 255));
     }
   };
 }

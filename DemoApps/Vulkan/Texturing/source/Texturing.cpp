@@ -11,7 +11,7 @@
 
 
 #include "Texturing.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <cstring>
 #include <iomanip>
+#include <sstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -110,14 +111,14 @@ namespace Fsl
     , m_indexCount(0)
     , m_descriptorSet(VK_NULL_HANDLE)
   {
-    FSLLOG("Texturing app creating");
+    FSLLOG3_INFO("Texturing app creating");
     m_zoom = -2.5f;
     m_rotation = glm::vec3(0.0f, 15.0f, 0.0f);
 
     m_enableTextOverlay = true;
     m_title = "Vulkan Example - Texturing";
 
-    FSLLOG("Texturing app created");
+    FSLLOG3_INFO("Texturing app created");
   }
 
 
@@ -702,7 +703,7 @@ namespace Fsl
     if (m_vulkanDevice.GetFeatures().samplerAnisotropy != VK_FALSE)
     {
       auto maxAnisotropy = m_vulkanDevice.GetProperties().limits.maxSamplerAnisotropy;
-      FSLLOG("Using sampler anisotropy: " << maxAnisotropy)
+      FSLLOG3_INFO("Using sampler anisotropy: {}", maxAnisotropy)
       // Use max. level of anisotropy for this example
       sampler.maxAnisotropy = maxAnisotropy;
       sampler.anisotropyEnable = VK_TRUE;

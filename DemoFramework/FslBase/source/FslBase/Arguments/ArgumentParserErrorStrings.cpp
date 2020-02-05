@@ -86,7 +86,7 @@ namespace Fsl
           return formatter.Format(pszFormat1, pszArg);
         }
 
-        std::string SafeGetCommandName(const Command command)
+        std::string SafeGetCommandName(const Command& command)
         {
           return (!command.Name.empty() ? command.Name : command.ShortName);
         }

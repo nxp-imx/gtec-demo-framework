@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <deque>
 #include <memory>
 #include "WindowEventQueueRecord.hpp"
@@ -44,7 +43,7 @@ namespace Fsl
     class WindowEvent;
 
     // This only servers as a little container's class that holds the current active event queue instance
-    class WindowEventQueue : private Noncopyable
+    class WindowEventQueue
     {
     public:
       using queue_type = std::deque<WindowEventQueueRecord>;
@@ -53,6 +52,9 @@ namespace Fsl
       std::unique_ptr<queue_type> m_queue;
 
     public:
+      WindowEventQueue(const WindowEventQueue&) = delete;
+      WindowEventQueue& operator=(const WindowEventQueue&) = delete;
+
       WindowEventQueue();
       virtual ~WindowEventQueue();
 

@@ -38,7 +38,7 @@
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
@@ -50,7 +50,7 @@
 #include <Platform/Android/JNIUtil/JNIUtil.hpp>
 
 #if 0
-#define LOCAL_LOG(X) FSLLOG("PlatformNativeWindowAndroid: " << X)
+#define LOCAL_LOG(X) FSLLOG3_INFO("PlatformNativeWindowAndroid: {}", (X))
 #else
 #define LOCAL_LOG(X) \
   {                  \
@@ -788,7 +788,7 @@ namespace Fsl
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
-        FSLLOG("PlatformNativeWindowAndroid: TryGetDPI is not implemented on this backend.");
+        FSLLOG3_INFO("PlatformNativeWindowAndroid: TryGetDPI is not implemented on this backend.");
         warnedNotImplementedOnce = true;
       }
     }

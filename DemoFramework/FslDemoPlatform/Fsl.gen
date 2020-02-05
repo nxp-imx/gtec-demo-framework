@@ -10,17 +10,20 @@
       <Dependency Name="Platform.Android.Glue" Access="Private"/>
       <Dependency Name="Platform.Android.NDKHelper" Access="Private"/>
       <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
-      <!-- For now we only enable this on android, once proper download is enabled on all platforms we can enable it everywhere -->
-      <Dependency Name="Recipe.half_1_12_0" Access="Private"/>
+      <Dependency Name="half" Access="Private"/>
+      <Dependency Name="FslDemoService.CpuStats.Impl" Access="Private"/>
     </Platform>
     <Platform Name="Ubuntu">
+      <Dependency Name="FslDemoService.CpuStats.Impl" Access="Private"/>
     </Platform>
     <Platform Name="QNX">
     </Platform>
     <Platform Name="Yocto">
       <Dependency Name="Mmdc" Access="Private"/>
+      <Dependency Name="FslDemoService.CpuStats.Impl" Access="Private"/>
     </Platform>
     <Platform Name="Windows" ProjectId="5D828207-1B76-40FE-8817-CAA002DE8144">
+      <Dependency Name="FslDemoService.CpuStats.Impl" Access="Private"/>
     </Platform>
   </Library>
 </FslBuildGen>

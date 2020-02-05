@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
@@ -72,14 +72,14 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR("App allocation threw exception: " << SafeStr(ex.what()));
+        FSLLOG3_ERROR("App allocation threw exception: {}", SafeStr(ex.what()));
         SafeDispose();
         BuildErrorString("App threw exception on construction:", ex);
       }
     }
     else
     {
-      FSLLOG_WARNING("Screen resolution is 0x0, delaying app start");
+      FSLLOG3_WARNING("Screen resolution is 0x0, delaying app start");
     }
   }
 
@@ -106,7 +106,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._PostConstruct threw exception: " << message);
+      FSLLOG3_ERROR("App._PostConstruct threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._PostConstruct threw exception:", message);
     }
@@ -128,7 +128,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._PreDestruct threw exception: " << message);
+      FSLLOG3_ERROR("App._PreDestruct threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._PreDestruct threw exception:", message);
     }
@@ -151,7 +151,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._OnEvent threw exception: " << message);
+      FSLLOG3_ERROR("App._OnEvent threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._OnEvent threw exception:", message);
     }
@@ -174,7 +174,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._Resized threw exception: " << message);
+      FSLLOG3_ERROR("App._Resized threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._Resized threw exception:", message);
     }
@@ -197,7 +197,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._PreUpdate threw exception: " << message);
+      FSLLOG3_ERROR("App._PreUpdate threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._PreUpdate threw exception:", message);
     }
@@ -220,7 +220,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._FixedUpdate threw exception: " << message);
+      FSLLOG3_ERROR("App._FixedUpdate threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._FixedUpdate threw exception:", message);
     }
@@ -243,7 +243,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._Update threw exception: " << message);
+      FSLLOG3_ERROR("App._Update threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._Update threw exception:", message);
     }
@@ -266,7 +266,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._PostUpdate threw exception: " << message);
+      FSLLOG3_ERROR("App._PostUpdate threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._PostUpdate threw exception:", message);
     }
@@ -288,7 +288,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._TryPrepareDraw threw exception: " << message);
+      FSLLOG3_ERROR("App._TryPrepareDraw threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._TryPrepareDraw threw exception:", message);
       return AppDrawResult::Completed;
@@ -310,7 +310,7 @@ namespace Fsl
       if (!m_appNotAllocatedInfoShown)
       {
         m_appNotAllocatedInfoShown = true;
-        FSLBASICLOG("App not allocated, press F5 to force reload");
+        FSLLOG3_INFO("App not allocated, press F5 to force reload");
       }
       // While the app is unallocated we sleep during draw to prevent the app from consuming 100% cpu time busy waiting
       std::this_thread::sleep_for(std::chrono::duration<uint64_t, std::milli>(8));
@@ -326,7 +326,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._Draw threw exception: " << message);
+      FSLLOG3_ERROR("App._Draw threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._Draw threw exception:", message);
     }
@@ -347,7 +347,7 @@ namespace Fsl
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG_ERROR("App._TrySwapBuffers threw exception: " << message);
+      FSLLOG3_ERROR("App._TrySwapBuffers threw exception: {}", message);
       SafeDispose();
       BuildErrorString("App._TrySwapBuffers threw exception:", message);
       return AppDrawResult::Completed;
@@ -368,7 +368,7 @@ namespace Fsl
     }
     catch (const std::exception& ex)
     {
-      FSLLOG_ERROR("App.Destructors are not allowed to throw, but this one did. Exception: " << SafeStr(ex.what()));
+      FSLLOG3_ERROR("App.Destructors are not allowed to throw, but this one did. Exception: {}", SafeStr(ex.what()));
     }
   }
 

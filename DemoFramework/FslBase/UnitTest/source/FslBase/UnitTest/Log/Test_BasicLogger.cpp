@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/BasicLogger.hpp>
+#include <FslBase/Log/Logger1.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
@@ -50,13 +50,13 @@ namespace
 
   public:
     ScopedLogLevel()
-      : m_logLevel(BasicLogger::GetLogLevel())
+      : m_logLevel(Fsl::LogConfig::GetLogLevel())
     {
     }
 
     ~ScopedLogLevel()
     {
-      BasicLogger::SetLogLevel(m_logLevel);
+      Fsl::LogConfig::SetLogLevel(m_logLevel);
     }
   };
 }
@@ -66,8 +66,8 @@ TEST(TestFixtureFslBase_TestLogBasicLog, SetLogLevel)
 {
   ScopedLogLevel scope;
 
-  BasicLogger::SetLogLevel(LogType::Verbose4);
-  EXPECT_EQ(BasicLogger::GetLogLevel(), LogType::Verbose4);
+  Fsl::LogConfig::SetLogLevel(LogType::Verbose4);
+  EXPECT_EQ(Fsl::LogConfig::GetLogLevel(), LogType::Verbose4);
 }
 
 
@@ -75,11 +75,11 @@ TEST(TestFixtureFslBase_TestLogBasicLog, WriteLine_CString_nullptr)
 {
   ScopedLogLevel scope;
 
-  BasicLogger::SetLogLevel(LogType::Verbose4);
+  Fsl::LogConfig::SetLogLevel(LogType::Verbose4);
 
   LogLocation location(__FILE__, __FUNCTION__, __LINE__);
 
-  BasicLogger::WriteLine(LogType::Info, nullptr, location);
+  Fsl::Logger::WriteLine(location, LogType::Info, nullptr);
 }
 
 
@@ -87,11 +87,11 @@ TEST(TestFixtureFslBase_TestLogBasicLog, WriteLine_CString)
 {
   ScopedLogLevel scope;
 
-  BasicLogger::SetLogLevel(LogType::Verbose4);
+  Fsl::LogConfig::SetLogLevel(LogType::Verbose4);
 
   LogLocation location(__FILE__, __FUNCTION__, __LINE__);
 
-  BasicLogger::WriteLine(LogType::Info, "hello world", location);
+  Fsl::Logger::WriteLine(location, LogType::Info, "hello world");
 }
 
 
@@ -99,9 +99,9 @@ TEST(TestFixtureFslBase_TestLogBasicLog, WriteLine_String)
 {
   ScopedLogLevel scope;
 
-  BasicLogger::SetLogLevel(LogType::Verbose4);
+  Fsl::LogConfig::SetLogLevel(LogType::Verbose4);
 
   LogLocation location(__FILE__, __FUNCTION__, __LINE__);
 
-  BasicLogger::WriteLine(LogType::Info, std::string("hello world"), location);
+  Fsl::Logger::WriteLine(location, LogType::Info, std::string("hello world"));
 }

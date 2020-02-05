@@ -30,14 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystem.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 
 namespace Fsl
 {
   bool PlatformNativeWindowSystem::IsDisplayHDRCompatible(const int32_t displayId) const
   {
     FSL_PARAM_NOT_USED(displayId);
-    FSLLOG_WARNING("IsDisplayHDRCompatible() query not supported, defaulting to false");
+    FSLLOG3_WARNING("IsDisplayHDRCompatible() query not supported, defaulting to false");
     return false;
   }
 }    // namespace Fsl

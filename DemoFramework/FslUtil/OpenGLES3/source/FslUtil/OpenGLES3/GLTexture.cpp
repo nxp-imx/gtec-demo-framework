@@ -334,7 +334,7 @@ namespace Fsl
 
       if (bitmap.GetOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin))
       {
-        FSLLOG_WARNING(
+        FSLLOG3_WARNING(
           "The supplied texture is not using LowerLeft corner as it's origin as OpenGLES expects, causing a software flip before upload (performance "
           "loss)");
         Bitmap tmpBitmap(bitmap, BitmapOrigin::LowerLeft);
@@ -416,7 +416,7 @@ namespace Fsl
 
       if (cubeBitmap.GetOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin))
       {
-        FSLLOG_WARNING(
+        FSLLOG3_WARNING(
           "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects, causing a software flip before upload "
           "(performance loss)");
         Bitmap tmpPosX(cubeBitmap.GetPosX(), BitmapOrigin::LowerLeft);
@@ -560,8 +560,8 @@ namespace Fsl
       }
 
 
-      FSLLOG_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin),
-                              "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects");
+      FSLLOG3_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin),
+                               "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects");
 
       const FaceToTargetRecord* pFaceTargetMapping;
       GLenum target;
@@ -655,8 +655,8 @@ namespace Fsl
         {
           GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
         }
-        FSLLOG_DEBUG_WARNING_IF(textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) && texture.GetLevels() != 1,
-                                "ignoring request to generate mip maps as the texture has multiple levels");
+        FSLLOG3_DEBUG_WARNING_IF(textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) && texture.GetLevels() != 1,
+                                 "ignoring request to generate mip maps as the texture has multiple levels");
 
         GL_CHECK(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, textureParameters.MinFilter));
         GL_CHECK(glTexParameteri(target, GL_TEXTURE_MAG_FILTER, textureParameters.MagFilter));
@@ -677,7 +677,7 @@ namespace Fsl
 
     Point2 GLTexture::GetSize() const
     {
-      FSLLOG_DEBUG_WARNING_IF(m_extent.Depth != 1, "GetSize called on a 3D texture, use GetExtent")
+      FSLLOG3_DEBUG_WARNING_IF(m_extent.Depth != 1, "GetSize called on a 3D texture, use GetExtent")
       return Point2(m_extent.Width, m_extent.Height);
     }
 

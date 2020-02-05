@@ -31,7 +31,7 @@
 
 #include <Shared/FractalShader/OptionParser.hpp>
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
@@ -84,7 +84,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     //    bool boolValue;
     int intValue;
@@ -198,7 +198,7 @@ namespace Fsl
 
     if (m_demoMode)
     {
-      FSLLOG("DemoMode enabled, all other arguments ignored!");
+      FSLLOG3_INFO("DemoMode enabled, all other arguments ignored!");
       m_config = Config();
       m_config.SetRenderMode(RenderMode::Col);
       m_config.SetIterations(m_config.Scene == 0 ? 30 : 35);

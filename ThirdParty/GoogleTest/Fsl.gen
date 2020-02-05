@@ -9,10 +9,10 @@
       <ExternalDependency Name="gtest_main" Access="Public" Type="StaticLib"/>
     </Platform>    
     <Platform Name="Ubuntu" Supported="true">
-      <Dependency Name="Recipe.googletest_1_8_1"/>
+      <Dependency Name="Recipe.googletest_1_10"/>
     </Platform>    
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.googletest_1_8_1"/>
+      <Dependency Name="Recipe.googletest_1_10"/>
     </Platform>    
     
   </ExternalLibrary>

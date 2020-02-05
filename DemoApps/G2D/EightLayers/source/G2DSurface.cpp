@@ -33,7 +33,7 @@
 
 #include "G2DSurface.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <cstring>
 
@@ -107,7 +107,7 @@ namespace Fsl
 
     std::memcpy(m_pBuf->buf_vaddr, rawBitmap.Content(), bufferSize);
 
-    FSLLOG("Surface plane[0]=" << std::hex << m_surface.planes[0] << std::dec << " for '" << name << "'");
+    FSLLOG3_INFO("Surface plane[0]={:x} for '{}'", m_surface.planes[0], name);
   }
 
 
@@ -136,15 +136,15 @@ namespace Fsl
     m_surface.planes[0] = m_pBuf->buf_paddr;
 
     std::memset(m_pBuf->buf_vaddr, 0, bufferSize);
-    FSLLOG("Surface plane[0]=" << std::hex << m_surface.planes[0] << std::dec << " for '" << name << "'");
+    FSLLOG3_INFO("Surface plane[0]={:x} for '{}'", m_surface.planes[0], name);
   }
 
 
   G2DSurface::~G2DSurface()
   {
-    FSLLOG("Freeing: " << Name);
+    FSLLOG3_INFO("Freeing: {}", Name);
     if (m_pBuf != nullptr)
       g2d_free(m_pBuf);
-    FSLLOG("Freed: " << Name);
+    FSLLOG3_INFO("Freed: {}", Name);
   }
 }

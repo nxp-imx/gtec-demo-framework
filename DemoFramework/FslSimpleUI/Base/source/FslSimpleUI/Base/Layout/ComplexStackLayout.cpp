@@ -34,7 +34,7 @@
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <cassert>
 #include <cmath>
 
@@ -104,7 +104,7 @@ namespace Fsl
     {
       if (m_layoutLength.empty())
       {
-        FSLLOG_WARNING("There are not layouts to pop, request ignored");
+        FSLLOG3_WARNING("There are not layouts to pop, request ignored");
         return;
       }
 
@@ -165,7 +165,7 @@ namespace Fsl
             break;
           }
           default:
-            FSLLOG_WARNING("Unsupported LayoutUnitType: " << (int32_t)layoutLength.UnitType());
+            FSLLOG3_WARNING("Unsupported LayoutUnitType: {}", static_cast<int32_t>(layoutLength.UnitType()));
             itr->Window->Measure(fakeAvailableSize);
             desiredSize = itr->Window->DesiredSize();
             break;
@@ -211,7 +211,7 @@ namespace Fsl
             break;
           }
           default:
-            FSLLOG_WARNING("Unsupported LayoutUnitType: " << (int32_t)layoutLength.UnitType());
+            FSLLOG3_WARNING("Unsupported LayoutUnitType: {0}", static_cast<int32_t>(layoutLength.UnitType()));
             itr->Window->Measure(fakeAvailableSize);
             desiredSize = itr->Window->DesiredSize();
             break;
@@ -270,7 +270,7 @@ namespace Fsl
           break;
         }
         default:
-          FSLLOG_WARNING("Unsupported LayoutUnitType: " << (int32_t)layoutLength.UnitType());
+          FSLLOG3_WARNING("Unsupported LayoutUnitType: {}", static_cast<int32_t>(layoutLength.UnitType()));
           break;
         }
         itr->UnitType = layoutLength.UnitType();
@@ -323,7 +323,7 @@ namespace Fsl
           break;
         }
         default:
-          FSLLOG_WARNING("Unsupported LayoutUnitType: " << (int32_t)layoutLength.UnitType());
+          FSLLOG3_WARNING("Unsupported LayoutUnitType: {}", static_cast<int32_t>(layoutLength.UnitType()));
           break;
         }
         itr->UnitType = layoutLength.UnitType();

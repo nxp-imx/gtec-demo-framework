@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLVertexAttribLink.hpp>
 #include <memory>
@@ -48,7 +47,7 @@ namespace Fsl
   class IContentManager;
   class VertexDeclaration;
 
-  class BasicShader : private Noncopyable
+  class BasicShader
   {
   public:
     GLES3::GLProgram Program;
@@ -62,6 +61,9 @@ namespace Fsl
     GLint LocMatSpecular;
     GLint LocMatShininess;
     std::vector<GLES3::GLVertexAttribLink> AttribLink;
+
+    BasicShader(const BasicShader&) = delete;
+    BasicShader& operator=(const BasicShader&) = delete;
 
     BasicShader(const std::shared_ptr<IContentManager>& contentManager, const VertexDeclaration& vertexDeclaration);
 

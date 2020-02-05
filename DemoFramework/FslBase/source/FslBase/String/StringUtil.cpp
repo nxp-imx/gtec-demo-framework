@@ -34,7 +34,6 @@
 #include <cassert>
 #include <iterator>
 #include <limits>
-#include <sstream>
 
 namespace Fsl
 {

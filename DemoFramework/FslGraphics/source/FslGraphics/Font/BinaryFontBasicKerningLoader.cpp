@@ -34,14 +34,15 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Bits/ByteArrayUtil.hpp>
 #include <FslBase/Compression/ValueCompression.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/UTF8String.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <limits>
 #include <fstream>
-#include <sstream>
 #include <vector>
 
 // Nasty hack for dealing with UTF8 file names on windows,
@@ -235,9 +236,7 @@ namespace Fsl
     }
     else
     {
-      std::stringstream strStream;
-      strStream << "File not found: '" << strFilename.ToAsciiString() << "'";
-      throw FormatException(strStream.str());
+      throw FormatException(fmt::format("File not found: '{}'", strFilename));
     }
   }
 

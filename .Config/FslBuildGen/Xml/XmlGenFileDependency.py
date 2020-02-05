@@ -46,8 +46,8 @@ class XmlGenFileDependency(XmlBase):
         if access == "Public":
             self.Access = AccessType.Public  # type: int
         elif access == "Private":
-            self.Access = AccessType.Private  # type: int
+            self.Access = AccessType.Private
         elif access == "Link":
-            self.Access = AccessType.Link  # type: int
+            self.Access = AccessType.Link
         else:
             raise XmlFormatException("Unknown access type '{0}' on Dependency: '{1}'".format(access, self.Name))

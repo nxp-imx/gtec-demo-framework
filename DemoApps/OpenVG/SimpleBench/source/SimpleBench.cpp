@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include "SimpleBench.hpp"
 #include <VG/openvg.h>
 #include "PointBench.hpp"
@@ -122,7 +122,7 @@ namespace Fsl
     ++m_benchDrawCount;
     if (m_benchDrawCount >= NUM_DRAWS_PER_BENCH)
     {
-      FSLLOG("Benchmark " << m_current->GetName() << " time: " << m_taskTime << " microseconds");
+      FSLLOG3_INFO("Benchmark {} time: {} microseconds", m_current->GetName(), m_taskTime);
       NextBenchmark();
     }
   }

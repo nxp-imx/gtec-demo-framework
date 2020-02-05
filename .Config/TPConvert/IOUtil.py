@@ -21,33 +21,34 @@
 #* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #****************************************************************************************************************************************************
 
+from typing import Optional
 import os
 
-def ReadFile(filename):
+def ReadFile(filename: str) -> str:
     content = None
     with open(filename, "r") as theFile:
         content = theFile.read()
     return content
 
 
-def ReadBinaryFile(filename):
+def ReadBinaryFile(filename: str) -> bytes:
     content = None
     with open(filename, "rb") as theFile:
         content = theFile.read()
     return content
 
 
-def WriteFile(filename, content):
+def WriteFile(filename: str, content: str) -> None:
     with open(filename, "w") as theFile:
         theFile.write(content)
 
 
-def WriteBinaryFile(filename, content):
+def WriteBinaryFile(filename: str, content: bytes) -> None:
     with open(filename, "wb") as theFile:
         theFile.write(content)
 
 
-def WriteFileIfChanged(filename, content):
+def WriteFileIfChanged(filename: str, content: str) -> None:
     existingContent = None
     if os.path.exists(filename):
         if os.path.isfile(filename):
@@ -58,7 +59,7 @@ def WriteFileIfChanged(filename, content):
         WriteFile(filename, content)
 
 
-def WriteBinaryFileIfChanged(filename, content):
+def WriteBinaryFileIfChanged(filename: str, content: bytes) -> None:
     existingContent = None
     if os.path.exists(filename):
         if os.path.isfile(filename):
@@ -69,15 +70,18 @@ def WriteBinaryFileIfChanged(filename, content):
         WriteBinaryFile(filename, content)
 
 
-def GetFileNameWithoutExtension(path):
+def GetFileNameWithoutExtension(path: str) -> str:
     return os.path.splitext(os.path.basename(path))[0]
 
 
-def ToUnixStylePath(path):
-    if path == None:
+def ToUnixStylePath(path: str) -> str:
+    return path.replace("\\", "/")
+
+def TryToUnixStylePath(path: Optional[str]) -> Optional[str]:
+    if path is None:
         return None
     return path.replace("\\", "/")
 
 
-def Join(path1, path2):
+def Join(path1: str, path2: str) -> str:
     return ToUnixStylePath(os.path.join(path1, path2))

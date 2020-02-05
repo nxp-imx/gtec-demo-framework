@@ -37,14 +37,13 @@
 #include <FslUtil/OpenGLES3/GLBufferArrayEntry.hpp>
 #include <GLES3/gl3.h>
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <vector>
 
 namespace Fsl
 {
   namespace GLES3
   {
-    class GLBufferArray : private Noncopyable
+    class GLBufferArray
     {
       std::vector<GLBufferArrayEntry> m_array;
       GLenum m_target{0};

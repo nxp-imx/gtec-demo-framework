@@ -29,13 +29,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
 #include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerService.hpp>
+#include <fmt/format.h>
 #include <cassert>
 #include <limits>
 
@@ -96,9 +97,7 @@ namespace Fsl
     const auto length = IO::File::GetLength(absPath);
     if (length > std::numeric_limits<uint32_t>::max())
     {
-      std::stringstream strstream;
-      strstream << "File '" << absPath.ToAsciiString() << "' was larger than 4GB, which is unsupported";
-      throw IOException(strstream.str());
+      throw IOException(fmt::format("File '{}' was larger than 4GB, which is unsupported", absPath.ToAsciiString()));
     }
     return length;
   }

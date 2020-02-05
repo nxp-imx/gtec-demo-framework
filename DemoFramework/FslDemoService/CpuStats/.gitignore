@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/FslDemoService.CpuStats.VC.VC.opendb
+/FslDemoService.CpuStats.VC.db
+/FslDemoService.CpuStats.manifest
+/FslDemoService.CpuStats.opensdf
+/FslDemoService.CpuStats.sdf
+/FslDemoService.CpuStats.sln
+/FslDemoService.CpuStats.v12.sdf
+/FslDemoService.CpuStats.v12.suo
+/FslDemoService.CpuStats.vcxproj
+/FslDemoService.CpuStats.vcxproj.filters
+/FslDemoService.CpuStats.vcxproj.user
+/build/

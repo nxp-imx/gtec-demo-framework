@@ -32,7 +32,7 @@
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Consumer/Exceptions.hpp>
 #include <FslService/Consumer/IServiceProvider.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 
 namespace Fsl
 {
@@ -50,7 +50,7 @@ namespace Fsl
     const std::shared_ptr<IServiceProvider> serviceProvider = m_serviceProvider.lock();
     if (!serviceProvider)
     {
-      FSLBASICLOG_WARNING("Service provider unavailable, therefore the service is unavailable");
+      FSLLOG3_WARNING("Service provider unavailable, therefore the service is unavailable");
       return std::shared_ptr<IService>();
     }
 

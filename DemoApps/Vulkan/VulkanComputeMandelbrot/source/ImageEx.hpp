@@ -33,7 +33,6 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <RapidVulkan/Image.hpp>
 #include <vector>
 #include <vulkan/vulkan.h>
@@ -41,7 +40,7 @@
 namespace Fsl
 {
   // This object is movable so it can be thought of as behaving int he same was as a unique_ptr and is compatible with std containers
-  class ImageEx : private Noncopyable
+  class ImageEx
   {
     struct LayerRecord
     {
@@ -54,6 +53,9 @@ namespace Fsl
     VkImageCreateInfo m_createInfo;
 
   public:
+    ImageEx(const ImageEx&) = delete;
+    ImageEx& operator=(const ImageEx&) = delete;
+
     // move assignment operator
     ImageEx& operator=(ImageEx&& other) noexcept;
     // move constructor

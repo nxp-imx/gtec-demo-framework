@@ -82,6 +82,17 @@ namespace Fsl
         return m_sampler.GetDevice();
       }
 
+      VkImage GetImage() const
+      {
+        return m_image.GetImage();
+      }
+
+      VkImageView GetImageView() const
+      {
+        return m_image.GetImageView();
+      }
+
+
       //! @brief Get the Image associated with this object
       const VUImage& Image() const
       {
@@ -107,7 +118,7 @@ namespace Fsl
         return m_sampler;
       }
 
-      //! @brief Extract information about this texture as a GLTextureInfo struct
+      //! @brief Extract information about this texture as a VUTextureInfo struct
       operator VUTextureInfo() const
       {
         return VUTextureInfo(m_sampler.Get(), m_image.ImageView().Get(), m_image.Image().GetImageLayout(), m_image.Image().GetExtent());
@@ -118,6 +129,10 @@ namespace Fsl
         return m_image.Image().GetExtent();
       }
 
+      VkExtent2D GetExtent2D() const
+      {
+        return m_image.Image().GetExtent2D();
+      }
 
       VkDescriptorImageInfo GetDescriptorImageInfo() const
       {

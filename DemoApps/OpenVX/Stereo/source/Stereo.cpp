@@ -31,7 +31,7 @@
 
 // OpenVX 1.1 project
 #include "Stereo.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <RapidOpenVX/Check.hpp>
 
@@ -123,10 +123,10 @@ namespace Fsl
       timeSum += perfL[i].avg;
       timeSum += perfR[i].avg;
     }
-    FSLLOG("");
-    FSLLOG("Kernels execution time:");
-    FSLLOG("      -----------------------");
-    FSLLOG("      1/4 execution time:        " << timeSum / 1000000 << "ms");
+    FSLLOG3_INFO("");
+    FSLLOG3_INFO("Kernels execution time:");
+    FSLLOG3_INFO("      -----------------------");
+    FSLLOG3_INFO("      1/4 execution time:        {}ms", timeSum / 1000000);
 
     // size 1/2
     AllocateMemory(m_context.Get(), m_mSize2);
@@ -162,9 +162,9 @@ namespace Fsl
       timeSum1 += perfL[i].avg;
       timeSum1 += perfR[i].avg;
     }
-    FSLLOG("");
-    FSLLOG("      -----------------------");
-    FSLLOG("      1/2 execution time:        " << timeSum1 / 1000000 << "ms");
+    FSLLOG3_INFO("");
+    FSLLOG3_INFO("      -----------------------");
+    FSLLOG3_INFO("      1/2 execution time:        {}ms", timeSum1 / 1000000);
 
     // size 1/1
     AllocateMemory(m_context.Get(), m_mSize1);
@@ -200,13 +200,13 @@ namespace Fsl
       timeSum2 += perfL[i].avg;
       timeSum2 += perfR[i].avg;
     }
-    FSLLOG("");
-    FSLLOG("      -----------------------");
-    FSLLOG("      1/1 execution time:        " << timeSum2 / 1000000 << "ms");
+    FSLLOG3_INFO("");
+    FSLLOG3_INFO("      -----------------------");
+    FSLLOG3_INFO("      1/1 execution time:        {}ms", timeSum2 / 1000000);
 
-    FSLLOG("");
-    FSLLOG("      -----------------------");
-    FSLLOG("      Total execution time:        " << (timeSum + timeSum1 + timeSum2) / 1000000 << "ms");
+    FSLLOG3_INFO("");
+    FSLLOG3_INFO("      -----------------------");
+    FSLLOG3_INFO("      Total execution time:        {}ms", (timeSum + timeSum1 + timeSum2) / 1000000);
 
     SaveImage(m_mImagesLeft1.Get(), "DisparityLeft.jpg", m_mSize1);
   }
@@ -303,12 +303,12 @@ namespace Fsl
   {
     if (imglRGB.empty() || imgrRGB.empty())
     {
-      FSLLOG_ERROR("image opening failed.");
+      FSLLOG3_ERROR("image opening failed.");
     }
 
     if (imglRGB.size() != imgrRGB.size())
     {
-      FSLLOG_ERROR("Left and right images must be the same size.");
+      FSLLOG3_ERROR("Left and right images must be the same size.");
     }
 
     if (imglRGB.size() != m_mSize1 || imgrRGB.size() != m_mSize1)

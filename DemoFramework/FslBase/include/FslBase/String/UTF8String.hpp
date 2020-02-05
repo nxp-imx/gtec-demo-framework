@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <string>
 
 namespace Fsl
@@ -109,7 +110,17 @@ namespace Fsl
     {
       return m_content >= rhs.m_content;
     }
+
+    operator StringViewLite() const noexcept
+    {
+      return StringViewLite(m_content.data(), m_content.size());
+    }
   };
+
+  extern bool operator==(const UTF8String& lhs, const char* const pszRhs) noexcept;
+  extern bool operator!=(const UTF8String& lhs, const char* const pszRhs) noexcept;
+  extern bool operator==(const char* const pszLhs, const UTF8String& rhs) noexcept;
+  extern bool operator!=(const char* const pszLhs, const UTF8String& rhs) noexcept;
 }
 
 #endif

@@ -35,10 +35,7 @@
 #include "FractalShaderJulia.hpp"
 #include "FractalShaderMandelbrot.hpp"
 #include <Shared/FractalShader/OptionParser.hpp>
-#include <FslBase/String/StringUtil.hpp>
 #include <GLES3/gl3.h>
-#include <iostream>
-#include <string>
 
 namespace Fsl
 {

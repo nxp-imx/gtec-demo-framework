@@ -31,7 +31,7 @@
 
 #include <FslSimpleUI/Base/Control/FloatSlider.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>

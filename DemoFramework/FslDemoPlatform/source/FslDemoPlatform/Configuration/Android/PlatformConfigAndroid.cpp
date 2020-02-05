@@ -46,6 +46,8 @@
 
 #include <FslDemoHost/Base/Service/ServiceGroupName.hpp>
 #include <FslDemoHost/Base/Service/ServicePriorityList.hpp>
+#include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
+#include <FslDemoService/CpuStats/Impl/CpuStatsServiceFactory.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
 //#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
 //#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
@@ -73,6 +75,10 @@ namespace Fsl
 
     const auto imageServiceGroup = serviceRegistry.GetServiceGroupByName(ServiceGroupName::Image());
     serviceRegistry.Register<ImageLibraryServiceAndroidFactory>(ServicePriorityList::ImageLibraryService(), imageServiceGroup);
+
+    // We disable the per core info which is extracted from /proc/stat which is unavailable to apps on newer android builds
+    auto cpuStatsServiceFactory = std::make_shared<CpuStatsServiceFactory>([]() { return std::make_unique<CpuStatsAdapterLinux>(false); });
+    serviceRegistry.Register(cpuStatsServiceFactory);
   }
 }
 #endif

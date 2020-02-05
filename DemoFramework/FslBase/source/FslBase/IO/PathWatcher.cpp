@@ -29,7 +29,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
 #include <FslBase/IO/PathWatcher.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/IO/Directory.hpp>

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 // OpenVX 1.1 project
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <RapidOpenVX/Check.hpp>
 #include "UserNodes.hpp"
@@ -172,7 +172,7 @@ namespace Fsl
   {
     if (paraNum == 0u)
     {
-      FSLLOG_ERROR("Error numbers of parameters.");
+      FSLLOG3_ERROR("Error numbers of parameters.");
     }
     vx_kernel_execution_parameters_t shaderParam = {2, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     vx_uint32 imgWid = 0u;
@@ -382,7 +382,7 @@ namespace Fsl
   {
     if (paraNum == 0u)
     {
-      FSLLOG_ERROR("Error numbers of parameters.");
+      FSLLOG3_ERROR("Error numbers of parameters.");
     }
     vx_kernel_execution_parameters_t shaderParam = {2, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     vx_uint32 imgWid = 0u;
@@ -439,7 +439,7 @@ namespace Fsl
   {
     if (paraNum == 0u)
     {
-      FSLLOG_ERROR("Error numbers of parameters.");
+      FSLLOG3_ERROR("Error numbers of parameters.");
     }
     vx_kernel_execution_parameters_t shaderParam = {2, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     vx_uint32 imgWid = 0u;
@@ -581,7 +581,7 @@ namespace Fsl
   {
     if (paraNum == 0u)
     {
-      FSLLOG_ERROR("Error numbers of parameters.");
+      FSLLOG3_ERROR("Error numbers of parameters.");
     }
     vx_kernel_execution_parameters_t shaderParam = {2, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     vx_uint32 imgWid = 0u;
@@ -638,7 +638,7 @@ namespace Fsl
   {
     if (paraNum == 0u)
     {
-      FSLLOG_ERROR("Error numbers of parameters.");
+      FSLLOG3_ERROR("Error numbers of parameters.");
     }
     vx_kernel_execution_parameters_t shaderParam = {2, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     vx_uint32 imgWid = 0u;
@@ -695,7 +695,7 @@ namespace Fsl
   {
     if (paraNum == 0u)
     {
-      FSLLOG_ERROR("Error numbers of parameters.");
+      FSLLOG3_ERROR("Error numbers of parameters.");
     }
     vx_kernel_execution_parameters_t shaderParam = {2, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     vx_uint32 imgWid = 0u;
@@ -929,7 +929,7 @@ namespace Fsl
   {
     if (paraNum == 0u)
     {
-      FSLLOG_ERROR("Error numbers of parameters.");
+      FSLLOG3_ERROR("Error numbers of parameters.");
     }
     vx_kernel_execution_parameters_t shaderParam = {2, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
     vx_uint32 imgWid = 0u;
@@ -1117,7 +1117,7 @@ namespace Fsl
       if (VX_SUCCESS == status)
       {
         RAPIDOPENVX_CHECK(vxFinalizeKernel(kernelObj));
-        FSLLOG("Succeeded to finalize kernel[" << i << "]= " << kernels[i]->name);
+        FSLLOG3_INFO("Succeeded to finalize kernel[{}]= {}", i, kernels[i]->name);
       }
       else
       {

@@ -30,7 +30,7 @@
 ****************************************************************************************************************************************************/
 
 #include "##PACKAGE_SHORT_NAME##.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>

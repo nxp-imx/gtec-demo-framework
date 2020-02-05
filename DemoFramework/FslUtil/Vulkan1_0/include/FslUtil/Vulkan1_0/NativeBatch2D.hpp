@@ -123,18 +123,14 @@ namespace Fsl
                       const Color& color) override;
       void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition,
                       const Color& color) override;
-      void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                      const int32_t length, const Vector2& dstPosition, const Color& color) override;
-      void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                      const int32_t length, const Vector2& dstPosition, const Color& color) override;
+      void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView, const Vector2& dstPosition,
+                      const Color& color) override;
       void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz, const Vector2& dstPosition,
                       const Color& color, const Vector2& origin, const Vector2& scale) override;
       void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition,
                       const Color& color, const Vector2& origin, const Vector2& scale) override;
-      void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                      const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale) override;
-      void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                      const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale) override;
+      void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView, const Vector2& dstPosition,
+                      const Color& color, const Vector2& origin, const Vector2& scale) override;
 
       void DebugDrawRectangle(const AtlasTexture2D& srcFillTexture, const Rectangle& dstRect, const Color& color) override;
       void DebugDrawRectangle(const Texture2D& srcFillTexture, const Rectangle& dstRect, const Color& color) override;

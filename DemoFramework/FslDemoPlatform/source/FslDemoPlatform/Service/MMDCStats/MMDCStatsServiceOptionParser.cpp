@@ -32,9 +32,9 @@
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsServiceOptionParser.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
+#include <fmt/format.h>
 #include <cassert>
 #include <cstring>
-#include <sstream>
 
 namespace Fsl
 {
@@ -57,14 +57,13 @@ namespace Fsl
 
     std::string BuildUsageString()
     {
-      std::stringstream str;
-      str << g_pszUsage[0];
+      fmt::memory_buffer buf;
+      fmt::format_to(buf, g_pszUsage[0]);
       for (size_t i = 1; i < (sizeof(g_pszUsage) / sizeof(char*)); ++i)
       {
-        str << "|";
-        str << g_pszUsage[i];
+        fmt::format_to(buf, "|{}", g_pszUsage[i]);
       }
-      return str.str();
+      return fmt::to_string(buf);
     }
 
 
@@ -105,7 +104,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum MMDCStatsServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult MMDCStatsServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     switch (cmdId)
     {
@@ -116,7 +115,7 @@ namespace Fsl
       m_enabled = true;
       if (!IsValidUsageString(pszOptArg))
       {
-        throw NotSupportedException(std::string("Unknown mmdc usage string: ") + pszOptArg);
+        throw NotSupportedException(fmt::format("Unknown mmdc usage string: '{}'", pszOptArg));
       }
       m_usage = pszOptArg;
       return OptionParseResult::Parsed;

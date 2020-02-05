@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.HDR04_HDRFramebuffer" NoInclude="true" CreationYear="2019">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="Shared.HDR.BasicScene"/>
+    <Dependency Name="Shared.HDR.BasicScene.API.Vulkan"/>
+    <Platform Name="Windows" ProjectId="2113B180-1759-4C4C-B0CE-F64F6359D426"/>
+  </Executable>
+</FslBuildGen>

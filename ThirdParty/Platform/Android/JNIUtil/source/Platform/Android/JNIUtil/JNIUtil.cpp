@@ -18,7 +18,7 @@
 #include <iostream>
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 
 #include <Platform/Android/JNIUtil/JNIUtil.hpp>
 
@@ -172,7 +172,7 @@ namespace Fsl
             }
             catch(const std::exception& ex)
             {
-              FSLLOG_ERROR("Failed to load: " << ex.what());
+              FSLLOG3_ERROR("Failed to load: {}", ex.what());
             }
 
             env->ReleaseIntArrayElements(javaPixelArray, pPixels, 0);

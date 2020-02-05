@@ -35,6 +35,8 @@
 #include <GLES2/gl2.h>
 #include <iostream>
 #include <FslBase/IO/Path.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslGraphics3D/SceneFormat/BasicSceneFormat.hpp>
@@ -59,7 +61,7 @@ namespace Fsl
   }
 
 
-  RenderScene::RenderScene(const DemoAppConfig& config)
+  RenderScene::RenderScene(const DemoAppConfig& config, const int32_t sceneId)
     : m_locWorld(GLValues::INVALID_LOCATION)
     , m_locWorldView(GLValues::INVALID_LOCATION)
     , m_locWorldViewProjection(GLValues::INVALID_LOCATION)
@@ -79,19 +81,22 @@ namespace Fsl
     , m_matSpecular(1, 1, 1, 1)
     , m_matShininess(80.0f)
   {
+    m_lightDirection.Normalize();
+
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
     std::string strFileName, strTextureFileName, strTextureGloss, strTextureSpecular, strTextureNormal;
-    switch (0)
+    switch (sceneId)
     {
-    case 0:
+    case 1:
       strFileName = "Knight2/armor.fsf";
       strTextureFileName = "Knight2/armor_default_color.jpg";
       strTextureSpecular = "Knight2/armor_default_metalness.jpg";
       strTextureNormal = "Knight2/armor_default_nmap.jpg";
       strTextureGloss = "Knight2/armor_default_rough.jpg";
       break;
-    case 1:
+    case 0:
+    case 2:
       strFileName = "FuturisticCar/FuturisticCar.fsf";
       strTextureFileName = "FuturisticCar/Futuristic_Car_C.jpg";
       strTextureSpecular = "FuturisticCar/Futuristic_Car_S.jpg";
@@ -105,24 +110,30 @@ namespace Fsl
     contentPath = IO::Path::Combine(contentPath, MODELS_PATH);
     const auto fullModelPath = IO::Path::Combine(contentPath, strFileName);
 
+    FSLLOG3_INFO("Loading scene '{}'", fullModelPath);
     BasicSceneFormat sceneFormat;
     auto scene = sceneFormat.Load<BasicScene>(fullModelPath);
 
 
+    FSLLOG3_INFO("Preparing textures");
     {    // prepare textures
       Bitmap bitmap;
       auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureFileName);
 
       if (strTextureGloss.empty())
       {
-        contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8_UNORM);
+        FSLLOG3_INFO("- Diffuse '{}'", texturePath);
+        contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
       }
       else
       {
         Bitmap bitmapGloss;
         auto glossTexturePath = IO::Path::Combine(MODELS_PATH, strTextureGloss);
+        FSLLOG3_INFO("- Diffuse '{}'", texturePath);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
+        FSLLOG3_INFO("- Gloss '{}'", glossTexturePath);
         contentManager->Read(bitmapGloss, glossTexturePath, PixelFormat::R8G8B8A8_UNORM);
+        FSLLOG3_INFO("- Combining texture");
         for (uint32_t y = 0; y < bitmap.Height(); ++y)
         {
           for (uint32_t x = 0; x < bitmap.Width(); ++x)
@@ -141,6 +152,7 @@ namespace Fsl
       if (!strTextureSpecular.empty())
       {
         auto specTexturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
+        FSLLOG3_INFO("- Specular '{}'", specTexturePath);
         contentManager->Read(bitmap, specTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
@@ -148,11 +160,14 @@ namespace Fsl
       if (!strTextureNormal.empty())
       {
         auto normTexturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
+        FSLLOG3_INFO("- Normal '{}'", normTexturePath);
         contentManager->Read(bitmap, normTexturePath, PixelFormat::R8G8B8A8_UNORM);
         m_textureNormal.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
     }
 
+    FSLLOG3_INFO("Preparing shaders");
+    PrepareShader(contentManager, m_textureSpecular.IsValid(), !strTextureGloss.empty(), m_textureNormal.IsValid());
 
     // Create index and vertex buffers for all the meshes.
     {
@@ -169,10 +184,8 @@ namespace Fsl
         vertexCount += mesh->GetVertexCount();
         indexCount += mesh->GetIndexCount();
       }
-      FSLLOG("Total vertex count: " << vertexCount << ", Total index count : " << indexCount);
+      FSLLOG3_INFO("Total vertex count: {}, Total index count: {}, SubMesh count: {}", vertexCount, indexCount, scene->GetMeshCount());
     }
-
-    PrepareShader(contentManager, m_textureSpecular.IsValid(), !strTextureGloss.empty(), m_textureNormal.IsValid());
   }
 
 

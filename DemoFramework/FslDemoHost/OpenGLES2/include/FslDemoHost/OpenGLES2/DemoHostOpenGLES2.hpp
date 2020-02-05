@@ -36,7 +36,7 @@
 #endif
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoHost/EGL/EGLDemoHost.hpp>
 #include <FslUtil/OpenGLES2/GLUtil.hpp>
 #include <GLES2/gl2.h>
@@ -74,10 +74,10 @@ namespace Fsl
     {
       auto extensions = GLES2::GLUtil::GetExtensions();
       std::sort(extensions.begin(), extensions.end());
-      FSLLOG("OpenGL ES2 Extensions");
+      FSLLOG3_INFO("OpenGL ES2 Extensions");
       for (const auto& entry : extensions)
       {
-        FSLLOG("- " << entry);
+        FSLLOG3_INFO("- {}", entry);
       }
     }
 
@@ -94,7 +94,7 @@ namespace Fsl
           case ExtensionPrecense::Mandatory:
             throw std::runtime_error(std::string("Required extension '") + request.Name + "' not found");
           case ExtensionPrecense::Optional:
-            FSLLOG_DEBUG("Optional extension '" << request.Name << "' not available.");
+            FSLLOG3_DEBUG_INFO("Optional extension '{}' not available.", request.Name);
             break;
           default:
             throw NotSupportedException("Unsupported ExtensionPrecense");

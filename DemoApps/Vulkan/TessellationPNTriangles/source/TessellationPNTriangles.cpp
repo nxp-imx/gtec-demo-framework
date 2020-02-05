@@ -14,7 +14,7 @@
 
 #include "TessellationPNTriangles.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -25,6 +25,7 @@
 #include <cmath>
 #include <cstring>
 #include <iomanip>
+#include <sstream>
 #include <vector>
 
 namespace Fsl
@@ -238,12 +239,12 @@ namespace Fsl
   {
     if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
-      FSLLOG("Using BC compression");
+      FSLLOG3_INFO("Using BC compression");
       m_textures.ColorMap = m_textureLoader->LoadTexture("Models/Deer/deer_bc3.ktx");
     }
     else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      FSLLOG("Using ETC2 compression");
+      FSLLOG3_INFO("Using ETC2 compression");
       m_textures.ColorMap = m_textureLoader->LoadTexture("Models/Deer/deer_etc2.ktx");
     }
     else

@@ -32,12 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Rect.hpp>
+#include <FslBase/Math/Rectangle.hpp>
+#include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/Font/FontGlyphPosition.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
+#include <FslGraphics/Render/Strategy/StrategyBatchByState.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
-#include <FslGraphics/Font/FontGlyphPosition.hpp>
 #include <string>
 #include <vector>
 
@@ -98,37 +100,13 @@ namespace Fsl
     using texture_type = TTexture;
     using atlas_texture_type = GenericBatch2DAtlasTexture<texture_type>;
     using native_batch_type = TNativeBatch;
+    using stategy_type = StrategyBatchByState<texture_type>;
 
   private:
-    struct DrawRecord
-    {
-      texture_type NativeTexture;
-      uint32_t QuadCount{0};
-
-      DrawRecord()
-        : NativeTexture()
-      {
-      }
-      DrawRecord(const texture_type& nativeTexture)
-        : NativeTexture(nativeTexture)
-        , QuadCount(1)
-      {
-      }
-      DrawRecord(const texture_type& nativeTexture, const uint32_t quadCount)
-        : NativeTexture(nativeTexture)
-        , QuadCount(quadCount)
-      {
-      }
-    };
-
+    stategy_type m_batchStrategy;
     native_batch_type m_native;
-    std::vector<VertexPositionColorTexture> m_vertices;
-    std::vector<DrawRecord> m_drawRecords;
-    int32_t m_drawRecordIndex;
-    int32_t m_quadCount;
     Rectangle m_screenRect;
     bool m_inBegin;
-    BlendState m_blendState;
     bool m_restoreState;
     std::vector<Vector2> m_posScratchpad;
     std::vector<FontGlyphPosition> m_glyphScratchpad;
@@ -286,24 +264,11 @@ namespace Fsl
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
     //! @param font the font to use for rendering the string
-    //! @param pStr a string that should be rendered
-    //! @param startIndex of the first character to render from pStr
-    //! @param length the number of characters to render from startIndex
+    //! @param strView the string view to render
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                    const int32_t length, const Vector2& dstPosition, const Color& color);
-
-    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
-    //! @param srcTexture the texture atlas that contains the font.
-    //! @param font the font to use for rendering the string
-    //! @param str a string that should be rendered
-    //! @param startIndex of the first character to render from str
-    //! @param length the number of characters to render from startIndex
-    //! @param the dstPosition to render the string at (top left corner)
-    //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                    const int32_t length, const Vector2& dstPosition, const Color& color);
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView, const Vector2& dstPosition,
+                    const Color& color);
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -326,25 +291,11 @@ namespace Fsl
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
     //! @param font the font to use for rendering the string
-    //! @param pStr a string that should be rendered
-    //! @param startIndex of the first character to render from pStr
-    //! @param length the number of characters to render from startIndex
+    //! @param strView the string view to render
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const char* const pStr, const int32_t startIndex,
-                    const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
-
-    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
-    //! @param srcTexture the texture atlas that contains the font.
-    //! @param font the font to use for rendering the string
-    //! @param str a string that should be rendered
-    //! @param startIndex of the first character to render from str
-    //! @param length the number of characters to render from startIndex
-    //! @param the dstPosition to render the string at (top left corner)
-    //! @param color the color to use.
-    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const int32_t startIndex,
-                    const int32_t length, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale);
-
+    void DrawString(const texture_type& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView, const Vector2& dstPosition,
+                    const Color& color, const Vector2& origin, const Vector2& scale);
 
     //! @brief Draw a rectangle at the given location using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -395,11 +346,7 @@ namespace Fsl
     void DebugDrawLine(const texture_type& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color);
 
   private:
-    void GrowCapacity();
-    void GrowCapacity(const std::size_t newMinimumCapacity);
     void FlushQuads();
-    inline void AddToDrawRecords(const texture_type& srcNativeTexture);
-    inline void AddToDrawRecords(const texture_type& srcNativeTexture, const uint32_t quadCount);
     inline bool AdjustSourceRect(Rectangle& rSrcRect, const AtlasTextureInfo& texInfo, Vector2& rOrigin);
     inline void EnsurePosScratchpadCapacity(const uint32_t minCapacity);
     inline void Rotate2D(Vector2& rPoint0, Vector2& rPoint1, Vector2& rPoint2, Vector2& rPoint3, const float rotation) const;

@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslDemoApp/Base/DemoAppExtension.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
@@ -57,9 +56,7 @@ namespace Fsl
     class IEventListener;
   }
 
-  class UIDemoAppExtension
-    : public DemoAppExtension
-    , private Noncopyable
+  class UIDemoAppExtension : public DemoAppExtension
   {
     UI::UIManager m_uiManager;
     BasicTextureAtlas m_defaultTextureAtlas;
@@ -69,6 +66,9 @@ namespace Fsl
     std::shared_ptr<TransitionCache> m_transitionCache;
 
   public:
+    UIDemoAppExtension(const UIDemoAppExtension&) = delete;
+    UIDemoAppExtension& operator=(const UIDemoAppExtension&) = delete;
+
     UIDemoAppExtension(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener, const UTF8String& fontName);
     ~UIDemoAppExtension();
 

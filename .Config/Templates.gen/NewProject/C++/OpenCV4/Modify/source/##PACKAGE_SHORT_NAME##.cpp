@@ -32,7 +32,7 @@
 // OpenCV 4 App
 
 #include "##PACKAGE_SHORT_NAME##.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <opencv2/opencv.hpp>
 

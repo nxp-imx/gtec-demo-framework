@@ -32,6 +32,7 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
+from FslBuildGen import IOUtil
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
 from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.CMakeUtil import CMakeUtil
@@ -46,7 +47,7 @@ def BuildGeneratorCMakeConfig(platformName: str, userCMakeConfig: Optional[UserC
     """
 
     # Setup default configuration
-    buildDir = cmakeConfiguration.DefaultBuildDir
+    buildDir = IOUtil.Join(cmakeConfiguration.DefaultBuildDir, platformName)
     generatorName = ""
     installPrefix = cmakeConfiguration.DefaultInstallPrefix
 

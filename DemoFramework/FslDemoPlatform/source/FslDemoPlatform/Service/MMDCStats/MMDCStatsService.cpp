@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsService.hpp>
 #include <FslDemoPlatform/Service/MMDCStats/MMDCStatsServiceOptionParser.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
@@ -173,7 +173,7 @@ namespace Fsl
         throw InitFailedException("Failed to init mmdc code");
       }
 
-      FSLBASICLOG("MMDC profiling enabled");
+      FSLLOG3_INFO("MMDC profiling enabled");
     }
 
     ~MmdcData()
@@ -190,7 +190,7 @@ namespace Fsl
     {
       if (auto_configuration_mmdc_profiling(&m_context, m_pszType, m_useMMDCLog ? 1 : 0) == 0)
       {
-        FSLBASICLOG("MMDC configure failed");
+        FSLLOG3_INFO("MMDC configure failed");
         return false;
       }
 
@@ -285,7 +285,7 @@ namespace Fsl
 
       // we got new stats
 
-      // FSLLOG("TotalCycles: " << stats.TotalCycles
+      // FSLLOG3_INFO("TotalCycles: " << stats.TotalCycles
       //        << " TotalCycles: " << stats.TotalCycles
       //        << " BusyCycles: " << stats.BusyCycles
       //        << " ReadAccesses: " << stats.ReadAccesses

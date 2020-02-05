@@ -15,7 +15,7 @@ FslBuildRun.py -g cmake
 ```
 
 This will execute the command with the CMake build generator.
-As CMake uses out of source builds the toolchain uses a default directory of "${TopProjectRoot}/build" as build directory (See CMake configuration for more info about ${TopProjectRoot}). 
+As CMake uses out of source builds the toolchain uses a default directory of "${TopProjectRoot}/build/<platform-name>" as build directory (See CMake configuration for more info about ${TopProjectRoot}). 
 
 For the demo framework this normally resolves to ${TopProjectRoot} == $(FSL_GRAPHICS_SDK). So the default build folder will be $(FSL_GRAPHICS_SDK)/build. The ```--CMakeBuildDir``` argument can override the build directory so you can use a directory of your choice.
 
@@ -50,7 +50,7 @@ Platform | Generator                                | Status
 Android  | Not supported (use the normal generator) | Not supported
 Windows  | Visual Studio 15 2017 Win64              | Partial support
 Ubuntu   | Unix Makefiles                           | Supported
-Yocto    | Unix Makefiles                           | Not tested
+Yocto    | Unix Makefiles                           | Supported
 
 ## CMake configuration
 

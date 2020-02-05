@@ -49,8 +49,9 @@ from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Log import Log
-from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.PackageConfig import PlatformNameString
+from FslBuildGen.PackageFilters import PackageFilters
+from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Tool.AToolAppFlow import AToolAppFlow
 from FslBuildGen.Tool.AToolAppFlowFactory import AToolAppFlowFactory
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
@@ -74,6 +75,7 @@ class DefaultValue(object):
     ListRecipes = False
     ListRequirements = False
     ListVariants = False
+    Stats = False
     PackageConfigurationType = PluginSharedValues.TYPE_DEFAULT
     SaveJson = None # type: Optional[str]
     IncludeGeneratorReport = False
@@ -93,6 +95,7 @@ class LocalToolConfig(ToolAppConfig):
         self.ListRecipes = DefaultValue.ListRecipes
         self.ListRequirements = DefaultValue.ListRequirements
         self.ListVariants = DefaultValue.ListVariants
+        self.Stats = DefaultValue.Stats
         self.PackageConfigurationType = DefaultValue.PackageConfigurationType
         self.SaveJson = DefaultValue.SaveJson
         self.IncludeGeneratorReport = DefaultValue.IncludeGeneratorReport
@@ -126,6 +129,7 @@ class ToolFlowBuildInfo(AToolAppFlow):
         localToolConfig.ListRecipes = args.ListRecipes
         localToolConfig.ListRequirements = args.ListRequirements
         localToolConfig.ListVariants = args.ListVariants
+        localToolConfig.Stats = args.stats
         localToolConfig.PackageConfigurationType = args.type
         localToolConfig.SaveJson = args.SaveJson
         localToolConfig.IncludeGeneratorReport = args.IncludeGeneratorReport
@@ -184,7 +188,33 @@ class ToolFlowBuildInfo(AToolAppFlow):
             Builder.ShowRequirementList(self.Log, config, topLevelPackage, requestedFiles)
         if localToolConfig.ListRecipes:
             RecipeInfo.ShowRecipeList(self.Log, topLevelPackage, requestedFiles)
+        if localToolConfig.Stats:
+            self.__ShowStats(topLevelPackage)
 
+    def __ShowStats(self, topLevelPackage: Package) -> None:
+        exeCount = 0
+        libCount = 0
+        extLibCount = 0
+        headerLibCount = 0
+        toolRecipe = 0
+        for dep in topLevelPackage.ResolvedAllDependencies:
+            if dep.Package.Type == PackageType.Executable:
+                exeCount += 1
+            elif dep.Package.Type == PackageType.Library:
+                libCount += 1
+            elif dep.Package.Type == PackageType.ExternalLibrary:
+                extLibCount += 1
+            elif dep.Package.Type == PackageType.HeaderLibrary:
+                headerLibCount += 1
+            elif dep.Package.Type == PackageType.ToolRecipe:
+                toolRecipe += 1
+
+        self.Log.DoPrint("Total packages: {}".format(len(topLevelPackage.ResolvedAllDependencies)))
+        self.Log.DoPrint("- Exe:        {}".format(exeCount))
+        self.Log.DoPrint("- Lib:        {}".format(libCount))
+        self.Log.DoPrint("- ExtLib:     {}".format(extLibCount))
+        self.Log.DoPrint("- HeaderLib:  {}".format(headerLibCount))
+        self.Log.DoPrint("- ToolRecipe: {}".format(toolRecipe))
 
 class ToolAppFlowFactory(AToolAppFlowFactory):
     def __init__(self) -> None:
@@ -221,6 +251,8 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--ListVariants', action='store_true', help='List all used variants')
         parser.add_argument('--ListRecipes', action='store_true', help='List all known recipes')
         parser.add_argument('--ListRequirements', action='store_true', help='List all requirements')
+
+        parser.add_argument('--stats', action='store_true', help='Show stats')
 
         parser.add_argument('-t', '--type', default=DefaultValue.PackageConfigurationType, choices=[PluginSharedValues.TYPE_DEFAULT, 'sdk'], help='Select generator type')
 

@@ -32,7 +32,7 @@
 #include <FslDemoService/NativeGraphics/Stub/NativeGraphicsService.hpp>
 #include "NativeGraphicsBasic2D.hpp"
 #include "NativeTexture2D.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
@@ -45,7 +45,7 @@ namespace Fsl
       : ThreadLocalService(serviceProvider)
       , m_showWarning(showWarning)
     {
-      FSLLOG_WARNING_IF(m_showWarning, "NativeGraphicsService is a stub");
+      FSLLOG3_WARNING_IF(m_showWarning, "NativeGraphicsService is a stub");
     }
 
 
@@ -74,7 +74,7 @@ namespace Fsl
 
     void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
     {
-      FSLLOG_WARNING("Stub::NativeGraphicsService.Capture not implemented");
+      FSLLOG3_WARNING("Stub::NativeGraphicsService.Capture not implemented");
     }
 
 

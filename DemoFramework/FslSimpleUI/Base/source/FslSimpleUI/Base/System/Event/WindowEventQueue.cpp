@@ -30,18 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include "WindowEventQueue.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 
 //#define LOCAL_LOG_ENABLED 1
 #ifdef LOCAL_LOG_ENABLED
-#define LOCAL_LOG(X) FSLLOG(X)
-#define LOCAL_LOG_IF(cOND, X) FSLLOG_IF((cOND), X)
+#define LOCAL_LOG(X) FSLLOG3_INFO(X)
+#define LOCAL_LOG_IF(cOND, X) FSLLOG3_INFO_IF((cOND), X)
 #else
 #define LOCAL_LOG(X) \
   {                  \
@@ -88,7 +88,7 @@ namespace Fsl
     //{
     //  if (!theEvent || !source)
     //  {
-    //    FSLLOG_DEBUG_WARNING("params can not be null");
+    //    FSLLOG3_DEBUG_WARNING("params can not be null");
     //    return false;
     //  }
 
@@ -106,7 +106,7 @@ namespace Fsl
       }
       if (!rEmptyQueue->empty())
       {
-        FSLLOG_WARNING("Swap the queue was not empty as expected, force clearing it..")
+        FSLLOG3_WARNING("Swap the queue was not empty as expected, force clearing it..")
         rEmptyQueue->clear();
       }
       std::swap(rEmptyQueue, m_queue);

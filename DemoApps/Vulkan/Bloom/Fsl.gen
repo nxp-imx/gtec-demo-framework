@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="Vulkan.Bloom" NoInclude="true" CreationYear="2019">
+    <ImportTemplate Name="DemoAppVulkan"/>
+    <Dependency Name="FslGraphics3D.Camera"/>
+    <Dependency Name="Shared.Bloom"/>
+    <Platform Name="Windows" ProjectId="22823A75-3339-4F7D-9EBB-78DEF8C7492D"/>
+  </Executable>
+</FslBuildGen>

@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Host/IDemoAppFactory.hpp>
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
 #include <FslDemoApp/Base/Service/Events/IEventService.hpp>
@@ -42,49 +42,33 @@
 #include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
 #include <FslDemoHost/Base/DemoAppManager.hpp>
 #include <FslDemoHost/Base/DemoAppManagerEventListener.hpp>
+#include <FslDemoService/CpuStats/ICpuStatsService.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <cassert>
-//#include <iostream>
-
-#if 0
-#define LOCAL_LOG(X) FSLLOG("DemoAppManager: " << X)
-#else
-#define LOCAL_LOG(X) \
-  {                  \
-  }
-#endif
 
 namespace Fsl
 {
   DemoAppManager::DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats,
-                                 const LogStatsMode logStatsMode, const bool enableFirewall, const bool enableContentMonitor,
-                                 const bool preallocateBasic2D, const uint32_t forcedUpdateTime, const bool renderSystemOverlay)
-    : m_demoAppProfilerOverlay()
-    , m_eventListener(std::make_shared<DemoAppManagerEventListener>())
+                                 const LogStatsMode logStatsMode, const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall,
+                                 const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime,
+                                 const bool renderSystemOverlay)
+    : m_eventListener(std::make_shared<DemoAppManagerEventListener>())
     , m_demoAppSetup(demoAppSetup)
     , m_demoAppConfig(demoAppConfig)
     , m_state(DemoState::Running)
-    , m_hasExitRequest(false)
     , m_forcedUpdateTime(forcedUpdateTime)
     , m_frameTimeConfig(1000000 / 60)
-    , m_timeThen(0)
-    , m_accumulatedTime(0)
-    , m_expectedFrameTime(0)
     , m_maxFrameTime(1000000 / 2)
-    , m_timeStatsBeforeUpdate(0)
-    , m_timeStatsAfterUpdate(0)
-    , m_timeStatsAfterDraw(0)
-    , m_accumulatedTotalTimeFixed(0)
-    , m_accumulatedTotalTime(0)
     , m_logStatsMode(logStatsMode)
+    , m_logStatsFlags(logStatsFlags)
     , m_enableStats(enableStats)
     , m_useFirewall(enableFirewall)
     , m_preallocateBasic2D(preallocateBasic2D)
   {
     if (renderSystemOverlay)
     {
-      m_demoAppProfilerOverlay.reset(new DemoAppProfilerOverlay(demoAppConfig.DemoServiceProvider));
+      m_demoAppProfilerOverlay.reset(new DemoAppProfilerOverlay(demoAppConfig.DemoServiceProvider, logStatsFlags));
     }
 
     m_expectedFrameTime = m_frameTimeConfig;
@@ -92,6 +76,7 @@ namespace Fsl
     m_graphicsService = m_demoAppConfig.DemoServiceProvider.TryGet<IGraphicsServiceControl>();
     m_profilerServiceControl = m_demoAppConfig.DemoServiceProvider.Get<IProfilerServiceControl>();
     m_profilerService = m_demoAppConfig.DemoServiceProvider.Get<IProfilerService>();
+    m_cpuStatsService = m_demoAppConfig.DemoServiceProvider.TryGet<ICpuStatsService>();
 
     if (enableContentMonitor)
     {
@@ -117,7 +102,7 @@ namespace Fsl
     }
     catch (const std::exception& ex)
     {
-      FSLLOG_ERROR("DoShutdownAppNow failed: " << ex.what());
+      FSLLOG3_ERROR("DoShutdownAppNow failed: {}", ex.what());
       std::terminate();
     }
   }
@@ -226,9 +211,9 @@ namespace Fsl
       m_accumulatedTime += timeDiff;
       m_timeDiff = timeDiff;
       // if (m_accumulatedTime >= m_expectedFrameTime)
-      //  FSLLOG("Time between draws: " << m_accumulatedTime);
+      //  FSLLOG3_INFO("Time between draws: {}", m_accumulatedTime);
       // else
-      //  FSLLOG("Time between draws: " << m_accumulatedTime << "(Warning drawing same frame)");
+      //  FSLLOG3_INFO("Time between draws: {} (Warning drawing same frame)", m_accumulatedTime);
 
       const uint64_t expectedUpdateCount = m_accumulatedTime / m_expectedFrameTime;
       switch (timeStepMode)
@@ -336,11 +321,34 @@ namespace Fsl
 
       const auto averageTime = m_profilerService->GetAverageFrameTime();
 
-      FSLLOG_IF(m_logStatsMode == LogStatsMode::Latest,
-                "All: " << m_timeDiff << " FPS: " << (1000000.0f / m_timeDiff) << " Updates: " << deltaTimeUpdate << " Draw: " << deltaTimeDraw);
-      FSLLOG_IF(m_logStatsMode == LogStatsMode::Average, "Average All: " << averageTime.TotalTime << " FPS: " << (1000000.0f / averageTime.TotalTime)
-                                                                         << " Updates: " << averageTime.UpdateTime
-                                                                         << " Draw: " << averageTime.DrawTime);
+      if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::CPU) && m_cpuStatsService)
+      {
+        float cpuUsage = 0.0f;
+        m_cpuStatsService->TryGetApplicationCpuUsage(cpuUsage);
+
+        if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::Frame))
+        {
+          // Flags: Frame | CPU
+          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Latest, "All: {} FPS: {} Updates: {} Draw: {} CPU: {}", m_timeDiff,
+                          (1000000.0f / m_timeDiff), deltaTimeUpdate, deltaTimeDraw, cpuUsage);
+          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Average, "Average All: {} FPS: {} Updates: {} Draw: {} CPU: {}", averageTime.TotalTime,
+                          (1000000.0f / averageTime.TotalTime), averageTime.UpdateTime, averageTime.DrawTime, cpuUsage);
+        }
+        else
+        {
+          // Flags: CPU
+          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Latest, "CPU: {}", cpuUsage);
+          FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Average, "CPU: {}", cpuUsage);
+        }
+      }
+      else
+      {
+        // Flags: Frame
+        FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Latest, "All: {} FPS: {} Updates: {} Draw: {}", m_timeDiff, (1000000.0f / m_timeDiff),
+                        deltaTimeUpdate, deltaTimeDraw);
+        FSLLOG3_INFO_IF(m_logStatsMode == LogStatsMode::Average, "Average All: {} FPS: {} Updates: {} Draw: {}", averageTime.TotalTime,
+                        (1000000.0f / averageTime.TotalTime), averageTime.UpdateTime, averageTime.DrawTime);
+      }
     }
   }
 
@@ -470,7 +478,7 @@ namespace Fsl
       m_expectedFrameTime = m_frameTimeConfig / 4;
       break;
     default:
-      FSLBASICLOG_WARNING("Unknown timestep mode");
+      FSLLOG3_WARNING("Unknown timestep mode");
       break;
     }
   }
@@ -485,7 +493,7 @@ namespace Fsl
       }
       catch (const std::exception& ex)
       {
-        FSLLOG_ERROR("Exception throw in _PreDestruct: " << ex.what());
+        FSLLOG3_ERROR("Exception throw in _PreDestruct: {}", ex.what());
         m_demoApp.reset();
         throw;
       }

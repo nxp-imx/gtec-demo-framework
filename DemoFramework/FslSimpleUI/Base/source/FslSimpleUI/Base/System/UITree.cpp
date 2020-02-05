@@ -31,7 +31,7 @@
 
 #include "UITree.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
@@ -71,7 +71,7 @@ namespace Fsl
 
 
       inline void CommandAddChild(const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry, const std::shared_ptr<TreeNode>& parentNode,
-                                  const std::shared_ptr<TreeNode>& node, FastTreeNodeDeque* pNewWindows, const TreeNodeFlags& filterFlags)
+                                  const std::shared_ptr<TreeNode>& node, FastTreeNodeVector* pNewWindows, const TreeNodeFlags& filterFlags)
       {
         FSL_PARAM_NOT_USED(moduleCallbackRegistry);
         TreeNode::AddChild(parentNode, node);
@@ -85,7 +85,7 @@ namespace Fsl
       }
 
       inline void CommandScheduleCloseEx(WindowToNodeMap& rDict, const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry,
-                                         const std::shared_ptr<TreeNode>& node, FastTreeNodeDeque* pNewWindows)
+                                         const std::shared_ptr<TreeNode>& node, FastTreeNodeVector* pNewWindows)
       {
         // Depth first close
         auto& nodeChildren = node->m_children;
@@ -120,7 +120,7 @@ namespace Fsl
 
 
       inline void CommandScheduleClose(WindowToNodeMap& rDict, const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry,
-                                       const std::shared_ptr<TreeNode>& node, FastTreeNodeDeque* pNewWindows)
+                                       const std::shared_ptr<TreeNode>& node, FastTreeNodeVector* pNewWindows)
       {
         CommandScheduleCloseEx(rDict, moduleCallbackRegistry, node, pNewWindows);
 
@@ -134,7 +134,7 @@ namespace Fsl
 
 
       inline void CommandScheduleCloseChildren(WindowToNodeMap& rDict, const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry,
-                                               const std::shared_ptr<TreeNode>& node, FastTreeNodeDeque* pNewWindows)
+                                               const std::shared_ptr<TreeNode>& node, FastTreeNodeVector* pNewWindows)
       {
         auto& nodeChildren = node->m_children;
         for (auto itr = nodeChildren.begin(); itr != nodeChildren.end(); ++itr)
@@ -333,7 +333,7 @@ namespace Fsl
       ProcessEventsPreUpdate();
 
       {    // Update all the existing windows
-        for (auto itr = m_dequeUpdate.begin(); itr != m_dequeUpdate.end(); ++itr)
+        for (auto itr = m_vectorUpdate.begin(); itr != m_vectorUpdate.end(); ++itr)
         {
           (*itr)->Update(demoTime);
         }
@@ -343,7 +343,7 @@ namespace Fsl
 
 
       {    // Resolve all the existing windows
-        for (auto itr = m_dequeResolve.begin(); itr != m_dequeResolve.end(); ++itr)
+        for (auto itr = m_vectorResolve.begin(); itr != m_vectorResolve.end(); ++itr)
         {
           (*itr)->Resolve(demoTime);
         }
@@ -363,7 +363,7 @@ namespace Fsl
       }
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
-      for (auto itr = m_dequeDraw.begin(); itr != m_dequeDraw.end(); ++itr)
+      for (auto itr = m_vectorDraw.begin(); itr != m_vectorDraw.end(); ++itr)
       {
         itr->pNode->Draw(itr->DrawContext);
       }
@@ -393,7 +393,7 @@ namespace Fsl
       const auto itr = m_dict.find(pActualWindow);
       if (itr == m_dict.end())
       {
-        FSLLOG_WARNING("PointFromScreen unknown window");
+        FSLLOG3_WARNING("PointFromScreen unknown window");
         return Vector2();
       }
       return (itr->second->CalcScreenTopLeftCorner() + point);
@@ -412,7 +412,7 @@ namespace Fsl
       const auto itr = m_dict.find(pActualWindow);
       if (itr == m_dict.end())
       {
-        FSLLOG_WARNING("PointFromScreen unknown window");
+        FSLLOG3_WARNING("PointFromScreen unknown window");
         return Vector2();
       }
 
@@ -439,7 +439,7 @@ namespace Fsl
       {
         throw UsageErrorException("Internal state must be ready");
       }
-      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Children should not be added during layout");
+      FSLLOG3_WARNING_IF(m_context == Context::InternalLayout, "Children should not be added during layout");
 
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
@@ -503,7 +503,7 @@ namespace Fsl
       }
       if (pWindow == nullptr)
       {
-        FSLLOG_DEBUG_WARNING("A null window will always return false");
+        FSLLOG3_DEBUG_WARNING("A null window will always return false");
         return false;
       }
       return (m_dict.find(pWindow) != m_dict.end());
@@ -542,7 +542,7 @@ namespace Fsl
 
       if (!tree || !window)
       {
-        FSLLOG_WARNING("one of the windows is null, this will always return false");
+        FSLLOG3_WARNING("one of the windows is null, this will always return false");
         return false;
       }
 
@@ -550,7 +550,7 @@ namespace Fsl
       const auto itrParent = m_dict.find(tree.get());
       if (itrParent == m_dict.end())
       {
-        FSLLOG_WARNING("tree window is not a member of the UITree");
+        FSLLOG3_WARNING("tree window is not a member of the UITree");
         return false;
       }
       assert(itrParent->second);
@@ -565,7 +565,7 @@ namespace Fsl
       {
         throw UsageErrorException("Internal state must be ready");
       }
-      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Windows should not be closed during layout");
+      FSLLOG3_WARNING_IF(m_context == Context::InternalLayout, "Windows should not be closed during layout");
 
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
@@ -582,7 +582,7 @@ namespace Fsl
       const auto itrNode = m_dict.find(window.get());
       if (itrNode == m_dict.end())
       {
-        FSLLOG_WARNING("the window is not part of the tree, request ignored.");
+        FSLLOG3_WARNING("the window is not part of the tree, request ignored.");
         return;
       }
 
@@ -597,7 +597,7 @@ namespace Fsl
       {
         throw UsageErrorException("Internal state must be ready");
       }
-      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Windows should not be closed during layout");
+      FSLLOG3_WARNING_IF(m_context == Context::InternalLayout, "Windows should not be closed during layout");
 
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
@@ -610,7 +610,7 @@ namespace Fsl
       const auto itrNode = m_dict.find(parentWindow.get());
       if (itrNode == m_dict.end())
       {
-        FSLLOG_WARNING("the window is not part of the tree, request ignored.");
+        FSLLOG3_WARNING("the window is not part of the tree, request ignored.");
         return;
       }
 
@@ -624,7 +624,7 @@ namespace Fsl
       {
         throw UsageErrorException("Internal state must be ready");
       }
-      FSLLOG_WARNING_IF(m_context == Context::InternalLayout, "Windows flags should not be touched during layout");
+      FSLLOG3_WARNING_IF(m_context == Context::InternalLayout, "Windows flags should not be touched during layout");
 
       ScopedContextChange scopedContextChange(this, Context::Internal);
 
@@ -714,7 +714,7 @@ namespace Fsl
       }
       if (!windowId)
       {
-        FSLLOG_DEBUG_WARNING("Tried to acquire a null window");
+        FSLLOG3_DEBUG_WARNING("Tried to acquire a null window");
         return std::shared_ptr<TreeNode>();
       }
       return Get(windowId.get());
@@ -757,8 +757,8 @@ namespace Fsl
       {
         throw UsageErrorException("Internal state must be ready");
       }
-      auto itr = m_dequeClickInputTarget.rbegin();
-      const auto itrEnd = m_dequeClickInputTarget.rend();
+      auto itr = m_vectorClickInputTarget.rbegin();
+      const auto itrEnd = m_vectorClickInputTarget.rend();
       while (itr != itrEnd)
       {
         if (itr->VisibleRect.Contains(hitPosition))
@@ -861,10 +861,10 @@ namespace Fsl
       m_clickInputCacheDirty = false;
 
       // Lots of optimization possibilities here
-      m_dequeUpdate.clear();
-      m_dequeResolve.clear();
-      m_dequeDraw.clear();
-      m_dequeClickInputTarget.clear();
+      m_vectorUpdate.clear();
+      m_vectorResolve.clear();
+      m_vectorDraw.clear();
+      m_vectorClickInputTarget.clear();
       RebuildDeques(m_root, m_rootRect);
     }
 
@@ -879,21 +879,21 @@ namespace Fsl
       const auto flags = node->GetFlags();
       if (flags.IsFlagged(TreeNodeFlags::UpdateEnabled))
       {
-        m_dequeUpdate.push_back(node.get());
+        m_vectorUpdate.push_back(node.get());
       }
       if (flags.IsFlagged(TreeNodeFlags::ResolveEnabled))
       {
-        m_dequeResolve.push_back(node.get());
+        m_vectorResolve.push_back(node.get());
       }
       if (flags.IsFlagged(TreeNodeFlags::DrawEnabled))
       {
-        m_dequeDraw.push_back(UITreeDrawRecord(UIDrawContext(currentRect), node.get()));
+        m_vectorDraw.push_back(UITreeDrawRecord(UIDrawContext(currentRect), node.get()));
       }
 
       // FIX: once we add clipping support we need to take that into account when storing the click input target rect
       if (flags.IsFlagged(TreeNodeFlags::ClickInput))
       {
-        m_dequeClickInputTarget.push_back(UITreeClickInputTargetRecord(currentRect, node));
+        m_vectorClickInputTarget.push_back(UITreeClickInputTargetRecord(currentRect, node));
       }
 
       auto& nodeChildren = node->m_children;
@@ -976,7 +976,7 @@ namespace Fsl
     }
 
 
-    void UITree::ProcessEvents(FastTreeNodeDeque* pNewWindows, const TreeNodeFlags& filterFlags)
+    void UITree::ProcessEvents(FastTreeNodeVector* pNewWindows, const TreeNodeFlags& filterFlags)
     {
       assert(m_state == State::Ready);
       ScopedContextChange scopedContextChange(this, Context::System);
@@ -1031,7 +1031,7 @@ namespace Fsl
         ++loopCount;
       }
 
-      FSLLOG_WARNING_IF(loopCount >= MAX_EVENT_LOOPS, "MaxLoop counter hit during event processing, please check your event sending.");
+      FSLLOG3_WARNING_IF(loopCount >= MAX_EVENT_LOOPS, "MaxLoop counter hit during event processing, please check your event sending.");
     }
 
 

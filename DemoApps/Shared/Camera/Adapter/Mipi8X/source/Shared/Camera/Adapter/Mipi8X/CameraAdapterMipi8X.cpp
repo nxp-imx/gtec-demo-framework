@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/Camera/Adapter/Mipi8X/CameraAdapterMipi8X.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 
 // Required UNIX HEADERS
 #include <linux/videodev2.h>
@@ -135,7 +135,7 @@ namespace Fsl
         unsigned int i;
         struct v4l2_buffer buf;
         struct v4l2_requestbuffers req;
-        struct v4l2_plane planes = {0};
+        struct v4l2_plane planes = {};
         int fd_v4l = video_ch[ch_id].v4l_dev;
         int mem_type = video_ch[ch_id].mem_type;
 
@@ -146,7 +146,7 @@ namespace Fsl
 
         if (ioctl(fd_v4l, VIDIOC_REQBUFS, &req) < 0)
         {
-          FSLLOG_ERROR("VIDIOC_REQBUFS failed");
+          FSLLOG3_ERROR("VIDIOC_REQBUFS failed");
           return -1;
         }
 
@@ -163,7 +163,7 @@ namespace Fsl
             buf.index = i;
             if (ioctl(fd_v4l, VIDIOC_QUERYBUF, &buf) < 0)
             {
-              FSLLOG_ERROR("VIDIOC_QUERYBUF error");
+              FSLLOG3_ERROR("VIDIOC_QUERYBUF error");
               return -1;
             }
 
@@ -174,9 +174,9 @@ namespace Fsl
             memset(video_ch[ch_id].buffers[i].start, 0xFF, video_ch[ch_id].buffers[i].length);
 
 
-            FSLLOG("buffer[" << i << "] startAddr=0x" << std::hex << reinterpret_cast<unsigned int*>(video_ch[ch_id].buffers[i].start)
-                             << ", offset=0x" << std::hex << video_ch[ch_id].buffers[i].offset << ", buf_size=" << std::dec
-                             << video_ch[ch_id].buffers[i].length);
+            FSLLOG3_INFO("buffer[{}] startAddr=0x{:x}, offset=0x{:x}, buf_size={}", i,
+                         reinterpret_cast<const void*>(video_ch[ch_id].buffers[i].start), video_ch[ch_id].buffers[i].offset,
+                         video_ch[ch_id].buffers[i].length);
           }
         }
 
@@ -201,7 +201,7 @@ namespace Fsl
 
           if (ioctl(fd_v4l, VIDIOC_QBUF, &buf) < 0)
           {
-            FSLLOG_ERROR("VIDIOC_QBUF error");
+            FSLLOG3_ERROR("VIDIOC_QBUF error");
             return -1;
           }
         }
@@ -215,7 +215,7 @@ namespace Fsl
         type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
         if (ioctl(fd_v4l, VIDIOC_STREAMON, &type) < 0)
         {
-          FSLLOG_ERROR("VIDIOC_STREAMON error");
+          FSLLOG3_ERROR("VIDIOC_STREAMON error");
           return -1;
         }
         printf("%s channel=%d, v4l_dev=0x%x\n", __func__, ch_id, fd_v4l);
@@ -241,10 +241,10 @@ namespace Fsl
         int fd_v4l;
         int i;
 
-        FSLLOG("Try to open device" << video_ch[ch_id].v4l_dev_name);
+        FSLLOG3_INFO("Try to open device {}", video_ch[ch_id].v4l_dev_name);
         if ((fd_v4l = open(video_ch[ch_id].v4l_dev_name, O_RDWR, 0)) < 0)
         {
-          FSLLOG_ERROR("unable to open v4l2 " << video_ch[ch_id].v4l_dev_name << " for capture device.");
+          FSLLOG3_ERROR("unable to open v4l2 {} for capture device.", video_ch[ch_id].v4l_dev_name);
           return -1;
         }
 
@@ -270,10 +270,10 @@ namespace Fsl
           fmtdesc.index = i;
           if (ioctl(fd_v4l, VIDIOC_ENUM_FMT, &fmtdesc) < 0)
           {
-            FSLLOG("VIDIOC ENUM FMT failed, index=" << i);
+            FSLLOG3_INFO("VIDIOC ENUM FMT failed, index={}", i);
             break;
           }
-          FSLLOG("index=" << fmtdesc.index);
+          FSLLOG3_INFO("index={}", fmtdesc.index);
           print_pixelformat("pixelformat (output by camera)", fmtdesc.pixelformat);
         }
 
@@ -285,19 +285,19 @@ namespace Fsl
         fmt.fmt.pix_mp.num_planes = 1; /* RGB */
         if (ioctl(fd_v4l, VIDIOC_S_FMT, &fmt) < 0)
         {
-          FSLLOG_ERROR("Set format failed");
+          FSLLOG3_ERROR("Set format failed");
           goto fail;
         }
         else
         {
-          FSLLOG("Set format Success");
+          FSLLOG3_INFO("Set format Success");
         }
 
         memset(&fmt, 0, sizeof(fmt));
         fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
         if (ioctl(fd_v4l, VIDIOC_G_FMT, &fmt) < 0)
         {
-          FSLLOG_ERROR("get format failed");
+          FSLLOG3_ERROR("get format failed");
           goto fail;
         }
         printf("video_ch=%d, width=%d, height=%d, \n", ch_id, fmt.fmt.pix_mp.width, fmt.fmt.pix_mp.height);
@@ -307,7 +307,7 @@ namespace Fsl
         parm.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
         if (ioctl(fd_v4l, VIDIOC_G_PARM, &parm) < 0)
         {
-          FSLLOG_ERROR("VIDIOC_G_PARM failed");
+          FSLLOG3_ERROR("VIDIOC_G_PARM failed");
           parm.parm.capture.timeperframe.denominator = g_camera_framerate;
         }
 
@@ -330,7 +330,7 @@ namespace Fsl
       {
         int fd_v4l = video_ch[ch_id].v4l_dev;
         struct v4l2_buffer buf;
-        struct v4l2_plane planes = {0};
+        struct v4l2_plane planes = {};
 
         memset(&buf, 0, sizeof(buf));
         memset(&planes, 0, sizeof(planes));
@@ -340,7 +340,7 @@ namespace Fsl
         buf.length = 1;
         if (ioctl(fd_v4l, VIDIOC_DQBUF, &buf) < 0)
         {
-          FSLLOG_ERROR("VIDIOC_DQBUF failed.");
+          FSLLOG3_ERROR("VIDIOC_DQBUF failed.");
           return -1;
         }
 
@@ -353,7 +353,7 @@ namespace Fsl
       {
         int fd_v4l = video_ch[ch_id].v4l_dev;
         struct v4l2_buffer buf;
-        struct v4l2_plane planes = {0};
+        struct v4l2_plane planes = {};
 
         int buf_id = video_ch[ch_id].cur_buf_id;
 
@@ -383,7 +383,7 @@ namespace Fsl
     {
       if (!allocateInfo.Flags.IsEnabled(CameraAdapterAllocateFlags::CustomExtent))
       {
-        FSLLOG("FIX: Using fixed default size");
+        FSLLOG3_INFO("FIX: Using fixed default size");
         m_extent = Extent2D(640, 480);
       }
 
@@ -420,7 +420,7 @@ namespace Fsl
 
     CameraAdapterMipi8X::~CameraAdapterMipi8X()
     {
-      FSLLOG_WARNING("FIX: add camera shutdown code here");
+      FSLLOG3_WARNING("FIX: add camera shutdown code here");
     }
 
     CameraAdapterConfig CameraAdapterMipi8X::GetConfig() const

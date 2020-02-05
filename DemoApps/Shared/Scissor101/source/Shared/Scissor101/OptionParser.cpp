@@ -31,7 +31,7 @@
 
 #include <Shared/Scissor101/OptionParser.hpp>
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -73,7 +73,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     FSL_PARAM_NOT_USED(pszOptArg);
 
@@ -87,11 +87,11 @@ namespace Fsl
       return OptionParseResult::Parsed;
     case CommandId::InvalidWidth:
       ForceInvalidWidth = true;
-      FSLLOG_WARNING("Forcing a invalid glScissor width, this might crash the program");
+      FSLLOG3_WARNING("Forcing a invalid glScissor width, this might crash the program");
       return OptionParseResult::Parsed;
     case CommandId::InvalidHeight:
       ForceInvalidHeight = true;
-      FSLLOG_WARNING("Forcing a invalid glScissor height, this might crash the program");
+      FSLLOG3_WARNING("Forcing a invalid glScissor height, this might crash the program");
       return OptionParseResult::Parsed;
     default:
       return OptionParseResult::NotHandled;

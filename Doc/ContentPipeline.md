@@ -66,6 +66,37 @@ Copy files from a shared resource area:
 }
 ```
 
+Copy from multiple source areas using a sync list
+
+```json
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Models/FuturisticCar/Futuristic_Car_C.jpg",
+          "Models/FuturisticCar/Futuristic_Car_N.jpg",
+          "Models/FuturisticCar/Futuristic_Car_S.jpg",
+          "Models/FuturisticCar/FuturisticCar.fsf",
+          "Models/FuturisticCar/License.json",
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/Bloom",
+        "Content": [
+          "UITextureAtlas/License.json",
+          "UITextureAtlas/MainAtlas.bta",
+          "UITextureAtlas/MainAtlas.fbk",
+          "UITextureAtlas/MainAtlas.png"
+        ]
+      }
+    ]
+  }
+}
+```
+
 
 ## Valid SourcePath variables
 

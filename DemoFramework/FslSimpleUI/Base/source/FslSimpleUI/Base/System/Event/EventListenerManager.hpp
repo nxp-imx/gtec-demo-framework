@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/System/IEventListener.hpp>
-#include <FslBase/Log/BasicLog.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <deque>
@@ -103,7 +103,7 @@ namespace Fsl
         }
         catch (const std::exception&)
         {
-          FSLBASICLOG_WARNING("eventListener threw exception");
+          FSLLOG3_WARNING("eventListener threw exception");
           m_inCall = false;
           throw;
         }

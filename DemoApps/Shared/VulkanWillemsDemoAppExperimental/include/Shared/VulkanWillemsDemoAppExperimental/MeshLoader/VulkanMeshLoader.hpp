@@ -18,7 +18,6 @@
 // The Assimp dependent parts were also split into their own class to make it
 // possible to builds apps without the Assimp dependency.
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshBuffer.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/MeshCreateInfo.hpp>
@@ -40,7 +39,7 @@ namespace Fsl
   namespace Willems
   {
     class VulkanDevice;
-    class VulkanMeshLoader : private Noncopyable
+    class VulkanMeshLoader
     {
     protected:
       struct Vertex
@@ -90,6 +89,9 @@ namespace Fsl
       IO::Path m_contentPath;
 
     public:
+      VulkanMeshLoader(const VulkanMeshLoader&) = delete;
+      VulkanMeshLoader& operator=(const VulkanMeshLoader&) = delete;
+
       VulkanMeshLoader(const std::shared_ptr<IContentManager>& contentManager);
 
       void LoadMesh(const std::string& relativePath);

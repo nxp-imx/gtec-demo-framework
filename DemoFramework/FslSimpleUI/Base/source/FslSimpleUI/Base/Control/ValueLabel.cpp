@@ -32,7 +32,6 @@
 #include <FslSimpleUI/Base/Control/ValueLabel.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
 #include <FslBase/String/StringCompat.hpp>
 #include <cassert>
 #include <cstdio>
@@ -62,6 +61,7 @@ namespace Fsl
     ValueLabel::ValueLabel(const std::shared_ptr<WindowContext>& context)
       : LabelBase(context)
     {
+      DoSetContent(0);
     }
 
 
@@ -72,15 +72,7 @@ namespace Fsl
         return;
       }
 
-      m_content = value;
-      // convert to a string
-      char tmp[BUFFER_SIZE];
-      if (!TryFormatToString(tmp, BUFFER_SIZE, m_content))
-      {
-        tmp[0] = 0;
-      }
-
-      m_contentCache = tmp;
+      DoSetContent(value);
       PropertyUpdated(PropertyType::Content);
     }
 
@@ -94,6 +86,20 @@ namespace Fsl
         return Vector2();
       }
       return DoMeasureRenderedString(tmp);
+    }
+
+
+    void ValueLabel::DoSetContent(const int32_t value)
+    {
+      m_content = value;
+      // convert to a string
+      char tmp[BUFFER_SIZE];
+      if (!TryFormatToString(tmp, BUFFER_SIZE, m_content))
+      {
+        tmp[0] = 0;
+      }
+
+      m_contentCache = tmp;
     }
   }
 }

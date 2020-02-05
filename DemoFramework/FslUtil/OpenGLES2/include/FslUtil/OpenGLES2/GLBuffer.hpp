@@ -35,7 +35,6 @@
 #include <FslUtil/OpenGLES2/Common.hpp>
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <cstdlib>
 #include <GLES2/gl2.h>

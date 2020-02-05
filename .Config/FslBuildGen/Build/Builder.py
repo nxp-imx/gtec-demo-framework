@@ -226,7 +226,8 @@ class Builder(object):
         if not generatorContext.Generator.SupportCommandInstall and buildConfig.BuildCommand == CommandType.Install:
             self.Log.DoPrint("*** install not supported by this builder ***")
 
-
+        self.UsedGeneratorConfig = generatorConfig
+        self.UsedBuildContext = buildContext
 
     def __AddCustomVariables(self, variableReport: GeneratorVariableReport, projectInfo: ToolConfigProjectInfo) -> None:
         variableReport.Add('TopProjectRoot', [projectInfo.TopProjectContext.Location.ResolvedPath])
@@ -273,8 +274,7 @@ class Builder(object):
                 runCommands = None  # type: Optional[List[str]]
                 if strRunCommands is not None:
                     userRunCommands = shlex.split(strRunCommands)
-                    runCommands = self.__TryGenerateRunCommandForExecutable(buildContext, package, buildConfig, userRunCommands,
-                                                                            generatorConfig)
+                    runCommands = self.TryGenerateRunCommandForExecutable(buildContext, package, buildConfig, userRunCommands, generatorConfig)
                     self.__RunPackage(buildContext, package, buildEnv, runCommands)
 
 
@@ -292,7 +292,7 @@ class Builder(object):
         return buildEnv
 
     def __CheckBuildConfigureModifications(self, cacheFilename: str, generatedFileSet: Set[str],
-                                           command: List[str]) -> Optional[BuildConfigureCache]:
+                                           command: List[str], platformName: str) -> Optional[BuildConfigureCache]:
         """
         Generate hashes for all files in the set and compare them to the previously saved hashes
         Returns the new cache if its dirty else None if nothing was changed.
@@ -302,7 +302,7 @@ class Builder(object):
         generatedFileDictCache = {} # type: Dict[str,str]
         for filename in generatedFileSet:
             generatedFileDictCache[filename] = IOUtil.HashFile(filename)
-        configureCache = BuildConfigureCache(generatedFileDictCache, command)
+        configureCache = BuildConfigureCache(generatedFileDictCache, command, platformName)
 
         isDirty = True
         self.Log.LogPrintVerbose(5, "- Loading previous configuration cache if present")
@@ -337,7 +337,7 @@ class Builder(object):
 
             cacheFilename = IOUtil.Join(currentWorkingDirectory, '.FslConfigureCache.json')
 
-            dirtyBuildConfigureCache = self.__CheckBuildConfigureModifications(cacheFilename, report.GeneratedFileSet, configCommand)
+            dirtyBuildConfigureCache = self.__CheckBuildConfigureModifications(cacheFilename, report.GeneratedFileSet, configCommand, buildConfig.PlatformName)
             if dirtyBuildConfigureCache is None:
                 self.Log.LogPrint("Build configuration not modified, skipping configure")
                 return
@@ -496,7 +496,8 @@ class Builder(object):
 
 
 
-    def __TryGenerateRunCommandForExecutable(self, buildContext: LocalBuildContext,
+
+    def TryGenerateRunCommandForExecutable(self, buildContext: LocalBuildContext,
                                              package: Package,
                                              buildConfig: BuildConfigRecord,
                                              runCommands: Optional[List[str]],
@@ -570,7 +571,8 @@ def BuildPackages(generatorContext: GeneratorContext,
                   enableContentBuilder: bool,
                   forceClaimInstallArea: bool,
                   buildThreads: int,
-                  buildCommand: int) -> None:
+                  buildCommand: int,
+                  printPathIfCMake: bool=False) -> None:
     PlatformUtil.CheckBuildPlatform(generatorContext.PlatformName)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
@@ -578,7 +580,16 @@ def BuildPackages(generatorContext: GeneratorContext,
     BuildVariantUtil.LogVariantSettings(config, variantSettingsDict)
 
     buildConfig = BuildConfigRecord(generatorContext.PlatformName, variantSettingsDict, buildCommand, buildArgs, buildForAllExe, generator, buildThreads)
-    Builder(generatorContext, config, topLevelPackage, buildConfig, enableContentBuilder, forceClaimInstallArea)
+    builder = Builder(generatorContext, config, topLevelPackage, buildConfig, enableContentBuilder, forceClaimInstallArea)
+
+    # Print executable paths if enabled and its a cmake type build
+    if printPathIfCMake and generatorContext.Generator.IsCMake and buildCommand == CommandType.Build and topLevelPackage is not None:
+        for depPackage in topLevelPackage.ResolvedAllDependencies:
+            package = depPackage.Package
+            if package.Type == PackageType.Executable:
+                runCommand = builder.TryGenerateRunCommandForExecutable(builder.UsedBuildContext, package, buildConfig, ["(EXE)"], builder.UsedGeneratorConfig)
+                if runCommand is not None:
+                    config.DoPrint("Executable at: '{0}'".format(runCommand[0]))
 
 
 # requestedFiles is None for SDK builds else its the list of specifically requested files by the user

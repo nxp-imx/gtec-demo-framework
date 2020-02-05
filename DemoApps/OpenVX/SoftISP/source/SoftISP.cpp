@@ -32,7 +32,7 @@
 // OpenVX 1.1 project
 #include "SoftISP.hpp"
 #include "OptionParser.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <RapidOpenVX/Check.hpp>
 
@@ -59,7 +59,7 @@ namespace Fsl
   {
     auto optionParser = config.GetOptions<OptionParser>();
     m_denoiseStatus = optionParser->GetDenoiseStatus();
-    FSLLOG("Denoise status: " << m_denoiseStatus);
+    FSLLOG3_INFO("Denoise status: {}", m_denoiseStatus);
   }
 
 
@@ -131,12 +131,12 @@ namespace Fsl
 
     vx_perf_t perf;
     vxQueryGraph(m_graph.Get(), VX_GRAPH_PERFORMANCE, &perf, sizeof(perf));
-    FSLLOG("Graph execution time on GPU(default pipeline): " << perf.avg / 1000000.0 << "ms");
+    FSLLOG3_INFO("Graph execution time on GPU(default pipeline): {}ms", perf.avg / 1000000.0);
 
     if (m_save)
     {
       Bitmap bitmap;
-      FSLLOG("Saving images...");
+      FSLLOG3_INFO("Saving images...");
       ConvertToRGBA(nodes, m_context, m_imagesObj[0], m_imagesObj[4]);
       const char* fileName = "0-SourceImage.bmp";
       CopyToBMP(bitmap, fileName, m_imagesObj[4]);

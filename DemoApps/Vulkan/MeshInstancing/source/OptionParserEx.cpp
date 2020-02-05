@@ -31,7 +31,7 @@
 
 #include "OptionParserEx.hpp"
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
@@ -76,7 +76,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum OptionParserEx::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParserEx::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     switch (cmdId)
     {
@@ -123,13 +123,13 @@ namespace Fsl
     if (m_instanceCount < 1)
     {
       const int32_t newCount = 16;
-      FSLLOG_WARNING("InstanceCount was forced to " << newCount << " instead of the invalid value: " << m_instanceCount);
+      FSLLOG3_WARNING("InstanceCount was forced to {} instead of the invalid value: {}", newCount, m_instanceCount);
       m_instanceCount = newCount;
     }
     if ((m_instanceCount % 16) != 0)
     {
       const int32_t newCount = ((m_instanceCount / 16) + 1) * 16;
-      FSLLOG_WARNING("InstanceCount was forced to " << newCount << " instead of: " << m_instanceCount);
+      FSLLOG3_WARNING("InstanceCount was forced to {} instead of: {}", newCount, m_instanceCount);
       m_instanceCount = newCount;
     }
 

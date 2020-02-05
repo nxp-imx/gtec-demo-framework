@@ -50,7 +50,7 @@ namespace Fsl
 
   class Bloom : public DemoAppGLES2
   {
-    enum BlurShaderType
+    enum class BlurShaderType
     {
       Gaussian5X5,
       Gaussian9X9,

@@ -33,17 +33,14 @@
 
 namespace Fsl
 {
-  struct OptionParseResult
+  enum class OptionParseResult
   {
-    enum Enum
-    {
-      //! The argument was parsed successfully
-      Parsed,
-      //! The argument parsing failed
-      Failed,
-      //! Not handled by this parser
-      NotHandled
-    };
+    //! The argument was parsed successfully
+    Parsed,
+    //! The argument parsing failed
+    Failed,
+    //! Not handled by this parser
+    NotHandled
   };
 }
 

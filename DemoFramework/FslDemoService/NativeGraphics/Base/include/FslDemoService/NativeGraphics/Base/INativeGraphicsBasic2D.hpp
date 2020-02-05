@@ -33,7 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <string>
+#include <FslBase/String/StringViewLite.hpp>
 
 namespace Fsl
 {
@@ -62,7 +62,7 @@ namespace Fsl
     //! @param position the position to draw the string at
     //! @param the color to use for rendering
     //! @note This is a minimal string rendering routine
-    virtual void DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition) = 0;
+    virtual void DrawString(const StringViewLite& strView, const Vector2& dstPosition) = 0;
 
     //! @brief Get the size of one monospaced font character
     virtual Point2 FontSize() const = 0;

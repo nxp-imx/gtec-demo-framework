@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics3D/BasicScene/Scene.hpp>
 #include <FslGraphics3D/BasicScene/SceneAllocator.hpp>
@@ -47,12 +46,15 @@ namespace Fsl
     class InternalSceneRecord;
 
     //! @brief Class that can load and save the basic scene format.
-    class BasicSceneFormat : private Noncopyable
+    class BasicSceneFormat
     {
       std::shared_ptr<InternalSceneRecord> m_sceneScratchpad;
       bool m_hostIsLittleEndian;
 
     public:
+      BasicSceneFormat(const BasicSceneFormat&) = delete;
+      BasicSceneFormat& operator=(const BasicSceneFormat&) = delete;
+
       BasicSceneFormat();
       ~BasicSceneFormat();
 

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ColorspaceInfo.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoHost/EGL/Config/Service/IEGLHostInfo.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -77,27 +77,27 @@ namespace Fsl
     const auto eglHostInfo = config.DemoServiceProvider.Get<IEGLHostInfo>();
     const EGLDisplay eglDisplay = eglHostInfo->GetDisplay();
 
-    FSLLOG("Checking for EGL colorspace extensions");
+    FSLLOG3_INFO("Checking for EGL colorspace extensions");
     std::size_t extCount = sizeof(g_pszEglColorspaceExtensions) / sizeof(char*);
     for (std::size_t i = 0; i < extCount; ++i)
     {
-      FSLLOG("- " << g_pszEglColorspaceExtensions[i] << ": "
-                  << (EGLUtil::HasExtension(eglDisplay, g_pszEglColorspaceExtensions[i]) ? "Supported" : "Not supported"));
+      FSLLOG3_INFO("- {}: {}", g_pszEglColorspaceExtensions[i],
+                   EGLUtil::HasExtension(eglDisplay, g_pszEglColorspaceExtensions[i]) ? "Supported" : "Not supported");
     }
 
-    FSLLOG("Checking for colorspace meta data extensions");
+    FSLLOG3_INFO("Checking for colorspace meta data extensions");
     extCount = sizeof(g_pszEglColorspaceMetaDataExtensions) / sizeof(char*);
     for (std::size_t i = 0; i < extCount; ++i)
     {
-      FSLLOG("- " << g_pszEglColorspaceMetaDataExtensions[i] << ": "
-                  << (EGLUtil::HasExtension(eglDisplay, g_pszEglColorspaceMetaDataExtensions[i]) ? "Supported" : "Not supported"));
+      FSLLOG3_INFO("- {}: {}", g_pszEglColorspaceMetaDataExtensions[i],
+                   EGLUtil::HasExtension(eglDisplay, g_pszEglColorspaceMetaDataExtensions[i]) ? "Supported" : "Not supported");
     }
 
-    FSLLOG("Checking for other relevant extensions");
+    FSLLOG3_INFO("Checking for other relevant extensions");
     extCount = sizeof(g_pszOtherExtensions) / sizeof(char*);
     for (std::size_t i = 0; i < extCount; ++i)
     {
-      FSLLOG("- " << g_pszOtherExtensions[i] << ": " << (EGLUtil::HasExtension(eglDisplay, g_pszOtherExtensions[i]) ? "Supported" : "Not supported"));
+      FSLLOG3_INFO("- {}: {}", g_pszOtherExtensions[i], EGLUtil::HasExtension(eglDisplay, g_pszOtherExtensions[i]) ? "Supported" : "Not supported");
     }
 
     // Close the app

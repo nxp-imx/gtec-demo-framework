@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLShader.hpp>
@@ -56,7 +56,7 @@ namespace Fsl
         source[0] = 0;
         GL_ON_ERROR_LOG_AND_RETURN(glGetShaderSource(hShader, static_cast<GLsizei>(source.size()), nullptr, &source[0]));
 
-        FSLLOG("*** Source start ***\n" << &source[0] << "\n*** Source end ***\n\n");
+        FSLLOG3_INFO("*** Source start ***\n{}\n*** Source end ***\n\n", &source[0]);
 
         // Fetch the log
         GL_ON_ERROR_LOG_AND_RETURN(glGetShaderiv(hShader, GL_INFO_LOG_LENGTH, &length));
@@ -64,7 +64,7 @@ namespace Fsl
         errorLog[0] = 0;
         GL_ON_ERROR_LOG_AND_RETURN(glGetShaderInfoLog(hShader, static_cast<GLsizei>(errorLog.size()), nullptr, &errorLog[0]));
 
-        FSLLOG("*** Error log start ***\n" << &errorLog[0] << "\n*** Error Log End ***\n\n");
+        FSLLOG3_INFO("*** Error log start ***\n{}\n*** Error Log End ***\n\n", &errorLog[0]);
       }
     }
 

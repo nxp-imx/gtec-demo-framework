@@ -34,7 +34,7 @@
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/Path.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -150,7 +150,7 @@ namespace Fsl
         // Skip unused glyphs
         while (atlasGlyphIndex < textureAtlasGlyphCount && rangeGlyphId > textureAtlasGlyphs[atlasGlyphIndex].Id)
         {
-          FSLLOG_WARNING("The texture atlas contained a unexpected glyph: " << textureAtlasGlyphs[atlasGlyphIndex].Id);
+          FSLLOG3_WARNING("The texture atlas contained a unexpected glyph: {}", textureAtlasGlyphs[atlasGlyphIndex].Id);
           ++atlasGlyphIndex;
         }
 
@@ -247,6 +247,18 @@ namespace Fsl
     return MeasureString(psz, 0, std::strlen(psz));
   }
 
+  Point2 TextureAtlasBitmapFont::MeasureString(const StringViewLite& strView) const
+  {
+    if (strView.empty())
+    {
+      return Point2();
+    }
+    if (strView.size() > std::numeric_limits<uint32_t>::max())
+    {
+      throw std::invalid_argument("length can not be larger than a uint32");
+    }
+    return MeasureString(strView.data(), 0, strView.size());
+  }
 
   Point2 TextureAtlasBitmapFont::MeasureString(const char* const pStr, const uint32_t startIndex, const std::size_t length) const
   {
@@ -302,6 +314,14 @@ namespace Fsl
     return Point2(renderRight, renderBottom);
   }
 
+  void TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView) const
+  {
+    if (strView.empty())
+    {
+      return;
+    }
+    ExtractRenderRules(rDst, strView.data(), 0, strView.size());
+  }
 
   void TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const char* const pStr, const uint32_t startIndex,
                                                   const std::size_t length) const

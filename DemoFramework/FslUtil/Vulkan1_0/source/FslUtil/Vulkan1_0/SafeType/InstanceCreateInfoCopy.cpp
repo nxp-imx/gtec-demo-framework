@@ -31,7 +31,7 @@
 
 #include <FslUtil/Vulkan1_0/SafeType/InstanceCreateInfoCopy.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 
 namespace Fsl
 {
@@ -85,7 +85,7 @@ namespace Fsl
       // Now use the safe copied values instead
       PatchPointers();
       m_value.pNext = nullptr;
-      FSLLOG_DEBUG_WARNING_IF(value.pNext != nullptr, "InstanceCreateInfoCopy always stores a nullptr for pNext");
+      FSLLOG3_DEBUG_WARNING_IF(value.pNext != nullptr, "InstanceCreateInfoCopy always stores a nullptr for pNext");
     }
 
 

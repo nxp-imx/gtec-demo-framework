@@ -33,7 +33,7 @@
 
 #include "SoftISP.hpp"
 #include "OptionParser.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/OpenCL1_2/ProgramEx.hpp>
@@ -63,16 +63,16 @@ namespace Fsl
     cl_uint GetNumComputeUnits(const cl_platform_id platform, const cl_device_type deviceType)
     {
       // Get all the devices
-      FSLLOG("Get the Device info and select Device...");
+      FSLLOG3_INFO("Get the Device info and select Device...");
       const auto devices = OpenCLHelper::GetDeviceIDs(platform, deviceType);
 
       // Set target device and Query number of compute units on targetDevice
-      FSLLOG("# of Devices Available = " << devices.size());
+      FSLLOG3_INFO("# of Devices Available = {}", devices.size());
 
       cl_uint numComputeUnits;
       RAPIDOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
 
-      FSLLOG("# of Compute Units = " << numComputeUnits);
+      FSLLOG3_INFO("# of Compute Units = {}", numComputeUnits);
       return numComputeUnits;
     }
 
@@ -122,8 +122,8 @@ namespace Fsl
   {
     auto optionParser = config.GetOptions<OptionParser>();
     m_denoiseEn = optionParser->GetDenoiseStatus();
-    FSLLOG("Denoise status: " << m_denoiseEn);
-    FSLLOG("Initializing device(s)...");
+    FSLLOG3_INFO("Denoise status: {}", m_denoiseEn);
+    FSLLOG3_INFO("Initializing device(s)...");
     const cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
     // create the OpenCL context on available GPU devices
     m_context.Reset(deviceType);
@@ -131,12 +131,12 @@ namespace Fsl
     if (GetDeviceCount(m_context.Get()) <= 0)
       throw InitFailedException("No OpenCL specific devices!");
     const cl_uint ciComputeUnitsCount = GetNumComputeUnits(m_context.GetPlatformId(), deviceType);
-    FSLLOG("# compute units = " << ciComputeUnitsCount);
+    FSLLOG3_INFO("# compute units = {}", ciComputeUnitsCount);
 
-    FSLLOG("Getting device id...");
+    FSLLOG3_INFO("Getting device id...");
     RAPIDOPENCL_CHECK(clGetContextInfo(m_context.Get(), CL_CONTEXT_DEVICES, sizeof(cl_device_id), &m_deviceId, nullptr));
 
-    FSLLOG("Creating Command Queue...");
+    FSLLOG3_INFO("Creating Command Queue...");
     m_commandQueue.Reset(m_context.Get(), m_deviceId, CL_QUEUE_PROFILING_ENABLE);
   }
 
@@ -154,8 +154,8 @@ namespace Fsl
     ProgramEx program(m_context.Get(), m_deviceId, strProgram);
 
     const int KERNEL_NUM = 10;
-    FSLLOG("Creating kernels...");
-    FSLLOG("Please wait for compiling and building kernels, about one minute...");
+    FSLLOG3_INFO("Creating kernels...");
+    FSLLOG3_INFO("Please wait for compiling and building kernels, about one minute...");
     Kernel kernels[KERNEL_NUM];
     kernels[0].Reset(program.Get(), "badpixel");
     kernels[1].Reset(program.Get(), "sigma");
@@ -236,7 +236,7 @@ namespace Fsl
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[0].Get(), 2, nullptr, globalWorkSizeDiv8, localWorkSize32, 0, nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     double time = GetExecutionTime(hEvent);
-    FSLLOG("Kernel execution time on GPU (kernel: badpixel): " << time << " ms");
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: badpixel): {} ms", time);
 
     m_pixelValueR = 0, m_pixelValueG = 0, m_pixelValueB = 0;
     RAPIDOPENCL_CHECK(
@@ -250,13 +250,13 @@ namespace Fsl
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[1].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize32, 0, nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     time = GetExecutionTime(hEvent);
-    FSLLOG("Kernel execution time on GPU (kernel: sigma): " << time << " ms");
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: sigma): {} ms", time);
 
     RAPIDOPENCL_CHECK(
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[2].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     time = GetExecutionTime(hEvent);
-    FSLLOG("Kernel execution time on GPU (kernel: awb): " << time << " ms");
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: awb): {} ms", time);
 
     if ((!m_inDistR.empty()) && (!m_inDistG.empty()) && (!m_inDistB.empty()))
     {
@@ -275,25 +275,25 @@ namespace Fsl
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[3].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     time = GetExecutionTime(hEvent);
-    FSLLOG("Kernel execution time on GPU (kernel: equalize1): " << time << " ms");
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize1): {} ms", time);
 
     RAPIDOPENCL_CHECK(
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[4].Get(), 2, nullptr, globalWorkSizeOne, localWorkSize16, 0, nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     time = GetExecutionTime(hEvent);
-    FSLLOG("Kernel execution time on GPU (kernel: equalize2): " << time << " ms");
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize2): {} ms", time);
 
     RAPIDOPENCL_CHECK(
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[5].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     time = GetExecutionTime(hEvent);
-    FSLLOG("Kernel execution time on GPU (kernel: equalize3): " << time << " ms");
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize3): {} ms", time);
 
     RAPIDOPENCL_CHECK(
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[6].Get(), 2, nullptr, globalWorkSizeDiv8, localWorkSize32, 0, nullptr, &hEvent));
     RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
     time = GetExecutionTime(hEvent);
-    FSLLOG("Kernel execution time on GPU (kernel: debayer): " << time << " ms");
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: debayer): {} ms", time);
 
     if (m_denoiseEn)
     {
@@ -301,25 +301,25 @@ namespace Fsl
         clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[7].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
-      FSLLOG("Kernel execution time on GPU (kernel: rgba2yuyv): " << time << " ms");
+      FSLLOG3_INFO("Kernel execution time on GPU (kernel: rgba2yuyv): {} ms", time);
 
       RAPIDOPENCL_CHECK(
         clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[8].Get(), 2, nullptr, globalWorkSizeDenoise, localWorkSize32, 0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
-      FSLLOG("Kernel execution time on GPU (kernel: bilateral): " << time << " ms");
+      FSLLOG3_INFO("Kernel execution time on GPU (kernel: bilateral): {} ms", time);
 
       RAPIDOPENCL_CHECK(
         clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[9].Get(), 2, nullptr, globalWorkSizeStd, localWorkSize32, 0, nullptr, &hEvent));
       RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
       time = GetExecutionTime(hEvent);
-      FSLLOG("Kernel execution time on GPU (kernel: yuyv2rgba): " << time << " ms");
+      FSLLOG3_INFO("Kernel execution time on GPU (kernel: yuyv2rgba): {} ms", time);
     }
 
     if (m_save)
     {
       Bitmap bitmap;
-      FSLLOG("Saving images...");
+      FSLLOG3_INFO("Saving images...");
       ConvertToRGBA(kernels[6], m_deviceImg[0], m_deviceImg[4], m_commandQueue, m_dst4.data());
       const char* fileName = "0-SourceImage.bmp";
       CopyToBMP(bitmap, fileName, m_dst4.data());

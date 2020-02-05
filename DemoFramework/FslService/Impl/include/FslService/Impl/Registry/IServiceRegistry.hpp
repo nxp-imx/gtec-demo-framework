@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslService/Impl/Priority.hpp>
 #include <FslService/Impl/Registry/ServiceGroupId.hpp>
 #include <memory>
@@ -43,9 +42,11 @@ namespace Fsl
   class AsynchronousServiceFactory;
   class Priority;
 
-  class IServiceRegistry : private Noncopyable
+  class IServiceRegistry
   {
   public:
+    IServiceRegistry(const IServiceRegistry&) = delete;
+    IServiceRegistry& operator=(const IServiceRegistry&) = delete;
     virtual ~IServiceRegistry() = default;
 
     //! @brief Create a service group that can be used to group services
@@ -73,6 +74,9 @@ namespace Fsl
     //! @brief Register a global thread-safe service with a a specific priority in a specific thread group
     virtual void Register(const AsynchronousServiceFactory& factory, const Priority& priority = Priority(),
                           const ServiceGroupId& serviceGroupId = ServiceGroupId()) = 0;
+
+  protected:
+    IServiceRegistry() = default;
   };
 }
 

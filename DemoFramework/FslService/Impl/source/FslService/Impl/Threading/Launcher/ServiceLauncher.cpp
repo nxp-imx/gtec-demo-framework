@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslService/Impl/Threading/Launcher/ServiceLauncher.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/Exceptions.hpp>
 #include <FslService/Impl/Registry/RegisteredServiceDeque.hpp>
@@ -133,7 +133,7 @@ namespace Fsl
           return std::shared_ptr<IService>();
         }
 
-        FSLLOG_ERROR("The service factory '" << SafeGetTypeName(record.Factory) << "' returned a nullptr");
+        FSLLOG3_ERROR("The service factory '{}' returned a nullptr", SafeGetTypeName(record.Factory));
         throw InvalidServiceFactoryException("The service factory returned a null-ptr");
       }
 
@@ -212,7 +212,7 @@ namespace Fsl
         {
           if ((itr->Factory->GetFlags() & ServiceCaps::Optional) != 0)
           {
-            FSLLOG_WARNING("Service provided by '" << SafeGetTypeName(itr->Factory) << "' failed to start: " << ex.what())
+            FSLLOG3_WARNING("Service provided by '{}' failed to start: {}", SafeGetTypeName(itr->Factory), ex.what());
           }
           else
           {

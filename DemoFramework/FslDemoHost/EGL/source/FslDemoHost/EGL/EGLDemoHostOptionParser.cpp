@@ -55,7 +55,7 @@ namespace Fsl
     };
 
 
-    OptionParseResult::Enum AddSize(std::deque<EGLint>& rConfigAttributes, EGLint attrib, const char* const pszOptArg, const char* const pszError)
+    OptionParseResult AddSize(std::deque<EGLint>& rConfigAttributes, EGLint attrib, const char* const pszOptArg, const char* const pszError)
     {
       int32_t intValue;
       StringParseUtil::Parse(intValue, pszOptArg);
@@ -101,7 +101,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum EGLDemoHostOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult EGLDemoHostOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
   {
     // We rely on the fact that a command line argument can be specified once (so no duplicated entries are added)
     switch (cmdId)

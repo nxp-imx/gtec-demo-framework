@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <functional>
 #include <memory>
 
@@ -44,11 +43,14 @@ namespace Fsl
   //! @brief Extremely simple platform independent thread.
   //! @note Be very careful with what is used here as its the bottom layer.
   //! @note WARNING: this interface is experimental
-  class PlatformThread : private Noncopyable
+  class PlatformThread
   {
     std::shared_ptr<PlatformThreadImpl> m_impl;
 
   public:
+    PlatformThread(const PlatformThread&) = delete;
+    PlatformThread& operator=(const PlatformThread&) = delete;
+
     //! @brief Prepare a new thread
     //! @param fnRun the function that should be executed on the new thread.
     //! @param threadContext a user defined 'context' object that is supplied to the function.

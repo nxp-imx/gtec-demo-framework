@@ -219,9 +219,11 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         buildCMakeFile = template.Master
 
         if package.Type == PackageType.Executable:
-            if package.ContentPath is None:
+            if package.ContentPath is None or package.AbsolutePath is None:
                 raise Exception("Invalid package")
+            packagePath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, package.AbsolutePath)
             packageContentPath = CMakeGeneratorUtil.GetSDKBasedPathUsingCMakeVariable(config, package.ContentPath.AbsoluteDirPath)
+            buildCMakeFile = buildCMakeFile.replace("##PACKAGE_PATH##", packagePath)
             buildCMakeFile = buildCMakeFile.replace("##PACKAGE_CONTENT_PATH##", packageContentPath)
             buildCMakeFile = buildCMakeFile.replace("##PACKAGE_ANDROID_PROJECT_PATH##", androidProjectDir)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_INCLUDE_FILES##", includeFiles)

@@ -31,7 +31,7 @@
 
 #include "HDR03_SkyboxToneMapping.hpp"
 #include <FslBase/Bits/BitsUtil.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -101,9 +101,9 @@ namespace Fsl
       setLayoutBindings[0].descriptorCount = 1;
       setLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-      // Binding 1 : Fragment shader image sampler
+      // Binding 1 : input attachment
       setLayoutBindings[1].binding = 1;
-      setLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+      setLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
       setLayoutBindings[1].descriptorCount = 1;
       setLayoutBindings[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
@@ -119,11 +119,13 @@ namespace Fsl
     RapidVulkan::DescriptorPool CreateDescriptorPool(const Vulkan::VUDevice& device, const uint32_t count)
     {
       // Example uses one ubo and one image sampler
-      std::array<VkDescriptorPoolSize, 2> poolSizes{};
+      std::array<VkDescriptorPoolSize, 3> poolSizes{};
       poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
       poolSizes[0].descriptorCount = count;
       poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       poolSizes[1].descriptorCount = count;
+      poolSizes[2].type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+      poolSizes[2].descriptorCount = count;
 
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -140,7 +142,7 @@ namespace Fsl
     {
       assert(device != VK_NULL_HANDLE);
       assert(swapchainImageFormat != VK_NULL_HANDLE);
-      assert(depthImageFormat != VK_NULL_HANDLE);
+      assert(depthImageFormat != VK_FORMAT_UNDEFINED);
 
       VkAttachmentReference colorAttachmentReference = {0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
       VkAttachmentReference depthAttachmentReference = {1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
@@ -215,7 +217,8 @@ namespace Fsl
                                      static_cast<uint32_t>(subpassDependency.size()), subpassDependency.data());
     }
 
-    Vulkan::VUTexture CreateRenderAttachment(const Vulkan::VUDevice& device, const VkExtent2D& extent, const VkFormat format, const std::string& name)
+    Vulkan::VUImageMemoryView CreateRenderAttachment(const Vulkan::VUDevice& device, const VkExtent2D& extent, const VkFormat format,
+                                                     const std::string& name)
     {
       // const auto depthFormat = device.GetPhysicalDevice().FindDepthFormat();
 
@@ -241,29 +244,12 @@ namespace Fsl
 
       Vulkan::VUImageMemoryView imageMemoryView(device, imageCreateInfo, subresourceRange, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, name);
 
-      VkSamplerCreateInfo samplerCreateInfo{};
-      samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-      samplerCreateInfo.magFilter = VK_FILTER_LINEAR;
-      samplerCreateInfo.minFilter = VK_FILTER_LINEAR;
-      samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-      samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-      samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-      samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-      samplerCreateInfo.mipLodBias = 0.0f;
-      samplerCreateInfo.anisotropyEnable = VK_FALSE;
-      samplerCreateInfo.maxAnisotropy = 1.0f;
-      samplerCreateInfo.compareEnable = VK_FALSE;
-      samplerCreateInfo.compareOp = VK_COMPARE_OP_NEVER;
-      samplerCreateInfo.minLod = 0.0f;
-      samplerCreateInfo.maxLod = 1.0f;
-      samplerCreateInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
-
-      Vulkan::VUTexture finalTexture(std::move(imageMemoryView), samplerCreateInfo);
       // We know the renderPass is configured to transform the image to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL layout before we need to sample it
       // So we store that in the image for now (even though it will only be true at the point in time the attachment is used via a sampler)
-      finalTexture.SetImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-      return finalTexture;
+      imageMemoryView.SetImageLayout(VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+      return imageMemoryView;
     }
+
 
     RapidVulkan::GraphicsPipeline CreateTonemapPipeline(const RapidVulkan::PipelineLayout& pipelineLayout, const VkExtent2D& extent,
                                                         const VkShaderModule vertexShaderModule, const VkShaderModule fragmentShaderModule,
@@ -715,8 +701,8 @@ namespace Fsl
 
   void HDR03_SkyboxToneMapping::PrepareScene(const std::shared_ptr<IContentManager>& contentManager, Scene& rScene)
   {
-    FSLLOG("Preparing scene");
-    FSLLOG("- loading cubemaps")
+    FSLLOG3_INFO("Preparing scene");
+    FSLLOG3_INFO("- loading cubemaps")
 
     VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
     // rScene.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, "floral_tent/1024", imageCreator,
@@ -724,7 +710,7 @@ namespace Fsl
     rScene.CubemapTexture =
       TextureUtil::CreateCubemapTextureFromSix(contentManager, "Textures/Cubemap/HDR_Lookout/1024", imageCreator, PixelFormat::R16G16B16A16_SFLOAT);
 
-    FSLLOG("- loading shaders")
+    FSLLOG3_INFO("- loading shaders")
     rScene.VertShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes("skybox.vert.spv"));
     rScene.FragShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes("skybox.frag.spv"));
 

@@ -33,6 +33,8 @@
 
 #include "MeshRender.hpp"
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Math/Vector3.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 
 namespace Fsl
@@ -42,10 +44,10 @@ namespace Fsl
   {
     const int m_vertexCount;
     const int m_indexCount;
-    float* m_pVertices;
-    float* m_pNormals;
-    float* m_pTextureCoords;
-    uint16_t* m_pIndices;
+    std::vector<Vector3> m_vertices;
+    std::vector<Vector3> m_normals;
+    std::vector<Vector2> m_textureCoords;
+    std::vector<uint16_t> m_indices;
     GLenum m_primitiveType;
 
   public:

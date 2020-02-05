@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "TextureCompression.hpp"
-#include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/IO/LogPath.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
@@ -47,8 +47,9 @@
 #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Debug/Strings/VkFormatFeatureFlagBits.hpp>
+#include <fmt/ostream.h>
 #include <vulkan/vulkan.h>
-
+#include <sstream>
 
 namespace Fsl
 {
@@ -141,12 +142,12 @@ namespace Fsl
       auto properties = context.PhysicalDevice.GetPhysicalDeviceFormatProperties(vulkanPixelFormat);
       bool isSupported = properties.optimalTilingFeatures != 0 && properties.linearTilingFeatures != 0;
 
-      FSLLOG("- " << Vulkan::Debug::ToString(vulkanPixelFormat) << ": " << isSupported);
-      if (Fsl::Logger::GetLogLevel() >= LogType::Verbose)
+      FSLLOG3_INFO("- {}: {}", Vulkan::Debug::ToString(vulkanPixelFormat), isSupported);
+      if (Fsl::LogConfig::GetLogLevel() >= LogType::Verbose)
       {
-        FSLLOG("  - properties.linearTilingFeatures: " << GetBitflagsString(properties.linearTilingFeatures));
-        FSLLOG("  - properties.optimalTilingFeatures: " << GetBitflagsString(properties.optimalTilingFeatures));
-        FSLLOG("  - properties.bufferFeatures: " << GetBitflagsString(properties.bufferFeatures));
+        FSLLOG3_INFO("  - properties.linearTilingFeatures: {}", GetBitflagsString(properties.linearTilingFeatures));
+        FSLLOG3_INFO("  - properties.optimalTilingFeatures: {}", GetBitflagsString(properties.optimalTilingFeatures));
+        FSLLOG3_INFO("  - properties.bufferFeatures: {}", GetBitflagsString(properties.bufferFeatures));
       }
 
       std::string caption(Fsl::Debug::ToString(pixelFormat));
@@ -185,7 +186,7 @@ namespace Fsl
       }
       catch (const std::exception&)
       {
-        FSLLOG("Failed to create texture from source: '" << path << "' with pixel format: " << texture.GetPixelFormat());
+        FSLLOG3_INFO("Failed to create texture from source: '{}' with pixel format: {}", path, texture.GetPixelFormat());
         throw;
       }
     }
@@ -202,23 +203,23 @@ namespace Fsl
     const bool hasETC2 = m_deviceActiveFeatures.textureCompressionETC2 != VK_FALSE;
     const bool hasBC = m_deviceActiveFeatures.textureCompressionBC != VK_FALSE;
 
-    // FSLLOG("FIX: implement extension check");
+    // FSLLOG3_INFO("FIX: implement extension check");
     // const bool hasASTC_DecodeMode = false;
 
     // VK_KHR_image_format_list
 
-    FSLLOG("Compression extensions");
-    FSLLOG("ASTC");
-    FSLLOG("- textureCompressionASTC_LDR: " << hasASTC_LDR);
-    // FSLLOG("- " << VK_EXT_ASTC_DECODE_MODE_EXTENSION_NAME << ": " << hasASTC_DecodeMode);
+    FSLLOG3_INFO("Compression extensions");
+    FSLLOG3_INFO("ASTC");
+    FSLLOG3_INFO("- textureCompressionASTC_LDR: {}", hasASTC_LDR);
+    // FSLLOG3_INFO("- " << VK_EXT_ASTC_DECODE_MODE_EXTENSION_NAME << ": " << hasASTC_DecodeMode);
 
 
-    FSLLOG("ASTC (Adaptive scalable texture compression)");
-    FSLLOG("- LDR: " << hasASTC_LDR);
-    // FSLLOG("- HDR: " << hasASTC_HDR);
-    // FSLLOG("- DecodeMode: " << hasASTC_DecodeMode);
-    FSLLOG("ETC2 (Ericsson Texture Compression): " << hasETC2);
-    FSLLOG("S3TC (S3 texture compression) DXTn, DXTC or BCn texture compression: " << hasBC);
+    FSLLOG3_INFO("ASTC (Adaptive scalable texture compression)");
+    FSLLOG3_INFO("- LDR: {}", hasASTC_LDR);
+    // FSLLOG3_INFO("- HDR: " << hasASTC_HDR);
+    // FSLLOG3_INFO("- DecodeMode: " << hasASTC_DecodeMode);
+    FSLLOG3_INFO("ETC2 (Ericsson Texture Compression): {}", hasETC2);
+    FSLLOG3_INFO("S3TC (S3 texture compression) DXTn, DXTC or BCn texture compression: {}", hasBC);
 
     CreateUI(config.DemoServiceProvider);
   }
@@ -305,7 +306,7 @@ namespace Fsl
 
     std::deque<std::shared_ptr<BaseWindow>> textures;
 
-    FSLLOG("Creating textures:");
+    FSLLOG3_INFO("Creating textures:");
 
     // Uncompressed
     CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_R8G8B8A8.ktx", PixelFormat::R8G8B8A8_UNORM, texDefault);

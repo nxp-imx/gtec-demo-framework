@@ -32,6 +32,7 @@
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <fmt/format.h>
 
 namespace Fsl
 {
@@ -53,7 +54,7 @@ namespace Fsl
     auto itr = m_map.find(name);
     if (itr == m_map.end())
     {
-      throw NotFoundException(std::string("Unknown texture: ") + name.ToUTF8String());
+      throw NotFoundException(fmt::format("Unknown texture: {}", name.ToUTF8String()));
     }
     return itr->second;
   }

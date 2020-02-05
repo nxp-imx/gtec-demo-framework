@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Exceptions.hpp>
-#include <FslBase/Log/BasicLog.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
 #include <cassert>
@@ -296,13 +296,13 @@ namespace Fsl
     const auto srcId = GetId(pixelFormatLayout);
     if (srcId >= static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_RANGE_SIZE))
     {
-      FSLBASICLOG_DEBUG_WARNING("Unsupported pixelFormatLayout, returning zero channels");
+      FSLLOG3_DEBUG_WARNING("Unsupported pixelFormatLayout, returning zero channels");
       return 0;
     }
 
     const auto channelCount = g_pixelFormatLayouts[srcId].ChannelCount;
-    FSLLOG_DEBUG_WARNING_IF(channelCount == 0,
-                            "The number of channels for the PixelFormatLayout: " << static_cast<uint32_t>(pixelFormatLayout) << " is undefined");
+    FSLLOG3_DEBUG_WARNING_IF(channelCount == 0, "The number of channels for the PixelFormatLayout: {} is undefined",
+                             static_cast<uint32_t>(pixelFormatLayout));
     return channelCount;
   }
 

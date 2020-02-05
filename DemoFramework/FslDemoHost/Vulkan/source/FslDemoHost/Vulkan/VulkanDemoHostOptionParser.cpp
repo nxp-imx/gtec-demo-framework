@@ -31,13 +31,12 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostOptionParser.hpp>
 #include <algorithm>
 #include <array>
 #include <cstring>
-#include <sstream>
 #include <string>
 #include <utility>
 
@@ -88,14 +87,13 @@ namespace Fsl
 
     std::string GetPresentModesString()
     {
-      std::stringstream stream;
-
-      stream << g_presentModes[0].StrMode << " (" << g_presentModes[0].Mode << ")";
+      fmt::memory_buffer buf;
+      fmt::format_to(buf, "{} ({})", g_presentModes[0].StrMode, g_presentModes[0].Mode);
       for (std::size_t i = 1; i < g_presentModeCount; ++i)
       {
-        stream << ", " << g_presentModes[i].StrMode << " (" << g_presentModes[i].Mode << ")";
+        fmt::format_to(buf, ", {} ({})", g_presentModes[i].StrMode, g_presentModes[i].Mode);
       }
-      return stream.str();
+      return fmt::to_string(buf);
     }
 
     bool TryParseAsString(VkPresentModeKHR& rPresentMode, const std::string& strOptArg)
@@ -134,7 +132,7 @@ namespace Fsl
           return true;
         }
       }
-      FSLLOG_WARNING("Unknown presentMode '" << value << "' supplied, trying it out");
+      FSLLOG3_WARNING("Unknown presentMode '{}' supplied, trying it out", value);
       rPresentMode = static_cast<VkPresentModeKHR>(value);
       return true;
     }
@@ -176,7 +174,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum VulkanDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
+  OptionParseResult VulkanDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
   {
     bool boolValue;
     switch (cmdId)
@@ -201,7 +199,7 @@ namespace Fsl
         return OptionParseResult::Parsed;
       }
 
-      FSLLOG("Known presentMode value or strings: " << GetPresentModesString());
+      FSLLOG3_INFO("Known presentMode value or strings: {}", GetPresentModesString());
       return OptionParseResult::Failed;
     }
     case CommandId::LogExtensions:

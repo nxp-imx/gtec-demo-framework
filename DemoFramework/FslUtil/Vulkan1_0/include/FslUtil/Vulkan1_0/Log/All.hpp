@@ -31,34 +31,32 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslUtil/Vulkan1_0/EncodedVulkanVersion.hpp>
 #include <RapidVulkan/Debug/Strings/VkFormat.hpp>
 #include <vulkan/vulkan.h>
 #include <ios>
 #include <ostream>
 
-struct EncodedVulkanVersion
+namespace Fsl
 {
-  uint32_t Value;
-
-  EncodedVulkanVersion(const uint32_t value)
+  namespace Vulkan
   {
-    Value = value;
+    // https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#fundamentals-versionnum
+    // The Vulkan version number is used in several places in the API.In each such use, the API major version number, minor version number,
+    // and patch version number are packed into a 32 - bit integer as follows :
+    // The major version number is a 10 - bit integer packed into bits 31 - 22.
+    // The minor version number is a 10 - bit integer packed into bits 21 - 12.
+    // The patch version number is a 12 - bit integer packed into bits 11 - 0.
+    inline std::ostream& operator<<(std::ostream& o, const Fsl::Vulkan::EncodedVulkanVersion& value)
+    {
+      uint32_t major = (value.Value >> 22) & ((1 << 10) - 1);
+      uint32_t minor = (value.Value >> 12) & ((1 << 10) - 1);
+      uint32_t patch = value.Value & ((1 << 12) - 1);
+      return o << major << '.' << minor << '.' << patch;
+    }
   }
-};
-
-// https://www.khronos.org/registry/vulkan/specs/1.0/html/vkspec.html#fundamentals-versionnum
-// The Vulkan version number is used in several places in the API.In each such use, the API major version number, minor version number,
-// and patch version number are packed into a 32 - bit integer as follows :
-// The major version number is a 10 - bit integer packed into bits 31 - 22.
-// The minor version number is a 10 - bit integer packed into bits 21 - 12.
-// The patch version number is a 12 - bit integer packed into bits 11 - 0.
-inline std::ostream& operator<<(std::ostream& o, const EncodedVulkanVersion& value)
-{
-  uint32_t major = (value.Value >> 22) & ((1 << 10) - 1);
-  uint32_t minor = (value.Value >> 12) & ((1 << 10) - 1);
-  uint32_t patch = value.Value & ((1 << 12) - 1);
-  return o << major << '.' << minor << '.' << patch;
 }
+
 
 inline std::ostream& operator<<(std::ostream& o, const VkExtent2D& value)
 {

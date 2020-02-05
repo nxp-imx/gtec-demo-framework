@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <memory>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/Host/DemoAppSetup.hpp>
@@ -39,14 +38,17 @@
 #include <FslDemoApp/Base/IDemoApp.hpp>
 #include <FslDemoApp/Base/TimeStepMode.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
+#include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
 #include <FslDemoHost/Base/DemoState.hpp>
 #include <FslDemoHost/Base/LogStatsMode.hpp>
+#include <memory>
 
 namespace Fsl
 {
   class DemoAppManagerEventListener;
   class DemoAppProfilerOverlay;
   class IDemoAppControlEx;
+  class ICpuStatsService;
   class IGraphicsServiceControl;
   class IProfilerService;
   class IProfilerServiceControl;
@@ -58,26 +60,28 @@ namespace Fsl
     std::shared_ptr<IGraphicsServiceControl> m_graphicsService;
     std::shared_ptr<IProfilerServiceControl> m_profilerServiceControl;
     std::shared_ptr<IProfilerService> m_profilerService;
+    std::shared_ptr<ICpuStatsService> m_cpuStatsService;
     std::shared_ptr<DemoAppManagerEventListener> m_eventListener;
     DemoAppSetup m_demoAppSetup;
     DemoAppConfig m_demoAppConfig;
     DemoState m_state;
-    bool m_hasExitRequest;
+    bool m_hasExitRequest{false};
     HighResolutionTimer m_timer;
     uint32_t m_forcedUpdateTime;
     uint64_t m_frameTimeConfig;
-    uint64_t m_timeThen;
-    uint64_t m_accumulatedTime;
-    uint64_t m_expectedFrameTime;
+    uint64_t m_timeThen{0u};
+    uint64_t m_accumulatedTime{0u};
+    uint64_t m_expectedFrameTime{0u};
     uint64_t m_maxFrameTime;
-    uint64_t m_timeStatsBeforeUpdate;
-    uint64_t m_timeStatsAfterUpdate;
-    uint64_t m_timeStatsAfterDraw;
-    uint64_t m_accumulatedTotalTimeFixed;
-    uint64_t m_accumulatedTotalTime;
+    uint64_t m_timeStatsBeforeUpdate{0u};
+    uint64_t m_timeStatsAfterUpdate{0u};
+    uint64_t m_timeStatsAfterDraw{0u};
+    uint64_t m_accumulatedTotalTimeFixed{0u};
+    uint64_t m_accumulatedTotalTime{0u};
     uint64_t m_timeDiff = 0;
     DemoTime m_currentDemoTimeUpdate;
     LogStatsMode m_logStatsMode;
+    DemoAppStatsFlags m_logStatsFlags;
     bool m_enableStats;
     bool m_useFirewall;
     bool m_preallocateBasic2D;
@@ -85,8 +89,8 @@ namespace Fsl
 
   public:
     DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode,
-                   const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime,
-                   const bool renderSystemOverlay);
+                   const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D,
+                   const uint32_t forcedUpdateTime, const bool renderSystemOverlay);
     virtual ~DemoAppManager();
 
     void Suspend(const bool bSuspend);

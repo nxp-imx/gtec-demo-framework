@@ -34,7 +34,6 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/RectangleSizeRestrictionFlag.hpp>
 #include <FslBase/Math/Point2.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 
 namespace Fsl
@@ -43,9 +42,12 @@ namespace Fsl
   class RawBitmapEx;
 
   //! This is a very simple monochrome bitmap font for most ASCII characters (Contain at least 33-127)
-  class EmbeddedFont8x8 : private Noncopyable
+  class EmbeddedFont8x8
   {
   public:
+    EmbeddedFont8x8(const EmbeddedFont8x8&) = delete;
+    EmbeddedFont8x8& operator=(const EmbeddedFont8x8&) = delete;
+
     static uint8_t MinCharacter();
     static uint8_t MaxCharacter();
     static uint8_t CharacterCount();

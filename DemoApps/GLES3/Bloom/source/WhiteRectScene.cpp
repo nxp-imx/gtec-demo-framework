@@ -52,7 +52,7 @@ namespace Fsl
 
   namespace
   {
-    const auto MODELS_PATH = "Models";
+    // const auto MODELS_PATH = "Models";
   }
 
 
@@ -62,7 +62,7 @@ namespace Fsl
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
     m_program.Reset(contentManager->ReadAllText("Shaders/Pass.vert"), contentManager->ReadAllText("Shaders/CopyPass.frag"));
 
-
+    FSLLOG3_INFO("Preparing textures");
     {    // Prepare a white texture
       GLTextureParameters params(GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
       Bitmap b(1, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
@@ -70,6 +70,7 @@ namespace Fsl
       m_texWhite.Reset(b, params);
     }
 
+    FSLLOG3_INFO("Creating mesh");
     // build the rect VB
     VBHelper::BuildVB(m_vbRect, BoxF(-1 / 10.0f, -1 / 10.0f, 1 / 10.0f, 1 / 10.0f), BoxF(0.0f, 0.0f, 1.0f, 1.0f));
   }

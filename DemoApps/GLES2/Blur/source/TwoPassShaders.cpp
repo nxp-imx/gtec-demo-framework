@@ -31,7 +31,7 @@
 
 #include "TwoPassShaders.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include "GausianHelper.hpp"
 #include <cassert>
@@ -60,7 +60,7 @@ namespace Fsl
         break;
       }
 
-      // FSLLOG(gaussianFragX);
+      // FSLLOG3_INFO(gaussianFragX);
 
       rProgramBlurX.Reset(basicShader, gaussianFragX);
       rProgramBlurY.Reset(basicShader, gaussianFragY);
@@ -92,7 +92,7 @@ namespace Fsl
       rProgramBlurX.Reset(gaussianVertX, gaussianFrag);
       rProgramBlurY.Reset(gaussianVertY, gaussianFrag);
 
-      // FSLLOG(gaussianVertX);
+      // FSLLOG3_INFO(gaussianVertX);
     }
   }
 
@@ -108,7 +108,7 @@ namespace Fsl
     if (moddedSigma < 0)
     {
       moddedSigma = GausianHelper::FindOptimalSigma(kernelLength);
-      FSLLOG("Using sigma of " << moddedSigma);
+      FSLLOG3_INFO("Using sigma of {}", moddedSigma);
     }
 
     std::vector<double> kernelSlice;

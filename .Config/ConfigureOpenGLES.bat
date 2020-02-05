@@ -2,6 +2,7 @@
 if defined FSL_GLES_NAME goto EXIT
 if [%1]==[] goto BACKEND_AUTO_SELECT
 if /i %1==arm goto BACKEND_ARM
+if /i %1==angle goto BACKEND_ANGLE
 if /i %1==powervr goto BACKEND_POWERVR
 if /i %1==powervr_frame goto BACKEND_POWERVR_FRAME
 if /i %1==powervr_trace goto BACKEND_POWERVR_TRACE
@@ -13,6 +14,10 @@ if /i %1==vivante goto BACKEND_VIVANTE
 
 :BACKEND_ARM
   call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Arm.bat
+  goto EXIT
+
+:BACKEND_ANGLE
+  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Angle.bat
   goto EXIT
 
 :BACKEND_POWERVR

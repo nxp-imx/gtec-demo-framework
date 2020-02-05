@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Extent2D.hpp>
 #include <FslDemoApp/Vulkan/Basic/DepthBufferMode.hpp>
 #include <FslDemoApp/Vulkan/Basic/ResizeStrategy.hpp>
 #include <vulkan/vulkan.h>
@@ -43,25 +44,27 @@ namespace Fsl
     struct DemoAppVulkanSetup
     {
       //! If true a depth buffer will be created
-      DepthBufferMode DepthBuffer = DepthBufferMode::Disabled;
+      DepthBufferMode DepthBuffer{DepthBufferMode::Disabled};
+      //! The minimum extent of the depth buffer (can be used to ensure the depth buffer is large enough to be reused for offscreen surfaces)
+      Extent2D DepthBufferMinimumExtent;
 
       //! This only selects a strategy, but the DemoAppEnvironment will still have to be set to support resize
       //! - CustomDemoAppConfig customConfig;
       //! - customConfig.RestartOnResize = false;
-      ResizeStrategy ActiveResizeStrategy = ResizeStrategy::RebuildResources;
+      ResizeStrategy ActiveResizeStrategy{ResizeStrategy::RebuildResources};
 
       //! The max frames in flight (if zero the default setting will be used)
-      uint32_t MaxFramesInFlight = 0;
+      uint32_t MaxFramesInFlight{0};
 
       //! The subpass the system UI should be rendered on.
-      uint32_t SubpassSystemUI = 0;
+      uint32_t SubpassSystemUI{0};
 
       //! The desired present mode
-      VkPresentModeKHR DesiredSwapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+      VkPresentModeKHR DesiredSwapchainPresentMode{VK_PRESENT_MODE_FIFO_KHR};
 
       //! Additional image usage flags will be merged with VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT
       //! The flags will only be set if the surface supports it (if it don't a warning will be logged and the unsupported flag will be ignored)
-      VkImageUsageFlags DesiredSwapchainImageUsageFlags = 0;
+      VkImageUsageFlags DesiredSwapchainImageUsageFlags{0};
     };
   }
 }

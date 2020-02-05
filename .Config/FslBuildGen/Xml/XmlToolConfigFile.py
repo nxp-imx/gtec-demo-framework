@@ -186,9 +186,10 @@ class XmlToolConfigFile(XmlBase):
                                                   newProjectTemplatesRootDirectories1: List[XmlConfigFileAddNewProjectTemplatesRootDirectory],
                                                   newProjectTemplatesRootDirectories2: List[XmlConfigFileAddNewProjectTemplatesRootDirectory]) -> List[XmlConfigFileAddNewProjectTemplatesRootDirectory]:
         uniqueDict = {} # type: Dict[str, XmlConfigFileAddNewProjectTemplatesRootDirectory]
-        result = [] # type: List[XmlConfigFileAddNewProjectTemplatesRootDirectory]
-        self.__AddNewProjectTemplatesRootDirectories(result, uniqueDict, newProjectTemplatesRootDirectories1) # type: List[XmlConfigFileAddNewProjectTemplatesRootDirectory]
-        self.__AddNewProjectTemplatesRootDirectories(result, uniqueDict, newProjectTemplatesRootDirectories2) # type: List[XmlConfigFileAddNewProjectTemplatesRootDirectory]
+        result = []     # type: List[XmlConfigFileAddNewProjectTemplatesRootDirectory]
+       
+        self.__AddNewProjectTemplatesRootDirectories(result, uniqueDict, newProjectTemplatesRootDirectories1) 
+        self.__AddNewProjectTemplatesRootDirectories(result, uniqueDict, newProjectTemplatesRootDirectories2) 
         return result
 
 

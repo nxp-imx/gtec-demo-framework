@@ -31,18 +31,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 
 namespace Fsl
 {
-  class AtlasFont : private Noncopyable
+  class AtlasFont
   {
     const Texture2D m_atlasTexture;
     const TextureAtlasBitmapFont m_textureAtlasBitmapFont;
 
   public:
+    AtlasFont(const AtlasFont&) = delete;
+    AtlasFont& operator=(const AtlasFont&) = delete;
+
     AtlasFont(const Texture2D& atlasTexture, TextureAtlasBitmapFont textureAtlasBitmapFont);
 
     const Texture2D& GetAtlasTexture() const

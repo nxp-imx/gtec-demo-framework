@@ -31,9 +31,7 @@
 
 // The interaction with FB was copied from the existing G2D overlay example
 
-
-#include <FslBase/Noncopyable.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <cstring>
@@ -61,9 +59,9 @@ namespace Fsl
 
     ~ScopedG2DHandle()
     {
-      FSLLOG("Closing G2D");
+      FSLLOG3_INFO("Closing G2D");
       g2d_close(Handle);
-      FSLLOG("Closing G2D");
+      FSLLOG3_INFO("Closing G2D");
     }
   };
 
@@ -113,14 +111,14 @@ namespace Fsl
 #endif
     const bool alignFB = config.GetOptions<OptionParser>()->GetAlignFrameBuffer();
     const bool useOffscreen = config.GetOptions<OptionParser>()->UseOffscreen();
-    FSLLOG("UseDummyMode: " << m_useDummyMode);
-    FSLLOG("ForceVSync: " << m_forceVSync);
-    FSLLOG("Cache: " << m_cache);
-    FSLLOG("EightBlit: " << m_use8Blit);
-    FSLLOG("Offscreen: " << useOffscreen);
-    FSLLOG("AlignFB: " << alignFB);
-    FSLLOG("Test: " << m_test);
-    FSLLOG("Test2: " << m_test2);
+    FSLLOG3_INFO("UseDummyMode: {}", m_useDummyMode);
+    FSLLOG3_INFO("ForceVSync: {}", m_forceVSync);
+    FSLLOG3_INFO("Cache: {}", m_cache);
+    FSLLOG3_INFO("EightBlit: {}", m_use8Blit);
+    FSLLOG3_INFO("Offscreen: {}", useOffscreen);
+    FSLLOG3_INFO("AlignFB: {}", alignFB);
+    FSLLOG3_INFO("Test: {}", m_test);
+    FSLLOG3_INFO("Test2: {}", m_test2);
 
     if (m_useDummyMode)
     {
@@ -139,12 +137,12 @@ namespace Fsl
         g2d_surface dstSurface = PrepareDstSurface(m_fb);
         g2dFormat = dstSurface.format;
       }
-      FSLLOG("*** Using offscreen, format: " << int(g2dFormat));
+      FSLLOG3_INFO("*** Using offscreen, format: {}", int(g2dFormat));
       m_tmp.reset(new G2DSurface(m_fb->ScreenInfo.width, m_fb->ScreenInfo.height, g2dFormat, "offscreen", m_cache));
     }
     else
     {
-      FSLLOG("*** Using FB");
+      FSLLOG3_INFO("*** Using FB");
     }
 
     {
@@ -157,39 +155,39 @@ namespace Fsl
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "1", m_cache));
       ++dstIndex;
       // png
-      FSLLOG("Loading 2");
+      FSLLOG3_INFO("Loading 2");
       contentManager->Read(bitmap, "Textures/EightLayers/2.png", PixelFormat::R8G8B8A8_UNORM);
-      FSLLOG("Prepping 2");
+      FSLLOG3_INFO("Prepping 2");
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "2", m_cache));
       ++dstIndex;
-      FSLLOG("Loading 3");
+      FSLLOG3_INFO("Loading 3");
       contentManager->Read(bitmap, "Textures/EightLayers/3.png", PixelFormat::R8G8B8A8_UNORM);
-      FSLLOG("Prepping 3");
+      FSLLOG3_INFO("Prepping 3");
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "3", m_cache));
       ++dstIndex;
-      FSLLOG("Loading 4");
+      FSLLOG3_INFO("Loading 4");
       contentManager->Read(bitmap, "Textures/EightLayers/4.png", PixelFormat::R8G8B8A8_UNORM);
-      FSLLOG("Prepping 4");
+      FSLLOG3_INFO("Prepping 4");
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "4", m_cache));
       ++dstIndex;
-      FSLLOG("Loading 5");
+      FSLLOG3_INFO("Loading 5");
       contentManager->Read(bitmap, "Textures/EightLayers/5.png", PixelFormat::R8G8B8A8_UNORM);
-      FSLLOG("Prepping 5");
+      FSLLOG3_INFO("Prepping 5");
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "5", m_cache));
       ++dstIndex;
-      FSLLOG("Loading 6");
+      FSLLOG3_INFO("Loading 6");
       contentManager->Read(bitmap, "Textures/EightLayers/6.png", PixelFormat::R8G8B8A8_UNORM);
-      FSLLOG("Prepping 6");
+      FSLLOG3_INFO("Prepping 6");
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "6", m_cache));
       ++dstIndex;
-      FSLLOG("Loading 7");
+      FSLLOG3_INFO("Loading 7");
       contentManager->Read(bitmap, "Textures/EightLayers/7.png", PixelFormat::R8G8B8A8_UNORM);
-      FSLLOG("Prepping 7");
+      FSLLOG3_INFO("Prepping 7");
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "7", m_cache));
       ++dstIndex;
-      FSLLOG("Loading 8");
+      FSLLOG3_INFO("Loading 8");
       contentManager->Read(bitmap, "Textures/EightLayers/8.png", PixelFormat::R8G8B8A8_UNORM);
-      FSLLOG("Prepping 8");
+      FSLLOG3_INFO("Prepping 8");
       m_srcSurfaces[dstIndex].reset(new G2DSurface(bitmap, false, "8", m_cache));
       ++dstIndex;
     }

@@ -30,10 +30,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/System/Threading/Thread.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include "Logo.hpp"
@@ -473,8 +474,7 @@ namespace Fsl
       if ((result % 10) < 5)
       {
         bypassRender = true;
-        FSLLOG_WARNING("Thread sleep not implemented yet");
-        // Thread::Sleep(16);
+        Thread::SleepMilliseconds(16);
       }
     }
     if (bypassRender == false)

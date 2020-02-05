@@ -1,0 +1,14 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.Sync": {
+      "SourcePath" : "${ProjectRoot}/Resources",
+      "Content": [
+        "Textures/Bricks/Bricks_ASTC8x8_rgb.ktx",
+        "Textures/Bricks/Bricks_BC1_rgb.ktx",
+        "Textures/Bricks/Bricks_ETC2_rgb.ktx",
+        "Textures/Bricks/License.json"
+      ]
+    }
+  }
+}

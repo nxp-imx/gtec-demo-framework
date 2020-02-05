@@ -49,6 +49,14 @@ dependencies {
     implementation 'com.getkeepsafe.relinker:relinker:1.3.1'
 }
 
+task buildContentFiles(type: Exec) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '--input', '##PACKAGE_PATH##'
+    } else {
+        commandLine "${System.env.FSL_GRAPHICS_SDK}/.Config/FslBuildContent.py", '--input', '##PACKAGE_PATH##'
+    }
+}
+
 task syncContentFiles(type: Exec) {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine 'python', "${System.env.FSL_GRAPHICS_SDK}/.Config/FslContentSync.py", '##PACKAGE_CONTENT_PATH##', '##PACKAGE_ANDROID_PROJECT_PATH##/app/src/main/assets/fsl-content', '-i', '--create', '--ifExist'
@@ -57,4 +65,5 @@ task syncContentFiles(type: Exec) {
     }
 }
 
+syncContentFiles.dependsOn(buildContentFiles)
 preBuild.dependsOn(syncContentFiles)

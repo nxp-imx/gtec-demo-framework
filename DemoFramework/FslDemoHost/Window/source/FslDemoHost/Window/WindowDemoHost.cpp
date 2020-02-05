@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Host/DemoHostCustomWindowSystemSetup.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
@@ -48,7 +48,7 @@
 #include <vector>
 
 #if 0
-#define LOCAL_LOG(X) FSLLOG("VulkanDemoHost: " << X)
+#define LOCAL_LOG(X) FSLLOG3_INFO("VulkanDemoHost: {}", (X))
 #else
 #define LOCAL_LOG(X) \
   {                  \
@@ -56,7 +56,7 @@
 #endif
 
 #if 1
-#define LOCAL_LOG_WARNING(X) FSLLOG_WARNING("WindowDemoHost: " << X)
+#define LOCAL_LOG_WARNING(X) FSLLOG3_WARNING("WindowDemoHost: {}", (X))
 #else
 #define LOCAL_LOG_WARNING(X) \
   {                          \
@@ -160,7 +160,7 @@ namespace Fsl
       return size;
     }
 
-    FSLLOG_DEBUG_WARNING("Failed to GetScreenResolution, returning zero");
+    FSLLOG3_DEBUG_WARNING("Failed to GetScreenResolution, returning zero");
     return Point2();
   }
 

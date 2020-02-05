@@ -1,0 +1,14 @@
+/.StartProject.bat
+/.vs/
+/Shared.T3DStressTest.VC.VC.opendb
+/Shared.T3DStressTest.VC.db
+/Shared.T3DStressTest.manifest
+/Shared.T3DStressTest.opensdf
+/Shared.T3DStressTest.sdf
+/Shared.T3DStressTest.sln
+/Shared.T3DStressTest.v12.sdf
+/Shared.T3DStressTest.v12.suo
+/Shared.T3DStressTest.vcxproj
+/Shared.T3DStressTest.vcxproj.filters
+/Shared.T3DStressTest.vcxproj.user
+/build/

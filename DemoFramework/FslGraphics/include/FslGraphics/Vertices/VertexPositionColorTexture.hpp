@@ -47,9 +47,9 @@ namespace Fsl
     Vector4 Color;
     Vector2 TextureCoordinate;
 
-    VertexPositionColorTexture() = default;
+    constexpr VertexPositionColorTexture() = default;
 
-    VertexPositionColorTexture(const Vector3& position, const Vector4& color, const Vector2& textureCoordinate)
+    constexpr VertexPositionColorTexture(const Vector3& position, const Vector4& color, const Vector2& textureCoordinate)
       : Position(position)
       , Color(color)
       , TextureCoordinate(textureCoordinate)

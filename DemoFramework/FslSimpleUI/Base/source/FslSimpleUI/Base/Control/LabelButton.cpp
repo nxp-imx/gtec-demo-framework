@@ -32,7 +32,7 @@
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/AtlasFont.hpp>
@@ -130,7 +130,7 @@ namespace Fsl
     {
       FSL_PARAM_NOT_USED(availableSize);
 
-      auto fontInfo = m_font->GetAtlasBitmapFont();
+      const auto& fontInfo = m_font->GetAtlasBitmapFont();
       auto measured = fontInfo.MeasureString(m_content.c_str(), 0, m_content.size());
       return Vector2(measured.X, fontInfo.LineSpacing());
     }

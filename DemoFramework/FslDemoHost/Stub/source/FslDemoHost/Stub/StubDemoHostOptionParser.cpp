@@ -60,7 +60,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum StubDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
+  OptionParseResult StubDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
   {
     return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
   }

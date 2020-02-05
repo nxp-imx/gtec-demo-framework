@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Texture/TextureUtil.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/TextureBlobBuilder.hpp>
 #include <FslGraphics/Texture/RawTextureEx.hpp>
@@ -108,7 +108,7 @@ namespace Fsl
                 }
                 catch (const std::exception& ex)
                 {
-                  FSLLOG_WARNING("Unexpected exception: " << ex.what());
+                  FSLLOG3_WARNING("Unexpected exception: {}", ex.what());
                   return false;
                 }
               }

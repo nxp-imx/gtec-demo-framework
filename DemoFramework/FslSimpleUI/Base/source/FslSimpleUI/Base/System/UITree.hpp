@@ -37,6 +37,7 @@
 #include <deque>
 #include <map>
 #include <memory>
+#include <vector>
 #include "ITreeContextInfo.hpp"
 #include "ITreeNodeLocator.hpp"
 #include "ITreeNodeClickInputTargetLocator.hpp"
@@ -60,7 +61,7 @@ namespace Fsl
     class WindowEventQueueEx;
 
     using WindowToNodeMap = std::map<const IWindowId*, std::shared_ptr<TreeNode>>;
-    using FastTreeNodeDeque = std::deque<TreeNode*>;
+    using FastTreeNodeVector = std::vector<TreeNode*>;
 
     struct UITreeDrawRecord
     {
@@ -90,8 +91,8 @@ namespace Fsl
       }
     };
 
-    using UITreeDrawDeque = std::deque<UITreeDrawRecord>;
-    using UITreeClickInputTargetDeque = std::deque<UITreeClickInputTargetRecord>;
+    using UITreeDrawVector = std::vector<UITreeDrawRecord>;
+    using UITreeClickInputTargetVector = std::vector<UITreeClickInputTargetRecord>;
 
 
     //! @note This tree is designed with the assumption that windows will NOT be reused.
@@ -140,13 +141,13 @@ namespace Fsl
       bool m_layoutIsDirty;
 
 
-      FastTreeNodeDeque m_dequeUpdate;
-      FastTreeNodeDeque m_dequeResolve;
-      UITreeDrawDeque m_dequeDraw;
-      UITreeClickInputTargetDeque m_dequeClickInputTarget;
+      FastTreeNodeVector m_vectorUpdate;
+      FastTreeNodeVector m_vectorResolve;
+      UITreeDrawVector m_vectorDraw;
+      UITreeClickInputTargetVector m_vectorClickInputTarget;
 
-      FastTreeNodeDeque m_nodeScratchpad;
-      FastTreeNodeDeque m_nodeScratchpadPostResolve;
+      FastTreeNodeVector m_nodeScratchpad;
+      FastTreeNodeVector m_nodeScratchpadPostResolve;
       mutable Context m_context;
 
     public:
@@ -218,7 +219,7 @@ namespace Fsl
 
       //! @param pNewWindows if not null this should be filled with any new nodes that are spawned by processing
       //! @param filterFlags any node that has any of the supplied flags will be added to pNewWindows
-      void ProcessEvents(FastTreeNodeDeque* pNewWindows, const TreeNodeFlags& filterFlags = TreeNodeFlags());
+      void ProcessEvents(FastTreeNodeVector* pNewWindows, const TreeNodeFlags& filterFlags = TreeNodeFlags());
       void SendEvent(const WindowEventQueueRecord& eventRecord);
 
       class ScopedContextChange

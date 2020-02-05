@@ -33,7 +33,7 @@
 #include <opencv2/opencv.hpp>
 // Normal includes that dont conflict
 #include "OpenCVMatToNativeBatch.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>

@@ -33,25 +33,33 @@
 
 #include <FslBase/Math/Vector3.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <FslGraphics/Vertices/VertexDeclarationArray.hpp>
+#include <cstddef>
 
 namespace Fsl
 {
-  class VertexDeclaration;
-
   struct VertexPosition
   {
     Vector3 Position;
 
-    VertexPosition() = default;
+    constexpr VertexPosition() = default;
 
-    VertexPosition(const Vector3& position)
+    constexpr VertexPosition(const Vector3& position)
       : Position(position)
     {
     }
 
-    VertexPosition(const float x, const float y, const float z)
+    constexpr VertexPosition(const float x, const float y, const float z)
       : Position(x, y, z)
     {
+    }
+
+    constexpr static VertexDeclarationArray<1> GetVertexDeclarationArray()
+    {
+      constexpr std::array<VertexElementEx, 1> elements = {
+        VertexElementEx(offsetof(VertexPosition, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
+      };
+      return VertexDeclarationArray<1>(elements, sizeof(VertexPosition));
     }
 
     //! @brief Get the vertex declaration

@@ -31,7 +31,7 @@
 
 #include <Shared/FractalShader/BasicOptionParser.hpp>
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
@@ -79,7 +79,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult::Enum BasicOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult BasicOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
   {
     int intValue;
 
@@ -159,8 +159,8 @@ namespace Fsl
       }
       if (!m_modified.IsFlagged(ModifiedFlags::Iterations))
       {
-        m_config.SetIterationsJ(20);
-        m_config.SetIterationsM(35);
+        m_config.SetIterationsJ(DefaultValues::JULIA_DEFAULT_ITERATIONS);
+        m_config.SetIterationsM(DefaultValues::MANDELBROT_DEFAULT_ITERATIONS);
       }
       break;
     case Quality::High:

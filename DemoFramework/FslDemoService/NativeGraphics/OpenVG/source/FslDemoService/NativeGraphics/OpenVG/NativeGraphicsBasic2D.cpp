@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "NativeGraphicsBasic2D.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
@@ -181,29 +181,25 @@ namespace Fsl
     }
 
 
-    void NativeGraphicsBasic2D::DrawString(const char* const characters, const uint32_t length, const Vector2& dstPosition)
+    void NativeGraphicsBasic2D::DrawString(const StringViewLite& strView, const Vector2& dstPosition)
     {
       assert(m_inBegin);
-      assert(characters != nullptr);
-      assert(length >= 0);
-      ;
 
-      if (length == 0)
+      if (strView.empty())
       {
         return;
       }
 
       // Ensure we have enough room
-      const auto theLength = static_cast<size_t>(length);
-      if (theLength > m_glyphs.size())
+      if (strView.size() > m_glyphs.size())
       {
-        m_glyphs.resize(theLength);
-        m_xAdjust.resize(theLength);
+        m_glyphs.resize(strView.size());
+        m_xAdjust.resize(strView.size());
       }
 
       // build the arrays needed to render
-      const char* pSrc = characters;
-      const char* const pSrcEnd = pSrc + length;
+      const char* pSrc = strView.data();
+      const char* const pSrcEnd = pSrc + strView.size();
       int32_t numGlyphs = 0;
 
       const auto charWidth = static_cast<float>(m_fontSize.X);
@@ -234,7 +230,7 @@ namespace Fsl
         else
         {
           currentGlyphWidth += charWidth;
-          FSLLOG_WARNING_IF(*pSrc == 0, "Zero is not a valid character in a string!");
+          FSLLOG3_WARNING_IF(*pSrc == 0, "Zero is not a valid character in a string!");
         }
 
         ++pSrc;

@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/String/UTF8String.hpp>
 
 namespace Fsl
@@ -145,6 +146,11 @@ namespace Fsl
         return m_content.GetByteSize();
       }
 
+      void Clear()
+      {
+        m_content.Clear();
+      }
+
       // Path ToLowerInvariant() const;
       // Path ToUpperInvariant() const;
 
@@ -167,6 +173,9 @@ namespace Fsl
       //! @return the file name (or a empty string if the supplied path doesn't contain filename information).
       static Path GetFileName(const Path& path);
 
+      //! @brief The result of GetFileName minus the last "." and all characters following it.
+      static Path GetFileNameWithoutExtension(const Path& path);
+
       //! @brief Get the the extension of the specified path string
       //! @param path = the path to extract the extension from
       //! @return the extension including the '.' (or a empty string if the supplied path doesn't contain a extension).
@@ -185,7 +194,17 @@ namespace Fsl
       {
         return m_content != rhs.m_content;
       }
+
+      operator StringViewLite() const noexcept
+      {
+        return m_content;
+      }
     };
+
+    extern bool operator==(const Path& lhs, const char* const pszRhs) noexcept;
+    extern bool operator!=(const Path& lhs, const char* const pszRhs) noexcept;
+    extern bool operator==(const char* const pszLhs, const Path& rhs) noexcept;
+    extern bool operator!=(const char* const pszLhs, const Path& rhs) noexcept;
   }
 }
 

@@ -32,7 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Vulkan/Config/FeatureRequirement.hpp>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace Fsl
 {
@@ -43,12 +45,22 @@ namespace Fsl
       std::string Name;
       FeatureRequirement Requirement{FeatureRequirement::Invalid};
 
+      std::shared_ptr<std::vector<std::string>> AlternativeNames;
+
       InstanceFeatureRequest() = default;
 
 
       InstanceFeatureRequest(const std::string& name, const FeatureRequirement requirement)
         : Name(name)
         , Requirement(requirement)
+      {
+      }
+
+      InstanceFeatureRequest(const std::string& name, const FeatureRequirement requirement,
+                             const std::shared_ptr<std::vector<std::string>>& alternativeNames)
+        : Name(name)
+        , Requirement(requirement)
+        , AlternativeNames(alternativeNames)
       {
       }
     };

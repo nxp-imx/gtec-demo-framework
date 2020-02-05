@@ -69,6 +69,7 @@ namespace Fsl
     auto contentPath = contentManger->GetContentPath();
 
     // Load the texture
+    FSLLOG3_INFO("Loading texture");
     {
       Bitmap bitmap;
       contentManger->Read(bitmap, "Models/Knight2/armor_default_color.jpg", PixelFormat::R8G8B8_UNORM);
@@ -76,6 +77,7 @@ namespace Fsl
       m_resources.Texture.Reset(bitmap, texParams, TextureFlags::GenerateMipMaps);
     }
 
+    FSLLOG3_INFO("Loading scene");
     // Load the scene
     // Default is Fast
     // aiProcessPreset_TargetRealtime_Fast
@@ -96,6 +98,7 @@ namespace Fsl
       throw NotSupportedException("Scene did not contain a root node");
     }
 
+    FSLLOG3_INFO("Preparing");
     // Create index and vertex buffers for all the meshes.
     {
       m_resources.IndexBuffers.Resize(scene->Meshes.size(), GL_UNSIGNED_SHORT);
@@ -111,7 +114,7 @@ namespace Fsl
         vertexCount += mesh->GetVertexCount();
         indexCount += mesh->GetIndexCount();
       }
-      FSLLOG("Total vertex count: " << vertexCount << ", Total index count : " << indexCount);
+      FSLLOG3_INFO("Total vertex count: {}, Total index count: {}", vertexCount, indexCount);
     }
 
 
@@ -137,6 +140,7 @@ namespace Fsl
     }
 
     GL_CHECK_FOR_ERROR();
+    FSLLOG3_INFO("Ready");
   }
 
 

@@ -31,8 +31,8 @@
 
 #include <FslBase/UnitTest/Helper/ContentPathUtil.hpp>
 #include <FslUnitTest/CurrentExePath.hpp>
+#include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/IO/Directory.hpp>
-#include <FslBase/Log/BasicLog.hpp>
 
 namespace Fsl
 {
@@ -53,7 +53,7 @@ namespace Fsl
         {
           return Fsl::IO::Path::GetDirectoryName(pszExePath);
         }
-        FSLBASICLOG_WARNING("Could not find the exe path, trying to use current working directory instead.");
+        FSLLOG3_WARNING("Could not find the exe path, trying to use current working directory instead.");
         return Fsl::IO::Directory::GetCurrentWorkingDirectory();
       }
 #endif

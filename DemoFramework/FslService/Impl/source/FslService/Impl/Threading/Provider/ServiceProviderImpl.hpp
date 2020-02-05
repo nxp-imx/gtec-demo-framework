@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Noncopyable.hpp>
 #include <FslService/Consumer/IServiceProvider.hpp>
 #include <map>
 #include "../Launcher/TypeServiceMaps.hpp"

@@ -11,7 +11,7 @@
 
 #include "MeshInstancing.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -194,12 +194,12 @@ namespace Fsl
   {
     if (m_deviceFeatures.textureCompressionBC != VK_FALSE)
     {
-      FSLLOG("Using BC texture compression");
+      FSLLOG3_INFO("Using BC texture compression");
       m_textures.ColorMap = m_textureLoader->LoadTextureArray("Textures/TextureArray/Rocks/texturearray_rocks_bc3.ktx");
     }
     else if (m_deviceFeatures.textureCompressionETC2 != VK_FALSE)
     {
-      FSLLOG("Using ETC2 texture compression");
+      FSLLOG3_INFO("Using ETC2 texture compression");
       m_textures.ColorMap = m_textureLoader->LoadTextureArray("Textures/TextureArray/Rocks/texturearray_rocks_etc2.ktx");
     }
     else

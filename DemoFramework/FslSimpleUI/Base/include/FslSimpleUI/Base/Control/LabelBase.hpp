@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslGraphics/Color.hpp>
 #include <string>
@@ -71,7 +72,7 @@ namespace Fsl
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
-      virtual const std::string& DoGetContent() const = 0;
+      virtual StringViewLite DoGetContent() const = 0;
 
       Vector2 ArrangeOverride(const Vector2& finalSize) override;
       Vector2 MeasureOverride(const Vector2& availableSize) override;

@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/IO/FileAttributes.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/IO/SearchOptions.hpp>
@@ -46,9 +45,12 @@ namespace Fsl
     class PlatformPathMonitorToken;
 
     //! @note Be very careful with what is used here as its the bottom layer.
-    class PlatformFileSystem : private Noncopyable
+    class PlatformFileSystem
     {
     public:
+      PlatformFileSystem(const PlatformFileSystem&) = delete;
+      PlatformFileSystem& operator=(const PlatformFileSystem&) = delete;
+
       //! @brief get the attributes associated with the file or directory
       //! @return true if the attributes could be found, false if the path couldn't be located
       static bool TryGetAttributes(const Path& path, FileAttributes& rAttributes);

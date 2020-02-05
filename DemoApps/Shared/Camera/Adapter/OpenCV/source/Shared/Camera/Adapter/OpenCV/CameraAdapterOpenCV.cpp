@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/Camera/Adapter/OpenCV/CameraAdapterOpenCV.hpp>
-#include <FslBase/Log/Log.hpp>
-#include <FslBase/Log/Math/LogExtent2D.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtExtent2D.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <cassert>
 
@@ -62,18 +62,18 @@ namespace Fsl
       const double defaultHeight = std::max(m_cap.get(cv::CAP_PROP_FRAME_HEIGHT), 0.0);
       const double defaultFormat = m_cap.get(cv::CAP_PROP_FORMAT);
       const double defaultFPS = m_cap.get(cv::CAP_PROP_FPS);
-      FSLLOG2(LogType::Verbose, "Default settings:");
-      FSLLOG2(LogType::Verbose, "Width: " << defaultWidth);
-      FSLLOG2(LogType::Verbose, "Height: " << defaultHeight);
-      FSLLOG2(LogType::Verbose, "Format: " << defaultFormat);
-      FSLLOG2(LogType::Verbose, "FPS: " << defaultFPS);
+      FSLLOG3_VERBOSE("Default settings:");
+      FSLLOG3_VERBOSE("Width: {}", defaultWidth);
+      FSLLOG3_VERBOSE("Height: {}", defaultHeight);
+      FSLLOG3_VERBOSE("Format: {}", defaultFormat);
+      FSLLOG3_VERBOSE("FPS: {}", defaultFPS);
 
       const Extent2D defaultExtent(static_cast<uint32_t>(defaultWidth), static_cast<uint32_t>(defaultHeight));
 
       // Only modify
       if (allocateInfo.Flags.IsEnabled(CameraAdapterAllocateFlags::CustomExtent) && defaultExtent != allocateInfo.Extent)
       {
-        FSLLOG2(LogType::Verbose, "Trying to set custom resolution: " << allocateInfo.Extent)
+        FSLLOG3_VERBOSE("Trying to set custom resolution: {}", allocateInfo.Extent);
         // WARNING: this is not something that works for all open cv cameras
         m_cap.set(cv::CAP_PROP_FRAME_WIDTH, m_config.Extent.Width);
         m_cap.set(cv::CAP_PROP_FRAME_HEIGHT, m_config.Extent.Height);
@@ -83,31 +83,31 @@ namespace Fsl
         const Extent2D actualExtent(static_cast<uint32_t>(actualWidth), static_cast<uint32_t>(actualHeight));
         if (actualExtent != allocateInfo.Extent)
         {
-          FSLLOG_WARNING("Failed to set custom resolution using: " << actualExtent);
+          FSLLOG3_WARNING("Failed to set custom resolution using: {}", actualExtent);
           m_config = CameraAdapterConfig(actualExtent, m_config.ActivePixelFormat);
         }
       }
       else
       {
         m_config = CameraAdapterConfig(defaultExtent, m_config.ActivePixelFormat);
-        FSLLOG2(LogType::Verbose, "Using default resolution: " << m_config.Extent);
+        FSLLOG3_VERBOSE("Using default resolution: {}", m_config.Extent);
       }
 
       if (defaultFPS < desiredFPS)
       {
-        FSLLOG2(LogType::Verbose, "Trying to set custom FPS: " << desiredFPS)
+        FSLLOG3_VERBOSE("Trying to set custom FPS: {}", desiredFPS)
         m_cap.set(cv::CAP_PROP_FRAME_WIDTH, desiredFPS);
         const double actualFPS = m_cap.get(cv::CAP_PROP_FPS);
         if (actualFPS != desiredFPS)
         {
-          FSLLOG_WARNING("Failed to set FPS using: " << actualFPS);
+          FSLLOG3_WARNING("Failed to set FPS using: {}", actualFPS);
         }
       }
 
       // FIX: for now we always request a new format
       m_cap.set(cv::CAP_PROP_FORMAT, CV_8UC3);
       const double actualFormat = m_cap.get(cv::CAP_PROP_FORMAT);
-      FSLLOG2(LogType::Verbose, "Format: " << actualFormat);
+      FSLLOG3_VERBOSE("Format: {}", actualFormat);
     }
 
     CameraAdapterOpenCV::~CameraAdapterOpenCV() = default;
@@ -128,7 +128,7 @@ namespace Fsl
       bool hasNewFrame = m_cap.read(m_vidFrame);
       if (!hasNewFrame)
       {
-        FSLLOG_DEBUG_WARNING("Failed to read a new frame");
+        FSLLOG3_DEBUG_WARNING("Failed to read a new frame");
         return false;
       }
 
@@ -144,7 +144,7 @@ namespace Fsl
       // FIX: switch this to more robust conversion code
       if (!m_vidFrame.isContinuous())
       {
-        FSLLOG_WARNING("Unhandled: internal vidframe is not continuous");
+        FSLLOG3_WARNING("Unhandled: internal vidframe is not continuous");
         return false;
       }
 
@@ -172,7 +172,7 @@ namespace Fsl
         break;
       }
       default:
-        FSLLOG_WARNING("Unsupported bitmap origin");
+        FSLLOG3_WARNING("Unsupported bitmap origin");
         return false;
       }
       rFrameId = m_frameId;

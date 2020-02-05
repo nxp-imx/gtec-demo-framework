@@ -10,7 +10,7 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "TexturingArrays.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>

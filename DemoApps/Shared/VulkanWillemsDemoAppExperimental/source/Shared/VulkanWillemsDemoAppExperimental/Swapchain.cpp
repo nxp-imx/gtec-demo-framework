@@ -13,7 +13,7 @@
 // to port samples.
 
 #include <Shared/VulkanWillemsDemoAppExperimental/Swapchain.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
 #include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
@@ -178,7 +178,7 @@ namespace Fsl
         }
         const auto colorSpace = surfaceFormats[0].colorSpace;
 
-        FSLLOG("Swapchain present mode: " << Vulkan::Debug::ToString(swapchainPresentMode));
+        FSLLOG3_INFO("Swapchain present mode: {}", Vulkan::Debug::ToString(swapchainPresentMode));
 
         m_device = device;
         m_createInfo = VkSwapchainCreateInfoKHR{};

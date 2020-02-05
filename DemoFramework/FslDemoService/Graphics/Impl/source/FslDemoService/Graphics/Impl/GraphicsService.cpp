@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
@@ -41,7 +41,6 @@
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <cassert>
 #include <limits>
-#include <sstream>
 
 namespace Fsl
 {
@@ -78,7 +77,7 @@ namespace Fsl
     m_nativeService->Capture(rBitmap, srcRectangle);
     if (!rBitmap.IsValid())
     {
-      FSLLOG_WARNING("Capture failed");
+      FSLLOG3_WARNING("Capture failed");
       return;
     }
 
@@ -168,7 +167,7 @@ namespace Fsl
       ++itr;
     }
 
-    FSLLOG_WARNING_IF(!m_nativeService, "Unsupported API for GraphicsService");
+    FSLLOG3_WARNING_IF(!m_nativeService, "Unsupported API for GraphicsService");
   }
 
 

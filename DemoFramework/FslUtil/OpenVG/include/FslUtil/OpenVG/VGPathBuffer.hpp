@@ -34,7 +34,6 @@
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenVG/Common.hpp>
 #include <VG/openvg.h>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <vector>
 
@@ -42,13 +41,16 @@ namespace Fsl
 {
   namespace OpenVG
   {
-    class VGPathBuffer : private Noncopyable
+    class VGPathBuffer
     {
       VGPath m_path;
       std::vector<VGfloat> m_vertices;
       std::vector<VGubyte> m_segments;
 
     public:
+      VGPathBuffer(const VGPathBuffer&) = delete;
+      VGPathBuffer& operator=(const VGPathBuffer&) = delete;
+
       //! @brief Create a uninitialized path buffer
       VGPathBuffer();
 

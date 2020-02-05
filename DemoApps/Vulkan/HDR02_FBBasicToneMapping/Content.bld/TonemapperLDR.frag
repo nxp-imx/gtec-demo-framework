@@ -43,15 +43,13 @@ layout(std140, binding = 1) uniform UBO
 }
 g_ubo;
 
-layout(location = 0) in vec2 v_TexCoord;
-
-layout(binding = 2) uniform sampler2D g_hdrTexture;
+mediump layout(input_attachment_index = 0, set = 0, binding = 3) uniform subpassInput g_hdrColorAttachment;
 
 layout(location = 0) out vec4 FragColor;
 
 void main()
 {
-  vec3 hdrColor = texture(g_hdrTexture, v_TexCoord).rgb;
+  vec3 hdrColor = subpassLoad(g_hdrColorAttachment).rgb;
 
   // We only do standard gamme correction, so most light > 1.0 becomes white
   const float gamma = 2.2;

@@ -32,7 +32,7 @@
 #include "StateEventSender.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include "EventRouter.hpp"
 #include "StateEvent.hpp"
 #include "../ITreeContextInfo.hpp"
@@ -114,7 +114,7 @@ namespace Fsl
           {    // Callback to get a custom event for 'target window death'
             ScopedStateChange scopedChange(*this, State::RemovingNode);
             lastEvent = m_fnCreateTargetWindowDeathEvent(m_lastEventInfo, m_eventPool);
-            FSLLOG_WARNING_IF(!lastEvent.Info().IsCancel(), "The WindowDeathEvent is expected to be a cancel event");
+            FSLLOG3_WARNING_IF(!lastEvent.Info().IsCancel(), "The WindowDeathEvent is expected to be a cancel event");
           }
 
           if (lastEvent.Content())
@@ -152,21 +152,21 @@ namespace Fsl
       // Validate the event according to the received input.
       if ((theEvent.Info().IsBegin() && !theEvent.Info().IsRepeat()) && m_history.UseHistory())
       {
-        FSLLOG_ERROR("Received double begin that isn't a repeat, ignoring it.");
+        FSLLOG3_ERROR("Received double begin that isn't a repeat, ignoring it.");
         return SendResult::Error;
       }
       if (!m_history.UseHistory() &&
           ((theEvent.Info().IsBegin() && theEvent.Info().IsRepeat()) || theEvent.Info().IsCancel() || theEvent.Info().IsEnd()))
       {
-        FSLLOG_ERROR_IF(theEvent.Info().IsBegin(), "Received begin repeat without a initial press, ignoring it.");
-        FSLLOG_ERROR_IF(theEvent.Info().IsCancel(), "Received cancel without a initial press, ignoring it.");
-        FSLLOG_ERROR_IF(theEvent.Info().IsEnd(), "Received end without a initial press, ignoring it.");
+        FSLLOG3_ERROR_IF(theEvent.Info().IsBegin(), "Received begin repeat without a initial press, ignoring it.");
+        FSLLOG3_ERROR_IF(theEvent.Info().IsCancel(), "Received cancel without a initial press, ignoring it.");
+        FSLLOG3_ERROR_IF(theEvent.Info().IsEnd(), "Received end without a initial press, ignoring it.");
         return SendResult::Error;
       }
 
       // This warning indicates that we have multiple sources (multi touch/keyboard) which currently is unsupported by our routing system.
-      FSLLOG_WARNING_IF(m_history.UseHistory() && m_history.LastSourceId() != theEvent.Info().SourceId(),
-                        "Received a related input event from a different source than the initial one (multi touch/keyboard is unsupported).");
+      FSLLOG3_WARNING_IF(m_history.UseHistory() && m_history.LastSourceId() != theEvent.Info().SourceId(),
+                         "Received a related input event from a different source than the initial one (multi touch/keyboard is unsupported).");
 
       SendResult sendResult = SendResult::Error;
 

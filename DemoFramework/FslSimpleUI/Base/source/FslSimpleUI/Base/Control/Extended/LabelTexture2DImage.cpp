@@ -31,7 +31,7 @@
 
 #include <FslSimpleUI/Base/Control/Extended/LabelTexture2DImage.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>

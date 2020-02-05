@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/BasicLogger.hpp>
 #include <FslNativeWindow/Base/NativeWindowConfig.hpp>
 #include <string>
 

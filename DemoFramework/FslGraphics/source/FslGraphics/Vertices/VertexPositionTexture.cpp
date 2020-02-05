@@ -31,15 +31,17 @@
 
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
 {
   VertexDeclaration VertexPositionTexture::GetVertexDeclaration()
   {
-    static VertexElementEx g_elements[] = {
+    constexpr static std::array<VertexElementEx, 2> g_elements = {
       VertexElementEx(offsetof(VertexPositionTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(VertexPositionTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate, 0)};
-    return VertexDeclaration(g_elements, sizeof(g_elements) / sizeof(VertexElementEx), sizeof(VertexPositionTexture));
+
+    return VertexDeclaration(g_elements.data(), g_elements.size(), sizeof(VertexPositionTexture));
   }
 }

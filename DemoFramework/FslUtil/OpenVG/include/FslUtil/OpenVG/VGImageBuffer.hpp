@@ -33,7 +33,6 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenVG/Common.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <VG/openvg.h>
@@ -45,12 +44,15 @@ namespace Fsl
   namespace OpenVG
   {
     // A very simple wrapper for a VGImage
-    class VGImageBuffer : private Noncopyable
+    class VGImageBuffer
     {
       VGImage m_handle;
       Point2 m_size;
 
     public:
+      VGImageBuffer(const VGImageBuffer&) = delete;
+      VGImageBuffer& operator=(const VGImageBuffer&) = delete;
+
       //! @brief Create a uninitialized VGImageBuffer (use Reset to add texture data to it)
       VGImageBuffer();
 

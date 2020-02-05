@@ -29,7 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/NativeWindowEvents/INativeWindowEvents.hpp>
 #include <FslDemoHost/Base/Service/Events/IEventPoster.hpp>
@@ -40,10 +40,16 @@
 
 namespace Fsl
 {
+  namespace
+  {
+    const std::size_t INITIAL_KEY_CAPACITY = 16;
+  }
+
   // FIX: this service most likely has a issue with not getting up key events on windows
   //      if the active window is changed while the key is down
   KeyboardService::KeyboardService(const ServiceProvider& serviceProvider)
     : ThreadLocalService(serviceProvider)
+    , m_keys(INITIAL_KEY_CAPACITY)
   {
   }
 
@@ -64,8 +70,8 @@ namespace Fsl
   KeyboardState KeyboardService::GetState() const
   {
     std::array<VirtualKey::Enum, 256> keysScratchpad{};
-    FSLLOG_WARNING_IF(m_keys.size() > keysScratchpad.size(), "There are currently more than 256 pressed keys.");
-    const uint32_t keyCount = std::min(static_cast<uint32_t>(keysScratchpad.size()), static_cast<uint32_t>(m_keys.size()));
+    FSLLOG3_WARNING_IF(m_keys.size() > keysScratchpad.size(), "There are currently more than 256 pressed keys.");
+    const uint32_t keyCount = static_cast<uint32_t>(std::min(keysScratchpad.size(), m_keys.size()));
 
     // Copy the keys to the array
     uint32_t keyIndex = 0;
@@ -92,7 +98,7 @@ namespace Fsl
     uint32_t deviceId;
     NativeWindowEventHelper::DecodeInputKeyEvent(event, key, isPressed, deviceId);
 
-    const KeySet::iterator itr = m_keys.find(key);
+    const auto itr = std::find(m_keys.begin(), m_keys.end(), key);
     if (itr != m_keys.end())
     {
       // We found the key but it's no longer pressed -> so lets erase it
@@ -107,7 +113,7 @@ namespace Fsl
       // We didn't find the key but its pressed -> so lets add it
       if (isPressed)
       {
-        m_keys.insert(key);
+        m_keys.push_back(key);
         m_eventPoster->Post(KeyEvent(key, isPressed, deviceId));
       }
     }

@@ -36,7 +36,7 @@
 #include <FslNativeWindow/EGL/EGLNativeWindowTemplate.hpp>
 
 #include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWaylandCombiner.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <wayland-egl.h>
 #include <wayland-client.h>

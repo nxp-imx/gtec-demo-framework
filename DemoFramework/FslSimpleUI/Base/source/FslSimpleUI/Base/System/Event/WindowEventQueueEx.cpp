@@ -32,7 +32,7 @@
 #include "WindowEventQueueEx.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
 #include <cassert>
 

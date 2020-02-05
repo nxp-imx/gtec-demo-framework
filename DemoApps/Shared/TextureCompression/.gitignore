@@ -1,5 +1,7 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
+/GNUmakefile_Yocto
 /Shared.TextureCompression.VC.VC.opendb
 /Shared.TextureCompression.VC.db
 /Shared.TextureCompression.manifest

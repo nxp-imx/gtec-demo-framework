@@ -31,7 +31,7 @@
 
 #include "EventRoute.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <algorithm>
@@ -45,31 +45,37 @@ namespace Fsl
   {
     namespace
     {
-      inline bool Exists(const std::deque<std::shared_ptr<TreeNode>>& deque, const std::shared_ptr<TreeNode>& node)
+      const std::size_t INITIAL_NODE_CAPACITY = 32u;
+
+      inline bool Exists(const std::vector<std::shared_ptr<TreeNode>>& nodes, const std::shared_ptr<TreeNode>& node)
       {
-        return std::find(deque.begin(), deque.end(), node) != deque.end();
+        return std::find(nodes.begin(), nodes.end(), node) != nodes.end();
       }
 
 
-      inline void Remove(std::deque<std::shared_ptr<TreeNode>>& rDeque, const std::shared_ptr<TreeNode>& node)
+      inline void Remove(std::vector<std::shared_ptr<TreeNode>>& rNodes, const std::shared_ptr<TreeNode>& node)
       {
-        auto itr = std::find(rDeque.begin(), rDeque.end(), node);
-        if (itr != rDeque.end())
+        auto itr = std::find(rNodes.begin(), rNodes.end(), node);
+        if (itr != rNodes.end())
         {
-          rDeque.erase(itr);
+          rNodes.erase(itr);
         }
       }
     }
 
 
     EventRoute::EventRoute()
-      : m_isInitialized(false)
+      : m_tunnelList(INITIAL_NODE_CAPACITY)
+      , m_bubbleList(INITIAL_NODE_CAPACITY)
+      , m_isInitialized(false)
     {
     }
 
 
     EventRoute::EventRoute(const WindowFlags& flags)
       : m_flags(flags)
+      , m_tunnelList(INITIAL_NODE_CAPACITY)
+      , m_bubbleList(INITIAL_NODE_CAPACITY)
       , m_isInitialized(true)
     {
     }
@@ -109,7 +115,7 @@ namespace Fsl
       assert(m_isInitialized);
       if (pEventHandler == nullptr)
       {
-        FSLLOG_ERROR("pEventHandler can not be null, send ignored!");
+        FSLLOG3_ERROR("pEventHandler can not be null, send ignored!");
         return;
       }
 
@@ -171,13 +177,13 @@ namespace Fsl
     }
 
 
-    void EventRoute::SendTo(IEventHandler& eventHandler, const std::deque<std::shared_ptr<TreeNode>>& deque,
+    void EventRoute::SendTo(IEventHandler& eventHandler, const std::vector<std::shared_ptr<TreeNode>>& nodes,
                             const std::shared_ptr<WindowEvent>& theEvent, const bool isTunneling)
     {
       assert(m_isInitialized);
       assert(m_target);
 
-      if (deque.empty())
+      if (nodes.empty())
       {
         return;
       }
@@ -190,7 +196,7 @@ namespace Fsl
 
       // Continue to send the event while the event isn't marked as handled.
       RoutedEvent routedEvent(theEvent, isTunneling);
-      for (auto itr = deque.begin(); itr != deque.end() && !theEvent->IsHandled(); ++itr)
+      for (auto itr = nodes.begin(); itr != nodes.end() && !theEvent->IsHandled(); ++itr)
       {
         if ((*itr)->IsConsideredRunning() && (*itr)->GetFlags().IsFlagged(m_flags))
         {

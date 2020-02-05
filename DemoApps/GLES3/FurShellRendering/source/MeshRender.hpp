@@ -32,16 +32,19 @@
  ****************************************************************************************************************************************************/
 
 #include <GLES3/gl3.h>
-#include <FslBase/Noncopyable.hpp>
 
 namespace Fsl
 {
   class ShaderBase;
 
   // Abstract render class
-  class MeshRender : private Noncopyable
+  class MeshRender
   {
   public:
+    MeshRender(const MeshRender&) = delete;
+    MeshRender& operator=(const MeshRender&) = delete;
+    MeshRender() = default;
+
     virtual ~MeshRender();
     virtual void Bind(const ShaderBase& shader) = 0;
     virtual void Draw() = 0;

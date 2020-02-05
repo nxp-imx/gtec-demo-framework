@@ -31,7 +31,7 @@
 
 #include <Shared/VulkanCustom/VulkanWindowDemoApp.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfig.hpp>
 #include <FslDemoApp/Base/Host/DemoAppHostConfigWindow.hpp>
 #include <FslDemoApp/Base/Service/Host/IHostInfo.hpp>
@@ -154,7 +154,7 @@ namespace Fsl
     }
     catch (const std::exception& ex)
     {
-      FSLLOG_ERROR("SafeWaitForDeviceIdle, threw exception: " << ex.what());
+      FSLLOG3_ERROR("SafeWaitForDeviceIdle, threw exception: {}", ex.what());
     }
   }
 }

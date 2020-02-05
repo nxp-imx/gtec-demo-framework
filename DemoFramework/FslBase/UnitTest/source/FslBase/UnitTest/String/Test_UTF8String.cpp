@@ -453,6 +453,26 @@ TEST(TestString_UTF8String, OperatorEqual)
 }
 
 
+TEST(TestString_UTF8String, OperatorEqual_CString_LHS)
+{
+  EXPECT_TRUE("A" == UTF8String("A"));
+  EXPECT_TRUE("" == UTF8String(""));
+  EXPECT_FALSE("A" == UTF8String(""));
+  EXPECT_FALSE("A" == UTF8String("B"));
+  EXPECT_FALSE("A" == UTF8String("a"));
+}
+
+
+TEST(TestString_UTF8String, OperatorEqual_CString_RHS)
+{
+  EXPECT_TRUE(UTF8String("A") == "A");
+  EXPECT_TRUE(UTF8String("") == "");
+  EXPECT_FALSE(UTF8String("A") == "");
+  EXPECT_FALSE(UTF8String("A") == "B");
+  EXPECT_FALSE(UTF8String("A") == "a");
+}
+
+
 TEST(TestString_UTF8String, OperatorNotEqual)
 {
   EXPECT_FALSE(UTF8String("A") != UTF8String("A"));

@@ -378,7 +378,6 @@ The plan is to enable them via the same scheme we employ for Device extensions.
 - Most samples refill the command-buffer every frame even when its not strictly necessary.
 - The UI meshes are currently rebuild every frame, even when the UI is not modified.
 - DemoAppVulkanBasic: The depth buffer format selection can not be modified.
-- DemoAppVulkanBasic: The maximum number of in-flight frames is currently set to two.
 - Package FslUtil.Vulkan1_0: is still a work in progress.
 - The physical device feature request mechanism does not support 'grouping' a request like 'TextureCompressionASTC_LDR, TextureCompressionBC or TextureCompressionETC2. To do this the app should set all of them to optional and then check if it got one of them.
 - Device extensions can not be requested.

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "Screenshot.hpp"
-#include <FslBase/Log/Log.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
@@ -376,31 +376,31 @@ namespace Fsl
     VulkanBasic::SwapchainInfo swapchainInfo;
     if (!TryGetSwapchainInfo(swapchainInfo))
     {
-      FSLLOG_WARNING("Failed to get swapchain info, capture cancelled");
+      FSLLOG3_WARNING("Failed to get swapchain info, capture cancelled");
       return Bitmap();
     }
 
     if (swapchainInfo.CurrentImage == VK_NULL_HANDLE)
     {
-      FSLLOG_WARNING("Invalid swapchain image, capture cancelled");
+      FSLLOG3_WARNING("Invalid swapchain image, capture cancelled");
       return Bitmap();
     }
     if ((swapchainInfo.ImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) == 0u)
     {
-      FSLLOG("Swapchain did not support VK_IMAGE_USAGE_TRANSFER_SRC_BIT, capture cancelled");
+      FSLLOG3_INFO("Swapchain did not support VK_IMAGE_USAGE_TRANSFER_SRC_BIT, capture cancelled");
       return Bitmap();
     }
     VkFormat srcImageFormat = swapchainInfo.ImageFormat;
     if (srcImageFormat == VK_FORMAT_UNDEFINED)
     {
-      FSLLOG_WARNING("Invalid swapchain image format, capture cancelled");
+      FSLLOG3_WARNING("Invalid swapchain image format, capture cancelled");
       return Bitmap();
     }
 
     auto srcPixelFormat = Vulkan::ConvertUtil::Convert(srcImageFormat);
     if (PixelFormatUtil::IsCompressed(srcPixelFormat))
     {
-      FSLLOG_WARNING("srcPixelFormat is compressed, capture cancelled");
+      FSLLOG3_WARNING("srcPixelFormat is compressed, capture cancelled");
       return Bitmap();
     }
 
@@ -413,8 +413,8 @@ namespace Fsl
     // Check if the device supports 'blit' to the dst linear format
     const bool allowDstBlit = (formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) != 0u;
 
-    FSLLOG2_IF(!allowSrcBlit, LogType::Verbose, "Device does not support blitting from src format: " << Debug::ToString(srcImageFormat));
-    FSLLOG2_IF(!allowDstBlit, LogType::Verbose, "Device does not support blitting to dst format: " << Debug::ToString(dstImageFormat));
+    FSLLOG3_VERBOSE_IF(!allowSrcBlit, "Device does not support blitting from src format: {}", Debug::ToString(srcImageFormat));
+    FSLLOG3_VERBOSE_IF(!allowDstBlit, "Device does not support blitting to dst format: {}", Debug::ToString(dstImageFormat));
 
     // if (allowSrcBlit && allowDstBlit)
     //{
@@ -426,12 +426,12 @@ namespace Fsl
 
   Bitmap Screenshot::TryCaptureScreenshotViaBlit(const VulkanBasic::SwapchainInfo& swapchainInfo, const VkFormat dstImageFormat)
   {
-    FSLLOG2(LogType::Verbose, "Capturing via blit");
+    FSLLOG3_VERBOSE("Capturing via blit");
 
     // We wait for the device to be idle before we start capturing
     SafeWaitForDeviceIdle();
 
-    FSLLOG_ERROR("CaptureScreenshotViaBlit not implemented");
+    FSLLOG3_ERROR("CaptureScreenshotViaBlit not implemented");
     return Bitmap();
   }
 
@@ -439,7 +439,7 @@ namespace Fsl
   // The swapchain image must have VK_IMAGE_USAGE_TRANSFER_SRC_BIT set for this to work
   Bitmap Screenshot::TryCaptureScreenshotViaCopy(const VulkanBasic::SwapchainInfo& swapchainInfo)
   {
-    FSLLOG2(LogType::Verbose, "Capturing via copy");
+    FSLLOG3_VERBOSE("Capturing via copy");
 
     assert(swapchainInfo.CurrentImage != VK_NULL_HANDLE);
     assert((swapchainInfo.ImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) != 0u);

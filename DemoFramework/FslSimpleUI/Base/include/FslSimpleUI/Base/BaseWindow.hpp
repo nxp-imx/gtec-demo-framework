@@ -32,7 +32,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/ITag.hpp>
-#include <FslBase/Noncopyable.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Rect.hpp>
 #include <FslBase/Math/ThicknessF.hpp>
@@ -63,7 +62,6 @@ namespace Fsl
     class BaseWindow
       : public IWindowId
       , protected IEventListener
-      , private Noncopyable
     {
       const std::shared_ptr<BaseWindowContext> m_context;
       std::shared_ptr<ITag> m_tag;
@@ -75,6 +73,9 @@ namespace Fsl
       LayoutCache m_layoutCache;
 
     public:
+      BaseWindow(const BaseWindow&) = delete;
+      BaseWindow& operator=(const BaseWindow&) = delete;
+
       BaseWindow(const std::shared_ptr<BaseWindowContext>& context);
       ~BaseWindow() override;
 
