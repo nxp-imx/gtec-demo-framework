@@ -42,6 +42,7 @@
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
+#include <FslUtil/Vulkan1_0/Log/FmtAll.hpp>
 #include <RapidVulkan/Debug/Strings/VkResult.hpp>
 #include <RapidVulkan/Debug/Strings/VkImageUsageFlagBits.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
@@ -622,7 +623,7 @@ namespace Fsl
     {
       FSLLOG3_VERBOSE2("DemoAppVulkanBasic::CreateBasicDepthImageView()");
 
-      const auto depthFormat = device.GetPhysicalDevice().FindDepthFormat();
+      const auto depthFormat = device.GetPhysicalDevice().FindDepthFormat(false);
 
       VkImageCreateInfo imageCreateInfo{};
       imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

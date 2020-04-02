@@ -128,9 +128,9 @@ namespace Fsl
       }
 
       //! @brief Find a VK_IMAGE_TILING_OPTIMAL depth format
-      VkFormat FindDepthFormat() const
+      VkFormat FindDepthFormat(const bool enableStencil) const
       {
-        return PhysicalDeviceUtil::FindDepthFormat(Device);
+        return PhysicalDeviceUtil::FindDepthFormat(Device, enableStencil);
       }
     };
   }

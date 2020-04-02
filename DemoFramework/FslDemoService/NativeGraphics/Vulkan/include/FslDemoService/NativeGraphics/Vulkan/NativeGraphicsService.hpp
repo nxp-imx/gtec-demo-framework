@@ -117,6 +117,7 @@ namespace Fsl
     private:
       void PerformGarbageCollection() noexcept;
       std::shared_ptr<QuadBatch> CreateQuadBatch();
+      void UpdateState(NativeGraphicsBasic2D& basic2D);
     };
   }
 }

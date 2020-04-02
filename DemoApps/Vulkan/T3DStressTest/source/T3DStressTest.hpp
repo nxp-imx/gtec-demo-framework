@@ -74,6 +74,7 @@ namespace Fsl
 
       void OnBuildResources(const VulkanBasic::BuildResourcesContext& context, const VkRenderPass renderPass)
       {
+        FSLLOG3_VERBOSE3("MeshStuffRecord::OnBuildResources");
         RenderVB.OnBuildResources(context, renderPass);
         RenderInstanced.OnBuildResources(context, renderPass);
         RenderNormals.OnBuildResources(context, renderPass);

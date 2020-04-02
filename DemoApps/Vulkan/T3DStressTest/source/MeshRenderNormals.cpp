@@ -316,6 +316,7 @@ namespace Fsl
 
   void MeshRenderNormals::OnBuildResources(const VulkanBasic::BuildResourcesContext& context, const VkRenderPass renderPass)
   {
+    FSLLOG3_VERBOSE("MeshRenderNormals::OnBuildResources");
     m_dependentResources.Pipeline = CreatePipeline(m_resources.PipelineLayout, context.SwapchainImageExtent, m_resources.VertShader.Get(),
                                                    m_resources.FragShader.Get(), m_resources.VB, renderPass, m_enableDepthTest);
   }

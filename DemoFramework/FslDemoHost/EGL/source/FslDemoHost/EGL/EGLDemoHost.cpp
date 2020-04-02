@@ -971,7 +971,9 @@ namespace Fsl
     assert(m_hSurface == EGL_NO_SURFACE);
     assert(m_hConfig == EMPTY_VALUE_EGLCONFIG);
 
-    const bool hasAngleSupport = HasAngleSupport(m_logExtensions);
+    // The OpenVG reference implementation EGL layer fails if this is executed before init.
+    // So for now if we are using OpenVG we do not check for Angle support.
+    const bool hasAngleSupport = !m_enableVG ? HasAngleSupport(m_logExtensions) : false;
 
     // Acquire the various native display handles
     EGLNativeDisplayType hDisplay = m_windowSystem->GetDisplayType();

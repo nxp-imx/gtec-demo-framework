@@ -1,5 +1,9 @@
 # Latest version
 
+## Release 5.5.1
+* Fixed shader precision issue (that also exist in 5.4.0 and previous releases).
+* Workaround for OpenVG reference implementation EGL bug.
+
 ## Release 5.5.0
 
 * Upgraded RapidVulkan to 1.2.131.1

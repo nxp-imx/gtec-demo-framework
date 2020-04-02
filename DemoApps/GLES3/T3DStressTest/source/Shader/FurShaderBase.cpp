@@ -30,6 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include "FurShaderBase.hpp"
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
@@ -43,13 +45,13 @@ namespace Fsl
 
   namespace
   {
-    const IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
+    IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
     {
       return IO::Path::Combine(shaderPath, (useHighPrecision ? "Fur_hp.vert" : "Fur_lp.vert"));
     }
 
 
-    const IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
+    IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
     {
       switch (lightCount)
       {
@@ -65,11 +67,27 @@ namespace Fsl
         return IO::Path::Combine(shaderPath, (useHighPrecision ? "FurN_hp.frag" : "FurN_lp.frag"));
       }
     }
+
+    IO::Path GetVertAndLog(const IO::Path& shaderPath, const bool useHighPrecision)
+    {
+      auto path = GetVert(shaderPath, useHighPrecision);
+      FSLLOG3_INFO("Vert shader: '{}' HighPrecision: {}", path, useHighPrecision);
+      return path;
+    }
+
+
+    IO::Path GetFragAndLog(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
+    {
+      auto path = GetFrag(shaderPath, useHighPrecision, lightCount);
+      FSLLOG3_INFO("Frag shader: '{}' HighPrecision: {} LightCount: {}", path, useHighPrecision, lightCount);
+      return path;
+    }
+
   }
 
   FurShaderBase::FurShaderBase(const IContentManager& contentManager, const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
-    : ShaderBase(contentManager.ReadAllText(GetVert(shaderPath, useHighPrecision)),
-                 contentManager.ReadAllText(GetFrag(shaderPath, useHighPrecision, lightCount)))
+    : ShaderBase(contentManager.ReadAllText(GetVertAndLog(shaderPath, useHighPrecision)),
+                 contentManager.ReadAllText(GetFragAndLog(shaderPath, useHighPrecision, lightCount)))
     , m_lightCount(lightCount)
     , m_locInstanceDistance(GLValues::INVALID_LOCATION)
     , m_locWorld(GLValues::INVALID_LOCATION)
@@ -154,6 +172,7 @@ namespace Fsl
 
     if (m_lightCount <= 4)
     {
+      assert(m_locLightDirection[index] != GLValues::INVALID_LOCATION);
       glUniform3f(m_locLightDirection[index], lightDirection.X, lightDirection.Y, lightDirection.Z);
     }
     else
@@ -161,6 +180,7 @@ namespace Fsl
       m_lightDirection[index * 3 + 0] = lightDirection.X;
       m_lightDirection[index * 3 + 1] = lightDirection.Y;
       m_lightDirection[index * 3 + 2] = lightDirection.Z;
+      assert(m_locLightDirection[0] != GLValues::INVALID_LOCATION);
       glUniform3fv(m_locLightDirection[0], m_lightCount * 3, &m_lightDirection[0]);
     }
   }
@@ -229,20 +249,20 @@ namespace Fsl
 
   void FurShaderBase::Construct(const int32_t lightCount)
   {
-    const GLuint hProgram = Get();
+    const auto& rProgram = GetProgram();
 
     // Get attribute locations of non-fixed attributes like color and texture coordinates.
-    m_shaderConfig.Position = GL_CHECK(glGetAttribLocation(hProgram, "VertexPosition"));
-    m_shaderConfig.Normal = GL_CHECK(glGetAttribLocation(hProgram, "VertexNormal"));
-    m_shaderConfig.TexCoord = GL_CHECK(glGetAttribLocation(hProgram, "TexCoord"));
+    m_shaderConfig.Position = rProgram.GetAttribLocation("VertexPosition");
+    m_shaderConfig.Normal = rProgram.GetAttribLocation("VertexNormal");
+    m_shaderConfig.TexCoord = rProgram.GetAttribLocation("TexCoord");
 
     // Get uniform locations
-    m_locInstanceDistance = GL_CHECK(glGetUniformLocation(hProgram, "InstanceDistance"));
-    m_locWorld = GL_CHECK(glGetUniformLocation(hProgram, "World"));
-    m_locView = GL_CHECK(glGetUniformLocation(hProgram, "View"));
-    m_locProjection = GL_CHECK(glGetUniformLocation(hProgram, "Projection"));
-    m_locTexture0 = GL_CHECK(glGetUniformLocation(hProgram, "Texture0"));
-    m_locTexture1 = GL_CHECK(glGetUniformLocation(hProgram, "Texture1"));
+    m_locInstanceDistance = rProgram.TryGetUniformLocation("InstanceDistance");
+    m_locWorld = rProgram.GetUniformLocation("World");
+    m_locView = rProgram.GetUniformLocation("View");
+    m_locProjection = rProgram.GetUniformLocation("Projection");
+    m_locTexture0 = rProgram.GetUniformLocation("Texture0");
+    m_locTexture1 = rProgram.GetUniformLocation("Texture1");
 
     // Fill the arrays with default values
 
@@ -253,42 +273,42 @@ namespace Fsl
       std::fill(m_locLightDirection.begin(), m_locLightDirection.end(), GLValues::INVALID_LOCATION);
       std::fill(m_locLightColor.begin(), m_locLightColor.end(), GLValues::INVALID_LOCATION);
 
-      m_locLightDirection[0] = GL_CHECK(glGetUniformLocation(hProgram, "LightDirection1"));
-      m_locLightColor[0] = GL_CHECK(glGetUniformLocation(hProgram, "LightColor1"));
+      m_locLightDirection[0] = rProgram.GetUniformLocation("LightDirection1");
+      m_locLightColor[0] = rProgram.GetUniformLocation("LightColor1");
       if (lightCount >= 2)
       {
-        m_locLightDirection[1] = GL_CHECK(glGetUniformLocation(hProgram, "LightDirection2"));
-        m_locLightColor[1] = GL_CHECK(glGetUniformLocation(hProgram, "LightColor2"));
+        m_locLightDirection[1] = rProgram.GetUniformLocation("LightDirection2");
+        m_locLightColor[1] = rProgram.GetUniformLocation("LightColor2");
       }
       if (lightCount >= 3)
       {
-        m_locLightDirection[2] = GL_CHECK(glGetUniformLocation(hProgram, "LightDirection3"));
-        m_locLightColor[2] = GL_CHECK(glGetUniformLocation(hProgram, "LightColor3"));
+        m_locLightDirection[2] = rProgram.GetUniformLocation("LightDirection3");
+        m_locLightColor[2] = rProgram.GetUniformLocation("LightColor3");
       }
       if (lightCount >= 4)
       {
-        m_locLightDirection[3] = GL_CHECK(glGetUniformLocation(hProgram, "LightDirection4"));
-        m_locLightColor[3] = GL_CHECK(glGetUniformLocation(hProgram, "LightColor4"));
+        m_locLightDirection[3] = rProgram.GetUniformLocation("LightDirection4");
+        m_locLightColor[3] = rProgram.GetUniformLocation("LightColor4");
       }
     }
     else
     {
       m_locLightDirection.resize(1);
       m_locLightColor.resize(1);
-      m_locLightDirection[0] = GL_CHECK(glGetUniformLocation(hProgram, "LightDirection"));
-      m_locLightColor[0] = GL_CHECK(glGetUniformLocation(hProgram, "LightColor"));
-      m_locLightCount = GL_CHECK(glGetUniformLocation(hProgram, "LightCount"));
+      m_locLightDirection[0] = rProgram.GetUniformLocation("LightDirection");
+      m_locLightColor[0] = rProgram.GetUniformLocation("LightColor");
+      m_locLightCount = rProgram.GetUniformLocation("LightCount");
       m_lightDirection.resize(3 * lightCount);
       m_lightColor.resize(3 * lightCount);
       std::fill(m_lightDirection.begin(), m_lightDirection.end(), 0.0f);
       std::fill(m_lightColor.begin(), m_lightColor.end(), 0.0f);
     }
 
-    m_locAmbientColor = GL_CHECK(glGetUniformLocation(hProgram, "AmbientColor"));
+    m_locAmbientColor = rProgram.GetUniformLocation("AmbientColor");
 
-    m_locMaxHairLength = GL_CHECK(glGetUniformLocation(hProgram, "MaxHairLength"));
+    m_locMaxHairLength = rProgram.GetUniformLocation("MaxHairLength");
 
-    m_locDisplacement = GL_CHECK(glGetUniformLocation(hProgram, "Displacement"));
+    m_locDisplacement = rProgram.GetUniformLocation("Displacement");
 
 
     {    // Set the default values

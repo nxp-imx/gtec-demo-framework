@@ -133,6 +133,18 @@ namespace Fsl
     , m_gravity(0, -1.0f, 0)
     , m_radians(0.0f)
   {
+    switch (m_config.GetRenderMode())
+    {
+    case RenderMode::MultiPass:
+      FSLLOG3_INFO("RenderMode: MultiPass");
+      break;
+    case RenderMode::Instanced:
+      FSLLOG3_INFO("RenderMode: Instanced");
+      break;
+    default:
+      break;
+    }
+
     auto contentManager = GetContentManager();
     const int furTextureDim = m_config.GetFurTextureDimensions();
 

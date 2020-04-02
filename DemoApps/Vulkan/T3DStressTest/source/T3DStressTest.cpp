@@ -333,17 +333,21 @@ namespace Fsl
 
   VkRenderPass T3DStressTest::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
   {
+    FSLLOG3_VERBOSE3("OnBuildResources Begin");
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();
 
     auto renderPass = m_dependentResources.MainRenderPass.Get();
     m_resources.MeshStuff->OnBuildResources(context, renderPass);
+    FSLLOG3_VERBOSE3("OnBuildResources End");
     return renderPass;
   }
 
   void T3DStressTest::OnFreeResources()
   {
+    FSLLOG3_VERBOSE3("OnFreeResources Begin");
     m_resources.MeshStuff->OnFreeResources();
     m_dependentResources = {};
+    FSLLOG3_VERBOSE3("OnFreeResources End");
   }
 
   void T3DStressTest::DrawToCommandBuffer(const VkCommandBuffer hCmdBuffer, const uint32_t cmdBufferIndex, const uint32_t frameIndex)

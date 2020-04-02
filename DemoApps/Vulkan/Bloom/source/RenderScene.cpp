@@ -176,39 +176,33 @@ namespace Fsl
 
       assert(texture.IsValid());
       // Binding 1 : Fragment shader texture sampler
-      {
-        auto textureImageInfo = texture.GetDescriptorImageInfo();
-        writeDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescriptorSets[1].dstSet = descriptorSet;
-        writeDescriptorSets[1].dstBinding = 1;
-        writeDescriptorSets[1].descriptorCount = 1;
-        writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        writeDescriptorSets[1].pImageInfo = &textureImageInfo;
-      }
+      auto textureImageInfo1 = texture.GetDescriptorImageInfo();
+      writeDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      writeDescriptorSets[1].dstSet = descriptorSet;
+      writeDescriptorSets[1].dstBinding = 1;
+      writeDescriptorSets[1].descriptorCount = 1;
+      writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+      writeDescriptorSets[1].pImageInfo = &textureImageInfo1;
 
       // Binding 2 : Fragment shader texture sampler
-      {
-        auto& rTexture = textureNormal.IsValid() ? textureNormal : texture;
-        auto textureImageInfo = rTexture.GetDescriptorImageInfo();
-        writeDescriptorSets[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescriptorSets[2].dstSet = descriptorSet;
-        writeDescriptorSets[2].dstBinding = 2;
-        writeDescriptorSets[2].descriptorCount = 1;
-        writeDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        writeDescriptorSets[2].pImageInfo = &textureImageInfo;
-      }
+      auto& rTexture2 = textureNormal.IsValid() ? textureNormal : texture;
+      auto textureImageInfo2 = rTexture2.GetDescriptorImageInfo();
+      writeDescriptorSets[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      writeDescriptorSets[2].dstSet = descriptorSet;
+      writeDescriptorSets[2].dstBinding = 2;
+      writeDescriptorSets[2].descriptorCount = 1;
+      writeDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+      writeDescriptorSets[2].pImageInfo = &textureImageInfo2;
 
       // Binding 3 : Fragment shader texture sampler
-      {
-        auto& rTexture = textureSpecular.IsValid() ? textureSpecular : texture;
-        auto textureImageInfo = rTexture.GetDescriptorImageInfo();
-        writeDescriptorSets[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescriptorSets[3].dstSet = descriptorSet;
-        writeDescriptorSets[3].dstBinding = 3;
-        writeDescriptorSets[3].descriptorCount = 1;
-        writeDescriptorSets[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        writeDescriptorSets[3].pImageInfo = &textureImageInfo;
-      }
+      auto& rTexture3 = textureSpecular.IsValid() ? textureSpecular : texture;
+      auto textureImageInfo3 = rTexture3.GetDescriptorImageInfo();
+      writeDescriptorSets[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      writeDescriptorSets[3].dstSet = descriptorSet;
+      writeDescriptorSets[3].dstBinding = 3;
+      writeDescriptorSets[3].descriptorCount = 1;
+      writeDescriptorSets[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+      writeDescriptorSets[3].pImageInfo = &textureImageInfo3;
 
       vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
       return descriptorSet;

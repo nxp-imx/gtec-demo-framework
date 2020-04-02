@@ -155,8 +155,7 @@ namespace Fsl
       return m_fontSize;
     }
 
-    void NativeGraphicsBasic2D::VulkanDeviceInit(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex,
-                                                 const std::shared_ptr<VulkanImageCreator>& imageCreator)
+    void NativeGraphicsBasic2D::VulkanDeviceInit(const std::shared_ptr<VulkanImageCreator>& imageCreator)
     {
       if (!imageCreator)
       {

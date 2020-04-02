@@ -396,8 +396,11 @@ namespace Fsl
 
   void MeshRenderVB::OnBuildResources(const VulkanBasic::BuildResourcesContext& context, const VkRenderPass renderPass)
   {
+    FSLLOG3_VERBOSE("MeshRenderVB::OnBuildResources");
+    FSLLOG3_VERBOSE("- OpaquePipeline");
     m_dependentResources.OpaquePipeline = CreatePipeline(m_resources.PipelineLayout, context.SwapchainImageExtent, VertShader.Get(), FragShader.Get(),
                                                          m_resources.VB, renderPass, m_topology, true, m_enableDepthTest);
+    FSLLOG3_VERBOSE("- Pipeline");
     m_dependentResources.Pipeline = CreatePipeline(m_resources.PipelineLayout, context.SwapchainImageExtent, VertShader.Get(), FragShader.Get(),
                                                    m_resources.VB, renderPass, m_topology, false, m_enableDepthTest);
   }

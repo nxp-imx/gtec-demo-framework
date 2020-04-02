@@ -111,7 +111,7 @@ namespace Fsl
         auto basic2D = m_basic2D.lock();
         if (basic2D)
         {
-          basic2D->VulkanDeviceInit(device, queue, queueFamilyIndex, m_resources.ImageCreator);
+          basic2D->VulkanDeviceInit(m_resources.ImageCreator);
         }
 
         // Create the resources
@@ -358,6 +358,8 @@ namespace Fsl
 
       auto quadBatch = CreateQuadBatch();
       auto basic2D = std::shared_ptr<NativeGraphicsBasic2D>(new NativeGraphicsBasic2D(quadBatch, currentResolution));
+
+      UpdateState(*basic2D);
       m_basic2D = basic2D;
       return basic2D;
     }
@@ -410,5 +412,23 @@ namespace Fsl
       m_quadBatches.push_back(quadBatch);
       return quadBatch;
     }
+
+    void NativeGraphicsService::UpdateState(NativeGraphicsBasic2D& basic2D)
+    {
+      switch (m_state)
+      {
+      case State::Uninitialized:
+        break;
+      case State::Initialized:
+        break;
+      case State::DeviceInitialized:
+      case State::DependentResourcesInitialized:
+        basic2D.VulkanDeviceInit(m_resources.ImageCreator);
+        break;
+      default:
+        throw NotSupportedException("Unknown state");
+      }
+    }
+
   }
 }

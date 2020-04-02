@@ -73,8 +73,7 @@ namespace Fsl
       void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
       Point2 FontSize() const override;
 
-      void VulkanDeviceInit(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex,
-                            const std::shared_ptr<VulkanImageCreator>& imageCreator);
+      void VulkanDeviceInit(const std::shared_ptr<VulkanImageCreator>& imageCreator);
       void VulkanDeviceShutdown() noexcept;
 
     private:

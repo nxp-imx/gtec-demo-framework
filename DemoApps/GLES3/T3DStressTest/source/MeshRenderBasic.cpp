@@ -72,18 +72,21 @@ namespace Fsl
     ShaderVertexConfig shaderConfig = shader.GetShaderConfig();
     if (shaderConfig.Position != GLValues::INVALID_LOCATION)
     {
+      static_assert(sizeof(Vector3) == (sizeof(GLfloat) * 3), "Vector3 not of the expected size");
       glVertexAttribPointer(shaderConfig.Position, 3, GL_FLOAT, GL_FALSE, 0, m_vertices.data());
       glEnableVertexAttribArray(shaderConfig.Position);
     }
 
     if (shaderConfig.Normal != GLValues::INVALID_LOCATION)
     {
+      static_assert(sizeof(Vector3) == (sizeof(GLfloat) * 3), "Vector3 not of the expected size");
       glVertexAttribPointer(shaderConfig.Normal, 3, GL_FLOAT, GL_FALSE, 0, m_normals.data());
       glEnableVertexAttribArray(shaderConfig.Normal);
     }
 
     if (shaderConfig.TexCoord != GLValues::INVALID_LOCATION)
     {
+      static_assert(sizeof(Vector2) == (sizeof(GLfloat) * 2), "Vector2 not of the expected size");
       glVertexAttribPointer(shaderConfig.TexCoord, 2, GL_FLOAT, GL_FALSE, 0, m_textureCoords.data());
       glEnableVertexAttribArray(shaderConfig.TexCoord);
     }

@@ -1,5 +1,10 @@
 # Known issues
 
+## Android
+
+- Android does not handle unicode file names inside the 'assets' folder,
+  so do not utilize unicode for filenames stored in Content.
+
 ## Yocto
 
 - If you are using a old version of the SDK that doesn't come with all required third party software you will need to add  ```--Recipes [*]``` to your build command as that will re-enable the download.
@@ -13,14 +18,11 @@
 - Assimp was updated from 3 to 4. So if you use a old version of the build tools and a new sd-card release
   The executable will be build to use version 3 and the sd-card contains version 4 causing the sample to fail.
   The solution is to make sure your build tools and sd-card version of the library match.
-  
-## Android
-
-- Android does not handle unicode file names inside the 'assets' folder,
-  so do not utilize unicode for filenames stored in Content.
 
 ## Windows
 
+- Visual Studio 2019 16.5.x might not pickup the environment variables and paths it was launched with. This is a visual studio bug.
+  Setting ```set ClearDevCommandPromptEnvVars=false``` before calling ```vcvarsall.bat``` can be used as a workaround until they fix it ([issue-link](https://developercommunity.visualstudio.com/content/problem/951981/environment-paths-not-respected.html)).
 - The generated project files do not detect changes to the build environment automatically.
   So its your job to run FslBuildGen when you change it!
 - If a new shader is added to Content.bld and no files has been modified the content builder

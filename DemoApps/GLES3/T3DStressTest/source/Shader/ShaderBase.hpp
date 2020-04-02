@@ -75,6 +75,10 @@ namespace Fsl
   protected:
     bool IsValid() const;
     GLuint Get() const;
+    const GLES3::GLProgram& GetProgram() const
+    {
+      return m_program;
+    }
     void Load();
     void Unload();
     bool IsLoaded() const
