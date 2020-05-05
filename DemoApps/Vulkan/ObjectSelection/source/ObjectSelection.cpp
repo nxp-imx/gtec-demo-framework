@@ -615,7 +615,8 @@ namespace Fsl
     for (uint32_t i = 0; i < m_resources.Objects.size(); ++i)
     {
       m_objVertexUboData[i].WorldViewProjection = m_resources.Objects[i].WorldViewProjectionMatrix * vulkanClipMatrix;
-      m_objVertexUboData[i].NormalMatrix = Matrix3::Transpose(Matrix3::Invert(MatrixConverter::ToMatrix3(m_resources.Objects[i].WorldViewMatrix)));
+      m_objVertexUboData[i].NormalMatrix =
+        Matrix3Std140::Transpose(Matrix3Std140::Invert(MatrixConverter::ToMatrix3Std140(m_resources.Objects[i].WorldViewMatrix)));
     }
 
     auto keyboardState = m_keyboard->GetState();

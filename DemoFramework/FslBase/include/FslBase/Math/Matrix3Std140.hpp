@@ -1,7 +1,7 @@
-#ifndef FSLBASE_MATH_MATRIX3_HPP
-#define FSLBASE_MATH_MATRIX3_HPP
+#ifndef FSLBASE_MATH_MATRIX3STD140_HPP
+#define FSLBASE_MATH_MATRIX3STD140_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,57 +31,55 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Vector3.hpp>
-#include <FslBase/Math/Matrix3Fields.hpp>
+#include <FslBase/Math/Matrix3Std140Fields.hpp>
 #include <algorithm>
 #include <cstddef>
-//#include <FslBase/OptimizationFlag.hpp>
 
 namespace Fsl
 {
   struct Matrix;
 
-  // Designed for 3D graphics.
+  // Designed for 3D graphics and to be comptaible with the opengl and vulkan std140 memory layout.
   // Format:
-  //   m11, m12, m13,
-  //   m21, m22, m23,
-  //   m31, m32, m33,
-  struct Matrix3
+  //   m11, m12, m13, padding,
+  //   m21, m22, m23, padding,
+  //   m31, m32, m33, padding
+  struct Matrix3Std140
   {
     using value_type = float;
     using size_type = std::size_t;
 
-    static constexpr size_type NumElements = 3 * 3;
+    static constexpr size_type NumElements = 3 * 4;
 
-    constexpr size_type size() const
+    constexpr size_type size() const    // NOLINT(readability-convert-member-functions-to-static)
     {
       return NumElements;
     }
 
   private:
-    // const int _M11 = (3 * 0 + 0);
-    // const int _M12 = (3 * 0 + 1);
-    // const int _M13 = (3 * 0 + 2);
-    // const int _M21 = (3 * 1 + 0);
-    // const int _M22 = (3 * 1 + 1);
-    // const int _M23 = (3 * 1 + 2);
-    // const int _M31 = (3 * 2 + 0);
-    // const int _M32 = (3 * 2 + 1);
-    // const int _M33 = (3 * 2 + 2);
-    float m[NumElements]{};
+    // const int _M11 = ((4 * 0) + 0);
+    // const int _M12 = ((4 * 0) + 1);
+    // const int _M13 = ((4 * 0) + 2);
+    // const int _M21 = ((4 * 1) + 0);
+    // const int _M22 = ((4 * 1) + 1);
+    // const int _M23 = ((4 * 1) + 2);
+    // const int _M31 = ((4 * 2) + 0);
+    // const int _M32 = ((4 * 2) + 1);
+    // const int _M33 = ((4 * 2) + 2);
+    float m[NumElements]{};    // NOLINT(modernize-avoid-c-arrays)
 
   public:
     //! @brief Creates a empty matrix (all components are set to zero)
-    constexpr Matrix3() = default;
-    constexpr Matrix3(const float m11, const float m12, const float m13, const float m21, const float m22, const float m23, const float m31,
-                      const float m32, const float m33)
-      : m{m11, m12, m13, m21, m22, m23, m31, m32, m33}
+    constexpr Matrix3Std140() = default;
+    constexpr Matrix3Std140(const float m11, const float m12, const float m13, const float m21, const float m22, const float m23, const float m31,
+                            const float m32, const float m33)
+      : m{m11, m12, m13, 0, m21, m22, m23, 0, m31, m32, m33, 0}
     {
     }
 
     //! @brief A optimization constructor that doesn't initialize the matrix so when this is called the content of the matrix in undefined!!!
     // coverity[uninit_member]
-    // Matrix3(const OptimizationFlag flag){};
+    // Matrix3Std140(const OptimizationFlag flag){};
 
     //! @brief Direct access to the matrix array
     const float* DirectAccess() const
@@ -96,15 +94,15 @@ namespace Fsl
     }
 
     //! @brief Return a instance of the identity matrix
-    static constexpr Matrix3 GetIdentity()
+    static constexpr Matrix3Std140 GetIdentity()
     {
-      return Matrix3(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+      return {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     }
 
     //! @brief Fill the matrix with zero
     constexpr void Clear()
     {
-      using namespace Matrix3Fields;
+      using namespace Matrix3Std140Fields;
       m[_M11] = 0.0f;
       m[_M12] = 0.0f;
       m[_M13] = 0.0f;
@@ -119,7 +117,7 @@ namespace Fsl
     //! @brief Set the matrix to the identity matrix
     constexpr void SetIdentity()
     {
-      using namespace Matrix3Fields;
+      using namespace Matrix3Std140Fields;
       m[_M11] = 1.0f;
       m[_M12] = 0.0f;
       m[_M13] = 0.0f;
@@ -133,30 +131,30 @@ namespace Fsl
 
     constexpr float Determinant() const
     {
-      using namespace Matrix3Fields;
+      using namespace Matrix3Std140Fields;
       return (m[_M11] * (m[_M22] * m[_M33] - m[_M23] * m[_M32])) - (m[_M12] * (m[_M21] * m[_M33] - m[_M23] * m[_M31])) +
              (m[_M13] * (m[_M21] * m[_M32] - m[_M22] * m[_M31]));
     }
 
-    static constexpr Matrix3 Transpose(const Matrix3& matrix)
+    static constexpr Matrix3Std140 Transpose(const Matrix3Std140& matrix)
     {
-      using namespace Matrix3Fields;
-      return Matrix3(matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M12], matrix.m[_M22], matrix.m[_M32], matrix.m[_M13], matrix.m[_M23],
-                     matrix.m[_M33]);
+      using namespace Matrix3Std140Fields;
+      return {matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M12], matrix.m[_M22],
+              matrix.m[_M32], matrix.m[_M13], matrix.m[_M23], matrix.m[_M33]};
     }
 
-    static Matrix3 Invert(const Matrix3& matrix);
+    static Matrix3Std140 Invert(const Matrix3Std140& matrix);
 
-    constexpr bool operator==(const Matrix3& rhs) const
+    constexpr bool operator==(const Matrix3Std140& rhs) const
     {
-      using namespace Matrix3Fields;
+      using namespace Matrix3Std140Fields;
       return (m[_M11] == rhs.m[_M11] && m[_M12] == rhs.m[_M12] && m[_M13] == rhs.m[_M13] && m[_M21] == rhs.m[_M21] && m[_M22] == rhs.m[_M22] &&
               m[_M23] == rhs.m[_M23] && m[_M31] == rhs.m[_M31] && m[_M32] == rhs.m[_M32] && m[_M33] == rhs.m[_M33]);
     }
 
-    constexpr bool operator!=(const Matrix3& rhs) const
+    constexpr bool operator!=(const Matrix3Std140& rhs) const
     {
-      using namespace Matrix3Fields;
+      using namespace Matrix3Std140Fields;
       return (m[_M11] != rhs.m[_M11] || m[_M12] != rhs.m[_M12] || m[_M13] != rhs.m[_M13] || m[_M21] != rhs.m[_M21] || m[_M22] != rhs.m[_M22] ||
               m[_M23] != rhs.m[_M23] || m[_M31] != rhs.m[_M31] || m[_M32] != rhs.m[_M32] || m[_M33] != rhs.m[_M33]);
     }

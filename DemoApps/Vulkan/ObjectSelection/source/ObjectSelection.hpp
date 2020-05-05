@@ -33,7 +33,7 @@
 
 #include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/Matrix3.hpp>
+#include <FslBase/Math/Matrix3Std140.hpp>
 #include <FslBase/Math/Viewport.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
@@ -76,7 +76,7 @@ namespace Fsl
     {
       // Matrix WorldView;
       Matrix WorldViewProjection;
-      Matrix3 NormalMatrix;
+      Matrix3Std140 NormalMatrix;
     };
 
   public:

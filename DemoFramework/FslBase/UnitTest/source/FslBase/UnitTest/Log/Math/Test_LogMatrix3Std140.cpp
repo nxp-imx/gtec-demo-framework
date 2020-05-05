@@ -1,7 +1,5 @@
-#ifndef FSLBASE_MATH_MATRIXCONVERTER_HPP
-#define FSLBASE_MATH_MATRIXCONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2018 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +12,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,28 +29,27 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/Matrix3.hpp>
-#include <FslBase/Math/Matrix3Std140.hpp>
+#include <FslBase/Log/Math/LogMatrix3Std140.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
+#include <array>
+#include <limits>
+#include <sstream>
+#include <vector>
 
-namespace Fsl
+using namespace Fsl;
+
+namespace
 {
-  struct MatrixConverter
-  {
-    static Matrix3 ToMatrix3(const Matrix& value)
-    {
-      const float* const pValue = value.DirectAccess();
-      return Matrix3(pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1], pValue[(4 * 1) + 2],
-                     pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]);
-    }
-
-    static Matrix3Std140 ToMatrix3Std140(const Matrix& value)
-    {
-      const float* const pValue = value.DirectAccess();
-      return {pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1],
-              pValue[(4 * 1) + 2], pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]};
-    }
-  };
+  using TestLog_Math_LogMatrix3Std140 = TestFixtureFslBase;
 }
 
-#endif
+
+TEST(TestLog_Math_LogMatrix3Std140, Log)
+{
+  Matrix3Std140 value(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f);
+
+  std::stringstream stream;
+  stream << value;
+  EXPECT_EQ(std::string("{1, 2, 3, 4, 5, 6, 7, 8, 9}"), stream.str());
+}

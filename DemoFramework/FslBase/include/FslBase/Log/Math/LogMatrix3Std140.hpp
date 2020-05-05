@@ -1,7 +1,7 @@
-#ifndef FSLBASE_MATH_MATRIXCONVERTER_HPP
-#define FSLBASE_MATH_MATRIXCONVERTER_HPP
+#ifndef FSLBASE_LOG_MATH_LOGMATRIX3STD140_HPP
+#define FSLBASE_LOG_MATH_LOGMATRIX3STD140_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,28 +31,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Matrix3Std140.hpp>
+#include <FslBase/Math/Matrix3Std140Fields.hpp>
+#include <ostream>
 
 namespace Fsl
 {
-  struct MatrixConverter
+  inline std::ostream& operator<<(std::ostream& o, const Matrix3Std140& value)
   {
-    static Matrix3 ToMatrix3(const Matrix& value)
-    {
-      const float* const pValue = value.DirectAccess();
-      return Matrix3(pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1], pValue[(4 * 1) + 2],
-                     pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]);
-    }
-
-    static Matrix3Std140 ToMatrix3Std140(const Matrix& value)
-    {
-      const float* const pValue = value.DirectAccess();
-      return {pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1],
-              pValue[(4 * 1) + 2], pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]};
-    }
-  };
+    const auto* pMatrix = value.DirectAccess();
+    return o << "{" << pMatrix[Matrix3Std140Fields::_M11] << ", " << pMatrix[Matrix3Std140Fields::_M12] << ", " << pMatrix[Matrix3Std140Fields::_M13]
+             << ", " << pMatrix[Matrix3Std140Fields::_M21] << ", " << pMatrix[Matrix3Std140Fields::_M22] << ", " << pMatrix[Matrix3Std140Fields::_M23]
+             << ", " << pMatrix[Matrix3Std140Fields::_M31] << ", " << pMatrix[Matrix3Std140Fields::_M32] << ", " << pMatrix[Matrix3Std140Fields::_M33]
+             << "}";
+  }
 }
 
 #endif

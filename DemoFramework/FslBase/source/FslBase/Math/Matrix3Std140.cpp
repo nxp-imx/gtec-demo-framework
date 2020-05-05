@@ -1,7 +1,5 @@
-#ifndef FSLBASE_MATH_MATRIXCONVERTER_HPP
-#define FSLBASE_MATH_MATRIXCONVERTER_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +12,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,28 +29,36 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Matrix.hpp>
-#include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Matrix3Std140.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Matrix3Std140Fields.hpp>
+#include <cassert>
+#include <cmath>
 
 namespace Fsl
 {
-  struct MatrixConverter
+  using namespace Matrix3Std140Fields;
+
+
+  Matrix3Std140 Matrix3Std140::Invert(const Matrix3Std140& matrix)
   {
-    static Matrix3 ToMatrix3(const Matrix& value)
-    {
-      const float* const pValue = value.DirectAccess();
-      return Matrix3(pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1], pValue[(4 * 1) + 2],
-                     pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]);
-    }
+    const float* const pMatrix = matrix.m;
 
-    static Matrix3Std140 ToMatrix3Std140(const Matrix& value)
-    {
-      const float* const pValue = value.DirectAccess();
-      return {pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1],
-              pValue[(4 * 1) + 2], pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]};
-    }
-  };
+    const double determinant = matrix.Determinant();
+    const double invDet = 1.0 / determinant;
+
+    // Matrix3 result(OptimizationFlag::NoInitialization);
+    Matrix3Std140 result;
+    result.m[_M11] = static_cast<float>(invDet * (pMatrix[_M22] * pMatrix[_M33] - pMatrix[_M23] * pMatrix[_M32]));
+    result.m[_M21] = static_cast<float>(invDet * (pMatrix[_M23] * pMatrix[_M31] - pMatrix[_M21] * pMatrix[_M33]));
+    result.m[_M31] = static_cast<float>(invDet * (pMatrix[_M21] * pMatrix[_M32] - pMatrix[_M22] * pMatrix[_M31]));
+    result.m[_M12] = static_cast<float>(invDet * (pMatrix[_M13] * pMatrix[_M32] - pMatrix[_M12] * pMatrix[_M33]));
+    result.m[_M22] = static_cast<float>(invDet * (pMatrix[_M11] * pMatrix[_M33] - pMatrix[_M13] * pMatrix[_M31]));
+    result.m[_M32] = static_cast<float>(invDet * (pMatrix[_M12] * pMatrix[_M31] - pMatrix[_M11] * pMatrix[_M32]));
+    result.m[_M13] = static_cast<float>(invDet * (pMatrix[_M12] * pMatrix[_M23] - pMatrix[_M13] * pMatrix[_M22]));
+    result.m[_M23] = static_cast<float>(invDet * (pMatrix[_M13] * pMatrix[_M21] - pMatrix[_M11] * pMatrix[_M23]));
+    result.m[_M33] = static_cast<float>(invDet * (pMatrix[_M11] * pMatrix[_M22] - pMatrix[_M12] * pMatrix[_M21]));
+    return result;
+  }
 }
-
-#endif
