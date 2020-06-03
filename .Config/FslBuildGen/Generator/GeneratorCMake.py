@@ -147,15 +147,17 @@ class GeneratorCMake(GeneratorBase):
         libTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Lib", False, overrideTemplateName)
         exeTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Exe", False, overrideTemplateName)
         rootTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "Root", False, overrideTemplateName)
+        notSupportedTemplate = CMakeGeneratorUtil.CodeTemplateCMake(config, strTemplatePath, "NotSupported", False, overrideTemplateName)
 
         useExtendedProjectHack = True
         for package in packages:
+            isSupported = not package.ResolvedPlatformNotSupported
             if package.Type == PackageType.ExternalLibrary or package.Type == PackageType.HeaderLibrary:
-                self.__GenerateCMakeFile(config, package, platformName, extTemplate, toolProjectContextsDict, useExtendedProjectHack)
+                self.__GenerateCMakeFile(config, package, platformName, extTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack)
             elif package.Type == PackageType.Library:
-                self.__GenerateCMakeFile(config, package, platformName, libTemplate, toolProjectContextsDict, useExtendedProjectHack)
+                self.__GenerateCMakeFile(config, package, platformName, libTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack)
             elif package.Type == PackageType.Executable:
-                self.__GenerateCMakeFile(config, package, platformName, exeTemplate, toolProjectContextsDict, useExtendedProjectHack)
+                self.__GenerateCMakeFile(config, package, platformName, exeTemplate if isSupported else notSupportedTemplate, toolProjectContextsDict, useExtendedProjectHack)
             elif package.Type == PackageType.TopLevel:
                 self.__GenerateRootCMakeFile(config, package, platformName, rootTemplate, toolProjectContextsDict, useExtendedProjectHack)
 

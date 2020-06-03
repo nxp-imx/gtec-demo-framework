@@ -587,9 +587,12 @@ def BuildPackages(generatorContext: GeneratorContext,
         for depPackage in topLevelPackage.ResolvedAllDependencies:
             package = depPackage.Package
             if package.Type == PackageType.Executable:
-                runCommand = builder.TryGenerateRunCommandForExecutable(builder.UsedBuildContext, package, buildConfig, ["(EXE)"], builder.UsedGeneratorConfig)
-                if runCommand is not None:
-                    config.DoPrint("Executable at: '{0}'".format(runCommand[0]))
+                if not package.ResolvedPlatformNotSupported:
+                    runCommand = builder.TryGenerateRunCommandForExecutable(builder.UsedBuildContext, package, buildConfig, ["(EXE)"], builder.UsedGeneratorConfig)
+                    if runCommand is not None:
+                        config.DoPrint("Executable at: '{0}'".format(runCommand[0]))
+                else:
+                    config.LogPrint("Package '{0}' was not supported on this platform".format(package.Name))
 
 
 # requestedFiles is None for SDK builds else its the list of specifically requested files by the user

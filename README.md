@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.5.2
+# DemoFramework 5.5.3
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -32,7 +32,7 @@ since the exact same demo/benchmark code run on all of them.
 
 * Android NDK
 * Linux with various windowing systems (Yocto).
-* Ubuntu 16.04
+* Ubuntu 18.04
 * Windows 7+
 
 ## Table of contents
@@ -102,7 +102,7 @@ uses [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
 
 See the setup guides for your platform:
 * [Android](Doc/Setup_guide_android_sdk+ndk_on_windows.md)
-* [Ubuntu 16.04](Doc/Setup_guide_ubuntu16.04.md)
+* [Ubuntu 18.04](Doc/Setup_guide_ubuntu18.04.md)
 * [Windows](Doc/Setup_guide_windows.md)
 * [Yocto](Doc/Setup_guide_yocto.md)
 

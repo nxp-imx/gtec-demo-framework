@@ -68,7 +68,7 @@ from FslBuildGen.Xml.Project.XmlProjectRootConfigFile import XmlProjectRootConfi
 
 
 CurrentVersionString = "3.0.8"
-CurrentBuildString = "9"
+CurrentBuildString = "10"
 
 
 def __AddDefaultOptions(parser: argparse.ArgumentParser, allowStandaloneMode: bool) -> None:

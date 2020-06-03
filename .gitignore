@@ -1,6 +1,7 @@
 /_Readme.txt
 /.Config/LaunchTC.bat
 /.Config/__pycache__
+/.Config/.mypy_cache/
 /.Config/*.pyc
 /.Config/FslBuild/*.pyc
 /.Config/FslBuildGen/*.pyc
