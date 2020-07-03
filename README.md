@@ -67,7 +67,7 @@ since the exact same demo/benchmark code run on all of them.
   * [OpenVG](#openvg)
   * [OpenVX](#openvx)
   * [Vulkan](#vulkan)
-  * [Vulkan.UI](#vulkan.ui)
+  * [Vulkan.UI](#vulkanui)
   * [Window](#window)
 <!-- #AG_TOC_END# -->
 
