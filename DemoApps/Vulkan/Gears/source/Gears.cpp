@@ -13,24 +13,22 @@
 
 
 #include "Gears.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <array>
 #include <cstring>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <memory>
 
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
-  using namespace Willems;
-
   namespace
   {
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
@@ -71,9 +69,9 @@ namespace Fsl
 
   void Gears::BuildCommandBuffers()
   {
-    const auto screenExtent = Convert(GetScreenExtent());
+    const auto screenExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
 
-    VkClearValue clearValues[2];
+    std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = m_defaultClearColor;
     clearValues[1].depthStencil = {1.0f, 0};
 
@@ -84,8 +82,8 @@ namespace Fsl
     renderPassBeginInfo.renderArea.offset.x = 0;
     renderPassBeginInfo.renderArea.offset.y = 0;
     renderPassBeginInfo.renderArea.extent = screenExtent;
-    renderPassBeginInfo.clearValueCount = 2;
-    renderPassBeginInfo.pClearValues = clearValues;
+    renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
 
     VkCommandBufferBeginInfo cmdBufInfo{};
     cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -135,12 +133,12 @@ namespace Fsl
   }
 
 
-  void Gears::Update(const DemoTime& demoTime)
+  void Gears::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void Gears::Draw(const DemoTime& demoTime)
+  void Gears::Draw(const DemoTime& /*demoTime*/)
   {
     vkDeviceWaitIdle(m_device.Get());
     {
@@ -194,7 +192,7 @@ namespace Fsl
       gearInfo.RotSpeed = rotationSpeeds[i];
       gearInfo.RotOffset = rotationOffsets[i];
 
-      m_gears[i].reset(new VulkanGear(&m_vulkanDevice));
+      m_gears[i] = std::make_unique<VulkanGear>(&m_vulkanDevice);
       m_gears[i]->Generate(gearInfo, m_deviceQueue.Queue);
     }
 
@@ -231,9 +229,9 @@ namespace Fsl
     // Lookup of initializer 'pipelineVertexInputStateCreateInfo'
     m_vertices.InputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     m_vertices.InputState.pNext = nullptr;
-    m_vertices.InputState.vertexBindingDescriptionCount = static_cast<uint32_t>(m_vertices.BindingDescriptions.size());
+    m_vertices.InputState.vertexBindingDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.BindingDescriptions.size());
     m_vertices.InputState.pVertexBindingDescriptions = m_vertices.BindingDescriptions.data();
-    m_vertices.InputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertices.AttributeDescriptions.size());
+    m_vertices.InputState.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.AttributeDescriptions.size());
     m_vertices.InputState.pVertexAttributeDescriptions = m_vertices.AttributeDescriptions.data();
   }
 
@@ -250,7 +248,7 @@ namespace Fsl
     VkDescriptorSetLayoutCreateInfo descriptorLayout{};
     descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorLayout.pNext = nullptr;
-    descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+    descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
     descriptorLayout.pBindings = setLayoutBindings.data();
 
     m_descriptorSetLayout.Reset(m_device.Get(), descriptorLayout);
@@ -316,7 +314,7 @@ namespace Fsl
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicState.flags = 0;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+    dynamicState.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateEnables.size());
     dynamicState.pDynamicStates = dynamicStateEnables.data();
 
     // Solid rendering pipeline
@@ -341,7 +339,7 @@ namespace Fsl
     pipelineCreateInfo.pViewportState = &viewportState;
     pipelineCreateInfo.pDepthStencilState = &depthStencilState;
     pipelineCreateInfo.pDynamicState = &dynamicState;
-    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(shaderStages.size());
     pipelineCreateInfo.pStages = shaderStages.data();
 
     m_pipelines.Solid.Reset(m_device.Get(), m_pipelineCache.Get(), pipelineCreateInfo);

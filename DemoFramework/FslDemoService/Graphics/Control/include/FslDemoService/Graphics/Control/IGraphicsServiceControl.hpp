@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 
 namespace Fsl
 {
@@ -44,10 +45,10 @@ namespace Fsl
 
     virtual void Reset() = 0;
     virtual void Configure(const DemoHostFeature& activeAPI) = 0;
-    //! @brief Set the screen resolution
+    //! @brief Set the window metrics
     //! @param preallocateBasic2D if this is set to true the basic2d instance is allocated right away preventing it from messing with
     //         native settings afterwards (which is good as this gets called before the app instance is created)
-    virtual void SetScreenResolution(const Point2& resolution, const bool preallocateBasic2D) = 0;
+    virtual void SetWindowMetrics(const DemoWindowMetrics& windowMetrics, const bool preallocateBasic2D) = 0;
   };
 }
 

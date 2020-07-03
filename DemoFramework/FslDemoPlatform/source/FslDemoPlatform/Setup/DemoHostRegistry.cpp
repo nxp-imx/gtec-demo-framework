@@ -34,6 +34,7 @@
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 #include <fmt/format.h>
 #include <algorithm>
+#include <utility>
 
 namespace Fsl
 {
@@ -105,17 +106,17 @@ namespace Fsl
   }
 
 
-  DemoHostRegistry::Record::Record(const DemoHostFeatureName::Enum feature, const DemoHostSetup& hostSetup)
-    : HostSetup(hostSetup)
+  DemoHostRegistry::Record::Record(const DemoHostFeatureName::Enum feature, DemoHostSetup hostSetup)
+    : HostSetup(std::move(hostSetup))
 
   {
     Features.push_back(feature);
   }
 
 
-  DemoHostRegistry::Record::Record(const std::deque<DemoHostFeatureName::Enum>& features, const DemoHostSetup& hostSetup)
-    : HostSetup(hostSetup)
-    , Features(features)
+  DemoHostRegistry::Record::Record(std::deque<DemoHostFeatureName::Enum> features, DemoHostSetup hostSetup)
+    : HostSetup(std::move(hostSetup))
+    , Features(std::move(features))
   {
   }
 }

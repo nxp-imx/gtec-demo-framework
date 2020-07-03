@@ -44,13 +44,14 @@ import subprocess
 from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
 #from FslBuildGen import ParseUtil
-from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.BasicConfig import BasicConfig
+from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildConfig.BuildDocConfiguration import BuildDocConfiguration
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
@@ -609,8 +610,10 @@ class ToolFlowBuildDoc(AToolAppFlow):
         config.PrintTitle()
 
         # Get the generator and see if its supported
-        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
-                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
+                                                                                   buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
+                                                                                   localToolConfig.GetUserCMakeConfig())
         PlatformUtil.CheckBuildPlatform(generator.PlatformName)
 
         config.LogPrint("Active platform: {0}".format(generator.PlatformName))
@@ -618,7 +621,7 @@ class ToolFlowBuildDoc(AToolAppFlow):
         packageFilters = localToolConfig.BuildPackageFilters
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
-        generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters)
         #topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
         #featureList = [entry.Name for entry in topLevelPackage.ResolvedAllUsedFeatures]

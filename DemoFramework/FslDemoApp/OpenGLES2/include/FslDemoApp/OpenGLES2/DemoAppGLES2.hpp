@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppGLES2 : public ADemoApp
   {
   public:
-    DemoAppGLES2(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppGLES2(const DemoAppConfig& demoAppConfig);
     ~DemoAppGLES2() override;
   };
 }

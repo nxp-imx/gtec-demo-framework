@@ -194,7 +194,7 @@ class XmlGenFilePlatform(XmlBase2):
 
         #self.DirectVariantDependencyUnion = self.__CreateVariantDependencyUnion(variants)
 
-        if not self.Name in PackageConfig.APPROVED_PLATFORM_NAMES and self.Name != PackageString.PLATFORM_WILDCARD:
+        if((not PackageString.PLATFORM_SEPARATOR in self.Name) and not self.Name in PackageConfig.APPROVED_PLATFORM_NAMES and self.Name != PackageString.PLATFORM_WILDCARD):
             raise XmlUnsupportedPlatformException(xmlElement, self.Name)
         # Wrong place to check this.
         # We need to know what type the project file is and we also need to know

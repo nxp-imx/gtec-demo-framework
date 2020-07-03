@@ -35,6 +35,7 @@
 #include <sstream>
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG(lINE)                                                                                                \
   {                                                                                                                 \
     if (Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Info)                                                        \
@@ -47,6 +48,7 @@
 
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_IF(cOND, lINE)                                                                                       \
   {                                                                                                                 \
     if ((cOND) && Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Info)                                              \
@@ -57,6 +59,7 @@
     }                                                                                                               \
   }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_WARNING(lINE)                                                                                           \
   {                                                                                                                    \
     if (Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Warning)                                                        \
@@ -69,20 +72,25 @@
 
 #ifdef NDEBUG
 //! Log in debug builds only
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG(lINE) \
   {                        \
   }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG_IF(cONDITION, lINE) \
   {                                      \
   }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG_WARNING(lINE) \
   {                                \
   }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG_WARNING_IF(cONDITION, lINE) \
   {                                              \
   }
 #else
 //! Log in debug builds only
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG(lINE)                                                                                        \
   {                                                                                                               \
     std::stringstream sTREAM;                                                                                     \
@@ -90,6 +98,7 @@
     Fsl::Logger::WriteLine(Fsl::LogType::Info, sTREAM.str(), Fsl::LogLocation(__FILE__, __FUNCTION__, __LINE__)); \
   }
 //! Log in debug builds only
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG_IF(cONDITION, lINE)                                                                            \
   {                                                                                                                 \
     if (cONDITION)                                                                                                  \
@@ -101,6 +110,7 @@
   }
 
 //! Log in debug builds only
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG_WARNING(lINE)                                                                                   \
   {                                                                                                                  \
     std::stringstream sTREAM;                                                                                        \
@@ -109,6 +119,7 @@
   }
 
 //! Log in debug builds only
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_DEBUG_WARNING_IF(cONDITION, lINE)                                                                       \
   {                                                                                                                    \
     if (cONDITION)                                                                                                     \
@@ -122,6 +133,7 @@
 
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_WARNING_IF(cOND, lINE)                                                                                  \
   {                                                                                                                    \
     if ((cOND) && Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Warning)                                              \
@@ -132,6 +144,7 @@
     }                                                                                                                  \
   }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_ERROR(lINE)                                                                                             \
   {                                                                                                                    \
     if (Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Error)                                                          \
@@ -149,6 +162,7 @@
   }
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG_ERROR_IF(cOND, lINE)                                                                                    \
   {                                                                                                                    \
     if ((cOND) && Fsl::LogConfig::GetLogLevel() >= Fsl::LogType::Error)                                                \
@@ -167,6 +181,7 @@
 
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG2(tYPE, lINE)                                                                               \
   {                                                                                                       \
     if (Fsl::LogConfig::GetLogLevel() >= (tYPE))                                                          \
@@ -184,6 +199,7 @@
   }
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG2_IF(cOND, tYPE, lINE)                                                                      \
   {                                                                                                       \
     if ((cOND) && Fsl::LogConfig::GetLogLevel() >= (tYPE))                                                \

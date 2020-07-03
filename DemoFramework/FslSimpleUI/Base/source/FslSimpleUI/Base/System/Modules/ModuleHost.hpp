@@ -40,29 +40,37 @@ namespace Fsl
     class EventRouter;
     class IEventHandler;
     class ITreeContextInfo;
-    class ITreeNodeClickInputTargetLocator;
+    class ITreeNodeClickInputTargetLocater;
     class ModuleCallbackRegistry;
+    class SimpleEventSender;
     class TreeNode;
     class WindowEventPool;
 
-    class ModuleHost : public IModuleHost
+    class ModuleHost final : public IModuleHost
     {
       std::shared_ptr<ModuleCallbackRegistry> m_moduleCallbackRegistry;
       std::shared_ptr<ITreeContextInfo> m_treeContextInfo;
       std::shared_ptr<WindowEventPool> m_windowEventPool;
+      std::shared_ptr<ITreeNodeClickInputTargetLocater> m_targetLocater;
       std::shared_ptr<EventRouter> m_eventRouter;
       std::shared_ptr<IEventHandler> m_eventHandler;
+      std::shared_ptr<WindowEventSender> m_eventSender;
+      std::shared_ptr<SimpleEventSender> m_simpleEventSender;
 
     public:
-      ModuleHost(const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry, const std::shared_ptr<ITreeContextInfo>& treeContextInfo,
-                 const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocator>& clickTargetLocator,
-                 const std::shared_ptr<IEventHandler>& eventHandler, const std::shared_ptr<WindowEventPool>& windowEventPool);
+      ModuleHost(std::shared_ptr<ModuleCallbackRegistry> moduleCallbackRegistry, std::shared_ptr<ITreeContextInfo> treeContextInfo,
+                 const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater,
+                 std::shared_ptr<IEventHandler> eventHandler, std::shared_ptr<WindowEventPool> windowEventPool,
+                 const std::shared_ptr<WindowEventSender>& eventSender, const std::shared_ptr<SimpleEventSender>& simpleEventSender);
       ~ModuleHost() override;
-
       //! FromIModuleHost
-      std::shared_ptr<WindowEventPool> GetWindowEventPool() const override;
+      std::shared_ptr<WindowEventPool> GetWindowEventPool() const final;
+      std::shared_ptr<ITreeNodeClickInputTargetLocater> GetTargetLocater() const final;
+      std::shared_ptr<WindowEventSender> GetWindowEventSender() const final;
+      std::shared_ptr<SimpleEventSender> GetSimpleEventSender() const final;
+
       std::shared_ptr<IStateEventSender> CreateStateEventSender(const WindowFlags::Enum inputType,
-                                                                const FunctionCreateTargetWindowDeathEvent& fnCreateTargetWindowDeathEvent) override;
+                                                                const FunctionCreateTargetWindowDeathEvent& fnCreateTargetWindowDeathEvent) final;
     };
   }
 }

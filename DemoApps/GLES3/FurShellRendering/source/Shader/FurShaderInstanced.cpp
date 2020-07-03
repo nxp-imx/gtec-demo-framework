@@ -79,7 +79,7 @@ namespace Fsl
   {
     assert(IsLoaded());
 
-    const float instanceMul = 1.0f / instanceCount;
+    const float instanceMul = 1.0f / float(instanceCount);
     glUniform1f(m_locInstanceMul, instanceMul);
   }
 }

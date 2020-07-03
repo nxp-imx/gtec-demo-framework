@@ -46,21 +46,18 @@
 
 namespace Fsl
 {
-  using namespace RapidOpenVX;
-  using namespace Vulkan;
-
   namespace
   {
-    void CopyImageFromCPUToGPU(Image& rImage, const Bitmap& srcBitmap)
+    void CopyImageFromCPUToGPU(RapidOpenVX::Image& rImage, const Bitmap& srcBitmap)
     {
       assert(srcBitmap.GetPixelFormat() == PixelFormat::EX_ALPHA8_UNORM);
 
-      const auto imageWidth = static_cast<uint32_t>(srcBitmap.Width());
-      const auto imageHeight = static_cast<uint32_t>(srcBitmap.Height());
+      const vx_uint32 imageWidth = srcBitmap.Width();
+      const vx_uint32 imageHeight = srcBitmap.Height();
 
       vx_rectangle_t imageRect = {0, 0, imageWidth, imageHeight};
       vx_imagepatch_addressing_t imageInfo = VX_IMAGEPATCH_ADDR_INIT;
-      vx_map_id mapId;
+      vx_map_id mapId = 0;
       void* pImageAddress = nullptr;
       RAPIDOPENVX_CHECK(vxMapImagePatch(rImage.Get(), &imageRect, 0, &mapId, &imageInfo, &pImageAddress, VX_WRITE_ONLY, VX_MEMORY_TYPE_HOST, 0));
 
@@ -90,19 +87,19 @@ namespace Fsl
     }
 
 
-    void CopyImagesFromGPUToCPU(Bitmap& dstBitmap, const Image& srcImage1, const Image& srcImage2)
+    void CopyImagesFromGPUToCPU(Bitmap& dstBitmap, const RapidOpenVX::Image& srcImage1, const RapidOpenVX::Image& srcImage2)
     {
       assert(dstBitmap.GetPixelFormat() == PixelFormat::EX_ALPHA8_UNORM);
 
-      const auto imageWidth = static_cast<uint32_t>(dstBitmap.Width());
-      const auto imageHeight = static_cast<uint32_t>(dstBitmap.Height());
+      const vx_uint32 imageWidth = dstBitmap.Width();
+      const vx_uint32 imageHeight = dstBitmap.Height();
       vx_rectangle_t imageRect = {0, 0, imageWidth, imageHeight};
 
       // transfer image from gpu to cpu
       vx_imagepatch_addressing_t imageInfo1 = VX_IMAGEPATCH_ADDR_INIT;
       vx_imagepatch_addressing_t imageInfo2 = VX_IMAGEPATCH_ADDR_INIT;
-      vx_map_id mapId1;
-      vx_map_id mapId2;
+      vx_map_id mapId1 = 0;
+      vx_map_id mapId2 = 0;
       void* pImageAddress1 = nullptr;
       void* pImageAddress2 = nullptr;
       RAPIDOPENVX_CHECK(vxMapImagePatch(srcImage1.Get(), &imageRect, 0, &mapId1, &imageInfo1, &pImageAddress1, VX_READ_ONLY, VX_MEMORY_TYPE_HOST, 0));
@@ -144,7 +141,7 @@ namespace Fsl
     }
 
 
-    VUTexture ToTexture(VulkanImageCreator& rImageCreator, const Bitmap& srcBitmap, const PixelFormat pixelFormat)
+    Vulkan::VUTexture ToTexture(Vulkan::VulkanImageCreator& rImageCreator, const Bitmap& srcBitmap, const PixelFormat pixelFormat)
     {
       Bitmap tmpBitmap(srcBitmap);
       BitmapUtil::Convert(tmpBitmap, pixelFormat);
@@ -177,22 +174,22 @@ namespace Fsl
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(std::dynamic_pointer_cast<Vulkan::NativeBatch2D>(m_graphics->GetNativeBatch2D()))
   {
-    RapidOpenVX::Context context(ResetMode::Create);
+    RapidOpenVX::Context context(RapidOpenVX::ResetMode::Create);
 
     // Read the image data
     Bitmap bitmap;
     GetContentManager()->Read(bitmap, "Test_gray.png", PixelFormat::EX_ALPHA8_UNORM);
 
-    VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
+    Vulkan::VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
 
     m_texSrc = ToTexture(imageCreator, bitmap, PixelFormat::R8G8B8A8_UNORM);
 
-    const auto imageWidth = static_cast<uint32_t>(bitmap.Width());
-    const auto imageHeight = static_cast<uint32_t>(bitmap.Height());
+    const vx_uint32 imageWidth = bitmap.Width();
+    const vx_uint32 imageHeight = bitmap.Height();
 
-    Image image0(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_U8);
-    Image image1(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_S16);
-    Image image2(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_S16);
+    RapidOpenVX::Image image0(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_U8);
+    RapidOpenVX::Image image1(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_S16);
+    RapidOpenVX::Image image2(context.Get(), imageWidth, imageHeight, VX_DF_IMAGE_S16);
 
     CopyImageFromCPUToGPU(image0, bitmap);
 
@@ -211,16 +208,16 @@ namespace Fsl
   OpenVX101::~OpenVX101() = default;
 
 
-  void OpenVX101::Update(const DemoTime& demoTime)
+  void OpenVX101::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void OpenVX101::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void OpenVX101::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
@@ -229,7 +226,7 @@ namespace Fsl
       clearColorValue.float32[2] = 0.0f;
       clearColorValue.float32[3] = 1.0f;
 
-      VkClearValue clearValues[1] = {clearColorValue};
+      VkClearValue clearValues = {clearColorValue};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -239,14 +236,14 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
       renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.pClearValues = &clearValues;
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
-        const auto res = GetScreenResolution();
-        const auto halfWidth = res.X / 2;
-        Rectangle leftRect(0, 0, halfWidth, res.Y);
-        Rectangle rightRect(halfWidth, 0, halfWidth, res.Y);
+        const auto resPx = GetWindowSizePx();
+        const auto halfWidth = resPx.Width() / 2;
+        PxRectangle leftRect(0, 0, halfWidth, resPx.Height());
+        PxRectangle rightRect(halfWidth, 0, halfWidth, resPx.Height());
 
         m_nativeBatch->Begin();
         m_nativeBatch->Draw(m_texSrc, leftRect, Color::White());
@@ -262,7 +259,7 @@ namespace Fsl
   }
 
 
-  VkRenderPass OpenVX101::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
+  VkRenderPass OpenVX101::OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/)
   {
     // Since we only draw using the NativeBatch we just create the most basic render pass that is compatible
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();

@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <cstddef>
 #include <cassert>
+#include <cstddef>
 
 namespace Fsl
 {
@@ -43,14 +43,10 @@ namespace Fsl
     using element_type = TElementType;
     using element_size_type = TElementSizeType;
 
-    const element_type* pData;
-    element_size_type ElementCount;
+    const element_type* pData{nullptr};
+    element_size_type ElementCount{0};
 
-    constexpr RawSpan()
-      : pData{nullptr}
-      , ElementCount{0}
-    {
-    }
+    constexpr RawSpan() = default;
 
     inline constexpr RawSpan(const element_type* pSrcData, const element_size_type elementCount)
       : pData(pSrcData)

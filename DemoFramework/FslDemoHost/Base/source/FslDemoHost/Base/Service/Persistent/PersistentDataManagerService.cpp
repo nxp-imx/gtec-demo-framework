@@ -39,12 +39,13 @@
 #include <fmt/format.h>
 #include <cassert>
 #include <limits>
+#include <utility>
 
 namespace Fsl
 {
   namespace
   {
-    const IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
+    IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
     {
       assert(!trustedAbsPath.IsEmpty());
 
@@ -67,9 +68,9 @@ namespace Fsl
   }
 
 
-  PersistentDataManagerService::PersistentDataManagerService(const ServiceProvider& serviceProvider, const IO::Path& persistentDataPath)
+  PersistentDataManagerService::PersistentDataManagerService(const ServiceProvider& serviceProvider, IO::Path persistentDataPath)
     : ThreadLocalService(serviceProvider)
-    , m_persistentDataPath(persistentDataPath)
+    , m_persistentDataPath(std::move(persistentDataPath))
     , m_imageService(serviceProvider.TryGet<IImageService>())
   {
   }

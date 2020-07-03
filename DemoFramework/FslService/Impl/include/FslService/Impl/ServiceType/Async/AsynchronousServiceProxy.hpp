@@ -49,7 +49,7 @@ namespace Fsl
     std::weak_ptr<IBasicMessageQueue> m_serviceQueue;
     // std::shared_ptr<IMessagePool> m_messagePool;
   public:
-    AsynchronousServiceProxy(const AsynchronousServiceProxyCreateInfo& createInfo);
+    explicit AsynchronousServiceProxy(const AsynchronousServiceProxyCreateInfo& createInfo);
     ~AsynchronousServiceProxy() override;
 
   protected:

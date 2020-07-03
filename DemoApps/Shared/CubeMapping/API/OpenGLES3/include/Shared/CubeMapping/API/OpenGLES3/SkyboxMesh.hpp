@@ -78,7 +78,7 @@ namespace Fsl
     }
 
     SkyboxMesh();
-    SkyboxMesh(const GLES3::GLProgram& program);
+    explicit SkyboxMesh(const GLES3::GLProgram& program);
 
     bool IsValid() const
     {

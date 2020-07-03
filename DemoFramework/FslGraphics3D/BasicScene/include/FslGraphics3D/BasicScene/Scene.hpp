@@ -49,7 +49,7 @@ namespace Fsl
 
     public:
       Scene();
-      Scene(const MeshAllocatorFunc& meshAllocator);
+      explicit Scene(MeshAllocatorFunc meshAllocator);
 
       virtual ~Scene() = default;
 

@@ -31,7 +31,12 @@
 
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/SpanUtil.hpp>
+#include <fmt/format.h>
+#include <array>
 #include <cassert>
 #include <cerrno>
 #include <cmath>
@@ -43,178 +48,139 @@ namespace Fsl
 {
   namespace
   {
-    uint32_t ParseUInt32(const char* const psz, const std::size_t startIndex, const std::size_t length)
+    namespace LocalStrings
     {
-      if (psz == nullptr)
-      {
-        throw std::invalid_argument("psz can not be null");
-      }
+      constexpr const StringViewLite StrTrue("true");
+      constexpr const StringViewLite StrFalse("false");
+      constexpr const StringViewLite Str1("1");
+      constexpr const StringViewLite Str0("0");
+    }
 
-      const auto actualLength = std::strlen(psz);
-      const auto endIndex = startIndex + length;
-      if (endIndex > actualLength)
+    inline void CheckInput(const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
+    {
+      if ((startIndex + length) > strView.size())
       {
         throw std::invalid_argument("startIndex or length out of bounds");
       }
-      if (length < 1)
+    }
+
+
+    uint32_t ParseUInt32(const StringViewLite strView)
+    {
+      if (!strView.empty())
       {
-        throw FormatException("array not in the correct format");
+        // Check the string contains a digit as expected
+        if ((strView[0] >= '0' && strView[0] <= '9') || (strView.size() >= 2u && strView[0] == '+' && (strView[1] >= '0' && strView[1] <= '9')))
+        {
+          char* pEnd = nullptr;
+          errno = 0;
+          auto value = strtoul(strView.data(), &pEnd, 0);
+          if ((value == ULONG_MAX && errno == ERANGE) || value > std::numeric_limits<uint32_t>::max())
+          {
+            throw OverflowException("The number is outside than the expected value range");
+          }
+
+          if (pEnd != (strView.data() + strView.size()))
+          {
+            throw FormatException("number not in the correct format");
+          }
+          return static_cast<uint32_t>(value);
+        }
       }
 
-      // Check the string contains a digit as expected
-      const char* pszSrc = psz + startIndex;
-      if ((pszSrc[0] >= '0' && pszSrc[0] <= '9') || (length >= 2 && pszSrc[0] == '+' && (pszSrc[1] >= '0' && pszSrc[1] <= '9')))
-      {
-        char* pEnd = nullptr;
-        errno = 0;
-        auto value = strtoul(pszSrc, &pEnd, 0);
-        if ((value == ULONG_MAX && errno == ERANGE) || value > std::numeric_limits<uint32_t>::max())
-        {
-          throw OverflowException("The number is outside than the expected value range");
-        }
-
-        if (pEnd != (pszSrc + length))
-        {
-          throw FormatException("number not in the correct format");
-        }
-
-        return static_cast<uint32_t>(value);
-      }
       throw FormatException("number not in the correct format");
     }
 
 
-    int32_t ParseInt32(const char* const psz, const std::size_t startIndex, const std::size_t length)
+    int32_t ParseInt32(const StringViewLite strView)
     {
-      if (psz == nullptr)
+      if (!strView.empty())
       {
-        throw std::invalid_argument("psz can not be null");
-      }
-
-      const auto actualLength = std::strlen(psz);
-      const auto endIndex = startIndex + length;
-      if (endIndex > actualLength)
-      {
-        throw std::invalid_argument("startIndex or length out of bounds");
-      }
-      if (length < 1)
-      {
-        throw FormatException("array not in the correct format");
-      }
-
-      // Check the string contains a digit as expected
-      const char* pszSrc = psz + startIndex;
-      if ((pszSrc[0] >= '0' && pszSrc[0] <= '9') || (length >= 2 && (pszSrc[0] == '+' || pszSrc[0] == '-') && (pszSrc[1] >= '0' && pszSrc[1] <= '9')))
-      {
-        char* pEnd = nullptr;
-        errno = 0;
-
-        if (length >= 32)
+        // Check the string contains a digit as expected
+        if ((strView[0] >= '0' && strView[0] <= '9') ||
+            (strView.size() >= 2 && (strView[0] == '+' || strView[0] == '-') && (strView[1] >= '0' && strView[1] <= '9')))
         {
-          throw std::invalid_argument("string is too long");
-        }
-        char tmpBuffer[32];
-        for (std::size_t i = 0; i < length; ++i)
-        {
-          tmpBuffer[i] = psz[startIndex + i];
-        }
-        tmpBuffer[length] = 0;
+          char* pEnd = nullptr;
+          errno = 0;
 
-        const auto value = strtol(tmpBuffer, &pEnd, 0);
-        if (((value == LONG_MIN || value == LONG_MAX) && errno == ERANGE) || value < std::numeric_limits<int32_t>::min() ||
-            value > std::numeric_limits<int32_t>::max())
-        {
-          throw OverflowException("The number is outside than the expected value range");
-        }
+          if (strView.size() >= 32)
+          {
+            throw std::invalid_argument("string is too long");
+          }
+          std::array<char, 32> tmpBuffer{};
+          for (std::size_t i = 0; i < strView.size(); ++i)
+          {
+            tmpBuffer[i] = strView[i];
+          }
+          tmpBuffer[strView.size()] = 0;
 
-        if (pEnd != (tmpBuffer + length))
-        {
-          throw FormatException("number not in the correct format");
-        }
+          const auto value = strtol(tmpBuffer.data(), &pEnd, 0);
+          if (((value == LONG_MIN || value == LONG_MAX) && errno == ERANGE) || value < std::numeric_limits<int32_t>::min() ||
+              value > std::numeric_limits<int32_t>::max())
+          {
+            throw OverflowException("The number is outside than the expected value range");
+          }
 
-        return static_cast<int32_t>(value);
+          if (pEnd != (tmpBuffer.data() + strView.size()))
+          {
+            throw FormatException("number not in the correct format");
+          }
+          return NumericCast<int32_t>(value);
+        }
       }
       throw FormatException("number not in the correct format");
     }
 
-
-    double ParseDouble(const char* const psz, const std::size_t startIndex, const std::size_t length)
+    double ParseDouble(const StringViewLite strView)
     {
-      if (psz == nullptr)
+      if (!strView.empty())
       {
-        throw std::invalid_argument("psz can not be null");
-      }
-
-      const auto actualLength = std::strlen(psz);
-      const auto endIndex = startIndex + length;
-      if (endIndex > actualLength)
-      {
-        throw std::invalid_argument("startIndex or length out of bounds");
-      }
-      if (length < 1)
-      {
-        throw FormatException("array not in the correct format");
-      }
-
-      // Check the string doesn't start with a white space
-      const char* pszSrc = psz + startIndex;
-      if (pszSrc[0] != ' ')
-      {
-        char* pEnd = nullptr;
-        errno = 0;
-        const double value = strtod(pszSrc, &pEnd);
-        if (value == HUGE_VAL && errno == ERANGE)
+        // Check the string doesn't start with a white space
+        if (strView[0] != ' ')
         {
-          throw OverflowException("The number is outside than the expected value range");
-        }
+          char* pEnd = nullptr;
+          errno = 0;
+          const double value = strtod(strView.data(), &pEnd);
+          if (value == HUGE_VAL && errno == ERANGE)
+          {
+            throw OverflowException("The number is outside than the expected value range");
+          }
 
-        if (pEnd != (pszSrc + length))
-        {
-          throw FormatException("number not in the correct format");
+          if (pEnd != (strView.data() + strView.size()))
+          {
+            throw FormatException("number not in the correct format");
+          }
+          return value;
         }
-
-        return value;
       }
       throw FormatException("number not in the correct format");
     }
-
 
     template <typename T>
-    std::size_t DoParseArray(T* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex, const std::size_t length)
+    std::size_t DoParseArray(Span<T> dst, const StringViewLite strView)
     {
-      if (psz == nullptr)
-      {
-        throw std::invalid_argument("psz can not be null");
-      }
-
-      const auto actualLength = std::strlen(psz);
-      const auto endIndex = startIndex + length;
-      if (endIndex > actualLength)
-      {
-        throw std::invalid_argument("startIndex or length out of bounds");
-      }
-      if (length < 1)
+      if (strView.empty())
       {
         throw FormatException("array not in the correct format");
       }
 
-      const char* pszCurrent = psz + startIndex;
-      const char* const pszEnd = pszCurrent + length;
-      if (length < 3 || *pszCurrent != '[' || *(pszEnd - 1) != ']')
+      const char* pszCurrent = strView.data();
+      const char* const pszEnd = pszCurrent + strView.size();
+      if (strView.size() < 3 || *pszCurrent != '[' || *(pszEnd - 1) != ']')
       {
         throw FormatException("array not in the correct format");
       }
 
       ++pszCurrent;
       std::size_t index = 0;
-      while (pszCurrent < pszEnd && index < dstLength)
+      while (pszCurrent < pszEnd && index < dst.size())
       {
         const auto count = strcspn(pszCurrent, ",]");
-        if (index >= dstLength)
+        if (index >= dst.size())
         {
           throw FormatException("array not in the correct format");
         }
-        const auto charactersConsumed = StringParseUtil::Parse(*(pDst + index), pszCurrent, 0, count);
+        const auto charactersConsumed = StringParseUtil::Parse(dst[index], StringViewLite(pszCurrent, count));
         assert(charactersConsumed == count);
         pszCurrent += charactersConsumed + 1;
         ++index;
@@ -228,73 +194,107 @@ namespace Fsl
     }
   }
 
-  std::size_t StringParseUtil::Parse(bool& rResult, const char* const psz)
+  template <typename T>
+  std::size_t DoParseArray(Span<T> dst, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    if (psz == nullptr)
+    CheckInput(strView, startIndex, length);
+    return DoParseArray(dst, strView.substr(startIndex, length));
+  }
+
+  std::size_t StringParseUtil::Parse(bool& rResult, const StringViewLite strView)
+  {
+    std::size_t charactersConsumed = 0;
+    if (strView == LocalStrings::StrTrue)
     {
-      throw std::invalid_argument("psz can not be null");
+      rResult = true;
+      charactersConsumed = LocalStrings::StrTrue.size();
     }
-    return Parse(rResult, psz, 0, std::strlen(psz));
+    else if (strView == LocalStrings::StrFalse)
+    {
+      rResult = false;
+      charactersConsumed = LocalStrings::StrFalse.size();
+    }
+    else if (strView.size() == 1)
+    {
+      if (strView == LocalStrings::Str1)
+      {
+        rResult = true;
+        charactersConsumed = LocalStrings::Str1.size();
+      }
+      else if (strView == LocalStrings::Str0)
+      {
+        rResult = false;
+        charactersConsumed = LocalStrings::Str0.size();
+      }
+    }
+
+    if (charactersConsumed == 0u)
+    {
+      throw FormatException(fmt::format("'{}' is not a valid bool string. Valid values are: (true, false, 1, 0)", strView));
+    }
+    return charactersConsumed;
   }
 
 
-  std::size_t StringParseUtil::Parse(uint8_t& rResult, const char* const psz)
+  std::size_t StringParseUtil::Parse(uint8_t& rResult, const StringViewLite strView)
   {
-    if (psz == nullptr)
+    const uint32_t result = ParseUInt32(strView);
+    if (result > std::numeric_limits<uint8_t>::max())
     {
-      throw std::invalid_argument("psz can not be null");
+      throw OverflowException("overflow");
     }
-    return Parse(rResult, psz, 0, std::strlen(psz));
+    rResult = NumericCast<uint8_t>(result);
+    return strView.size();
   }
 
 
-  std::size_t StringParseUtil::Parse(int8_t& rResult, const char* const psz)
+  std::size_t StringParseUtil::Parse(int8_t& rResult, const StringViewLite strView)
   {
-    if (psz == nullptr)
+    const int32_t result = ParseInt32(strView);
+    if (result < std::numeric_limits<int8_t>::min() || result > std::numeric_limits<int8_t>::max())
     {
-      throw std::invalid_argument("psz can not be null");
+      throw OverflowException("overflow");
     }
-    return Parse(rResult, psz, 0, std::strlen(psz));
+    rResult = NumericCast<int8_t>(result);
+    return strView.size();
   }
 
 
-  std::size_t StringParseUtil::Parse(uint16_t& rResult, const char* const psz)
+  std::size_t StringParseUtil::Parse(uint16_t& rResult, const StringViewLite strView)
   {
-    if (psz == nullptr)
+    const uint32_t result = ParseUInt32(strView);
+    if (result > std::numeric_limits<uint16_t>::max())
     {
-      throw std::invalid_argument("psz can not be null");
+      throw OverflowException("overflow");
     }
-    return Parse(rResult, psz, 0, std::strlen(psz));
+    rResult = NumericCast<uint16_t>(result);
+    return strView.size();
   }
 
 
-  std::size_t StringParseUtil::Parse(int16_t& rResult, const char* const psz)
+  std::size_t StringParseUtil::Parse(int16_t& rResult, const StringViewLite strView)
   {
-    if (psz == nullptr)
+    const int32_t result = ParseInt32(strView);
+    if (result < std::numeric_limits<int16_t>::min() || result > std::numeric_limits<int16_t>::max())
     {
-      throw std::invalid_argument("psz can not be null");
+      throw OverflowException("overflow");
     }
-    return Parse(rResult, psz, 0, std::strlen(psz));
+    rResult = NumericCast<int16_t>(result);
+    return strView.size();
   }
 
 
-  std::size_t StringParseUtil::Parse(uint32_t& rResult, const char* const psz)
+  std::size_t StringParseUtil::Parse(uint32_t& rResult, const StringViewLite strView)
   {
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return Parse(rResult, psz, 0, std::strlen(psz));
+    rResult = ParseUInt32(strView);
+    return strView.size();
   }
 
 
-  std::size_t StringParseUtil::Parse(int32_t& rResult, const char* const psz)
+  std::size_t StringParseUtil::Parse(int32_t& rResult, const StringViewLite strView)
   {
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return Parse(rResult, psz, 0, std::strlen(psz));
+    rResult = ParseInt32(strView);
+    return strView.size();
   }
 
 
@@ -314,154 +314,114 @@ namespace Fsl
   //}
 
 
-  std::size_t StringParseUtil::Parse(float& rResult, const char* const psz)
+  std::size_t StringParseUtil::Parse(float& rResult, const StringViewLite strView)
   {
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return Parse(rResult, psz, 0, std::strlen(psz));
-  }
-
-
-  std::size_t StringParseUtil::Parse(double& rResult, const char* const psz)
-  {
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return Parse(rResult, psz, 0, std::strlen(psz));
-  }
-
-
-  std::size_t StringParseUtil::Parse(Point2& rResult, const char* const psz)
-  {
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return Parse(rResult, psz, 0, std::strlen(psz));
-  }
-
-
-  std::size_t StringParseUtil::Parse(Rectangle& rResult, const char* const psz)
-  {
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return Parse(rResult, psz, 0, std::strlen(psz));
-  }
-
-
-  std::size_t StringParseUtil::Parse(bool& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
-  {
-    rResult = false;
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-
-    const auto actualLength = std::strlen(psz);
-    const char* pszSrc = psz + startIndex;
-    int charactersConsumed = 0;
-
-    if ((startIndex + length) > actualLength)
-    {
-      throw std::invalid_argument("startIndex or length out of bounds");
-    }
-    if (length < 1)
-    {
-      throw FormatException("length too small to contain a bool");
-    }
-
-    if (length == 4 && strncmp(pszSrc, "true", 4) == 0)
-    {
-      rResult = true;
-      charactersConsumed = 4;
-    }
-    else if (length == 1 && strncmp(pszSrc, "1", 1) == 0)
-    {
-      rResult = true;
-      charactersConsumed = 1;
-    }
-    else if (length == 1 && strncmp(pszSrc, "0", 1) == 0)
-    {
-      rResult = false;
-      charactersConsumed = 1;
-    }
-    else if (length == 5 && strncmp(pszSrc, "false", 5) == 0)
-    {
-      rResult = false;
-      charactersConsumed = 5;
-    }
-    else
-    {
-      throw FormatException("not a valid 'bool' string");
-    }
-    return charactersConsumed;
-  }
-
-
-  std::size_t StringParseUtil::Parse(uint8_t& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
-  {
-    const uint32_t result = ParseUInt32(psz, startIndex, length);
-    if (result > std::numeric_limits<uint8_t>::max())
+    const double result = ParseDouble(strView);
+    if (result < std::numeric_limits<float>::lowest() || result > std::numeric_limits<float>::max())
     {
       throw OverflowException("overflow");
     }
-    rResult = static_cast<uint8_t>(result);
-    return length;
+    rResult = static_cast<float>(result);
+    return strView.size();
   }
 
 
-  std::size_t StringParseUtil::Parse(int8_t& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(double& rResult, const StringViewLite strView)
   {
-    const int32_t result = ParseInt32(psz, startIndex, length);
-    if (result < std::numeric_limits<int8_t>::min() || result > std::numeric_limits<int8_t>::max())
+    rResult = ParseDouble(strView);
+    return strView.size();
+  }
+
+
+  std::size_t StringParseUtil::Parse(Point2& rResult, const StringViewLite strView)
+  {
+    std::array<int32_t, 2> values{};
+    StringParseArrayResult res = ParseArray(SpanUtil::AsSpan(values), strView);
+    if (res.ArrayEntries != values.size())
     {
-      throw OverflowException("overflow");
+      throw FormatException("Point2 not in the correct format");
     }
-    rResult = static_cast<int8_t>(result);
-    return length;
+    rResult = Point2(values[0], values[1]);
+    return res.CharactersConsumed;
   }
 
 
-  std::size_t StringParseUtil::Parse(uint16_t& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(Point2U& rResult, const StringViewLite strView)
   {
-    const uint32_t result = ParseUInt32(psz, startIndex, length);
-    if (result > std::numeric_limits<uint16_t>::max())
+    std::array<uint32_t, 2> values{};
+    StringParseArrayResult res = ParseArray(SpanUtil::AsSpan(values), strView);
+    if (res.ArrayEntries != values.size())
     {
-      throw OverflowException("overflow");
+      throw FormatException("Point2U not in the correct format");
     }
-    rResult = static_cast<uint16_t>(result);
-    return length;
+    rResult = Point2U(values[0], values[1]);
+    return res.CharactersConsumed;
   }
 
 
-  std::size_t StringParseUtil::Parse(int16_t& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(Rectangle& rResult, const StringViewLite strView)
   {
-    const int32_t result = ParseInt32(psz, startIndex, length);
-    if (result < std::numeric_limits<int16_t>::min() || result > std::numeric_limits<int16_t>::max())
+    std::array<int32_t, 4> values{};
+    StringParseArrayResult res = ParseArray(SpanUtil::AsSpan(values), strView);
+    if (res.ArrayEntries != values.size())
     {
-      throw OverflowException("overflow");
+      throw FormatException("Rectangle not in the correct format");
     }
-    rResult = static_cast<int16_t>(result);
-    return length;
+    if (values[2] < 0 || values[3] < 0)
+    {
+      throw FormatException("Rectangle not in the correct format, width and height can not be negative");
+    }
+    rResult = Rectangle(values[0], values[1], values[2], values[3]);
+    return res.CharactersConsumed;
   }
 
 
-  std::size_t StringParseUtil::Parse(uint32_t& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(bool& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    rResult = ParseUInt32(psz, startIndex, length);
-    return length;
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
   }
 
 
-  std::size_t StringParseUtil::Parse(int32_t& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(uint8_t& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    rResult = ParseInt32(psz, startIndex, length);
-    return length;
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
+  }
+
+
+  std::size_t StringParseUtil::Parse(int8_t& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
+  {
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
+  }
+
+
+  std::size_t StringParseUtil::Parse(uint16_t& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
+  {
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
+  }
+
+
+  std::size_t StringParseUtil::Parse(int16_t& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
+  {
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
+  }
+
+
+  std::size_t StringParseUtil::Parse(uint32_t& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
+  {
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
+  }
+
+
+  std::size_t StringParseUtil::Parse(int32_t& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
+  {
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
   }
 
 
@@ -477,154 +437,91 @@ namespace Fsl
   //}
 
 
-  std::size_t StringParseUtil::Parse(float& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(float& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    const double result = ParseDouble(psz, startIndex, length);
-    if (result < std::numeric_limits<float>::lowest() || result > std::numeric_limits<float>::max())
-    {
-      throw OverflowException("overflow");
-    }
-    rResult = static_cast<float>(result);
-    return length;
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
   }
 
 
-  std::size_t StringParseUtil::Parse(double& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(double& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    rResult = ParseDouble(psz, startIndex, length);
-    return length;
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
   }
 
 
-  std::size_t StringParseUtil::Parse(Point2& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(Point2& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    int32_t values[2]{};
-    StringParseArrayResult res = ParseArray(values, 2, psz, startIndex, length);
-    if (res.ArrayEntries != 2)
-    {
-      throw FormatException("Point2 not in the correct format");
-    }
-    rResult = Point2(values[0], values[1]);
-    return res.CharactersConsumed;
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
   }
 
 
-  std::size_t StringParseUtil::Parse(Rectangle& rResult, const char* const psz, const std::size_t startIndex, const std::size_t length)
+  std::size_t StringParseUtil::Parse(Point2U& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    int32_t values[4]{};
-    StringParseArrayResult res = ParseArray(values, 4, psz, startIndex, length);
-    if (res.ArrayEntries != 4)
-    {
-      throw FormatException("Rectangle not in the correct format");
-    }
-    if (values[2] < 0 || values[3] < 0)
-    {
-      throw FormatException("Rectangle not in the correct format, width and height can not be negative");
-    }
-    rResult = Rectangle(values[0], values[1], values[2], values[3]);
-    return res.CharactersConsumed;
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(bool* pDst, const std::size_t dstLength, const char* const psz)
+  std::size_t StringParseUtil::Parse(Rectangle& rResult, const StringViewLite strView, const std::size_t startIndex, const std::size_t length)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    CheckInput(strView, startIndex, length);
+    return Parse(rResult, strView.substr(startIndex, length));
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(uint8_t* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<bool> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(int8_t* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<uint8_t> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(uint16_t* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<int8_t> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(int16_t* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<uint16_t> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(uint32_t* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<int16_t> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(int32_t* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<uint32_t> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  // const StringParseArrayResult StringParseUtil::ParseArray(uint64_t* pDst, const std::size_t dstLength, const char*const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<int32_t> dst, const StringViewLite strView)
+  {
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
+  }
+
+
+  // const StringParseArrayResult StringParseUtil::ParseArray(Span<uint64_t> dst, const char*const psz)
   //{
   // if (pDst == nullptr)
   //  throw std::invalid_argument("pDst can not be null");
@@ -634,7 +531,7 @@ namespace Fsl
   //}
 
 
-  // const StringParseArrayResult StringParseUtil::ParseArray(int64_t* pDst, const std::size_t dstLength, const char*const psz)
+  // const StringParseArrayResult StringParseUtil::ParseArray(Span<int64_t> dst, const char*const psz)
   //{
   // if (pDst == nullptr)
   //  throw std::invalid_argument("pDst can not be null");
@@ -644,210 +541,190 @@ namespace Fsl
   //}
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(float* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<float> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  const StringParseArrayResult StringParseUtil::ParseArray(double* pDst, const std::size_t dstLength, const char* const psz)
+  StringParseArrayResult StringParseUtil::ParseArray(Span<double> dst, const StringViewLite strView)
   {
-    if (pDst == nullptr)
-    {
-      throw std::invalid_argument("pDst can not be null");
-    }
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not be null");
-    }
-    return ParseArray(pDst, dstLength, psz, 0, std::strlen(psz));
+    const auto arrayEntries = DoParseArray(dst, strView);
+    return {strView.size(), arrayEntries};
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(bool* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<bool> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(uint8_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<uint8_t> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(int8_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<int8_t> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(uint16_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<uint16_t> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(int16_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<int16_t> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(uint32_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<uint32_t> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(int32_t* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<int32_t> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  // StringParseArrayResult StringParseUtil::ParseArray(uint64_t* pDst, const std::size_t dstLength, const char*const psz, const std::size_t
-  // startIndex, const std::size_t length)
+  // StringParseArrayResult StringParseUtil::ParseArray(Span<uint64_t> dst, const StringViewLite strView, const std::size_t startIndex, const
+  // std::size_t length)
   //{
-  // const int arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-  // return StringParseArrayResult(length, arrayEntries);
+  // CheckInput(strView, startIndex, length);
+  // return ParseArray(dst, strView.substr(startIndex, length));
   //}
 
 
-  // StringParseArrayResult StringParseUtil::ParseArray(int64_t* pDst, const std::size_t dstLength, const char*const psz, const std::size_t
-  // startIndex, const std::size_t length)
+  // StringParseArrayResult StringParseUtil::ParseArray(Span<int64_t> dst, const StringViewLite strView, const std::size_t startIndex, const
+  // std::size_t length)
   //{
-  // const int arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-  // return StringParseArrayResult(length, arrayEntries);
+  // CheckInput(strView, startIndex, length);
+  // return ParseArray(dst, strView.substr(startIndex, length));
   //}
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(float* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<float> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  StringParseArrayResult StringParseUtil::ParseArray(double* pDst, const std::size_t dstLength, const char* const psz, const std::size_t startIndex,
+  StringParseArrayResult StringParseUtil::ParseArray(Span<double> dst, const StringViewLite strView, const std::size_t startIndex,
                                                      const std::size_t length)
   {
-    const auto arrayEntries = DoParseArray(pDst, dstLength, psz, startIndex, length);
-    return StringParseArrayResult(length, arrayEntries);
+    CheckInput(strView, startIndex, length);
+    return ParseArray(dst, strView.substr(startIndex, length));
   }
 
 
-  bool StringParseUtil::TryParse(int32_t& rValue, const char* const psz, const std::size_t startIndex, const std::size_t length, const int32_t radix)
+  bool StringParseUtil::TryParse(int32_t& rValue, const StringViewLite strView, const int32_t radix)
   {
     rValue = 0;
-    if (psz == nullptr)
-    {
-      FSLLOG3_DEBUG_WARNING("psz can not be null");
-      return false;
-    }
-
-    const auto actualLength = std::strlen(psz);
-    const auto endIndex = startIndex + length;
-    if (endIndex > actualLength)
-    {
-      FSLLOG3_DEBUG_WARNING("startIndex or length out of bounds");
-      return false;
-    }
-    if (length < 1)
+    if (strView.empty())
     {
       FSLLOG3_DEBUG_WARNING("length too small to contain a int32");
       return false;
     }
 
     // Check the string contains a digit as expected
-    const char* pszSrc = psz + startIndex;
-
     bool ch1Extended = false;
     bool ch2Extended = false;
     if (radix > 10)
     {
       const int32_t radixAbove10 = radix - 10;
-      ch1Extended = (pszSrc[0] >= 'a' && (pszSrc[0] - 'a') < radixAbove10) || (pszSrc[0] >= 'A' && (pszSrc[0] - 'A') < radixAbove10);
-      ch2Extended = length >= 2 && ((pszSrc[1] >= 'a' && (pszSrc[1] - 'a') < radixAbove10) || (pszSrc[1] >= 'A' && (pszSrc[1] - 'A') < radixAbove10));
+      ch1Extended = (strView[0] >= 'a' && (strView[0] - 'a') < radixAbove10) || (strView[0] >= 'A' && (strView[0] - 'A') < radixAbove10);
+      ch2Extended =
+        strView.size() >= 2 && ((strView[1] >= 'a' && (strView[1] - 'a') < radixAbove10) || (strView[1] >= 'A' && (strView[1] - 'A') < radixAbove10));
     }
 
-    if ((pszSrc[0] >= '0' && (pszSrc[0] <= '9' || ch1Extended)) ||
-        (length >= 2 && (pszSrc[0] == '+' || pszSrc[0] == '-') && (pszSrc[1] >= '0' && (pszSrc[1] <= '9' || ch2Extended))))
+    if ((strView[0] >= '0' && (strView[0] <= '9' || ch1Extended)) ||
+        (strView.size() >= 2 && (strView[0] == '+' || strView[0] == '-') && (strView[1] >= '0' && (strView[1] <= '9' || ch2Extended))))
     {
       char* pEnd = nullptr;
       errno = 0;
 
-      if (length >= 32)
+      if (strView.size() >= 32)
       {
         FSLLOG3_DEBUG_WARNING("string is too long");
         return false;
       }
-      char tmpBuffer[32];
-      for (std::size_t i = 0; i < length; ++i)
+      std::array<char, 32> tmpBuffer{};
+      for (std::size_t i = 0; i < strView.size(); ++i)
       {
-        tmpBuffer[i] = psz[startIndex + i];
+        tmpBuffer[i] = strView[i];
       }
-      tmpBuffer[length] = 0;
+      tmpBuffer[strView.size()] = 0;
 
-      const auto value = strtol(tmpBuffer, &pEnd, radix);
+      const auto value = strtol(tmpBuffer.data(), &pEnd, radix);
       if (((value == LONG_MIN || value == LONG_MAX) && errno == ERANGE) || value < std::numeric_limits<int32_t>::min() ||
           value > std::numeric_limits<int32_t>::max())
       {
         return false;
       }
 
-      if (pEnd != (tmpBuffer + length))
+      if (pEnd != (tmpBuffer.data() + strView.size()))
       {
         return false;
       }
 
-      rValue = static_cast<int32_t>(value);
+      rValue = NumericCast<int32_t>(value);
       return true;
     }
     return false;
   }
 
-  std::size_t StringParseUtil::ParseTime(std::chrono::seconds& rResult, const char* const psz)
+  bool StringParseUtil::TryParse(int32_t& rValue, const StringViewLite strView, const std::size_t startIndex, const std::size_t length,
+                                 const int32_t radix)
   {
-    if (psz == nullptr)
+    if ((startIndex + length) > strView.size())
     {
-      throw std::invalid_argument("psz can not be null");
+      rValue = 0;
+      FSLLOG3_DEBUG_WARNING("startIndex or length out of bounds");
+      return false;
     }
+    return TryParse(rValue, strView.substr(startIndex, length), radix);
+  }
 
+
+  std::size_t StringParseUtil::ParseTime(std::chrono::seconds& rResult, const StringViewLite strView)
+  {
     // 012345678
     // HH:MM:SS
     const std::size_t expectedLength = 8;
-    if (strlen(psz) != expectedLength || psz[2] != ':' || psz[5] != ':')
+    if (strView.size() != expectedLength || strView[2] != ':' || strView[5] != ':')
     {
       throw FormatException("time not in the expected HH:MM:SS format");
     }
 
-    const uint32_t hh = ParseUInt32(psz, 0, 2);
-    const uint32_t mm = ParseUInt32(psz, 3, 2);
-    const uint32_t ss = ParseUInt32(psz, 6, 2);
+    const uint32_t hh = ParseUInt32(strView.substr(0, 2));
+    const uint32_t mm = ParseUInt32(strView.substr(3, 2));
+    const uint32_t ss = ParseUInt32(strView.substr(6, 2));
 
     if (ss >= 60 || mm >= 60 || hh > 24)
     {

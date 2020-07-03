@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.UI.PixelPerfect" CreationYear="2020">
+    <Dependency Name="FslBase"/>
+    <Dependency Name="FslGraphics"/>
+    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Platform Name="Windows" ProjectId="7B52F266-7DA1-4CA7-8AE6-2AF62E22992F"/>
+  </Library>
+</FslBuildGen>

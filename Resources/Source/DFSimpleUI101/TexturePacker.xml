@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TexturePacker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1">
+  <CreateAtlas Name="TextureAtlas/MainAtlas">
+    <AddFolder Path="TextureAtlas/Main">
+      <File Path="Background9R.png">
+        <AddNineSlice NineSlice="32, 32, 32, 32" ContentMargin="25, 25, 25, 25"/>
+      </File>
+      <File Path="Slider.png">
+        <AddNineSlice NineSlice="40, 31, 46, 31" ContentMargin="25, 0, 26, 0"/>
+      </File>
+    </AddFolder>
+  </CreateAtlas>
+</TexturePacker>

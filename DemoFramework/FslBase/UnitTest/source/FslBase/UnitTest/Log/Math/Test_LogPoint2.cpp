@@ -31,7 +31,6 @@
 
 #include <FslBase/Log/Math/LogPoint2.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>

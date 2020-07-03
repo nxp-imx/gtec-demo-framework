@@ -52,12 +52,13 @@ namespace Fsl
                                 const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     virtual ~PlatformNativeWindowAndroid();
 
-    virtual bool TryGetDPI(Vector2& rDPI) const override;
-    virtual bool TryGetSize(Point2& rSize) const override;
-    virtual bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return false;
-    }
+    // virtual bool TryGetDPI(Vector2& rDPI) const override;
+
+    void SYS_OnConfigChanged();
+
+  protected:
+    bool TryGetNativeSize(PxPoint2& rSize) const override;
+    bool TryGetNativeDensityDpi(uint32_t& rDensityDpi) const override;
 
   private:
     void WaitForWindowReady();

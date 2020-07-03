@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputEvent.hpp>
 
 namespace Fsl
@@ -40,21 +40,21 @@ namespace Fsl
   {
     class WindowInputClickEvent : public WindowInputEvent
     {
-      Vector2 m_screenPosition;
+      PxPoint2 m_screenPositionPx;
 
     public:
       WindowInputClickEvent();
 
-      //! @brief Return the screen position.
+      //! @brief Return the screen position in pixels.
       //! @warning This is not the window position so convert it to window coordinates before using it!!!!)
-      Vector2 GetScreenPosition() const
+      PxPoint2 GetScreenPosition() const
       {
-        return m_screenPosition;
+        return m_screenPositionPx;
       }
 
     protected:
       void SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                         const Vector2& screenPosition);
+                         const PxPoint2& screenPositionPx);
       void SYS_Destruct() override;
       friend class WindowEventPool;
     };

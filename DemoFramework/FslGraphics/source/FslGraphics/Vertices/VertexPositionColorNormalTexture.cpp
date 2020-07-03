@@ -32,6 +32,7 @@
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Color.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
@@ -47,12 +48,12 @@ namespace Fsl
 
   VertexDeclaration VertexPositionColorNormalTexture::GetVertexDeclaration()
   {
-    static VertexElementEx g_elements[] = {
+    static constexpr std::array<VertexElementEx, 4> g_elements = {
       VertexElementEx(offsetof(VertexPositionColorNormalTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(VertexPositionColorNormalTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
       VertexElementEx(offsetof(VertexPositionColorNormalTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
       VertexElementEx(offsetof(VertexPositionColorNormalTexture, TextureCoordinate), VertexElementFormat::Vector2,
                       VertexElementUsage::TextureCoordinate, 0)};
-    return VertexDeclaration(g_elements, sizeof(g_elements) / sizeof(VertexElementEx), sizeof(VertexPositionColorNormalTexture));
+    return VertexDeclaration(g_elements.data(), g_elements.size(), sizeof(VertexPositionColorNormalTexture));
   }
 }

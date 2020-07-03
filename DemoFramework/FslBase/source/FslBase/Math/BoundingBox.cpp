@@ -217,7 +217,7 @@ namespace Fsl
       maxVec.Y = (maxVec.Y > point.Y) ? maxVec.Y : point.Y;
       maxVec.Z = (maxVec.Z > point.Z) ? maxVec.Z : point.Z;
     }
-    return BoundingBox(minVec, maxVec);
+    return {minVec, maxVec};
   }
 
 
@@ -334,7 +334,7 @@ namespace Fsl
 
   bool BoundingBox::Intersects(const BoundingBox& box) const
   {
-    bool result;
+    bool result = false;
     Intersects(box, result);
     return result;
   }
@@ -398,7 +398,7 @@ namespace Fsl
 
     if (sphereZ < Min.Z)
     {
-      dmin += (Min.Z - sphereY) * (Min.Z - sphereZ);
+      dmin += (Min.Z - sphereZ) * (Min.Z - sphereZ);
     }
     else if (sphereZ > Max.Z)
     {

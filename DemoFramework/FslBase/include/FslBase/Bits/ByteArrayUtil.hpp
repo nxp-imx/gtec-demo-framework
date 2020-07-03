@@ -36,139 +36,138 @@
 
 namespace Fsl
 {
-  class ByteArrayUtil
+  namespace ByteArrayUtil
   {
-  public:
     //! @brief Read a uint8_t from the given index in little endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static uint8_t ReadUInt8LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint8_t ReadUInt8LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int8_t from the given index in little endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static int8_t ReadInt8LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int8_t ReadInt8LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a uint16_t from the given index in little endian format
-    static uint16_t ReadUInt16LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint16_t ReadUInt16LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int16_t from the given index in little endian format
-    static int16_t ReadInt16LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int16_t ReadInt16LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a uint32_t from the given index in little endian format
-    static uint32_t ReadUInt32LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint32_t ReadUInt32LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int32_t from the given index in little endian format
-    static int32_t ReadInt32LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int32_t ReadInt32LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a uint64_t from the given index in little endian format
-    static uint64_t ReadUInt64LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint64_t ReadUInt64LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int64_t from the given index in little endian format
-    static int64_t ReadInt64LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int64_t ReadInt64LE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
 
     //! @brief Read a uint8_t from the given index in big endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static uint8_t ReadUInt8BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint8_t ReadUInt8BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int8_t from the given index in big endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static int8_t ReadInt8BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int8_t ReadInt8BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a uint16_t from the given index in big endian format
-    static uint16_t ReadUInt16BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint16_t ReadUInt16BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int16_t from the given index in big endian format
-    static int16_t ReadInt16BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int16_t ReadInt16BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a uint32_t from the given index in big endian format
-    static uint32_t ReadUInt32BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint32_t ReadUInt32BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int32_t from the given index in big endian format
-    static int32_t ReadInt32BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int32_t ReadInt32BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a uint64_t from the given index in big endian format
-    static uint64_t ReadUInt64BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern uint64_t ReadUInt64BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
     //! @brief Read a int64_t from the given index in big endian format
-    static int64_t ReadInt64BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
+    extern int64_t ReadInt64BE(const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index);
 
 
     //! @brief Write a uint8_t to the given dstIndex in little endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteUInt8LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
+    extern std::size_t WriteUInt8LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
     //! @brief Write a int8_t to the given dstIndex in little endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteInt8LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
+    extern std::size_t WriteInt8LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
     //! @brief Write a uint16_t to the given dstIndex in little endian format
-    static std::size_t WriteUInt16LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
+    extern std::size_t WriteUInt16LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
     //! @brief Write a int16_t to the given dstIndex in little endian format
-    static std::size_t WriteInt16LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
+    extern std::size_t WriteInt16LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
     //! @brief Write a uint32_t to the given dstIndex in little endian format
-    static std::size_t WriteUInt32LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
+    extern std::size_t WriteUInt32LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
     //! @brief Write a int32_t to the given dstIndex in little endian format
-    static std::size_t WriteInt32LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
+    extern std::size_t WriteInt32LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
     //! @brief Write a uint64_t to the given dstIndex in little endian format
-    static std::size_t WriteUInt64LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
+    extern std::size_t WriteUInt64LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
     //! @brief Write a int64_t v the given dstIndex in little endian format
-    static std::size_t WriteInt64LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
+    extern std::size_t WriteInt64LE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
 
     //! @brief Write a uint8_t to the given dstIndex in big endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteUInt8BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
+    extern std::size_t WriteUInt8BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
     //! @brief Write a int8_t to the given dstIndex in big endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteInt8BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
+    extern std::size_t WriteInt8BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
     //! @brief Write a uint16_t to the given dstIndex in big endian format
-    static std::size_t WriteUInt16BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
+    extern std::size_t WriteUInt16BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
     //! @brief Write a int16_t to the given dstIndex in big endian format
-    static std::size_t WriteInt16BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
+    extern std::size_t WriteInt16BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
     //! @brief Write a uint32_t to the given dstIndex in big endian format
-    static std::size_t WriteUInt32BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
+    extern std::size_t WriteUInt32BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
     //! @brief Write a int32_t to the given dstIndex in big endian format
-    static std::size_t WriteInt32BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
+    extern std::size_t WriteInt32BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
     //! @brief Write a uint64_t to the given dstIndex in big endian format
-    static std::size_t WriteUInt64BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
+    extern std::size_t WriteUInt64BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
     //! @brief Read a int64_t to the given dstIndex in big endian format
-    static std::size_t WriteInt64BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
+    extern std::size_t WriteInt64BE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
 
 
     //! @brief Write a uint8_t to the given dstIndex in little endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
     //! @brief Write a int8_t to the given dstIndex in little endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
     //! @brief Write a uint16_t to the given dstIndex in little endian format
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
     //! @brief Write a int16_t to the given dstIndex in little endian format
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
     //! @brief Write a uint32_t to the given dstIndex in little endian format
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
     //! @brief Write a int32_t to the given dstIndex in little endian format
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
     //! @brief Write a uint64_t to the given dstIndex in little endian format
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
     //! @brief Write a int64_t v the given dstIndex in little endian format
-    static std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
+    extern std::size_t WriteLE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
 
     //! @brief Write a uint8_t to the given dstIndex in big endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t value);
     //! @brief Write a int8_t to the given dstIndex in big endian format
     //! @note Yes this method does not make much sense, but its here to follow the style of the other methods and
     //!       it does some basic validation on the input params like the rest of the methods
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int8_t value);
     //! @brief Write a uint16_t to the given dstIndex in big endian format
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint16_t value);
     //! @brief Write a int16_t to the given dstIndex in big endian format
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int16_t value);
     //! @brief Write a uint32_t to the given dstIndex in big endian format
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint32_t value);
     //! @brief Write a int32_t to the given dstIndex in big endian format
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int32_t value);
     //! @brief Write a uint64_t to the given dstIndex in big endian format
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint64_t value);
     //! @brief Read a int64_t to the given dstIndex in big endian format
-    static std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
+    extern std::size_t WriteBE(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const int64_t value);
 
     //! @brief Write a the byte sequence into the given array
-    static std::size_t WriteBytes(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t* pSrc,
+    extern std::size_t WriteBytes(uint8_t* pDst, const std::size_t dstLength, const std::size_t dstIndex, const uint8_t* pSrc,
                                   const std::size_t srcLength);
   };
 }

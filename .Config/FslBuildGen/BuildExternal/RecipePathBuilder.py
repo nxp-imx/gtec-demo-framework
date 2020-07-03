@@ -38,12 +38,14 @@ from FslBuildGen.Log import Log
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlExperimentalRecipe
 
 
 class RecipePathBuilder(object):
-    def __init__(self, log: Log, variableProcessor: VariableProcessor, recipeBuilderSetup: Optional[RecipeBuilderSetup], platformName: str, compilerGeneratorName: str) -> None:
+    def __init__(self, log: Log, variableProcessor: VariableProcessor, recipeBuilderSetup: Optional[RecipeBuilderSetup], platformName: str,
+                 cmakeConfig: GeneratorCMakeConfig) -> None:
         super().__init__()
 
         self.__Log = log  # type: Log
@@ -74,13 +76,13 @@ class RecipePathBuilder(object):
 
             baseTempDirectory = IOUtil.Join(self.__TempRootPath, "pipeline")
             baseTempDirectory = IOUtil.Join(baseTempDirectory, platformName)
-            self.__TempPipelineRootPath = IOUtil.Join(baseTempDirectory, compilerGeneratorName)
+            self.__TempPipelineRootPath = IOUtil.Join(baseTempDirectory, cmakeConfig.GeneratorRecipeShortName)
 
             sourceBaseInstallDirectory = IOUtil.Join(targetLocation.SourcePath, platformName)
-            sourceInstallRootPath = IOUtil.Join(sourceBaseInstallDirectory, compilerGeneratorName)
+            sourceInstallRootPath = IOUtil.Join(sourceBaseInstallDirectory, cmakeConfig.GeneratorRecipeShortName)
 
             baseInstallDirectory = IOUtil.Join(targetLocation.ResolvedPath, platformName)
-            installRootPath = IOUtil.Join(baseInstallDirectory, compilerGeneratorName)
+            installRootPath = IOUtil.Join(baseInstallDirectory, cmakeConfig.GeneratorRecipeShortName)
 
             self.InstallRootLocation = ResolvedPath(sourceInstallRootPath, installRootPath)
 
@@ -90,7 +92,7 @@ class RecipePathBuilder(object):
     def GetBuildPath(self, sourceRecipe: PackageExperimentalRecipe) -> str:
         if not self.IsEnabled or self.__TempPipelineRootPath is None:
             raise Exception("Can not GetBuildPath since the builder functionality has been disabled")
-        return IOUtil.Join(self.__TempPipelineRootPath, sourceRecipe.Name)
+        return IOUtil.Join(self.__TempPipelineRootPath, sourceRecipe.FullName)
 
 
     def TryGetInstallPath(self, xmlSourceRecipe: XmlExperimentalRecipe) -> Optional[ResolvedPath]:
@@ -98,7 +100,7 @@ class RecipePathBuilder(object):
             return None
         elif not xmlSourceRecipe.ExternalInstallDirectory is None:
             if not xmlSourceRecipe.Pipeline is None:
-                self.__Log.DoPrintWarning("SourceRecipe ExternalInstallDirectory overrides Pipeline '{0}'".format(xmlSourceRecipe.Name))
+                self.__Log.DoPrintWarning("SourceRecipe ExternalInstallDirectory overrides Pipeline '{0}'".format(xmlSourceRecipe.FullName))
             sourcePath = xmlSourceRecipe.ExternalInstallDirectory
             resolvedPath = self.__VariableProcessor.ResolveAbsolutePathWithLeadingEnvironmentVariablePathAsDir(sourcePath)
             return ResolvedPath(sourcePath, resolvedPath)
@@ -108,6 +110,6 @@ class RecipePathBuilder(object):
 
         if xmlSourceRecipe.Pipeline is None:
             return None
-        sourcePath = IOUtil.Join(self.InstallRootLocation.SourcePath, xmlSourceRecipe.Name)
-        resolvedPath = IOUtil.Join(self.InstallRootLocation.ResolvedPath, xmlSourceRecipe.Name)
+        sourcePath = IOUtil.Join(self.InstallRootLocation.SourcePath, xmlSourceRecipe.FullName)
+        resolvedPath = IOUtil.Join(self.InstallRootLocation.ResolvedPath, xmlSourceRecipe.FullName)
         return ResolvedPath(sourcePath, resolvedPath)

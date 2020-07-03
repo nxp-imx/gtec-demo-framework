@@ -107,7 +107,7 @@ namespace fmt
     template <typename FormatContext>
     auto format(const VkFormat& value, FormatContext& ctx)
     {
-      auto psz = RapidVulkan::Debug::TryToString(value);
+      const auto* psz = RapidVulkan::Debug::TryToString(value);
       if (psz != nullptr)
       {
         return format_to(ctx.out(), psz);

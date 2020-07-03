@@ -56,7 +56,6 @@
 #include "../Configuration/PlatformConfig.hpp"
 #include <FslDemoApp/Base/Setup/RegisterDemoApp_fwd.hpp>
 #include <cassert>
-//#include <FslDemoPlatform/Service/MMDCStats/MMDCStatsService.hpp>
 
 
 namespace Fsl
@@ -113,8 +112,6 @@ namespace Fsl
     serviceRegistry.Register<ProfilerServiceFactory>(ServicePriorityList::ProfilerService());
     serviceRegistry.Register<ContentMonitorServiceFactory>(ServicePriorityList::ContentMonitor());
     serviceRegistry.Register<OptionsServiceFactory>(ServicePriorityList::Options());
-
-    // serviceRegistry.Register<MMDCStatsServiceFactory>(ServicePriorityList::MMDCStatsService());
 
     // Prepare the hosts
     PlatformConfig::Configure(hostRegistry, serviceRegistry, rEnableFirewallRequest);

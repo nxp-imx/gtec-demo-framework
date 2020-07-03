@@ -67,7 +67,7 @@ namespace Fsl
   }
 
 
-  void MultipleViewportsFractalShader::Draw(const DemoTime& demoTime)
+  void MultipleViewportsFractalShader::Draw(const DemoTime& /*demoTime*/)
   {
     glClear(GL_COLOR_BUFFER_BIT);
 

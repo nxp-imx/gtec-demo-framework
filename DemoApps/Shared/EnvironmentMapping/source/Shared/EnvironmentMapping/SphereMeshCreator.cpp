@@ -39,8 +39,10 @@ namespace Fsl
   //! @brief Code extracted from the S07, S08 samples.
   void SphereMeshCreator::Create(std::vector<VertexPosition>& rSphereVertices, std::vector<uint16_t>& rIndices, const int width, const int height)
   {
-    int x, y, icnt = 0;
-    int offset;
+    int x = 0;
+    int y = 0;
+    int icnt = 0;
+    int offset = 0;
 
     rSphereVertices.resize(width * height);
 

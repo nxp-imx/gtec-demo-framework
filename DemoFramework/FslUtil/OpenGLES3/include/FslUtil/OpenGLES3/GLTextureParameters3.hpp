@@ -43,6 +43,7 @@ namespace Fsl
   namespace GLES3
   {
     // Texture filter wrapping
+    // http://www.khronos.org/opengles/sdk/docs/man/xhtml/glTexParameter.xml
     struct GLTextureParameters3
     {
       GLenum MinFilter{GL_NEAREST};
@@ -53,20 +54,19 @@ namespace Fsl
 
       //! @brief Set it to the default values -> MinFilter: GL_NEAREST, MagFilter = GL_NEAREST, WrapS = GL_REPEAT, WrapT = GL_REPEAT, WrapR =
       //! GL_REPEAT
-      GLTextureParameters3() = default;
+      constexpr GLTextureParameters3() = default;
 
       //! @brief Set it to the default values -> MinFilter: GL_NEAREST, MagFilter = GL_NEAREST, WrapS = GL_REPEAT, WrapT = GL_REPEAT, WrapR =
       //! GL_REPEAT
-      FSL_ATTR_DEPRECATED GLTextureParameters3(const GLTextureParameters& value)
+      [[deprecated("use one of the other overloads instead")]] explicit GLTextureParameters3(const GLTextureParameters& value)
         : MinFilter(value.MinFilter)
         , MagFilter(value.MagFilter)
         , WrapS(value.WrapS)
         , WrapT(value.WrapT)
-        , WrapR(GL_REPEAT)
       {
       }
 
-      GLTextureParameters3(const GLenum minFilter, const GLenum magFilter, const GLenum wrapS, const GLenum wrapT, const GLenum wrapR)
+      constexpr GLTextureParameters3(const GLenum minFilter, const GLenum magFilter, const GLenum wrapS, const GLenum wrapT, const GLenum wrapR)
         : MinFilter(minFilter)
         , MagFilter(magFilter)
         , WrapS(wrapS)
@@ -77,7 +77,16 @@ namespace Fsl
       }
 
       //! @brief Check if the content is considered valid
-      bool IsValid() const;
+      constexpr bool IsValid() const
+      {
+        const bool b1 = (MinFilter == GL_NEAREST || MinFilter == GL_LINEAR || MinFilter == GL_NEAREST_MIPMAP_NEAREST ||
+                         MinFilter == GL_LINEAR_MIPMAP_NEAREST || MinFilter == GL_NEAREST_MIPMAP_LINEAR || MinFilter == GL_LINEAR_MIPMAP_LINEAR);
+        const bool b2 = (MagFilter == GL_NEAREST || MagFilter == GL_LINEAR);
+        const bool b3 = (WrapS == GL_CLAMP_TO_EDGE || WrapS == GL_MIRRORED_REPEAT || WrapS == GL_REPEAT || WrapS == GL_CLAMP_TO_EDGE);
+        const bool b4 = (WrapT == GL_CLAMP_TO_EDGE || WrapT == GL_MIRRORED_REPEAT || WrapT == GL_REPEAT || WrapT == GL_CLAMP_TO_EDGE);
+        const bool b5 = (WrapR == GL_CLAMP_TO_EDGE || WrapR == GL_MIRRORED_REPEAT || WrapR == GL_REPEAT || WrapR == GL_CLAMP_TO_EDGE);
+        return b1 && b2 && b3 && b4 && b5;
+      }
     };
   }
 }

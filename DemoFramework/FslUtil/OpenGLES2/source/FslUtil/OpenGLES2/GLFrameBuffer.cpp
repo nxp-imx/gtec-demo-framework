@@ -56,7 +56,7 @@ namespace Fsl
 
         // Remove the data from other
         other.m_handle = GLValues::INVALID_HANDLE;
-        other.m_size = Point2();
+        other.m_size = {};
       }
       return *this;
     }
@@ -72,7 +72,7 @@ namespace Fsl
     {
       // Remove the data from other
       other.m_handle = GLValues::INVALID_HANDLE;
-      other.m_size = Point2();
+      other.m_size = {};
     }
 
 
@@ -82,14 +82,14 @@ namespace Fsl
     }
 
 
-    GLFrameBuffer::GLFrameBuffer(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams)
+    GLFrameBuffer::GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams)
       : GLFrameBuffer()
     {
       Reset(size, textureParameters, texImageParams);
     }
 
 
-    GLFrameBuffer::GLFrameBuffer(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+    GLFrameBuffer::GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
                                  const GLenum depthBufferFormat)
       : GLFrameBuffer()
     {
@@ -97,7 +97,7 @@ namespace Fsl
     }
 
 
-    GLFrameBuffer::GLFrameBuffer(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+    GLFrameBuffer::GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
                                  const GLenum depthBufferFormat, const GLenum stencilBufferFormat)
       : GLFrameBuffer()
     {
@@ -105,7 +105,7 @@ namespace Fsl
     }
 
 
-    GLFrameBuffer::GLFrameBuffer(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+    GLFrameBuffer::GLFrameBuffer(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
                                  const GLenum depthBufferFormat, const GLenum stencilBufferFormat, const Flags::type bufferFlags)
       : GLFrameBuffer()
     {
@@ -125,7 +125,7 @@ namespace Fsl
       {
         glDeleteFramebuffers(1, &m_handle);
         m_handle = GLValues::INVALID_HANDLE;
-        m_size = Point2();
+        m_size = {};
         m_depthRenderBuffer.Reset();
         m_stencilRenderBuffer.Reset();
         m_texture.Reset();
@@ -133,20 +133,20 @@ namespace Fsl
     }
 
 
-    void GLFrameBuffer::Reset(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams)
+    void GLFrameBuffer::Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams)
     {
       Reset(size, textureParameters, texImageParams, 0, 0, Flags::ColorBuffer);
     }
 
 
-    void GLFrameBuffer::Reset(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+    void GLFrameBuffer::Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
                               const GLenum depthBufferFormat)
     {
       Reset(size, textureParameters, texImageParams, depthBufferFormat, 0, Flags::ColorBuffer | Flags::DepthBuffer);
     }
 
 
-    void GLFrameBuffer::Reset(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+    void GLFrameBuffer::Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
                               const GLenum depthBufferFormat, const GLenum stencilBufferFormat)
     {
       Reset(size, textureParameters, texImageParams, depthBufferFormat, stencilBufferFormat,
@@ -154,7 +154,7 @@ namespace Fsl
     }
 
 
-    void GLFrameBuffer::Reset(const Point2& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
+    void GLFrameBuffer::Reset(const PxSize2D& size, const GLTextureParameters& textureParameters, const GLTextureImageParameters& texImageParams,
                               const GLenum depthBufferFormat, const GLenum stencilBufferFormat, const Flags::type bufferFlags)
     {
       if (m_handle != GLValues::INVALID_HANDLE)
@@ -183,7 +183,7 @@ namespace Fsl
       }
 
       // create the texture
-      GLuint hTex;
+      GLuint hTex = 0;
       GL_CHECK(glGenTextures(1, &hTex));
       m_texture.Reset(hTex, size);
       GL_CHECK(glBindTexture(GL_TEXTURE_2D, hTex));
@@ -193,7 +193,8 @@ namespace Fsl
       GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureParameters.WrapS));
       GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureParameters.WrapT));
 
-      GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, texImageParams.InternalFormat, size.X, size.Y, 0, texImageParams.Format, texImageParams.Type, nullptr));
+      GL_CHECK(glTexImage2D(GL_TEXTURE_2D, 0, texImageParams.InternalFormat, size.Width(), size.Height(), 0, texImageParams.Format,
+                            texImageParams.Type, nullptr));
       GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hTex, 0));
 
       // Test the framebuffer for completeness. This test only needs to be performed when the framebuffer's configuration changes.

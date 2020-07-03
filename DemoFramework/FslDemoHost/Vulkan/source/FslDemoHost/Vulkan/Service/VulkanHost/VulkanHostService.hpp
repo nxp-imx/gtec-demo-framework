@@ -48,7 +48,7 @@ namespace Fsl
     VulkanLaunchOptions m_launchOptions;
 
   public:
-    VulkanHostService(const ServiceProvider& serviceProvider);
+    explicit VulkanHostService(const ServiceProvider& serviceProvider);
     ~VulkanHostService() override;
 
     void SetLaunchOptions(const VulkanLaunchOptions& value);

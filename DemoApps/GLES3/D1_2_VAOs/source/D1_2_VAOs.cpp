@@ -4,12 +4,12 @@
  * Draws a simple triangle with basic vertex and pixel shaders. Using Vertex Buffer Objects
  */
 
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include "D1_2_VAOs.hpp"
-#include <GLES3/gl3.h>
-#include <iostream>
+#include <FslGraphics/Vertices/VertexPositionColor.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <GLES3/gl3.h>
+#include <array>
 
 namespace Fsl
 {
@@ -28,16 +28,16 @@ namespace Fsl
 
     {    // Initialization
       // 3 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      VertexPositionColor vertices[3] = {
+      constexpr std::array<VertexPositionColor, 3> vertices = {
         VertexPositionColor(Vector3(-0.5f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
         VertexPositionColor(Vector3(-1.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
         VertexPositionColor(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),     // v2, c2
       };
       // Index buffer data
-      GLushort indices[3] = {0, 1, 2};
+      constexpr std::array<GLushort, 3> indices = {0, 1, 2};
 
       // 4 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      VertexPositionColor vertices2[4] = {
+      constexpr std::array<VertexPositionColor, 4> vertices2 = {
         VertexPositionColor(Vector3(0.0f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
         VertexPositionColor(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
         VertexPositionColor(Vector3(1.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),    // v2, c2
@@ -45,16 +45,16 @@ namespace Fsl
       };
 
       // Index buffer data
-      GLushort indices2[6] = {0, 2, 1, 0, 3, 2};
+      constexpr std::array<GLushort, 6> indices2 = {0, 2, 1, 0, 3, 2};
 
 
       // Prepare the vertex and index buffer
-      m_vertexBuffer0.Reset(vertices, sizeof(vertices) / sizeof(VertexPositionColor), GL_STATIC_DRAW);
-      m_indexBuffer0.Reset(indices, sizeof(indices) / sizeof(GLushort), GL_STATIC_DRAW);
+      m_vertexBuffer0.Reset(vertices.data(), vertices.size(), GL_STATIC_DRAW);
+      m_indexBuffer0.Reset(indices.data(), indices.size(), GL_STATIC_DRAW);
 
       // Prepare the vertex and index buffer
-      m_vertexBuffer1.Reset(vertices2, sizeof(vertices2) / sizeof(VertexPositionColor), GL_STATIC_DRAW);
-      m_indexBuffer1.Reset(indices2, sizeof(indices2) / sizeof(GLushort), GL_STATIC_DRAW);
+      m_vertexBuffer1.Reset(vertices2.data(), vertices2.size(), GL_STATIC_DRAW);
+      m_indexBuffer1.Reset(indices2.data(), indices2.size(), GL_STATIC_DRAW);
 
       // Prepare the vertex arrays
       m_vertexArray0.Reset(true);
@@ -84,16 +84,16 @@ namespace Fsl
   D1_2_VAOs::~D1_2_VAOs() = default;
 
 
-  void D1_2_VAOs::Update(const DemoTime& demoTime)
+  void D1_2_VAOs::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void D1_2_VAOs::Draw(const DemoTime& demoTime)
+  void D1_2_VAOs::Draw(const DemoTime& /*demoTime*/)
   {
-    Point2 size = GetScreenResolution();
+    PxSize2D sizePx = GetWindowSizePx();
 
-    glViewport(0, 0, size.X, size.Y);
+    glViewport(0, 0, sizePx.Width(), sizePx.Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // OSTEP5 Bind the TRIANGLE VAO

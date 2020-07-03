@@ -31,17 +31,18 @@
 
 #include <FslGraphics/Vertices/VertexMatrixColor2.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
 {
   VertexDeclaration VertexMatrixColor2::GetVertexDeclaration()
   {
-    static VertexElementEx g_elements[] = {
+    static constexpr std::array<VertexElementEx, 3> g_elements = {
       VertexElementEx(offsetof(VertexMatrixColor2, Matrix), VertexElementFormat::Matrix4x4, VertexElementUsage::Matrix4x4, 0),
       VertexElementEx(offsetof(VertexMatrixColor2, Color1), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
       VertexElementEx(offsetof(VertexMatrixColor2, Color2), VertexElementFormat::Vector4, VertexElementUsage::Color, 1),
     };
-    return VertexDeclaration(g_elements, sizeof(g_elements) / sizeof(VertexElementEx), sizeof(VertexMatrixColor2));
+    return VertexDeclaration(g_elements.data(), g_elements.size(), sizeof(VertexMatrixColor2));
   }
 }

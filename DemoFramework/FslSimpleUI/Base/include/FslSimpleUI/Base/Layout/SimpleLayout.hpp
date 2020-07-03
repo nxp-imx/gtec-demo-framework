@@ -47,7 +47,7 @@ namespace Fsl
       collection_type m_children;
 
     public:
-      SimpleLayout(const std::shared_ptr<BaseWindowContext>& context);
+      explicit SimpleLayout(const std::shared_ptr<BaseWindowContext>& context);
       void WinInit() override;
 
       void ClearChildren() override

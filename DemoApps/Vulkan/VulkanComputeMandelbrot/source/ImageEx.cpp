@@ -109,11 +109,11 @@ namespace Fsl
     }
 
     m_image.Reset();
-    m_imageLayers.resize(0);
+    m_imageLayers.clear();
   }
 
 
-  void ImageEx::Reset(const VkDevice device, const VkImageCreateInfo& createInfo, const VkAccessFlags accessMask)
+  void ImageEx::Reset(const VkDevice device, const VkImageCreateInfo& createInfo, const VkAccessFlags /*accessMask*/)
   {
     if (IsValid())
     {

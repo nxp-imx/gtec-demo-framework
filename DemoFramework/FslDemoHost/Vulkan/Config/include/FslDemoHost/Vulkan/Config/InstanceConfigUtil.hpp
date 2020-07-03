@@ -55,7 +55,7 @@ namespace Fsl
       std::vector<const char*> Layers;
       std::vector<const char*> Extensions;
 
-      InstanceConfigAsCharArrays(const InstanceConfig& config)
+      explicit InstanceConfigAsCharArrays(const InstanceConfig& config)
         : Config(config)
         , Layers(config.Layers.size())
         , Extensions(config.Extensions.size())
@@ -78,7 +78,7 @@ namespace Fsl
 
       InstanceUserChoice() = default;
 
-      InstanceUserChoice(const OptionUserChoice validationLayer)
+      explicit InstanceUserChoice(const OptionUserChoice validationLayer)
         : ValidationLayer(validationLayer)
       {
       }

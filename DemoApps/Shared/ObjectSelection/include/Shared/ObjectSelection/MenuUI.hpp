@@ -33,11 +33,11 @@
 
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/ImageButton.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 
 namespace Fsl
 {
@@ -47,19 +47,18 @@ namespace Fsl
   {
     UI::CallbackEventListenerScope m_uiEventListener;
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
+    UI::Theme::BasicThemeFactory m_themeFactory;
 
     std::shared_ptr<OptionParser> m_optionParser;
 
     std::shared_ptr<UI::FillLayout> m_rootLayout;
-    std::shared_ptr<UI::ImageButton> m_btnMenu;
-    std::shared_ptr<UI::StackLayout> m_mainMenuStack;
 
-    std::shared_ptr<UI::StackLayout> m_layoutMenu;
-    std::shared_ptr<UI::CheckBox> m_cbMenuDrawNearPlaneMouse;
-    std::shared_ptr<UI::CheckBox> m_cbMenuDrawFarPlaneMouse;
-    std::shared_ptr<UI::CheckBox> m_cbMenuOrientedBoundingBox;
-    std::shared_ptr<UI::CheckBox> m_cbMenuAxisAlignedBoundingBox;
-    // std::shared_ptr<UI::CheckBox> m_cbMenuFinalBloom;
+    std::shared_ptr<UI::BackgroundNineSlice> m_layoutMenu;
+    std::shared_ptr<UI::Switch> m_cbMenuDrawNearPlaneMouse;
+    std::shared_ptr<UI::Switch> m_cbMenuDrawFarPlaneMouse;
+    std::shared_ptr<UI::Switch> m_cbMenuOrientedBoundingBox;
+    std::shared_ptr<UI::Switch> m_cbMenuAxisAlignedBoundingBox;
+    // std::shared_ptr<UI::Switch> m_cbMenuFinalBloom;
 
     bool m_drawNearPlaneMouse;
     bool m_drawFarPlaneMouse;
@@ -68,7 +67,7 @@ namespace Fsl
     bool m_randomSeedEnabled;
     // bool m_renderFinalBloom;
   public:
-    MenuUI(const DemoAppConfig& config);
+    explicit MenuUI(const DemoAppConfig& config);
     ~MenuUI() override;
 
     std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
@@ -78,10 +77,7 @@ namespace Fsl
 
     void OnKeyEvent(const KeyEvent& event);
 
-    void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
     void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
-
-    void ToggleMenu();
 
     bool IsDrawNearPlaneMouseEnabled() const
     {
@@ -138,8 +134,6 @@ namespace Fsl
 
   private:
     void BuildUI();
-    void CreateMenuUI();
-    void DestroyMenuUI();
     void UpdateControls();
   };
 }

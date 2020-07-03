@@ -55,7 +55,7 @@ namespace Fsl
 
     public:
       MeshBuilder();
-      MeshBuilder(const PrimitiveType primitiveType);
+      explicit MeshBuilder(const PrimitiveType primitiveType);
       MeshBuilder(const PrimitiveType primitiveType, const std::size_t vertexCapacity, const std::size_t indexCapacity);
 
       std::size_t GetVertexCount() const;

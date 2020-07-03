@@ -29,15 +29,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/LayoutHelper.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
-#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslSimpleUI/Base/BaseWindowContext.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <cassert>
 #include <cmath>
-
-// Workaround for issues with std::isinf and std::isnan on qnx
-using namespace std;
 
 namespace Fsl
 {
@@ -46,7 +44,7 @@ namespace Fsl
     StackLayout::StackLayout(const std::shared_ptr<BaseWindowContext>& context)
       : SimpleLayout(context)
       , m_orientation(LayoutOrientation::Vertical)
-      , m_spacing(0)
+      , m_spacingDp(0)
     {
     }
 
@@ -63,101 +61,101 @@ namespace Fsl
 
     void StackLayout::SetSpacing(const float& value)
     {
-      if (value != m_spacing)
+      if (value != m_spacingDp)
       {
-        m_spacing = value;
+        m_spacingDp = value;
         PropertyUpdated(PropertyType::Layout);
       }
     }
 
 
-    Vector2 StackLayout::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D StackLayout::ArrangeOverride(const PxSize2D& finalSizePx)
     {
+      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+      const auto spacePx = unitConverter.DpToPxInt32(m_spacingDp);
       if (m_orientation == LayoutOrientation::Horizontal)
       {
         // Run through each element and give it the space it desired in X, but only finalSize.Y in Y
-        float pos = 0;
-        float elementDesiredX;
+        int32_t posPx = 0;
+        int32_t elementDesiredXPx = 0;
         for (auto itr = begin(); itr != end(); ++itr)
         {
-          elementDesiredX = itr->Window->DesiredSize().X;
-          itr->Window->Arrange(Rect(pos, 0, elementDesiredX, finalSize.Y));
-          pos += elementDesiredX + m_spacing;
+          elementDesiredXPx = itr->Window->DesiredSizePx().Width();
+          itr->Window->Arrange(PxRectangle(posPx, 0, elementDesiredXPx, finalSizePx.Height()));
+          posPx += elementDesiredXPx + spacePx;
         }
         if (!empty())
         {
-          pos -= m_spacing;
+          posPx -= spacePx;
         }
-        return Vector2(pos, finalSize.Y);
+        return {posPx, finalSizePx.Height()};
       }
 
 
       // Run through each element and give it the space it desired in Y, but only finalSize.X in X
-      float pos = 0;
-      float elementDesiredY;
+      int32_t posPx = 0;
+      int32_t elementDesiredYPx = 0;
       for (auto itr = begin(); itr != end(); ++itr)
       {
-        elementDesiredY = itr->Window->DesiredSize().Y;
-        itr->Window->Arrange(Rect(0, pos, finalSize.X, elementDesiredY));
-        pos += elementDesiredY + m_spacing;
+        elementDesiredYPx = itr->Window->DesiredSizePx().Height();
+        itr->Window->Arrange(PxRectangle(0, posPx, finalSizePx.Width(), elementDesiredYPx));
+        posPx += elementDesiredYPx + spacePx;
       }
       if (!empty())
       {
-        pos -= m_spacing;
+        posPx -= spacePx;
       }
-      return Vector2(finalSize.X, pos);
+      return {finalSizePx.Width(), posPx};
     }
 
 
-    Vector2 StackLayout::MeasureOverride(const Vector2& availableSize)
+    PxSize2D StackLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      Vector2 desiredSize;
-      Vector2 minSize;
+      PxPoint2 minSizePx;
 
+      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+
+      const auto spacePx = unitConverter.DpToPxInt32(m_spacingDp);
       if (m_orientation == LayoutOrientation::Horizontal)
       {
         // Fake that we have unlimited space in X and keep Y constrained.
-        const Vector2 fakeAvailableSize(LayoutHelper::InfiniteSpace, availableSize.Y);
+        const PxAvailableSize fakeAvailableSizePx(PxAvailableSizeUtil::InfiniteSpacePx, availableSizePx.Height());
         for (auto itr = begin(); itr != end(); ++itr)
         {
-          itr->Window->Measure(fakeAvailableSize);
-          desiredSize = itr->Window->DesiredSize();
-          minSize.X += desiredSize.X + m_spacing;
-          if (desiredSize.Y > minSize.Y)
+          itr->Window->Measure(fakeAvailableSizePx);
+          PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
+          minSizePx.X += desiredSizePx.Width() + spacePx;
+          if (desiredSizePx.Height() > minSizePx.Y)
           {
-            minSize.Y = desiredSize.Y;
+            minSizePx.Y = desiredSizePx.Height();
           }
         }
         if (!empty())
         {
-          minSize.X -= m_spacing;
+          minSizePx.X -= spacePx;
         }
       }
       else
       {
         // Fake that we have unlimited space in Y and keep X constrained.
-        const Vector2 fakeAvailableSize(availableSize.X, LayoutHelper::InfiniteSpace);
+        const PxAvailableSize fakeAvailableSizePx(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx);
         for (auto itr = begin(); itr != end(); ++itr)
         {
-          itr->Window->Measure(fakeAvailableSize);
-          desiredSize = itr->Window->DesiredSize();
-          minSize.Y += desiredSize.Y + m_spacing;
-          if (desiredSize.X > minSize.X)
+          itr->Window->Measure(fakeAvailableSizePx);
+          PxSize2D desiredSizePx = itr->Window->DesiredSizePx();
+          minSizePx.Y += desiredSizePx.Height() + spacePx;
+          if (desiredSizePx.Width() > minSizePx.X)
           {
-            minSize.X = desiredSize.X;
+            minSizePx.X = desiredSizePx.Width();
           }
         }
         if (!empty())
         {
-          minSize.Y -= m_spacing;
+          minSizePx.Y -= spacePx;
         }
       }
 
-      assert(!isinf(minSize.X));
-      assert(!isinf(minSize.Y));
-      assert(!isnan(minSize.X));
-      assert(!isnan(minSize.Y));
-      return minSize;
+      return TypeConverter::UncheckedTo<PxSize2D>(minSizePx);
     }
   }
 }

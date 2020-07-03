@@ -9,7 +9,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
 ##ADD_SOURCE_FILES##
-  </ItemGroup>##ADD_CUSTOM_BUILD_FILES##
+  </ItemGroup>##ADD_NATVIS_FILE####ADD_CUSTOM_BUILD_FILES##
   <ItemGroup>
     <Manifest Include="##PACKAGE_TARGET_NAME##.manifest" />
   </ItemGroup>

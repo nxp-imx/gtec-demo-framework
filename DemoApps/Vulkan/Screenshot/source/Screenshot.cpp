@@ -31,11 +31,17 @@
 
 #include "Screenshot.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslUtil/Vulkan1_0/VUScopedMapMemory.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/CommandBuffer.hpp>
@@ -47,9 +53,6 @@
 
 namespace Fsl
 {
-  using namespace UI;
-  using namespace RapidVulkan;
-
   namespace
   {
     // timeout in nanoseconds
@@ -114,8 +117,8 @@ namespace Fsl
 
     Bitmap ExtractToBitmap(const ImageRecord& image, const VkFormat imageFormat)
     {
-      const auto pixelFormat = Vulkan::ConvertUtil::Convert(imageFormat);
-      const auto device = image.TheImage.GetDevice();
+      const auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(imageFormat);
+      const VkDevice device = image.TheImage.GetDevice();
 
       // Get information about the image layout
       VkImageSubresource subResource{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
@@ -140,10 +143,10 @@ namespace Fsl
       assert(subResourceLayout.offset <= image.AllocationSize);
 
       const uint8_t* pImageMemory = static_cast<const uint8_t*>(pImage) + subResourceLayout.offset;
-      const Extent2D extent(image.Extent.width, image.Extent.height);
+      const PxExtent2D extent(image.Extent.width, image.Extent.height);
       // Calculate the content size adjusting for the offset
       assert(subResourceLayout.rowPitch <= std::numeric_limits<uint32_t>::max());
-      const auto stride = static_cast<uint32_t>(subResourceLayout.rowPitch);
+      const auto stride = UncheckedNumericCast<uint32_t>(subResourceLayout.rowPitch);
 
       // Extract the bitmap data
       return Bitmap(pImageMemory, subResourceLayout.size, extent, pixelFormat, stride, BitmapOrigin::UpperLeft);
@@ -220,7 +223,8 @@ namespace Fsl
     , m_graphicsService(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(std::dynamic_pointer_cast<Vulkan::NativeBatch2D>(m_graphicsService->GetNativeBatch2D()))
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
   {
     // Give the UI a chance to intercept the various DemoApp events.
     RegisterExtension(m_uiExtension);
@@ -235,44 +239,36 @@ namespace Fsl
 
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
+    UI::Theme::BasicThemeFactory uiFactory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
 
-    // Fetch some textures from the default texture atlas loaded by the UI extension (this is the 'MainAtlas')
-    AtlasTexture2D texBackground = m_uiExtension->GetAtlasTexture2D("Background9R");
 
     // Allocate the screenshot button
-    NineSlice backgroundNineSlice(32, 32, 32, 32);
-    m_btnScreenshot = std::make_shared<Label9SliceButton>(context);
-    m_btnScreenshot->SetBackground(texBackground);
-    m_btnScreenshot->SetNineSlice(backgroundNineSlice);
-    m_btnScreenshot->SetPadding(ThicknessF(32, 32, 32, 32));
-    m_btnScreenshot->SetContent("Screenshot");
-    m_btnScreenshot->SetAlignmentX(ItemAlignment::Center);
+    m_btnScreenshot = uiFactory.CreateTextButton(UI::Theme::ButtonType::Contained, "Screenshot");
+    m_btnScreenshot->SetAlignmentX(UI::ItemAlignment::Center);
 
     // Create a label to write stuff into when a button is pressed
-    m_label = std::make_shared<Label>(context);
-    m_label->SetAlignmentX(ItemAlignment::Center);
-    m_label->SetAlignmentY(ItemAlignment::Center);
+    m_label = uiFactory.CreateLabel("");
+    m_label->SetAlignmentX(UI::ItemAlignment::Center);
+    m_label->SetAlignmentY(UI::ItemAlignment::Center);
 
     // Create a horizontal stack layout and add the UI elements
-    auto uiStack = std::make_shared<StackLayout>(context);
-    uiStack->SetLayoutOrientation(LayoutOrientation::Vertical);
-    uiStack->SetAlignmentX(ItemAlignment::Center);
-    uiStack->SetAlignmentY(ItemAlignment::Far);
+    auto uiStack = std::make_shared<UI::StackLayout>(context);
+    uiStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    uiStack->SetAlignmentX(UI::ItemAlignment::Center);
+    uiStack->SetAlignmentY(UI::ItemAlignment::Far);
     uiStack->AddChild(m_label);
     uiStack->AddChild(m_btnScreenshot);
 
-    // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
-    // We then add the 'player' stack to it and the label
-    auto fillLayout = std::make_shared<FillLayout>(context);
-    fillLayout->AddChild(uiStack);
+    auto bottomBar = uiFactory.CreateBottomBar();
+    bottomBar->SetContent(uiStack);
 
     // Finally add everything to the window manager (to ensure its seen)
     auto windowManager = m_uiExtension->GetWindowManager();
-    windowManager->Add(fillLayout);
+    windowManager->Add(bottomBar);
   }
 
 
-  void Screenshot::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void Screenshot::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_btnScreenshot)
     {
@@ -281,20 +277,20 @@ namespace Fsl
   }
 
 
-  void Screenshot::Update(const DemoTime& demoTime)
+  void Screenshot::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void Screenshot::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void Screenshot::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
-      clearValues[0].color = {0.5f, 0.5f, 0.5f, 1.0f};
+      clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -303,7 +299,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -354,7 +350,7 @@ namespace Fsl
   }
 
 
-  VkRenderPass Screenshot::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
+  VkRenderPass Screenshot::OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/)
   {
     // Since we only draw using the NativeBatch we just create the most basic render pass that is compatible
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();
@@ -397,7 +393,7 @@ namespace Fsl
       return Bitmap();
     }
 
-    auto srcPixelFormat = Vulkan::ConvertUtil::Convert(srcImageFormat);
+    auto srcPixelFormat = Vulkan::VulkanConvert::ToPixelFormat(srcImageFormat);
     if (PixelFormatUtil::IsCompressed(srcPixelFormat))
     {
       FSLLOG3_WARNING("srcPixelFormat is compressed, capture cancelled");
@@ -413,8 +409,8 @@ namespace Fsl
     // Check if the device supports 'blit' to the dst linear format
     const bool allowDstBlit = (formatProperties.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) != 0u;
 
-    FSLLOG3_VERBOSE_IF(!allowSrcBlit, "Device does not support blitting from src format: {}", Debug::ToString(srcImageFormat));
-    FSLLOG3_VERBOSE_IF(!allowDstBlit, "Device does not support blitting to dst format: {}", Debug::ToString(dstImageFormat));
+    FSLLOG3_VERBOSE_IF(!allowSrcBlit, "Device does not support blitting from src format: {}", RapidVulkan::Debug::ToString(srcImageFormat));
+    FSLLOG3_VERBOSE_IF(!allowDstBlit, "Device does not support blitting to dst format: {}", RapidVulkan::Debug::ToString(dstImageFormat));
 
     // if (allowSrcBlit && allowDstBlit)
     //{
@@ -424,7 +420,7 @@ namespace Fsl
   }
 
 
-  Bitmap Screenshot::TryCaptureScreenshotViaBlit(const VulkanBasic::SwapchainInfo& swapchainInfo, const VkFormat dstImageFormat)
+  Bitmap Screenshot::TryCaptureScreenshotViaBlit(const VulkanBasic::SwapchainInfo& /*swapchainInfo*/, const VkFormat /*dstImageFormat*/)
   {
     FSLLOG3_VERBOSE("Capturing via blit");
 

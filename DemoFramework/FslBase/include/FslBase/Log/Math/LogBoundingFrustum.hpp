@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/BoundingFrustum.hpp>
 #include <FslBase/Log/Math/LogMatrix.hpp>
+#include <FslBase/Math/BoundingFrustum.hpp>
 #include <ostream>
 
 namespace Fsl

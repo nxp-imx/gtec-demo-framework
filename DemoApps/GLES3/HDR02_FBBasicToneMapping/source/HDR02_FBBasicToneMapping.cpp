@@ -34,7 +34,6 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -68,7 +67,7 @@ namespace Fsl
       return GLES3::GLTexture(tex, texParams);
     }
 
-    GLES3::GLFrameBuffer CreateHdrFrameBuffer(const Point2& resolution)
+    GLES3::GLFrameBuffer CreateHdrFrameBuffer(const PxSize2D& resolution)
     {
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       GLTextureImageParameters texImageParams(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
@@ -97,7 +96,7 @@ namespace Fsl
     m_resources.ProgramTonemapLDR = CreateTonemapShader(contentManager, false);
     m_resources.ProgramTonemapHDR = CreateTonemapShader(contentManager, true);
 
-    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(config.ScreenResolution);
+    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(config.WindowMetrics.GetSizePx());
 
     m_resources.MeshTunnel = SimpleMeshUtil::CreateTunnelVertexArray(m_resources.Program.Program);
     m_resources.MeshQuad = SimpleMeshUtil::CreateQuadVertexArray(m_resources.ProgramTonemapLDR.Program);
@@ -154,17 +153,16 @@ namespace Fsl
     UpdateInput(demoTime);
     m_menuUI.Update(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     m_vertexUboData.MatModel = Matrix::GetIdentity();
     m_vertexUboData.MatView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    const float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
   }
 
 
-  void HDR02_FBBasicToneMapping::Draw(const DemoTime& demoTime)
+  void HDR02_FBBasicToneMapping::Draw(const DemoTime& /*demoTime*/)
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -176,8 +174,8 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * screenResolution.X));
-    const GLint remainderX = std::min(std::max(screenResolution.X - splitX, 0), screenResolution.X);
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * windowSizePx.Width()));
+    const GLint remainderX = std::min(std::max(windowSizePx.Width() - splitX, 0), windowSizePx.Width());
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -198,7 +196,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(0, 0, splitX, screenResolution.Y);
+        glScissor(0, 0, splitX, windowSizePx.Height());
       }
       DrawTonemappedScene(m_resources.ProgramTonemapLDR, m_resources.HdrFrameBuffer);
     }
@@ -206,7 +204,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(splitX, 0, remainderX, screenResolution.Y);
+        glScissor(splitX, 0, remainderX, windowSizePx.Height());
       }
       DrawTonemappedScene(m_resources.ProgramTonemapHDR, m_resources.HdrFrameBuffer);
     }
@@ -346,7 +344,7 @@ namespace Fsl
                                                                                              const bool useHDR)
   {
     TonemapProgramInfo info;
-    const auto fragmentShaderName = useHDR ? "TonemapperHDR.frag" : "TonemapperLDR.frag";
+    const auto* const fragmentShaderName = useHDR ? "TonemapperHDR.frag" : "TonemapperLDR.frag";
     info.Program.Reset(contentManager->ReadAllText("Tonemapper.vert"), contentManager->ReadAllText(fragmentShaderName));
     info.Location.Exposure = info.Program.GetUniformLocation("g_exposure");
     return info;

@@ -38,16 +38,18 @@
 #include <FslGraphics/Texture/RawTexture.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceMemoryUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslUtil/Vulkan1_0/VUImage.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Fence.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <vulkan/vulkan.h>
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <limits>
@@ -140,7 +142,7 @@ namespace Fsl
         {
           VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
 
-          const auto srcFormat = ConvertUtil::Convert(src.GetPixelFormat());
+          const auto srcFormat = VulkanConvert::ToVkFormat(src.GetPixelFormat());
           const VkDeviceSize resourceSize = src.GetByteSize();
           const auto srcExtent = src.GetExtent();
           const VkExtent3D srcExtentEx = {srcExtent.Width, srcExtent.Height, 1};
@@ -170,10 +172,10 @@ namespace Fsl
           VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT;
 
           const TextureInfo textureInfo = src.GetTextureInfo();
-          const auto srcFormat = ConvertUtil::Convert(src.GetPixelFormat());
-          const auto srcImageType = ConvertUtil::ToImageType(src.GetTextureType());
+          const auto srcFormat = VulkanConvert::ToVkFormat(src.GetPixelFormat());
+          const auto srcImageType = VulkanConvert::ToVkImageType(src.GetTextureType());
           const VkDeviceSize resourceSize = src.GetByteSize();
-          const auto srcExtent = ConvertUtil::Convert(src.GetExtent());
+          const auto srcExtent = TypeConverter::UncheckedTo<VkExtent3D>(src.GetExtent());
 
           if (PhysicalDeviceUtil::IsImageTilingAvailable(physicalDevice.Device, VK_IMAGE_TILING_OPTIMAL, srcFormat, srcImageType, 0, srcExtent,
                                                          textureInfo.Levels, textureInfo.Layers, samples, resourceSize))
@@ -236,7 +238,7 @@ namespace Fsl
                 assert((textureInfo.Layers == 1 && textureInfo.Faces >= 1) || (textureInfo.Layers >= 1 && textureInfo.Faces == 1));
                 bufferImageCopy.imageSubresource.baseArrayLayer = (textureInfo.Faces > 1 ? faceIndex : layerIndex);
                 bufferImageCopy.imageSubresource.layerCount = 1;
-                bufferImageCopy.imageExtent = ConvertUtil::Convert(blobExtent);
+                bufferImageCopy.imageExtent = TypeConverter::UncheckedTo<VkExtent3D>(blobExtent);
                 bufferImageCopy.bufferOffset = blobRecord.Offset;
 
                 imageCopyRegions[dstOffset] = bufferImageCopy;
@@ -273,9 +275,9 @@ namespace Fsl
           const auto srcTextureType = src.GetTextureType();
 
           // Now prepare a optimal tiled target image
-          auto imageCreateInfo =
-            FillTransferImageCreateInfo(ConvertUtil::ToImageType(srcTextureType), ConvertUtil::Convert(src.GetPixelFormat()),
-                                        ConvertUtil::Convert(src.GetExtent()), samples, imageUsageFlags, textureInfo, srcTextureType);
+          auto imageCreateInfo = FillTransferImageCreateInfo(
+            VulkanConvert::ToVkImageType(srcTextureType), VulkanConvert::ToVkFormat(src.GetPixelFormat()),
+            TypeConverter::UncheckedTo<VkExtent3D>(src.GetExtent()), samples, imageUsageFlags, textureInfo, srcTextureType);
 
           VUImage toImage(device, imageCreateInfo);
 
@@ -372,7 +374,7 @@ namespace Fsl
         srcExtent.height = src.Height();
         srcExtent.depth = 1;
 
-        auto imageCreateInfo = FillLinearImageCreateInfo(VK_IMAGE_TYPE_2D, ConvertUtil::Convert(src.GetPixelFormat()), srcExtent, samples,
+        auto imageCreateInfo = FillLinearImageCreateInfo(VK_IMAGE_TYPE_2D, VulkanConvert::ToVkFormat(src.GetPixelFormat()), srcExtent, samples,
                                                          imageUsageFlags, textureInfo, TextureType::Tex2D);
         VUImage toImage(device, imageCreateInfo);
 
@@ -500,7 +502,7 @@ namespace Fsl
         srcExtent.height = src.Height();
         srcExtent.depth = 1;
 
-        std::vector<VkBufferImageCopy> bufferImageCopy(1);
+        std::array<VkBufferImageCopy, 1> bufferImageCopy{};
         bufferImageCopy[0].imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         bufferImageCopy[0].imageSubresource.mipLevel = 0;
         bufferImageCopy[0].imageSubresource.baseArrayLayer = 0;
@@ -509,7 +511,7 @@ namespace Fsl
         bufferImageCopy[0].bufferOffset = 0;
 
         // Now prepare a optimal tiled target image
-        auto imageCreateInfo = FillTransferImageCreateInfo(VK_IMAGE_TYPE_2D, ConvertUtil::Convert(src.GetPixelFormat()), srcExtent, samples,
+        auto imageCreateInfo = FillTransferImageCreateInfo(VK_IMAGE_TYPE_2D, VulkanConvert::ToVkFormat(src.GetPixelFormat()), srcExtent, samples,
                                                            imageUsageFlags, textureInfo, TextureType::Tex2D);
 
         VUImage toImage(device, imageCreateInfo);
@@ -581,7 +583,7 @@ namespace Fsl
         TextureInfo textureInfo(1, 6, 1);
 
         // Now prepare a optimal tiled target image
-        auto imageCreateInfo = FillTransferImageCreateInfo(VK_IMAGE_TYPE_2D, ConvertUtil::Convert(src.GetPixelFormat()), srcExtentEx, samples,
+        auto imageCreateInfo = FillTransferImageCreateInfo(VK_IMAGE_TYPE_2D, VulkanConvert::ToVkFormat(src.GetPixelFormat()), srcExtentEx, samples,
                                                            imageUsageFlags, textureInfo, TextureType::TexCube);
 
         VUImage toImage(device, imageCreateInfo);

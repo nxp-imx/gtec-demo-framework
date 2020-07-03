@@ -33,6 +33,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslBase/Math/Pixel/PxRectangle2D.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
@@ -47,24 +48,20 @@ namespace Fsl
   {
     ButtonBase::ButtonBase(const std::shared_ptr<BaseWindowContext>& context)
       : BaseWindow(context)
-      , m_isClickable(true)
-      , m_isDown(false)
     {
       Enable(WindowFlags::ClickInput);
     }
 
 
-    bool ButtonBase::IsClickable() const
+    void ButtonBase::SetEnabled(const bool enabled)
     {
-      return m_isClickable;
-    }
-
-
-    void ButtonBase::SetClickable(const bool value)
-    {
-      if (value != m_isClickable)
+      if (enabled != m_isEnabled)
       {
-        m_isClickable = value;
+        m_isEnabled = enabled;
+        if (!enabled && m_isDown)
+        {
+          CancelButtonDown();
+        }
         PropertyUpdated(PropertyType::Other);
       }
     }
@@ -79,20 +76,20 @@ namespace Fsl
         return;
       }
 
-      if (m_isClickable && theEvent->IsBegin())
+      if (m_isEnabled && theEvent->IsBegin())
       {
         if (!theEvent->IsRepeat())
         {
           // Just for safety
           if (m_isDown)
           {
-            m_isDown = false;
-            Up(true);
+            CancelButtonDown();
           }
           m_isDown = true;
           theEvent->Handled();
 
-          Down();
+          // always set the state before calling 'pressed'
+          Pressed(ButtonPressState::Down);
         }
       }
       else if (m_isDown)
@@ -100,22 +97,34 @@ namespace Fsl
         m_isDown = false;
         theEvent->Handled();
 
-        bool wasCanceled = true;
-        if (m_isClickable)
+        if (m_isEnabled)
         {
+          bool wasCanceled = true;
           // Only accept the press if the mouse/finger is still on top of the button
           auto pos = PointFromScreen(theEvent->GetScreenPosition());
-          auto size = RenderSize();
-          auto hitRect = Rect(0, 0, size.X, size.Y);
+          auto size = RenderExtentPx();
+          PxRectangle2D hitRect(0, 0, size.Width, size.Height);
           if (hitRect.Contains(pos))
           {
             wasCanceled = false;
             SendEvent(GetEventPool()->AcquireWindowSelectEvent(0));
           }
+          // always set the state before calling 'pressed'
+          Pressed(!wasCanceled ? ButtonPressState::Up : ButtonPressState::UpCancelled);
         }
-
-        Up(wasCanceled);
       }
     }
+
+    void ButtonBase::CancelButtonDown()
+    {
+      if (!m_isDown)
+      {
+        return;
+      }
+      // always set the state before calling 'pressed'
+      m_isDown = false;
+      Pressed(ButtonPressState::UpCancelled);
+    }
+
   }
 }

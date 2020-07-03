@@ -63,7 +63,7 @@ namespace Fsl
     {
       IO::Path strExePath = GetBasePath();
       strExePath = IO::Path::GetFullPath(strExePath);
-      return IO::Path::Combine(strExePath, "Content");
+      return IO::Path::Combine(strExePath, IO::PathView("Content"));
     }
   }
 }

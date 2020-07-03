@@ -1,5 +1,15 @@
 {
-  "Origin": "NXP;Justin Nichol", 
-  "Comment": "See the source files for the texture atlas for their origin and license (Resources/Source/DFNativeBatch2D)", 
-  "License": "CC0-1.0;CC-BY-SA-4.0"
+  "ComplexLicense": {
+    "Comment": "See the source files for the texture atlas for their origin and license (Resources/Source/DFNativeBatch2D)", 
+    "Licenses": [
+      {
+        "Origin": "NXP", 
+        "License": "CC0-1.0"
+      },
+      {
+        "Origin": "Justin Nichol", 
+        "License": "CC-BY-SA-4.0"
+      }
+    ]
+  }
 }

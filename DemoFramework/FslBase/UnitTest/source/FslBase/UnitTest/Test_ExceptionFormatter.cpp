@@ -47,7 +47,7 @@ namespace
 
   bool TryFormatException(const std::exception& ex, std::string& rMessage)
   {
-    auto pEx = dynamic_cast<const IndexOutOfRangeException*>(&ex);
+    const auto* pEx = dynamic_cast<const IndexOutOfRangeException*>(&ex);
     if (pEx == nullptr)
     {
       return false;

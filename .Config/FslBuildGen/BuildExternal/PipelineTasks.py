@@ -57,8 +57,7 @@ class PipelineTasks(object):
         except Exception as ex:
             if checkBuildCommands:
                 raise
-            if self.__Log.Verbosity >= 1:
-                self.__Log.LogPrintWarning("CMakeAndBuild is unavailable: {0}".format(str(ex)))
+            self.__Log.DoPrintWarning("CMakeAndBuild failed with: {0}".format(ex))
             return None
 
 

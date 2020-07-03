@@ -32,6 +32,10 @@
 #include <Shared/ObjectSelection/MenuUI.hpp>
 #include <Shared/ObjectSelection/OptionParser.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 
 namespace Fsl
 {
@@ -44,7 +48,8 @@ namespace Fsl
 
   MenuUI::MenuUI(const DemoAppConfig& config)
     : m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
+    , m_themeFactory(m_uiExtension->GetContext(), m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId())
     , m_optionParser(config.GetOptions<OptionParser>())
     , m_drawNearPlaneMouse(m_optionParser->IsNearPlaneMouseEnabled())
     , m_drawFarPlaneMouse(m_optionParser->IsFarPlaneMouseEnabled())
@@ -85,27 +90,12 @@ namespace Fsl
       SetDrawAxisAlignedBoundingBoxEnabled(!IsDrawAxisAlignedBoundingBoxEnabled());
       event.Handled();
       break;
-    case VirtualKey::M:
-      ToggleMenu();
-      event.Handled();
-      break;
     default:
       break;
     }
   }
 
-
-  void MenuUI::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
-  {
-    if (theEvent->GetSource() == m_btnMenu)
-    {
-      theEvent->Handled();
-      ToggleMenu();
-    }
-  }
-
-
-  void MenuUI::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void MenuUI::OnContentChanged(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_cbMenuDrawNearPlaneMouse)
     {
@@ -135,19 +125,6 @@ namespace Fsl
   }
 
 
-  void MenuUI::ToggleMenu()
-  {
-    if (m_layoutMenu)
-    {
-      DestroyMenuUI();
-    }
-    else
-    {
-      CreateMenuUI();
-    }
-  }
-
-
   void MenuUI::Draw()
   {
     m_uiExtension->Draw();
@@ -158,89 +135,39 @@ namespace Fsl
   {
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
-    AtlasTexture2D texMenu = m_uiExtension->GetAtlasTexture2D("Player/Pause");
-
-    m_btnMenu = std::make_shared<ImageButton>(context);
-    m_btnMenu->SetContent(texMenu);
-    m_btnMenu->SetAlignmentX(ItemAlignment::Near);
-    m_btnMenu->SetAlignmentY(ItemAlignment::Far);
-
-    m_mainMenuStack = std::make_shared<StackLayout>(context);
-    m_mainMenuStack->SetLayoutOrientation(LayoutOrientation::Vertical);
-    m_mainMenuStack->SetAlignmentX(ItemAlignment::Near);
-    m_mainMenuStack->SetAlignmentY(ItemAlignment::Near);
-
-    auto internalStack = std::make_shared<StackLayout>(context);
-    internalStack->SetLayoutOrientation(LayoutOrientation::Vertical);
-    internalStack->SetAlignmentX(ItemAlignment::Near);
-    internalStack->SetAlignmentY(ItemAlignment::Far);
-    internalStack->AddChild(m_mainMenuStack);
-    internalStack->AddChild(m_btnMenu);
 
     m_rootLayout = std::make_shared<FillLayout>(context);
-    m_rootLayout->AddChild(internalStack);
 
     // Finally add everything to the window manager (to ensure its seen)
     m_uiExtension->GetWindowManager()->Add(m_rootLayout);
-  }
 
-
-  void MenuUI::CreateMenuUI()
-  {
-    if (m_layoutMenu)
-    {
-      return;
-    }
-
-    auto context = m_uiExtension->GetContext();
-    AtlasTexture2D texCheckBoxC(m_uiExtension->GetAtlasTexture2D("CheckBoxC"));
-    AtlasTexture2D texCheckBoxU(m_uiExtension->GetAtlasTexture2D("CheckBoxU"));
-    AtlasTexture2D texSlider(m_uiExtension->GetAtlasTexture2D("Slider"));
-    AtlasTexture2D texSliderCursor(m_uiExtension->GetAtlasTexture2D("SliderCursor"));
-    ThicknessF sliderCursorPadding(13, 0, 13, 0);
-    NineSlice sliderNineSlice(13, 0, 13, 0);
-
+    auto stackLayout = std::make_shared<ComplexStackLayout>(context);
+    stackLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
+    stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+    stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+    stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+    stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+    stackLayout->SetAlignmentX(ItemAlignment::Stretch);
+    stackLayout->SetAlignmentY(ItemAlignment::Stretch);
 
     // Create the outer stack for the menu
-    m_layoutMenu = std::make_shared<StackLayout>(context);
-    m_layoutMenu->SetLayoutOrientation(LayoutOrientation::Vertical);
-    m_layoutMenu->SetAlignmentX(ItemAlignment::Near);
-    m_layoutMenu->SetAlignmentY(ItemAlignment::Near);
-    m_mainMenuStack->AddChild(m_layoutMenu);
+    m_layoutMenu = m_themeFactory.CreateBottomBar(stackLayout);
+    m_rootLayout->AddChild(m_layoutMenu);
 
-    m_cbMenuDrawNearPlaneMouse = std::make_shared<CheckBox>(context);
-    m_cbMenuDrawNearPlaneMouse->SetText("NearPlaneMouseCross");
-    m_cbMenuDrawNearPlaneMouse->SetCheckedTexture(texCheckBoxC);
-    m_cbMenuDrawNearPlaneMouse->SetUncheckedTexture(texCheckBoxU);
+    m_cbMenuDrawNearPlaneMouse = m_themeFactory.CreateSwitch("NearPlaneMouseCross");
+    m_cbMenuDrawNearPlaneMouse->SetAlignmentX(UI::ItemAlignment::Center);
+    m_cbMenuDrawFarPlaneMouse = m_themeFactory.CreateSwitch("FarPlaneMouseCross");
+    m_cbMenuDrawFarPlaneMouse->SetAlignmentX(UI::ItemAlignment::Center);
 
-    m_cbMenuDrawFarPlaneMouse = std::make_shared<CheckBox>(context);
-    m_cbMenuDrawFarPlaneMouse->SetText("FarPlaneMouseCross");
-    m_cbMenuDrawFarPlaneMouse->SetCheckedTexture(texCheckBoxC);
-    m_cbMenuDrawFarPlaneMouse->SetUncheckedTexture(texCheckBoxU);
+    m_cbMenuOrientedBoundingBox = m_themeFactory.CreateSwitch("OrientedBoundingBox");
+    m_cbMenuOrientedBoundingBox->SetAlignmentX(UI::ItemAlignment::Center);
+    m_cbMenuAxisAlignedBoundingBox = m_themeFactory.CreateSwitch("AxisAlignedBoundingBox");
+    m_cbMenuAxisAlignedBoundingBox->SetAlignmentX(UI::ItemAlignment::Center);
 
-    m_cbMenuOrientedBoundingBox = std::make_shared<CheckBox>(context);
-    m_cbMenuOrientedBoundingBox->SetText("OrientedBoundingBox");
-    m_cbMenuOrientedBoundingBox->SetCheckedTexture(texCheckBoxC);
-    m_cbMenuOrientedBoundingBox->SetUncheckedTexture(texCheckBoxU);
-
-    m_cbMenuAxisAlignedBoundingBox = std::make_shared<CheckBox>(context);
-    m_cbMenuAxisAlignedBoundingBox->SetText("AxisAlignedBoundingBox");
-    m_cbMenuAxisAlignedBoundingBox->SetCheckedTexture(texCheckBoxC);
-    m_cbMenuAxisAlignedBoundingBox->SetUncheckedTexture(texCheckBoxU);
-
-    // m_cbMenuFinalBloom = std::make_shared<CheckBox>(context);
-    // m_cbMenuFinalBloom->SetText("Final bloom");
-    // m_cbMenuFinalBloom->SetCheckedTexture(texCheckBoxC);
-    // m_cbMenuFinalBloom->SetUncheckedTexture(texCheckBoxU);
-
-    m_layoutMenu->AddChild(m_cbMenuOrientedBoundingBox);
-    m_layoutMenu->AddChild(m_cbMenuAxisAlignedBoundingBox);
-    m_layoutMenu->AddChild(m_cbMenuDrawNearPlaneMouse);
-    m_layoutMenu->AddChild(m_cbMenuDrawFarPlaneMouse);
-    // m_layoutMenu->AddChild(m_cbMenuFinalBloom);
-
-    // m_layoutMenu->AddChild(stack1);
-    // m_layoutMenu->AddChild(stack2);
+    stackLayout->AddChild(m_cbMenuOrientedBoundingBox);
+    stackLayout->AddChild(m_cbMenuAxisAlignedBoundingBox);
+    stackLayout->AddChild(m_cbMenuDrawNearPlaneMouse);
+    stackLayout->AddChild(m_cbMenuDrawFarPlaneMouse);
 
     UpdateControls();
   }
@@ -294,35 +221,6 @@ namespace Fsl
   }
 
 
-  // void MenuUI::SetFinalBloomEnabled(bool enabled)
-  //{
-  //  if (m_renderFinalBloom == enabled)
-  //    return;
-
-  //  m_renderFinalBloom = enabled;
-  //  UpdateControls();
-  //}
-
-
-  void MenuUI::DestroyMenuUI()
-  {
-    if (!m_layoutMenu)
-    {
-      return;
-    }
-
-    // Close the menu window
-    m_mainMenuStack->RemoveChild(m_layoutMenu);
-    m_layoutMenu.reset();
-
-    // Clear all points to controls from the main menu
-    m_cbMenuDrawNearPlaneMouse.reset();
-    m_cbMenuDrawFarPlaneMouse.reset();
-    m_cbMenuOrientedBoundingBox.reset();
-    m_cbMenuAxisAlignedBoundingBox.reset();
-    // m_cbMenuFinalBloom.reset();
-  }
-
   void MenuUI::UpdateControls()
   {
     if (m_cbMenuDrawNearPlaneMouse)
@@ -341,7 +239,5 @@ namespace Fsl
     {
       m_cbMenuAxisAlignedBoundingBox->SetIsChecked(m_drawAxisAlignedBoundingBox);
     }
-    // if (m_cbMenuFinalBloom)
-    //  m_cbMenuFinalBloom->SetIsChecked(m_renderFinalBloom);
   }
 }

@@ -19,7 +19,8 @@
 // It is not a straight port, but it has instead been converted to follow the RAII principle
 // used in this framework
 
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/SwapchainKHR.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/SwapchainBuffers.hpp>
@@ -53,7 +54,7 @@ namespace Fsl
       Swapchain();
 
       //! @brief Create the requested resource
-      Swapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+      Swapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const PxExtent2D& extentPx,
                 const bool enableVSync);
 
       ~Swapchain();
@@ -62,7 +63,7 @@ namespace Fsl
       void Reset() noexcept;
 
       //! @brief Destroys any owned resources and then creates the requested one
-      void Reset(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+      void Reset(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const PxExtent2D& extentPx,
                  const bool enableVSync);
 
       //! @brief Get the associated resource handle
@@ -89,7 +90,7 @@ namespace Fsl
 
       uint32_t GetImageCount() const
       {
-        return static_cast<uint32_t>(m_buffers.size());
+        return UncheckedNumericCast<uint32_t>(m_buffers.size());
       }
 
       VkFormat GetImageFormat() const
@@ -101,7 +102,7 @@ namespace Fsl
       {
         // By setting timeout to UINT64_MAX we will always wait until the next image has been acquired or an actual error is thrown
         // With that we don't have to handle VK_NOT_READY
-        uint32_t imageIndex;
+        uint32_t imageIndex = 0;
         RAPIDVULKAN_CHECK(TryAcquireNextImage(presentCompleteSemaphore, imageIndex));
         return imageIndex;
       }

@@ -31,56 +31,31 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslBase/Math/Dp/DpPointF.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
-#include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
-#include <deque>
 
 namespace Fsl
 {
   namespace UI
   {
-    class WrapLayout : public Layout
+    struct WrapLayoutWindowRecord : GenericWindowCollectionRecordBase
     {
-      struct WindowRecord : GenericWindowCollectionRecordBase
+      PxPoint2 PositionPx;
+
+      explicit WrapLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
+        : GenericWindowCollectionRecordBase(window)
       {
-        Vector2 Position;
+      }
+    };
 
-        WindowRecord(const std::shared_ptr<BaseWindow>& window)
-          : GenericWindowCollectionRecordBase(window)
-        {
-        }
-      };
-
-      using collection_type = GenericWindowCollection<WindowRecord>;
-      collection_type m_children;
-
+    class WrapLayout : public ComplexLayout<WrapLayoutWindowRecord>
+    {
       LayoutOrientation m_orientation;
-      Vector2 m_spacing;
+      DpPointF m_spacingDp;
 
     public:
-      WrapLayout(const std::shared_ptr<BaseWindowContext>& context);
-      void WinInit() override;
-
-      void ClearChildren() override
-      {
-        m_children.Clear();
-      }
-
-      void AddChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Add(window);
-      }
-
-      void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Remove(window);
-      }
-
-      std::size_t GetChildCount() const override
-      {
-        return m_children.size();
-      }
+      explicit WrapLayout(const std::shared_ptr<BaseWindowContext>& context);
 
       LayoutOrientation GetLayoutOrientation() const
       {
@@ -89,21 +64,29 @@ namespace Fsl
 
       void SetLayoutOrientation(const LayoutOrientation& value);
 
-      Vector2 GetSpacing() const
+      DpPointF GetSpacing() const
       {
-        return m_spacing;
+        return m_spacingDp;
       }
 
-      void SetSpacing(const Vector2& value);
+      void SetSpacing(const DpPointF& valueDp);
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
-      static Vector2 MeasureHorizontalStackLayout(collection_type& rEntries, const float spacingX, const Vector2& availableSize);
-      static Vector2 MeasureVerticalStackLayout(collection_type& rEntries, const float spacingY, const Vector2& availableSize);
-      static Vector2 MeasureHorizontalWrapLayout(collection_type& rEntries, const Vector2& spacing, const Vector2& availableSize);
-      static Vector2 MeasureVerticalWrapLayout(collection_type& rEntries, const Vector2& spacing, const Vector2& availableSize);
+      static PxSize2D MeasureHorizontalStackLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                   const collection_type::queue_type::iterator& itrEnd, const int32_t spacingXPx,
+                                                   const PxAvailableSize& availableSizePx);
+      static PxSize2D MeasureVerticalStackLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                 const collection_type::queue_type::iterator& itrEnd, const int32_t spacingYPx,
+                                                 const PxAvailableSize& availableSizePx);
+      static PxSize2D MeasureHorizontalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                  const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
+                                                  const PxAvailableSize& availableSizePx);
+      static PxSize2D MeasureVerticalWrapLayout(const collection_type::queue_type::iterator& itrBegin,
+                                                const collection_type::queue_type::iterator& itrEnd, const PxPoint2& spacingPx,
+                                                const PxAvailableSize& availableSizePx);
     };
   }
 }

@@ -34,37 +34,38 @@
 #include <FslService/Impl/ServiceSupportedInterfaceDeque.hpp>
 #include <FslService/Impl/ServiceType/Local/IThreadLocalSingletonServiceFactory.hpp>
 #include <FslDemoHost/Base/Service/Content/ContentManagerService.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  class ContentManagerServiceFactory : public IThreadLocalSingletonServiceFactory
+  class ContentManagerServiceFactory final : public IThreadLocalSingletonServiceFactory
   {
     const IO::Path m_contentPath;
 
   public:
-    ContentManagerServiceFactory(const IO::Path& contentPath)
-      : m_contentPath(contentPath)
+    explicit ContentManagerServiceFactory(IO::Path contentPath)
+      : m_contentPath(std::move(contentPath))
     {
     }
 
 
-    std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
+    std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
       return std::shared_ptr<AServiceOptionParser>();
     }
 
 
-    ServiceCaps::Flags GetFlags() const override
+    ServiceCaps::Flags GetFlags() const final
     {
       return ServiceCaps::Flags(ServiceCaps::Default);
     }
 
-    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
+    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const final
     {
       rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IContentManager)));
     }
 
-    std::shared_ptr<IService> Allocate(ServiceProvider& provider) override
+    std::shared_ptr<IService> Allocate(ServiceProvider& provider) final
     {
       return std::make_shared<ContentManagerService>(provider, m_contentPath);
     }

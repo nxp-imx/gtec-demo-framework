@@ -4,6 +4,7 @@
 /Android/
 /CMakeLists.txt
 /Content/Textures/Bricks/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.HDR04_HDRFramebuffer.VC.VC.opendb

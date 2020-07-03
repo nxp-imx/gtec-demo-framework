@@ -33,7 +33,7 @@
 
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
-#include <FslUtil/Vulkan1_0/NativeBatch2D.hpp>
+#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 
 namespace Fsl
@@ -55,7 +55,7 @@ namespace Fsl
     Vulkan::VUTexture m_texDst;
 
   public:
-    OpenVX101(const DemoAppConfig& config);
+    explicit OpenVX101(const DemoAppConfig& config);
     ~OpenVX101() override;
 
   protected:

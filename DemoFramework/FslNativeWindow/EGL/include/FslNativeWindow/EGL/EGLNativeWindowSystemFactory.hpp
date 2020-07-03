@@ -42,8 +42,8 @@ namespace Fsl
   class EGLNativeWindowSystemFactory
   {
   public:
-    static const std::shared_ptr<IEGLNativeWindowSystem> Allocate(const NativeWindowSystemSetup& setup);
-    static const std::shared_ptr<INativeWindowSystem> AllocateNative(const NativeWindowSystemSetup& setup);
+    static std::shared_ptr<IEGLNativeWindowSystem> Allocate(const NativeWindowSystemSetup& setup);
+    static std::shared_ptr<INativeWindowSystem> AllocateNative(const NativeWindowSystemSetup& setup);
   };
 }
 

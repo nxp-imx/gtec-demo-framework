@@ -32,11 +32,12 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslGraphics/Bitmap/BitmapClearMethod.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
-#include <FslGraphics/Bitmap/BitmapClearMethod.hpp>
 #include <FslGraphics/StrideRequirement.hpp>
 #include <cstdlib>
 #include <vector>
@@ -50,7 +51,7 @@ namespace Fsl
   {
     //! The raw image data
     std::vector<uint8_t> m_content;
-    Extent2D m_extent;
+    PxExtent2D m_extent;
     uint32_t m_stride{0};
     uint32_t m_bytesPerPixel{0};
     PixelFormat m_pixelFormat{PixelFormat::Undefined};
@@ -71,24 +72,24 @@ namespace Fsl
     Bitmap();
 
     //! @brief Create a empty bitmap of the given width, height and pixel format (The default stride preference is StrideRequirement::Any)
-    Bitmap(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+    Bitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a empty bitmap of the given width, height, pixel format and stride (The default stride preference is StrideRequirement::Any)
-    Bitmap(const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+    Bitmap(const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(const void* const pContent, const std::size_t cbContent, const Extent2D& extent, const PixelFormat pixelFormat,
+    Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(const void* const pContent, const std::size_t cbContent, const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    Bitmap(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(const RawBitmap& srcBitmap);
+    Bitmap(const RawBitmap& srcBitmap);    // NOLINT(google-explicit-constructor)
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
@@ -97,17 +98,17 @@ namespace Fsl
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat,
+    Bitmap(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
-    Bitmap(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    Bitmap(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
            const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! Just some ease of use overloads
     Bitmap(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft)
-      : Bitmap(Extent2D(width, height), pixelFormat, bitmapOrigin)
+      : Bitmap(PxExtent2D(width, height), pixelFormat, bitmapOrigin)
     {
     }
 
@@ -131,9 +132,9 @@ namespace Fsl
     }
 
     //! @brief The size of the bitmap in pixels
-    Point2 Size() const
+    PxSize2D Size() const
     {
-      return Point2(m_extent.Width, m_extent.Height);
+      return TypeConverter::UncheckedTo<PxSize2D>(m_extent);
     }
 
     //! @brief The stride of the bitmap in bytes
@@ -143,7 +144,7 @@ namespace Fsl
     }
 
     //! @brief The size of the bitmap in pixels
-    Extent2D GetExtent() const
+    PxExtent2D GetExtent() const
     {
       return m_extent;
     }
@@ -188,26 +189,26 @@ namespace Fsl
     //! @brief Reset the image to the given dimensions.
     //! @param clearMethod defines what to do with the existing content
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
+    void Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
                const BitmapClearMethod clearMethod = BitmapClearMethod::Clear);
 
     //! @brief Reset the image to the given dimensions.
     //! @param clearMethod defines what to do with the existing content
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    void Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft, const BitmapClearMethod clearMethod = BitmapClearMethod::Clear);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The input bitmap is assumed to use the minimum stride and the created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const void* const pContent, const std::size_t cbContent, const Extent2D& extent, const PixelFormat pixelFormat,
+    void Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(const void* const pContent, const std::size_t cbContent, const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
-               const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
+    void Reset(const void* const pContent, const std::size_t cbContent, const PxExtent2D& extent, const PixelFormat pixelFormat,
+               const uint32_t stride, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
@@ -218,29 +219,31 @@ namespace Fsl
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat,
+    void Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
 
     //! @brief Create a bitmap from the supplied content (the content will be copied).
     //         The created bitmap will use StrideRequirement::Any to find its stride.
     //! @note This resets the stride preference to StrideRequirement::Any
-    void Reset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+    void Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft);
 
 
     void Reset(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft,
                const BitmapClearMethod clearMethod = BitmapClearMethod::Clear)
     {
-      Reset(Extent2D(width, height), pixelFormat, bitmapOrigin, clearMethod);
+      Reset(PxExtent2D(width, height), pixelFormat, bitmapOrigin, clearMethod);
     }
 
     void Reset(const int32_t width, const int32_t height, const PixelFormat pixelFormat, const uint32_t stride,
                const BitmapOrigin bitmapOrigin = BitmapOrigin::UpperLeft, const BitmapClearMethod clearMethod = BitmapClearMethod::Clear)
     {
-      Reset(Extent2D(width, height), pixelFormat, stride, bitmapOrigin, clearMethod);
+      Reset(PxExtent2D(width, height), pixelFormat, stride, bitmapOrigin, clearMethod);
     }
 
+    //! @bried clear the content to zero
+    void Clear();
 
     //! @brief set the pixel at the given coordinate (if the coordinate is outside the bitmap nothing happens)
     //! @note SetNativePixel always treats 0,0 as the upper left corner regardless of the origin
@@ -339,7 +342,7 @@ namespace Fsl
     RawBitmapEx LockEx();
     void UnlockEx(const RawBitmapEx& bitmap);
     void Unlock() const;
-    void ResizeToFit(const Extent2D& extent, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t stride = 0);
+    void ResizeToFit(const PxExtent2D& extent, const PixelFormat pixelFormat, const StrideRequirement strideRequirement, const uint32_t stride = 0);
     void Clear(const BitmapClearMethod clearMethod);
     void ResetNoThrow() noexcept;
   };

@@ -40,6 +40,7 @@ from FslBuildGen.Exceptions import DependencyNotFoundException
 from FslBuildGen.Exceptions import InternalErrorException
 from FslBuildGen.Exceptions import InvalidDependencyException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackageDependency
 from FslBuildGen.Packages.PackageProjectContext import PackageProjectContext
@@ -50,8 +51,8 @@ from FslBuildGen.ToolConfigPackageProjectContextUtil import ToolConfigPackagePro
 from FslBuildGen.Xml.XmlGenFile import XmlGenFile
 
 
-def _AllocatePackage(config: Config, genFile: XmlGenFile, packageProjectContext: PackageProjectContext) -> Package:
-    return Package(config, packageProjectContext, genFile)
+def _AllocatePackage(config: Config, generatorInfo: GeneratorInfo, genFile: XmlGenFile, packageProjectContext: PackageProjectContext) -> Package:
+    return Package(config, generatorInfo, packageProjectContext, genFile)
 
 class ProjectContextCache(object):
     def __init__(self) -> None:
@@ -65,15 +66,16 @@ class ProjectContextCache(object):
         return self.__Cache[projectName] if projectName in self.__Cache else None
 
 class PackageManager(object):
-    def __init__(self, config: Config, platformName: str, genFiles: List[XmlGenFile]) -> None:
+    def __init__(self, config: Config, platformName: str, generatorInfo: GeneratorInfo, genFiles: List[XmlGenFile]) -> None:
         super().__init__()
+        self.__GeneratorInfo = generatorInfo
         self.__ProjectContextCache = ProjectContextCache()
         self.__PackageFactoryFunction = _AllocatePackage
         uniqueDict = {}  # type: Dict[str, Package]
         for genFile in genFiles:
             if not genFile.Name in uniqueDict:
                 packageProjectContext = self.__FindProjectContext(config, genFile)
-                uniqueDict[genFile.Name] = self.__PackageFactoryFunction(config, genFile, packageProjectContext)
+                uniqueDict[genFile.Name] = self.__PackageFactoryFunction(config, generatorInfo, genFile, packageProjectContext)
             else:
                 raise InternalErrorException("Package has been defined multiple times, this ought to have been caught earlier")
 
@@ -95,11 +97,13 @@ class PackageManager(object):
             topLevelProjectContext = PackageProjectContext(ProjectId("__TopLevel__"), "__TopLevel__", "0.0.0.0", [])
             self.__ProjectContextCache.Add(topLevelProjectContext)
             return topLevelProjectContext
-        projectContext = ToolConfigPackageProjectContextUtil.FindProjectContext(config.ToolConfig.ProjectInfo.Contexts, genFile.PackageLocation.ResolvedPath)
+        projectContext = ToolConfigPackageProjectContextUtil.FindProjectContext(config.ToolConfig.ProjectInfo.Contexts,
+                                                                                genFile.PackageLocation.ResolvedPath)
         basePackages = self.__CreateBasePackageList(projectContext.BasePackages)
         packageProjectContext = self.__ProjectContextCache.TryGet(projectContext.ProjectName)
         if packageProjectContext is None:
-            packageProjectContext = PackageProjectContext(projectContext.ProjectId, projectContext.ProjectName, projectContext.ProjectVersion, basePackages)
+            packageProjectContext = PackageProjectContext(projectContext.ProjectId, projectContext.ProjectName, projectContext.ProjectVersion,
+                                                          basePackages)
             self.__ProjectContextCache.Add(packageProjectContext)
         return packageProjectContext
 
@@ -115,7 +119,7 @@ class PackageManager(object):
         if genFile.Name in self.OriginalPackageDict:
             raise UsageErrorException("Package '{0}' already exist".format(genFile.Name))
         packageProjectContext = self.__FindProjectContext(config, genFile)
-        package = self.__PackageFactoryFunction(config, genFile, packageProjectContext)
+        package = self.__PackageFactoryFunction(config, self.__GeneratorInfo, genFile, packageProjectContext)
         self.__ResolvePackageDependencies(platformName, package)
         if not insertAtFront:
             self.Packages.append(package)

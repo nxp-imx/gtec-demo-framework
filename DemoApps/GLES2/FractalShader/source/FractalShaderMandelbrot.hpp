@@ -52,7 +52,7 @@ namespace Fsl
     Vector2 m_angle;
 
   public:
-    FractalShaderMandelbrot(const DemoAppConfig& config);
+    explicit FractalShaderMandelbrot(const DemoAppConfig& config);
     ~FractalShaderMandelbrot() override;
 
   protected:

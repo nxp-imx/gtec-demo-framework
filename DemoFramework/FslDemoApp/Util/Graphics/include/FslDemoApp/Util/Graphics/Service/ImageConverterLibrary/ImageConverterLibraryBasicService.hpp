@@ -36,18 +36,18 @@
 
 namespace Fsl
 {
-  class ImageConverterLibraryBasicService
+  class ImageConverterLibraryBasicService final
     : public ThreadLocalService
     , public IImageConverterLibraryService
   {
   public:
-    ImageConverterLibraryBasicService(const ServiceProvider& serviceProvider);
-    ~ImageConverterLibraryBasicService() override;
+    explicit ImageConverterLibraryBasicService(const ServiceProvider& serviceProvider);
+    ~ImageConverterLibraryBasicService() final;
 
     // From IImageConverterLibraryService
-    bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOriginHint) override;
+    bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOriginHint) final;
     bool TryConvert(Texture& rDstTexture, const Texture& srcTexture, const PixelFormat desiredPixelFormat,
-                    const BitmapOrigin desiredOriginHint) override;
+                    const BitmapOrigin desiredOriginHint) final;
   };
 }
 

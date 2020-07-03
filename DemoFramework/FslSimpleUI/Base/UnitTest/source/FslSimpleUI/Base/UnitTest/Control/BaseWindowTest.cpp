@@ -72,15 +72,15 @@ namespace Fsl
       return res;
     }
 
-    Rect BaseWindowTest::WinGetContentRect() const
+    const PxRectangle& BaseWindowTest::WinGetContentPxRectangle() const
     {
       ++m_callCount.WinGetContentRect;
-      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentRect))
+      if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
       {
         m_callId.WinGetContentRect = m_callIdManager->Claim();
       }
 
-      return BaseWindow::WinGetContentRect();
+      return BaseWindow::WinGetContentPxRectangle();
     }
 
     void BaseWindowTest::WinHandleEvent(const RoutedEvent& routedEvent)
@@ -188,7 +188,7 @@ namespace Fsl
       Callbacks.OnContentChanged(args, theEvent);
     }
 
-    Vector2 BaseWindowTest::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D BaseWindowTest::ArrangeOverride(const PxSize2D& finalSizePx)
     {
       ++m_callCount.ArrangeOverride;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::ArrangeOverride))
@@ -196,13 +196,13 @@ namespace Fsl
         m_callId.ArrangeOverride = m_callIdManager->Claim();
       }
 
-      auto result = BaseWindow::ArrangeOverride(finalSize);
+      auto result = BaseWindow::ArrangeOverride(finalSizePx);
 
-      Callbacks.ArrangeOverride(finalSize);
+      Callbacks.ArrangeOverride(finalSizePx);
       return result;
     }
 
-    Vector2 BaseWindowTest::MeasureOverride(const Vector2& availableSize)
+    PxSize2D BaseWindowTest::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
       ++m_callCount.MeasureOverride;
       if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::MeasureOverride))
@@ -210,9 +210,9 @@ namespace Fsl
         m_callId.MeasureOverride = m_callIdManager->Claim();
       }
 
-      auto result = BaseWindow::MeasureOverride(availableSize);
+      auto result = BaseWindow::MeasureOverride(availableSizePx);
 
-      Callbacks.MeasureOverride(availableSize);
+      Callbacks.MeasureOverride(availableSizePx);
       return result;
     }
 

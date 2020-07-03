@@ -50,7 +50,7 @@ namespace Fsl
     std::shared_ptr<DFNativeBatchCameraRender> m_cameraRender;
 
   public:
-    DFNativeBatchCamera(const DemoAppConfig& config);
+    explicit DFNativeBatchCamera(const DemoAppConfig& config);
     ~DFNativeBatchCamera() override;
 
   protected:

@@ -4,8 +4,9 @@
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Android" Supported="true">
-      <!--Dependency Name="Recipe.zlib_1_2_11"/-->
-      <ExperimentalRecipe Name="assimp-5.0.1">
+      <!--Dependency Name="zlib"/-->
+      <!-- Find is disabled due to a error in the assimp recipe -->
+      <ExperimentalRecipe Name="assimp" Version="5.0.1" Find="False" FindVersion="5.0">
         <Pipeline>
           <Download URL="https://github.com/assimp/assimp/archive/v5.0.1.tar.gz" To="assimp-5.0.1.tar.gz" Hash="11310ec1f2ad2cd46b95ba88faca8f7aaa1efe9aa12605c55e3de2b977b3dbfc"/> 
           <Unpack File="assimp-5.0.1.tar.gz" OutputPath="assimp-5.0.1"/>
@@ -25,12 +26,13 @@
     </Platform>
     
     <Platform Name="Ubuntu" Supported="true">
-      <Dependency Name="Recipe.zlib_1_2_11"/>
-      <ExperimentalRecipe Name="assimp-5.0.1">
+      <Dependency Name="zlib"/>
+      <!-- Find is disabled due to a error in the assimp recipe -->
+      <ExperimentalRecipe Name="assimp" Version="5.0.1" Find="false" FindVersion="5.0">
         <Pipeline>
           <Download URL="https://github.com/assimp/assimp/archive/v5.0.1.tar.gz" To="assimp-5.0.1.tar.gz" Hash="11310ec1f2ad2cd46b95ba88faca8f7aaa1efe9aa12605c55e3de2b977b3dbfc"/> 
           <Unpack File="assimp-5.0.1.tar.gz" OutputPath="assimp-5.0.1"/>
-          <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
+          <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
           <AddHeaders Name="include"/>
@@ -43,12 +45,13 @@
     </Platform>
 
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.zlib_1_2_11"/>
-      <ExperimentalRecipe Name="assimp-5.0.1">
+      <Dependency Name="zlib"/>
+      <!-- Find is disabled due to a error in the assimp recipe -->
+      <ExperimentalRecipe Name="assimp" Version="5.0.1" Find="false" FindVersion="5.0">
         <Pipeline>
           <Download URL="https://github.com/assimp/assimp/archive/v5.0.1.tar.gz" To="assimp-5.0.1.tar.gz" Hash="11310ec1f2ad2cd46b95ba88faca8f7aaa1efe9aa12605c55e3de2b977b3dbfc"/> 
           <Unpack File="assimp-5.0.1.tar.gz" OutputPath="assimp-5.0.1"/>
-          <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DASSIMP_BUILD_ASSIMP_VIEW=OFF -DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
+          <CMakeBuild Project="Assimp" Target="install" Configuration="release" Options="-DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DASSIMP_BUILD_TESTS=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
           <AddHeaders Name="include"/>

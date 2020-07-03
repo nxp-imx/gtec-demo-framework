@@ -55,8 +55,8 @@ namespace Fsl
 
   private:
     GLuint PrepareProgram(const bool useSeparateShaders);
-    GLuint LoadProgram(const uint8_t* buf, int len);
-    GLuint LoadShader(const uint8_t* buf, GLenum type, int len);
+    GLuint LoadProgram(const uint8_t* buf, const int length);
+    GLuint LoadShader(const uint8_t* buf, const GLenum type, const int length);
   };
 }
 

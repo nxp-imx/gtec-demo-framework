@@ -44,7 +44,7 @@ namespace Fsl
   {
     namespace
     {
-      inline void ValidateInsideMappedRange(const Span<VkDeviceSize>& mappedSpan, const VkDeviceSize offset, const VkDeviceSize size)
+      inline void ValidateInsideMappedRange(const SpanRange<VkDeviceSize>& mappedSpan, const VkDeviceSize offset, const VkDeviceSize size)
       {
         const auto mappedEnd = mappedSpan.End();
         if (offset < mappedSpan.Start)
@@ -198,11 +198,11 @@ namespace Fsl
       }
 
       // Since we want to ensure that the m_pData is left untouched on error we use a local variable as a intermediary
-      void* pData;
+      void* pData = nullptr;
       RAPIDVULKAN_CHECK(vkMapMemory(m_deviceMemory.GetDevice(), m_deviceMemory.Get(), offset, size, flags, &pData));
       m_pData = pData;
       m_isMapped = VK_TRUE;
-      m_mappedSpan = Span<VkDeviceSize>(offset, actualSize);
+      m_mappedSpan = SpanRange<VkDeviceSize>(offset, actualSize);
       return m_pData;
     }
 
@@ -264,11 +264,12 @@ namespace Fsl
     }
 
 
-    void VUDeviceMemory::UnmapMemory()
+    void VUDeviceMemory::UnmapMemory() noexcept
     {
       if (!IsValid())
       {
-        throw UsageErrorException("Device memory is invalid");
+        FSLLOG3_DEBUG_WARNING("Device memory is not valid, call ignored.");
+        return;
       }
       if (!m_isMapped)
       {

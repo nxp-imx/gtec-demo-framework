@@ -36,7 +36,7 @@ namespace Fsl
   class CancellationToken
   {
   public:
-    bool IsCancellationRequested() const
+    bool IsCancellationRequested() const    // NOLINT(readability-convert-member-functions-to-static)
     {
       return false;
     }

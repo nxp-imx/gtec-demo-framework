@@ -35,9 +35,9 @@
 #include <FslUtil/OpenGLES2/Common.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <FslBase/Attributes.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Extent2D.hpp>
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics/NativeTextureArea.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
@@ -59,7 +59,7 @@ namespace Fsl
     {
       GLuint m_handle;
       GLenum m_target{GL_TEXTURE_2D};
-      Extent3D m_extent;
+      PxExtent3D m_extent;
 
     public:
       GLTexture(const GLTexture&) = delete;
@@ -78,8 +78,8 @@ namespace Fsl
       //! @param handle the GL handle to the texture
       //! @param the target type specified to glBindTexture when the handle was created.
       //! @param extent the extent of the texture
-      GLTexture(const GLuint handle, const Extent2D& extent, const GLenum target = GL_TEXTURE_2D)
-        : GLTexture(handle, Extent3D(extent.Width, extent.Height, 1u), target)
+      GLTexture(const GLuint handle, const PxExtent2D& extent, const GLenum target = GL_TEXTURE_2D)
+        : GLTexture(handle, PxExtent3D(extent.Width, extent.Height, 1u), target)
       {
       }
 
@@ -87,39 +87,40 @@ namespace Fsl
       //! @param handle the GL handle to the texture
       //! @param the target type specified to glBindTexture when the handle was created.
       //! @param extent the extent of the texture
-      GLTexture(const GLuint handle, const Extent3D& extent, const GLenum target = GL_TEXTURE_2D);
+      GLTexture(const GLuint handle, const PxExtent3D& extent, const GLenum target = GL_TEXTURE_2D);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      GLTexture(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      GLTexture(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
       GLTexture(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
-                const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+                const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
       GLTexture(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                 const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters,
-                const TextureFlags& textureFlags = TextureFlags());
+                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      GLTexture(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters,
+                const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      GLTexture(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Create a texture with the supplied content
-      GLTexture(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      GLTexture(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Let this GLTexture object assume control over the given texture handle.
       //! @param handle the GL handle to the texture
       //! @param the target type specified to glBindTexture when the handle was created.
       //! @param size the size of the texture
       //! @note  Legacy compatibility constructor
-      GLTexture(const GLuint handle, const Point2& size, const GLenum target = GL_TEXTURE_2D)
-        : GLTexture(handle, Extent2D(size), target)
+      GLTexture(const GLuint handle, const PxSize2D& size, const GLenum target = GL_TEXTURE_2D)
+        : GLTexture(handle, PxExtent2D(size), target)
       {
       }
 
@@ -139,74 +140,78 @@ namespace Fsl
       //! @param handle the GL handle to the texture
       //! @param the target type specified to glBindTexture when the handle was created.
       //! @param extent the extent of the texture
-      void Reset(const GLuint handle, const Extent2D& extent, const GLenum target = GL_TEXTURE_2D)
+      void Reset(const GLuint handle, const PxExtent2D& extent, const GLenum target = GL_TEXTURE_2D)
       {
-        Reset(handle, Extent3D(extent.Width, extent.Height, 1u), target);
+        Reset(handle, PxExtent3D(extent.Width, extent.Height, 1u), target);
       }
 
       //! @brief Let this GLTexture object assume control over the given texture handle.
       //! @param handle the GL handle to the texture
       //! @param the target type specified to glBindTexture when the handle was created.
       //! @param extent the extent of the texture
-      void Reset(const GLuint handle, const Extent3D& extent, const GLenum target = GL_TEXTURE_2D);
+      void Reset(const GLuint handle, const PxExtent3D& extent, const GLenum target = GL_TEXTURE_2D);
 
       //! @brief Reset the data of the texture
-      void Reset(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void Reset(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void Reset(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
       void Reset(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
-                 const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+                 const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
       void Reset(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                  const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters,
-                 const TextureFlags& textureFlags = TextureFlags());
+                 const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void Reset(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters,
+                 const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void Reset(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Reset the data of the texture
-      void Reset(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void Reset(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Let this GLTexture object assume control over the given texture handle.
       //! @param handle the GL handle to the texture
       //! @param the target type specified to glBindTexture when the handle was created.
       //! @param size the size of the texture
       //! @note  Legacy compatibility Reset
-      void Reset(const GLuint handle, const Point2& size, const GLenum target = GL_TEXTURE_2D)
+      void Reset(const GLuint handle, const PxSize2D& size, const GLenum target = GL_TEXTURE_2D)
       {
-        Reset(handle, Extent2D(size.X, size.Y), target);
+        Reset(handle, PxExtent2D(size), target);
       }
 
       //! @brief Set the data of the texture
-      void SetData(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void SetData(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void SetData(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
       void SetData(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY, const Bitmap& bitmapPosZ,
-                   const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+                   const Bitmap& bitmapNegZ, const GLTextureParameters& textureParameters,
+                   const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
       void SetData(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                    const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters& textureParameters,
-                   const TextureFlags& textureFlags = TextureFlags());
+                   const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void SetData(const RawCubeBitmap& cubeBitmap, const GLTextureParameters& textureParameters,
+                   const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void SetData(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Set the data of the texture
-      void SetData(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags = TextureFlags());
+      void SetData(const RawTexture& texture, const GLTextureParameters& textureParameters,
+                   const TextureFlags textureFlags = TextureFlags::NotDefined);
 
       //! @brief Get the gl texture handle associated with the texture.
       //! @return the handle or GLValues::INVALID_HANDLE if the texture is unallocated.
@@ -218,7 +223,7 @@ namespace Fsl
       //! @brief Get the gl texture handle associated with the texture.
       //! @return the handle or GLValues::INVALID_HANDLE if the texture is unallocated.
       //! @deprecated use Get instead
-      FSL_ATTR_DEPRECATED GLuint GetHandle() const
+      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
         return m_handle;
       }
@@ -231,7 +236,7 @@ namespace Fsl
       }
 
       //! @brief Get the texture size.
-      Extent3D GetExtent() const
+      PxExtent3D GetExtent() const
       {
         return m_extent;
       }
@@ -239,19 +244,16 @@ namespace Fsl
       //! @brief Extract information about this texture as a GLTextureInfo struct
       GLTextureInfo GetTextureInfo() const
       {
-        return GLTextureInfo(m_handle, m_extent);
+        return {m_handle, m_extent};
       }
 
       //! @brief Extract information about this texture as a GLTextureInfo struct
-      operator GLTextureInfo() const
+      operator GLTextureInfo() const    // NOLINT(google-explicit-constructor)
       {
-        return GLTextureInfo(m_handle, m_extent);
+        return {m_handle, m_extent};
       }
 
-      Point2 GetSize() const;
-
-      //! @brief Get the native texture area of the given textureRectangle
-      static NativeTextureArea CalcTextureArea(const TextureRectangle& textureRectangle, const int timesX, const int timesY);
+      PxSize2D GetSize() const;
     };
   }
 }

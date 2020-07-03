@@ -36,7 +36,6 @@
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
-#include <FslSimpleUI/Base/Control/ValueLabel.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
@@ -67,7 +66,7 @@ namespace Fsl
     std::shared_ptr<UI::FmtValueLabel<uint64_t>> m_fmtValueLabelAppMemory;
 
   public:
-    Shared(const DemoAppConfig& config);
+    explicit Shared(const DemoAppConfig& config);
     ~Shared() override;
 
     std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const

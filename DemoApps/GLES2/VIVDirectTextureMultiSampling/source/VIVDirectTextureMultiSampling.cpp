@@ -128,8 +128,8 @@ namespace Fsl
 
   void VIVDirectTextureMultiSampling::Draw(const DemoTime& demoTime)
   {
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Clear background.
     glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
@@ -221,7 +221,7 @@ namespace Fsl
     m_data_index = 0;
     // Create the texture.
     // init y texture
-    Point2 ySize(WIDTH, HEIGHT);
+    PxSize2D ySize(WIDTH, HEIGHT);
     GL_CHECK(glGenTextures(1, &m_yTex));
     m_y_texture.Reset(m_yTex, ySize);
     GL_CHECK(glActiveTexture(GL_TEXTURE0));
@@ -238,7 +238,7 @@ namespace Fsl
     glTexDirectInvalidateVIV(GL_TEXTURE_2D);
 
     // init uv texture
-    Point2 uvSize(WIDTH / 2, HEIGHT / 2);
+    PxSize2D uvSize(WIDTH / 2, HEIGHT / 2);
     GL_CHECK(glGenTextures(1, &m_uvTex));
     m_uv_texture.Reset(m_uvTex, uvSize);
     GL_CHECK(glActiveTexture(GL_TEXTURE0 + 1));

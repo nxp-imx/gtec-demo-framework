@@ -39,11 +39,12 @@
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Debug/Strings/VkFormatFeatureFlagBits.hpp>
@@ -53,42 +54,42 @@
 
 namespace Fsl
 {
-  using namespace UI;
-  using namespace Vulkan;
-
   namespace
   {
     const auto TEXTURE_PATH = "Textures/GPUSdkTest";
 
     struct CreateContext
     {
-      VUPhysicalDeviceRecord PhysicalDevice;
+      Vulkan::VUPhysicalDeviceRecord PhysicalDevice;
       std::shared_ptr<IContentManager> ContentManager;
       std::shared_ptr<IGraphicsService> GraphicsService;
       std::shared_ptr<UI::WindowContext> WindowContext;
     };
 
 
-    std::shared_ptr<BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
+    std::shared_ptr<UI::BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
     {
+      constexpr UI::DpLayoutSize1D forcedSizeDp(320);
+
       Texture2D sourceTexture(context.GraphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
 
-      auto label = std::make_shared<Label>(context.WindowContext);
-      label->SetAlignmentX(ItemAlignment::Center);
-      label->SetAlignmentY(ItemAlignment::Far);
+      auto label = std::make_shared<UI::Label>(context.WindowContext);
+      label->SetAlignmentX(UI::ItemAlignment::Center);
+      label->SetAlignmentY(UI::ItemAlignment::Far);
+      label->SetContentAlignmentX(UI::ItemAlignment::Center);
+      label->SetContentAlignmentY(UI::ItemAlignment::Far);
       label->SetContent(caption);
+      label->SetWidth(forcedSizeDp);
 
-      auto tex = std::make_shared<Texture2DImage>(context.WindowContext);
+      auto tex = std::make_shared<UI::Texture2DImage>(context.WindowContext);
       tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
       tex->SetContent(sourceTexture);
-      tex->SetAlignmentX(ItemAlignment::Center);
-      tex->SetAlignmentY(ItemAlignment::Center);
+      tex->SetAlignmentX(UI::ItemAlignment::Center);
+      tex->SetAlignmentY(UI::ItemAlignment::Center);
       tex->SetBlendState(BlendState::AlphaBlend);
-      // tex1->SetWidth(256);
-      // tex1->SetHeight(256);
 
-      auto stack = std::make_shared<StackLayout>(context.WindowContext);
-      stack->SetLayoutOrientation(LayoutOrientation::Vertical);
+      auto stack = std::make_shared<UI::StackLayout>(context.WindowContext);
+      stack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
       stack->AddChild(label);
       stack->AddChild(tex);
       return stack;
@@ -103,7 +104,7 @@ namespace Fsl
       {
         stream << "0x" << std::hex << flags << " (";
         uint32_t bitFlags = flags;
-        for (uint32_t i = 0; i <= 32; ++i)
+        for (uint32_t i = 0; i < 32; ++i)
         {
           if ((bitFlags & 0x80000000u) != 0)
           {
@@ -112,7 +113,7 @@ namespace Fsl
             {
               stream << "|";
             }
-            auto pszFlag = RapidVulkan::Debug::TryToString(flag);
+            const auto* pszFlag = RapidVulkan::Debug::TryToString(flag);
             if (pszFlag != nullptr)
             {
               stream << pszFlag;
@@ -135,10 +136,10 @@ namespace Fsl
       return stream.str();
     }
 
-    std::shared_ptr<BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const Texture& notSupportedTexture)
+    std::shared_ptr<UI::BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const Texture& notSupportedTexture)
     {
       const auto pixelFormat = texture.GetPixelFormat();
-      const auto vulkanPixelFormat = ConvertUtil::Convert(pixelFormat);
+      const auto vulkanPixelFormat = Vulkan::VulkanConvert::ToVkFormat(pixelFormat);
       auto properties = context.PhysicalDevice.GetPhysicalDeviceFormatProperties(vulkanPixelFormat);
       bool isSupported = properties.optimalTilingFeatures != 0 && properties.linearTilingFeatures != 0;
 
@@ -165,7 +166,7 @@ namespace Fsl
     }
 
 
-    void CreateTextureControlsIfSupported(std::deque<std::shared_ptr<BaseWindow>>& rTextures, const CreateContext& context, const IO::Path& path,
+    void CreateTextureControlsIfSupported(std::deque<std::shared_ptr<UI::BaseWindow>>& rTextures, const CreateContext& context, const IO::Path& path,
                                           const PixelFormat switchPF, const Texture& notSupportedTexture)
     {
       IO::Path newPath = IO::Path::Combine(TEXTURE_PATH, path);
@@ -180,7 +181,7 @@ namespace Fsl
         if (newPixelFormat != PixelFormat::Undefined)
         {
           texture.SetCompatiblePixelFormat(newPixelFormat);
-          // auto properties = context.PhysicalDevice.GetPhysicalDeviceFormatProperties(ConvertUtil::Convert(newPixelFormat));
+          // auto properties = context.PhysicalDevice.GetPhysicalDeviceFormatProperties(VulkanConvert::ToVkFormat(newPixelFormat));
           rTextures.push_back(CreateTextureControl(context, texture, notSupportedTexture));
         }
       }
@@ -196,7 +197,8 @@ namespace Fsl
   TextureCompression::TextureCompression(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
   {
     // ASTC (Adaptive scalable texture compression)
     const bool hasASTC_LDR = m_deviceActiveFeatures.textureCompressionASTC_LDR != VK_FALSE;
@@ -237,7 +239,7 @@ namespace Fsl
 
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
@@ -246,7 +248,7 @@ namespace Fsl
       clearColorValue.float32[2] = 0.4f;
       clearColorValue.float32[3] = 1.0f;
 
-      VkClearValue clearValues[1] = {clearColorValue};
+      VkClearValue clearValues = {clearColorValue};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -256,7 +258,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
       renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.pClearValues = &clearValues;
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
@@ -304,7 +306,7 @@ namespace Fsl
       createContext.ContentManager->ReadTexture("Textures/NotSupported/NotSupported_pre.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::UpperLeft);
 
 
-    std::deque<std::shared_ptr<BaseWindow>> textures;
+    std::deque<std::shared_ptr<UI::BaseWindow>> textures;
 
     FSLLOG3_INFO("Creating textures:");
 
@@ -349,26 +351,26 @@ namespace Fsl
       CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_ETC2_RGBA.ktx", PixelFormat::ETC2_R8G8B8A8_UNORM_BLOCK, texDefault);
     }
 
-    auto wrapLayout = std::make_shared<WrapLayout>(createContext.WindowContext);
-    wrapLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    wrapLayout->SetSpacing(Vector2(4, 4));
-    wrapLayout->SetAlignmentX(ItemAlignment::Center);
-    wrapLayout->SetAlignmentY(ItemAlignment::Center);
+    auto wrapLayout = std::make_shared<UI::WrapLayout>(createContext.WindowContext);
+    wrapLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    wrapLayout->SetSpacing(DpPointF(4, 4));
+    wrapLayout->SetAlignmentX(UI::ItemAlignment::Center);
+    wrapLayout->SetAlignmentY(UI::ItemAlignment::Center);
 
     for (const auto& tex : textures)
     {
       wrapLayout->AddChild(tex);
     }
 
-    m_scrollable = std::make_shared<VerticalScroller>(createContext.WindowContext);
+    m_scrollable = std::make_shared<UI::VerticalScroller>(createContext.WindowContext);
     m_scrollable->SetContent(wrapLayout);
-    m_scrollable->SetScrollPadding(ThicknessF(0, 32, 0, 32));
+    m_scrollable->SetScrollPadding(DpThicknessF(0, 32, 0, 32));
     // scrollLayout->SetAlignmentX(ItemAlignment::Stretch);
     // scrollLayout->SetAlignmentY(ItemAlignment::Stretch);
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
-    auto fillLayout = std::make_shared<FillLayout>(createContext.WindowContext);
+    auto fillLayout = std::make_shared<UI::FillLayout>(createContext.WindowContext);
     fillLayout->AddChild(m_scrollable);
 
     // Finally add everything to the window manager (to ensure its seen)

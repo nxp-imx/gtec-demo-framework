@@ -38,7 +38,7 @@ namespace Fsl
 {
   inline std::ostream& operator<<(std::ostream& o, const Rect& value)
   {
-    return o << "{X=" << value.X() << " Y=" << value.Y() << " Width=" << value.Width() << " Height=" << value.Height() << "}";
+    return o << "{Left=" << value.Left() << " Top=" << value.Top() << " Right=" << value.Right() << " Bottom=" << value.Bottom() << "}";
   }
 }
 

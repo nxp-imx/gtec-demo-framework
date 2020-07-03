@@ -36,9 +36,9 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/KeyboardState.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/FloatSliderAndValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/CanvasLayout.hpp>
 #include <Shared/HDR/BasicScene/OptionParser.hpp>
 #include <string>
@@ -65,11 +65,10 @@ namespace Fsl
     std::shared_ptr<UI::Label> m_labelTopRight;
     std::shared_ptr<UI::Label> m_labelNote;
     std::shared_ptr<UI::BaseWindow> m_configWindow;
-    std::shared_ptr<UI::FloatSliderAndValueLabel> m_exposureSlider;
-    std::shared_ptr<UI::CheckBox> m_checkboxLDR;
-    std::shared_ptr<UI::CheckBox> m_checkboxHDR;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_exposureSlider;
+    std::shared_ptr<UI::Switch> m_checkboxLDR;
+    std::shared_ptr<UI::Switch> m_checkboxHDR;
 
-    float m_exposure;
     SceneState m_state;
     TransitionCache m_transitionCache;
     TransitionValue m_scene1LabelAlpha;
@@ -85,7 +84,7 @@ namespace Fsl
   public:
     TransitionValue SplitX;
 
-    MenuUI(const DemoAppConfig& config);
+    explicit MenuUI(const DemoAppConfig& config);
     ~MenuUI() override;
 
     std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
@@ -112,10 +111,7 @@ namespace Fsl
 
     void UpdateExposureInput(const DemoTime& demoTime, const KeyboardState& keyboardState);
 
-    float GetExposure() const
-    {
-      return m_exposure;
-    }
+    float GetExposure() const;
 
     void SetExposure(const float value);
 
@@ -128,12 +124,11 @@ namespace Fsl
 
   private:
     void UpdateUIState();
-    void UpdateUIExposureState();
     void PrepareTransition();
     void BuildUI();
     void CreateMenuUI();
     void DestroyMenuUI();
-    void UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::CheckBox>& source);
+    void UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::Switch>& source);
     std::shared_ptr<UI::CanvasLayout> CreateUI(const std::shared_ptr<UI::WindowContext>& context);
     std::shared_ptr<UI::BaseWindow> CreateConfigDialog(const std::shared_ptr<UI::WindowContext>& context);
   };

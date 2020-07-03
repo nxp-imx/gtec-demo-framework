@@ -54,8 +54,8 @@ TestFixtureFslSimpleUIUITree::TestFixtureFslSimpleUIUITree()
   , m_tree(std::make_shared<UI::UITree>(m_moduleCallbackRegistry, m_eventPool, m_eventQueue))
   , m_windowEventSender(std::make_shared<UI::WindowEventSender>(m_eventQueue, m_eventPool, m_tree))
   , m_uiContext(std::make_shared<UI::UIContext>(m_tree, m_windowEventSender))
-  , m_windowContext(std::make_shared<UI::BaseWindowContext>(m_uiContext))
-  , m_rootWindow(std::make_shared<UI::RootWindow>(m_windowContext, Vector2(800.0f, 600.0f)))
+  , m_windowContext(std::make_shared<UI::BaseWindowContext>(m_uiContext, SpriteDpConfig::BaseDpi))
+  , m_rootWindow(std::make_shared<UI::RootWindow>(m_windowContext, PxExtent2D(800, 600), 160))
 {
   m_tree->Init(m_rootWindow);
 }

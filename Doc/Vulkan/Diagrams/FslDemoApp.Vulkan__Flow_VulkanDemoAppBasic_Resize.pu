@@ -21,10 +21,10 @@ activate SwapchainRecords
 activate NativeGraphicsService
 activate QuadBatch
 
-->CustomDemoApp: _Resized
-CustomDemoApp->ADemoApp: _Resized
-ADemoApp->CustomDemoApp: Resized
-CustomDemoApp->DemoAppVulkanBasic: Resized
+->CustomDemoApp: _ConfigurationChanged
+CustomDemoApp->ADemoApp: _ConfigurationChanged
+ADemoApp->CustomDemoApp: ConfigurationChanged
+CustomDemoApp->DemoAppVulkanBasic: ConfigurationChanged
 DemoAppVulkanBasic->DemoAppVulkanBasic++: IsResourcesAllocated
 deactivate DemoAppVulkanBasic
 DemoAppVulkanBasic->DemoAppVulkanBasic++: TryRebuildResources
@@ -56,8 +56,8 @@ DemoAppVulkanBasic->NativeGraphicsService: VulkanCreateDependentResources
 NativeGraphicsService->QuadBatch: CreateDependentResources
 deactivate DemoAppVulkanBasic
 deactivate DemoAppVulkanBasic
-DemoAppVulkanBasic->DemoAppVulkan: Resized
-DemoAppVulkan->ADemoApp: Resized
+DemoAppVulkanBasic->DemoAppVulkan: ConfigurationChanged
+DemoAppVulkan->ADemoApp: ConfigurationChanged
 
 @enduml
 

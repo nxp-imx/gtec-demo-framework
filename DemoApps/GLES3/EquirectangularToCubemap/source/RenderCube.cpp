@@ -45,8 +45,6 @@ namespace Fsl
 
   namespace
   {
-    const float SPEED = 0.8f;
-
     // B D
     // |\|
     // A C

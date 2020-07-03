@@ -31,6 +31,7 @@
 
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <memory>
 #include <GLES2/gl2.h>
 #include "Blur.hpp"
 #include "BlurredScene.hpp"
@@ -48,9 +49,9 @@ namespace Fsl
   {
     // m_scene.reset(new TestScene(config));
     // m_scene.reset(new EnvScene(config));
-    m_scene.reset(new EnvScene(config));
+    m_scene = std::make_shared<EnvScene>(config);
 
-    m_scene.reset(new BlurredScene(config, m_scene));
+    m_scene = std::make_shared<BlurredScene>(config, m_scene);
   }
 
 
@@ -68,7 +69,7 @@ namespace Fsl
   }
 
 
-  void Blur::Draw(const DemoTime& demoTime)
+  void Blur::Draw(const DemoTime& /*demoTime*/)
   {
     m_scene->Draw();
   }

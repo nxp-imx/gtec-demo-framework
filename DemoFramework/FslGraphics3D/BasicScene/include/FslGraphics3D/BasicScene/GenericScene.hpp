@@ -59,7 +59,7 @@ namespace Fsl
 
 
     template <typename TMesh>
-    GenericScene<TMesh>::GenericScene(const MeshAllocatorFunc& meshAllocator, const std::size_t numMeshes)
+    GenericScene<TMesh>::GenericScene(const MeshAllocatorFunc& meshAllocator, const std::size_t /*numMeshes*/)
       : Scene(meshAllocator)
       , Meshes()    // We dont initialize to capacity here since the deque doesnt play nice with that
     {

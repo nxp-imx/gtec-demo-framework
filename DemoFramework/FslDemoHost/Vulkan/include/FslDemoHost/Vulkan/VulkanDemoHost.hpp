@@ -69,7 +69,7 @@ namespace Fsl
     Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
 
   public:
-    VulkanDemoHost(const DemoHostConfig& demoHostConfig);
+    explicit VulkanDemoHost(const DemoHostConfig& demoHostConfig);
     ~VulkanDemoHost() override;
 
     void OnActivate() override;
@@ -77,7 +77,7 @@ namespace Fsl
     void OnSuspend() override;
     void OnResume() override;
     DemoHostFeature GetActiveAPI() const override;
-    Point2 GetScreenResolution() const override;
+    DemoWindowMetrics GetWindowMetrics() const override;
     SwapBuffersResult TrySwapBuffers() override;
     bool ProcessNativeMessages(const bool allowBlock) override;
 

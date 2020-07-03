@@ -31,25 +31,26 @@
 
 #include "StateEventSender.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include "EventRouter.hpp"
 #include "StateEvent.hpp"
 #include "../ITreeContextInfo.hpp"
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
   namespace UI
   {
-    StateEventSender::StateEventSender(const std::shared_ptr<ITreeContextInfo>& treeContextInfo, const std::shared_ptr<EventRouter>& eventRouter,
-                                       const std::shared_ptr<WindowEventPool>& eventPool, const std::shared_ptr<IEventHandler>& eventHandler,
-                                       const WindowFlags& windowFlags, const FunctionCreateTargetWindowDeathEvent& fnCreateTargetWindowDeathEvent)
-      : m_treeContextInfo(treeContextInfo)
-      , m_eventRouter(eventRouter)
-      , m_eventPool(eventPool)
-      , m_eventHandler(eventHandler)
-      , m_fnCreateTargetWindowDeathEvent(fnCreateTargetWindowDeathEvent)
+    StateEventSender::StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
+                                       std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler,
+                                       const WindowFlags& windowFlags, FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent)
+      : m_treeContextInfo(std::move(treeContextInfo))
+      , m_eventRouter(std::move(eventRouter))
+      , m_eventPool(std::move(eventPool))
+      , m_eventHandler(std::move(eventHandler))
+      , m_fnCreateTargetWindowDeathEvent(std::move(fnCreateTargetWindowDeathEvent))
       , m_eventRoute(windowFlags)
       , m_state(State::Normal)
     {
@@ -79,6 +80,17 @@ namespace Fsl
     StateEventSender::~StateEventSender() = default;
 
 
+    bool StateEventSender::HasActiveEvent() const
+    {
+      return !m_eventRoute.IsEmpty();
+    }
+
+
+    bool StateEventSender::HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const
+    {
+      return !m_eventRoute.IsEmpty() && m_eventRoute.GetTarget() != target;
+    }
+
     bool StateEventSender::HasHistory() const
     {
       return m_history.UseHistory();
@@ -87,13 +99,13 @@ namespace Fsl
 
     SendResult StateEventSender::Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target)
     {
-      return Send(theEvent, target, false, Vector2());
+      return Send(theEvent, target, false, PxPoint2());
     }
 
 
-    SendResult StateEventSender::Send(const StateEvent& theEvent, const Vector2& hitPosition)
+    SendResult StateEventSender::Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx)
     {
-      return Send(theEvent, std::shared_ptr<TreeNode>(), true, hitPosition);
+      return Send(theEvent, std::shared_ptr<TreeNode>(), true, hitPositionPx);
     }
 
 
@@ -140,7 +152,7 @@ namespace Fsl
 
 
     SendResult StateEventSender::Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased,
-                                      const Vector2& hitPosition)
+                                      const PxPoint2& hitPositionPx)
     {
       // This check ensures that we don't end up in some weird re-entrancy situations
       if (!m_treeContextInfo->IsInSystemContext())
@@ -176,7 +188,7 @@ namespace Fsl
       m_lastEventInfo = theEvent.Info();
       if (!m_history.UseHistory())
       {
-        BuildEventRoute(theEvent, target, isHitBased, hitPosition);
+        BuildEventRoute(theEvent, target, isHitBased, hitPositionPx);
         assert(HasHistory());
       }
 
@@ -199,12 +211,12 @@ namespace Fsl
     SendResult StateEventSender::SendViaHistory(const StateEvent& theEvent)
     {
       assert(m_history.UseHistory());
-      return Send(theEvent, std::shared_ptr<TreeNode>(), false, Vector2());
+      return Send(theEvent, std::shared_ptr<TreeNode>(), false, PxPoint2());
     }
 
 
     void StateEventSender::BuildEventRoute(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased,
-                                           const Vector2& hitPosition)
+                                           const PxPoint2& hitPositionPx)
     {
       // Since we verified the event according to our history we can assume that if the history is invalid
       // this must be a pressed event which we need to create a history record for
@@ -217,7 +229,7 @@ namespace Fsl
 
       if (isHitBased)
       {
-        m_eventRouter->CreateRoute(m_eventRoute, theEvent.Content()->GetDescription().RoutingStrategy, hitPosition);
+        m_eventRouter->CreateRoute(m_eventRoute, theEvent.Content()->GetDescription().RoutingStrategy, hitPositionPx);
       }
       else
       {

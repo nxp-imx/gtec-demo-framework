@@ -32,14 +32,15 @@
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/Registry/IServiceRegistry.hpp>
 #include <FslService/Impl/Exceptions.hpp>
+#include <utility>
 
 namespace Fsl
 {
   ServiceRegistry::ServiceRegistry() = default;
 
 
-  ServiceRegistry::ServiceRegistry(const std::weak_ptr<IServiceRegistry>& registry)
-    : m_registry(registry)
+  ServiceRegistry::ServiceRegistry(std::weak_ptr<IServiceRegistry> registry)
+    : m_registry(std::move(registry))
   {
   }
 

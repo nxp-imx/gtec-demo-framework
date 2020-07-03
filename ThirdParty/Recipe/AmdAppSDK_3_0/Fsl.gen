@@ -4,7 +4,7 @@
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Windows" Supported="true">
-      <ExperimentalRecipe Name="AmdAppSDK-3.0" ExternalInstallDirectory="$(AMDAPPSDKROOT)">
+      <ExperimentalRecipe Name="AmdAppSDK" Version="3.0" ExternalInstallDirectory="$(AMDAPPSDKROOT)">
         <Installation>
           <AddHeaders Name="include"/>
           <AddLib Name="lib/x86_64/OpenCL.lib" Help="The main OpenCL static library."/>

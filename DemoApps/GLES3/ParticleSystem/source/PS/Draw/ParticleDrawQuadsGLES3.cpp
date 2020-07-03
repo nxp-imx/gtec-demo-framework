@@ -140,7 +140,7 @@ namespace Fsl
 
     glBindBuffer(m_pCurrentBuffer->GetTarget(), m_pCurrentBuffer->Get());
     m_pCurrentBuffer->SetDataFast(0, m_buffer.data(), particleCount * 6);
-    m_pCurrentBuffer->EnableAttribArrays(m_particleAttribLink, 4);
+    m_pCurrentBuffer->EnableAttribArrays(m_particleAttribLink);
 
     glDrawArrays(GL_TRIANGLES, 0, particleCount * 6);
 

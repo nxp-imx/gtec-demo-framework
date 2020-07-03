@@ -38,7 +38,10 @@
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
+#include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <FslBase/Log/Math/FmtRectangle.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 // #include <X11/extensions/XInput2.h>
@@ -60,7 +63,7 @@ namespace Fsl
     const int MAGIC_DEFAULT_DPI = 96;
 
     std::weak_ptr<INativeWindowEventQueue> g_eventQueue;
-    int WaitForMap(Display* display, XEvent* event, XPointer arg)    // NOLINT(readability-non-const-parameter)
+    int WaitForMap(Display* /*display*/, XEvent* event, XPointer arg)    // NOLINT(readability-non-const-parameter)
     {
       return static_cast<int>(event->type == MapNotify && event->xmap.window == *reinterpret_cast<Window*>(arg));
     }
@@ -356,7 +359,7 @@ namespace Fsl
 
   PlatformNativeWindowSystemX11::PlatformNativeWindowSystemX11(const NativeWindowSystemSetup& setup,
                                                                const PlatformNativeWindowAllocationFunction& allocateWindowFunction,
-                                                               const PlatformNativeWindowSystemParams& systemParams)
+                                                               const PlatformNativeWindowSystemParams& /*systemParams*/)
     : PlatformNativeWindowSystem(setup, nullptr)
     , m_visualId(0)
     , m_allocationFunction(allocateWindowFunction ? allocateWindowFunction : AllocateWindow)
@@ -437,12 +440,12 @@ namespace Fsl
   }
 
 
-  bool PlatformNativeWindowSystemX11::ProcessMessages(const NativeWindowProcessMessagesArgs& args)
+  bool PlatformNativeWindowSystemX11::ProcessMessages(const NativeWindowProcessMessagesArgs& /*args*/)
   {
     const std::shared_ptr<PlatformNativeWindowX11> window = m_window.lock();
     VirtualKey::Enum keyCode;
     std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
-    Point2 mousePosition;
+    PxPoint2 mousePosition;
     VirtualMouseButton::Enum mouseButton;
     bool bQuit = false;
     XEvent event;
@@ -573,7 +576,7 @@ namespace Fsl
 
   PlatformNativeWindowX11::PlatformNativeWindowX11(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
                                                    const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
+    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams, NativeWindowCapabilityFlags::GetDpi)
     , m_pVisual(nullptr)
     , m_cachedScreenDPI(MAGIC_DEFAULT_DPI, MAGIC_DEFAULT_DPI)
   {
@@ -664,7 +667,7 @@ namespace Fsl
       XRRSelectInput(m_platformDisplay, m_platformWindow, RRScreenChangeNotifyMask);
     }
 
-    m_cachedWindowSize = Point2(windowWidth, windowHeight);
+    m_cachedWindowSize = PxPoint2(windowWidth, windowHeight);
     UpdateDPIIfPossible(m_platformDisplay, m_platformWindow, m_cachedScreenDPI);
 
     {    // Post the activation message to let the framework know we are ready
@@ -690,30 +693,16 @@ namespace Fsl
     }
   }
 
-
-  bool PlatformNativeWindowX11::TryGetDPI(Vector2& rDPI) const
-  {
-    rDPI = Vector2(m_cachedScreenDPI.X, m_cachedScreenDPI.Y);
-    return true;
-  }
-
-  bool PlatformNativeWindowX11::TryGetSize(Point2& rSize) const
-  {
-    rSize = m_cachedWindowSize;
-    return true;
-  }
-
-
   void PlatformNativeWindowX11::OnConfigureNotify(const XConfigureEvent& event, const std::shared_ptr<INativeWindowEventQueue>& eventQueue)
   {
-    Point2 newSize(event.width, event.height);
+    PxPoint2 newSize(event.width, event.height);
     if (newSize == m_cachedWindowSize)
     {
       return;
     }
 
     m_cachedWindowSize = newSize;
-    FSLLOG3_VERBOSE2("PlatformNativeWindowX11| Updating cached size to {}, {}", m_cachedWindowSize.X, m_cachedWindowSize.Y);
+    FSLLOG3_VERBOSE2("PlatformNativeWindowX11| Updating cached size to {}", m_cachedWindowSize);
 
     if (eventQueue)
     {
@@ -734,11 +723,24 @@ namespace Fsl
     }
 
     m_cachedScreenDPI = newDPI;
-    FSLLOG3_VERBOSE2("PlatformNativeWindowX11| Cached DPI updated: {}, {}", m_cachedScreenDPI.X, m_cachedScreenDPI.Y);
+    FSLLOG3_VERBOSE2("PlatformNativeWindowX11| Cached DPI updated: {}", m_cachedScreenDPI);
     if (eventQueue)
     {
-      eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowDPIChanged(newDPI));
+      eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowConfigChanged());
     }
   }
+
+  bool PlatformNativeWindowX11::TryGetNativeSize(PxPoint2& rSize) const
+  {
+    rSize = m_cachedWindowSize;
+    return true;
+  }
+
+  bool PlatformNativeWindowX11::TryGetNativeDpi(Vector2& rDPI) const
+  {
+    rDPI = Vector2(m_cachedScreenDPI.X, m_cachedScreenDPI.Y);
+    return true;
+  }
+
 }    // namespace Fsl
 #endif

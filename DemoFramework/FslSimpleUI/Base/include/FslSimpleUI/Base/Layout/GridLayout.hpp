@@ -43,7 +43,7 @@ namespace Fsl
       uint32_t IndexX{0};
       uint32_t IndexY{0};
 
-      GridWindowCollectionRecord(const std::shared_ptr<BaseWindow>& window)
+      explicit GridWindowCollectionRecord(const std::shared_ptr<BaseWindow>& window)
         : GenericWindowCollectionRecordBase(window)
       {
       }
@@ -51,6 +51,18 @@ namespace Fsl
 
     class GridLayout : public ComplexLayout<GridWindowCollectionRecord>
     {
+      enum class InternalGridUnitType
+      {
+        //! Fixed size
+        Fixed = 0,
+        //! Auto value, any specified size is ignored
+        Auto = 1,
+        //! Star
+        Star = 2,
+        //! Auto during measure, weight druing final
+        AutoStar = 3
+      };
+
       struct WindowCellRecord
       {
         uint32_t IndexX{0};
@@ -62,8 +74,8 @@ namespace Fsl
 
       struct DefinitionCache
       {
-        bool HasWeightX{false};
-        bool HasWeightY{false};
+        bool HasStarX{false};
+        bool HasStarY{false};
         bool HasEntriesX{false};
         bool HasEntriesY{false};
       };
@@ -79,12 +91,12 @@ namespace Fsl
 
       struct GridRowColumnDefinitionEx : public GridRowColumnDefinitionBase
       {
-        GridUnitType MeasureUnitType{GridUnitType::Fixed};
-        float MeasureSize{0.0f};
+        InternalGridUnitType MeasureUnitType{InternalGridUnitType::Fixed};
+        int32_t MeasureSizePx{};
         //! The minimum size of the final cell
-        float MinimumSize{0.0f};
+        int32_t MinimumSizePx{};
         //! Used for temporary storing the MinimumSize during measure and also as a cell offset during arrange
-        float TempValue{0.0f};
+        int32_t TempValue{};
 
         explicit constexpr GridRowColumnDefinitionEx(const GridColumnDefinition& ex)
           : GridRowColumnDefinitionBase(ex)
@@ -96,21 +108,26 @@ namespace Fsl
         }
 
         //! @brief Applies the newMinSize if its larger than the existing min size
-        inline void ApplyMinSize(const float newMinSize)
+        inline void ApplyMinSize(const int32_t newMinSizePx)
         {
-          MinimumSize = std::max(MinimumSize, newMinSize);
+          MinimumSizePx = std::max(MinimumSizePx, newMinSizePx);
+        }
+
+        inline int32_t CalcMinSize(const int32_t newMinSizePx)
+        {
+          return std::max(MinimumSizePx, newMinSizePx);
         }
       };
-
 
       std::deque<GridRowColumnDefinitionEx> m_definitionsX;
       std::deque<GridRowColumnDefinitionEx> m_definitionsY;
       std::deque<WindowCellRecord> m_cellRecords;
       DefinitionCache m_definitionCache;
       CellInfo m_cellInfo;
+      bool m_limitToAvailableSpace{false};
 
     public:
-      GridLayout(const std::shared_ptr<BaseWindowContext>& context);
+      explicit GridLayout(const std::shared_ptr<BaseWindowContext>& context);
 
 
       //! @brief Assign window to a specific column
@@ -122,6 +139,8 @@ namespace Fsl
 
       //! @brief Assign window to a specific column and row
       void Set(const std::shared_ptr<BaseWindow>& window, const uint32_t columnIndex, const uint32_t rowIndex);
+
+      void SetLimitToAvailableSpace(const bool enabled);
 
       std::size_t GetColumnDefinitionCount() const
       {
@@ -139,28 +158,41 @@ namespace Fsl
 
       void AddRowDefinition(const GridRowDefinition& definition);
 
+      using ComplexLayout<GridWindowCollectionRecord>::AddChild;
+
+      void AddChild(const std::shared_ptr<BaseWindow>& window, const uint32_t columnIndex, const uint32_t rowIndex)
+      {
+        AddChild(window);
+        Set(window, columnIndex, rowIndex);
+      }
+
       // void ClearRowDefinitions();
 
+
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
     private:
-      void BasicMeasure(const Vector2& availableSize);
-      void SemiComplexMeasure(const Vector2& availableSize);
-      void ComplexMeasure(const Vector2& availableSize);
+      void BasicMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx);
+      void SemiComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx);
+      void ComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx);
 
-      Vector2 ResolveMeasureSize();
+      PxSize2D ResolveMeasureSize();
 
-      bool UpdateDefinitionCache(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const bool treatWeightAsAuto);
+      static bool UpdateDefinitionCache(const SpriteUnitConverter& unitConverter, std::deque<GridRowColumnDefinitionEx>& rDefinitions,
+                                        const bool treatStarAsAuto);
       //! @brief Iterate through all windows and classify which layout group it belongs to.
       void ClassifyWindowCell();
-      void MeasureCellGroup0(const uint32_t groupStartIndex, const Vector2& availableSize);
+      void MeasureCellGroup0(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex);
       //! @return true if one of the controls had its width modified
-      bool MeasureCellGroup1(const uint32_t groupStartIndex, const Vector2& availableSize, const bool useInfinityY, const bool ignoreDesiredX);
-      void MeasureCellGroup2(const uint32_t groupStartIndex, const Vector2& availableSize);
-      void MeasureCellGroup3(const uint32_t groupStartIndex, const Vector2& availableSize);
-      void ResolveWeights(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const float totalAvailableSpace);
+      bool MeasureCellGroup1(const uint32_t groupStartIndex, const PxAvailableSize& availableSizePx, const bool useInfinityY,
+                             const bool ignoreDesiredX);
+      void MeasureCellGroup2(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex, const PxAvailableSize& availableSizePx);
+      void MeasureCellGroup3(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex, const PxAvailableSize& availableSizePx);
+      static void ResolveStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx);
+      PxSize2D FinalizeSizes(const PxSize2D& finalSizePx);
+      static void FinalizeStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx);
       void StoreMinSizeX(const uint32_t groupStartIndex);
       void StoreMinSizeY(const uint32_t groupStartIndex);
       static void RestoreMinSize(std::deque<GridRowColumnDefinitionEx>& rDefinitions);

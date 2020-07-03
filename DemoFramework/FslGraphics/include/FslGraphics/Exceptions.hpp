@@ -49,7 +49,7 @@ namespace Fsl
     {
     }
 
-    UnsupportedStrideException(const int32_t stride)
+    explicit UnsupportedStrideException(const int32_t stride)
       : GraphicsException("Unsupported stride")
       , m_stride(stride)
     {
@@ -72,7 +72,7 @@ namespace Fsl
     {
     }
 
-    UnsupportedStrideExceptionEx(const std::size_t stride)
+    explicit UnsupportedStrideExceptionEx(const std::size_t stride)
       : GraphicsException("Unsupported stride")
       , m_stride(stride)
     {
@@ -96,7 +96,7 @@ namespace Fsl
     {
     }
 
-    UnsupportedAlignmentException(const int alignment)
+    explicit UnsupportedAlignmentException(const int alignment)
       : GraphicsException("Unsupported alignment")
       , m_alignment(alignment)
     {
@@ -120,7 +120,7 @@ namespace Fsl
     {
     }
 
-    UnsupportedPixelFormatException(const PixelFormat pixelFormat)
+    explicit UnsupportedPixelFormatException(const PixelFormat pixelFormat)
       : GraphicsException("Unsupported pixel format")
       , m_pixelFormat(pixelFormat)
     {
@@ -143,7 +143,7 @@ namespace Fsl
     {
     }
 
-    UnsupportedVertexElementFormatException(const VertexElementFormat vertexElementFormat)
+    explicit UnsupportedVertexElementFormatException(const VertexElementFormat vertexElementFormat)
       : GraphicsException("Unsupported vertex element format")
       , m_vertexElementFormat(vertexElementFormat)
     {
@@ -159,28 +159,28 @@ namespace Fsl
   class UnsupportedPrimitiveTypeException : public GraphicsException
   {
   public:
-    UnsupportedPrimitiveTypeException(const std::string& str)
+    explicit UnsupportedPrimitiveTypeException(const std::string& str)
       : GraphicsException(str)
     {
     }
   };
 
 
-  class UnsupportedPixelFormatConversionException : public GraphicsException
+  class UnsupportedPixelFormatConversionException : public ConversionException
   {
     PixelFormat m_fromPixelFormat;
     PixelFormat m_toPixelFormat;
 
   public:
     UnsupportedPixelFormatConversionException(const std::string& str, const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat)
-      : GraphicsException(str)
+      : ConversionException(str)
       , m_fromPixelFormat(fromPixelFormat)
       , m_toPixelFormat(toPixelFormat)
     {
     }
 
     UnsupportedPixelFormatConversionException(const PixelFormat fromPixelFormat, const PixelFormat toPixelFormat)
-      : GraphicsException("UnsupportedPixelFormatConversionException")
+      : ConversionException("UnsupportedPixelFormatConversionException")
       , m_fromPixelFormat(fromPixelFormat)
       , m_toPixelFormat(toPixelFormat)
     {

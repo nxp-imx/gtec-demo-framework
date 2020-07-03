@@ -1,0 +1,31 @@
+# Top-most EditorConfig file
+root = true
+
+[*.frag]
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.vert]
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cpp]
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+#charset = utf-8-bom
+trim_trailing_whitespace = true
+
+# 4 space indentation
+[*.py]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+#charset = utf-8-bom
+
+[*.md]
+trim_trailing_whitespace = true

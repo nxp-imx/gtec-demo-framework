@@ -77,7 +77,7 @@ namespace Fsl
     };
 
   public:
-    VulkanComputeMandelbrot(const DemoAppConfig& config);
+    explicit VulkanComputeMandelbrot(const DemoAppConfig& config);
     ~VulkanComputeMandelbrot() override;
 
   protected:

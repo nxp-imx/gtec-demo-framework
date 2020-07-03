@@ -40,7 +40,7 @@ namespace Fsl
     Matrix m_transformMatrix;
 
   public:
-    EnvScene(const DemoAppConfig& config);
+    explicit EnvScene(const DemoAppConfig& config);
     ~EnvScene() override;
 
     void Update(const DemoTime& demoTime) override;

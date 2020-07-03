@@ -16,7 +16,7 @@ This tend to be the fastest way to get started.
 
 ### Prerequisites
 
-- Ubuntu 16.04
+- Ubuntu 18.04
 - Python 3.5 (this is standard from Ubuntu 16.04 and forward)
 - A prebuild sdk for your board typically called something like ```toolchain.sh```
 - A prebuild sd-card image for your board typically called ```BoardName.rootfs.sdcard.bz2```
@@ -24,6 +24,11 @@ This tend to be the fastest way to get started.
 
     ```bash
     sudo apt-get install git
+    ```
+- Ninja build
+
+    ```bash
+    sudo apt-get install ninja-build
     ```
 
 For this guide we will assume you are using a FB image.
@@ -97,6 +102,12 @@ This process provides the most flexible solution but it also takes significantly
     ```bash
     sudo apt-get install python3-pip
     sudo pip3 install typing
+    ```
+
+- Ninja build
+
+    ```bash
+    sudo apt-get install ninja-build
     ```
 
 - A working yocto build

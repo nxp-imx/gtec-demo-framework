@@ -169,7 +169,7 @@ namespace Fsl
     try
     {
       // NOTE: gli does not seem to have a origin concept so we have no way of knowing the 'origin' of the content
-      rBitmap.Reset(tex.data(), cbTexL0, Extent2D(extentL0.x, extentL0.y), pixelFormat, static_cast<uint32_t>(strideL0), BitmapOrigin::UpperLeft);
+      rBitmap.Reset(tex.data(), cbTexL0, PxExtent2D(extentL0.x, extentL0.y), pixelFormat, static_cast<uint32_t>(strideL0), BitmapOrigin::UpperLeft);
     }
     catch (const std::exception&)
     {
@@ -224,7 +224,7 @@ namespace Fsl
       }
 
       const auto gliExtent = tex.extent();
-      Extent3D extent(gliExtent.x, gliExtent.y, gliExtent.z);
+      PxExtent3D extent(gliExtent.x, gliExtent.y, gliExtent.z);
 
       if (tex.faces() > std::numeric_limits<uint32_t>::max())
       {
@@ -252,7 +252,7 @@ namespace Fsl
       for (uint32_t level = 0; level < levels; ++level)
       {
         const auto gliLevelExtent = tex.extent(level);
-        Extent3D levelExtent(gliLevelExtent.x, gliLevelExtent.y, gliLevelExtent.z);
+        PxExtent3D levelExtent(gliLevelExtent.x, gliLevelExtent.y, gliLevelExtent.z);
         if (levelExtent != blobBuilder.GetExtent(level))
         {
           FSLLOG3_DEBUG_WARNING("The blobBuilder and GLI did not agree on the extent size for level: {}", level);

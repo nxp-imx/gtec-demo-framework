@@ -2,16 +2,17 @@
 set -o errexit
 
 source $WORKSPACE/.Config/Jenkins/ubuntu/PrepareJenkinsEnvironment.sh
-export FSL_FEATURES=[EGL,EarlyAccess,OpenCL,OpenCL1.1,OpenCL1.2,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVX,OpenVX1.1,Vulkan,GoogleUnitTest]
+export FSL_FEATURES=[EarlyAccess,EGL,OpenCL1.2,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVX,OpenVX1.1,Vulkan,GoogleUnitTest]
+export FSL_CMAKE_GENERATOR=Ninja 
 
-#FslBuild.py -g legacy -t sdk -vv --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES -c install
+#FslBuild.py -t sdk -vv --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --CMakeGeneratorName $FSL_CMAKE_GENERATOR 
 
-FslBuild.py -g legacy -t sdk --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest]
+FslBuild.py -t sdk --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --CMakeGeneratorName $FSL_CMAKE_GENERATOR 
 
 # setup a baseline
 lcov --no-external --capture --initial --directory . --output-file coverage_base.info
 
-FslBuild.py -g legacy -t sdk --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --ForAllExe "(EXE) --gtest_output=xml:""$FSL_TEST_REPORTS/(PACKAGE_NAME).xml"""
+FslBuild.py -t sdk --BuildTime --Variants [config=Coverage] --UseFeatures $FSL_FEATURES --RequireFeature [GoogleUnitTest] --CMakeGeneratorName $FSL_CMAKE_GENERATOR --ForAllExe "(EXE) --gtest_output=xml:""$FSL_TEST_REPORTS/(PACKAGE_NAME).xml""" 
 
 echo Generating coverage html
 

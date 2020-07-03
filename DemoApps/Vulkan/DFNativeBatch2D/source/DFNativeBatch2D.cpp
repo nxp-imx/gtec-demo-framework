@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DFNativeBatch2D.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
@@ -103,19 +104,15 @@ namespace Fsl
   }
 
 
-  void DFNativeBatch2D::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void DFNativeBatch2D::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
+                                   const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
-      VkClearColorValue clearColorValue{};
-      clearColorValue.float32[0] = 0.5f;
-      clearColorValue.float32[1] = 0.5f;
-      clearColorValue.float32[2] = 0.5f;
-      clearColorValue.float32[3] = 1.0f;
-
-      VkClearValue clearValues[1] = {clearColorValue};
+      std::array<VkClearValue, 1> clearValues{};
+      clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -124,13 +121,13 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         const std::shared_ptr<INativeGraphics> native = m_graphics->GetNativeGraphics();
-        const Point2 res = GetScreenResolution();
+        const PxSize2D windowSizePx = GetWindowSizePx();
         const int32_t offsetY = m_scene1->GetGridOffsetY();
 
         m_nativeBatch->Begin(BlendState::Opaque);
@@ -142,18 +139,21 @@ namespace Fsl
         // While VUTextures support automatic conversion to Vulkan::VUTextureInfo, this shows how to fill out a VUTextureInfo manually
         auto textureInfo = Vulkan::VUTextureInfo(m_nativeTexture.Sampler().Get(), m_nativeTexture.ImageView().Get(),
                                                  m_nativeTexture.Image().GetImageLayout(), m_nativeTexture.Image().GetExtent());
-        m_nativeBatch->Draw(textureInfo, Rectangle(res.X - 256, offsetY + 256, 256, 256), Color::White());
+        m_nativeBatch->Draw(textureInfo, PxRectangle(windowSizePx.Width() - 256, offsetY + 256, 256, 256), Color::White());
 
         // Vulkan native texture
-        m_nativeBatch->Draw(m_nativeTexture, Vector2(res.X - nativeTexSize.X - 128 * 2, offsetY), Color::White());
-        m_nativeBatch->Draw(m_nativeTexture,
-                            Rectangle(res.X - nativeTexSize.X - 128 * 2, offsetY + 256 * 0 + 128, nativeTexSize.X / 2, nativeTexSize.Y / 2),
-                            Color::White());
+        m_nativeBatch->Draw(m_nativeTexture, Vector2(windowSizePx.Width() - nativeTexSize.X - 128 * 2, offsetY), Color::White());
+        m_nativeBatch->Draw(
+          m_nativeTexture,
+          PxRectangle(windowSizePx.Width() - nativeTexSize.X - 128 * 2, offsetY + 256 * 0 + 128, nativeTexSize.X / 2, nativeTexSize.Y / 2),
+          Color::White());
 
         // API independent texture
-        const Point2 texSize = m_texture2D.GetSize();
-        m_nativeBatch->Draw(m_texture2D, Vector2(res.X - texSize.X, offsetY), Color::White());
-        m_nativeBatch->Draw(m_texture2D, Rectangle(res.X - texSize.X - texSize.X / 2, offsetY + texSize.Y, texSize.X / 2, texSize.Y / 2),
+        const auto texSize = m_texture2D.GetSize();
+        m_nativeBatch->Draw(m_texture2D, Vector2(windowSizePx.Width() - texSize.Width(), offsetY), Color::White());
+        m_nativeBatch->Draw(m_texture2D,
+                            PxRectangle(windowSizePx.Width() - texSize.Width() - texSize.Width() / 2, offsetY + texSize.Height(), texSize.Width() / 2,
+                                        texSize.Height() / 2),
                             Color::White());
 
         m_nativeBatch->End();
@@ -162,7 +162,7 @@ namespace Fsl
         // Draw native API independent graphics
         if (m_scene1)
         {
-          m_scene1->Draw(res);
+          m_scene1->Draw(windowSizePx);
         }
 
         AddSystemUI(hCmdBuffer, currentSwapBufferIndex);
@@ -175,7 +175,7 @@ namespace Fsl
     rCmdBuffers.End(currentSwapBufferIndex);
   }
 
-  VkRenderPass DFNativeBatch2D::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
+  VkRenderPass DFNativeBatch2D::OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/)
   {
     // Since we only draw using the NativeBatch we just create the most basic render pass that is compatible
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();

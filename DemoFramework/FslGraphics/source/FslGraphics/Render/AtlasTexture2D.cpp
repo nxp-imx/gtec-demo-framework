@@ -34,12 +34,9 @@
 
 namespace Fsl
 {
-  AtlasTexture2D::AtlasTexture2D() = default;
-
-
-  AtlasTexture2D::AtlasTexture2D(const Texture2D& texAtlas, const AtlasTextureInfo& info)
+  AtlasTexture2D::AtlasTexture2D(const BaseTexture2D& texAtlas, const AtlasTextureInfo& info)
     : m_atlas(texAtlas)
-    , m_info(info)
+    , m_info(texAtlas.IsValid() ? info : AtlasTextureInfo())
   {
   }
 
@@ -52,21 +49,10 @@ namespace Fsl
     return m_atlas.IsValid();
   }
 
-  AtlasTextureInfo AtlasTexture2D::GetInfo() const
-  {
-    return m_info;
-  }
-
 
   std::shared_ptr<INativeTexture2D> AtlasTexture2D::TryGetNative() const
   {
     return m_atlas.TryGetNative();
-  }
-
-
-  Texture2D AtlasTexture2D::GetAtlasTexture() const
-  {
-    return m_atlas;
   }
 
 
@@ -77,9 +63,9 @@ namespace Fsl
   }
 
 
-  void AtlasTexture2D::Reset(const Texture2D& texAtlas, const AtlasTextureInfo& info)
+  void AtlasTexture2D::Reset(const BaseTexture2D& texAtlas, const AtlasTextureInfo& info)
   {
     m_atlas = texAtlas;
-    m_info = info;
+    m_info = texAtlas.IsValid() ? info : AtlasTextureInfo();
   }
 }

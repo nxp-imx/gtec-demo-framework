@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <string>
 
@@ -45,7 +45,7 @@ namespace Fsl
     virtual std::string GetName() const = 0;
     virtual void Restart() = 0;
     virtual void Update(const DemoTime& demoTime) = 0;
-    virtual void Draw(const Point2& screenResolution) = 0;
+    virtual void Draw(const PxSize2D& sizePc) = 0;
   };
 }
 

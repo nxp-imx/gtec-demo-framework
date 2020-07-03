@@ -41,6 +41,7 @@ class XmlCMakeConfiguration(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
         self.DefaultBuildDir = self._ReadAttrib(xmlElement, "DefaultBuildDir")
+        self.NinjaRecipePackageName = self._ReadAttrib(xmlElement, "NinjaRecipe")
         self.DefaultInstallPrefix = self._TryReadAttrib(xmlElement, "DefaultInstallPrefix")
         self.MinVersion = self._TryReadAttrib(xmlElement, "MinVersion")
         self.Platforms = self.__ReadPlatforms(log, xmlElement)

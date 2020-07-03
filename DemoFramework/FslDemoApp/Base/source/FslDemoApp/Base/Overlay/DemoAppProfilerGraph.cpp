@@ -68,11 +68,11 @@ namespace Fsl
   void DemoAppProfilerGraph::Draw(const std::shared_ptr<IBasic2D>& basic2D, const Vector2& dstPosition, const Color& color)
   {
     int32_t count = 0;
-    const float scaleY = (m_size.Y - 1) / static_cast<float>(m_maxValue - m_minValue);
+    const float scaleY = static_cast<float>(m_size.Y - 1) / static_cast<float>(m_maxValue - m_minValue);
     float dstX = dstPosition.X;
     if (m_entries.size() < std::size_t(m_size.X))
     {
-      dstX += m_size.X - static_cast<int32_t>(m_entries.size());
+      dstX += static_cast<float>(m_size.X - static_cast<int32_t>(m_entries.size()));
     }
     const float dstY = dstPosition.Y + m_size.Y - 1;
     for (std::size_t i = 0; i < m_entries.size(); ++i)

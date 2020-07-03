@@ -43,6 +43,8 @@ using namespace Fsl;
 
 namespace
 {
+  constexpr const uint32_t TEST_DP = 320;
+
   using TestTextureAtlas_TextureAtlasHelper = TestFixtureFslGraphics;
 }
 
@@ -51,14 +53,15 @@ TEST(TestTextureAtlas_TextureAtlasHelper, GetAtlasTextureInfo)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, Rectangle(1, 2, 20, 30), Rectangle(4, 6, 8, 12), UTF8String("hello"));
+  atlas.SetEntry(0, PxRectangleU(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
 
   {
     auto textureInfo = TextureAtlasHelper::GetAtlasTextureInfo(atlas, "hello");
-    EXPECT_EQ(Point2(1, 2), textureInfo.Offset);
-    EXPECT_EQ(Point2(20, 30), textureInfo.OriginalSize);
-    EXPECT_EQ(Thickness(3, 4, 9, 14), textureInfo.TrimMargin);
-    EXPECT_EQ(Rectangle(4, 6, 8, 12), textureInfo.TrimmedRect);
+    EXPECT_EQ(PxPoint2(1, 2), textureInfo.OffsetPx);
+    EXPECT_EQ(PxExtent2D(20, 30), textureInfo.ExtentPx);
+    EXPECT_EQ(PxThicknessU(3, 4, 9, 14), textureInfo.TrimMarginPx);
+    EXPECT_EQ(PxRectangleU(4, 6, 8, 12), textureInfo.TrimmedRectPx);
+    EXPECT_EQ(TEST_DP, textureInfo.Dpi);
   }
 }
 
@@ -67,7 +70,7 @@ TEST(TestTextureAtlas_TextureAtlasHelper, GetAtlasTextureInfo_NotFound)
 {
   BasicTextureAtlas atlas;
   atlas.Reset(1);
-  atlas.SetEntry(0, Rectangle(1, 2, 20, 30), Rectangle(4, 6, 8, 12), UTF8String("hello"));
+  atlas.SetEntry(0, PxRectangleU(4, 6, 8, 12), PxThicknessU(3, 4, 9, 14), TEST_DP, "hello");
 
   EXPECT_THROW(TextureAtlasHelper::GetAtlasTextureInfo(atlas, ""), NotFoundException);
   EXPECT_THROW(TextureAtlasHelper::GetAtlasTextureInfo(atlas, "/hello"), NotFoundException);

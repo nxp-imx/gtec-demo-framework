@@ -34,6 +34,7 @@
 #include <FslService/Consumer/ProviderId.hpp>
 #include <FslService/Impl/Foundation/Message/BasicMessage.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -47,22 +48,22 @@ namespace Fsl
     FireAndForgetBasicMessage() = default;
 
 
-    FireAndForgetBasicMessage(const ProviderId& targetId, const std::shared_ptr<Message>& content)
+    FireAndForgetBasicMessage(const ProviderId& targetId, std::shared_ptr<Message> content)
       : TargetId(targetId)
-      , Content(content)
+      , Content(std::move(content))
     {
     }
 
 
-    FireAndForgetBasicMessage(const ProviderId& targetId, const std::shared_ptr<Message>& content, const std::shared_ptr<IMessagePool>& messagePool)
+    FireAndForgetBasicMessage(const ProviderId& targetId, std::shared_ptr<Message> content, std::shared_ptr<IMessagePool> messagePool)
       : TargetId(targetId)
-      , Content(content)
-      , MessagePool(messagePool)
+      , Content(std::move(content))
+      , MessagePool(std::move(messagePool))
     {
     }
 
 
-    operator BasicMessage() const
+    operator BasicMessage() const    // NOLINT(google-explicit-constructor);
     {
       return BasicMessage(BasicMessageType::FireAndForgetMessage, static_cast<uint32_t>(TargetId.Get()), Content, MessagePool);
     }

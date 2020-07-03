@@ -31,6 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoHost/EGL/EGLDemoHostOptionParser.hpp>
 #include <algorithm>
@@ -55,13 +56,14 @@ namespace Fsl
     };
 
 
-    OptionParseResult AddSize(std::deque<EGLint>& rConfigAttributes, EGLint attrib, const char* const pszOptArg, const char* const pszError)
+    OptionParseResult AddSize(std::deque<EGLint>& rConfigAttributes, EGLint attrib, const StringViewLite& strOptArg,
+                              const StringViewLite& /*strError*/)
     {
-      int32_t intValue;
-      StringParseUtil::Parse(intValue, pszOptArg);
+      int32_t intValue = 0;
+      StringParseUtil::Parse(intValue, strOptArg);
       if (intValue < 0)
       {
-        throw std::invalid_argument(pszError);
+        throw std::invalid_argument(fmt::format("could not parse '{}' as a int32", strOptArg));
       }
       rConfigAttributes.push_back(attrib);
       rConfigAttributes.push_back(intValue);
@@ -70,7 +72,8 @@ namespace Fsl
   }
 
   EGLDemoHostOptionParser::EGLDemoHostOptionParser()
-    : m_logConfig(false)
+    : ADemoHostOptionParser(DemoHostOptionConfig::WindowApp)
+    , m_logConfig(false)
     , m_logExtensions(false)
     , m_configLogMode(ConfigLogMode::Off)
 
@@ -101,7 +104,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult EGLDemoHostOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult EGLDemoHostOptionParser::Parse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     // We rely on the fact that a command line argument can be specified once (so no duplicated entries are added)
     switch (cmdId)
@@ -110,22 +113,22 @@ namespace Fsl
       m_logConfig = true;
       return OptionParseResult::Parsed;
     case CommandId::RedSize:
-      return AddSize(m_configAttributes, EGL_RED_SIZE, pszOptArg, "EGLRedSize can not be negative");
+      return AddSize(m_configAttributes, EGL_RED_SIZE, strOptArg, "EGLRedSize can not be negative");
     case CommandId::GreenSize:
-      return AddSize(m_configAttributes, EGL_GREEN_SIZE, pszOptArg, "EGLGreenSize can not be negative");
+      return AddSize(m_configAttributes, EGL_GREEN_SIZE, strOptArg, "EGLGreenSize can not be negative");
     case CommandId::BlueSize:
-      return AddSize(m_configAttributes, EGL_BLUE_SIZE, pszOptArg, "EGLBlueSize can not be negative");
+      return AddSize(m_configAttributes, EGL_BLUE_SIZE, strOptArg, "EGLBlueSize can not be negative");
     case CommandId::AlphaSize:
-      return AddSize(m_configAttributes, EGL_ALPHA_SIZE, pszOptArg, "EGLAlphaSize can not be negative");
+      return AddSize(m_configAttributes, EGL_ALPHA_SIZE, strOptArg, "EGLAlphaSize can not be negative");
     case CommandId::DepthSize:
-      return AddSize(m_configAttributes, EGL_DEPTH_SIZE, pszOptArg, "EGLDepthSize can not be negative");
+      return AddSize(m_configAttributes, EGL_DEPTH_SIZE, strOptArg, "EGLDepthSize can not be negative");
     case CommandId::LogExtensions:
       m_logExtensions = true;
       return OptionParseResult::Parsed;
     case CommandId::LogConfigs:
     {
-      uint32_t value;
-      StringParseUtil::Parse(value, pszOptArg);
+      uint32_t value = 0;
+      StringParseUtil::Parse(value, strOptArg);
       switch (value)
       {
       case 0:
@@ -143,7 +146,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     }
     default:
-      return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
+      return ADemoHostOptionParser::Parse(cmdId, strOptArg);
     }
   }
 

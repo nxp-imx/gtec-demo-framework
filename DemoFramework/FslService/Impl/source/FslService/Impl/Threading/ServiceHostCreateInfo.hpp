@@ -46,8 +46,8 @@ namespace Fsl
     // BasicMessageQueue ownerQueue
     // IServiceThreadImplFactory factory
 
-    ServiceHostCreateInfo(const ServiceHostContext& hostContext, ThreadLocalServiceConfig serviceConfig)
-      : HostContext(hostContext)
+    ServiceHostCreateInfo(ServiceHostContext hostContext, ThreadLocalServiceConfig serviceConfig)
+      : HostContext(std::move(hostContext))
       , ServiceConfig(std::move(serviceConfig))
     {
     }

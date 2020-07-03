@@ -62,7 +62,7 @@ namespace Fsl
 
         // Remove the data from other
         other.m_imageLayout = VkImageLayout{};
-        other.m_extent = Extent3D();
+        other.m_extent = PxExtent3D();
         other.m_mipLevels = 0;
         other.m_layerCount = 0;
         other.m_descriptor = VkDescriptorImageInfo{};
@@ -84,7 +84,7 @@ namespace Fsl
     {
       // Remove the data from other
       other.m_imageLayout = VkImageLayout{};
-      other.m_extent = Extent3D();
+      other.m_extent = PxExtent3D();
       other.m_mipLevels = 0;
       other.m_layerCount = 0;
       other.m_descriptor = VkDescriptorImageInfo{};
@@ -92,8 +92,8 @@ namespace Fsl
 
 
     VulkanTexture::VulkanTexture(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
-                                 RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const Extent3D& extent, const uint32_t mipLevels,
-                                 const uint32_t layerCount, const VkDescriptorImageInfo& descriptor)
+                                 RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const PxExtent3D& extent,
+                                 const uint32_t mipLevels, const uint32_t layerCount, const VkDescriptorImageInfo& descriptor)
       : VulkanTexture()
     {
       Reset(std::move(sampler), std::move(image), imageLayout, std::move(deviceMemory), std::move(view), extent, mipLevels, layerCount, descriptor);
@@ -126,7 +126,7 @@ namespace Fsl
       m_imageLayout = VkImageLayout{};
       m_deviceMemory.Reset();
       m_view.Reset();
-      m_extent = Extent3D();
+      m_extent = PxExtent3D();
       m_mipLevels = 0;
       m_layerCount = 0;
       m_descriptor = VkDescriptorImageInfo{};
@@ -134,7 +134,7 @@ namespace Fsl
 
 
     void VulkanTexture::Reset(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout,
-                              RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const Extent3D& extent, const uint32_t mipLevels,
+                              RapidVulkan::Memory&& deviceMemory, RapidVulkan::ImageView&& view, const PxExtent3D& extent, const uint32_t mipLevels,
                               const uint32_t layerCount, const VkDescriptorImageInfo& descriptor)
     {
       if (IsValid())

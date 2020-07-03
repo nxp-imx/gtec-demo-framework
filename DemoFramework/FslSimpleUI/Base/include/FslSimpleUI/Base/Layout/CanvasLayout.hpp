@@ -31,57 +31,33 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/Layout.hpp>
-#include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
+#include <FslBase/Math/Dp/DpPointF.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
-    class CanvasLayout : public Layout
+    struct CanvasLayoutWindowRecord : GenericWindowCollectionRecordBase
     {
-      struct WindowRecord : GenericWindowCollectionRecordBase
+      DpPointF PositionDp;
+
+      explicit CanvasLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
+        : GenericWindowCollectionRecordBase(window)
       {
-        Vector2 Position;
+      }
+    };
 
-        WindowRecord(const std::shared_ptr<BaseWindow>& window)
-          : GenericWindowCollectionRecordBase(window)
-        {
-        }
-      };
-
-      using collection_type = GenericWindowCollection<WindowRecord>;
-      collection_type m_children;
-
+    class CanvasLayout : public ComplexLayout<CanvasLayoutWindowRecord>
+    {
     public:
-      CanvasLayout(const std::shared_ptr<BaseWindowContext>& context);
-      void WinInit() override;
+      explicit CanvasLayout(const std::shared_ptr<BaseWindowContext>& context);
 
-      void ClearChildren() override
-      {
-        m_children.Clear();
-      }
-
-      void AddChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Add(window);
-      }
-
-      void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Remove(window);
-      }
-
-      std::size_t GetChildCount() const override
-      {
-        return m_children.size();
-      }
-
-      void SetChildPosition(const std::shared_ptr<BaseWindow>& window, const Vector2& position);
+      void SetChildPosition(const std::shared_ptr<BaseWindow>& window, const DpPointF& positionDp);
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

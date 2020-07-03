@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/PixelFormatLayout.hpp>
@@ -52,8 +52,8 @@ namespace Fsl
   //  using pixel_t = PixelTestUtil::R8G8B8;                            // PixelConcept class
   //  using color_template_t = PixelTestUtil::R8G8B8::ColorTemplate;    // A color template containg: R(), G(), B(), White(), Black()
   //
-  //  static image_t MakeImage(const Extent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
-  //  static const Extent2D GetExtent(const image_t& image);
+  //  static image_t MakeImage(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+  //  static const PxExtent2D GetExtent(const image_t& image);
   //  static const pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
   //  static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
   //};
@@ -81,7 +81,7 @@ namespace Fsl
     static image_t GetBasic4X1(BitmapOrigin origin = BitmapOrigin::Undefined)
     {
       const bool ignoreOrigin = false;
-      image_t image = TImageConfig::MakeImage(Extent2D(4, 1), TImageConfig::ActivePixelFormat, origin);
+      image_t image = TImageConfig::MakeImage(PxExtent2D(4, 1), TImageConfig::ActivePixelFormat, origin);
       TImageConfig::SetPixel(image, 0, 0, TImageConfig::color_template_t::R(), ignoreOrigin);
       TImageConfig::SetPixel(image, 1, 0, TImageConfig::color_template_t::G(), ignoreOrigin);
       TImageConfig::SetPixel(image, 2, 0, TImageConfig::color_template_t::B(), ignoreOrigin);
@@ -91,7 +91,7 @@ namespace Fsl
 
     static image_t GetBasic4X2(BitmapOrigin origin = BitmapOrigin::Undefined, const bool ignoreOrigin = false)
     {
-      image_t image = TImageConfig::MakeImage(Extent2D(4, 2), TImageConfig::ActivePixelFormat, origin);
+      image_t image = TImageConfig::MakeImage(PxExtent2D(4, 2), TImageConfig::ActivePixelFormat, origin);
       TImageConfig::SetPixel(image, 0, 0, TImageConfig::color_template_t::R(), ignoreOrigin);
       TImageConfig::SetPixel(image, 1, 0, TImageConfig::color_template_t::G(), ignoreOrigin);
       TImageConfig::SetPixel(image, 2, 0, TImageConfig::color_template_t::B(), ignoreOrigin);
@@ -106,7 +106,7 @@ namespace Fsl
 
     static ::testing::AssertionResult CheckIsBasic4X1(const image_t& image)
     {
-      const Extent2D imageExtent = TImageConfig::GetExtent(image);
+      const PxExtent2D imageExtent = TImageConfig::GetExtent(image);
       if (imageExtent.Width != 4 || imageExtent.Height != 1 || image.GetPixelFormat() != TImageConfig::ActivePixelFormat)
       {
         std::string strError = fmt::format("Image.");
@@ -139,7 +139,7 @@ namespace Fsl
 
     static ::testing::AssertionResult CheckIsBasic4X2(const image_t& image, const BitmapOrigin checkOrigin = BitmapOrigin::Undefined)
     {
-      const Extent2D imageExtent = TImageConfig::GetExtent(image);
+      const PxExtent2D imageExtent = TImageConfig::GetExtent(image);
       if (imageExtent.Width != 4 || imageExtent.Height != 2 || image.GetPixelFormat() != TImageConfig::ActivePixelFormat)
       {
         std::string strError = fmt::format("image.");

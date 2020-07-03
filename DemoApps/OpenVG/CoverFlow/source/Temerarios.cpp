@@ -25,7 +25,8 @@
 #include "CoverAlbumBitmap.hpp"
 namespace Fsl
 {
-  uint8_t CoverAlbumBitmaps::TemerariosBitmap[] = {
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  const uint8_t CoverAlbumBitmaps::TemerariosBitmap[] = {
     10,  11,  62,  255, 13,  14,  64,  255, 18,  17,  67,  255, 19,  19,  65,  255, 17,  17,  63,  255, 15,  17,  58,  255, 14,  14,  54,  255, 14,
     15,  53,  255, 13,  13,  49,  255, 13,  13,  49,  255, 14,  14,  50,  255, 14,  14,  50,  255, 15,  12,  51,  255, 14,  11,  50,  255, 14,  10,
     51,  255, 13,  9,   50,  255, 19,  13,  54,  255, 18,  14,  55,  255, 18,  13,  58,  255, 15,  14,  58,  255, 16,  13,  62,  255, 14,  16,  64,

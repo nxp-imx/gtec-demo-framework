@@ -44,7 +44,7 @@ namespace Fsl
     OpenVG::VGPathBuffer m_vg_arc_path;
 
   public:
-    Example1(const DemoAppConfig& config);
+    explicit Example1(const DemoAppConfig& config);
     ~Example1() override;
 
   protected:

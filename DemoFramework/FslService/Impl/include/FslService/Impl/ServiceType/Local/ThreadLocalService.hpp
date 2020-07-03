@@ -40,7 +40,7 @@ namespace Fsl
   class ThreadLocalService : public IService
   {
   public:
-    ThreadLocalService(const ServiceProvider& serviceProvider);
+    explicit ThreadLocalService(const ServiceProvider& serviceProvider);
     ~ThreadLocalService() override;
 
     void Link(const ServiceProvider& serviceProvider) override;

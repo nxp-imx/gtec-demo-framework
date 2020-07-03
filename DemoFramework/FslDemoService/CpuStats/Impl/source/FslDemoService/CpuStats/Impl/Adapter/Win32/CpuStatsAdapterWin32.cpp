@@ -31,6 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/CpuStats/Impl/Adapter/Win32/CpuStatsAdapterWin32.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <fmt/format.h>
 #include <algorithm>
@@ -55,7 +56,7 @@ namespace Fsl
       return static_cast<uint32_t>(systemInfo.dwNumberOfProcessors);
     }
 
-    uint64_t Convert(const FILETIME& time)
+    uint64_t ToUInt64(const FILETIME& time)
     {
       ULARGE_INTEGER theTime;
       theTime.LowPart = time.dwLowDateTime;
@@ -75,7 +76,7 @@ namespace Fsl
 
     try
     {
-      m_cpuCount = std::min(DoGetCpuCount(), static_cast<uint32_t>(m_cpuStats.size()));
+      m_cpuCount = std::min(DoGetCpuCount(), UncheckedNumericCast<uint32_t>(m_cpuStats.size()));
 
       fmt::memory_buffer buf;
       for (uint32_t cpuIndex = 0; cpuIndex < m_cpuCount; ++cpuIndex)
@@ -192,16 +193,16 @@ namespace Fsl
 
     auto systemTime = (systemTimes.KernelTime - m_appSystemLast.KernelTime) + (systemTimes.UserTime - m_appSystemLast.UserTime);
     auto appTime = (processTimes.KernelTime - m_appProcessLast.KernelTime) + (processTimes.UserTime - m_appProcessLast.UserTime);
-    m_appSystemLast = systemTimes;
-    m_appProcessLast = processTimes;
 
     if (systemTime > 0)
     {
+      m_appSystemLast = systemTimes;
+      m_appProcessLast = processTimes;
       m_appCpuUsagePercentage = static_cast<float>((100.0 * appTime) / systemTime);
     }
     else
     {
-      FSLLOG3_DEBUG_WARNING("not enough time passed");
+      FSLLOG3_DEBUG_VERBOSE2("not enough time passed");
     }
 
     rUsagePercentage = m_appCpuUsagePercentage;
@@ -211,7 +212,7 @@ namespace Fsl
 
   bool CpuStatsAdapterWin32::TryGetApplicationRamUsage(uint64_t& rRamUsage) const
   {
-    auto hProcess = GetCurrentProcess();
+    HANDLE hProcess = GetCurrentProcess();
 
     PROCESS_MEMORY_COUNTERS_EX memoryCounters;
     if (!GetProcessMemoryInfo(hProcess, reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&memoryCounters), sizeof(memoryCounters)))
@@ -260,27 +261,27 @@ namespace Fsl
   }
 
 
-  bool CpuStatsAdapterWin32::TryGetProcessTimes(ProcessTimes& rTimes) const
+  bool CpuStatsAdapterWin32::TryGetProcessTimes(ProcessTimes& rTimes) const    // NOLINT(readability-convert-member-functions-to-static)
   {
     FILETIME creationTime{};
     FILETIME exitTime{};
     FILETIME kernelTime{};
     FILETIME userTime{};
-    auto hProcess = GetCurrentProcess();
+    HANDLE hProcess = GetCurrentProcess();
     if (GetProcessTimes(hProcess, &creationTime, &exitTime, &kernelTime, &userTime) == 0)
     {
       rTimes = {};
       return false;
     }
 
-    const auto appKernelTime = Convert(kernelTime);
-    const auto appUserTime = Convert(userTime);
+    const auto appKernelTime = ToUInt64(kernelTime);
+    const auto appUserTime = ToUInt64(userTime);
     rTimes = ProcessTimes(appKernelTime, appUserTime);
     return true;
   }
 
 
-  bool CpuStatsAdapterWin32::TryGetSystemTimes(ProcessTimes& rTimes) const
+  bool CpuStatsAdapterWin32::TryGetSystemTimes(ProcessTimes& rTimes) const    // NOLINT(readability-convert-member-functions-to-static)
   {
     FILETIME idleTime{};
     FILETIME kernelTime{};
@@ -291,8 +292,8 @@ namespace Fsl
       return false;
     }
 
-    const auto appKernelTime = Convert(kernelTime);
-    const auto appUserTime = Convert(userTime);
+    const auto appKernelTime = ToUInt64(kernelTime);
+    const auto appUserTime = ToUInt64(userTime);
     rTimes = ProcessTimes(appKernelTime, appUserTime);
     return true;
   }

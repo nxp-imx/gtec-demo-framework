@@ -38,7 +38,7 @@ namespace Fsl
   class Console101 : public DemoAppConsole
   {
   public:
-    Console101(const DemoAppConfig& config);
+    explicit Console101(const DemoAppConfig& config);
     ~Console101() override;
 
   protected:

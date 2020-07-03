@@ -56,7 +56,7 @@ namespace Fsl
       BufferCreateInfoCopy(BufferCreateInfoCopy&& other) noexcept;
 
       BufferCreateInfoCopy();
-      BufferCreateInfoCopy(const VkBufferCreateInfo& value);
+      explicit BufferCreateInfoCopy(const VkBufferCreateInfo& value);
 
       void Reset();
       void Reset(const VkBufferCreateInfo& value);

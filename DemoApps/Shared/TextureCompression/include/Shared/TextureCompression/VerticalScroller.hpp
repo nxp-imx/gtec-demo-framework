@@ -42,19 +42,19 @@ namespace Fsl
       float m_animationPosition = 0.0f;
       float m_animationSpeed = 1.0f;
       bool m_animate = false;
-      ThicknessF m_scrollPadding;
+      DpThicknessF m_scrollPaddingDp;
 
     public:
-      VerticalScroller(const std::shared_ptr<BaseWindowContext>& context);
+      explicit VerticalScroller(const std::shared_ptr<BaseWindowContext>& context);
 
       //! @note This is only called if enabled.
       void WinUpdate(const DemoTime& demoTime) override;
 
-      void SetScrollPadding(const ThicknessF& padding);
+      void SetScrollPadding(const DpThicknessF& paddingDp);
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizepx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

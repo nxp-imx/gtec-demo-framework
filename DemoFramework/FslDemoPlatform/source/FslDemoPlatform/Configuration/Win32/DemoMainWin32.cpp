@@ -40,6 +40,7 @@
 
 namespace
 {
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast)
   HANDLE g_currentMainThread = INVALID_HANDLE_VALUE;
 
   // WARNING: this is called from a random thread!!!
@@ -74,7 +75,7 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int result;
+  int result = 0;
   try
   {
     // Set up a special handler for the console control flow, ensuring that we close down nicely if the user
@@ -83,9 +84,8 @@ int main(int argc, char* argv[])
 
     const std::shared_ptr<Fsl::ITag> nativeWindowTag;
 
-    Fsl::IO::Path strContentPath = Fsl::IO::Directory::GetCurrentWorkingDirectory();
-    Fsl::IO::Path strPersistentPath(strContentPath);
-    strContentPath = Fsl::IO::Path::Combine(strContentPath, "Content");
+    auto strPersistentPath = Fsl::IO::Directory::GetCurrentWorkingDirectory();
+    auto strContentPath = Fsl::IO::Path::Combine(strPersistentPath, "Content");
 
     Fsl::DemoRunnerConfig config(true, strContentPath, strPersistentPath, nativeWindowTag);
     result = Fsl::RunDemo(argc, argv, config);

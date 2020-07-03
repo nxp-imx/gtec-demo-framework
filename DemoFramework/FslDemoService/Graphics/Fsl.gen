@@ -2,6 +2,7 @@
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <HeaderLibrary Name="FslDemoService.Graphics" CreationYear="2018">
     <Dependency Name="FslGraphics"/>
+    <Dependency Name="FslDemoService.Profiler"/>
     <Platform Name="Windows" ProjectId="AF5D6E3F-B7DB-48E4-9F6D-7EDA912C6F3D"/>
   </HeaderLibrary>
 </FslBuildGen>

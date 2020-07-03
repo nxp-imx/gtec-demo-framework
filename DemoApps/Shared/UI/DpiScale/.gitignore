@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/Shared.UI.DpiScale.VC.VC.opendb
+/Shared.UI.DpiScale.VC.db
+/Shared.UI.DpiScale.manifest
+/Shared.UI.DpiScale.opensdf
+/Shared.UI.DpiScale.sdf
+/Shared.UI.DpiScale.sln
+/Shared.UI.DpiScale.v12.sdf
+/Shared.UI.DpiScale.v12.suo
+/Shared.UI.DpiScale.vcxproj
+/Shared.UI.DpiScale.vcxproj.filters
+/Shared.UI.DpiScale.vcxproj.user
+/build/

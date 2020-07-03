@@ -33,6 +33,8 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
+#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferUsage.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
@@ -101,19 +103,35 @@ namespace Fsl
       VMIndexBuffer() = default;
 
       //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const uint16_t* const pVertices, const std::size_t elementCount,
-                    const VMBufferUsage usage)
+      [[deprecated("use the ReadOnlySpan variant")]] VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager,
+                                                                   const uint16_t* const pIndices, const std::size_t elementCount,
+                                                                   const VMBufferUsage usage)
         : VMIndexBuffer()
       {
-        DoReset(bufferManager, pVertices, elementCount, sizeof(uint16_t), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(pIndices, elementCount), usage);
       }
 
       //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t* const pVertices, const std::size_t elementCount,
-                    const VMBufferUsage usage)
+      [[deprecated("use the ReadOnlySpan variant")]] VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager,
+                                                                   const uint32_t* const pIndices, const std::size_t elementCount,
+                                                                   const VMBufferUsage usage)
         : VMIndexBuffer()
       {
-        DoReset(bufferManager, pVertices, elementCount, sizeof(uint32_t), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(pIndices, elementCount), usage);
+      }
+
+      //! @brief Create a initialized index buffer
+      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint16_t> indices, const VMBufferUsage usage)
+        : VMIndexBuffer()
+      {
+        Reset(bufferManager, indices, usage);
+      }
+
+      //! @brief Create a initialized index buffer
+      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint32_t> indices, const VMBufferUsage usage)
+        : VMIndexBuffer()
+      {
+        Reset(bufferManager, indices, usage);
       }
 
       //! @brief Create a initialized dynamic index buffer to a given capacity
@@ -127,14 +145,14 @@ namespace Fsl
       VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint16_t>& indices, const VMBufferUsage usage)
         : VMIndexBuffer()
       {
-        Reset(bufferManager, indices.data(), indices.size(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
       }
 
       //! @brief Create a initialized index buffer
       VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint32_t>& indices, const VMBufferUsage usage)
         : VMIndexBuffer()
       {
-        Reset(bufferManager, indices.data(), indices.size(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
       }
 
       //! @brief Create a initialized index buffer
@@ -142,7 +160,7 @@ namespace Fsl
       VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint16_t, TSize>& indices, const VMBufferUsage usage)
         : VMIndexBuffer()
       {
-        Reset(bufferManager, indices.data(), indices.size(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
       }
 
       //! @brief Create a initialized index buffer
@@ -150,7 +168,7 @@ namespace Fsl
       VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint32_t, TSize>& indices, const VMBufferUsage usage)
         : VMIndexBuffer()
       {
-        Reset(bufferManager, indices.data(), indices.size(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
       }
 
       ~VMIndexBuffer() noexcept = default;
@@ -174,94 +192,119 @@ namespace Fsl
       //! internally)
       void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::size_t elementCapacity, const uint32_t elementStride);
 
-
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const uint16_t* const pVertices, const std::size_t elementCount,
-                 const VMBufferUsage usage)
+      [[deprecated("use the ReadOnlySpan variant")]] void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const uint16_t* const pIndices,
+                                                                const std::size_t elementCount, const VMBufferUsage usage)
       {
-        DoReset(bufferManager, pVertices, elementCount, sizeof(uint16_t), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(pIndices, elementCount), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t* const pVertices, const std::size_t elementCount,
-                 const VMBufferUsage usage)
+      [[deprecated("use the ReadOnlySpan variant")]] void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const uint32_t* const pIndices,
+                                                                const std::size_t elementCount, const VMBufferUsage usage)
       {
-        DoReset(bufferManager, pVertices, elementCount, sizeof(uint32_t), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(pIndices, elementCount), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint16_t>& vertices, const VMBufferUsage usage)
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint16_t> indices, const VMBufferUsage usage)
       {
-        Reset(bufferManager, vertices.data(), vertices.size(), usage);
+        DoReset(bufferManager, indices.data(), indices.size(), sizeof(uint16_t), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint32_t>& vertices, const VMBufferUsage usage)
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const ReadOnlySpan<uint32_t> indices, const VMBufferUsage usage)
       {
-        Reset(bufferManager, vertices.data(), vertices.size(), usage);
+        DoReset(bufferManager, indices.data(), indices.size(), sizeof(uint32_t), usage);
+      }
+
+      //! @brief Reset the buffer to contain the supplied elements
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint16_t>& indices, const VMBufferUsage usage)
+      {
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
+      }
+
+      //! @brief Reset the buffer to contain the supplied elements
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<uint32_t>& indices, const VMBufferUsage usage)
+      {
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
       template <std::size_t TSize>
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint16_t, TSize>& vertices, const VMBufferUsage usage)
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint16_t, TSize>& indices, const VMBufferUsage usage)
       {
-        Reset(bufferManager, vertices.data(), vertices.size(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
       template <std::size_t TSize>
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint32_t, TSize>& vertices, const VMBufferUsage usage)
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<uint32_t, TSize>& indices, const VMBufferUsage usage)
       {
-        Reset(bufferManager, vertices.data(), vertices.size(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(indices), usage);
       }
 
 
-      void SetData(const uint16_t* pVertices, const std::size_t elementCount)
+      [[deprecated("use the ReadOnlySpan variant")]] void SetData(const uint16_t* pIndices, const std::size_t elementCount)
       {
-        DoSetData(pVertices, elementCount, sizeof(uint16_t));
+        SetData(ReadOnlySpanUtil::AsSpan(pIndices, elementCount));
       }
 
-      void SetData(const uint32_t* pVertices, const std::size_t elementCount)
+      [[deprecated("use the ReadOnlySpan variant")]] void SetData(const uint32_t* pIndices, const std::size_t elementCount)
       {
-        DoSetData(pVertices, elementCount, sizeof(uint16_t));
+        SetData(ReadOnlySpanUtil::AsSpan(pIndices, elementCount));
+      }
+
+      void SetData(const ReadOnlySpan<uint16_t> indices)
+      {
+        DoSetData(indices.data(), indices.size(), sizeof(uint16_t));
+      }
+
+      void SetData(const ReadOnlySpan<uint32_t> indices)
+      {
+        DoSetData(indices.data(), indices.size(), sizeof(uint32_t));
       }
 
 
-      void SetData(const std::vector<uint16_t>& vertices)
+      void SetData(const std::vector<uint16_t>& indices)
       {
-        SetData(vertices.data(), vertices.size());
+        SetData(ReadOnlySpanUtil::AsSpan(indices));
       }
 
 
-      void SetData(const std::vector<uint32_t>& vertices)
+      void SetData(const std::vector<uint32_t>& indices)
       {
-        SetData(vertices.data(), vertices.size());
+        SetData(ReadOnlySpanUtil::AsSpan(indices));
       }
 
 
       template <std::size_t TSize>
-      void SetData(const std::array<uint16_t, TSize>& vertices)
+      void SetData(const std::array<uint16_t, TSize>& indices)
       {
-        SetData(vertices.data(), vertices.size());
+        SetData(ReadOnlySpanUtil::AsSpan(indices));
       }
 
 
       template <std::size_t TSize>
-      void SetData(const std::array<uint32_t, TSize>& vertices)
+      void SetData(const std::array<uint32_t, TSize>& indices)
       {
-        SetData(vertices.data(), vertices.size());
+        SetData(ReadOnlySpanUtil::AsSpan(indices));
       }
 
 
@@ -306,20 +349,20 @@ namespace Fsl
 
     private:
       //! @brief Create a initialized index buffer
-      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pVertices, const std::size_t elementCount,
+      VMIndexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pIndices, const std::size_t elementCount,
                     const uint32_t elementStride, const VMBufferUsage usage)
         : VMIndexBuffer()
       {
-        DoReset(bufferManager, pVertices, elementCount, elementStride, usage);
+        DoReset(bufferManager, pIndices, elementCount, elementStride, usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
-      void DoReset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pVertices, const std::size_t elementCount,
+      void DoReset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* pIndices, const std::size_t elementCount,
                    const uint32_t elementStride, const VMBufferUsage usage);
 
-      void DoSetData(const void* pVertices, const std::size_t elementCount, const uint32_t elementStride);
+      void DoSetData(const void* pIndices, const std::size_t elementCount, const uint32_t elementStride);
     };
   }
 }

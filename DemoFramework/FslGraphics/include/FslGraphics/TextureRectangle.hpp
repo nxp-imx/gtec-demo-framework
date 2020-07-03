@@ -32,41 +32,41 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Rectangle.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 
 namespace Fsl
 {
   struct TextureRectangle
   {
   private:
-    Rectangle m_rectangle;
-    Point2 m_textureSize;
+    PxRectangle m_rectangle;
+    PxSize2D m_textureSize;
 
   public:
-    constexpr TextureRectangle() = default;
+    constexpr TextureRectangle() noexcept = default;
 
-    constexpr TextureRectangle(const Rectangle& rectangle, const Point2& textureSize)
+    constexpr TextureRectangle(const PxRectangle& rectangle, const PxSize2D& textureSize) noexcept
       : m_rectangle(rectangle)
       , m_textureSize(textureSize)
     {
     }
 
-    constexpr Rectangle GetRectangle() const
+    constexpr const PxRectangle& GetRectangle() const noexcept
     {
       return m_rectangle;
     }
 
-    constexpr Point2 GetTextureSize() const
+    constexpr const PxSize2D& GetTextureSize() const noexcept
     {
       return m_textureSize;
     }
 
-    constexpr bool operator==(const TextureRectangle& rhs) const
+    constexpr bool operator==(const TextureRectangle& rhs) const noexcept
     {
       return ((m_rectangle == rhs.m_rectangle) && (m_textureSize == rhs.m_textureSize));
     }
 
-    constexpr bool operator!=(const TextureRectangle& rhs) const
+    constexpr bool operator!=(const TextureRectangle& rhs) const noexcept
     {
       return ((m_rectangle != rhs.m_rectangle) || (m_textureSize != rhs.m_textureSize));
     }

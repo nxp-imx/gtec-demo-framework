@@ -44,7 +44,7 @@ namespace Fsl
     std::vector<VertexPosition> m_vertices;
 
   public:
-    MeshRenderNormals(const Procedural::BasicMesh& mesh);
+    explicit MeshRenderNormals(const Procedural::BasicMesh& mesh);
     ~MeshRenderNormals() override;
 
     void Bind(const ShaderBase& shader) override;

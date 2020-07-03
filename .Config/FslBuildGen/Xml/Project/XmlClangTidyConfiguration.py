@@ -42,7 +42,8 @@ class XmlClangTidyConfiguration(XmlBase):
         super().__init__(log, xmlElement)
         fileExtensions = self._ReadAttrib(xmlElement, "FileExtensions")
         self.FileExtensions = fileExtensions.split(';')
-        self.Recipe = self._ReadAttrib(xmlElement, "Recipe")
+        self.ClangRecipe = self._ReadAttrib(xmlElement, "ClangRecipe")
+        self.ClangTidyRecipe = self._ReadAttrib(xmlElement, "ClangTidyRecipe")
         self.Platforms = self.__ReadPlatforms(log, xmlElement)
 
     def __ReadPlatforms(self, log: Log, xmlElement: ET.Element) -> List[XmlClangTidyPlatform]:

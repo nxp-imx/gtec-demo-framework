@@ -35,7 +35,7 @@
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/App/UIDemoAppLegacyExtension.hpp>
 #include <deque>
 
 namespace Fsl
@@ -45,7 +45,7 @@ namespace Fsl
     , public UI::EventListener
   {
     UI::CallbackEventListenerScope m_uiEventListener;
-    std::shared_ptr<UIDemoAppExtension> m_uiExtension;
+    std::shared_ptr<UIDemoAppLegacyExtension> m_uiExtension;
     std::shared_ptr<GLES3::NativeBatch2D> m_batch;
     AtlasTexture2D m_texFill;
     AtlasTexture2D m_texBall;
@@ -81,13 +81,13 @@ namespace Fsl
       }
     };
 
-    Rectangle m_boundaryRect;
+    PxRectangle m_boundaryRect;
     std::deque<Particle> m_particles;
     std::deque<Stick> m_sticks;
     float m_rotation;
 
   public:
-    VerletIntegration101(const DemoAppConfig& config);
+    explicit VerletIntegration101(const DemoAppConfig& config);
     ~VerletIntegration101() override;
 
   protected:
@@ -98,7 +98,7 @@ namespace Fsl
   private:
     void UpdateParticles(std::deque<Particle>& particles, const float friction);
     void UpdateSticks(std::deque<Particle>& particles, std::deque<Stick>& sticks);
-    void ConstrainPoints(std::deque<Particle>& particles, const Rectangle& boundaryRect, const float friction);
+    void ConstrainPoints(std::deque<Particle>& particles, const PxRectangle& boundaryRect, const float friction);
     void DrawSticks(const std::deque<Particle>& particles, const std::deque<Stick>& sticks);
     void DrawParticles(const std::deque<Particle>& particles);
   };

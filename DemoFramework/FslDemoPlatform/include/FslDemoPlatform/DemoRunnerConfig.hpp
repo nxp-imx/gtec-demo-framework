@@ -35,6 +35,7 @@
 #include <string>
 #include <FslBase/ITag.hpp>
 #include <FslDemoPlatform/Setup/DemoSetupManagerConfig.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -45,10 +46,10 @@ namespace Fsl
     std::shared_ptr<ITag> NativeWindowTag;
 
     DemoRunnerConfig(const bool useDefaultSignalHandlers, const IO::Path& contentPath, const IO::Path& persistentDataPath,
-                     const std::shared_ptr<ITag>& nativeWindowTag)
+                     std::shared_ptr<ITag> nativeWindowTag)
       : UseDefaultSignalHandlers(useDefaultSignalHandlers)
       , SetupManagerConfig(contentPath, persistentDataPath)
-      , NativeWindowTag(nativeWindowTag)
+      , NativeWindowTag(std::move(nativeWindowTag))
     {
     }
   };

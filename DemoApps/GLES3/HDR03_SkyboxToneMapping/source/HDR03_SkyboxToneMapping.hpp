@@ -36,7 +36,6 @@
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
-#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
@@ -126,7 +125,7 @@ namespace Fsl
     Vector2 m_rotationSpeed;
 
   public:
-    HDR03_SkyboxToneMapping(const DemoAppConfig& config);
+    explicit HDR03_SkyboxToneMapping(const DemoAppConfig& config);
     ~HDR03_SkyboxToneMapping() override;
 
   protected:

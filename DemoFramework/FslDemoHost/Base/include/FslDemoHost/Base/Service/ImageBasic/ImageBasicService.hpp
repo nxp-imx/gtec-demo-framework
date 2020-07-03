@@ -44,7 +44,7 @@ namespace Fsl
   class IBitmapConverter;
   class IImageLibraryService;
 
-  class ImageBasicService
+  class ImageBasicService final
     : public ThreadLocalService
     , public IImageBasicService
   {
@@ -55,27 +55,27 @@ namespace Fsl
     std::map<ImageFormat, std::shared_ptr<ImageLibraryDeque>> m_formatToImageLibrary;
 
   public:
-    ImageBasicService(const ServiceProvider& serviceProvider);
-    ~ImageBasicService() override;
+    explicit ImageBasicService(const ServiceProvider& serviceProvider);
+    ~ImageBasicService() final;
 
     // From ImageBasicService
     void Read(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
               const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-              const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const override;
+              const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const final;
     void Read(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
               const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-              const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const override;
+              const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const final;
     void Write(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat = ImageFormat::Undefined,
-               const PixelFormat desiredPixelFormat = PixelFormat::Undefined) override;
+               const PixelFormat desiredPixelFormat = PixelFormat::Undefined) final;
     void WriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
-                         const PixelFormat desiredPixelFormat = PixelFormat::Undefined) override;
+                         const PixelFormat desiredPixelFormat = PixelFormat::Undefined) final;
     bool TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                  const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
-                 const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const override;
+                 const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const final;
     bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat = ImageFormat::Undefined,
-                  const PixelFormat desiredPixelFormat = PixelFormat::Undefined) override;
+                  const PixelFormat desiredPixelFormat = PixelFormat::Undefined) final;
     bool TryWriteExactImage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
-                            const PixelFormat desiredPixelFormat = PixelFormat::Undefined) override;
+                            const PixelFormat desiredPixelFormat = PixelFormat::Undefined) final;
 
   private:
     void DoWrite(const IO::Path& absPath, const Bitmap& bitmap, const ImageFormat imageFormat);

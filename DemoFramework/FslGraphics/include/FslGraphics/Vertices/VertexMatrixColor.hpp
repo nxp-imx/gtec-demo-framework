@@ -44,9 +44,9 @@ namespace Fsl
     Fsl::Matrix Matrix;
     Vector4 Color;
 
-    constexpr VertexMatrixColor() = default;
+    constexpr VertexMatrixColor() noexcept = default;
 
-    constexpr VertexMatrixColor(const Fsl::Matrix& matrix, const Vector4& color)
+    constexpr VertexMatrixColor(const Fsl::Matrix& matrix, const Vector4& color) noexcept
       : Matrix(matrix)
       , Color(color)
     {

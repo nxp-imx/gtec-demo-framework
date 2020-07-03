@@ -56,7 +56,7 @@ namespace Fsl
     std::shared_ptr<UI::VerticalScroller> m_scrollable;
 
   public:
-    TextureCompression(const DemoAppConfig& config);
+    explicit TextureCompression(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

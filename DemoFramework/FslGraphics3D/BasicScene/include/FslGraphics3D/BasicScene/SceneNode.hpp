@@ -53,7 +53,7 @@ namespace Fsl
 
     public:
       SceneNode();
-      SceneNode(const std::size_t meshCapacity);
+      explicit SceneNode(const std::size_t meshCapacity);
 
       virtual ~SceneNode() = default;
 

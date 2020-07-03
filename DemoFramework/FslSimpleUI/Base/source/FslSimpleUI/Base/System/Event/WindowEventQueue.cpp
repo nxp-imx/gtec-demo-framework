@@ -40,12 +40,16 @@
 
 //#define LOCAL_LOG_ENABLED 1
 #ifdef LOCAL_LOG_ENABLED
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG(X) FSLLOG3_INFO(X)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG_IF(cOND, X) FSLLOG3_INFO_IF((cOND), X)
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG(X) \
   {                  \
   }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG_IF(cOND, X) \
   {                           \
   }
@@ -57,7 +61,7 @@ namespace Fsl
   {
     namespace
     {
-      const std::size_t MAX_EVENT_LOOPS = 1024;
+      // const std::size_t MAX_EVENT_LOOPS = 1024;
     }
 
 

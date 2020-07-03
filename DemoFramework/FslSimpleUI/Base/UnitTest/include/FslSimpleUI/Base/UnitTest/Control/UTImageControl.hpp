@@ -42,33 +42,33 @@ namespace Fsl
   {
     class UTImageControl : public UTControl
     {
-      Vector2 m_testImageSize;
+      PxSize2D m_testImageSizePx;
       ItemScalePolicy m_scalePolicy{ItemScalePolicy::NoScaling};
 
     public:
-      UTImageControl(const std::shared_ptr<BaseWindowContext>& context)
+      explicit UTImageControl(const std::shared_ptr<BaseWindowContext>& context)
         : UTControl(context)
       {
       }
 
-      UTImageControl(const std::shared_ptr<BaseWindowContext>& context, const Vector2& imageSize)
+      UTImageControl(const std::shared_ptr<BaseWindowContext>& context, const PxSize2D& imageSizePx)
         : UTControl(context)
-        , m_testImageSize(imageSize)
+        , m_testImageSizePx(imageSizePx)
       {
       }
 
 
-      Vector2 GetImageSize() const
+      PxSize2D GetImageSize() const
       {
-        return m_testImageSize;
+        return m_testImageSizePx;
       }
 
 
-      void SetImageSize(const Vector2& size)
+      void SetImageSize(const PxSize2D& sizePx)
       {
-        if (size != m_testImageSize)
+        if (sizePx != m_testImageSizePx)
         {
-          m_testImageSize = size;
+          m_testImageSizePx = sizePx;
           PropertyUpdated(PropertyType::Layout);
         }
       }
@@ -90,22 +90,22 @@ namespace Fsl
       }
 
 
-      Vector2 MeasureOverride(const Vector2& availableSize) override
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
       {
-        UTControl::MeasureOverride(availableSize);
-        return m_testImageSize;
+        UTControl::MeasureOverride(availableSizePx);
+        return m_testImageSizePx;
       }
 
 
-      Vector2 ArrangeOverride(const Vector2& finalSize) override
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
       {
-        UTControl::ArrangeOverride(finalSize);
-        Vector2 calcedSize;
-        if (!UIScaleUtil::TryCalcSize(calcedSize, finalSize, m_testImageSize, m_scalePolicy))
+        UTControl::ArrangeOverride(finalSizePx);
+        PxSize2D calcedSizePx;
+        if (!UIScaleUtil::TryCalcSize(calcedSizePx, finalSizePx, m_testImageSizePx, m_scalePolicy))
         {
-          return finalSize;
+          return finalSizePx;
         }
-        return calcedSize;
+        return calcedSizePx;
       }
     };
   }

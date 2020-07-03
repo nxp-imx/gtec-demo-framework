@@ -45,12 +45,9 @@ namespace Fsl
     struct FileData
     {
       bool IsDataValid{false};
-      _WIN32_FILE_ATTRIBUTE_DATA AttributeData;
+      _WIN32_FILE_ATTRIBUTE_DATA AttributeData{};
 
-      FileData()
-        : AttributeData{}
-      {
-      }
+      FileData() = default;
 
       bool operator==(const FileData& rhs) const
       {
@@ -76,7 +73,7 @@ namespace Fsl
       Path FullPath;
       FileData Data;
 
-      PlatformPathMonitorToken(Path fullPath)
+      explicit PlatformPathMonitorToken(Path fullPath)
         : FullPath(std::move(fullPath))
 
       {
@@ -93,13 +90,13 @@ namespace Fsl
       }
 
 
-      void GetFilesInDirectory(PathDeque& rResult, const IO::Path& path, const bool includeSubdirectories)
+      void GetFilesInDirectory(PathDeque& rResult, const Path& path, const bool includeSubdirectories)
       {
         const std::wstring searchPath = PlatformWin32::Widen(path.ToUTF8String()) + L"/*";
 
         WIN32_FIND_DATA fd{};
         HANDLE hFind = ::FindFirstFile(searchPath.c_str(), &fd);
-        if (hFind != INVALID_HANDLE_VALUE)
+        if (hFind != INVALID_HANDLE_VALUE)    // NOLINT(cppcoreguidelines-pro-type-cstyle-cast)
         {
           try
           {
@@ -109,13 +106,13 @@ namespace Fsl
               // , delete '!' read other 2 default folder . and ..
               if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0u)
               {
-                const std::string strFilename(PlatformWin32::Narrow(std::wstring(fd.cFileName)));
+                const Path strFilename(PlatformWin32::Narrow(std::wstring(fd.cFileName)));
                 rResult.push_back(std::make_shared<Path>(Path::Combine(path, strFilename)));
               }
               else if (includeSubdirectories && !(fd.cFileName[0] == L'.' && fd.cFileName[1] == 0) &&
                        !(fd.cFileName[0] == L'.' && fd.cFileName[1] == L'.' && fd.cFileName[2] == 0))
               {
-                const std::string strFilename(PlatformWin32::Narrow(std::wstring(fd.cFileName)));
+                const Path strFilename(PlatformWin32::Narrow(std::wstring(fd.cFileName)));
                 const Path subDir = Path::Combine(path, strFilename);
                 GetFilesInDirectory(rResult, subDir, true);
               }

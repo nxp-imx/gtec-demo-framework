@@ -30,18 +30,19 @@
  ****************************************************************************************************************************************************/
 
 #include "ParticleGPU.hpp"
+#include <array>
 #include <cstddef>
 
 namespace Fsl
 {
   VertexDeclaration ParticleGPU::GetVertexDeclaration()
   {
-    static VertexElementEx elements[] = {
+    static std::array<VertexElementEx, 4> elements = {
       VertexElementEx(offsetof(ParticleGPU, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(ParticleGPU, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Custom, 0),
       VertexElementEx(offsetof(ParticleGPU, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
       VertexElementEx(offsetof(ParticleGPU, Type), VertexElementFormat::Single, VertexElementUsage::Custom, 2),
     };
-    return VertexDeclaration(elements, sizeof(elements) / sizeof(VertexElementEx), sizeof(ParticleGPU));
+    return VertexDeclaration(elements.data(), elements.size(), sizeof(ParticleGPU));
   }
 }

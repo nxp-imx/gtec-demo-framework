@@ -8,6 +8,7 @@
     <Define Name="FSL_ENABLE_OPENCV4" Access="Public"/> 
     <Dependency Name="OpenCV"/>
     <Platform Name="Ubuntu" Supported="true">
+      <!-- OpenCV does not define modern cmake targets -->
       <ExternalDependency Name="opencv_calib3d" Access="Public" Type="StaticLib"/>
       <!--ExternalDependency Name="opencv_contrib" Access="Public" Type="StaticLib"/-->
       <ExternalDependency Name="opencv_core" Access="Public" Type="StaticLib"/>

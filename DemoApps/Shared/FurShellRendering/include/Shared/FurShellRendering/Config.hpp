@@ -71,7 +71,7 @@ namespace Fsl
     int m_demoId;
 
   public:
-    Config(const int32_t defaultRenderMode);
+    explicit Config(const int32_t defaultRenderMode);
     int32_t GetRenderMode() const;
     void SetRenderMode(const int32_t value);
     int GetLayerCount() const;
@@ -80,7 +80,7 @@ namespace Fsl
     void SetHairLength(const float value);
     float GetHairDensity() const;
     void SetHairDensity(const float value);
-    const Point2 GetFurTextureDimensions() const;
+    Point2 GetFurTextureDimensions() const;
     void SetFurTextureDimensions(const Point2 value);
     void SetFurTextureDimensions(const int32_t value);
     int GetTorusMajorSegments() const;

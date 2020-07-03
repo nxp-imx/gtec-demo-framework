@@ -51,7 +51,7 @@ namespace Fsl
     Vulkan::VUPhysicalDeviceRecord m_physicalDevice;
 
   public:
-    VulkanWindowSystem(const DemoHostCustomWindowSystemSetup& setup);
+    explicit VulkanWindowSystem(const DemoHostCustomWindowSystemSetup& setup);
     ~VulkanWindowSystem() override;
 
     std::shared_ptr<INativeWindow>

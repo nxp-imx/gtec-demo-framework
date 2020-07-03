@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ObjectSelection.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
 #include <FslBase/Math/Ray.hpp>
@@ -50,12 +51,10 @@
 #include <Shared/ObjectSelection/BoundingBoxUtil.hpp>
 #include <Shared/ObjectSelection/OptionParser.hpp>
 #include <vulkan/vulkan.h>
+#include <cmath>
 #include <random>
-
 namespace Fsl
 {
-  using namespace Procedural;
-
   namespace
   {
     const float DEFAULT_ZOOM = 10;
@@ -139,7 +138,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -173,7 +172,7 @@ namespace Fsl
       writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[1].pImageInfo = &textureImageInfo;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
       return descriptorSet;
     }
 
@@ -194,7 +193,7 @@ namespace Fsl
       writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
       writeDescriptorSets[0].pBufferInfo = &vertUboBufferInfo;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
       return descriptorSet;
     }
 
@@ -215,7 +214,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -232,7 +231,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -255,7 +254,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -276,7 +275,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = maxSets * framesInFlight;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -300,7 +299,7 @@ namespace Fsl
 
       VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
       pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-      pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(layouts.size());
+      pipelineLayoutCreateInfo.setLayoutCount = UncheckedNumericCast<uint32_t>(layouts.size());
       pipelineLayoutCreateInfo.pSetLayouts = layouts.data();
 
       return RapidVulkan::PipelineLayout(descripterSetLayout1.GetDevice(), pipelineLayoutCreateInfo);
@@ -337,7 +336,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(vertexAttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = vertexAttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -417,7 +416,7 @@ namespace Fsl
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -572,9 +571,9 @@ namespace Fsl
 
   void ObjectSelection::Update(const DemoTime& demoTime)
   {
-    const Point2 screenResolution = GetScreenResolution();
+    const PxSize2D windowSizePx = GetWindowSizePx();
 
-    m_viewPort = Viewport(Rectangle(0, 0, screenResolution.X, screenResolution.Y));
+    m_viewPort = Viewport(Rectangle(0, 0, windowSizePx.Width(), windowSizePx.Height()));
 
     m_matrixView = m_camera.GetViewMatrix();
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), m_viewPort.GetAspectRatio(), 0.1f, 500.0f);
@@ -624,7 +623,8 @@ namespace Fsl
   }
 
 
-  void ObjectSelection::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void ObjectSelection::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
+                                   const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
@@ -635,11 +635,11 @@ namespace Fsl
     m_resources.MainFrameResources[frameIndex].ObjectTransformVertUboBuffer.Upload(0, m_objVertexUboData);
     m_resources.MainFrameResources[frameIndex].ObjectVertUboBuffer.Upload(0, &m_lightFragUboData, sizeof(LightUBOData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.5f, 0.5f, 0.5f, 1.0f};
+      clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -649,7 +649,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -757,7 +757,7 @@ namespace Fsl
   }
 
 
-  bool ObjectSelection::CheckCollision(const Point2& screenSpacePosition)
+  bool ObjectSelection::CheckCollision(const PxPoint2& screenSpacePosition)
   {
     Vector3 sourcePos(static_cast<float>(screenSpacePosition.X), static_cast<float>(screenSpacePosition.Y), 0.0f);
 
@@ -775,7 +775,7 @@ namespace Fsl
     m_pickScratchpad.clear();
     for (std::size_t i = 0; i < m_resources.Objects.size(); ++i)
     {
-      float distance;
+      float distance = 0.0f;
       if (mouseRay.Intersects(m_resources.Objects[i].MeshAABB, distance))
       {
         m_pickScratchpad.emplace_back(i, distance);
@@ -838,8 +838,8 @@ namespace Fsl
                             nullptr);
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PlanePipeline.Get());
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshPlane.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshPlane.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(commandBuffer, m_resources.MeshPlane.IndexBuffer.GetBuffer(), 0, m_resources.MeshPlane.IndexBuffer.GetIndexType());
     vkCmdDrawIndexed(commandBuffer, m_resources.MeshPlane.IndexBuffer.GetIndexCount(), 1, 0, 0, 0);
   }
@@ -866,8 +866,8 @@ namespace Fsl
 
     if (bindMesh)
     {
-      VkDeviceSize offsets[1] = {0};
-      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, mesh.VertexBuffer.GetBufferPointer(), offsets);
+      VkDeviceSize offsets = 0;
+      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, mesh.VertexBuffer.GetBufferPointer(), &offsets);
       vkCmdBindIndexBuffer(commandBuffer, mesh.IndexBuffer.GetBuffer(), 0, mesh.IndexBuffer.GetIndexType());
     }
 
@@ -949,10 +949,11 @@ namespace Fsl
                                                           const Vulkan::VUTexture& texture)
   {
     const auto textureExtent = texture.GetExtent();
-    const Point2 tex1Size(textureExtent.width, textureExtent.height);
-    TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
+    const PxSize2D tex1Size(textureExtent.width, textureExtent.height);
+    TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
     const NativeTextureArea texRepeatArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, 15 / 5, 15 / 5));
-    const auto mesh = SegmentedQuadGenerator::GenerateStrip(Vector3(0, 0, 0), 1000 / 5.0f, 1000 / 5.0f, 1, 1, texRepeatArea, WindingOrder::CCW);
+    const auto mesh =
+      Procedural::SegmentedQuadGenerator::GenerateStrip(Vector3(0, 0, 0), 1000 / 5.0f, 1000 / 5.0f, 1, 1, texRepeatArea, WindingOrder::CCW);
     return CreatePlaneMesh(bufferManager, mesh);
   }
 
@@ -961,19 +962,20 @@ namespace Fsl
                                       const Vulkan::VUTexture& texture)
   {
     const auto textureExtent = texture.GetExtent();
-    const Point2 tex1Size(textureExtent.width, textureExtent.height);
-    TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
+    const PxSize2D tex1Size(textureExtent.width, textureExtent.height);
+    TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
 
     const NativeTextureArea texArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, 1, 1));
 
-    auto mesh = TorusGenerator::GenerateStrip(16, 16, 2, 0.5f, texArea, WindingOrder::CCW);
+    auto mesh = Procedural::TorusGenerator::GenerateStrip(16, 16, 2, 0.5f, texArea, WindingOrder::CCW);
     rMeshes[0] = CreateMesh(bufferManager, mesh);
 
-    mesh = TorusGenerator::GenerateStrip(3, 3, 2, 0.5f, texArea, WindingOrder::CCW);
+    mesh = Procedural::TorusGenerator::GenerateStrip(3, 3, 2, 0.5f, texArea, WindingOrder::CCW);
     rMeshes[1] = CreateMesh(bufferManager, mesh);
 
-    NativeTextureArea texAreas[] = {texArea, texArea, texArea, texArea, texArea, texArea};
-    mesh = BoxGenerator::GenerateStrip(Vector3(), 2.0f, 2.0f, 2.0f, texAreas, 6, WindingOrder::CCW);
+    std::array<NativeTextureArea, 6> texAreas = {texArea, texArea, texArea, texArea, texArea, texArea};
+    mesh = Procedural::BoxGenerator::GenerateStrip(Vector3(), 2.0f, 2.0f, 2.0f, texAreas.data(), UncheckedNumericCast<int32_t>(texAreas.size()),
+                                                   WindingOrder::CCW);
     rMeshes[2] = CreateMesh(bufferManager, mesh);
   }
 

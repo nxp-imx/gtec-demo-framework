@@ -53,8 +53,10 @@ namespace Fsl
 
   namespace
   {
-    const float DEFAULT_ZOOM = 350;
-    const float DEFAULT_MODEL_SCALE = 5;
+    namespace LocalConfig
+    {
+      constexpr const float DefaultZoom = 350;
+    }
   }
 
   AScene::AScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options)
@@ -62,14 +64,14 @@ namespace Fsl
     , m_cullEnabled(false)
     , m_screenResolution(config.ScreenResolution)
     , m_fieldOfView(MathHelper::ToRadians(options->GetFieldOfView()))
-    , m_camera(config.ScreenResolution)
+    , m_camera(config.WindowMetrics.GetSizePx())
     , m_basicShader(config.DemoServiceProvider.Get<IContentManager>(), vertex_type::GetVertexDeclaration())
     , m_tessShader(config.DemoServiceProvider.Get<IContentManager>(), vertex_type::GetVertexDeclaration())
     , m_lightDirection(0.2f, 0.4f, 1.0f)
     , m_lightColor(0.8f, 0.8f, 0.8f)
     , m_rotationSpeed(0.0f, -0.6f, 0.0f)
   {
-    m_camera.SetZoom(DEFAULT_ZOOM);
+    m_camera.SetZoom(LocalConfig::DefaultZoom);
     m_lightDirection.Normalize();
   }
 
@@ -117,7 +119,7 @@ namespace Fsl
       if (event.IsPressed())
       {
         m_camera.ResetRotation();
-        m_camera.SetZoom(DEFAULT_ZOOM);
+        m_camera.SetZoom(LocalConfig::DefaultZoom);
         m_rotation = Vector3();
         event.Handled();
       }

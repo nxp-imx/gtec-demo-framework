@@ -43,12 +43,13 @@ from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageCreationYearString
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.ExtensionListManager import ExtensionListManager
-from FslBuildGen.Log import Log
 from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
+from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Generator.Report.GeneratorExecutableReport import GeneratorExecutableReport
 from FslBuildGen.Generator.Report.GeneratorVariableReport import GeneratorVariableReport
-from FslBuildGen.Generator.Report.VariableReport import VariableReport
 from FslBuildGen.Generator.Report.PackageGeneratorReport import PackageGeneratorReport
+from FslBuildGen.Generator.Report.VariableReport import VariableReport
+from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
 
@@ -87,7 +88,7 @@ class JsonPackageGeneratorExecutableReport(object):
     def __init__(self, executableReport: GeneratorExecutableReport) -> None:
         super().__init__()
         self.UseAsRelative = executableReport.UseAsRelative
-        self.EnvironmentVariableResolveMethod = executableReport.EnvironmentVariableResolveMethod  # type: int
+        self.EnvironmentVariableResolveMethod = FormatStringEnvironmentVariableResolveMethod.ToInt(executableReport.EnvironmentVariableResolveMethod)  # type: int
         self.ExeFormatString = executableReport.ExeFormatString  # type: str
         if executableReport.RunScript  is not None:
             self.RunScript = executableReport.RunScript  # type: str

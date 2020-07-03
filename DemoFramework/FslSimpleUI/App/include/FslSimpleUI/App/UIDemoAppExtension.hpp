@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_APP_UIDEMOAPPEXTENSION_HPP
 #define FSLSIMPLEUI_APP_UIDEMOAPPEXTENSION_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,56 +31,71 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/UTF8String.hpp>
-#include <FslDemoApp/Base/DemoAppExtension.hpp>
-#include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
+#include <FslGraphics/Render/BlendState.hpp>
+#include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
+#include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
-#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/App/UIAppTextureHandle.hpp>
+#include <FslSimpleUI/App/UIDemoAppExtensionBase.hpp>
+#include <FslSimpleUI/App/UITestPatternMode.hpp>
 #include <FslSimpleUI/Base/System/CallbackEventListenerScope.hpp>
 #include <FslSimpleUI/Base/System/EventListener.hpp>
-#include <FslSimpleUI/Base/System/UIManager.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
 
 namespace Fsl
 {
-  class AtlasFont;
-  class DemoAppConfig;
-  class TransitionCache;
-
+  namespace IO
+  {
+    class Path;
+  }
   namespace UI
   {
-    class IEventListener;
+    class WindowContext;
   }
+  class AtlasFont;
+  class BaseTexture2D;
+  class IContentManager;
+  class ISpriteResourceManager;
+  class SpriteFont;
+  class ImageSprite;
+  class UIAppResourceManager;
+  struct UIAppTextureResourceCreationInfo;
 
-  class UIDemoAppExtension : public DemoAppExtension
+
+  //! @brief This takes advantage of the new Sprite material infrastructure to provide a fully DP aware UI that can switch its native resources
+  //         based on the currently active screen density at runtime.
+  class UIDemoAppExtension final : public UIDemoAppExtensionBase
   {
-    UI::UIManager m_uiManager;
-    BasicTextureAtlas m_defaultTextureAtlas;
-    std::shared_ptr<AtlasFont> m_defaultFont;
-    TextureAtlasMap m_textureAtlasMap;
+    struct TestRecord
+    {
+      Texture Original;
+      Texture TestPattern;
+      std::shared_ptr<IDynamicNativeTexture2D> AtlasTexture;
+      bool TestPatternEnabled{false};
+    };
+
+    struct Resources
+    {
+      std::shared_ptr<SpriteFont> DefaultFont;
+    };
+
+    std::unique_ptr<UIAppResourceManager> m_resourceManager;
     std::shared_ptr<UI::WindowContext> m_context;
-    std::shared_ptr<TransitionCache> m_transitionCache;
+
+    Resources m_resources;
+    TestRecord m_testRecord;
 
   public:
     UIDemoAppExtension(const UIDemoAppExtension&) = delete;
     UIDemoAppExtension& operator=(const UIDemoAppExtension&) = delete;
 
-    UIDemoAppExtension(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener, const UTF8String& fontName);
-    ~UIDemoAppExtension();
+    UIDemoAppExtension(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener, const IO::Path& atlasName,
+                       const UITestPatternMode testPatternMode = UITestPatternMode::Disabled);
+    ~UIDemoAppExtension() override;
 
-    void RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);
-    void UnregisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener);
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) final;
 
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void OnMouseMoveEvent(const MouseMoveEvent& event) override;
-    void Resized(const Point2& size) override;
-    void PreUpdate(const DemoTime& demoTime) override;
-    void Update(const DemoTime& demoTime) override;
-    void PostUpdate(const DemoTime& demoTime) override;
 
     void Draw();
 
@@ -90,25 +105,28 @@ namespace Fsl
       return m_context;
     }
 
-    //! @brief Get the window manager
-    std::shared_ptr<UI::IWindowManager> GetWindowManager() const
-    {
-      return m_uiManager.GetWindowManager();
-    }
-
-    //! @brief Retrieve a atlas texture from the default texture atlas
-    AtlasTexture2D GetAtlasTexture2D(const UTF8String& filename) const;
+    SpriteMaterialId GetDefaultMaterialId() const;
 
     //! @brief Retrieve the atlas texture used for the default texture atlas
-    Texture2D GetAtlasTexture() const;
 
-    //! @brief Get the transition cache
-    std::shared_ptr<TransitionCache> GetTransitionCache() const;
+    //! @brief Enable/disable the test pattern
+    //! @note This requires that the object was constructed with UITestPatternMode::DisabledAllowSwitching or UITestPatternMode::EnableAllowSwitching.
+    //        If it wasn't this will just log a warning.
+    bool SetTestPattern(const bool enabled);
 
-    const ITextureAtlas& GetDefaultTextureAtlas() const
-    {
-      return m_defaultTextureAtlas;
-    }
+    UIAppTextureHandle CreateTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                     const bool isUITexture);
+    UIAppTextureHandle CreateAtlasTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                          const bool isUITexture);
+    void AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture, const BlendState blendState);
+
+    // Get access to the sprite resource manager
+    const ISpriteResourceManager& GetSpriteResourceManager() const;
+    // Get access to the sprite resource manager
+    ISpriteResourceManager& GetSpriteResourceManager();
+
+  private:
+    static Resources PrepareResources(UIAppResourceManager& rResourceManager, const IO::Path& atlasName);
   };
 }
 

@@ -34,7 +34,7 @@
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Math/Span.hpp>
+#include <FslBase/Math/SpanRange.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <vulkan/vulkan.h>
 #include <utility>
@@ -53,7 +53,7 @@ namespace Fsl
       VkDeviceSize m_physicalDeviceLimitNonCoherentAtomSize = 0;
       void* m_pData = nullptr;
       bool m_isMapped = false;
-      Span<VkDeviceSize> m_mappedSpan;
+      SpanRange<VkDeviceSize> m_mappedSpan;
 
     public:
       VUDeviceMemory(const VUDeviceMemory&) = delete;
@@ -198,7 +198,7 @@ namespace Fsl
 
       void FlushMappedMemoryRanges(const VkDeviceSize offset, const VkDeviceSize size);
 
-      void UnmapMemory();
+      void UnmapMemory() noexcept;
 
       //! @brief Upload the given source data to device memory.
       //! @details If the memory is unmapped this method will map, upload (+flush if needed) and unmap it.

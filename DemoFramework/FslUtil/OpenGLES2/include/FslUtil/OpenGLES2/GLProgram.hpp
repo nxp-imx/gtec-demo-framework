@@ -139,7 +139,7 @@ namespace Fsl
       }
 
       //! @brief Get the handle to the shader program
-      FSL_ATTR_DEPRECATED GLuint GetHandle() const
+      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
         return m_handle;
       }

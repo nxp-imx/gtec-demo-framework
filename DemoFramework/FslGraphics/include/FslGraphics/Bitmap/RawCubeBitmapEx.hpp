@@ -69,7 +69,7 @@ namespace Fsl
     }
 
     //! @brief Get the extent
-    constexpr Extent2D GetExtent() const
+    constexpr PxExtent2D GetExtent() const
     {
       return m_bitmapPosX.GetExtent();
     }
@@ -123,9 +123,9 @@ namespace Fsl
     }
 
     //! Conversion operator for easy conversion to a RawBitmap
-    operator RawCubeBitmap() const
+    explicit operator RawCubeBitmap() const
     {
-      return RawCubeBitmap(m_bitmapPosX, m_bitmapNegX, m_bitmapPosY, m_bitmapNegY, m_bitmapPosZ, m_bitmapNegZ);
+      return {m_bitmapPosX, m_bitmapNegX, m_bitmapPosY, m_bitmapNegY, m_bitmapPosZ, m_bitmapNegZ};
     }
   };
 }

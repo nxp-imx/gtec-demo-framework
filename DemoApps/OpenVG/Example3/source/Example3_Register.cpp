@@ -32,19 +32,20 @@
 #include <FslDemoApp/OpenVG/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "Example3.hpp"
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-    const EGLint g_eglConfigAttribs[] = {EGL_NONE};
+    const std::array<EGLint, 1> g_eglConfigAttribs = {EGL_NONE};
   }
 
   // Configure the demo environment to run this demo app in a OpenVG host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+    DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
     DemoAppRegister::OpenVG::Register<Example3>(rSetup, "OpenVG.Example3", config);
   }

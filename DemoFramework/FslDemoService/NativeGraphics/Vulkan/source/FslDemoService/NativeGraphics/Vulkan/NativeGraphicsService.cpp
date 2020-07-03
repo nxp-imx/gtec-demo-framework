@@ -37,11 +37,12 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchShaders.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
-#include <FslUtil/Vulkan1_0/NativeBatch2D.hpp>
-#include <FslUtil/Vulkan1_0/NativeTexture2D.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
+#include <FslUtil/Vulkan1_0/Native/NativeTextureManager.hpp>
 #include <FslUtil/Vulkan1_0/Util/ScreenshotUtil.hpp>
+#include <memory>
 #include "NativeGraphicsBasic2D.hpp"
 
 namespace Fsl
@@ -85,7 +86,7 @@ namespace Fsl
       m_state = State::Uninitialized;
       if (!m_quadBatches.empty())
       {
-        FSLLOG3_ERROR("QuadBatch objects found during Vulkan shutdown sequence (NativeBatch usage error)");
+        FSLLOG3_ERROR("Found {} QuadBatch objects during Vulkan shutdown sequence (NativeBatch usage error)", m_quadBatches.size());
         m_quadBatches.clear();
       }
     }
@@ -93,6 +94,7 @@ namespace Fsl
 
     void NativeGraphicsService::VulkanDeviceInit(const VUDevice& device, const VkQueue queue, const uint32_t queueFamilyIndex)
     {
+      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanDeviceInit");
       if (m_state != State::Initialized)
       {
         throw UsageErrorException("Expected state to be Initialized");
@@ -107,6 +109,7 @@ namespace Fsl
         m_resources.QueueFamilyIndex = queueFamilyIndex;
         m_resources.PhysicalDevice = device.GetPhysicalDevice();
         m_resources.ImageCreator = std::make_shared<VulkanImageCreator>(device, queue, queueFamilyIndex);
+        m_resources.TextureManager = std::make_shared<NativeTextureManager>(m_resources.ImageCreator);
 
         auto basic2D = m_basic2D.lock();
         if (basic2D)
@@ -140,10 +143,12 @@ namespace Fsl
 
     void NativeGraphicsService::VulkanDeviceShutdown() noexcept
     {
+      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanDeviceShutdown");
       if (m_state < State::DeviceInitialized)
       {
         return;
       }
+
       VulkanDestroyDependentResources();
       assert(m_state == State::DeviceInitialized);
       m_state = State::Initialized;
@@ -174,8 +179,9 @@ namespace Fsl
     }
 
     void NativeGraphicsService::VulkanCreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass,
-                                                               const uint32_t subpass, const Extent2D& screenResolution)
+                                                               const uint32_t subpass, const PxExtent2D& screenExtentPx)
     {
+      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanCreateDependentResources");
       if (m_state != State::DeviceInitialized)
       {
         throw UsageErrorException("Expected state to be DeviceInitialized");
@@ -188,11 +194,16 @@ namespace Fsl
       assert(m_state == State::DeviceInitialized);
       try
       {
+        if (m_resources.TextureManager)
+        {
+          m_resources.TextureManager->VulkanCreateDependentResources(commandBufferCount);
+        }
+
         m_state = State::DependentResourcesInitialized;
         m_dependentResources.CommandBufferCount = commandBufferCount;
         m_dependentResources.RenderPass = renderPass;
         m_dependentResources.Subpass = subpass;
-        m_dependentResources.ScreenResolution = screenResolution;
+        m_dependentResources.ScreenExtentPx = screenExtentPx;
 
         // Destroy resources on any existing quad batches
         auto itr = m_quadBatches.begin();
@@ -201,7 +212,7 @@ namespace Fsl
           auto quadBatch = itr->lock();
           if (quadBatch)
           {
-            quadBatch->CreateDependentResources(commandBufferCount, renderPass, subpass, screenResolution);
+            quadBatch->CreateDependentResources(commandBufferCount, renderPass, subpass, screenExtentPx);
             ++itr;
           }
           else
@@ -217,9 +228,23 @@ namespace Fsl
       }
     }
 
+    void NativeGraphicsService::OnVulkanSwapchainEvent(const VulkanSwapchainEvent theEvent)
+    {
+      FSLLOG3_VERBOSE("NativeGraphicsService::OnVulkanSwapchainEvent");
+      if (m_state < State::DependentResourcesInitialized)
+      {
+        return;
+      }
+      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanSwapChainEvent({})", static_cast<int>(theEvent));
+      if (m_resources.TextureManager)
+      {
+        m_resources.TextureManager->OnVulkanSwapchainEvent(theEvent);
+      }
+    }
 
     void NativeGraphicsService::VulkanDestroyDependentResources() noexcept
     {
+      FSLLOG3_VERBOSE("NativeGraphicsService::VulkanDestroyDependentResources");
       if (m_state < State::DependentResourcesInitialized)
       {
         return;
@@ -243,7 +268,21 @@ namespace Fsl
           itr = m_quadBatches.erase(itr);
         }
       }
+
+      if (m_resources.TextureManager)
+      {
+        m_resources.TextureManager->VulkanDestroyDependentResources();
+      }
+
       m_swapchainInfo.reset();
+    }
+
+    void NativeGraphicsService::VulkanPreProcessFrame(const uint32_t /*commandBufferIndex*/)
+    {
+      if (m_resources.TextureManager)
+      {
+        m_resources.TextureManager->CollectGarbage();
+      }
     }
 
 
@@ -301,39 +340,37 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags& textureFlags)
-    {
-      if (m_state < State::DeviceInitialized)
-      {
-        throw UsageErrorException("The internal state is incorrect");
-      }
-      assert(m_resources.ImageCreator);
-
-      return std::make_shared<NativeTexture2D>(m_resources.ImageCreator, bitmap, filterHint, textureFlags);
-    }
-
-
     std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags& textureFlags)
+                                                                             const TextureFlags textureFlags)
     {
       if (m_state < State::DeviceInitialized)
       {
         throw UsageErrorException("The internal state is incorrect");
       }
-      assert(m_resources.ImageCreator);
-
-      return std::make_shared<NativeTexture2D>(m_resources.ImageCreator, texture, filterHint, textureFlags);
+      assert(m_resources.TextureManager);
+      return m_resources.TextureManager->CreateTexture2D(texture, filterHint, textureFlags);
     }
 
 
-    bool NativeGraphicsService::IsSupported(const DemoHostFeature& activeAPI) const
+    std::shared_ptr<IDynamicNativeTexture2D>
+      NativeGraphicsService::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+    {
+      if (m_state < State::DeviceInitialized)
+      {
+        throw UsageErrorException("The internal state is incorrect");
+      }
+      assert(m_resources.TextureManager);
+      return m_resources.TextureManager->CreateDynamicTexture2D(texture, filterHint, textureFlags);
+    }
+
+
+    bool NativeGraphicsService::IsSupported(const DemoHostFeature& /*activeAPI*/) const
     {
       return true;
     }
 
 
-    void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& srcRectangle)
+    void NativeGraphicsService::Capture(Bitmap& rBitmap, const Rectangle& /*srcRectangle*/)
     {
       auto swapchainInfo = m_swapchainInfo.lock();
       if (!swapchainInfo || m_resources.Device == VK_NULL_HANDLE)
@@ -343,13 +380,13 @@ namespace Fsl
         return;
       }
 
-      rBitmap = ScreenshotUtil::TryCaptureScreenshot(m_resources.PhysicalDevice.Device, m_resources.Device, m_resources.Queue,
-                                                     m_resources.QueueFamilyIndex, swapchainInfo->FrameImage, swapchainInfo->ImageFormat,
-                                                     swapchainInfo->ImageUsageFlags, ConvertUtil::Convert(m_dependentResources.ScreenResolution));
+      rBitmap = ScreenshotUtil::TryCaptureScreenshot(
+        m_resources.PhysicalDevice.Device, m_resources.Device, m_resources.Queue, m_resources.QueueFamilyIndex, swapchainInfo->FrameImage,
+        swapchainInfo->ImageFormat, swapchainInfo->ImageUsageFlags, TypeConverter::UncheckedTo<VkExtent2D>(m_dependentResources.ScreenExtentPx));
     }
 
 
-    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const Point2& currentResolution)
+    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& currentExtent)
     {
       if (!m_basic2D.expired())
       {
@@ -357,7 +394,7 @@ namespace Fsl
       }
 
       auto quadBatch = CreateQuadBatch();
-      auto basic2D = std::shared_ptr<NativeGraphicsBasic2D>(new NativeGraphicsBasic2D(quadBatch, currentResolution));
+      auto basic2D = std::make_shared<NativeGraphicsBasic2D>(quadBatch, currentExtent);
 
       UpdateState(*basic2D);
       m_basic2D = basic2D;
@@ -365,12 +402,12 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const Point2& currentResolution)
+    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const PxExtent2D& currentExtent)
     {
       PerformGarbageCollection();
 
       auto quadBatch = CreateQuadBatch();
-      return std::make_shared<NativeBatch2D>(quadBatch, currentResolution);
+      return std::make_shared<NativeBatch2D>(quadBatch, currentExtent);
     }
 
 
@@ -392,12 +429,14 @@ namespace Fsl
 
     std::shared_ptr<QuadBatch> NativeGraphicsService::CreateQuadBatch()
     {
-      const auto contentFragShader = QuadBatchShaders::GetFragmentShader();
       const auto contentVertShader = QuadBatchShaders::GetVertexShader();
-      std::vector<uint8_t> fragShaderBinary(contentFragShader.Data, contentFragShader.Data + contentFragShader.Length);
-      std::vector<uint8_t> vertShaderBinary(contentVertShader.Data, contentVertShader.Data + contentVertShader.Length);
+      const auto contentFragShader = QuadBatchShaders::GetFragmentShader();
+      const auto contentSdfFragShader = QuadBatchShaders::GetSdfFragmentShader();
+      std::vector<uint8_t> vertShaderBinary(contentVertShader.data(), contentVertShader.data() + contentVertShader.size());
+      std::vector<uint8_t> fragShaderBinary(contentFragShader.data(), contentFragShader.data() + contentFragShader.size());
+      std::vector<uint8_t> sdfFragShaderBinary(contentSdfFragShader.data(), contentSdfFragShader.data() + contentSdfFragShader.size());
 
-      auto quadBatch = std::make_shared<QuadBatch>(vertShaderBinary, fragShaderBinary, GenericBatch2D_DEFAULT_CAPACITY);
+      auto quadBatch = std::make_shared<QuadBatch>(vertShaderBinary, fragShaderBinary, sdfFragShaderBinary, GenericBatch2D_DEFAULT_CAPACITY);
 
       if (m_state >= State::DeviceInitialized)
       {
@@ -406,7 +445,7 @@ namespace Fsl
       if (m_state >= State::DependentResourcesInitialized)
       {
         quadBatch->CreateDependentResources(m_dependentResources.CommandBufferCount, m_dependentResources.RenderPass, m_dependentResources.Subpass,
-                                            m_dependentResources.ScreenResolution);
+                                            m_dependentResources.ScreenExtentPx);
       }
 
       m_quadBatches.push_back(quadBatch);

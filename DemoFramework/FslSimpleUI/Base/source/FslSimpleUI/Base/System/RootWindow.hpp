@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <deque>
 #include <memory>
@@ -45,24 +46,25 @@ namespace Fsl
 
     class RootWindow : public BaseWindow
     {
-      Vector2 m_resolution;
+      PxSize2D m_resolutionPx;
+      uint32_t m_densityDpi;
       EventListenerManager m_eventListenerManager;
 
     public:
-      RootWindow(const std::shared_ptr<BaseWindowContext>& context, const Vector2& resolution);
+      RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi);
       ~RootWindow() override;
 
       void WinInit() override;
       WindowFlags WinGetFlags() const override;
 
 
-      Vector2 GetScreenResolution() const
+      PxSize2D GetScreenResolutionPx() const
       {
-        return m_resolution;
+        return m_resolutionPx;
       }
 
-      void SetScreenResolution(const Vector2& value);
-
+      //! return true if the resolution was modified
+      bool SetScreenResolution(const PxExtent2D& valuePx, const uint32_t densityDpi);
 
       //! @brief Register a event listener
       void RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
@@ -77,16 +79,16 @@ namespace Fsl
       void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
 
       //! Layout
-      Vector2 ArrangeOverride(const Vector2& finalSize) override
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
       {
-        FSL_PARAM_NOT_USED(finalSize);
-        return m_resolution;
+        FSL_PARAM_NOT_USED(finalSizePx);
+        return m_resolutionPx;
       }
 
-      Vector2 MeasureOverride(const Vector2& availableSize) override
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
       {
-        FSL_PARAM_NOT_USED(availableSize);
-        return availableSize;
+        FSL_PARAM_NOT_USED(availableSizePx);
+        return m_resolutionPx;
       }
     };
   }

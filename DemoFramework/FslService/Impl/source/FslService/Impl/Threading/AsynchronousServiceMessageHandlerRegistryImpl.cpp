@@ -45,7 +45,7 @@ namespace Fsl
     }
 
     // Lookup the actual type of the message, then determine if we have a handler registered for it
-    const auto pMessage = message.get();
+    auto* const pMessage = message.get();
     const auto messageTypeInfo = std::type_index(typeid(*pMessage));
 
     // Try to locate a handler for the message type

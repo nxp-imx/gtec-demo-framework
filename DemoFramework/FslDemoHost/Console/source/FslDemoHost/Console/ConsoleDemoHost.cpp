@@ -92,10 +92,10 @@ namespace Fsl
   }
 
 
-  Point2 ConsoleDemoHost::GetScreenResolution() const
+  DemoWindowMetrics ConsoleDemoHost::GetWindowMetrics() const
   {
     // FIX: this is the only real invalid data that we return
-    return Point2(0, 0);
+    return {};
   }
 
 

@@ -43,9 +43,9 @@ namespace Fsl
     Vector3 Position;
     Vector3 TextureCoordinate;
 
-    constexpr VertexPositionTexture3() = default;
+    constexpr VertexPositionTexture3() noexcept = default;
 
-    constexpr VertexPositionTexture3(const Vector3& position, const Vector3& texture)
+    constexpr VertexPositionTexture3(const Vector3& position, const Vector3& texture) noexcept
       : Position(position)
       , TextureCoordinate(texture)
     {

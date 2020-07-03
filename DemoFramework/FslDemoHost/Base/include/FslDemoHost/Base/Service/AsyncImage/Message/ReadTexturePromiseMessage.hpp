@@ -37,6 +37,7 @@
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -51,9 +52,9 @@ namespace Fsl
 
       ReadTexturePromiseMessage() = default;
 
-      ReadTexturePromiseMessage(const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+      ReadTexturePromiseMessage(IO::Path absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
                                 const PixelChannelOrder preferredChannelOrder)
-        : AbsolutePath(absolutePath)
+        : AbsolutePath(std::move(absolutePath))
         , DesiredPixelFormat(desiredPixelFormat)
         , DesiredOrigin(desiredOrigin)
         , PreferredChannelOrderHint(preferredChannelOrder)

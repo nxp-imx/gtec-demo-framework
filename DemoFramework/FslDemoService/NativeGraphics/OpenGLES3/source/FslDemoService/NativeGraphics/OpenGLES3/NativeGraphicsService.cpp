@@ -36,7 +36,7 @@
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
 #include "NativeGraphicsBasic2D.hpp"
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
-#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 
@@ -53,17 +53,18 @@ namespace Fsl
     NativeGraphicsService::~NativeGraphicsService() = default;
 
 
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags& textureFlags)
+    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                             const TextureFlags textureFlags)
     {
-      return std::make_shared<NativeTexture2D>(bitmap, filterHint, textureFlags);
+      // For now we just use the same implementation
+      return std::make_shared<DynamicNativeTexture2D>(texture, filterHint, textureFlags);
     }
 
 
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags& textureFlags)
+    std::shared_ptr<IDynamicNativeTexture2D>
+      NativeGraphicsService::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
     {
-      return std::make_shared<NativeTexture2D>(texture, filterHint, textureFlags);
+      return std::make_shared<DynamicNativeTexture2D>(texture, filterHint, textureFlags);
     }
 
 
@@ -74,7 +75,8 @@ namespace Fsl
         return false;
       }
 
-      int major, minor;
+      int major = 0;
+      int minor = 0;
       DemoHostFeatureUtil::DecodeOpenGLESVersion(activeAPI.Version, major, minor);
       return major == 3;
     }
@@ -86,16 +88,16 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const Point2& currentResolution)
+    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
     {
       auto quadRenderer = std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2D_DEFAULT_CAPACITY);
-      return std::make_shared<NativeGraphicsBasic2D>(quadRenderer, currentResolution);
+      return std::make_shared<NativeGraphicsBasic2D>(quadRenderer, extentPx);
     }
 
 
-    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const Point2& currentResolution)
+    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const PxExtent2D& extentPx)
     {
-      return std::make_shared<NativeBatch2D>(currentResolution);
+      return std::make_shared<NativeBatch2D>(extentPx);
     }
   }
 }

@@ -42,14 +42,14 @@ namespace Fsl
   {
     Vector3 Position;
 
-    constexpr VertexPosition() = default;
+    constexpr VertexPosition() noexcept = default;
 
-    constexpr VertexPosition(const Vector3& position)
+    constexpr explicit VertexPosition(const Vector3& position) noexcept
       : Position(position)
     {
     }
 
-    constexpr VertexPosition(const float x, const float y, const float z)
+    constexpr VertexPosition(const float x, const float y, const float z) noexcept
       : Position(x, y, z)
     {
     }

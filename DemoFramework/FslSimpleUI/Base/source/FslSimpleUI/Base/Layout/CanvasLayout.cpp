@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Layout/CanvasLayout.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <algorithm>
 #include <cmath>
 
@@ -43,52 +43,45 @@ namespace Fsl
   namespace UI
   {
     CanvasLayout::CanvasLayout(const std::shared_ptr<BaseWindowContext>& context)
-      : Layout(context)
+      : ComplexLayout<CanvasLayoutWindowRecord>(context)
     {
     }
 
 
-    void CanvasLayout::WinInit()
+    void CanvasLayout::SetChildPosition(const std::shared_ptr<BaseWindow>& window, const DpPointF& positionDp)
     {
-      Layout::WinInit();
-
-      auto uiContext = GetContext()->TheUIContext.Get();
-      m_children.SYS_WinInit(this, uiContext->WindowManager);
-    }
-
-
-    void CanvasLayout::SetChildPosition(const std::shared_ptr<BaseWindow>& window, const Vector2& position)
-    {
-      auto itr =
-        std::find_if(m_children.begin(), m_children.end(), [window](const collection_type::record_type& record) { return record.Window == window; });
-      if (itr == m_children.end())
+      auto itr = std::find_if(begin(), end(), [window](const collection_type::record_type& record) { return record.Window == window; });
+      if (itr == end())
       {
         throw NotFoundException("The window is not part of this layout");
       }
 
-      itr->Position = position;
+      itr->PositionDp = positionDp;
     }
 
 
-    Vector2 CanvasLayout::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D CanvasLayout::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
+      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+      for (auto itr = begin(); itr != end(); ++itr)
       {
-        itr->Window->Arrange(Rect(itr->Position.X, itr->Position.Y, finalSize.X, finalSize.Y));
+        auto positionPx = unitConverter.ToPxPoint2(itr->PositionDp);
+        itr->Window->Arrange(PxRectangle(positionPx, finalSizePx));
       }
-      return finalSize;
+
+      return finalSizePx;
     }
 
 
-    Vector2 CanvasLayout::MeasureOverride(const Vector2& availableSize)
+    PxSize2D CanvasLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      for (auto itr = m_children.begin(); itr != m_children.end(); ++itr)
+      for (auto itr = begin(); itr != end(); ++itr)
       {
-        itr->Window->Measure(availableSize);
+        itr->Window->Measure(availableSizePx);
       }
 
       // The canvas content does not affect its measurements.
-      return Vector2::Zero();
+      return {};
     }
   }
 }

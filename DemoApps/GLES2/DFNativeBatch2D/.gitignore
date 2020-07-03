@@ -3,6 +3,7 @@
 /Android.mk
 /Android/
 /CMakeLists.txt
+/Content/BasicUI/
 /Content/_ContentSyncCache.fsl
 /DFNativeBatch2D
 /DFNativeBatch2D_FB

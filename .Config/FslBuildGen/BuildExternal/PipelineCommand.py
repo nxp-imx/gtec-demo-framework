@@ -111,4 +111,4 @@ class PipelineCommand(PipelineBasicCommand):
             if not isinstance(sourceCommand, XmlRecipePipelineJoinCommandDelete):
                 raise Exception("Invalid command type")
             return PipelineJoinCommandDelete(self.BasicConfig, sourceCommand, self.Info, self.FinalDstPath)
-        raise Exception("Unsupported join command '{0}'({1}) in '{2}'".format(sourceCommand.CommandName, sourceCommand.CommandType, self.Info.SourceRecipe.Name))
+        raise Exception("Unsupported join command '{0}'({1}) in '{2}'".format(sourceCommand.CommandName, sourceCommand.CommandType, self.Info.SourceRecipe.FullName))

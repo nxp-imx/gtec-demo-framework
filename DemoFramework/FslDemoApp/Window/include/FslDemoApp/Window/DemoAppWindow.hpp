@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppWindow : public ADemoApp
   {
   public:
-    DemoAppWindow(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppWindow(const DemoAppConfig& demoAppConfig);
     ~DemoAppWindow() override;
   };
 }

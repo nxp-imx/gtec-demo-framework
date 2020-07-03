@@ -179,7 +179,7 @@ namespace Fsl
     StrategySortByTransparency& operator=(StrategySortByTransparency&& other) = delete;
 
     // * NUM_BUFFERS because we store opaque and transparent in the same buffer
-    StrategySortByTransparency(const uint32_t quadCapacity = 4096)
+    explicit StrategySortByTransparency(const uint32_t quadCapacity = 4096)
       : m_quadVertices(static_cast<std::size_t>(std::max(quadCapacity, MIN_QUADS) + SAFETY) * VERTICES_PER_QUAD * NUM_BUFFERS)
       , m_segments(static_cast<std::size_t>(std::max(quadCapacity, MIN_QUADS) + SAFETY) * NUM_BUFFERS)
       , m_buffers(CreateBufferPointers(m_quadVertices, m_segments))
@@ -199,6 +199,16 @@ namespace Fsl
       assert((*m_addQuad.ppCurrentDstSegment) != nullptr);
 
       return (*m_addQuad.ppCurrentDstSegment)->ActiveBlendState;
+    }
+
+    const BatchSdfRenderConfig& GetActiveSdfRenderConfig() const
+    {
+      // If these assert fire it means we have a internal error
+      assert(IsValid());
+      assert(m_addQuad.ppCurrentDstSegment != nullptr);
+      assert((*m_addQuad.ppCurrentDstSegment) != nullptr);
+
+      return (*m_addQuad.ppCurrentDstSegment)->SdfRenderConfig;
     }
 
 
@@ -395,13 +405,20 @@ namespace Fsl
       // Switch to the right blend mode
       m_addQuad = CreateAddQuadPointers(m_buffers, blendState);
 
-      UpdateSegmentState(activeTextureInfo, blendState);
+      UpdateSegmentState(activeTextureInfo, blendState, GetActiveSdfRenderConfig());
+    }
+
+
+    void SetBatchSdfRenderConfig(const BatchSdfRenderConfig& config)
+    {
+      assert(IsValid());
+      UpdateSegmentState(GetActiveTexture(), GetActiveBlendState(), config);
     }
 
     //! Make sure you call SetBlendState before SetTexture!
     inline void SetTexture(const texture_info_type& textureInfo)
     {
-      UpdateSegmentState(textureInfo, GetActiveBlendState());
+      UpdateSegmentState(textureInfo, GetActiveBlendState(), GetActiveSdfRenderConfig());
     }
 
 
@@ -653,7 +670,7 @@ namespace Fsl
              m_buffers.IsValid(m_quadVertices, m_segments) && m_addQuad.IsValid(m_segments);
     }
 
-    void UpdateSegmentState(const texture_info_type& textureInfo, const BlendState blendState)
+    void UpdateSegmentState(const texture_info_type& textureInfo, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig)
     {
       assert(IsValid());
       // If this assert fire it means we have a internal error
@@ -674,7 +691,8 @@ namespace Fsl
           assert(pPreviousDstSegment >= m_segments.data());
           assert(pPreviousDstSegment < (m_segments.data() + m_segments.size()));
 
-          if (textureInfo == pPreviousDstSegment->TextureInfo && blendState == pPreviousDstSegment->ActiveBlendState)
+          if (textureInfo == pPreviousDstSegment->TextureInfo && blendState == pPreviousDstSegment->ActiveBlendState &&
+              (blendState != BlendState::Sdf || sdfRenderConfig == pPreviousDstSegment->SdfRenderConfig))
           {
             // The state match so we can reuse it, so we clear the now unused segment and move back to the previous one
             pDstSegment = {};
@@ -687,12 +705,14 @@ namespace Fsl
         // No previous compatible segment so we reuse the active segment with the new state, so lets update it.
         pDstSegment->TextureInfo = textureInfo;
         pDstSegment->ActiveBlendState = blendState;
+        pDstSegment->SdfRenderConfig = sdfRenderConfig;
         assert(IsValid());
         return;
       }
 
       // There are vertices so we check if the state is compatible
-      if ((textureInfo == pDstSegment->TextureInfo && blendState == pDstSegment->ActiveBlendState))
+      if (textureInfo == pDstSegment->TextureInfo && blendState == pDstSegment->ActiveBlendState &&
+          (blendState != BlendState::Sdf || sdfRenderConfig == pDstSegment->SdfRenderConfig))
       {
         assert(IsValid());
         return;
@@ -706,23 +726,32 @@ namespace Fsl
       assert(pDstSegment >= m_segments.data());
       assert(pDstSegment < (m_segments.data() + m_segments.size()));
       // Update the segment and exit
-      (*pDstSegment) = segment_type(textureInfo, blendState);
+      (*pDstSegment) = segment_type(textureInfo, blendState, sdfRenderConfig);
 
       assert(IsValid());
       return;
     }
   };
 
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::VERTICES_PER_QUAD;
+  const uint32_t StrategySortByTransparency<TTextureInfo>::VERTICES_PER_QUAD;    // NOLINT(readability-redundant-declaration)
+
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::EXPAND_QUAD_GROWTH;
+  const uint32_t StrategySortByTransparency<TTextureInfo>::EXPAND_QUAD_GROWTH;    // NOLINT(readability-redundant-declaration)
+
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::SAFETY;
+  const uint32_t StrategySortByTransparency<TTextureInfo>::SAFETY;    // NOLINT(readability-redundant-declaration)
+
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::MIN_QUADS;
+  const uint32_t StrategySortByTransparency<TTextureInfo>::MIN_QUADS;    // NOLINT(readability-redundant-declaration)
+
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const uint32_t StrategySortByTransparency<TTextureInfo>::NUM_BUFFERS;
+  const uint32_t StrategySortByTransparency<TTextureInfo>::NUM_BUFFERS;    // NOLINT(readability-redundant-declaration)
 }
 
 #endif

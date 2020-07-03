@@ -42,7 +42,7 @@ class TestUITree_Window : public TestFixtureFslSimpleUIUITree
 public:
   void CheckZeroExcept(const Fsl::UI::WindowCallCount& callCount, const WindowMethodFlags& ignoreFlags)
   {
-    CheckZero(callCount, (static_cast<uint32_t>(WindowMethod::All) & (~ignoreFlags.Value)));
+    CheckZero(callCount, WindowMethodFlags(static_cast<uint32_t>(WindowMethod::All) & (~ignoreFlags.Value)));
   }
 
   void CheckZero(const Fsl::UI::WindowCallCount& callCount, const WindowMethodFlags& checkFlags)
@@ -55,7 +55,7 @@ public:
     {
       ASSERT_EQ(0u, callCount.WinMarkLayoutAsDirty);
     }
-    if (checkFlags.IsEnabled(WindowMethod::WinGetContentRect))
+    if (checkFlags.IsEnabled(WindowMethod::WinGetContentPxRectangle))
     {
       ASSERT_EQ(0u, callCount.WinGetContentRect);
     }

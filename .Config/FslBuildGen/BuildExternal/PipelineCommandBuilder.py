@@ -49,8 +49,10 @@ from FslBuildGen.BuildExternal.PipelineTasks import PipelineTasks
 from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
 from FslBuildGen.BuildExternal.Tasks import GitApplyTask
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
-from FslBuildGen.CMakeUtil import CMakeUtil
 from FslBuildGen.DataTypes import BuildRecipePipelineCommand
+from FslBuildGen.DataTypes import BuildVariantConfig
+from FslBuildGen.CMakeUtil import CMakeUtil
+from FslBuildGen.DataTypes import CMakeTargetType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Generator.Report.ParsedFormatString import ParsedFormatString
 from FslBuildGen.Generator.Report.StringVariableDict import StringVariableDict
@@ -246,8 +248,8 @@ class PipelineCommandCMakeBuild(PipelineCommand):
 
 
     def __RunCMakeAndBuild(self, sourcePackage: Package, toolFinder: PackageToolFinder, recipeVariants: List[str],
-                           sourcePath: str, installPath: str, tempBuildPath: str, target: int,
-                           cmakeProjectName: str, configurationList: List[int], cmakeOptionList: List[str], allowSkip: bool) -> None:
+                           sourcePath: str, installPath: str, tempBuildPath: str, target: CMakeTargetType,
+                           cmakeProjectName: str, configurationList: List[BuildVariantConfig], cmakeOptionList: List[str], allowSkip: bool) -> None:
         installedDependencyList = self.__BuildDependencyPathList(sourcePackage, sourcePackage.ResolvedExperimentalRecipeBuildOrder)
         if len(recipeVariants) <= 0:
             installedDependencies = self.__BuildDependencyPathString(installedDependencyList)
@@ -452,7 +454,7 @@ class PipelineCommandBuilder(object):
         result = self.__CommandList
 
         if pipelineInstallCommand.IsCompleted():
-            self.__Log.LogPrint("  Pipeline '{0}' skipped as target path '{1}' exists.".format(self.__SourceRecipe.Name, installInfo.DstRootPath))
+            self.__Log.LogPrint("  Pipeline '{0}' skipped as target path '{1}' exists.".format(self.__SourceRecipe.FullName, installInfo.DstRootPath))
             result = []
 
         self.__CommandList = None
@@ -504,13 +506,13 @@ class PipelineCommandBuilder(object):
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCombine):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCombine")
             info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
-            return PipelineCommandCombine(self.__BasicConfig, sourceCommand, info, self.__SourceRecipe.Name)
+            return PipelineCommandCombine(self.__BasicConfig, sourceCommand, info, self.__SourceRecipe.FullName)
         elif sourceCommand.CommandType == BuildRecipePipelineCommand.Copy:
             if not isinstance(sourceCommand, XmlRecipePipelineCommandCopy):
                 raise Exception("Internal error, sourceCommand was not XmlRecipePipelineCommandCopy")
             info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, self.__GetTempDirectoryName(sourceCommand))
-            return PipelineCommandCopy(self.__BasicConfig, sourceCommand, info, self.__SourceRecipe.Name)
-        raise Exception("Unsupported command '{0}' ({1}) in '{2}'".format(sourceCommand.CommandName, sourceCommand.CommandType, self.__SourceRecipe.Name))
+            return PipelineCommandCopy(self.__BasicConfig, sourceCommand, info, self.__SourceRecipe.FullName)
+        raise Exception("Unsupported command '{0}' ({1}) in '{2}'".format(sourceCommand.CommandName, sourceCommand.CommandType, self.__SourceRecipe.FullName))
 
 
     def __CreateCommandDownload(self, sourceCommand: XmlRecipePipelineFetchCommandDownload, srcRootPath: str) -> PipelineCommand:
@@ -539,7 +541,7 @@ class PipelineCommandBuilder(object):
 
         readonlyCacheRootDir = self.__PathBuilder.ReadonlyCache_DownloadCacheRootPath
         if not readonlyCacheRootDir is None:
-            cachePath = IOUtil.Join(readonlyCacheRootDir, self.__SourceRecipe.Name)
+            cachePath = IOUtil.Join(readonlyCacheRootDir, self.__SourceRecipe.FullName)
             if IOUtil.IsDirectory(cachePath):
                 info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, cachePath, cachePath)
                 return PipelineCommandNOP(self.__BasicConfig, sourceCommand, info)
@@ -547,7 +549,7 @@ class PipelineCommandBuilder(object):
         if self.__PathBuilder.DownloadCacheRootPath is None:
             raise Exception("Invalid State")
 
-        dstPath = IOUtil.Join(self.__PathBuilder.DownloadCacheRootPath, self.__SourceRecipe.Name)
+        dstPath = IOUtil.Join(self.__PathBuilder.DownloadCacheRootPath, self.__SourceRecipe.FullName)
         info = PipelineInfo(self.PipelineTasks, self.__SourcePackage, self.__PathBuilder, srcRootPath, dstPath, allowDownloads=self.__AllowDownloads)
         return PipelineCommandGitClone(self.__BasicConfig, sourceCommand, info)
 

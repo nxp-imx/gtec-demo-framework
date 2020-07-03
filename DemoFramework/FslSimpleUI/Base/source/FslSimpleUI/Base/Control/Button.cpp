@@ -33,6 +33,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslBase/Math/Pixel/PxRectangle2D.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
@@ -47,24 +48,15 @@ namespace Fsl
   {
     Button::Button(const std::shared_ptr<BaseWindowContext>& context)
       : ContentControl(context)
-      , m_isClickable(true)
-      , m_isDown(false)
     {
       Enable(WindowFlags::ClickInput);
     }
 
-
-    bool Button::IsClickable() const
+    void Button::SetEnabled(const bool enable)
     {
-      return m_isClickable;
-    }
-
-
-    void Button::SetClickable(const bool value)
-    {
-      if (value != m_isClickable)
+      if (enable != m_isEnabled)
       {
-        m_isClickable = value;
+        m_isEnabled = enable;
         PropertyUpdated(PropertyType::Other);
       }
     }
@@ -79,7 +71,7 @@ namespace Fsl
         return;
       }
 
-      if (m_isClickable && theEvent->IsBegin())
+      if (m_isEnabled && theEvent->IsBegin())
       {
         if (!theEvent->IsRepeat())
         {
@@ -101,12 +93,12 @@ namespace Fsl
         theEvent->Handled();
 
         bool wasCanceled = true;
-        if (m_isClickable)
+        if (m_isEnabled)
         {
           // Only accept the press if the mouse/finger is still on top of the button
           auto pos = PointFromScreen(theEvent->GetScreenPosition());
-          auto size = RenderSize();
-          auto hitRect = Rect(0, 0, size.X, size.Y);
+          auto renderExtent = RenderExtentPx();
+          PxRectangle2D hitRect(0, 0, renderExtent.Width, renderExtent.Height);
           if (hitRect.Contains(pos))
           {
             wasCanceled = false;

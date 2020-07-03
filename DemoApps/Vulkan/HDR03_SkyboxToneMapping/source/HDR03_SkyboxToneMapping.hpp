@@ -141,12 +141,12 @@ namespace Fsl
     Vector2 m_rotationSpeed;
 
   public:
-    HDR03_SkyboxToneMapping(const DemoAppConfig& config);
+    explicit HDR03_SkyboxToneMapping(const DemoAppConfig& config);
 
   protected:
     void OnKeyEvent(const KeyEvent& event) override;
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void Resized(const Point2& size) override;
+    void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void Update(const DemoTime& demoTime) override;
     void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
 

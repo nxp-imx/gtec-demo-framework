@@ -34,12 +34,13 @@
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <cassert>
+#include <limits>
 
 namespace Fsl
 {
   namespace
   {
-    void Swizzle24To32Shrinking(RawBitmapEx& rBitmap, const uint32_t dstStride, const int srcIdx0, const int srcIdx1, const int srcIdx2,
+    void Swizzle24To32Shrinking(RawBitmapEx& rBitmap, const std::size_t dstStride, const int srcIdx0, const int srcIdx1, const int srcIdx2,
                                 const uint8_t alpha)
     {
       assert(rBitmap.IsValid());
@@ -53,15 +54,16 @@ namespace Fsl
       assert(dstStride > 0 && dstStride <= rBitmap.Stride());
 
       // Generic slow swizzle for 24bpp to 32bpp formats
-      const int height = rBitmap.Height();
-      const int srcStride = rBitmap.Stride();
+      const std::size_t srcStride = rBitmap.Stride();
       auto* pDstBitmap = static_cast<uint8_t*>(rBitmap.Content());
-      const uint8_t* const pDstBitmapEnd = pDstBitmap + (height * dstStride);
+      const uint8_t* const pDstBitmapEnd = pDstBitmap + (rBitmap.Height() * dstStride);
       const uint8_t* pSrcBitmap = pDstBitmap;
-      const int width = rBitmap.Width() - 1;
+
+      assert(rBitmap.Width() <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+      const int32_t width = static_cast<int32_t>(rBitmap.Width()) - 1;
       while (pDstBitmap < pDstBitmapEnd)
       {
-        for (int x = width; x >= 0; --x)
+        for (int32_t x = width; x >= 0; --x)
         {
           const uint8_t b0 = pSrcBitmap[(x * 3) + srcIdx0];
           const uint8_t b1 = pSrcBitmap[(x * 3) + srcIdx1];
@@ -76,7 +78,7 @@ namespace Fsl
       }
     }
 
-    void Swizzle24To32Growing(RawBitmapEx& rBitmap, const uint32_t srcStride, const int srcIdx0, const int srcIdx1, const int srcIdx2,
+    void Swizzle24To32Growing(RawBitmapEx& rBitmap, const std::size_t srcStride, const int srcIdx0, const int srcIdx1, const int srcIdx2,
                               const uint8_t alpha)
     {
       assert(rBitmap.IsValid());
@@ -92,32 +94,35 @@ namespace Fsl
       assert(srcStride > 0 && rBitmap.Stride() > srcStride);
 
       // Generic slow swizzle for 32bpp to 24bpp formats
-      const int height = rBitmap.Height();
-      const int dstStride = rBitmap.Stride();
-      auto* const pDstBitmapStart = static_cast<uint8_t*>(rBitmap.Content());
-      uint8_t* pDstBitmap = pDstBitmapStart + ((height - 1) * dstStride);
-      const uint8_t* pSrcBitmap = pDstBitmapStart + ((height - 1) * srcStride);
-      const int width = rBitmap.Width() - 1;
-
-      while (pDstBitmap >= pDstBitmapStart)
+      if (rBitmap.Height() > 0u)
       {
-        for (int x = width; x >= 0; --x)
+        const std::size_t dstStride = rBitmap.Stride();
+        auto* const pDstBitmapStart = static_cast<uint8_t*>(rBitmap.Content());
+        uint8_t* pDstBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * dstStride);
+        const uint8_t* pSrcBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * srcStride);
+        assert(rBitmap.Width() <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+        const int32_t width = static_cast<int32_t>(rBitmap.Width()) - 1;
+
+        while (pDstBitmap >= pDstBitmapStart)
         {
-          const uint8_t b0 = pSrcBitmap[(x * 3) + srcIdx0];
-          const uint8_t b1 = pSrcBitmap[(x * 3) + srcIdx1];
-          const uint8_t b2 = pSrcBitmap[(x * 3) + srcIdx2];
-          pDstBitmap[(x * 4) + 0] = b0;
-          pDstBitmap[(x * 4) + 1] = b1;
-          pDstBitmap[(x * 4) + 2] = b2;
-          pDstBitmap[(x * 4) + 3] = alpha;
+          for (int32_t x = width; x >= 0; --x)
+          {
+            const uint8_t b0 = pSrcBitmap[(x * 3) + srcIdx0];
+            const uint8_t b1 = pSrcBitmap[(x * 3) + srcIdx1];
+            const uint8_t b2 = pSrcBitmap[(x * 3) + srcIdx2];
+            pDstBitmap[(x * 4) + 0] = b0;
+            pDstBitmap[(x * 4) + 1] = b1;
+            pDstBitmap[(x * 4) + 2] = b2;
+            pDstBitmap[(x * 4) + 3] = alpha;
+          }
+          pSrcBitmap -= srcStride;
+          pDstBitmap -= dstStride;
         }
-        pSrcBitmap -= srcStride;
-        pDstBitmap -= dstStride;
       }
     }
 
 
-    void ExpandAlpha8To32Growing(RawBitmapEx& rBitmap, const uint32_t srcStride)
+    void ExpandAlpha8To32Growing(RawBitmapEx& rBitmap, const std::size_t srcStride)
     {
       assert(rBitmap.IsValid());
       // the bitmap is pointing to the dst format information since its growing
@@ -129,25 +134,28 @@ namespace Fsl
       assert(srcStride > 0 && rBitmap.Stride() > srcStride);
 
       // Generic slow swizzle for 32bpp to 24bpp formats
-      const int height = rBitmap.Height();
-      const int dstStride = rBitmap.Stride();
-      auto* const pDstBitmapStart = static_cast<uint8_t*>(rBitmap.Content());
-      uint8_t* pDstBitmap = pDstBitmapStart + ((height - 1) * dstStride);
-      const uint8_t* pSrcBitmap = pDstBitmapStart + ((height - 1) * srcStride);
-      const int width = rBitmap.Width() - 1;
-
-      while (pDstBitmap >= pDstBitmapStart)
+      if (rBitmap.Height() > 0u)
       {
-        for (int x = width; x >= 0; --x)
+        const std::size_t dstStride = rBitmap.Stride();
+        auto* const pDstBitmapStart = static_cast<uint8_t*>(rBitmap.Content());
+        uint8_t* pDstBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * dstStride);
+        const uint8_t* pSrcBitmap = pDstBitmapStart + ((rBitmap.Height() - 1u) * srcStride);
+        assert(rBitmap.Width() <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+        const int32_t width = static_cast<int32_t>(rBitmap.Width()) - 1;
+
+        while (pDstBitmap >= pDstBitmapStart)
         {
-          const uint8_t col = pSrcBitmap[x];
-          pDstBitmap[(x * 4) + 0] = col;
-          pDstBitmap[(x * 4) + 1] = col;
-          pDstBitmap[(x * 4) + 2] = col;
-          pDstBitmap[(x * 4) + 3] = col;
+          for (int32_t x = width; x >= 0; --x)
+          {
+            const uint8_t col = pSrcBitmap[x];
+            pDstBitmap[(x * 4) + 0] = col;
+            pDstBitmap[(x * 4) + 1] = col;
+            pDstBitmap[(x * 4) + 2] = col;
+            pDstBitmap[(x * 4) + 3] = col;
+          }
+          pSrcBitmap -= srcStride;
+          pDstBitmap -= dstStride;
         }
-        pSrcBitmap -= srcStride;
-        pDstBitmap -= dstStride;
       }
     }
   }

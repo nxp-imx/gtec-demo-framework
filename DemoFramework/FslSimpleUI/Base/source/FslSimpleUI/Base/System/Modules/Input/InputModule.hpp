@@ -37,23 +37,36 @@
 
 namespace Fsl
 {
-  struct Vector2;
+  struct PxPoint2;
   namespace UI
   {
     class HitBasedInputSender;
     class IModuleHost;
+    class ITreeNodeClickInputTargetLocater;
+    class TreeNode;
 
     class InputModule
     {
+      struct MouseOverRecord
+      {
+        std::weak_ptr<TreeNode> Target;
+      };
+
+      std::shared_ptr<ITreeNodeClickInputTargetLocater> m_targetLocater;
       std::shared_ptr<HitBasedInputSender> m_hitBasedInputSender;
 
+      MouseOverRecord m_mouseOver;
+
     public:
-      InputModule(const std::shared_ptr<IModuleHost>& moduleHost);
+      explicit InputModule(const std::shared_ptr<IModuleHost>& moduleHost);
       ~InputModule();
+
+      //! @brief Notify the input module that the mouse is moving
+      bool MouseMove(const int32_t sourceId, const int32_t sourceSubId, const PxPoint2& screenPositionPx);
 
       //! @brief Send a click event
       bool SendClickEvent(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state, const bool isRepeat,
-                          const Vector2& screenPosition);
+                          const PxPoint2& screenPositionPx);
     };
   }
 }

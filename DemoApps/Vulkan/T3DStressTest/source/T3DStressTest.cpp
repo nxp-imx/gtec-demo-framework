@@ -30,7 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "T3DStressTest.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/FmtPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxSize2D.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
 #include <FslGraphics3D/Procedural/MeshBuilder.hpp>
@@ -49,7 +52,7 @@ namespace Fsl
 {
   namespace
   {
-    const auto VERTEX_BUFFER_BIND_ID = 0;
+    // const auto VERTEX_BUFFER_BIND_ID = 0;
 
     VulkanBasic::DemoAppVulkanSetup CreateSetup()
     {
@@ -133,16 +136,19 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = maxSets * frameCount;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
     }
 
-    Procedural::BasicMesh CreateMesh(const Point2& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
+    Procedural::BasicMesh CreateMesh(const PxSize2D& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
                                      const bool shareInstanceVertices, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
+      FSLLOG3_INFO("tex1Size: {} textureRepeatCount: {} vertexCount: {} instanceCount: {} shareInstanceVertices: {} useTriangleStrip: {}", tex1Size,
+                   textureRepeatCount, vertexCount, instanceCount, shareInstanceVertices, useTriangleStrip);
+
+      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, textureRepeatCount, textureRepeatCount));
 
       Procedural::BasicMesh mesh;
@@ -168,6 +174,8 @@ namespace Fsl
       {
         CreateInstancedMesh(mesh, instanceCount, shareInstanceVertices);
       }
+
+      FSLLOG3_INFO("Mesh indices: {} Mesh vertices: {}", mesh.GetIndexCount(), mesh.GetVertexCount());
       return mesh;
     }
   }
@@ -184,6 +192,20 @@ namespace Fsl
     , m_gravity(0, -1.0f, 0)
     , m_radians(0.0f)
   {
+    switch (m_config.GetRenderMode())
+    {
+    case RenderMode::MultiPass:
+      FSLLOG3_INFO("RenderMode: MultiPass");
+      break;
+    case RenderMode::Instanced:
+      FSLLOG3_INFO("RenderMode: Instanced");
+      break;
+    default:
+      break;
+    }
+    FSLLOG3_INFO("ManualInstances: {} LayerCount: {} HairDensity: {} DepthTest: {}", m_config.GetInstanceCount(), m_config.GetLayerCount(),
+                 m_config.GetHairDensity(), m_config.GetEnableDepthTest());
+
     auto contentManager = GetContentManager();
 
     const int furTextureDim = m_config.GetFurTextureDimensions();
@@ -196,7 +218,7 @@ namespace Fsl
 
     {
       Point2 vertexCount(m_config.GetVertexCountX(), m_config.GetVertexCountY());
-      Point2 tex1Size(static_cast<int32_t>(m_resources.Tex1.GetExtent().width), static_cast<int32_t>(m_resources.Tex1.GetExtent().height));
+      PxSize2D tex1Size(static_cast<int32_t>(m_resources.Tex1.GetExtent().width), static_cast<int32_t>(m_resources.Tex1.GetExtent().height));
       auto mesh = CreateMesh(tex1Size, m_config.GetTextureRepeatCount(), vertexCount, m_config.GetInstanceCount(),
                              m_config.GetShareInstanceVertices(), m_config.GetUseTriangleStrip());
       m_resources.MeshStuff = std::make_unique<MeshStuffRecord>(
@@ -205,7 +227,7 @@ namespace Fsl
     }
 
     {
-      Vector3 lightDirection(-0.0f, -0.0f, -1.0f);
+      Vector3 lightDirection(0.0f, 0.0f, -1.0f);
       lightDirection.Normalize();
       Vector3 lightColor(0.9f, 0.9f, 0.9f);
       Vector3 ambientColor(0.2f, 0.2f, 0.2f);
@@ -235,18 +257,18 @@ namespace Fsl
   }
 
 
-  void T3DStressTest::FixedUpdate(const DemoTime& demoTime)
+  void T3DStressTest::FixedUpdate(const DemoTime& /*demoTime*/)
   {
-    const Point2 screenResolution = GetScreenResolution();
+    const PxSize2D windowSizePx = GetWindowSizePx();
 
     Vector3 forceDirection(std::sin(m_radians), 0, 0);
     m_displacement = m_gravity + forceDirection;
 
     m_radians += 0.01f;
 
-    m_world = Matrix::CreateRotationX(MathHelper::TO_RADS * (m_xAngle / 100.0f));
-    m_world *= Matrix::CreateRotationY(MathHelper::TO_RADS * (m_yAngle / 100.0f));
-    m_world *= Matrix::CreateRotationZ(MathHelper::TO_RADS * (m_zAngle / 100.0f));
+    m_world = Matrix::CreateRotationX(MathHelper::TO_RADS * (static_cast<float>(m_xAngle) / 100.0f));
+    m_world *= Matrix::CreateRotationY(MathHelper::TO_RADS * (static_cast<float>(m_yAngle) / 100.0f));
+    m_world *= Matrix::CreateRotationZ(MathHelper::TO_RADS * (static_cast<float>(m_zAngle) / 100.0f));
 
     // Pull the camera back from the cube
     m_view = Matrix::CreateTranslation(0.0f, 0.0f, -m_config.GetCameraDistance());
@@ -256,9 +278,9 @@ namespace Fsl
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    m_perspective =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 100.0f) *
-      vulkanClipMatrix;
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
+                                                         windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 100.0f) *
+                    vulkanClipMatrix;
     m_MVP = m_world * m_view * m_perspective;
 
     // m_xAngle += 10;
@@ -291,16 +313,16 @@ namespace Fsl
     }
   }
 
-  void T3DStressTest::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void T3DStressTest::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
     const auto frameIndex = drawContext.CurrentFrameIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {1.0f, 0.0f, 0.0f, 1.0f};
+      clearValues[0].color = {{1.0f, 0.0f, 0.0f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -310,7 +332,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -336,7 +358,7 @@ namespace Fsl
     FSLLOG3_VERBOSE3("OnBuildResources Begin");
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();
 
-    auto renderPass = m_dependentResources.MainRenderPass.Get();
+    const VkRenderPass renderPass = m_dependentResources.MainRenderPass.Get();
     m_resources.MeshStuff->OnBuildResources(context, renderPass);
     FSLLOG3_VERBOSE3("OnBuildResources End");
     return renderPass;
@@ -350,7 +372,7 @@ namespace Fsl
     FSLLOG3_VERBOSE3("OnFreeResources End");
   }
 
-  void T3DStressTest::DrawToCommandBuffer(const VkCommandBuffer hCmdBuffer, const uint32_t cmdBufferIndex, const uint32_t frameIndex)
+  void T3DStressTest::DrawToCommandBuffer(const VkCommandBuffer hCmdBuffer, const uint32_t /*cmdBufferIndex*/, const uint32_t frameIndex)
   {
     bool bypassRender = false;
     if (m_config.GetToggleMinMax())
@@ -373,7 +395,7 @@ namespace Fsl
         rRender.SetProjection(m_perspective);
         rRender.SetDisplacement(m_displacement);
 
-        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / (m_config.GetLayerCount() - 1) : 1);
+        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / static_cast<float>(m_config.GetLayerCount() - 1) : 1);
         float layer = 0.0f;
 
         rRender.Bind(hCmdBuffer, frameIndex);

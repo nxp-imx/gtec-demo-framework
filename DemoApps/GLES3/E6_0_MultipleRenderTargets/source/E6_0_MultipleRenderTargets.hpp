@@ -9,6 +9,7 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -19,7 +20,7 @@ namespace Fsl
       GLuint fbo;
 
       // Texture handle
-      GLuint colorTexId[4]{};
+      std::array<GLuint, 4> colorTexId{};
 
       // Texture size
       GLsizei textureWidth{0};
@@ -39,7 +40,7 @@ namespace Fsl
     UserData m_userData;
 
   public:
-    E6_0_MultipleRenderTargets(const DemoAppConfig& config);
+    explicit E6_0_MultipleRenderTargets(const DemoAppConfig& config);
     ~E6_0_MultipleRenderTargets() override;
 
   protected:

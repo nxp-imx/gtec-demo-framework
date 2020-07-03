@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Content/Models/
 /Content/Shaders/
 /Content/_ContentSyncCache.fsl

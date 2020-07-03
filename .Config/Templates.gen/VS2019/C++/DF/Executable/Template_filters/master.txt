@@ -30,5 +30,5 @@
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="##PACKAGE_TARGET_NAME##.manifest" />
-  </ItemGroup>##ITEM_GROUP_HEADER####ITEM_GROUP_SOURCE####ITEM_GROUP_SHADER##
+  </ItemGroup>##ITEM_GROUP_HEADER####ITEM_GROUP_SOURCE####ITEM_GROUP_SHADER####ITEM_GROUP_NATVIS##
 </Project>

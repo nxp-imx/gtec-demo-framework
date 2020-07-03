@@ -34,6 +34,9 @@
 from typing import List
 from typing import Optional
 import xml.etree.ElementTree as ET
+from FslBuildGen.Log import Log
+from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
+from FslBuildGen.Packages.FilterXmlElementUtil import FilterXmlElementUtil
 from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.Xml.XmlGenFileDefine import XmlGenFileDefine
 from FslBuildGen.Xml.XmlGenFileDependency import XmlGenFileDependency
@@ -44,17 +47,18 @@ from FslBuildGen.Xml.XmlStuff import XmlGenFileVariant
 
 
 class PackagePlatform(object):
-    def __init__(self, name: str, xmlGenFilePlatform: XmlGenFilePlatform) -> None:
+    def __init__(self, log: Log, generatorInfo: GeneratorInfo, name: str, xmlGenFilePlatform: XmlGenFilePlatform) -> None:
         super().__init__()
         if xmlGenFilePlatform != None and xmlGenFilePlatform.Name != name:
             raise Exception("the xmlGenFilePlatform.Name and name must be equal")
         self.Name = name
         self.DirectUsedFeatures = [requirement for requirement in xmlGenFilePlatform.DirectRequirements if requirement.Type == PackageRequirementTypeString.Feature]  # type: List[XmlGenFileRequirement]
         self.DirectRequirements = xmlGenFilePlatform.DirectRequirements  # type: List[XmlGenFileRequirement]
-        self.DirectDependencies = xmlGenFilePlatform.DirectDependencies  # type: List[XmlGenFileDependency]
+        self.DirectDependencies = FilterXmlElementUtil.FilterOnConditionsDependency(log, generatorInfo, xmlGenFilePlatform.DirectDependencies)  # type: List[XmlGenFileDependency]
         self.Variants = xmlGenFilePlatform.Variants  # type: List[XmlGenFileVariant]
         self.ProjectId = xmlGenFilePlatform.ProjectId  # type: Optional[str]
         self.Supported = xmlGenFilePlatform.Supported  # type: bool
-        self.ExternalDependencies = xmlGenFilePlatform.ExternalDependencies  # type: List[XmlGenFileExternalDependency]
+        self.ExternalDependencies = FilterXmlElementUtil.FilterOnConditionsExternalDependency(log, generatorInfo, xmlGenFilePlatform.ExternalDependencies) # type: List[XmlGenFileExternalDependency]
         self.DirectDefines = xmlGenFilePlatform.DirectDefines  # type: List[XmlGenFileDefine]
+        self.DirectExperimentalRecipe = xmlGenFilePlatform.DirectExperimentalRecipe
         self.XMLElement = xmlGenFilePlatform.XMLElement  # type: ET.Element

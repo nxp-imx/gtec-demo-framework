@@ -46,13 +46,8 @@
 /.Config/FslBuildGen/Xml/Project/__pycache__
 /.Config/FslBuildGen/Xml/ToolConfig/*.pyc
 /.Config/FslBuildGen/Xml/ToolConfig/__pycache__
-/.Config/FslFontHelper/BasicKerningObjects.pyc
-/.Config/FslFontHelper/FormatPlugin.pyc
-/.Config/FslFontHelper/FormatPluginBasicKerning.pyc
-/.Config/FslFontHelper/IOUtil.pyc
-/.Config/FslFontHelper/__init__.pyc
-/.Config/FslFontHelper/FormatPluginFontBasicKerning.pyc
-/.Config/FslFontHelper/FormatPluginFontBasicKerningUtil.pyc
+/.Config/FslFontHelper/*.pyc
+/.Config/FslFontHelper/__pycache__
 /.Config/TPConvert/__pycache__
 /.Config/TPConvert/*.pyc
 /.Config/x264.exe
@@ -69,3 +64,4 @@
 /ThirdParty/G2DEmulation/G2DEmulation.v12.suo
 /ThirdParty/DevCompat/bin/
 /CMakeLists.txt
+

@@ -46,7 +46,7 @@ namespace Fsl
 {
   namespace
   {
-    const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::Stub);
@@ -57,7 +57,7 @@ namespace Fsl
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);
 
-      return DemoHostFeature(DemoHostFeatureName::Stub, DemoHostFeatureUtil::EncodeVersion(1));
+      return {DemoHostFeatureName::Stub, DemoHostFeatureUtil::EncodeVersion(1)};
     }
   }
 

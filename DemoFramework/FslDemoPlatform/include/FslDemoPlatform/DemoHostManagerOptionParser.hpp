@@ -69,7 +69,7 @@ namespace Fsl
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int32_t cmdId, const StringViewLite& strOptArg) override;
     bool ParsingComplete() override;
 
     //! Returns a negative value if we should render a unlimited amount of frames.
@@ -115,10 +115,10 @@ namespace Fsl
     void RequestEnableAppFirewall();
 
   private:
-    OptionParseResult ParseDurationExitConfig(const char* const pszOptArg);
-    OptionParseResult ParseScreenshotImageFormat(const char* const pszOptArg);
-    OptionParseResult ParseScreenshotNamePrefix(const char* const pszOptArg);
-    OptionParseResult ParseScreenshotNameScheme(const char* const pszOptArg);
+    OptionParseResult ParseDurationExitConfig(const StringViewLite& strOptArg);
+    OptionParseResult ParseScreenshotImageFormat(const StringViewLite& strOptArg);
+    OptionParseResult ParseScreenshotNamePrefix(const StringViewLite& strOptArg);
+    OptionParseResult ParseScreenshotNameScheme(const StringViewLite& strOptArg);
   };
 }
 

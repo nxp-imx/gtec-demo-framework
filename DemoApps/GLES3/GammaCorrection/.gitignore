@@ -4,6 +4,7 @@
 /Android/
 /CMakeLists.txt
 /Content/Textures/WoodFloor/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.GammaCorrection.VC.VC.opendb

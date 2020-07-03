@@ -41,10 +41,12 @@ from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedPackageNameException
 from FslBuildGen.Xml.Exceptions import XmlUnsupportedSubPackageNameException
 from FslBuildGen.Xml.SubPackageSupportConfig import SubPackageSupportConfig
+from FslBuildGen.Xml.XmlBase import XmlBase
 from FslBuildGen.Xml.XmlGenFileDefine import XmlGenFileDefine
 from FslBuildGen.Xml.XmlGenFileDependency import XmlGenFileDependency
 from FslBuildGen.Xml.XmlGenFileExternalDependency import XmlGenFileExternalDependency
-from FslBuildGen.Xml.XmlBase import XmlBase
+from FslBuildGen.Xml.XmlGenFileExternalDependency import FakeXmlGenFileExternalDependencyCMakeFindModern
+from FslBuildGen.Xml.XmlGenFileFindPackage import XmlGenFileFindPackage
 
 
 class FakeXmlGenFileDependency(XmlGenFileDependency):
@@ -86,7 +88,23 @@ class XmlBase2(XmlBase):
             for child in xmlElement:
                 if child.tag == 'ExternalDependency':
                     dependencies.append(XmlGenFileExternalDependency(self.Log, child))
+
+        # find package is just a alias for a specific ExternalDependency type
+        findPackageDependencies = self.__GetXMLFindPackageDependencies(xmlElement)
+        for findPackage in findPackageDependencies:
+            dependencies.append(self.ConvertToXmlGenFileExternalDependency(findPackage))
         return dependencies
+
+    def __GetXMLFindPackageDependencies(self, xmlElement: ET.Element) -> List[XmlGenFileFindPackage]:
+        dependencies = []
+        if xmlElement != None:
+            for child in xmlElement:
+                if child.tag == 'FindPackage':
+                    dependencies.append(XmlGenFileFindPackage(self.Log, child))
+        return dependencies
+
+    def ConvertToXmlGenFileExternalDependency(self, value: XmlGenFileFindPackage) -> XmlGenFileExternalDependency:
+        return FakeXmlGenFileExternalDependencyCMakeFindModern(self.Log, value.Name, value.Version, value.TargetName, value.Path, value.IfCondition)
 
 
     def __GetXMLDefines(self, xmlElement: ET.Element) -> List[XmlGenFileDefine]:

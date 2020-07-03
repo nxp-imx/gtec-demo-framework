@@ -76,33 +76,32 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParserEx::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParserEx::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     switch (cmdId)
     {
     case CommandId::InstanceCount:
-      StringParseUtil::Parse(m_instanceCount, pszOptArg);
+      StringParseUtil::Parse(m_instanceCount, strOptArg);
       return OptionParseResult::Parsed;
     case CommandId::Preset:
     {
-      if (pszOptArg == nullptr)
+      if (strOptArg == nullptr)
       {
         return OptionParseResult::Failed;
       }
-      std::string input(pszOptArg);
-      if (input == "low")
+      if (strOptArg == "low")
       {
         m_instanceCount = INSTANCE_COUNT_LOW;
       }
-      else if (input == "medium")
+      else if (strOptArg == "medium")
       {
         m_instanceCount = INSTANCE_COUNT_MEDIUM;
       }
-      else if (input == "high")
+      else if (strOptArg == "high")
       {
         m_instanceCount = INSTANCE_COUNT_HIGH;
       }
-      else if (input == "ultra")
+      else if (strOptArg == "ultra")
       {
         m_instanceCount = INSTANCE_COUNT_ULTRA;
       }
@@ -113,7 +112,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     }
     default:
-      return ADemoOptionParser::OnParse(cmdId, pszOptArg);
+      return ADemoOptionParser::OnParse(cmdId, strOptArg);
     }
   }
 

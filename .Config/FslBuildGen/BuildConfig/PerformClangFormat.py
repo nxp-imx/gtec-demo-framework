@@ -32,10 +32,12 @@
 #****************************************************************************************************************************************************
 
 from typing import Any
+from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Tuple
 from concurrent.futures import ThreadPoolExecutor
+import io
 import os
 import os.path
 import queue
@@ -44,68 +46,109 @@ import sys
 import threading
 from FslBuildGen import IOUtil
 from FslBuildGen.Build.BuildUtil import PlatformBuildUtil
+from FslBuildGen.BuildConfig.BuildUtil import BuildUtil
 from FslBuildGen.BuildConfig.CaptureLog import CaptureLog
 from FslBuildGen.BuildConfig.ClangExeInfo import ClangExeInfo
 from FslBuildGen.BuildConfig.ClangFormatConfiguration import ClangFormatConfiguration
 from FslBuildGen.BuildConfig.CustomPackageFileFilter import CustomPackageFileFilter
 from FslBuildGen.BuildConfig.FileFinder import FileFinder
+from FslBuildGen.BuildConfig.ninja_syntax import Writer
+from FslBuildGen.BuildConfig.PackagePathUtil import PackagePathUtil
 from FslBuildGen.BuildConfig.PerformClangUtil import PerformClangUtil
+from FslBuildGen.BuildConfig.RunHelper import RunHelper
 from FslBuildGen.BuildConfig.SimpleCancellationToken import SimpleCancellationToken
+from FslBuildGen.BuildContent.PathRecord import PathRecord
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.DataTypes import CheckType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.Exceptions import AggregateException
+from FslBuildGen.Exceptions import ExitException
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
+from FslBuildGen.ProjectId import ProjectId
 from FslBuildGen.ToolConfig import ToolConfig
+from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
+from FslBuildGen.ToolConfigProjectInfo import ToolConfigProjectInfo
 from FslBuildGen.ToolConfigRootDirectory import ToolConfigRootDirectory
 
 class MagicValues(object):
     ClangFormatCommand = "clang-format"
+    NinjaCommand = "ninja"
+
+class FormatPackageConfig(object):
+    def __init__(self, log: Log, package: Package, clangFormatConfiguration: ClangFormatConfiguration, filteredFiles: Optional[List[str]]) -> None:
+        allFiles = [] # type: List[ResolvedPath]
+
+        if package.ResolvedBuildAllIncludeFiles is not None and package.AllowCheck and not package.IsVirtual:
+            if package.AbsolutePath is None or package.ResolvedBuildSourceFiles is None:
+                raise Exception("Invalid package")
+
+            if filteredFiles is None:
+                for fileName in package.ResolvedBuildAllIncludeFiles:
+                    fullPath = IOUtil.Join(package.AbsolutePath, fileName)
+                    # Only process files with the expected extension
+                    if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
+                        allFiles.append(ResolvedPath(fileName, fullPath))
+
+                for fileName in package.ResolvedBuildSourceFiles:
+                    fullPath = IOUtil.Join(package.AbsolutePath, fileName)
+                    if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
+                        allFiles.append(ResolvedPath(fileName, fullPath))
+
+                if package.ResolvedContentFiles is not None:
+                    for resolvedPath in package.ResolvedContentFiles:
+                        if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
+                            allFiles.append(self.__GetResolvedPath(package, resolvedPath))
+
+                if package.ResolvedContentBuilderSyncInputFiles is not None:
+                    for resolvedPath in package.ResolvedContentBuilderSyncInputFiles:
+                        if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
+                            allFiles.append(self.__GetResolvedPath(package, resolvedPath))
+
+                if package.ResolvedContentBuilderBuildInputFiles is not None:
+                    for resolvedPath in package.ResolvedContentBuilderBuildInputFiles:
+                        if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
+                            allFiles.append(self.__GetResolvedPath(package, resolvedPath))
+            else:
+                for fileEntry in filteredFiles:
+                    allFiles.append(self.__GetResolvedPathFromAbsPath(package, fileEntry))
+        self.AllFiles = allFiles
+
+    def __GetResolvedPath(self, package: Package, path: PathRecord) -> ResolvedPath:
+        if package.Path is None:
+            raise Exception("invalid package")
+        absFilePath = path.ResolvedPath
+        packagePath = package.Path.AbsoluteDirPath + '/'
+        if not absFilePath.startswith(packagePath):
+            raise Exception("file '{0}' is not part of the package at path '{1}'".format(absFilePath, packagePath))
+        relativePath = absFilePath[len(packagePath):]
+        return ResolvedPath(relativePath, absFilePath)
+
+    def __GetResolvedPathFromAbsPath(self, package: Package, absFilePath: str) -> ResolvedPath:
+        if package.Path is None:
+            raise Exception("invalid package")
+        packagePath = package.Path.AbsoluteDirPath + '/'
+        if not absFilePath.startswith(packagePath):
+            raise Exception("file '{0}' is not part of the package at path '{1}'".format(absFilePath, packagePath))
+        relativePath = absFilePath[len(packagePath):]
+        return ResolvedPath(relativePath, absFilePath)
 
 def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: ClangFormatConfiguration,
                     clangExeInfo: ClangExeInfo,
                     package: Package, filteredFiles: Optional[List[str]],
                     repairEnabled: bool) -> None:
-    if not package.ResolvedBuildAllIncludeFiles or not package.AllowCheck or package.IsVirtual:
+    if package.ResolvedBuildAllIncludeFiles is None or len(package.ResolvedBuildAllIncludeFiles) <= 0 or not package.AllowCheck or package.IsVirtual:
         return
 
     if package.AbsolutePath is None or package.ResolvedBuildSourceFiles is None:
         raise Exception("Invalid package")
 
-    allFiles = [] # type: List[str]
+    formatPackageConfig = FormatPackageConfig(log, package, clangFormatConfiguration, filteredFiles)
 
-    if filteredFiles is None:
-        for fileName in package.ResolvedBuildAllIncludeFiles:
-            fullPath = IOUtil.Join(package.AbsolutePath, fileName)
-            # Only process files with the expected extension
-            if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
-                allFiles.append(fileName)
-
-        for fileName in package.ResolvedBuildSourceFiles:
-            fullPath = IOUtil.Join(package.AbsolutePath, fileName)
-            if PerformClangUtil.IsValidExtension(fileName, clangFormatConfiguration.FileExtensions):
-                allFiles.append(fileName)
-
-        if package.ResolvedContentFiles is not None:
-            for resolvedPath in package.ResolvedContentFiles:
-                if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
-                    allFiles.append(resolvedPath.ResolvedPath)
-
-        if package.ResolvedContentBuilderSyncInputFiles is not None:
-            for resolvedPath in package.ResolvedContentBuilderSyncInputFiles:
-                if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
-                    allFiles.append(resolvedPath.ResolvedPath)
-
-        if package.ResolvedContentBuilderBuildInputFiles is not None:
-            for resolvedPath in package.ResolvedContentBuilderBuildInputFiles:
-                if PerformClangUtil.IsValidExtension(resolvedPath.ResolvedPath, clangFormatConfiguration.FileExtensions):
-                    allFiles.append(resolvedPath.ResolvedPath)
-    else:
-        allFiles += filteredFiles
-
-    cmd = clangExeInfo.ClangCommand
+    cmd = clangExeInfo.Command
     buildCommand = [cmd, '-style=file']
     if repairEnabled:
         buildCommand.append('-i')
@@ -113,7 +156,7 @@ def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: 
         log.LogPrint("Adding user supplied arguments before '--' {0}".format(clangFormatConfiguration.AdditionalUserArguments))
         buildCommand += clangFormatConfiguration.AdditionalUserArguments
 
-    buildCommand += allFiles
+    buildCommand += [entry.ResolvedPath for entry in formatPackageConfig.AllFiles]
 
     currentWorkingDirectory = package.AbsolutePath
     FileFinder.FindClosestFileInRoot(log, toolConfig, currentWorkingDirectory, clangFormatConfiguration.CustomFormatFile)
@@ -126,22 +169,26 @@ def _RunClangFormat(log: Log, toolConfig: ToolConfig, clangFormatConfiguration: 
         result = subprocess.call(buildCommand, cwd=currentWorkingDirectory)
         if result != 0:
             log.LogPrintWarning("The command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(buildCommand), result, currentWorkingDirectory))
-            sys.exit(result)
+            raise ExitException(result)
     except FileNotFoundError:
             log.DoPrintWarning("The command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(buildCommand), currentWorkingDirectory))
             raise
 
+def GetFilteredFiles(log: Log, customPackageFileFilter: Optional[CustomPackageFileFilter],
+                     clangFormatConfiguration: ClangFormatConfiguration, package: Package) -> Optional[List[str]]:
+    if customPackageFileFilter is None:
+        return None
+    return customPackageFileFilter.TryLocateFilePatternInPackage(log, package, clangFormatConfiguration.FileExtensions)
 
 class PerformClangFormatHelper(object):
     @staticmethod
     def Process(log: Log, toolConfig: ToolConfig, customPackageFileFilter: Optional[CustomPackageFileFilter],
                 clangFormatConfiguration: ClangFormatConfiguration, clangExeInfo: ClangExeInfo, packageList: List[Package],
-                repairEnabled: bool, buildThreads: int) -> int:
+                repairEnabled: bool, numBuildThreads: int) -> int:
         totalProcessedCount = 0
-        if buildThreads <= 1 or len(packageList) <= 1:
+        if numBuildThreads <= 1 or len(packageList) <= 1:
             for package in packageList:
-                filteredFiles = None if customPackageFileFilter is None else customPackageFileFilter.TryLocateFilePatternInPackage(log, package,
-                                                                                                                                   clangFormatConfiguration.FileExtensions)
+                filteredFiles = GetFilteredFiles(log, customPackageFileFilter, clangFormatConfiguration, package)
                 if customPackageFileFilter is None or filteredFiles is not None:
                     totalProcessedCount += 1
                     log.LogPrint("- {0}".format(package.Name))
@@ -153,7 +200,7 @@ class PerformClangFormatHelper(object):
                 packageQueue.put(package)
 
             # Ensure we dont start threads we dont need
-            finalBuildThreads = buildThreads if len(packageList) >= buildThreads else len(packageList)
+            finalBuildThreads = numBuildThreads if len(packageList) >= numBuildThreads else len(packageList)
             exceptionList = []
             cancellationToken = SimpleCancellationToken()
             totalExaminedCount = 0
@@ -161,7 +208,7 @@ class PerformClangFormatHelper(object):
                 with ThreadPoolExecutor(max_workers=finalBuildThreads) as executor:
 
                     futures = []
-                    for index in range(0, buildThreads):
+                    for index in range(0, finalBuildThreads):
                         taskFuture = executor.submit(PerformClangFormatHelper.RunInAnotherThread,
                                                      packageQueue, cancellationToken,
                                                      log, toolConfig, customPackageFileFilter,
@@ -216,9 +263,7 @@ class PerformClangFormatHelper(object):
 
                     captureLog = CaptureLog(mainLog.Title, mainLog.Verbosity)
                     try:
-                        filteredFiles = None
-                        if customPackageFileFilter is not None:
-                            filteredFiles = customPackageFileFilter.TryLocateFilePatternInPackage(captureLog, package, clangFormatConfiguration.FileExtensions)
+                        filteredFiles = GetFilteredFiles(captureLog, customPackageFileFilter, clangFormatConfiguration, package)
                         if customPackageFileFilter is None or filteredFiles is not None:
                             processedCount += 1
                             _RunClangFormat(captureLog, toolConfig, clangFormatConfiguration, clangExeInfo, package, filteredFiles, repairEnabled)
@@ -240,22 +285,131 @@ class PerformClangFormatHelper(object):
         return (examinedCount, processedCount)
 
 
+class PerformClangFormatHelper2(object):
+    RULE_FORMAT = "format"
+
+    @staticmethod
+    def Process(log: Log, toolConfig: ToolConfig, customPackageFileFilter: Optional[CustomPackageFileFilter],
+                clangFormatConfiguration: ClangFormatConfiguration, cmakeConfig: GeneratorCMakeConfig,
+                clangFormatExeInfo: ClangExeInfo, ninjaExeInfo: ClangExeInfo, sortedPackageList: List[Package],
+                repairEnabled: bool, numBuildThreads: int) -> int:
+        totalProcessedCount = 0
+
+        logOutput = False
+        currentWorkingDirectory = BuildUtil.GetBuildDir(log, toolConfig, cmakeConfig.CheckDir)
+        currentWorkingDirectory = IOUtil.Join(currentWorkingDirectory, "format")
+        ninjaOutputFile =  IOUtil.Join(currentWorkingDirectory, "build.ninja")
+        toolVersionOutputFile =  IOUtil.Join(currentWorkingDirectory, "ToolVersions.txt")
+        IOUtil.SafeMakeDirs(currentWorkingDirectory)
+
+        log.LogPrint("Using path: '{0}'".format(currentWorkingDirectory))
+
+        log.LogPrint("Storing tool versions.")
+        PerformClangFormatHelper2.WriteToolVersionFile(log, toolVersionOutputFile, clangFormatExeInfo, ninjaExeInfo)
+
+        log.LogPrint("Generating ninja format file.")
+        #foundFixes = PerformClangTidyHelper2.FindFixes(log, clangTidyFixOutputFolder)
+        #if len(foundFixes) > 0:
+        #    PerformClangTidyHelper2.DeleteFixes(log, clangTidyFixOutputFolder, foundFixes)
+
+        totalProcessedCount = PerformClangFormatHelper2.GenerateNinjaTidyFile(log, toolConfig, ninjaOutputFile, currentWorkingDirectory,
+                                                                              toolVersionOutputFile, clangFormatExeInfo, customPackageFileFilter,
+                                                                              clangFormatConfiguration, sortedPackageList, repairEnabled)
+        log.LogPrint("Executing ninja format file.")
+
+        RunHelper.RunNinja(log, ninjaExeInfo, ninjaOutputFile, currentWorkingDirectory, numBuildThreads, logOutput)
+
+        return totalProcessedCount
+
+    @staticmethod
+    def WriteToolVersionFile(log: Log, outputFile: str, clangFormatExeInfo: ClangExeInfo, ninjaExeInfo: ClangExeInfo) -> None:
+        content = "Tool versions\n"
+        content += "ClangFormat: {0}\n".format(clangFormatExeInfo.Version)
+        content += "Ninja: {0}\n".format(ninjaExeInfo.Version)
+        IOUtil.WriteFileIfChanged(outputFile, content)
+
+    @staticmethod
+    def GenerateNinjaTidyFile(log: Log, toolConfig: ToolConfig, ninjaOutputFile: str, outputFolder: str, toolVersionOutputFile: str,
+                              clangFormatExeInfo: ClangExeInfo, customPackageFileFilter: Optional[CustomPackageFileFilter],
+                              clangFormatConfiguration: ClangFormatConfiguration, sortedPackageList: List[Package], repairEnabled: bool) -> int:
+        totalProcessedCount = 0
+        toolProjectContextsDict = PackagePathUtil.CreateToolProjectContextsDict(toolConfig.ProjectInfo)
+        with io.StringIO() as ninjaFile:
+            ninjaFile.writelines("ninja_required_version = 1.8\n")
+
+            writer = Writer(ninjaFile, 149)
+
+            formatCommand = "{0} $in --style=file".format(clangFormatExeInfo.Command)
+            if repairEnabled:
+                formatCommand += " -i"
+            if len(clangFormatConfiguration.AdditionalUserArguments) > 0:
+                log.LogPrint("Adding user supplied arguments before '--' {0}".format(clangFormatConfiguration.AdditionalUserArguments))
+                formatCommand += " {0}".format(" ".join(clangFormatConfiguration.AdditionalUserArguments))
+
+            writer.rule(name=PerformClangFormatHelper2.RULE_FORMAT,
+                        command=formatCommand,
+                        restat=True)
+
+            for package in sortedPackageList:
+                PerformClangFormatHelper2.AddPackage(log, toolConfig, toolVersionOutputFile, writer, package, outputFolder, toolProjectContextsDict,
+                                                     customPackageFileFilter, clangFormatConfiguration)
+                totalProcessedCount += 1
+
+            # finally we write the ninja file
+            IOUtil.WriteFileIfChanged(ninjaOutputFile, ninjaFile.getvalue())
+            writer.close()
+        return totalProcessedCount
+
+    @staticmethod
+    def AddPackage(log: Log, toolConfig: ToolConfig, toolVersionOutputFile: str, writer: Writer, package: Package, outputFolder: str,
+                   toolProjectContextsDict: Dict[ProjectId, ToolConfigProjectContext], customPackageFileFilter: Optional[CustomPackageFileFilter],
+                   clangFormatConfiguration: ClangFormatConfiguration) -> None:
+
+        outputFolder = IOUtil.Join(outputFolder, PackagePathUtil.GetPackagePath(package, toolProjectContextsDict))
+
+        filteredFiles = GetFilteredFiles(log, customPackageFileFilter, clangFormatConfiguration, package)
+        formatPackageConfig = FormatPackageConfig(log, package, clangFormatConfiguration, filteredFiles)
+
+        for fileEntry in formatPackageConfig.AllFiles:
+            outputFile = "{0}.dmy".format(IOUtil.Join(outputFolder, fileEntry.SourcePath))
+
+            # Locate the closest clang format configuration file so we can add it as a implicit package dependency
+            packageClosestFormatPath = FileFinder.FindClosestFileInRoot(log, toolConfig, fileEntry.ResolvedPath, clangFormatConfiguration.CustomFormatFile)
+            packageClosestFormatFile = IOUtil.Join(packageClosestFormatPath, clangFormatConfiguration.CustomFormatFile)
+
+            implicitDeps = [packageClosestFormatFile, toolVersionOutputFile]
+
+            writer.build(outputs=outputFile, rule=PerformClangFormatHelper2.RULE_FORMAT, implicit=implicitDeps,  inputs=fileEntry.ResolvedPath)
+
+            # Write a dummy file so ninja finds a file (this is because clang format overwrites the existing file, so we need a dummy file to track progress)
+            if not IOUtil.Exists(outputFile):
+                parentDir = IOUtil.GetDirectoryName(outputFile)
+                if not IOUtil.Exists(parentDir):
+                    IOUtil.SafeMakeDirs(parentDir)
+                IOUtil.WriteFileIfChanged(outputFile, "")
+
+
+
 class PerformClangFormat(object):
     @staticmethod
     def Run(log: Log, toolConfig: ToolConfig, formatPackageList: List[Package],
             customPackageFileFilter: Optional[CustomPackageFileFilter],
             packageRecipeResultManager: PackageRecipeResultManager,
-            clangFormatConfiguration: ClangFormatConfiguration, repairEnabled: bool, buildThreads: int) -> None:
+            clangFormatConfiguration: ClangFormatConfiguration, cmakeConfig: GeneratorCMakeConfig,
+            repairEnabled: bool, buildThreads: int,
+            useLegacyTidyMethod: bool) -> None:
         """ RunClangFormat on a package at a time """
 
         # Lookup the recommended build threads using the standard build algorithm
-        buildThreads = PlatformBuildUtil.GetRecommendedBuildThreads(buildThreads)
+        numBuildThreads = PlatformBuildUtil.GetRecommendedBuildThreads(buildThreads)
 
         clangExeInfo = PerformClangUtil.LookupRecipeResults(packageRecipeResultManager, clangFormatConfiguration.RecipePackageName,
                                                             MagicValues.ClangFormatCommand)
+        ninjaExeInfo = PerformClangUtil.LookupRecipeResults(packageRecipeResultManager, clangFormatConfiguration.NinjaRecipePackageName,
+                                                            MagicValues.NinjaCommand)
 
-        if log.Verbosity >= 1:
-            PerformClangUtil.ShowVersion(log, clangExeInfo)
+        log.LogPrint("ClangFormat version: {0}".format(clangExeInfo.Version))
+        log.LogPrint("Ninja version: {0}".format(ninjaExeInfo.Version))
 
         log.LogPrint("Running clang-format")
 
@@ -265,8 +419,21 @@ class PerformClangFormat(object):
         sortedPackages = list(finalPackageList)
         sortedPackages.sort(key=lambda s: s.Name.lower())
 
-        count = PerformClangFormatHelper.Process(log, toolConfig, customPackageFileFilter, clangFormatConfiguration, clangExeInfo, sortedPackages,
-                                                 repairEnabled, buildThreads)
+        #test = set()
+        #for entry in sortedPackages:
+        #    if entry.Name in test:
+        #        raise Exception("duplicated package")
+        #    else:
+        #       test.add(entry.Name)
+
+        if useLegacyTidyMethod:
+            count = PerformClangFormatHelper.Process(log, toolConfig, customPackageFileFilter, clangFormatConfiguration, clangExeInfo, sortedPackages,
+                                                     repairEnabled, numBuildThreads)
+        else:
+            count = PerformClangFormatHelper2.Process(log, toolConfig, customPackageFileFilter, clangFormatConfiguration, cmakeConfig, clangExeInfo,
+                                                      ninjaExeInfo, sortedPackages, repairEnabled, numBuildThreads)
+
+
         if count == 0:
             if customPackageFileFilter is None:
                 log.DoPrintWarning("No files processed")

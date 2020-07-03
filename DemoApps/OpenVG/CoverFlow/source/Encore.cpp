@@ -24,7 +24,8 @@
 #include "CoverAlbumBitmap.hpp"
 namespace Fsl
 {
-  uint8_t CoverAlbumBitmaps::EncoreBitmap[] = {
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  const uint8_t CoverAlbumBitmaps::EncoreBitmap[] = {
     93,  69,  71,  255, 73,  49,  51,  255, 62,  40,  42,  255, 65,  43,  45,  255, 64,  42,  44,  255, 64,  42,  44,  255, 65,  43,  45,  255, 61,
     39,  41,  255, 72,  45,  48,  255, 81,  52,  55,  255, 84,  53,  56,  255, 90,  55,  59,  255, 81,  44,  48,  255, 72,  32,  37,  255, 84,  40,
     46,  255, 90,  49,  54,  255, 88,  48,  53,  255, 88,  48,  53,  255, 88,  47,  52,  255, 88,  47,  52,  255, 87,  52,  56,  255, 92,  55,  59,

@@ -16,8 +16,5 @@
     <Platform Name="Android">
       <ExternalDependency Name="GLESv2" Type="StaticLib"/>
     </Platform>
-    <Platform Name="CMake">
-      <ExternalDependency Name="OpenGLES" Type="Find"/>
-    </Platform>
   </ExternalLibrary>
 </FslBuildGen>

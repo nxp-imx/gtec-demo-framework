@@ -245,6 +245,7 @@ class XmlExtendedProject(XmlBase):
         super().__init__(log, xmlElement)
         #raise Exception("ExtendedProject not implemented");
         self.ProjectName = self._ReadAttrib(xmlElement, 'Name') # type: str
+        self.ShortProjectName = self._TryReadAttrib(xmlElement, 'ShortName') # type: Optional[str]
         self.ProjectVersion = self._ReadAttrib(xmlElement, 'Version', "1.0.0.0") # type: str
         self.RootDirectory = IOUtil.GetDirectoryName(filename)
         self.Parent = self._ReadAttrib(xmlElement, 'Parent')  # type: str
@@ -253,7 +254,7 @@ class XmlExtendedProject(XmlBase):
         self.ParentConfigFilename = IOUtil.Join(self.ParentRoot, configFilename)  # type: str
         self.SourceFileName = filename  # type: str
 
-        self.ProjectId = ProjectId(self.ProjectName)
+        self.ProjectId = ProjectId(self.ProjectName, self.ShortProjectName)
 
         variableProcessor = VariableProcessor(log)
         self.AbsoluteParentConfigFilename = variableProcessor.ResolveAbsolutePathWithLeadingEnvironmentVariablePath(self.ParentConfigFilename)
@@ -322,7 +323,8 @@ class XmlProjectRootConfigFile(XmlBase):
                 self.RootDirectory = rootDirectory
                 projectElem = XmlBase._GetElement(self, xmlElement, "Project") # type: ET.Element
                 self.ProjectName = self._ReadAttrib(projectElem, 'Name')
-                self.ProjectId = ProjectId(self.ProjectName)
+                self.ShortProjectName = self._TryReadAttrib(projectElem, 'ShortName')
+                self.ProjectId = ProjectId(self.ProjectName, self.ShortProjectName)
                 self.ProjectVersion = self._ReadAttrib(projectElem, 'Version', "1.0.0.0")
                 toolConfigFilePath = self._ReadAttrib(projectElem, 'ToolConfigFile')  # type: str
                 self.DefaultPackageLanguage = self.__GetDefaultPackageLanguage(projectElem)

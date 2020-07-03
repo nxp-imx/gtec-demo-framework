@@ -60,7 +60,7 @@ namespace Fsl
       {
       }
 
-      GLLineDraw(const uint32_t initialLineCapacity);
+      explicit GLLineDraw(const uint32_t initialLineCapacity);
 
       //! @brief Draw the supplied lines using a dynamic vertex buffer.
       //! @param vertexSpan will be copied to the LineVertexBuffer and then rendered

@@ -31,15 +31,18 @@
 
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoService/Graphics/Impl/Basic2D.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <cstring>
 #include <limits>
+#include <utility>
 
 namespace Fsl
 {
-  Basic2D::Basic2D(const std::shared_ptr<INativeGraphicsBasic2D>& native)
-    : m_native(native)
+  Basic2D::Basic2D(std::shared_ptr<INativeGraphicsBasic2D> native)
+    : m_native(std::move(native))
     , m_inBegin(false)
   {
     if (!m_native)
@@ -87,30 +90,13 @@ namespace Fsl
 
   void Basic2D::DrawString(const char* const psz, const Vector2& dstPosition)
   {
-    if (!m_inBegin)
-    {
-      throw UsageErrorException("Not in a begin block");
-    }
-
-    if (psz == nullptr)
-    {
-      FSLLOG3_WARNING("psz is null");
-      return;
-    }
-    const auto len = std::strlen(psz);
-
-    DrawString(StringViewLite(psz, len), dstPosition);
+    DrawString(StringViewLite(psz), dstPosition);
   }
 
 
   void Basic2D::DrawString(const std::string& str, const Vector2& dstPosition)
   {
-    if (!m_inBegin)
-    {
-      throw UsageErrorException("Not in a begin block");
-    }
-
-    DrawString(StringViewLite(str.c_str(), str.size()), dstPosition);
+    DrawString(StringViewLiteUtil::AsStringViewLite(str), dstPosition);
   }
 
 
@@ -129,7 +115,23 @@ namespace Fsl
   }
 
 
-  const Point2 Basic2D::FontSize() const
+  void Basic2D::DrawString(const char* const psz, const PxPoint2& dstPositionPx)
+  {
+    DrawString(StringViewLite(psz), TypeConverter::UncheckedTo<Vector2>(dstPositionPx));
+  }
+
+  void Basic2D::DrawString(const std::string& str, const PxPoint2& dstPositionPx)
+  {
+    DrawString(StringViewLiteUtil::AsStringViewLite(str), TypeConverter::UncheckedTo<Vector2>(dstPositionPx));
+  }
+
+  void Basic2D::DrawString(const StringViewLite& strView, const PxPoint2& dstPositionPx)
+  {
+    DrawString(strView, TypeConverter::UncheckedTo<Vector2>(dstPositionPx));
+  }
+
+
+  PxSize2D Basic2D::FontSize() const
   {
     return m_fontSize;
   }

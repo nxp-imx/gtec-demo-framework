@@ -51,11 +51,19 @@ namespace Fsl
     template <typename... Args>
     void Print(const char* const pszFormat, const Args&... args) noexcept
     {
-      m_buf.clear();
-      fmt::format_to(m_buf, m_indent);
-      fmt::format_to(m_buf, pszFormat, args...);
-      m_buf.push_back(0);
-      Logger::WriteLine(LogType::Info, m_buf.data());
+      try
+      {
+        m_buf.clear();
+        fmt::format_to(m_buf, m_indent);
+        fmt::format_to(m_buf, pszFormat, args...);
+        m_buf.push_back(0);
+        Logger::WriteLine(LogType::Info, m_buf.data());
+      }
+      catch(const std::exception& ex)
+      {
+        // This print is not supposed to throw, so the best thing we can do is just try to log the exception :/
+        Logger::WriteLine(LogType::Info, ex.what());
+      }
     }
 
     void PushIndent()

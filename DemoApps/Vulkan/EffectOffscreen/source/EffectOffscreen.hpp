@@ -141,7 +141,7 @@ namespace Fsl
     EffectFragUBOData m_effectUboData;
 
   public:
-    EffectOffscreen(const DemoAppConfig& config);
+    explicit EffectOffscreen(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

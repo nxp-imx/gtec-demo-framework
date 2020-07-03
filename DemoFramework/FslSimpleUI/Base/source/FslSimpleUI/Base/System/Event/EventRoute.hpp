@@ -58,7 +58,7 @@ namespace Fsl
       EventRoute& operator=(const EventRoute&) = delete;
 
       EventRoute();
-      EventRoute(const WindowFlags& flags);
+      explicit EventRoute(const WindowFlags& flags);
       ~EventRoute();
 
       void Initialize(const WindowFlags& flags);
@@ -79,7 +79,7 @@ namespace Fsl
       void Clear();
 
       //! @brief Get the target
-      std::shared_ptr<TreeNode> GetTarget() const
+      const std::shared_ptr<TreeNode>& GetTarget() const
       {
         return m_target;
       }

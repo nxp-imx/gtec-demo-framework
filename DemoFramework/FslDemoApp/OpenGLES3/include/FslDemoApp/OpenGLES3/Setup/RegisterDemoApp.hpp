@@ -47,13 +47,13 @@ namespace Fsl
     uint16_t MinorVersion;
     uint16_t MinimumMinorVersion;
 
-    OpenGLESMinorVersion(const uint16_t minorVersion)
+    constexpr explicit OpenGLESMinorVersion(const uint16_t minorVersion)
       : MinorVersion(minorVersion)
       , MinimumMinorVersion(minorVersion)
     {
     }
 
-    OpenGLESMinorVersion(const uint16_t preferredMinorVersion, const uint16_t minimumMinorVersion)
+    constexpr OpenGLESMinorVersion(const uint16_t preferredMinorVersion, const uint16_t minimumMinorVersion)
       : MinorVersion(preferredMinorVersion)
       , MinimumMinorVersion(minimumMinorVersion)
     {
@@ -70,7 +70,8 @@ namespace Fsl
       //! Register a demo app without a option parser
       template <typename TAppClass>
       void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
-                    const OpenGLESMinorVersion minorVersion = 0, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+                    const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
+                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
         const DemoAppSetup demoAppSetup(applicationName, customDemoAppConfig, appFactory);
@@ -81,7 +82,8 @@ namespace Fsl
       //! Register a demo app with a option parser
       template <typename TAppClass, typename TOptionParser>
       void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
-                    const OpenGLESMinorVersion minorVersion = 0, const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
+                    const OpenGLESMinorVersion minorVersion = OpenGLESMinorVersion(0),
+                    const CustomDemoAppConfig& customDemoAppConfig = CustomDemoAppConfig())
       {
         auto appFactory = std::make_shared<DemoHost_Internal::DemoAppFactoryTemplate<TAppClass>>();
         auto appOptionParser = std::make_shared<TOptionParser>();
@@ -94,7 +96,7 @@ namespace Fsl
       void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
                     const CustomDemoAppConfig& customDemoAppConfig)
       {
-        Register<TAppClass>(rSetup, applicationName, config, 0, customDemoAppConfig);
+        Register<TAppClass>(rSetup, applicationName, config, OpenGLESMinorVersion(0), customDemoAppConfig);
       }
 
       //! Register a demo app with a option parser
@@ -102,21 +104,10 @@ namespace Fsl
       void Register(HostDemoAppSetup& rSetup, const std::string& applicationName, const DemoAppHostConfigEGL& config,
                     const CustomDemoAppConfig& customDemoAppConfig)
       {
-        Register<TAppClass, TOptionParser>(rSetup, applicationName, config, 0, customDemoAppConfig);
+        Register<TAppClass, TOptionParser>(rSetup, applicationName, config, OpenGLESMinorVersion(0), customDemoAppConfig);
       }
     }
   };
 }
-
-
-// Register a pure OpenGL ES 3 demo
-#define FSL_REGISTER_OPENGLES3_DEMO(tdEMOaPP, dEMOhOSTeglcONFIG) \
-  static_assert(false, "The FSL_REGISTER_OPENGLES3_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_OPENGLES3_DEMO_EX(tdEMOaPP, dEMOhOSTeglcONFIG, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_OPENGLES3_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_OPENGLES3_X_DEMO(tdEMOaPP, mINORvERSION, dEMOhOSTeglcONFIG) \
-  static_assert(false, "The FSL_REGISTER_OPENGLES3_X_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_OPENGLES3_X_DEMO_EX(tdEMOaPP, mINORvERSION, dEMOhOSTeglcONFIG, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_OPENGLES3_X_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
 
 #endif

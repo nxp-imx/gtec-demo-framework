@@ -36,6 +36,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <EGL/egl.h>
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_CHECK_FOR_ERROR()                                \
   {                                                          \
     Fsl::EGL::CheckError(eglGetError(), __FILE__, __LINE__); \
@@ -43,6 +44,7 @@
 
 
 // TODO: implement a better version of this macro as it can give unexpected behavior
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_CHECK(X)                                             \
   X;                                                             \
   {                                                              \
@@ -51,6 +53,7 @@
 
 
 // TODO: implement a better version of this macro as it can give unexpected behavior
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_LOG_ERROR(X)                                                                                                                      \
   X;                                                                                                                                          \
   {                                                                                                                                           \

@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Texture/TextureTypeUtil.hpp>
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <algorithm>
 

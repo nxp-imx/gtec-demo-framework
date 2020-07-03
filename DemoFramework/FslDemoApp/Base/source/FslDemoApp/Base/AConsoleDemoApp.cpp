@@ -77,9 +77,9 @@ namespace Fsl
   }
 
 
-  void AConsoleDemoApp::_Resized(const Point2& size)
+  void AConsoleDemoApp::_ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
-    FSL_PARAM_NOT_USED(size);
+    FSL_PARAM_NOT_USED(windowMetrics);
   }
 
 
@@ -130,7 +130,7 @@ namespace Fsl
 
   std::shared_ptr<IDemoAppControl> AConsoleDemoApp::GetDemoAppControl() const
   {
-    const std::shared_ptr<IDemoAppControl> demoAppControl = m_demoAppControl.lock();
+    std::shared_ptr<IDemoAppControl> demoAppControl = m_demoAppControl.lock();
     if (!demoAppControl)
     {
       throw ServiceUnavailableException("The service is no longer available");
@@ -141,7 +141,7 @@ namespace Fsl
 
   std::shared_ptr<IContentManager> AConsoleDemoApp::GetContentManager() const
   {
-    const std::shared_ptr<IContentManager> contentManager = m_contentManger.lock();
+    std::shared_ptr<IContentManager> contentManager = m_contentManger.lock();
     if (!contentManager)
     {
       throw ServiceUnavailableException("The service is no longer available");
@@ -152,7 +152,7 @@ namespace Fsl
 
   std::shared_ptr<IPersistentDataManager> AConsoleDemoApp::GetPersistentDataManager() const
   {
-    const std::shared_ptr<IPersistentDataManager> manager = m_persistentDataManager.lock();
+    std::shared_ptr<IPersistentDataManager> manager = m_persistentDataManager.lock();
     if (!manager)
     {
       throw ServiceUnavailableException("The service is no longer available");

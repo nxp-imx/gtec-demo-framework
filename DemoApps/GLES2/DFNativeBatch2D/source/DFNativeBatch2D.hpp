@@ -50,7 +50,7 @@ namespace Fsl
     GLES2::GLTexture m_nativeTexture;
 
   public:
-    DFNativeBatch2D(const DemoAppConfig& config);
+    explicit DFNativeBatch2D(const DemoAppConfig& config);
     ~DFNativeBatch2D() override;
 
   protected:

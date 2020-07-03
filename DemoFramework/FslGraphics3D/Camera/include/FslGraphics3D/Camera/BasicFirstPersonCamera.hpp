@@ -53,7 +53,7 @@ namespace Fsl
 
     public:
       BasicFirstPersonCamera();
-      ~BasicFirstPersonCamera();
+      ~BasicFirstPersonCamera() = default;
 
       //! @brief Get the current view matrix for the camera
       Matrix GetViewMatrix() const;

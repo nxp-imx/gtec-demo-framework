@@ -75,8 +75,8 @@ namespace Fsl
 
     struct LightData10
     {
-      PODVector4 LightDirection[10];
-      PODVector4 LightColor[10];
+      PODVector4 LightDirection[10];    // NOLINT(modernize-avoid-c-arrays)
+      PODVector4 LightColor[10];        // NOLINT(modernize-avoid-c-arrays)
     };
     struct LightData4
     {
@@ -90,7 +90,8 @@ namespace Fsl
       PODVector4 LightColor4;
     };
 
-    union LightDataUnion {
+    union LightDataUnion
+    {
       LightData10 L10;
       LightData4 L4;
     };
@@ -124,7 +125,7 @@ namespace Fsl
       std::vector<FrameResourceRecord> FrameResources;
       RapidVulkan::PipelineLayout PipelineLayout;
 
-      Resources(const uint32_t maxFramesInFlight)
+      explicit Resources(const uint32_t maxFramesInFlight)
         : FrameResources(maxFramesInFlight)
       {
       }

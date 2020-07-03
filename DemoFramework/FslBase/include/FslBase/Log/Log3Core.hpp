@@ -40,6 +40,7 @@
 #ifdef NDEBUG
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3(tYPE, ...)                         \
   {                                                \
     if (Fsl::LogConfig::GetLogLevel() >= (tYPE))   \
@@ -49,6 +50,7 @@
   }
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_IF(cONDITION, tYPE, ...)                        \
   {                                                             \
     if ((cONDITION) && Fsl::LogConfig::GetLogLevel() >= (tYPE)) \
@@ -58,17 +60,45 @@
   }
 
 //! Log in debug builds only
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE6(...) \
+  {                                 \
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE5(...) \
+  {                                 \
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE4(...) \
+  {                                 \
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE3(...) \
+  {                                 \
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE2(...) \
+  {                                 \
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE(...) \
+  {                                \
+  }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_INFO(...) \
   {                             \
   }
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_WARNING(...) \
   {                                \
   }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_INFO_IF(cONDITION, ...) \
   {                                           \
   }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_WARNING_IF(cONDITION, ...) \
   {                                              \
   }
@@ -76,6 +106,7 @@
 #else
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3(tYPE, ...)                                                                             \
   {                                                                                                    \
     if (Fsl::LogConfig::GetLogLevel() >= (tYPE))                                                       \
@@ -85,6 +116,7 @@
   }
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_IF(cONDITION, tYPE, ...)                                                               \
   {                                                                                                    \
     if ((cONDITION) && Fsl::LogConfig::GetLogLevel() >= (tYPE))                                        \
@@ -93,57 +125,129 @@
     }                                                                                                  \
   }
 
+//! Log in debug builds only
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE6(...) FSLLOG3(Fsl::LogType::Verbose6, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE5(...) FSLLOG3(Fsl::LogType::Verbose5, __VA_ARGS__)
 
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE4(...) FSLLOG3(Fsl::LogType::Verbose4, __VA_ARGS__)
+
+//! Log in debug builds only
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE3(...) FSLLOG3(Fsl::LogType::Verbose3, __VA_ARGS__)
+
+//! Log in debug builds only
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE2(...) FSLLOG3(Fsl::LogType::Verbose2, __VA_ARGS__)
+
+//! Log in debug builds only
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_DEBUG_VERBOSE(...) FSLLOG3(Fsl::LogType::Verbose, __VA_ARGS__)
+
+//! Log in debug builds only
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_INFO(...) FSLLOG3(Fsl::LogType::Info, __VA_ARGS__)
 
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_WARNING(...) FSLLOG3(Fsl::LogType::Warning, __VA_ARGS__)
 
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_INFO_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Info, __VA_ARGS__)
 
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_DEBUG_WARNING_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Warning, __VA_ARGS__)
 
 #endif
 
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_VERBOSE(...) FSLLOG3(Fsl::LogType::Verbose, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_VERBOSE2(...) FSLLOG3(Fsl::LogType::Verbose2, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_VERBOSE3(...) FSLLOG3(Fsl::LogType::Verbose3, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_VERBOSE4(...) FSLLOG3(Fsl::LogType::Verbose4, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_VERBOSE5(...) FSLLOG3(Fsl::LogType::Verbose5, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_VERBOSE6(...) FSLLOG3(Fsl::LogType::Verbose6, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_INFO(...) FSLLOG3(Fsl::LogType::Info, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_WARNING(...) FSLLOG3(Fsl::LogType::Warning, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_ERROR(...) FSLLOG3(Fsl::LogType::Error, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_VERBOSE6_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Verbose6, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_VERBOSE5_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Verbose5, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_VERBOSE4_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Verbose4, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_VERBOSE3_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Verbose3, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSLLOG3_VERBOSE2_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Verbose2, __VA_ARGS__)
+
+//! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_VERBOSE_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Verbose, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_INFO_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Info, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_WARNING_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Warning, __VA_ARGS__)
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLLOG3_ERROR_IF(cONDITION, ...) FSLLOG3_IF((cONDITION), Fsl::LogType::Error, __VA_ARGS__)
 
 #endif

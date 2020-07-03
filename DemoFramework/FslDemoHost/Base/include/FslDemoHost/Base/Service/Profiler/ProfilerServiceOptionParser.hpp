@@ -35,21 +35,21 @@
 
 namespace Fsl
 {
-  class ProfilerServiceOptionParser : public AServiceOptionParser
+  class ProfilerServiceOptionParser final : public AServiceOptionParser
   {
     uint32_t m_averageEntries;
 
   public:
     ProfilerServiceOptionParser();
 
-    std::string GetName() const override
+    std::string GetName() const final
     {
       return std::string("ProfilerServiceOptionParser");
     }
 
-    void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult OnParse(const int32_t cmdId, const char* const pszOptArg) override;
-    bool OnParsingComplete() override;
+    void OnArgumentSetup(std::deque<Option>& rOptions) final;
+    OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) final;
+    bool OnParsingComplete() final;
 
     //! @brief Get the number of frames to average the FPS over for Average mode.
     uint32_t GetAverageEntries() const

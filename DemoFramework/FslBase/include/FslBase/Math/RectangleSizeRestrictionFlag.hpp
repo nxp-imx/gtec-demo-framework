@@ -31,19 +31,26 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <algorithm>
+#include <FslBase/BasicTypes.hpp>
 
 namespace Fsl
 {
-  struct RectangleSizeRestrictionFlag
+  enum class RectangleSizeRestrictionFlag : uint32_t
   {
-    enum Enum
-    {
-      NoRestrictions = 0x00,
-      Power2 = 0x01,
-      Square = 0x02
-    };
+    NoRestrictions = 0x00,
+    Power2 = 0x01,
+    Square = 0x02
   };
+
+  constexpr inline RectangleSizeRestrictionFlag operator|(const RectangleSizeRestrictionFlag lhs, const RectangleSizeRestrictionFlag rhs)
+  {
+    return static_cast<RectangleSizeRestrictionFlag>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+  }
+
+  constexpr inline RectangleSizeRestrictionFlag operator&(const RectangleSizeRestrictionFlag lhs, const RectangleSizeRestrictionFlag rhs)
+  {
+    return static_cast<RectangleSizeRestrictionFlag>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
 }
 
 #endif

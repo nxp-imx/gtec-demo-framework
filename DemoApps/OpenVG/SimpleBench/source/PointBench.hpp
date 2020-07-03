@@ -38,12 +38,13 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslGraphics/Color.hpp>
 #include "IBench.hpp"
+#include <array>
 #include <vector>
 
 namespace Fsl
 {
   //! @brief The point benchmark tests various strategies for drawing points.
-  class PointBench : public IBench
+  class PointBench final : public IBench
   {
   public:
     struct Mode
@@ -66,21 +67,21 @@ namespace Fsl
     };
 
     PointBench(const DemoAppConfig& config, const int32_t pointCount, const Mode::Enum mode);
-    ~PointBench() override;
+    ~PointBench() final;
 
-    std::string GetName() const override;
-    void Restart() override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const Point2& screenResolution) override;
+    std::string GetName() const final;
+    void Restart() final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const PxSize2D& sizePc) final;
 
   private:
     int32_t m_pointCount;
     Mode::Enum m_mode;
     uint32_t m_index;
-    std::vector<Color> m_colors;
-    std::vector<Vector4> m_colorsV4;
+    std::array<Color, 8> m_colors;
+    std::array<Vector4, 8> m_colorsV4;
     OpenVG::VGImageBuffer m_imageColorParent;
-    OpenVG::VGImageBuffer m_imageColors[8];
+    std::array<OpenVG::VGImageBuffer, 8> m_imageColors;
     OpenVG::VGPathBuffer m_buffer;
     OpenVG::VGPaintBuffer m_paint;
     std::vector<VGfloat> m_pathCoords;

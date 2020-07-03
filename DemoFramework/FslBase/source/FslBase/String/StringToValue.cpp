@@ -53,6 +53,7 @@ namespace Fsl
       {
         if (*pSrc < '0' || *pSrc > '9')
         {
+          rResult = 0u;
           return false;
         }
 

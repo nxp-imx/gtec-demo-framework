@@ -38,7 +38,7 @@ namespace Fsl
 {
   VertexDeclaration VertexPositionTexture::GetVertexDeclaration()
   {
-    constexpr static std::array<VertexElementEx, 2> g_elements = {
+    static constexpr std::array<VertexElementEx, 2> g_elements = {
       VertexElementEx(offsetof(VertexPositionTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(VertexPositionTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate, 0)};
 

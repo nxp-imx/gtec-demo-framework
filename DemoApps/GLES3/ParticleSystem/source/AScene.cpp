@@ -36,8 +36,13 @@
 namespace Fsl
 {
   AScene::AScene(const DemoAppConfig& config)
-    : m_screenResolution(config.ScreenResolution)
+    : m_sizePx(config.WindowMetrics.GetSizePx())
     , m_contentManager(config.DemoServiceProvider.Get<IContentManager>())
   {
+  }
+
+  float AScene::GetAspectRatio() const
+  {
+    return m_sizePx.Height() != 0 ? static_cast<float>(m_sizePx.Width()) / static_cast<float>(m_sizePx.Height()) : 1.0f;
   }
 }

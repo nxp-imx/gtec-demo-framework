@@ -39,7 +39,7 @@
 
 namespace Fsl
 {
-  class CpuStatsAdapterWin32 : public ICpuStatsAdapter
+  class CpuStatsAdapterWin32 final : public ICpuStatsAdapter
   {
     struct ProcessTimes
     {
@@ -79,13 +79,13 @@ namespace Fsl
 
   public:
     CpuStatsAdapterWin32();
-    ~CpuStatsAdapterWin32() override;
+    ~CpuStatsAdapterWin32() final;
 
-    void Process() override{};
-    uint32_t GetCpuCount() const override;
-    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const override;
-    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const override;
-    bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const override;
+    void Process() final{};
+    uint32_t GetCpuCount() const final;
+    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const final;
+    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const final;
+    bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const final;
 
   private:
     void RemoveCounters() noexcept;

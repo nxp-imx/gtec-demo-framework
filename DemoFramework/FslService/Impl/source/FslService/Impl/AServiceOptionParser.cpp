@@ -39,9 +39,9 @@ namespace Fsl
   }
 
 
-  OptionParseResult AServiceOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult AServiceOptionParser::Parse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    return OnParse(cmdId, pszOptArg);
+    return OnParse(cmdId, strOptArg);
   }
 
 
@@ -58,10 +58,10 @@ namespace Fsl
   }
 
 
-  OptionParseResult AServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult AServiceOptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     FSL_PARAM_NOT_USED(cmdId);
-    FSL_PARAM_NOT_USED(pszOptArg);
+    FSL_PARAM_NOT_USED(strOptArg);
     // Do nothing
     return OptionParseResult::NotHandled;
   }

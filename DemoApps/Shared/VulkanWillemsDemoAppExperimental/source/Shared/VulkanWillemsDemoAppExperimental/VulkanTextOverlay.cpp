@@ -7,13 +7,17 @@
  */
 
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanTextOverlay.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <RapidVulkan/Check.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
+#include <array>
 #include <cassert>
 #include <cstring>
+#include <utility>
 #include "stb_font_consolas_24_latin1.inl"
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define STB_FONT_NAME stb_font_consolas_24_latin1
 
 using namespace RapidVulkan;
@@ -21,7 +25,6 @@ using namespace RapidVulkan;
 namespace Fsl
 {
   using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
 
   namespace Willems
   {
@@ -29,29 +32,29 @@ namespace Fsl
     {
       // Defines for the STB font used
       // STB font files can be found at http://nothings.org/stb/font/
-      const auto STB_FONT_WIDTH = STB_FONT_consolas_24_latin1_BITMAP_WIDTH;
-      const auto STB_FONT_HEIGHT = STB_FONT_consolas_24_latin1_BITMAP_HEIGHT;
-      const auto STB_FIRST_CHAR = STB_FONT_consolas_24_latin1_FIRST_CHAR;
-      const auto STB_NUM_CHARS = STB_FONT_consolas_24_latin1_NUM_CHARS;
+      constexpr const auto STB_FONT_WIDTH = STB_FONT_consolas_24_latin1_BITMAP_WIDTH;
+      constexpr const auto STB_FONT_HEIGHT = STB_FONT_consolas_24_latin1_BITMAP_HEIGHT;
+      constexpr const auto STB_FIRST_CHAR = STB_FONT_consolas_24_latin1_FIRST_CHAR;
+      constexpr const auto STB_NUM_CHARS = STB_FONT_consolas_24_latin1_NUM_CHARS;
 
       // Max. number of chars the text overlay buffer can hold
-      const uint32_t MAX_CHAR_COUNT = 1024;
+      constexpr const uint32_t MAX_CHAR_COUNT = 1024;
 
-      stb_fontchar g_stbFontData[STB_NUM_CHARS];
+      std::array<stb_fontchar, STB_NUM_CHARS> g_stbFontData;
     }
 
 
     //! @brief Default constructor
     //! @param vulkanDevice Pointer to a valid VulkanDevice
     VulkanTextOverlay::VulkanTextOverlay(VulkanDevice* pVulkanDevice, const VkQueue queue, const std::vector<RapidVulkan::Framebuffer>* pFramebuffers,
-                                         const Extent2D& framebufferExtent, const VkRenderPass renderPass,
-                                         const std::vector<VkPipelineShaderStageCreateInfo>& shaderstages)
+                                         const PxExtent2D& framebufferExtentPx, const VkRenderPass renderPass,
+                                         std::vector<VkPipelineShaderStageCreateInfo> shaderstages)
       : m_pVulkanDevice(pVulkanDevice)
       , m_queue(queue)
-      , m_framebufferExtent(framebufferExtent)
+      , m_framebufferExtent(framebufferExtentPx)
       , m_renderPass(renderPass)
       , m_pFramebuffers(pFramebuffers)
-      , m_shaderStages(shaderstages)
+      , m_shaderStages(std::move(shaderstages))
       , m_pMappedLocal(nullptr)
       , m_numLetters(0)
       , Visible(true)
@@ -77,8 +80,9 @@ namespace Fsl
 
     void VulkanTextOverlay::PrepareResources()
     {
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       static unsigned char font24pixels[STB_FONT_HEIGHT][STB_FONT_WIDTH];
-      STB_FONT_NAME(g_stbFontData, font24pixels, STB_FONT_HEIGHT);
+      STB_FONT_NAME(g_stbFontData.data(), font24pixels, STB_FONT_HEIGHT);
 
       // Command buffer
 
@@ -93,7 +97,7 @@ namespace Fsl
       cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
       cmdBufAllocateInfo.commandPool = m_commandPool.Get();
       cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-      cmdBufAllocateInfo.commandBufferCount = static_cast<uint32_t>(m_pFramebuffers->size());
+      cmdBufAllocateInfo.commandBufferCount = UncheckedNumericCast<uint32_t>(m_pFramebuffers->size());
 
       // Vertex buffer
       m_vertexBuffer =
@@ -226,7 +230,7 @@ namespace Fsl
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.pNext = nullptr;
       descriptorPoolInfo.maxSets = 1;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       m_descriptorPool.Reset(m_pVulkanDevice->GetDevice(), descriptorPoolInfo);
@@ -241,7 +245,7 @@ namespace Fsl
       VkDescriptorSetLayoutCreateInfo descriptorSetLayoutInfo{};
       descriptorSetLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
       descriptorSetLayoutInfo.pNext = nullptr;
-      descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorSetLayoutInfo.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
       m_descriptorSetLayout.Reset(m_pVulkanDevice->GetDevice(), descriptorSetLayoutInfo);
@@ -279,7 +283,8 @@ namespace Fsl
       writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[0].pImageInfo = &texDescriptor;
 
-      vkUpdateDescriptorSets(m_pVulkanDevice->GetDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(m_pVulkanDevice->GetDevice(), UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0,
+                             nullptr);
 
       // Pipeline cache
       VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
@@ -347,7 +352,7 @@ namespace Fsl
       VkPipelineDynamicStateCreateInfo dynamicState{};
       dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
       dynamicState.flags = 0;
-      dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+      dynamicState.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateEnables.size());
       dynamicState.pDynamicStates = dynamicStateEnables.data();
 
       std::array<VkVertexInputBindingDescription, 2> vertexBindings{};
@@ -374,9 +379,9 @@ namespace Fsl
       VkPipelineVertexInputStateCreateInfo inputState{};
       inputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       inputState.pNext = nullptr;
-      inputState.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexBindings.size());
+      inputState.vertexBindingDescriptionCount = UncheckedNumericCast<uint32_t>(vertexBindings.size());
       inputState.pVertexBindingDescriptions = vertexBindings.data();
-      inputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexAttribs.size());
+      inputState.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(vertexAttribs.size());
       inputState.pVertexAttributeDescriptions = vertexAttribs.data();
 
       VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
@@ -393,7 +398,7 @@ namespace Fsl
       pipelineCreateInfo.pViewportState = &viewportState;
       pipelineCreateInfo.pDepthStencilState = &depthStencilState;
       pipelineCreateInfo.pDynamicState = &dynamicState;
-      pipelineCreateInfo.stageCount = static_cast<uint32_t>(m_shaderStages.size());
+      pipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(m_shaderStages.size());
       pipelineCreateInfo.pStages = m_shaderStages.data();
 
       m_pipeline.Reset(m_pVulkanDevice->GetDevice(), m_pipelineCache.Get(), pipelineCreateInfo);
@@ -498,7 +503,7 @@ namespace Fsl
       VkRect2D scissor{};
       scissor.offset.x = 0;
       scissor.offset.y = 0;
-      scissor.extent = Convert(m_framebufferExtent);
+      scissor.extent = TypeConverter::UncheckedTo<VkExtent2D>(m_framebufferExtent);
 
       // if (vkDebug::DebugMarker::active)
       //{

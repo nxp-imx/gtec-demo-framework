@@ -31,48 +31,18 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Rect.hpp>
-#include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Math/Vector3.hpp>
-#include <FslBase/Math/Vector4.hpp>
 #include <cfloat>
 #include <cmath>
 
 namespace Fsl
 {
-  class EqualHelper
+  namespace EqualHelper
   {
-  public:
     // Check if two floats are considered equal
     // This works best for relatively small values
     inline static bool IsAlmostEqual(const float lhs, const float rhs)
     {
       return (lhs != rhs ? std::fabs(lhs - rhs) <= FLT_EPSILON : true);
-    }
-
-
-    inline static bool IsAlmostEqual(const Vector2& lhs, const Vector2& rhs)
-    {
-      return IsAlmostEqual(lhs.X, rhs.X) && IsAlmostEqual(lhs.Y, rhs.Y);
-    }
-
-
-    inline static bool IsAlmostEqual(const Vector3& lhs, const Vector3& rhs)
-    {
-      return IsAlmostEqual(lhs.X, rhs.X) && IsAlmostEqual(lhs.Y, rhs.Y) && IsAlmostEqual(lhs.Z, rhs.Z);
-    }
-
-
-    inline static bool IsAlmostEqual(const Vector4& lhs, const Vector4& rhs)
-    {
-      return IsAlmostEqual(lhs.X, rhs.X) && IsAlmostEqual(lhs.Y, rhs.Y) && IsAlmostEqual(lhs.Z, rhs.Z) && IsAlmostEqual(lhs.W, rhs.W);
-    }
-
-
-    inline static bool IsAlmostEqual(const Rect& lhs, const Rect& rhs)
-    {
-      return IsAlmostEqual(lhs.Left(), rhs.Left()) && IsAlmostEqual(lhs.Top(), rhs.Top()) && IsAlmostEqual(lhs.Right(), rhs.Right()) &&
-             IsAlmostEqual(lhs.Bottom(), rhs.Bottom());
     }
   };
 }

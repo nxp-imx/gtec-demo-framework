@@ -33,7 +33,7 @@
 #include <FslBase/Transition/TransitionConfig.hpp>
 #include <FslBase/Transition/TransitionCache.hpp>
 #include <FslBase/Transition/TransitionTimeSpanHelper.hpp>
-#include <FslBase/Math/EqualHelper.hpp>
+#include <FslBase/Math/EqualHelper_Vector2.hpp>
 #include <cassert>
 #include <limits>
 

@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Shared.ModelViewer.VC.VC.opendb
 /Shared.ModelViewer.VC.db
 /Shared.ModelViewer.manifest

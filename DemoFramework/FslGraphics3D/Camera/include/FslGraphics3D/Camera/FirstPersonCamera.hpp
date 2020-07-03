@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics3D/Camera/BasicFirstPersonCamera.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 
 namespace Fsl
 {
@@ -44,11 +44,11 @@ namespace Fsl
       float m_sensitivity;
 
       bool m_hasOldPosition;
-      Point2 m_oldPosition;
+      PxPoint2 m_oldPosition;
 
     public:
       FirstPersonCamera();
-      ~FirstPersonCamera();
+      ~FirstPersonCamera() = default;
 
       //! @brief Get the current view matrix for the camera
       Matrix GetViewMatrix() const
@@ -74,7 +74,7 @@ namespace Fsl
 
       //! @brief
       //! @note If rotateCamera is true the camera rotation will be updated else only the internal position will be touched
-      void RotateViaPosition(const bool rotateCamera, const Point2& currentPosition);
+      void RotateViaPosition(const bool rotateCamera, const PxPoint2& currentPosition);
     };
   }
 }

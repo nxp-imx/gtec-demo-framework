@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Shared.FurShellRendering.VC.VC.opendb
 /Shared.FurShellRendering.VC.db
 /Shared.FurShellRendering.manifest

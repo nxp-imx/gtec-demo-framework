@@ -44,8 +44,8 @@ namespace Fsl
     public:
       constexpr SwitchArgument() noexcept = default;
 
-      constexpr SwitchArgument(const uint32_t commandId) noexcept
-        : EncodedCommand(CommandType::Switch, commandId, nullptr)
+      constexpr explicit SwitchArgument(const uint32_t commandId) noexcept
+        : EncodedCommand(CommandType::Switch, commandId, StringViewLite())
       {
       }
 
@@ -63,7 +63,7 @@ namespace Fsl
       constexpr MultiSwitchArgument() noexcept = default;
 
       constexpr MultiSwitchArgument(const uint32_t commandId, const uint32_t count) noexcept
-        : EncodedCommand(CommandType::MultiSwitch, commandId, nullptr, count)
+        : EncodedCommand(CommandType::MultiSwitch, commandId, StringViewLite(), count)
       {
       }
 
@@ -80,8 +80,8 @@ namespace Fsl
     public:
       constexpr ValueArgument() noexcept = default;
 
-      constexpr ValueArgument(const uint32_t commandId) noexcept
-        : EncodedCommand(CommandType::Value, commandId, nullptr)
+      constexpr explicit ValueArgument(const uint32_t commandId) noexcept
+        : EncodedCommand(CommandType::Value, commandId, StringViewLite())
       {
       }
 
@@ -98,8 +98,8 @@ namespace Fsl
     public:
       constexpr MultiValueArgument() noexcept = default;
 
-      constexpr MultiValueArgument(const uint32_t commandId) noexcept
-        : EncodedCommand(CommandType::MultiValue, commandId, nullptr)
+      constexpr explicit MultiValueArgument(const uint32_t commandId) noexcept
+        : EncodedCommand(CommandType::MultiValue, commandId, StringViewLite())
       {
       }
 
@@ -116,8 +116,8 @@ namespace Fsl
     public:
       constexpr PositionalArgument() noexcept = default;
 
-      constexpr PositionalArgument(const CommandType commandType, const uint32_t commandId, const char* const pszOptArg) noexcept
-        : EncodedCommand(commandType, commandId, pszOptArg)
+      constexpr PositionalArgument(const CommandType commandType, const uint32_t commandId, const StringViewLite strOptArg) noexcept
+        : EncodedCommand(commandType, commandId, strOptArg)
       {
         assert((static_cast<uint32_t>(commandType) & static_cast<uint32_t>(CommandTypeFlags::Positional)) != 0u);
       }
@@ -134,8 +134,8 @@ namespace Fsl
     public:
       constexpr PositionalValueArgument() noexcept = default;
 
-      constexpr PositionalValueArgument(const uint32_t commandId, const char* const pszOptArg) noexcept
-        : PositionalArgument(CommandType::PositionalValue, commandId, pszOptArg)
+      constexpr PositionalValueArgument(const uint32_t commandId, const StringViewLite strOptArg) noexcept
+        : PositionalArgument(CommandType::PositionalValue, commandId, strOptArg)
       {
       }
 
@@ -152,8 +152,8 @@ namespace Fsl
     public:
       constexpr UnhandledArgument() noexcept = default;
 
-      constexpr UnhandledArgument(const uint32_t commandId, const char* const psz) noexcept
-        : EncodedCommand(CommandType::Unhandled, commandId, psz)
+      constexpr UnhandledArgument(const uint32_t commandId, const StringViewLite str) noexcept
+        : EncodedCommand(CommandType::Unhandled, commandId, str)
       {
       }
 

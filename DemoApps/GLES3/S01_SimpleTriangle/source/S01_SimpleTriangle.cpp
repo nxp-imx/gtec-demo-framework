@@ -14,21 +14,20 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "S01_SimpleTriangle.hpp"
 #include <GLES3/gl3.h>
-
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
     // Define vertice for a triangle
-    const float g_vertexPositions[] = {0.0f,   100.0f, 0.0f, -100.0f, -100.0f, 0.0f, +100.0f, -100.0f, 0.0f,
-                                       100.0f, 100.0f, 0.0f, -100.0f, 100.0f,  0.0f, 100.0f,  -100.0,  0.0f};
+    const std::array<float, 6 * 3> g_vertexPositions = {0.0f,   100.0f, 0.0f, -100.0f, -100.0f, 0.0f, +100.0f, -100.0f, 0.0f,
+                                                        100.0f, 100.0f, 0.0f, -100.0f, 100.0f,  0.0f, 100.0f,  -100.0,  0.0f};
 
     // The index in these variables should match the g_pszShaderAttributeArray ordering
     const GLuint g_hVertexLoc = 0;
-    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", nullptr};
+    const std::array<const char*, 2> g_shaderAttributeArray = {"g_vPosition", nullptr};
   }
-
 
   S01_SimpleTriangle::S01_SimpleTriangle(const DemoAppConfig& config)
     : DemoAppGLES3(config)
@@ -36,7 +35,7 @@ namespace Fsl
     , m_hProjMatrixLoc(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
 
     const GLuint hProgram = m_program.Get();
 
@@ -58,20 +57,20 @@ namespace Fsl
   S01_SimpleTriangle::~S01_SimpleTriangle() = default;
 
 
-  void S01_SimpleTriangle::Update(const DemoTime& demoTime)
+  void S01_SimpleTriangle::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void S01_SimpleTriangle::Draw(const DemoTime& demoTime)
+  void S01_SimpleTriangle::Draw(const DemoTime& /*demoTime*/)
   {
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Clear the color-buffer and depth-buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const Matrix matProj = Matrix::CreatePerspective(float(currentSize.X), float(currentSize.Y), 1.0f, 1000.0f);
+    const Matrix matProj = Matrix::CreatePerspective(float(currentSizePx.Width()), float(currentSizePx.Height()), 1.0f, 1000.0f);
     const Matrix matModelView = Matrix::CreateTranslation(0, 0, -1);
 
     // Set the shader program
@@ -80,7 +79,7 @@ namespace Fsl
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, matProj.DirectAccess());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions);
+    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
     glEnableVertexAttribArray(g_hVertexLoc);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);

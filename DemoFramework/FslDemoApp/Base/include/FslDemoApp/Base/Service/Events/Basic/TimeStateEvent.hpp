@@ -51,7 +51,7 @@ namespace Fsl
     }
 
 
-    TimeStateEvent(const TimeStateCommand command)
+    explicit TimeStateEvent(const TimeStateCommand command)
       : BasicEvent(EventType::TimeState, static_cast<int32_t>(command))
     {
     }

@@ -1,0 +1,17 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source",
+        "Content": [
+          "BasicUI/Font/SdfAtlas/FontAtlas.bta",
+          "BasicUI/Font/SdfAtlas/FontAtlas.png",
+          "BasicUI/Font/SdfAtlas/FontAtlas_Font.fbk",
+          "BasicUI/Font/SdfAtlas/FontAtlas_Font.nbf",
+          "BasicUI/Font/SdfAtlas/License.json"
+        ]
+      }
+    ]
+  }
+}

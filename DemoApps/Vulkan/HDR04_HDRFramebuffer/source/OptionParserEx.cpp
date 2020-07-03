@@ -66,7 +66,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParserEx::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParserEx::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     switch (cmdId)
     {
@@ -77,7 +77,7 @@ namespace Fsl
       m_disableDisplayHDRCheck = true;
       return OptionParseResult::Parsed;
     default:
-      return OptionParser::OnParse(cmdId, pszOptArg);
+      return OptionParser::OnParse(cmdId, strOptArg);
     }
   }
 }

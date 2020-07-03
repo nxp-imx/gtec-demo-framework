@@ -35,6 +35,7 @@
 #include <FslBase/Math/Ray.hpp>
 #include <FslBase/Math/Viewport.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
@@ -44,10 +45,14 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslUtil/OpenGLES3/TextureUtil.hpp>
 #include <Shared/ObjectSelection/BoundingBoxUtil.hpp>
 #include <Shared/ObjectSelection/OptionParser.hpp>
 #include <GLES3/gl3.h>
+#include <array>
+#include <cmath>
 #include <random>
+
 
 namespace Fsl
 {
@@ -163,9 +168,9 @@ namespace Fsl
 
   void ObjectSelection::Update(const DemoTime& demoTime)
   {
-    const Point2 screenResolution = GetScreenResolution();
+    const PxSize2D windowSizePx = GetWindowSizePx();
 
-    m_viewPort = Viewport(Rectangle(0, 0, screenResolution.X, screenResolution.Y));
+    m_viewPort = Viewport(Rectangle(0, 0, windowSizePx.Width(), windowSizePx.Height()));
 
     m_matrixView = m_camera.GetViewMatrix();
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), m_viewPort.GetAspectRatio(), 0.1f, 500.0f);
@@ -203,7 +208,7 @@ namespace Fsl
   }
 
 
-  void ObjectSelection::Draw(const DemoTime& demoTime)
+  void ObjectSelection::Draw(const DemoTime& /*demoTime*/)
   {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -279,7 +284,7 @@ namespace Fsl
   }
 
 
-  bool ObjectSelection::CheckCollision(const Point2& screenSpacePosition)
+  bool ObjectSelection::CheckCollision(const PxPoint2& screenSpacePosition)
   {
     Vector3 sourcePos(static_cast<float>(screenSpacePosition.X), static_cast<float>(screenSpacePosition.Y), 0.0f);
 
@@ -297,7 +302,7 @@ namespace Fsl
     m_pickScratchpad.clear();
     for (std::size_t i = 0; i < m_resources.Objects.size(); ++i)
     {
-      float distance;
+      float distance = 0.0f;
       if (mouseRay.Intersects(m_resources.Objects[i].MeshAABB, distance))
       {
         m_pickScratchpad.emplace_back(i, distance);
@@ -495,9 +500,9 @@ namespace Fsl
 
   ObjectSelection::Mesh ObjectSelection::PreparePlaneMesh(const GLES3::GLTexture& texture)
   {
-    const Point2 tex1Size = texture.GetSize();
-    TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
-    const NativeTextureArea texRepeatArea(GLTexture::CalcTextureArea(texRect, 15 / 5, 15 / 5));
+    const auto tex1Size = texture.GetSize();
+    TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+    const NativeTextureArea texRepeatArea(TextureUtil::CalcTextureArea(texRect, 15 / 5, 15 / 5));
     const auto mesh = SegmentedQuadGenerator::GenerateStrip(Vector3(0, 0, 0), 1000 / 5.0f, 1000 / 5.0f, 1, 1, texRepeatArea, WindingOrder::CCW);
     return CreateMesh(mesh);
   }
@@ -505,10 +510,10 @@ namespace Fsl
 
   void ObjectSelection::PrepareMeshes(std::vector<Mesh>& rMeshes, const GLES3::GLTexture& texture)
   {
-    const Point2 tex1Size = texture.GetSize();
-    TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
+    const auto tex1Size = texture.GetSize();
+    TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
 
-    const NativeTextureArea texArea(GLTexture::CalcTextureArea(texRect, 1, 1));
+    const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect));
 
     auto mesh = TorusGenerator::GenerateStrip(16, 16, 2, 0.5f, texArea, WindingOrder::CCW);
     rMeshes[0] = CreateMesh(mesh);
@@ -516,8 +521,9 @@ namespace Fsl
     mesh = TorusGenerator::GenerateStrip(3, 3, 2, 0.5f, texArea, WindingOrder::CCW);
     rMeshes[1] = CreateMesh(mesh);
 
-    NativeTextureArea texAreas[] = {texArea, texArea, texArea, texArea, texArea, texArea};
-    mesh = BoxGenerator::GenerateStrip(Vector3(), 2.0f, 2.0f, 2.0f, texAreas, 6, WindingOrder::CCW);
+    const std::array<NativeTextureArea, 6> texAreas = {texArea, texArea, texArea, texArea, texArea, texArea};
+    mesh =
+      BoxGenerator::GenerateStrip(Vector3(), 2.0f, 2.0f, 2.0f, texAreas.data(), UncheckedNumericCast<int32_t>(texAreas.size()), WindingOrder::CCW);
     rMeshes[2] = CreateMesh(mesh);
   }
 

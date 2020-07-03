@@ -39,6 +39,7 @@
 #include "HDR04_HDRFramebuffer.hpp"
 #include "OptionParserEx.hpp"
 #include "SharedData.hpp"
+#include <array>
 
 // If our EGL header don't have these magic values defined we define em here since we dont use them unless the extension is detected.
 // The values are defined here:
@@ -47,15 +48,19 @@
 
 #ifndef EGL_GL_COLORSPACE
 #ifdef EGL_GL_COLORSPACE_KHR
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_GL_COLORSPACE EGL_GL_COLORSPACE_KHR
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_GL_COLORSPACE 0x309D
 #endif
 #endif
 #ifndef EGL_GL_COLORSPACE_BT2020_LINEAR_EXT
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_GL_COLORSPACE_BT2020_LINEAR_EXT 0x333F
 #endif
 #ifndef EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT 0x3350
 #endif
 
@@ -65,13 +70,13 @@ namespace Fsl
   namespace
   {
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-    const EGLint g_eglConfigAttribs[] = {
+    const std::array<EGLint, (4 * 2) + 1> g_eglConfigAttribs = {
       // Prefer a EGL config with more than eight bits per channel (HDR)
       EGL_RED_SIZE, 10, EGL_GREEN_SIZE, 10, EGL_BLUE_SIZE, 10, EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER, EGL_NONE};
 
-    const EGLint g_eglCreateWindowAttribs_bt2020[] = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_BT2020_LINEAR_EXT, EGL_NONE};
+    const std::array<EGLint, 3> g_eglCreateWindowAttribs_bt2020 = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_BT2020_LINEAR_EXT, EGL_NONE};
 
-    const EGLint g_eglCreateWindowAttribs_scrgb[] = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT, EGL_NONE};
+    const std::array<EGLint, 3> g_eglCreateWindowAttribs_scrgb = {EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT, EGL_NONE};
 
 
     const EGLint* GetCreateWindowSurfaceAttribs(const EGLDisplay display, const DemoAppHostCreateWindowSurfaceInfoEGL& createInfo,
@@ -115,7 +120,7 @@ namespace Fsl
       {
         userTagEx->HDRFramebufferEnabled = true;
         FSLLOG3_INFO("EGL_EXT_gl_colorspace_bt2020_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_BT2020_LINEAR_EXT");
-        return g_eglCreateWindowAttribs_bt2020;
+        return g_eglCreateWindowAttribs_bt2020.data();
       }
 
       // Since the extension 'EGL_EXT_gl_colorspace_bt2020_linear' is optional we check for it
@@ -123,7 +128,7 @@ namespace Fsl
       {
         userTagEx->HDRFramebufferEnabled = true;
         FSLLOG3_INFO("EGL_EXT_gl_colorspace_scrgb_linear detected, requesting EGL_GL_COLORSPACE=EGL_GL_COLORSPACE_SCRGB_LINEAR_EXT");
-        return g_eglCreateWindowAttribs_scrgb;
+        return g_eglCreateWindowAttribs_scrgb.data();
       }
       return nullptr;
     }
@@ -135,7 +140,7 @@ namespace Fsl
   {
     const auto sharedData = std::make_shared<SharedData>();
 
-    DemoAppHostConfigEGL config(g_eglConfigAttribs, ConfigControl::Default);
+    DemoAppHostConfigEGL config(g_eglConfigAttribs.data(), ConfigControl::Default);
     config.SetUserTag(sharedData);
     // Hook into the system and allow us to customize the attribs passed to eglCreateWindowSurface at runtime
     // depending on the availability of extensions

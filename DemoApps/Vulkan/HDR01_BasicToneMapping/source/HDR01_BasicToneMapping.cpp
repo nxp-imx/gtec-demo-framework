@@ -30,15 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include "HDR01_BasicToneMapping.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -51,9 +51,6 @@
 
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace UI;
-
   namespace
   {
     const auto VERTEX_BUFFER_BIND_ID = 0;
@@ -72,7 +69,7 @@ namespace Fsl
     }
 
 
-    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const VUDevice& device)
+    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
       std::array<VkDescriptorSetLayoutBinding, 3> setLayoutBindings{};
       // Binding 0 : Vertex shader uniform buffer
@@ -95,7 +92,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -114,7 +111,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -158,7 +155,7 @@ namespace Fsl
       writeDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[2].pImageInfo = &textureImageInfo;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 
       return descriptorSet;
     }
@@ -178,7 +175,8 @@ namespace Fsl
 
   HDR01_BasicToneMapping::HDR01_BasicToneMapping(const DemoAppConfig& config)
     : DemoAppVulkanBasic(config, CreateSetup())
-    , m_bufferManager(std::make_shared<VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
+    , m_bufferManager(
+        std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
     , m_menuUI(config)
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
@@ -266,14 +264,13 @@ namespace Fsl
     UpdateInput(demoTime);
     m_menuUI.Update(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     m_vertexUboData.MatModel = Matrix::GetIdentity();
     m_vertexUboData.MatView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
-    const auto vulkanClipMatrix = MatrixUtil::GetClipMatrix();
+    const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f) * vulkanClipMatrix;
   }
@@ -292,11 +289,11 @@ namespace Fsl
     m_resources.MainFrameResources[frameIndex].VertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUBOData));
     m_resources.MainFrameResources[frameIndex].FragUboBuffer.Upload(0, &m_fragmentUboData, sizeof(FragmentUBOData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+      clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -306,7 +303,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -348,12 +345,12 @@ namespace Fsl
     auto res = GetScreenExtent();
 
     {
-      VkRect2D scissor{{0, 0}, ConvertUtil::Convert(res)};
+      VkRect2D scissor{{0, 0}, TypeConverter::UncheckedTo<VkExtent2D>(res)};
       vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
     }
 
     const auto splitX = static_cast<uint32_t>(std::round(m_menuUI.SplitX.GetValue() * res.Width));
-    const uint32_t remainderX = std::min(std::max(res.Width - splitX, 0u), res.Width);
+    const uint32_t remainderX = res.Width >= splitX ? res.Width - splitX : 0u;
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -438,8 +435,8 @@ namespace Fsl
   {
     FSL_PARAM_NOT_USED(frame);
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshTunnel.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshTunnel.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshTunnel.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

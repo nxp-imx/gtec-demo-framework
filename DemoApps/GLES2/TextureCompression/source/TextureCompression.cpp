@@ -38,11 +38,12 @@
 #include <FslGraphics/Log/FmtPixelFormat.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
+#include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
+#include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/WrapLayout.hpp>
-#include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
 #include <FslUtil/OpenGLES2/DebugStrings.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
@@ -173,26 +174,29 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
+    std::shared_ptr<UI::BaseWindow> CreateTextureControl(const CreateContext& context, const Texture& texture, const std::string& caption)
     {
+      constexpr UI::DpLayoutSize1D forcedSizeDp(320);
+
       Texture2D sourceTexture(context.GraphicsService->GetNativeGraphics(), texture, Texture2DFilterHint::Smooth);
 
-      auto label = std::make_shared<Label>(context.WindowContext);
-      label->SetAlignmentX(ItemAlignment::Center);
-      label->SetAlignmentY(ItemAlignment::Far);
+      auto label = std::make_shared<UI::Label>(context.WindowContext);
+      label->SetAlignmentX(UI::ItemAlignment::Center);
+      label->SetAlignmentY(UI::ItemAlignment::Far);
+      label->SetContentAlignmentX(UI::ItemAlignment::Center);
+      label->SetContentAlignmentY(UI::ItemAlignment::Far);
       label->SetContent(caption);
+      label->SetWidth(forcedSizeDp);
 
-      auto tex = std::make_shared<Texture2DImage>(context.WindowContext);
+      auto tex = std::make_shared<UI::Texture2DImage>(context.WindowContext);
       tex->SetScalePolicy(UI::ItemScalePolicy::FitKeepAR);
       tex->SetContent(sourceTexture);
-      tex->SetAlignmentX(ItemAlignment::Center);
-      tex->SetAlignmentY(ItemAlignment::Center);
+      tex->SetAlignmentX(UI::ItemAlignment::Center);
+      tex->SetAlignmentY(UI::ItemAlignment::Center);
       tex->SetBlendState(BlendState::AlphaBlend);
-      // tex1->SetWidth(256);
-      // tex1->SetHeight(256);
 
-      auto stack = std::make_shared<StackLayout>(context.WindowContext);
-      stack->SetLayoutOrientation(LayoutOrientation::Vertical);
+      auto stack = std::make_shared<UI::StackLayout>(context.WindowContext);
+      stack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
       stack->AddChild(label);
       stack->AddChild(tex);
       return stack;
@@ -297,7 +301,7 @@ namespace Fsl
     }
 
 
-    void CreateTextureControlsIfSupported(std::deque<std::shared_ptr<BaseWindow>>& rTextures, const CreateContext& context, const IO::Path& path,
+    void CreateTextureControlsIfSupported(std::deque<std::shared_ptr<UI::BaseWindow>>& rTextures, const CreateContext& context, const IO::Path& path,
                                           const PixelFormat switchPF, const Texture& notSupportedTexture)
     {
       auto newPath = IO::Path::Combine(TEXTURE_PATH, path);
@@ -329,7 +333,7 @@ namespace Fsl
 
     std::string TextureFormatToString(const GLint format)
     {
-      auto psz = GLES2::Debug::TryTextureFormatToString(format);
+      const auto* psz = GLES2::Debug::TryTextureFormatToString(format);
       return (psz != nullptr ? psz : "Unknown");
     }
   }
@@ -337,7 +341,8 @@ namespace Fsl
   TextureCompression::TextureCompression(const DemoAppConfig& config)
     : DemoAppGLES2(config)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
   {
     // https://developer.android.com/guide/topics/graphics/opengl.html
 
@@ -412,12 +417,12 @@ namespace Fsl
   TextureCompression::~TextureCompression() = default;
 
 
-  void TextureCompression::Update(const DemoTime& demoTime)
+  void TextureCompression::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void TextureCompression::Draw(const DemoTime& demoTime)
+  void TextureCompression::Draw(const DemoTime& /*demoTime*/)
   {
     glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -446,7 +451,7 @@ namespace Fsl
     auto texDefault =
       createContext.ContentManager->ReadTexture("Textures/NotSupported/NotSupported_pre.png", PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
 
-    std::deque<std::shared_ptr<BaseWindow>> textures;
+    std::deque<std::shared_ptr<UI::BaseWindow>> textures;
 
     {    // Uncompressed
       CreateTextureControlsIfSupported(textures, createContext, "CustomTexture_R8G8B8A8_flipped.ktx", PixelFormat::R8G8B8A8_UNORM, texDefault);
@@ -482,26 +487,26 @@ namespace Fsl
                                        texDefault);
     }
 
-    auto wrapLayout = std::make_shared<WrapLayout>(createContext.WindowContext);
-    wrapLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    wrapLayout->SetSpacing(Vector2(4, 4));
-    wrapLayout->SetAlignmentX(ItemAlignment::Center);
-    wrapLayout->SetAlignmentY(ItemAlignment::Center);
+    auto wrapLayout = std::make_shared<UI::WrapLayout>(createContext.WindowContext);
+    wrapLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    wrapLayout->SetSpacing(DpPointF(4, 4));
+    wrapLayout->SetAlignmentX(UI::ItemAlignment::Center);
+    wrapLayout->SetAlignmentY(UI::ItemAlignment::Center);
 
     for (const auto& tex : textures)
     {
       wrapLayout->AddChild(tex);
     }
 
-    m_scrollable = std::make_shared<VerticalScroller>(createContext.WindowContext);
+    m_scrollable = std::make_shared<UI::VerticalScroller>(createContext.WindowContext);
     m_scrollable->SetContent(wrapLayout);
-    m_scrollable->SetScrollPadding(ThicknessF(0, 32, 0, 32));
+    m_scrollable->SetScrollPadding(DpThicknessF(0, 32, 0, 32));
     // scrollLayout->SetAlignmentX(ItemAlignment::Stretch);
     // scrollLayout->SetAlignmentY(ItemAlignment::Stretch);
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
-    auto fillLayout = std::make_shared<FillLayout>(createContext.WindowContext);
+    auto fillLayout = std::make_shared<UI::FillLayout>(createContext.WindowContext);
     fillLayout->AddChild(m_scrollable);
 
     // Finally add everything to the window manager (to ensure its seen)

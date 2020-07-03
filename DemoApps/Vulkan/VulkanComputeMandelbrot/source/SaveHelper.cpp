@@ -164,7 +164,7 @@ namespace Fsl
   }
 
 
-  void SaveHelper::Save(const IO::Path& path, const ImageData& imageData)
+  void SaveHelper::Save(const IO::Path& /*path*/, const ImageData& /*imageData*/)
   {
     throw NotImplementedException();
     // if (imageData.GetImageType() != VK_IMAGE_TYPE_2D || imageData.GetWidth() < 1 || imageData.GetHeight() < 1 || imageData.GetDepth() != 1 ||

@@ -64,15 +64,6 @@ namespace Fsl
     }
 
 
-    NativeVulkanSetup ToNativeVulkanSetup(const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    {
-      const auto pNativeSetup = dynamic_cast<const NativeVulkanSetup*>(pPlatformCustomWindowAllocationParams);
-      if (!pNativeSetup)
-        throw NotSupportedException("NativeVulkanSetup pointer expected");
-      return *pNativeSetup;
-    }
-
-
     //! @brief Try to locate a display mode that matches the native display resolution and prefer the fastest refresh rate.
     VkDisplayModeKHR TryFindTheBestDisplayModeMatch(const VkDisplayPropertiesKHR& displayProperties,
                                                     const std::vector<VkDisplayModePropertiesKHR>& displayModeProperties)
@@ -321,17 +312,14 @@ namespace Fsl
 
   VulkanNativeWindowFB::VulkanNativeWindowFB(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                              const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : AVulkanNativeWindow(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
-    , PlatformNativeWindowFB(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
+    : VulkanNativeWindow<PlatformNativeWindowFB>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
   {
-    auto surfaceCreateInfo = Prepare(nativeWindowSetup, m_physicalDevice, nativeWindowSetup.GetVerbosityLevel());
-    RAPIDVULKAN_CHECK(vkCreateDisplayPlaneSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_surface));
+    auto surfaceCreateInfo = Prepare(nativeWindowSetup, m_setup.PhysicalDevice, nativeWindowSetup.GetVerbosityLevel());
+    RAPIDVULKAN_CHECK(vkCreateDisplayPlaneSurfaceKHR(m_setup.Instance, &surfaceCreateInfo, nullptr, &m_surface));
   }
 
 
-  VulkanNativeWindowFB::~VulkanNativeWindowFB()
-  {
-  }
+  VulkanNativeWindowFB::~VulkanNativeWindowFB() = default;
 
 
   PlatformNativeWindowType VulkanNativeWindowFB::GetWindowType() const

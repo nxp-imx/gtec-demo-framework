@@ -42,7 +42,7 @@ namespace Fsl
     , public IDemoPlatformControl
   {
   public:
-    DemoPlatformControl(const ServiceProvider& serviceProvider);
+    explicit DemoPlatformControl(const ServiceProvider& serviceProvider);
     ~DemoPlatformControl() override;
 
     // From IDemoPlatformControl

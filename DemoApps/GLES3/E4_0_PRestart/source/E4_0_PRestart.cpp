@@ -8,20 +8,24 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "E4_0_PRestart.hpp"
 #include <GLES3/gl3.h>
-#include <iostream>
-
-// Attribute Arrays Indexes and Sizes
-#define VERTEX_POS_SIZE 3      // x, y and z
-#define VERTEX_COLOR_SIZE 4    // r, g, b, and a
-
-#define VERTEX_POS_INDX 0
-#define VERTEX_COLOR_INDX 1
-
-#define VERTEX_STRIDE (sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE))
+#include <array>
 
 namespace Fsl
 {
   using namespace GLES3;
+
+  namespace
+  {
+    // Attribute Arrays Indexes and Sizes
+    constexpr GLint VERTEX_POS_SIZE = 3;      // x, y and z
+    constexpr GLint VERTEX_COLOR_SIZE = 4;    // r, g, b, and a
+
+    constexpr GLuint VERTEX_POS_INDX = 0;
+    constexpr GLuint VERTEX_COLOR_INDX = 1;
+
+    constexpr GLsizei VERTEX_STRIDE = (sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE));
+
+  }
 
   E4_0_PRestart::E4_0_PRestart(const DemoAppConfig& config)
     : DemoAppGLES3(config)
@@ -37,7 +41,7 @@ namespace Fsl
     {
       // VERTEX DATA
       // OSTEP1 12 vertices, with (x,y,z) ,(r, g, b, a) per-vertex
-      GLfloat vertices0[12 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)] = {
+      const std::array<GLfloat, 12 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)> vertices0 = {
         -1.0f, -1.0f, 0.0f,        // v0
         1.0f, 0.0f, 0.0f, 1.0f,    // c0
         -1.0f, -0.5f, 0.0f,        // v1
@@ -66,15 +70,15 @@ namespace Fsl
       };
 
       // OSTEP2 Define the Indices, when you want to render a new primitive use the PRIMITIVE RESTART INDEX
-      GLushort indices[13] = {0, 1, 2, 3, 4, 5, 0xFFFF, 6, 7, 8, 9, 10, 11};
+      const std::array<GLushort, 13> indices = {0, 1, 2, 3, 4, 5, 0xFFFF, 6, 7, 8, 9, 10, 11};
 
       // Generate VBO Ids and load the VBOs with data
       GL_CHECK(glGenBuffers(2, m_userData.vboIds));
 
       GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.vboIds[0]));
-      GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices0), vertices0, GL_STATIC_DRAW));
+      GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices0.size(), vertices0.data(), GL_STATIC_DRAW));
       GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.vboIds[1]));
-      GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+      GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * indices.size(), indices.data(), GL_STATIC_DRAW));
 
       // Generate VAO Id
       GL_CHECK(glGenVertexArrays(1, &m_userData.vaoId[0]));
@@ -92,7 +96,7 @@ namespace Fsl
       GL_CHECK(glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, nullptr));
 
       GL_CHECK(glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE,
-                                     (const void*)(VERTEX_POS_SIZE * sizeof(GLfloat))));
+                                     reinterpret_cast<const void*>(VERTEX_POS_SIZE * sizeof(GLfloat))));
 
       // Restore the VAO Id to the default
       GL_CHECK(glBindVertexArray(0));
@@ -114,15 +118,15 @@ namespace Fsl
   }
 
 
-  void E4_0_PRestart::Update(const DemoTime& demoTime)
+  void E4_0_PRestart::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void E4_0_PRestart::Draw(const DemoTime& demoTime)
+  void E4_0_PRestart::Draw(const DemoTime& /*demoTime*/)
   {
-    Point2 size = GetScreenResolution();
-    glViewport(0, 0, size.X, size.Y);
+    PxSize2D sizePx = GetWindowSizePx();
+    glViewport(0, 0, sizePx.Width(), sizePx.Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Bind the VAO

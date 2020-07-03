@@ -32,21 +32,63 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
+from typing import List
 from FslBuildGen import PathUtil
+from FslBuildGen import IOUtil
+from FslBuildGen.DataTypes import BuildVariantConfig
+from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.CMakeUtil import CMakeVersion
+from FslBuildGen.Version import Version
 
 class GeneratorCMakeConfig(object):
     """
     The cmake context for the current platform
     """
-    def __init__(self, buildDir: str, generatorName: str, installPrefix: Optional[str], cmakeVersion: CMakeVersion) -> None:
+    def __init__(self, toolVersion: Version, platformName: str, buildVariantConfig: BuildVariantConfig, buildDir: str, buildDirSetByUser: bool,
+                 checkDir: str, generatorName: str, installPrefix: Optional[str], cmakeVersion: CMakeVersion,
+                 additionalGlobalConfigArguments: List[str], additionalAppConfigArguments: List[str], allowFindPackage: bool) -> None:
         super().__init__()
 
         PathUtil.ValidateIsNormalizedPath(buildDir, "BuildDir")
         if installPrefix is not None:
             PathUtil.ValidateIsNormalizedPath(installPrefix, "DefaultInstallPrefix")
 
+        finalGeneratorName = CMakeTypes.DetermineFinalCMakeGenerator(generatorName)
+        # its important that we use the  generatorName for the GetCompilerShortIdFromGeneratorName to get the proper android name
+        generatorShortName = CMakeTypes.GetCompilerShortIdFromGeneratorName(generatorName)
+
+        # Check if we should use a 'build variant temp dir'
+        if not buildDirSetByUser:
+            buildDir = IOUtil.Join(buildDir, generatorShortName)
+            if CMakeTypes.GetGeneratorMultiConfigCapabilities(finalGeneratorName) == CMakeTypes.CMakeGeneratorMultiConfigCapability.No:
+                buildDir = IOUtil.Join(buildDir, BuildVariantConfig.ToString(buildVariantConfig))
+
         self.BuildDir = buildDir
+        # If this is true the user specified the directory
+        self.BuildDirSetByUser = buildDirSetByUser
+        self.CheckDir = checkDir
+
+        # the active build variant
+        self.BuildVariantConfig = buildVariantConfig
         self.GeneratorName = generatorName
         self.InstallPrefix = installPrefix
         self.CMakeVersion = cmakeVersion
+
+        self.CMakeCommand = CMakeTypes.DetermineCMakeCommand(platformName)
+        # The tool arguments
+        self.CMakeInternalArguments = CMakeTypes.DetermineGeneratorArguments(finalGeneratorName, platformName)
+
+        # This contains only the user arguments for both recipe and apps
+        self.CMakeConfigUserGlobalArguments = additionalGlobalConfigArguments
+        self.CMakeConfigUserAppArguments = additionalAppConfigArguments
+
+        # The combined arguments that should be supplied to cmake
+        self.CMakeConfigRecipeArguments = self.CMakeInternalArguments + additionalGlobalConfigArguments
+
+        # The combined arguments that should be supplied to cmake
+        self.CMakeConfigAppArguments = self.CMakeInternalArguments + additionalGlobalConfigArguments + additionalAppConfigArguments
+
+        self.CMakeFinalGeneratorName = finalGeneratorName
+        self.GeneratorShortName = generatorShortName
+        self.GeneratorRecipeShortName = "{0}_{1}".format(generatorShortName, toolVersion.ToMajorMinorString().replace('.','_'))
+        self.AllowFindPackage = allowFindPackage

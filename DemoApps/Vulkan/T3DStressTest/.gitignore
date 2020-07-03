@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Content/Textures/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico

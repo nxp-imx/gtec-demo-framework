@@ -33,22 +33,23 @@
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
-#include <FslSimpleUI/Base/Control/Background9Slice.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 
 namespace Fsl
 {
-  using namespace UI;
-
   namespace
   {
-    const float MIN_EXPOSURE = 0.0f;
-    const float MAX_EXPOSURE = 10.0f;
-    const float START_EXPOSURE = 1.0f;
+    namespace LocalConfig
+    {
+      constexpr ConstrainedValue<float> Exposure(1.0f, 0.0f, 10.0f);
+    }
 
-    std::shared_ptr<UI::CheckBox> TryFindSourceCheckbox(const std::vector<std::shared_ptr<UI::CheckBox>>& checkboxes,
-                                                        const std::shared_ptr<IWindowId>& source)
+    std::shared_ptr<UI::Switch> TryFindSourceCheckbox(const std::vector<std::shared_ptr<UI::Switch>>& checkboxes,
+                                                      const std::shared_ptr<UI::IWindowId>& source)
     {
       for (auto checkbox : checkboxes)
       {
@@ -57,29 +58,15 @@ namespace Fsl
           return checkbox;
         }
       }
-      return std::shared_ptr<UI::CheckBox>();
-    }
-
-
-    std::shared_ptr<CheckBox> CreateCheckbox(const std::shared_ptr<UI::WindowContext>& context, const AtlasTexture2D& texCheckBoxC,
-                                             const AtlasTexture2D& texCheckBoxU, const std::string& text)
-    {
-      auto checkbox = std::make_shared<CheckBox>(context);
-      checkbox->SetAlignmentX(ItemAlignment::Near);
-      checkbox->SetAlignmentY(ItemAlignment::Center);
-      checkbox->SetText(text);
-      checkbox->SetCheckedTexture(texCheckBoxC);
-      checkbox->SetUncheckedTexture(texCheckBoxU);
-      return checkbox;
+      return std::shared_ptr<UI::Switch>();
     }
   }
 
   MenuUI::MenuUI(const DemoAppConfig& config, const std::size_t entries)
     : m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
     , m_nativeBatch(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D())
-    , m_screenResolution(config.ScreenResolution)
-    , m_exposure(START_EXPOSURE)
+    , m_windowMetrics(config.WindowMetrics)
 
   {
     const auto options = config.GetOptions<OptionParser>();
@@ -131,7 +118,7 @@ namespace Fsl
   }
 
 
-  void MenuUI::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void MenuUI::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->IsHandled())
     {
@@ -140,18 +127,10 @@ namespace Fsl
 
     auto source = theEvent->GetSource();
 
-    if (source == m_exposureSlider)
+    const auto checkbox = TryFindSourceCheckbox(m_checkboxes, source);
+    if (checkbox)
     {
-      m_exposure = m_exposureSlider->GetValue();
-      theEvent->Handled();
-    }
-    else
-    {
-      const auto checkbox = TryFindSourceCheckbox(m_checkboxes, source);
-      if (checkbox)
-      {
-        UpdateStateBasedOnCheckboxes(checkbox);
-      }
+      UpdateStateBasedOnCheckboxes(checkbox);
     }
   }
 
@@ -162,7 +141,7 @@ namespace Fsl
   }
 
 
-  void MenuUI::Draw(const DemoTime& demoTime)
+  void MenuUI::Draw(const DemoTime& /*demoTime*/)
   {
     DrawLabels();
 
@@ -175,36 +154,28 @@ namespace Fsl
   void MenuUI::UpdateExposureInput(const DemoTime& demoTime, const KeyboardState& keyboardState)
   {
     const float exposureAdd = 1.0f * demoTime.DeltaTime;
-    const float oldExposure = m_exposure;
     if (keyboardState.IsKeyDown(VirtualKey::Q))
     {
-      m_exposure -= exposureAdd;
-      if (m_exposure < MIN_EXPOSURE)
-      {
-        m_exposure = MIN_EXPOSURE;
-      }
+      m_exposureSlider->SetValue(m_exposureSlider->GetValue() - exposureAdd);
     }
     else if (keyboardState.IsKeyDown(VirtualKey::E))
     {
-      m_exposure += exposureAdd;
-      if (m_exposure > MAX_EXPOSURE)
-      {
-        m_exposure = MAX_EXPOSURE;
-      }
+      m_exposureSlider->SetValue(m_exposureSlider->GetValue() + exposureAdd);
     }
     if (keyboardState.IsKeyDown(VirtualKey::R))
     {
-      m_exposure = START_EXPOSURE;
-    }
-    // Update the slider on demand
-    if (m_exposureSlider && m_exposure != oldExposure)
-    {
-      m_exposureSlider->SetValue(m_exposure);
+      m_exposureSlider->SetValue(LocalConfig::Exposure.Get());
     }
   }
 
 
-  void MenuUI::UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::CheckBox>& source)
+  float MenuUI::GetExposure() const
+  {
+    return m_exposureSlider->GetValue();
+  }
+
+
+  void MenuUI::UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::Switch>& source)
   {
     if (!source)
     {
@@ -234,8 +205,7 @@ namespace Fsl
 
   void MenuUI::DrawLabels()
   {
-    const auto font = m_defaultFont->GetAtlasBitmapFont();
-    const auto atlasTex = m_defaultFont->GetAtlasTexture();
+    const auto* pFont = m_defaultFont.get();
 
     m_nativeBatch->Begin(BlendState::AlphaBlend);
     int32_t startX = 0;
@@ -243,12 +213,12 @@ namespace Fsl
     {
       const auto endX = static_cast<int32_t>(m_render[i].SplitX.GetValue());
       const auto color = m_render[i].LabelAlpha.GetValue();
-      if (color >= 0.001f)
+      if (color >= 0.001f && pFont != nullptr)
       {
         const Color fontColor(color, color, color, color);
-        const auto dim = font.MeasureString(m_render[i].Name.c_str());
-        const auto position = static_cast<float>(((endX - startX - dim.X) / 2.0f) + startX);
-        m_nativeBatch->DrawString(atlasTex, font, m_render[i].Name, Vector2(position, 0), fontColor);
+        const auto dim = pFont->MeasureString(m_render[i].Name.c_str());
+        const float position = ((static_cast<float>(endX - startX - dim.Width()) / 2.0f) + static_cast<float>(startX));
+        m_nativeBatch->DrawString(*pFont, m_render[i].Name, Vector2(position, 0), fontColor);
       }
       startX = endX;
     }
@@ -294,12 +264,12 @@ namespace Fsl
     }
     m_sceneRenderFlags = flags;
 
-    const auto resolution = GetScreenResolution();
+    const auto extent = m_windowMetrics.ExtentPx;
     const auto activeSegments = BitsUtil::Count(m_sceneRenderFlags);
 
     if (activeSegments > 0)
     {
-      const auto segmentSize = static_cast<float>(resolution.X) / activeSegments;
+      const auto segmentSize = static_cast<float>(extent.Width) / activeSegments;
       uint32_t sceneFlags = m_sceneRenderFlags;
       float currentSplitX = segmentSize;
       for (std::size_t i = 0; i < m_render.size(); ++i)
@@ -391,16 +361,16 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<CanvasLayout> MenuUI::CreateUI()
+  std::shared_ptr<UI::CanvasLayout> MenuUI::CreateUI()
   {
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
-    auto rootLayout = std::make_shared<CanvasLayout>(context);
-    rootLayout->SetAlignmentX(ItemAlignment::Stretch);
-    rootLayout->SetAlignmentY(ItemAlignment::Stretch);
+    auto rootLayout = std::make_shared<UI::CanvasLayout>(context);
+    rootLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
+    rootLayout->SetAlignmentY(UI::ItemAlignment::Stretch);
 
     // Finally add everything to the window manager (to ensure its seen)
     m_uiExtension->GetWindowManager()->Add(rootLayout);
@@ -408,55 +378,58 @@ namespace Fsl
   }
 
 
-  std::shared_ptr<BaseWindow> MenuUI::CreateConfigDialog(const std::vector<RenderRecord>& render)
+  std::shared_ptr<UI::BaseWindow> MenuUI::CreateConfigDialog(const std::vector<RenderRecord>& render)
   {
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
-    auto texCheckBoxC = m_uiExtension->GetAtlasTexture2D("CheckBoxC");
-    auto texCheckBoxU = m_uiExtension->GetAtlasTexture2D("CheckBoxU");
+    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+
 
     m_checkboxes.resize(render.size());
     for (std::size_t i = 0; i < m_checkboxes.size(); ++i)
     {
-      m_checkboxes[i] = CreateCheckbox(context, texCheckBoxC, texCheckBoxU, render[i].Name);
+      m_checkboxes[i] = factory.CreateSwitch(render[i].Name);
+      m_checkboxes[i]->SetAlignmentX(UI::ItemAlignment::Center);
     }
 
-    auto texSlider = m_uiExtension->GetAtlasTexture2D("Slider");
-    auto texSliderCursor = m_uiExtension->GetAtlasTexture2D("SliderCursor");
-    NineSlice sliderNineSlice(13, 0, 13, 0);
-    ThicknessF sliderCursorPadding(13, 0, 13, 0);
+    auto labelExposure = factory.CreateLabel("Exposure");
+    labelExposure->SetAlignmentX(UI::ItemAlignment::Near);
+    labelExposure->SetAlignmentY(UI::ItemAlignment::Center);
 
-    auto labelExposure = std::make_shared<Label>(context);
-    labelExposure->SetAlignmentX(ItemAlignment::Near);
-    labelExposure->SetAlignmentY(ItemAlignment::Center);
-    labelExposure->SetContent("Exposure");
+    m_exposureSlider = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::Exposure);
+    m_exposureSlider->SetAlignmentX(UI::ItemAlignment::Stretch);
 
-    m_exposureSlider = std::make_shared<FloatSliderAndValueLabel>(context);
-    m_exposureSlider->SetAlignmentX(ItemAlignment::Stretch);
-    m_exposureSlider->SetBackgroundTexture(texSlider);
-    m_exposureSlider->SetCursorTexture(texSliderCursor);
-    m_exposureSlider->SetCursorPadding(sliderCursorPadding);
-    m_exposureSlider->SetNineSlice(sliderNineSlice);
-    m_exposureSlider->SetValueLimits(MIN_EXPOSURE, MAX_EXPOSURE);
-    m_exposureSlider->SetValue(m_exposure);
 
-    auto stackLayout = std::make_shared<StackLayout>(context);
+    auto stackLayout = std::make_shared<UI::ComplexStackLayout>(context);
+    stackLayout->SetAlignmentX(UI::ItemAlignment::Stretch);
+    stackLayout->SetAlignmentY(UI::ItemAlignment::Stretch);
+    stackLayout->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
     for (std::size_t i = 0; i < m_checkboxes.size(); ++i)
     {
+      stackLayout->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
       stackLayout->AddChild(m_checkboxes[i]);
     }
-    stackLayout->AddChild(labelExposure);
-    stackLayout->AddChild(m_exposureSlider);
 
-    AtlasTexture2D texBackground = m_uiExtension->GetAtlasTexture2D("Background9R");
+    auto stackLayout2 = std::make_shared<UI::ComplexStackLayout>(context);
+    stackLayout2->SetAlignmentX(UI::ItemAlignment::Stretch);
+    stackLayout2->SetAlignmentY(UI::ItemAlignment::Stretch);
+    stackLayout2->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    stackLayout2->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
+    stackLayout2->AddChild(labelExposure);
+    stackLayout2->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star, 1.0f));
+    stackLayout2->AddChild(m_exposureSlider);
 
-    auto window = std::make_shared<Background9Slice>(context);
-    window->SetAlignmentY(ItemAlignment::Far);
-    window->SetBackground(texBackground);
-    window->SetNineSlice(NineSlice(32, 32, 32, 32));
-    window->SetPadding(ThicknessF(32, 32, 32, 32));
-    window->SetContent(stackLayout);
-    return window;
+    auto mainStack = std::make_shared<UI::StackLayout>(context);
+    mainStack->SetAlignmentX(UI::ItemAlignment::Stretch);
+    mainStack->SetAlignmentY(UI::ItemAlignment::Stretch);
+    mainStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    mainStack->AddChild(stackLayout);
+    mainStack->AddChild(stackLayout2);
+
+
+    auto bottomBar = factory.CreateBottomBar();
+    bottomBar->SetContent(mainStack);
+    return bottomBar;
   }
 }

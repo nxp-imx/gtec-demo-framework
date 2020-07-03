@@ -45,9 +45,9 @@ namespace Fsl
     Vector3 Position;
     Vector4 Color;
 
-    constexpr VertexPositionColor() = default;
+    constexpr VertexPositionColor() noexcept = default;
 
-    constexpr VertexPositionColor(const Vector3& position, const Vector4& color)
+    constexpr VertexPositionColor(const Vector3& position, const Vector4& color) noexcept
       : Position(position)
       , Color(color)
     {

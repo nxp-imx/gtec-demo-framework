@@ -51,10 +51,10 @@ namespace Fsl
         const double y1 = dstBox.Y1;
         const double x2 = dstBox.X2;
         const double y2 = dstBox.Y2;
-        const double u1 = textureArea.X1;
-        const double v1 = textureArea.Y1;
-        const double u2 = textureArea.X2;
-        const double v2 = textureArea.Y2;
+        const double u1 = textureArea.X0;
+        const double v1 = textureArea.Y0;
+        const double u2 = textureArea.X1;
+        const double v2 = textureArea.Y1;
 
         const int xEnd = verticesX - 1;
         const int yEnd = verticesY - 1;
@@ -92,7 +92,7 @@ namespace Fsl
         while (dstIndex < dstIndexEnd)
         {
           rDst[dstIndex].Position.X = dstBox.X2;
-          rDst[dstIndex].TextureCoordinate.X = textureArea.X2;
+          rDst[dstIndex].TextureCoordinate.X = textureArea.X1;
           dstIndex += verticesX;
         }
 
@@ -102,7 +102,7 @@ namespace Fsl
         while (dstIndex < dstIndexEnd)
         {
           rDst[dstIndex].Position.Y = dstBox.Y2;
-          rDst[dstIndex].TextureCoordinate.Y = textureArea.Y2;
+          rDst[dstIndex].TextureCoordinate.Y = textureArea.Y1;
           ++dstIndex;
         }
 
@@ -110,8 +110,8 @@ namespace Fsl
         // We might actually have to write the last entry manually using the input numbers to achieve that.
         assert(rDst.front().Position == Vector3(dstBox.X1, dstBox.Y1, dstZ));
         assert(rDst.back().Position == Vector3(dstBox.X2, dstBox.Y2, dstZ));
-        assert(rDst.front().TextureCoordinate == Vector2(textureArea.X1, textureArea.Y1));
-        assert(rDst.back().TextureCoordinate == Vector2(textureArea.X2, textureArea.Y2));
+        assert(rDst.front().TextureCoordinate == Vector2(textureArea.X0, textureArea.Y0));
+        assert(rDst.back().TextureCoordinate == Vector2(textureArea.X1, textureArea.Y1));
       }
 
 
@@ -283,7 +283,7 @@ namespace Fsl
     {
       const float x = dstCenter.X - (dstWidth * 0.5f);
       const float y = dstCenter.Y - (dstHeight * 0.5f);
-      const BoxF dstRect(x, -y, dstWidth, -dstHeight, true);
+      const auto dstRect = BoxF::FromWidthAndHeight(x, -y, dstWidth, -dstHeight);
       return GenerateList(dstRect, dstCenter.Z, segmentsX, segmentsY, textureArea, windingOrder);
     }
 
@@ -315,7 +315,7 @@ namespace Fsl
     {
       const float x = dstCenter.X - (dstWidth * 0.5f);
       const float y = dstCenter.Y - (dstHeight * 0.5f);
-      const BoxF dstRect(x, -y, dstWidth, -dstHeight, true);
+      const BoxF dstRect = BoxF::FromWidthAndHeight(x, -y, dstWidth, -dstHeight);
       return GenerateStrip(dstRect, dstCenter.Z, segmentsX, segmentsY, textureArea, windingOrder);
     }
   }

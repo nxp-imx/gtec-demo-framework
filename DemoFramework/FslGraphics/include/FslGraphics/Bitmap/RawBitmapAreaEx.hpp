@@ -44,7 +44,7 @@ namespace Fsl
     RawBitmapAreaEx() = default;
 
 
-    RawBitmapAreaEx(void* pContent, const Extent2D& extent, const uint32_t stride)
+    RawBitmapAreaEx(void* pContent, const PxExtent2D& extent, const uint32_t stride)
       : RawBitmapArea(pContent, extent, stride)
       , ContentEx(pContent)
     {

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMAGE_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,45 +31,60 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslGraphics/Color.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
-#include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <memory>
 
 namespace Fsl
 {
+  class ImageSprite;
+
   namespace UI
   {
     class WindowContext;
 
+    //! @brief This is the recommended image control. It is DP aware so it will render the image so it fits the users display.
     class Image : public BaseWindow
     {
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      AtlasTexture2D m_content;
+      std::shared_ptr<ImageSprite> m_content;
+      Color m_contentColor{Color::White()};
       ItemScalePolicy m_scalePolicy;
 
     public:
-      Image(const std::shared_ptr<WindowContext>& context);
+      explicit Image(const std::shared_ptr<WindowContext>& context);
 
-      const AtlasTexture2D& GetContent() const
+      const std::shared_ptr<ImageSprite>& GetContent() const
       {
         return m_content;
       }
-      void SetContent(const AtlasTexture2D& value);
+
+      void SetContent(const std::shared_ptr<ImageSprite>& value);
+      void SetContent(std::shared_ptr<ImageSprite>&& value);
+
+      Color GetContentColor() const
+      {
+        return m_contentColor;
+      }
+
+      void SetContentColor(const Color& value);
 
       ItemScalePolicy GetScalePolicy() const
       {
         return m_scalePolicy;
       }
+
       void SetScalePolicy(const ItemScalePolicy value);
 
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

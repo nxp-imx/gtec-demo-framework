@@ -35,7 +35,7 @@
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
-#include <FslGraphics/Render/Texture2D.hpp>
+#include <FslGraphics/Render/BaseTexture2D.hpp>
 
 namespace Fsl
 {
@@ -51,17 +51,17 @@ namespace Fsl
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      Texture2D m_content;
+      BaseTexture2D m_content;
       ItemScalePolicy m_scalePolicy;
 
     public:
-      Texture2DImage(const std::shared_ptr<WindowContext>& context);
+      explicit Texture2DImage(const std::shared_ptr<WindowContext>& context);
 
-      const Texture2D& GetContent() const
+      const BaseTexture2D& GetContent() const
       {
         return m_content;
       }
-      void SetContent(const Texture2D& value);
+      void SetContent(const BaseTexture2D& value);
 
       ItemScalePolicy GetScalePolicy() const
       {
@@ -77,8 +77,8 @@ namespace Fsl
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

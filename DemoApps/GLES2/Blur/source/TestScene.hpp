@@ -50,7 +50,7 @@ namespace Fsl
     GLES2::GLVertexBuffer m_vertexBuffer;
 
   public:
-    TestScene(const DemoAppConfig& config);
+    explicit TestScene(const DemoAppConfig& config);
     void Update(const DemoTime& demoTime) override;
     void Draw() override;
   };

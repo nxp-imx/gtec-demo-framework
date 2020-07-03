@@ -39,7 +39,7 @@
 
 namespace Fsl
 {
-  class NativeWindowEventsService
+  class NativeWindowEventsService final
     : public ThreadLocalService
     , public INativeWindowEvents
     , public INativeWindowEventSender
@@ -50,14 +50,14 @@ namespace Fsl
     bool m_isLocked;
 
   public:
-    NativeWindowEventsService(const ServiceProvider& serviceProvider);
+    explicit NativeWindowEventsService(const ServiceProvider& serviceProvider);
 
     // From INativeWindowEvents
-    void Register(const std::weak_ptr<INativeWindowEventListener>& subscriber) override;
-    void Unregister(const std::weak_ptr<INativeWindowEventListener>& subscriber) override;
+    void Register(const std::weak_ptr<INativeWindowEventListener>& subscriber) final;
+    void Unregister(const std::weak_ptr<INativeWindowEventListener>& subscriber) final;
 
     // From INativeWindowEventSender
-    void SendEvent(const NativeWindowEvent& event) override;
+    void SendEvent(const NativeWindowEvent& event) final;
   };
 }
 

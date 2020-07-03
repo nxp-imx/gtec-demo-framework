@@ -38,14 +38,22 @@ namespace Fsl
   class CoverAlbumBitmaps
   {
   public:
-    static uint8_t CarnivalBitmap[];
-    static uint8_t EncoreBitmap[];
-    static uint8_t KajiuraBitmap[];
-    static uint8_t MozartBitmap[];
-    static uint8_t StratovariusBitmap[];
-    static uint8_t TemerariosBitmap[];
-    static uint8_t TigresBitmap[];
-    static uint8_t TristaniaBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t CarnivalBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t EncoreBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t KajiuraBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t MozartBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t StratovariusBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t TemerariosBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t TigresBitmap[];
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    static const uint8_t TristaniaBitmap[];
   };
 }
 

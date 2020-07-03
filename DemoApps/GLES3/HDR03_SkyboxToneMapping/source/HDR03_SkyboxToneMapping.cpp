@@ -36,7 +36,6 @@
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -47,7 +46,6 @@
 namespace Fsl
 {
   using namespace GLES3;
-  using namespace UI;
 
   namespace
   {
@@ -75,11 +73,11 @@ namespace Fsl
     }
 
 
-    GLES3::GLFrameBuffer CreateHdrFrameBuffer(const Point2& resolution)
+    GLES3::GLFrameBuffer CreateHdrFrameBuffer(const PxSize2D& sizePx)
     {
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       GLTextureImageParameters texImageParams(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
-      return GLFrameBuffer(resolution, params, texImageParams, GL_DEPTH_COMPONENT16);
+      return GLFrameBuffer(sizePx, params, texImageParams, GL_DEPTH_COMPONENT16);
     }
   }
 
@@ -104,7 +102,7 @@ namespace Fsl
     PrepareScene(contentManager, m_resources.MainScene);
     CreateTonemappers(m_resources.ProgramTonemap, contentManager);
 
-    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(GetScreenResolution());
+    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(GetWindowSizePx());
     m_resources.MeshQuad = CreateQuadVertexArray(m_resources.ProgramTonemap.front().Program);
   }
 
@@ -159,17 +157,16 @@ namespace Fsl
     UpdateInput(demoTime);
     m_menuUI.Update(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     m_vertexUboData.MatModel = Matrix::GetIdentity();
     m_vertexUboData.MatView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    const float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
   }
 
 
   void HDR03_SkyboxToneMapping::Draw(const DemoTime& demoTime)
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -194,7 +191,7 @@ namespace Fsl
     for (std::size_t i = 0; i < rRenderRecords.size(); ++i)
     {
       auto endX = static_cast<GLint>(rRenderRecords[i].SplitX.GetValue());
-      glScissor(startX, 0, endX - startX, screenResolution.Y);
+      glScissor(startX, 0, endX - startX, windowSizePx.Height());
       startX = endX;
       DrawTonemappedScene(m_resources.ProgramTonemap[i], m_resources.HdrFrameBuffer);
     }
@@ -320,7 +317,7 @@ namespace Fsl
   {
     FSLLOG3_INFO("Preparing scene");
     FSLLOG3_INFO("- loading cubemaps")
-    GLTextureParameters3 texParams(GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+    // GLTextureParameters3 texParams(GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 
     std::string texture = "test";
     // rScene.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, "floral_tent/1024", PixelFormat::R16G16B16A16_SFLOAT);
@@ -348,7 +345,7 @@ namespace Fsl
                                                                                            const Tonemapper::Enum tonemapper)
   {
     TonemapProgramInfo info;
-    const auto fragmentShaderName = GetTonemapperShaderName(tonemapper);
+    const auto* const fragmentShaderName = GetTonemapperShaderName(tonemapper);
 
     info.Program.Reset(contentManager->ReadAllText("Tonemapper.vert"), contentManager->ReadAllText(fragmentShaderName));
 
@@ -364,19 +361,19 @@ namespace Fsl
     // A C
     // A = 1.0
 
-    const float size = 1.0f;
-    const float x0 = -size;
-    const float x1 = size;
-    const float y0 = -size;
-    const float y1 = size;
-    const float zPos = 0.0f;
+    constexpr const float size = 1.0f;
+    constexpr const float x0 = -size;
+    constexpr const float x1 = size;
+    constexpr const float y0 = -size;
+    constexpr const float y1 = size;
+    constexpr const float zPos = 0.0f;
 
-    const float u0 = 0.0f;
-    const float u1 = 1.0f;
-    const float v0 = 0.0f;
-    const float v1 = 1.0f;
+    constexpr const float u0 = 0.0f;
+    constexpr const float u1 = 1.0f;
+    constexpr const float v0 = 0.0f;
+    constexpr const float v1 = 1.0f;
 
-    std::array<VertexPositionTexture, 6> vertices = {
+    constexpr const std::array<VertexPositionTexture, 6> vertices = {
       // Floor
       VertexPositionTexture(Vector3(x0, y1, zPos), Vector2(u0, v1)), VertexPositionTexture(Vector3(x0, y0, zPos), Vector2(u0, v0)),
       VertexPositionTexture(Vector3(x1, y0, zPos), Vector2(u1, v0)),

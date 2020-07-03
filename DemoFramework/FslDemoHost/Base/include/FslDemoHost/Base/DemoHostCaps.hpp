@@ -45,7 +45,7 @@ namespace Fsl
     uint32_t Value = 0;
 
     DemoHostCaps() = default;
-    DemoHostCaps(const Flags flags)
+    DemoHostCaps(const Flags flags)    // NOLINT(google-explicit-constructor)
       : Value(static_cast<uint32_t>(flags))
     {
     }

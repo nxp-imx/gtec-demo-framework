@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "RenderScene.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
@@ -113,7 +114,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -147,7 +148,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -185,7 +186,7 @@ namespace Fsl
       writeDescriptorSets[1].pImageInfo = &textureImageInfo1;
 
       // Binding 2 : Fragment shader texture sampler
-      auto& rTexture2 = textureNormal.IsValid() ? textureNormal : texture;
+      const auto& rTexture2 = textureNormal.IsValid() ? textureNormal : texture;
       auto textureImageInfo2 = rTexture2.GetDescriptorImageInfo();
       writeDescriptorSets[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
       writeDescriptorSets[2].dstSet = descriptorSet;
@@ -195,7 +196,7 @@ namespace Fsl
       writeDescriptorSets[2].pImageInfo = &textureImageInfo2;
 
       // Binding 3 : Fragment shader texture sampler
-      auto& rTexture3 = textureSpecular.IsValid() ? textureSpecular : texture;
+      const auto& rTexture3 = textureSpecular.IsValid() ? textureSpecular : texture;
       auto textureImageInfo3 = rTexture3.GetDescriptorImageInfo();
       writeDescriptorSets[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
       writeDescriptorSets[3].dstSet = descriptorSet;
@@ -204,7 +205,7 @@ namespace Fsl
       writeDescriptorSets[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[3].pImageInfo = &textureImageInfo3;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
       return descriptorSet;
     }
 
@@ -231,7 +232,11 @@ namespace Fsl
 
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
-    std::string strFileName, strTextureFileName, strTextureGloss, strTextureSpecular, strTextureNormal;
+    IO::Path strFileName;
+    IO::Path strTextureFileName;
+    IO::Path strTextureGloss;
+    IO::Path strTextureSpecular;
+    IO::Path strTextureNormal;
     switch (sceneId)
     {
     case 1:
@@ -268,7 +273,7 @@ namespace Fsl
       Bitmap bitmap;
       auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureFileName);
 
-      if (strTextureGloss.empty())
+      if (strTextureGloss.IsEmpty())
       {
         FSLLOG3_INFO("- Diffuse '{}'", texturePath);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM, bitmapOrigin);
@@ -299,7 +304,7 @@ namespace Fsl
       FSLLOG3_INFO("TODO: generate mipmaps");
       m_resources.Texture = CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 
-      if (!strTextureSpecular.empty())
+      if (!strTextureSpecular.IsEmpty())
       {
         auto specTexturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
         FSLLOG3_INFO("- Specular '{}'", specTexturePath);
@@ -309,7 +314,7 @@ namespace Fsl
         m_resources.TextureSpecular = CreateTexture(device, deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
       }
 
-      if (!strTextureNormal.empty())
+      if (!strTextureNormal.IsEmpty())
       {
         auto normTexturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
         FSLLOG3_INFO("- Normal '{}'", normTexturePath);
@@ -320,7 +325,8 @@ namespace Fsl
     }
 
     FSLLOG3_INFO("Preparing shaders");
-    PrepareShader(device.Get(), contentManager, m_resources.TextureSpecular.IsValid(), !strTextureGloss.empty(), m_resources.TextureNormal.IsValid());
+    PrepareShader(device.Get(), contentManager, m_resources.TextureSpecular.IsValid(), !strTextureGloss.IsEmpty(),
+                  m_resources.TextureNormal.IsValid());
 
     FSLLOG3_INFO("Creating mesh");
 
@@ -409,7 +415,7 @@ namespace Fsl
 
 
   void RenderScene::Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
-                           const Point2& screenResolution)
+                           const PxSize2D& windowSizePx)
   {
     FSL_PARAM_NOT_USED(demoTime);
 
@@ -420,9 +426,9 @@ namespace Fsl
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    m_matrixProjection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f) *
-      vulkanClipMatrix;
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
+                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f) *
+                         vulkanClipMatrix;
     m_uboData.MatWorldView = m_matrixWorld * m_matrixView;
     m_uboData.MatWorldViewProjection = m_uboData.MatWorldView * m_matrixProjection;
 
@@ -434,7 +440,7 @@ namespace Fsl
     m_uboData.NormalMatrix = Matrix::Transpose(Matrix::Invert(m_uboData.MatWorldView));
   }
 
-  void RenderScene::PreDraw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer)
+  void RenderScene::PreDraw(const uint32_t frameIndex, const VkCommandBuffer /*hCmdBuffer*/)
   {
     // Upload the changes
     m_resources.SceneFrameResources[frameIndex].UboBuffer.Upload(0, &m_uboData, sizeof(UBOData));
@@ -448,8 +454,8 @@ namespace Fsl
                             nullptr);
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
     vkCmdDrawIndexed(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetIndexCount(), 1, 0, 0, 0);
   }
@@ -457,7 +463,7 @@ namespace Fsl
   void RenderScene::PrepareShader(const VkDevice device, const std::shared_ptr<IContentManager>& contentManager, const bool useSpecMap,
                                   const bool useGlossMap, const bool useNormalMap)
   {
-    std::string shaderPath = "Shaders";
+    IO::Path shaderPath = "Shaders";
 
     std::string baseShaderName("PerPixelDirectionalSpecular");
     if (useSpecMap)
@@ -512,7 +518,7 @@ namespace Fsl
     pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
     pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.VertexInputBindingDescription;
-    pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.VertexAttributeDescription.size());
+    pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.VertexAttributeDescription.size());
     pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.VertexAttributeDescription.data();
 
     VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -594,12 +600,12 @@ namespace Fsl
     VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
     pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     pipelineDynamicStateCreateInfo.flags = 0;
-    pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+    pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicState.size());
     pipelineDynamicStateCreateInfo.pDynamicStates = dynamicState.data();
 
     VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
     graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+    graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
     graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
     graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
     graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;

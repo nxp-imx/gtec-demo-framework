@@ -62,12 +62,12 @@ namespace Fsl
   OpenCL101::~OpenCL101() = default;
 
 
-  void OpenCL101::Update(const DemoTime& demoTime)
+  void OpenCL101::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void OpenCL101::Draw(const DemoTime& demoTime)
+  void OpenCL101::Draw(const DemoTime& /*demoTime*/)
   {
   }
 }

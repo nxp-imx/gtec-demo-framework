@@ -1,8 +1,16 @@
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  target_compile_options(##PACKAGE_NAME## PRIVATE -Wall)
+  target_compile_options(##PACKAGE_NAME## PRIVATE -W -Wall -Wtype-limits -Wuninitialized)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  target_compile_options(##PACKAGE_NAME## PRIVATE -Wall -Wempty-body -Wmissing-field-initializers -Wtype-limits -Wuninitialized)
-  target_link_libraries(##PACKAGE_NAME## PRIVATE optimized -s)
+target_compile_options(##PACKAGE_NAME## PRIVATE -Wall -Wempty-body -Wmissing-field-initializers -Wtype-limits -Wuninitialized)
+target_link_libraries(##PACKAGE_NAME## PRIVATE optimized -s)
+if(CODE_COVERAGE)
+  set( 
+      COVERAGE_GNU_DEBUG_OPTIONS
+      -fprofile-arcs -ftest-coverage -g -O0
+     )
+  target_compile_options(##PACKAGE_NAME## PRIVATE "$<$<CONFIG:DEBUG>:${COVERAGE_GNU_DEBUG_OPTIONS}>")
+  target_link_libraries(##PACKAGE_NAME## PRIVATE debug gcov)
+endif()
 #elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
   target_compile_options(##PACKAGE_NAME## PRIVATE /W3 /MP)

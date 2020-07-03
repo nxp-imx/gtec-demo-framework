@@ -43,7 +43,7 @@ namespace Fsl
   public:
     TemplateIDemoHostFactory() = default;
 
-    TemplateIDemoHostFactory(const DemoHostCaps& caps)
+    explicit TemplateIDemoHostFactory(const DemoHostCaps& caps)
       : m_caps(caps)
     {
     }

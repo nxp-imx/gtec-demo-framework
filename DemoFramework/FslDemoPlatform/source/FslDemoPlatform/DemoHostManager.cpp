@@ -40,7 +40,6 @@
 #include <FslDemoHost/Base/Service/NativeWindowEvents/INativeWindowEventSender.hpp>
 #include <FslDemoPlatform/DemoHostManager.hpp>
 #include <FslDemoPlatform/DemoHostManagerOptionParser.hpp>
-#include <FslDemoPlatform/Service/MMDCStats/IMMDCStatsService.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
 #include <FslService/Impl/Threading/IServiceHostLooper.hpp>
 #include <FslNativeWindow/Base/NativeWindowEventQueue.hpp>
@@ -56,7 +55,6 @@ namespace Fsl
     , m_state(State::Idle)
     , m_exitAfterFrame(demoHostManagerOptionParser->GetExitAfterFrame())
     , m_exitAfterDuration(demoHostManagerOptionParser->GetDurationExitConfig())
-    , m_windowSizeIsDirty(true)
     , m_exitTime(std::chrono::microseconds(m_timer.GetTime()) + std::chrono::microseconds(m_exitAfterDuration.Duration))
   {
     // Acquire the various services
@@ -81,9 +79,8 @@ namespace Fsl
 
     FSLLOG3_VERBOSE("DemoHostManager: Starting demoAppManager");
 
-
     // Lets prepare the app manager.
-    const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, demoSetup.ExceptionFormatter, m_demoHost->GetScreenResolution(),
+    const DemoAppConfig demoAppConfig(demoSetup.App.AppSetup.OptionParser, demoSetup.ExceptionFormatter, m_demoHost->GetWindowMetrics(),
                                       serviceProvider, demoSetup.App.AppSetup.CustomAppConfig);
     m_demoAppManager =
       std::make_shared<DemoAppManager>(demoSetup.App.AppSetup, demoAppConfig, hostConfig.StatOverlay, demoHostManagerOptionParser->GetLogStatsMode(),
@@ -119,7 +116,7 @@ namespace Fsl
   int DemoHostManager::Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper)
   {
     FSLLOG3_VERBOSE("DemoHostManager: Running");
-    Point2 screenResolution = m_demoHost->GetScreenResolution();
+    auto windowMetrics = m_demoHost->GetWindowMetrics();
 
     const auto isConsoleBasedHost = m_demoHost->IsConsoleBaseHost();
     // Event loop
@@ -133,21 +130,21 @@ namespace Fsl
       {
         if (m_demoAppManager->GetState() == DemoState::Running)
         {
-          if (m_windowSizeIsDirty || m_demoAppManager->HasRestartRequest())
+          if (m_windowMetricsDirty || m_demoAppManager->HasRestartRequest())
           {
-            screenResolution = m_demoHost->GetScreenResolution();
-            m_windowSizeIsDirty = false;
+            windowMetrics = m_demoHost->GetWindowMetrics();
+            m_windowMetricsDirty = false;
           }
-          AppProcess(screenResolution, isConsoleBasedHost);
+          AppProcess(windowMetrics, isConsoleBasedHost);
         }
       }
     }
     return m_demoAppManager->CloseApp();
   }
 
-  void DemoHostManager::AppProcess(const Point2& screenResolution, const bool isConsoleBasedHost)
+  void DemoHostManager::AppProcess(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedHost)
   {
-    if (m_demoAppManager->Process(screenResolution, isConsoleBasedHost))
+    if (m_demoAppManager->Process(windowMetrics, isConsoleBasedHost))
     {
       auto swapBuffersResult = AppDrawAndSwapBuffers();
       switch (swapBuffersResult)
@@ -236,8 +233,7 @@ namespace Fsl
     NativeWindowEvent event;
     while (m_eventQueue->TryDequeue(event))
     {
-      FSLLOG3_INFO_IF(m_demoSetup.VerbosityLevel > 4, "Event: {} arg1: {} arg2: {} arg3: {}", static_cast<int32_t>(event.Type), event.Arg1,
-                      event.Arg2, event.Arg3);
+      FSLLOG3_VERBOSE6("Event: {} arg1: {} arg2: {} arg3: {}", static_cast<int32_t>(event.Type), event.Arg1, event.Arg2, event.Arg3);
       switch (event.Type)
       {
       case NativeWindowEventType::WindowActivation:
@@ -254,11 +250,11 @@ namespace Fsl
         break;
       case NativeWindowEventType::WindowResized:
         FSLLOG3_VERBOSE("DemoHostManager: WindowResized");
-        m_windowSizeIsDirty = true;
+        m_windowMetricsDirty = true;
         break;
-      case NativeWindowEventType::WindowDPIChanged:
-        FSLLOG3_VERBOSE("DemoHostManager: WindowDPIChanged");
-        // For now we ignore this
+      case NativeWindowEventType::WindowConfigChanged:
+        FSLLOG3_VERBOSE("DemoHostManager: WindowConfigChanged");
+        m_windowMetricsDirty = true;
         break;
       default:
         break;

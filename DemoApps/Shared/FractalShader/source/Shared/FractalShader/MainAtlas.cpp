@@ -30,34 +30,49 @@
  ****************************************************************************************************************************************************/
 
 #include "MainAtlas.hpp"
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
+#include <array>
 #include <cassert>
 
 namespace Fsl
 {
   namespace
   {
-    NamedAtlasTexture g_entries[] = {
-      NamedAtlasTexture("Banner_Julia", AtlasTextureInfo(Rectangle(-14, -7, 1920, 1080), Rectangle(2, 2, 556, 180))),
-      NamedAtlasTexture("Banner_Mandelbrot", AtlasTextureInfo(Rectangle(-16, 171, 1920, 1080), Rectangle(2, 184, 585, 46))),
+    const std::array<NamedAtlasTexture, 2> g_entries = {
+      NamedAtlasTexture("Banner_Julia", AtlasTextureInfo(PxRectangleU(2, 2, 556, 180), PxThicknessU(16, 9, 1348, 891), 160)),
+      NamedAtlasTexture("Banner_Mandelbrot", AtlasTextureInfo(PxRectangleU(2, 184, 585, 46), PxThicknessU(18, 184 - 171, 1317, 1021), 160)),
     };
   }
 
 
-  std::string MainAtlas::GetName() const
+  StringViewLite MainAtlas::GetName() const
   {
-    return std::string("MainAtlas.png");
+    return StringViewLite("MainAtlas.png");
   }
 
 
-  int32_t MainAtlas::Count() const
+  uint32_t MainAtlas::Count() const
   {
-    return 2;
+    return UncheckedNumericCast<uint32_t>(g_entries.size());
   }
 
 
-  NamedAtlasTexture MainAtlas::GetEntry(const int32_t index) const
+  const NamedAtlasTexture& MainAtlas::GetEntry(const uint32_t index) const
   {
     assert(index >= 0 && index <= Count());
     return g_entries[index];
   }
+
+  uint32_t MainAtlas::NineSliceCount() const
+  {
+    return 0u;
+  }
+
+  const TextureAtlasNineSlicePatch& MainAtlas::GetNineSlicePatch(const uint32_t /*index*/) const
+  {
+    throw IndexOutOfRangeException("index out of bounds");
+  }
+
 }

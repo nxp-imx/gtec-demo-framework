@@ -175,7 +175,7 @@ namespace Fsl
     float differenceLengthSquared = difference.LengthSquared();
     float sphereRadiusSquared = sphere.Radius * sphere.Radius;
 
-    float distanceAlongRay;
+    float distanceAlongRay = 0.0f;
 
     // If the distance between the ray start and the sphere's center is less than
     // the radius of the sphere, it means we've intersected. N.B. checking the LengthSquared is faster.

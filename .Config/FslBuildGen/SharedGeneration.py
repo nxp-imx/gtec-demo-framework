@@ -31,6 +31,10 @@
 #
 #****************************************************************************************************************************************************
 
+from FslBuildGen.DataTypes import BuildVariantConfig
+from FslBuildGen.DataTypes import BuildVariantConfigDefaults
+
+
 GEN_BUILD_ENV_VARIANT_SETTING = "FSLBUILD_VARIANT_"
 # Deprecated: its not about the feature but the variant instead
 #             So the code generation engine needs to know if the 'feature' config needs the variant info or not :/
@@ -44,6 +48,16 @@ class ToolAddedVariantConfigOption(object):
     Debug = "Debug"
     Release = "Release"
     Coverage = "Coverage"
+
+    @staticmethod
+    def GetDefaultSetting() -> str:
+        if BuildVariantConfigDefaults.DefaultSetting == BuildVariantConfig.Debug:
+            return ToolAddedVariantConfigOption.Debug
+        if BuildVariantConfigDefaults.DefaultSetting == BuildVariantConfig.Release:
+            return ToolAddedVariantConfigOption.Release
+        if BuildVariantConfigDefaults.DefaultSetting == BuildVariantConfig.Coverage:
+            return ToolAddedVariantConfigOption.Coverage
+        raise Exception("unsupported default setting {0}".format(BuildVariantConfigDefaults.DefaultSetting));
 
 class ToolAddedVariant(object):
     CONFIG = "config"

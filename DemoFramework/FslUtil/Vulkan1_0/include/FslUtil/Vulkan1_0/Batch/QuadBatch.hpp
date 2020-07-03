@@ -32,11 +32,17 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Extent2D.hpp>
-#include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslGraphics/Render/BatchSdfRenderConfig.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
+#include <FslGraphics/Render/Stats/NativeBatch2DStats.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
+#include <FslUtil/Vulkan1_0/Batch/QuadBatchRenderRecord.hpp>
+#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
+#include <FslUtil/Vulkan1_0/VUDevice.hpp>
+#include <FslUtil/Vulkan1_0/VUTextureInfo.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <RapidVulkan/DescriptorSetLayout.hpp>
@@ -45,10 +51,6 @@
 #include <RapidVulkan/PipelineCache.hpp>
 #include <RapidVulkan/PipelineLayout.hpp>
 #include <RapidVulkan/ShaderModule.hpp>
-#include <FslUtil/Vulkan1_0/Batch/QuadBatchRenderRecord.hpp>
-#include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
-#include <FslUtil/Vulkan1_0/VUDevice.hpp>
-#include <FslUtil/Vulkan1_0/VUTextureInfo.hpp>
 #include <vector>
 #include "QuadBatchDescriptorSets.hpp"
 #include "QuadBatchVertexBuffers.hpp"
@@ -69,6 +71,28 @@ namespace Fsl
         DrawVoidFrame,
       };
 
+      struct PushConstantRecord
+      {
+        float Spread{};
+
+        constexpr PushConstantRecord() = default;
+
+        constexpr explicit PushConstantRecord(const float spread)
+          : Spread(spread)
+        {
+        }
+
+        constexpr bool operator==(const PushConstantRecord& rhs) const
+        {
+          return Spread == rhs.Spread;
+        }
+
+        constexpr bool operator!=(const PushConstantRecord& rhs) const
+        {
+          return !(*this == rhs);
+        }
+      };
+
       struct DeviceResources
       {
         bool IsValid = false;
@@ -85,11 +109,13 @@ namespace Fsl
 
         RapidVulkan::ShaderModule VertexShader;
         RapidVulkan::ShaderModule FragmentShader;
+        RapidVulkan::ShaderModule SdfFragmentShader;
 
         RapidVulkan::PipelineLayout PipelineLayout;
+        RapidVulkan::PipelineLayout PipelineLayoutSdf;
         RapidVulkan::PipelineCache PipelineCache;
 
-        Extent2D CachedScreenExtent;
+        PxExtent2D CachedScreenExtentPx;
       };
 
       struct DependentResources
@@ -104,19 +130,24 @@ namespace Fsl
         RapidVulkan::GraphicsPipeline PipelineNonPremultiplied;
         //! Opaque blending
         RapidVulkan::GraphicsPipeline PipelineOpaque;
+        //! Sdf
+        RapidVulkan::GraphicsPipeline PipelineSdf;
       };
 
       //! Information that is valid during a Begin/End sequence
       struct ActiveBlock
       {
-        bool IsValid = false;
-        VkPipeline ActivePipeline = VK_NULL_HANDLE;
-        VkPipeline CachedPipeline = VK_NULL_HANDLE;
+        bool IsValid{false};
+        VkPipeline ActivePipeline{VK_NULL_HANDLE};
+        VkPipelineLayout ActivePipelineLayout{VK_NULL_HANDLE};
+        VkPipeline CachedPipeline{VK_NULL_HANDLE};
         VUTextureInfo CachedTextureInfo;
+        PushConstantRecord CachedPushConstants{-1.0f};
 
         bool CheckIsEmpty() const
         {
-          return !IsValid && ActivePipeline == VK_NULL_HANDLE && CachedPipeline == VK_NULL_HANDLE && CachedTextureInfo == VUTextureInfo();
+          return !IsValid && ActivePipeline == VK_NULL_HANDLE && ActivePipelineLayout == VK_NULL_HANDLE && CachedPipeline == VK_NULL_HANDLE &&
+                 CachedTextureInfo == VUTextureInfo() && CachedPushConstants == PushConstantRecord(-1.0f);
         }
       };
 
@@ -136,15 +167,20 @@ namespace Fsl
 
       std::vector<uint8_t> m_vertexShaderBinary;
       std::vector<uint8_t> m_fragmentShaderBinary;
+      std::vector<uint8_t> m_sdfFragmentShaderBinary;
 
       uint32_t m_quadCapacity;
-      uint32_t m_vertexCapacity;
+      // uint32_t m_vertexCapacity;
       bool m_logEnabled;
 
       DeviceResources m_deviceResource;
       DependentResources m_dependentResource;
 
       ActiveFrame m_activeFrame;
+      PushConstantRecord m_pushConstantsDefault;
+      PushConstantRecord m_pushConstants;
+
+      NativeBatch2DStats m_stats{};
 
     public:
       QuadBatch(const QuadBatch&) = delete;
@@ -152,17 +188,22 @@ namespace Fsl
 
       //! @param commandBufferCount the number of different command buffers that will be passed to BeginFrame,
       //!        this is often equal to the swapchain image count.
-      QuadBatch(const std::vector<uint8_t>& vertexShaderBinary, const std::vector<uint8_t>& fragmentShaderBinary, const uint32_t quadCapacityHint,
-                const bool logEnabled = true);
+      QuadBatch(std::vector<uint8_t> vertexShaderBinary, std::vector<uint8_t> fragmentShaderBinary, std::vector<uint8_t> sdfFragmentShaderBinary,
+                const uint32_t quadCapacityHint, const bool logEnabled = true);
 
       ~QuadBatch();
 
       //! @param commandBufferIndex the index (must be < commandBufferCount supplied during construction)
       void BeginFrame(const VkCommandBuffer commandBuffer, const uint32_t commandBufferIndex);
-      void Begin(const Point2& screenResolution, const BlendState blendState, const bool restoreState);
+      void Begin(const PxSize2D& sizePx, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig, const bool restoreState);
       void DrawQuads(const VertexPositionColorTexture* const pVertices, const uint32_t length, const VUTextureInfo& textureInfo);
       void End();
       void EndFrame();
+
+      NativeBatch2DStats GetStats() const
+      {
+        return m_stats;
+      }
 
       //! @param device the active device
       //! @param commandBufferCount the number of different command buffers that will be passed to BeginFrame,
@@ -175,13 +216,17 @@ namespace Fsl
 
       //! @brief Create all dependent resources
       void CreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass, const uint32_t subpass,
-                                    const Extent2D& screenExtent);
+                                    const PxExtent2D& screenExtentPx);
 
       //! @brief Destroy all dependent resources
       //! @warning If called while inside a Begin/End or BeginFrame/EndFrame scope the scope will be terminated and a warning will be logged.
       void DestroyDependentResources() noexcept;
 
       void EnforceCommandBufferCount(const uint32_t commandBufferCount);
+
+    private:
+      void DoEnd() noexcept;
+      void DoEndFrame() noexcept;
     };
   }
 }

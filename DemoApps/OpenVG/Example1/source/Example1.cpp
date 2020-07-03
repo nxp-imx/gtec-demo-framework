@@ -29,12 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Exceptions.hpp>
-#include <FslUtil/OpenVG/VGCheck.hpp>
-#include <FslBase/Math/Vector2.hpp>
 #include "Example1.hpp"
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Vector2.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/OpenVG/VGCheck.hpp>
 #include <VG/openvg.h>
 #include "VG/vgu.h"
+#include <array>
+#include <cmath>
 #include <iostream>
 
 namespace Fsl
@@ -73,13 +76,12 @@ namespace Fsl
   Example1::Example1(const DemoAppConfig& config)
     : DemoAppVG(config)
   {
-    VGfloat afClearColour[] = {0.6f, 0.8f, 1.0f, 1.0f};
-    vgSetfv(VG_CLEAR_COLOR, 4, afClearColour);
+    std::array<VGfloat, 4> afClearColour = {0.6f, 0.8f, 1.0f, 1.0f};
+    vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour.size()), afClearColour.data());
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
-    float scaleX, scaleY;
-    const Point2 currentSize = GetScreenResolution();
-    scaleX = currentSize.X / 1280.0f;
-    scaleY = currentSize.Y / 1080.0f;
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    float scaleX = currentSizePx.Width() / 1280.0f;
+    float scaleY = currentSizePx.Height() / 1080.0f;
     std::vector<Vector2> vgTrianglePoints;
     std::vector<Vector2> vgQuadCurvePoints;
     std::vector<Vector2> vgCubicCurvePoints;
@@ -104,10 +106,10 @@ namespace Fsl
 
     vgArcPoints.push_back(620.0f * scaleX);
     vgArcPoints.push_back(200.0f * scaleY);
-    ;
+
     vgArcPoints.push_back(620.0f * scaleX);
     vgArcPoints.push_back(100.0f * scaleY);
-    ;
+
 
     vgArcPoints.push_back(10.0f);
     vgArcPoints.push_back(10.0f);
@@ -116,7 +118,6 @@ namespace Fsl
 
     vgArcPoints.push_back(700.0f * scaleX);
     vgArcPoints.push_back(150.0f * scaleY);
-    ;
 
 
     m_vg_triangle_path.Reset(vgTrianglePoints, vgTriangleSegments);
@@ -136,11 +137,8 @@ namespace Fsl
 
   void Example1::Draw(const DemoTime& demoTime)
   {
-    uint32_t width, height;
-    const Point2 currentSize = GetScreenResolution();
-    width = currentSize.X;
-    height = currentSize.Y;
-    vgClear(0, 0, width, height);
+    const PxSize2D currentSize = GetWindowSizePx();
+    vgClear(0, 0, currentSize.Width(), currentSize.Height());
 
     // Set transformation matrix mode
     vgSeti(VG_MATRIX_MODE, VG_MATRIX_PATH_USER_TO_SURFACE);

@@ -45,7 +45,7 @@ namespace Fsl
 {
   namespace
   {
-    const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       // Use the EGLDemoHost for OpenGLES
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
@@ -53,7 +53,7 @@ namespace Fsl
       rSetup.TheHostRegistry.Register(eglHostFeatures, StubDemoHostSetup::Get());
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);
-      return DemoHostFeature(DemoHostFeatureName::G2D, DemoHostFeatureUtil::EncodeG2DVersion(1));
+      return {DemoHostFeatureName::G2D, DemoHostFeatureUtil::EncodeG2DVersion(1)};
     }
   }
 

@@ -31,8 +31,9 @@
 
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
@@ -55,7 +56,7 @@ TEST(TestBitmap_RawBitmap, Construct_Default)
   EXPECT_EQ(0u, rawBitmap.Height());
   EXPECT_EQ(0u, rawBitmap.Stride());
   EXPECT_EQ(0u, rawBitmap.GetByteSize());
-  EXPECT_EQ(Extent2D(), rawBitmap.GetExtent());
+  EXPECT_EQ(PxExtent2D(), rawBitmap.GetExtent());
   EXPECT_EQ(BitmapOrigin::UpperLeft, rawBitmap.GetOrigin());
   EXPECT_EQ(PixelFormat::Undefined, rawBitmap.GetPixelFormat());
   EXPECT_EQ(PixelFormatLayout::Undefined, rawBitmap.GetPixelFormatLayout());

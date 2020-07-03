@@ -31,15 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslService/Consumer/ServiceProvider.hpp>
-#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslDemoApp/Base/Service/DemoAppControl/IDemoAppControl.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslGraphics3D/Build/LineBuilder.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
+#include <FslService/Consumer/ServiceProvider.hpp>
 #include <memory>
 #include <string>
 
@@ -70,9 +71,9 @@ namespace Fsl
     std::string m_strLines;
 
   public:
-    LineBuilderExample(const ServiceProvider& serviceProvider);
+    explicit LineBuilderExample(const ServiceProvider& serviceProvider);
     void OnMouseButtonEvent(const MouseButtonEvent& event);
-    void Update(const DemoTime& demoTime, const Point2& screenResolution);
+    void Update(const DemoTime& demoTime, const PxSize2D& windowSizePx);
     void Draw(const DemoTime& demoTime);
 
     const Matrix& GetViewMatrix() const

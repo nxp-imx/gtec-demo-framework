@@ -31,7 +31,6 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
@@ -39,12 +38,15 @@
 #include <FslDemoApp/Base/Service/Events/Basic/MouseWheelEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/RawMouseMoveEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/TimeStateEvent.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 
 namespace Fsl
 {
   class DemoAppExtension
   {
   public:
+    virtual ~DemoAppExtension() = default;
+
     virtual void OnKeyEvent(const KeyEvent& event)
     {
       FSL_PARAM_NOT_USED(event);
@@ -69,9 +71,9 @@ namespace Fsl
     {
       FSL_PARAM_NOT_USED(event);
     }
-    virtual void Resized(const Point2& size)
+    virtual void ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
     {
-      FSL_PARAM_NOT_USED(size);
+      FSL_PARAM_NOT_USED(windowMetrics);
     }
     virtual void PreUpdate(const DemoTime& demoTime)
     {

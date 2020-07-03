@@ -71,10 +71,12 @@ namespace Fsl
       ArgumentEmptyError,
 
       // The supplied argument list contained a null entry
-      ArgumentListContainedNullError,
+      // ArgumentListContainedNullError,
 
       //! the supplied arguments list contains invalid arguments
       CommandListIsInvalidError,
+      //! there are more arguments in the list than we support (currently trigger if there are more than std::numeric_limit<uint32_t>::max() elements)
+      UnsupportedNumberOfArguments,
     };
   }
 }

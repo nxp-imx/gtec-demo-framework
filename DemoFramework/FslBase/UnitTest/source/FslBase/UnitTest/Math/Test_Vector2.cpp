@@ -343,7 +343,10 @@ TEST(TestMath_Vector2, Normalize_Static)
 
 TEST(TestMath_Vector2, Normalize_Static_Ref)
 {
-  Vector2 res1, res2, res3, res4;
+  Vector2 res1;
+  Vector2 res2;
+  Vector2 res3;
+  Vector2 res4;
   Vector2::Normalize(Vector2(4.0f, 0.0f), res1);
   Vector2::Normalize(Vector2(0.0f, 4.0f), res2);
   Vector2::Normalize(Vector2(3.0f, 4.0f), res3);

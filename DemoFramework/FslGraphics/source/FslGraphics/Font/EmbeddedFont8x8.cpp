@@ -30,13 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
+#include <FslBase/Math/MathHelper_CalcOptimalSize.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <array>
 #include <cassert>
 #include <cmath>
-#include <FslBase/Math/MathHelper.hpp>
 
 namespace Fsl
 {
@@ -46,7 +48,7 @@ namespace Fsl
     // License: This font is free to use for any purpose.
     // http://overcode.yak.net/12
     //
-    uint8_t g_monochromeFont[] = {
+    constexpr std::array<uint8_t, 760> g_monochromeFont = {
       8,  8,  8,  8,  8,  0,  8,  0,  20, 20, 0,  0,  0,  0,  0,  0,   20, 20, 127, 20, 127, 20, 20,  0,  8,   30, 40, 28,  10, 60, 8,  0,   0,   50,
       52, 8,  22, 38, 0,  0,  24, 40, 16, 40, 70, 68, 58, 0,  8,  8,   0,  0,  0,   0,  0,   0,  4,   8,  16,  16, 16, 8,   4,  0,  16, 8,   4,   4,
       4,  8,  16, 0,  8,  73, 42, 28, 42, 73, 8,  0,  8,  8,  8,  127, 8,  8,  8,   0,  0,   0,  0,   0,  12,  12, 4,  8,   0,  0,  0,  127, 0,   0,
@@ -87,9 +89,9 @@ namespace Fsl
     return (MaxCharacter() - MinCharacter()) + 1;
   }
 
-  Point2 EmbeddedFont8x8::CharacterSize()
+  PxSize2D EmbeddedFont8x8::CharacterSize()
   {
-    return Point2(8, 8);
+    return {8, 8};
   }
 
   void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, uint8_t* pDst, const int32_t dstLength)
@@ -118,7 +120,7 @@ namespace Fsl
     pDst[7] = g_monochromeFont[srcIndex + 7];
   }
 
-  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const Point2& dstPos)
+  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const PxPoint2& dstPos)
   {
     RawBitmapEx rawBitmap;
     Bitmap::ScopedDirectAccess directAccess(rDstBitmap, rawBitmap);
@@ -126,7 +128,7 @@ namespace Fsl
   }
 
 
-  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const Point2& dstPos)
+  void EmbeddedFont8x8::ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const PxPoint2& dstPos)
   {
     if (theCharacter < MinCharacter() || theCharacter > MaxCharacter())
     {
@@ -145,8 +147,8 @@ namespace Fsl
     const auto dstPosX = static_cast<uint32_t>(dstPos.X);
     const auto dstPosY = static_cast<uint32_t>(dstPos.Y);
 
-    const Point2 characterSize = CharacterSize();
-    if ((dstPosX + characterSize.X) > rDstBitmap.Width() || (dstPosY + characterSize.Y) > rDstBitmap.Height())
+    const PxSize2D characterSize = CharacterSize();
+    if ((dstPosX + characterSize.Width()) > rDstBitmap.Width() || (dstPosY + characterSize.Height()) > rDstBitmap.Height())
     {
       throw std::invalid_argument("dst coordinates would be outside the bitmap");
     }
@@ -154,9 +156,9 @@ namespace Fsl
 
     const int32_t dstStride = rDstBitmap.Stride();
     uint8_t* pDst = static_cast<uint8_t*>(rDstBitmap.Content()) + (dstStride * dstPosY);
-    const uint8_t* const pDstEnd = pDst + (dstStride * characterSize.Y);
+    const uint8_t* const pDstEnd = pDst + (dstStride * characterSize.Height());
     const int srcIndex = (theCharacter - MinCharacter()) * 8;
-    const uint8_t* pSrc = g_monochromeFont + srcIndex;
+    const uint8_t* pSrc = g_monochromeFont.data() + srcIndex;
 
     switch (PixelFormatUtil::GetPixelFormatLayout(rDstBitmap.GetPixelFormat()))
     {
@@ -263,15 +265,15 @@ namespace Fsl
   }
 
 
-  void EmbeddedFont8x8::CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const Point2& padding,
-                                         const RectangleSizeRestrictionFlag::Enum restrictionFlags)
+  void EmbeddedFont8x8::CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const PxPoint2& padding,
+                                         const RectangleSizeRestrictionFlag restrictionFlags)
   {
     CreateFontBitmap(rDstBitmap, dstPixelFormat, MinCharacter(), CharacterCount(), padding, restrictionFlags);
   }
 
 
   void EmbeddedFont8x8::CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const uint8_t startCharacter, const uint8_t length,
-                                         const Point2& padding, const RectangleSizeRestrictionFlag::Enum restrictionFlags)
+                                         const PxPoint2& padding, const RectangleSizeRestrictionFlag restrictionFlags)
   {
     if (padding.X < 0 || padding.Y < 0)
     {
@@ -283,17 +285,17 @@ namespace Fsl
     }
     if (length <= 0)
     {
-      rDstBitmap.Reset(Extent2D(), dstPixelFormat);
+      rDstBitmap.Reset(PxExtent2D(), dstPixelFormat);
       return;
     }
 
-    const Point2 characterSize = CharacterSize();
-    const int charWidth = characterSize.X + padding.X;
-    const int charHeight = characterSize.Y + padding.Y;
-    const Point2 bitmapSize = MathHelper::CalcOptimalSize(Point2(charWidth, charHeight), length, restrictionFlags);
-    rDstBitmap.Reset(Extent2D(bitmapSize.X, bitmapSize.Y), dstPixelFormat);
+    const auto characterSize = CharacterSize();
+    const int charWidth = characterSize.Width() + padding.X;
+    const int charHeight = characterSize.Height() + padding.Y;
+    const PxSize2D bitmapSize = MathHelper::CalcOptimalSize(PxSize2D(charWidth, charHeight), length, restrictionFlags);
+    rDstBitmap.Reset(TypeConverter::UncheckedTo<PxExtent2D>(bitmapSize), dstPixelFormat);
 
-    const int32_t charsX = bitmapSize.X / charWidth;
+    const int32_t charsX = bitmapSize.Width() / charWidth;
     const int32_t numFullLines = length / charsX;
     const int32_t charsLeft = length % charsX;
 
@@ -309,7 +311,7 @@ namespace Fsl
       int dstX = 0;
       for (int i = 0; i < charsX; ++i)
       {
-        ExtractCharacter(character, rawBitmap, Point2(dstX, dstY));
+        ExtractCharacter(character, rawBitmap, PxPoint2(dstX, dstY));
         dstX += charWidth;
         ++character;
       }
@@ -320,7 +322,7 @@ namespace Fsl
       int dstX = 0;
       for (int i = 0; i < charsLeft; ++i)
       {
-        ExtractCharacter(character, rawBitmap, Point2(dstX, dstY));
+        ExtractCharacter(character, rawBitmap, PxPoint2(dstX, dstY));
         dstX += charWidth;
         ++character;
       }

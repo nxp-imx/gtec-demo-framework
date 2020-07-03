@@ -45,7 +45,7 @@ namespace Fsl
     std::weak_ptr<IServiceProvider> m_serviceProvider;
 
   public:
-    ServiceProvider(const std::weak_ptr<IServiceProvider>& serviceProvider);
+    explicit ServiceProvider(std::weak_ptr<IServiceProvider> serviceProvider);
     ~ServiceProvider();
 
     //! @brief Retrieve a service of the given type (if available)

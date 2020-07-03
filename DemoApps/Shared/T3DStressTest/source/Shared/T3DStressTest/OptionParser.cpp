@@ -39,7 +39,6 @@
 #include <algorithm>
 #include <cmath>
 
-
 namespace Fsl
 {
   namespace
@@ -146,30 +145,30 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    bool boolValue;
-    int intValue;
-    float floatValue;
+    bool boolValue = false;
+    int intValue = 0;
+    float floatValue = 0.0f;
 
     switch (cmdId)
     {
     case CommandId::RenderMode:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetRenderMode(static_cast<RenderMode>(intValue));
       return OptionParseResult::Parsed;
     case CommandId::Vertices:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_variables.Vertices = intValue;
       return OptionParseResult::Parsed;
     case CommandId::TextureResolution:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -180,35 +179,35 @@ namespace Fsl
       m_variables.TextureResolution = static_cast<uint16_t>(intValue);
       return OptionParseResult::Parsed;
     case CommandId::HighShaderPrecision:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_variables.HighShaderPrecision = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::Lights:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_variables.Lights = intValue;
       return OptionParseResult::Parsed;
     case CommandId::ToggleMinMax:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_variables.ToggleMinMax = static_cast<int>(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::Layers:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_variables.Layers = intValue;
       return OptionParseResult::Parsed;
     case CommandId::ForceFinish:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -218,91 +217,91 @@ namespace Fsl
       m_enableDevOverride = true;
       return OptionParseResult::Parsed;
     case CommandId::DLayerCount:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetLayerCount(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DHairLength:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetHairLength(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::DHairDensity:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetHairDensity(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::DFurTextureDimensions:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetFurTextureDimensions(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DInstanceCount:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetInstanceCount(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DVertexCountX:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetVertexCountX(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DVertexCountY:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetVertexCountY(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DUseTriangleStrip:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetUseTriangleStrip(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::DCameraDistance:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetCameraDistance(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::DShowNormals:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetShowNormals(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::DEnableDepthTest:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetEnableDepthTest(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::DShareInstanceVertices:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetShareInstanceVertices(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::DTextureRepeatCount:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

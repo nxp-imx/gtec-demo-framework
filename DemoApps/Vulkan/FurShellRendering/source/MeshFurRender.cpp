@@ -35,13 +35,13 @@ namespace Fsl
 {
   namespace
   {
-    const IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
+    IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
     {
       return IO::Path::Combine(shaderPath, (useHighPrecision ? "Fur_hp.vert.spv" : "Fur_lp.vert.spv"));
     }
 
 
-    const IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
+    IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
     {
       switch (lightCount)
       {
@@ -69,7 +69,7 @@ namespace Fsl
   }
 
   MeshFurRender::MeshFurRender(const IContentManager& contentManager, const Vulkan::VUDevice& device, const IO::Path& vertShaderPath,
-                               const IO::Path& fragShaderPath, const int lightCount)
+                               const IO::Path& fragShaderPath, const int /*lightCount*/)
   {
     // Done this way as old versions of RapidVulkan did not include a constructor that takes a vector
     VertShader.Reset(device.Get(), 0, contentManager.ReadBytes(vertShaderPath));

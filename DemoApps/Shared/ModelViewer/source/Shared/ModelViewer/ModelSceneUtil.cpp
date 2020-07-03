@@ -50,7 +50,7 @@ namespace Fsl
         FSLLOG3_VERBOSE("Trying to discover texture name")
         for (const auto& entry : extensions)
         {
-          auto filename = fmt::format("{}{}.{}", baseName, postfix, entry);
+          IO::Path filename(fmt::format("{}{}.{}", baseName, postfix, entry));
           if (contentManager.Exists(filename))
           {
             return filename;
@@ -110,7 +110,7 @@ namespace Fsl
       return loaderConfig;
     }
 
-    ModelLoaderConfig PrepareSceneModel(RenderConfig& rRenderConfig, Graphics3D::ArcballCamera& rCamera, const IContentManager& contentManager,
+    ModelLoaderConfig PrepareSceneModel(RenderConfig& rRenderConfig, Graphics3D::ArcballCamera& rCamera, const IContentManager& /*contentManager*/,
                                         const int32_t scene, const IO::Path& defaultScenePath)
     {
       ModelLoaderConfig loaderConfig{};

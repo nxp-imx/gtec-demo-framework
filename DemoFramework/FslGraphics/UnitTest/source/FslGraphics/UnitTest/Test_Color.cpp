@@ -31,10 +31,12 @@
 
 #include <FslGraphics/Color.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <FslGraphics/Log/LogColor.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <array>
+#include <cmath>
 #include <limits>
 #include <vector>
 
@@ -68,6 +70,34 @@ namespace
   Vector4 WorkAroundConstExpr(const Color& color)
   {
     return color.ToVector4();
+  }
+
+  Color Premultiply(const Color& color)
+  {
+    float alpha = float(color.A()) / 255.0f;
+    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.R()))), 0u, 255u);
+    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.G()))), 0u, 255u);
+    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.B()))), 0u, 255u);
+    return {r, g, b, uint32_t(color.A())};
+  }
+
+  Color Premultiply(const Color& color, const float alphaMul)
+  {
+    float alpha = (float(color.A()) / 255.0f) * alphaMul;
+    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.R()))), 0u, 255u);
+    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.G()))), 0u, 255u);
+    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.B()))), 0u, 255u);
+    uint32_t a = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.A()))), 0u, 255u);
+    return {r, g, b, a};
+  }
+
+  Color PremultiplyRGB(const Color& color, const float alphaMul, const uint32_t newAlpha)
+  {
+    float alpha = (float(color.A()) / 255.0f) * alphaMul;
+    uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.R()))), 0u, 255u);
+    uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.G()))), 0u, 255u);
+    uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.B()))), 0u, 255u);
+    return {r, g, b, newAlpha};
   }
 }
 
@@ -309,6 +339,87 @@ TEST(Test_Color, ColorsToVector4B)
   EXPECT_FLOAT_EQ(1.0f, blue.Z);
 }
 
+TEST(Test_Color, Premultiply)
+{
+  for (uint32_t i = 0; i < 256; ++i)
+  {
+    {
+      Color color(0xFFu, 0x80u, 0x20u, i);
+      auto expectedPremultiply = Premultiply(color);
+      auto gotPremultiplied = Color::Premultiply(color);
+      ASSERT_EQ(expectedPremultiply, gotPremultiplied);
+    }
+    for (uint32_t j = 0; j < 85; ++j)
+    {
+      Color color(j, 85 + j, (85 * 2) + j, i);
+      auto expectedPremultiply = Premultiply(color);
+      auto gotPremultiplied = Color::Premultiply(color);
+      ASSERT_EQ(expectedPremultiply, gotPremultiplied);
+    }
+  }
+}
+
+TEST(Test_Color, Premultiply_Constant)
+{
+  for (uint32_t i = 0; i < 256; ++i)
+  {
+    for (uint32_t a = 0; a < 256; ++a)
+    {
+      const float alpha = a / 255.0f;
+      {
+        Color color(0xFFu, 0x80u, 0x20u, i);
+        auto expectedPremultiply = Premultiply(color, alpha);
+        auto gotPremultiplied = Color::Premultiply(color, alpha);
+        ASSERT_EQ(expectedPremultiply, gotPremultiplied);
+      }
+    }
+  }
+}
+
+TEST(Test_Color, PremultiplyRGB_Constant)
+{
+  for (uint32_t i = 0; i < 256; ++i)
+  {
+    for (uint32_t a = 0; a < 256; ++a)
+    {
+      const float alpha = a / 255.0f;
+      {
+        Color color(0xFFu, 0x80u, 0x20u, i);
+        auto expectedPremultiply = PremultiplyRGB(color, alpha, 32u);
+        auto gotPremultiplied = Color::PremultiplyRGB(color, alpha, 32u);
+        ASSERT_EQ(expectedPremultiply, gotPremultiplied);
+      }
+    }
+  }
+}
+
+#if 0
+// Basically test all alphas vs our reference implementation
+// this is very slow.
+TEST(Test_Color, Premultiply_Constant_Heavy)
+{
+  for (uint32_t i = 0; i < 256; ++i)
+  {
+    for (uint32_t a = 0; a < 256; ++a)
+    {
+      const float alpha = a / 255.0f;
+      {
+        Color color(0xFFu, 0x80u, 0x20u, i);
+        auto expectedPremultiply = Premultiply(color, alpha);
+        auto gotPremultiplied = Color::Premultiply(color, alpha);
+        ASSERT_EQ(expectedPremultiply, gotPremultiplied);
+      }
+      for (uint32_t j = 0; j < 85; ++j)
+      {
+        Color color(j, 85 + j, (85 * 2) + j, i);
+        auto expectedPremultiply = Premultiply(color, alpha);
+        auto gotPremultiplied = Color::Premultiply(color, alpha);
+        ASSERT_EQ(expectedPremultiply, gotPremultiplied);
+      }
+    }
+  }
+}
+#endif
 
 TEST(Test_Color, Equals)
 {

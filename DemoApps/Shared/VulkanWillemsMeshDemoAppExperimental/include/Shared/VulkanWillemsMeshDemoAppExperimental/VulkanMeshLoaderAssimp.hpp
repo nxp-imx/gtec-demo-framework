@@ -41,8 +41,8 @@ namespace Fsl
       static const int DefaultFlags =
         aiProcess_FlipWindingOrder | aiProcess_Triangulate | aiProcess_PreTransformVertices | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals;
 
-      VulkanMeshLoaderAssimp(const std::shared_ptr<IContentManager>& contentManager);
-      ~VulkanMeshLoaderAssimp();
+      explicit VulkanMeshLoaderAssimp(const std::shared_ptr<IContentManager>& contentManager);
+      ~VulkanMeshLoaderAssimp() override;
 
     protected:
       //! See VulkanMeshLoader

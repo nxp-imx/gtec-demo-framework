@@ -31,7 +31,7 @@
 
 #include <Shared/Camera/Adapter/OpenCV/CameraAdapterOpenCV.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/Math/FmtExtent2D.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxExtent2D.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <cassert>
 
@@ -68,7 +68,7 @@ namespace Fsl
       FSLLOG3_VERBOSE("Format: {}", defaultFormat);
       FSLLOG3_VERBOSE("FPS: {}", defaultFPS);
 
-      const Extent2D defaultExtent(static_cast<uint32_t>(defaultWidth), static_cast<uint32_t>(defaultHeight));
+      const PxExtent2D defaultExtent(static_cast<uint32_t>(defaultWidth), static_cast<uint32_t>(defaultHeight));
 
       // Only modify
       if (allocateInfo.Flags.IsEnabled(CameraAdapterAllocateFlags::CustomExtent) && defaultExtent != allocateInfo.Extent)
@@ -80,7 +80,7 @@ namespace Fsl
 
         const double actualWidth = m_cap.get(cv::CAP_PROP_FRAME_WIDTH);
         const double actualHeight = m_cap.get(cv::CAP_PROP_FRAME_HEIGHT);
-        const Extent2D actualExtent(static_cast<uint32_t>(actualWidth), static_cast<uint32_t>(actualHeight));
+        const PxExtent2D actualExtent(static_cast<uint32_t>(actualWidth), static_cast<uint32_t>(actualHeight));
         if (actualExtent != allocateInfo.Extent)
         {
           FSLLOG3_WARNING("Failed to set custom resolution using: {}", actualExtent);

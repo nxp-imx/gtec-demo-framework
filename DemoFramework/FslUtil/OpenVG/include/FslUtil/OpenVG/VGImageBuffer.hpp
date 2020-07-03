@@ -33,7 +33,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenVG/Common.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <VG/openvg.h>
 
@@ -47,7 +47,7 @@ namespace Fsl
     class VGImageBuffer
     {
       VGImage m_handle;
-      Point2 m_size;
+      PxSize2D m_size;
 
     public:
       VGImageBuffer(const VGImageBuffer&) = delete;
@@ -59,7 +59,7 @@ namespace Fsl
       //! @brief Let this VGImageBuffer object assume control over the given VGImage handle.
       //! @param handle the VGImage handle
       //! @param size the size of the image
-      VGImageBuffer(const VGImage handle, const Point2& size);
+      VGImageBuffer(const VGImage handle, const PxSize2D& size);
 
       //! @brief Fill it with the provided bitmap.
       VGImageBuffer(const Bitmap& bitmap, const VGbitfield quality);
@@ -82,7 +82,7 @@ namespace Fsl
       //! @brief Let this VGImageBuffer object assume control over the given vgimage handle.
       //! @param handle the VGImage handle
       //! @param size the size of the image
-      void Reset(const VGImage handle, const Point2& size);
+      void Reset(const VGImage handle, const PxSize2D& size);
 
       //! @brief Free any existing image, then reallocate and fill it with the provided bitmap
       void Reset(const Bitmap& bitmap, const VGbitfield quality);
@@ -95,7 +95,7 @@ namespace Fsl
       VGImage GetHandle() const;
 
       //! @brief Get the image size.
-      const Point2 GetSize() const;
+      PxSize2D GetSize() const;
     };
   }
 }

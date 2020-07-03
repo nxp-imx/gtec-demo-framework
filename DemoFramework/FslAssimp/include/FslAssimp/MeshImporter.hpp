@@ -52,7 +52,7 @@ namespace Fsl
   {
   public:
     MeshImporter();
-    MeshImporter(const Graphics3D::MeshAllocatorFunc& meshAllocator);
+    explicit MeshImporter(Graphics3D::MeshAllocatorFunc meshAllocator);
 
     Graphics3D::MeshAllocatorFunc GetDefaultAllocator() const;
 

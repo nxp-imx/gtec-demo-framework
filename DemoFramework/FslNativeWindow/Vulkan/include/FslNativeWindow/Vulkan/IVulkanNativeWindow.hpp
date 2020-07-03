@@ -37,6 +37,8 @@
 
 namespace Fsl
 {
+  struct PxPoint2;
+
   class IVulkanNativeWindow : public virtual INativeWindow
   {
   public:
@@ -44,7 +46,7 @@ namespace Fsl
     virtual PlatformNativeWindowType GetWindowType() const = 0;
     virtual VkSurfaceKHR GetVulkanSurface() const = 0;
     //! @brief a implementation of TryGetSize that does not call TryGetVulkanSurfaceSize (so this reports the actual native window size)
-    virtual bool TryGetActualSize(Point2& rSize) const = 0;
+    virtual bool TryGetActualSize(PxPoint2& rSize) const = 0;
   };
 }    // namespace Fsl
 

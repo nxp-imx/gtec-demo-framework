@@ -33,9 +33,9 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Extent2D.hpp>
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl
@@ -46,35 +46,32 @@ namespace Fsl
     //! @note This is not a RAII object so you are responsible for managing the lifetime of the texture object.
     struct VUTextureInfo
     {
-      VkDescriptorImageInfo ImageInfo;
-      Extent3D Extent;
+      VkDescriptorImageInfo ImageInfo{};
+      PxExtent3D Extent;
 
       //! @brief Create a uninitialized texture (use SetData to add texture data to it)
-      VUTextureInfo()
-        : ImageInfo{}
+      VUTextureInfo() = default;
+
+      //! @brief Supply the object with information about a texture
+      //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
+      //! @param size the size of the texture
+      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const PxSize2D& size)
+        : VUTextureInfo(imageInfo, PxExtent3D(static_cast<uint32_t>(size.Width()), static_cast<uint32_t>(size.Height()), 1))
       {
       }
 
       //! @brief Supply the object with information about a texture
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
-      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const Point2& size)
-        : VUTextureInfo(imageInfo, Extent3D(size.X, size.Y, 1))
+      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const PxExtent2D& extent)
+        : VUTextureInfo(imageInfo, PxExtent3D(extent.Width, extent.Height, 1u))
       {
       }
 
       //! @brief Supply the object with information about a texture
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
-      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const Extent2D& extent)
-        : VUTextureInfo(imageInfo, Extent3D(extent.Width, extent.Height, 1u))
-      {
-      }
-
-      //! @brief Supply the object with information about a texture
-      //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
-      //! @param size the size of the texture
-      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const Extent3D& extent)
+      VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const PxExtent3D& extent)
         : ImageInfo(imageInfo)
         , Extent(extent)
       {
@@ -84,7 +81,7 @@ namespace Fsl
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
       VUTextureInfo(const VkDescriptorImageInfo& imageInfo, const VkExtent2D& extent)
-        : VUTextureInfo(imageInfo, Extent3D(extent.width, extent.height, 1u))
+        : VUTextureInfo(imageInfo, PxExtent3D(extent.width, extent.height, 1u))
       {
       }
 
@@ -111,6 +108,11 @@ namespace Fsl
       {
         ImageInfo = {};
         Extent = {};
+      }
+
+      inline bool IsValid() const
+      {
+        return ImageInfo.sampler != VK_NULL_HANDLE;
       }
 
 

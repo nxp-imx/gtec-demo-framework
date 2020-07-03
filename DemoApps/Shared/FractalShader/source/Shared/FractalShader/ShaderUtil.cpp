@@ -45,7 +45,7 @@ namespace Fsl
       std::stringstream stream;
       for (int i = 0; i < iterations; ++i)
       {
-        float c = (i + 0.0f) / iterations;
+        float c = (static_cast<float>(i) + 0.0f) / static_cast<float>(iterations);
 
         stream << "  // " << (i + 1) << "\n";
         stream << "  v = c + vec2(v.x * v.x - v.y * v.y, v.x * v.y * 2.0);\n";
@@ -66,9 +66,9 @@ namespace Fsl
       std::stringstream stream;
       for (int i = 0; i < iterations; ++i)
       {
-        float r = (0.5f + 0.5f * std::cos(3.0f + (i + 1) * 0.15f + 0.0f));
-        float g = (0.5f + 0.5f * std::cos(3.0f + (i + 1) * 0.15f + 0.6f));
-        float b = (0.5f + 0.5f * std::cos(3.0f + (i + 1) * 0.15f + 1.0f));
+        float r = (0.5f + 0.5f * std::cos(3.0f + static_cast<float>(i + 1) * 0.15f + 0.0f));
+        float g = (0.5f + 0.5f * std::cos(3.0f + static_cast<float>(i + 1) * 0.15f + 0.6f));
+        float b = (0.5f + 0.5f * std::cos(3.0f + static_cast<float>(i + 1) * 0.15f + 1.0f));
 
         stream << "  // " << (i + 1) << "\n";
         stream << "  v = c + vec2(v.x * v.x - v.y * v.y, v.x * v.y * 2.0);\n";
@@ -111,7 +111,7 @@ namespace Fsl
     std::string fragmentShader;
     if (!config.ForceUnroll)
     {
-      std::string fragmentShaderFile;
+      IO::Path fragmentShaderFile;
       switch (config.TheRenderMode)
       {
         // case RenderMode::Tex:

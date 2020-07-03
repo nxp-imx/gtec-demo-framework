@@ -89,7 +89,7 @@ namespace Fsl
     }
 
 
-    void GLVertexArray::Unbind() const
+    void GLVertexArray::Unbind() const    // NOLINT(readability-convert-member-functions-to-static)
     {
       glBindVertexArray(0);
     }

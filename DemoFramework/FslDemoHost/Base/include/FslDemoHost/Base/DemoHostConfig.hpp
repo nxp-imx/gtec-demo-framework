@@ -51,8 +51,8 @@ namespace Fsl
     uint32_t m_verbosityLevel;
 
   public:
-    DemoHostConfig(const std::shared_ptr<ADemoHostOptionParser>& optionParser, const std::weak_ptr<INativeWindowEventQueue>& eventQueue,
-                   const DemoHostAppSetup& demoHostAppSetup, const std::weak_ptr<IServiceProvider>& serviceProvider, const uint32_t verbosityLevel);
+    DemoHostConfig(std::shared_ptr<ADemoHostOptionParser> optionParser, std::weak_ptr<INativeWindowEventQueue> eventQueue,
+                   DemoHostAppSetup demoHostAppSetup, const std::weak_ptr<IServiceProvider>& serviceProvider, const uint32_t verbosityLevel);
     ~DemoHostConfig();
 
 

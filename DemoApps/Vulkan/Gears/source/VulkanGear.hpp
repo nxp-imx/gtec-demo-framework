@@ -23,9 +23,9 @@ namespace Fsl
 {
   struct Vertex
   {
-    float Pos[3]{};
-    float Normal[3]{};
-    float Color[3]{};
+    float Pos[3]{};       // NOLINT(modernize-avoid-c-arrays)
+    float Normal[3]{};    // NOLINT(modernize-avoid-c-arrays)
+    float Color[3]{};     // NOLINT(modernize-avoid-c-arrays)
 
     Vertex()
     //: Pos{} // bogus warning in VC2013
@@ -100,7 +100,7 @@ namespace Fsl
   public:
     VkDescriptorSet DescriptorSet;
 
-    VulkanGear(Willems::VulkanDevice* pVulkanDevice);
+    explicit VulkanGear(Willems::VulkanDevice* pVulkanDevice);
     ~VulkanGear();
 
     void Generate(const GearInfo& gearinfo, const VkQueue queue);

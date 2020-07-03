@@ -37,7 +37,7 @@ enum class WindowMethod : uint32_t
 {
   WinInit = 0x0001,
   WinMarkLayoutAsDirty = 0x0002,
-  WinGetContentRect = 0x0004,
+  WinGetContentPxRectangle = 0x0004,
   WinHandleEvent = 0x0008,
   WinUpdate = 0x0010,
   WinResolve = 0x0020,

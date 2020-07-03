@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <memory>
+#include <utility>
 #include "WindowEventQueueRecordType.hpp"
 
 namespace Fsl
@@ -49,27 +50,27 @@ namespace Fsl
       std::shared_ptr<WindowEvent> Event;
 
 
-      WindowEventQueueRecord(const WindowEventQueueRecordType type, const std::shared_ptr<TreeNode>& node)
+      WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> node)
         : Type(type)
-        , Node1(node)
+        , Node1(std::move(node))
       {
       }
 
 
-      WindowEventQueueRecord(const WindowEventQueueRecordType type, const std::shared_ptr<TreeNode>& node1, const std::shared_ptr<TreeNode>& node2)
+      WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> node1, std::shared_ptr<TreeNode> node2)
         : Type(type)
-        , Node1(node1)
-        , Node2(node2)
+        , Node1(std::move(node1))
+        , Node2(std::move(node2))
       {
       }
 
 
-      WindowEventQueueRecord(const WindowEventQueueRecordType type, const std::shared_ptr<TreeNode>& source, const std::shared_ptr<TreeNode>& target,
-                             const std::shared_ptr<WindowEvent>& theEvent)
+      WindowEventQueueRecord(const WindowEventQueueRecordType type, std::shared_ptr<TreeNode> source, std::shared_ptr<TreeNode> target,
+                             std::shared_ptr<WindowEvent> theEvent)
         : Type(type)
-        , Node1(source)
-        , Node2(target)
-        , Event(theEvent)
+        , Node1(std::move(source))
+        , Node2(std::move(target))
+        , Event(std::move(theEvent))
       {
       }
     };

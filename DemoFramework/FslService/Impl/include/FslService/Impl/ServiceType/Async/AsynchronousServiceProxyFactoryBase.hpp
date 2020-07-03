@@ -47,7 +47,7 @@ namespace Fsl
     std::shared_ptr<AServiceOptionParser> m_optionParser;
 
   public:
-    AsynchronousServiceProxyFactoryBase(const std::type_index& interfaceType);
+    explicit AsynchronousServiceProxyFactoryBase(const std::type_index& interfaceType);
     AsynchronousServiceProxyFactoryBase(const std::type_index& interfaceType, const ServiceCaps::Flags flags);
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const override

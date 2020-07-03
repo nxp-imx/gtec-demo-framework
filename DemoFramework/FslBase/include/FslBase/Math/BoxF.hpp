@@ -42,9 +42,9 @@ namespace Fsl
     float X2{0.0f};
     float Y2{0.0f};
 
-    constexpr BoxF() = default;
+    constexpr BoxF() noexcept = default;
 
-    constexpr BoxF(const float x1, const float y1, const float x2, const float y2)
+    constexpr BoxF(const float x1, const float y1, const float x2, const float y2) noexcept
       : X1(x1)
       , Y1(y1)
       , X2(x2)
@@ -52,25 +52,21 @@ namespace Fsl
     {
     }
 
-    constexpr BoxF(const float x, const float y, const float width, const float height, const bool reserved)
-      : X1(x)
-      , Y1(y)
-      , X2(x + width)
-      , Y2(y + height)
+    static constexpr BoxF FromWidthAndHeight(const float x, const float y, const float width, const float height)
     {
-      // FSL_PARAM_NOT_USED(reserved);
+      return {x, y, x + width, y + height};
     }
 
 
     static constexpr BoxF Empty()
     {
-      return BoxF(0.0f, 0.0f, 0.0f, 0.0f);
+      return {};
     }
 
     //! @brief Get the center of this box
     Vector2 GetCenter() const
     {
-      return Vector2(X1 + ((X2 - X1) * 0.5f), Y1 + ((Y2 - Y1) * 0.5f));
+      return {X1 + ((X2 - X1) * 0.5f), Y1 + ((Y2 - Y1) * 0.5f)};
     }
 
     constexpr bool operator==(const BoxF& rhs) const

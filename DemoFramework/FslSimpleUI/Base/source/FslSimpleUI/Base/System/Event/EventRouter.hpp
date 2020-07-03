@@ -36,36 +36,36 @@
 
 namespace Fsl
 {
-  struct Vector2;
+  struct PxPoint2;
 
   namespace UI
   {
     class EventRoute;
-    class ITreeNodeClickInputTargetLocator;
+    class ITreeNodeClickInputTargetLocater;
     class TreeNode;
     struct WindowFlags;
 
     class EventRouter
     {
       std::shared_ptr<TreeNode> m_rootNode;
-      std::shared_ptr<ITreeNodeClickInputTargetLocator> m_clickTargetLocator;
+      std::shared_ptr<ITreeNodeClickInputTargetLocater> m_clickTargetLocater;
 
     public:
       EventRouter(const EventRouter&) = delete;
       EventRouter& operator=(const EventRouter&) = delete;
 
-      EventRouter(const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocator>& clickTargetLocator);
+      EventRouter(std::shared_ptr<TreeNode> rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater);
       ~EventRouter();
 
       //! @brief Create a route for multiple uses.
       void CreateRoute(EventRoute& rRoute, const EventRoutingStrategy routingStrategy, const std::shared_ptr<TreeNode>& target);
 
       //! @brief Create a route for multiple uses.
-      void CreateRoute(EventRoute& rRoute, const EventRoutingStrategy routingStrategy, const Vector2& hitPosition);
+      void CreateRoute(EventRoute& rRoute, const EventRoutingStrategy routingStrategy, const PxPoint2& hitPositionPx);
 
     private:
       //! @brief Locate a window by hitting
-      std::shared_ptr<TreeNode> LocateWindowByHit(const Vector2& hitPosition, const WindowFlags& flags) const;
+      std::shared_ptr<TreeNode> LocateWindowByHit(const PxPoint2& hitPositionPx, const WindowFlags& flags) const;
     };
   }
 }

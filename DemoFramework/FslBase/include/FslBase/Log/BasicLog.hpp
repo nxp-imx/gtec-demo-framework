@@ -37,6 +37,8 @@
 #include <FslBase/Log/Logger0.hpp>
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG2(tYPE, sTRING)                                                                  \
   {                                                                                                 \
     if (Fsl::LogConfig::GetLogLevel() >= (tYPE))                                                    \
@@ -46,6 +48,7 @@
   }
 
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG2_IF(cOND, tYPE, sTRING)                                                         \
   {                                                                                                 \
     if ((cOND) && Fsl::LogConfig::GetLogLevel() >= (tYPE))                                          \
@@ -55,36 +58,46 @@
   }
 
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG(sTRING) FSLBASICLOG2(Fsl::LogType::Info, (sTRING))
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_IF(cONDITION, sTRING) FSLBASICLOG2_IF((cONDITION), Fsl::LogType::Info, (sTRING))
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_WARNING(sTRING) FSLBASICLOG2(Fsl::LogType::Warning, (sTRING))
 // WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_WARNING_IF(cONDITION, sTRING) FSLBASICLOG2_IF((cONDITION), Fsl::LogType::Warning, (sTRING))
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_ERROR(sTRING) FSLBASICLOG2(Fsl::LogType::Error, (sTRING))
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_ERROR_IF(cONDITION, sTRING) FSLBASICLOG2_IF((cONDITION), Fsl::LogType::Error, (sTRING))
 
 #ifdef NDEBUG
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG(sTRING) \
   {                               \
   }
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG_IF(cONDITION, sTRING) \
   {                                             \
   }
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG_WARNING(sTRING) \
   {                                       \
   }
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG_WARNING_IF(cONDITION, sTRING) \
   {                                                     \
   }
@@ -92,15 +105,19 @@
 #else
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG(sTRING) FSLBASICLOG2(Fsl::LogType::Info, (sTRING))
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG_IF(cONDITION, sTRING) FSLBASICLOG2_IF((cONDITION), Fsl::LogType::Info, (sTRING))
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG_WARNING(sTRING) FSLBASICLOG2(Fsl::LogType::Warning, (sTRING))
 //! Log in debug builds only
 //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSLBASICLOG_DEBUG_WARNING_IF(cONDITION, sTRING) FSLBASICLOG2_IF((cONDITION), Fsl::LogType::Warning, (sTRING))
 
 #endif

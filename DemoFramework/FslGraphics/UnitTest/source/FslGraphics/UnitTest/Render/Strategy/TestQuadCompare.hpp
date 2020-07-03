@@ -64,7 +64,7 @@ namespace Fsl
     Fsl::Vector2 texCoord_10(quad.TexCoords1.X, quad.TexCoords0.Y);
     Fsl::Vector2 texCoord_01(quad.TexCoords0.X, quad.TexCoords1.Y);
 
-    auto pSrcVertices = span.pVertices + quadVertexIndex;
+    const auto* pSrcVertices = span.pVertices + quadVertexIndex;
     ASSERT_NE(pSrcVertices, nullptr);
     if (pSrcVertices == nullptr)
     {

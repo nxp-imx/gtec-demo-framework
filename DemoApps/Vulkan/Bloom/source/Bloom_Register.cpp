@@ -39,7 +39,7 @@ namespace Fsl
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
     CustomDemoAppConfig customDemoAppConfig;
-    customDemoAppConfig.RestartOnResize = false;
+    customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never;
 
     DemoAppHostConfigVulkan config;
 

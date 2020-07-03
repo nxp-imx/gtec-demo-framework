@@ -14,6 +14,7 @@
 // follow the RAII principle used in this framework
 
 #include <Shared/VulkanWillemsMeshDemoAppExperimental/VulkanMeshLoaderAssimp.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/File.hpp>
@@ -34,7 +35,7 @@ namespace Fsl
   {
     namespace
     {
-      const IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
+      IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
       {
         assert(!trustedAbsPath.IsEmpty());
 
@@ -77,10 +78,10 @@ namespace Fsl
 
     void VulkanMeshLoaderAssimp::LoadMeshNow(const std::string& relativePath, const int flags, std::vector<MeshEntry>& rEntries, Dimension& rDim)
     {
-      const IO::Path absPath(ToAbsolutePath(GetContentPath(), relativePath));
+      const IO::Path absPath(ToAbsolutePath(GetContentPath(), IO::Path(relativePath)));
 
 
-      auto pScene = Importer.ReadFile(absPath.ToAsciiString().c_str(), flags);
+      const auto* pScene = Importer.ReadFile(absPath.ToAsciiString().c_str(), flags);
       if (pScene == nullptr)
       {
         throw NotSupportedException(std::string("Could not read file: ") + absPath.ToAsciiString());
@@ -140,7 +141,7 @@ namespace Fsl
 
       rDim.size = rDim.max - rDim.min;
 
-      auto indexBase = static_cast<uint32_t>(rMeshEntry.Indices.size());
+      auto indexBase = UncheckedNumericCast<uint32_t>(rMeshEntry.Indices.size());
       for (unsigned int i = 0; i < pAiMesh->mNumFaces; i++)
       {
         const aiFace& Face = pAiMesh->mFaces[i];

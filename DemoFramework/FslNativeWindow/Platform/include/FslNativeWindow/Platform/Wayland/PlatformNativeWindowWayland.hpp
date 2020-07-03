@@ -50,12 +50,12 @@ namespace Fsl
     {
       return m_platformSurface;
     }
-    virtual bool TryGetDPI(Vector2& rDPI) const override;
-    virtual bool TryGetSize(Point2& rSize) const override;
-    virtual bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return false;
-    }
+
+  protected:
+    bool TryGetNativeSize(PxPoint2& rSize) const override;
+    // Wayland hopefully sends a event when the dpi is changed, and we then need to notify the framework with
+    // eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowConfigChanged());
+    // virtual bool TryGetNativeDpi(Vector2& rDPI) const override;
   };
 }    // namespace Fsl
 

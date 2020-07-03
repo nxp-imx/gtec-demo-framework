@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <cstddef>
 #include <cassert>
+#include <cstddef>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -59,7 +59,7 @@ namespace Fsl
     size_type m_entries{0u};
 
   public:
-    CircularFixedSizeBuffer(size_type count)
+    explicit CircularFixedSizeBuffer(size_type count)
       : m_data(count)
     {
       if (count <= 0u)

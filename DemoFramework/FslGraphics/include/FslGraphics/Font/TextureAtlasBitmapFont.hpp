@@ -31,69 +31,137 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/String/StringViewLite.hpp>
-#include <FslGraphics/Font/FontGlyphRange.hpp>
+#include <FslGraphics/Font/BitmapFontConfig.hpp>
+#include <FslGraphics/Font/BitmapFontFastLookup.hpp>
 #include <FslGraphics/Font/FontGlyphPosition.hpp>
-#include <FslGraphics/Font/TextureAtlasGlyphInfo.hpp>
+#include <FslGraphics/Font/FontGlyphRange.hpp>
 #include <vector>
 
 namespace Fsl
 {
+  class BitmapFont;
   class IFontBasicKerning;
   class ITextureAtlas;
 
-  class TextureAtlasBitmapFont
+  class TextureAtlasBitmapFont final
   {
-    std::vector<FontGlyphRange> m_ranges;
-    int32_t m_minGlyphId{0};
-    // Beware the maxGlyphId is considered excluded
-    int32_t m_maxGlyphId{0};
-    int32_t m_unknownGlyphIndex{0};
-    std::vector<TextureAtlasGlyphInfo> m_glyphs;
-    int32_t m_baseLine{0};
-    int32_t m_lineSpacing{0};
+    BitmapFontFastLookup m_lookup;
+    BitmapFontChar m_unknownChar{};
 
   public:
-    TextureAtlasBitmapFont();
-    TextureAtlasBitmapFont(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning);
+    // move assignment operator
+    TextureAtlasBitmapFont& operator=(TextureAtlasBitmapFont&& other) noexcept
+    {
+      if (this != &other)
+      {
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Reset();
 
+        // Claim ownership here
+        m_lookup = std::move(other.m_lookup);
+        m_unknownChar = other.m_unknownChar;
+
+        // Remove the data from other
+        other.m_unknownChar = {};
+      }
+      return *this;
+    }
+
+    // move constructor
+    TextureAtlasBitmapFont(TextureAtlasBitmapFont&& other) noexcept
+      : m_lookup(std::move(other.m_lookup))
+      , m_unknownChar(other.m_unknownChar)
+    {
+      other.m_unknownChar = {};
+    }
+
+    TextureAtlasBitmapFont(const TextureAtlasBitmapFont&) = delete;
+    TextureAtlasBitmapFont& operator=(const TextureAtlasBitmapFont&) = delete;
+
+    TextureAtlasBitmapFont() = default;
+    TextureAtlasBitmapFont(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning);
+    explicit TextureAtlasBitmapFont(const BitmapFont& bitmapFont);
+
+    void Reset() noexcept
+    {
+      m_lookup.Clear();
+      m_unknownChar = {};
+    }
+
+    void Reset(const BitmapFont& bitmapFont);
     void Reset(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning);
 
-    int32_t BaseLine() const
+    int32_t BaseLinePx() const
     {
-      return m_baseLine;
+      return m_lookup.GetBaseLinePx();
     }
 
-    int32_t LineSpacing() const
+    //! @brief Get the baseline in pixels for the given font config
+    int32_t BaseLinePx(const BitmapFontConfig& fontConfig) const;
+
+    int32_t LineSpacingPx() const
     {
-      return m_lineSpacing;
+      return m_lookup.GetLineSpacingPx();
     }
 
-    //! @brief
-    Point2 MeasureString(const char* const psz) const;
+    //! @brief Get the line spacing in pixels for the given font config
+    int32_t LineSpacingPx(const BitmapFontConfig& fontConfig) const;
 
-    //! @brief
-    Point2 MeasureString(const StringViewLite& strView) const;
 
-    //! @brief
-    Point2 MeasureString(const char* const pStr, const uint32_t startIndex, const std::size_t length) const;
+    //! @brief Measure the string size in pixels
+    PxSize2D MeasureString(const char* const psz) const
+    {
+      return MeasureString(StringViewLite(psz));
+    }
 
+    //! @brief Measure the string size in pixels
+    PxSize2D MeasureString(const StringViewLite& strView) const;
+
+    //! @brief Measure the string size in pixels taking into account the font config
+    PxSize2D MeasureString(const char* const psz, const BitmapFontConfig& fontConfig) const
+    {
+      return MeasureString(StringViewLite(psz), fontConfig);
+    }
+
+    //! @brief Measure the string size in pixels taking into account the font config
+    PxSize2D MeasureString(const StringViewLite& strView, const BitmapFontConfig& fontConfig) const;
 
     //! @brief Extract render rules for the supplied string.
     //! @param rDst a vector that can contain at least 'length' entries
     //! @param startIndex the index in pStr to start reading characters at.
     //! @param length the number of characters to read from pStr
-    void ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView) const;
+    //! @return true if the rules were extracted, false if it was determined the string would be empty.
+    //          If this returns false then rDst was unmodified, if true strView.size() entries were written to rDst.
+    bool ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView) const FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT;
 
-    //! @brief Extract render rules for the supplied string.
+    //! @brief Extract render rules for the supplied string with offsets for the baseline.
     //! @param rDst a vector that can contain at least 'length' entries
     //! @param startIndex the index in pStr to start reading characters at.
     //! @param length the number of characters to read from pStr
-    void ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const char* const pStr, const uint32_t startIndex, const std::size_t length) const;
+    //! @return true if the rules were extracted, false if it was determined the string would be empty.
+    //          If this returns false then rDst was unmodified, if true strView.size() entries were written to rDst.
+    bool ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView,
+                            const BitmapFontConfig& fontConfig) const FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT;
+
+    //! @brief Do a glyph info lookup
+    const BitmapFontChar* TryGetChar(const uint32_t charId) const
+    {
+      return m_lookup.TryGetChar(charId);
+    }
+
+    //! @brief Do a glyph info lookup
+    const BitmapFontChar& GetBitmapFontChar(const uint32_t charId) const
+    {
+      return m_lookup.GetChar(charId, m_unknownChar);
+    }
+
 
   private:
-    void DoConstruct(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning);
+    // void DoConstruct(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning);
   };
 }
 

@@ -36,6 +36,7 @@
 #include <FslGraphics/Vertices/VertexPositionColorNormalTexture.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
+#include <array>
 #include <memory>
 #include <vector>
 
@@ -52,7 +53,7 @@ namespace Fsl
   private:
     std::vector<TVertex> m_buffer;
     GLES3::GLProgram m_program;
-    GLES3::GLVertexAttribLink m_particleAttribLink[4];
+    std::array<GLES3::GLVertexAttribLink, 4> m_particleAttribLink;
     GLES3::GLVertexBuffer m_vertexBuffer;
     GLES3::GLVertexBuffer m_vertexBuffer2;
     GLES3::GLVertexBuffer* m_pCurrentBuffer;

@@ -339,7 +339,7 @@ TEST(TestMath_BoundingBox, Intersects_Ray)
   Ray outsideRay(Vector3(5.0f, -5.0f, 5.0f), Vector3(0.0f, 1.0f, 0.0f));
   Ray missingRay(Vector3(5.0f, 15.0f, 5.0f), Vector3(0.0f, 1.0f, 0.0f));
 
-  float result;
+  float result = 0.0f;
   EXPECT_TRUE(box.Intersects(insideRay, result));
   EXPECT_FLOAT_EQ(0.0f, result);
   EXPECT_TRUE(box.Intersects(outsideRay, result));

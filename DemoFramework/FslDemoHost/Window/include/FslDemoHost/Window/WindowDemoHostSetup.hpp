@@ -38,7 +38,7 @@ namespace Fsl
   class WindowDemoHostSetup
   {
   public:
-    static const DemoHostSetup Get();
+    static DemoHostSetup Get();
   };
 }
 

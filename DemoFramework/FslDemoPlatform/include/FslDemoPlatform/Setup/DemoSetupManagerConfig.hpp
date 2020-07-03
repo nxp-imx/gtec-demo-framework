@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -40,9 +41,9 @@ namespace Fsl
     IO::Path ContentPath;
     IO::Path PersistentDataPath;
 
-    DemoSetupManagerConfig(const IO::Path& contentPath, const IO::Path& persistentDataPath)
-      : ContentPath(contentPath)
-      , PersistentDataPath(persistentDataPath)
+    DemoSetupManagerConfig(IO::Path contentPath, IO::Path persistentDataPath)
+      : ContentPath(std::move(contentPath))
+      , PersistentDataPath(std::move(persistentDataPath))
     {
     }
   };

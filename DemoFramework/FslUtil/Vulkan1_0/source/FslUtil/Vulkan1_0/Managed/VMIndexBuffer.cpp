@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Managed/VMIndexBuffer.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
@@ -40,20 +40,14 @@ namespace Fsl
 {
   namespace Vulkan
   {
-    namespace
-    {
-    }
-
-    void VMIndexBuffer::DoReset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pVertices, const std::size_t elementCount,
+    void VMIndexBuffer::DoReset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pIndices, const std::size_t elementCount,
                                 const uint32_t elementStride, const VMBufferUsage usage)
     {
+      // We rely on everything public using a span.
+      assert(pIndices != nullptr || elementCount == 0);
       if (!bufferManager)
       {
         throw std::invalid_argument("bufferManager can not be null");
-      }
-      if (pVertices == nullptr)
-      {
-        throw std::invalid_argument("pVertices can not be null");
       }
       if (elementCount > std::numeric_limits<uint32_t>::max())
       {
@@ -66,10 +60,9 @@ namespace Fsl
 
       Reset();
 
-
       try
       {
-        m_indexBuffer = bufferManager->CreateBuffer(pVertices, elementCount, elementStride, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, usage);
+        m_indexBuffer = bufferManager->CreateBuffer(pIndices, elementCount, elementStride, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, usage);
         m_bufferManager = bufferManager;
         m_indexCount = static_cast<uint32_t>(elementCount);
         m_elementStride = elementStride;
@@ -110,7 +103,7 @@ namespace Fsl
       }
     }
 
-    void VMIndexBuffer::DoSetData(const void* pVertices, const std::size_t elementCount, const uint32_t elementStride)
+    void VMIndexBuffer::DoSetData(const void* pIndices, const std::size_t elementCount, const uint32_t elementStride)
     {
       if (elementCount > m_indexCount)
       {
@@ -121,7 +114,7 @@ namespace Fsl
         throw std::invalid_argument("elementStride must match the VMIndexBuffer element stride");
       }
 
-      m_indexBuffer.Upload(0u, pVertices, elementCount * elementStride);
+      m_indexBuffer.Upload(0u, pIndices, elementCount * elementStride);
     }
   }
 }

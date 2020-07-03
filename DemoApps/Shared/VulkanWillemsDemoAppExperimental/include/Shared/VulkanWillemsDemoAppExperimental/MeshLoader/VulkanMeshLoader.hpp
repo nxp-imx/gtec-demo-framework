@@ -92,7 +92,8 @@ namespace Fsl
       VulkanMeshLoader(const VulkanMeshLoader&) = delete;
       VulkanMeshLoader& operator=(const VulkanMeshLoader&) = delete;
 
-      VulkanMeshLoader(const std::shared_ptr<IContentManager>& contentManager);
+      explicit VulkanMeshLoader(const std::shared_ptr<IContentManager>& contentManager);
+      virtual ~VulkanMeshLoader() = default;
 
       void LoadMesh(const std::string& relativePath);
       void LoadMesh(const std::string& relativePath, const int flags);

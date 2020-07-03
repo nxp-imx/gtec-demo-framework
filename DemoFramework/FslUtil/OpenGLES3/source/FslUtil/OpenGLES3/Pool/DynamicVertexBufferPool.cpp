@@ -152,7 +152,7 @@ namespace Fsl
 
       m_activeCount += capacity;
 
-      return VertexBufferEntry(vertexBuffer, capacity, indexInsideBucket);
+      return {vertexBuffer, capacity, indexInsideBucket};
     }
   }
 }

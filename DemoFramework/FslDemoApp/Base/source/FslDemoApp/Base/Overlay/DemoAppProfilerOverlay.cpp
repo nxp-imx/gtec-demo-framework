@@ -35,15 +35,17 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/String/StringCompat.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
-#include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
-#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslDemoService/CpuStats/ICpuStatsService.hpp>
+#include <FslDemoService/Graphics/IBasic2D.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Profiler/IProfilerService.hpp>
+#include <FslDemoService/Profiler/DefaultProfilerColors.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <cassert>
 #include <cstdio>
 #include <cstring>
 #include <cmath>
+#include <utility>
 
 namespace Fsl
 {
@@ -60,11 +62,11 @@ namespace Fsl
 
 
   DemoAppProfilerOverlay::CustomRecord::CustomRecord(const ProfilerCustomCounterHandle& handle, const ProfilerCustomCounterDesc& desc,
-                                                     const std::shared_ptr<DemoAppProfilerGraph>& graph)
+                                                     std::shared_ptr<DemoAppProfilerGraph> graph)
     : Handle(handle)
     , Name(desc.Name)
     , TheColor(desc.ColorHint)
-    , Graph(graph)
+    , Graph(std::move(graph))
   {
     int32_t digits1 = MinimumDigits(desc.MinValue);
     const int32_t digits2 = MinimumDigits(desc.MaxValue);
@@ -97,7 +99,7 @@ namespace Fsl
   DemoAppProfilerOverlay::~DemoAppProfilerOverlay() = default;
 
 
-  void DemoAppProfilerOverlay::Draw(const Point2& screenResolution)
+  void DemoAppProfilerOverlay::Draw(const DemoWindowMetrics& windowMetrics)
   {
     MaintainCachedCustomEntries();
 
@@ -148,15 +150,15 @@ namespace Fsl
           }
         }
 
-        const Point2 fontSize = basic2D->FontSize();
-        Vector2 dstPos(0.0f, static_cast<float>(screenResolution.Y - fontSize.Y));
+        const PxSize2D fontSize = basic2D->FontSize();
+        Vector2 dstPos(0.0f, static_cast<float>(windowMetrics.ExtentPx.Height - fontSize.Height()));
         if (m_scracthpad.size() > 0)
         {
           basic2D->DrawString(StringViewLite(m_scracthpad.data(), m_scracthpad.size()), dstPos);
         }
 
         {    // Render text for the custom counters
-          dstPos.X += (m_scracthpad.size() + 1) * fontSize.X;
+          dstPos.X += static_cast<float>((m_scracthpad.size() + 1) * fontSize.Width());
           std::list<CustomRecord>::const_iterator itr = m_customCounters.begin();
           while (itr != m_customCounters.end())
           {
@@ -165,9 +167,9 @@ namespace Fsl
             if (m_scracthpad.size() > 0u)
             {
               basic2D->DrawString(StringViewLite(m_scracthpad.data(), m_scracthpad.size()), dstPos);
-              dstPos.X += m_scracthpad.size() * fontSize.X;
+              dstPos.X += static_cast<float>(m_scracthpad.size() * fontSize.Width());
               basic2D->DrawString(itr->Name, dstPos);
-              dstPos.X += (itr->Name.size() + 1) * fontSize.X;
+              dstPos.X += static_cast<float>((itr->Name.size() + 1) * fontSize.Width());
             }
             ++itr;
           }
@@ -175,20 +177,21 @@ namespace Fsl
       }
 
       const Point2 graphSize = m_graphTotal.GetSize();
-      const Vector2 dstPosGraph(static_cast<float>(screenResolution.X - graphSize.X), static_cast<float>(screenResolution.Y - graphSize.Y));
+      const Vector2 dstPosGraph(static_cast<float>(windowMetrics.ExtentPx.Width - graphSize.X),
+                                static_cast<float>(windowMetrics.ExtentPx.Height - graphSize.Y));
 
       UpdateAndDrawCustomCounters(basic2D, dstPosGraph);
 
       if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::CPU))
       {
-        m_graphCPU.Draw(basic2D, dstPosGraph, Color::Orange());
+        m_graphCPU.Draw(basic2D, dstPosGraph, DefaultProfilerColors::CpuLoad);
       }
 
       if (m_logStatsFlags.IsFlagged(DemoAppStatsFlags::Frame))
       {
-        m_graphTotal.Draw(basic2D, dstPosGraph, Color::Green());
-        m_graphUpdate.Draw(basic2D, dstPosGraph, Color::Cyan());
-        m_graphDraw.Draw(basic2D, dstPosGraph, Color::Yellow());
+        m_graphTotal.Draw(basic2D, dstPosGraph, DefaultProfilerColors::Total);
+        m_graphUpdate.Draw(basic2D, dstPosGraph, DefaultProfilerColors::Update);
+        m_graphDraw.Draw(basic2D, dstPosGraph, DefaultProfilerColors::Draw);
       }
 
       basic2D->End();

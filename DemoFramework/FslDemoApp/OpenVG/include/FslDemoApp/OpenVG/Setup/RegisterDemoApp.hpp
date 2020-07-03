@@ -72,11 +72,4 @@ namespace Fsl
   }
 }
 
-
-// Register a pure OpenVG demo
-#define FSL_REGISTER_OPENVG_DEMO(tdEMOaPP, dEMOhOSTeglcONFIG) \
-  static_assert(false, "The FSL_REGISTER_OPENVG_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_OPENVG_DEMO_EX(tdEMOaPP, dEMOhOSTeglcONFIG, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_OPENVG_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

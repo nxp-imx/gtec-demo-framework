@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
-#include <FslUtil/Vulkan1_0/NativeBatch2D.hpp>
+#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
 
 namespace Fsl
 {
@@ -47,7 +47,7 @@ namespace Fsl
     std::shared_ptr<Vulkan::NativeBatch2D> m_batch;
 
   public:
-    OpenCV101(const DemoAppConfig& config);
+    explicit OpenCV101(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

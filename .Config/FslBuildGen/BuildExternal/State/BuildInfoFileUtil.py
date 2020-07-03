@@ -42,8 +42,10 @@ from FslBuildGen.BuildExternal.State.BuildInfoComplexJsonDecoder import BuildInf
 from FslBuildGen.BuildExternal.State.BuildInfoFile import BuildInfoFile
 from FslBuildGen.BuildExternal.State.BuildInfoFile import BuildInfoFileElements
 from FslBuildGen.BuildExternal.State.JsonDictType import JsonDictType
+from FslBuildGen.BuildExternal.State.JsonRecipeCMakeConfig import JsonRecipeCMakeConfig
 from FslBuildGen.BuildExternal.State.RecipePackageStateCache import RecipePackageStateCache
 from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 
@@ -74,6 +76,7 @@ class BuildInfoFileHelper(object):
 
             # Decode the complex element to a object of the right type
             jsonBuildInfoDict[BuildInfoFileElements.ContentState] = BuildInfoComplexJsonDecoder.DecodeJson(jsonBuildInfoDict[BuildInfoFileElements.ContentState])
+            jsonBuildInfoDict[BuildInfoFileElements.CMakeConfig] = BuildInfoComplexJsonDecoder.DecodeJsonCMakeConfig(jsonBuildInfoDict[BuildInfoFileElements.CMakeConfig])
             if BuildInfoFileElements.SourceState in jsonBuildInfoDict:
                 jsonBuildInfoDict[BuildInfoFileElements.SourceState] = BuildInfoComplexJsonDecoder.DecodeJson(jsonBuildInfoDict[BuildInfoFileElements.SourceState])
 
@@ -86,7 +89,7 @@ class BuildInfoFileHelper(object):
 class BuildInfoFileUtil(object):
     @staticmethod
     def TryValidateBuildInformation(log: Log, sourcePackage: Package, packagesToBuild: List[Package],
-                                    recipePackageStateCache: RecipePackageStateCache,
+                                    recipePackageStateCache: RecipePackageStateCache, cmakeConfig: GeneratorCMakeConfig,
                                     path: str) -> bool:
         if not PackageRecipeUtil.HasBuildPipeline(sourcePackage):
             return False
@@ -105,7 +108,7 @@ class BuildInfoFileUtil(object):
         # Load current information
         currentInfoDict = BuildInfoFile.TryCreateJsonBuildInfoRootDict(log, path, sourcePackage,
                                                                        sourcePackage.ResolvedDirectExperimentalRecipe,
-                                                                       recipePackageStateCache,
+                                                                       recipePackageStateCache, cmakeConfig,
                                                                        cachedContentState,
                                                                        loadedInfo.SourceState)
         if currentInfoDict is None:
@@ -124,6 +127,10 @@ class BuildInfoFileUtil(object):
 
         if len(currentInfo.PackageDependencies) != len(loadedInfo.PackageDependencies):
             log.LogPrint("The current package dependencies {0} did not match the stored package dependencies {1}".format(currentInfo.PackageDependencies, loadedInfo.PackageDependencies))
+            return False
+
+        if loadedInfo.CMakeConfig != currentInfo.CMakeConfig:
+            log.LogPrint("The current cmake config did not match the stored package config: {0}".format(JsonRecipeCMakeConfig.GetDiff(loadedInfo.CMakeConfig, currentInfo.CMakeConfig)))
             return False
 
         if currentInfo.ContentStateHash != loadedInfo.ContentStateHash:
@@ -162,7 +169,8 @@ class BuildInfoFileUtil(object):
         return True
 
     @staticmethod
-    def SaveBuildInformation(log: Log, recipeRecord: Optional[RecipeRecord], recipePackageStateCache: RecipePackageStateCache, path: str) -> None:
+    def SaveBuildInformation(log: Log, recipeRecord: Optional[RecipeRecord], recipePackageStateCache: RecipePackageStateCache,
+                             cmakeConfig: GeneratorCMakeConfig, path: str) -> None:
         if recipeRecord is None or not PackageRecipeUtil.HasBuildPipeline(recipeRecord.SourcePackage):
             return
         if recipeRecord.SourceRecipe is None or recipeRecord.SourceRecipe.ResolvedInstallLocation is None:
@@ -170,7 +178,8 @@ class BuildInfoFileUtil(object):
 
         installPath = recipeRecord.SourceRecipe.ResolvedInstallLocation.ResolvedPath
 
-        jsonRootDict = BuildInfoFile.TryCreateJsonBuildInfoRootDict(log, path, recipeRecord.SourcePackage, recipeRecord.SourceRecipe, recipePackageStateCache)
+        jsonRootDict = BuildInfoFile.TryCreateJsonBuildInfoRootDict(log, path, recipeRecord.SourcePackage, recipeRecord.SourceRecipe,
+                                                                    recipePackageStateCache, cmakeConfig)
         if jsonRootDict is None:
             return
 

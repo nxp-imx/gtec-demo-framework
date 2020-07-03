@@ -48,7 +48,7 @@ namespace Fsl
     ScopedSystemMemoryAccessLinux(const ScopedSystemMemoryAccessLinux&) = delete;
     ScopedSystemMemoryAccessLinux& operator=(const ScopedSystemMemoryAccessLinux&) = delete;
 
-    ScopedSystemMemoryAccessLinux(const std::size_t targetAddress);
+    explicit ScopedSystemMemoryAccessLinux(const std::size_t targetAddress);
     ~ScopedSystemMemoryAccessLinux();
     uint8_t GetUInt8() const;
     uint16_t GetUInt16() const;

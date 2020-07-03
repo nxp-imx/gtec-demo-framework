@@ -31,14 +31,18 @@
 #
 #****************************************************************************************************************************************************
 
+from FslBuildGen.ErrorHelpManager import ErrorHelpManager
 from FslBuildGen.Log import Log
 from FslBuildGen.Tool.LowLevelToolConfig import LowLevelToolConfig
 from FslBuildGen.Tool.ToolAppConfig import ToolAppConfig
+from FslBuildGen.Generator.PluginConfigContext import PluginConfigContext
 
 
 class ToolAppContext(object):
-    def __init__(self, log: Log, lowLevelToolConfig: LowLevelToolConfig,
-                 toolAppConfig: ToolAppConfig) -> None:
+    def __init__(self, log: Log, errorHelpManager: ErrorHelpManager, lowLevelToolConfig: LowLevelToolConfig,
+                 toolAppConfig: ToolAppConfig, pluginConfigContext: PluginConfigContext) -> None:
         self.Log = log
+        self.ErrorHelpManager = errorHelpManager
         self.LowLevelToolConfig = lowLevelToolConfig
         self.ToolAppConfig = toolAppConfig
+        self.PluginConfigContext = pluginConfigContext

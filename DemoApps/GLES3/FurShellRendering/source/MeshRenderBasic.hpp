@@ -51,7 +51,7 @@ namespace Fsl
     GLenum m_primitiveType;
 
   public:
-    MeshRenderBasic(const Procedural::BasicMesh& mesh);
+    explicit MeshRenderBasic(const Procedural::BasicMesh& mesh);
     ~MeshRenderBasic() override;
 
     void Bind(const ShaderBase& shader) override;

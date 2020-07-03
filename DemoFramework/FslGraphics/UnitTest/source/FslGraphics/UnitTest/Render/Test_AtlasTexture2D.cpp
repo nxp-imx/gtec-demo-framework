@@ -31,9 +31,12 @@
 
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Math/LogExtent2D.hpp>
-#include <FslBase/Log/Math/LogExtent3D.hpp>
-#include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxExtent3D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
@@ -43,6 +46,8 @@ using namespace Fsl;
 
 namespace
 {
+  constexpr const uint32_t TEST_DP = 320;
+
   using TestRender_AtlasTexture2D = TestFixtureFslGraphics;
 }
 
@@ -52,27 +57,27 @@ TEST(TestRender_AtlasTexture2D, Construct_Default)
   AtlasTexture2D texture;
 
   EXPECT_FALSE(texture.IsValid());
-  EXPECT_EQ(Point2(0, 0), texture.GetAtlasSize());
-  EXPECT_EQ(Point2(0, 0), texture.GetSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetAtlasSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetSize());
   EXPECT_EQ(AtlasTextureInfo(), texture.GetInfo());
   EXPECT_EQ(std::shared_ptr<INativeTexture2D>(), texture.TryGetNative());
-  EXPECT_EQ(Texture2D(), texture.GetAtlasTexture());
+  EXPECT_EQ(BaseTexture2D(), texture.GetAtlasTexture());
 }
 
 
 TEST(TestRender_AtlasTexture2D, Construct_Invalid)
 {
-  const Texture2D atlasTex;
+  const BaseTexture2D atlasTex;
   const AtlasTextureInfo atlasTexInfo;
 
   AtlasTexture2D texture(atlasTex, atlasTexInfo);
 
   EXPECT_FALSE(texture.IsValid());
-  EXPECT_EQ(Point2(0, 0), texture.GetAtlasSize());
-  EXPECT_EQ(Point2(0, 0), texture.GetSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetAtlasSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetSize());
   EXPECT_EQ(AtlasTextureInfo(), texture.GetInfo());
   EXPECT_EQ(std::shared_ptr<INativeTexture2D>(), texture.TryGetNative());
-  EXPECT_EQ(Texture2D(), texture.GetAtlasTexture());
+  EXPECT_EQ(BaseTexture2D(), texture.GetAtlasTexture());
 }
 
 
@@ -80,15 +85,17 @@ TEST(TestRender_AtlasTexture2D, Construct)
 {
   auto nativeGraphics = std::make_shared<NativeGraphicsTestImpl>();
 
-  const Bitmap atlasBitmap(Extent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
+  const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo(Rectangle(0, 0, 128, 128), Rectangle(64, 64, 1, 1));
+  const AtlasTextureInfo atlasTexInfo(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   AtlasTexture2D texture(atlasTex, atlasTexInfo);
 
+  const PxSize2D sizePx(TypeConverter::UncheckedTo<PxSize2D>(atlasTexInfo.ExtentPx));
+
   EXPECT_TRUE(texture.IsValid());
   EXPECT_EQ(atlasTex.GetSize(), texture.GetAtlasSize());
-  EXPECT_EQ(atlasTexInfo.OriginalSize, texture.GetSize());
+  EXPECT_EQ(sizePx, texture.GetSize());
   EXPECT_EQ(atlasTexInfo, texture.GetInfo());
   EXPECT_EQ(atlasTex.GetNative(), texture.TryGetNative());
   EXPECT_EQ(atlasTex, texture.GetAtlasTexture());
@@ -102,20 +109,20 @@ TEST(TestRender_AtlasTexture2D, Reset_Empty)
   texture.Reset();
 
   EXPECT_FALSE(texture.IsValid());
-  EXPECT_EQ(Point2(0, 0), texture.GetAtlasSize());
-  EXPECT_EQ(Point2(0, 0), texture.GetSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetAtlasSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetSize());
   EXPECT_EQ(AtlasTextureInfo(), texture.GetInfo());
   EXPECT_EQ(std::shared_ptr<INativeTexture2D>(), texture.TryGetNative());
-  EXPECT_EQ(Texture2D(), texture.GetAtlasTexture());
+  EXPECT_EQ(BaseTexture2D(), texture.GetAtlasTexture());
 }
 
 TEST(TestRender_AtlasTexture2D, Reset_Existing)
 {
   auto nativeGraphics = std::make_shared<NativeGraphicsTestImpl>();
 
-  const Bitmap atlasBitmap(Extent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
+  const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo(Rectangle(0, 0, 128, 128), Rectangle(64, 64, 1, 1));
+  const AtlasTextureInfo atlasTexInfo(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   AtlasTexture2D texture(atlasTex, atlasTexInfo);
 
@@ -124,11 +131,11 @@ TEST(TestRender_AtlasTexture2D, Reset_Existing)
   texture.Reset();
 
   EXPECT_FALSE(texture.IsValid());
-  EXPECT_EQ(Point2(0, 0), texture.GetAtlasSize());
-  EXPECT_EQ(Point2(0, 0), texture.GetSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetAtlasSize());
+  EXPECT_EQ(PxSize2D(0, 0), texture.GetSize());
   EXPECT_EQ(AtlasTextureInfo(), texture.GetInfo());
   EXPECT_EQ(std::shared_ptr<INativeTexture2D>(), texture.TryGetNative());
-  EXPECT_EQ(Texture2D(), texture.GetAtlasTexture());
+  EXPECT_EQ(BaseTexture2D(), texture.GetAtlasTexture());
 }
 
 
@@ -139,15 +146,17 @@ TEST(TestRender_AtlasTexture2D, Reset_FromEmptyToNew)
   AtlasTexture2D texture;
   ASSERT_FALSE(texture.IsValid());
 
-  const Bitmap atlasBitmap(Extent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
+  const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo(Rectangle(0, 0, 128, 128), Rectangle(64, 64, 1, 1));
+  const AtlasTextureInfo atlasTexInfo(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   texture.Reset(atlasTex, atlasTexInfo);
 
+  const PxSize2D sizePx = TypeConverter::UncheckedTo<PxSize2D>(atlasTexInfo.ExtentPx);
+
   EXPECT_TRUE(texture.IsValid());
   EXPECT_EQ(atlasTex.GetSize(), texture.GetAtlasSize());
-  EXPECT_EQ(atlasTexInfo.OriginalSize, texture.GetSize());
+  EXPECT_EQ(sizePx, texture.GetSize());
   EXPECT_EQ(atlasTexInfo, texture.GetInfo());
   EXPECT_EQ(atlasTex.GetNative(), texture.TryGetNative());
   EXPECT_EQ(atlasTex, texture.GetAtlasTexture());
@@ -158,20 +167,22 @@ TEST(TestRender_AtlasTexture2D, Reset_FromExistingToNew)
 {
   auto nativeGraphics = std::make_shared<NativeGraphicsTestImpl>();
 
-  const Bitmap atlasBitmap1(Extent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
+  const Bitmap atlasBitmap1(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex1(nativeGraphics, atlasBitmap1, Texture2DFilterHint::Smooth);
-  const AtlasTextureInfo atlasTexInfo1(Rectangle(0, 0, 128, 128), Rectangle(64, 64, 1, 1));
+  const AtlasTextureInfo atlasTexInfo1(PxRectangleU(64, 64, 1, 1), PxThicknessU(64, 64, 63, 63), TEST_DP);
 
   AtlasTexture2D texture(atlasTex1, atlasTexInfo1);
 
-  const Bitmap atlasBitmap2(Extent2D(64, 64), PixelFormat::R8G8B8_UNORM);
+  const Bitmap atlasBitmap2(PxExtent2D(64, 64), PixelFormat::R8G8B8_UNORM);
   const Texture2D atlasTex2(nativeGraphics, atlasBitmap2, Texture2DFilterHint::Nearest);
-  const AtlasTextureInfo atlasTexInfo2(Rectangle(0, 0, 64, 64), Rectangle(32, 32, 2, 2));
+  const AtlasTextureInfo atlasTexInfo2(PxRectangleU(32, 32, 2, 2), PxThicknessU(32, 32, 30, 30), TEST_DP);
   texture.Reset(atlasTex2, atlasTexInfo2);
+
+  const PxSize2D size2Px(TypeConverter::UncheckedTo<PxSize2D>(atlasTexInfo2.ExtentPx));
 
   EXPECT_TRUE(texture.IsValid());
   EXPECT_EQ(atlasTex2.GetSize(), texture.GetAtlasSize());
-  EXPECT_EQ(atlasTexInfo2.OriginalSize, texture.GetSize());
+  EXPECT_EQ(size2Px, texture.GetSize());
   EXPECT_EQ(atlasTexInfo2, texture.GetInfo());
   EXPECT_EQ(atlasTex2.GetNative(), texture.TryGetNative());
   EXPECT_EQ(atlasTex2, texture.GetAtlasTexture());

@@ -30,7 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
-#include <FslBase/Math/EqualHelper.hpp>
+#include <FslBase/Math/EqualHelper_Vector2.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <algorithm>
@@ -65,13 +66,13 @@ namespace Fsl
         assert(srcSize.X < CONSIDER_POSITIVE_INFINITY);
         assert(srcSize.Y < CONSIDER_POSITIVE_INFINITY);
 
-        if (srcSize.X < 0.00001f || srcSize.X < 0.00001f)
+        if (srcSize.X < 0.00001f || srcSize.Y < 0.00001f)
         {
-          return Vector2();
+          return {};
         }
         if (targetSize.X <= 0.00001f || targetSize.Y <= 0.00001f)
         {
-          return Vector2();
+          return {};
         }
 
         // m = dy / dx
@@ -83,7 +84,7 @@ namespace Fsl
         float calcedY = m * targetSize.X;
         if (calcedX <= 0.0001f || calcedY <= 0.000f)
         {
-          return Vector2();
+          return {};
         }
 
         Vector2 size1(calcedX, targetSize.Y);
@@ -115,14 +116,14 @@ namespace Fsl
           // Source Y fits but X is too large
           const float newScale = targetSize.X / srcSize.X;
           float newY = srcSize.Y * newScale;
-          return Vector2(targetSize.X, CorrectFloatingPointErrors(newY, targetSize.Y));
+          return {targetSize.X, CorrectFloatingPointErrors(newY, targetSize.Y)};
         }
         if (srcSize.Y > targetSize.Y)
         {
           // Source X fits but Y is too large
           const float newScale = targetSize.Y / srcSize.Y;
           float newX = srcSize.X * newScale;
-          return Vector2(CorrectFloatingPointErrors(newX, targetSize.X), targetSize.Y);
+          return {CorrectFloatingPointErrors(newX, targetSize.X), targetSize.Y};
         }
 
         // Source X, Y fits so do nothing
@@ -180,6 +181,40 @@ namespace Fsl
       return true;
     }
 
+    bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
+    {
+      return TryCalcSize(rSize, targetSize, Vector2(static_cast<float>(srcSize.X), static_cast<float>(srcSize.Y)), scalePolicy);
+    }
+
+    bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy)
+    {
+      return TryCalcSize(rSize, targetSize, TypeConverter::UncheckedTo<Vector2>(srcSize), scalePolicy);
+    }
+
+    bool UIScaleUtil::TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy)
+    {
+      Vector2 scaledSize;
+      if (TryCalcSize(scaledSize, TypeConverter::UncheckedTo<Vector2>(targetSize), srcSize, scalePolicy))
+      {
+        rSize = TypeConverter::UncheckedChangeTo<PxPoint2>(scaledSize);
+        return true;
+      }
+      rSize = {};
+      return false;
+    }
+
+    bool UIScaleUtil::TryCalcSize(PxSize2D& rSize, const PxSize2D& targetSize, const PxSize2D& srcSize, const ItemScalePolicy scalePolicy)
+    {
+      PxPoint2 scaledSize;
+      if (TryCalcSize(scaledSize, TypeConverter::UncheckedTo<PxPoint2>(targetSize), TypeConverter::UncheckedTo<PxPoint2>(srcSize), scalePolicy))
+      {
+        rSize = TypeConverter::UncheckedTo<PxSize2D>(scaledSize);
+        return true;
+      }
+      rSize = {};
+      return false;
+    }
+
 
     Vector2 UIScaleUtil::CalcScaling(const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy)
     {
@@ -192,7 +227,7 @@ namespace Fsl
       // Early abort in case of crazy input
       if (srcSize.X <= 0.0f || srcSize.Y <= 0.0f)
       {
-        return Vector2();
+        return {};
       }
 
       const Vector2 newSize = CalcSize(targetSize, srcSize, scalePolicy);
@@ -236,7 +271,7 @@ namespace Fsl
       case ItemScalePolicy::Fit:
         return clampedTarget;
       case ItemScalePolicy::Downscale:
-        return Vector2(std::min(clampedTarget.X, clampedSrc.X), std::min(clampedTarget.Y, clampedSrc.Y));
+        return {std::min(clampedTarget.X, clampedSrc.X), std::min(clampedTarget.Y, clampedSrc.Y)};
       case ItemScalePolicy::FitKeepAR:
         return CalcSizeKeepAspectRatioScaling(clampedTarget, srcSize);
       case ItemScalePolicy::DownscaleKeepAR:

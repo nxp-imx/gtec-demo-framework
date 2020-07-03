@@ -47,7 +47,7 @@ namespace Fsl
     mutable std::deque<std::weak_ptr<INativeWindow>> m_windows;
 
   public:
-    WindowHostService(const ServiceProvider& serviceProvider);
+    explicit WindowHostService(const ServiceProvider& serviceProvider);
     ~WindowHostService() override;
 
     // From IWindowHostInfoControl

@@ -54,7 +54,7 @@ namespace Fsl
   {
     // FIX: this check was incorrect as it marked the wrong queue, a mark as dead function is probably better
     const bool isShutdownMessage = false;    // (message.Type == BasicMessageType::ThreadShutdown);
-    bool wasEmpty;
+    bool wasEmpty = false;
     {
       std::lock_guard<std::mutex> lock(m_mutex);
 

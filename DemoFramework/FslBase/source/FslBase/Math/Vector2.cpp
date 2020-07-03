@@ -45,8 +45,8 @@ namespace Fsl
 
   Vector2 Vector2::Barycentric(const Vector2& value1, const Vector2& value2, const Vector2& value3, const float amount1, const float amount2)
   {
-    return Vector2(MathHelper::Barycentric(value1.X, value2.X, value3.X, amount1, amount2),
-                   MathHelper::Barycentric(value1.Y, value2.Y, value3.Y, amount1, amount2));
+    return {MathHelper::Barycentric(value1.X, value2.X, value3.X, amount1, amount2),
+            MathHelper::Barycentric(value1.Y, value2.Y, value3.Y, amount1, amount2)};
   }
 
 
@@ -60,8 +60,8 @@ namespace Fsl
 
   Vector2 Vector2::CatmullRom(const Vector2& value1, const Vector2& value2, const Vector2& value3, const Vector2& value4, const float amount)
   {
-    return Vector2(MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
-                   MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount));
+    return {MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
+            MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount)};
   }
 
 
@@ -75,7 +75,7 @@ namespace Fsl
 
   Vector2 Vector2::Clamp(const Vector2& value, const Vector2& min, const Vector2& max)
   {
-    return Vector2(MathHelper::Clamp(value.X, min.X, max.X), MathHelper::Clamp(value.Y, min.Y, max.Y));
+    return {MathHelper::Clamp(value.X, min.X, max.X), MathHelper::Clamp(value.Y, min.Y, max.Y)};
   }
 
 
@@ -93,8 +93,8 @@ namespace Fsl
 
   Vector2 Vector2::Hermite(const Vector2& value1, const Vector2& tangent1, const Vector2& value2, const Vector2& tangent2, const float amount)
   {
-    return Vector2(MathHelper::Hermite(value1.X, tangent1.X, value2.X, tangent2.X, amount),
-                   MathHelper::Hermite(value1.Y, tangent1.Y, value2.Y, tangent2.Y, amount));
+    return {MathHelper::Hermite(value1.X, tangent1.X, value2.X, tangent2.X, amount),
+            MathHelper::Hermite(value1.Y, tangent1.Y, value2.Y, tangent2.Y, amount)};
   }
 
 
@@ -114,7 +114,7 @@ namespace Fsl
 
   Vector2 Vector2::Lerp(const Vector2& value1, const Vector2 value2, const float amount)
   {
-    return Vector2(MathHelper::Lerp(value1.X, value2.X, amount), MathHelper::Lerp(value1.Y, value2.Y, amount));
+    return {MathHelper::Lerp(value1.X, value2.X, amount), MathHelper::Lerp(value1.Y, value2.Y, amount)};
   }
 
 
@@ -126,7 +126,7 @@ namespace Fsl
 
   Vector2 Vector2::Max(const Vector2& value1, const Vector2& value2)
   {
-    return Vector2(std::max(value1.X, value2.X), std::max(value1.Y, value2.Y));
+    return {std::max(value1.X, value2.X), std::max(value1.Y, value2.Y)};
   }
 
 
@@ -138,7 +138,7 @@ namespace Fsl
 
   Vector2 Vector2::Min(const Vector2& value1, const Vector2& value2)
   {
-    return Vector2(std::min(value1.X, value2.X), std::min(value1.Y, value2.Y));
+    return {std::min(value1.X, value2.X), std::min(value1.Y, value2.Y)};
   }
 
 
@@ -180,7 +180,7 @@ namespace Fsl
     // R = I - (2 * N * ( DotProduct[ I,N] ))
     const float factor = 2.0f * ((vector.X * normal.X) + (vector.Y * normal.Y));
 
-    return Vector2(vector.X - (normal.X * factor), vector.Y - (normal.Y * factor));
+    return {vector.X - (normal.X * factor), vector.Y - (normal.Y * factor)};
   }
 
 
@@ -198,7 +198,7 @@ namespace Fsl
 
   Vector2 Vector2::SmoothStep(const Vector2& value1, const Vector2& value2, const float amount)
   {
-    return Vector2(MathHelper::SmoothStep(value1.X, value2.X, amount), MathHelper::SmoothStep(value1.Y, value2.Y, amount));
+    return {MathHelper::SmoothStep(value1.X, value2.X, amount), MathHelper::SmoothStep(value1.Y, value2.Y, amount)};
   }
 
 

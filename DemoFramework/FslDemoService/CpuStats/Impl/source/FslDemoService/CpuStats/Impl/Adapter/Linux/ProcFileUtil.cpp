@@ -99,8 +99,11 @@ namespace Fsl
                   FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
                   parseState = CPUParseState::ParseCPULineDone;
                 }
-                ++parseIndex;
-                parseState = CPUParseState::ParseCPULineSkipSpace;
+                else
+                {
+                  ++parseIndex;
+                  parseState = CPUParseState::ParseCPULineSkipSpace;
+                }
               }
               else
               {
@@ -116,8 +119,11 @@ namespace Fsl
                 FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
                 parseState = CPUParseState::ParseCPULineDone;
               }
-              ++parseIndex;
-              parseState = parseIndex <= 4 ? CPUParseState::ParseCPULineSkipSpace : CPUParseState::ParseCPULineCompleted;
+              else
+              {
+                ++parseIndex;
+                parseState = parseIndex <= 4 ? CPUParseState::ParseCPULineSkipSpace : CPUParseState::ParseCPULineCompleted;
+              }
               break;
             default:
               parseState = CPUParseState::ParseCPULineCompleted;
@@ -213,8 +219,11 @@ namespace Fsl
                 FSLLOG3_DEBUG_WARNING("Failed to parse entry {0} containing '{1}'", parseIndex, lineBuffer.data());
                 parseState = RAMParseState::ParseVmRSSLineFailed;
               }
-              ++parseIndex;
-              parseState = RAMParseState::ParseVmRSSLineSkipWhitespaces;
+              else
+              {
+                ++parseIndex;
+                parseState = RAMParseState::ParseVmRSSLineSkipWhitespaces;
+              }
               break;
             case 2:    // memory unit type
               ++parseIndex;

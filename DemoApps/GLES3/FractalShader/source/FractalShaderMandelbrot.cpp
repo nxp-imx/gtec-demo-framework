@@ -58,7 +58,7 @@ namespace Fsl
 
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
     {
-      std::string fragmentShaderFile;
+      IO::Path fragmentShaderFile;
       switch (cfg.TheRenderMode)
       {
       // case RenderMode::Tex:
@@ -98,14 +98,14 @@ namespace Fsl
     const float v1 = (-1.0f) * scaleY;
     const float v2 = (1.0f) * scaleY;
 
-    VertexPositionTexture vertices[] = {
+    const std::array<VertexPositionTexture, 4> vertices = {
       VertexPositionTexture(Vector3(-1.0f, 1.0f, 0.0f), Vector2(u1, v2)),
       VertexPositionTexture(Vector3(-1.0f, -1.0f, 0.0f), Vector2(u1, v1)),
       VertexPositionTexture(Vector3(1.0f, 1.0f, 0.0f), Vector2(u2, v2)),
       VertexPositionTexture(Vector3(1.0f, -1.0f, 0.0f), Vector2(u2, v1)),
     };
 
-    m_vertexBuffer.Reset(vertices, 4, GL_STATIC_DRAW);
+    m_vertexBuffer.Reset(vertices, GL_STATIC_DRAW);
     glViewport(0, 0, m_screenResolution.X, m_screenResolution.Y);
   }
 

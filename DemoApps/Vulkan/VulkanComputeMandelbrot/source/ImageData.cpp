@@ -30,9 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include "ImageData.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
@@ -56,6 +57,7 @@ namespace Fsl
       m_format = other.m_format;
       m_mipLevels = other.m_mipLevels;
       m_arrayLayers = other.m_arrayLayers;
+      m_bytesPerPixel = other.m_bytesPerPixel;
 
       // Remove the data from other
       other.m_extent3D = VkExtent3D{};
@@ -63,6 +65,7 @@ namespace Fsl
       other.m_format = VK_FORMAT_UNDEFINED;
       other.m_mipLevels = 0;
       other.m_arrayLayers = 0;
+      other.m_bytesPerPixel = 0;
     }
     return *this;
   }
@@ -77,6 +80,7 @@ namespace Fsl
     , m_format(other.m_format)
     , m_mipLevels(other.m_mipLevels)
     , m_arrayLayers(other.m_arrayLayers)
+    , m_bytesPerPixel(other.m_bytesPerPixel)
   {
     // Remove the data from other
     other.m_extent3D = VkExtent3D{};
@@ -84,6 +88,7 @@ namespace Fsl
     other.m_format = VK_FORMAT_UNDEFINED;
     other.m_mipLevels = 0;
     other.m_arrayLayers = 0;
+    other.m_bytesPerPixel = 0;
   }
 
 
@@ -118,7 +123,7 @@ namespace Fsl
   }
 
 
-  ImageData::~ImageData()
+  ImageData::~ImageData() noexcept
   {
     Reset();
   }
@@ -131,8 +136,8 @@ namespace Fsl
       return;
     }
 
-    m_data.resize(0);
-    m_scratchpadAllOffsets.resize(0);
+    m_data.clear();
+    m_scratchpadAllOffsets.clear();
     m_extent3D = VkExtent3D{};
     m_imageType = VK_IMAGE_TYPE_1D;
     m_format = VK_FORMAT_UNDEFINED;
@@ -141,7 +146,7 @@ namespace Fsl
   }
 
 
-  bool ImageData::IsValid() const
+  bool ImageData::IsValid() const noexcept
   {
     // For now we consider a image with zero bytes per pixel invalid
     return m_bytesPerPixel != 0;
@@ -150,7 +155,7 @@ namespace Fsl
 
   uint32_t ImageData::GetSize() const
   {
-    return static_cast<uint32_t>(m_data.size());
+    return UncheckedNumericCast<uint32_t>(m_data.size());
   }
 
 
@@ -170,7 +175,7 @@ namespace Fsl
     assert(m_bytesPerPixel != 0);
 
     VkExtent3D currentExtent;
-    std::size_t dstOffset;
+    std::size_t dstOffset = 0;
     GetExtentAndOffset(currentExtent, dstOffset, mipLevel, arrayLayer);
 
     if (subresourceLayout.size > static_cast<VkDeviceSize>(m_data.size() - dstOffset))
@@ -253,8 +258,8 @@ namespace Fsl
     // FIX: we assume the stride is 'minimal' here.
     // FIX: we currently know this is 2d image data
 
-    const auto pixelFormat = Vulkan::ConvertUtil::Convert(m_format);
-    return RawBitmap(m_data.data(), m_extent3D.width, m_extent3D.height, pixelFormat, BitmapOrigin::UpperLeft);
+    const auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(m_format);
+    return {m_data.data(), m_extent3D.width, m_extent3D.height, pixelFormat, BitmapOrigin::UpperLeft};
   }
 
   // RawBitmapEx ImageData::LockEx()

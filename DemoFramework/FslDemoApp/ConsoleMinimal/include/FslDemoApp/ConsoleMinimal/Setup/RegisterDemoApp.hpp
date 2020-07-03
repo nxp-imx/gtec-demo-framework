@@ -66,10 +66,4 @@ namespace Fsl
   }
 }
 
-// Register a pure Console demo
-#define FSL_REGISTER_CONSOLE_DEMO(tdEMOaPP) \
-  static_assert(false, "The FSL_REGISTER_CONSOLE_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_CONSOLE_DEMO_EX(tdEMOaPP, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_CONSOLE_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

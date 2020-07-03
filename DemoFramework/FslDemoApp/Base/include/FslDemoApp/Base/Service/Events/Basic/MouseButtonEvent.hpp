@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButton.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
 
@@ -51,7 +51,7 @@ namespace Fsl
       }
     }
 
-    MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const Point2& position);
+    MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position);
 
     //! @brief Get the button that was modified
     VirtualMouseButton::Enum GetButton() const;
@@ -63,7 +63,7 @@ namespace Fsl
     }
 
     //! @brief Get the position it occurred at
-    const Point2 GetPosition() const;
+    PxPoint2 GetPosition() const;
   };
 }
 

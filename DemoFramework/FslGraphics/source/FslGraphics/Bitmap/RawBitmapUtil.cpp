@@ -286,7 +286,7 @@ namespace Fsl
 
     uint8_t* pSrc = pDst + (dstStride * (rBitmap.Height() - 1));
 
-    uint8_t tmp;
+    uint8_t tmp = 0;
 
     const uint32_t dstStrideAdjust = dstStride - minimumStride;
     const uint32_t srcStride = dstStride + minimumStride;
@@ -362,7 +362,7 @@ namespace Fsl
 
     if (srcStride != dstStride || bytesPerLine != srcStride)
     {
-      while (pSrc <= pSrcEnd)
+      while (pSrc < pSrcEnd)
       {
         std::memcpy(pDst, pSrc, bytesPerLine);
         pSrc += srcStride;

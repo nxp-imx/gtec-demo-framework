@@ -33,8 +33,8 @@
 
 #include <FslBase/IO/Path.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
+#include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <fstream>
 
 namespace Fsl

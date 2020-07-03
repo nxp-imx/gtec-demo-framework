@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraAdapterAllocateFlags.hpp>
@@ -45,14 +45,14 @@ namespace Fsl
     struct CameraAdapterAllocateInfo
     {
       CameraAdapterAllocateFlags Flags;
-      Extent2D Extent;
+      PxExtent2D Extent;
 
       CameraAdapterAllocateInfo()
         : Flags(0)
       {
       }
 
-      CameraAdapterAllocateInfo(const CameraAdapterAllocateFlags flags, const Extent2D& extent)
+      CameraAdapterAllocateInfo(const CameraAdapterAllocateFlags flags, const PxExtent2D& extent)
         : Flags(flags)
         , Extent(extent)
       {

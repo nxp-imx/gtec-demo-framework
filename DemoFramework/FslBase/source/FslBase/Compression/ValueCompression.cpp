@@ -75,7 +75,7 @@ namespace Fsl
 
   std::size_t ValueCompression::ReadSimple(int32_t& rResult, const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index)
   {
-    uint32_t value;
+    uint32_t value = 0;
     const auto result = ReadSimple(value, pSrc, srcLength, index);
 
     rResult = static_cast<int32_t>((value >> 1) ^ ((~0) + ((~value) & 1)));

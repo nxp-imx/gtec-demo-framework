@@ -31,19 +31,21 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslUtil/Vulkan1_0/Batch/Batch2D.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
+#include <array>
 #include <memory>
 
 namespace Fsl
 {
   namespace Vulkan
   {
-    class NativeGraphicsBasic2D : public INativeGraphicsBasic2D
+    class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
     {
       struct Resources
       {
@@ -53,25 +55,25 @@ namespace Fsl
       };
 
       Batch2D m_batch2D;
-      Point2 m_currentResolution;
-      Point2 m_fontSize;
-      Rectangle m_fillPixelRect;
+      PxExtent2D m_currentExtent;
+      PxSize2D m_fontSize;
+      PxRectangle m_fillPixelRect;
       bool m_inBegin;
-      Rectangle m_charRects[128 - 33];
+      std::array<PxRectangle, 128 - 33> m_charRects{};
 
       Resources m_resources;
 
     public:
-      NativeGraphicsBasic2D(const std::shared_ptr<QuadBatch>& quadBatch, const Point2& currentResolution);
-      ~NativeGraphicsBasic2D() override;
+      NativeGraphicsBasic2D(const std::shared_ptr<QuadBatch>& quadBatch, const PxExtent2D& currentExtentPx);
+      ~NativeGraphicsBasic2D() final;
 
       // From INativeGraphicsBasic2D
-      void SetScreenResolution(const Point2& currentResolution) override;
-      void Begin() override;
-      void End() override;
-      void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) override;
-      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
-      Point2 FontSize() const override;
+      void SetScreenExtent(const PxExtent2D& extentPx) final;
+      void Begin() final;
+      void End() final;
+      void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
+      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
+      PxSize2D FontSize() const final;
 
       void VulkanDeviceInit(const std::shared_ptr<VulkanImageCreator>& imageCreator);
       void VulkanDeviceShutdown() noexcept;

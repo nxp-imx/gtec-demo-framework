@@ -30,12 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "Vulkan101.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/VUBufferMemory.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <algorithm>
+#include <array>
 //#include <vulkan/vulkan.h>
 
 namespace Fsl
@@ -50,9 +52,9 @@ namespace Fsl
     Vulkan::VUBufferMemory CreateVertexBuffer(const VUDevice& device)
     {
       // Window clip origin is upper left.
-      static const float vertices[3 * 4] = {-0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f};
+      static constexpr const std::array<float, 3 * 4> vertices = {-0.5f, 0.5f, 0.0f, 1.0f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, -0.5f, 0.0f, 1.0f};
 
-      const VkDeviceSize cbVertices = sizeof(vertices);
+      const VkDeviceSize cbVertices = vertices.size() * sizeof(float);
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
       bufferCreateInfo.flags = 0;
@@ -63,7 +65,7 @@ namespace Fsl
       bufferCreateInfo.pQueueFamilyIndices = nullptr;
 
       Vulkan::VUBufferMemory vertexBuffer(device, bufferCreateInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-      vertexBuffer.Upload(0, vertices, cbVertices);
+      vertexBuffer.Upload(0, vertices.data(), cbVertices);
       return vertexBuffer;
     }
 
@@ -226,7 +228,7 @@ namespace Fsl
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
       graphicsPipelineCreateInfo.flags = 0;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -259,12 +261,12 @@ namespace Fsl
 
   Vulkan101::~Vulkan101() = default;
 
-  void Vulkan101::Update(const DemoTime& demoTime)
+  void Vulkan101::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void Vulkan101::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void Vulkan101::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     // GetVulkanDrawContext()
     // - CmdBufferIndex
@@ -302,7 +304,7 @@ namespace Fsl
   void Vulkan101::BuildCmdBuffer(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex,
                                  const VkExtent2D& swapchainImageExtent, const VkFramebuffer framebuffer)
   {
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
@@ -311,7 +313,7 @@ namespace Fsl
       clearColorValue.float32[2] = 1.0f;
       clearColorValue.float32[3] = 1.0f;
 
-      VkClearValue clearValues[1] = {clearColorValue};
+      VkClearValue clearValues = {clearColorValue};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -321,14 +323,14 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = swapchainImageExtent;
       renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.pClearValues = &clearValues;
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
         vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.m_pipeline.Get());
 
-        VkDeviceSize offsets[1] = {0};
-        vkCmdBindVertexBuffers(hCmdBuffer, 0, 1, m_resources.m_vertexBuffer.GetBufferPointer(), offsets);
+        VkDeviceSize offsets = 0;
+        vkCmdBindVertexBuffers(hCmdBuffer, 0, 1, m_resources.m_vertexBuffer.GetBufferPointer(), &offsets);
         vkCmdDraw(hCmdBuffer, 3, 1, 0, 0);
 
         AddSystemUI(hCmdBuffer, currentSwapBufferIndex);

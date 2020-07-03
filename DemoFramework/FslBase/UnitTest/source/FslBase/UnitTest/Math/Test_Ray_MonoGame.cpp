@@ -51,7 +51,7 @@ TEST(TestMath_Ray_MonoGame, BoundingBoxIntersects)
   const auto center = (box.Max + box.Min) * 0.5f;
 
   // Test misses.
-  float result;
+  float result = 0.0f;
   EXPECT_FALSE(Ray(center - Vector3::UnitX() * 40.0f, -Vector3::UnitX()).Intersects(box, result));
   EXPECT_FALSE(Ray(center + Vector3::UnitX() * 40.0f, Vector3::UnitX()).Intersects(box, result));
   EXPECT_FALSE(Ray(center - Vector3::UnitY() * 40.0f, -Vector3::UnitY()).Intersects(box, result));

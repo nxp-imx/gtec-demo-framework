@@ -63,7 +63,7 @@ namespace Fsl
       MeshRenderVBInstanced RenderInstancedLayerN;
       MeshRenderNormals RenderNormals;
 
-      MeshStuffRecord(const Procedural::BasicMesh& mesh)
+      explicit MeshStuffRecord(const Procedural::BasicMesh& mesh)
         : Mesh(mesh)
         , Render(mesh)
         , RenderVB(mesh)
@@ -127,7 +127,7 @@ namespace Fsl
     bool m_enableForce;
 
   public:
-    FurShellRendering(const DemoAppConfig& config);
+    explicit FurShellRendering(const DemoAppConfig& config);
     ~FurShellRendering() override;
 
   protected:

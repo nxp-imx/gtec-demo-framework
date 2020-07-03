@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/PixelFormatLayout.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
@@ -49,43 +49,43 @@ namespace Fsl
       using pixel_t = TPixel;
       using color_template_t = TColorTemplate;
 
-      static const PixelFormat ActivePixelFormat = TPixelFormat;
+      static constexpr const PixelFormat ActivePixelFormat = TPixelFormat;
       static const PixelFormatLayout ActivePixelLayout = PixelFormatUtil::GetPixelFormatLayout(TPixelFormat);
 
-      static image_t MakeImage(const Extent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+      static image_t MakeImage(const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
       {
         return Texture(extent, pixelFormat, origin);
       }
 
-      static const Extent2D GetExtent(const image_t& image)
+      static PxExtent2D GetExtent(const image_t& image)
       {
-        return Extent2D(image.GetExtent().Width, image.GetExtent().Height);
+        return PxExtent2D(image.GetExtent().Width, image.GetExtent().Height);
       }
     };
 
 
     struct R8G8B8 : public Base<PixelTestUtil::R8G8B8::PixelUInt8, PixelTestUtil::R8G8B8::DefaultColorTemplate, PixelFormat::R8G8B8_UINT>
     {
-      static const pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
+      static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
       static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
     };
 
     struct B8G8R8 : public Base<PixelTestUtil::B8G8R8::PixelUInt8, PixelTestUtil::B8G8R8::DefaultColorTemplate, PixelFormat::B8G8R8_UINT>
     {
-      static const pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
+      static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
       static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
     };
 
     struct R8G8B8A8 : public Base<PixelTestUtil::R8G8B8A8::PixelUInt8, PixelTestUtil::R8G8B8A8::DefaultColorTemplate, PixelFormat::R8G8B8A8_UINT>
     {
-      static const pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
+      static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
       static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
     };
 
 
     struct B8G8R8A8 : public Base<PixelTestUtil::B8G8R8A8::PixelUInt8, PixelTestUtil::B8G8R8A8::DefaultColorTemplate, PixelFormat::B8G8R8A8_UINT>
     {
-      static const pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
+      static pixel_t GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin);
       static void SetPixel(image_t& rImage, const uint32_t x, const uint32_t y, const pixel_t& pixel, const bool ignoreOrigin);
     };
   }

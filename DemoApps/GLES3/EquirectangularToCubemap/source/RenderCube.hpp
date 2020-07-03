@@ -49,7 +49,7 @@ namespace Fsl
     VertexBufferInfo m_vertexBufferInfo;
 
   public:
-    RenderCube(const GLES3::GLProgram& program);
+    explicit RenderCube(const GLES3::GLProgram& program);
     ~RenderCube();
 
     void BeginDraw();

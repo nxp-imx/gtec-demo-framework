@@ -30,15 +30,16 @@
  ****************************************************************************************************************************************************/
 
 #include "RootWindow.hpp"
-#include <FslBase/Math/EqualHelper.hpp>
-#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Base/System/IEventListener.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/LayoutHelperPxfConverter.hpp>
+#include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Base/System/IEventListener.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <algorithm>
 #include <iterator>
 
@@ -47,9 +48,10 @@ namespace Fsl
 {
   namespace UI
   {
-    RootWindow::RootWindow(const std::shared_ptr<BaseWindowContext>& context, const Vector2& resolution)
+    RootWindow::RootWindow(const std::shared_ptr<BaseWindowContext>& context, const PxExtent2D& extentPx, const uint32_t densityDpi)
       : BaseWindow(context)
-      , m_resolution(resolution)
+      , m_resolutionPx(TypeConverter::UncheckedTo<PxSize2D>(extentPx))
+      , m_densityDpi(densityDpi)
     {
       // The root window gets created at time where the context isn't ready
       // So it should do its stuff during WinInit instead as it will always be called on the root window.
@@ -63,8 +65,8 @@ namespace Fsl
     {
       Enable(WindowFlags::ClickInput);
 
-      Measure(m_resolution);
-      Arrange(Rect(0, 0, m_resolution.X, m_resolution.Y));
+      Measure(LayoutHelperPxfConverter::ToPxAvailableSize(m_resolutionPx));
+      Arrange(PxRectangle(0, 0, m_resolutionPx.Width(), m_resolutionPx.Height()));
     }
 
 
@@ -75,13 +77,17 @@ namespace Fsl
     }
 
 
-    void RootWindow::SetScreenResolution(const Vector2& value)
+    bool RootWindow::SetScreenResolution(const PxExtent2D& valuePx, const uint32_t densityDpi)
     {
-      if (!EqualHelper::IsAlmostEqual(value, m_resolution))
+      auto sizePx = TypeConverter::UncheckedTo<PxSize2D>(valuePx);
+      if (sizePx == m_resolutionPx && densityDpi == m_densityDpi)
       {
-        m_resolution = value;
-        PropertyUpdated(PropertyType::Layout);
+        return false;
       }
+      m_resolutionPx = sizePx;
+      m_densityDpi = densityDpi;
+      PropertyUpdated(PropertyType::Layout);
+      return true;
     }
 
 

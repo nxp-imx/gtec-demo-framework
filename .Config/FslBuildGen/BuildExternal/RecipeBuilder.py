@@ -61,6 +61,8 @@ from FslBuildGen.BuildExternal.State.BuildInfoFileUtil import BuildInfoFileUtil
 from FslBuildGen.BuildExternal.State.RecipePackageState import RecipePackageState
 from FslBuildGen.BuildExternal.State.RecipePackageStateCache import RecipePackageStateCache
 from FslBuildGen.BuildExternal.State.PackageRecipeUtil import PackageRecipeUtil
+from FslBuildGen.ErrorHelpManager import ErrorHelpManager
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
@@ -84,7 +86,7 @@ def __RunValidationEngineCheck(validationEngine: ValidationEngine, package: Pack
 
 # packagesToBuild contains all packages that are scheduled for a rebuild
 def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: ValidationEngine, package: Package, packagesToBuild: List[Package],
-                              recipePackageStateCache: RecipePackageStateCache) -> bool:
+                              recipePackageStateCache: RecipePackageStateCache, cmakeConfig: GeneratorCMakeConfig) -> bool:
     if package.ResolvedDirectExperimentalRecipe is None:
         raise Exception("Invalid package")
     sourceRecipe = package.ResolvedDirectExperimentalRecipe
@@ -119,7 +121,8 @@ def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: Valida
     if not PackageRecipeUtil.HasBuildPipeline(package):
         return True
 
-    if not BuildInfoFileUtil.TryValidateBuildInformation(basicConfig, package, packagesToBuild, recipePackageStateCache, __g_BuildPackageInformationFilename):
+    if not BuildInfoFileUtil.TryValidateBuildInformation(basicConfig, package, packagesToBuild, recipePackageStateCache, cmakeConfig,
+                                                         __g_BuildPackageInformationFilename):
         basicConfig.LogPrintVerbose(2, "Install validator failed to load build information")
         return False
     return True
@@ -128,14 +131,15 @@ def __TryValidateInstallation(basicConfig: BasicConfig, validationEngine: Valida
 def __FindMissingInstallations(basicConfig: BasicConfig,
                                validationEngine: ValidationEngine,
                                resolvedBuildOrder: List[Package],
-                               recipePackageStateCache: RecipePackageStateCache) -> List[Package]:
+                               recipePackageStateCache: RecipePackageStateCache,
+                               cmakeConfig: GeneratorCMakeConfig) -> List[Package]:
     """ Check packages in the resolvedBuildOrder and return all that fails install validation, keeping the initial order """
     missingPackages = []  # type: List[Package]
     for package in resolvedBuildOrder:
         basicConfig.LogPrint("Checking if package {0} is installed".format(package.Name))
         try:
             basicConfig.PushIndent()
-            if not __TryValidateInstallation(basicConfig, validationEngine, package, missingPackages, recipePackageStateCache):
+            if not __TryValidateInstallation(basicConfig, validationEngine, package, missingPackages, recipePackageStateCache, cmakeConfig):
                 missingPackages.append(package)
         finally:
             basicConfig.PopIndent()
@@ -192,8 +196,8 @@ def ValidateInstallationForPackages(config: Config,
     recipePackageStateCache = RecipePackageStateCache(basicConfig)
 
     # Here we basically run the installation validation engine and see if there is anything that triggers a exception
-    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager)
-    __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache)
+    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager, generatorContext.ErrorHelpManager)
+    __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache, generatorContext.CMakeConfig)
 
 # requestedPackages is the packages specifically requested by the user or None for SDK builds.
 def BuildPackagesInOrder(config: Config,
@@ -236,8 +240,9 @@ def __DoBuildPackagesInOrder(config: Config,
 
 
     recipePackageStateCache = RecipePackageStateCache(basicConfig)
-    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager)
-    missingPackagesInBuildOrder = __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache)
+    validationEngine = ValidationEngine(basicConfig, generatorContext.VariableProcessor, packageRecipeResultManager, generatorContext.ErrorHelpManager)
+    missingPackagesInBuildOrder = __FindMissingInstallations(basicConfig, validationEngine, resolvedBuildOrder, recipePackageStateCache,
+                                                             generatorContext.CMakeConfig)
     builder = PipelineCommandBuilder(generatorContext, builderSettings.CheckBuildCommands, builderSettings.BuildThreads)
     recipeRecords = __CreatePipelines(basicConfig, builder, missingPackagesInBuildOrder)
 
@@ -258,7 +263,8 @@ def __DoBuildPackagesInOrder(config: Config,
                         command.Execute()
 
                 # We finished building, so lets save some information about what we did
-                BuildInfoFileUtil.SaveBuildInformation(basicConfig, recipeRecord, recipePackageStateCache, __g_BuildPackageInformationFilename)
+                BuildInfoFileUtil.SaveBuildInformation(basicConfig, recipeRecord, recipePackageStateCache, generatorContext.CMakeConfig,
+                                                       __g_BuildPackageInformationFilename)
 
                 if builderSettings.PostDeleteBuild:
                     # We clear the build path if a build is successfull
@@ -308,7 +314,7 @@ def BuildPackages(config: Config,
     PlatformUtil.CheckBuildPlatform(generatorContext.Platform.PlatformName)
     topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
-    buildConfig = BuildConfigRecord(generatorContext.Platform.PlatformName, {}, CommandType.Build, [], None, None, 0)
+    buildConfig = BuildConfigRecord(config.ToolConfig.ToolVersion, generatorContext.Platform.PlatformName, {}, CommandType.Build, [], None, None, 0)
 
     basicConfig = generatorContext.BasicConfig
     try:

@@ -35,10 +35,14 @@ from typing import Any
 import json
 from FslBuildGen.BuildExternal.State.JsonRecipePackageContentState import JsonRecipePackageContentState
 from FslBuildGen.BuildExternal.State.JsonRecipePackageFileState import JsonRecipePackageFileState
+from FslBuildGen.BuildExternal.State.JsonRecipeCMakeConfig import JsonRecipeCMakeConfig
+from FslBuildGen.BuildExternal.State.JsonRecipeCMakeConfig import JsonRecipeCMakeVersion
 
 class BuildInfoComplexJsonEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:
         if isinstance(o, (JsonRecipePackageContentState, JsonRecipePackageFileState)):
+            return o.__dict__
+        if isinstance(o, (JsonRecipeCMakeConfig, JsonRecipeCMakeVersion)):
             return o.__dict__
         # Let the base class default method raise the TypeError
         return json.JSONEncoder.default(self, o)

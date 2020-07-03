@@ -50,7 +50,7 @@ namespace Fsl
 
     using type_message_function = std::function<void(Message&)>;
 
-    AsynchronousServiceMessageHandlerRegistry(const std::shared_ptr<IAsynchronousServiceMessageHandlerRegistry>& registry);
+    explicit AsynchronousServiceMessageHandlerRegistry(std::shared_ptr<IAsynchronousServiceMessageHandlerRegistry> registry);
     ~AsynchronousServiceMessageHandlerRegistry();
 
 

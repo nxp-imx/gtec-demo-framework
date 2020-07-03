@@ -31,123 +31,68 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Render/BaseTexture2D.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/TextureFlags.hpp>
-#include <FslGraphics/Texture/Texture.hpp>
 #include <FslGraphics/Texture/RawTexture.hpp>
-#include <memory>
+#include <FslGraphics/Texture/Texture.hpp>
+#include <FslGraphics/TextureFlags.hpp>
 
 namespace Fsl
 {
   class INativeGraphics;
-  class INativeTexture2D;
 
-  class Texture2D
+  //! @brief A read only native texture
+  class Texture2D : public BaseTexture2D
   {
-    std::shared_ptr<INativeTexture2D> m_native;
-    Extent2D m_extent;
-    PixelFormat m_pixelFormat{PixelFormat::Undefined};
-
   public:
     //! @brief Create a uninitialized texture (use SetData to add texture data to it)
     Texture2D() = default;
 
     //! @brief Create a initialized texture
     Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
-              const TextureFlags& textureFlags = TextureFlags());
+              const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Create a initialized texture
     Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-              const TextureFlags& textureFlags = TextureFlags());
+              const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Create a initialized texture
     Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& texture, const Texture2DFilterHint filterHint,
-              const TextureFlags& textureFlags = TextureFlags());
+              const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Create a initialized texture
     Texture2D(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture, const Texture2DFilterHint filterHint,
-              const TextureFlags& textureFlags = TextureFlags());
+              const TextureFlags textureFlags = TextureFlags::NotDefined);
 
-    ~Texture2D();
+    //! @brief Create a initialized texture
+    Texture2D(std::shared_ptr<INativeTexture2D> native, const PxExtent2D extent, const PixelFormat pixelFormat);
 
-    //! @brief Check if this contains a valid texture.
-    bool IsValid() const
-    {
-      return m_native != nullptr;
-    }
+    ~Texture2D() = default;
 
-    //! @brief If a texture is allocated this will releases it.
-    void Reset();
+    using BaseTexture2D::Reset;
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
     void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Bitmap& bitmap, const Texture2DFilterHint filterHint,
-               const TextureFlags& textureFlags = TextureFlags());
+               const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
     void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-               const TextureFlags& textureFlags = TextureFlags());
+               const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
     void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const Texture& texture, const Texture2DFilterHint filterHint,
-               const TextureFlags& textureFlags = TextureFlags());
+               const TextureFlags textureFlags = TextureFlags::NotDefined);
 
     //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
     void Reset(const std::shared_ptr<INativeGraphics>& nativeGraphics, const RawTexture& texture, const Texture2DFilterHint filterHint,
-               const TextureFlags& textureFlags = TextureFlags());
+               const TextureFlags textureFlags = TextureFlags::NotDefined);
+    //! @brief Reset the texture to contain the given bitmap (this is a very slow operation)
+    void Reset(std::shared_ptr<INativeTexture2D> native, const PxExtent2D extent, const PixelFormat pixelFormat);
 
-    //! @brief Set the data of the texture
-    void SetData(const Bitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
-
-    //! @brief Set the data of the texture
-    void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
-
-    //! @brief Set the data of the texture
-    void SetData(const Texture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
-
-    //! @brief Set the data of the texture
-    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags = TextureFlags());
-
-    //! @brief Get the texture size.
-    Extent2D GetExtent() const
-    {
-      return m_extent;
-    }
-
-    //! @brief Get the texture size.
-    Point2 GetSize() const
-    {
-      return {static_cast<int32_t>(m_extent.Width), static_cast<int32_t>(m_extent.Height)};
-    }
-
-    PixelFormat GetPixelFormat() const
-    {
-      return m_pixelFormat;
-    }
-
-    //! @brief Acquire the native texture (returns null if none exist)
-    std::shared_ptr<INativeTexture2D> TryGetNative() const
-    {
-      return m_native;
-    }
-
-    //! @brief Acquire the native texture (throws if none exist)
-    std::shared_ptr<INativeTexture2D> GetNative() const;
-
-
-    bool operator==(const Texture2D& rhs) const
-    {
-      return m_native == rhs.m_native && m_extent == rhs.m_extent;
-    }
-
-
-    bool operator!=(const Texture2D& rhs) const
-    {
-      return !(*this == rhs);
-    }
+    using BaseTexture2D::operator==;
+    using BaseTexture2D::operator!=;
   };
 }
 

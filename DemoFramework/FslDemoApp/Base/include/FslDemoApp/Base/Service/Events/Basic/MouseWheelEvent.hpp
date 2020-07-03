@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
 
 namespace Fsl
@@ -50,14 +50,14 @@ namespace Fsl
       }
     }
 
-    MouseWheelEvent(const int32_t delta, const Point2& position);
+    MouseWheelEvent(const int32_t delta, const PxPoint2& position);
 
     int32_t GetDelta() const
     {
       return m_arg1;
     }
 
-    const Point2 GetPosition() const;
+    PxPoint2 GetPosition() const;
   };
 }
 

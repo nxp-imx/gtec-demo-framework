@@ -33,6 +33,7 @@
 
 from typing import Dict
 from typing import List
+from typing import Optional
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.DataTypes import BuildVariantType
@@ -65,18 +66,18 @@ class GeneratorPlugin(GeneratorPluginBase2):
         self.OriginalPlatformId = self.PlatformId
         self.InDevelopment = False
         self.DotEnabled = False
-        self.IsCMake = False
         # If this is set the native build file is expected to run FslBuildContent
         # If it is false FslBuild will run it during the build
         self.SupportContentBuild = False
         self.SupportCommandClean = False
         self.SupportCommandInstall = False
+        self.SupportCommandOpen = False
+        self.SupportCommandOpenHintMessage = ""
         self.LegacyGeneratorType = LegacyGeneratorType.Default
         self.PackageResolveConfig_MarkExternalLibFirstUse = False
         # Add the default 'config' variant
         self.AddGeneratorVariant(GeneratorVariant(ToolAddedVariant.CONFIG, ToolAddedVariantOptions.CONFIG, "##OPTIONS##", BuildVariantType.Dynamic))
         self.SupportedPackageLanguages = [PackageLanguage.CPP]
-
 
     #def SetCustomPlatformName(self, name):
     #    """ Change the platform name """

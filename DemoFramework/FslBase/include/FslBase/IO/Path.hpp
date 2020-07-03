@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/IO/PathView.hpp>
 #include <FslBase/String/StringViewLite.hpp>
 #include <FslBase/String/UTF8String.hpp>
 
@@ -45,24 +46,50 @@ namespace Fsl
     class Path
     {
       UTF8String m_content;
-      Path(const std::string& str, const bool bUnchecked);
+
+      Path(std::string str, const bool bUnchecked)
+        : m_content(std::move(str))
+      {
+        FSL_PARAM_NOT_USED(bUnchecked);
+      }
+
+
+      Path(UTF8String str, const bool bUnchecked)
+        : m_content(std::move(str))
+      {
+        FSL_PARAM_NOT_USED(bUnchecked);
+      }
 
     public:
       // move assignment operator
-      Path& operator=(Path&& other) noexcept;
+      Path& operator=(Path&& other) noexcept
+      {
+        if (this != &other)
+        {
+          m_content = std::move(other.m_content);
+        }
+        return *this;
+      }
+
       // move constructor
-      Path(Path&& other) noexcept;
+      Path(Path&& other) noexcept
+        : m_content(std::move(other.m_content))
+      {
+      }
+
       // Request that the compiler generates a copy constructor and assignment operator
       Path(const Path&) = default;
       Path& operator=(const Path&) = default;
 
 
-      Path() = default;
+      Path() noexcept = default;
 
-      Path(UTF8String str);
-      Path(const std::string& str);
-      Path(const char* const psz);
-      ~Path();
+      Path(const char* const psz);        // NOLINT(google-explicit-constructor)
+      Path(const StringViewLite& str);    // NOLINT(google-explicit-constructor)
+      Path(const PathView& str);          // NOLINT(google-explicit-constructor)
+      explicit Path(std::string str);
+      explicit Path(UTF8String str);
+      ~Path() noexcept = default;
 
       bool IsEmpty() const
       {
@@ -78,6 +105,11 @@ namespace Fsl
       {
         return m_content.Contains(psz);
       }
+
+      // bool Contains(const StringViewLite& str) const
+      //{
+      //  return m_content.Contains(str);
+      //}
 
       bool Contains(const UTF8String& str) const
       {
@@ -97,6 +129,11 @@ namespace Fsl
       bool StartsWith(const char* const psz) const
       {
         return m_content.StartsWith(psz);
+      }
+
+      bool StartsWith(const StringViewLite& path) const
+      {
+        return m_content.StartsWith(path);
       }
 
       bool StartsWith(const UTF8String& path) const
@@ -119,6 +156,11 @@ namespace Fsl
         return m_content.EndsWith(psz);
       }
 
+      bool EndsWith(const StringViewLite& path) const
+      {
+        return m_content.EndsWith(path);
+      }
+
       bool EndsWith(const UTF8String& path) const
       {
         return m_content.EndsWith(path);
@@ -134,12 +176,33 @@ namespace Fsl
         return m_content.IndexOf(ch, fromIndex);
       }
 
-      std::string ToUTF8String() const
+      const UTF8String& AsUTF8String() const
+      {
+        return m_content;
+      };
+
+      const std::string& ToUTF8String() const
       {
         return m_content.ToUTF8String();
       };
 
       std::string ToAsciiString() const;
+
+
+      Path& operator=(const StringViewLite& str);
+      Path& operator=(const PathView& str);
+
+      Path& operator=(const char* const psz)
+      {
+        *this = StringViewLite(psz);
+        return *this;
+      }
+
+      Path& operator=(const UTF8String& str)
+      {
+        *this = str.AsStringViewLite();
+        return *this;
+      }
 
       int32_t GetByteSize() const
       {
@@ -151,60 +214,555 @@ namespace Fsl
         m_content.Clear();
       }
 
+      // @brief append count copies of char 'ch' to the end of the string
+      void Append(const std::size_t count, const char ch);
+
+      //! @brief append the string at the end of the string
+      void Append(const char* const psz)
+      {
+        Append(StringViewLite(psz));
+      }
+
+      //! @brief append the string at the end of the string
+      void Append(const StringViewLite& str);
+      //! @brief append the string at the end of the string
+      void Append(const PathView& str);
+      //! @brief append the string at the end of the string
+      void Append(const UTF8String& str)
+      {
+        Append(str.AsStringViewLite());
+      }
+
+      //! @brief append the string at the end of the string
+      void Append(const Path& str)
+      {
+        Append(str.AsPathView());
+      }
+
+      // @brief Insert count copies of char 'ch' at the beginning at the current string
+      void Prepend(const std::size_t count, const char ch);
+
+      // @brief Insert the string at the beginning at the current string
+      void Prepend(const char* const psz)
+      {
+        Prepend(StringViewLite(psz));
+      }
+
+      // @brief Insert the string at the beginning at the current string
+      void Prepend(const PathView& str);
+      // @brief Insert the string at the beginning at the current string
+      void Prepend(const StringViewLite& str);
+      // @brief Insert the string at the beginning at the current string
+      void Prepend(const UTF8String& str)
+      {
+        Prepend(str.AsStringViewLite());
+      }
+
+      // @brief Insert the string at the beginning at the current string
+      void Prepend(const Path& str)
+      {
+        Prepend(str.AsPathView());
+      }
+
+
       // Path ToLowerInvariant() const;
       // Path ToUpperInvariant() const;
 
       //! @brief Check is the path is considered rooted
-      static bool IsPathRooted(const Path& path);
+      static bool IsPathRooted(const PathView& path);
+
+      static bool IsPathRooted(const Path& path)
+      {
+        return IsPathRooted(path.AsPathView());
+      }
 
       //! @brief Combine two strings into a path
       //! @param path1 = the first path
       //! @param path2 = the second path
       //! @return the combined path
-      static Path Combine(const Path& path1, const Path& path2);
+      static Path Combine(const PathView& path1, const PathView& path2);
+
+      //! @brief Combine two strings into a path
+      //! @param path1 = the first path
+      //! @param path2 = the second path
+      //! @return the combined path
+      static Path Combine(const Path& path1, const Path& path2)
+      {
+        return Combine(path1.AsPathView(), path2.AsPathView());
+      }
+
+      //! @brief Combine two strings into a path
+      //! @param path1 = the first path
+      //! @param path2 = the second path
+      //! @return the combined path
+      static Path Combine(const PathView& path1, const Path& path2)
+      {
+        return Combine(path1, path2.AsPathView());
+      }
+
+      //! @brief Combine two strings into a path
+      //! @param path1 = the first path
+      //! @param path2 = the second path
+      //! @return the combined path
+      static Path Combine(const Path& path1, const PathView& path2)
+      {
+        return Combine(path1.AsPathView(), path2);
+      }
 
       //! @brief Get the directory name for the specified path string
       //! @param path = the path to extract the directory name from
       //! @return the directory name (or a empty string if the supplied path doesn't contain directory information).
-      static Path GetDirectoryName(const Path& path);
+      static PathView GetDirectoryNameView(const PathView& path);
+
+      //! @brief Get the directory name for the specified path string
+      //! @param path = the path to extract the directory name from
+      //! @return the directory name (or a empty string if the supplied path doesn't contain directory information).
+      static Path GetDirectoryName(const PathView& path)
+      {
+        return GetDirectoryNameView(path);
+      }
+
+      static Path GetDirectoryName(const Path& path)
+      {
+        return GetDirectoryNameView(path.AsPathView());
+      }
+
 
       //! @brief Get the file name for the specified path string
       //! @param path = the path to extract the filename name from
       //! @return the file name (or a empty string if the supplied path doesn't contain filename information).
-      static Path GetFileName(const Path& path);
+      static PathView GetFileNameView(const PathView& path);
+
+      //! @brief Get the file name for the specified path string
+      //! @param path = the path to extract the filename name from
+      //! @return the file name (or a empty string if the supplied path doesn't contain filename information).
+      static Path GetFileName(const PathView& path)
+      {
+        return GetFileNameView(path);
+      }
+
+      //! @brief Get the file name for the specified path string
+      //! @param path = the path to extract the filename name from
+      //! @return the file name (or a empty string if the supplied path doesn't contain filename information).
+      static Path GetFileName(const Path& path)
+      {
+        return GetFileNameView(path.AsPathView());
+      }
 
       //! @brief The result of GetFileName minus the last "." and all characters following it.
-      static Path GetFileNameWithoutExtension(const Path& path);
+      static PathView GetFileNameWithoutExtensionView(const PathView& path);
+
+      //! @brief The result of GetFileName minus the last "." and all characters following it.
+      static Path GetFileNameWithoutExtension(const PathView& path)
+      {
+        return GetFileNameWithoutExtensionView(path);
+      }
+
+      //! @brief The result of GetFileName minus the last "." and all characters following it.
+      static Path GetFileNameWithoutExtension(const Path& path)
+      {
+        return GetFileNameWithoutExtensionView(path.AsPathView());
+      }
 
       //! @brief Get the the extension of the specified path string
       //! @param path = the path to extract the extension from
       //! @return the extension including the '.' (or a empty string if the supplied path doesn't contain a extension).
-      static Path GetExtension(const Path& path);
+      static PathView GetExtensionView(const PathView& path);
+
+      //! @brief Get the the extension of the specified path string
+      //! @param path = the path to extract the extension from
+      //! @return the extension including the '.' (or a empty string if the supplied path doesn't contain a extension).
+      static Path GetExtension(const PathView& path)
+      {
+        return GetExtensionView(path);
+      }
+
+      //! @brief Get the the extension of the specified path string
+      //! @param path = the path to extract the extension from
+      //! @return the extension including the '.' (or a empty string if the supplied path doesn't contain a extension).
+      static Path GetExtension(const Path& path)
+      {
+        return GetExtensionView(path.AsPathView());
+      }
+
+      //! @brief Get the fully qualified location of a path (the absolute path).
+      //! @param path = the path that should be made absolute.
+      //! @return the fully qualified path
+      static Path GetFullPath(const PathView& path);
 
       //! @brief Get the fully qualified location of a path (the absolute path).
       //! @param path = the path that should be made absolute.
       //! @return the fully qualified path
       static Path GetFullPath(const Path& path);
 
-      bool operator==(const Path& rhs) const
+      // NOTE: there is no operator+ or += that takes a char as that can lead subtle bugs
+
+      Path& operator+=(const char* const pszRhs)
       {
-        return m_content == rhs.m_content;
-      }
-      bool operator!=(const Path& rhs) const
-      {
-        return m_content != rhs.m_content;
+        Append(StringViewLite(pszRhs));
+        return *this;
       }
 
-      operator StringViewLite() const noexcept
+      Path& operator+=(const PathView& rhs)
       {
-        return m_content;
+        Append(rhs);
+        return *this;
+      }
+
+      Path& operator+=(const StringViewLite& rhs)
+      {
+        Append(rhs);
+        return *this;
+      }
+
+      Path& operator+=(const UTF8String& rhs)
+      {
+        Append(rhs);
+        return *this;
+      }
+
+      Path& operator+=(const Path& rhs)
+      {
+        Append(rhs);
+        return *this;
+      }
+
+      inline friend Path operator+(Path lhs, const char* const pszRhs)
+      {
+        lhs.Append(StringViewLite(pszRhs));
+        return lhs;
+      }
+
+      inline friend Path operator+(Path lhs, const PathView& rhs)
+      {
+        lhs.Append(rhs);
+        return lhs;
+      }
+
+      inline friend Path operator+(Path lhs, const StringViewLite& rhs)
+      {
+        lhs.Append(rhs);
+        return lhs;
+      }
+
+      inline friend Path operator+(Path lhs, const Path& rhs)
+      {
+        lhs.Append(rhs);
+        return lhs;
+      }
+
+      inline friend Path operator+(const char* const pszLhs, Path rhs)
+      {
+        rhs.Prepend(StringViewLite(pszLhs));
+        return rhs;
+      }
+
+      inline friend Path operator+(const StringViewLite& lhs, Path rhs)
+      {
+        rhs.Prepend(lhs);
+        return rhs;
+      }
+
+      inline friend Path operator+(const PathView& lhs, Path rhs)
+      {
+        rhs.Prepend(lhs);
+        return rhs;
+      }
+
+      inline StringViewLite AsStringViewLite() const noexcept
+      {
+        return m_content.AsStringViewLite();
+      }
+
+      inline PathView AsPathView() const noexcept
+      {
+        return PathView(m_content.AsStringViewLite(), OptimizationCheckFlag::NoCheck);
       }
     };
 
-    extern bool operator==(const Path& lhs, const char* const pszRhs) noexcept;
-    extern bool operator!=(const Path& lhs, const char* const pszRhs) noexcept;
-    extern bool operator==(const char* const pszLhs, const Path& rhs) noexcept;
-    extern bool operator!=(const char* const pszLhs, const Path& rhs) noexcept;
+
+    // Operator ==
+
+    inline bool operator==(const Path& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsPathView() == rhs.AsPathView();
+    }
+
+    inline bool operator==(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      return lhs.AsPathView() == pszRhs;
+    }
+
+    inline bool operator==(const Path& lhs, const StringViewLite& rhs) noexcept
+    {
+      return lhs.AsPathView() == rhs;
+    }
+
+    inline bool operator==(const Path& lhs, const std::string& rhs) noexcept
+    {
+      return lhs.AsPathView() == StringViewLiteUtil::AsStringViewLite(rhs);
+    }
+
+    inline bool operator==(const Path& lhs, const UTF8String& rhs) noexcept
+    {
+      return lhs.AsPathView() == rhs.AsStringViewLite();
+    }
+
+    inline bool operator==(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      return pszLhs == rhs.AsPathView();
+    }
+
+    inline bool operator==(const StringViewLite& lhs, const Path& rhs) noexcept
+    {
+      return lhs == rhs.AsPathView();
+    }
+
+    inline bool operator==(const std::string& lhs, const Path& rhs) noexcept
+    {
+      return StringViewLiteUtil::AsStringViewLite(lhs) == rhs.AsPathView();
+    }
+
+    inline bool operator==(const UTF8String& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsStringViewLite() == rhs.AsPathView();
+    }
+
+    // Operator !=
+
+    inline bool operator!=(const Path& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsPathView() != rhs.AsPathView();
+    }
+
+
+    inline bool operator!=(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      return lhs.AsPathView() != pszRhs;
+    }
+
+    inline bool operator!=(const Path& lhs, const StringViewLite& rhs) noexcept
+    {
+      return lhs.AsPathView() != rhs;
+    }
+
+    inline bool operator!=(const Path& lhs, const std::string& rhs) noexcept
+    {
+      return lhs.AsPathView() != StringViewLiteUtil::AsStringViewLite(rhs);
+    }
+
+    inline bool operator!=(const Path& lhs, const UTF8String& rhs) noexcept
+    {
+      return lhs.AsPathView() != rhs.AsStringViewLite();
+    }
+
+    inline bool operator!=(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      return pszLhs != rhs.AsPathView();
+    }
+
+    inline bool operator!=(const StringViewLite& lhs, const Path& rhs) noexcept
+    {
+      return lhs != rhs.AsPathView();
+    }
+
+    inline bool operator!=(const std::string& lhs, const Path& rhs) noexcept
+    {
+      return StringViewLiteUtil::AsStringViewLite(lhs) != rhs.AsPathView();
+    }
+
+    inline bool operator!=(const UTF8String& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsStringViewLite() != rhs.AsPathView();
+    }
+
+    // Operator <
+
+    inline bool operator<(const Path& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsPathView() < rhs.AsPathView();
+    }
+
+    inline bool operator<(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      return lhs.AsPathView() < pszRhs;
+    }
+
+    inline bool operator<(const Path& lhs, const StringViewLite& rhs) noexcept
+    {
+      return lhs.AsPathView() < rhs;
+    }
+
+    inline bool operator<(const Path& lhs, const std::string& rhs) noexcept
+    {
+      return lhs.AsPathView() < StringViewLiteUtil::AsStringViewLite(rhs);
+    }
+
+    inline bool operator<(const Path& lhs, const UTF8String& rhs) noexcept
+    {
+      return lhs.AsPathView() < rhs.AsStringViewLite();
+    }
+
+    inline bool operator<(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      return pszLhs < rhs.AsPathView();
+    }
+
+    inline bool operator<(const StringViewLite& lhs, const Path& rhs) noexcept
+    {
+      return lhs < rhs.AsPathView();
+    }
+
+    inline bool operator<(const std::string& lhs, const Path& rhs) noexcept
+    {
+      return StringViewLiteUtil::AsStringViewLite(lhs) < rhs.AsPathView();
+    }
+
+    inline bool operator<(const UTF8String& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsStringViewLite() < rhs.AsPathView();
+    }
+
+    // Operator <=
+
+    inline bool operator<=(const Path& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsPathView() <= rhs.AsPathView();
+    }
+
+    inline bool operator<=(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      return lhs.AsPathView() <= pszRhs;
+    }
+
+    inline bool operator<=(const Path& lhs, const StringViewLite& rhs) noexcept
+    {
+      return lhs.AsPathView() <= rhs;
+    }
+
+    inline bool operator<=(const Path& lhs, const std::string& rhs) noexcept
+    {
+      return lhs.AsPathView() <= StringViewLiteUtil::AsStringViewLite(rhs);
+    }
+
+    inline bool operator<=(const Path& lhs, const UTF8String& rhs) noexcept
+    {
+      return lhs.AsPathView() <= rhs.AsStringViewLite();
+    }
+
+    inline bool operator<=(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      return pszLhs <= rhs.AsPathView();
+    }
+
+    inline bool operator<=(const StringViewLite& lhs, const Path& rhs) noexcept
+    {
+      return lhs <= rhs.AsPathView();
+    }
+
+    inline bool operator<=(const std::string& lhs, const Path& rhs) noexcept
+    {
+      return StringViewLiteUtil::AsStringViewLite(lhs) <= rhs.AsPathView();
+    }
+
+    inline bool operator<=(const UTF8String& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsStringViewLite() <= rhs.AsPathView();
+    }
+
+    // Operator >
+
+    inline bool operator>(const Path& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsPathView() > rhs.AsPathView();
+    }
+
+    inline bool operator>(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      return lhs.AsPathView() > pszRhs;
+    }
+
+    inline bool operator>(const Path& lhs, const StringViewLite& rhs) noexcept
+    {
+      return lhs.AsPathView() > rhs;
+    }
+
+    inline bool operator>(const Path& lhs, const std::string& rhs) noexcept
+    {
+      return lhs.AsPathView() > StringViewLiteUtil::AsStringViewLite(rhs);
+    }
+
+    inline bool operator>(const Path& lhs, const UTF8String& rhs) noexcept
+    {
+      return lhs.AsPathView() > rhs.AsStringViewLite();
+    }
+
+    inline bool operator>(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      return pszLhs > rhs.AsPathView();
+    }
+
+    inline bool operator>(const StringViewLite& lhs, const Path& rhs) noexcept
+    {
+      return lhs > rhs.AsPathView();
+    }
+
+    inline bool operator>(const std::string& lhs, const Path& rhs) noexcept
+    {
+      return StringViewLiteUtil::AsStringViewLite(lhs) > rhs.AsPathView();
+    }
+
+    inline bool operator>(const UTF8String& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsStringViewLite() > rhs.AsPathView();
+    }
+
+    // Operator >=
+
+    inline bool operator>=(const Path& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsPathView() >= rhs.AsPathView();
+    }
+
+    inline bool operator>=(const Path& lhs, const char* const pszRhs) noexcept
+    {
+      return lhs.AsPathView() >= pszRhs;
+    }
+
+    inline bool operator>=(const Path& lhs, const StringViewLite& rhs) noexcept
+    {
+      return lhs.AsPathView() >= rhs;
+    }
+
+    inline bool operator>=(const Path& lhs, const std::string& rhs) noexcept
+    {
+      return lhs.AsPathView() >= StringViewLiteUtil::AsStringViewLite(rhs);
+    }
+
+    inline bool operator>=(const Path& lhs, const UTF8String& rhs) noexcept
+    {
+      return lhs.AsPathView() >= rhs.AsStringViewLite();
+    }
+
+    inline bool operator>=(const char* const pszLhs, const Path& rhs) noexcept
+    {
+      return pszLhs >= rhs.AsPathView();
+    }
+
+    inline bool operator>=(const StringViewLite& lhs, const Path& rhs) noexcept
+    {
+      return lhs >= rhs.AsPathView();
+    }
+
+    inline bool operator>=(const std::string& lhs, const Path& rhs) noexcept
+    {
+      return StringViewLiteUtil::AsStringViewLite(lhs) >= rhs.AsPathView();
+    }
+
+    inline bool operator>=(const UTF8String& lhs, const Path& rhs) noexcept
+    {
+      return lhs.AsStringViewLite() >= rhs.AsPathView();
+    }
   }
 }
 

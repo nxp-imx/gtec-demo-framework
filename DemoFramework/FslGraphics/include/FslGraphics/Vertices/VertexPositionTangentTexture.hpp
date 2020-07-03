@@ -45,9 +45,9 @@ namespace Fsl
     Vector3 Tangent;
     Vector2 TextureCoordinate;
 
-    constexpr VertexPositionTangentTexture() = default;
+    constexpr VertexPositionTangentTexture() noexcept = default;
 
-    constexpr VertexPositionTangentTexture(const Vector3& position, const Vector3& tangent, const Vector2& textureCoordinate)
+    constexpr VertexPositionTangentTexture(const Vector3& position, const Vector3& tangent, const Vector2& textureCoordinate) noexcept
       : Position(position)
       , Tangent(tangent)
       , TextureCoordinate(textureCoordinate)

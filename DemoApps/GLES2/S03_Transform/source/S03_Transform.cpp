@@ -34,6 +34,7 @@
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "S03_Transform.hpp"
 #include <GLES2/gl2.h>
+#include <array>
 #include <iostream>
 
 namespace Fsl
@@ -41,14 +42,15 @@ namespace Fsl
   namespace
   {
     // Triangle Vertex positions.
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     const GLfloat g_vertices[3][2] = {{-0.5f, -0.5f}, {0.0f, 0.5f}, {0.5f, -0.5f}};
 
     // Triangle Vertex colors.
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     const GLfloat g_color[3][3] = {{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+
+    const std::array<const char*, 3> g_shaderAttributeArray = {"my_Vertex", "my_Color", nullptr};
   }
-
-
-  const char* const g_pszShaderAttributeArray[] = {"my_Vertex", "my_Color", nullptr};
 
 
   S03_Transform::S03_Transform(const DemoAppConfig& config)
@@ -57,10 +59,9 @@ namespace Fsl
     , m_locColors(0)
     , m_locTransformMat(0)
     , m_angle(0)
-
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
 
     const GLuint hProgram = m_program.Get();
 
@@ -98,10 +99,10 @@ namespace Fsl
   }
 
 
-  void S03_Transform::Draw(const DemoTime& demoTime)
+  void S03_Transform::Draw(const DemoTime& /*demoTime*/)
   {
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     glUniformMatrix4fv(m_locTransformMat, 1, GL_FALSE, m_matTransform.DirectAccess());
 

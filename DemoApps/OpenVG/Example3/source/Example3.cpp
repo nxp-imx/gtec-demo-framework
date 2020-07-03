@@ -30,18 +30,23 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslUtil/OpenVG/VGCheck.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/OpenVG/VGCheck.hpp>
 #include <algorithm>
 #include "Example3.hpp"
+#include <array>
+#include <cmath>
 #include <iostream>
+
 
 namespace Fsl
 {
   using namespace OpenVG;
   namespace
   {
-    VGint g_coord[] = {0, 0, 1280, 1080};
+    std::array<VGint, 4> g_coord = {0, 0, 1280, 1080};
+
     const std::vector<VGubyte> vgTriangleSegments = {
       VG_MOVE_TO_ABS,
       VG_LINE_TO_ABS,
@@ -81,14 +86,13 @@ namespace Fsl
     , m_scissors_direction(0)
     , m_scissor_rectangle(1280)
   {
-    VGfloat afClearColour[] = {0.6f, 0.8f, 1.0f, 1.0f};
-    vgSetfv(VG_CLEAR_COLOR, 4, afClearColour);
+    std::array<VGfloat, 4> afClearColour = {0.6f, 0.8f, 1.0f, 1.0f};
+    vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour.size()), afClearColour.data());
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
-    float scaleX, scaleY;
-    const Point2 currentSize = GetScreenResolution();
-    scaleX = currentSize.X / 1280.0f;
-    scaleY = currentSize.Y / 1080.0f;
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    float scaleX = currentSizePx.Width() / 1280.0f;
+    float scaleY = currentSizePx.Height() / 1080.0f;
     std::vector<Vector2> vgTrianglePoints;
     std::vector<Vector2> vgQuadCurvePoints;
     std::vector<Vector2> vgCubicCurvePoints;
@@ -113,10 +117,10 @@ namespace Fsl
 
     vgArcPoints.push_back(620.0f * scaleX);
     vgArcPoints.push_back(200.0f * scaleY);
-    ;
+
     vgArcPoints.push_back(620.0f * scaleX);
     vgArcPoints.push_back(100.0f * scaleY);
-    ;
+
 
     vgArcPoints.push_back(10.0f);
     vgArcPoints.push_back(10.0f);
@@ -125,7 +129,7 @@ namespace Fsl
 
     vgArcPoints.push_back(700.0f * scaleX);
     vgArcPoints.push_back(150.0f * scaleY);
-    ;
+
 
     // create path
     m_vg_triangle_path.Reset(vgTrianglePoints, vgTriangleSegments);
@@ -167,8 +171,8 @@ namespace Fsl
 
   void Example3::Update(const DemoTime& demoTime)
   {
-    const Point2 screenSize = GetScreenResolution();
-    const auto scissorLimit = static_cast<VGfloat>(std::min(screenSize.X, screenSize.Y));
+    const PxSize2D screenSizePx = GetWindowSizePx();
+    const auto scissorLimit = static_cast<VGfloat>(std::min(screenSizePx.Width(), screenSizePx.Height()));
     if (1 == m_scissors_direction)
     {
       m_scissor_rectangle += 125.0f * demoTime.DeltaTime;
@@ -250,30 +254,27 @@ namespace Fsl
 
   void Example3::Draw(const DemoTime& demoTime)
   {
-    VGfloat afClearColour0[] = {0.6f, 0.8f, 1.0f, 1.0f};
-    VGfloat afClearColour1[] = {0.0f, 0.0f, 0.0f, 1.0f};
+    std::array<VGfloat, 4> afClearColour0 = {0.6f, 0.8f, 1.0f, 1.0f};
+    std::array<VGfloat, 4> afClearColour1 = {0.0f, 0.0f, 0.0f, 1.0f};
     if (1 == m_scissors_direction)
     {
       if (m_scissor_rectangle >= 1280)
       {
-        vgSetfv(VG_CLEAR_COLOR, 4, afClearColour1);
+        vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour1.size()), afClearColour1.data());
       }
     }
     else
     {
       if (m_scissor_rectangle <= 0)
       {
-        vgSetfv(VG_CLEAR_COLOR, 4, afClearColour0);
+        vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour0.size()), afClearColour0.data());
       }
     }
-    uint32_t width, height;
-    const Point2 currentSize = GetScreenResolution();
-    width = currentSize.X;
-    height = currentSize.Y;
+    const PxSize2D currentSize = GetWindowSizePx();
     vgSeti(VG_SCISSORING, VG_FALSE);
-    vgClear(0, 0, width, height);
+    vgClear(0, 0, currentSize.Width(), currentSize.Height());
     vgSeti(VG_SCISSORING, VG_TRUE);
-    vgSetiv(VG_SCISSOR_RECTS, 4, g_coord);
+    vgSetiv(VG_SCISSOR_RECTS, UncheckedNumericCast<VGint>(g_coord.size()), g_coord.data());
 
     // Set transformation matrix mode
     vgSeti(VG_MATRIX_MODE, VG_MATRIX_PATH_USER_TO_SURFACE);

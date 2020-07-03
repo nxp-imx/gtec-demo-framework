@@ -30,16 +30,17 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslUtil/OpenGLES2/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES2/DynamicNativeTexture2D.hpp>
+#include <utility>
 #include "GausianHelper.hpp"
 #include "BlurredScene.hpp"
-
 #include "ReferenceOnePassBlurredDraw.hpp"
 #include "ReferenceTwoPassBlurredDraw.hpp"
 #include "ReferenceTwoPassLinearBlurredDraw.hpp"
@@ -54,9 +55,9 @@ namespace Fsl
 
   // FIX: the way the setup is done currently we cant change the framebuffer size (since the 'scene' thinks is using the fullscreen)
 
-  BlurredScene::BlurredScene(const DemoAppConfig& config, const std::shared_ptr<AScene>& scene)
+  BlurredScene::BlurredScene(const DemoAppConfig& config, std::shared_ptr<AScene> scene)
     : m_config(config.GetOptions<OptionParser>()->GetConfig())
-    , m_scene(scene)
+    , m_scene(std::move(scene))
     , m_graphicsService(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_batch2D(m_graphicsService->GetNativeBatch2D())
     , m_screenResolution(config.ScreenResolution)
@@ -127,25 +128,25 @@ namespace Fsl
       m_texFontAtlas.Reset(m_graphicsService->GetNativeGraphics(), bitmap, Texture2DFilterHint::Smooth);
       m_texDescription.Reset(m_texFontAtlas, TextureAtlasHelper::GetAtlasTextureInfo(atlas, "Banners"));
 
-      m_hTexAtlas = std::dynamic_pointer_cast<NativeTexture2D>(m_texFontAtlas.GetNative())->Get();
+      m_hTexAtlas = std::dynamic_pointer_cast<DynamicNativeTexture2D>(m_texFontAtlas.GetNative())->Get();
     }
 
     // Build the description VB
     {
       const Vector2 res(config.ScreenResolution.X / 2, config.ScreenResolution.Y / 2);
-      const Vector2 atlasSize(m_texDescription.GetAtlasSize().X, m_texDescription.GetAtlasSize().Y);
+      const Vector2 atlasSize(TypeConverter::UncheckedTo<Vector2>(m_texDescription.GetAtlasSize()));
       const AtlasTextureInfo atlasInfo = m_texDescription.GetInfo();
 
       // texSize.X / tex
-      float x1 = -1.0f - (atlasInfo.Offset.X / res.X);
-      float x2 = x1 + (atlasInfo.TrimmedRect.Width() / res.X);
-      float y1 = -1.0f - (atlasInfo.Offset.Y / res.Y);
-      float y2 = y1 + (atlasInfo.TrimmedRect.Height() / res.Y);
+      float x1 = -1.0f - (atlasInfo.OffsetPx.X / res.X);
+      float x2 = x1 + (atlasInfo.TrimmedRectPx.Width / res.X);
+      float y1 = -1.0f - (atlasInfo.OffsetPx.Y / res.Y);
+      float y2 = y1 + (atlasInfo.TrimmedRectPx.Height / res.Y);
 
-      float u1 = atlasInfo.TrimmedRect.Left() / atlasSize.X;
-      float v1 = 1.0f - (atlasInfo.TrimmedRect.Top() / atlasSize.Y);
-      float u2 = atlasInfo.TrimmedRect.Right() / atlasSize.X;
-      float v2 = 1.0f - (atlasInfo.TrimmedRect.Bottom() / atlasSize.Y);
+      float u1 = atlasInfo.TrimmedRectPx.Left() / atlasSize.X;
+      float v1 = 1.0f - (atlasInfo.TrimmedRectPx.Top() / atlasSize.Y);
+      float u2 = atlasInfo.TrimmedRectPx.Right() / atlasSize.X;
+      float v2 = 1.0f - (atlasInfo.TrimmedRectPx.Bottom() / atlasSize.Y);
 
       VBHelper::BuildVB(m_vbDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v2, u2, v1));
     }

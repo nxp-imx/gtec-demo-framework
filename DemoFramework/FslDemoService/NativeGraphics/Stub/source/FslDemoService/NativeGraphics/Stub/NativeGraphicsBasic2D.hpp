@@ -38,23 +38,23 @@ namespace Fsl
 {
   namespace Stub
   {
-    class NativeGraphicsBasic2D : public INativeGraphicsBasic2D
+    class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
     {
-      Point2 m_currentResolution;
-      Point2 m_fontSize;
+      PxExtent2D m_pxCurrentExtent;
+      PxSize2D m_fontSize;
       bool m_inBegin;
 
     public:
-      NativeGraphicsBasic2D(const Point2& currentResolution, const bool showWarning = true);
-      ~NativeGraphicsBasic2D() override;
+      explicit NativeGraphicsBasic2D(const PxExtent2D& extentPx, const bool showWarning = true);
+      ~NativeGraphicsBasic2D() final;
 
       // From INativeGraphicsBasic2D
-      void SetScreenResolution(const Point2& currentResolution) override;
-      void Begin() override;
-      void End() override;
-      void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) override;
-      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
-      Point2 FontSize() const override;
+      void SetScreenExtent(const PxExtent2D& extentPx) final;
+      void Begin() final;
+      void End() final;
+      void DrawPoints(const Vector2* const pDst, const uint32_t length, const Color& color) final;
+      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
+      PxSize2D FontSize() const final;
 
     private:
     };

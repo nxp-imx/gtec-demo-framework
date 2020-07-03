@@ -47,7 +47,7 @@ namespace Fsl
         const VertexElementEx element = vertexDeclaration.At(i);
         if (usage == element.Usage && usageIndex == element.UsageIndex)
         {
-          static_assert(std::numeric_limits<int32_t>::max() < std::numeric_limits<std::size_t>::max(), "std::size assumptions are wrong");
+          static_assert(uint32_t(std::numeric_limits<int32_t>::max()) < std::numeric_limits<std::size_t>::max(), "std::size assumptions are wrong");
           assert(i <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
           return static_cast<int32_t>(i);
         }

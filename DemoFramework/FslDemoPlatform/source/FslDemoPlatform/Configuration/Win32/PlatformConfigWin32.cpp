@@ -40,7 +40,6 @@
 //#include <FslNativeGraphicsGLES2/NativeGraphicsServiceGLES2.hpp>
 //#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
 //#include <FslNativeGraphicsVG/NativeGraphicsServiceVG.hpp>
-//#include <FslDemoPlatform/Service/MMDCStats/MMDCStatsServiceFactory.hpp>
 
 #include "../PlatformConfig.hpp"
 
@@ -59,11 +58,6 @@ namespace Fsl
     // eglHostFeatures.push_back(DemoHostFeatureName::OpenGLES);
     // eglHostFeatures.push_back(DemoHostFeatureName::OpenVG);
     // registry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
-
-
-    // For testing purposes
-    // serviceRegistry.Register<MMDCStatsServiceFactory>(ServicePriorityList::MMDCStatsService());
-
 
     //#ifdef FSL_ENABLE_GRAPHICS_ES2
     //    serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES2, INativeGraphicsService>

@@ -33,7 +33,6 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -140,17 +139,16 @@ namespace Fsl
     UpdateInput(demoTime);
     m_menuUI.Update(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     m_vertexUboData.MatModel = Matrix::GetIdentity();
     m_vertexUboData.MatView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    const float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
   }
 
 
-  void HDR01_BasicToneMapping::Draw(const DemoTime& demoTime)
+  void HDR01_BasicToneMapping::Draw(const DemoTime& /*demoTime*/)
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -159,8 +157,8 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * screenResolution.X));
-    const GLint remainderX = std::min(std::max(screenResolution.X - splitX, 0), screenResolution.X);
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * windowSizePx.Width()));
+    const GLint remainderX = std::min(std::max(windowSizePx.Width() - splitX, 0), windowSizePx.Width());
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -176,7 +174,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(0, 0, splitX, screenResolution.Y);
+        glScissor(0, 0, splitX, windowSizePx.Height());
       }
       DrawScene(m_resources.ProgramLDR);
     }
@@ -184,7 +182,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(splitX, 0, remainderX, screenResolution.Y);
+        glScissor(splitX, 0, remainderX, windowSizePx.Height());
       }
       DrawScene(m_resources.ProgramHDR);
     }
@@ -285,7 +283,7 @@ namespace Fsl
   HDR01_BasicToneMapping::ProgramInfo HDR01_BasicToneMapping::CreateShader(const std::shared_ptr<IContentManager>& contentManager, const bool useHDR)
   {
     ProgramInfo info;
-    const auto fragmentShaderName = useHDR ? "ShaderHDR.frag" : "ShaderLDR.frag";
+    const auto* const fragmentShaderName = useHDR ? "ShaderHDR.frag" : "ShaderLDR.frag";
     info.Program.Reset(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText(fragmentShaderName));
 
     // Get uniform locations (vertex shader)

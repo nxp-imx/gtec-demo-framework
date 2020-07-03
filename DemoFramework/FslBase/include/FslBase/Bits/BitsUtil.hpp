@@ -40,7 +40,7 @@ namespace Fsl
   public:
     //! @brief Count the number of 'on' bits in a UInt32.
     //! @note http://www.necessaryandsufficient.net/2009/04/optimising-bit-counting-using-iterative-data-driven-development/
-    static int Count(uint32_t value)
+    constexpr static int Count(uint32_t value)
     {
       // Modified HAKMEM bit counting
       uint32_t n = (value >> 1) & 0x77777777;
@@ -58,7 +58,7 @@ namespace Fsl
 
     //! @brief Locate the first 'on' bit starting from bit0 in a UInt32
     //! @return the bit index or -1 if none found.
-    static int IndexOf(uint32_t value)
+    constexpr static int IndexOf(uint32_t value)
     {
       int index = 0;
       while ((value & 1) == 0 && index < 32)
@@ -73,7 +73,7 @@ namespace Fsl
 
     //! @brief Locate the first 'on' bit starting from bit0 in a UInt32
     //! @return the bit index or -1 if none found.
-    static int IndexOf(int32_t value)
+    constexpr static int IndexOf(int32_t value)
     {
       int index = 0;
       while ((value & 1) == 0 && index < 32)
@@ -87,7 +87,7 @@ namespace Fsl
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
     //! @brief Find the power of two value that is equal or higher than the supplied value.
-    static uint32_t NextPowerOfTwo(uint32_t value)
+    constexpr static uint32_t NextPowerOfTwo(uint32_t value)
     {
       if (value > 0)
       {
@@ -109,7 +109,7 @@ namespace Fsl
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
     //! @brief Find the power of two value that is equal or higher than the supplied value.
-    static int32_t NextPowerOfTwo(const int32_t value)
+    constexpr static int32_t NextPowerOfTwo(const int32_t value)
     {
       int32_t absValue = (value >= 0 ? value : -value);
       if (absValue > 0)
@@ -129,14 +129,14 @@ namespace Fsl
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
     //! @brief Check if the value is a pow 2 value
-    static bool IsPowerOfTwo(int32_t value)
+    constexpr static bool IsPowerOfTwo(int32_t value)
     {
       return value > 0 && (NextPowerOfTwo(value) == value);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------------
 
-    static bool IsPowerOfTwo(uint32_t value)
+    constexpr static bool IsPowerOfTwo(uint32_t value)
     {
       return value > 0 && (NextPowerOfTwo(value) == value);
     }

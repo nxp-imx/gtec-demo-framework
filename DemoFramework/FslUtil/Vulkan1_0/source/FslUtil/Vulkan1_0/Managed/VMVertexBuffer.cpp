@@ -30,8 +30,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -48,13 +50,13 @@ namespace Fsl
         for (std::size_t i = 0; i < vertexDeclaration.Count(); ++i)
         {
           auto element = vertexDeclaration.At(i);
-          rVertexElements[i] = VMVertexElement(element, ConvertUtil::Convert(element.Format));
+          rVertexElements[i] = VMVertexElement(element, VulkanConvert::ToVkFormat(element.Format));
         }
       }
     }
 
     void VMVertexBuffer::Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pVertices, const std::size_t elementCount,
-                               const VertexDeclaration& vertexDeclaration, const VMBufferUsage usage)
+                               const std::size_t elementCapacity, const VertexDeclaration& vertexDeclaration, const VMBufferUsage usage)
     {
       if (!bufferManager)
       {
@@ -68,6 +70,10 @@ namespace Fsl
       {
         throw NotSupportedException("element counts larger than a uint32_t is not supported");
       }
+      if (elementCount > elementCapacity)
+      {
+        throw NotSupportedException("element count should be <= elementCapacity");
+      }
 
       Reset();
 
@@ -75,10 +81,10 @@ namespace Fsl
       try
       {
         const auto stride = vertexDeclaration.VertexStride();
-        m_vertexBuffer = bufferManager->CreateBuffer(pVertices, elementCount, stride, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, usage);
+        m_vertexBuffer = bufferManager->CreateBuffer(pVertices, elementCount, elementCapacity, stride, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, usage);
         Convert(m_vertexElements, vertexDeclaration);
         m_bufferManager = bufferManager;
-        m_vertexCount = static_cast<uint32_t>(elementCount);
+        m_vertexCount = UncheckedNumericCast<uint32_t>(elementCapacity);
         m_elementStride = stride;
         m_usage = usage;
       }
@@ -121,18 +127,25 @@ namespace Fsl
       }
     }
 
-    void VMVertexBuffer::SetData(const void* pVertices, const std::size_t elementCount, const uint32_t elementStride)
+    void VMVertexBuffer::SetData(const uint32_t dstElementOffset, const void* pVertices, const std::size_t elementCount, const uint32_t elementStride)
     {
-      if (elementCount > m_vertexCount)
+      if (dstElementOffset > m_vertexCount)
       {
-        throw std::invalid_argument("out of bounds");
+        throw std::invalid_argument("dstElementOffset out of bounds");
+      }
+      if (elementCount > (m_vertexCount - dstElementOffset))
+      {
+        throw std::invalid_argument(
+          fmt::format("out of bounds (dstElementOffset {} elementCount {} vertexCount {})", dstElementOffset, elementCount, m_vertexCount));
       }
       if (elementStride != m_elementStride)
       {
         throw std::invalid_argument("elementStride must match the VMVertexBuffer element stride");
       }
 
-      m_vertexBuffer.Upload(0u, pVertices, elementCount * elementStride);
+      auto dstOffset = dstElementOffset * elementStride;
+
+      m_vertexBuffer.Upload(dstOffset, pVertices, elementCount * elementStride);
     }
 
     int32_t VMVertexBuffer::GetVertexElementIndex(const VertexElementUsage usage, const uint32_t usageIndex) const

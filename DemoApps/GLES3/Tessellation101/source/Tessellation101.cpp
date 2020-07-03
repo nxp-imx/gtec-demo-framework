@@ -43,6 +43,7 @@
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
+#include <array>
 
 namespace Fsl
 {
@@ -100,7 +101,7 @@ namespace Fsl
       float magicX = 100;
       float magicY = 100;
 
-      VertexPosition vertices[] = {
+      const std::array<VertexPosition, 6> vertices = {
         VertexPosition(Vector3(-magicX, magicY, 0.0f)),      VertexPosition(Vector3(-magicX, -magicY, 0.0f)),
         VertexPosition(Vector3(magicX, magicY, 0.0f)),
 
@@ -108,7 +109,7 @@ namespace Fsl
         VertexPosition(Vector3(magicX + 10, -magicY, 0.0f)),
       };
 
-      m_vertexBuffer.Reset(vertices, 6, GL_STATIC_DRAW);
+      m_vertexBuffer.Reset(vertices, GL_STATIC_DRAW);
     }
   }
 
@@ -168,20 +169,17 @@ namespace Fsl
   }
 
 
-  void Tessellation101::Update(const DemoTime& demoTime)
+  void Tessellation101::Update(const DemoTime& /*demoTime*/)
   {
-    const Point2 screenResolution = GetScreenResolution();
-
     const Matrix view = Matrix::CreateTranslation(0.0f, 0.0f, -350.0f);
-    const Matrix projection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
+    const Matrix projection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 1000.0f);
     const Matrix viewProjection = view * projection;
 
     glProgramUniformMatrix4fv(m_shaderEval.Get(), m_locWorldViewProjection, 1, GL_FALSE, viewProjection.DirectAccess());
   }
 
 
-  void Tessellation101::Draw(const DemoTime& demoTime)
+  void Tessellation101::Draw(const DemoTime& /*demoTime*/)
   {
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);

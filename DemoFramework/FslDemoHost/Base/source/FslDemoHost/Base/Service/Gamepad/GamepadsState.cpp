@@ -92,7 +92,7 @@ namespace Fsl
 
     void HandleGamepadConfigurationEvent(const NativeWindowEvent& event, std::vector<GamepadState>& rGamepads)
     {
-      uint32_t maxDevices;
+      uint32_t maxDevices = 0;
       NativeWindowEventHelper::DecodeGamepadConfiguration(event, maxDevices);
 
       rGamepads.clear();
@@ -170,9 +170,9 @@ namespace Fsl
 
     void CheckInputKeyStateEvent(const NativeWindowEvent& event, const std::size_t maxDevices, const bool isConfigured)
     {
-      VirtualKey::Enum virtualKey;
-      bool isPressed;
-      uint32_t deviceId;
+      VirtualKey::Enum virtualKey = VirtualKey::Undefined;
+      bool isPressed = false;
+      uint32_t deviceId = 0;
       NativeWindowEventHelper::DecodeInputKeyEvent(event, virtualKey, isPressed, deviceId);
 
       if (virtualKey < VirtualKey::SYS_GAMEPAD_RANGE_FIRST || virtualKey > VirtualKey::SYS_GAMEPAD_RANGE_LAST)

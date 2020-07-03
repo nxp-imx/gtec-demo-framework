@@ -81,7 +81,7 @@ namespace Fsl
   }
 
 
-  bool DPIHelperWin32::TryGetDPI(HWND hWnd, Point2& rDPI) const
+  bool DPIHelperWin32::TryGetDpi(HWND hWnd, Point2& rDPI) const
   {
     if (m_mode != Mode::PerMonitor)
     {
@@ -95,8 +95,9 @@ namespace Fsl
     }
     assert(m_funcGetDpiForMonitor != nullptr);
 
-    auto hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-    UINT dpiX, dpiY;
+    HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+    UINT dpiX = 0;
+    UINT dpiY = 0;
     if (m_funcGetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY) != S_OK)
     {
       rDPI = Point2();

@@ -29,11 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES2/Exceptions.hpp>
-#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "RenderScene.hpp"
-#include <GLES2/gl2.h>
-#include <iostream>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
@@ -44,6 +40,9 @@
 #include <FslGraphics/Vertices/VertexPositionNormalTangentTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
+#include <GLES2/gl2.h>
 
 namespace Fsl
 {
@@ -85,7 +84,11 @@ namespace Fsl
 
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
-    std::string strFileName, strTextureFileName, strTextureGloss, strTextureSpecular, strTextureNormal;
+    IO::Path strFileName;
+    IO::Path strTextureFileName;
+    IO::Path strTextureGloss;
+    IO::Path strTextureSpecular;
+    IO::Path strTextureNormal;
     switch (sceneId)
     {
     case 1:
@@ -120,7 +123,7 @@ namespace Fsl
       Bitmap bitmap;
       auto texturePath = IO::Path::Combine(MODELS_PATH, strTextureFileName);
 
-      if (strTextureGloss.empty())
+      if (strTextureGloss.IsEmpty())
       {
         FSLLOG3_INFO("- Diffuse '{}'", texturePath);
         contentManager->Read(bitmap, texturePath, PixelFormat::R8G8B8A8_UNORM);
@@ -149,7 +152,7 @@ namespace Fsl
       GLTextureParameters texParams(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       m_texture.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
 
-      if (!strTextureSpecular.empty())
+      if (!strTextureSpecular.IsEmpty())
       {
         auto specTexturePath = IO::Path::Combine(MODELS_PATH, strTextureSpecular);
         FSLLOG3_INFO("- Specular '{}'", specTexturePath);
@@ -157,7 +160,7 @@ namespace Fsl
         m_textureSpecular.SetData(bitmap, texParams, TextureFlags::GenerateMipMaps);
       }
 
-      if (!strTextureNormal.empty())
+      if (!strTextureNormal.IsEmpty())
       {
         auto normTexturePath = IO::Path::Combine(MODELS_PATH, strTextureNormal);
         FSLLOG3_INFO("- Normal '{}'", normTexturePath);
@@ -167,7 +170,7 @@ namespace Fsl
     }
 
     FSLLOG3_INFO("Preparing shaders");
-    PrepareShader(contentManager, m_textureSpecular.IsValid(), !strTextureGloss.empty(), m_textureNormal.IsValid());
+    PrepareShader(contentManager, m_textureSpecular.IsValid(), !strTextureGloss.IsEmpty(), m_textureNormal.IsValid());
 
     // Create index and vertex buffers for all the meshes.
     {
@@ -192,14 +195,14 @@ namespace Fsl
   RenderScene::~RenderScene() = default;
 
   void RenderScene::Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
-                           const Point2& screenResolution)
+                           const PxSize2D& windowSizePx)
   {
     FSL_PARAM_NOT_USED(demoTime);
 
     m_matrixWorld = Matrix::CreateRotationX(rotation.X) * Matrix::CreateRotationY(rotation.Y) * Matrix::CreateRotationZ(rotation.Z);
     m_matrixView = cameraViewMatrix;
-    m_matrixProjection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
+                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f);
     m_matrixWorldView = m_matrixWorld * m_matrixView;
     m_matrixWorldViewProjection = m_matrixWorldView * m_matrixProjection;
 
@@ -325,7 +328,7 @@ namespace Fsl
   void RenderScene::PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useSpecMap, const bool useGlossMap,
                                   const bool useNormalMap)
   {
-    std::string shaderPath = "Shaders";
+    IO::Path shaderPath("Shaders");
 
     std::string baseShaderName("PerPixelDirectionalSpecular");
     if (useSpecMap)

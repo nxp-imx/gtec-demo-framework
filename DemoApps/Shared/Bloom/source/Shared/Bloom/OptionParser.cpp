@@ -89,64 +89,64 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    int32_t intValue;
-    bool boolValue;
+    int32_t intValue = 0;
+    bool boolValue = false;
 
     switch (cmdId)
     {
     case CommandId::Scene:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_sceneId = intValue;
       return OptionParseResult::Parsed;
     case CommandId::Rotate:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_rotateEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::BlurPass:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_blurPassEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::BrightPass:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_brightPassEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::FinalScene:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_renderFinalScene = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::FinalBloom:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_renderFinalBloom = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::ShowBuffers:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_showBuffers = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::ScaleInputSequentially:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

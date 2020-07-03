@@ -5,7 +5,7 @@
 
     <Platform Name="Ubuntu">
       <!--
-      <ExperimentalRecipe>
+      <ExperimentalRecipe Name="Vulkan" FindTargetName="Vulkan::Vulkan">
         <Pipeline Name="Vulkan1" ExternalInstallDirectory="$(VK_SDK_PATH)"/>
         <Installation>
           <EnvironmentVariable Name="VK_SDK_PATH" Method="IsDirectory" Help="This environment variable is normally set by the vulkan installation to make it easy to locate the vulkan installation"/>
@@ -18,7 +18,7 @@
       -->
     </Platform>
     <Platform Name="Windows" Supported="true">
-      <ExperimentalRecipe ExternalInstallDirectory="$(VK_SDK_PATH)">
+      <ExperimentalRecipe Name="Vulkan" ExternalInstallDirectory="$(VK_SDK_PATH)" FindTargetName="Vulkan::Vulkan">
         <Installation>
           <AddHeaders Name="include"/>
           <AddLib Name="lib/vulkan-1.lib"/>

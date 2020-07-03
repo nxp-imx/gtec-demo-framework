@@ -12,6 +12,7 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "VulkanGear.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -20,8 +21,6 @@
 #include <vector>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
-
-using namespace RapidVulkan;
 
 namespace Fsl
 {
@@ -56,12 +55,12 @@ namespace Fsl
     const float r0 = gearinfo.InnerRadius;
     const float r1 = gearinfo.OuterRadius - gearinfo.ToothDepth / 2.0f;
     const float r2 = gearinfo.OuterRadius + gearinfo.ToothDepth / 2.0f;
-    const float da = 2.0f * MathHelper::PI / gearinfo.NumTeeth / 4.0f;
+    const float da = 2.0f * MathHelper::PI / static_cast<float>(gearinfo.NumTeeth) / 4.0f;
     const float halfGearWidth = gearinfo.Width * 0.5f;
 
     for (int i = 0; i < gearinfo.NumTeeth; ++i)
     {
-      const float ta = i * 2.0f * MathHelper::PI / gearinfo.NumTeeth;
+      const float ta = static_cast<float>(i) * 2.0f * MathHelper::PI / static_cast<float>(gearinfo.NumTeeth);
       const float cos_ta = std::cos(ta);
       const float cos_ta_1da = std::cos(ta + da);
       const float cos_ta_2da = std::cos(ta + 2 * da);
@@ -168,8 +167,8 @@ namespace Fsl
       NewFace(iBuffer, ix1, ix3, ix2);
     }
 
-    const auto vertexBufferSize = static_cast<uint32_t>(vBuffer.size() * sizeof(Vertex));
-    const auto indexBufferSize = static_cast<uint32_t>(iBuffer.size() * sizeof(uint32_t));
+    const auto vertexBufferSize = UncheckedNumericCast<uint32_t>(vBuffer.size() * sizeof(Vertex));
+    const auto indexBufferSize = UncheckedNumericCast<uint32_t>(iBuffer.size() * sizeof(uint32_t));
 
     const bool useStaging = true;
 
@@ -194,7 +193,7 @@ namespace Fsl
                                                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBufferSize);
 
       {    // Copy from staging buffers
-        CommandBuffer copyCmd = m_pVulkanDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+        RapidVulkan::CommandBuffer copyCmd = m_pVulkanDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 
         VkBufferCopy copyRegion{};
         copyRegion.size = vertexBufferSize;
@@ -218,7 +217,7 @@ namespace Fsl
         m_pVulkanDevice->CreateBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize, iBuffer.data());
     }
 
-    m_indexCount = static_cast<uint32_t>(iBuffer.size());
+    m_indexCount = UncheckedNumericCast<uint32_t>(iBuffer.size());
     PrepareUniformBuffer();
   }
 
@@ -279,10 +278,10 @@ namespace Fsl
 
   void VulkanGear::Draw(const VkCommandBuffer cmdbuffer, const VkPipelineLayout pipelineLayout)
   {
-    VkDeviceSize offsets[1] = {0};
+    VkDeviceSize offsets = 0;
 
     vkCmdBindDescriptorSets(cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &DescriptorSet, 0, nullptr);
-    vkCmdBindVertexBuffers(cmdbuffer, 0, 1, m_vertexBuffer.GetBufferPointer(), offsets);
+    vkCmdBindVertexBuffers(cmdbuffer, 0, 1, m_vertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(cmdbuffer, m_indexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
     vkCmdDrawIndexed(cmdbuffer, m_indexCount, 1, 0, 0, 1);
   }
@@ -333,6 +332,6 @@ namespace Fsl
     m_uniformData.Descriptor.buffer = m_uniformData.GetBuffer();
     m_uniformData.Descriptor.offset = 0;
     m_uniformData.Descriptor.range = static_cast<VkDeviceSize>(sizeof(m_ubo));
-    m_uniformData.AllocSize = static_cast<uint32_t>(allocInfo.allocationSize);
+    m_uniformData.AllocSize = UncheckedNumericCast<uint32_t>(allocInfo.allocationSize);
   }
 }

@@ -53,7 +53,7 @@ namespace Fsl
       VGFontBuffer();
 
       //! @brief Create a initialized path buffer
-      VGFontBuffer(const int32_t capacityHint);
+      explicit VGFontBuffer(const int32_t capacityHint);
 
       ~VGFontBuffer();
 

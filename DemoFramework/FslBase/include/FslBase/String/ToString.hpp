@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <string>
 #include <sstream>
+#include <string>
 
 namespace Fsl
 {

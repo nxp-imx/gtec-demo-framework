@@ -71,7 +71,7 @@ namespace Fsl
         return m_callId;
       }
 
-      GenericLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags = WindowFlags())
+      explicit GenericLayoutWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags = WindowFlags())
         : parent_type(context)
       {
         if (windowFlags.GetValue() > 0)
@@ -107,15 +107,14 @@ namespace Fsl
         return res;
       }
 
-      Rect WinGetContentRect() const override
+      const PxRectangle& WinGetContentPxRectangle() const override
       {
         ++m_callCount.WinGetContentRect;
-        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentRect))
+        if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::WinGetContentPxRectangle))
         {
           m_callId.WinGetContentRect = m_callIdManager->Claim();
         }
-
-        return parent_type::WinGetContentRect();
+        return parent_type::WinGetContentPxRectangle();
       }
 
       void WinHandleEvent(const RoutedEvent& routedEvent) override
@@ -223,7 +222,7 @@ namespace Fsl
         Callbacks.OnContentChanged(args, theEvent);
       }
 
-      Vector2 ArrangeOverride(const Vector2& finalSize) override
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
       {
         ++m_callCount.ArrangeOverride;
         if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::ArrangeOverride))
@@ -231,13 +230,13 @@ namespace Fsl
           m_callId.ArrangeOverride = m_callIdManager->Claim();
         }
 
-        auto result = parent_type::ArrangeOverride(finalSize);
+        auto result = parent_type::ArrangeOverride(finalSizePx);
 
-        Callbacks.ArrangeOverride(finalSize);
+        Callbacks.ArrangeOverride(finalSizePx);
         return result;
       }
 
-      Vector2 MeasureOverride(const Vector2& availableSize) override
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
       {
         ++m_callCount.MeasureOverride;
         if (m_callIdManager && m_callIdManager->IsEnabled(WindowMethod::MeasureOverride))
@@ -245,9 +244,9 @@ namespace Fsl
           m_callId.MeasureOverride = m_callIdManager->Claim();
         }
 
-        auto result = parent_type::MeasureOverride(availableSize);
+        auto result = parent_type::MeasureOverride(availableSizePx);
 
-        Callbacks.MeasureOverride(availableSize);
+        Callbacks.MeasureOverride(availableSizePx);
         return result;
       }
 

@@ -40,7 +40,7 @@ namespace Fsl
 {
   NativeWindowEvent NativeWindowEventHelper::EncodeWindowActivationEvent(const bool activated)
   {
-    return NativeWindowEvent(NativeWindowEventType::WindowActivation, activated ? 1 : 0);
+    return {NativeWindowEventType::WindowActivation, activated ? 1 : 0};
   }
 
 
@@ -53,7 +53,7 @@ namespace Fsl
 
   NativeWindowEvent NativeWindowEventHelper::EncodeWindowSuspendEvent(const bool suspend)
   {
-    return NativeWindowEvent(NativeWindowEventType::WindowSuspend, suspend ? 1 : 0);
+    return {NativeWindowEventType::WindowSuspend, suspend ? 1 : 0};
   }
 
 
@@ -69,9 +69,9 @@ namespace Fsl
   }
 
 
-  NativeWindowEvent NativeWindowEventHelper::EncodeWindowDPIChanged(const Point2& newDPI)
+  NativeWindowEvent NativeWindowEventHelper::EncodeWindowConfigChanged()
   {
-    return NativeWindowEvent(NativeWindowEventType::WindowDPIChanged, newDPI.X, newDPI.Y);
+    return NativeWindowEvent(NativeWindowEventType::WindowConfigChanged);
   }
 
 
@@ -86,7 +86,7 @@ namespace Fsl
     const int32_t arg1 = virtualKey;
     const int32_t arg2 = (isPressed ? VirtualKeyFlag::IsPressed : 0);
     const auto arg3 = static_cast<int32_t>(deviceId);
-    return NativeWindowEvent(NativeWindowEventType::InputKey, arg1, arg2, arg3);
+    return {NativeWindowEventType::InputKey, arg1, arg2, arg3};
   }
 
 
@@ -101,18 +101,18 @@ namespace Fsl
 
 
   NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed,
-                                                                         const Point2& position)
+                                                                         const PxPoint2& position)
   {
     const int32_t arg1 = button;
     const int32_t arg2 = (isPressed ? VirtualKeyFlag::IsPressed : 0);
     const int32_t arg3 = EncodePosition(position);
 
-    return NativeWindowEvent(NativeWindowEventType::InputMouseButton, arg1, arg2, arg3);
+    return {NativeWindowEventType::InputMouseButton, arg1, arg2, arg3};
   }
 
 
   void NativeWindowEventHelper::DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed,
-                                                            Point2& rPosition)
+                                                            PxPoint2& rPosition)
   {
     assert(event.Type == NativeWindowEventType::InputMouseButton);
     rButton = static_cast<VirtualMouseButton::Enum>(event.Arg1);
@@ -121,15 +121,15 @@ namespace Fsl
   }
 
 
-  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& buttonFlags)
+  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& buttonFlags)
   {
     const int32_t arg1 = EncodePosition(position);
     const int32_t arg2 = EncodeVirtualMouseButtonFlags(buttonFlags);
-    return NativeWindowEvent(NativeWindowEventType::InputMouseMove, arg1, arg2);
+    return {NativeWindowEventType::InputMouseMove, arg1, arg2};
   }
 
 
-  void NativeWindowEventHelper::DecodeInputMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags)
+  void NativeWindowEventHelper::DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags)
   {
     assert(event.Type == NativeWindowEventType::InputMouseMove);
     rPosition = DecodePosition(event.Arg1);
@@ -137,16 +137,16 @@ namespace Fsl
   }
 
 
-  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseWheelEvent(const int32_t delta, const Point2& position)
+  NativeWindowEvent NativeWindowEventHelper::EncodeInputMouseWheelEvent(const int32_t delta, const PxPoint2& position)
   {
     const int32_t arg1 = delta;
     const int32_t arg2 = EncodePosition(position);
 
-    return NativeWindowEvent(NativeWindowEventType::InputMouseWheel, arg1, arg2);
+    return {NativeWindowEventType::InputMouseWheel, arg1, arg2};
   }
 
 
-  void NativeWindowEventHelper::DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, Point2& rPosition)
+  void NativeWindowEventHelper::DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, PxPoint2& rPosition)
   {
     assert(event.Type == NativeWindowEventType::InputMouseWheel);
     rDelta = event.Arg1;
@@ -154,24 +154,24 @@ namespace Fsl
   }
 
 
-  NativeWindowEvent NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& buttonFlags)
+  NativeWindowEvent NativeWindowEventHelper::EncodeInputRawMouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& buttonFlags)
   {
     const int32_t arg1 = position.X;
     const int32_t arg2 = position.Y;
     const int32_t arg3 = EncodeVirtualMouseButtonFlags(buttonFlags);
-    return NativeWindowEvent(NativeWindowEventType::InputRawMouseMove, arg1, arg2, arg3);
+    return {NativeWindowEventType::InputRawMouseMove, arg1, arg2, arg3};
   }
 
 
-  void NativeWindowEventHelper::DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags)
+  void NativeWindowEventHelper::DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags)
   {
     assert(event.Type == NativeWindowEventType::InputRawMouseMove);
-    rPosition = Point2(event.Arg1, event.Arg2);
+    rPosition = PxPoint2(event.Arg1, event.Arg2);
     rFlags = DecodeVirtualMouseButtonFlags(event.Arg3);
   }
 
 
-  int32_t NativeWindowEventHelper::EncodePosition(const Point2& position)
+  int32_t NativeWindowEventHelper::EncodePosition(const PxPoint2& position)
   {
     if (position.X < std::numeric_limits<int16_t>::min() || position.X > std::numeric_limits<int16_t>::max())
     {
@@ -185,11 +185,11 @@ namespace Fsl
   }
 
 
-  Point2 NativeWindowEventHelper::DecodePosition(const int32_t encodedPosition)
+  PxPoint2 NativeWindowEventHelper::DecodePosition(const int32_t encodedPosition)
   {
     const auto x = static_cast<int16_t>(encodedPosition & 0xFFFF);
     const auto y = static_cast<int16_t>((encodedPosition >> 16) & 0xFFFF);
-    return Point2(x, y);
+    return {x, y};
   }
 
 
@@ -208,7 +208,7 @@ namespace Fsl
   NativeWindowEvent NativeWindowEventHelper::EncodeGamepadConfiguration(const uint32_t maxDevices)
   {
     const auto arg1 = static_cast<int32_t>(maxDevices);
-    return NativeWindowEvent(NativeWindowEventType::GamepadConfiguration, arg1);
+    return {NativeWindowEventType::GamepadConfiguration, arg1};
   }
 
 
@@ -237,7 +237,7 @@ namespace Fsl
     const auto arg3 = static_cast<int32_t>(leftThumbX | leftThumbY);
     const auto arg4 = static_cast<int32_t>(rightThumbX | rightThumbY);
 
-    return NativeWindowEvent(NativeWindowEventType::GamepadState, arg1, arg2, arg3, arg4);
+    return {NativeWindowEventType::GamepadState, arg1, arg2, arg3, arg4};
   }
 
 

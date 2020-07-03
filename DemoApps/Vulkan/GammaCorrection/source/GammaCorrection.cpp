@@ -30,11 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "GammaCorrection.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
@@ -120,7 +123,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -139,7 +142,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -174,7 +177,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -219,7 +222,7 @@ namespace Fsl
       writeDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
       writeDescriptorSets[2].pBufferInfo = &fragUboBufferInfo;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 
       return descriptorSet;
     }
@@ -263,7 +266,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.VertexInputBindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.VertexAttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.VertexAttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.VertexAttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -345,12 +348,12 @@ namespace Fsl
 
       VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
       pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-      pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+      pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicState.size());
       pipelineDynamicStateCreateInfo.pDynamicStates = dynamicState.data();
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -376,7 +379,8 @@ namespace Fsl
     : VulkanBasic::DemoAppVulkanBasic(config)
     , m_bufferManager(std::make_shared<VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -495,10 +499,9 @@ namespace Fsl
     UpdateInput(demoTime);
     UpdateSceneTransition(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     auto matrixWorld = Matrix::GetIdentity();
     auto matrixView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    const float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
@@ -512,7 +515,8 @@ namespace Fsl
   }
 
 
-  void GammaCorrection::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void GammaCorrection::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
+                                   const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
@@ -521,11 +525,11 @@ namespace Fsl
     m_resources.MainFrameResources[frameIndex].VertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUboData));
     m_resources.MainFrameResources[frameIndex].FragUboBuffer.Upload(0, &m_fragmentUboData, sizeof(FragmentUboData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
-      clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+      clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -534,7 +538,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -685,15 +689,15 @@ namespace Fsl
 
   void GammaCorrection::DrawScenes(const FrameResources& frame, const VkCommandBuffer commandBuffer)
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
-    const VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    const VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
-    const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue() * screenResolution.X));
-    const auto splitY = static_cast<int32_t>(std::round((1.0f - m_splitY.GetValue()) * screenResolution.Y));
-    const int32_t remainderX = screenResolution.X - splitX;
-    const int32_t remainderY = screenResolution.Y - splitY;
+    const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue() * windowSizePx.Width()));
+    const auto splitY = static_cast<int32_t>(std::round((1.0f - m_splitY.GetValue()) * windowSizePx.Height()));
+    const int32_t remainderX = windowSizePx.Width() - splitX;
+    const int32_t remainderY = windowSizePx.Height() - splitY;
 
     // bottom left (no gamma correction, rgb texture)
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineNoGamma.Get());

@@ -33,26 +33,28 @@
 #include "OptionParser.hpp"
 #include <EGL/egl.h>
 #include "Blur.hpp"
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-    const EGLint g_eglConfigAttribs[] = {EGL_SAMPLES,      0,
-                                         EGL_RED_SIZE,     8,
-                                         EGL_GREEN_SIZE,   8,
-                                         EGL_BLUE_SIZE,    8,
-                                         EGL_ALPHA_SIZE,   0,    // buffers with the smallest alpha component size are preferred
-                                         EGL_DEPTH_SIZE,   0,    // We don't need a depth buffer for the main surface
-                                         EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-                                         EGL_NONE};
+    const std::array<EGLint, (7 * 2) + 1> g_eglConfigAttribs = {
+      EGL_SAMPLES,      0,
+      EGL_RED_SIZE,     8,
+      EGL_GREEN_SIZE,   8,
+      EGL_BLUE_SIZE,    8,
+      EGL_ALPHA_SIZE,   0,    // buffers with the smallest alpha component size are preferred
+      EGL_DEPTH_SIZE,   0,    // We don't need a depth buffer for the main surface
+      EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+      EGL_NONE};
   }
 
   // Configure the demo environment to run this demo app in a OpenGLES2 host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+    DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
     DemoAppRegister::GLES2::Register<Blur, OptionParser>(rSetup, "GLES2.Blur", config);
   }

@@ -5,7 +5,7 @@
     <Requirement Name="EarlyAccess" Type="feature"/>
 
     <Platform Name="Ubuntu" Supported="true">
-      <ExperimentalRecipe Name="KhronosOpenVX-1.1">
+      <ExperimentalRecipe Name="KhronosOpenVX" Version="1.1">
         <Pipeline>
           <Download URL="https://www.khronos.org/registry/OpenVX/sample/openvx_sample_1.1.tar.bz2" Hash="cebda8a6a4802d7f56cb618bc12e7cd3333aa1d9a5a3259e7250e24163bb0c01"/>
           <Unpack File="openvx_sample_1.1.tar.bz2" OutputPath="openvx_sample">
@@ -26,7 +26,7 @@
     </Platform>
     
     <Platform Name="Windows" Supported="true">
-      <ExperimentalRecipe Name="KhronosOpenVX-1.1">
+      <ExperimentalRecipe Name="KhronosOpenVX" Version="1.1">
         <Pipeline>
           <Download URL="https://www.khronos.org/registry/OpenVX/sample/openvx_sample_1.1.tar.bz2" Hash="cebda8a6a4802d7f56cb618bc12e7cd3333aa1d9a5a3259e7250e24163bb0c01"/>
           <Unpack File="openvx_sample_1.1.tar.bz2" OutputPath="openvx_sample">

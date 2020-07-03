@@ -132,7 +132,7 @@ namespace Fsl
     , m_hCounterEnable(m_profilerService, m_profilerService->CreateCustomCounter("enable", 0, GRAPH_RES, Color(0xFF, 0x80, 0xFF, 0xFF)))
     , m_hCounterDraw(m_profilerService, m_profilerService->CreateCustomCounter("draw", 0, GRAPH_RES, Color(0x80, 0xFF, 0xFF, 0xFF)))
     , m_hCounterTotal(m_profilerService, m_profilerService->CreateCustomCounter("total", 0, GRAPH_RES, Color(0x80, 0x80, 0xFF, 0xFF)))
-    , m_camera(config.ScreenResolution)
+    , m_camera(config.WindowMetrics.GetSizePx())
     , m_renderConfig(Vector3(), Vector3(0.5f, -0.6f, 0.7f), true)
     , m_lightDirection(1.0f, 1.0f, 1.0f)
     , m_fragUboData(Vector3(0.8f, 0.8f, 0.8f), Vector4(0.2f, 0.2f, 0.2f, 0.2f), Vector4(1, 1, 1, 1), 100.0f)
@@ -294,16 +294,13 @@ namespace Fsl
 
   void ModelViewer::Update(const DemoTime& demoTime)
   {
-    const Point2 screenResolution = GetScreenResolution();
-
     m_renderConfig.Rotation.X += m_renderConfig.RotationSpeed.X * demoTime.DeltaTime;
     m_renderConfig.Rotation.Y += m_renderConfig.RotationSpeed.Y * demoTime.DeltaTime;
     m_renderConfig.Rotation.Z += m_renderConfig.RotationSpeed.Z * demoTime.DeltaTime;
     m_matrixWorld = Matrix::CreateRotationX(m_renderConfig.Rotation.X) * Matrix::CreateRotationY(m_renderConfig.Rotation.Y) *
                     Matrix::CreateRotationZ(m_renderConfig.Rotation.Z);
     m_matrixView = m_camera.GetViewMatrix();
-    m_matrixProjection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 1000.0f);
     m_vertexUboData.MatWorldView = m_matrixWorld * m_matrixView;
     m_vertexUboData.MatWorldViewProjection = m_vertexUboData.MatWorldView * m_matrixProjection;
 
@@ -448,7 +445,8 @@ namespace Fsl
 
     const auto indexBufferType = m_resources.IndexBuffers.GetType();
 
-    uint64_t sequenceTimestampStart, sequenceTimestampEnd;
+    uint64_t sequenceTimestampStart = 0;
+    uint64_t sequenceTimestampEnd = 0;
     const GLenum drawMode = !m_wireframe ? GL_TRIANGLES : GL_LINES;
     for (int32_t i = 0; i < m_resources.IndexBuffers.Length(); ++i)
     {
@@ -550,7 +548,7 @@ namespace Fsl
                                   const bool useSpecularMap, const bool useNormalMap, const std::string& baseShaderName,
                                   const bool requireVertexNormal)
   {
-    std::string shaderPath = "Shaders";
+    IO::Path shaderPath("Shaders");
 
     auto shaderName = baseShaderName;
 

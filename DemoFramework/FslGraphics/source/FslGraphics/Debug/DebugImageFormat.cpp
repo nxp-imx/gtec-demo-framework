@@ -64,7 +64,7 @@ namespace Fsl
 
     const char* ToString(const ImageFormat& value)
     {
-      const auto psz = TryToString(value);
+      const auto* const psz = TryToString(value);
       return psz != nullptr ? psz : "Unknown";
     }
   }

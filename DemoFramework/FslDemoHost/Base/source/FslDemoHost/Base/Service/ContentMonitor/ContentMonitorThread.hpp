@@ -47,7 +47,7 @@ namespace Fsl
 
   public:
     ContentMonitorThread(const std::weak_ptr<ConcurrentQueue<ContentMonitorResultCommand>>& fromQueue, const IO::Path& contentPath);
-    ~ContentMonitorThread();
+    ~ContentMonitorThread() noexcept;
   };
 }
 

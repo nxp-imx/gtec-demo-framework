@@ -71,24 +71,21 @@ namespace Fsl
     }
 
   protected:
-    BasicEvent(const EventType type)
-      : m_flags(0)
-      , m_type(type)
+    explicit BasicEvent(const EventType type)
+      : m_type(type)
     {
     }
 
 
     BasicEvent(const EventType type, const int32_t arg1)
-      : m_flags(0)
-      , m_type(type)
+      : m_type(type)
       , m_arg1(arg1)
     {
     }
 
 
     BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2)
-      : m_flags(0)
-      , m_type(type)
+      : m_type(type)
       , m_arg1(arg1)
       , m_arg2(arg2)
     {
@@ -96,8 +93,7 @@ namespace Fsl
 
 
     BasicEvent(const EventType type, const int32_t arg1, const int32_t arg2, const int32_t arg3)
-      : m_flags(0)
-      , m_type(type)
+      : m_type(type)
       , m_arg1(arg1)
       , m_arg2(arg2)
       , m_arg3(arg3)

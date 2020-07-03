@@ -88,7 +88,7 @@ namespace Fsl
     std::shared_ptr<IDemoApp> m_demoApp;
 
   public:
-    DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode,
+    DemoAppManager(DemoAppSetup demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats, const LogStatsMode logStatsMode,
                    const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall, const bool enableContentMonitor, const bool preallocateBasic2D,
                    const uint32_t forcedUpdateTime, const bool renderSystemOverlay);
     virtual ~DemoAppManager();
@@ -97,7 +97,7 @@ namespace Fsl
 
     DemoState GetState() const;
 
-    bool Process(const Point2& screenResolution, const bool isConsoleBasedApp);
+    bool Process(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp);
     AppDrawResult TryDraw();
 
     //! @note Only called if the app is controlling the swap buffers.
@@ -118,7 +118,7 @@ namespace Fsl
     //! @return true if exit should occur right away
     bool ManageExitRequests(const bool bCheckExternalOnly);
     //! @brief manage the app state
-    void ManageAppState(const Point2& screenResolution, const bool isConsoleBasedApp);
+    void ManageAppState(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp);
     void ResetTimer();
     void ApplyTimeStepMode(const TimeStepMode mode);
 

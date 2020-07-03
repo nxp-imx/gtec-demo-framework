@@ -28,6 +28,7 @@ SOFTWARE.
 // The functions in this file are a port of an MIT licensed library: MonoGame - Vector4.cs.
 
 #include <FslBase/Attributes.hpp>
+#include <FslBase/BasicTypes.hpp>
 //#include <FslBase/OptimizationFlag.hpp>
 #include <cstddef>
 
@@ -44,28 +45,22 @@ namespace Fsl
 
     static constexpr size_type NumElements = 4;
 
-    constexpr size_type size() const
+    constexpr size_type size() const noexcept    // NOLINT(readability-convert-member-functions-to-static)
     {
       return NumElements;
     }
 
-    float X;
-    float Y;
-    float Z;
-    float W;
+    float X{0.0f};
+    float Y{0.0f};
+    float Z{0.0f};
+    float W{0.0f};
 
-    constexpr Vector4()
-      : X{0.0f}
-      , Y{0.0f}
-      , Z{0.0f}
-      , W{0.0f}
-    {
-    }
+    constexpr Vector4() noexcept = default;
 
     explicit Vector4(const Vector2& v, const float z, const float w);
     explicit Vector4(const Vector3& v, const float w);
 
-    constexpr Vector4(const float x, const float y, const float z, const float w)
+    constexpr Vector4(const float x, const float y, const float z, const float w) noexcept
       : X(x)
       , Y(y)
       , Z(z)
@@ -80,43 +75,43 @@ namespace Fsl
     //}
 
     //! @brief Get direct access to the elements
-    const float* DirectAccess() const
+    const float* DirectAccess() const noexcept
     {
       return &X;
     }
 
     // @brief Returns the vector with all components being zero (1, 1, 1, 1)
-    static constexpr Vector4 One()
+    static constexpr Vector4 One() noexcept
     {
-      return Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+      return {1.0f, 1.0f, 1.0f, 1.0f};
     }
 
     // @brief Returns the x unit vector (1, 0, 0, 0)
-    static constexpr Vector4 UnitX()
+    static constexpr Vector4 UnitX() noexcept
     {
-      return Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+      return {1.0f, 0.0f, 0.0f, 0.0f};
     }
 
     // @brief Returns the y unit vector (0, 1, 0, 0)
-    static constexpr Vector4 UnitY()
+    static constexpr Vector4 UnitY() noexcept
     {
-      return Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+      return {0.0f, 1.0f, 0.0f, 0.0f};
     }
 
     // @brief Returns the z unit vector (0, 0, 1, 0)
-    static constexpr Vector4 UnitZ()
+    static constexpr Vector4 UnitZ() noexcept
     {
-      return Vector4(0.0f, 0.0f, 1.0f, 0.0f);
+      return {0.0f, 0.0f, 1.0f, 0.0f};
     }
 
     // @brief Returns the w unit vector (0, 0, 0, 1)
-    static constexpr Vector4 UnitW()
+    static constexpr Vector4 UnitW() noexcept
     {
-      return Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+      return {0.0f, 0.0f, 0.0f, 1.0f};
     }
 
     // @brief Returns the vector with all components being zero (0, 0, 0, 0)
-    static constexpr Vector4 Zero()
+    static constexpr Vector4 Zero() noexcept
     {
       return {};
     }
@@ -168,7 +163,8 @@ namespace Fsl
     static void Clamp(const Vector4& value, const Vector4& min, const Vector4& max, Vector4& rResult);
 
     //! @brief Restricts a value to be within a specified range.
-    FSL_ATTR_DEPRECATED static void Clamp(Vector4& rResult, const Vector4& value, const Vector4& min, const Vector4& max)
+    [[deprecated("use one of the other overloads instead")]] static void Clamp(Vector4& rResult, const Vector4& value, const Vector4& min,
+                                                                               const Vector4& max)
     {
       Clamp(value, min, max, rResult);
     }
@@ -189,7 +185,7 @@ namespace Fsl
     //! @return The result of dividing the vectors.
     static constexpr Vector4 Divide(const Vector4& value1, const Vector4& value2)
     {
-      return Vector4(value1.X / value2.X, value1.Y / value2.Y, value1.Z / value2.Z, value1.W / value2.W);
+      return {value1.X / value2.X, value1.Y / value2.Y, value1.Z / value2.Z, value1.W / value2.W};
     }
 
     //! @brief Divides the components of a Vector4 by a scalar.
@@ -198,7 +194,7 @@ namespace Fsl
     //! @return The result of dividing a vector by a scalar.
     static constexpr Vector4 Divide(const Vector4& value, const float divider)
     {
-      return Vector4(value.X / divider, value.Y / divider, value.Z / divider, value.W / divider);
+      return {value.X / divider, value.Y / divider, value.Z / divider, value.W / divider};
     }
 
     //! @brief Calculates the dot product of two vectors. If the two vectors are unit vectors,
@@ -243,7 +239,8 @@ namespace Fsl
     static Vector4 Lerp(const Vector4& value1, const Vector4 value2, const float amount);
 
     //! @brief Performs a linear interpolation between two vectors.
-    FSL_ATTR_DEPRECATED static void Lerp(Vector4& rResult, const Vector4& value1, const Vector4 value2, const float amount)
+    [[deprecated("use one of the other overloads instead")]] static void Lerp(Vector4& rResult, const Vector4& value1, const Vector4 value2,
+                                                                              const float amount)
     {
       Lerp(value1, value2, amount, rResult);
     }
@@ -255,7 +252,7 @@ namespace Fsl
     static Vector4 Max(const Vector4& value1, const Vector4& value2);
 
     //! @brief Returns a vector that contains the highest value from each matching pair of components.
-    FSL_ATTR_DEPRECATED static void Max(Vector4& rResult, const Vector4& value1, const Vector4& value2)
+    [[deprecated("use one of the other overloads instead")]] static void Max(Vector4& rResult, const Vector4& value1, const Vector4& value2)
     {
       Max(value1, value2, rResult);
     }
@@ -268,7 +265,7 @@ namespace Fsl
     static Vector4 Min(const Vector4& value1, const Vector4& value2);
 
     //! @brief Returns a vector that contains the lowest value from each matching pair of components.
-    FSL_ATTR_DEPRECATED static void Min(Vector4& rResult, const Vector4& value1, const Vector4& value2)
+    [[deprecated("use one of the other overloads instead")]] static void Min(Vector4& rResult, const Vector4& value1, const Vector4& value2)
     {
       Min(value1, value2, rResult);
     }
@@ -279,11 +276,11 @@ namespace Fsl
     //! @brief Returns a vector pointing in the opposite direction.
     static constexpr Vector4 Negate(const Vector4& value)
     {
-      return Vector4(-value.X, -value.Y, -value.Z, -value.W);
+      return {-value.X, -value.Y, -value.Z, -value.W};
     }
 
     //! @brief Returns a vector pointing in the opposite direction.
-    FSL_ATTR_DEPRECATED static void Negate(Vector4& rResult, const Vector4& value)
+    [[deprecated("use one of the other overloads instead")]] static void Negate(Vector4& rResult, const Vector4& value)
     {
       Negate(value, rResult);
     }
@@ -294,7 +291,7 @@ namespace Fsl
     //! @brief Returns a vector pointing in the opposite direction.
     constexpr Vector4 operator-() const
     {
-      return Vector4(-X, -Y, -Z, -W);
+      return {-X, -Y, -Z, -W};
     }
 
     //! @brief Creates a unit vector from the specified vector. The result is a vector one unit in length
@@ -307,7 +304,7 @@ namespace Fsl
 
     //! @brief Creates a unit vector from the specified vector. The result is a vector one unit in length
     //         pointing in the same direction as the original vector.
-    FSL_ATTR_DEPRECATED static void Normalize(Vector4& rResult, const Vector4& value)
+    [[deprecated("use one of the other overloads instead")]] static void Normalize(Vector4& rResult, const Vector4& value)
     {
       Normalize(value, rResult);
     }
@@ -318,7 +315,7 @@ namespace Fsl
     static Vector4 Reflect(const Vector4& vector, const Vector4& normal);
 
     //! @brief Returns the reflection of a vector off a surface that has the specified normal.
-    FSL_ATTR_DEPRECATED static void Reflect(Vector4& rResult, const Vector4& vector, const Vector4& normal)
+    [[deprecated("use one of the other overloads instead")]] static void Reflect(Vector4& rResult, const Vector4& vector, const Vector4& normal)
     {
       Reflect(vector, normal, rResult);
     }
@@ -344,7 +341,7 @@ namespace Fsl
     static Vector4 Transform(const Vector2& position, const Matrix& matrix);
 
     //! @brief Transforms a vector by the specified Matrix
-    FSL_ATTR_DEPRECATED static void Transform(Vector4& rResult, const Vector2& position, const Matrix& matrix)
+    [[deprecated("use one of the other overloads instead")]] static void Transform(Vector4& rResult, const Vector2& position, const Matrix& matrix)
     {
       Transform(position, matrix, rResult);
     }
@@ -356,7 +353,7 @@ namespace Fsl
     static Vector4 Transform(const Vector3& position, const Matrix& matrix);
 
     //! @brief Transforms a vector by the specified Matrix
-    FSL_ATTR_DEPRECATED static void Transform(Vector4& rResult, const Vector3& position, const Matrix& matrix)
+    [[deprecated("use one of the other overloads instead")]] static void Transform(Vector4& rResult, const Vector3& position, const Matrix& matrix)
     {
       Transform(position, matrix, rResult);
     }
@@ -368,7 +365,7 @@ namespace Fsl
     static Vector4 Transform(const Vector4& position, const Matrix& matrix);
 
     //! @brief Transforms a vector by the specified Matrix
-    FSL_ATTR_DEPRECATED static void Transform(Vector4& rResult, const Vector4& position, const Matrix& matrix)
+    [[deprecated("use one of the other overloads instead")]] static void Transform(Vector4& rResult, const Vector4& position, const Matrix& matrix)
     {
       Transform(position, matrix, rResult);
     }
@@ -407,7 +404,7 @@ namespace Fsl
     }
 
     //! @brief Multiply vector by scalar
-    Vector4& operator*=(const int arg)
+    Vector4& operator*=(const int32_t arg)
     {
       X *= arg;
       Y *= arg;
@@ -427,7 +424,7 @@ namespace Fsl
     }
 
     //! @brief Divide vector by scalar
-    Vector4& operator/=(const int arg)
+    Vector4& operator/=(const int32_t arg)
     {
       X /= arg;
       Y /= arg;
@@ -498,67 +495,67 @@ namespace Fsl
       rResult.W = lhs.W / rhs.W;
     }
   };
-}
 
-//! @brief Add a vector to a vector.
-constexpr inline Fsl::Vector4 operator+(const Fsl::Vector4& lhs, const Fsl::Vector4& rhs)
-{
-  return Fsl::Vector4(lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W);
-}
+  //! @brief Add a vector to a vector.
+  constexpr inline Vector4 operator+(const Vector4& lhs, const Vector4& rhs)
+  {
+    return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z, lhs.W + rhs.W};
+  }
 
-//! @brief Subtracts a vector from a vector.
-constexpr inline Fsl::Vector4 operator-(const Fsl::Vector4& lhs, const Fsl::Vector4& rhs)
-{
-  return Fsl::Vector4(lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z, lhs.W - rhs.W);
-}
+  //! @brief Subtracts a vector from a vector.
+  constexpr inline Vector4 operator-(const Vector4& lhs, const Vector4& rhs)
+  {
+    return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z, lhs.W - rhs.W};
+  }
 
-//! @brief multiply a vector with a vector
-constexpr inline Fsl::Vector4 operator*(const Fsl::Vector4& lhs, const Fsl::Vector4& rhs)
-{
-  return Fsl::Vector4(lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z, lhs.W * rhs.W);
-}
+  //! @brief multiply a vector with a vector
+  constexpr inline Vector4 operator*(const Vector4& lhs, const Vector4& rhs)
+  {
+    return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z, lhs.W * rhs.W};
+  }
 
-//! @brief multiply a vector with a scalar
-constexpr inline Fsl::Vector4 operator*(const Fsl::Vector4& lhs, const int rhs)
-{
-  return {lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs};
-}
+  //! @brief multiply a vector with a scalar
+  constexpr inline Vector4 operator*(const Vector4& lhs, const int32_t rhs)
+  {
+    return {lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs};
+  }
 
-//! @brief multiply a vector with a scalar
-constexpr inline Fsl::Vector4 operator*(const Fsl::Vector4& lhs, const float rhs)
-{
-  return {lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs};
-}
+  //! @brief multiply a vector with a scalar
+  constexpr inline Vector4 operator*(const Vector4& lhs, const float rhs)
+  {
+    return {lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs, lhs.W * rhs};
+  }
 
-//! @brief multiply a scalar with a vector
-constexpr inline Fsl::Vector4 operator*(const int lhs, const Fsl::Vector4& rhs)
-{
-  return rhs * lhs;
-}
+  //! @brief multiply a scalar with a vector
+  constexpr inline Vector4 operator*(const int32_t lhs, const Vector4& rhs)
+  {
+    return rhs * lhs;
+  }
 
-//! @brief multiply a scalar with a vector
-constexpr inline Fsl::Vector4 operator*(const float lhs, const Fsl::Vector4& rhs)
-{
-  return rhs * lhs;
-}
+  //! @brief multiply a scalar with a vector
+  constexpr inline Vector4 operator*(const float lhs, const Vector4& rhs)
+  {
+    return rhs * lhs;
+  }
 
-//! @brief divide a vector by a vector
-constexpr inline Fsl::Vector4 operator/(const Fsl::Vector4& lhs, const Fsl::Vector4& rhs)
-{
-  return Fsl::Vector4(lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z, lhs.W / rhs.W);
-}
+  //! @brief divide a vector by a vector
+  constexpr inline Vector4 operator/(const Vector4& lhs, const Vector4& rhs)
+  {
+    return {lhs.X / rhs.X, lhs.Y / rhs.Y, lhs.Z / rhs.Z, lhs.W / rhs.W};
+  }
 
-//! @brief Divide a vector by a scalar
-constexpr inline Fsl::Vector4 operator/(const Fsl::Vector4& lhs, const int rhs)
-{
-  return Fsl::Vector4(lhs.X / rhs, lhs.Y / rhs, lhs.Z / rhs, lhs.W / rhs);
-}
+  //! @brief Divide a vector by a scalar
+  constexpr inline Vector4 operator/(const Vector4& lhs, const int32_t rhs)
+  {
+    return {lhs.X / rhs, lhs.Y / rhs, lhs.Z / rhs, lhs.W / rhs};
+  }
 
-//! @brief Divide a vector by a scalar
-constexpr inline Fsl::Vector4 operator/(const Fsl::Vector4& lhs, const float rhs)
-{
-  return Fsl::Vector4(lhs.X / rhs, lhs.Y / rhs, lhs.Z / rhs, lhs.W / rhs);
-}
+  //! @brief Divide a vector by a scalar
+  constexpr inline Vector4 operator/(const Vector4& lhs, const float rhs)
+  {
+    return {lhs.X / rhs, lhs.Y / rhs, lhs.Z / rhs, lhs.W / rhs};
+  }
 
+}
 
 #endif

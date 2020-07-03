@@ -40,14 +40,8 @@
 
 namespace Fsl
 {
-  namespace
-  {
-  }
-
-
   BoxEmitter::BoxEmitter()
     : m_isInitialized(false)
-    , m_emit(true)
     , m_particlesPerSecond(300)
     , m_energyMin(1.2f * 3)
     , m_energyMax(2.2f * 3)

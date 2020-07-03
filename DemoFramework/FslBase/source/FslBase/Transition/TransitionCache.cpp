@@ -78,7 +78,7 @@ namespace Fsl
   /// <returns></returns>
   std::shared_ptr<std::vector<float>> TransitionCache::GetLinearLookupTable(const int32_t length)
   {
-    assert(length >= 0);
+    assert(length > 0);
     const auto itr = m_lookupLinearBasedTables.find(length);
     if (itr != m_lookupLinearBasedTables.end())
     {
@@ -89,7 +89,7 @@ namespace Fsl
 
     // fill the table
     float res = 0;
-    float add = 1.0f / (length - 1);
+    float add = 1.0f / static_cast<float>(length - 1);
     auto& rTable = *table;
     for (int32_t i = 0; i < length; ++i)
     {
@@ -114,7 +114,7 @@ namespace Fsl
   /// <returns></returns>
   std::shared_ptr<std::vector<float>> TransitionCache::GetCosBasedLookupTable(const int32_t length)
   {
-    assert(length >= 0);
+    assert(length > 0);
     const auto itr = m_lookupCosBasedTables.find(length);
     if (itr != m_lookupCosBasedTables.end())
     {
@@ -125,7 +125,7 @@ namespace Fsl
 
     // fill the table
     float rads = 0;
-    float radAdd = (MathHelper::TO_RADS * 180) / (length - 1);
+    float radAdd = (MathHelper::TO_RADS * 180.0f) / static_cast<float>(length - 1);
     auto& rTable = *table;
     for (int32_t i = 0; i < length; ++i)
     {

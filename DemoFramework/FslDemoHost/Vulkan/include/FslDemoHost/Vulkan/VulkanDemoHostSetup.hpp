@@ -38,7 +38,7 @@ namespace Fsl
   class VulkanDemoHostSetup
   {
   public:
-    static const DemoHostSetup Get();
+    static DemoHostSetup Get();
   };
 }
 

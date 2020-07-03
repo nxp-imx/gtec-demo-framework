@@ -57,7 +57,7 @@ namespace Fsl
     float m_tessLevelOuter;
 
   public:
-    Tessellation101(const DemoAppConfig& config);
+    explicit Tessellation101(const DemoAppConfig& config);
     ~Tessellation101() override;
 
   protected:

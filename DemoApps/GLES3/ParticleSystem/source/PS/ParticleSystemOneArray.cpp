@@ -36,12 +36,13 @@
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <utility>
 
 namespace Fsl
 {
-  ParticleSystemOneArray::ParticleSystemOneArray(const std::shared_ptr<IParticleDraw>& particleDraw, const std::size_t capacity)
+  ParticleSystemOneArray::ParticleSystemOneArray(std::shared_ptr<IParticleDraw> particleDraw, const std::size_t capacity)
     : m_particles(capacity)
-    , m_particleDraw(particleDraw)
+    , m_particleDraw(std::move(particleDraw))
     , m_particleCount(0)
   {
   }

@@ -45,7 +45,7 @@ namespace Fsl
     RapidVulkan::DescriptorPool m_descriptorPool;
 
   public:
-    Gears(const DemoAppConfig& config);
+    explicit Gears(const DemoAppConfig& config);
     ~Gears() override;
 
   protected:

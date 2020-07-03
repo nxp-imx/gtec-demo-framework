@@ -45,12 +45,12 @@ namespace Fsl
       std::vector<std::shared_ptr<ICameraSystemAdapter>> m_cameraAdapterSystems;
 
     public:
-      CameraSystem(const std::vector<std::shared_ptr<ICameraSystemAdapter>>& cameraAdapterSystems);
+      explicit CameraSystem(const std::vector<std::shared_ptr<ICameraSystemAdapter>>& cameraAdapterSystems);
       ~CameraSystem();
 
       Camera Create();
-      Camera Create(const Extent2D& cameraExtent);
-      Camera Create(const CameraType cameraType, const Extent2D& cameraExtent);
+      Camera Create(const PxExtent2D& cameraExtent);
+      Camera Create(const CameraType cameraType, const PxExtent2D& cameraExtent);
     };
   }
 }

@@ -35,19 +35,19 @@
 
 namespace Fsl
 {
-  class WindowHostServiceFactory : public IThreadLocalSingletonServiceFactory
+  class WindowHostServiceFactory final : public IThreadLocalSingletonServiceFactory
   {
   public:
     WindowHostServiceFactory();
 
-    std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
+    std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
       return std::shared_ptr<AServiceOptionParser>();
     }
 
-    ServiceCaps::Flags GetFlags() const override;
-    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override;
-    std::shared_ptr<IService> Allocate(ServiceProvider& provider) override;
+    ServiceCaps::Flags GetFlags() const final;
+    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const final;
+    std::shared_ptr<IService> Allocate(ServiceProvider& provider) final;
   };
 }
 

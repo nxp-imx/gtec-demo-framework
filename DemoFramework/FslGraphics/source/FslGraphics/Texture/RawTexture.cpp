@@ -40,25 +40,31 @@ namespace Fsl
 {
   namespace
   {
-    constexpr Extent3D DoGetExtent(const Extent3D& maxExtent, const std::size_t level)
+    constexpr PxExtent3D DoGetExtent(const PxExtent3D& maxExtent, const std::size_t level)
     {
       return level == 0 ? maxExtent
-                        : Extent3D(std::max(maxExtent.Width >> level, static_cast<uint32_t>(1u)),
-                                   std::max(maxExtent.Height >> level, static_cast<uint32_t>(1u)),
-                                   std::max(maxExtent.Depth >> level, static_cast<uint32_t>(1u)));
+                        : PxExtent3D(std::max(maxExtent.Width >> level, static_cast<uint32_t>(1u)),
+                                     std::max(maxExtent.Height >> level, static_cast<uint32_t>(1u)),
+                                     std::max(maxExtent.Depth >> level, static_cast<uint32_t>(1u)));
     }
   }
 
 
-  RawTexture::RawTexture() = default;
+  RawTexture::RawTexture(const void* const pContent, const std::size_t contentByteSize, const PxExtent2D& extent, const PixelFormat pixelFormat,
+                         const BitmapOrigin& bitmapOrigin)
+    : RawTexture(TextureType::Tex2D, pContent, contentByteSize, nullptr, 0u, PxExtent3D(extent, 1u), pixelFormat, TextureInfo(1u, 1u, 1u),
+                 bitmapOrigin)
+  {
+  }
 
 
   RawTexture::RawTexture(const TextureType textureType, const void* const pContent, const std::size_t contentByteSize,
-                         const BlobRecord* const pTextureBlobs, const std::size_t textureBlobCount, const Extent3D& extent,
+                         const BlobRecord* const pTextureBlobs, const std::size_t textureBlobCount, const PxExtent3D& extent,
                          const PixelFormat pixelFormat, const TextureInfo& textureInfo, const BitmapOrigin& bitmapOrigin)
     : m_textureType(textureType)
     , m_pContent(pContent)
     , m_contentByteSize(contentByteSize)
+    , m_blobEverything(0, contentByteSize)
     , m_pBlobs(pTextureBlobs)
     , m_blobCount(textureBlobCount)
     , m_extent(extent)
@@ -74,9 +80,15 @@ namespace Fsl
     {
       throw std::invalid_argument("pContent can not be null");
     }
-    if (pTextureBlobs == nullptr)
+    if (m_pBlobs == nullptr && textureBlobCount == 0u && textureType == TextureType::Tex2D)
     {
-      throw std::invalid_argument("pTextureBlobs can not be null");
+      // Override the user supplied settings and allow a null blob for Tex2D
+      m_pBlobs = &m_blobEverything;
+      m_blobCount = 1u;
+    }
+    if (m_pBlobs == nullptr)
+    {
+      throw std::invalid_argument("pTextureBlobs can not be null if textureBlobCount > 0");
     }
     if (m_pixelFormat == PixelFormat::Undefined)
     {
@@ -97,7 +109,7 @@ namespace Fsl
 
 #ifndef NDEBUG
     {
-      for (std::size_t i = 0; i < textureBlobCount; ++i)
+      for (std::size_t i = 0; i < m_blobCount; ++i)
       {
         // two checks bypasses any overflow issues
         if (m_pBlobs[i].Size > contentByteSize)
@@ -129,7 +141,7 @@ namespace Fsl
     return PixelFormatUtil::CalcMinimumStride(extent.Width, m_pixelFormat);
   }
 
-  Extent3D RawTexture::GetExtent(const std::size_t level) const
+  PxExtent3D RawTexture::GetExtent(const std::size_t level) const
   {
     if (!IsValid())
     {
@@ -141,6 +153,17 @@ namespace Fsl
     }
 
     return DoGetExtent(m_extent, level);
+  }
+
+
+  PxExtent2D RawTexture::GetExtent2D(const std::size_t level) const
+  {
+    auto res = GetExtent(level);
+    if (res.Depth != 1u)
+    {
+      throw UsageErrorException("GetExtent2D called on a non 2d texture");
+    }
+    return {res.Width, res.Height};
   }
 
 

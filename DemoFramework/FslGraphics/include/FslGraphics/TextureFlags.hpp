@@ -35,54 +35,50 @@
 
 namespace Fsl
 {
-  struct TextureFlags
+  enum class TextureFlags : uint32_t
   {
-    enum Enum
+    // A empty flag
+    NotDefined = 0x00,
+
+    GenerateMipMaps = 0x01,
+    //! If this is true any bitmap origin is allowed on create
+    AllowAnyBitmapOrigin = 0x02,
+    //! If this is true we want to use a exact texture format match
+    ExactFormat = 0x04,
+  };
+
+  constexpr inline TextureFlags operator|(const TextureFlags lhs, const TextureFlags rhs)
+  {
+    return static_cast<TextureFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+  }
+
+  constexpr inline TextureFlags operator&(const TextureFlags lhs, const TextureFlags rhs)
+  {
+    return static_cast<TextureFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+
+  namespace TextureFlagsUtil
+  {
+    inline bool IsEnabled(const TextureFlags srcFlag, TextureFlags flag)
     {
-      // A empty flag
-      NotDefined = 0x00,
-
-      GenerateMipMaps = 0x01,
-      //! If this is true any bitmap origin is allowed on create
-      AllowAnyBitmapOrigin = 0x02,
-      //! If this is true we want to use a exact texture format match
-      ExactFormat = 0x04,
-    };
-
-    uint32_t Value{0};
-
-    TextureFlags() = default;
-
-    explicit TextureFlags(const uint32_t flags)
-      : Value(flags)
-    {
+      return (srcFlag & flag) == flag;
     }
 
-    TextureFlags(const Enum flag)
-      : Value(static_cast<uint32_t>(flag))
+    inline void Enable(TextureFlags& rDstFlag, TextureFlags flag)
     {
-    }
-
-
-    inline bool IsEnabled(Enum flag) const
-    {
-      return (Value & static_cast<uint32_t>(flag)) != 0;
-    }
-
-    inline void Enable(Enum flag)
-    {
-      Value |= static_cast<uint32_t>(flag);
+      rDstFlag = rDstFlag | flag;
     }
 
 
-    inline void Disable(Enum flag)
+    inline void Disable(TextureFlags& rDstFlag, TextureFlags flag)
     {
-      Value &= ~static_cast<uint32_t>(flag);
+      rDstFlag = rDstFlag & (TextureFlags(~static_cast<uint32_t>(flag)));
     }
 
-    inline void Set(Enum flag, const bool enabled)
+    inline void Set(TextureFlags& rDstFlag, TextureFlags flag, const bool enabled)
     {
-      Value = enabled ? (Value | static_cast<uint32_t>(flag)) : (Value & ~static_cast<uint32_t>(flag));
+      rDstFlag = enabled ? (rDstFlag | flag) : (rDstFlag & (TextureFlags(~static_cast<uint32_t>(flag))));
     }
   };
 }

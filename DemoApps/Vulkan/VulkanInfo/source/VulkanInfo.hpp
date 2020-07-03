@@ -38,7 +38,7 @@ namespace Fsl
   class VulkanInfo : public DemoAppConsoleMinimal
   {
   public:
-    VulkanInfo(const DemoAppConfig& config);
+    explicit VulkanInfo(const DemoAppConfig& config);
     ~VulkanInfo() override;
 
   protected:

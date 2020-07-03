@@ -51,7 +51,7 @@ namespace Fsl
     VGPaint m_vg_stroke_paint;
 
   public:
-    Example2(const DemoAppConfig& config);
+    explicit Example2(const DemoAppConfig& config);
     ~Example2() override;
 
   protected:

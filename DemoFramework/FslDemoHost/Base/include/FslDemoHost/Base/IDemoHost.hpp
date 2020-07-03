@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslDemoHost/Base/SwapBuffersResult.hpp>
 
 namespace Fsl
@@ -60,8 +61,8 @@ namespace Fsl
 
     //! @brief Get the currently active API
     virtual DemoHostFeature GetActiveAPI() const = 0;
-    //! @brief Get the current screen resolution
-    virtual Point2 GetScreenResolution() const = 0;
+    //! @brief Get the current window metrics
+    virtual DemoWindowMetrics GetWindowMetrics() const = 0;
     //! @brief Called to swap the main buffer.
     //! @return SwapBuffersResult::Completed on success, SwapBuffersResult::Failed if a error occurred.
     virtual SwapBuffersResult TrySwapBuffers() = 0;

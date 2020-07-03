@@ -93,7 +93,7 @@ namespace Fsl
     bool m_clipY;
 
   public:
-    Scissor101(const DemoAppConfig& config);
+    explicit Scissor101(const DemoAppConfig& config);
     ~Scissor101() override;
 
   protected:

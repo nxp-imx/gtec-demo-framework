@@ -42,7 +42,7 @@ namespace Fsl
     Point2 m_gridSize;
 
   public:
-    GridRenderNativeBatchCRSpline1(const Point2& gridSize);
+    explicit GridRenderNativeBatchCRSpline1(const Point2& gridSize);
 
     const char* GetName() const override;
     void Update(const DemoTime& demoTime, const Vector2& areaSize, const std::vector<PointMass>& points) override;

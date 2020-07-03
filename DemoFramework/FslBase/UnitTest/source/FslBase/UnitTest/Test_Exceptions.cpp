@@ -49,7 +49,7 @@ TEST(Test_Exceptions, UsageErrorException_Construct1)
   UsageErrorException ex;
 
   // Mainly to avoid warning
-  EXPECT_THROW(throw ex, UsageErrorException);
+  EXPECT_THROW(throw ex, UsageErrorException);    // NOLINT(misc-throw-by-value-catch-by-reference)
 }
 
 
@@ -111,7 +111,7 @@ TEST(Test_Exceptions, NotImplementedException_Construct2)
   NotImplementedException ex;
 
   // Mainly to avoid warning
-  EXPECT_THROW(throw ex, NotImplementedException);
+  EXPECT_THROW(throw ex, NotImplementedException);    // NOLINT(misc-throw-by-value-catch-by-reference)
 }
 
 
@@ -129,7 +129,7 @@ TEST(Test_Exceptions, NotSupportedException_Construct2)
   NotSupportedException ex;
 
   // Mainly to avoid warning
-  EXPECT_THROW(throw ex, NotSupportedException);
+  EXPECT_THROW(throw ex, NotSupportedException);    // NOLINT(misc-throw-by-value-catch-by-reference)
 }
 
 
@@ -147,7 +147,7 @@ TEST(Test_Exceptions, IndexOutOfRangeException_Construct2)
   IndexOutOfRangeException ex;
 
   // Mainly to avoid warning
-  EXPECT_THROW(throw ex, IndexOutOfRangeException);
+  EXPECT_THROW(throw ex, IndexOutOfRangeException);    // NOLINT(misc-throw-by-value-catch-by-reference)
 }
 
 
@@ -200,6 +200,21 @@ TEST(Test_Exceptions, InvalidFormatException_Construct1)
 {
   const std::string message("hello");
   InvalidFormatException ex(message);
+
+  EXPECT_EQ(message, ex.what());
+}
+
+TEST(Test_Exceptions, PathFormatErrorException_ConstructDefault)
+{
+  PathFormatErrorException ex;
+
+  EXPECT_EQ(std::string("PathFormatErrorException"), ex.what());
+}
+
+TEST(Test_Exceptions, PathFormatErrorException_Construct1)
+{
+  const std::string message("hello");
+  PathFormatErrorException ex(message);
 
   EXPECT_EQ(message, ex.what());
 }

@@ -30,12 +30,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Setup/DemoBasicSetup.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  DemoBasicSetup::DemoBasicSetup(const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const uint32_t verbosityLevel)
-    : Host(hostSetup)
-    , App(appSetup)
+  DemoBasicSetup::DemoBasicSetup(DemoHostSetup hostSetup, DemoHostAppSetup appSetup, const uint32_t verbosityLevel)
+    : Host(std::move(hostSetup))
+    , App(std::move(appSetup))
     , VerbosityLevel(verbosityLevel)
   {
   }

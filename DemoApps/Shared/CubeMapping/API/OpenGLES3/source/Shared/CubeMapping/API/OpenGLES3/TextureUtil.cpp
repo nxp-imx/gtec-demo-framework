@@ -39,7 +39,7 @@ namespace Fsl
 
   namespace
   {
-    void ApplyExtension(std::array<std::string, 6>& rFiles, const char* const pszExtension)
+    void ApplyExtension(std::array<IO::Path, 6>& rFiles, const char* const pszExtension)
     {
       for (auto& rEntry : rFiles)
       {
@@ -52,7 +52,7 @@ namespace Fsl
   GLTexture TextureUtil::CreateCubemapTextureFromSix(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& basePath,
                                                      const PixelFormat pixelFormat)
   {
-    std::array<std::string, 6> files = {"PosX", "NegX", "PosY", "NegY", "PosZ", "NegZ"};
+    std::array<IO::Path, 6> files = {"PosX", "NegX", "PosY", "NegY", "PosZ", "NegZ"};
 
     if (contentManager->Exists(IO::Path::Combine(basePath, "PosX.png")))
     {

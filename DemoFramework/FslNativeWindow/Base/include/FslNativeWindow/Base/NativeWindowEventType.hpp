@@ -47,8 +47,8 @@ namespace Fsl
     WindowSuspend,
     //! The window has been resized
     WindowResized,
-    //! The window DPI has changed
-    WindowDPIChanged,
+    //! The window DP has changed
+    WindowConfigChanged,
     //! The system is experiencing a low memory situation.
     //! Use NativeWindowEventHelper::EncodeLowMemoryEvent to create a NativeWindowEvent.
     //! Use NativeWindowEventHelper::DecodeLowMemoryEvent to decode a NativeWindowEvent.

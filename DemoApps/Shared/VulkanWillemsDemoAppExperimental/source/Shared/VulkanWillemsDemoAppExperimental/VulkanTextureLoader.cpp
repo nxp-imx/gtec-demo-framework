@@ -15,12 +15,14 @@
 
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanTextureLoader.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <RapidVulkan/Buffer.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Fence.hpp>
@@ -31,9 +33,6 @@ using namespace RapidVulkan;
 
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
-
   namespace Willems
   {
     namespace
@@ -102,7 +101,7 @@ namespace Fsl
 
       TexConfig GetTextureConfig(const Texture& texture, const TextureType texType)
       {
-        VkExtent3D texExtent = Convert(texture.GetExtent());
+        VkExtent3D texExtent = TypeConverter::UncheckedTo<VkExtent3D>(texture.GetExtent());
         uint32_t texMipLevels = texture.GetLevels();
         uint32_t texFaces = texture.GetFaces();
         uint32_t texLayers = texture.GetLayers();
@@ -151,7 +150,7 @@ namespace Fsl
         assert(texExtent.width == texture.GetExtent().Width);
         assert(texExtent.height == texture.GetExtent().Height);
         assert(texExtent.depth <= texture.GetExtent().Depth);
-        return TexConfig(texExtent, texMipLevels, texFaces, texLayers, static_cast<float>(texMipLevels));
+        return {texExtent, texMipLevels, texFaces, texLayers, static_cast<float>(texMipLevels)};
       }
 
 
@@ -159,7 +158,7 @@ namespace Fsl
                                            CommandBuffer& rCmdBuffer, const Texture& texture, const TextureType texType,
                                            const VkImageUsageFlags imageUsageFlags)
       {
-        using namespace MemoryTypeUtil;
+        using namespace Vulkan::MemoryTypeUtil;
         // Create a host-visible staging buffer that contains the raw image data
 
         const TexConfig texConfig = GetTextureConfig(texture, texType != TextureType::Undefined ? texType : texture.GetTextureType());
@@ -193,7 +192,7 @@ namespace Fsl
         RAPIDVULKAN_CHECK(vkBindBufferMemory(device, stagingBuffer.Get(), stagingMemory.Get(), 0));
 
         // Copy texture data into staging buffer
-        void* pData;
+        void* pData = nullptr;
         stagingMemory.MapMemory(0, memReqs.size, 0, &pData);
         {
           RawTexture rawTexture;
@@ -222,7 +221,7 @@ namespace Fsl
               assert((texConfig.Layers == 1 && texConfig.Faces >= 1) || (texConfig.Layers >= 1 && texConfig.Faces == 1));
               bufferCopyRegion.imageSubresource.baseArrayLayer = (texConfig.Faces > 1 ? faceIndex : layerIndex);
               bufferCopyRegion.imageSubresource.layerCount = 1;
-              bufferCopyRegion.imageExtent = Convert(blobExtent);
+              bufferCopyRegion.imageExtent = TypeConverter::UncheckedTo<VkExtent3D>(blobExtent);
               bufferCopyRegion.bufferOffset = blobRecord.Offset;
 
               bufferCopyRegions[dstOffset] = bufferCopyRegion;
@@ -236,7 +235,7 @@ namespace Fsl
         imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageCreateInfo.pNext = nullptr;
         imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-        imageCreateInfo.format = ConvertUtil::Convert(texture.GetPixelFormat());
+        imageCreateInfo.format = Vulkan::VulkanConvert::ToVkFormat(texture.GetPixelFormat());
         imageCreateInfo.mipLevels = texConfig.Levels;
         imageCreateInfo.arrayLayers = (texConfig.Faces * texConfig.Layers);    // Cube faces count as array layers in Vulkan
         imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -278,16 +277,16 @@ namespace Fsl
 
           // Image barrier for optimal image (target)
           // Optimal image will be used as destination for the copy
-          CommandBufferUtil::SetImageLayout(rCmdBuffer.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-                                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+          Vulkan::CommandBufferUtil::SetImageLayout(rCmdBuffer.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+                                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
           // Copy mip levels from staging buffer
           vkCmdCopyBufferToImage(rCmdBuffer.Get(), stagingBuffer.Get(), texImage.Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                 static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
+                                 UncheckedNumericCast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
 
           // Change texture image layout to shader read after all mip levels have been copied
-          CommandBufferUtil::SetImageLayout(rCmdBuffer.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                            texImageLayout, subresourceRange);
+          Vulkan::CommandBufferUtil::SetImageLayout(rCmdBuffer.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                    texImageLayout, subresourceRange);
         }    // Submit command buffer containing copy and image layout commands
         rCmdBuffer.End();
 
@@ -312,7 +311,7 @@ namespace Fsl
       LocalTexture LoadTextureLinear(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkQueue queue, CommandBuffer& rCmdBuffer,
                                      const Texture& texture, const TextureType texType, const VkImageUsageFlags imageUsageFlags)
       {
-        using namespace MemoryTypeUtil;
+        using namespace Vulkan::MemoryTypeUtil;
         assert(texType == TextureType::Tex1D);
         assert(texType == TextureType::Tex2D);
 
@@ -324,7 +323,7 @@ namespace Fsl
         texConfig.Levels = 1;
         texConfig.Layers = 1;
         texConfig.MaxLod = 0.0f;
-        const VkFormat format = ConvertUtil::Convert(texture.GetPixelFormat());
+        const VkFormat format = Vulkan::VulkanConvert::ToVkFormat(texture.GetPixelFormat());
 
         // Get device properties for the requested texture format
         VkFormatProperties formatProperties;
@@ -336,7 +335,7 @@ namespace Fsl
         VkImageCreateInfo imageCreateInfo{};
         imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
         imageCreateInfo.pNext = nullptr;
-        imageCreateInfo.imageType = ConvertUtil::ToImageType(texType);
+        imageCreateInfo.imageType = Vulkan::VulkanConvert::ToVkImageType(texType);
         imageCreateInfo.format = format;
         imageCreateInfo.extent = texConfig.Extent;
         imageCreateInfo.mipLevels = texConfig.Levels;
@@ -384,7 +383,7 @@ namespace Fsl
         // Includes row pitch, size offsets, etc.
         texImage.GetImageSubresourceLayout(&subRes, &subResLayout);
 
-        void* pData;
+        void* pData = nullptr;
         // Map image memory
         texMemory.MapMemory(0, memReqs.size, 0, &pData);
         {
@@ -410,8 +409,8 @@ namespace Fsl
         rCmdBuffer.Begin(cmdBufInfo);
         {
           // Setup image memory barrier
-          CommandBufferUtil::SetImageLayout(rCmdBuffer.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
-                                            texImageLayout);
+          Vulkan::CommandBufferUtil::SetImageLayout(rCmdBuffer.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_PREINITIALIZED,
+                                                    texImageLayout);
         }    // Submit command buffer containing copy and image layout commands
         rCmdBuffer.End();
 
@@ -437,7 +436,7 @@ namespace Fsl
       , m_physicalDevice(physicalDevice)
       , m_device(device)
       , m_queue(queue)
-      , m_cmdPool(cmdPool)
+      //, m_cmdPool(cmdPool)
       , m_maxAnisotropy(1.0f)
     {
       if (!contentManager || physicalDevice == VK_NULL_HANDLE || device == VK_NULL_HANDLE || queue == VK_NULL_HANDLE || cmdPool == VK_NULL_HANDLE)
@@ -472,9 +471,9 @@ namespace Fsl
     VulkanTexture VulkanTextureLoader::LoadTexture(const std::string& filename, const VkFormat format, const bool forceLinear,
                                                    const VkImageUsageFlags imageUsageFlags)
     {
-      const auto pixelFormat = ConvertUtil::Convert(format);
+      const auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(format);
       Texture texture;
-      m_contentManager->Read(texture, filename, pixelFormat);
+      m_contentManager->Read(texture, IO::Path(filename), pixelFormat);
 
       // Only use linear tiling if requested (and supported by the device)
       // Support for linear tiling is mostly limited, so prefer to use optimal tiling instead
@@ -514,7 +513,7 @@ namespace Fsl
       view.pNext = nullptr;
       view.image = VK_NULL_HANDLE;
       view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-      view.format = ConvertUtil::Convert(texture.GetPixelFormat());
+      view.format = Vulkan::VulkanConvert::ToVkFormat(texture.GetPixelFormat());
       view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
       view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
       // Linear tiling usually won't support mip maps
@@ -532,16 +531,16 @@ namespace Fsl
 
       // Transfer ownership to the texture object (move)
       return VulkanTexture(std::move(texSampler), std::move(localTexture.Image), localTexture.ImageLayout, std::move(localTexture.Memory),
-                           std::move(texImageView), Convert(localTexture.Config.Extent), localTexture.Config.Levels, localTexture.Config.Layers,
-                           texDescriptor);
+                           std::move(texImageView), TypeConverter::UncheckedTo<PxExtent3D>(localTexture.Config.Extent), localTexture.Config.Levels,
+                           localTexture.Config.Layers, texDescriptor);
     }
 
 
     VulkanTexture VulkanTextureLoader::LoadCubemap(const std::string& filename, const VkFormat format, const VkImageUsageFlags imageUsageFlags)
     {
-      const auto pixelFormat = ConvertUtil::Convert(format);
+      const auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(format);
       Texture texture;
-      m_contentManager->Read(texture, filename, pixelFormat);
+      m_contentManager->Read(texture, IO::Path(filename), pixelFormat);
 
       if (texture.GetTextureType() != TextureType::TexCube)
       {
@@ -574,7 +573,7 @@ namespace Fsl
       view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
       view.pNext = nullptr;
       view.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
-      view.format = ConvertUtil::Convert(texture.GetPixelFormat());
+      view.format = Vulkan::VulkanConvert::ToVkFormat(texture.GetPixelFormat());
       view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
       view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
       view.subresourceRange.layerCount = localTexture.Config.Faces * localTexture.Config.Layers;
@@ -591,16 +590,16 @@ namespace Fsl
 
       // Transfer ownership to the texture object (move)
       return VulkanTexture(std::move(texSampler), std::move(localTexture.Image), localTexture.ImageLayout, std::move(localTexture.Memory),
-                           std::move(texImageView), Convert(localTexture.Config.Extent), localTexture.Config.Levels, localTexture.Config.Layers,
-                           texDescriptor);
+                           std::move(texImageView), TypeConverter::UncheckedTo<PxExtent3D>(localTexture.Config.Extent), localTexture.Config.Levels,
+                           localTexture.Config.Layers, texDescriptor);
     }
 
 
     VulkanTexture VulkanTextureLoader::LoadTextureArray(const std::string& filename, const VkFormat format, const VkImageUsageFlags imageUsageFlags)
     {
-      const auto pixelFormat = ConvertUtil::Convert(format);
+      const auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(format);
       Texture texture;
-      m_contentManager->Read(texture, filename, pixelFormat);
+      m_contentManager->Read(texture, IO::Path(filename), pixelFormat);
 
       if (texture.GetTextureType() != TextureType::Tex2DArray)
       {
@@ -632,7 +631,7 @@ namespace Fsl
       view.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
       view.pNext = nullptr;
       view.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-      view.format = ConvertUtil::Convert(texture.GetPixelFormat());
+      view.format = Vulkan::VulkanConvert::ToVkFormat(texture.GetPixelFormat());
       view.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A};
       view.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
       view.subresourceRange.layerCount = localTexture.Config.Faces * localTexture.Config.Layers;
@@ -648,8 +647,8 @@ namespace Fsl
 
       // Transfer ownership to the texture object (move)
       return VulkanTexture(std::move(texSampler), std::move(localTexture.Image), localTexture.ImageLayout, std::move(localTexture.Memory),
-                           std::move(texImageView), Convert(localTexture.Config.Extent), localTexture.Config.Levels, localTexture.Config.Layers,
-                           texDescriptor);
+                           std::move(texImageView), TypeConverter::UncheckedTo<PxExtent3D>(localTexture.Config.Extent), localTexture.Config.Levels,
+                           localTexture.Config.Layers, texDescriptor);
     }
   }
 }

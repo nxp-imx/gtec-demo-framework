@@ -31,17 +31,18 @@
 
 #include <FslGraphics/Vertices/VertexPositionTangentTexture.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
 {
   VertexDeclaration VertexPositionTangentTexture::GetVertexDeclaration()
   {
-    static VertexElementEx g_elements[] = {
+    static constexpr std::array<VertexElementEx, 3> g_elements = {
       VertexElementEx(offsetof(VertexPositionTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(VertexPositionTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
       VertexElementEx(offsetof(VertexPositionTangentTexture, TextureCoordinate), VertexElementFormat::Vector2, VertexElementUsage::TextureCoordinate,
                       0)};
-    return VertexDeclaration(g_elements, sizeof(g_elements) / sizeof(VertexElementEx), sizeof(VertexPositionTangentTexture));
+    return VertexDeclaration(g_elements.data(), g_elements.size(), sizeof(VertexPositionTangentTexture));
   }
 }

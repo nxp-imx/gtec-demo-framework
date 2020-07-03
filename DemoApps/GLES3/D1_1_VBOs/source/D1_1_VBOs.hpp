@@ -23,7 +23,7 @@ namespace Fsl
     GLES3::GLIndexBuffer m_indexBuffer1;
 
   public:
-    D1_1_VBOs(const DemoAppConfig& config);
+    explicit D1_1_VBOs(const DemoAppConfig& config);
     ~D1_1_VBOs() override;
 
   protected:

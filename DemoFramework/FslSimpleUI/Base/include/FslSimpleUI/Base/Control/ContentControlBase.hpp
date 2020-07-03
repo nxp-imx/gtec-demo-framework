@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Dp/DpThickness.hpp>
 #include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <memory>
 
@@ -41,27 +42,23 @@ namespace Fsl
     class ContentControlBase : public BaseWindow
     {
       std::shared_ptr<BaseWindow> m_content;
-      ThicknessF m_padding;
+      DpThickness m_paddingDp;
       bool m_isInitialized;
 
     public:
-      ContentControlBase(const std::shared_ptr<BaseWindowContext>& context);
+      explicit ContentControlBase(const std::shared_ptr<BaseWindowContext>& context);
 
       void WinInit() override;
 
     protected:
       //! @brief This includes any padding set
-      Vector2 GetContentDesiredSize() const
-      {
-        auto padding = Vector2(m_padding.SumX(), m_padding.SumY());
-        return m_content ? m_content->DesiredSize() + padding : padding;
-      }
+      PxSize2D GetContentDesiredSizePx() const;
 
-      ThicknessF DoGetPadding() const
+      DpThickness DoGetPadding() const
       {
-        return m_padding;
+        return m_paddingDp;
       }
-      void DoSetPadding(const ThicknessF& value);
+      void DoSetPadding(const DpThickness& valueDp);
 
       std::shared_ptr<BaseWindow> DoGetContent() const
       {
@@ -69,11 +66,11 @@ namespace Fsl
       }
       void DoSetContent(const std::shared_ptr<BaseWindow>& value);
 
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
       //! @brief Alternative method to ArrangeOverride that can be called to tweak the content offset
-      Vector2 CustomArrange(const Vector2& finalSize, const Vector2& positionOffset);
+      PxSize2D CustomArrange(const PxSize2D& finalSizePx, const PxPoint2& positionOffset);
     };
   }
 }

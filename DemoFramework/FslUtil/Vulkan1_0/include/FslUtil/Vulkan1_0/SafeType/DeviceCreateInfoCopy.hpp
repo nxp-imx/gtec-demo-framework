@@ -62,7 +62,7 @@ namespace Fsl
       DeviceCreateInfoCopy(DeviceCreateInfoCopy&& other) noexcept;
 
       DeviceCreateInfoCopy();
-      DeviceCreateInfoCopy(const VkDeviceCreateInfo& value);
+      explicit DeviceCreateInfoCopy(const VkDeviceCreateInfo& value);
 
       const VkDeviceCreateInfo& Get() const
       {

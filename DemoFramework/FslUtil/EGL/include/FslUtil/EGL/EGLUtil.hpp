@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslUtil/EGL/CheckError.hpp>
 #include <vector>
 #include <EGL/egl.h>
@@ -40,14 +41,16 @@ namespace Fsl
   namespace EGLUtil
   {
     //! @brief Get a list of all extensions
-    std::vector<std::string> GetExtensions(const EGLDisplay display);
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    std::vector<StringViewLite> GetExtensions(const EGLDisplay display);
 
     //! @brief Check if the given EGL extension is available
     //! @note Do not expect mind blowing performance from this!
     //! @note If you need to check for multiple extensions consider rolling your own or wait for the helper method to get added :)
+    // NOLINTNEXTLINE(misc-misplaced-const)
     bool HasExtension(const EGLDisplay display, const char* const pszExtensionName);
 
-
+    // NOLINTNEXTLINE(misc-misplaced-const)
     std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy);
 
     //! Get the currently known config attributes that can be used for eglGetConfigAttribute calls

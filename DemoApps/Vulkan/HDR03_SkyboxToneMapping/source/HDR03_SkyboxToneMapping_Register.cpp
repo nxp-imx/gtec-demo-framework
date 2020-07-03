@@ -41,7 +41,7 @@ namespace Fsl
     using namespace Vulkan;
 
     CustomDemoAppConfig customDemoAppConfig;
-    customDemoAppConfig.RestartOnResize = false;
+    customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never;
 
     DemoAppHostConfigVulkan config;
 

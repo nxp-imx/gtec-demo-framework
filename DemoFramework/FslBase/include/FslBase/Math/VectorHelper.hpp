@@ -31,11 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <algorithm>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <algorithm>
 
 namespace Fsl
 {
@@ -61,23 +61,23 @@ namespace Fsl
 
     inline Vector2 CatmullRom(const Vector2& value1, const Vector2& value2, const Vector2& value3, const Vector2& value4, const float amount)
     {
-      return Vector2(MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
-                     MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount));
+      return {MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
+              MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount)};
     }
 
     inline Vector3 CatmullRom(const Vector3& value1, const Vector3& value2, const Vector3& value3, const Vector3& value4, const float amount)
     {
-      return Vector3(MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
-                     MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount),
-                     MathHelper::CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount));
+      return {MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
+              MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount),
+              MathHelper::CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount)};
     }
 
     inline Vector4 CatmullRom(const Vector4& value1, const Vector4& value2, const Vector4& value3, const Vector4& value4, const float amount)
     {
-      return Vector4(MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
-                     MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount),
-                     MathHelper::CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount),
-                     MathHelper::CatmullRom(value1.W, value2.W, value3.W, value4.W, amount));
+      return {MathHelper::CatmullRom(value1.X, value2.X, value3.X, value4.X, amount),
+              MathHelper::CatmullRom(value1.Y, value2.Y, value3.Y, value4.Y, amount),
+              MathHelper::CatmullRom(value1.Z, value2.Z, value3.Z, value4.Z, amount),
+              MathHelper::CatmullRom(value1.W, value2.W, value3.W, value4.W, amount)};
     }
   };
 }

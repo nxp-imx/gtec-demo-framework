@@ -3,17 +3,11 @@
   <ExternalLibrary Name="fmt" CreationYear="2019">
     <Default.Platform.Supported Value="false"/>
     <Define Name="FSL_ENABLE_FMT" Access="Public"/>
-    <Platform Name="Android" Supported="true">
-      <Dependency Name="Recipe.fmt_6_1_2"/>
+    <Platform Name="Android;Ubuntu;Windows;QNX" Supported="true">
+      <Dependency Name="Recipe.fmt_6_2"/>
     </Platform>    
     <Platform Name="Yocto" Supported="true">
       <ExternalDependency Name="fmt" Access="Public" Type="StaticLib"/>
     </Platform>
-    <Platform Name="Ubuntu" Supported="true">
-      <Dependency Name="Recipe.fmt_6_1_2"/>
-    </Platform>    
-    <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.fmt_6_1_2"/>
-    </Platform>    
   </ExternalLibrary>
 </FslBuildGen>

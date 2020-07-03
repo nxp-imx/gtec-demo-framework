@@ -42,6 +42,7 @@
 
 namespace Fsl
 {
+  class BitmapFont;
   class BasicFontKerning;
   class BasicTextureAtlas;
 
@@ -76,6 +77,12 @@ namespace Fsl
     //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
     //! @throws IOException if the file isn't found or something goes wrong reading it.
     virtual void ReadAllBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath) const = 0;
+
+    //! @brief Read the entire content of the given file into a binary array.
+    //! @param relativePath the relative path to load the content from
+    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //! @throws IOException if the file isn't found or something goes wrong reading it.
+    virtual std::vector<uint8_t> ReadAllBytes(const IO::Path& relativePath) const = 0;
 
     //! @brief Read the entire content of the given file into a binary array.
     //! @param pDstArray the array to load the content into (if == nullptr a exception will be thrown)
@@ -165,6 +172,14 @@ namespace Fsl
     //! @throws if its a unsupported format.
     virtual void Read(BasicFontKerning& rFontKerning, const IO::Path& relativePath) const = 0;
 
+
+    //! @brief Try to read the content of the file as a BitmapFont.
+    //! @param relativePath the relative path to load the content from
+    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //! @throws IOException if the file isn't found or something goes wrong reading it.
+    //! @throws if its a unsupported format.
+    virtual void Read(BitmapFont& rBitmapFont, const IO::Path& relativePath) const = 0;
+
     //! @brief Read the entire content of the given file into a string.
     //! @param relativePath the relative path to load the content from
     //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
@@ -221,6 +236,13 @@ namespace Fsl
     virtual Texture ReadTexture(const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
                                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined,
                                 const PixelChannelOrder preferredChannelOrder = PixelChannelOrder::Undefined) const = 0;
+
+    //! @brief Try to read the content of the file as a BitmapFont.
+    //! @param relativePath the relative path to load the content from
+    //         (the path is expected to be relative and will be concatenated with the GetContentPath automatically)
+    //! @throws IOException if the file isn't found or something goes wrong reading it.
+    //! @throws if its a unsupported format.
+    virtual BitmapFont ReadBitmapFont(const IO::Path& relativePath) const = 0;
   };
 }
 

@@ -39,7 +39,7 @@ namespace Fsl
   class FurTexture
   {
   public:
-    static const std::vector<uint8_t> Generate(const int width, const int height, const float density, const int numLayers);
+    static std::vector<uint8_t> Generate(const int width, const int height, const float density, const int numLayers);
   };
 }
 

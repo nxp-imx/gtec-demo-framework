@@ -31,6 +31,7 @@
 
 #include "ParticleSystemSnow.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -38,10 +39,11 @@
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
 #include "ParticleSnowGPU.hpp"
-#include <random>
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
+#include <random>
 #include <vector>
 
 namespace Fsl
@@ -68,8 +70,9 @@ namespace Fsl
 
     void PostCompilePreLinkCallback(const GLuint hProgram)
     {
-      const char* particleAttribLinkFeedback[] = {"Out_ParticlePosition", "Out_ParticleVelocity", "Out_ParticleEnergy"};
-      glTransformFeedbackVaryings(hProgram, 3, particleAttribLinkFeedback, GL_INTERLEAVED_ATTRIBS);
+      const std::array<const char*, 3> particleAttribLinkFeedback = {"Out_ParticlePosition", "Out_ParticleVelocity", "Out_ParticleEnergy"};
+      glTransformFeedbackVaryings(hProgram, UncheckedNumericCast<GLsizei>(particleAttribLinkFeedback.size()), particleAttribLinkFeedback.data(),
+                                  GL_INTERLEAVED_ATTRIBS);
 
       GL_CHECK_FOR_ERROR();
     }
@@ -133,7 +136,7 @@ namespace Fsl
     // Advance the simulation using the GPU :)
     glEnable(GL_RASTERIZER_DISCARD);
     glBindBuffer(m_pCurrentVertexBuffer->GetTarget(), m_pCurrentVertexBuffer->Get());
-    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLinkFeedback, 3);
+    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLinkFeedback);
 
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedbackObject);
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_pOtherVertexBuffer->Get());
@@ -183,7 +186,7 @@ namespace Fsl
     }
 
     glBindBuffer(m_pCurrentVertexBuffer->GetTarget(), m_pCurrentVertexBuffer->Get());
-    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLink, 1);
+    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLink);
 
     glDrawArrays(GL_POINTS, 0, m_capacity);
 

@@ -146,7 +146,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult VGStressTestOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult VGStressTestOptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     bool boolValue;
     int intValue;
@@ -155,65 +155,65 @@ namespace Fsl
     switch (cmdId)
     {
     case CommandId::SpiralTwists:
-      return (StringParseUtil::Parse(m_variables.SpiralTwists, pszOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
+      return (StringParseUtil::Parse(m_variables.SpiralTwists, strOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
     case CommandId::UseTexture:
-      return (StringParseUtil::Parse(m_variables.UseTexture, pszOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
+      return (StringParseUtil::Parse(m_variables.UseTexture, strOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
     case CommandId::Layers:
-      return (StringParseUtil::Parse(m_variables.Layers, pszOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
+      return (StringParseUtil::Parse(m_variables.Layers, strOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
     case CommandId::AdaptToScreen:
-      return (StringParseUtil::Parse(m_variables.AdaptToScreen, pszOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
+      return (StringParseUtil::Parse(m_variables.AdaptToScreen, strOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
     case CommandId::ToggleMinMax:
-      return (StringParseUtil::Parse(m_variables.ToggleMinMax, pszOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
+      return (StringParseUtil::Parse(m_variables.ToggleMinMax, strOptArg) > 0 ? OptionParseResult::Parsed : OptionParseResult::Failed);
     case CommandId::DevOverride:
       m_enableDevOverride = true;
       return OptionParseResult::Parsed;
     case CommandId::DSetType:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetType(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DQuadricSpiralLayers:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetQuadricSpiralLayers(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DQuadricSpiralRevolutionCount:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetQuadricSpiralRevolutionCount(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DQuadricSpiralRevolutionChange:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetQuadricSpiralRevolutionChange(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::DQuadricSpiralStrokeLineWidth:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetQuadricSpiralStrokeLineWidth(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::DSegmentedSpiralRevolutionCount:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetSegmentedSpiralRevolutionCount(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DSegmentedSpiralRevolutionChange:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetSegmentedSpiralRevolutionChange(static_cast<float>(intValue));
       return OptionParseResult::Parsed;
     case CommandId::DSegmentedSpiralStrokeLineWidth:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetSegmentedSpiralStrokeLineWidth(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::DSegmentedSpiralSegmentsPerRevolution:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetSegmentedSpiralSegmentsPerRevolution(intValue);
       return OptionParseResult::Parsed;
     case CommandId::DAdaptToScreen:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_config.SetAdaptToScreen(boolValue);
       return OptionParseResult::Parsed;

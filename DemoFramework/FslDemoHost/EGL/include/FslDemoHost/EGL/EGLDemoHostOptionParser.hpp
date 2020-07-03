@@ -56,7 +56,7 @@ namespace Fsl
     EGLDemoHostOptionParser();
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int32_t cmdId, const StringViewLite& strOptArg) override;
     bool ParsingComplete() override;
 
     bool IsLogConfigEnabled() const;

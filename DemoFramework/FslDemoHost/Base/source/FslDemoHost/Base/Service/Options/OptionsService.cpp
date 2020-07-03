@@ -97,7 +97,7 @@ namespace Fsl
       throw std::invalid_argument("optionParser can not be null");
     }
 
-    auto p = optionParser.get();
+    auto* p = optionParser.get();
 
     const OptionParserId optionParserId(typeid(*p));
 

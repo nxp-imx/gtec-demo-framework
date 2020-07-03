@@ -32,11 +32,12 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include "FastFourierTransform.hpp"
-#include <FslUtil/OpenCL1_1/ProgramEx.hpp>
-#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <FslUtil/OpenCL1_2/ProgramEx.hpp>
+#include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Values.hpp>
 #include <CL/cl.h>
+#include <array>
 #include <cassert>
 #include <iomanip>
 #include <sstream>
@@ -54,42 +55,42 @@ namespace Fsl
     const auto RADIX4_FFT_KERNEL = "fft_radix4";
 
 
-    const int g_p[FFT_MAX_LOG2N] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+    const std::array<int, FFT_MAX_LOG2N> g_p = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
 
 
-    const int g_twop[FFT_MAX_LOG2N] = {2 * 1,   2 * 2,   2 * 4,    2 * 8,    2 * 16,   2 * 32,   2 * 64,    2 * 128,
-                                       2 * 256, 2 * 512, 2 * 1024, 2 * 2048, 2 * 4096, 2 * 8192, 2 * 16384, 2 * 32768};
+    const std::array<int, FFT_MAX_LOG2N> g_twop = {2 * 1,   2 * 2,   2 * 4,    2 * 8,    2 * 16,   2 * 32,   2 * 64,    2 * 128,
+                                                   2 * 256, 2 * 512, 2 * 1024, 2 * 2048, 2 * 4096, 2 * 8192, 2 * 16384, 2 * 32768};
 
 
-    const int g_threep[FFT_MAX_LOG2N] = {3 * 1,   3 * 2,   3 * 4,    3 * 8,    3 * 16,   3 * 32,   3 * 64,    3 * 128,
-                                         3 * 256, 3 * 512, 3 * 1024, 3 * 2048, 3 * 4096, 3 * 8192, 3 * 16384, 3 * 32768};
+    const std::array<int, FFT_MAX_LOG2N> g_threep = {3 * 1,   3 * 2,   3 * 4,    3 * 8,    3 * 16,   3 * 32,   3 * 64,    3 * 128,
+                                                     3 * 256, 3 * 512, 3 * 1024, 3 * 2048, 3 * 4096, 3 * 8192, 3 * 16384, 3 * 32768};
 
 
-    const int g_pminus1[FFT_MAX_LOG2N] = {1 - 1,   2 - 1,   4 - 1,    8 - 1,    16 - 1,   32 - 1,   64 - 1,    128 - 1,
-                                          256 - 1, 512 - 1, 1024 - 1, 2048 - 1, 4096 - 1, 8192 - 1, 16384 - 1, 32768 - 1};
+    const std::array<int, FFT_MAX_LOG2N> g_pminus1 = {1 - 1,   2 - 1,   4 - 1,    8 - 1,    16 - 1,   32 - 1,   64 - 1,    128 - 1,
+                                                      256 - 1, 512 - 1, 1024 - 1, 2048 - 1, 4096 - 1, 8192 - 1, 16384 - 1, 32768 - 1};
 
-
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     const cl_float g_minusPIoverp[FFT_MAX_LOG2N] = {
       -MathHelper::PI,          -MathHelper::PI / 2.f,    -MathHelper::PI / 4.f,     -MathHelper::PI / 8.f,
       -MathHelper::PI / 16.f,   -MathHelper::PI / 32.f,   -MathHelper::PI / 64.f,    -MathHelper::PI / 128.f,
       -MathHelper::PI / 256.f,  -MathHelper::PI / 512.f,  -MathHelper::PI / 1024.f,  -MathHelper::PI / 2048.f,
       -MathHelper::PI / 4096.f, -MathHelper::PI / 8192.f, -MathHelper::PI / 16384.f, -MathHelper::PI / 32768.f};
 
-
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     const cl_float g_minusPIover2p[FFT_MAX_LOG2N] = {
       -MathHelper::PI / 2.f,    -MathHelper::PI / 4.f,     -MathHelper::PI / 8.f,     -MathHelper::PI / 16.f,
       -MathHelper::PI / 32.f,   -MathHelper::PI / 64.f,    -MathHelper::PI / 128.f,   -MathHelper::PI / 256.f,
       -MathHelper::PI / 512.f,  -MathHelper::PI / 1024.f,  -MathHelper::PI / 2048.f,  -MathHelper::PI / 4096.f,
       -MathHelper::PI / 8192.f, -MathHelper::PI / 16384.f, -MathHelper::PI / 32768.f, -MathHelper::PI / 65536.f};
 
-
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     const cl_float g_minusPIover2p_2x[FFT_MAX_LOG2N] = {
       -2.f * MathHelper::PI / 2.f,    -2.f * MathHelper::PI / 4.f,     -2.f * MathHelper::PI / 8.f,     -2.f * MathHelper::PI / 16.f,
       -2.f * MathHelper::PI / 32.f,   -2.f * MathHelper::PI / 64.f,    -2.f * MathHelper::PI / 128.f,   -2.f * MathHelper::PI / 256.f,
       -2.f * MathHelper::PI / 512.f,  -2.f * MathHelper::PI / 1024.f,  -2.f * MathHelper::PI / 2048.f,  -2.f * MathHelper::PI / 4096.f,
       -2.f * MathHelper::PI / 8192.f, -2.f * MathHelper::PI / 16384.f, -2.f * MathHelper::PI / 32768.f, -2.f * MathHelper::PI / 65536.f};
 
-
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     const cl_float g_minusPIover2p_3x[FFT_MAX_LOG2N] = {
       -3.f * MathHelper::PI / 2.f,    -3.f * MathHelper::PI / 4.f,     -3.f * MathHelper::PI / 8.f,     -3.f * MathHelper::PI / 16.f,
       -3.f * MathHelper::PI / 32.f,   -3.f * MathHelper::PI / 64.f,    -3.f * MathHelper::PI / 128.f,   -3.f * MathHelper::PI / 256.f,
@@ -99,7 +100,8 @@ namespace Fsl
 
     int Radix(const int N)
     {
-      int i = 0, j = 0;
+      int i = 0;
+      int j = 0;
       for (; i <= 31; i++)
       {
         if ((N & (1 << i)) == 0)
@@ -153,7 +155,7 @@ namespace Fsl
       }
       else
       {
-        cl_event hEvent;
+        cl_event hEvent = nullptr;
         RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), dMem, CL_FALSE, 0, sizeof(float) * size, hostPtr, 0, nullptr, &hEvent));
         // Hand off the event to a managed object
         pGpuDone->Reset(hEvent);
@@ -163,7 +165,7 @@ namespace Fsl
 
     cl_uint GetDeviceCount(const cl_context context)
     {
-      std::size_t nDeviceBytes;
+      std::size_t nDeviceBytes = 0;
       RAPIDOPENCL_CHECK(clGetContextInfo(context, CL_CONTEXT_DEVICES, 0, nullptr, &nDeviceBytes));
       return (static_cast<cl_uint>(nDeviceBytes) / sizeof(cl_device_id));
     }
@@ -178,7 +180,7 @@ namespace Fsl
       // Set target device and Query number of compute units on targetDevice
       FSLLOG3_INFO("# of Devices Available = {}", devices.size());
 
-      cl_uint numComputeUnits;
+      cl_uint numComputeUnits = 0;
       RAPIDOPENCL_CHECK(clGetDeviceInfo(devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(numComputeUnits), &numComputeUnits, nullptr));
 
       FSLLOG3_INFO("# of Compute Units = {}", numComputeUnits);
@@ -188,15 +190,16 @@ namespace Fsl
 
     double GetExecutionTime(const cl_event event)
     {
-      cl_ulong start, end;
-      cl_int err;
+      cl_ulong start = 0;
+      cl_ulong end = 0;
+      cl_int err = 0;
       err = clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &end, nullptr);
       err |= clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &start, nullptr);
       if (err != 0)
       {
         return 0;
       }
-      return 1.0e-9 * (end - start);    // convert nanoseconds to seconds
+      return 1.0e-9 * double(end - start);    // convert nanoseconds to seconds
     }
   }
 
@@ -288,6 +291,10 @@ namespace Fsl
 
     // log2(n) is the # of kernels that will be invoked (for a radix-2 FFT)
     const unsigned int log2n = Log2NFFT(m_length);
+    if(log2n <= 0 || log2n >= 32)
+    {
+      throw NotSupportedException("Invalid length");
+    }
 
     FSLLOG3_INFO("log2(fft size) = log2({})={}", m_length, log2n);
     FSLLOG3_INFO("Compiling radix-{} FFT Program for GPU...", rad);
@@ -299,7 +306,7 @@ namespace Fsl
 
     FSLLOG3_INFO("creating radix-{} kernels...", rad);
 
-    Kernel kernels[FFT_MAX_LOG2N];
+    std::array<Kernel, FFT_MAX_LOG2N> kernels;
     if (2 == rad)
     {
       for (unsigned kk = 0; kk < log2n; kk++)
@@ -330,7 +337,7 @@ namespace Fsl
         void* in = (0 == (kk & 1)) ? &m_deviceMemIntime : &m_deviceMemOutfft;
         void* out = (0 == (kk & 1)) ? &m_deviceMemOutfft : &m_deviceMemIntime;
         FSLLOG3_INFO("Setting kernel args for kernel {} (p={})...", kk, g_p[kk]);
-        const auto hKernel = kernels[kk].Get();
+        const cl_kernel hKernel = kernels[kk].Get();
         clSetKernelArg(hKernel, 0, sizeof(cl_mem), in);
         clSetKernelArg(hKernel, 1, sizeof(cl_mem), out);
         clSetKernelArg(hKernel, 2, sizeof(unsigned), &g_p[kk]);
@@ -341,13 +348,13 @@ namespace Fsl
     else
     {
       // radix-4, FFT kernel invoked for p=1, p=4, ..., p=n/4
-      for (unsigned kk = 0; kk < log2n; kk += 2)
+      for (uint32_t kk = 0; kk < log2n; kk += 2)
       {
-        int idx = kk >> 1;
+        uint32_t idx = kk >> 1;
         void* in = (0 == (idx & 1)) ? &m_deviceMemIntime : &m_deviceMemOutfft;
         void* out = (0 == (idx & 1)) ? &m_deviceMemOutfft : &m_deviceMemIntime;
         FSLLOG3_INFO("Setting kernel args for kernel {} (p={})...", idx, g_p[kk]);
-        const auto hKernel = kernels[kk].Get();
+        const cl_kernel hKernel = kernels[kk].Get();
         clSetKernelArg(hKernel, 0, sizeof(cl_mem), in);
         clSetKernelArg(hKernel, 1, sizeof(cl_mem), out);
         clSetKernelArg(hKernel, 2, sizeof(unsigned), &g_p[kk]);
@@ -360,8 +367,8 @@ namespace Fsl
       }    // end (for 1,4,16,...,N/4)
     }      // end (if radix-2 or radix-4)
 
-    const std::size_t globalWorkSize[] = {(2 == rad) ? (1 << (log2n - 1)) : (m_length >> 2)};
-    const std::size_t localWorkSize[] = {(m_blockSize <= globalWorkSize[0]) ? m_blockSize : globalWorkSize[0]};
+    const std::size_t globalWorkSize = (2 == rad) ? (1 << (log2n - 1)) : (m_length >> 2);
+    const std::size_t localWorkSize = (m_blockSize <= globalWorkSize) ? m_blockSize : globalWorkSize;
 
     cl_mem d_result = Values::INVALID_MEM;
     if (2 == rad)
@@ -371,9 +378,9 @@ namespace Fsl
         // note to self: up to 8 it works, beyond that it does not
         FSLLOG3_INFO("running kernel {} (p={})...", kk, g_p[kk]);
 
-        cl_event hEvent;
+        cl_event hEvent = nullptr;
         RAPIDOPENCL_CHECK(
-          clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[kk].Get(), 1, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &hEvent));
+          clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[kk].Get(), 1, nullptr, &globalWorkSize, &localWorkSize, 0, nullptr, &hEvent));
         // Hand the event over to a managed object
         m_gpuExecution[kk].Reset(hEvent);
 
@@ -383,14 +390,14 @@ namespace Fsl
     else
     {
       // radix-4
-      for (unsigned kk = 0; kk < log2n; kk += 2)
+      for (uint32_t kk = 0; kk < log2n; kk += 2)
       {
-        int idx = kk >> 1;
+        uint32_t idx = kk >> 1;
         FSLLOG3_INFO("running kernel {},  (p={})...", idx, g_p[kk]);
 
-        cl_event hEvent;
+        cl_event hEvent = nullptr;
         RAPIDOPENCL_CHECK(
-          clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[idx].Get(), 1, nullptr, globalWorkSize, localWorkSize, 0, nullptr, &hEvent));
+          clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[idx].Get(), 1, nullptr, &globalWorkSize, &localWorkSize, 0, nullptr, &hEvent));
         // Hand the event over to a managed object
         m_gpuExecution[idx].Reset(hEvent);
 

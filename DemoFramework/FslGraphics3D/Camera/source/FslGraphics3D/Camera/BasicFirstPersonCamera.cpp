@@ -74,9 +74,6 @@ namespace Fsl
     }
 
 
-    BasicFirstPersonCamera::~BasicFirstPersonCamera() = default;
-
-
     Matrix BasicFirstPersonCamera::GetViewMatrix() const
     {
       return Matrix::CreateLookAt(m_position, m_position + m_forward, m_up);

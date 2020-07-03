@@ -69,6 +69,8 @@ namespace Fsl
       , m_bubbleList(INITIAL_NODE_CAPACITY)
       , m_isInitialized(false)
     {
+      m_tunnelList.clear();
+      m_bubbleList.clear();
     }
 
 
@@ -78,6 +80,8 @@ namespace Fsl
       , m_bubbleList(INITIAL_NODE_CAPACITY)
       , m_isInitialized(true)
     {
+      m_tunnelList.clear();
+      m_bubbleList.clear();
     }
 
 

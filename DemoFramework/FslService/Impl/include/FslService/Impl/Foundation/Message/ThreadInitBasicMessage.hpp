@@ -41,7 +41,7 @@ namespace Fsl
     ThreadInitBasicMessage() = default;
 
 
-    operator BasicMessage() const
+    operator BasicMessage() const    // NOLINT(google-explicit-constructor);
     {
       return BasicMessage(BasicMessageType::ThreadInit);
     }
@@ -54,7 +54,7 @@ namespace Fsl
         throw std::invalid_argument("message was not of the expected type");
       }
 
-      return ThreadInitBasicMessage();
+      return {};
     }
   };
 }

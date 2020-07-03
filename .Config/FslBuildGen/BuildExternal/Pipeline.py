@@ -31,6 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Dict
 from typing import List
 from typing import Optional
 from FslBuildGen.Log import Log
@@ -53,7 +54,6 @@ class Pipeline(object):
         self.InstallPath = sourceRecipe.ResolvedInstallLocation
         self.BuildPath = builder.GetBuildPath(sourceRecipe)
         self.CommandList = self.__CreateCommandList(builder, self.SourcePackage, self.SourceRecipe)
-
 
     def __CreateCommandList(self, builder: PipelineCommandBuilder, sourcePackage: Package, sourceRecipe: PackageExperimentalRecipe) -> List[PipelineCommand]:
         if sourceRecipe.Pipeline is None:

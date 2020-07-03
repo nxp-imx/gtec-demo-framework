@@ -26,11 +26,16 @@ namespace Fsl
 
   namespace
   {
-    void CreateCubemapTexture(GLTexture& rTexture, const std::shared_ptr<IContentManager>& contentManager, const std::string& cubeDirName)
+    void CreateCubemapTexture(GLTexture& rTexture, const std::shared_ptr<IContentManager>& contentManager, const IO::Path& cubeDirName)
     {
       std::vector<uint8_t> rawData;
 
-      Bitmap posX, negX, posY, negY, posZ, negZ;
+      Bitmap posX;
+      Bitmap negX;
+      Bitmap posY;
+      Bitmap negY;
+      Bitmap posZ;
+      Bitmap negZ;
 
       contentManager->Read(posX, IO::Path::Combine(cubeDirName, "PosX.jpg"), PixelFormat::R8G8B8_UNORM);
       contentManager->Read(negX, IO::Path::Combine(cubeDirName, "NegX.jpg"), PixelFormat::R8G8B8_UNORM);
@@ -57,11 +62,11 @@ namespace Fsl
 
 
   EnvScene::EnvScene(const DemoAppConfig& config)
-    : m_renderState(config.ScreenResolution)
+    : m_renderState(config.WindowMetrics.GetSizePx())
   {
     const std::shared_ptr<IContentManager> content = config.DemoServiceProvider.Get<IContentManager>();
 
-    std::string strPath;
+    IO::Path strPath;
 
     // strPath = "Brudslojan"; // Nice
     // strPath = "LarnacaCastle"; // Nice
@@ -115,7 +120,7 @@ namespace Fsl
 
   void EnvScene::Draw()
   {
-    glViewport(0, 0, m_renderState.GetScreenResolution().X, m_renderState.GetScreenResolution().Y);
+    glViewport(0, 0, m_renderState.GetWindowSizePx().Width(), m_renderState.GetWindowSizePx().Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // If enabled, cull polygons based on their winding in window coordinates

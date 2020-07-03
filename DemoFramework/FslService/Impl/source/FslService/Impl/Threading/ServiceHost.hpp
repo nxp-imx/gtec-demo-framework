@@ -52,7 +52,7 @@ namespace Fsl
     bool m_quitRequested;
 
   public:
-    ServiceHost(const ServiceHostCreateInfo& createInfo, const bool clearOwnedUniqueServices = true);
+    explicit ServiceHost(const ServiceHostCreateInfo& createInfo, const bool clearOwnedUniqueServices = true);
     ~ServiceHost() override;
 
     // Inherited via IServiceHost

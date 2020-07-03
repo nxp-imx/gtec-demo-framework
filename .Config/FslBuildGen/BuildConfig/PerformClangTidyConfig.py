@@ -33,6 +33,7 @@
 
 from typing import List
 from FslBuildGen.BuildConfig.ClangTidyConfiguration import ClangTidyConfiguration
+from FslBuildGen.DataTypes import ClangTidyProfile
 
 
 class PerformClangTidyConfig(object):
@@ -40,7 +41,8 @@ class PerformClangTidyConfig(object):
                  additionalUserArguments: List[str],
                  postfixArguments: List[str],
                  overrideChecks: List[str],
-                 strictChecks: bool,
+                 profile: ClangTidyProfile,
+                 allowDynamicVariantCache: bool,
                  repair: bool) -> None:
         super().__init__()
         self.ClangTidyConfiguration = clangTidyConfiguration
@@ -49,7 +51,8 @@ class PerformClangTidyConfig(object):
         if len(overrideChecks) > 0:
             overrideChecks = ['-*'] + overrideChecks
         self.OverrideChecks = overrideChecks
-        self.StrictChecks = strictChecks
+        self.Profile = profile
+        self.AllowDynamicVariantCache = allowDynamicVariantCache
         self.Repair = repair
 
 

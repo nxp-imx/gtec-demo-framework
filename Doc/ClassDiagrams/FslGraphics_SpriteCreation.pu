@@ -1,0 +1,48 @@
+@startuml FslGraphics Sprite Creation
+
+participant TheApp
+participant UIAppResourceManager
+participant SpriteImage
+participant INativeGraphics
+participant ISpriteMaterial
+activate INativeGraphics
+
+...
+== Init ==
+
+->TheApp++: Construct
+TheApp->UIAppResourceManager++: Construct
+TheApp -> UIAppResourceManager: DefineMaterial
+UIAppResourceManager -> INativeGraphics: CreateTexture2D
+INativeGraphics -> ISpriteMaterial++: Construct
+TheApp -> UIAppResourceManager: AddSprite
+UIAppResourceManager -> SpriteImage++: Construct
+
+...
+== ConfigurationChanged ==
+
+TheApp -> UIAppResourceManager: ConfigurationChanged
+UIAppResourceManager->UIAppResourceManager++: ClearSpriteMaterials
+UIAppResourceManager->SpriteImage: ClearContent
+SpriteImage->ISpriteMaterial: Destruct
+deactivate ISpriteMaterial
+UIAppResourceManager -> INativeGraphics: CreateTexture2D
+INativeGraphics -> ISpriteMaterial++: Construct
+UIAppResourceManager->SpriteImage: SetContent
+
+...
+== Shutdown ==
+->TheApp: Destruct
+TheApp->SpriteImage: Destruct
+SpriteImage->ISpriteMaterial: Destruct
+deactivate ISpriteMaterial
+deactivate SpriteImage
+TheApp->UIAppResourceManager: Destruct
+UIAppResourceManager->UIAppResourceManager++: ClearSpriteMaterials
+'UIAppResourceManager->SpriteImage: ClearContent
+deactivate UIAppResourceManager
+deactivate UIAppResourceManager
+deactivate TheApp
+
+@enduml
+

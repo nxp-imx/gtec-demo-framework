@@ -38,13 +38,14 @@
 
 namespace Fsl
 {
-  struct Vector2;
+  struct PxPoint2;
   class ITag;
 
   namespace UI
   {
     class WindowEvent;
     class WindowInputClickEvent;
+    class WindowMouseOverEvent;
     class WindowSelectEvent;
     class WindowContentChangedEvent;
 
@@ -52,6 +53,7 @@ namespace Fsl
     //! @note All events have to acquired and released to the pool.
     class WindowEventPool
     {
+      std::deque<std::shared_ptr<WindowMouseOverEvent>> m_poolWindowMouseOverEvent;
       std::deque<std::shared_ptr<WindowInputClickEvent>> m_poolWindowInputClickEvent;
       std::deque<std::shared_ptr<WindowSelectEvent>> m_poolWindowSelectEvent;
       std::deque<std::shared_ptr<WindowContentChangedEvent>> m_poolWindowContentChangedEvent;
@@ -63,9 +65,12 @@ namespace Fsl
       WindowEventPool();
       ~WindowEventPool();
 
+      std::shared_ptr<WindowMouseOverEvent> AcquireWindowMouseOverEvent(const int32_t sourceId, const int32_t sourceSubId,
+                                                                        const EventTransactionState& state, const bool isRepeat,
+                                                                        const PxPoint2& screenPositionPx);
       std::shared_ptr<WindowInputClickEvent> AcquireWindowInputClickEvent(const int32_t sourceId, const int32_t sourceSubId,
                                                                           const EventTransactionState state, const bool isRepeat,
-                                                                          const Vector2& screenPosition);
+                                                                          const PxPoint2& screenPositionPx);
       std::shared_ptr<WindowSelectEvent> AcquireWindowSelectEvent(const uint32_t contentId);
       std::shared_ptr<WindowSelectEvent> AcquireWindowSelectEvent(const uint32_t contentId, const std::shared_ptr<ITag>& payload);
       std::shared_ptr<WindowContentChangedEvent> AcquireWindowContentChangedEvent(const uint32_t contentId);
@@ -73,6 +78,7 @@ namespace Fsl
                                                                                   const int32_t param2);
 
       void Release(const std::shared_ptr<WindowEvent>& event);
+      void Release(const std::shared_ptr<WindowMouseOverEvent>& event);
       void Release(const std::shared_ptr<WindowInputClickEvent>& event);
       void Release(const std::shared_ptr<WindowSelectEvent>& event);
       void Release(const std::shared_ptr<WindowContentChangedEvent>& event);

@@ -31,9 +31,11 @@
 
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Math/LogExtent2D.hpp>
-#include <FslBase/Log/Math/LogExtent3D.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxExtent3D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <FslGraphics/UnitTest/Helper/Render/NativeGraphicsTestImpl.hpp>
@@ -48,24 +50,20 @@ namespace
 
 TEST(TestRender_AtlasFont, Construct_Invalid)
 {
-  Texture2D texture;
-  TextureAtlasBitmapFont textureAtlasBitmapFont;
-
-  EXPECT_THROW(AtlasFont(texture, textureAtlasBitmapFont), std::invalid_argument);
+  EXPECT_THROW(AtlasFont(BaseTexture2D(), TextureAtlasBitmapFont()), std::invalid_argument);
 }
 
 
 TEST(TestRender_AtlasFont, Construct_EmptyBitmapFont)
 {
   auto nativeGraphics = std::make_shared<NativeGraphicsTestImpl>();
-  const Bitmap atlasBitmap(Extent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
+  const Bitmap atlasBitmap(PxExtent2D(128, 128), PixelFormat::R8G8B8A8_UNORM);
   const Texture2D atlasTex(nativeGraphics, atlasBitmap, Texture2DFilterHint::Smooth);
 
-  TextureAtlasBitmapFont textureAtlasBitmapFont;
-  AtlasFont font(atlasTex, textureAtlasBitmapFont);
+  AtlasFont font(atlasTex, TextureAtlasBitmapFont());
 
   EXPECT_EQ(atlasTex, font.GetAtlasTexture());
   // Since there are no valid chars, we expect a measure to be zero
-  EXPECT_EQ(Point2(0, 0), font.MeasureString("Hello world"));
-  EXPECT_EQ(Point2(0, 0), font.MeasureString("Hello world", 1, 2));
+  EXPECT_EQ(PxSize2D(0, 0), font.MeasureString(StringViewLite("Hello world")));
+  EXPECT_EQ(PxSize2D(0, 0), font.MeasureString(StringViewLite("Hello world").substr(1, 2)));
 }

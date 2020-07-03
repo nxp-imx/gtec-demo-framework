@@ -29,11 +29,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES2/Exceptions.hpp>
-#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include "Bloom.hpp"
-#include <GLES2/gl2.h>
-#include <iostream>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
@@ -42,7 +38,11 @@
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics3D/BasicScene/GenericScene.hpp>
 #include <FslGraphics3D/BasicScene/GenericMesh.hpp>
+#include <FslUtil/OpenGLES2/Exceptions.hpp>
+#include <FslUtil/OpenGLES2/GLCheck.hpp>
 #include <Shared/Bloom/GaussianShaderBuilder.hpp>
+#include <GLES2/gl2.h>
+#include <iostream>
 #include "RenderScene.hpp"
 #include "WhiteRectScene.hpp"
 #include "VBHelper.hpp"
@@ -53,19 +53,24 @@ namespace Fsl
   using namespace GLES2;
   using namespace Graphics3D;
 
+  namespace LocalConfig
+  {
+    const constexpr float DefaultZoom = 10;
+    const constexpr float DefaultXRotation = MathHelper::TO_RADS * 20.0f;
+    constexpr const GLTextureParameters DefaultTextureParams(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+  }
+
   namespace
   {
-    const constexpr float DEFAULT_ZOOM = 10;
-    const constexpr float DEFAULT_X_ROTATION = MathHelper::TO_RADS * 20.0f;
+    constexpr const int SIZE_MOD = 2;
+    constexpr const int SIZE_16 = 16 * SIZE_MOD;
+    constexpr const int SIZE_32 = 32 * SIZE_MOD;
+    constexpr const int SIZE_64 = 64 * SIZE_MOD;
+    constexpr const int SIZE_128 = 128 * SIZE_MOD;
+    constexpr const int SIZE_256 = 256 * SIZE_MOD;
 
-    const constexpr int SIZE_MOD = 2;
-    const constexpr int SIZE_16 = 16 * SIZE_MOD;
-    const constexpr int SIZE_32 = 32 * SIZE_MOD;
-    const constexpr int SIZE_64 = 64 * SIZE_MOD;
-    const constexpr int SIZE_128 = 128 * SIZE_MOD;
-    const constexpr int SIZE_256 = 256 * SIZE_MOD;
 
-    const char* const g_pszShaderAttributeArray[] = {"VertexPosition", "VertexTexCoord", nullptr};
+    constexpr const std::array<const char*, 3> g_shaderAttributeArray = {"VertexPosition", "VertexTexCoord", nullptr};
 
     const GLTextureImageParameters g_defaultFBImageParams(GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
   }
@@ -78,20 +83,19 @@ namespace Fsl
     : DemoAppGLES2(config)
     , m_menuUI(config)
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
-    , m_camera(config.ScreenResolution)
+    , m_camera(config.WindowMetrics.GetSizePx())
     , m_rotationSpeed(0, -0.6f, 0)
-    , m_fbBlur16A(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur16B(Point2(SIZE_16, SIZE_16), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur32A(Point2(SIZE_32, SIZE_32), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur32B(Point2(SIZE_32, SIZE_32), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur64A(Point2(SIZE_64, SIZE_64), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur64B(Point2(SIZE_64, SIZE_64), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur128A(Point2(SIZE_128, SIZE_128), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur128B(Point2(SIZE_128, SIZE_128), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur256A(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbBlur256B(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams)
-    , m_fbRender256(Point2(SIZE_256, SIZE_256), GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_defaultFBImageParams,
-                    GL_DEPTH_COMPONENT16)
+    , m_fbBlur16A(PxSize2D(SIZE_16, SIZE_16), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur16B(PxSize2D(SIZE_16, SIZE_16), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur32A(PxSize2D(SIZE_32, SIZE_32), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur32B(PxSize2D(SIZE_32, SIZE_32), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur64A(PxSize2D(SIZE_64, SIZE_64), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur64B(PxSize2D(SIZE_64, SIZE_64), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur128A(PxSize2D(SIZE_128, SIZE_128), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur128B(PxSize2D(SIZE_128, SIZE_128), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur256A(PxSize2D(SIZE_256, SIZE_256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbBlur256B(PxSize2D(SIZE_256, SIZE_256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams)
+    , m_fbRender256(PxSize2D(SIZE_256, SIZE_256), LocalConfig::DefaultTextureParams, g_defaultFBImageParams, GL_DEPTH_COMPONENT16)
     , m_locBlurHTexSize(GLValues::INVALID_LOCATION)
     , m_locBlurVTexSize(GLValues::INVALID_LOCATION)
     , m_locBloomTexture256(GLValues::INVALID_LOCATION)
@@ -107,8 +111,8 @@ namespace Fsl
     RegisterExtension(m_menuUI.GetUIDemoAppExtension());
 
 
-    m_camera.SetRotation(Matrix::CreateRotationX(DEFAULT_X_ROTATION));
-    m_camera.SetZoom(DEFAULT_ZOOM);
+    m_camera.SetRotation(Matrix::CreateRotationX(LocalConfig::DefaultXRotation));
+    m_camera.SetZoom(LocalConfig::DefaultZoom);
     m_storedStartRotation = m_rotation;
 
     VBHelper::BuildVB(m_vbFullScreen, BoxF(-1, -1, 1, 1), BoxF(0.0f, 0.0f, 1.0f, 1.0f));
@@ -117,9 +121,9 @@ namespace Fsl
 
     m_strShaderVertPass = contentManager->ReadAllText("Shaders/Pass.vert");
 
-    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BrightPass.frag"), g_pszShaderAttributeArray);
-    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/CopyPass.frag"), g_pszShaderAttributeArray);
-    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BloomPass.frag"), g_pszShaderAttributeArray);
+    m_programBrightPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BrightPass.frag"), g_shaderAttributeArray.data());
+    m_programCopy.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/CopyPass.frag"), g_shaderAttributeArray.data());
+    m_programBloomPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BloomPass.frag"), g_shaderAttributeArray.data());
 
     // Prepare the blur shader
     SetBlurShader(BlurShaderType::Gaussian5X5);
@@ -221,8 +225,8 @@ namespace Fsl
       if (event.IsPressed())
       {
         m_camera.ResetRotation();
-        m_camera.SetRotation(Matrix::CreateRotationX(DEFAULT_X_ROTATION));
-        m_camera.SetZoom(DEFAULT_ZOOM);
+        m_camera.SetRotation(Matrix::CreateRotationX(LocalConfig::DefaultXRotation));
+        m_camera.SetZoom(LocalConfig::DefaultZoom);
         m_rotation = m_storedStartRotation;
         event.Handled();
       }
@@ -270,7 +274,7 @@ namespace Fsl
 
     if (m_scene)
     {
-      m_scene->Update(demoTime, m_camera.GetViewMatrix(), m_camera.GetRotationMatrix(), m_rotation, GetScreenResolution());
+      m_scene->Update(demoTime, m_camera.GetViewMatrix(), m_camera.GetRotationMatrix(), m_rotation, GetWindowSizePx());
     }
 
     if (m_menuUI.GetKernelWeightMod() != m_gaussianBlurKernelWeight)
@@ -296,7 +300,7 @@ namespace Fsl
     {
       auto& fb = m_fbRender256;
       glBindFramebuffer(GL_FRAMEBUFFER, fb.Get());
-      glViewport(0, 0, fb.GetSize().X, fb.GetSize().Y);
+      glViewport(0, 0, fb.GetSize().Width(), fb.GetSize().Height());
 
       glBindBuffer(GL_ARRAY_BUFFER, 0);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -356,11 +360,11 @@ namespace Fsl
 
   void Bloom::DrawFinalComposite()
   {
-    const Point2 screenResolution = GetScreenResolution();
+    const PxSize2D windowSizePx = GetWindowSizePx();
 
     // Composite everything
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, screenResolution.X, screenResolution.Y);
+    glViewport(0, 0, windowSizePx.Width(), windowSizePx.Height());
 
     if (m_menuUI.IsFinalSceneEnabled())
     {
@@ -416,15 +420,15 @@ namespace Fsl
       float dstX = 0;
       m_batch->Begin(BlendState::Opaque);
       m_batch->Draw(m_fbRender256, Vector2(dstX, 0), Color::White());
-      dstX += m_fbRender256.GetSize().X;
+      dstX += m_fbRender256.GetSize().Width();
       m_batch->Draw(m_fbBlur256A, Vector2(dstX, 0.0f), Color::White());
-      dstX += m_fbBlur256A.GetSize().X;
+      dstX += m_fbBlur256A.GetSize().Width();
       m_batch->Draw(m_fbBlur128A, Vector2(dstX, 0.0f), Color::White());
-      dstX += m_fbBlur128A.GetSize().X;
+      dstX += m_fbBlur128A.GetSize().Width();
       m_batch->Draw(m_fbBlur64A, Vector2(dstX, 0.0f), Color::White());
-      dstX += m_fbBlur64A.GetSize().X;
+      dstX += m_fbBlur64A.GetSize().Width();
       m_batch->Draw(m_fbBlur32A, Vector2(dstX, 0.0f), Color::White());
-      dstX += m_fbBlur32A.GetSize().X;
+      dstX += m_fbBlur32A.GetSize().Width();
       m_batch->Draw(m_fbBlur16A, Vector2(dstX, 0.0f), Color::White());
       // dstX += m_fbBlur16A.GetSize().X;
       m_batch->End();
@@ -445,7 +449,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurHTexSize >= 0)
     {
-      glUniform1f(m_locBlurHTexSize, 1.0f / src.GetSize().X);
+      glUniform1f(m_locBlurHTexSize, 1.0f / src.GetSize().Width());
     }
     PostProcess(dst, src);
   }
@@ -457,7 +461,7 @@ namespace Fsl
     // glUseProgram(m_programCopy.Get());
     if (m_locBlurVTexSize >= 0)
     {
-      glUniform1f(m_locBlurVTexSize, 1.0f / src.GetSize().Y);
+      glUniform1f(m_locBlurVTexSize, 1.0f / src.GetSize().Height());
     }
     PostProcess(dst, src);
   }
@@ -472,10 +476,10 @@ namespace Fsl
 
   void Bloom::PostProcess(const GLFrameBuffer& dst, const GLFrameBuffer& src)
   {
-    auto& fb = dst;
+    const auto& fb = dst;
     auto& vb = m_vbFullScreen;
     glBindFramebuffer(GL_FRAMEBUFFER, fb.Get());
-    glViewport(0, 0, fb.GetSize().X, fb.GetSize().Y);
+    glViewport(0, 0, fb.GetSize().Width(), fb.GetSize().Height());
     glClear(GL_COLOR_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
@@ -490,35 +494,35 @@ namespace Fsl
 
   void Bloom::SetBlurShader(const BlurShaderType shaderType)
   {
-    const float gaussianBlurKernelWeightMod = m_menuUI.GetKernelWeightMod() / float(m_menuUI.GetKernelWeightRange());
+    const float gaussianBlurKernelWeightMod = m_menuUI.GetKernelWeightMod();
 
     auto contentManager = GetContentManager();
     switch (shaderType)
     {
     case BlurShaderType::Custom:
-      m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), g_pszShaderAttributeArray);
-      m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), g_pszShaderAttributeArray);
+      m_programBlurHPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurHPass.frag"), g_shaderAttributeArray.data());
+      m_programBlurVPass.Reset(m_strShaderVertPass, contentManager->ReadAllText("Shaders/BlurVPass.frag"), g_shaderAttributeArray.data());
       break;
     case BlurShaderType::Gaussian9X9:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9HPass.frag"), gaussianBlurKernelWeightMod),
-        g_pszShaderAttributeArray);
+        g_shaderAttributeArray.data());
       m_programBlurVPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build9x9(contentManager->ReadAllText("Shaders/GaussianTemplate9VPass.frag"), gaussianBlurKernelWeightMod),
-        g_pszShaderAttributeArray);
+        g_shaderAttributeArray.data());
       break;
     case BlurShaderType::Gaussian5X5:
     default:
       m_programBlurHPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5HPass.frag"), gaussianBlurKernelWeightMod),
-        g_pszShaderAttributeArray);
+        g_shaderAttributeArray.data());
       m_programBlurVPass.Reset(
         m_strShaderVertPass,
         GaussianShaderBuilder::Build5x5(contentManager->ReadAllText("Shaders/GaussianTemplate5VPass.frag"), gaussianBlurKernelWeightMod),
-        g_pszShaderAttributeArray);
+        g_shaderAttributeArray.data());
       break;
     }
 

@@ -34,14 +34,15 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
   namespace Helios
   {
-    Camera::Camera(const CameraConfig& cameraConfig, const std::shared_ptr<ICameraAdapter>& nativeCamera)
+    Camera::Camera(const CameraConfig& cameraConfig, std::shared_ptr<ICameraAdapter> nativeCamera)
       : m_cameraConfig(cameraConfig)
-      , m_nativeCamera(nativeCamera)
+      , m_nativeCamera(std::move(nativeCamera))
     {
       if (cameraConfig.NativePixelFormat == PixelFormat::Undefined)
       {

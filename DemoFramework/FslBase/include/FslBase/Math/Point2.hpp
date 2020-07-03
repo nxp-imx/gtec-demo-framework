@@ -38,88 +38,88 @@ namespace Fsl
   struct Point2
   {
   public:
-    using element_type = int32_t;
+    using value_type = int32_t;
 
     int32_t X{0};
     int32_t Y{0};
 
-    constexpr Point2() = default;
+    constexpr Point2() noexcept = default;
 
-    constexpr Point2(const int32_t x, const int32_t y)
+    constexpr Point2(const int32_t x, const int32_t y) noexcept
       : X(x)
       , Y(y)
     {
     }
 
-    Point2& operator+=(const Point2& arg)
+    constexpr Point2& operator+=(const Point2& arg) noexcept
     {
       X += arg.X;
       Y += arg.Y;
       return *this;
     }
 
-    Point2& operator-=(const Point2& arg)
+    constexpr Point2& operator-=(const Point2& arg) noexcept
     {
       X -= arg.X;
       Y -= arg.Y;
       return *this;
     }
 
-    Point2& operator*=(const Point2& arg)
+    constexpr Point2& operator*=(const Point2& arg) noexcept
     {
       X *= arg.X;
       Y *= arg.Y;
       return *this;
     }
 
-    Point2& operator*=(const int arg)
+    constexpr Point2& operator*=(const int32_t arg) noexcept
     {
       X *= arg;
       Y *= arg;
       return *this;
     }
 
-    constexpr bool operator==(const Point2& rhs) const
+    constexpr bool operator==(const Point2& rhs) const noexcept
     {
       return X == rhs.X && Y == rhs.Y;
     }
 
-    constexpr bool operator!=(const Point2& rhs) const
+    constexpr bool operator!=(const Point2& rhs) const noexcept
     {
       return X != rhs.X || Y != rhs.Y;
     }
 
     // @brief Returns a Point2 with all components being zero (0, 0)
-    static constexpr Point2 Zero()
+    static constexpr Point2 Zero() noexcept
     {
       return {};
     }
   };
-}
 
-inline Fsl::Point2 operator+(const Fsl::Point2& lhs, const Fsl::Point2& rhs)
-{
-  return Fsl::Point2(lhs.X + rhs.X, lhs.Y + rhs.Y);
-}
+  inline constexpr Point2 operator+(const Point2& lhs, const Point2& rhs) noexcept
+  {
+    return {lhs.X + rhs.X, lhs.Y + rhs.Y};
+  }
 
-inline Fsl::Point2 operator-(const Fsl::Point2& lhs, const Fsl::Point2& rhs)
-{
-  return Fsl::Point2(lhs.X - rhs.X, lhs.Y - rhs.Y);
-}
+  inline constexpr Point2 operator-(const Point2& lhs, const Point2& rhs) noexcept
+  {
+    return {lhs.X - rhs.X, lhs.Y - rhs.Y};
+  }
 
-inline Fsl::Point2 operator*(const Fsl::Point2& lhs, const Fsl::Point2& rhs)
-{
-  return Fsl::Point2(lhs.X * rhs.X, lhs.Y * rhs.Y);
-}
+  inline constexpr Point2 operator*(const Point2& lhs, const Point2& rhs) noexcept
+  {
+    return {lhs.X * rhs.X, lhs.Y * rhs.Y};
+  }
 
-inline Fsl::Point2 operator*(const Fsl::Point2& lhs, const int rhs)
-{
-  return Fsl::Point2(lhs.X * rhs, lhs.Y * rhs);
-}
+  inline constexpr Point2 operator*(const Point2& lhs, const int32_t rhs) noexcept
+  {
+    return {lhs.X * rhs, lhs.Y * rhs};
+  }
 
-inline Fsl::Point2 operator*(const int lhs, const Fsl::Point2& rhs)
-{
-  return rhs * lhs;
-}
+  inline constexpr Point2 operator*(const int32_t lhs, const Point2& rhs) noexcept
+  {
+    return rhs * lhs;
+  }
 
+}
 #endif

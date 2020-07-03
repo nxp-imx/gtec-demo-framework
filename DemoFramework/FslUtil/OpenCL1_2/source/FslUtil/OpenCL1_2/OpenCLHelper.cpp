@@ -117,7 +117,7 @@ namespace Fsl
     {
       std::vector<cl_platform_id> GetPlatformIDs()
       {
-        cl_uint count;
+        cl_uint count = 0;
         RAPIDOPENCL_CHECK(clGetPlatformIDs(0, nullptr, &count));
 
         std::vector<cl_platform_id> result(count);
@@ -126,9 +126,10 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       std::vector<cl_device_id> GetDeviceIDs(const cl_platform_id platformId, const cl_device_type deviceType)
       {
-        cl_uint count;
+        cl_uint count = 0;
         auto errorCode = clGetDeviceIDs(platformId, deviceType, 0, nullptr, &count);
         if (errorCode == CL_DEVICE_NOT_FOUND)
         {
@@ -142,9 +143,10 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       bool TryGetDeviceIDs(std::vector<cl_device_id>& rDeviceIds, const cl_platform_id platformId, const cl_device_type deviceType)
       {
-        cl_uint count;
+        cl_uint count = 0;
         if (clGetDeviceIDs(platformId, deviceType, 0, nullptr, &count) != CL_SUCCESS)
         {
           rDeviceIds.resize(0);
@@ -161,6 +163,7 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       bool TryGetPlatformVersion(const cl_platform_id platformId, VersionInfo& rVersionInfo)
       {
         rVersionInfo = VersionInfo();
@@ -175,6 +178,7 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       VersionInfo GetPlatformVersion(const cl_platform_id platformId)
       {
         const auto strVersion = GetPlatformInfo<std::string>(platformId, CL_PLATFORM_VERSION);
@@ -189,6 +193,7 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       bool TryGetDeviceVersion(const cl_device_id deviceId, VersionInfo& rVersionInfo)
       {
         rVersionInfo = VersionInfo();
@@ -203,6 +208,7 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       VersionInfo GetDeviceVersion(const cl_device_id deviceId)
       {
         const auto strVersion = GetDeviceInfo<std::string>(deviceId, CL_DEVICE_VERSION);
@@ -217,11 +223,12 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       std::string GetProgramBuildInfoString(const cl_program program, const cl_device_id deviceId, const cl_program_build_info paramName)
       {
         assert(paramName == CL_PROGRAM_BUILD_OPTIONS || paramName == CL_PROGRAM_BUILD_LOG);
 
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         RAPIDOPENCL_CHECK(clGetProgramBuildInfo(program, deviceId, paramName, 0, nullptr, &contentSize));
 
         std::vector<char> content(contentSize);
@@ -230,11 +237,12 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       bool TryGetProgramBuildInfo(const cl_program program, const cl_device_id deviceId, const cl_program_build_info paramName, std::string& rResult)
       {
         assert(paramName == CL_PROGRAM_BUILD_OPTIONS || paramName == CL_PROGRAM_BUILD_LOG);
 
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         if (clGetProgramBuildInfo(program, deviceId, paramName, 0, nullptr, &contentSize) != CL_SUCCESS)
         {
           rResult = std::string();
@@ -252,19 +260,20 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       bool TryGetProgramBuildInfo(const cl_program program, const cl_device_id deviceId, const cl_program_build_info paramName,
                                   cl_build_status& rResult)
       {
         assert(paramName == CL_PROGRAM_BUILD_OPTIONS || paramName == CL_PROGRAM_BUILD_LOG);
 
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         if (clGetProgramBuildInfo(program, deviceId, paramName, 0, nullptr, &contentSize) != CL_SUCCESS)
         {
           rResult = CL_BUILD_NONE;
           return false;
         }
 
-        cl_build_status status;
+        cl_build_status status = 0;
         if (clGetProgramBuildInfo(program, deviceId, paramName, sizeof(cl_build_status), &status, nullptr) != CL_SUCCESS)
         {
           rResult = CL_BUILD_NONE;

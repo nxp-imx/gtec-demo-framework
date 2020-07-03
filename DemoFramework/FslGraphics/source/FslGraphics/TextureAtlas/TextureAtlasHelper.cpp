@@ -30,22 +30,24 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
+#include <FslBase/Log/IO/FmtPathView.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
+#include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <fmt/format.h>
 
 namespace Fsl
 {
-  AtlasTextureInfo TextureAtlasHelper::GetAtlasTextureInfo(const ITextureAtlas& textureAtlas, const UTF8String& name)
+  AtlasTextureInfo TextureAtlasHelper::GetAtlasTextureInfo(const ITextureAtlas& textureAtlas, const IO::PathView& name)
   {
-    for (int32_t i = 0; i < textureAtlas.Count(); ++i)
+    for (uint32_t i = 0; i < textureAtlas.Count(); ++i)
     {
-      NamedAtlasTexture entry = textureAtlas.GetEntry(i);
+      const auto& entry = textureAtlas.GetEntry(i);
       if (entry.Name == name)
       {
         return entry.TextureInfo;
       }
     }
-    throw NotFoundException(fmt::format("Unknown texture: '{}'", name.ToUTF8String()));
+    throw NotFoundException(fmt::format("Unknown texture: '{}'", name));
   }
 }

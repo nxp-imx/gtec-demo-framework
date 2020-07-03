@@ -28,12 +28,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************************************************************************************/
+#include "S09_VIV_direct_texture.hpp"
+#include <FslBase/NumericCast.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include "S09_VIV_direct_texture.hpp"
 #include <EGL/egl.h>
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
+#include <array>
 #include <cmath>
 #include <string.h>
 #include <vector>
@@ -57,12 +59,13 @@ namespace Fsl
     // Triangle Vertex positions.
     const GLfloat g_vertices[][2] = {{-0.5f, -0.5f}, {0.5f, -0.5f}, {-0.5f, 0.5f}, {0.5f, 0.5f}};
     const GLfloat g_texcoords[][2] = {{0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
+
+    // Start with an identity matrix.
+    std::array<GLfloat, 16> g_transformMatrix = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+    const std::array<const char*, 3> g_shaderAttributeArray = {"my_Vertex", "my_Texcoor", nullptr};
+
   }
-
-  // Start with an identity matrix.
-  GLfloat g_transformMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-
-  const char* const g_pszShaderAttributeArray[] = {"my_Vertex", "my_Texcoor", nullptr};
 
 
   S09_VIV_direct_texture::S09_VIV_direct_texture(const DemoAppConfig& config)
@@ -81,7 +84,7 @@ namespace Fsl
     , m_dataIndex(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
 
     const GLuint programHandle = m_program.Get();
     GL_CHECK(glUseProgram(programHandle));
@@ -119,7 +122,7 @@ namespace Fsl
     GL_CHECK(m_locTransformMat = glGetUniformLocation(programHandle, "my_TransformMatrix"));
     GL_CHECK(locSampler = glGetUniformLocation(programHandle, "my_Sampler"));
     GetContentManager()->ReadAllBytes(m_rawVideo, "f430_160x120xNV21.yuv");
-    m_fileSize = m_rawVideo.size();
+    m_fileSize = NumericCast<int>(m_rawVideo.size());
 
     gTexObj = Load420Texture(160, 120, GL_VIV_NV21);
 
@@ -133,7 +136,7 @@ namespace Fsl
     // set data in the arrays.
     GL_CHECK(glVertexAttribPointer(locVertices, 2, GL_FLOAT, GL_FALSE, 0, &g_vertices[0][0]));
     GL_CHECK(glVertexAttribPointer(locTexcoord, 2, GL_FLOAT, GL_FALSE, 0, &g_texcoords[0][0]));
-    GL_CHECK(glUniformMatrix4fv(m_locTransformMat, 1, GL_FALSE, g_transformMatrix));
+    GL_CHECK(glUniformMatrix4fv(m_locTransformMat, 1, GL_FALSE, g_transformMatrix.data()));
     GL_CHECK(glUniform1i(locSampler, 0));
   }
 
@@ -161,8 +164,8 @@ namespace Fsl
 
   void S09_VIV_direct_texture::Draw(const DemoTime& demoTime)
   {
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Clear background.
     glClearColor(0.0f, 0.5f, 0.5f, 1.0f);

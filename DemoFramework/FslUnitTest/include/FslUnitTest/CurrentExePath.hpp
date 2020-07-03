@@ -51,7 +51,7 @@ namespace Fsl
     class ScopedExePath
     {
     public:
-      ScopedExePath(const char* psz)
+      explicit ScopedExePath(const char* psz)
       {
         CurrentExePath::SetCurrentExePath(psz);
       }

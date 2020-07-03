@@ -39,7 +39,7 @@
 
 namespace Fsl
 {
-  RawBitmap::RawBitmap(const void* const pContent, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  RawBitmap::RawBitmap(const void* const pContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
     : m_pContent(pContent)
     , m_extent(extent)
     , m_stride(PixelFormatUtil::CalcMinimumStride(extent.Width, pixelFormat))
@@ -53,7 +53,7 @@ namespace Fsl
   }
 
 
-  RawBitmap::RawBitmap(const void* const pContent, const Extent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
+  RawBitmap::RawBitmap(const void* const pContent, const PxExtent2D& extent, const PixelFormat pixelFormat, const uint32_t stride,
                        const BitmapOrigin origin)
     : m_pContent(pContent)
     , m_extent(extent)

@@ -3,9 +3,7 @@ precision highp float;
 
 layout(location = 0) in mediump vec3 v_normal;
 layout(location = 1) in mediump vec2 v_texcoord;
-layout(location = 2) in mediump float v_instanceId;
-layout(location = 3) in mediump float v_dist;
-layout(location = 4) in mediump float v_shadow;
+layout(location = 2) in mediump float v_layerDepth;
 
 layout(std140, binding = 0) uniform UBO
 {
@@ -32,13 +30,17 @@ void main()
 {
   vec4 furColor = texture(Texture0, v_texcoord);
   vec4 furData = texture(Texture1, v_texcoord);
+  // based on layer depth, choose the amount of shading.
+  // we lerp between two values to avoid having the base of the fur pure black.
 
-  furColor *= v_shadow;
-
-  float furVisibility = (v_instanceId > furData.r) ? 0.0 : furData.a * v_dist;
-  furColor.a = (v_instanceId == 0.0) ? 1.0 : furVisibility;
-
-  float lightAmount = max(dot(v_normal, -g_ubo.LightDirection1.xyz), 0.0);
+  float dist = mix(1.0, 0.2, v_layerDepth);
+  float shadow = mix(0.4, 1.0, v_layerDepth);
+  furColor *= shadow;
+  float furVisibility = (v_layerDepth > furData.r) ? 0.0 : furData.a * dist;
+  furColor.a = (v_layerDepth == 0.0) ? 1.0 : furVisibility;
+  vec3 N = normalize(v_normal);
+  vec3 L = normalize(-g_ubo.LightDirection1.xyz);
+  float lightAmount = max(dot(N, L), 0.0);
   vec3 lighting = g_ubo.AmbientColor.xyz + lightAmount * g_ubo.LightColor1.xyz;
   furColor.xyz *= lighting;
   o_fragColor = furColor;

@@ -35,6 +35,7 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "S06_Texturing.hpp"
 #include <GLES3/gl3.h>
+#include <array>
 #include <iostream>
 #include <vector>
 
@@ -48,66 +49,65 @@ namespace Fsl
     const GLuint g_hVertexLoc = 0;
     const GLuint g_hColorLoc = 1;
     const GLuint g_hVertexTexLoc = 2;
+    const std::array<const char*, 4> g_shaderAttributeArray = {"g_vPosition", "g_vColor", "g_vTexCoord", nullptr};
 
-    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", "g_vTexCoord", nullptr};
 
-
-    const float g_vertexPositions[] = {
+    const std::array<float, 24 * 3> g_vertexPositions = {
       // Draw A Quad
 
       // Top Right Of The Quad (Top)
       1.0f, 1.0f, -1.0f,
-      //  Top Left Of The Quad (Top)
+      // Top Left Of The Quad (Top)
       -1.0f, 1.0f, -1.0f,
-      //  Bottom Right Of The Quad (Top)
+      // Bottom Right Of The Quad (Top)
       1.0f, 1.0f, 1.0f,
-      //  Bottom Left Of The Quad (Top)
+      // Bottom Left Of The Quad (Top)
       -1.0f, 1.0f, 1.0f,
-      //  Top Right Of The Quad (Bottom)
+      // Top Right Of The Quad (Bottom)
       1.0f, -1.0f, 1.0f,
-      //  Top Left Of The Quad (Bottom)
+      // Top Left Of The Quad (Bottom)
       -1.0f, -1.0f, 1.0f,
-      //  Bottom Right Of The Quad (Bottom)
+      // Bottom Right Of The Quad (Bottom)
       1.0f, -1.0f, -1.0f,
-      //  Bottom Left Of The Quad (Bottom)
+      // Bottom Left Of The Quad (Bottom)
       -1.0f, -1.0f, -1.0f,
-      //  Top Right Of The Quad (Front)
+      // Top Right Of The Quad (Front)
       1.0f, 1.0f, 1.0f,
-      //  Top Left Of The Quad (Front)
+      // Top Left Of The Quad (Front)
       -1.0f, 1.0f, 1.0f,
-      //  Bottom Right Of The Quad (Front)
+      // Bottom Right Of The Quad (Front)
       1.0f, -1.0f, 1.0f,
-      //  Bottom Left Of The Quad (Front)
+      // Bottom Left Of The Quad (Front)
       -1.0f, -1.0f, 1.0f,
 
-      //  Top Right Of The Quad (Back)
+      // Top Right Of The Quad (Back)
       1.0f, -1.0f, -1.0f,
-      //  Top Left Of The Quad (Back)
+      // Top Left Of The Quad (Back)
       -1.0f, -1.0f, -1.0f,
-      //  Bottom Right Of The Quad (Back)
+      // Bottom Right Of The Quad (Back)
       1.0f, 1.0f, -1.0f,
-      //  Bottom Left Of The Quad (Back)
+      // Bottom Left Of The Quad (Back)
       -1.0f, 1.0f, -1.0f,
 
-      //  Top Right Of The Quad (Left)
+      // Top Right Of The Quad (Left)
       -1.0f, 1.0f, 1.0f,
-      //  Top Left Of The Quad (Left)
+      // Top Left Of The Quad (Left)
       -1.0f, 1.0f, -1.0f,
-      //  Bottom Right Of The Quad (Left)
+      // Bottom Right Of The Quad (Left)
       -1.0f, -1.0f, 1.0f,
-      //  Bottom Left Of The Quad (Left)
+      // Bottom Left Of The Quad (Left)
       -1.0f, -1.0f, -1.0f,
-      //  Top Right Of The Quad (Right)
+      // Top Right Of The Quad (Right)
       1.0f, 1.0f, -1.0f,
-      //  Top Left Of The Quad (Right)
+      // Top Left Of The Quad (Right)
       1.0f, 1.0f, 1.0f,
-      //  Bottom Right Of The Quad (Right)
+      // Bottom Right Of The Quad (Right)
       1.0f, -1.0f, -1.0f,
-      //  Bottom Left Of The Quad (Right)
+      // Bottom Left Of The Quad (Right)
       1.0f, -1.0f, 1.0f};
 
-    const float g_vertexTexCoords[] = {
-      //  Top Face
+    const std::array<float, 24 * 2> g_vertexTexCoords = {
+      // Top Face
       0.0f,
       0.0f,
       1.0f,
@@ -116,7 +116,7 @@ namespace Fsl
       1.0f,
       1.0f,
       1.0f,
-      //  Bottom Face
+      // Bottom Face
       1.0f,
       1.0f,
       0.0f,
@@ -126,7 +126,7 @@ namespace Fsl
       0.0f,
       0.0f,
 
-      //  Front Face
+      // Front Face
 
       1.0f,
       1.0f,
@@ -136,7 +136,7 @@ namespace Fsl
       0.0f,
       0.0f,
       0.0f,
-      //  Back Face
+      // Back Face
       0.0f,
       0.0f,
       1.0f,
@@ -155,7 +155,7 @@ namespace Fsl
       0.0f,
       0.0f,
 
-      //  Right face
+      // Right face
       1.0f,
       1.0f,
       0.0f,
@@ -167,60 +167,60 @@ namespace Fsl
 
     };
 
-    const float g_vertexColors[] = {
-      //  Red
+    const std::array<float, 24 * 4> g_vertexColors = {
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      //  Red
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
 
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
 
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
 
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
 
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
 
-      //  Red
+      // Red
       1.0f, 0.0, 0.0f, 1.0f,
-      //  Red
+      // Red
       1.0f, 0.0, 0.0f, 1.0f,
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      //  Red
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      //  Red
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      //  Red
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      //  Red
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      //  Blue
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
 
-      //  Green
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f};
   }
 
@@ -231,7 +231,7 @@ namespace Fsl
     , m_hProjMatrixLoc(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
 
     {    // Load the texture (we use a scope here, so the bitmap objects is thrown away as soon as we dont need it)
       Bitmap bitmap;
@@ -246,8 +246,7 @@ namespace Fsl
     m_hModelViewMatrixLoc = glGetUniformLocation(hProgram, "g_matModelView");
     m_hProjMatrixLoc = glGetUniformLocation(hProgram, "g_matProj");
 
-    const Point2 currentSize = GetScreenResolution();
-    const float aspectRatio = currentSize.X / float(currentSize.Y);
+    const float aspectRatio = GetWindowAspectRatio();
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, -6.0f);
   }
@@ -272,8 +271,8 @@ namespace Fsl
     const Matrix matModel =
       Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Clear the color-buffer and depth-buffer
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
@@ -294,13 +293,13 @@ namespace Fsl
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matProj.DirectAccess());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions);
+    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
     glEnableVertexAttribArray(g_hVertexLoc);
 
-    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors);
+    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors.data());
     glEnableVertexAttribArray(g_hColorLoc);
 
-    glVertexAttribPointer(g_hVertexTexLoc, 2, GL_FLOAT, 0, 0, g_vertexTexCoords);
+    glVertexAttribPointer(g_hVertexTexLoc, 2, GL_FLOAT, 0, 0, g_vertexTexCoords.data());
     glEnableVertexAttribArray(g_hVertexTexLoc);
 
     // Select Our Texture

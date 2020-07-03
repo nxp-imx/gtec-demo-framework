@@ -40,7 +40,7 @@ namespace Fsl
       uint32_t VertexSize(const std::vector<VertexLayout>& vertexLayout)
       {
         uint32_t vSize = 0;
-        for (auto& layoutDetail : vertexLayout)
+        for (const auto& layoutDetail : vertexLayout)
         {
           switch (layoutDetail)
           {

@@ -49,7 +49,7 @@ namespace Fsl
 
       FileAttributes() = default;
 
-      FileAttributes(const Enum flag)
+      explicit FileAttributes(const Enum flag)
         : Flags(static_cast<uint32_t>(flag))
       {
       }

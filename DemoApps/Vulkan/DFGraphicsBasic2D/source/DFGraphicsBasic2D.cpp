@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "DFGraphicsBasic2D.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -46,24 +47,20 @@ namespace Fsl
 
   void DFGraphicsBasic2D::Update(const DemoTime& demoTime)
   {
-    m_shared.Update(demoTime, GetScreenResolution());
+    m_shared.Update(demoTime, GetWindowSizePx());
   }
 
 
-  void DFGraphicsBasic2D::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void DFGraphicsBasic2D::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
+                                     const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
-      VkClearColorValue clearColorValue{};
-      clearColorValue.float32[0] = 0.0f;
-      clearColorValue.float32[1] = 0.0f;
-      clearColorValue.float32[2] = 0.0f;
-      clearColorValue.float32[3] = 1.0f;
-
-      VkClearValue clearValues[1] = {clearColorValue};
+      std::array<VkClearValue, 1> clearValues{};
+      clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -72,8 +69,8 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
@@ -88,7 +85,7 @@ namespace Fsl
   }
 
 
-  VkRenderPass DFGraphicsBasic2D::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
+  VkRenderPass DFGraphicsBasic2D::OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/)
   {
     // Since we only draw using the NativeBatch we just create the most basic render pass that is compatible
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();

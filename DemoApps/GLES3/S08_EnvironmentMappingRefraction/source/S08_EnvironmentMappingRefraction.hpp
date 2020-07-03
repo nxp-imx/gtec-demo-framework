@@ -58,7 +58,7 @@ namespace Fsl
     Matrix m_transformMatrix;
 
   public:
-    S08_EnvironmentMappingRefraction(const DemoAppConfig& config);
+    explicit S08_EnvironmentMappingRefraction(const DemoAppConfig& config);
     ~S08_EnvironmentMappingRefraction() override;
 
   protected:

@@ -158,7 +158,7 @@ namespace Fsl
       LocalMouseButtons m_mouseButtons;
       bool m_commandBuffersDirty = false;
 
-      VulkanWillemsDemoApp(const DemoAppConfig& demoAppConfig, const MeshLoaderAllocFunc& meshLoaderAllocFunc = nullptr);
+      explicit VulkanWillemsDemoApp(const DemoAppConfig& demoAppConfig, MeshLoaderAllocFunc meshLoaderAllocFunc = nullptr);
       ~VulkanWillemsDemoApp() override;
 
       virtual void Prepare();

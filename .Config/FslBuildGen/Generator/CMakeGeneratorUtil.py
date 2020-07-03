@@ -36,6 +36,7 @@ from typing import List
 from typing import Optional
 from typing import Set
 from typing import Union
+from enum import Enum
 from FslBuildGen import IOUtil
 from FslBuildGen import ToolSharedValues
 from FslBuildGen import Util
@@ -44,6 +45,7 @@ from FslBuildGen.Config import Config
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.DataTypes import SpecialFiles
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.LibUtil import LibUtil
 from FslBuildGen.Log import Log
@@ -55,7 +57,7 @@ from FslBuildGen.Packages.PackageProjectContext import PackageProjectContext
 from FslBuildGen.ToolConfigProjectContext import ToolConfigProjectContext
 from FslBuildGen.ToolConfig import ToolConfig
 
-class CMakePathType(object):
+class CMakePathType(Enum):
     LocalRelative = 0
     # relative to a specific root
     Relative = 1
@@ -95,6 +97,7 @@ class CodeTemplateCMake(object):
         self.PackageTargetIncludeDirEntry = self.__ReadFile("Package_TargetIncludeDirEntry.txt")
         self.PackageTargetIncludeDirVirtualEntry = self.__ReadFile("Package_TargetIncludeDirEntry_Virtual.txt")
         self.PackageTargetSourceFiles = self.__ReadOptionalFile("Package_TargetSourceFiles.txt", "")
+        self.PackageTargetSpecialFileNatvis = self.__ReadOptionalFile("Package_TargetSpecialFile_Natvis.txt", "")
         self.PackageDependencyAddSubdirectories = self.__ReadFile("PackageDependency_add_subdirectories.txt")
         self.PackageDependencyTargetLinkLibraries = self.__ReadFile("PackageDependency_target_link_libraries.txt")
         self.PackageDependencyTargetCompileDefinitions = self.__ReadFile("PackageDependency_target_compile_definitions.txt")
@@ -251,9 +254,9 @@ def GetFullyQualifiedPackageName(package: Package) -> str:
 
 
 def BuildFindDirectExternalDependencies(config: Config, package: Package, templatePackageDependencyFindPackage: str) -> str:
-    externalDeps = []
+    externalDeps = []  # type: List[PackageExternalDependency]
     for externalDep in package.ResolvedDirectExternalDependencies:
-        if externalDep.Type == ExternalDependencyType.Find:
+        if externalDep.Type == ExternalDependencyType.CMakeFindLegacy or externalDep.Type == ExternalDependencyType.CMakeFindModern:
             externalDeps.append(externalDep)
 
     if len(externalDeps) <= 0:
@@ -262,19 +265,20 @@ def BuildFindDirectExternalDependencies(config: Config, package: Package, templa
     snippet = templatePackageDependencyFindPackage
     content = ""
     for externalDep in externalDeps:
-        findParams = "{0} REQUIRED".format(externalDep.Name)
+        strVersion = " {0}".format(externalDep.Version) if externalDep.Version is not None else ""
+        findParams = "{0}{1} REQUIRED".format(externalDep.Name, strVersion)
         contentEntry = snippet
         contentEntry = contentEntry.replace("##FIND_PARAMS##", findParams)
         content += contentEntry
     return content
 
 
-def GetPackageVersion(package: Package) -> str:
+def GetVersion(package: Package) -> str:
     return package.ProjectContext.ProjectVersion
 
 
 def _FindPackageDirectDependencyPackage(package: Package, templatePackageDependencyFindPackage: str) -> str:
-    findParams = "{0} {1}".format(GetFullyQualifiedPackageName(package), GetPackageVersion(package))
+    findParams = "{0} {1}".format(GetFullyQualifiedPackageName(package), GetVersion(package))
     return templatePackageDependencyFindPackage.replace("##FIND_PARAMS##", findParams)
 
 
@@ -301,9 +305,11 @@ def __BuildTargetLinkLibrariesForDirectExternalDependencies(log: Log, package: P
                     deps += "\n  {0} debug {1}".format(GetAccessTypeString(package, entry.Access, False), fullPathLinkDir)
                 else:
                     deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry.Access, False), fullPathLinkDir)
-            if entry.Type == ExternalDependencyType.Find:
-                linkName = "${%s_LIBRARY}" % (libraryName)
+            if entry.Type == ExternalDependencyType.CMakeFindLegacy:
+                linkName = "${{{0}_LIBRARY}}".format(libraryName)
                 deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry.Access, False), linkName)
+            elif entry.Type == ExternalDependencyType.CMakeFindModern:
+                deps += "\n  {0} {1}".format(GetAccessTypeString(package, entry.Access, False), entry.TargetName)
         else:
             log.LogPrintVerbose(2, "INFO: Force ignored '{0}'".format(libraryName))
     return deps
@@ -359,7 +365,7 @@ def __GenerateDirEntryString(access: str, incPath: str, templatePackageTargetInc
     return content
 
 
-def __GetPackageIncludePath(config: Config, package: Package, absPathInsidePackage: str, pathType: int) -> str:
+def __GetPackageIncludePath(config: Config, package: Package, absPathInsidePackage: str, pathType: CMakePathType) -> str:
     if pathType == CMakePathType.LocalRelative:
         if package.AbsolutePath is None:
             raise Exception("Invalid package")
@@ -375,10 +381,10 @@ def __GetPackageIncludePath(config: Config, package: Package, absPathInsidePacka
 def __TryTargetIncludeDirectoriesGetExternalDependencyString(config: Config, package: Package,
                                                              directExternalDeps: Union[PackageExternalDependency, PackagePlatformExternalDependency],
                                                              templatePackageTargetIncludeDirEntry: str,
-                                                             templatePackageTargetIncludeDirVirtualEntry: str, pathType: int) -> Optional[str]:
+                                                             templatePackageTargetIncludeDirVirtualEntry: str, pathType: CMakePathType) -> Optional[str]:
     add = None # type: Optional[str]
     relativeCurrentIncDir = None # type: Optional[str]
-    if directExternalDeps.Type != ExternalDependencyType.Find:
+    if directExternalDeps.Type != ExternalDependencyType.CMakeFindLegacy:
         currentIncDir = directExternalDeps.Include
         if currentIncDir is not None:
             if package.AbsolutePath is None:
@@ -408,7 +414,7 @@ def BuildTargetIncludeDirectories(config: Config, package: Package,
                                   templatePackageTargetIncludeDirectories: str,
                                   templatePackageTargetIncludeDirEntry: str,
                                   templatePackageTargetIncludeDirVirtualEntry: str,
-                                  pathType: int = CMakePathType.Relative) -> str:
+                                  pathType: CMakePathType = CMakePathType.Relative) -> str:
     isExternalLibrary = package.Type == PackageType.ExternalLibrary
     publicIncludeDir = ""
     if package.AbsoluteIncludePath is not None:
@@ -831,4 +837,16 @@ def GetVariantSettings(log: Log, package: Package, snippetPackageVariantSettings
 #add_custom_command(TARGET unitTests POST_BUILD
 #COMMAND ${CMAKE_COMMAND} ARGS -E copy "$<$<CONFIG:debug>:${DEBUG_EXE_PATH}>$<$<CONFIG:release>:${RELEASE_EXE_PATH}>" "$<$<CONFIG:debug>:${DEBUG_NEW_EXE}>$<$<CONFIG:release>:${RELEASE_NEW_EXE}>")
 
+def __ContainsNatvis(package: Package) -> bool:
+    for entry in package.ResolvedSpecialFiles:
+        if entry.SourcePath == SpecialFiles.Natvis:
+            return True
+    return False
+
+def GetTargetSpecialFiles(log: Log, package: Package, snippetPackageTargetSpecialFileNatvis: str) -> str:
+    if len(snippetPackageTargetSpecialFileNatvis) <= 0 or not __ContainsNatvis(package):
+        return ""
+    content = snippetPackageTargetSpecialFileNatvis
+    content = content.replace("##FILENAME##", SpecialFiles.Natvis)
+    return content
 

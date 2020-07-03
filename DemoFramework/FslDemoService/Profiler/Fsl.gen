@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <HeaderLibrary Name="FslDemoService.Profiler" CreationYear="2020">
+    <Dependency Name="FslGraphics"/>
+    <Platform Name="Windows" ProjectId="8C16B70B-8C2F-4683-95C1-482C8AD91F79"/>
+  </HeaderLibrary>
+</FslBuildGen>

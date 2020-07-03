@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/IO/Path.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <FslGraphics/Font/IFontBasicKerning.hpp>
 #include <vector>
@@ -39,33 +40,81 @@ namespace Fsl
 {
   class UTF8String;
 
-  class BasicFontKerning : public IFontBasicKerning
+  class BasicFontKerning final : public IFontBasicKerning
   {
     UTF8String m_name;
-    UTF8String m_pathName;
+    IO::Path m_pathName;
     FontDesc m_fontDesc;
     FontGlyphRange m_range;
     std::vector<FontGlyphBasicKerning> m_entries;
 
   public:
-    UTF8String GetName() const override;
-    UTF8String GetPathName() const override;
-    FontDesc GetDesc() const override;
-    int32_t RangeCount() const override;
-    FontGlyphRange GetRange(const int32_t index) const override;
-    int32_t Count() const override;
-    FontGlyphBasicKerning Get(const int32_t index) const override;
+    BasicFontKerning(const BasicFontKerning&) = delete;
+    BasicFontKerning& operator=(const BasicFontKerning&) = delete;
+
+    BasicFontKerning& operator=(BasicFontKerning&& other) noexcept
+    {
+      if (this != &other)
+      {
+        // Free existing resources then transfer the content of other to this one and fill other with default values
+        Clear();
+
+        // Claim ownership here
+        m_name = std::move(other.m_name);
+        m_pathName = std::move(other.m_pathName);
+        m_fontDesc = other.m_fontDesc;
+        m_range = other.m_range;
+        m_entries = std::move(other.m_entries);
+
+        // Remove the data from other
+        other.m_fontDesc = {};
+        other.m_range = {};
+      }
+      return *this;
+    }
+
+    BasicFontKerning(BasicFontKerning&& other) noexcept
+      : m_name(std::move(other.m_name))
+      , m_pathName(std::move(other.m_pathName))
+      , m_fontDesc(other.m_fontDesc)
+      , m_range(other.m_range)
+      , m_entries(std::move(other.m_entries))
+    {
+      other.m_fontDesc = {};
+      other.m_range = {};
+    }
+
+    BasicFontKerning() = default;
+
+    const UTF8String& GetName() const final;
+    const IO::Path& GetPathName() const final;
+    FontDesc GetDesc() const final;
+    int32_t RangeCount() const final;
+    FontGlyphRange GetRange(const int32_t index) const final;
+    int32_t Count() const final;
+    FontGlyphBasicKerning Get(const int32_t index) const final;
 
     void SetRangeCapacity(const int32_t capacity);
     void SetGlyphKerningCapacity(const int32_t capacity);
 
     void SetName(const UTF8String& name);
-    void SetPathName(const UTF8String& name);
+    void SetPathName(const IO::PathView& name);
+    void SetPathName(IO::Path name);
     void SetDesc(const FontDesc& desc);
     void SetRange(const int32_t index, const FontGlyphRange& range);
     void SetGlyphKerning(const int32_t index, const FontGlyphBasicKerning& kerning);
 
     bool IsValid() const;
+
+  private:
+    void Clear() noexcept
+    {
+      m_name.Clear();
+      m_pathName.Clear();
+      m_fontDesc = {};
+      m_range = {};
+      m_entries.clear();
+    }
   };
 }
 

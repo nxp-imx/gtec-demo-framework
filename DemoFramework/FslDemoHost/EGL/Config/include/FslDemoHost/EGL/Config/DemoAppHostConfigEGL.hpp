@@ -56,7 +56,7 @@ namespace Fsl
     std::deque<ExtensionRequestRecord> m_extensionRequests;
 
   public:
-    DemoAppHostConfigEGL(const EGLint* pEglConfigAttribs, const ConfigControl configControl = ConfigControl::Default);
+    explicit DemoAppHostConfigEGL(const EGLint* pEglConfigAttribs, const ConfigControl configControl = ConfigControl::Default);
     DemoAppHostConfigEGL(const EGLint* pEglConfigAttribs, const EGLint* pEglCreateWindowAttribs,
                          const ConfigControl configControl = ConfigControl::Default);
 

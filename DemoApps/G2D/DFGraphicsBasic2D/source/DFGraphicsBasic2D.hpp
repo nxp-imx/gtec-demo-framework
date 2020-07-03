@@ -38,7 +38,7 @@ namespace Fsl
   class DFGraphicsBasic2D : public DemoAppG2D
   {
   public:
-    DFGraphicsBasic2D(const DemoAppConfig& config);
+    explicit DFGraphicsBasic2D(const DemoAppConfig& config);
     ~DFGraphicsBasic2D() override;
 
   protected:

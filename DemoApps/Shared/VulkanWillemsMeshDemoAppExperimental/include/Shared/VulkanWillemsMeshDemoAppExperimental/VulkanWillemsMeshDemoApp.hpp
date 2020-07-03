@@ -25,7 +25,7 @@ namespace Fsl
     class VulkanWillemsMeshDemoApp : public VulkanWillemsDemoApp
     {
     public:
-      VulkanWillemsMeshDemoApp(const DemoAppConfig& demoAppConfig);
+      explicit VulkanWillemsMeshDemoApp(const DemoAppConfig& demoAppConfig);
     };
   }
 }

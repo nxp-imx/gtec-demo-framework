@@ -40,7 +40,7 @@ namespace Fsl
   {
     class CameraAdapterMipi8X : public ICameraAdapter
     {
-      Extent2D m_extent;
+      PxExtent2D m_extent;
       PixelFormat m_pixelFormat;
       int m_cam_num;
       uint32_t m_frameId;

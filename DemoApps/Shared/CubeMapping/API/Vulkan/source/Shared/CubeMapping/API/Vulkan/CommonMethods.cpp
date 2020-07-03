@@ -103,7 +103,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 

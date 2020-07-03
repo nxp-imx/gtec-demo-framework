@@ -38,7 +38,7 @@
 
 namespace Fsl
 {
-  class ProfilerServiceFactory : public IThreadLocalSingletonServiceFactory
+  class ProfilerServiceFactory final : public IThreadLocalSingletonServiceFactory
   {
     ServiceCaps::Flags m_flags{ServiceCaps::Default};
     std::shared_ptr<ProfilerServiceOptionParser> m_optionParser;
@@ -50,26 +50,26 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
+    std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
       return m_optionParser;
     }
 
 
-    ServiceCaps::Flags GetFlags() const override
+    ServiceCaps::Flags GetFlags() const final
     {
       return m_flags;
     }
 
 
-    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
+    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const final
     {
       rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IProfilerService)));
       rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IProfilerServiceControl)));
     }
 
 
-    std::shared_ptr<IService> Allocate(ServiceProvider& provider) override
+    std::shared_ptr<IService> Allocate(ServiceProvider& provider) final
     {
       return std::make_shared<ProfilerService>(provider, m_optionParser);
     }

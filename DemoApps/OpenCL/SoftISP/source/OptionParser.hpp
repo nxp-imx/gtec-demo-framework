@@ -38,6 +38,7 @@ namespace Fsl
   class OptionParser : public ADemoOptionParser
   {
     bool m_denoiseStatus;
+    uint32_t m_cycleNum;
 
   public:
     OptionParser();
@@ -48,9 +49,14 @@ namespace Fsl
       return m_denoiseStatus;
     }
 
+    int32_t GetCycleNumStatus() const
+    {
+      return m_cycleNum;
+    }
+
   protected:
     virtual void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    virtual OptionParseResult OnParse(const int32_t cmdId, const char* const pszOptArg) override;
+    virtual OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
     virtual bool OnParsingComplete() override;
   };
 }

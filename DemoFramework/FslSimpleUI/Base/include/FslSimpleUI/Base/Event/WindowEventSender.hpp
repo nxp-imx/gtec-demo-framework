@@ -54,8 +54,8 @@ namespace Fsl
 
       const std::shared_ptr<WindowEventPool> EventPool;
 
-      WindowEventSender(const std::shared_ptr<WindowEventQueue>& windowEventQueue, const std::shared_ptr<WindowEventPool>& eventPool,
-                        const std::shared_ptr<ITreeNodeLocator>& treeNodeLocator);
+      WindowEventSender(std::shared_ptr<WindowEventQueue> windowEventQueue, std::shared_ptr<WindowEventPool> eventPool,
+                        std::shared_ptr<ITreeNodeLocator> treeNodeLocator);
       ~WindowEventSender();
 
       //! @brief Send a event from the supplied source

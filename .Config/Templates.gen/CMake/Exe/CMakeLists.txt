@@ -16,6 +16,7 @@
 # Options #
 ###########
 
+option(CODE_COVERAGE "Enable code coverage (only works with GCC)" OFF)
 ##SNIPPET_OPTIONS_EXE##
 
 #########
@@ -89,6 +90,7 @@ endif()
 # Sets the visual studio working directory to point to the in source package directory
 # This is not needed anymore.
 #set_property(TARGET ##PACKAGE_NAME## PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+##PACKAGE_TARGET_SPECIAL_FILES##
 
 if(INSTALL_EXE)
 ##PACKAGE_GENERATE_INSTALL_INSTRUCTIONS##

@@ -45,7 +45,7 @@ namespace Fsl
 
     //! @param pTextureBlobs in the content. The pointer to the raw texture blobs. See RawTextureBlobHelper::GetBlockIndex for how its accessed.
     RawTextureEx(const TextureType textureType, void* const pContent, const std::size_t contentByteSize, const BlobRecord* const pTextureBlobs,
-                 const std::size_t textureBlobCount, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
+                 const std::size_t textureBlobCount, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                  const BitmapOrigin& bitmapOrigin)
       : RawTexture(textureType, pContent, contentByteSize, pTextureBlobs, textureBlobCount, extent, pixelFormat, textureInfo, bitmapOrigin)
       , m_pContent(pContent)

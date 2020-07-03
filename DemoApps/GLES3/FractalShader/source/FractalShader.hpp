@@ -41,7 +41,7 @@ namespace Fsl
     std::shared_ptr<IScene> m_scene;
 
   public:
-    FractalShader(const DemoAppConfig& config);
+    explicit FractalShader(const DemoAppConfig& config);
     ~FractalShader() override;
 
   protected:

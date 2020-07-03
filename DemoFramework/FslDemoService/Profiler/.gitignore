@@ -1,0 +1,14 @@
+/.StartProject.bat
+/.vs/
+/FslDemoService.Profiler.VC.VC.opendb
+/FslDemoService.Profiler.VC.db
+/FslDemoService.Profiler.manifest
+/FslDemoService.Profiler.opensdf
+/FslDemoService.Profiler.sdf
+/FslDemoService.Profiler.sln
+/FslDemoService.Profiler.v12.sdf
+/FslDemoService.Profiler.v12.suo
+/FslDemoService.Profiler.vcxproj
+/FslDemoService.Profiler.vcxproj.filters
+/FslDemoService.Profiler.vcxproj.user
+/build/

@@ -33,7 +33,9 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <string>
+#include <utility>
 
 namespace Fsl
 {
@@ -42,35 +44,122 @@ namespace Fsl
     std::string m_content;
 
   public:
-    // move assignment operator
-    UTF8String& operator=(UTF8String&& other) noexcept;
-    // move constructor
-    UTF8String(UTF8String&& other) noexcept;
+    UTF8String() noexcept = default;
+
     // Request that the compiler generates a copy constructor and assignment operator
     UTF8String(const UTF8String&) = default;
     UTF8String& operator=(const UTF8String&) = default;
 
-    UTF8String();
+    // move assignment operator
+    UTF8String& operator=(UTF8String&& other) noexcept
+    {
+      if (this != &other)
+      {
+        m_content = std::move(other.m_content);
+      }
+      return *this;
+    }
+
+    // move constructor
+    UTF8String(UTF8String&& other) noexcept
+      : m_content(std::move(other.m_content))
+    {
+    }
+
+
     explicit UTF8String(std::string str);
-    UTF8String(const char* const psz);
+
+    UTF8String(const char* const psz);        // NOLINT(google-explicit-constructor)
+    UTF8String(const StringViewLite& str);    // NOLINT(google-explicit-constructor)
     UTF8String(const std::string& str, const std::size_t startIndex, const std::size_t length);
     UTF8String(const UTF8String& str, const std::size_t startIndex, const std::size_t length);
-    ~UTF8String();
+    ~UTF8String() noexcept = default;
 
     void Clear();
 
-    bool IsEmpty() const;
+    // @brief append count copies of char 'ch' to the end of the string
+    void Append(const std::size_t count, const char ch);
 
-    int32_t GetByteSize() const;
+    //! @brief append the string at the end of the string
+    void Append(const char* const psz);
+
+    //! @brief append the string at the end of the string
+    void Append(const StringViewLite& str);
+
+    //! @brief append the string at the end of the string
+    void Append(const UTF8String& str)
+    {
+      m_content.append(str.m_content.data(), str.m_content.size());
+    }
+
+    // @brief Insert count copies of char 'ch' at the beginning at the current string
+    void Prepend(const std::size_t count, const char ch);
+
+    // @brief Insert the string at the beginning at the current string
+    void Prepend(const char* const psz);
+
+    // @brief Insert the string at the beginning at the current string
+    void Prepend(const StringViewLite& str);
+
+    // @brief Insert the string at the beginning at the current string
+    void Prepend(const UTF8String& str)
+    {
+      m_content.insert(0u, str.m_content.data(), str.m_content.size());
+    }
+
+    //! @brief Check if the string is empty
+    bool IsEmpty() const
+    {
+      return m_content.empty();
+    }
+
+    int32_t GetByteSize() const
+    {
+      return static_cast<int32_t>(m_content.size());
+    }
+
     bool Contains(const char ch) const;
+    // bool Contains(const StringViewLite& str) const;
     bool Contains(const UTF8String& str) const;
+
     bool StartsWith(const char ch) const;
+
+    bool StartsWith(const char* const psz) const
+    {
+      return AsStringViewLite().starts_with(psz);
+    }
+
+    bool StartsWith(const StringViewLite& str) const
+    {
+      return AsStringViewLite().starts_with(str);
+    }
+
     bool StartsWith(const UTF8String& str) const;
+
     bool EndsWith(const char ch) const;
+
+    bool EndsWith(const char* const psz) const
+    {
+      return AsStringViewLite().ends_with(psz);
+    }
+
+    bool EndsWith(const StringViewLite& str) const
+    {
+      return AsStringViewLite().ends_with(str);
+    }
+
     bool EndsWith(const UTF8String& path) const;
+
     void Replace(const char from, const char to);
+
     int32_t IndexOf(const char ch, const std::size_t fromIndex = 0) const;
+
     int32_t LastIndexOf(const char ch) const;
+
+    const std::string& AsString() const
+    {
+      return m_content;
+    }
 
     const std::string& ToUTF8String() const
     {
@@ -79,48 +168,293 @@ namespace Fsl
 
     std::string ToAsciiString() const;
 
-    void Reset(const char* const psz, const std::size_t startIndex, const std::size_t length);
+    UTF8String& operator=(const StringViewLite& str);
 
-    bool operator==(const UTF8String& rhs) const
+    UTF8String& operator=(const char* const psz)
     {
-      return m_content == rhs.m_content;
+      *this = StringViewLite(psz);
+      return *this;
     }
 
-    bool operator!=(const UTF8String& rhs) const
+    // NOTE: there is no operator+ or += that takes a char as that can lead subtle bugs
+
+    UTF8String& operator+=(const char* const pszRhs)
     {
-      return m_content != rhs.m_content;
+      Append(StringViewLite(pszRhs));
+      return *this;
     }
 
-    bool operator<(const UTF8String& rhs) const
+    UTF8String& operator+=(const StringViewLite& rhs)
     {
-      return m_content < rhs.m_content;
+      Append(rhs);
+      return *this;
     }
 
-    bool operator>(const UTF8String& rhs) const
+    UTF8String& operator+=(const UTF8String& rhs)
     {
-      return m_content > rhs.m_content;
+      Append(rhs);
+      return *this;
     }
 
-    bool operator<=(const UTF8String& rhs) const
+    inline friend UTF8String operator+(UTF8String lhs, const char* const pszRhs)
     {
-      return m_content <= rhs.m_content;
+      lhs.Append(StringViewLite(pszRhs));
+      return lhs;
     }
 
-    bool operator>=(const UTF8String& rhs) const
+    inline friend UTF8String operator+(UTF8String lhs, const StringViewLite& rhs)
     {
-      return m_content >= rhs.m_content;
+      lhs.Append(rhs);
+      return lhs;
     }
 
-    operator StringViewLite() const noexcept
+    inline friend UTF8String operator+(UTF8String lhs, const UTF8String& rhs)
     {
-      return StringViewLite(m_content.data(), m_content.size());
+      lhs.Append(rhs);
+      return lhs;
+    }
+
+    inline friend UTF8String operator+(const char* const pszLhs, UTF8String rhs)
+    {
+      rhs.Prepend(StringViewLite(pszLhs));
+      return rhs;
+    }
+
+    inline friend UTF8String operator+(const StringViewLite& lhs, UTF8String rhs)
+    {
+      rhs.Prepend(lhs);
+      return rhs;
+    }
+
+    inline StringViewLite AsStringViewLite() const noexcept
+    {
+      // we call the special noexcept constructor here as we trust that std::string wont have a nullptr and a size > 0
+      return StringViewLite(m_content.data(), m_content.size(), OptimizationCheckFlag::NoCheck);
     }
   };
 
-  extern bool operator==(const UTF8String& lhs, const char* const pszRhs) noexcept;
-  extern bool operator!=(const UTF8String& lhs, const char* const pszRhs) noexcept;
-  extern bool operator==(const char* const pszLhs, const UTF8String& rhs) noexcept;
-  extern bool operator!=(const char* const pszLhs, const UTF8String& rhs) noexcept;
+  // Operator ==
+
+  inline bool operator==(const UTF8String& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() == rhs.AsStringViewLite();
+  }
+
+  inline bool operator==(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs.AsStringViewLite() == pszRhs;
+  }
+
+  inline bool operator==(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() == rhs;
+  }
+
+  inline bool operator==(const UTF8String& lhs, const std::string& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() == StringViewLiteUtil::AsStringViewLite(rhs);
+  }
+
+  inline bool operator==(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    return pszLhs == rhs.AsStringViewLite();
+  }
+
+  inline bool operator==(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs == rhs.AsStringViewLite();
+  }
+
+  inline bool operator==(const std::string& lhs, const UTF8String& rhs) noexcept
+  {
+    return StringViewLiteUtil::AsStringViewLite(lhs) == rhs.AsStringViewLite();
+  }
+
+  // Operator !=
+
+  inline bool operator!=(const UTF8String& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() != rhs.AsStringViewLite();
+  }
+
+
+  inline bool operator!=(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs.AsStringViewLite() != pszRhs;
+  }
+
+  inline bool operator!=(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() != rhs;
+  }
+
+  inline bool operator!=(const UTF8String& lhs, const std::string& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() != StringViewLiteUtil::AsStringViewLite(rhs);
+  }
+
+  inline bool operator!=(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    return pszLhs != rhs.AsStringViewLite();
+  }
+
+  inline bool operator!=(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs != rhs.AsStringViewLite();
+  }
+
+  inline bool operator!=(const std::string& lhs, const UTF8String& rhs) noexcept
+  {
+    return StringViewLiteUtil::AsStringViewLite(lhs) != rhs.AsStringViewLite();
+  }
+
+  // Operator <
+
+  inline bool operator<(const UTF8String& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() < rhs.AsStringViewLite();
+  }
+
+  inline bool operator<(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs.AsStringViewLite() < pszRhs;
+  }
+
+  inline bool operator<(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() < rhs;
+  }
+
+  inline bool operator<(const UTF8String& lhs, const std::string& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() < StringViewLiteUtil::AsStringViewLite(rhs);
+  }
+
+  inline bool operator<(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    return pszLhs < rhs.AsStringViewLite();
+  }
+
+  inline bool operator<(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs < rhs.AsStringViewLite();
+  }
+
+  inline bool operator<(const std::string& lhs, const UTF8String& rhs) noexcept
+  {
+    return StringViewLiteUtil::AsStringViewLite(lhs) < rhs.AsStringViewLite();
+  }
+
+  // Operator <=
+
+  inline bool operator<=(const UTF8String& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() <= rhs.AsStringViewLite();
+  }
+
+  inline bool operator<=(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs.AsStringViewLite() <= pszRhs;
+  }
+
+  inline bool operator<=(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() <= rhs;
+  }
+
+  inline bool operator<=(const UTF8String& lhs, const std::string& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() <= StringViewLiteUtil::AsStringViewLite(rhs);
+  }
+
+  inline bool operator<=(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    return pszLhs <= rhs.AsStringViewLite();
+  }
+
+  inline bool operator<=(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs <= rhs.AsStringViewLite();
+  }
+
+  inline bool operator<=(const std::string& lhs, const UTF8String& rhs) noexcept
+  {
+    return StringViewLiteUtil::AsStringViewLite(lhs) <= rhs.AsStringViewLite();
+  }
+
+  // Operator >
+
+  inline bool operator>(const UTF8String& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() > rhs.AsStringViewLite();
+  }
+
+  inline bool operator>(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs.AsStringViewLite() > pszRhs;
+  }
+
+  inline bool operator>(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() > rhs;
+  }
+
+  inline bool operator>(const UTF8String& lhs, const std::string& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() > StringViewLiteUtil::AsStringViewLite(rhs);
+  }
+
+  inline bool operator>(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    return pszLhs > rhs.AsStringViewLite();
+  }
+
+  inline bool operator>(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs > rhs.AsStringViewLite();
+  }
+
+  inline bool operator>(const std::string& lhs, const UTF8String& rhs) noexcept
+  {
+    return StringViewLiteUtil::AsStringViewLite(lhs) > rhs.AsStringViewLite();
+  }
+
+  // Operator >=
+
+  inline bool operator>=(const UTF8String& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() >= rhs.AsStringViewLite();
+  }
+
+  inline bool operator>=(const UTF8String& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs.AsStringViewLite() >= pszRhs;
+  }
+
+  inline bool operator>=(const UTF8String& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() >= rhs;
+  }
+
+  inline bool operator>=(const UTF8String& lhs, const std::string& rhs) noexcept
+  {
+    return lhs.AsStringViewLite() >= StringViewLiteUtil::AsStringViewLite(rhs);
+  }
+
+  inline bool operator>=(const char* const pszLhs, const UTF8String& rhs) noexcept
+  {
+    return pszLhs >= rhs.AsStringViewLite();
+  }
+
+  inline bool operator>=(const StringViewLite& lhs, const UTF8String& rhs) noexcept
+  {
+    return lhs >= rhs.AsStringViewLite();
+  }
+
+  inline bool operator>=(const std::string& lhs, const UTF8String& rhs) noexcept
+  {
+    return StringViewLiteUtil::AsStringViewLite(lhs) >= rhs.AsStringViewLite();
+  }
 }
 
 #endif

@@ -34,9 +34,11 @@
 from typing import Optional
 from FslBuildGen import IOUtil
 from FslBuildGen.BasicConfig import BasicConfig
-from FslBuildGen.Context.PlatformContext import PlatformContext
 from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
+from FslBuildGen.Context.PlatformContext import PlatformContext
+from FslBuildGen.ErrorHelpManager import ErrorHelpManager
+from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.PackageConfig import PlatformNameString
@@ -44,17 +46,10 @@ from FslBuildGen.RecipeFilterManager import RecipeFilterManager
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
 
 class GeneratorContext(PlatformContext):
-    def __init__(self, basicConfig: BasicConfig, recipeFilterManager: RecipeFilterManager, 
+    def __init__(self, basicConfig: BasicConfig, errorHelpManager: ErrorHelpManager, recipeFilterManager: RecipeFilterManager,
                  experimental: Optional[ToolConfigExperimental], generator: GeneratorPlugin) -> None:
-        cmakeGenerator = CMakeTypes.TryDetermineCMakeGenerator(generator)
-        cmakeGeneratorShortName = None
-        if cmakeGenerator is not None:
-            cmakeGeneratorShortName = CMakeTypes.TryGetCompilerShortIdFromGeneratorName(cmakeGenerator)
-
-        shortCompilerName = "NotDefined" if cmakeGeneratorShortName is None else cmakeGeneratorShortName
-        if cmakeGeneratorShortName is None:
-            if basicConfig.Verbosity >= 2:
-                basicConfig.LogPrintWarning("No CMake short generator id has been defined, defaulting to '{0}'".format(shortCompilerName))
+        if generator.CMakeConfig is None:
+            raise Exception("Invalid generator")
 
         recipeBuilderSetup = None
         allowDownloads = False
@@ -72,7 +67,9 @@ class GeneratorContext(PlatformContext):
             else:
                 basicConfig.LogPrint("Downloads disabled since the project has it disabled by default")
 
-        super().__init__(basicConfig, generator.PlatformName, generator.PlatformName, shortCompilerName, recipeBuilderSetup)
+        generatorInfo = GeneratorInfo(generator.IsCMake, generator.CMakeConfig.AllowFindPackage)
+        super().__init__(basicConfig, errorHelpManager, generator.PlatformName, generator.PlatformName, generatorInfo, generator.CMakeConfig,
+                         recipeBuilderSetup)
 
         #allowDownload=True, disableDownloadEnv=None
 

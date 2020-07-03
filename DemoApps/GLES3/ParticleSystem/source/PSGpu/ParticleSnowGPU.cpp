@@ -30,17 +30,18 @@
  ****************************************************************************************************************************************************/
 
 #include "ParticleSnowGPU.hpp"
+#include <array>
 #include <cstddef>
 
 namespace Fsl
 {
   VertexDeclaration ParticleSnowGPU::GetVertexDeclaration()
   {
-    static VertexElementEx elements[] = {
+    static std::array<VertexElementEx, 3> elements = {
       VertexElementEx(offsetof(ParticleSnowGPU, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(ParticleSnowGPU, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Custom, 0),
       VertexElementEx(offsetof(ParticleSnowGPU, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
     };
-    return VertexDeclaration(elements, sizeof(elements) / sizeof(VertexElementEx), sizeof(ParticleSnowGPU));
+    return VertexDeclaration(elements.data(), elements.size(), sizeof(ParticleSnowGPU));
   }
 }

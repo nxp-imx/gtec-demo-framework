@@ -32,25 +32,24 @@
 #include <FslGraphics/Vertices/VertexPosition.hpp>
 #include <FslGraphics3D/Procedural/IndexUtil.hpp>
 #include <gtest/gtest.h>
-
+#include <array>
 
 namespace
 {
   using namespace Fsl;
   using namespace Fsl::Procedural;
 
-  uint16_t g_indices[] = {0, 1, 2, 3};
+  constexpr const std::array<uint16_t, 4> g_indices = {0, 1, 2, 3};
 
-  const size_t g_indexCount = sizeof(g_indices) / sizeof(g_indices[0]);
   const PrimitiveType g_primitiveType = PrimitiveType::TriangleStrip;
-  const PrimitiveType g_otherPrimitiveType = PrimitiveType::TriangleList;
+  // const PrimitiveType g_otherPrimitiveType = PrimitiveType::TriangleList;
 
-  std::vector<uint16_t> g_srcIndices(g_indices, g_indices + g_indexCount);
+  std::vector<uint16_t> g_srcIndices(g_indices.begin(), g_indices.end());
 
 
-  void CheckIndices(const std::vector<uint16_t>& src, const int srcOffset, const int srcMod)
+  void CheckIndices(const std::vector<uint16_t>& src, const std::size_t srcOffset, const int srcMod)
   {
-    for (std::size_t i = 0; i < g_indexCount; ++i)
+    for (std::size_t i = 0; i < g_indices.size(); ++i)
     {
       EXPECT_EQ(g_indices[i], src[srcOffset + i] - srcMod);
     }
@@ -67,36 +66,36 @@ TEST(IndexUtil, AppendTriangleStrip_TooSmallDstVector)
 
 TEST(IndexUtil, AppendTriangleStrip_OutOfBounds)
 {
-  std::vector<uint16_t> dstIndices(g_indexCount);
+  std::vector<uint16_t> dstIndices(g_indices.size());
   EXPECT_THROW(IndexUtil::Merge<uint16_t>(dstIndices, -1, g_srcIndices, 0, g_primitiveType), std::invalid_argument);
   EXPECT_THROW(IndexUtil::Merge<uint16_t>(dstIndices, 1, g_srcIndices, 0, g_primitiveType), std::invalid_argument);
-  EXPECT_THROW(IndexUtil::Merge<uint16_t>(dstIndices, g_indexCount, g_srcIndices, 0, g_primitiveType), std::invalid_argument);
-  EXPECT_THROW(IndexUtil::Merge<uint16_t>(dstIndices, g_indexCount - 1, g_srcIndices, 0, g_primitiveType), std::invalid_argument);
+  EXPECT_THROW(IndexUtil::Merge<uint16_t>(dstIndices, g_indices.size(), g_srcIndices, 0, g_primitiveType), std::invalid_argument);
+  EXPECT_THROW(IndexUtil::Merge<uint16_t>(dstIndices, g_indices.size() - 1, g_srcIndices, 0, g_primitiveType), std::invalid_argument);
 }
 
 
 TEST(IndexUtil, AppendTriangleStrip_OneAppendEnoughRoom)
 {
-  std::vector<uint16_t> dstIndices(g_indexCount);
+  std::vector<uint16_t> dstIndices(g_indices.size());
   const auto written = IndexUtil::Merge<uint16_t>(dstIndices, 0, g_srcIndices, 0, g_primitiveType);
 
-  EXPECT_EQ(g_indexCount, written);
+  EXPECT_EQ(g_indices.size(), written);
   CheckIndices(dstIndices, 0, 0);
 }
 
 
 TEST(IndexUtil, AppendTriangleStrip_TwoAppendsEnoughRoom)
 {
-  std::vector<uint16_t> dstIndices((g_indexCount * 2) + 4);
+  std::vector<uint16_t> dstIndices((g_indices.size() * 2) + 4);
   auto written = IndexUtil::Merge<uint16_t>(dstIndices, 0, g_srcIndices, 0, g_primitiveType);
 
-  EXPECT_EQ(g_indexCount, written);
+  EXPECT_EQ(g_indices.size(), written);
   CheckIndices(dstIndices, 0, 0);
 
-  written = IndexUtil::Merge<uint16_t>(dstIndices, g_indexCount, g_srcIndices, 0, g_primitiveType);
+  written = IndexUtil::Merge<uint16_t>(dstIndices, g_indices.size(), g_srcIndices, 0, g_primitiveType);
 
-  EXPECT_EQ(g_indexCount + 4, written);
-  CheckIndices(dstIndices, g_indexCount + 4, 0);
+  EXPECT_EQ(g_indices.size() + 4, written);
+  CheckIndices(dstIndices, g_indices.size() + 4, 0);
 }
 
 
@@ -104,10 +103,10 @@ TEST(IndexUtil, AppendTriangleStrip_OneAppendEnoughRoomWithMod)
 {
   const int32_t mod = 50;
 
-  std::vector<uint16_t> dstIndices(g_indexCount);
+  std::vector<uint16_t> dstIndices(g_indices.size());
   const auto written = IndexUtil::Merge<uint16_t>(dstIndices, 0, g_srcIndices, mod, g_primitiveType);
 
-  EXPECT_EQ(g_indexCount, written);
+  EXPECT_EQ(g_indices.size(), written);
   CheckIndices(dstIndices, 0, mod);
 }
 
@@ -115,14 +114,14 @@ TEST(IndexUtil, AppendTriangleStrip_OneAppendEnoughRoomWithMod)
 TEST(IndexUtil, AppendTriangleStrip_TwoAppendsEnoughRoomWithMod)
 {
   const std::size_t vertexCount = 50;
-  std::vector<uint16_t> dstIndices((g_indexCount * 2) + 4);
+  std::vector<uint16_t> dstIndices((g_indices.size() * 2) + 4);
   auto written = IndexUtil::Merge<uint16_t>(dstIndices, 0, g_srcIndices, 0, g_primitiveType);
 
-  EXPECT_EQ(g_indexCount, written);
+  EXPECT_EQ(g_indices.size(), written);
   CheckIndices(dstIndices, 0, 0);
 
-  written = IndexUtil::Merge<uint16_t>(dstIndices, g_indexCount, g_srcIndices, vertexCount, g_primitiveType);
+  written = IndexUtil::Merge<uint16_t>(dstIndices, g_indices.size(), g_srcIndices, vertexCount, g_primitiveType);
 
-  EXPECT_EQ(g_indexCount + 4, written);
-  CheckIndices(dstIndices, g_indexCount + 4, vertexCount);
+  EXPECT_EQ(g_indices.size() + 4, written);
+  CheckIndices(dstIndices, g_indices.size() + 4, vertexCount);
 }

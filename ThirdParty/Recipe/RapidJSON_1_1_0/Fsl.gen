@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../FslBuildGen.xsd">
   <ExternalLibrary Name="Recipe.RapidJSON_1_1_0" CreationYear="2017">
-    <ExperimentalRecipe Name="rapidjson-1.1.0">
+    <ExperimentalRecipe Name="rapidjson" Version="1.1.0">
       <Pipeline>
         <Download URL="https://github.com/Tencent/rapidjson/archive/v1.1.0.tar.gz" To="rapidjson-1.1.0.tar.gz" Hash="bf7ced29704a1e696fbccf2a2b4ea068e7774fa37f6d7dd4039d0787f8bed98e"/>
         <Unpack File="rapidjson-1.1.0.tar.gz" OutputPath="rapidjson-1.1.0">

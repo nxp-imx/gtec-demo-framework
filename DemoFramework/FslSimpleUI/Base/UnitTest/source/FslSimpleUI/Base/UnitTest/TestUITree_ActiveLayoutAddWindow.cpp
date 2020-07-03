@@ -56,7 +56,7 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   auto tree = m_tree;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  auto onUpdate = [newWindow, mainWindow, tree](const DemoTime& demoTime) { tree->AddChild(mainWindow, newWindow); };
+  auto onUpdate = [newWindow, mainWindow, tree](const DemoTime& /*demoTime*/) { tree->AddChild(mainWindow, newWindow); };
 
   m_mainWindow->Callbacks.HookWinUpdate = onUpdate;
 
@@ -77,7 +77,7 @@ TEST_F(TestUITree_ActiveLayout, UpdateAddChild_NoLayout)
   ASSERT_EQ(1u, callCount.WinUpdate);
   ASSERT_EQ(1u, callCount.WinResolve);
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve;
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve;
 
   CheckZeroExcept(callCount, ignoreFlags);
 
@@ -100,7 +100,7 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   auto mainWindow = m_mainWindow;
   auto newWindow = std::make_shared<UI::BaseWindowTest>(m_windowContext, UI::WindowFlags::Enum::All);
 
-  m_mainWindow->Callbacks.HookWinUpdate = [newWindow, mainWindow](const DemoTime& demoTime) { mainWindow->AddChild(newWindow); };
+  m_mainWindow->Callbacks.HookWinUpdate = [newWindow, mainWindow](const DemoTime& /*demoTime*/) { mainWindow->AddChild(newWindow); };
 
   auto callCount = newWindow->GetCallCount();
   CheckZero(callCount, WindowMethod::All);
@@ -122,7 +122,7 @@ TEST_F(TestUITree_ActiveLayout, Window_UpdateAddChild)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::WinResolve |
+  auto ignoreFlags = WindowMethod::WinInit | WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::WinResolve |
                      WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
   CheckZeroExcept(callCount, ignoreFlags);
 

@@ -49,7 +49,7 @@ namespace Fsl
     {
     }
 
-    ShaderVertexConfig(const GLint position)
+    explicit ShaderVertexConfig(const GLint position)
       : Position(position)
       , Normal(GLES3::GLValues::INVALID_LOCATION)
       , TexCoord(GLES3::GLValues::INVALID_LOCATION)

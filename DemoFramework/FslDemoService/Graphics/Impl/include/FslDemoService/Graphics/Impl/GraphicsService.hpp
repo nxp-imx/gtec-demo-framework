@@ -31,46 +31,56 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
+#include <FslDemoService/Graphics/IGraphicsService.hpp>
+#include <FslDemoService/Profiler/IProfilerService.hpp>
+#include <FslDemoService/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <memory>
 
 namespace Fsl
 {
+  class GraphicsServiceOptionParser;
   class INativeGraphicsService;
   class INativeGraphicsBasic2D;
 
-  class GraphicsService
+  class GraphicsService final
     : public ThreadLocalService
     , public IGraphicsService
     , public IGraphicsServiceControl
   {
     using NativeGraphicsServiceDeque = std::deque<std::shared_ptr<INativeGraphicsService>>;
+
+    std::shared_ptr<IProfilerService> m_profilerService;
+    ScopedProfilerCustomCounterHandle m_hProfilerBatchDrawCalls;
+    ScopedProfilerCustomCounterHandle m_hProfilerBatchVertices;
+
     NativeGraphicsServiceDeque m_nativeGraphicsServices;
 
     std::shared_ptr<INativeGraphicsService> m_nativeService;
     std::shared_ptr<INativeGraphicsBasic2D> m_nativBasic2D;
     std::shared_ptr<IBasic2D> m_basic2D;
     std::shared_ptr<INativeBatch2D> m_nativeBatch2D;
-    Point2 m_resolution;
+    DemoWindowMetrics m_windowMetrics;
 
   public:
-    GraphicsService(const ServiceProvider& serviceProvider);
-    ~GraphicsService() override;
+    explicit GraphicsService(const ServiceProvider& serviceProvider, const std::shared_ptr<GraphicsServiceOptionParser>& optionParser);
+    ~GraphicsService() final;
+
+    void Update() final;
 
     // From IGraphicsService
-    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat) override;
-    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const Rectangle& srcRectangle) override;
-    std::shared_ptr<IBasic2D> GetBasic2D() override;
-    std::shared_ptr<INativeBatch2D> GetNativeBatch2D() override;
-    std::shared_ptr<INativeGraphics> GetNativeGraphics() override;
+    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat) final;
+    void Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const Rectangle& srcRectangle) final;
+    std::shared_ptr<IBasic2D> GetBasic2D() final;
+    std::shared_ptr<INativeBatch2D> GetNativeBatch2D() final;
+    std::shared_ptr<INativeGraphics> GetNativeGraphics() final;
 
     // From IGraphicsServiceControl
-    void Reset() override;
-    void Configure(const DemoHostFeature& activeAPI) override;
-    void SetScreenResolution(const Point2& resolution, const bool preallocateBasic2D) override;
+    void Reset() final;
+    void Configure(const DemoHostFeature& activeAPI) final;
+    void SetWindowMetrics(const DemoWindowMetrics& windowMetrics, const bool preallocateBasic2D) final;
 
   private:
   };

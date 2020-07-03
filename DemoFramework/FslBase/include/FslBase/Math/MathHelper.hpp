@@ -27,10 +27,10 @@ SOFTWARE.
 
 // Some of the functions in this file are a port of an MIT licensed library: MonoGame - MathHelper.cs.
 
+#include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/MathHelper_Clamp.hpp>
 #include <algorithm>
 #include <cmath>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/RectangleSizeRestrictionFlag.hpp>
 
 namespace Fsl
 {
@@ -102,23 +102,6 @@ namespace Fsl
     }
 
 
-    //! @brief Restricts a value to be within a specified range.
-    inline float Clamp(const float value, const float min, const float max)
-    {
-      return std::min(std::max(value, min), max);
-    }
-
-    inline int32_t Clamp(const int32_t value, const int32_t min, const int32_t max)
-    {
-      return std::min(std::max(value, min), max);
-    }
-
-    inline uint32_t Clamp(const uint32_t value, const uint32_t min, const uint32_t max)
-    {
-      return std::min(std::max(value, min), max);
-    }
-
-
     //! @brief Calculates the absolute value of the difference of two values.
     //! @param value1 Source value.
     //! @param value2 Source value.
@@ -144,11 +127,15 @@ namespace Fsl
     {
       // All transformed to double not to lose precision
       // Otherwise, for high numbers of param:amount the result is NaN instead of Infinity
-      const double v1 = value1, v2 = value2, t1 = tangent1, t2 = tangent2, s = amount;
+      const double v1 = value1;
+      const double v2 = value2;
+      const double t1 = tangent1;
+      const double t2 = tangent2;
+      const double s = amount;
       const double sCubed = s * s * s;
       const double sSquared = s * s;
 
-      double result;
+      double result = 0.0;
       if (amount == 0.0f)
       {
         result = value1;
@@ -168,9 +155,17 @@ namespace Fsl
     //! @brief Determines if value is powered by two.
     //! @param value A value.
     //! @return true if value is powered by two; otherwise false.
-    constexpr inline static bool IsPowerOfTwo(const int value)
+    constexpr inline static bool IsPowerOfTwo(const int32_t value)
     {
       return (value > 0) && ((value & (value - 1)) == 0);
+    }
+
+    //! @brief Determines if value is powered by two.
+    //! @param value A value.
+    //! @return true if value is powered by two; otherwise false.
+    constexpr inline static bool IsPowerOfTwo(const uint32_t value)
+    {
+      return (value > 0u) && ((value & (value - 1)) == 0);
     }
 
 
@@ -252,8 +247,25 @@ namespace Fsl
 
     //! @brief Find the nearest power of two value that is greater or equal the input value (>=)
     //! @param value must be >= 0;
-    int ToPowerOfTwo(const int value);
+    int32_t ToPowerOfTwo(const int32_t value);
 
+    //! @brief Find the nearest power of two value that is greater or equal the input value (>=)
+    //! @param value must be >= 0;
+    constexpr inline uint32_t ToPowerOfTwo(const uint32_t value)
+    {
+      if (value > 0u)
+      {
+        uint32_t tmpValue = value - 1u;
+        tmpValue |= (tmpValue >> 1u);
+        tmpValue |= (tmpValue >> 2u);
+        tmpValue |= (tmpValue >> 4u);
+        tmpValue |= (tmpValue >> 8u);
+        tmpValue |= (tmpValue >> 16u);
+        ++tmpValue;    // Val is now the next highest power of 2.
+        return tmpValue;
+      }
+      return 1u;
+    }
 
     //! @brief Ensure the value is wrapped to fit between min and max.
     //! @param value
@@ -267,12 +279,6 @@ namespace Fsl
     //! @param angle The angle to reduce, in radians.
     //! @return The new angle, in radians.
     float WrapAngle(const float angle);
-
-
-    //! @brief Find the optimal rectangle size for packing a given amount of uniform sized units under the supplied constraints
-    //! @param unitSize the size of the unit (x > 0 && y > 0)
-    //! @param unitCount the total number of units > 0
-    Point2 CalcOptimalSize(const Point2& unitSize, const int32_t unitCount, const RectangleSizeRestrictionFlag::Enum restrictionFlags);
   };
 }
 

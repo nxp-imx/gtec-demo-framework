@@ -37,17 +37,15 @@
 
 namespace Fsl
 {
-  Rectangle2D::Rectangle2D(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom, const bool reserved)
-    : Offset(left, top)
-    , Extent(static_cast<Extent2D::element_type>(right - left), static_cast<Extent2D::element_type>(bottom - top))
+  Rectangle2D Rectangle2D::FromLeftTopRightBottom(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom)
   {
-    FSL_PARAM_NOT_USED(reserved);
-    static_assert(sizeof(Extent2D::element_type) >= sizeof(int32_t), "for the below check to work this has to be true");
+    static_assert(sizeof(Extent2D::value_type) >= sizeof(int32_t), "for the below check to work this has to be true");
 
     if (left > right || top > bottom)
     {
       throw std::invalid_argument("arguments out of range");
     }
+    return {Offset2D(left, top), Extent2D(static_cast<Extent2D::value_type>(right - left), static_cast<Extent2D::value_type>(bottom - top))};
   }
 
 
@@ -73,9 +71,9 @@ namespace Fsl
       const int32_t leftSide = std::max(rect1.Left(), rect2.Left());
       const int32_t topSide = std::max(rect1.Top(), rect2.Top());
       const int32_t bottomSide = std::min(rect1.Bottom(), rect2.Bottom());
-      return Rectangle2D(leftSide, topSide, rightSide, bottomSide, true);
+      return FromLeftTopRightBottom(leftSide, topSide, rightSide, bottomSide);
     }
-    return Rectangle2D();
+    return {};
   }
 
 
@@ -85,6 +83,6 @@ namespace Fsl
     const int32_t y = std::min(rect1.Offset.Y, rect2.Offset.Y);
     const int32_t x2 = std::max(rect1.Right(), rect2.Right());
     const int32_t y2 = std::max(rect1.Bottom(), rect2.Bottom());
-    return Rectangle2D(x, y, x2, y2, true);
+    return FromLeftTopRightBottom(x, y, x2, y2);
   }
 }

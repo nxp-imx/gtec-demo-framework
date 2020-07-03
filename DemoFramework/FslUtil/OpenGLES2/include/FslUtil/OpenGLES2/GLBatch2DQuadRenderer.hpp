@@ -33,13 +33,16 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenGLES2/Common.hpp>
-
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslGraphics/Render/BatchSdfRenderConfig.hpp>
+#include <FslGraphics/Render/BlendState.hpp>
+#include <FslGraphics/Render/Stats/NativeBatch2DStats.hpp>
 #include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <FslUtil/OpenGLES2/GLIndexBuffer.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLTextureInfo.hpp>
-#include <FslGraphics/Render/BlendState.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -87,7 +90,7 @@ namespace Fsl
         GLint CurrentProgram;
         GLint VertexBuffer;
         GLint IndexBuffer;
-        OldVertexAttrib Attrib[3];
+        std::array<OldVertexAttrib, 3> Attrib{};
 
         OldState()
           : ActiveTexture(GLValues::INVALID_HANDLE)
@@ -99,23 +102,40 @@ namespace Fsl
         }
       };
 
-      Point2 m_screenResolution;
+      struct ProgramInfo
+      {
+        GLProgram Program;
+        std::array<GLVertexAttribLink, 3> AttribLink;
+        GLint LocMatModelViewProj{GLValues::INVALID_LOCATION};
+        GLint LocTexture{GLValues::INVALID_LOCATION};
+        GLint LocSmoothing{GLValues::INVALID_LOCATION};
+        PxSize2D CachedSizePx;
+      };
+
       GLIndexBuffer m_indexBuffer;
       GLVertexBuffer m_vertexBuffer;
-      GLProgram m_program;
-      GLVertexAttribLink m_link[3];
+      ProgramInfo m_normalInfo;
+      ProgramInfo m_sdfInfo;
       uint32_t m_vertexOffset;
       uint32_t m_indexOffset;
       OldState m_oldState;
       StateCache m_currentState;
-      GLint m_locMatModelViewProj;
-      GLint m_locTexture;
+
+      NativeBatch2DStats m_stats{};
 
     public:
-      GLBatch2DQuadRenderer(const int32_t quadCapacityHint);
-      void Begin(const Point2& screenResolution, const BlendState blendState, const bool restoreState);
+      explicit GLBatch2DQuadRenderer(const int32_t quadCapacityHint);
+      void Begin(const PxSize2D& sizePx, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig, const bool restoreState);
       void End();
       void DrawQuads(const VertexPositionColorTexture* const pVertices, const uint32_t length, const GLTextureInfo& textureInfo);
+
+      NativeBatch2DStats GetStats() const
+      {
+        return m_stats;
+      }
+
+    private:
+      static ProgramInfo PrepareProgram(const GLVertexBuffer& vertexBuffer, const bool sdf);
     };
   }
 }

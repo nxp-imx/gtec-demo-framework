@@ -43,11 +43,11 @@ namespace Fsl
   {
   public:
     // @brief Allocate a Vulkan specific window system
-    static const std::shared_ptr<IVulkanNativeWindowSystem> Allocate(const NativeWindowSystemSetup& setup);
+    static std::shared_ptr<IVulkanNativeWindowSystem> Allocate(const NativeWindowSystemSetup& setup);
 
     //! @brief Allow a more generic access to the window system (it still has Vulkan requirements).
     //         But this allows us to do some neat tricks
-    static const std::shared_ptr<INativeWindowSystem> AllocateNative(const NativeWindowSystemSetup& setup);
+    static std::shared_ptr<INativeWindowSystem> AllocateNative(const NativeWindowSystemSetup& setup);
   };
 }    // namespace Fsl
 

@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppConsole : public AConsoleDemoApp
   {
   public:
-    DemoAppConsole(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppConsole(const DemoAppConfig& demoAppConfig);
 
   protected:
     //! @brief Overload this

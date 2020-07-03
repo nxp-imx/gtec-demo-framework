@@ -450,6 +450,7 @@ namespace Fsl
         {
           return;
         }
+        ++itrCurrent;
       }
     }
 

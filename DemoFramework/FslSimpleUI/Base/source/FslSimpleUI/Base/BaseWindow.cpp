@@ -34,6 +34,8 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Transition/TransitionTimeSpan.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/Event/RoutedEvent.hpp>
@@ -41,13 +43,12 @@
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowInputClickEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowMouseOverEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 
-// Workaround for issues with std::isinf and std::isnan on qnx
-using namespace std;
 
 namespace Fsl
 {
@@ -55,14 +56,14 @@ namespace Fsl
   {
     namespace
     {
-      inline float CalcAlignment(const ItemAlignment alignment, const float delta)
+      inline int32_t CalcAlignmentPx(const ItemAlignment alignment, const int32_t deltaPx)
       {
         switch (alignment)
         {
         case ItemAlignment::Center:
-          return delta / 2.0f;
+          return deltaPx / 2;
         case ItemAlignment::Far:
-          return delta;
+          return deltaPx;
         case ItemAlignment::Near:
         default:
           return 0;
@@ -84,7 +85,7 @@ namespace Fsl
 
     BaseWindow::BaseWindow(const std::shared_ptr<BaseWindowContext>& context)
       : m_context(context)
-      , m_size(-1, -1)
+      , m_sizeDp(-1, -1)
       , m_alignmentX(ItemAlignment::Near)
       , m_alignmentY(ItemAlignment::Near)
     {
@@ -97,6 +98,11 @@ namespace Fsl
 
     BaseWindow::~BaseWindow() = default;
 
+
+    void BaseWindow::WinResolutionChanged(const ResolutionChangedInfo& /*info*/)
+    {
+      m_flags.Enable(BaseWindowFlags::LayoutDirty);
+    }
 
     bool BaseWindow::WinMarkLayoutAsDirty()
     {
@@ -125,73 +131,86 @@ namespace Fsl
         {
           OnClickInput(routedEventArgs, event);
         }
+        break;
       }
-      break;
+      case EventTypeId::MouseOver:
+      {
+        auto event = SafeDynamicPointerCast<WindowMouseOverEvent>(routedEvent.Content);
+        if (routedEvent.IsTunneling)
+        {
+          OnMouseOverPreview(routedEventArgs, event);
+        }
+        else
+        {
+          OnMouseOver(routedEventArgs, event);
+        }
+        break;
+      }
       case EventTypeId::Select:
       {
         auto event = SafeDynamicPointerCast<WindowSelectEvent>(routedEvent.Content);
         assert(!routedEvent.IsTunneling);
         OnSelect(routedEventArgs, event);
+        break;
       }
-      break;
       case EventTypeId::ContentChanged:
       {
         auto event = SafeDynamicPointerCast<WindowContentChangedEvent>(routedEvent.Content);
         assert(!routedEvent.IsTunneling);
         OnContentChanged(routedEventArgs, event);
+        break;
       }
-      break;
+      default:
+        FSLLOG3_WARNING("Unhandled eventTypeId: {}", int32_t(routedEvent.Content->GetEventTypeId()));
+        break;
       }
+      SetAnimationUpdate(UpdateAnimationState(false));
     }
 
-
-    void BaseWindow::Arrange(const Rect& finalRect)
+    void BaseWindow::WinUpdate(const DemoTime& demoTime)
     {
-      if (IsLayoutDirty() || !EqualHelper::IsAlmostEqual(finalRect, m_layoutCache.ArrangeLastFinalRect))
+      UpdateAnimation(TransitionTimeSpan(demoTime.DeltaTimeInMicroseconds, TransitionTimeUnit::Microseconds));
+      SetAnimationUpdate(UpdateAnimationState(false));
+    }
+
+    void BaseWindow::Arrange(const PxRectangle& finalRectPx)
+    {
+      if (IsLayoutDirty() || finalRectPx != m_layoutCache.ArrangeLastFinalRectPx)
       {
-        m_layoutCache.ArrangeLastFinalRect = finalRect;
+        m_layoutCache.ArrangeLastFinalRectPx = finalRectPx;
 
         MarkLayoutArrangeBegin();
         try
         {
-          float marginWidth = m_margin.SumX();
-          float marginHeight = m_margin.SumY();
+          const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
-          float finalWidth = (m_alignmentX != ItemAlignment::Stretch ? m_layoutCache.DesiredSize.X : finalRect.Width());
-          float finalHeight = (m_alignmentY != ItemAlignment::Stretch ? m_layoutCache.DesiredSize.Y : finalRect.Height());
+          const PxThickness marginThicknessPx = unitConverter.ToPxThickness(m_marginDp);
+          const PxSize2D marginPx(marginThicknessPx.Sum());
+
+          const PxSize2D spacePx(m_alignmentX != ItemAlignment::Stretch ? m_layoutCache.DesiredSizePx.Width() : finalRectPx.Width(),
+                                 m_alignmentY != ItemAlignment::Stretch ? m_layoutCache.DesiredSizePx.Height() : finalRectPx.Height());
 
           // Calculate the actual available space.
-          const float availW = finalWidth - marginWidth;
-          const float availH = finalHeight - marginHeight;
+          const PxSize2D arrangeSizePx(PxSize2D::Subtract(spacePx, marginPx));
 
-          const Vector2 arrangeSize((availW >= 0.0f ? availW : 0.0f), (availH >= 0.0f ? availH : 0.0f));
-          Vector2 renderSize = ArrangeOverride(arrangeSize);
+          const PxSize2D renderSizePx = ArrangeOverride(arrangeSizePx);
 
-          // validate the result
-          assert(!isnan(renderSize.X));
-          assert(!isnan(renderSize.Y));
-          assert(!isinf(renderSize.X));
-          assert(!isinf(renderSize.Y));
-          assert(renderSize.X >= 0);
-          assert(renderSize.Y >= 0);
-
-          // cap it
-          renderSize.X = std::max(renderSize.X, 0.0f);
-          renderSize.Y = std::max(renderSize.Y, 0.0f);
+          // validate the result (even though PxLayoutSize promises to be >= 0)
+          assert(renderSizePx.Width() >= 0);
+          assert(renderSizePx.Height() >= 0);
 
           // Calc alignment
-          const float finalW = finalRect.Width() - marginWidth;
-          const float finalH = finalRect.Height() - marginHeight;
-          const Vector2 actualAvailableSize((finalW >= 0.0f ? finalW : 0.0f), (finalH >= 0.0f ? finalH : 0.0f));
-          const float dx = (actualAvailableSize.X - renderSize.X);
-          const float dy = (actualAvailableSize.Y - renderSize.Y);
-          const float alignmentOffsetX = CalcAlignment(m_alignmentX, dx);
-          const float alignmentOffsetY = CalcAlignment(m_alignmentY, dy);
+          const PxSize2D actualAvailableSizePx(finalRectPx.Width() - marginPx.Width(), finalRectPx.Height() - marginPx.Height());
+          const PxPoint2 deltaPx(actualAvailableSizePx.Width() - renderSizePx.Width(), actualAvailableSizePx.Height() - renderSizePx.Height());
+          const int32_t alignmentOffsetXPx = CalcAlignmentPx(m_alignmentX, deltaPx.X);
+          const int32_t alignmentOffsetYPx = CalcAlignmentPx(m_alignmentY, deltaPx.Y);
 
-          m_layoutCache.ContentRect = Rect((finalRect.Left() + m_margin.Left() + alignmentOffsetX),
-                                           (finalRect.Top() + m_margin.Top() + alignmentOffsetY), renderSize.X, renderSize.Y);
-          m_layoutCache.ClippedContentRect = Rect::Intersect(m_layoutCache.ContentRect, finalRect);
-          m_layoutCache.RenderSize = Vector2(m_layoutCache.ContentRect.Width(), m_layoutCache.ContentRect.Height());
+          const PxPoint2 posPx(finalRectPx.X() + marginThicknessPx.Left() + alignmentOffsetXPx,
+                               finalRectPx.Y() + marginThicknessPx.Top() + alignmentOffsetYPx);
+
+          m_layoutCache.ContentRectPx = PxRectangle(posPx.X, posPx.Y, renderSizePx.Width(), renderSizePx.Height());
+          m_layoutCache.ClippedContentRectPx = PxRectangle::Intersect(m_layoutCache.ContentRectPx, finalRectPx);
+          m_layoutCache.RenderSizePx = renderSizePx;
           MarkLayoutArrangeEnd();
         }
         catch (...)
@@ -204,62 +223,40 @@ namespace Fsl
     }
 
 
-    void BaseWindow::Measure(const Vector2& availableSize)
+    void BaseWindow::Measure(const PxAvailableSize& availableSizePx)
     {
-      // if (IsLayoutDirty() || !EqualHelper::IsAlmostEqual(availableSize, m_layoutCache.MeasureLastAvailableSize))
+      if (IsLayoutDirty() || availableSizePx != m_layoutCache.MeasureLastAvailableSizePx)
       {
-        m_layoutCache.MeasureLastAvailableSize = availableSize;
+        m_layoutCache.MeasureLastAvailableSizePx = availableSizePx;
 
         MarkLayoutMeasureBegin();
         try
         {
-          const float marginWidth = m_margin.SumX();
-          const float marginHeight = m_margin.SumY();
+          const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
 
-          // calc local available size by removing required margin
-          const float availX = availableSize.X - marginWidth;
-          const float availY = availableSize.Y - marginHeight;
-          Vector2 localAvailableSpace(std::max(availX, 0.0f), std::max(availY, 0.0f));
+          const PxThickness marginThicknessPx = unitConverter.ToPxThickness(m_marginDp);
+          const PxSize2D marginSizePx(marginThicknessPx.Sum());
+
+          // calc local available size by removing required margin (the subtract has build in clamping so it cant become negative
+          const PxAvailableSize localAvailableSpacePx(PxAvailableSize::Subtract(availableSizePx, marginSizePx));
 
           // Calc the minimum desired content size.
-          Vector2 minContentSize = MeasureOverride(localAvailableSpace);
-
-          assert(minContentSize.X >= 0.0f);
-          assert(minContentSize.Y >= 0.0f);
-          assert(!isnan(minContentSize.X));
-          assert(!isnan(minContentSize.Y));
-          assert(!isinf(minContentSize.X));
-          assert(!isinf(minContentSize.Y));
+          PxSize2D minContentSizePx = MeasureOverride(localAvailableSpacePx);
 
           // Apply fixed width and height if set
-          minContentSize.X = (m_size.X < 0.0f ? minContentSize.X : m_size.X);
-          minContentSize.Y = (m_size.Y < 0.0f ? minContentSize.Y : m_size.Y);
-
-          // Reapply margin to the desired space
-          const float width = minContentSize.X + marginWidth;
-          const float height = minContentSize.Y + marginHeight;
-
-          const Vector2 desiredSize(std::max(width, 0.0f), std::max(height, 0.0f));
-
-          // Validate the desired size
+          if (m_sizeDp.HasWidthValue())
           {
-            assert(!isnan(desiredSize.X));
-            assert(!isnan(desiredSize.Y));
-            assert(!isinf(desiredSize.X));
-            assert(!isinf(desiredSize.Y));
-
-            // handle invalid measure results.
-            if (isnan(desiredSize.X) || isnan(desiredSize.Y))
-            {
-              throw UsageErrorException("MeasureOverride returned NaN!");
-            }
-            if (isinf(desiredSize.X) || isinf(desiredSize.Y))
-            {
-              throw UsageErrorException("MeasureOverride returned infinity!");
-            }
+            minContentSizePx.SetWidth(unitConverter.DpToPxInt32(m_sizeDp.Width()), OptimizationCheckFlag::NoCheck);
+          }
+          if (m_sizeDp.HasHeightValue())
+          {
+            minContentSizePx.SetHeight(unitConverter.DpToPxInt32(m_sizeDp.Height()), OptimizationCheckFlag::NoCheck);
           }
 
-          m_layoutCache.DesiredSize = desiredSize;
+          // Reapply margin to the desired space (Add ensures it wont be negative)
+          PxSize2D desiredSizePx(PxSize2D::Add(minContentSizePx, marginSizePx));
+
+          m_layoutCache.DesiredSizePx = desiredSizePx;
           MarkLayoutMeasureEnd();
         }
         catch (...)
@@ -271,53 +268,31 @@ namespace Fsl
     }
 
 
-    void BaseWindow::SetWidth(const float value)
+    void BaseWindow::SetWidth(const DpLayoutSize1D value)
     {
-      if (!EqualHelper::IsAlmostEqual(value, m_size.X))
+      if (!EqualHelper::IsAlmostEqual(value.RawValue(), m_sizeDp.LayoutSizeWidth().RawValue()))
       {
-        m_size.X = value;
+        m_sizeDp.SetWidth(value);
         PropertyUpdated(PropertyType::Layout);
       }
     }
 
 
-    void BaseWindow::SetWidth(const int32_t value)
+    void BaseWindow::SetHeight(const DpLayoutSize1D value)
     {
-      const auto floatValue = static_cast<float>(value);
-      if (floatValue != m_size.X)
+      if (!EqualHelper::IsAlmostEqual(value.RawValue(), m_sizeDp.LayoutSizeHeight().RawValue()))
       {
-        m_size.X = floatValue;
+        m_sizeDp.SetHeight(value);
         PropertyUpdated(PropertyType::Layout);
       }
     }
 
 
-    void BaseWindow::SetHeight(const float value)
+    void BaseWindow::SetMargin(const DpThicknessF& valueDp)
     {
-      if (!EqualHelper::IsAlmostEqual(value, m_size.Y))
+      if (valueDp != m_marginDp)
       {
-        m_size.Y = value;
-        PropertyUpdated(PropertyType::Layout);
-      }
-    }
-
-
-    void BaseWindow::SetHeight(const int32_t value)
-    {
-      const auto floatValue = static_cast<float>(value);
-      if (floatValue != m_size.Y)
-      {
-        m_size.Y = floatValue;
-        PropertyUpdated(PropertyType::Layout);
-      }
-    }
-
-
-    void BaseWindow::SetMargin(const ThicknessF& value)
-    {
-      if (value != m_margin)
-      {
-        m_margin = value;
+        m_marginDp = valueDp;
         PropertyUpdated(PropertyType::Layout);
       }
     }
@@ -342,28 +317,27 @@ namespace Fsl
       }
     }
 
-
-    Vector2 BaseWindow::PointFromScreen(const Vector2& screenPoint) const
+    PxPoint2 BaseWindow::PointFromScreen(const PxPoint2& screenPointPx) const
     {
       auto uiContext = GetContext()->TheUIContext.Get();
-      return uiContext->WindowManager->PointFromScreen(this, screenPoint);
+      return uiContext->WindowManager->PointFromScreen(this, screenPointPx);
     }
 
 
-    Vector2 BaseWindow::PointFrom(const IWindowId* const pFromWin, const Vector2& point) const
+    PxPoint2 BaseWindow::PointFrom(const IWindowId* const pFromWin, const PxPoint2& pointPx) const
     {
       auto uiContext = GetContext()->TheUIContext.Get();
-      auto& windowManager = uiContext->WindowManager;
-      auto screenPoint = windowManager->PointToScreen(pFromWin, point);
-      return windowManager->PointFromScreen(this, screenPoint);
+      const auto& windowManager = uiContext->WindowManager;
+      PxPoint2 screenPointPx = windowManager->PointToScreen(pFromWin, pointPx);
+      return windowManager->PointFromScreen(this, screenPointPx);
     }
 
 
-    Vector2 BaseWindow::PointTo(const IWindowId* const pToWin, const Vector2& point) const
+    PxPoint2 BaseWindow::PointTo(const IWindowId* const pToWin, const PxPoint2& pointPx) const
     {
       auto uiContext = GetContext()->TheUIContext.Get();
-      auto& windowManager = uiContext->WindowManager;
-      auto screenPoint = windowManager->PointToScreen(this, point);
+      const auto& windowManager = uiContext->WindowManager;
+      PxPoint2 screenPoint = windowManager->PointToScreen(this, pointPx);
       return windowManager->PointFromScreen(pToWin, screenPoint);
     }
 
@@ -413,7 +387,19 @@ namespace Fsl
         m_flags.Enable(flags);
 
         auto uiContext = GetContext()->TheUIContext.Get();
-        uiContext->WindowManager->TrySetWindowFlags(this, flags);
+        uiContext->WindowManager->TrySetWindowFlags(this, flags, true);
+      }
+    }
+
+
+    void BaseWindow::Disable(const WindowFlags& flags)
+    {
+      if (m_flags.IsEnabled(flags))
+      {
+        m_flags.Disable(flags);
+
+        auto uiContext = GetContext()->TheUIContext.Get();
+        uiContext->WindowManager->TrySetWindowFlags(this, flags, false);
       }
     }
 
@@ -435,6 +421,9 @@ namespace Fsl
 
         // Let a control know a flag was changed
         OnPropertiesUpdated(flags);
+
+        // Update animation state
+        SetAnimationUpdate(UpdateAnimationState(false));
       }
       else
       {
@@ -450,11 +439,31 @@ namespace Fsl
         if (isDirty)
         {
           auto uiContext = GetContext()->TheUIContext.Get();
-          uiContext->WindowManager->TrySetWindowFlags(this, WindowFlags::LayoutDirty);
+          uiContext->WindowManager->TrySetWindowFlags(this, WindowFlags::LayoutDirty, true);
         }
         else
         {
           m_flags.Disable(BaseWindowFlags::LayoutDirty);
+        }
+      }
+    }
+
+    void BaseWindow::SetAnimationUpdate(const bool isAnimating)
+    {
+      if (isAnimating)
+      {
+        if (!IsUpdateEnabled())
+        {
+          Enable(WindowFlags::UpdateEnabled);
+          // FSLLOG3_INFO("Enabling animation"); // LOG FOR NOW
+        }
+      }
+      else
+      {
+        if (IsUpdateEnabled())
+        {
+          Disable(WindowFlags::UpdateEnabled);
+          // FSLLOG3_INFO("Disabling animation");  // LOG FOR NOW
         }
       }
     }

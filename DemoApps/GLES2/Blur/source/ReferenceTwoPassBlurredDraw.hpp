@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslUtil/OpenGLES2/GLFrameBuffer.hpp>
@@ -50,7 +50,7 @@ namespace Fsl
   class ReferenceTwoPassBlurredDraw : public ABlurredDraw
   {
     std::shared_ptr<GLES2::NativeBatch2D> m_batch2D;
-    Point2 m_screenResolution;
+    PxSize2D m_screenResolution;
     GLES2::GLFrameBuffer m_framebufferOrg;
     GLES2::GLFrameBuffer m_framebufferBlur;
     TwoPassShaders m_shaders;

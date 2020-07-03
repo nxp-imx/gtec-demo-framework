@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
@@ -54,7 +55,7 @@ namespace Fsl
   public:
     DFNativeBatchCameraRender();
 
-    void Draw(const DemoTime& demoTime, const std::shared_ptr<GLES3::NativeBatch2D>& nativeBatch, const Point2& res);
+    void Draw(const DemoTime& demoTime, const std::shared_ptr<GLES3::NativeBatch2D>& nativeBatch, const PxSize2D& resPx);
   };
 }
 

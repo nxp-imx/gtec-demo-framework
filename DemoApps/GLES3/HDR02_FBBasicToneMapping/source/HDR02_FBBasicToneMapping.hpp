@@ -31,25 +31,15 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Transition/TransitionCache.hpp>
-#include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
-#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/FloatSliderAndValueLabel.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Layout/CanvasLayout.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
-#include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
-#include <FslUtil/OpenGLES3/GLVertexArray.hpp>
 #include <FslUtil/OpenGLES3/GLFrameBuffer.hpp>
 #include <Shared/HDR/BasicScene/MenuUI.hpp>
-#include <Shared/HDR/BasicScene/OptionParser.hpp>
 #include <Shared/HDR/BasicScene/API/OpenGLES3/BasicProgramLocations.hpp>
 #include <Shared/HDR/BasicScene/API/OpenGLES3/FragmentUBOData.hpp>
 #include <Shared/HDR/BasicScene/API/OpenGLES3/SimpleMesh.hpp>
@@ -118,7 +108,7 @@ namespace Fsl
     FragmentUBOData m_fragmentUboData;
 
   public:
-    HDR02_FBBasicToneMapping(const DemoAppConfig& config);
+    explicit HDR02_FBBasicToneMapping(const DemoAppConfig& config);
     ~HDR02_FBBasicToneMapping() override;
 
   protected:

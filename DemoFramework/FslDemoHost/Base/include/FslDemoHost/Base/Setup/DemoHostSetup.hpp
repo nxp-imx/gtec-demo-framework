@@ -48,10 +48,10 @@ namespace Fsl
     std::shared_ptr<ADemoHostOptionParser> OptionParser;
     std::shared_ptr<ServiceOptionParserDeque> ServiceOptionParsers;
 
-    DemoHostSetup(const std::shared_ptr<IDemoHostFactory>& rFactory);
-    DemoHostSetup(const std::shared_ptr<IDemoHostFactory>& rFactory, const std::shared_ptr<ADemoHostOptionParser>& rOptionParser);
-    DemoHostSetup(const std::shared_ptr<IDemoHostFactory>& rFactory, const std::shared_ptr<ADemoHostOptionParser>& rOptionParser,
-                  const std::shared_ptr<ServiceOptionParserDeque>& serviceOptionParsers);
+    explicit DemoHostSetup(std::shared_ptr<IDemoHostFactory> rFactory);
+    DemoHostSetup(std::shared_ptr<IDemoHostFactory> rFactory, std::shared_ptr<ADemoHostOptionParser> rOptionParser);
+    DemoHostSetup(std::shared_ptr<IDemoHostFactory> rFactory, std::shared_ptr<ADemoHostOptionParser> rOptionParser,
+                  std::shared_ptr<ServiceOptionParserDeque> serviceOptionParsers);
   };
 }
 

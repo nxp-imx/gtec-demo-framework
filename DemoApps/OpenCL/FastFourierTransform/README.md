@@ -17,8 +17,6 @@ Command line arguments':
 Argument                        |Description                                                                                                                                                         |Source
 --------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------
 --Length \<arg>                 |FFT length.                                                                                                                                                         |Demo
---DisplayId \<arg>              |DisplayId \<number>                                                                                                                                                 |DemoHost
---Window \<arg>                 |Window mode [left,top,width,height]                                                                                                                                 |DemoHost
 --AppFirewall                   |Enable the app firewall, reporting crashes on-screen instead of exiting                                                                                             |DemoHostManager
 --ContentMonitor                |Monitor the Content directory for changes and restart the app on changes.WARNING: Might not work on all platforms and it might impact app performance (experimental)|DemoHostManager
 --ExitAfterDuration \<arg>      |Exit after the given duration has passed. The value can be specified in seconds or milliseconds. For example 10s or 10ms.                                           |DemoHostManager

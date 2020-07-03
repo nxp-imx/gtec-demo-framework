@@ -48,7 +48,10 @@ namespace Fsl
     };
   }
 
-  WindowDemoHostOptionParser::WindowDemoHostOptionParser() = default;
+  WindowDemoHostOptionParser::WindowDemoHostOptionParser()
+    : ADemoHostOptionParser(DemoHostOptionConfig::WindowApp)
+  {
+  }
 
 
   void WindowDemoHostOptionParser::ArgumentSetup(std::deque<Option>& rOptions)
@@ -60,9 +63,9 @@ namespace Fsl
   }
 
 
-  OptionParseResult WindowDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
+  OptionParseResult WindowDemoHostOptionParser::Parse(const int cmdId, const StringViewLite& strOptArg)
   {
-    return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
+    return ADemoHostOptionParser::Parse(cmdId, strOptArg);
   }
 
 

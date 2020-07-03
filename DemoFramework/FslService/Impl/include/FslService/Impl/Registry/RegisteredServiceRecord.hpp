@@ -35,6 +35,7 @@
 #include <FslService/Impl/Priority.hpp>
 #include <FslService/Impl/Registry/IServiceFactory.hpp>
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
@@ -44,9 +45,9 @@ namespace Fsl
     std::shared_ptr<IServiceFactory> Factory;
     Priority StartupPriority;
 
-    RegisteredServiceRecord(const ProviderId& id, const std::shared_ptr<IServiceFactory>& factory, const Priority& priority)
+    RegisteredServiceRecord(const ProviderId& id, std::shared_ptr<IServiceFactory> factory, const Priority& priority)
       : Id(id)
-      , Factory(factory)
+      , Factory(std::move(factory))
       , StartupPriority(priority)
     {
     }

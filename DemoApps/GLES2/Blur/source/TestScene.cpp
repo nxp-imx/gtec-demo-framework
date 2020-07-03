@@ -76,27 +76,27 @@ namespace Fsl
 
     {    // prepare the vertex buffer
       // We scale the UV coordinates so that we get a 1-1 pixel mapping on the screen
-      const float scaleX = screenResolution.X / float(m_texture.GetSize().X);
+      const float scaleX = screenResolution.X / float(m_texture.GetSize().Width());
       const float aspect = (screenResolution.Y / static_cast<float>(screenResolution.X));
       const float u1 = 0.0f;
       const float u2 = scaleX;
       const float v1 = scaleX * aspect;
       const float v2 = 0.0f * aspect;
 
-      VertexPositionTexture vertices[] = {
+      const std::array<VertexPositionTexture, 4> vertices = {
         VertexPositionTexture(Vector3(-1.0f, 1.0f, 0.0f), Vector2(u1, v2)),
         VertexPositionTexture(Vector3(-1.0f, -1.0f, 0.0f), Vector2(u1, v1)),
         VertexPositionTexture(Vector3(1.0f, 1.0f, 0.0f), Vector2(u2, v2)),
         VertexPositionTexture(Vector3(1.0f, -1.0f, 0.0f), Vector2(u2, v1)),
       };
 
-      m_vertexBuffer.Reset(vertices, 4, GL_STATIC_DRAW);
+      m_vertexBuffer.Reset(vertices, GL_STATIC_DRAW);
     }
     glViewport(0, 0, screenResolution.X, screenResolution.Y);
   }
 
 
-  void TestScene::Update(const DemoTime& demoTime)
+  void TestScene::Update(const DemoTime& /*demoTime*/)
   {
   }
 

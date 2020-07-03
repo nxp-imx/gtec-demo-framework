@@ -37,6 +37,7 @@
 #include <cstring>
 #include <dirent.h>
 #include <cerrno>
+#include <utility>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -76,8 +77,8 @@ namespace Fsl
       Path FullPath;
       FileData Data;
 
-      PlatformPathMonitorToken(const Path& fullPath)
-        : FullPath(fullPath)
+      explicit PlatformPathMonitorToken(Path fullPath)
+        : FullPath(std::move(fullPath))
 
       {
       }
@@ -208,7 +209,7 @@ namespace Fsl
 
     void PlatformFileSystem::CreateDir(const Path& path)
     {
-      const auto dir = path.ToUTF8String();
+      const auto& dir = path.ToUTF8String();
 
       auto res = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
       if (res != 0)

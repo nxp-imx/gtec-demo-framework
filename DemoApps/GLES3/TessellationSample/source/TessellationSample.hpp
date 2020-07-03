@@ -35,6 +35,7 @@
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
 #include <deque>
 #include <memory>
 #include <vector>
@@ -51,19 +52,24 @@ namespace Fsl
 
   namespace UI
   {
-    class CheckBox;
     class Label;
-    class LabelButton;
-    class WindowContext;
-    class FillLayout;
+    class LabelNineSliceButton;
+    class RadioButton;
     class StackLayout;
+    class Switch;
+    class WindowContext;
+
+    namespace Theme
+    {
+      class BasicThemeFactory;
+    }
   }
 
 
   struct SceneRecord
   {
     std::shared_ptr<AScene> Scene;
-    std::shared_ptr<UI::LabelButton> Button;
+    std::shared_ptr<UI::RadioButton> Button;
   };
 
   class TessellationSample
@@ -79,18 +85,17 @@ namespace Fsl
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
     std::shared_ptr<UI::WindowContext> m_context;
 
-    std::shared_ptr<UI::Label> m_caption;
-    std::shared_ptr<UI::CheckBox> m_checkDisplacement;
-    std::shared_ptr<UI::CheckBox> m_checkWireframe;
-    std::shared_ptr<UI::CheckBox> m_checkTexture;
-    std::shared_ptr<UI::CheckBox> m_checkRotate;
-    std::shared_ptr<SliderControl> m_sliderTInner;
-    std::shared_ptr<SliderControl> m_sliderTOuter;
-    std::shared_ptr<SliderControl> m_sliderTDispFactor;
-    std::shared_ptr<SliderControl> m_sliderTDispMod;
-    std::shared_ptr<SliderControl> m_sliderShininess;
+    // std::shared_ptr<UI::Label> m_caption;
+    std::shared_ptr<UI::Switch> m_checkDisplacement;
+    std::shared_ptr<UI::Switch> m_checkWireframe;
+    std::shared_ptr<UI::Switch> m_checkTexture;
+    std::shared_ptr<UI::Switch> m_checkRotate;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_sliderTInner;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_sliderTOuter;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_sliderTDispFactor;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_sliderTDispMod;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_sliderShininess;
     std::shared_ptr<UI::StackLayout> m_buttonStack;
-    std::shared_ptr<UI::FillLayout> m_fillLayout;
 
     std::deque<SceneRecord> m_scenes;
     std::shared_ptr<AScene> m_scene;
@@ -99,7 +104,7 @@ namespace Fsl
     RenderMaterial m_material;
 
   public:
-    TessellationSample(const DemoAppConfig& config);
+    explicit TessellationSample(const DemoAppConfig& config);
     ~TessellationSample() override;
 
     void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
@@ -113,7 +118,7 @@ namespace Fsl
     void Update(const DemoTime& demoTime) override;
     void Draw(const DemoTime& demoTime) override;
 
-    void BuildUI(const std::shared_ptr<IContentManager>& contentManager);
+    void BuildUI(UI::Theme::BasicThemeFactory& factory);
     void UpdateCaption();
     void UpdateUIWithSceneSettings();
   };

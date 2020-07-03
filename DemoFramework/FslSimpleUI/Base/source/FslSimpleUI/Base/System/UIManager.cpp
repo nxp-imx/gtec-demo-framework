@@ -44,6 +44,7 @@
 #include "Modules/ModuleCallbackRegistry.hpp"
 #include "Modules/Input/InputModule.hpp"
 #include "Event/EventRouter.hpp"
+#include "Event/SimpleEventSender.hpp"
 #include "Event/WindowEventQueueEx.hpp"
 #include "UITree.hpp"
 #include "RootWindow.hpp"
@@ -57,27 +58,31 @@ namespace Fsl
     {
     }
 
-    UIManager::UIManager(const Point2& currentSize)
+    UIManager::UIManager(const DemoWindowMetrics& windowMetrics)
       : m_moduleCallbackRegistry(std::make_shared<ModuleCallbackRegistry>())
       , m_eventPool(std::make_shared<WindowEventPool>())
       , m_eventQueue(std::make_shared<WindowEventQueueEx>())
       , m_tree(std::make_shared<UITree>(m_moduleCallbackRegistry, m_eventPool, m_eventQueue))
       , m_eventSender(std::make_shared<WindowEventSender>(m_eventQueue, m_eventPool, m_tree))
       , m_uiContext(std::make_shared<UIContext>(m_tree, m_eventSender))
-      , m_baseWindowContext(std::make_shared<BaseWindowContext>(m_uiContext))
-      , m_rootWindow(std::make_shared<RootWindow>(m_baseWindowContext, Vector2(static_cast<float>(currentSize.X), static_cast<float>(currentSize.Y))))
+      , m_baseWindowContext(std::make_shared<BaseWindowContext>(m_uiContext, windowMetrics.DensityDpi))
+      , m_rootWindow(std::make_shared<RootWindow>(m_baseWindowContext, windowMetrics.ExtentPx, windowMetrics.DensityDpi))
       , m_leftButtonDown(false)
     {
       m_tree->Init(m_rootWindow);
       try
       {
-        m_moduleHost = std::make_shared<ModuleHost>(m_moduleCallbackRegistry, m_tree, m_tree->GetRootNode(), m_tree, m_tree, m_eventPool);
+        m_simpleEventSender = std::make_shared<SimpleEventSender>(m_tree, m_eventPool, m_tree, m_tree->GetRootNode(), m_tree);
+
+        m_moduleHost = std::make_shared<ModuleHost>(m_moduleCallbackRegistry, m_tree, m_tree->GetRootNode(), m_tree, m_tree, m_eventPool,
+                                                    m_eventSender, m_simpleEventSender);
         m_inputModule = std::make_shared<InputModule>(m_moduleHost);
       }
       catch (const std::exception&)
       {
         m_inputModule.reset();
         m_moduleHost.reset();
+        m_simpleEventSender.reset();
         m_tree->Shutdown();
         throw;
       }
@@ -86,14 +91,25 @@ namespace Fsl
 
     UIManager::~UIManager()
     {
+      m_inputModule.reset();
+      m_moduleHost.reset();
+      m_simpleEventSender.reset();
       if (m_tree)
       {
-        m_tree->Shutdown();
+        try
+        {
+          m_tree->Shutdown();
+        }
+        catch (const std::exception& ex)
+        {
+          FSLLOG3_ERROR("A exception was thrown during shutdown: {}", ex.what());
+        }
+        m_tree.reset();
       }
     }
 
 
-    std::shared_ptr<UIContext> UIManager::GetUIContext() const
+    const std::shared_ptr<UIContext>& UIManager::GetUIContext() const
     {
       return m_uiContext;
     }
@@ -104,13 +120,13 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<WindowEventPool> UIManager::GetEventPool() const
+    const std::shared_ptr<WindowEventPool>& UIManager::GetEventPool() const
     {
       return m_eventPool;
     }
 
 
-    std::shared_ptr<WindowEventSender> UIManager::GetEventSender() const
+    const std::shared_ptr<WindowEventSender>& UIManager::GetEventSender() const
     {
       return m_eventSender;
     }
@@ -132,7 +148,7 @@ namespace Fsl
       m_leftButtonDown = event.IsPressed();
       const auto transactionState = m_leftButtonDown ? EventTransactionState::Begin : EventTransactionState::End;
       const auto position = event.GetPosition();
-      const bool isHandled = m_inputModule->SendClickEvent(0, 0, transactionState, false, Vector2(position.X, position.Y));
+      const bool isHandled = m_inputModule->SendClickEvent(0, 0, transactionState, false, position);
       if (isHandled && !event.IsHandled())
       {
         event.Handled();
@@ -143,13 +159,17 @@ namespace Fsl
 
     bool UIManager::SendMouseMoveEvent(const MouseMoveEvent& event)
     {
-      if (!m_leftButtonDown)
-      {
-        return false;
-      }
-
       const auto position = event.GetPosition();
-      const bool isHandled = m_inputModule->SendClickEvent(0, 0, EventTransactionState::Begin, true, Vector2(position.X, position.Y));
+
+      bool isHandled = m_inputModule->MouseMove(0, 0, position);
+
+      if (m_leftButtonDown)
+      {
+        if (m_inputModule->SendClickEvent(0, 0, EventTransactionState::Begin, true, position))
+        {
+          isHandled = true;
+        }
+      }
       if (isHandled && !event.IsHandled())
       {
         event.Handled();
@@ -162,23 +182,40 @@ namespace Fsl
     //{
     //}
 
+    bool UIManager::IsIdle() const
+    {
+      return !m_tree || m_tree->IsIdle();
+    }
+
+    UIStats UIManager::GetStats() const
+    {
+      return m_tree ? m_tree->GetStats() : UIStats();
+    }
+
     void UIManager::ProcessEvents()
     {
       m_tree->ProcessEvents();
     }
 
-    void UIManager::SetDPI(const Point2& dpi)
+    void UIManager::SetDensityDpi(const uint32_t dpi)    // NOLINT(readability-convert-member-functions-to-static)
     {
       FSL_PARAM_NOT_USED(dpi);
     }
 
-    void UIManager::Resized(const Point2& size)
+    void UIManager::Resized(const DemoWindowMetrics& windowMetrics)
     {
-      m_tree->Resized(Vector2(static_cast<float>(size.X), static_cast<float>(size.Y)));
+      if (m_baseWindowContext)
+      {
+        m_baseWindowContext->UnitConverter.SetDensityDpi(windowMetrics.DensityDpi);
+      }
+      if (m_tree)
+      {
+        m_tree->Resized(windowMetrics.ExtentPx, windowMetrics.DensityDpi);
+      }
     }
 
 
-    void UIManager::FixedUpdate(const DemoTime& demoTime)
+    void UIManager::FixedUpdate(const DemoTime& demoTime)    // NOLINT(readability-convert-member-functions-to-static)
     {
       FSL_PARAM_NOT_USED(demoTime);
     }

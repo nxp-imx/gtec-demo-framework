@@ -15,6 +15,7 @@
 /Bloom_d
 /CMakeLists.txt
 /Content/Models/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES2.Bloom.VC.VC.opendb

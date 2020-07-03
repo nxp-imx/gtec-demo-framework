@@ -44,14 +44,14 @@ namespace Fsl
       cv::VideoCapture m_cap;
       cv::Mat m_vidFrame;
       CameraAdapterConfig m_config;
-      uint32_t m_bytesPerPixel{};
+      // uint32_t m_bytesPerPixel{};
       uint32_t m_frameId;
 
     public:
       CameraAdapterOpenCV(const CameraAdapterOpenCV&) = delete;
       CameraAdapterOpenCV& operator=(const CameraAdapterOpenCV&) = delete;
 
-      CameraAdapterOpenCV(const CameraAdapterAllocateInfo& allocateInfo);
+      explicit CameraAdapterOpenCV(const CameraAdapterAllocateInfo& allocateInfo);
       ~CameraAdapterOpenCV() override;
 
       CameraAdapterConfig GetConfig() const override;

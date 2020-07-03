@@ -55,10 +55,10 @@ class FormatPluginCSharp3(FormatPlugin):
         list.append('    {')
 
         for entry in atlas.Entries:
-            rectX = entry.Frame.X - entry.SpriteSourceSize.X
-            rectY = entry.Frame.Y - entry.SpriteSourceSize.Y
-            rectWidth = entry.SourceSize.Width
-            rectHeight = entry.SourceSize.Height
+            rectX = entry.Frame.X
+            rectY = entry.Frame.Y
+            rectWidth = entry.Frame.Width
+            rectHeight = entry.Frame.Height
 
             trimLeft = entry.SpriteSourceSize.X
             trimTop = entry.SpriteSourceSize.Y
@@ -67,9 +67,9 @@ class FormatPluginCSharp3(FormatPlugin):
             srcDP = entry.DP
 
             if srcDP == 160:
-                list.append('      {{ "{0}", new TextureAtlasImageInfo(new PxRectangleU({1}, {2}, {3}, {4}), new PxThicknessU({5}, {6}, {7}, {8})) }},'.format(entry.FullFilenameWithoutExt, entry.Frame.X, entry.Frame.Y, entry.Frame.Width, entry.Frame.Height, trimLeft, trimTop, trimRight, trimBottom))
+                list.append('      {{ "{0}", new TextureAtlasImageInfo(new PxRectangleU({1}, {2}, {3}, {4}), new PxThicknessU({5}, {6}, {7}, {8})) }},'.format(entry.FullFilenameWithoutExt, rectX, rectY, rectWidth, rectHeight, trimLeft, trimTop, trimRight, trimBottom))
             else:
-                list.append('      {{ "{0}", new TextureAtlasImageInfo(new PxRectangleU({1}, {2}, {3}, {4}), new PxThicknessU({5}, {6}, {7}, {8}), {9}) }},'.format(entry.FullFilenameWithoutExt, entry.Frame.X, entry.Frame.Y, entry.Frame.Width, entry.Frame.Height, trimLeft, trimTop, trimRight, trimBottom, srcDP))
+                list.append('      {{ "{0}", new TextureAtlasImageInfo(new PxRectangleU({1}, {2}, {3}, {4}), new PxThicknessU({5}, {6}, {7}, {8}), {9}) }},'.format(entry.FullFilenameWithoutExt, rectX, rectY, rectWidth, rectHeight, trimLeft, trimTop, trimRight, trimBottom, srcDP))
 
         list.append('    };')
         list.append('')

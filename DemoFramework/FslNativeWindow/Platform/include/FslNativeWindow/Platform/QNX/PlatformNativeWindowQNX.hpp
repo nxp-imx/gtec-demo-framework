@@ -53,12 +53,8 @@ namespace Fsl
                             const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     virtual ~PlatformNativeWindowQNX();
 
-    virtual bool TryGetDPI(Vector2& rDPI) const override;
-    virtual bool TryGetSize(Point2& rSize) const override;
-    virtual bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return false;
-    }
+  protected:
+    bool TryGetNativeSize(PxPoint2& rSize) const override;
   };
 }    // namespace Fsl
 

@@ -38,7 +38,8 @@ class UserCMakeConfig(object):
     """
     The cmake settings that can be overriden by the user
     """
-    def __init__(self, buildDir: Optional[str], generatorName: Optional[str], installPrefix: Optional[str],) -> None:
+    def __init__(self, buildDir: Optional[str], generatorName: Optional[str], installPrefix: Optional[str], configUserAppArgs: Optional[str],
+                 configGlobalArgs: Optional[str], allowFindPackage: Optional[bool]) -> None:
         super().__init__()
 
         if buildDir is not None:
@@ -49,3 +50,6 @@ class UserCMakeConfig(object):
         self.BuildDir = buildDir
         self.GeneratorName = generatorName
         self.InstallPrefix = installPrefix
+        self.ConfigAppArgs = "" if configUserAppArgs is None else configUserAppArgs
+        self.ConfigGlobalArgs = "" if configGlobalArgs is None else configGlobalArgs
+        self.AllowFindPackage = allowFindPackage

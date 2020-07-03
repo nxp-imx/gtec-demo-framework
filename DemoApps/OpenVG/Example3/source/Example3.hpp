@@ -61,7 +61,7 @@ namespace Fsl
     VGfloat m_scissor_rectangle;
 
   public:
-    Example3(const DemoAppConfig& config);
+    explicit Example3(const DemoAppConfig& config);
     ~Example3() override;
 
   protected:

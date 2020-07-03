@@ -47,27 +47,18 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "E3_0_InstancingSimple.hpp"
 #include <GLES3/gl3.h>
-#include <iostream>
+#include <array>
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
 #include <vector>
 
 // Defines needed for Instancing
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define srandom srand
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define random rand
 
-#define POSITION_LOC 0
-#define COLOR_LOC 1
-#define MVP_LOC 2
-
-#define PI 3.1415926535897932384626433832795f
-
-// Attribute Arrays Indexes and Sizes
-#define VERTEX_POS_SIZE 3      // x, y and z
-#define VERTEX_COLOR_SIZE 4    // r, g, b, and a
-
-#define VERTEX_POS_INDX 0
-#define VERTEX_COLOR_INDX 1
 
 namespace Fsl
 {
@@ -75,6 +66,11 @@ namespace Fsl
 
   namespace
   {
+    constexpr GLuint POSITION_LOC = 0;
+    constexpr GLuint COLOR_LOC = 1;
+    constexpr GLuint MVP_LOC = 2;
+
+
     /// \brief Generates geometry for a cube.  Allocates memory for the vertex data and stores
     ///        the results in the arrays.  Generate index list for a TRIANGLES
     /// \param scale The size of the cube, use 1.0 for a unit cube.
@@ -88,25 +84,25 @@ namespace Fsl
     int GenCube(float scale, std::vector<GLfloat>* pVertices, std::vector<GLfloat>* pNormals, std::vector<GLfloat>* pTexCoords,
                 std::vector<GLuint>* pIndices)
     {
-      int i;
-      int numVertices = 24;
-      int numIndices = 36;
+      int i = 0;
+      constexpr int numVertices = 24;
+      constexpr int numIndices = 36;
 
-      GLfloat cubeVerts[] = {
+      const std::array<GLfloat, numVertices* 3> cubeVerts = {
         -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  0.5f,
         0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f,
         -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,
         -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,  -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  0.5f,  -0.5f,
       };
 
-      GLfloat cubeNormals[] = {
+      const std::array<GLfloat, numVertices* 3> cubeNormals = {
         0.0f,  -1.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f, -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f,  1.0f, 0.0f,  0.0f,  1.0f, 0.0f,
         0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,  -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, -1.0f,
         0.0f,  0.0f,  1.0f, 0.0f,  0.0f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  -1.0f, 0.0f, 0.0f,
         -1.0f, 0.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f,  1.0f, 0.0f,  0.0f,  1.0f,  0.0f, 0.0f,  1.0f,  0.0f, 0.0f,
       };
 
-      GLfloat cubeTex[] = {
+      const std::array<GLfloat, numVertices* 2> cubeTex = {
         0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
@@ -116,7 +112,7 @@ namespace Fsl
       if (pVertices != nullptr)
       {
         pVertices->resize(3 * numVertices);
-        memcpy(pVertices->data(), cubeVerts, sizeof(cubeVerts));
+        memcpy(pVertices->data(), cubeVerts.data(), cubeVerts.size() * sizeof(GLfloat));
 
         for (i = 0; i < numVertices * 3; i++)
         {
@@ -127,24 +123,24 @@ namespace Fsl
       if (pNormals != nullptr)
       {
         pNormals->resize(3 * numVertices);
-        memcpy(pNormals->data(), cubeNormals, sizeof(cubeNormals));
+        memcpy(pNormals->data(), cubeNormals.data(), cubeNormals.size() * sizeof(GLfloat));
       }
 
       if (pTexCoords != nullptr)
       {
         pTexCoords->resize(2 * numVertices);
-        memcpy(pTexCoords->data(), cubeTex, sizeof(cubeTex));
+        memcpy(pTexCoords->data(), cubeTex.data(), cubeTex.size() * sizeof(GLfloat));
       }
 
 
       // Generate the indices
       if (pIndices != nullptr)
       {
-        GLuint cubeIndices[] = {0,  2,  1,  0,  3,  2,  4,  5,  6,  4,  6,  7,  8,  9,  10, 8,  10, 11,
-                                12, 15, 14, 12, 14, 13, 16, 17, 18, 16, 18, 19, 20, 23, 22, 20, 22, 21};
+        const std::array<GLuint, numIndices> cubeIndices = {0,  2,  1,  0,  3,  2,  4,  5,  6,  4,  6,  7,  8,  9,  10, 8,  10, 11,
+                                                            12, 15, 14, 12, 14, 13, 16, 17, 18, 16, 18, 19, 20, 23, 22, 20, 22, 21};
 
         pIndices->resize(numIndices);
-        memcpy(pIndices->data(), cubeIndices, sizeof(cubeIndices));
+        memcpy(pIndices->data(), cubeIndices.data(), cubeIndices.size() * sizeof(GLuint));
       }
 
       return numIndices;
@@ -186,8 +182,8 @@ namespace Fsl
 
       // Random color for each instance
       {
-        GLubyte colors[NUM_INSTANCES][4];
-        int instance;
+        GLubyte colors[NUM_INSTANCES][4];    // NOLINT(modernize-avoid-c-arrays)
+        int instance = 0;
 
         srandom(0);
 
@@ -207,7 +203,7 @@ namespace Fsl
 
       // Allocate storage to store MVP per instance
       {
-        int instance;
+        int instance = 0;
 
         // Random angle for each instance, compute the MVP later
         for (instance = 0; instance < NUM_INSTANCES; instance++)
@@ -238,26 +234,19 @@ namespace Fsl
   void E3_0_InstancingSimple::Update(const DemoTime& demoTime)
   {
     const float deltaTime = demoTime.DeltaTime;
-    Point2 size = GetScreenResolution();
-    const auto w = float(size.X);
-    const auto h = float(size.Y);
+    const auto aspectRatio = GetWindowAspectRatio();
 
-    Matrix* pMatBuf;
-    float aspect;
+    Matrix* pMatBuf = nullptr;
     int instance = 0;
-    int numRows;
-    int numColumns;
-
-
-    // Compute the window aspect ratio
-    aspect = w / h;
+    int numRows = 0;
+    int numColumns = 0;
 
     // Generate a perspective matrix with a 60 degree FOV
-    const Matrix matPerspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspect, 1.0f, 20.0f);
+    const Matrix matPerspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspectRatio, 1.0f, 20.0f);
 
 
     GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.mvpVBO));
-    GL_CHECK(pMatBuf = (Matrix*)glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(Matrix) * NUM_INSTANCES, GL_MAP_WRITE_BIT));
+    GL_CHECK(pMatBuf = reinterpret_cast<Matrix*>(glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(Matrix) * NUM_INSTANCES, GL_MAP_WRITE_BIT)));
 
     assert(pMatBuf != nullptr);
 
@@ -294,11 +283,11 @@ namespace Fsl
   }
 
 
-  void E3_0_InstancingSimple::Draw(const DemoTime& demoTime)
+  void E3_0_InstancingSimple::Draw(const DemoTime& /*demoTime*/)
   {
-    Point2 size = GetScreenResolution();
+    PxSize2D sizePx = GetWindowSizePx();
 
-    glViewport(0, 0, size.X, size.Y);
+    glViewport(0, 0, sizePx.Width(), sizePx.Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Load the vertex position

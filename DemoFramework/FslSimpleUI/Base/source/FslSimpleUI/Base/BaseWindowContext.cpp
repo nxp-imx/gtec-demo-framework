@@ -32,15 +32,16 @@
 #include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 
 namespace Fsl
 {
   namespace UI
   {
-    BaseWindowContext::BaseWindowContext(const std::shared_ptr<UIContext>& uiContext)
+    BaseWindowContext::BaseWindowContext(const std::shared_ptr<UIContext>& uiContext, const uint32_t densityDpi)
       : TheUIContext(uiContext)
+      , UnitConverter(densityDpi)
+
     {
     }
 

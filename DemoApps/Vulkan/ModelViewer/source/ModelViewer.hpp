@@ -162,7 +162,7 @@ namespace Fsl
     bool m_wireframe{false};
 
   public:
-    ModelViewer(const DemoAppConfig& config);
+    explicit ModelViewer(const DemoAppConfig& config);
 
   protected:
     void OnKeyEvent(const KeyEvent& event) override;

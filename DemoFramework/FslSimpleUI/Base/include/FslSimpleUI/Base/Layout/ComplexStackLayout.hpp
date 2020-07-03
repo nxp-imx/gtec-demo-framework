@@ -31,74 +31,52 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/Layout/Layout.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexLayout.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutOrientation.hpp>
 #include <FslSimpleUI/Base/Layout/LayoutLength.hpp>
-#include <FslSimpleUI/Base/WindowCollection/GenericWindowCollection.hpp>
 #include <deque>
 
 namespace Fsl
 {
+  class SpriteUnitConverter;
+
   namespace UI
   {
-    class ComplexStackLayout : public Layout
+    struct ComplexStackLayoutWindowRecord : GenericWindowCollectionRecordBase
     {
-      struct FinalLayout : GenericWindowCollectionRecordBase
+      LayoutUnitType UnitType;
+      int32_t PositionPx{};
+      int32_t SizePx{};
+      float LayoutSizeMagic{};
+
+      explicit ComplexStackLayoutWindowRecord(const std::shared_ptr<BaseWindow>& window)
+        : GenericWindowCollectionRecordBase(window)
+        , UnitType(LayoutUnitType::Auto)
       {
-        LayoutUnitType UnitType;
-        float Position;
-        float Size;
+      }
+    };
 
-        FinalLayout(const std::shared_ptr<BaseWindow>& window)
-          : GenericWindowCollectionRecordBase(window)
-          , UnitType(LayoutUnitType::Auto)
-          , Position(0)
-          , Size()
-        {
-        }
-      };
 
-      using collection_type = GenericWindowCollection<FinalLayout>;
-      collection_type m_children;
-
+    class ComplexStackLayout : public ComplexLayout<ComplexStackLayoutWindowRecord>
+    {
       LayoutOrientation m_orientation;
       std::deque<LayoutLength> m_layoutLength;
-      float m_spacing;
+      float m_spacingDp{};
+
 
     public:
-      ComplexStackLayout(const std::shared_ptr<BaseWindowContext>& context);
-      void WinInit() override;
-
-      void ClearChildren() override
-      {
-        m_children.Clear();
-      }
-
-      void AddChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Add(window);
-      }
-
-      void RemoveChild(const std::shared_ptr<BaseWindow>& window) override
-      {
-        m_children.Remove(window);
-      }
-
-      std::size_t GetChildCount() const override
-      {
-        return m_children.size();
-      }
-
+      explicit ComplexStackLayout(const std::shared_ptr<BaseWindowContext>& context);
 
       LayoutOrientation GetLayoutOrientation() const
       {
         return m_orientation;
       }
+
       void SetLayoutOrientation(const LayoutOrientation& value);
 
       float GetSpacing() const
       {
-        return m_spacing;
+        return m_spacingDp;
       }
       void SetSpacing(const float& value);
 
@@ -107,15 +85,15 @@ namespace Fsl
       void PopLayoutLength();
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
     private:
-      Vector2 CalcFixedStarSizeHorizontal(const Vector2& finalSize);
-      Vector2 CalcFixedStarSizeVertical(const Vector2& finalSize);
-      void FinalizeStarSizes(const float spaceLeft, const float totalStars);
-      void ArrangeHorizontal(const float finalSizeY);
-      void ArrangeVertical(const float finalSizeX);
+      PxSize2D CalcFixedStarSizeHorizontal(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx);
+      PxSize2D CalcFixedStarSizeVertical(const SpriteUnitConverter& unitConverter, const PxSize2D& finalSizePx);
+      void FinalizeStarSizes(const SpriteUnitConverter& unitConverter, const int32_t spaceLeftPx, const float totalStars);
+      void ArrangeHorizontal(const int32_t finalSizeYPx);
+      void ArrangeVertical(const int32_t finalSizeXPx);
     };
   }
 }

@@ -31,39 +31,40 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Rectangle.hpp>
-#include <FslBase/Math/Thickness.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxThicknessU.hpp>
 
 namespace Fsl
 {
   struct AtlasTextureInfo
   {
-    Point2 OriginalSize;
-    Point2 Offset;
-    Rectangle TrimmedRect;
-    Thickness TrimMargin;
+    PxExtent2D ExtentPx;
+    PxPoint2 OffsetPx;
+    PxRectangleU TrimmedRectPx;
+    PxThicknessU TrimMarginPx;
+    uint32_t Dpi{0};
 
     constexpr AtlasTextureInfo() = default;
 
     //! @param srcRect the untrimmed rect
     //! @param trimmedRect he trimmed rect
-    constexpr AtlasTextureInfo(const Rectangle& srcRect, const Rectangle& trimmedRect)
-      : OriginalSize(srcRect.Width(), srcRect.Height())
-      , Offset(srcRect.X(), srcRect.Y())
-      , TrimmedRect(trimmedRect)
-      , TrimMargin(trimmedRect.Left() - Offset.X, trimmedRect.Top() - Offset.Y, srcRect.Right() - trimmedRect.Right(),
-                   srcRect.Bottom() - trimmedRect.Bottom())
+    constexpr AtlasTextureInfo(const PxRectangleU& trimmedRectPx, const PxThicknessU& trimPx, const uint32_t dpi) noexcept
+      : ExtentPx(trimmedRectPx.Width + trimPx.SumX(), trimmedRectPx.Height + trimPx.SumY())
+      , OffsetPx(trimmedRectPx.X - trimPx.Left, trimmedRectPx.Y - trimPx.Top)
+      , TrimmedRectPx(trimmedRectPx)
+      , TrimMarginPx(trimPx)
+      , Dpi(dpi)
     {
     }
 
-    constexpr bool operator==(const AtlasTextureInfo& rhs) const
+    constexpr bool operator==(const AtlasTextureInfo& rhs) const noexcept
     {
-      return OriginalSize == rhs.OriginalSize && Offset == rhs.Offset && TrimmedRect == rhs.TrimmedRect && TrimMargin == rhs.TrimMargin;
+      return ExtentPx == rhs.ExtentPx && OffsetPx == rhs.OffsetPx && TrimmedRectPx == rhs.TrimmedRectPx && TrimMarginPx == rhs.TrimMarginPx &&
+             Dpi == rhs.Dpi;
     }
 
-    constexpr bool operator!=(const AtlasTextureInfo& rhs) const
+    constexpr bool operator!=(const AtlasTextureInfo& rhs) const noexcept
     {
       return !(*this == rhs);
     }

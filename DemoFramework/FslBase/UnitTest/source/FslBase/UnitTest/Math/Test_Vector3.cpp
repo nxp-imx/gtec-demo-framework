@@ -368,7 +368,12 @@ TEST(TestMath_Vector3, Normalize_Static_Ref)
 {
   constexpr float tolerance = 0.000001f;
 
-  Vector3 res1, res2, res3, res4, res5, res6;
+  Vector3 res1;
+  Vector3 res2;
+  Vector3 res3;
+  Vector3 res4;
+  Vector3 res5;
+  Vector3 res6;
   Vector3::Normalize(Vector3(4.0f, 0.0f, 0.0f), res1);
   Vector3::Normalize(Vector3(0.0f, 4.0f, 0.0f), res2);
   Vector3::Normalize(Vector3(0.0f, 0.0f, 4.0f), res3);
@@ -444,7 +449,9 @@ TEST(TestMath_Vector3, TransformNormal_Ref)
   constexpr float tolerance = 0.0000001f;
 
   {
-    Vector3 res1, res2, res3;
+    Vector3 res1;
+    Vector3 res2;
+    Vector3 res3;
     Vector3::TransformNormal(value1, matRotateX90, res1);
     Vector3::TransformNormal(value2, matRotateX90, res2);
     Vector3::TransformNormal(value3, matRotateX90, res3);
@@ -454,7 +461,9 @@ TEST(TestMath_Vector3, TransformNormal_Ref)
   }
 
   {
-    Vector3 res1, res2, res3;
+    Vector3 res1;
+    Vector3 res2;
+    Vector3 res3;
     Vector3::TransformNormal(value1, matRotateY90, res1);
     Vector3::TransformNormal(value2, matRotateY90, res2);
     Vector3::TransformNormal(value3, matRotateY90, res3);
@@ -465,7 +474,9 @@ TEST(TestMath_Vector3, TransformNormal_Ref)
   }
 
   {
-    Vector3 res1, res2, res3;
+    Vector3 res1;
+    Vector3 res2;
+    Vector3 res3;
     Vector3::TransformNormal(value1, matRotateZ90, res1);
     Vector3::TransformNormal(value2, matRotateZ90, res2);
     Vector3::TransformNormal(value3, matRotateZ90, res3);

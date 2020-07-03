@@ -43,6 +43,7 @@ namespace Fsl
   struct Point2;
   class DemoAppManager;
   class DemoHostManagerOptionParser;
+  struct DemoWindowMetrics;
   class IDemoHost;
   class IGraphicsServiceControl;
   class IHostInfoControl;
@@ -75,7 +76,7 @@ namespace Fsl
     //! Provide support for exiting after a number of successfully rendered frames (if negative, we render a unlimited amount of frames)
     int32_t m_exitAfterFrame;
     DurationExitConfig m_exitAfterDuration;
-    bool m_windowSizeIsDirty;
+    bool m_windowMetricsDirty{true};
     HighResolutionTimer m_timer;
     //! Only used if m_exitAfterDuration.Enabled is true
     std::chrono::microseconds m_exitTime;
@@ -87,7 +88,7 @@ namespace Fsl
     int Run(const std::shared_ptr<IServiceHostLooper>& serviceHostLooper);
 
   private:
-    void AppProcess(const Point2& screenResolution, const bool isConsoleBasedHost);
+    void AppProcess(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedHost);
     SwapBuffersResult AppDrawAndSwapBuffers();
     void ProcessMessages();
     void CmdRestart();

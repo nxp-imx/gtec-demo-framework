@@ -75,7 +75,7 @@ TEST_P(TestFixtureFslUtil_Vulkan1_0_TestDeviceMemoryUtil, FastUploadCoherent)
   RapidVulkan::Buffer buffer(m_device.Get(), bufferCreateInfo);
   auto memoryRequirements = buffer.GetBufferMemoryRequirements();
 
-  uint32_t memoryTypeIndex;
+  uint32_t memoryTypeIndex = 0;
   if (MemoryTypeUtil::TryGetMemoryTypeIndex(memoryTypeIndex, m_device.GetPhysicalDevice().MemoryProperties, memoryRequirements.memoryTypeBits,
                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
   {
@@ -119,7 +119,7 @@ TEST_P(TestFixtureFslUtil_Vulkan1_0_TestDeviceMemoryUtil, FastUploadNonCoherent)
   RapidVulkan::Buffer buffer(m_device.Get(), bufferCreateInfo);
   auto memoryRequirements = buffer.GetBufferMemoryRequirements();
 
-  uint32_t memoryTypeIndex;
+  uint32_t memoryTypeIndex = 0;
   if (MemoryTypeUtil::TryGetMemoryTypeIndex(memoryTypeIndex, m_device.GetPhysicalDevice().MemoryProperties, memoryRequirements.memoryTypeBits,
                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
   {
@@ -166,7 +166,7 @@ TEST_P(TestFixtureFslUtil_Vulkan1_0_TestDeviceMemoryUtil, FastUpload_Coherent)
   RapidVulkan::Buffer buffer(m_device.Get(), bufferCreateInfo);
   auto memoryRequirements = buffer.GetBufferMemoryRequirements();
 
-  uint32_t memoryTypeIndex;
+  uint32_t memoryTypeIndex = 0;
   if (MemoryTypeUtil::TryGetMemoryTypeIndex(memoryTypeIndex, m_device.GetPhysicalDevice().MemoryProperties, memoryRequirements.memoryTypeBits,
                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
   {
@@ -211,7 +211,7 @@ TEST_P(TestFixtureFslUtil_Vulkan1_0_TestDeviceMemoryUtil, FastUpload_NonCoherent
   RapidVulkan::Buffer buffer(m_device.Get(), bufferCreateInfo);
   auto memoryRequirements = buffer.GetBufferMemoryRequirements();
 
-  uint32_t memoryTypeIndex;
+  uint32_t memoryTypeIndex = 0;
   if (MemoryTypeUtil::TryGetMemoryTypeIndex(memoryTypeIndex, m_device.GetPhysicalDevice().MemoryProperties, memoryRequirements.memoryTypeBits,
                                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
   {
@@ -233,5 +233,5 @@ TEST_P(TestFixtureFslUtil_Vulkan1_0_TestDeviceMemoryUtil, FastUpload_NonCoherent
 }
 
 
-INSTANTIATE_TEST_CASE_P(BufferTypes, TestFixtureFslUtil_Vulkan1_0_TestDeviceMemoryUtil,
-                        ::testing::Values(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT));
+INSTANTIATE_TEST_SUITE_P(BufferTypes, TestFixtureFslUtil_Vulkan1_0_TestDeviceMemoryUtil,
+                         ::testing::Values(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT));

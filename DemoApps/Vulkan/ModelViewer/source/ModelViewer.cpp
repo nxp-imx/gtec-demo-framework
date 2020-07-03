@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "ModelViewer.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslAssimp/SceneImporter.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
@@ -51,9 +52,13 @@ namespace Fsl
 {
   namespace
   {
-    const float DEFAULT_ZOOM = 10;
-    const float DEFAULT_MODEL_SCALE = 5;
-    const auto SCENE_PATH = "Models";
+    namespace LocalConfig
+    {
+      const constexpr float DefaultZoom = 10;
+      const constexpr float DefaultModelScale = 5;
+
+      const constexpr IO::PathView ScenePath("Models");
+    }
 
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
 
@@ -121,7 +126,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -139,7 +144,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -173,7 +178,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -210,7 +215,7 @@ namespace Fsl
       writeDescriptorSets[1].pImageInfo = &textureImageInfo1;
 
       // Binding 2 : Fragment shader texture sampler
-      auto& rTexture2 = textureNormal.IsValid() ? textureNormal : texture;
+      const auto& rTexture2 = textureNormal.IsValid() ? textureNormal : texture;
       auto textureImageInfo2 = rTexture2.GetDescriptorImageInfo();
       writeDescriptorSets[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
       writeDescriptorSets[2].dstSet = descriptorSet;
@@ -220,7 +225,7 @@ namespace Fsl
       writeDescriptorSets[2].pImageInfo = &textureImageInfo2;
 
       // Binding 3 : Fragment shader texture sampler
-      auto& rTexture3 = textureSpecular.IsValid() ? textureSpecular : texture;
+      const auto& rTexture3 = textureSpecular.IsValid() ? textureSpecular : texture;
       auto textureImageInfo3 = rTexture3.GetDescriptorImageInfo();
       writeDescriptorSets[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
       writeDescriptorSets[3].dstSet = descriptorSet;
@@ -229,7 +234,7 @@ namespace Fsl
       writeDescriptorSets[3].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[3].pImageInfo = &textureImageInfo3;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
       return descriptorSet;
     }
 
@@ -272,7 +277,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.VertexInputBindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.VertexAttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.VertexAttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.VertexAttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -352,7 +357,7 @@ namespace Fsl
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -411,14 +416,14 @@ namespace Fsl
 
   ModelViewer::ModelViewer(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
-    , m_camera(config.ScreenResolution)
+    , m_camera(config.WindowMetrics.GetSizePx())
     , m_renderConfig(Vector3(), Vector3(0.5f, -0.6f, 0.7f), true)
     , m_lightDirection(1.0f, 1.0f, 1.0f)
     , m_uboData(Vector4(0.8f, 0.8f, 0.8f, 0.0), Vector4(0.2f, 0.2f, 0.2f, 0.2f), Vector4(1, 1, 1, 1), 100.0f)
   {
     m_lightDirection.Normalize();
 
-    m_camera.SetZoom(DEFAULT_ZOOM);
+    m_camera.SetZoom(LocalConfig::DefaultZoom);
 
     auto options = config.GetOptions<OptionParser>();
 
@@ -429,7 +434,7 @@ namespace Fsl
     ModelSceneUtil::ModelLoaderConfig loaderConfig;
     if (customModelPath.IsEmpty())
     {
-      loaderConfig = PrepareSceneModel(m_renderConfig, m_camera, *contentManager, options->GetScene(), SCENE_PATH);
+      loaderConfig = PrepareSceneModel(m_renderConfig, m_camera, *contentManager, options->GetScene(), LocalConfig::ScenePath);
     }
     else
     {
@@ -447,7 +452,7 @@ namespace Fsl
     auto modelPath = IO::Path::Combine(contentPath, loaderConfig.ModelFileName);
     FSLLOG3_INFO("Loading scene '{}'", loaderConfig.ModelFileName);
     SceneImporter sceneImporter;
-    const auto scene = sceneImporter.Load<MeshUtil::TestScene>(modelPath, DEFAULT_MODEL_SCALE * loaderConfig.ScaleMod, true);
+    const auto scene = sceneImporter.Load<MeshUtil::TestScene>(modelPath, LocalConfig::DefaultModelScale * loaderConfig.ScaleMod, true);
 
     if (scene->GetMeshCount() <= 0)
     {
@@ -551,7 +556,7 @@ namespace Fsl
       if (event.IsPressed())
       {
         m_camera.ResetRotation();
-        m_camera.SetZoom(DEFAULT_ZOOM);
+        m_camera.SetZoom(LocalConfig::DefaultZoom);
         m_renderConfig.Rotation = m_storedStartRotation;
         event.Handled();
       }
@@ -584,7 +589,7 @@ namespace Fsl
 
   void ModelViewer::Update(const DemoTime& demoTime)
   {
-    const Point2 screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
     m_renderConfig.Rotation.X += m_renderConfig.RotationSpeed.X * demoTime.DeltaTime;
     m_renderConfig.Rotation.Y += m_renderConfig.RotationSpeed.Y * demoTime.DeltaTime;
@@ -598,9 +603,9 @@ namespace Fsl
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     // The ordering in the monogame based Matrix library is the reverse of glm (so perspective * clip instead of clip * perspective)
-    m_matrixProjection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f) *
-      vulkanClipMatrix;
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
+                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f) *
+                         vulkanClipMatrix;
 
     // Update Vertex UBO
     m_uboData.MatWorldView = m_matrixWorld * m_matrixView;
@@ -612,7 +617,7 @@ namespace Fsl
   }
 
 
-  void ModelViewer::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void ModelViewer::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
@@ -620,11 +625,11 @@ namespace Fsl
     // Upload the changes
     m_resources.MainFrameResources[frameIndex].UboBuffer.Upload(0, &m_uboData, sizeof(UBOData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.5f, 0.5f, 0.5f, 1.0f};
+      clearValues[0].color = {{0.5f, 0.5f, 0.5f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -634,7 +639,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -674,8 +679,8 @@ namespace Fsl
 
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdBindIndexBuffer(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
     vkCmdDrawIndexed(hCmdBuffer, m_resources.Mesh.IndexBuffer.GetIndexCount(), 1, 0, 0, 0);
   }
@@ -683,9 +688,9 @@ namespace Fsl
 
   void ModelViewer::PrepareShader(const std::shared_ptr<IContentManager>& contentManager, const bool useDiffuse, const bool useGlossMap,
                                   const bool useSpecularMap, const bool useNormalMap, const std::string& baseShaderName,
-                                  const bool requireVertexNormal)
+                                  const bool /*requireVertexNormal*/)
   {
-    std::string shaderPath = "Shaders";
+    IO::Path shaderPath("Shaders");
 
     auto shaderName = baseShaderName;
 
@@ -725,7 +730,7 @@ namespace Fsl
     if (config.TextureFileName.IsEmpty())
     {
       // Create a dummy texture
-      Bitmap bitmap(Extent2D(32, 32), PixelFormat::R8G8B8A8_UNORM);
+      Bitmap bitmap(PxExtent2D(32, 32), PixelFormat::R8G8B8A8_UNORM);
       m_resources.Texture = CreateTexture(m_device, m_deviceQueue, bitmap, VK_FILTER_LINEAR, VK_SAMPLER_ADDRESS_MODE_REPEAT);
       return false;
     }

@@ -55,14 +55,14 @@ namespace Fsl
 
   void DFGraphicsBasic2D::Update(const DemoTime& demoTime)
   {
-    m_shared.Update(demoTime, GetScreenResolution());
+    m_shared.Update(demoTime, GetWindowSizePx());
   }
 
 
   void DFGraphicsBasic2D::Draw(const DemoTime& demoTime)
   {
-    const Point2 currentSize = GetScreenResolution();
-    vgClear(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSize = GetWindowSizePx();
+    vgClear(0, 0, currentSize.Width(), currentSize.Height());
 
     m_shared.Draw();
   }

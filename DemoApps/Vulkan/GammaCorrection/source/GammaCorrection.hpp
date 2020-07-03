@@ -90,8 +90,8 @@ namespace Fsl
 
     struct FragmentUboData
     {
-      Vector4 LightPositions[4];
-      Vector4 LightColors[4];
+      Vector4 LightPositions[4];    // NOLINT(modernize-avoid-c-arrays)
+      Vector4 LightColors[4];       // NOLINT(modernize-avoid-c-arrays)
       Vector4 ViewPos;
       bool Gamma = false;
     };
@@ -153,7 +153,7 @@ namespace Fsl
     std::shared_ptr<UI::Label> m_labelBottomRight;
 
   public:
-    GammaCorrection(const DemoAppConfig& config);
+    explicit GammaCorrection(const DemoAppConfig& config);
 
   protected:
     void OnKeyEvent(const KeyEvent& event) override;

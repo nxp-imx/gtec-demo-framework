@@ -120,7 +120,7 @@ namespace Fsl
     float m_radians;
 
   public:
-    T3DStressTest(const DemoAppConfig& config);
+    explicit T3DStressTest(const DemoAppConfig& config);
 
   protected:
     void FixedUpdate(const DemoTime& demoTime) override;

@@ -62,12 +62,19 @@ namespace Fsl
       }
     }
 
-
-    void ContentControlBase::DoSetPadding(const ThicknessF& value)
+    PxSize2D ContentControlBase::GetContentDesiredSizePx() const
     {
-      if (value != m_padding)
+      auto paddingPx = GetContext()->UnitConverter.ToPxThickness(m_paddingDp);
+      auto paddingSizePx = paddingPx.Sum();
+      return m_content ? PxSize2D::Add(m_content->DesiredSizePx(), paddingSizePx) : paddingSizePx;
+    }
+
+
+    void ContentControlBase::DoSetPadding(const DpThickness& valueDp)
+    {
+      if (valueDp != m_paddingDp)
       {
-        m_padding = value;
+        m_paddingDp = valueDp;
         PropertyUpdated(PropertyType::Layout);
       }
     }
@@ -81,7 +88,7 @@ namespace Fsl
       }
 
       auto uiContext = GetContext()->TheUIContext.Get();
-      auto& winMgr = uiContext->WindowManager;
+      const auto& winMgr = uiContext->WindowManager;
 
       // Remove the old content if any
       if (m_content)
@@ -101,39 +108,44 @@ namespace Fsl
     }
 
 
-    Vector2 ContentControlBase::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D ContentControlBase::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      return CustomArrange(finalSize, Vector2());
+      return CustomArrange(finalSizePx, PxPoint2());
     }
 
 
-    Vector2 ContentControlBase::MeasureOverride(const Vector2& availableSize)
+    PxSize2D ContentControlBase::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      if (!m_content)
-      {
-        return availableSize;
-      }
+      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+      const auto paddingPx = unitConverter.ToPxThickness(m_paddingDp);
 
-      const Vector2 localAvailableSize(std::max(availableSize.X - m_padding.SumX(), 0.0f), std::max(availableSize.Y - m_padding.SumY(), 0.0f));
-      // Measure our content
-      m_content->Measure(localAvailableSize);
-      const Vector2 contentDesiredSize = m_content->DesiredSize();
-      return Vector2(m_padding.SumX() + contentDesiredSize.X, m_padding.SumY() + contentDesiredSize.Y);
+      PxSize2D contentDesiredSizePx;
+      if (m_content)
+      {
+        const PxAvailableSize localAvailableSizePx(PxAvailableSize::Subtract(availableSizePx, paddingPx.Sum()));
+
+        // Measure our content
+        m_content->Measure(localAvailableSizePx);
+        contentDesiredSizePx = m_content->DesiredSizePx();
+      }
+      return {paddingPx.SumX() + contentDesiredSizePx.Width(), paddingPx.SumY() + contentDesiredSizePx.Height()};
     }
 
 
-    Vector2 ContentControlBase::CustomArrange(const Vector2& finalSize, const Vector2& positionOffset)
+    PxSize2D ContentControlBase::CustomArrange(const PxSize2D& finalSizePx, const PxPoint2& positionOffsetPx)
     {
-      if (!m_content)
+      BaseWindow* const pContent = m_content.get();
+      if (pContent == nullptr)
       {
-        return finalSize;
+        return finalSizePx;
       }
-
-      Vector2 localFinalSize(std::max(finalSize.X - m_padding.SumX(), 0.0f), std::max(finalSize.Y - m_padding.SumY(), 0.0f));
+      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+      const auto paddingPx = unitConverter.ToPxThickness(m_paddingDp);
+      const PxSize2D localFinalSizePx(PxSize2D::Subtract(finalSizePx, paddingPx.Sum()));
 
       // Arrange the control inside this one
-      m_content->Arrange(Rect(positionOffset.X + m_padding.Left(), positionOffset.Y + m_padding.Top(), localFinalSize.X, localFinalSize.Y));
-      return finalSize;
+      pContent->Arrange(PxRectangle(positionOffsetPx + paddingPx.TopLeft(), localFinalSizePx));
+      return finalSizePx;
     }
   }
 }

@@ -84,26 +84,48 @@ TEST(TestMath_MathHelper, SmoothStep)
 }
 
 
-TEST(TestMath_MathHelper, ToPowerOfTwo)
+TEST(TestMath_MathHelper, ToPowerOfTwo_Int)
 {
-  EXPECT_EQ(1, MathHelper::ToPowerOfTwo(0u));
-  EXPECT_EQ(1, MathHelper::ToPowerOfTwo(1u));
-  EXPECT_EQ(2, MathHelper::ToPowerOfTwo(2u));
-  EXPECT_EQ(4, MathHelper::ToPowerOfTwo(3u));
-  EXPECT_EQ(4, MathHelper::ToPowerOfTwo(4u));
-  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(5u));
-  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(6u));
-  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(7u));
-  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(8u));
-  EXPECT_EQ(16, MathHelper::ToPowerOfTwo(9u));
+  EXPECT_EQ(1, MathHelper::ToPowerOfTwo(0));
+  EXPECT_EQ(1, MathHelper::ToPowerOfTwo(1));
+  EXPECT_EQ(2, MathHelper::ToPowerOfTwo(2));
+  EXPECT_EQ(4, MathHelper::ToPowerOfTwo(3));
+  EXPECT_EQ(4, MathHelper::ToPowerOfTwo(4));
+  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(5));
+  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(6));
+  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(7));
+  EXPECT_EQ(8, MathHelper::ToPowerOfTwo(8));
+  EXPECT_EQ(16, MathHelper::ToPowerOfTwo(9));
 
-  EXPECT_EQ(32, MathHelper::ToPowerOfTwo(31u));
-  EXPECT_EQ(32, MathHelper::ToPowerOfTwo(32u));
-  EXPECT_EQ(64, MathHelper::ToPowerOfTwo(33u));
+  EXPECT_EQ(32, MathHelper::ToPowerOfTwo(31));
+  EXPECT_EQ(32, MathHelper::ToPowerOfTwo(32));
+  EXPECT_EQ(64, MathHelper::ToPowerOfTwo(33));
 
-  EXPECT_EQ(128, MathHelper::ToPowerOfTwo(127u));
-  EXPECT_EQ(128, MathHelper::ToPowerOfTwo(128u));
-  EXPECT_EQ(256, MathHelper::ToPowerOfTwo(129u));
+  EXPECT_EQ(128, MathHelper::ToPowerOfTwo(127));
+  EXPECT_EQ(128, MathHelper::ToPowerOfTwo(128));
+  EXPECT_EQ(256, MathHelper::ToPowerOfTwo(129));
+}
+
+TEST(TestMath_MathHelper, ToPowerOfTwo_UInt)
+{
+  EXPECT_EQ(1u, MathHelper::ToPowerOfTwo(0u));
+  EXPECT_EQ(1u, MathHelper::ToPowerOfTwo(1u));
+  EXPECT_EQ(2u, MathHelper::ToPowerOfTwo(2u));
+  EXPECT_EQ(4u, MathHelper::ToPowerOfTwo(3u));
+  EXPECT_EQ(4u, MathHelper::ToPowerOfTwo(4u));
+  EXPECT_EQ(8u, MathHelper::ToPowerOfTwo(5u));
+  EXPECT_EQ(8u, MathHelper::ToPowerOfTwo(6u));
+  EXPECT_EQ(8u, MathHelper::ToPowerOfTwo(7u));
+  EXPECT_EQ(8u, MathHelper::ToPowerOfTwo(8u));
+  EXPECT_EQ(16u, MathHelper::ToPowerOfTwo(9u));
+
+  EXPECT_EQ(32u, MathHelper::ToPowerOfTwo(31u));
+  EXPECT_EQ(32u, MathHelper::ToPowerOfTwo(32u));
+  EXPECT_EQ(64u, MathHelper::ToPowerOfTwo(33u));
+
+  EXPECT_EQ(128u, MathHelper::ToPowerOfTwo(127u));
+  EXPECT_EQ(128u, MathHelper::ToPowerOfTwo(128u));
+  EXPECT_EQ(256u, MathHelper::ToPowerOfTwo(129u));
 }
 
 
@@ -156,93 +178,4 @@ TEST(TestMath_MathHelper, WrapAngle_negative)
   EXPECT_FLOAT_EQ(1.5707974f, MathHelper::WrapAngle((-MathHelper::RADS360 * 2.0f) - MathHelper::RADS270));
   EXPECT_FLOAT_EQ(0.78539896f, MathHelper::WrapAngle((-MathHelper::RADS360 * 2.0f) - MathHelper::RADS315));
   // EXPECT_FLOAT_EQ((MathHelper::RADS360 - MathHelper::RADS360), MathHelper::WrapAngle((-MathHelper::RADS360 * 2.0f) - MathHelper::RADS360));
-}
-
-
-TEST(TestMath_MathHelper, CalcOptimalSize)
-{
-  EXPECT_EQ(Point2(10 * 20, 10), MathHelper::CalcOptimalSize(Point2(10, 10), 20, RectangleSizeRestrictionFlag::NoRestrictions));
-
-  EXPECT_EQ(Point2(64, 64), MathHelper::CalcOptimalSize(Point2(10, 10), 20, RectangleSizeRestrictionFlag::Power2));
-  EXPECT_EQ(Point2(50, 50), MathHelper::CalcOptimalSize(Point2(10, 10), 20, RectangleSizeRestrictionFlag::Square));
-
-  EXPECT_EQ(Point2(64, 32), MathHelper::CalcOptimalSize(Point2(5, 10), 20, RectangleSizeRestrictionFlag::Power2));
-  EXPECT_EQ(Point2(64, 32), MathHelper::CalcOptimalSize(Point2(10, 5), 20, RectangleSizeRestrictionFlag::Power2));
-  // 35 / 5 = 7     35 / 10 = 3
-  // 7*3 = 21
-  EXPECT_EQ(Point2(35, 35), MathHelper::CalcOptimalSize(Point2(5, 10), 20, RectangleSizeRestrictionFlag::Square));
-  EXPECT_EQ(Point2(35, 35), MathHelper::CalcOptimalSize(Point2(10, 5), 20, RectangleSizeRestrictionFlag::Square));
-
-  EXPECT_EQ(Point2(64, 64), MathHelper::CalcOptimalSize(Point2(5, 10), 20,
-                                                        static_cast<RectangleSizeRestrictionFlag::Enum>(RectangleSizeRestrictionFlag::Power2 |
-                                                                                                        RectangleSizeRestrictionFlag::Square)));
-  EXPECT_EQ(Point2(64, 64), MathHelper::CalcOptimalSize(Point2(10, 5), 20,
-                                                        static_cast<RectangleSizeRestrictionFlag::Enum>(RectangleSizeRestrictionFlag::Power2 |
-                                                                                                        RectangleSizeRestrictionFlag::Square)));
-}
-
-TEST(TestMath_MathHelper, CalcOptimalSize_Pow2)
-{
-  const auto restrictions = RectangleSizeRestrictionFlag::Power2;
-  EXPECT_EQ(Point2(1, 1), MathHelper::CalcOptimalSize(Point2(1, 1), 1, restrictions));
-  EXPECT_EQ(Point2(2, 1), MathHelper::CalcOptimalSize(Point2(1, 1), 2, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 3, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 4, restrictions));
-  EXPECT_EQ(Point2(4, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 5, restrictions));
-  EXPECT_EQ(Point2(4, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 6, restrictions));
-  EXPECT_EQ(Point2(4, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 7, restrictions));
-  EXPECT_EQ(Point2(4, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 8, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 9, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 10, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 11, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 12, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 13, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 14, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 15, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 16, restrictions));
-}
-
-TEST(TestMath_MathHelper, CalcOptimalSize_Square)
-{
-  const auto restrictions = RectangleSizeRestrictionFlag::Square;
-  EXPECT_EQ(Point2(1, 1), MathHelper::CalcOptimalSize(Point2(1, 1), 1, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 2, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 3, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 4, restrictions));
-  EXPECT_EQ(Point2(3, 3), MathHelper::CalcOptimalSize(Point2(1, 1), 5, restrictions));
-  EXPECT_EQ(Point2(3, 3), MathHelper::CalcOptimalSize(Point2(1, 1), 6, restrictions));
-  EXPECT_EQ(Point2(3, 3), MathHelper::CalcOptimalSize(Point2(1, 1), 7, restrictions));
-  EXPECT_EQ(Point2(3, 3), MathHelper::CalcOptimalSize(Point2(1, 1), 8, restrictions));
-  EXPECT_EQ(Point2(3, 3), MathHelper::CalcOptimalSize(Point2(1, 1), 9, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 10, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 11, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 12, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 13, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 14, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 15, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 16, restrictions));
-}
-
-
-TEST(TestMath_MathHelper, CalcOptimalSize_SquarePow2)
-{
-  const auto restrictions =
-    static_cast<RectangleSizeRestrictionFlag::Enum>(RectangleSizeRestrictionFlag::Power2 | RectangleSizeRestrictionFlag::Square);
-
-  EXPECT_EQ(Point2(1, 1), MathHelper::CalcOptimalSize(Point2(1, 1), 1, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 2, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 3, restrictions));
-  EXPECT_EQ(Point2(2, 2), MathHelper::CalcOptimalSize(Point2(1, 1), 4, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 5, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 6, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 7, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 8, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 9, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 10, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 11, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 12, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 13, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 14, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 15, restrictions));
-  EXPECT_EQ(Point2(4, 4), MathHelper::CalcOptimalSize(Point2(1, 1), 16, restrictions));
 }

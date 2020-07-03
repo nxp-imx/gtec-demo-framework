@@ -44,7 +44,7 @@ namespace
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityLineLine)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(0, 10, PrimitiveType::LineList);
   EXPECT_EQ(10u, calced);
@@ -53,7 +53,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityLineLine)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityLineStrip)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(0, 10, PrimitiveType::LineStrip);
   EXPECT_EQ(10u, calced);
@@ -66,7 +66,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityLineStrip)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleList)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(0, 9, PrimitiveType::TriangleList);
   EXPECT_EQ(9u, calced);
@@ -78,7 +78,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleList)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripEven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(0, 6, PrimitiveType::TriangleStrip);
   EXPECT_EQ(6u, calced);
@@ -87,7 +87,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripEven)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripUneven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(0, 7, PrimitiveType::TriangleStrip);
   EXPECT_EQ(7u, calced);
@@ -96,7 +96,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripUneven)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripEvenOnEven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(10, 6, PrimitiveType::TriangleStrip);
   EXPECT_EQ(10u + 4u + 6u, calced);
@@ -105,7 +105,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripEvenOnEven)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripEvenOnUneven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(11, 6, PrimitiveType::TriangleStrip);
   EXPECT_EQ(11u + 5u + 6u, calced);
@@ -114,7 +114,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripEvenOnUneven)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripUnevenOnEven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(10, 7, PrimitiveType::TriangleStrip);
   EXPECT_EQ(10u + 4u + 7u, calced);
@@ -123,7 +123,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripUnevenOnEven)
 
 TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripUnevenOnUneven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMinimumCapacity(11, 7, PrimitiveType::TriangleStrip);
   EXPECT_EQ(11u + 5u + 7u, calced);
@@ -133,7 +133,7 @@ TEST(IndexUtilBase, CalcAppendMinimumCapacityTriangleStripUnevenOnUneven)
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityLineLine)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(0, 10, 1, PrimitiveType::LineList);
   EXPECT_EQ(10u, calced);
@@ -145,7 +145,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityLineLine)
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityLineStrip)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(0, 10, 1, PrimitiveType::LineStrip);
   EXPECT_EQ(10u, calced);
@@ -158,7 +158,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityLineStrip)
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleList)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(0, 9, 1, PrimitiveType::TriangleList);
   EXPECT_EQ(9u, calced);
@@ -176,7 +176,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleList)
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripEven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(0, 6, 1, PrimitiveType::TriangleStrip);
   EXPECT_EQ(6u, calced);
@@ -188,7 +188,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripEven)
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripUneven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(0, 7, 1, PrimitiveType::TriangleStrip);
   EXPECT_EQ(7u, calced);
@@ -200,7 +200,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripUneven)
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripEvenOnEven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(10, 6, 1, PrimitiveType::TriangleStrip);
   EXPECT_EQ(10u + 4u + 6u, calced);
@@ -212,7 +212,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripEvenOnEven)
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripEvenOnUneven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(11, 6, 1, PrimitiveType::TriangleStrip);
   EXPECT_EQ(11u + 5u + 6u, calced);
@@ -224,7 +224,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripEvenOnUneven
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripUnevenOnEven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(10, 7, 1, PrimitiveType::TriangleStrip);
   EXPECT_EQ(10u + 4 + 7, calced);
@@ -236,7 +236,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripUnevenOnEven
 
 TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripUnevenOnUneven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendInstancesRequiredCapacity(11, 7, 1, PrimitiveType::TriangleStrip);
   EXPECT_EQ(11u + 5 + 7, calced);
@@ -250,7 +250,7 @@ TEST(IndexUtilBase, CalcAppendInstancesRequiredCapacityTriangleStripUnevenOnUnev
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitLines)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(0, 10, 100, PrimitiveType::LineList);
   EXPECT_EQ(100u / 10u, calced);
@@ -262,7 +262,7 @@ TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitLines)
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitLinesTriangleList)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(0, 10, 100, PrimitiveType::TriangleList);
   EXPECT_EQ((100u / 10u), calced);
@@ -270,7 +270,7 @@ TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitLinesTriangleList)
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripEven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   // Triangle strip calculations
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(0, 6, 6 + 4 + 6, PrimitiveType::TriangleStrip);
@@ -282,7 +282,7 @@ TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripEven)
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripEvenOnEvenBuffer)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   // Triangle strip calculations on 'even' buffer
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(6, 6, 6 + 3 + 6, PrimitiveType::TriangleStrip);
@@ -301,7 +301,7 @@ TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripEvenOnEvenBuffer)
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripEvenOnUnevenBuffer)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   // Triangle strip calculations on 'uneven' buffer
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(5, 6, 5 + 3 + 6, PrimitiveType::TriangleStrip);
@@ -323,7 +323,7 @@ TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripEvenOnUnevenBuffer)
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripUneven)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   // Uneven triangle strip calculations
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(0, 7, 7 + 5 + 7, PrimitiveType::TriangleStrip);
@@ -336,7 +336,7 @@ TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripUneven)
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripUnevenOnEvenBuffer)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   // Triangle strip calculations on 'even' buffer
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(6, 7, 6 + 3 + 7, PrimitiveType::TriangleStrip);
@@ -358,7 +358,7 @@ TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripUnevenOnEvenBuffer)
 
 TEST(IndexUtilBase, CalcAppendMaxInstancesThatFitStripUnevenOnUnevenBuffer)
 {
-  std::size_t calced;
+  std::size_t calced = 0;
 
   // Triangle strip calculations on 'even' buffer
   calced = IndexUtilBase::CalcAppendMaxInstancesThatFit(11, 7, 11 + 4 + 7, PrimitiveType::TriangleStrip);

@@ -39,12 +39,6 @@ namespace Fsl
 {
   namespace StringUtil
   {
-    bool Contains(const std::string& src, const char ch)
-    {
-      return std::find(src.begin(), src.end(), ch) != src.end();
-    }
-
-
     bool Contains(const std::string& src, const std::string& str)
     {
       if (!str.empty())
@@ -54,53 +48,34 @@ namespace Fsl
       return true;
     }
 
-
-    bool StartsWith(const std::string& src, const char ch)
+    int32_t IndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex)
     {
-      return (!src.empty() ? src.front() == ch : false);
+      if (fromIndex >= 0 && static_cast<std::size_t>(fromIndex) <= source.size())
+      {
+        const std::size_t index = source.find(ch, static_cast<StringViewLite::size_type>(fromIndex));
+        assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+        return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
+      }
+      return -1;
     }
 
-
-    bool StartsWith(const std::string& source, const std::string& value)
+    int32_t LastIndexOf(const StringViewLite& source, const char ch)
     {
-      return (source.compare(0, value.size(), value) == 0);
-    }
-
-
-    bool EndsWith(const std::string& src, const char ch)
-    {
-      return (!src.empty() ? src.back() == ch : false);
-    }
-
-
-    bool EndsWith(const std::string& source, const std::string& value)
-    {
-      return (source.size() >= value.size() && source.compare(source.size() - value.size(), value.size(), value) == 0);
-    }
-
-
-    int32_t IndexOf(const std::string& source, const char ch)
-    {
-      const std::size_t index = source.find(ch);
+      const std::size_t index = source.rfind(ch);
       assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
       return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
     }
 
-
-    int32_t IndexOf(const std::string& source, const char ch, const int32_t fromIndex)
+    int32_t LastIndexOf(const StringViewLite& source, const char ch, const int32_t fromIndex)
     {
-      const std::size_t index = source.find(ch, fromIndex);
-      assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
-      return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
+      if (fromIndex >= 0 && static_cast<std::size_t>(fromIndex) <= source.size())
+      {
+        const std::size_t index = source.rfind(ch, static_cast<std::size_t>(fromIndex));
+        assert(index == std::string::npos || index <= static_cast<std::size_t>(std::numeric_limits<int32_t>::max()));
+        return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
+      }
+      return -1;
     }
-
-
-    int32_t LastIndexOf(const std::string& src, const char ch)
-    {
-      const size_t index = src.rfind(ch);
-      return (index != std::string::npos ? static_cast<int32_t>(index) : -1);
-    }
-
 
     void Replace(std::string& rSrc, const char from, const char to)
     {
@@ -131,7 +106,38 @@ namespace Fsl
     //{
     //}
 
-    std::vector<std::string> Split(const std::string& str, const char delimiterChar, const bool removeEmpty)
+    std::vector<StringViewLite> Split(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
+    {
+      std::vector<StringViewLite> result;
+      if (str.empty())
+      {
+        return result;
+      }
+
+      StringViewLite::size_type pos = 0;
+      StringViewLite::size_type lastPos = 0;
+      const auto length = str.length();
+
+      while (lastPos < (length + 1))
+      {
+        pos = str.find(delimiterChar, lastPos);
+        if (pos == StringViewLite::npos)
+        {
+          pos = length;
+        }
+
+        if (pos != lastPos || !removeEmpty)
+        {
+          result.emplace_back(str.substr(lastPos, pos - lastPos));
+        }
+
+        lastPos = pos + 1;
+      }
+      return result;
+    }
+
+
+    std::vector<std::string> StringSplit(const StringViewLite& str, const char delimiterChar, const bool removeEmpty)
     {
       std::vector<std::string> result;
       if (str.empty())
@@ -139,14 +145,14 @@ namespace Fsl
         return result;
       }
 
-      std::string::size_type pos;
-      std::string::size_type lastPos = 0;
-      const std::string::size_type length = str.length();
+      StringViewLite::size_type pos = 0;
+      StringViewLite::size_type lastPos = 0;
+      const auto length = str.length();
 
       while (lastPos < (length + 1))
       {
         pos = str.find(delimiterChar, lastPos);
-        if (pos == std::string::npos)
+        if (pos == StringViewLite::npos)
         {
           pos = length;
         }
@@ -160,5 +166,6 @@ namespace Fsl
       }
       return result;
     }
+
   }
 }

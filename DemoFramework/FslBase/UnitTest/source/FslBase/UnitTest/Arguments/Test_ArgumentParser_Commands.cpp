@@ -61,10 +61,10 @@ TEST(Test_ArgumentParser_Commands, ArgumentInvalidNames)
   commands[0].ShortName = "";
   ASSERT_FALSE(commands[0].IsValid());
 
-  std::array<const char*, 1> testArgs = {"-t"};
+  std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, 0, testArgs.data(), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -72,10 +72,10 @@ TEST(Test_ArgumentParser_Commands, DuplicatedCommandId_Switch_Switch)
 {
   std::deque<Command> commands = {Command("a", 42, CommandType::Switch), Command("b", 42, CommandType::Switch)};
 
-  std::array<const char*, 1> testArgs = {"-t"};
+  std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, 0, testArgs.data(), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -83,10 +83,10 @@ TEST(Test_ArgumentParser_Commands, DuplicatedCommandId_Switch_MultiSwitch)
 {
   std::deque<Command> commands = {Command("a", 42, CommandType::Switch), Command("b", 42, CommandType::MultiSwitch)};
 
-  std::array<const char*, 1> testArgs = {"-t"};
+  std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, 0, testArgs.data(), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -94,10 +94,10 @@ TEST(Test_ArgumentParser_Commands, DuplicatedCommandId_PositionalValue_RequiredL
 {
   std::deque<Command> commands = {Command("a", 42, CommandType::Switch), Command("b", 42, CommandType::MultiSwitch)};
 
-  std::array<const char*, 1> testArgs = {"-t"};
+  std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, 0, testArgs.data(), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }
 
 
@@ -106,8 +106,8 @@ TEST(Test_ArgumentParser_Commands, MultipleUnhandled)
 {
   std::deque<Command> commands = {Command("a", 42, CommandType::Unhandled), Command("b", 1, CommandType::Unhandled)};
 
-  std::array<const char*, 1> testArgs = {"-t"};
+  std::array<StringViewLite, 1> testArgs = {"-t"};
 
   std::deque<EncodedCommand> res;
-  ASSERT_EQ(ArgumentParser::TryParse(res, 0, testArgs.data(), commands), ParseResult::CommandListIsInvalidError);
+  ASSERT_EQ(ArgumentParser::TryParse(res, ReadOnlySpanUtil::AsSpan(testArgs), commands), ParseResult::CommandListIsInvalidError);
 }

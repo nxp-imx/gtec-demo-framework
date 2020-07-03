@@ -75,16 +75,16 @@ namespace Fsl
 
   namespace
   {
-    const float DEFAULT_ZOOM = 350;
-    const float DEFAULT_MODEL_SCALE = 5;
+    // const float DEFAULT_ZOOM = 350;
+    // const float DEFAULT_MODEL_SCALE = 5;
 
-    std::shared_ptr<TestScene> LoadSceneBSF(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& path)
+    std::shared_ptr<TestScene> LoadSceneBSF(const std::shared_ptr<IContentManager>& /*contentManager*/, const IO::Path& path)
     {
       SceneFormat::BasicSceneFormat loader;
       return loader.Load<TestScene>(path);
     }
 
-    std::shared_ptr<TestScene> LoadSceneAssImp(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& path){
+    std::shared_ptr<TestScene> LoadSceneAssImp(const std::shared_ptr<IContentManager>& /*contentManager*/, const IO::Path& path){
 #ifdef FSL_ENABLE_ASSIMP
       {SceneImporter sceneImporter;
     return sceneImporter.Load<TestScene>(IO::Path::Combine(path, "Scene.obj"), 200.0f, true, aiProcessPreset_TargetRealtime_MaxQuality);
@@ -110,7 +110,7 @@ std::shared_ptr<TestScene> LoadScene(const std::shared_ptr<IContentManager>& con
 }
 
 
-LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t id)
+LoadedScene::LoadedScene(const DemoAppConfig& config, const std::shared_ptr<OptionParser>& options, const int32_t /*id*/)
   : AScene(config, options)
 {
   SetCullEnabled(false);

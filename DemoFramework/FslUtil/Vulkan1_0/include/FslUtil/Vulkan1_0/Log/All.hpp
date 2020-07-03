@@ -70,7 +70,7 @@ inline std::ostream& operator<<(std::ostream& o, const VkExtent3D& value)
 
 inline std::ostream& operator<<(std::ostream& o, const VkFormat& value)
 {
-  auto psz = RapidVulkan::Debug::TryToString(value);
+  const auto* psz = RapidVulkan::Debug::TryToString(value);
   if (psz != nullptr)
   {
     return o << psz;

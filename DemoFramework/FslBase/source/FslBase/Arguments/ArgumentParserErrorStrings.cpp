@@ -31,6 +31,7 @@
 
 #include <FslBase/Arguments/ArgumentParserErrorStrings.hpp>
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -41,39 +42,34 @@ namespace Fsl
     {
       namespace
       {
-        const char* const SafeGetArgumentString(const int argCount, const char* const* const ppszArgs, const int32_t index)
+        StringViewLite SafeGetArgumentString(const ReadOnlySpan<StringViewLite> args, const int32_t index)
         {
           if (index < 0)
           {
             // No argument
             return "";
           }
-          if (argCount < 0 || ppszArgs == nullptr)
-          {
-            return "(invalid arguments)";
-          }
-          if (index >= argCount)
+          if (UncheckedNumericCast<uint32_t>(index) >= args.size())
           {
             return "(index out of bounds)";
           }
-          return ppszArgs[index] != nullptr ? ppszArgs[index] : "nullptr";
+          return args[index];
         }
 
-        std::string GetCombinedArgumentErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const int argCount,
-                                                   const char* const* const ppszArgs, const std::deque<Command>& commands, ErrorFormatter& formatter,
-                                                   const char* const pszFormat1, const char* const pszFormat2)
+        std::string GetCombinedArgumentErrorString(const ParseResult /*result*/, const ParseErrorInfo& parseErrorInfo,
+                                                   const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands,
+                                                   ErrorFormatter& formatter, const char* const pszFormat1, const char* const pszFormat2)
         {
-          auto pszArg = SafeGetArgumentString(argCount, ppszArgs, parseErrorInfo.SourceArgumentIndex);
-          assert(pszArg != nullptr);
-          if (pszArg[0] == '-')
+          const StringViewLite strArg = SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex);
+          if (!strArg.empty() && strArg[0] == '-')
           {
-            if (pszArg[1] != '-' && pszArg[1] != 0 && pszArg[2] != 0)
+            if (strArg.size() > 2 && strArg[1] != '-')
             {
               // short name combined switch  (since its length was larger than 2)
               if (parseErrorInfo.CommandIndex >= 0)
               {
-                assert(static_cast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size());
-                if (static_cast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size())
+                assert(UncheckedNumericCast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size());
+                if (UncheckedNumericCast<uint32_t>(parseErrorInfo.CommandIndex) < commands.size())
                 {
                   assert(!commands[parseErrorInfo.CommandIndex].ShortName.empty());
                   // and we have a matching command and its a combined switch
@@ -83,7 +79,7 @@ namespace Fsl
             }
             // long name switch
           }
-          return formatter.Format(pszFormat1, pszArg);
+          return formatter.Format(pszFormat1, strArg);
         }
 
         std::string SafeGetCommandName(const Command& command)
@@ -123,8 +119,8 @@ namespace Fsl
 
       }
 
-      std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const int argCount,
-                                 const char* const* const ppszArgs, const std::deque<Command>& commands, ErrorFormatter& formatter)
+      std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const ReadOnlySpan<StringViewLite> args,
+                                 const std::deque<Command>& commands, ErrorFormatter& formatter)
       {
         switch (result)
         {
@@ -135,30 +131,28 @@ namespace Fsl
         case ParseResult::InvalidArguments:
           return "Method called with invalid arguments";
         case ParseResult::DuplicatedSwitchArgumentError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, argCount, ppszArgs, commands, formatter, "Duplicated switch '{}'",
+          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Duplicated switch '{}'",
                                                 "Duplicated switch '-{}'");
         case ParseResult::DuplicatedValueArgumentError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, argCount, ppszArgs, commands, formatter, "Duplicated value '{}'",
-                                                "Duplicated value '-{}'");
+          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Duplicated value '{}'", "Duplicated value '-{}'");
         case ParseResult::UnknownArgumentError:
-          return formatter.Format("Unknown argument '{}'", SafeGetArgumentString(argCount, ppszArgs, parseErrorInfo.SourceArgumentIndex));
+          return formatter.Format("Unknown argument '{}'", SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
         case ParseResult::ArgumentMissingValueError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, argCount, ppszArgs, commands, formatter, "Missing value for argument '{}'",
+          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter, "Missing value for argument '{}'",
                                                 "Missing value for argument '-{}'");
         case ParseResult::CombinedValueArgumentMustBeLastError:
-          return GetCombinedArgumentErrorString(result, parseErrorInfo, argCount, ppszArgs, commands, formatter,
+          return GetCombinedArgumentErrorString(result, parseErrorInfo, args, commands, formatter,
                                                 "Combined short value argument '{}' must be last in sequence",
                                                 "Combined short value argument '-{}' must be last in sequence");
         case ParseResult::ArgumentFormatError:
-          return formatter.Format("Argument '{}' has a invalid format",
-                                  SafeGetArgumentString(argCount, ppszArgs, parseErrorInfo.SourceArgumentIndex));
+          return formatter.Format("Argument '{}' has a invalid format", SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
         case ParseResult::RequiredArgumentNotFound:
           return GetRequiredArgumentNotFoundErrorString(commands, parseErrorInfo.CommandIndex, formatter);
         case ParseResult::ArgumentEmptyError:
           return formatter.Format("Empty argument string found at argument index '{}'",
-                                  SafeGetArgumentString(argCount, ppszArgs, parseErrorInfo.SourceArgumentIndex));
-        case ParseResult::ArgumentListContainedNullError:
-          return formatter.Format("nullptr found at argument index '{}'", parseErrorInfo.SourceArgumentIndex);
+                                  SafeGetArgumentString(args, parseErrorInfo.SourceArgumentIndex));
+        // case ParseResult::ArgumentListContainedNullError:
+        //  return formatter.Format("nullptr found at argument index '{}'", parseErrorInfo.SourceArgumentIndex);
         case ParseResult::CommandListIsInvalidError:
           return "Command list is invalid";
         default:

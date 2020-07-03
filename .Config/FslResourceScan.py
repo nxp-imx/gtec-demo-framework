@@ -38,6 +38,7 @@ from typing import Optional
 from typing import Set
 from typing import Tuple
 import argparse
+import errno
 import hashlib
 import io
 import json
@@ -104,7 +105,7 @@ class Config(object):
             sys.stdout.flush()
 
 
-class JsonLicense(object):
+class JsonBasicLicense(object):
     def __init__(self, sourceDict: Dict[str,str] = {}) -> None:
         super().__init__()
         self.Origin = ""
@@ -119,16 +120,37 @@ class JsonLicense(object):
         self.Tags = tags
         self.TagsIdList = [entry.lower() for entry in tags.split(';') if len(entry) > 0]
 
-    def Compare(self, license: 'JsonLicense') -> bool:
+    def Compare(self, license: 'JsonBasicLicense') -> bool:
         return self.Origin == license.Origin and  self.License == license.License and self.Url == license.Url and self.Tags == license.Tags and self.SourceDict == license.SourceDict
 
+
+class JsonComplexLicense(object):
+    def __init__(self, licenses: List[JsonBasicLicense], comment: Optional[str]) -> None:
+        super().__init__()
+        self.Comment = comment if comment is not None else ""
+        self.Licenses = list(licenses)
+
+    def Compare(self, license: 'JsonComplexLicense') -> bool:
+        return self.Comment == license.Comment and self.__IsConsideredEqual(license.Licenses)
+
+    def __IsConsideredEqual(self, otherLicenses: List[JsonBasicLicense]) -> bool:
+        for entry in otherLicenses:
+            if not self.__IsMember(entry):
+                return False
+        return True
+
+    def __IsMember(self, license: JsonBasicLicense) -> bool:
+        for entry in self.Licenses:
+            if entry.Compare(license):
+                return True
+        return False;
 
 def GetExtensionList(extensions: List[Tuple[str,str]]) -> List[str]:
     return [extension[0] for extension in extensions]
 
 
 def GetTitle() -> str:
-    return 'FslResourceScan V0.1.2 alpha'
+    return 'FslResourceScan V0.1.3'
 
 
 def ShowTitleIfNecessary() -> None:
@@ -164,6 +186,55 @@ def WriteJsonFile(filename: str, dict: Dict[str,str]) -> None:
     with io.open(filename, 'w', encoding='utf-8') as currentFile:
         currentFile.write(str(json.dumps(dict, ensure_ascii=False, indent=2)))
 
+def WriteBinaryFile(filename: str, content: bytes) -> None:
+    with open(filename, "wb") as theFile:
+        theFile.write(content)
+
+def WriteBinaryFileIfChanged(filename: str, content: bytes) -> None:
+    existingContent = None
+    if os.path.exists(filename):
+        if os.path.isfile(filename):
+            existingContent = ReadBinaryFile(filename)
+        else:
+            raise IOError("'%s' exist but it's not a file" % (filename))
+    if content != existingContent:
+        WriteBinaryFile(filename, content)
+
+
+def SafeMakeDirs(path: str) -> None:
+    try:
+        os.makedirs(path)
+    except OSError as exc: # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+def CopySmallFile(srcFilename: str, dstFilename: str) -> None:
+    srcContent = None
+    dstContent = None
+    if os.path.exists(srcFilename):
+        if os.path.isfile(srcFilename):
+            srcContent = ReadBinaryFile(srcFilename)
+        else:
+            raise IOError("'%s' exist but it's not a file" % (srcFilename))
+
+    if os.path.exists(dstFilename):
+        if os.path.isfile(dstFilename):
+            dstContent = ReadBinaryFile(dstFilename)
+        else:
+            raise IOError("'%s' exist but it's not a file" % (dstFilename))
+
+    if srcContent is None:
+        raise IOError("'%s' not found" % (srcFilename))
+
+    if srcContent != dstContent:
+        if dstContent is None:
+            dstDirName = os.path.dirname(dstFilename)
+            if not os.path.exists(dstDirName):
+                SafeMakeDirs(dstDirName)
+        WriteBinaryFileIfChanged(dstFilename, srcContent)
+
 
 def TryToUnixStylePath(path: str) -> Optional[str]:
     if path is None:
@@ -187,7 +258,7 @@ class Resource(object):
         super().__init__()
         self.SourcePath = sourcePath
         self.SourceDirectory = GetDirectoryName(sourcePath)
-        self.License = None  # type: Optional[JsonLicense]
+        self.License = None  # type: Optional[JsonComplexLicense]
         self.RelativePath = sourcePath[relativeSkipChars:]
 
 
@@ -339,7 +410,11 @@ class LicenseManager(object):
         self.KeyTags = "Tags"
         self.KeyURL = "URL"
 
-    def TryReadLicense(self, config: Config, filename: str) -> Optional[JsonLicense]:
+        self.KeyComplexLicense = "ComplexLicense"
+        self.KeyComplexLicenses = "Licenses"
+        self.KeyComplexComment = "Comment"
+
+    def TryReadLicense(self, config: Config, filename: str) -> Optional[JsonComplexLicense]:
         if not os.path.isfile(filename):
             return None
 
@@ -350,29 +425,54 @@ class LicenseManager(object):
             print("ERROR: Exception while parsing {0}".format(filename))
             raise
 
+        if self.KeyComplexLicense in content:
+            return self.__TryParseComplexLicense(config, content, filename)
+
         if not self.KeyOrigin in content:
             config.LogPrint("ERROR: '{0}' not present in file '{1}'".format(self.KeyOrigin, filename));
             return None
         if not self.KeyLicense in content:
             config.LogPrint("ERROR: '{0}' not present in file '{1}'".format(self.KeyLicense, filename));
             return None
+        basicLicense = self.__TryParseBasicLicense(config, content, filename)
+        return  JsonComplexLicense([basicLicense], None) if basicLicense is not None else None
 
-        license = JsonLicense(content)
-        license.Origin = content[self.KeyOrigin]
-        license.License = content[self.KeyLicense]
-        license.Comment = content[self.KeyComment] if self.KeyComment in content else ""
-        license.Url = content[self.KeyURL] if self.KeyURL in content else ""
-        license.SetTags(content[self.KeyTags] if self.KeyTags in content else "")
-        return license
+    def __TryParseBasicLicense(self, config: Config, jsonDict: Any, debugFilename: str) -> Optional[JsonBasicLicense]:
+        license = JsonBasicLicense(jsonDict)
+        license.Origin = jsonDict[self.KeyOrigin]
+        license.License = jsonDict[self.KeyLicense]
+        license.Comment = jsonDict[self.KeyComment] if self.KeyComment in jsonDict else ""
+        license.Url = jsonDict[self.KeyURL] if self.KeyURL in jsonDict else ""
+        license.SetTags(jsonDict[self.KeyTags] if self.KeyTags in jsonDict else "")
+        return  license
 
+    def __TryParseComplexLicense(self, config: Config, jsonDict: Any, debugFilename: str) -> Optional[JsonComplexLicense]:
+        jsonDict = jsonDict[self.KeyComplexLicense]
+        if not self.KeyComplexLicenses in jsonDict:
+            config.LogPrint("ERROR: '{0}' not present in file '{1}'".format(self.KeyComplexLicenses, debugFilename));
+            return None
 
-    def SaveLicense(self, filename: str, license: JsonLicense) -> None:
-        #contentDict = {}
-        #self.__AddKeyIfNeeded(contentDict, self.KeyOrigin, license.Origin)
-        #self.__AddKeyIfNeeded(contentDict, self.KeyLicense, license.License)
-        #self.__AddKeyIfNeeded(contentDict, self.KeyURL, license.URL)
+        licenses = [] # type: List[JsonBasicLicense]
+        for entry in jsonDict[self.KeyComplexLicenses]:
+            basicLicense = self.__TryParseBasicLicense(config, entry, debugFilename)
+            if basicLicense is None:
+                config.LogPrint("ERROR: Failed to parse complex license in file '{0}'".format(debugFilename));
+                return None
+            licenses.append(basicLicense)
+        comment = jsonDict[self.KeyComplexComment] if self.KeyComplexComment in jsonDict else ""
+        return JsonComplexLicense(licenses, comment)
 
-        WriteJsonFile(filename, license.SourceDict)
+    #def SaveLicense(self, filename: str, license: JsonComplexLicense) -> None:
+    #    if len(license.Comment) > 0 or len(license.Licenses) > 1:
+    #        # save complex license
+    #        pass
+    #    else:
+    #        #contentDict = {}
+    #        #self.__AddKeyIfNeeded(contentDict, self.KeyOrigin, license.Origin)
+    #        #self.__AddKeyIfNeeded(contentDict, self.KeyLicense, license.License)
+    #        #self.__AddKeyIfNeeded(contentDict, self.KeyURL, license.URL)
+
+    #        WriteJsonFile(filename, license.Licenses[0].SourceDict)
 
 
     #def __AddKeyIfNeeded(self, dict, key, value):
@@ -381,9 +481,9 @@ class LicenseManager(object):
     #    dict[key] = value
 
 
-def BuildDirectoryLicenseDict(config: Config, resourceDirectories: Set[str], licenseFilename: str) -> Dict[str, JsonLicense]:
+def BuildDirectoryLicenseDict(config: Config, resourceDirectories: Set[str], licenseFilename: str) -> Dict[str, JsonComplexLicense]:
     licenseManager = LicenseManager()
-    licenseDict = {} # type: Dict[str, JsonLicense]
+    licenseDict = {} # type: Dict[str, JsonComplexLicense]
     for dir in resourceDirectories:
         license = licenseManager.TryReadLicense(config, Join(dir, licenseFilename))
         if license is not None:
@@ -391,7 +491,7 @@ def BuildDirectoryLicenseDict(config: Config, resourceDirectories: Set[str], lic
     return licenseDict
 
 
-def TagListWithLicenses(inputDirectory: str, files: List[str], directoryLicenseDict: Dict[str, JsonLicense]) -> List[Resource]:
+def TagListWithLicenses(inputDirectory: str, files: List[str], directoryLicenseDict: Dict[str, JsonComplexLicense]) -> List[Resource]:
     inputDirectory = ToUnixStylePath(inputDirectory)
     skipChars = len(inputDirectory) if inputDirectory.endswith('/') else len(inputDirectory)+1
 
@@ -404,7 +504,7 @@ def TagListWithLicenses(inputDirectory: str, files: List[str], directoryLicenseD
     return res;
 
 
-def TagDictWithLicenses(inputDirectory: str, fileDict: Dict[str, List[str]], directoryLicenseDict: Dict[str, JsonLicense]) -> Dict[str, List[Resource]]:
+def TagDictWithLicenses(inputDirectory: str, fileDict: Dict[str, List[str]], directoryLicenseDict: Dict[str, JsonComplexLicense]) -> Dict[str, List[Resource]]:
     inputDirectory = ToUnixStylePath(inputDirectory)
     skipChars = len(inputDirectory) if inputDirectory.endswith('/') else len(inputDirectory)+1
 
@@ -413,6 +513,23 @@ def TagDictWithLicenses(inputDirectory: str, fileDict: Dict[str, List[str]], dir
         keyFilename = key[skipChars:]
         res[keyFilename] = TagListWithLicenses(inputDirectory, value, directoryLicenseDict)
     return res;
+
+def _Flatten(entry: JsonComplexLicense) -> Tuple[str,str,str,str]:
+    originList = []  # type: List[str]
+    licenseList = []  # type: List[str]
+    commentList = []  # type: List[str]
+    urlList = []  # type: List[str]
+    for licenseEntry in entry.Licenses:
+        originList.append(licenseEntry.Origin)
+        licenseList.append(licenseEntry.License)
+        commentList.append(licenseEntry.Comment)
+        urlList.append(licenseEntry.Url)
+    strOrigin = "\\".join(originList)
+    strLicense = "\\".join(licenseList)
+    strComment = "\\".join(commentList)
+    strUrl = "\\".join(urlList)
+    return (strOrigin, strLicense, strComment, strUrl)
+
 
 
 def WriteCSV(dstFilename: str, extensions: List[Tuple[str,str]], uniqueEntries: List[Resource], duplicatedEntryDict: Dict[str, List[Resource]]) -> None:
@@ -436,7 +553,8 @@ def WriteCSV(dstFilename: str, extensions: List[Tuple[str,str]], uniqueEntries: 
         if entry.License is None:
             lines.append("{0};;;;{1};;".format(entry.RelativePath, contentType))
         else:
-            lines.append("{0};;{1};{2};{3};{4};{5}".format(entry.RelativePath, entry.License.Origin, entry.License.License, contentType, entry.License.Comment, entry.License.Url))
+            strOrigin, strLicense, strComment, strUrl = _Flatten(entry.License)
+            lines.append("{0};;{1};{2};{3};{4};{5}".format(entry.RelativePath, strOrigin, strLicense, contentType, strComment, strUrl))
 
     lines.append("\n")
     lines.append("Duplicated files ({0})".format(len(duplicatedEntryDict)))
@@ -447,9 +565,12 @@ def WriteCSV(dstFilename: str, extensions: List[Tuple[str,str]], uniqueEntries: 
             if entry.License is None:
                 lines.append(";{0};;;{1};;".format(entry.RelativePath, contentType))
             else:
-                lines.append(";{0};{1};{2};{3};{4};{5}".format(entry.RelativePath, entry.License.Origin, entry.License.License, contentType, entry.License.Comment, entry.License.Url))
+                strOrigin, strLicense, strComment, strUrl = _Flatten(entry.License)
+                lines.append(";{0};{1};{2};{3};{4};{5}".format(entry.RelativePath, strOrigin, strLicense, contentType, strComment, strUrl))
 
     WriteFile(dstFilename, "\n".join(lines));
+
+
 
 
 def PrintIssueDirectories(fileList: List[Resource], dict: Dict[str,List[Resource]]) -> None:
@@ -508,7 +629,11 @@ def ProcessDictLicenses(config: Config, licenseFilename: str, dict: Dict[str, Li
                         raise Exception("Could not create a new license at {0} since one already exist".format(newLicenseFile))
                     if firstLicenseEntry.License is None:
                         raise Exception("internal error")
-                    licenseManager.SaveLicense(newLicenseFile, firstLicenseEntry.License)
+
+                    oldLicenseFile = Join(firstLicenseEntry.SourceDirectory, licenseFilename)
+
+                    CopySmallFile(oldLicenseFile, newLicenseFile)
+                    # licenseManager.SaveLicense(newLicenseFile, firstLicenseEntry.License)
 
 
 def FilterDictBasedOnLicense(dict: Dict[str, List[Resource]]) -> Dict[str,List[Resource]]:
@@ -528,8 +653,10 @@ def FilterDictBasedOnLicense(dict: Dict[str, List[Resource]]) -> Dict[str,List[R
 
 def PrintListFixTags(entries: List[Resource]) -> None:
     for entry in entries:
-        if entry.License is not None and "fix" in entry.License.TagsIdList:
-            print("Fix: {0}".format(entry.SourcePath))
+        if entry.License is not None:
+            for licenseEntry in entry.License.Licenses:
+                if licenseEntry is not None and "fix" in licenseEntry.TagsIdList:
+                    print("Fix: {0}".format(entry.SourcePath))
 
 
 def PrintFixTags(uniqueEntries: List[Resource], duplicatedEntriesDict: Dict[str, List[Resource]]) -> None:
@@ -541,10 +668,12 @@ def PrintFixTags(uniqueEntries: List[Resource], duplicatedEntriesDict: Dict[str,
 def AddLicenses(dict: Dict[str, List[Resource]], entries: List[Resource]) -> None:
     for entry in entries:
         if entry.License is not None:
-            if not entry.License.License in dict:
-                dict[entry.License.License] = [entry]
-            else:
-                dict[entry.License.License].append(entry)
+            for licenseEntry in entry.License.Licenses:
+                if licenseEntry is not None:
+                    if not licenseEntry.License in dict:
+                        dict[licenseEntry.License] = [entry]
+                    else:
+                        dict[licenseEntry.License].append(entry)
 
 
 def ExpandLicense(key: str) -> bool:

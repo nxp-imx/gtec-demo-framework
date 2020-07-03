@@ -40,6 +40,7 @@
 #if defined(_WIN32)
 #include <windows.h>
 #include <memory>
+#include <utility>
 namespace Fsl
 {
   using PlatformNativeDisplayType = HINSTANCE;
@@ -57,9 +58,9 @@ namespace Fsl
     PlatformNativeDisplayType PlatformDisplay;
     std::shared_ptr<DPIHelperWin32> DpiHelper;
 
-    explicit PlatformNativeWindowParams(const PlatformNativeDisplayType& platformDisplay, const std::shared_ptr<DPIHelperWin32>& dpiHelper)
+    explicit PlatformNativeWindowParams(const PlatformNativeDisplayType& platformDisplay, std::shared_ptr<DPIHelperWin32> dpiHelper)
       : PlatformDisplay(platformDisplay)
-      , DpiHelper(dpiHelper)
+      , DpiHelper(std::move(dpiHelper))
     {
     }
   };

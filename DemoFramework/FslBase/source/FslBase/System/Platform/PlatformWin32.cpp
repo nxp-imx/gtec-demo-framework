@@ -32,6 +32,7 @@
 
 #include "Platform.hpp"
 #include <FslBase/System/Platform/PlatformWin32.hpp>
+#include <array>
 #include <cassert>
 #include <limits>
 #include <stdexcept>
@@ -49,7 +50,7 @@ namespace Fsl
     //! @brief Convert the character to from UTF16 to UTF8
     //! @param psz the UTF16 string to convert
     //! @param srcLen the length of psz (-1 a unknown null terminated string else the length of the string)
-    inline const std::string DoNarrow(const wchar_t* psz, const int srcLen)
+    inline std::string DoNarrow(const wchar_t* psz, const int srcLen)
     {
       assert(psz != nullptr);
       if (srcLen == 0)
@@ -62,13 +63,13 @@ namespace Fsl
       if (srcLen <= DEFAULT_CONV_BUFFER_SIZE)
       {
         // Try a conversion with minimal heap allocations
-        char tmpBuffer[DEFAULT_CONV_BUFFER_SIZE + 1];
-        const int dstLen = WideCharToMultiByte(CP_UTF8, 0, psz, srcLen, tmpBuffer, DEFAULT_CONV_BUFFER_SIZE, nullptr, nullptr);
+        std::array<char, DEFAULT_CONV_BUFFER_SIZE + 1> tmpBuffer{};
+        const int dstLen = WideCharToMultiByte(CP_UTF8, 0, psz, srcLen, tmpBuffer.data(), DEFAULT_CONV_BUFFER_SIZE, nullptr, nullptr);
         if (dstLen > 0)
         {
           assert(dstLen <= DEFAULT_CONV_BUFFER_SIZE);
           tmpBuffer[dstLen] = 0;
-          return std::string(tmpBuffer);
+          return std::string(tmpBuffer.data());
         }
       }
 
@@ -136,16 +137,16 @@ namespace Fsl
 
   std::string Platform::GetCurrentWorkingDirectory()
   {
-    uint32_t expectedBufferLength;
+    uint32_t expectedBufferLength = 0;
     {
-      const uint32_t maxPathBufferLength = MAX_PATH + 1;
-      TCHAR tmpBuffer[maxPathBufferLength];
+      constexpr uint32_t maxPathBufferLength = MAX_PATH + 1;
+      std::array<TCHAR, maxPathBufferLength> tmpBuffer{};
 
-      expectedBufferLength = GetCurrentDirectory(maxPathBufferLength, tmpBuffer);
+      expectedBufferLength = GetCurrentDirectory(maxPathBufferLength, tmpBuffer.data());
       // < because the terminating zero is not reported when its a success
       if (expectedBufferLength < maxPathBufferLength)
       {
-        return PlatformWin32::Narrow(tmpBuffer);
+        return PlatformWin32::Narrow(tmpBuffer.data());
       }
     }
 

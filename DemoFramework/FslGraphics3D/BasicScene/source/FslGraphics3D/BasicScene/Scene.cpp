@@ -31,6 +31,7 @@
 
 #include <FslGraphics3D/BasicScene/Scene.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -41,8 +42,8 @@ namespace Fsl
     {
     }
 
-    Scene::Scene(const MeshAllocatorFunc& meshAllocator)
-      : m_meshAllocator(meshAllocator)
+    Scene::Scene(MeshAllocatorFunc meshAllocator)
+      : m_meshAllocator(std::move(meshAllocator))
       , m_scaleFactor(1.0f)
     {
     }

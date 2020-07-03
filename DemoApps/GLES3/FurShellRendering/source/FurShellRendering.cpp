@@ -32,8 +32,8 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics3D/Procedural/MeshBuilder.hpp>
 #include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
 #include <FslGraphics3D/Procedural/BoxGenerator.hpp>
@@ -45,8 +45,13 @@
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/TextureUtil.hpp>
 #include <Shared/FurShellRendering/OptionParser.hpp>
 #include <Shared/FurShellRendering/FurTexture.hpp>
+#include <array>
+#include <memory>
 #include <GLES3/gl3.h>
 #include "FurShellRendering.hpp"
 #include "RenderMode.hpp"
@@ -74,17 +79,17 @@ namespace Fsl
 
     void BuildVB(GLVertexBuffer& rVB, const BoxF& coords, const BoxF& uv)
     {
-      VertexPositionTexture vertices[] = {
+      const std::array<VertexPositionTexture, 4> vertices = {
         VertexPositionTexture(Vector3(coords.X1, coords.Y2, 0.0f), Vector2(uv.X1, uv.Y2)),
         VertexPositionTexture(Vector3(coords.X1, coords.Y1, 0.0f), Vector2(uv.X1, uv.Y1)),
         VertexPositionTexture(Vector3(coords.X2, coords.Y2, 0.0f), Vector2(uv.X2, uv.Y2)),
         VertexPositionTexture(Vector3(coords.X2, coords.Y1, 0.0f), Vector2(uv.X2, uv.Y1)),
       };
 
-      rVB.Reset(vertices, 4, GL_STATIC_DRAW);
+      rVB.Reset(vertices, GL_STATIC_DRAW);
     }
 
-    std::string GetDemoIdTextureName(const int demoId)
+    IO::Path GetDemoIdTextureName(const int demoId)
     {
       switch (demoId)
       {
@@ -144,19 +149,21 @@ namespace Fsl
     }
 
 
-    Procedural::BasicMesh CreateMesh(const ProceduralConfig& proceduralConfig, const Point2& tex1Size, const Point2& textureRepeatCount,
+    Procedural::BasicMesh CreateMesh(const ProceduralConfig& proceduralConfig, const PxSize2D& tex1Size, const Point2& textureRepeatCount,
                                      const int torusMajorSegments, const int torusMinorSegments, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
-      const NativeTextureArea texArea(GLTexture::CalcTextureArea(texRect, textureRepeatCount.X, textureRepeatCount.Y));
+      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect, textureRepeatCount.X, textureRepeatCount.Y));
       if (proceduralConfig.Primitive == ProceduralPrimitive::Box)
       {
-        NativeTextureArea texAreas[6] = {texArea, texArea, texArea, texArea, texArea, texArea};
+        const std::array<NativeTextureArea, 6> texAreas = {texArea, texArea, texArea, texArea, texArea, texArea};
         if (useTriangleStrip)
         {
-          return Procedural::BoxGenerator::GenerateStrip(Vector3::Zero(), 30, 30, 30, texAreas, 6, proceduralConfig.Winding);
+          return Procedural::BoxGenerator::GenerateStrip(Vector3::Zero(), 30, 30, 30, texAreas.data(), UncheckedNumericCast<int32_t>(texAreas.size()),
+                                                         proceduralConfig.Winding);
         }
-        return Procedural::BoxGenerator::GenerateList(Vector3::Zero(), 30, 30, 30, texAreas, 6, proceduralConfig.Winding);
+        return Procedural::BoxGenerator::GenerateList(Vector3::Zero(), 30, 30, 30, texAreas.data(), UncheckedNumericCast<int32_t>(texAreas.size()),
+                                                      proceduralConfig.Winding);
       }
 
 
@@ -288,7 +295,7 @@ namespace Fsl
         throw NotSupportedException("Maximum IndexCount exceeded");
       }
 
-      m_resources.MeshStuff.reset(new MeshStuffRecord(mesh));
+      m_resources.MeshStuff = std::make_unique<MeshStuffRecord>(mesh);
       m_resources.MeshStuff->RenderInstanced.SetInstanceCount(layerCount);
       m_resources.MeshStuff->RenderInstancedLayerN.SetInstanceCount(layerCount - 1);
     }
@@ -347,18 +354,18 @@ namespace Fsl
       m_resources.TexDescription = CreateMainAtlasTextureInfo(contentManager);
 
       const Vector2 res(config.ScreenResolution.X / 2, config.ScreenResolution.Y / 2);
-      const Vector2 atlasSize(m_resources.TexDescriptionAtlas.GetSize().X, m_resources.TexDescriptionAtlas.GetSize().Y);
+      const Vector2 atlasSize(TypeConverter::UncheckedTo<Vector2>(m_resources.TexDescriptionAtlas.GetSize()));
 
       // texSize.X / tex
-      float x1 = -1.0f - (m_resources.TexDescription.Offset.X / res.X);
-      float x2 = x1 + (m_resources.TexDescription.TrimmedRect.Width() / res.X);
-      float y1 = -1.0f - (m_resources.TexDescription.Offset.Y / res.Y);
-      float y2 = y1 + (m_resources.TexDescription.TrimmedRect.Height() / res.Y);
+      float x1 = -1.0f - (m_resources.TexDescription.OffsetPx.X / res.X);
+      float x2 = x1 + (m_resources.TexDescription.TrimmedRectPx.Width / res.X);
+      float y1 = -1.0f - (m_resources.TexDescription.OffsetPx.Y / res.Y);
+      float y2 = y1 + (m_resources.TexDescription.TrimmedRectPx.Height / res.Y);
 
-      float u1 = m_resources.TexDescription.TrimmedRect.Left() / atlasSize.X;
-      float v1 = m_resources.TexDescription.TrimmedRect.Top() / atlasSize.Y;
-      float u2 = m_resources.TexDescription.TrimmedRect.Right() / atlasSize.X;
-      float v2 = m_resources.TexDescription.TrimmedRect.Bottom() / atlasSize.Y;
+      float u1 = m_resources.TexDescription.TrimmedRectPx.Left() / atlasSize.X;
+      float v1 = m_resources.TexDescription.TrimmedRectPx.Top() / atlasSize.Y;
+      float u2 = m_resources.TexDescription.TrimmedRectPx.Right() / atlasSize.X;
+      float v2 = m_resources.TexDescription.TrimmedRectPx.Bottom() / atlasSize.Y;
 
       BuildVB(m_resources.VBDescription, BoxF(x1, -y2, x2, -y1), BoxF(u1, v1, u2, v2));
 
@@ -372,8 +379,6 @@ namespace Fsl
 
   void FurShellRendering::Update(const DemoTime& demoTime)
   {
-    const Point2 screenResolution = GetScreenResolution();
-
     if (m_enableForce)
     {
       Vector3 forceDirection(std::sin(m_radians), 0, 0);
@@ -395,8 +400,7 @@ namespace Fsl
     m_view = Matrix::CreateRotationX(m_cameraAngleX);
     m_view *= Matrix::CreateTranslation(0.0f, m_cameraPosY, -cameraDistance);
 
-    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1,
-                                                         m_perspectiveZ);
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, m_perspectiveZ);
     m_MVP = m_world * m_view * m_perspective;
 
     m_radians += 1.00f * demoTime.DeltaTime;
@@ -406,7 +410,7 @@ namespace Fsl
   }
 
 
-  void FurShellRendering::Draw(const DemoTime& demoTime)
+  void FurShellRendering::Draw(const DemoTime& /*demoTime*/)
   {
     glEnable(GL_CULL_FACE);
     // glDisable(GL_CULL_FACE);
@@ -511,7 +515,7 @@ namespace Fsl
     rShader.SetProjection(perspective);
     rShader.SetDisplacement(displacement);
 
-    float layerAdd = (layerCount > 1 ? 1.0f / (layerCount - 1) : 1);
+    float layerAdd = (layerCount > 1 ? 1.0f / float(layerCount - 1) : 1);
     float layer = 0.0f;
 
     rRender.Bind(rShader);

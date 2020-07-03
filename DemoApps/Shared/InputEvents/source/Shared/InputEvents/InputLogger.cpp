@@ -31,11 +31,9 @@
 
 #include <Shared/InputEvents/InputLogger.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslBase/Log/Math/FmtPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <fmt/format.h>
-#include <iostream>
-#include <sstream>
 
 namespace Fsl
 {
@@ -119,7 +117,7 @@ namespace Fsl
   }
 
 
-  void InputLogger::Draw(const Point2& resolution)
+  void InputLogger::Draw(const PxSize2D& sizePx)
   {
     if (!m_basic2D)
     {
@@ -127,10 +125,10 @@ namespace Fsl
     }
 
     const auto fontSize = m_basic2D->FontSize();
-    if (fontSize.Y > 0)
+    if (fontSize.Height() > 0)
     {
       // This is not a efficient way to render the a 'console' but its simple
-      const auto maxLines = static_cast<uint32_t>(resolution.Y / fontSize.Y);
+      const auto maxLines = static_cast<uint32_t>(sizePx.Width() / fontSize.Height());
 
       while (m_console.size() > maxLines)
       {
@@ -139,11 +137,12 @@ namespace Fsl
 
       m_basic2D->Begin();
 
-      Vector2 pos(0, resolution.Y - fontSize.Y * static_cast<int32_t>(m_console.size()));
+
+      PxPoint2 posPx(0, sizePx.Height() - fontSize.Height() * static_cast<int32_t>(m_console.size()));
       for (uint32_t i = 0; i < m_console.size(); ++i)
       {
-        m_basic2D->DrawString(m_console[i], pos);
-        pos.Y += fontSize.Y;
+        m_basic2D->DrawString(m_console[i], posPx);
+        posPx.Y += fontSize.Height();
       }
 
       m_basic2D->End();

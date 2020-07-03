@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="Fsl::StringViewLite">
+      <DisplayString>{{ str={m_pStr,[m_length]} size={m_length} }}</DisplayString>
+  </Type>
+  <Type Name="Fsl::Span&lt;*&gt;">
+    <DisplayString>{{ data={m_pData,[m_length]} size={m_length} }}</DisplayString>
+  </Type>
+  <Type Name="Fsl::ReadOnlySpan&lt;*&gt;">
+    <DisplayString>{{ data={m_pData,[m_length]} size={m_length} }}</DisplayString>
+  </Type>
+  <Type Name="Fsl::UTF8String">
+    <DisplayString>{m_content}</DisplayString>
+  </Type>
+  <Type Name="Fsl::IO::Path">
+    <DisplayString>{m_content}</DisplayString>
+  </Type>
+</AutoVisualizer>

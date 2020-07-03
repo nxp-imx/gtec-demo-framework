@@ -31,8 +31,10 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Optional
 
 class ProjectId(object):
-    def __init__(self, projectName: str) -> None:
+    def __init__(self, projectName: str, shortProjectId: Optional[str] = None) -> None:
         super().__init__()
         self.ProjectId = projectName.lower()
+        self.ShortProjectId = self.ProjectId if shortProjectId is None else shortProjectId.upper()

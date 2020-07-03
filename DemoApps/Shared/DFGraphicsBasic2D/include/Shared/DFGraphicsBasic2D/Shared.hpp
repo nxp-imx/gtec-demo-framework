@@ -34,8 +34,8 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoService/Graphics/IBasic2D.hpp>
-#include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
-#include <FslDemoApp/Base/Service/Profiler/ScopedProfilerCustomCounterHandle.hpp>
+#include <FslDemoService/Profiler/IProfilerService.hpp>
+#include <FslDemoService/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <vector>
 
 namespace Fsl
@@ -54,9 +54,9 @@ namespace Fsl
     ScopedProfilerCustomCounterHandle m_hCounter2;
 
   public:
-    Shared(const DemoAppConfig& config);
+    explicit Shared(const DemoAppConfig& config);
     ~Shared();
-    void Update(const DemoTime& demoTime, const Point2& currentScreenResolution);
+    void Update(const DemoTime& demoTime, const PxSize2D& windowSizePx);
     void Draw();
   };
 }

@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/Vulkan1_0/VUImageMemoryView.hpp>
 #include <FslUtil/Vulkan1_0/VUTextureInfo.hpp>
 #include <RapidVulkan/Sampler.hpp>
@@ -119,9 +120,9 @@ namespace Fsl
       }
 
       //! @brief Extract information about this texture as a VUTextureInfo struct
-      operator VUTextureInfo() const
+      operator VUTextureInfo() const    // NOLINT(google-explicit-constructor)
       {
-        return VUTextureInfo(m_sampler.Get(), m_image.ImageView().Get(), m_image.Image().GetImageLayout(), m_image.Image().GetExtent());
+        return {m_sampler.Get(), m_image.ImageView().Get(), m_image.Image().GetImageLayout(), m_image.Image().GetExtent()};
       }
 
       VkExtent3D GetExtent() const
@@ -132,6 +133,11 @@ namespace Fsl
       VkExtent2D GetExtent2D() const
       {
         return m_image.Image().GetExtent2D();
+      }
+
+      PxSize2D GetSize() const
+      {
+        return m_image.Image().GetSize();
       }
 
       VkDescriptorImageInfo GetDescriptorImageInfo() const

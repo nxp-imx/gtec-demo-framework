@@ -42,8 +42,8 @@ namespace Fsl
     namespace
     {
       const uint32_t BUCKET_SIZE = 4096;
-      const uint32_t ARRAY_START_SIZE = BUCKET_SIZE;
-      const uint32_t ARRAY_EXPAND_ENTRIES = BUCKET_SIZE;
+      // const uint32_t ARRAY_START_SIZE = BUCKET_SIZE;
+      // const uint32_t ARRAY_EXPAND_ENTRIES = BUCKET_SIZE;
 
       inline VUBufferMemory CreateBuffer(const VUPhysicalDeviceRecord& physicalDevice, const VkDevice device, const VkDeviceSize bufferByteSize,
                                          const VkBufferUsageFlags usageFlags, const VkMemoryPropertyFlags memoryPropertyFlags)
@@ -173,12 +173,12 @@ namespace Fsl
 
       // take the next available command buffer
       const VkBuffer vertexBuffer = m_buckets[currentBucketIndex].GetBuffer();
-      auto pMapped = static_cast<VertexPositionColorTexture*>(m_buckets[currentBucketIndex].GetMappedPointer()) + indexInsideBucket;
+      auto* pMapped = static_cast<VertexPositionColorTexture*>(m_buckets[currentBucketIndex].GetMappedPointer()) + indexInsideBucket;
       auto capacity = std::min(vertexCapacityHint, (currentBucketCapacity / m_segmentVertexCount) * m_segmentVertexCount);
 
       m_activeCount += capacity;
 
-      return VertexBufferEntry(vertexBuffer, pMapped, capacity, indexInsideBucket);
+      return {vertexBuffer, pMapped, capacity, indexInsideBucket};
     }
   }
 }

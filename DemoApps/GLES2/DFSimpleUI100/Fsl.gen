@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <Executable Name="GLES2.DFSimpleUI100" NoInclude="true" CreationYear="2015">
-    <ImportTemplate Name="DemoAppGLES2"/>
-    <Dependency Name="FslSimpleUI.App"/>
-    <Platform Name="Windows" ProjectId="F73214FE-7A4B-4D7D-89EC-416B25E643BF"/>
-  </Executable>
-</FslBuildGen>

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_CHECKBOX_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_CHECKBOX_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,72 +31,29 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/NineSlice.hpp>
-#include <FslGraphics/Render/AtlasTexture2D.hpp>
-#include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <string>
+#include <FslSimpleUI/Base/Control/ToggleButton.hpp>
 
 namespace Fsl
 {
-  class AtlasFont;
-
   namespace UI
   {
-    class WindowContext;
-
-    class CheckBox : public BaseWindow
+    class CheckBox final : public ToggleButton
     {
-    protected:
-      const std::shared_ptr<WindowContext> m_windowContext;
-
-    private:
-      std::string m_text;
-      std::shared_ptr<AtlasFont> m_font;
-      AtlasTexture2D m_texChecked;
-      AtlasTexture2D m_texUnchecked;
-      bool m_isChecked;
-
     public:
-      CheckBox(const std::shared_ptr<WindowContext>& context);
-
-      const std::shared_ptr<AtlasFont>& GetFont() const
+      explicit CheckBox(const std::shared_ptr<WindowContext>& context)
+        : ToggleButton(context)
       {
-        return m_font;
+        SetCursorCheckedColor(DefaultColor::CheckBox::CursorChecked);
+        SetCursorCheckedDisabledColor(DefaultColor::CheckBox::CursorCheckedDisabled);
+        SetCursorUncheckedColor(DefaultColor::CheckBox::CursorUnchecked);
+        SetCursorUncheckedDisabledColor(DefaultColor::CheckBox::CursorUncheckedDisabled);
+        SetBackgroundCheckedColor(DefaultColor::CheckBox::BackgroundChecked);
+        SetBackgroundCheckedDisabledColor(DefaultColor::CheckBox::BackgroundCheckedDisabled);
+        SetBackgroundUncheckedColor(DefaultColor::CheckBox::BackgroundUnchecked);
+        SetBackgroundUncheckedDisabledColor(DefaultColor::CheckBox::BackgroundUncheckedDisabled);
+        SetHoverOverlayCheckedColor(DefaultColor::CheckBox::HoverOverlayChecked);
+        SetHoverOverlayUncheckedColor(DefaultColor::CheckBox::HoverOverlayUnchecked);
       }
-      void SetFont(const std::shared_ptr<AtlasFont>& value);
-
-      const std::string& GetText() const
-      {
-        return m_text;
-      }
-      void SetText(const std::string& value);
-
-      const AtlasTexture2D& GetCheckedTexture() const
-      {
-        return m_texChecked;
-      }
-      void SetCheckedTexture(const AtlasTexture2D& value);
-
-      const AtlasTexture2D& GetUncheckedTexture() const
-      {
-        return m_texUnchecked;
-      }
-      void SetUncheckedTexture(const AtlasTexture2D& value);
-
-      bool IsChecked() const
-      {
-        return m_isChecked;
-      }
-      void SetIsChecked(const bool value);
-
-      void Toggle();
-
-      void WinDraw(const UIDrawContext& context) override;
-
-    protected:
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
     };
   }
 }

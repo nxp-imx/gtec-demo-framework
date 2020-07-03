@@ -43,6 +43,7 @@ class AToolAppFlow(object):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
         self.ToolAppContext = toolAppContext
         self.Log = toolAppContext.Log
+        self.ErrorHelpManager = toolAppContext.ErrorHelpManager;
 
 
     def ProcessFromStandaloneCommandLine(self, args: Any, currentDirPath: str, userTag: Optional[object]) -> None:

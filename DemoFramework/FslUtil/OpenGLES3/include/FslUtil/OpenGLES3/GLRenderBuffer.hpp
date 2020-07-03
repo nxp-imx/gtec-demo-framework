@@ -35,7 +35,7 @@
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <FslBase/Attributes.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <GLES3/gl3.h>
 
 namespace Fsl
@@ -46,7 +46,7 @@ namespace Fsl
     {
       GLuint m_handle;
       GLenum m_format{0};
-      Point2 m_size;
+      PxSize2D m_size;
 
     public:
       GLRenderBuffer(const GLRenderBuffer&) = delete;
@@ -71,7 +71,7 @@ namespace Fsl
           // Remove the data from other
           other.m_handle = GLValues::INVALID_HANDLE;
           other.m_format = 0;
-          other.m_size = Point2();
+          other.m_size = {};
         }
         return *this;
       }
@@ -86,12 +86,12 @@ namespace Fsl
         // Remove the data from other
         other.m_handle = GLValues::INVALID_HANDLE;
         other.m_format = 0;
-        other.m_size = Point2();
+        other.m_size = {};
       }
 
       //! @brief Create a uninitialized buffer
       GLRenderBuffer();
-      GLRenderBuffer(const Point2& size, const GLenum format);
+      GLRenderBuffer(const PxSize2D& size, const GLenum format);
 
       ~GLRenderBuffer();
 
@@ -101,7 +101,7 @@ namespace Fsl
       //! @brief Release the existing buffer and replace it with the new one
       //! @param size the size of the buffer
       //! @param format the format of the buffer (for example GL_RGBA4, GL_RGB565, GL_RGB5_A1, GL_DEPTH_COMPONENT16, or GL_STENCIL_INDEX8)
-      void Reset(const Point2& size, const GLenum format);
+      void Reset(const PxSize2D& size, const GLenum format);
 
       //! @brief Check if this buffer contains a valid gl handle.
       bool IsValid() const
@@ -118,7 +118,7 @@ namespace Fsl
 
       //! @brief Get the gl handle associated with the buffer *DEPRECATED*.
       //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      FSL_ATTR_DEPRECATED GLuint GetHandle() const
+      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
         return Get();
       }
@@ -130,7 +130,7 @@ namespace Fsl
       }
 
       //! @brief Get size of the buffer
-      Point2 GetSize() const
+      PxSize2D GetSize() const
       {
         return m_size;
       }

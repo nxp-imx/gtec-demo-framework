@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/Shared.UI.SmoothScroll.VC.VC.opendb
+/Shared.UI.SmoothScroll.VC.db
+/Shared.UI.SmoothScroll.manifest
+/Shared.UI.SmoothScroll.opensdf
+/Shared.UI.SmoothScroll.sdf
+/Shared.UI.SmoothScroll.sln
+/Shared.UI.SmoothScroll.v12.sdf
+/Shared.UI.SmoothScroll.v12.suo
+/Shared.UI.SmoothScroll.vcxproj
+/Shared.UI.SmoothScroll.vcxproj.filters
+/Shared.UI.SmoothScroll.vcxproj.user
+/build/

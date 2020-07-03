@@ -45,15 +45,15 @@ namespace Fsl
     Vector3 Normal;
     float D{0};
 
-    Plane() = default;
+    constexpr Plane() = default;
 
-    Plane(const Vector4& value)
+    constexpr explicit Plane(const Vector4& value)
       : Normal(value.X, value.Y, value.Z)
       , D(value.W)
     {
     }
 
-    Plane(const Vector3& normal, const float d)
+    constexpr Plane(const Vector3& normal, const float d)
       : Normal(normal)
       , D(d)
     {
@@ -61,7 +61,7 @@ namespace Fsl
 
     Plane(const Vector3& a, const Vector3& b, const Vector3& c);
 
-    Plane(const float a, const float b, const float c, const float d)
+    constexpr Plane(const float a, const float b, const float c, const float d)
       : Normal(a, b, c)
       , D(d)
     {

@@ -40,6 +40,7 @@ namespace Fsl
     struct RoutedEventArgs;
     class WindowContentChangedEvent;
     class WindowInputClickEvent;
+    class WindowMouseOverEvent;
     class WindowSelectEvent;
 
     class IEventListener
@@ -49,6 +50,8 @@ namespace Fsl
 
       virtual void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) = 0;
       virtual void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) = 0;
+      virtual void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) = 0;
+      virtual void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) = 0;
       virtual void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) = 0;
       virtual void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) = 0;
     };

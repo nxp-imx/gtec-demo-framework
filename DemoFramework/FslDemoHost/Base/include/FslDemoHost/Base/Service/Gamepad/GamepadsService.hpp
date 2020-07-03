@@ -40,21 +40,21 @@ namespace Fsl
   class GamepadsState;
   class IEventPoster;
 
-  class GamepadsService
+  class GamepadsService final
     : public ThreadLocalService
     , public IGamepads
   {
     std::shared_ptr<GamepadsState> m_state;
 
   public:
-    GamepadsService(const ServiceProvider& serviceProvider);
-    ~GamepadsService() override;
+    explicit GamepadsService(const ServiceProvider& serviceProvider);
+    ~GamepadsService() final;
 
     // From IGamepads
-    GamepadDeadZoneType GetDeadZoneType() const override;
-    void SetDeadZoneType(const GamepadDeadZoneType type) override;
-    uint32_t GetCount() const override;
-    GamepadState GetState(const uint32_t gamepadIndex) const override;
+    GamepadDeadZoneType GetDeadZoneType() const final;
+    void SetDeadZoneType(const GamepadDeadZoneType type) final;
+    uint32_t GetCount() const final;
+    GamepadState GetState(const uint32_t gamepadIndex) const final;
   };
 }
 

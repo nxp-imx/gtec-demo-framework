@@ -50,7 +50,7 @@
 
 namespace Fsl
 {
-  class RenderScene : public IVulkanScene
+  class RenderScene final : public IVulkanScene
   {
     //! Resources that are duplicated per command buffer to ensure that it wont be 'in-use' while we update it
     struct FrameResources
@@ -123,15 +123,15 @@ namespace Fsl
     RenderScene(const DemoAppConfig& config, const int32_t sceneId, const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
                 const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const RapidVulkan::DescriptorPool& descriptorPool,
                 const uint32_t maxFrames);
-    ~RenderScene() override;
+    ~RenderScene() final;
 
-    void OnBuildResources(const VulkanBasic::BuildResourcesContext& context, const VkRenderPass hRenderPass) override;
-    void OnFreeResources() override;
+    void OnBuildResources(const VulkanBasic::BuildResourcesContext& context, const VkRenderPass hRenderPass) final;
+    void OnFreeResources() final;
 
     void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
-                const Point2& screenResolution) override;
-    void PreDraw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) override;
-    void Draw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) override;
+                const PxSize2D& windowSizePx) final;
+    void PreDraw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) final;
+    void Draw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) final;
 
   private:
     void PrepareShader(const VkDevice device, const std::shared_ptr<IContentManager>& contentManager, const bool useSpecMap, const bool useGlossMap,

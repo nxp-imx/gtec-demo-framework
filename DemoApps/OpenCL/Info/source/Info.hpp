@@ -38,7 +38,7 @@ namespace Fsl
   class Info : public DemoAppOpenCL
   {
   public:
-    Info(const DemoAppConfig& config);
+    explicit Info(const DemoAppConfig& config);
     ~Info() override;
 
   protected:

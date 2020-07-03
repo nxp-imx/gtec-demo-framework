@@ -39,6 +39,7 @@
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/String/UTF8String.hpp>
 #include <fmt/format.h>
+#include <array>
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -50,8 +51,10 @@
 // but instead provides its own 'hack' for opening wstring's
 #ifdef _WIN32
 #include <FslBase/System/Platform/PlatformWin32.hpp>
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PATH_GET_NAME(X) X.ToUTF8String()
 #endif
 
@@ -59,13 +62,13 @@ namespace Fsl
 {
   namespace
   {
-    const uint32_t FILEHEADER_OFFSET_Magic = 0;
-    const uint32_t FILEHEADER_OFFSET_Version = FILEHEADER_OFFSET_Magic + 4;
-    const uint32_t FILEHEADER_OFFSET_Size = FILEHEADER_OFFSET_Version + 4;
-    const uint32_t SIZE_FILEHEADER = FILEHEADER_OFFSET_Size + 4;
+    constexpr const uint32_t FILEHEADER_OFFSET_Magic = 0;
+    constexpr const uint32_t FILEHEADER_OFFSET_Version = FILEHEADER_OFFSET_Magic + 4;
+    constexpr const uint32_t FILEHEADER_OFFSET_Size = FILEHEADER_OFFSET_Version + 4;
+    constexpr const uint32_t SIZE_FILEHEADER = FILEHEADER_OFFSET_Size + 4;
 
-    const uint32_t HEADER_MAGIC = 0x004B4246;
-    const uint32_t EXPECTED_VERSION = 1;
+    constexpr const uint32_t HEADER_MAGIC = 0x004B4246;
+    constexpr const uint32_t EXPECTED_VERSION = 1;
 
     // const uint32_t MAX_ENCODED_VALUE_SIZE = 5;
 
@@ -89,14 +92,14 @@ namespace Fsl
 
     FBKHeader ReadAndValidateHeader(std::ifstream& rStream)
     {
-      uint8_t fileheader[SIZE_FILEHEADER];
+      std::array<uint8_t, SIZE_FILEHEADER> fileHeader{};
       // Try to read the file header
-      StreamRead(rStream, fileheader, SIZE_FILEHEADER);
+      StreamRead(rStream, fileHeader.data(), SIZE_FILEHEADER);
 
       FBKHeader header;
-      header.Magic = ByteArrayUtil::ReadUInt32LE(fileheader, SIZE_FILEHEADER, FILEHEADER_OFFSET_Magic);
-      header.Version = ByteArrayUtil::ReadUInt32LE(fileheader, SIZE_FILEHEADER, FILEHEADER_OFFSET_Version);
-      header.Size = ByteArrayUtil::ReadUInt32LE(fileheader, SIZE_FILEHEADER, FILEHEADER_OFFSET_Size);
+      header.Magic = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SIZE_FILEHEADER, FILEHEADER_OFFSET_Magic);
+      header.Version = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SIZE_FILEHEADER, FILEHEADER_OFFSET_Version);
+      header.Size = ByteArrayUtil::ReadUInt32LE(fileHeader.data(), SIZE_FILEHEADER, FILEHEADER_OFFSET_Size);
 
       if (header.Magic != HEADER_MAGIC)
       {
@@ -105,7 +108,7 @@ namespace Fsl
 
       if (header.Version != EXPECTED_VERSION)
       {
-        throw FormatException("Unsupported version");
+        throw FormatException(fmt::format("Unsupported version {} expected {}", header.Version, EXPECTED_VERSION));
       }
       return header;
     }
@@ -131,11 +134,11 @@ namespace Fsl
 
     std::size_t ReadString(UTF8String& rResult, const uint8_t* const pSrc, const std::size_t srcLength, const std::size_t index)
     {
-      uint32_t stringLength;
+      uint32_t stringLength = 0;
       std::size_t currentIndex = index;
       currentIndex += ValueCompression::ReadSimple(stringLength, pSrc, srcLength, currentIndex);
 
-      rResult.Reset(reinterpret_cast<const char* const>(pSrc), currentIndex, stringLength);
+      rResult = StringViewLite(reinterpret_cast<const char* const>(pSrc), srcLength).substr(currentIndex, stringLength);
 
       currentIndex += stringLength;
       assert(index <= currentIndex);
@@ -146,13 +149,14 @@ namespace Fsl
     {
       std::size_t currentIndex = index;
 
-      uint32_t entries;
+      uint32_t entries = 0;
       currentIndex += ValueCompression::ReadSimple(entries, content.data(), content.size(), currentIndex);
 
       rTextureAtlas.SetRangeCapacity(entries);
       for (uint32_t i = 0; i < entries; ++i)
       {
-        uint32_t rangeFrom, rangeLength;
+        uint32_t rangeFrom = 0;
+        uint32_t rangeLength = 0;
         currentIndex += ValueCompression::ReadSimple(rangeFrom, content.data(), content.size(), currentIndex);
         currentIndex += ValueCompression::ReadSimple(rangeLength, content.data(), content.size(), currentIndex);
         rTextureAtlas.SetRange(i, FontGlyphRange(rangeFrom, rangeLength));
@@ -166,22 +170,23 @@ namespace Fsl
     {
       std::size_t currentIndex = index;
 
-      uint32_t entries;
+      uint32_t entries = 0;
       currentIndex += ValueCompression::ReadSimple(entries, content.data(), content.size(), currentIndex);
 
       rTextureAtlas.SetGlyphKerningCapacity(entries);
       for (uint32_t i = 0; i < entries; ++i)
       {
-        int32_t offsetX, offsetY;
-        uint32_t layoutWidth;
+        int32_t offsetX = 0;
+        int32_t offsetY = 0;
+        uint32_t layoutWidth = 0;
         currentIndex += ValueCompression::ReadSimple(offsetX, content.data(), content.size(), currentIndex);
         currentIndex += ValueCompression::ReadSimple(offsetY, content.data(), content.size(), currentIndex);
         currentIndex += ValueCompression::ReadSimple(layoutWidth, content.data(), content.size(), currentIndex);
 
-        offsetX = MathHelper::Clamp(offsetX, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
-        offsetY = MathHelper::Clamp(offsetY, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+        offsetX = MathHelper::Clamp(offsetX, int32_t(std::numeric_limits<int16_t>::min()), int32_t(std::numeric_limits<int16_t>::max()));
+        offsetY = MathHelper::Clamp(offsetY, int32_t(std::numeric_limits<int16_t>::min()), int32_t(std::numeric_limits<int16_t>::max()));
         int32_t layoutWidth2 = std::min(layoutWidth, static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
-        layoutWidth2 = MathHelper::Clamp(layoutWidth2, std::numeric_limits<int16_t>::min(), std::numeric_limits<int16_t>::max());
+        layoutWidth2 = MathHelper::Clamp(layoutWidth2, int32_t(std::numeric_limits<int16_t>::min()), int32_t(std::numeric_limits<int16_t>::max()));
 
         assert(static_cast<int64_t>(i) <= std::numeric_limits<int32_t>::max());
         rTextureAtlas.SetGlyphKerning(static_cast<int32_t>(i), FontGlyphBasicKerning(static_cast<int16_t>(offsetX), static_cast<int16_t>(offsetY),
@@ -196,7 +201,10 @@ namespace Fsl
     {
       std::size_t currentIndex = index;
 
-      uint32_t lineSpacing, baseLine, maxGlyphLeadingOverdrawAreaX, maxGlyphLeadingOverdrawAreaY;
+      uint32_t lineSpacing = 0;
+      uint32_t baseLine = 0;
+      uint32_t maxGlyphLeadingOverdrawAreaX = 0;
+      uint32_t maxGlyphLeadingOverdrawAreaY = 0;
       currentIndex += ValueCompression::ReadSimple(lineSpacing, content.data(), content.size(), currentIndex);
       currentIndex += ValueCompression::ReadSimple(baseLine, content.data(), content.size(), currentIndex);
       currentIndex += ValueCompression::ReadSimple(maxGlyphLeadingOverdrawAreaX, content.data(), content.size(), currentIndex);
@@ -222,7 +230,7 @@ namespace Fsl
       currentIndex += ReadString(strTmp, content.data(), content.size(), currentIndex);
       rTextureAtlas.SetName(strTmp);
       ReadString(strTmp, content.data(), content.size(), currentIndex);
-      rTextureAtlas.SetPathName(strTmp);
+      rTextureAtlas.SetPathName(IO::Path(strTmp));
     }
   }
 

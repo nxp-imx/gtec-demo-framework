@@ -44,10 +44,10 @@ namespace Fsl
     class CustomContext
     {
     public:
-      using element_type = T;
+      using value_type = T;
 
     private:
-      std::weak_ptr<element_type> m_context;
+      std::weak_ptr<value_type> m_context;
 
     public:
       //! @brief Move assignment operator
@@ -75,7 +75,7 @@ namespace Fsl
       CustomContext() = default;
 
 
-      CustomContext(std::weak_ptr<element_type> context)
+      explicit CustomContext(std::weak_ptr<value_type> context)
         : m_context(context)
       {
       }
@@ -89,7 +89,7 @@ namespace Fsl
       }
 
       //! @brief Get the context if its still valid
-      std::shared_ptr<element_type> Get() const
+      std::shared_ptr<value_type> Get() const
       {
         auto context = m_context.lock();
         if (context)
@@ -100,7 +100,7 @@ namespace Fsl
       }
 
       //! @brief Get the context if its still valid
-      std::shared_ptr<element_type> TryGet() const
+      std::shared_ptr<value_type> TryGet() const
       {
         return m_context.lock();
       }

@@ -45,7 +45,7 @@ namespace Fsl
     float m_stiffness;
     float m_damping;
 
-  public:
+
     Spring(PointMass* end1, PointMass* end2, float stiffness, float damping)
       : m_pEnd1(end1)
       , m_pEnd2(end2)

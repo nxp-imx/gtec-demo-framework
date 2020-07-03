@@ -71,7 +71,7 @@ namespace Fsl
     GLuint m_hTexAtlas;
 
   public:
-    BlurredScene(const DemoAppConfig& config, const std::shared_ptr<AScene>& scene);
+    BlurredScene(const DemoAppConfig& config, std::shared_ptr<AScene> scene);
     void OnKeyEvent(const KeyEvent& event) override;
     void Update(const DemoTime& demoTime) override;
     void Draw() override;

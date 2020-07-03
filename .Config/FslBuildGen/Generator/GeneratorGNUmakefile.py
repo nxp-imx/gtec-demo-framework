@@ -283,7 +283,7 @@ class GeneratorGNUmakefile(GeneratorBase):
             newList.append(libName)
         return newList
 
-    def __GetExternalLibraryPaths(self, package: Package, dependencyTypeFilter: List[int]) -> List[str]:
+    def __GetExternalLibraryPaths(self, package: Package, dependencyTypeFilter: List[ExternalDependencyType]) -> List[str]:
         # GCC apparently needs the list to be in reverse order
         buildOrder = list(package.ResolvedBuildOrder)
         buildOrder.reverse()
@@ -335,7 +335,7 @@ class GeneratorGNUmakefileUtil(object):
 
 
     @staticmethod
-    def _TryGenerateBuildReport(log: Log, generatorName: str, package: Package, buildCommand: int) -> Optional[GeneratorBuildReport]:
+    def _TryGenerateBuildReport(log: Log, generatorName: str, package: Package, buildCommand: CommandType) -> Optional[GeneratorBuildReport]:
         if package.IsVirtual:
             return None
 

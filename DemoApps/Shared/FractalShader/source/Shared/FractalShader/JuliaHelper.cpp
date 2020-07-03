@@ -38,6 +38,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
 #include <algorithm>
 #include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include "MainAtlas.hpp"
@@ -278,8 +279,8 @@ namespace Fsl
     {
       const int val = std::min(screenResolution.X, screenResolution.Y);
       Vector2 pos = m_location;
-      pos.X *= (val * 0.5f);
-      pos.Y *= (val * 0.5f);
+      pos.X *= (static_cast<float>(val) * 0.5f);
+      pos.Y *= (static_cast<float>(val) * 0.5f);
       pos.X += (screenResolution.X * 0.5f);
       pos.Y += (screenResolution.Y * 0.5f);
       m_basic2D->Begin();

@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Ray.hpp>
 #include <FslBase/Log/Math/LogVector3.hpp>
+#include <FslBase/Math/Ray.hpp>
 #include <ostream>
 
 namespace Fsl

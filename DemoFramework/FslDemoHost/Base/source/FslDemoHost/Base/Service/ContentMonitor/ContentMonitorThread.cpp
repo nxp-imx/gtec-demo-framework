@@ -38,6 +38,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
@@ -62,11 +63,11 @@ namespace Fsl
       IO::Path m_contentPath;
 
     public:
-      ContentMonitorThreadTask(const std::shared_ptr<ConcurrentQueue<bool>>& toQueue,
-                               const std::weak_ptr<ConcurrentQueue<ContentMonitorResultCommand>>& ownerQueue, const IO::Path& contentPath)
-        : m_toQueue(toQueue)
-        , m_ownerQueue(ownerQueue)
-        , m_contentPath(contentPath)
+      ContentMonitorThreadTask(std::shared_ptr<ConcurrentQueue<bool>> toQueue, std::weak_ptr<ConcurrentQueue<ContentMonitorResultCommand>> ownerQueue,
+                               IO::Path contentPath)
+        : m_toQueue(std::move(toQueue))
+        , m_ownerQueue(std::move(ownerQueue))
+        , m_contentPath(std::move(contentPath))
       {
       }
 
@@ -76,7 +77,7 @@ namespace Fsl
         AddCurrentContentFiles(pathWatcher, m_contentPath);
 
         // As we use the queue as a cancellation token this means that if a message is in it we should shutdown
-        bool queueEntry;
+        bool queueEntry = false;
         bool stopNow = false;
         while (!stopNow && !m_toQueue->TryDequeWait(queueEntry, std::chrono::milliseconds(1000 / 5)))
         {
@@ -106,11 +107,11 @@ namespace Fsl
       std::weak_ptr<ConcurrentQueue<ContentMonitorResultCommand>> FromQueue;
       IO::Path ContentPath;
 
-      LocalThreadContext(const std::shared_ptr<ConcurrentQueue<bool>>& queue,
-                         const std::weak_ptr<ConcurrentQueue<ContentMonitorResultCommand>>& fromQueue, const IO::Path& contentPath)
-        : Queue(queue)
-        , FromQueue(fromQueue)
-        , ContentPath(contentPath)
+      LocalThreadContext(std::shared_ptr<ConcurrentQueue<bool>> queue, std::weak_ptr<ConcurrentQueue<ContentMonitorResultCommand>> fromQueue,
+                         IO::Path contentPath)
+        : Queue(std::move(queue))
+        , FromQueue(std::move(fromQueue))
+        , ContentPath(std::move(contentPath))
       {
       }
     };
@@ -143,10 +144,17 @@ namespace Fsl
   }
 
 
-  ContentMonitorThread::~ContentMonitorThread()
+  ContentMonitorThread::~ContentMonitorThread() noexcept
   {
     // Wait for the thread to shutdown
-    m_queue->Enqueue(true);
-    m_thread.Join();
+    try
+    {
+      m_queue->Enqueue(true);
+      m_thread.Join();
+    }
+    catch (const std::exception& ex)
+    {
+      FSLLOG3_ERROR("Error during ContentMonitorThread shutdown {}", ex.what());
+    }
   }
 }

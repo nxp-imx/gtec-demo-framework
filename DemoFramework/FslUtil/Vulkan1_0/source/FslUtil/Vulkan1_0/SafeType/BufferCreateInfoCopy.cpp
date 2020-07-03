@@ -91,13 +91,13 @@ namespace Fsl
 
     void BufferCreateInfoCopy::Reset()
     {
-      *this = std::move(BufferCreateInfoCopy());
+      *this = BufferCreateInfoCopy();
     }
 
 
     void BufferCreateInfoCopy::Reset(const VkBufferCreateInfo& value)
     {
-      *this = std::move(BufferCreateInfoCopy(value));
+      *this = BufferCreateInfoCopy(value);
     }
 
 

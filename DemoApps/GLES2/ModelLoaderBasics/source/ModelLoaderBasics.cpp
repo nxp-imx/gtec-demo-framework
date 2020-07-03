@@ -145,15 +145,15 @@ namespace Fsl
 
   void ModelLoaderBasics::Update(const DemoTime& demoTime)
   {
-    const Point2 screenResolution = GetScreenResolution();
+    const PxSize2D windowSizePx = GetWindowSizePx();
 
     m_rotation.X += m_rotationSpeed.X * demoTime.DeltaTime;
     m_rotation.Y += m_rotationSpeed.Y * demoTime.DeltaTime;
     m_rotation.Z += m_rotationSpeed.Z * demoTime.DeltaTime;
     m_matrixWorld = Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
     m_matrixView = Matrix::CreateTranslation(0, 0, -DEFAULT_ZOOM);
-    m_matrixProjection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
+    m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f),
+                                                              windowSizePx.Width() / static_cast<float>(windowSizePx.Height()), 1, 1000.0f);
 
     // Update Vertex UBO
     m_vertexUboData.MatWorldView = m_matrixWorld * m_matrixView;
@@ -162,7 +162,7 @@ namespace Fsl
   }
 
 
-  void ModelLoaderBasics::Draw(const DemoTime& demoTime)
+  void ModelLoaderBasics::Draw(const DemoTime& /*demoTime*/)
   {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);

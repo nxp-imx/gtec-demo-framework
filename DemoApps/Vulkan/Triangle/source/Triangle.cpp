@@ -15,21 +15,17 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "Triangle.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <array>
 #include <cstring>
 
-using namespace RapidVulkan;
-
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
-
   namespace
   {
     // Set to "true" to use staging buffers for uploading vertex and index data to device local memory
@@ -44,7 +40,7 @@ namespace Fsl
 
     // Get a new command buffer from the command pool
     // If begin is true, the command buffer is also started so we can start adding commands
-    CommandBuffer DoGetCommandBuffer(const VkDevice device, const CommandPool& cmdPool, const bool begin)
+    RapidVulkan::CommandBuffer DoGetCommandBuffer(const VkDevice device, const RapidVulkan::CommandPool& cmdPool, const bool begin)
     {
       VkCommandBufferAllocateInfo cmdBufAllocateInfo{};
       cmdBufAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -52,7 +48,7 @@ namespace Fsl
       cmdBufAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
       cmdBufAllocateInfo.commandBufferCount = 1;
 
-      CommandBuffer cmdBuffer(device, cmdBufAllocateInfo);
+      RapidVulkan::CommandBuffer cmdBuffer(device, cmdBufAllocateInfo);
 
       // If requested, also start the new command buffer
       if (begin)
@@ -69,7 +65,7 @@ namespace Fsl
 
     // End the command buffer and submit it to the queue
     // Uses a fence to ensure command buffer has finished executing before deleting it
-    void DoFlushCommandBuffer(CommandBuffer& rCommandBuffer, VUDeviceQueueRecord& rQueue)
+    void DoFlushCommandBuffer(RapidVulkan::CommandBuffer& rCommandBuffer, Vulkan::VUDeviceQueueRecord& rQueue)
     {
       assert(rCommandBuffer.IsValid());
 
@@ -79,7 +75,7 @@ namespace Fsl
       VkFenceCreateInfo fenceCreateInfo{};
       fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
       fenceCreateInfo.flags = 0;
-      Fence fence(rCommandBuffer.GetDevice(), fenceCreateInfo);
+      RapidVulkan::Fence fence(rCommandBuffer.GetDevice(), fenceCreateInfo);
 
       VkSubmitInfo submitInfo{};
       submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -131,7 +127,7 @@ namespace Fsl
   // Note: Override of virtual function in the base class and called from within VulkanExampleBase::Prepare
   void Triangle::SetupDepthStencil(const VkFormat depthFormat)
   {
-    using namespace MemoryTypeUtil;
+    using namespace Vulkan::MemoryTypeUtil;
 
     // NOTE: this code is almost identical to the method we are overriding.
 
@@ -274,12 +270,12 @@ namespace Fsl
     // Create the actual renderPass
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());     // Number of attachments used by this render pass
-    renderPassInfo.pAttachments = attachments.data();                               // Descriptions of the attachments used by the render pass
-    renderPassInfo.subpassCount = 1;                                                // We only use one subpass in this example
-    renderPassInfo.pSubpasses = &subpassDescription;                                // Description of that subpass
-    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());    // Number of subpass dependencies
-    renderPassInfo.pDependencies = dependencies.data();                             // Subpass dependencies used by the render pass
+    renderPassInfo.attachmentCount = UncheckedNumericCast<uint32_t>(attachments.size());    // Number of attachments used by this render pass
+    renderPassInfo.pAttachments = attachments.data();                                       // Descriptions of the attachments used by the render pass
+    renderPassInfo.subpassCount = 1;                                                        // We only use one subpass in this example
+    renderPassInfo.pSubpasses = &subpassDescription;                                        // Description of that subpass
+    renderPassInfo.dependencyCount = UncheckedNumericCast<uint32_t>(dependencies.size());    // Number of subpass dependencies
+    renderPassInfo.pDependencies = dependencies.data();                                      // Subpass dependencies used by the render pass
 
     m_renderPass.Reset(m_device.Get(), renderPassInfo);
   }
@@ -303,7 +299,7 @@ namespace Fsl
       frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
       // All frame buffers use the same renderPass setup
       frameBufferCreateInfo.renderPass = m_renderPass.Get();
-      frameBufferCreateInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+      frameBufferCreateInfo.attachmentCount = UncheckedNumericCast<uint32_t>(attachments.size());
       frameBufferCreateInfo.pAttachments = attachments.data();
       frameBufferCreateInfo.width = screenExtent.Width;
       frameBufferCreateInfo.height = screenExtent.Height;
@@ -313,12 +309,12 @@ namespace Fsl
     }
   }
 
-  void Triangle::Update(const DemoTime& demoTime)
+  void Triangle::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void Triangle::Draw(const DemoTime& demoTime)
+  void Triangle::Draw(const DemoTime& /*demoTime*/)
   {
     // Get next image in the swap chain (back/front buffer)
     VkResult result = m_swapchain.TryAcquireNextImage(m_presentCompleteSemaphore.Get(), m_currentBufferIndex);
@@ -404,7 +400,7 @@ namespace Fsl
   // Also uploads them to device local memory using staging and initializes vertex input and attribute binding to match the vertex shader
   void Triangle::PrepareVertices(const bool useStagingBuffers)
   {
-    using namespace MemoryTypeUtil;
+    using namespace Vulkan::MemoryTypeUtil;
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
     // A note on memory management in Vulkan in general:
@@ -413,21 +409,21 @@ namespace Fsl
 
     struct Vertex
     {
-      float position[3];
-      float color[3];
+      float position[3];    // NOLINT(modernize-avoid-c-arrays)
+      float color[3];       // NOLINT(modernize-avoid-c-arrays)
     };
 
     // Setup vertices
     std::vector<Vertex> vertexBuffer = {
       {{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, {{-1.0f, 1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}}, {{0.0f, -1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}}};
-    uint32_t vertexBufferSize = static_cast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);
+    uint32_t vertexBufferSize = UncheckedNumericCast<uint32_t>(vertexBuffer.size()) * sizeof(Vertex);
 
     // Setup indices
     std::vector<uint32_t> indexBuffer = {0, 1, 2};
-    m_indices.Count = static_cast<uint32_t>(indexBuffer.size());
+    m_indices.Count = UncheckedNumericCast<uint32_t>(indexBuffer.size());
     uint32_t indexBufferSize = m_indices.Count * sizeof(uint32_t);
 
-    void* data;
+    void* data = nullptr;
     if (useStagingBuffers)
     {
       // Static data like vertex and index buffer should be stored on the device memory
@@ -530,7 +526,7 @@ namespace Fsl
 
       // Buffer copies have to be submitted to a queue, so we need a command buffer for them
       // Note: Some devices offer a dedicated transfer queue (with only the transfer bit set) that may be faster when doing lots of copies
-      CommandBuffer copyCmd = DoGetCommandBuffer(m_device.Get(), m_commandPool, true);
+      RapidVulkan::CommandBuffer copyCmd = DoGetCommandBuffer(m_device.Get(), m_commandPool, true);
 
       // Put buffer region copies into command buffer
       VkBufferCopy copyRegion{};
@@ -616,14 +612,14 @@ namespace Fsl
     m_vertices.InputState.flags = 0;
     m_vertices.InputState.vertexBindingDescriptionCount = 1;
     m_vertices.InputState.pVertexBindingDescriptions = &m_vertices.InputBinding;
-    m_vertices.InputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertices.InputAttributes.size());
+    m_vertices.InputState.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.InputAttributes.size());
     m_vertices.InputState.pVertexAttributeDescriptions = m_vertices.InputAttributes.data();
   }
 
 
   void Triangle::PrepareUniformBuffers()
   {
-    using namespace MemoryTypeUtil;
+    using namespace Vulkan::MemoryTypeUtil;
     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
     // Prepare and initialize a uniform buffer block containing shader uniforms
@@ -670,10 +666,10 @@ namespace Fsl
 
   void Triangle::UpdateUniformBuffers()
   {
-    auto screenRes = GetScreenResolution();
+    const auto aspectRatio = GetWindowAspectRatio();
 
     // Update matrices
-    m_uboVS.ProjectionMatrix = glm::perspective(glm::radians(60.0f), static_cast<float>(screenRes.X) / static_cast<float>(screenRes.Y), 0.1f, 256.0f);
+    m_uboVS.ProjectionMatrix = glm::perspective(glm::radians(60.0f), aspectRatio, 0.1f, 256.0f);
 
     m_uboVS.ViewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, m_zoom));
 
@@ -683,7 +679,7 @@ namespace Fsl
     m_uboVS.ModelMatrix = glm::rotate(m_uboVS.ModelMatrix, glm::radians(m_rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Map uniform buffer and update it
-    uint8_t* pData;
+    uint8_t* pData = nullptr;
     RAPIDVULKAN_CHECK(vkMapMemory(m_device.Get(), m_uniformDataVS.Memory.Get(), 0, sizeof(m_uboVS), 0, reinterpret_cast<void**>(&pData)));
     {
       std::memcpy(pData, &m_uboVS, sizeof(m_uboVS));
@@ -762,13 +758,13 @@ namespace Fsl
 
     // Color blend state describes how blend factors are calculated (if used)
     // We need one blend attachment state per color attachment (even if blending is not used
-    VkPipelineColorBlendAttachmentState blendAttachmentState[1]{};
-    blendAttachmentState[0].colorWriteMask = 0xf;
-    blendAttachmentState[0].blendEnable = VK_FALSE;
+    VkPipelineColorBlendAttachmentState blendAttachmentState{};
+    blendAttachmentState.colorWriteMask = 0xf;
+    blendAttachmentState.blendEnable = VK_FALSE;
     VkPipelineColorBlendStateCreateInfo colorBlendState{};
     colorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlendState.attachmentCount = 1;
-    colorBlendState.pAttachments = blendAttachmentState;
+    colorBlendState.pAttachments = &blendAttachmentState;
 
     // Viewport state sets the number of viewports and scissor used in this pipeline
     // Note: This is actually overridden by the dynamic states (see below)
@@ -787,7 +783,7 @@ namespace Fsl
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicState.pDynamicStates = dynamicStateEnables.data();
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+    dynamicState.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateEnables.size());
 
     // Depth and stencil state containing depth and stencil compare and test operations
     // We only use depth tests and want depth tests and writes to be enabled and compare with less or equal
@@ -818,7 +814,7 @@ namespace Fsl
     shaderStages[1] = LoadShader("triangle.frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT);
 
     // Assign the pipeline states to the pipeline creation info structure
-    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(shaderStages.size());
     pipelineCreateInfo.pStages = shaderStages.data();
     pipelineCreateInfo.pVertexInputState = &m_vertices.InputState;
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
@@ -838,7 +834,7 @@ namespace Fsl
   void Triangle::SetupDescriptorPool()
   {
     // We need to tell the API the number of max. requested descriptors per type
-    VkDescriptorPoolSize typeCounts[1]{};
+    std::array<VkDescriptorPoolSize, 1> typeCounts{};
     // This example only uses one descriptor type (uniform buffer) and only requests one descriptor of this type
     typeCounts[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     typeCounts[0].descriptorCount = 1;
@@ -852,8 +848,8 @@ namespace Fsl
     VkDescriptorPoolCreateInfo descriptorPoolInfo{};
     descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolInfo.pNext = nullptr;
-    descriptorPoolInfo.poolSizeCount = 1;
-    descriptorPoolInfo.pPoolSizes = typeCounts;
+    descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(typeCounts.size());
+    descriptorPoolInfo.pPoolSizes = typeCounts.data();
     // Set the max. number of descriptor sets that can be requested from this pool (requesting beyond this limit will result in an error)
     descriptorPoolInfo.maxSets = 1;
 
@@ -896,7 +892,7 @@ namespace Fsl
   // This allows to generate work upfront and from multiple threads, one of the biggest advantages of Vulkan
   void Triangle::BuildCommandBuffers()
   {
-    const auto screenExtent = Convert(GetScreenExtent());
+    const auto screenExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
 
     VkCommandBufferBeginInfo cmdBufInfo{};
     cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -904,7 +900,7 @@ namespace Fsl
 
     // Set clear values for all framebuffer attachments with loadOp set to clear
     // We use two attachments (color and depth) that are cleared at the start of the subpass and as such we need to set clear values for both
-    VkClearValue clearValues[2];
+    std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {{0.0f, 0.0f, 0.2f, 1.0f}};
     clearValues[1].depthStencil = {1.0f, 0};
 
@@ -915,8 +911,8 @@ namespace Fsl
     renderPassBeginInfo.renderArea.offset.x = 0;
     renderPassBeginInfo.renderArea.offset.y = 0;
     renderPassBeginInfo.renderArea.extent = screenExtent;
-    renderPassBeginInfo.clearValueCount = 2;
-    renderPassBeginInfo.pClearValues = clearValues;
+    renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
 
     for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
     {
@@ -953,8 +949,8 @@ namespace Fsl
       vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipeline.Get());
 
       // Bind triangle vertex buffer (contains position and colors)
-      VkDeviceSize offsets[1] = {0};
-      vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_vertices.Buffer.GetPointer(), offsets);
+      VkDeviceSize offsets = 0;
+      vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_vertices.Buffer.GetPointer(), &offsets);
 
       // Bind triangle index buffer
       vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_indices.Buffer.Get(), 0, VK_INDEX_TYPE_UINT32);

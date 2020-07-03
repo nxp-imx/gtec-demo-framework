@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/Shared.SdfFonts.VC.VC.opendb
+/Shared.SdfFonts.VC.db
+/Shared.SdfFonts.manifest
+/Shared.SdfFonts.opensdf
+/Shared.SdfFonts.sdf
+/Shared.SdfFonts.sln
+/Shared.SdfFonts.v12.sdf
+/Shared.SdfFonts.v12.suo
+/Shared.SdfFonts.vcxproj
+/Shared.SdfFonts.vcxproj.filters
+/Shared.SdfFonts.vcxproj.user
+/build/

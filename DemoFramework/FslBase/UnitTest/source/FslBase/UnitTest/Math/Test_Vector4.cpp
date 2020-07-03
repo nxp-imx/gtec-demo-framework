@@ -387,7 +387,14 @@ TEST(TestMath_Vector4, Normalize_Static)
 
 TEST(TestMath_Vector4, Normalize_Static_Ref)
 {
-  Vector4 res1, res2, res3, res4, res5, res6, res7, res8;
+  Vector4 res1;
+  Vector4 res2;
+  Vector4 res3;
+  Vector4 res4;
+  Vector4 res5;
+  Vector4 res6;
+  Vector4 res7;
+  Vector4 res8;
   Vector4::Normalize(Vector4(4.0f, 0.0f, 0.0f, 0.0f), res1);
   Vector4::Normalize(Vector4(0.0f, 4.0f, 0.0f, 0.0f), res2);
   Vector4::Normalize(Vector4(0.0f, 0.0f, 4.0f, 0.0f), res3);
@@ -489,7 +496,10 @@ TEST(TestMath_Vector4, Transform_Ref)
   constexpr float tolerance = 0.0000001f;
 
   {
-    Vector4 res1, res2, res3, res4;
+    Vector4 res1;
+    Vector4 res2;
+    Vector4 res3;
+    Vector4 res4;
     Vector4::Transform(value1, matRotateX90, res1);
     Vector4::Transform(value2, matRotateX90, res2);
     Vector4::Transform(value3, matRotateX90, res3);
@@ -502,7 +512,10 @@ TEST(TestMath_Vector4, Transform_Ref)
   }
 
   {
-    Vector4 res1, res2, res3, res4;
+    Vector4 res1;
+    Vector4 res2;
+    Vector4 res3;
+    Vector4 res4;
     Vector4::Transform(value1, matRotateY90, res1);
     Vector4::Transform(value2, matRotateY90, res2);
     Vector4::Transform(value3, matRotateY90, res3);
@@ -515,7 +528,10 @@ TEST(TestMath_Vector4, Transform_Ref)
   }
 
   {
-    Vector4 res1, res2, res3, res4;
+    Vector4 res1;
+    Vector4 res2;
+    Vector4 res3;
+    Vector4 res4;
     Vector4::Transform(value1, matRotateZ90, res1);
     Vector4::Transform(value2, matRotateZ90, res2);
     Vector4::Transform(value3, matRotateZ90, res3);
@@ -564,7 +580,9 @@ TEST(TestMath_Vector4, Transform_Vector3_Ref)
   constexpr float tolerance = 0.0000001f;
 
   {
-    Vector4 res1, res2, res3;
+    Vector4 res1;
+    Vector4 res2;
+    Vector4 res3;
     Vector4::Transform(value1, matRotateX90, res1);
     Vector4::Transform(value2, matRotateX90, res2);
     Vector4::Transform(value3, matRotateX90, res3);
@@ -575,7 +593,9 @@ TEST(TestMath_Vector4, Transform_Vector3_Ref)
   }
 
   {
-    Vector4 res1, res2, res3;
+    Vector4 res1;
+    Vector4 res2;
+    Vector4 res3;
     Vector4::Transform(value1, matRotateY90, res1);
     Vector4::Transform(value2, matRotateY90, res2);
     Vector4::Transform(value3, matRotateY90, res3);
@@ -586,7 +606,9 @@ TEST(TestMath_Vector4, Transform_Vector3_Ref)
   }
 
   {
-    Vector4 res1, res2, res3;
+    Vector4 res1;
+    Vector4 res2;
+    Vector4 res3;
     Vector4::Transform(value1, matRotateZ90, res1);
     Vector4::Transform(value2, matRotateZ90, res2);
     Vector4::Transform(value3, matRotateZ90, res3);
@@ -628,7 +650,8 @@ TEST(TestMath_Vector4, Transform_Vector2_Ref)
   constexpr float tolerance = 0.0000001f;
 
   {
-    Vector4 res1, res2;
+    Vector4 res1;
+    Vector4 res2;
     Vector4::Transform(value1, matRotateX90, res1);
     Vector4::Transform(value2, matRotateX90, res2);
 
@@ -637,7 +660,8 @@ TEST(TestMath_Vector4, Transform_Vector2_Ref)
   }
 
   {
-    Vector4 res1, res2;
+    Vector4 res1;
+    Vector4 res2;
     Vector4::Transform(value1, matRotateY90, res1);
     Vector4::Transform(value2, matRotateY90, res2);
 
@@ -646,7 +670,8 @@ TEST(TestMath_Vector4, Transform_Vector2_Ref)
   }
 
   {
-    Vector4 res1, res2;
+    Vector4 res1;
+    Vector4 res2;
     Vector4::Transform(value1, matRotateZ90, res1);
     Vector4::Transform(value2, matRotateZ90, res2);
 

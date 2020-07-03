@@ -29,17 +29,15 @@
  *
  ****************************************************************************************************************************************************/
 
+#include "CoverFlow.hpp"
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslUtil/OpenVG/VGCheck.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include "CoverFlow.hpp"
-#include "CoverAlbumBitmap.hpp"
 #include <VG/openvg.h>
+#include <array>
 #include <iostream>
-#define ANIMATION_IDLE 0
-#define ANIMATION_EXECUTING_POS 1
-#define ANIMATION_EXECUTING_SCALE 2
-#define FRAMES_PER_TRANSITION 30
+#include "CoverAlbumBitmap.hpp"
 
 namespace Fsl
 {
@@ -47,18 +45,10 @@ namespace Fsl
 
   namespace
   {
-    void* bitMapArray[] = {
-      nullptr,
-      (void*)&(CoverAlbumBitmaps::CarnivalBitmap[4 * 128 * 127]),
-      (void*)&(CoverAlbumBitmaps::EncoreBitmap[4 * 128 * 127]),
-      (void*)&(CoverAlbumBitmaps::KajiuraBitmap[4 * 128 * 127]),
-      (void*)&(CoverAlbumBitmaps::MozartBitmap[4 * 128 * 127]),
-      (void*)&(CoverAlbumBitmaps::StratovariusBitmap[4 * 128 * 127]),
-      (void*)&(CoverAlbumBitmaps::TemerariosBitmap[4 * 128 * 127]),
-      (void*)&(CoverAlbumBitmaps::TigresBitmap[4 * 128 * 127]),
-      (void*)&(CoverAlbumBitmaps::TristaniaBitmap[4 * 128 * 127]),
-
-    };
+    constexpr const int ANIMATION_IDLE = 0;
+    constexpr const int ANIMATION_EXECUTING_POS = 1;
+    constexpr const int ANIMATION_EXECUTING_SCALE = 2;
+    constexpr const int FRAMES_PER_TRANSITION = 30;
 
     std::vector<Vector2> slot_coordinates(8);
     std::vector<Vector2> scale_values(2);
@@ -79,10 +69,10 @@ namespace Fsl
           // Animation Requested
 
           // Calculate next position and animation increments
-          rObject.IncrementX = ((endPos.X - startPos.X) / (rObject.AnimationDuration - 1));
-          rObject.IncrementY = ((endPos.Y - startPos.Y) / (rObject.AnimationDuration - 1));
+          rObject.IncrementX = ((endPos.X - startPos.X) / float(rObject.AnimationDuration - 1));
+          rObject.IncrementY = ((endPos.Y - startPos.Y) / float(rObject.AnimationDuration - 1));
 
-          rObject.AngleIncrement = (360.0f / (rObject.AnimationDuration - 1));
+          rObject.AngleIncrement = (360.0f / float(rObject.AnimationDuration - 1));
           // Define Animations duration
           rObject.AnimationState = 0;
           rObject.CoverFlowState = ANIMATION_EXECUTING_POS;
@@ -98,8 +88,8 @@ namespace Fsl
           rObject.ScaleAnimation = 0;
           rObject.ScaleX = 1;
           rObject.ScaleY = 1;
-          rObject.ScaleIncrementX = (endScale.X - startScale.X) / (rObject.AnimationDuration - 1);
-          rObject.ScaleIncrementY = (endScale.Y - startScale.Y) / (rObject.AnimationDuration - 1);
+          rObject.ScaleIncrementX = (endScale.X - startScale.X) / float(rObject.AnimationDuration - 1);
+          rObject.ScaleIncrementY = (endScale.Y - startScale.Y) / float(rObject.AnimationDuration - 1);
 
           rObject.AnimationState = 0;
           rObject.CoverFlowState = ANIMATION_EXECUTING_SCALE;
@@ -152,13 +142,24 @@ namespace Fsl
 
   CoverFlow::CoverFlow(const DemoAppConfig& config)
     : DemoAppVG(config)
+    , m_bitMapArray{
+        nullptr,
+        CoverAlbumBitmaps::CarnivalBitmap,
+        CoverAlbumBitmaps::EncoreBitmap,
+        CoverAlbumBitmaps::KajiuraBitmap,
+        CoverAlbumBitmaps::MozartBitmap,
+        CoverAlbumBitmaps::StratovariusBitmap,
+        CoverAlbumBitmaps::TemerariosBitmap,
+        CoverAlbumBitmaps::TigresBitmap,
+        CoverAlbumBitmaps::TristaniaBitmap,
+      }
     , m_coverAlbums(9)
     , m_coverBigAlbums(2)
     , m_frame(0)
   {
-    int j;
-    VGfloat afClearColour[] = {0.0f, 0.0f, 0.0f, 1.0f};
-    vgSetfv(VG_CLEAR_COLOR, 4, afClearColour);
+    int j = 0;
+    std::array<VGfloat, 4> afClearColour = {0.0f, 0.0f, 0.0f, 1.0f};
+    vgSetfv(VG_CLEAR_COLOR, UncheckedNumericCast<VGint>(afClearColour.size()), afClearColour.data());
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
     for (j = 1; j < 9; j++)
@@ -167,7 +168,7 @@ namespace Fsl
         vgCreateImage(VG_sARGB_8888, 128, 128, VG_IMAGE_QUALITY_BETTER | VG_IMAGE_QUALITY_NONANTIALIASED | VG_IMAGE_QUALITY_FASTER);
       m_coverAlbums[j].AlbumBF =
         vgCreateImage(VG_sARGB_8888, 128, 128, VG_IMAGE_QUALITY_BETTER | VG_IMAGE_QUALITY_NONANTIALIASED | VG_IMAGE_QUALITY_FASTER);
-      vgImageSubData(m_coverAlbums[j].AlbumCF, (const void*)bitMapArray[j], -1 * 4 * 128, VG_sARGB_8888, 0, 0, 128, 128);
+      vgImageSubData(m_coverAlbums[j].AlbumCF, m_bitMapArray[j], -1 * 4 * 128, VG_sARGB_8888, 0, 0, 128, 128);
       FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
       vgGaussianBlur(m_coverAlbums[j].AlbumBF, m_coverAlbums[j].AlbumCF, 3, 3, VG_TILE_FILL);
       FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
@@ -190,7 +191,7 @@ namespace Fsl
     m_coverBigAlbums[1].AlbumCF =
       vgCreateImage(VG_sARGB_8888, 256, 256, VG_IMAGE_QUALITY_BETTER | VG_IMAGE_QUALITY_NONANTIALIASED | VG_IMAGE_QUALITY_FASTER);
 
-    vgImageSubData(m_coverBigAlbums[0].AlbumCF, (const void*)bitMapArray[3], -1 * 4 * 128, VG_sARGB_8888, 0, 0, 128, 128);
+    vgImageSubData(m_coverBigAlbums[0].AlbumCF, m_bitMapArray[3], -1 * 4 * 128, VG_sARGB_8888, 0, 0, 128, 128);
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
 
     m_coverBigAlbums[0].ScaleX = 1;
@@ -200,11 +201,8 @@ namespace Fsl
     m_coverBigAlbums[1].ScaleX = 1;
     m_coverBigAlbums[1].ScaleY = 1;
     m_coverBigAlbums[1].CoverFlowState = 0;
-    uint32_t width, height;
-    const Point2 currentSize = GetScreenResolution();
-    width = currentSize.X;
-    height = currentSize.Y;
-    vgClear(0, 0, width, height);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
     FSLGRAPHICSOPENVG_CHECK_FOR_ERROR();
     // slot_coordinates.resize(8);
     slot_coordinates[0] = Vector2(0.0f, 0.0f);
@@ -237,7 +235,7 @@ namespace Fsl
 
   void CoverFlow::Update(const DemoTime& demoTime)
   {
-    int j;
+    int j = 0;
     m_frame++;
     for (j = 1; j < 9; j++)
     {
@@ -267,12 +265,9 @@ namespace Fsl
 
   void CoverFlow::Draw(const DemoTime& demoTime)
   {
-    int j;
-    uint32_t width, height;
-    const Point2 currentSize = GetScreenResolution();
-    width = currentSize.X;
-    height = currentSize.Y;
-    vgClear(0, 0, width, height);
+    int j = 0;
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    vgClear(0, 0, currentSizePx.Width(), currentSizePx.Height());
     // Set matrix transformation mode
     vgSeti(VG_BLEND_MODE, VG_BLEND_SRC_OVER);
     vgSeti(VG_MATRIX_MODE, VG_MATRIX_IMAGE_USER_TO_SURFACE);
@@ -286,8 +281,7 @@ namespace Fsl
         {
           // Start Special Slot Animation!!
           vgLoadIdentity();
-          vgImageSubData(m_coverBigAlbums[0].AlbumCF, (const void*)bitMapArray[m_coverAlbums[j].RealIndex], -1 * 4 * 128, VG_sARGB_8888, 0, 0, 128,
-                         128);
+          vgImageSubData(m_coverBigAlbums[0].AlbumCF, m_bitMapArray[m_coverAlbums[j].RealIndex], -1 * 4 * 128, VG_sARGB_8888, 0, 0, 128, 128);
         }
       }
       vgLoadIdentity();

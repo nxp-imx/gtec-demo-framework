@@ -47,7 +47,7 @@ namespace Fsl
   ShaderBase::~ShaderBase() = default;
 
 
-  const ShaderVertexConfig ShaderBase::GetShaderConfig() const
+  ShaderVertexConfig ShaderBase::GetShaderConfig() const
   {
     return m_shaderConfig;
   }

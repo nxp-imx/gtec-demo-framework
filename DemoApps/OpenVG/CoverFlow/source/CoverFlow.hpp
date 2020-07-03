@@ -34,6 +34,7 @@
 #include <FslDemoApp/OpenVG/DemoAppVG.hpp>
 #include "VG/openvg.h"
 #include "VG/vgu.h"
+#include <array>
 
 namespace Fsl
 {
@@ -67,12 +68,13 @@ namespace Fsl
 
   class CoverFlow : public DemoAppVG
   {
+    std::array<const void*, 9> m_bitMapArray;
     std::vector<CoverAlbum> m_coverAlbums;
     std::vector<CoverAlbum> m_coverBigAlbums;
     uint32_t m_frame;
 
   public:
-    CoverFlow(const DemoAppConfig& config);
+    explicit CoverFlow(const DemoAppConfig& config);
     ~CoverFlow() override;
 
   protected:

@@ -50,10 +50,6 @@ namespace Fsl
     GLBuffer::GLBuffer(const GLenum target, const void* const pEntries, const std::size_t elementCount, const std::size_t elementStride,
                        const GLenum usage)
       : m_handle(GLValues::INVALID_HANDLE)
-      , m_target(0)
-      , m_capacity(0)
-      , m_elementStride(0)
-      , m_usage(0)
     {
       try
       {

@@ -32,6 +32,7 @@
 #include <FslSimpleUI/Base/Control/Extended/LabelTexture2DImage.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
@@ -40,7 +41,7 @@
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
 #include <algorithm>
-#include "../Impl/ImageImpl.hpp"
+#include "../Impl/ImageImpl_AtlasTexture2D.hpp"
 
 namespace Fsl
 {
@@ -87,61 +88,59 @@ namespace Fsl
 
     void LabelTexture2DImage::WinDraw(const UIDrawContext& context)
     {
-      const Vector2 finalSize = RenderSize();
-      const Vector2 contentSize(m_texture.GetSize().X, m_texture.GetSize().Y);
-      Vector2 textureSize;
-      if (UIScaleUtil::TryCalcSize(textureSize, finalSize, contentSize, m_scalePolicy))
+      const PxSize2D finalSizePx = RenderSizePx();
+      const PxSize2D contentSizePx(m_texture.GetSize());
+      PxSize2D textureSizePx;
+      if (UIScaleUtil::TryCalcSize(textureSizePx, finalSizePx, contentSizePx, m_scalePolicy))
       {
-        auto targetRect = context.TargetRect;
-        const auto available = targetRect.GetSize();
-        if (available.X != textureSize.X)
+        auto targetRectPxf = context.TargetRect;
+        const PxSize2D availablePx = TypeConverter::UncheckedChangeTo<PxSize2D>(targetRectPxf.GetSize());
+        if (availablePx.Width() != textureSizePx.Width())
         {
-          targetRect.SetX(targetRect.X() + ((available.X - textureSize.X) / 2.0f));
-          targetRect.SetWidth(textureSize.X);
+          const int32_t newXPx = (availablePx.Width() - textureSizePx.Width()) / 2;
+          targetRectPxf.MoveLeft(targetRectPxf.Left() + static_cast<float>(newXPx));
+          targetRectPxf.SetWidth(static_cast<float>(textureSizePx.Width()));
         }
-        if (available.Y != textureSize.Y)
+        if (availablePx.Height() != textureSizePx.Height())
         {
-          targetRect.SetY(targetRect.Y() + ((available.Y - textureSize.Y) / 2.0f));
-          targetRect.SetHeight(textureSize.Y);
+          const int32_t newYPx = (availablePx.Height() - textureSizePx.Height()) / 2;
+          targetRectPxf.MoveTop(targetRectPxf.Top() + static_cast<float>(newYPx));
+          targetRectPxf.SetHeight(static_cast<float>(textureSizePx.Height()));
         }
 
-        m_windowContext->Batch2D->Draw(m_texture, targetRect, Color::White());
+        m_windowContext->Batch2D->Draw(m_texture, targetRectPxf, Color::White());
         LabelBase::WinDraw(context);
       }
     }
 
 
-    Vector2 LabelTexture2DImage::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D LabelTexture2DImage::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      const auto labelSize = LabelBase::ArrangeOverride(finalSize);
+      const PxSize2D labelSizePx = LabelBase::ArrangeOverride(finalSizePx);
 
-      Vector2 textureSize;
+      PxSize2D textureSizePx;
       if (m_texture.IsValid())
       {
-        Vector2 contentSize(m_texture.GetSize().X, m_texture.GetSize().Y);
-        if (!UIScaleUtil::TryCalcSize(textureSize, finalSize, contentSize, m_scalePolicy))
+        const PxSize2D contentSizePx(m_texture.GetSize());
+        if (!UIScaleUtil::TryCalcSize(textureSizePx, finalSizePx, contentSizePx, m_scalePolicy))
         {
-          textureSize = finalSize;
+          textureSizePx = finalSizePx;
         }
       }
 
       // Pick the largest of each dimension
-      return Vector2(std::max(labelSize.X, textureSize.X), std::max(labelSize.Y, textureSize.Y));
+      return {std::max(labelSizePx.Width(), textureSizePx.Width()), std::max(labelSizePx.Height(), textureSizePx.Height())};
     }
 
 
-    Vector2 LabelTexture2DImage::MeasureOverride(const Vector2& availableSize)
+    PxSize2D LabelTexture2DImage::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      const auto labelSize = LabelBase::MeasureOverride(availableSize);
+      const PxSize2D labelSizePx = LabelBase::MeasureOverride(availableSizePx);
 
-      Vector2 textureSize;
-      if (m_texture.IsValid())
-      {
-        textureSize = Vector2(m_texture.GetSize().X, m_texture.GetSize().Y);
-      }
+      PxSize2D textureSizePx = m_texture.GetSize();
 
       // Pick the largest of each dimension
-      return Vector2(std::max(labelSize.X, textureSize.X), std::max(labelSize.Y, textureSize.Y));
+      return {std::max(labelSizePx.Width(), textureSizePx.Width()), std::max(labelSizePx.Height(), textureSizePx.Height())};
     }
   }
 }

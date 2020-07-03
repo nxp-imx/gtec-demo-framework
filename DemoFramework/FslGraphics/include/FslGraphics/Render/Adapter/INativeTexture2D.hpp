@@ -31,24 +31,14 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Texture2DFilterHint.hpp>
-#include <FslGraphics/TextureFlags.hpp>
+#include <FslGraphics/Sprite/Material/ISpriteMaterial.hpp>
 
 namespace Fsl
 {
-  class RawBitmap;
-  class RawTexture;
-
-  class INativeTexture2D
+  class INativeTexture2D : public ISpriteMaterial
   {
   public:
-    virtual ~INativeTexture2D() = default;
-
-    //! @brief Set the data of the texture
-    virtual void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) = 0;
-
-    //! @brief Set the data of the texture
-    virtual void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) = 0;
+    ~INativeTexture2D() override = default;
   };
 }
 

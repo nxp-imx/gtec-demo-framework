@@ -2,24 +2,25 @@
 #define PLATFORM_ANDROID_JNIUTIL_JNIUTIL_HPP
 #if defined(__ANDROID__)
 /*
-* Copyright 2013 The Android Open Source Project
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2013 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 // The code here is based on JNIHelper from the NDK
 
 #include <jni.h>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -35,18 +36,17 @@ namespace Fsl
   private:
     std::string app_name_;
 
-    ANativeActivity* activity_;
-    jobject jni_util_java_ref_;
-    jclass jni_util_java_class_;
+    ANativeActivity* activity_{nullptr};
+    jobject jni_util_java_ref_{};
+    jclass jni_util_java_class_{};
 
-    //mutex for synchronization
-    //This class uses singleton pattern and can be invoked from multiple threads,
-    //each methods locks the mutex for a thread safety
-    mutable pthread_mutex_t mutex_;
+    // mutex for synchronization
+    // This class uses singleton pattern and can be invoked from multiple threads,
+    // each methods locks the mutex for a thread safety
+    mutable std::mutex mutex_;
 
-    jstring GetExternalFilesDirJString(JNIEnv *env);
-    jclass RetrieveClass(JNIEnv *jni,
-      const char* class_name);
+    jstring GetExternalFilesDirJString(JNIEnv* env);
+    jclass RetrieveClass(JNIEnv* jni, const char* class_name);
 
     JNIUtil();
     ~JNIUtil();

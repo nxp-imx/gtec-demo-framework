@@ -30,15 +30,16 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoPlatform/Setup/DemoSetup.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  DemoSetup::DemoSetup(const ExceptionMessageFormatter& exceptionFormatter, const std::shared_ptr<IServiceProvider>& serviceProvider,
-                       const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const uint32_t verbosityLevel)
-    : ExceptionFormatter(exceptionFormatter)
-    , ServiceProvider(serviceProvider)
-    , Host(hostSetup)
-    , App(appSetup)
+  DemoSetup::DemoSetup(ExceptionMessageFormatter exceptionFormatter, std::shared_ptr<IServiceProvider> serviceProvider, DemoHostSetup hostSetup,
+                       DemoHostAppSetup appSetup, const uint32_t verbosityLevel)
+    : ExceptionFormatter(std::move(exceptionFormatter))
+    , ServiceProvider(std::move(serviceProvider))
+    , Host(std::move(hostSetup))
+    , App(std::move(appSetup))
     , VerbosityLevel(verbosityLevel)
   {
   }

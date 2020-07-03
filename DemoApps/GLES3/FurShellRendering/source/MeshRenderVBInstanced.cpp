@@ -62,7 +62,7 @@ namespace Fsl
     m_link[0].AttribIndex = shaderConfig.Position;
     m_link[1].AttribIndex = shaderConfig.Normal;
     m_link[2].AttribIndex = shaderConfig.TexCoord;
-    m_vb.EnableAttribArrays(m_link, 3);
+    m_vb.EnableAttribArrays(m_link);
   }
 
   void MeshRenderVBInstanced::Draw()
@@ -72,7 +72,7 @@ namespace Fsl
 
   void MeshRenderVBInstanced::Unbind()
   {
-    m_vb.DisableAttribArrays(m_link, 3);
+    m_vb.DisableAttribArrays(m_link);
     glBindBuffer(m_vb.GetTarget(), 0);
     glBindBuffer(m_ib.GetTarget(), 0);
   }

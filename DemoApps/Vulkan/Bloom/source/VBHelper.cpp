@@ -34,13 +34,14 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
+#include <array>
 #include <cassert>
 
 namespace Fsl
 {
   QuadMesh VBHelper::BuildVB(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const BoxF& coords, const BoxF& uv)
   {
-    VertexPositionTexture vertices[] = {
+    std::array<VertexPositionTexture, 4> vertices = {
       VertexPositionTexture(Vector3(coords.X1, coords.Y2, 0.0f), Vector2(uv.X1, uv.Y2)),
       VertexPositionTexture(Vector3(coords.X1, coords.Y1, 0.0f), Vector2(uv.X1, uv.Y1)),
       VertexPositionTexture(Vector3(coords.X2, coords.Y2, 0.0f), Vector2(uv.X2, uv.Y2)),
@@ -50,7 +51,7 @@ namespace Fsl
     QuadMesh mesh;
 
     std::array<VertexElementUsage, 2> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
-    mesh.VertexBuffer.Reset(bufferManager, vertices, 4, Vulkan::VMBufferUsage::STATIC);
+    mesh.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
 
     Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.AttributeDescription, shaderBindOrder, mesh.VertexBuffer);
     mesh.BindingDescription.binding = 0;

@@ -1,14 +1,25 @@
 {
   "ContentBuilder" : {
     "Version": "1",
-    "Content.Sync": {
-      "SourcePath" : "${ProjectRoot}/Resources",
-      "Content": [
-        "Textures/Bricks/Bricks_ASTC8x8_rgb.ktx",
-        "Textures/Bricks/Bricks_BC1_rgb.ktx",
-        "Textures/Bricks/Bricks_ETC2_rgb.ktx",
-        "Textures/Bricks/License.json"
-      ]
-    }
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlas_*dpi.bta",
+          "UIAtlas/UIAtlas_*dpi.png",
+          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Textures/Bricks/Bricks_ASTC8x8_rgb.ktx",
+          "Textures/Bricks/Bricks_BC1_rgb.ktx",
+          "Textures/Bricks/Bricks_ETC2_rgb.ktx",
+          "Textures/Bricks/License.json"
+        ]
+      }
+    ]
   }
 }

@@ -39,12 +39,16 @@ from FslBuildGen import IOUtil
 from FslBuildGen.Log import Log
 
 class BuildConfigureCache(object):
-    def __init__(self, fileHashDict: Dict[str,str], commandList: List[str], platformName: str) -> None:
+    CURRENT_VERSION = 4
+
+    def __init__(self, fileHashDict: Dict[str,str], commandList: List[str], platformName: str, fslBuildVersion: str, allowFindPackage: str) -> None:
         super().__init__()
-        self.Version = 2
+        self.Version = BuildConfigureCache.CURRENT_VERSION
         self.FileHashDict = fileHashDict
         self.CommandList = commandList
         self.PlatformName = platformName;
+        self.FslBuildVersion = fslBuildVersion
+        self.AllowFindPackage = allowFindPackage
 
     @staticmethod
     def TryLoad(log: Log, cacheFilename: str) -> Optional['BuildConfigureCache']:
@@ -53,7 +57,7 @@ class BuildConfigureCache(object):
             if strJson is None:
                 return None
             jsonDict = json.loads(strJson)
-            if jsonDict["Version"] != 2:
+            if jsonDict["Version"] != BuildConfigureCache.CURRENT_VERSION:
                 raise Exception("Unsupported version")
 
             jsonFileHashDict = jsonDict["FileHashDict"]
@@ -71,7 +75,9 @@ class BuildConfigureCache(object):
                 finalCommandList.append(value)
 
             platformName = jsonDict["PlatformName"] # type: str
-            return BuildConfigureCache(finalDict, finalCommandList, platformName)
+            fslBuildVersion = jsonDict["FslBuildVersion"] # type: str
+            allowFindPackage = jsonDict["AllowFindPackage"] # type: str
+            return BuildConfigureCache(finalDict, finalCommandList, platformName, fslBuildVersion, allowFindPackage)
         except:
             log.DoPrintWarning("Failed to decode cache file '{0}'".format(cacheFilename))
             return None

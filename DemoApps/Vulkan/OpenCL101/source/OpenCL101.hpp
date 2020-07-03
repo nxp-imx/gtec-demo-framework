@@ -45,7 +45,7 @@ namespace Fsl
     DependentResources m_dependentResources;
 
   public:
-    OpenCL101(const DemoAppConfig& config);
+    explicit OpenCL101(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

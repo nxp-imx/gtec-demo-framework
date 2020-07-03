@@ -78,16 +78,16 @@ TEST(TestMath_Rectangle2D, Construct2)
   int32_t top = 2;
   int32_t right = 10;
   int32_t bottom = 20;
-  Rectangle2D value(left, top, right, bottom, true);
+  auto value = Rectangle2D::FromLeftTopRightBottom(left, top, right, bottom);
 
   EXPECT_EQ(Offset2D(left, top), value.Offset);
   EXPECT_EQ(Extent2D(static_cast<uint32_t>(right - left), static_cast<uint32_t>(bottom - top)), value.Extent);
 }
 
-TEST(TestMath_Rectangle2D, Construct2_invalid)
+TEST(TestMath_Rectangle2D, FromLeftTopRightBottom_Invalid)
 {
-  EXPECT_THROW(Rectangle2D(1, 2, -10, 20, true), std::invalid_argument);
-  EXPECT_THROW(Rectangle2D(1, 2, 10, -20, true), std::invalid_argument);
+  EXPECT_THROW(Rectangle2D::FromLeftTopRightBottom(1, 2, -10, 20), std::invalid_argument);
+  EXPECT_THROW(Rectangle2D::FromLeftTopRightBottom(1, 2, 10, -20), std::invalid_argument);
 }
 
 
@@ -109,6 +109,34 @@ TEST(TestMath_Rectangle2D, Inflate)
   EXPECT_EQ(offsetY - inflateY, value.Top());
   EXPECT_EQ(static_cast<int32_t>(offsetX - inflateX + width + (2 * inflateX)), value.Right());
   EXPECT_EQ(static_cast<int32_t>(offsetY - inflateY + height + (2 * inflateY)), value.Bottom());
+}
+
+
+TEST(TestMath_Rectangle2D, Inflate_NegativeX)
+{
+  const int32_t offsetX = 1;
+  const int32_t offsetY = 2;
+  const uint32_t width = 3;
+  const uint32_t height = 4;
+  Rectangle2D value(offsetX, offsetY, width, height);
+
+  const int32_t inflateX = -1;
+  const int32_t inflateY = 2;
+  EXPECT_THROW(value.Inflate(inflateX, inflateY), std::invalid_argument);
+}
+
+
+TEST(TestMath_Rectangle2D, Inflate_NegativeY)
+{
+  const int32_t offsetX = 1;
+  const int32_t offsetY = 2;
+  const uint32_t width = 3;
+  const uint32_t height = 4;
+  Rectangle2D value(offsetX, offsetY, width, height);
+
+  const int32_t inflateX = 1;
+  const int32_t inflateY = -2;
+  EXPECT_THROW(value.Inflate(inflateX, inflateY), std::invalid_argument);
 }
 
 
@@ -137,5 +165,5 @@ TEST(TestMath_Rectangle2D, Union)
 
   // 0, 5 |  0, 4
   // 0, 5 | -1, 4
-  EXPECT_EQ(Rectangle2D(0, -1, 5, 5, true), res);
+  EXPECT_EQ(Rectangle2D::FromLeftTopRightBottom(0, -1, 5, 5), res);
 }

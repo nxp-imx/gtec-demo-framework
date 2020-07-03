@@ -32,9 +32,16 @@
 #include "SRGBFramebuffer.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
@@ -45,9 +52,6 @@
 
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace UI;
-
   namespace
   {
     const auto VERTEX_BUFFER_BIND_ID = 0;
@@ -75,7 +79,7 @@ namespace Fsl
       throw NotSupportedException("No supported texture compression found");
     }
 
-    Vulkan::VUTexture CreateTexture(VulkanImageCreator& imageCreator, const Texture& texture)
+    Vulkan::VUTexture CreateTexture(Vulkan::VulkanImageCreator& imageCreator, const Texture& texture)
     {
       VkSamplerCreateInfo samplerCreateInfo{};
       samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -97,7 +101,7 @@ namespace Fsl
       return imageCreator.CreateTexture(texture, samplerCreateInfo);
     }
 
-    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const VUDevice& device)
+    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
       std::array<VkDescriptorSetLayoutBinding, 3> setLayoutBindings{};
       // Binding 0 : Vertex shader uniform buffer
@@ -120,7 +124,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -139,7 +143,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -174,7 +178,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -219,7 +223,7 @@ namespace Fsl
       writeDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
       writeDescriptorSets[2].pBufferInfo = &fragUboBufferInfo;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 
       return descriptorSet;
     }
@@ -263,7 +267,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.VertexInputBindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.VertexAttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.VertexAttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.VertexAttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -345,12 +349,12 @@ namespace Fsl
 
       VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
       pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-      pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+      pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicState.size());
       pipelineDynamicStateCreateInfo.pDynamicStates = dynamicState.data();
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -381,9 +385,11 @@ namespace Fsl
 
   SRGBFramebuffer::SRGBFramebuffer(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
-    , m_bufferManager(std::make_shared<VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
+    , m_bufferManager(
+        std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -410,7 +416,7 @@ namespace Fsl
     CreateTextures(contentManager, textureFile);
     CreateVertexArray();
 
-    auto shaderFilename = hasSRGBFramebuffer ? "GammaCorrection.frag.spv" : "GammaCorrectionGamma.frag.spv";
+    const auto* shaderFilename = hasSRGBFramebuffer ? "GammaCorrection.frag.spv" : "GammaCorrectionGamma.frag.spv";
 
     m_resources.VertShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes("GammaCorrection.vert.spv"));
     m_resources.FragShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes(shaderFilename));
@@ -431,8 +437,44 @@ namespace Fsl
       UpdateDescriptorSet(m_device.Get(), rFrame.DescriptorSetSRGB, rFrame.VertUboBufferR, rFrame.FragUboBuffer, m_resources.TexSRGB);
     }
     m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
+
+    UpdateUIToState();
+    UpdateSceneTransition(DemoTime());
+    m_splitX.ForceComplete();
+    m_splitSceneWidthL.ForceComplete();
+    m_splitSceneWidthR.ForceComplete();
+    m_splitSceneAlphaL.ForceComplete();
+    m_splitSceneAlphaR.ForceComplete();
   }
 
+  void SRGBFramebuffer::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  {
+    if (theEvent->GetSource() == m_leftCB || theEvent->GetSource() == m_rightCB)
+    {
+      const bool isCheckedL = m_leftCB->IsChecked();
+      const bool isCheckedR = m_rightCB->IsChecked();
+      if (isCheckedL)
+      {
+        if (isCheckedR)
+        {
+          SetState(State::Split2);
+        }
+        else
+        {
+          SetState(State::Scene1);
+        }
+      }
+      else if (isCheckedR)
+      {
+        SetState(State::Scene2);
+      }
+      else
+      {
+        // If none is checked we force update the UI
+        UpdateUIToState();
+      }
+    }
+  }
 
   void SRGBFramebuffer::OnKeyEvent(const KeyEvent& event)
   {
@@ -444,14 +486,14 @@ namespace Fsl
     switch (event.GetKey())
     {
     case VirtualKey::Code1:
-      m_state = State::Scene1;
+      SetState(State::Scene1);
       break;
     case VirtualKey::Code2:
-      m_state = State::Scene2;
+      SetState(State::Scene2);
       break;
     case VirtualKey::Code3:
     case VirtualKey::Space:
-      m_state = State::Split2;
+      SetState(State::Split2);
       break;
     default:
       break;
@@ -500,20 +542,20 @@ namespace Fsl
     UpdateInput(demoTime);
     UpdateSceneTransition(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
     auto matrixWorld = Matrix::GetIdentity();
     auto matrixView = m_camera.GetViewMatrix();
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
-    const auto vulkanClipMatrix = MatrixUtil::GetClipMatrix();
+    const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    const float aspectL = m_splitSceneWidthL.GetValue() / screenResolution.Y;
+    const float aspectL = m_splitSceneWidthL.GetValue() / windowSizePx.Height();
 
     m_vertexUboDataL.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectL, 0.1f, 100.0f) * vulkanClipMatrix;
     m_vertexUboDataL.MatModelView = matrixWorld * matrixView;
 
-    const float aspectR = m_splitSceneWidthR.GetValue() / screenResolution.Y;
+    const float aspectR = m_splitSceneWidthR.GetValue() / windowSizePx.Height();
     m_vertexUboDataR.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectR, 0.1f, 100.0f) * vulkanClipMatrix;
     m_vertexUboDataR.MatModelView = matrixWorld * matrixView;
 
@@ -522,7 +564,8 @@ namespace Fsl
   }
 
 
-  void SRGBFramebuffer::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void SRGBFramebuffer::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
+                                   const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
@@ -532,11 +575,11 @@ namespace Fsl
     m_resources.MainFrameResources[frameIndex].VertUboBufferR.Upload(0, &m_vertexUboDataR, sizeof(VertexUboData));
     m_resources.MainFrameResources[frameIndex].FragUboBuffer.Upload(0, &m_fragmentUboData, sizeof(FragmentUboData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
-      clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+      clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -545,7 +588,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -629,7 +672,7 @@ namespace Fsl
 
   void SRGBFramebuffer::UpdateSceneTransition(const DemoTime& demoTime)
   {
-    const auto res = Vector2(GetScreenResolution().X, GetScreenResolution().Y);
+    const auto res = TypeConverter::UncheckedTo<Vector2>(GetWindowSizePx());
 
     switch (m_state)
     {
@@ -671,14 +714,14 @@ namespace Fsl
 
   void SRGBFramebuffer::DrawScenes(const FrameResources& frame, const VkCommandBuffer commandBuffer)
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
-    const VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    const VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
     const auto splitX = static_cast<int32_t>(std::round(m_splitX.GetValue()));
-    const int32_t remainderX = screenResolution.X - splitX;
-    const auto height = static_cast<float>(screenResolution.Y);
+    const int32_t remainderX = windowSizePx.Width() - splitX;
+    const auto height = static_cast<float>(windowSizePx.Height());
 
     //// bottom left (no gamma correction, rgb texture)
     // vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineNoGamma.Get());
@@ -735,7 +778,7 @@ namespace Fsl
   void SRGBFramebuffer::PrepareTransition()
   {
     // Force set the initial value so we dont begin with a transition
-    const auto res = Vector2(GetScreenResolution().X, GetScreenResolution().Y);
+    const auto res = TypeConverter::UncheckedTo<Vector2>(GetWindowSizePx());
     m_splitX.SetActualValue(res.X / 2.0f);
     m_splitSceneWidthL.SetActualValue(res.X / 2.0f);
     m_splitSceneWidthR.SetActualValue(res.X / 2.0f);
@@ -766,7 +809,7 @@ namespace Fsl
     // Since we discover the format from the loaded texture, we try to switch to a linear representation
     tex.ChangeCompatiblePixelFormatFlags(PixelFormatFlags::NF_UNorm);
 
-    VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
+    Vulkan::VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
 
     m_resources.TexLinear = CreateTexture(imageCreator, tex);
     // Since we discover the format from the loaded texture, we try to switch to a SRGB representation
@@ -803,10 +846,10 @@ namespace Fsl
 
     std::array<VertexElementUsage, 3> shaderBindOrder = {VertexElementUsage::Position, VertexElementUsage::Normal,
                                                          VertexElementUsage::TextureCoordinate};
-    m_resources.Mesh.VertexBuffer.Reset(m_bufferManager, vertices, VMBufferUsage::STATIC);
+    m_resources.Mesh.VertexBuffer.Reset(m_bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
 
-    VMVertexBufferUtil::FillVertexInputAttributeDescription(m_resources.Mesh.VertexAttributeDescription, shaderBindOrder,
-                                                            m_resources.Mesh.VertexBuffer);
+    Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(m_resources.Mesh.VertexAttributeDescription, shaderBindOrder,
+                                                                    m_resources.Mesh.VertexBuffer);
     m_resources.Mesh.VertexInputBindingDescription.binding = 0;
     m_resources.Mesh.VertexInputBindingDescription.stride = m_resources.Mesh.VertexBuffer.GetElementStride();
     m_resources.Mesh.VertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -821,53 +864,84 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
+    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+
     // Create a label to write stuff into when a button is pressed
 
-    m_labelLeft = std::make_shared<Label>(context);
-    m_labelLeft->SetAlignmentX(ItemAlignment::Near);
-    m_labelLeft->SetAlignmentY(ItemAlignment::Near);
-    m_labelLeft->SetContent("RGB texture, gamma correction");
+    m_labelLeft = factory.CreateLabel("RGB texture, gamma correction");
+    m_labelLeft->SetAlignmentX(UI::ItemAlignment::Near);
+    m_labelLeft->SetAlignmentY(UI::ItemAlignment::Near);
 
-    m_labelRight = std::make_shared<Label>(context);
-    m_labelRight->SetAlignmentX(ItemAlignment::Far);
-    m_labelRight->SetAlignmentY(ItemAlignment::Near);
-    m_labelRight->SetContent("SRGB texture, gamma correction (Correct)");
+    m_labelRight = factory.CreateLabel("SRGB texture, gamma correction (Correct)");
+    m_labelRight->SetAlignmentX(UI::ItemAlignment::Far);
+    m_labelRight->SetAlignmentY(UI::ItemAlignment::Near);
 
-    auto infoArea = std::make_shared<StackLayout>(context);
-    infoArea->SetLayoutOrientation(LayoutOrientation::Vertical);
-    infoArea->SetAlignmentX(ItemAlignment::Center);
-    infoArea->SetAlignmentY(ItemAlignment::Far);
-    if (!hasSRGBFramebuffer)
-    {
-      auto label1 = std::make_shared<Label>(context);
-      label1->SetAlignmentX(ItemAlignment::Center);
-      label1->SetContent("SRGB framebuffer not available");
+    auto label1 = factory.CreateLabel(hasSRGBFramebuffer ? "SRGB framebuffer" : "SRGB framebuffer not available. Emulating output using shader");
+    label1->SetAlignmentX(UI::ItemAlignment::Center);
+    label1->SetAlignmentY(UI::ItemAlignment::Center);
 
-      auto label2 = std::make_shared<Label>(context);
-      label2->SetAlignmentX(ItemAlignment::Center);
-      label2->SetContent("Emulating output using shader");
+    auto leftCB = factory.CreateSwitch("Incorrect");
+    auto rightCB = factory.CreateSwitch("Correct");
+    leftCB->SetAlignmentX(UI::ItemAlignment::Center);
+    rightCB->SetAlignmentX(UI::ItemAlignment::Center);
+    auto controls = std::make_shared<UI::ComplexStackLayout>(context);
+    controls->SetAlignmentX(UI::ItemAlignment::Stretch);
+    controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
+    controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
+    controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
+    controls->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    controls->AddChild(leftCB);
+    controls->AddChild(label1);
+    controls->AddChild(rightCB);
 
-      infoArea->AddChild(label1);
-      infoArea->AddChild(label2);
-    }
-    else
-    {
-      auto label1 = std::make_shared<Label>(context);
-      label1->SetAlignmentX(ItemAlignment::Center);
-      label1->SetContent("SRGB framebuffer");
 
-      infoArea->AddChild(label1);
-    }
+    auto bottomBar = factory.CreateBottomBar(controls);
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
-    auto fillLayout = std::make_shared<FillLayout>(context);
+    auto fillLayout = std::make_shared<UI::FillLayout>(context);
     fillLayout->AddChild(m_labelLeft);
     fillLayout->AddChild(m_labelRight);
-    fillLayout->AddChild(infoArea);
+    fillLayout->AddChild(bottomBar);
 
+    m_leftCB = leftCB;
+    m_rightCB = rightCB;
 
     // Finally add everything to the window manager (to ensure its seen)
     m_uiExtension->GetWindowManager()->Add(fillLayout);
   }
+
+  void SRGBFramebuffer::SetState(State state)
+  {
+    if (state == m_state)
+    {
+      return;
+    }
+
+    m_state = state;
+    UpdateUIToState();
+  }
+
+  void SRGBFramebuffer::UpdateUIToState()
+  {
+    switch (m_state)
+    {
+    case State::Scene1:
+      m_leftCB->SetIsChecked(true);
+      m_rightCB->SetIsChecked(false);
+      break;
+    case State::Scene2:
+      m_leftCB->SetIsChecked(false);
+      m_rightCB->SetIsChecked(true);
+      break;
+    case State::Split2:
+      m_leftCB->SetIsChecked(true);
+      m_rightCB->SetIsChecked(true);
+      break;
+    default:
+      FSLLOG3_WARNING("Unsupported");
+      break;
+    }
+  }
+
 }

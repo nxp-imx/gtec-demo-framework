@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "FurShellRendering.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
@@ -52,6 +53,7 @@
 #include <Shared/FurShellRendering/OptionParser.hpp>
 #include <vulkan/vulkan.h>
 #include "RenderMode.hpp"
+#include <array>
 
 namespace Fsl
 {
@@ -84,7 +86,7 @@ namespace Fsl
     }
 
 
-    std::string GetDemoIdTextureName(const int demoId)
+    IO::Path GetDemoIdTextureName(const int demoId)
     {
       switch (demoId)
       {
@@ -204,7 +206,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = maxSets * frameCount;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -212,7 +214,7 @@ namespace Fsl
 
     VertexBufferInfo<2> BuildVB(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, const BoxF& coords, const BoxF& uv)
     {
-      VertexPositionTexture vertices[] = {
+      std::array<VertexPositionTexture, 4> vertices = {
         VertexPositionTexture(Vector3(coords.X1, coords.Y2, 0.0f), Vector2(uv.X1, uv.Y2)),
         VertexPositionTexture(Vector3(coords.X1, coords.Y1, 0.0f), Vector2(uv.X1, uv.Y1)),
         VertexPositionTexture(Vector3(coords.X2, coords.Y2, 0.0f), Vector2(uv.X2, uv.Y2)),
@@ -220,7 +222,7 @@ namespace Fsl
       };
 
       VertexBufferInfo<2> info;
-      info.VertexBuffer.Reset(bufferManager, vertices, 4, Vulkan::VMBufferUsage::STATIC);
+      info.VertexBuffer.Reset(bufferManager, vertices, Vulkan::VMBufferUsage::STATIC);
 
       // Generate attribute description by matching shader layout with the vertex declarations
       std::array<VertexElementUsage, 2> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
@@ -230,7 +232,7 @@ namespace Fsl
       {
         const auto& vertexDeclElement = info.VertexBuffer.GetVertexElement(shaderAttribOrder[i], 0);
 
-        info.AttributeDescription[i].location = static_cast<uint32_t>(i);
+        info.AttributeDescription[i].location = UncheckedNumericCast<uint32_t>(i);
         info.AttributeDescription[i].binding = 0;
         info.AttributeDescription[i].format = vertexDeclElement.NativeFormat;
         info.AttributeDescription[i].offset = vertexDeclElement.Offset;
@@ -242,19 +244,21 @@ namespace Fsl
     }
 
 
-    Procedural::BasicMesh CreateMesh(const ProceduralConfig& proceduralConfig, const Point2& tex1Size, const Point2& textureRepeatCount,
+    Procedural::BasicMesh CreateMesh(const ProceduralConfig& proceduralConfig, const PxSize2D& tex1Size, const Point2& textureRepeatCount,
                                      const int torusMajorSegments, const int torusMinorSegments, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
+      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
       const NativeTextureArea texArea(Vulkan::VUTextureUtil::CalcTextureArea(texRect, textureRepeatCount.X, textureRepeatCount.Y));
       if (proceduralConfig.Primitive == ProceduralPrimitive::Box)
       {
-        NativeTextureArea texAreas[6] = {texArea, texArea, texArea, texArea, texArea, texArea};
+        std::array<NativeTextureArea, 6> texAreas = {texArea, texArea, texArea, texArea, texArea, texArea};
         if (useTriangleStrip)
         {
-          return Procedural::BoxGenerator::GenerateStrip(Vector3::Zero(), 30, 30, 30, texAreas, 6, proceduralConfig.Winding);
+          return Procedural::BoxGenerator::GenerateStrip(Vector3::Zero(), 30, 30, 30, texAreas.data(), UncheckedNumericCast<int32_t>(texAreas.size()),
+                                                         proceduralConfig.Winding);
         }
-        return Procedural::BoxGenerator::GenerateList(Vector3::Zero(), 30, 30, 30, texAreas, 6, proceduralConfig.Winding);
+        return Procedural::BoxGenerator::GenerateList(Vector3::Zero(), 30, 30, 30, texAreas.data(), UncheckedNumericCast<int32_t>(texAreas.size()),
+                                                      proceduralConfig.Winding);
       }
 
 
@@ -282,7 +286,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -298,7 +302,8 @@ namespace Fsl
       writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[0].pImageInfo = &textureImageInfo;
 
-      vkUpdateDescriptorSets(descriptorPool.GetDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(descriptorPool.GetDevice(), UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0,
+                             nullptr);
 
       return descriptorSet;
     }
@@ -314,7 +319,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -362,7 +367,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.flags = 0;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &vertexBufferInfo.BindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = vertexBufferInfo.AttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -453,7 +458,7 @@ namespace Fsl
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
       graphicsPipelineCreateInfo.flags = 0;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -580,7 +585,7 @@ namespace Fsl
       }
 
       Point2 textureRepeatCount(m_config.GetTextureRepeatCountX(), m_config.GetTextureRepeatCountY());
-      Point2 tex1Size(static_cast<int32_t>(m_resources.Tex1.GetExtent().width), static_cast<int32_t>(m_resources.Tex1.GetExtent().height));
+      PxSize2D tex1Size(static_cast<int32_t>(m_resources.Tex1.GetExtent().width), static_cast<int32_t>(m_resources.Tex1.GetExtent().height));
       auto mesh = CreateMesh(proceduralConfig, tex1Size, textureRepeatCount, m_config.GetTorusMajorSegments(), m_config.GetTorusMinorSegments(),
                              m_config.GetUseTriangleStrip());
 
@@ -649,15 +654,15 @@ namespace Fsl
                               static_cast<float>(m_resources.TexDescriptionAtlas.GetExtent().height));
 
       // texSize.X / tex
-      float x1 = -1.0f - (m_resources.TexDescription.Offset.X / res.X);
-      float x2 = x1 + (m_resources.TexDescription.TrimmedRect.Width() / res.X);
-      float y1 = -1.0f - (m_resources.TexDescription.Offset.Y / res.Y);
-      float y2 = y1 + (m_resources.TexDescription.TrimmedRect.Height() / res.Y);
+      float x1 = -1.0f - (m_resources.TexDescription.OffsetPx.X / res.X);
+      float x2 = x1 + (m_resources.TexDescription.TrimmedRectPx.Width / res.X);
+      float y1 = -1.0f - (m_resources.TexDescription.OffsetPx.Y / res.Y);
+      float y2 = y1 + (m_resources.TexDescription.TrimmedRectPx.Height / res.Y);
 
-      float u1 = m_resources.TexDescription.TrimmedRect.Left() / atlasSize.X;
-      float v1 = m_resources.TexDescription.TrimmedRect.Top() / atlasSize.Y;
-      float u2 = m_resources.TexDescription.TrimmedRect.Right() / atlasSize.X;
-      float v2 = m_resources.TexDescription.TrimmedRect.Bottom() / atlasSize.Y;
+      float u1 = m_resources.TexDescription.TrimmedRectPx.Left() / atlasSize.X;
+      float v1 = m_resources.TexDescription.TrimmedRectPx.Top() / atlasSize.Y;
+      float u2 = m_resources.TexDescription.TrimmedRectPx.Right() / atlasSize.X;
+      float v2 = m_resources.TexDescription.TrimmedRectPx.Bottom() / atlasSize.Y;
 
       m_resources.VBDescription = BuildVB(m_bufferManager, BoxF(x1, y1, x2, y2), BoxF(u1, v1, u2, v2));
 
@@ -680,8 +685,6 @@ namespace Fsl
 
   void FurShellRendering::Update(const DemoTime& demoTime)
   {
-    const Point2 screenResolution = GetScreenResolution();
-
     if (m_enableForce)
     {
       Vector3 forceDirection(std::sin(m_radians), 0, 0);
@@ -707,9 +710,8 @@ namespace Fsl
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
     const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
-    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1,
-                                                         m_perspectiveZ) *
-                    vulkanClipMatrix;
+    const auto aspectRatio = GetWindowAspectRatio();
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 1, m_perspectiveZ) * vulkanClipMatrix;
     m_MVP = m_world * m_view * m_perspective;
 
     m_radians += 1.00f * demoTime.DeltaTime;
@@ -719,16 +721,17 @@ namespace Fsl
   }
 
 
-  void FurShellRendering::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void FurShellRendering::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
+                                     const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
     const auto frameIndex = drawContext.CurrentFrameIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {m_backgroundColor.X, m_backgroundColor.Y, m_backgroundColor.Z, 1.0f};
+      clearValues[0].color = {{m_backgroundColor.X, m_backgroundColor.Y, m_backgroundColor.Z, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -738,7 +741,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -767,7 +770,7 @@ namespace Fsl
       CreateDescPipeline(m_resources.DescPipelineLayout, context.SwapchainImageExtent, m_resources.BasicProgramVertShader.Get(),
                          m_resources.BasicProgramFragShader.Get(), m_resources.VBDescription, m_dependentResources.MainRenderPass.Get());
 
-    auto renderPass = m_dependentResources.MainRenderPass.Get();
+    const VkRenderPass renderPass = m_dependentResources.MainRenderPass.Get();
     m_resources.MeshStuff->OnBuildResources(context, renderPass);
     return renderPass;
   }
@@ -779,7 +782,7 @@ namespace Fsl
     m_dependentResources = {};
   }
 
-  void FurShellRendering::DrawToCommandBuffer(const FrameResources& frame, const VkCommandBuffer hCmdBuffer, const uint32_t cmdBufferIndex,
+  void FurShellRendering::DrawToCommandBuffer(const FrameResources& frame, const VkCommandBuffer hCmdBuffer, const uint32_t /*cmdBufferIndex*/,
                                               const uint32_t frameIndex)
   {
     const int layerCount = m_config.GetLayerCount();
@@ -823,8 +826,8 @@ namespace Fsl
       vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.DescPipeline.Get());
 
 
-      VkDeviceSize offsets[1] = {0};
-      vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBDescription.VertexBuffer.GetBufferPointer(), offsets);
+      VkDeviceSize offsets = 0;
+      vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBDescription.VertexBuffer.GetBufferPointer(), &offsets);
       vkCmdDraw(hCmdBuffer, m_resources.VBDescription.VertexBuffer.GetVertexCount(), 1, 0, 0);
     }
   }
@@ -847,7 +850,7 @@ namespace Fsl
     rRender.SetProjection(perspective);
     rRender.SetDisplacement(displacement);
 
-    float layerAdd = (layerCount > 1 ? 1.0f / (layerCount - 1) : 1);
+    float layerAdd = (layerCount > 1 ? 1.0f / float(layerCount - 1) : 1.0f);
     float layer = 0.0f;
 
     rRender.SetDrawOpaque(true);

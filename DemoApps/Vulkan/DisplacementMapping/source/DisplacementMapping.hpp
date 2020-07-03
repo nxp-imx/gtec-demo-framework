@@ -56,14 +56,11 @@ namespace Fsl
 
     struct Vertices
     {
-      VkPipelineVertexInputStateCreateInfo InputState;
+      VkPipelineVertexInputStateCreateInfo InputState{};
       std::vector<VkVertexInputBindingDescription> BindingDescriptions;
       std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
 
-      Vertices()
-        : InputState{}
-      {
-      }
+      Vertices() = default;
     };
 
     struct UboTC
@@ -104,7 +101,7 @@ namespace Fsl
     bool m_splitScreen;
 
   public:
-    DisplacementMapping(const DemoAppConfig& config);
+    explicit DisplacementMapping(const DemoAppConfig& config);
     ~DisplacementMapping() override;
 
   protected:

@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <FslBase/Math/TypeConverter.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
@@ -40,7 +41,7 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLRawBitmapUtil.hpp>
-
+#include <array>
 #include <algorithm>
 #include <cassert>
 
@@ -55,9 +56,9 @@ namespace Fsl
         uint32_t Face{0};
         GLenum Target{0};
 
-        FaceToTargetRecord() = default;
+        constexpr FaceToTargetRecord() = default;
 
-        FaceToTargetRecord(const uint32_t& face, const GLenum target)
+        constexpr FaceToTargetRecord(const uint32_t& face, const GLenum target)
           : Face(face)
           , Target(target)
         {
@@ -65,12 +66,12 @@ namespace Fsl
       };
 
 
-      FaceToTargetRecord g_normalFaceTargetMapping[1] = {
+      constexpr const std::array<FaceToTargetRecord, 1> g_normalFaceTargetMapping = {
         FaceToTargetRecord(0, GL_TEXTURE_2D),
       };
 
 
-      FaceToTargetRecord g_cubeFaceTargetMapping[6] = {
+      constexpr const std::array<FaceToTargetRecord, 6> g_cubeFaceTargetMapping = {
         FaceToTargetRecord(CubeMapFace::PosX, GL_TEXTURE_CUBE_MAP_POSITIVE_X), FaceToTargetRecord(CubeMapFace::NegX, GL_TEXTURE_CUBE_MAP_NEGATIVE_X),
         FaceToTargetRecord(CubeMapFace::PosY, GL_TEXTURE_CUBE_MAP_POSITIVE_Y), FaceToTargetRecord(CubeMapFace::NegY, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y),
         FaceToTargetRecord(CubeMapFace::PosZ, GL_TEXTURE_CUBE_MAP_POSITIVE_Z), FaceToTargetRecord(CubeMapFace::NegZ, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z),
@@ -94,7 +95,7 @@ namespace Fsl
         // Remove the data from other
         other.m_handle = GLValues::INVALID_HANDLE;
         other.m_target = GL_TEXTURE_2D;
-        other.m_extent = Extent3D();
+        other.m_extent = PxExtent3D();
       }
       return *this;
     }
@@ -109,7 +110,7 @@ namespace Fsl
       // Remove the data from other
       other.m_handle = GLValues::INVALID_HANDLE;
       other.m_target = GL_TEXTURE_2D;
-      other.m_extent = Extent3D();
+      other.m_extent = PxExtent3D();
     }
 
 
@@ -119,7 +120,7 @@ namespace Fsl
     }
 
 
-    GLTexture::GLTexture(const GLuint handle, const Extent3D& extent, const GLenum target)
+    GLTexture::GLTexture(const GLuint handle, const PxExtent3D& extent, const GLenum target)
       : m_handle(handle)
       , m_target(target)
       , m_extent(extent)
@@ -131,14 +132,14 @@ namespace Fsl
     }
 
 
-    GLTexture::GLTexture(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(bitmap, textureParameters, textureFlags);
     }
 
 
-    GLTexture::GLTexture(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(bitmap, textureParameters, textureFlags);
@@ -147,7 +148,7 @@ namespace Fsl
 
     GLTexture::GLTexture(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
                          const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                         const TextureFlags& textureFlags)
+                         const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ, textureParameters, textureFlags);
@@ -156,42 +157,42 @@ namespace Fsl
 
     GLTexture::GLTexture(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                          const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                         const TextureFlags& textureFlags)
+                         const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(RawCubeBitmap(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ), textureParameters, textureFlags);
     }
 
 
-    GLTexture::GLTexture(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(cubeBitmap, textureParameters, textureFlags);
     }
 
 
-    GLTexture::GLTexture(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(texture, textureParameters, textureFlags);
     }
 
 
-    GLTexture::GLTexture(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(texture, textureParameters, textureFlags);
     }
 
 
-    GLTexture::GLTexture(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(texture, textureParameters, textureFlags);
     }
 
 
-    GLTexture::GLTexture(const RawTexture& texture, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    GLTexture::GLTexture(const RawTexture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
       : GLTexture()
     {
       Reset(texture, textureParameters, textureFlags);
@@ -211,12 +212,12 @@ namespace Fsl
         glDeleteTextures(1, &m_handle);
         m_handle = GLValues::INVALID_HANDLE;
         m_target = GL_TEXTURE_2D;
-        m_extent = Extent3D();
+        m_extent = PxExtent3D();
       }
     }
 
 
-    void GLTexture::Reset(const GLuint handle, const Extent3D& extent, const GLenum target)
+    void GLTexture::Reset(const GLuint handle, const PxExtent3D& extent, const GLenum target)
     {
       if (target != GL_TEXTURE_2D && target != GL_TEXTURE_CUBE_MAP)
       {
@@ -230,14 +231,14 @@ namespace Fsl
     }
 
 
-    void GLTexture::Reset(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       Reset();
       SetData(bitmap, textureParameters, textureFlags);
     }
 
 
-    void GLTexture::Reset(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       Reset();
       SetData(bitmap, textureParameters, textureFlags);
@@ -246,7 +247,7 @@ namespace Fsl
 
     void GLTexture::Reset(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
                           const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                          const TextureFlags& textureFlags)
+                          const TextureFlags textureFlags)
     {
       Reset();
       SetData(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ, textureParameters, textureFlags);
@@ -255,21 +256,21 @@ namespace Fsl
 
     void GLTexture::Reset(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                           const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                          const TextureFlags& textureFlags)
+                          const TextureFlags textureFlags)
     {
       Reset();
       SetData(RawCubeBitmap(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ), textureParameters, textureFlags);
     }
 
 
-    void GLTexture::Reset(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
     {
       Reset();
       SetData(cubeBitmap, textureParameters, textureFlags);
     }
 
 
-    void GLTexture::Reset(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       if (IsValid())
       {
@@ -280,7 +281,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::Reset(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
     {
       if (IsValid())
       {
@@ -291,7 +292,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::Reset(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       if (IsValid())
       {
@@ -302,7 +303,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::Reset(const RawTexture& texture, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::Reset(const RawTexture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
     {
       if (IsValid())
       {
@@ -313,7 +314,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::SetData(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const Bitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       RawBitmap rawBitmap;
       Bitmap::ScopedDirectAccess scopedAccess(bitmap, rawBitmap);
@@ -321,7 +322,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::SetData(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const RawBitmap& bitmap, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       if (!bitmap.IsValid())
       {
@@ -332,7 +333,7 @@ namespace Fsl
         throw std::invalid_argument("The texture parameters are invalid");
       }
 
-      if (bitmap.GetOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin))
+      if (bitmap.GetOrigin() != BitmapOrigin::LowerLeft && !TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::AllowAnyBitmapOrigin))
       {
         FSLLOG3_WARNING(
           "The supplied texture is not using LowerLeft corner as it's origin as OpenGLES expects, causing a software flip before upload (performance "
@@ -345,7 +346,7 @@ namespace Fsl
         return;
       }
 
-      const GLRawBitmapUtil::Result result = GLRawBitmapUtil::Convert(bitmap, textureFlags.IsEnabled(TextureFlags::ExactFormat));
+      const GLRawBitmapUtil::Result result = GLRawBitmapUtil::Convert(bitmap, TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
 
       if (m_target != GL_TEXTURE_2D)
       {
@@ -363,7 +364,7 @@ namespace Fsl
       GL_CHECK(
         glTexImage2D(GL_TEXTURE_2D, 0, result.InternalFormat, bitmap.Width(), bitmap.Height(), 0, result.Format, result.Type, bitmap.Content()));
 
-      if (textureFlags.IsEnabled(TextureFlags::GenerateMipMaps))
+      if (TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::GenerateMipMaps))
       {
         GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
       }
@@ -373,16 +374,21 @@ namespace Fsl
       GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureParameters.WrapS));
       GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureParameters.WrapT));
 
-      m_extent = Extent3D(bitmap.GetExtent(), 1);
+      m_extent = PxExtent3D(bitmap.GetExtent(), 1);
       m_target = GL_TEXTURE_2D;
     }
 
 
     void GLTexture::SetData(const Bitmap& bitmapPosX, const Bitmap& bitmapNegX, const Bitmap& bitmapPosY, const Bitmap& bitmapNegY,
                             const Bitmap& bitmapPosZ, const Bitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                            const TextureFlags& textureFlags)
+                            const TextureFlags textureFlags)
     {
-      RawBitmap rawBitmapPosX, rawBitmapNegX, rawBitmapPosY, rawBitmapNegY, rawBitmapPosZ, rawBitmapNegZ;
+      RawBitmap rawBitmapPosX;
+      RawBitmap rawBitmapNegX;
+      RawBitmap rawBitmapPosY;
+      RawBitmap rawBitmapNegY;
+      RawBitmap rawBitmapPosZ;
+      RawBitmap rawBitmapNegZ;
       Bitmap::ScopedDirectAccess scopedAccessXP(bitmapPosX, rawBitmapPosX);
       Bitmap::ScopedDirectAccess scopedAccessXN(bitmapNegX, rawBitmapNegX);
       Bitmap::ScopedDirectAccess scopedAccessYP(bitmapPosY, rawBitmapPosY);
@@ -396,13 +402,13 @@ namespace Fsl
 
     void GLTexture::SetData(const RawBitmap& bitmapPosX, const RawBitmap& bitmapNegX, const RawBitmap& bitmapPosY, const RawBitmap& bitmapNegY,
                             const RawBitmap& bitmapPosZ, const RawBitmap& bitmapNegZ, const GLTextureParameters3& textureParameters,
-                            const TextureFlags& textureFlags)
+                            const TextureFlags textureFlags)
     {
       SetData(RawCubeBitmap(bitmapPosX, bitmapNegX, bitmapPosY, bitmapNegY, bitmapPosZ, bitmapNegZ), textureParameters, textureFlags);
     }
 
 
-    void GLTexture::SetData(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const RawCubeBitmap& cubeBitmap, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
     {
       if (!cubeBitmap.IsValid())
       {
@@ -414,7 +420,7 @@ namespace Fsl
         throw std::invalid_argument("The texture parameters are invalid");
       }
 
-      if (cubeBitmap.GetOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin))
+      if (cubeBitmap.GetOrigin() != BitmapOrigin::LowerLeft && !TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::AllowAnyBitmapOrigin))
       {
         FSLLOG3_WARNING(
           "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects, causing a software flip before upload "
@@ -427,9 +433,12 @@ namespace Fsl
         Bitmap tmpNegZ(cubeBitmap.GetNegZ(), BitmapOrigin::LowerLeft);
         assert(tmpPosX.GetOrigin() == BitmapOrigin::LowerLeft);
 
-        RawBitmap tmpRawPosX, tmpRawNegX;
-        RawBitmap tmpRawPosY, tmpRawNegY;
-        RawBitmap tmpRawPosZ, tmpRawNegZ;
+        RawBitmap tmpRawPosX;
+        RawBitmap tmpRawNegX;
+        RawBitmap tmpRawPosY;
+        RawBitmap tmpRawNegY;
+        RawBitmap tmpRawPosZ;
+        RawBitmap tmpRawNegZ;
 
         Bitmap::ScopedDirectAccess directAccessPosX(tmpPosX, tmpRawPosX);
         Bitmap::ScopedDirectAccess directAccessNegX(tmpNegX, tmpRawNegX);
@@ -438,16 +447,23 @@ namespace Fsl
         Bitmap::ScopedDirectAccess directAccessPosZ(tmpPosZ, tmpRawPosZ);
         Bitmap::ScopedDirectAccess directAccessNegZ(tmpNegZ, tmpRawNegZ);
         // We switch the PosY and NegY since we are doing a flip
+        // coverity[swapped_arguments]
         SetData(tmpRawPosX, tmpRawNegX, tmpRawNegY, tmpRawPosY, tmpRawPosZ, tmpRawNegZ, textureParameters, textureFlags);
         return;
       }
 
-      const GLRawBitmapUtil::Result resultPosX = GLRawBitmapUtil::Convert(cubeBitmap.GetPosX(), textureFlags.IsEnabled(TextureFlags::ExactFormat));
-      const GLRawBitmapUtil::Result resultNegX = GLRawBitmapUtil::Convert(cubeBitmap.GetNegX(), textureFlags.IsEnabled(TextureFlags::ExactFormat));
-      const GLRawBitmapUtil::Result resultPosY = GLRawBitmapUtil::Convert(cubeBitmap.GetPosY(), textureFlags.IsEnabled(TextureFlags::ExactFormat));
-      const GLRawBitmapUtil::Result resultNegY = GLRawBitmapUtil::Convert(cubeBitmap.GetNegY(), textureFlags.IsEnabled(TextureFlags::ExactFormat));
-      const GLRawBitmapUtil::Result resultPosZ = GLRawBitmapUtil::Convert(cubeBitmap.GetPosZ(), textureFlags.IsEnabled(TextureFlags::ExactFormat));
-      const GLRawBitmapUtil::Result resultNegZ = GLRawBitmapUtil::Convert(cubeBitmap.GetNegZ(), textureFlags.IsEnabled(TextureFlags::ExactFormat));
+      const GLRawBitmapUtil::Result resultPosX =
+        GLRawBitmapUtil::Convert(cubeBitmap.GetPosX(), TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
+      const GLRawBitmapUtil::Result resultNegX =
+        GLRawBitmapUtil::Convert(cubeBitmap.GetNegX(), TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
+      const GLRawBitmapUtil::Result resultPosY =
+        GLRawBitmapUtil::Convert(cubeBitmap.GetPosY(), TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
+      const GLRawBitmapUtil::Result resultNegY =
+        GLRawBitmapUtil::Convert(cubeBitmap.GetNegY(), TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
+      const GLRawBitmapUtil::Result resultPosZ =
+        GLRawBitmapUtil::Convert(cubeBitmap.GetPosZ(), TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
+      const GLRawBitmapUtil::Result resultNegZ =
+        GLRawBitmapUtil::Convert(cubeBitmap.GetNegZ(), TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
 
 
       const GLint texFormat = resultPosX.Format;
@@ -488,7 +504,7 @@ namespace Fsl
       GL_CHECK(glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, texFormatInternal, texWidth, texHeight, 0, texFormat, resultNegZ.Type,
                             cubeBitmap.GetNegZ().Content()));
 
-      if (textureFlags.IsEnabled(TextureFlags::GenerateMipMaps))
+      if (TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::GenerateMipMaps))
       {
         GL_CHECK(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
       }
@@ -499,12 +515,12 @@ namespace Fsl
       GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, textureParameters.WrapT));
       GL_CHECK(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, textureParameters.WrapR));
 
-      m_extent = Extent3D(texWidth, texHeight, 1);
+      m_extent = PxExtent3D(texWidth, texHeight, 1);
       m_target = GL_TEXTURE_CUBE_MAP;
     }
 
 
-    void GLTexture::SetData(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const Texture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       if (!texture.IsValid())
       {
@@ -517,7 +533,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::SetData(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const Texture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
     {
       if (!texture.IsValid())
       {
@@ -530,7 +546,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::SetData(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const RawTexture& texture, const GLTextureParameters& textureParameters, const TextureFlags textureFlags)
     {
       // GL_TEXTURE_WRAP_R defaults to GL_REPEAT
       SetData(
@@ -540,7 +556,7 @@ namespace Fsl
     }
 
 
-    void GLTexture::SetData(const RawTexture& texture, const GLTextureParameters3& textureParameters, const TextureFlags& textureFlags)
+    void GLTexture::SetData(const RawTexture& texture, const GLTextureParameters3& textureParameters, const TextureFlags textureFlags)
     {
       if (!texture.IsValid())
       {
@@ -560,18 +576,19 @@ namespace Fsl
       }
 
 
-      FSLLOG3_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft && !textureFlags.IsEnabled(TextureFlags::AllowAnyBitmapOrigin),
+      FSLLOG3_DEBUG_WARNING_IF(texture.GetBitmapOrigin() != BitmapOrigin::LowerLeft &&
+                                 !TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::AllowAnyBitmapOrigin),
                                "The supplied textures is not using LowerLeft corner as it's origin as OpenGLES expects");
 
-      const FaceToTargetRecord* pFaceTargetMapping;
-      GLenum target;
+      const FaceToTargetRecord* pFaceTargetMapping = nullptr;
+      GLenum target = 0;
       switch (texture.GetTextureType())
       {
       case TextureType::Tex1D:
       case TextureType::Tex2D:
         target = GL_TEXTURE_2D;
-        pFaceTargetMapping = g_normalFaceTargetMapping;
-        static_assert(sizeof(g_normalFaceTargetMapping) / sizeof(FaceToTargetRecord), "we expect 1 face for normal textures");
+        pFaceTargetMapping = g_normalFaceTargetMapping.data();
+        static_assert(g_normalFaceTargetMapping.size() == 1u, "we expect 1 face for normal textures");
         if (texture.GetFaces() != 1)
         {
           throw NotSupportedException("We expected one face for normal textures");
@@ -579,8 +596,8 @@ namespace Fsl
         break;
       case TextureType::TexCube:
         target = GL_TEXTURE_CUBE_MAP;
-        pFaceTargetMapping = g_cubeFaceTargetMapping;
-        static_assert(sizeof(g_cubeFaceTargetMapping) / sizeof(FaceToTargetRecord), "we expect 6 faces for cube textures");
+        pFaceTargetMapping = g_cubeFaceTargetMapping.data();
+        static_assert(g_cubeFaceTargetMapping.size() == 6u, "we expect 6 faces for cube textures");
         if (texture.GetFaces() != 6)
         {
           throw NotSupportedException("We expected six face for cube textures");
@@ -620,8 +637,8 @@ namespace Fsl
 
               const auto rawBlob = texture.GetTextureBlob(level, face);
 
-              const auto result =
-                GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width, srcStride, textureFlags.IsEnabled(TextureFlags::ExactFormat));
+              const auto result = GLRawBitmapUtil::Convert(srcPixelFormat, extent.Width, srcStride,
+                                                           TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::ExactFormat));
 
               // Verify our nasty little assumption
               assert(pFaceTargetMapping[face].Face == face);
@@ -651,11 +668,11 @@ namespace Fsl
           }
         }
 
-        if (textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) && texture.GetLevels() == 1)
+        if (TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::GenerateMipMaps) && texture.GetLevels() == 1)
         {
           GL_CHECK(glGenerateMipmap(GL_TEXTURE_2D));
         }
-        FSLLOG3_DEBUG_WARNING_IF(textureFlags.IsEnabled(TextureFlags::GenerateMipMaps) && texture.GetLevels() != 1,
+        FSLLOG3_DEBUG_WARNING_IF(TextureFlagsUtil::IsEnabled(textureFlags, TextureFlags::GenerateMipMaps) && texture.GetLevels() != 1,
                                  "ignoring request to generate mip maps as the texture has multiple levels");
 
         GL_CHECK(glTexParameteri(target, GL_TEXTURE_MIN_FILTER, textureParameters.MinFilter));
@@ -675,27 +692,12 @@ namespace Fsl
     }
 
 
-    Point2 GLTexture::GetSize() const
+    PxSize2D GLTexture::GetSize() const
     {
       FSLLOG3_DEBUG_WARNING_IF(m_extent.Depth != 1, "GetSize called on a 3D texture, use GetExtent")
-      return Point2(m_extent.Width, m_extent.Height);
+      return TypeConverter::UncheckedTo<PxSize2D>(PxExtent2D(m_extent.Width, m_extent.Height));
     }
 
 
-    NativeTextureArea GLTexture::CalcTextureArea(const TextureRectangle& textureRectangle, const int timesX, const int timesY)
-    {
-      const Rectangle srcRect = textureRectangle.GetRectangle();
-      const Point2 sizeTex = textureRectangle.GetTextureSize();
-
-      assert(timesX == 1 || (timesX != 1 && (srcRect.X() == 0 || srcRect.Width() == sizeTex.X)));
-      assert(timesY == 1 || (timesY != 1 && (srcRect.Y() == 0 || srcRect.Height() == sizeTex.Y)));
-
-      assert(static_cast<float>(sizeTex.X) >= 0.0f);
-      assert(static_cast<float>(sizeTex.Y) >= 0.0f);
-      return NativeTextureArea(srcRect.Left() == 0 ? 0.0f : srcRect.Left() / static_cast<float>(sizeTex.X),
-                               1.0f - (srcRect.Top() == 0 ? 0.0f : srcRect.Top() / static_cast<float>(sizeTex.Y)),
-                               srcRect.Right() == sizeTex.X ? 1.0f * timesX : srcRect.Right() / static_cast<float>(sizeTex.X),
-                               1.0f - (srcRect.Bottom() == sizeTex.Y ? 1.0f * timesY : srcRect.Bottom() / static_cast<float>(sizeTex.Y)));
-    }
   }
 }

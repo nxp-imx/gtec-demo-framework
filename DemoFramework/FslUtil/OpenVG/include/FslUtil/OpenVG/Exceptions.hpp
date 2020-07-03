@@ -33,6 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <string>
+#include <utility>
 #include <VG/openvg.h>
 
 namespace Fsl
@@ -51,9 +52,9 @@ namespace Fsl
       {
       }
 
-      explicit OpenVGException(const std::string& whatArg, const std::string& fileName, const int lineNumber)
+      explicit OpenVGException(const std::string& whatArg, std::string fileName, const int lineNumber)
         : std::runtime_error(whatArg)
-        , m_fileName(fileName)
+        , m_fileName(std::move(fileName))
         , m_lineNumber(lineNumber)
       {
       }

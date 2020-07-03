@@ -31,7 +31,10 @@
 #
 #****************************************************************************************************************************************************
 
+from FslBuildGen.Version import Version
+
 class ClangExeInfo(object):
-    def __init__(self, clangCommand: str) -> None:
+    def __init__(self, command: str, version: Version) -> None:
         super().__init__()
-        self.ClangCommand = clangCommand
+        self.Command = command
+        self.Version = version

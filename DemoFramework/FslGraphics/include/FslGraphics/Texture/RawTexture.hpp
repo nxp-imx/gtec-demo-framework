@@ -34,8 +34,8 @@
 #include <FslBase/Attributes.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/BlobRecord.hpp>
-#include <FslBase/Math/Extent2D.hpp>
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Texture/TextureInfo.hpp>
@@ -50,21 +50,28 @@ namespace Fsl
     TextureType m_textureType{TextureType::Undefined};
     const void* m_pContent{nullptr};
     std::size_t m_contentByteSize{0};
+    BlobRecord m_blobEverything;
     //! The pointer to the raw blobs, we expect this to be a multidimensional array
     const BlobRecord* m_pBlobs{nullptr};
     std::size_t m_blobCount{0};
-    Extent3D m_extent;
+    PxExtent3D m_extent;
     PixelFormat m_pixelFormat{PixelFormat::Undefined};
     TextureInfo m_textureInfo;
     BitmapOrigin m_bitmapOrigin{BitmapOrigin::Undefined};
 
   public:
-    RawTexture();
+    RawTexture() = default;
+
+    //! @brief Simplified constructor to handle a very basic 2D texture without mipmaps.
+    //! @param pTextureBlobs in the content. The pointer to the raw texture blobs. See RawTextureBlobHelper::GetBlockIndex for how its accessed.
+    //! @param textureBlobCount the number of textureBlobs in pTextureBlobs (we expect this to be equal to faces*leves*layers)
+    RawTexture(const void* const pContent, const std::size_t contentByteSize, const PxExtent2D& extent, const PixelFormat pixelFormat,
+               const BitmapOrigin& bitmapOrigin);
 
     //! @param pTextureBlobs in the content. The pointer to the raw texture blobs. See RawTextureBlobHelper::GetBlockIndex for how its accessed.
     //! @param textureBlobCount the number of textureBlobs in pTextureBlobs (we expect this to be equal to faces*leves*layers)
     RawTexture(const TextureType textureType, const void* const pContent, const std::size_t contentByteSize, const BlobRecord* const pTextureBlobs,
-               const std::size_t textureBlobCount, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
+               const std::size_t textureBlobCount, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                const BitmapOrigin& bitmapOrigin);
 
     bool IsValid() const
@@ -93,7 +100,7 @@ namespace Fsl
       return m_contentByteSize;
     }
 
-    FSL_ATTR_DEPRECATED std::size_t GetContentByteSize() const
+    [[deprecated("use one of the other overloads instead")]] std::size_t GetContentByteSize() const
     {
       return GetByteSize();
     }
@@ -101,8 +108,11 @@ namespace Fsl
     //! The stride at the given level (not valid for compressed textures)
     std::size_t GetStride(const std::size_t level = 0) const;
 
-    //! The widtha and height of the texture in pixels
-    Extent3D GetExtent(const std::size_t level = 0) const;
+    //! The width and height of the texture in pixels
+    PxExtent3D GetExtent(const std::size_t level = 0) const;
+
+    //! The width and height of the texture in pixels
+    PxExtent2D GetExtent2D(const std::size_t level = 0) const;
 
     //! @brief Get the number of faces (one for normal textures, six for cube maps)
     uint32_t GetFaces() const

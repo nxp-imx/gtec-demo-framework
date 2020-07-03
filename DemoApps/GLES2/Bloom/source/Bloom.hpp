@@ -97,12 +97,12 @@ namespace Fsl
     GLint m_locBloomTextureLevel;
 
     bool m_renderUI;
-    int32_t m_gaussianBlurKernelWeight;
+    float m_gaussianBlurKernelWeight;
     std::string m_strShaderVertPass;
     BlurShaderType m_activeBlueShaderType;
 
   public:
-    Bloom(const DemoAppConfig& config);
+    explicit Bloom(const DemoAppConfig& config);
     ~Bloom() override;
 
   protected:

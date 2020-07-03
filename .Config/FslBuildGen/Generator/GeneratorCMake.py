@@ -74,6 +74,7 @@ def GetVCBuildConfigurationName(entry: List[str]) -> str:
 class LocalMagicBuildVariants(object):
     CMakeBuildConfig = "FSL_GENERATOR_CMAKE_BUILD_CONFIG"
     GeneratorExeFileExtension = "FSLGEN_GENERATOR_EXE_FILE_EXTENSION"
+    OptionCodeCoverage = "FSL_GENERATOR_CMAKE_OPTION_CODE_COVERAGE"
 
 # Status
 # - Variants are not handled
@@ -87,7 +88,7 @@ class LocalMagicBuildVariants(object):
 # - cmake projects currently only handle one platform at a time. A final version should contain support for all platforms.
 # - Using the 'root' CMakeLists.txt is kind of a 'work around' to allow us to re-use libraries
 #   It would have been better to have a unique build file for each package with its own 'build' dir
-#   However that would be more complex to implement and might make it impossible to have 'all'
+#   However that would be more complex to implement and might make it impossible to have config'all'
 #   package dependencies added as sub-projects in the IDE.
 # - All 'environment' variables should be converted to cmake variables instead
 #   These variables should be populated by extracting the env variables if present
@@ -134,7 +135,8 @@ class ProjectContextCacheRecord(object):
         super().__init__()
 
 class GeneratorCMake(GeneratorBase):
-    def __init__(self, config: Config, packages: List[Package], platformName: str, templateName: str, overrideTemplateName: Optional[str]) -> None:
+    def __init__(self, config: Config, packages: List[Package], platformName: str, templateName: str,
+                 overrideTemplateName: Optional[str]) -> None:
         super().__init__()
 
         self.__DisableWrite = config.DisableWrite
@@ -222,6 +224,9 @@ class GeneratorCMake(GeneratorBase):
                                                                        template.PackageDependencyTargetCompileDefinitions,
                                                                        template.PackageDependencyTargetLinkLibraries)
 
+
+        packageTargetSpecialFiles = CMakeGeneratorUtil.GetTargetSpecialFiles(config, package, template.PackageTargetSpecialFileNatvis)
+
         buildCMakeFile = template.Master
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_INCLUDE_FILES##", includeFiles)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_PUBLIC_INCLUDE_FILES##", publicIncludeFiles)
@@ -243,6 +248,7 @@ class GeneratorCMake(GeneratorBase):
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_CONTENTDEP_OUTPUT_FILES##", packageContentDepOutputFiles)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_COMPILER_SPECIFIC_FILE_DEPENDENCIES##", packageCompilerSpecificFileDependencies)
         buildCMakeFile = buildCMakeFile.replace("##PACKAGE_VARIANT_SETTINGS##", packageVariantSettings)
+        buildCMakeFile = buildCMakeFile.replace("##PACKAGE_TARGET_SPECIAL_FILES##", packageTargetSpecialFiles)
 
         toolProjectContext = toolProjectContextsDict[package.ProjectContext.ProjectId]
         sectionDefinePathEnvAsVariables = CMakeGeneratorUtil.CreateDefineRootDirectoryEnvironmentAsVariables(config.ToolConfig, toolProjectContext,
@@ -373,46 +379,8 @@ class GeneratorCMake(GeneratorBase):
         return content
 
 
-    #def __BuildFindExternalDependencies(self, config, package, template):
-
-    #    dictExternal = {}
-    #    for subPackage in package.ResolvedBuildOrder:
-    #        for externalDep in subPackage.ResolvedDirectExternalDependencies:
-    #            dictExternal[externalDep.Name] = externalDep
-
-    #    externalDeps = []
-    #    for externalDep in dictExternal.values():
-    #        if externalDep.Type == ExternalDependencyType.Find:
-    #            externalDeps.append(externalDep)
-
-    #    if len(externalDeps) <= 0:
-    #        return ""
-
-
-    #    snippet = template.PackageDependencyFindPackage
-    #    content = ""
-    #    for externalDep in externalDeps:
-    #        findParams = "%s REQUIRED" % (externalDep.Name)
-    #        contentEntry = snippet
-    #        contentEntry = contentEntry.replace("##FIND_PARAMS##", findParams)
-    #        content += contentEntry
-    #    return content
-
-    #@staticmethod
-    #def TryGeneratePreBuildReport(log: Log, generatorName: str, package: Package) -> Optional[GeneratorPreBuildReport]:
-    #    if package.Type != PackageType.TopLevel:
-    #        return None
-
-    #    # preBuildCommand = ['cmake', '-G', 'Visual Studio 15 2017 Win64'] + buildConfig.BuildArgs
-
-    #    buildCommandArguments = ['-G', 'Visual Studio 15 2017 Win64']  # type: List[str]
-
-    #    buildCommand = "cmake"
-    #    buildCommandReport = GeneratorCommandReport(True, buildCommand, buildCommandArguments, [])
-    #    return GeneratorPreBuildReport(buildCommandReport)
-
     @staticmethod
-    def _TryGenerateBuildReport(log: Log, generatorConfig: GeneratorConfig, generatorName: str, cmakeConfig: GeneratorCMakeConfig,
+    def _TryGenerateBuildReport(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig,
                                 package: Package, isMasterBuild: bool) -> Optional[GeneratorBuildReport]:
         if package.IsVirtual and not isMasterBuild:
             return None
@@ -422,34 +390,36 @@ class GeneratorCMake(GeneratorBase):
 
         buildCommandArguments = ['--build', '.']  # type: List[str]
         buildCommandNativeArguments = [] # type: List[str]
+        if generatorConfig.BuildCommand != CommandType.Open:
+            # Configuration (Debug, Release) for the configurations that support build time configuration switching
+            if CMakeTypes.GetGeneratorMultiConfigCapabilities(cmakeConfig.GeneratorName) == CMakeTypes.CMakeGeneratorMultiConfigCapability.Yes:
+                buildCommandArguments.append("--config")
+                buildCommandArguments.append("${{{0}}}".format(LocalMagicBuildVariants.CMakeBuildConfig))
 
-        # Configuration (Debug, Release) for the configurations that support build time configuration switching
-        if CMakeTypes.GetGeneratorMultiConfigCapabilities(cmakeConfig.GeneratorName) != CMakeTypes.CMakeGeneratorMultiConfigCapability.No:
-            buildCommandArguments.append("--config")
-            buildCommandArguments.append("${{{0}}}".format(LocalMagicBuildVariants.CMakeBuildConfig))
+            # Do a fallback solution for a few generators that we know how work
+            nativeArguments = CMakeTypes.GetNativeBuildThreadArguments(cmakeConfig.GeneratorName, generatorConfig.NumBuildThreads)
+            if len(nativeArguments) > 0:
+                buildCommandNativeArguments += nativeArguments
+            elif cmakeConfig.CMakeVersion >= CMakeVersion(3, 12, 0):
+                # Take advantage of the "--parallel" parameter available from 3.12 when possible
+                # We use this as a fallback since testing has shown that even on 3.14 the parameter
+                # doesn't always provide any benefits :(
+                buildCommandArguments.append("--parallel")
+                buildCommandArguments.append("{0}".format(generatorConfig.NumBuildThreads))
+            elif isMasterBuild:
+                log.LogPrintWarning("BuildThreads not supported for generator '{0}' please upgrade to CMake 3.12+".format(cmakeConfig.GeneratorName))
 
-        # Do a fallback solution for a few generators that we know how work
-        nativeArguments = CMakeTypes.GetNativeBuildThreadArguments(cmakeConfig.GeneratorName, generatorConfig.NumBuildThreads)
-        if len(nativeArguments) > 0:
-            buildCommandNativeArguments += nativeArguments
-        elif cmakeConfig.CMakeVersion.Major >= 3 and cmakeConfig.CMakeVersion.Minor >= 12:
-            # Take advantage of the "--parallel" parameter available from 3.12 when possible
-            # We use this as a fallback since testing has shown that even on 3.14 the parameter
-            # doesn't always provide any benefits :(
-            buildCommandArguments.append("--parallel")
-            buildCommandArguments.append("{0}".format(generatorConfig.NumBuildThreads))
-        elif isMasterBuild:
-            log.LogPrintWarning("BuildThreads not supported for generator '{0}' please upgrade to CMake 3.12+".format(cmakeConfig.GeneratorName))
+            # Add extra commands based on the build type
+            if generatorConfig.BuildCommand == CommandType.Clean:
+                buildCommandArguments.append("--target")
+                buildCommandArguments.append("clean")
+            elif generatorConfig.BuildCommand == CommandType.Install:
+                buildCommandArguments.append("--target")
+                buildCommandArguments.append("install")
+        else:
+            buildCommandArguments = ['--open', '.']
 
-        # Add extra commands based on the build type
-        if generatorConfig.BuildCommand == CommandType.Clean:
-            buildCommandArguments.append("--target")
-            buildCommandArguments.append("clean")
-        elif generatorConfig.BuildCommand == CommandType.Install:
-            buildCommandArguments.append("--target")
-            buildCommandArguments.append("install")
-
-        # set the package build dir
+         # set the package build dir
         buildCWD = cmakeConfig.BuildDir
         if not isMasterBuild:
             buildCWD = GeneratorCMake._GetPackageBuildDir(generatorConfig, cmakeConfig, package)
@@ -471,7 +441,7 @@ class GeneratorCMake(GeneratorBase):
         return IOUtil.Join(buildPath, relativePath)
 
     @staticmethod
-    def _TryGenerateExecutableReport(log: Log, generatorName: str, package: Package) -> Optional[GeneratorExecutableReport]:
+    def _TryGenerateExecutableReport(log: Log, package: Package) -> Optional[GeneratorExecutableReport]:
         if package.Type != PackageType.Executable or package.IsVirtual:
             return None
         if package.AbsolutePath is None:
@@ -486,7 +456,7 @@ class GeneratorCMake(GeneratorBase):
         return GeneratorExecutableReport(False, exeFormatString)
 
     @staticmethod
-    def _GenerateVariableReport(log: Log, generatorName: str, package: Package, configVariantOptions: List[str],
+    def _GenerateVariableReport(log: Log, package: Package, configVariantOptions: List[str],
                                 isMasterBuild: bool) -> GeneratorVariableReport:
         variableReport = GeneratorVariableReport(log, configVariantOptions=configVariantOptions)
         # Add all the package variants
@@ -502,27 +472,42 @@ class GeneratorCMake(GeneratorBase):
         variableReport.Add(LocalMagicBuildVariants.GeneratorExeFileExtension, exeFileExtensionOptionList, ToolAddedVariant.CONFIG)
 
         # CMake names for debug and release building
-        variableReport.Add(LocalMagicBuildVariants.CMakeBuildConfig, ['Debug', 'Release'], ToolAddedVariant.CONFIG)
+        variableReport.Add(LocalMagicBuildVariants.CMakeBuildConfig, ['Debug', 'Release', 'Debug'], ToolAddedVariant.CONFIG)
 
         # make builds default to release
-        variableReport.SetDefaultOption(ToolAddedVariant.CONFIG, ToolAddedVariantConfigOption.Release)
+        variableReport.SetDefaultOption(ToolAddedVariant.CONFIG, ToolAddedVariantConfigOption.GetDefaultSetting())
         return variableReport
 
     @staticmethod
-    def TryGenerateGeneratorPackageReport(log: Log, generatorConfig: GeneratorConfig, generatorName: str, cmakeConfig: GeneratorCMakeConfig,
+    def TryGenerateGeneratorPackageReport(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig,
                                           package: Package, configVariantOptions: List[str]) -> Optional[PackageGeneratorReport]:
         if package.IsVirtual and package.Type != PackageType.HeaderLibrary and package.Type != PackageType.TopLevel:
             return None
 
         isMasterBuild = False
         #preBuildReport = GeneratorCMake.TryGeneratePreBuildReport(log, generatorName, package)
-        buildReport = GeneratorCMake._TryGenerateBuildReport(log, generatorConfig, generatorName, cmakeConfig, package, isMasterBuild)
-        executableReport = GeneratorCMake._TryGenerateExecutableReport(log, generatorName, package)
-        variableReport = GeneratorCMake._GenerateVariableReport(log, generatorName, package, configVariantOptions, isMasterBuild)
+        buildReport = GeneratorCMake._TryGenerateBuildReport(log, generatorConfig, cmakeConfig, package, isMasterBuild)
+        executableReport = GeneratorCMake._TryGenerateExecutableReport(log, package)
+        variableReport = GeneratorCMake._GenerateVariableReport(log, package, configVariantOptions, isMasterBuild)
         return PackageGeneratorReport(buildReport, executableReport, variableReport)
 
     @staticmethod
-    def _GenerateConfigReport(log: Log, toolConfig: ToolConfig, generatorName: str, platformName: str,
+    def _ExtractRecipeInstallPaths(log: Log, package: Package) -> List[str]:
+        res = []
+        for depPackage in package.ResolvedBuildOrder:
+            if (depPackage.ResolvedDirectExperimentalRecipe is not None and depPackage.ResolvedDirectExperimentalRecipe.AllowFind and
+                depPackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation is not None):
+                newPath = depPackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation.ResolvedPath
+                res.append(newPath)
+                if ';' in newPath:
+                    raise Exception("The recipe install path '{0}' can not contain a ';' ('{1}')".format(newPath, depPackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation.SourcePath))
+                if ' ' in newPath:
+                    raise Exception("The recipe install path '{0}' can not contain spaces ('{1}')".format(newPath, depPackage.ResolvedDirectExperimentalRecipe.ResolvedInstallLocation.SourcePath))
+        res.sort(key=lambda s: s.upper())
+        return res
+
+    @staticmethod
+    def _GenerateConfigReport(log: Log, toolConfig: ToolConfig, platformName: str,
                               cmakeConfig: GeneratorCMakeConfig,
                               topLevelPackage: Package) -> GeneratorConfigReport:
         if topLevelPackage.Type != PackageType.TopLevel:
@@ -538,16 +523,22 @@ class GeneratorCMake(GeneratorBase):
         if CMakeTypes.GetGeneratorMultiConfigCapabilities(cmakeConfig.GeneratorName) != CMakeTypes.CMakeGeneratorMultiConfigCapability.Yes:
             buildCommandArguments.append("-DCMAKE_BUILD_TYPE=${{{0}}}".format(LocalMagicBuildVariants.CMakeBuildConfig))
 
+        buildCommandArguments.append("-DCODE_COVERAGE=${{{0}}}".format(LocalMagicBuildVariants.OptionCodeCoverage))
+
         # Normal variants
         for normalVariant in topLevelPackage.ResolvedNormalVariantNameList:
             buildCommandArguments.append("-D{0}=${{{0}}}".format(normalVariant))
+
+        recipePaths = GeneratorCMake._ExtractRecipeInstallPaths(log, topLevelPackage)
+        if len(recipePaths) > 0:
+            buildCommandArguments.append('-DCMAKE_PREFIX_PATH={0}'.format(";".join(recipePaths)))
 
         # Set the generator name
         buildCommandArguments.append("-G")
         buildCommandArguments.append(cmakeConfig.GeneratorName)
 
         # Add additional arguments
-        additionalGeneratorArguments = CMakeTypes.DetermineGeneratorArguments(cmakeConfig.GeneratorName, platformName)
+        additionalGeneratorArguments = cmakeConfig.CMakeConfigAppArguments
         if len(additionalGeneratorArguments) > 0:
             buildCommandArguments += additionalGeneratorArguments
 
@@ -567,7 +558,7 @@ class GeneratorCMake(GeneratorBase):
         return GeneratorConfigReport(configCommandReport)
 
     @staticmethod
-    def _GenerateConfigVariableReport(log: Log, generatorName: str, topLevelPackage: Package, configVariantOptions: List[str]) -> GeneratorVariableReport:
+    def _GenerateConfigVariableReport(log: Log, topLevelPackage: Package, configVariantOptions: List[str]) -> GeneratorVariableReport:
         variableReport = GeneratorVariableReport(log, configVariantOptions=configVariantOptions)
         # Add all the package variants
         for variantEntry in topLevelPackage.ResolvedAllVariantDict.values():
@@ -575,10 +566,12 @@ class GeneratorCMake(GeneratorBase):
             variableReport.Add(variantEntry.Name, variantEntryOptions)
 
         # CMake names for debug and release building
-        variableReport.Add(LocalMagicBuildVariants.CMakeBuildConfig, ['Debug', 'Release'], ToolAddedVariant.CONFIG)
+        variableReport.Add(LocalMagicBuildVariants.CMakeBuildConfig, ['Debug', 'Release', 'Debug'], ToolAddedVariant.CONFIG)
+        # CMake settings for the code coverage option
+        variableReport.Add(LocalMagicBuildVariants.OptionCodeCoverage, ['OFF', 'OFF', 'ON'], ToolAddedVariant.CONFIG)
 
         # make builds default to release
-        variableReport.SetDefaultOption(ToolAddedVariant.CONFIG, ToolAddedVariantConfigOption.Release)
+        variableReport.SetDefaultOption(ToolAddedVariant.CONFIG, ToolAddedVariantConfigOption.GetDefaultSetting())
         return variableReport
 
 
@@ -610,29 +603,27 @@ class GeneratorCMake(GeneratorBase):
 
 
     @staticmethod
-    def GenerateGeneratorBuildConfigReport(log: Log, generatorConfig: GeneratorConfig, generatorName: str,
-                                           cmakeConfig: GeneratorCMakeConfig, topLevelPackage: Package,
+    def GenerateGeneratorBuildConfigReport(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig, topLevelPackage: Package,
                                            configVariantOptions: List[str]) -> PackageGeneratorConfigReport:
         if topLevelPackage.Type != PackageType.TopLevel:
             raise Exception("Package is not a top level package")
 
-        configReport = GeneratorCMake._GenerateConfigReport(log, generatorConfig.ToolConfig, generatorName, generatorConfig.PlatformName,
+        configReport = GeneratorCMake._GenerateConfigReport(log, generatorConfig.ToolConfig, generatorConfig.PlatformName,
                                                             cmakeConfig, topLevelPackage)
-        variableReport = GeneratorCMake._GenerateConfigVariableReport(log, generatorName, topLevelPackage, configVariantOptions)
+        variableReport = GeneratorCMake._GenerateConfigVariableReport(log, topLevelPackage, configVariantOptions)
 
         generatedFileSet = GeneratorCMake._GeneratedFileSet(log, generatorConfig, cmakeConfig, topLevelPackage)
         # Master build report
         isMasterBuild = True
-        masterBuildReport = GeneratorCMake._TryGenerateBuildReport(log, generatorConfig, generatorName, cmakeConfig, topLevelPackage, isMasterBuild)
-        masterBuildVariableReport = GeneratorCMake._GenerateVariableReport(log, generatorName, topLevelPackage, configVariantOptions, isMasterBuild)
+        masterBuildReport = GeneratorCMake._TryGenerateBuildReport(log, generatorConfig, cmakeConfig, topLevelPackage, isMasterBuild)
+        masterBuildVariableReport = GeneratorCMake._GenerateVariableReport(log, topLevelPackage, configVariantOptions, isMasterBuild)
 
         #PackageGeneratorConfigReport
         return PackageGeneratorConfigReport(configReport, variableReport, generatedFileSet, True, masterBuildReport, masterBuildVariableReport)
 
 
     @staticmethod
-    def TryGetBuildExecutableInfo(log: Log, generatorConfig: GeneratorConfig, generatorName: str,
-                                  cmakeConfig: GeneratorCMakeConfig, package: Package,
+    def TryGetBuildExecutableInfo(log: Log, generatorConfig: GeneratorConfig, cmakeConfig: GeneratorCMakeConfig, package: Package,
                                   generatorReport: PackageGeneratorReport, variantSettingsDict: Dict[str, str],
                                   configVariantOptions: List[str]) -> Optional[PackageGeneratorBuildExecutableInfo]:
         if package.Type != PackageType.Executable:

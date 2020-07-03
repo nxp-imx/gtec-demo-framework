@@ -33,12 +33,17 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <algorithm>
 
-
-#define MAX_LIGHTS 10
-#define MIN_LIGHTS 1
-
 namespace Fsl
 {
+  namespace
+  {
+    namespace LocalConfig
+    {
+      constexpr const int MaxLights = 10;
+      constexpr const int MinLights = 1;
+    }
+  }
+
   Config::Config(const RenderMode defaultRenderMode)
     : m_renderMode(defaultRenderMode)
     , m_layerCount(150)
@@ -55,7 +60,7 @@ namespace Fsl
     , m_shareInstanceVertices(false)
     , m_textureRepeatCount(1)
     , m_useHighShaderPrecision(false)
-    , m_lightCount(MIN_LIGHTS)
+    , m_lightCount(LocalConfig::MinLights)
     , m_toggleMinMax(false)
     , m_forceFinishEachFrame(true)
   {
@@ -250,7 +255,7 @@ namespace Fsl
 
   void Config::SetLightCount(const int value)
   {
-    m_lightCount = std::min(std::max(value, MIN_LIGHTS), MAX_LIGHTS);
+    m_lightCount = std::min(std::max(value, LocalConfig::MinLights), LocalConfig::MaxLights);
   }
 
 

@@ -30,18 +30,20 @@
  ****************************************************************************************************************************************************/
 
 #include "MeshFurRender.hpp"
+#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 
 namespace Fsl
 {
   namespace
   {
-    const IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
+    IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
     {
       return IO::Path::Combine(shaderPath, (useHighPrecision ? "Fur_hp.vert.spv" : "Fur_lp.vert.spv"));
     }
 
 
-    const IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
+    IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
     {
       switch (lightCount)
       {
@@ -57,6 +59,22 @@ namespace Fsl
         return IO::Path::Combine(shaderPath, (useHighPrecision ? "FurN_hp.frag.spv" : "FurN_lp.frag.spv"));
       }
     }
+
+
+    IO::Path GetVertAndLog(const IO::Path& shaderPath, const bool useHighPrecision)
+    {
+      auto path = GetVert(shaderPath, useHighPrecision);
+      FSLLOG3_INFO("Vert shader: '{}' HighPrecision: {}", path, useHighPrecision);
+      return path;
+    }
+
+
+    IO::Path GetFragAndLog(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
+    {
+      auto path = GetFrag(shaderPath, useHighPrecision, lightCount);
+      FSLLOG3_INFO("Frag shader: '{}' HighPrecision: {} LightCount: {}", path, useHighPrecision, lightCount);
+      return path;
+    }
   }
 
 
@@ -64,12 +82,12 @@ namespace Fsl
                                const bool useHighPrecision, const int lightCount)
   {
     // Done this way as old versions of RapidVulkan did not include a constructor that takes a vector
-    VertShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetVert(shaderPath, useHighPrecision)));
-    FragShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetFrag(shaderPath, useHighPrecision, lightCount)));
+    VertShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetVertAndLog(shaderPath, useHighPrecision)));
+    FragShader.Reset(device.Get(), 0, contentManager.ReadBytes(GetFragAndLog(shaderPath, useHighPrecision, lightCount)));
   }
 
   MeshFurRender::MeshFurRender(const IContentManager& contentManager, const Vulkan::VUDevice& device, const IO::Path& vertShaderPath,
-                               const IO::Path& fragShaderPath, const int lightCount)
+                               const IO::Path& fragShaderPath, const int /*lightCount*/)
   {
     // Done this way as old versions of RapidVulkan did not include a constructor that takes a vector
     VertShader.Reset(device.Get(), 0, contentManager.ReadBytes(vertShaderPath));

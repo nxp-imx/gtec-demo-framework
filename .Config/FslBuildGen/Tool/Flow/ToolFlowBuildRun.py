@@ -40,15 +40,16 @@ import subprocess
 import sys
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageListUtil
-from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build.Filter import PackageFilter
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
 from FslBuildGen.DataTypes import PackageType
-from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
+from FslBuildGen.Exceptions import ExitException
 from FslBuildGen.ExtensionListManager import ExtensionListManager
+from FslBuildGen.Generator import PluginConfig
+from FslBuildGen.Generator.Report.ReportVariableFormatter import ReportVariableFormatter
 from FslBuildGen.Info.AppInfo import AppInfoPackage
 from FslBuildGen.Info.AppInfoLoader import AppInfoLoader
 from FslBuildGen.Info.AppInfoRequirementTree import AppInfoRequirementTree
@@ -237,7 +238,7 @@ class ToolFlowBuildRun(AToolAppFlow):
             result = subprocess.call(runCommandList, cwd=currentWorkingDirectory)
             if result != 0:
                 self.Log.LogPrintWarning("The run command '{0}' failed with '{1}'. It was run with CWD: '{2}'".format(" ".join(runCommandList), result, currentWorkingDirectory))
-                sys.exit(result)
+                raise ExitException(result)
         except FileNotFoundError:
             self.Log.LogPrintWarning("The run command '{0}' failed with 'file not found'. It was run with CWD: '{1}'".format(" ".join(runCommandList), currentWorkingDirectory))
             raise

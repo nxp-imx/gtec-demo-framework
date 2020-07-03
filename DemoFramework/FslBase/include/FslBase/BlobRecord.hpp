@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent3D.hpp>
-#include <cstddef>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <cassert>
+#include <cstddef>
 
 namespace Fsl
 {

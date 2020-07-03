@@ -40,27 +40,29 @@ namespace Fsl
 {
   namespace EGLUtil
   {
-    std::vector<std::string> GetExtensions(const EGLDisplay display)
+    // NOLINTNEXTLINE(misc-misplaced-const)
+    std::vector<StringViewLite> GetExtensions(const EGLDisplay display)
     {
-      const auto pszExtensions = eglQueryString(display, EGL_EXTENSIONS);
+      const auto* const pszExtensions = eglQueryString(display, EGL_EXTENSIONS);
       EGL_CHECK_FOR_ERROR();
       if (pszExtensions == nullptr)
       {
         throw std::runtime_error("Failed to retrieve EGL extensions");
       }
 
-      const std::string strExtensions(pszExtensions);
-      return StringUtil::Split(strExtensions, ' ', true);
+      return StringUtil::Split(pszExtensions, ' ', true);
     }
 
 
+    // NOLINTNEXTLINE(misc-misplaced-const)
     bool HasExtension(const EGLDisplay display, const char* const pszExtensionName)
     {
       const auto extensions = GetExtensions(display);
-      return std::find(extensions.begin(), extensions.end(), std::string(pszExtensionName)) != extensions.end();
+      return std::find(extensions.begin(), extensions.end(), StringViewLite(pszExtensionName)) != extensions.end();
     }
 
 
+    // NOLINTNEXTLINE(misc-misplaced-const)
     std::vector<EGLConfig> GetConfigs(const EGLDisplay dpy)
     {
       EGLint numConfigs = 0;

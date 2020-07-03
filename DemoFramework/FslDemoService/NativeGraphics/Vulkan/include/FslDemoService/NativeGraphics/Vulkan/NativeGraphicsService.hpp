@@ -31,12 +31,13 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <FslUtil/Vulkan1_0/VUPhysicalDeviceRecord.hpp>
+#include <FslUtil/Vulkan1_0/Native/VulkanSwapchainEvent.hpp>
 #include <memory>
 #include <list>
 
@@ -48,8 +49,9 @@ namespace Fsl
     struct NativeGraphicsSwapchainInfo;
     class QuadBatch;
     class VulkanImageCreator;
+    class NativeTextureManager;
 
-    class NativeGraphicsService
+    class NativeGraphicsService final
       : public ThreadLocalService
       , public INativeGraphicsService
     {
@@ -67,13 +69,14 @@ namespace Fsl
         uint32_t QueueFamilyIndex = 0u;
         VUPhysicalDeviceRecord PhysicalDevice;
         std::shared_ptr<VulkanImageCreator> ImageCreator;
+        std::shared_ptr<NativeTextureManager> TextureManager;
       };
       struct DependentResources
       {
         uint32_t CommandBufferCount = 0;
         VkRenderPass RenderPass = VK_NULL_HANDLE;
         uint32_t Subpass = 0;
-        Extent2D ScreenResolution;
+        PxExtent2D ScreenExtentPx;
       };
 
       State m_state = State::Uninitialized;
@@ -85,8 +88,8 @@ namespace Fsl
       std::weak_ptr<NativeGraphicsSwapchainInfo> m_swapchainInfo;
 
     public:
-      NativeGraphicsService(const ServiceProvider& serviceProvider);
-      ~NativeGraphicsService() override;
+      explicit NativeGraphicsService(const ServiceProvider& serviceProvider);
+      ~NativeGraphicsService() final;
 
       void VulkanInit();
       void VulkanShutdown() noexcept;
@@ -94,9 +97,12 @@ namespace Fsl
       void VulkanDeviceShutdown() noexcept;
 
       void VulkanCreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass, const uint32_t subpass,
-                                          const Extent2D& screenResolution);
+                                          const PxExtent2D& screenExtentPx);
+      //! @note if theEvent == VulkanSwapchainEvent::Lost then vkDeviceWaitIdle will have been called.
+      void OnVulkanSwapchainEvent(const VulkanSwapchainEvent theEvent);
       void VulkanDestroyDependentResources() noexcept;
 
+      void VulkanPreProcessFrame(const uint32_t commandBufferIndex);
       void VulkanBeginFrame(const VkCommandBuffer commandBuffer, const uint32_t commandBufferIndex);
       void VulkanEndFrame();
 
@@ -104,15 +110,15 @@ namespace Fsl
       void SetSwapchainInfoLink(const std::weak_ptr<NativeGraphicsSwapchainInfo>& swapchainInfo);
 
       // From INativeGraphics
-      std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                        const TextureFlags& textureFlags) override;
       std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                        const TextureFlags& textureFlags) override;
+                                                        const TextureFlags textureFlags) final;
+      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                      const TextureFlags textureFlags) final;
       // From INativeGraphicsService
-      bool IsSupported(const DemoHostFeature& activeAPI) const override;
-      void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) override;
-      std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const Point2& currentResolution) override;
-      std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const Point2& currentResolution) override;
+      bool IsSupported(const DemoHostFeature& activeAPI) const final;
+      void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
+      std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& currentExtent) final;
+      std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& currentExtent) final;
 
     private:
       void PerformGarbageCollection() noexcept;

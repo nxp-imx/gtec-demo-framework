@@ -41,7 +41,7 @@
 #include <FslDemoHost/Vulkan/VulkanDemoHostSetup.hpp>
 #include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
 //#include <FslDemoHost/Vulkan/Service/VulkanHost/VulkanHostServiceFactory.hpp>
-#include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsServiceFactory.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
@@ -53,11 +53,10 @@ namespace Fsl
 {
   namespace
   {
-    using GraphicsServiceFactory = ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl>;
     using NativeGraphicsServiceFactory =
       ThreadLocalSingletonServiceFactoryTemplate2<Vulkan::NativeGraphicsService, INativeGraphicsService, Vulkan::NativeGraphicsService>;
 
-    const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       // Use the VulkanDemoHost for Vulkan
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
@@ -72,7 +71,7 @@ namespace Fsl
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);
 
-      return DemoHostFeature(DemoHostFeatureName::Vulkan, DemoHostFeatureUtil::EncodeVersion(1, 0));
+      return {DemoHostFeatureName::Vulkan, DemoHostFeatureUtil::EncodeVersion(1, 0)};
     }
 
     // inline bool TryFormatException(const std::exception& ex, std::string& rMessage)

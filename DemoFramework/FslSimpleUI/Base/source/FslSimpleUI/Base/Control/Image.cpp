@@ -29,17 +29,19 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
+#include <FslGraphics/Sprite/ImageSprite.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
-#include "Impl/ImageImpl.hpp"
+#include <utility>
+#include "Impl/ImageImpl_ImageSprite.hpp"
 
 namespace Fsl
 {
@@ -54,7 +56,7 @@ namespace Fsl
     }
 
 
-    void Image::SetContent(const AtlasTexture2D& value)
+    void Image::SetContent(const std::shared_ptr<ImageSprite>& value)
     {
       if (value != m_content)
       {
@@ -63,6 +65,24 @@ namespace Fsl
       }
     }
 
+    void Image::SetContent(std::shared_ptr<ImageSprite>&& value)
+    {
+      if (value != m_content)
+      {
+        m_content = std::move(value);
+        PropertyUpdated(PropertyType::Content);
+      }
+    }
+
+
+    void Image::SetContentColor(const Color& value)
+    {
+      if (value != m_contentColor)
+      {
+        m_contentColor = value;
+        PropertyUpdated(PropertyType::Other);
+      }
+    }
 
     void Image::SetScalePolicy(const ItemScalePolicy value)
     {
@@ -78,19 +98,19 @@ namespace Fsl
     {
       BaseWindow::WinDraw(context);
 
-      ImageImpl::WinDraw(context, m_content, m_scalePolicy, Color::White(), m_windowContext->Batch2D);
+      ImageImpl::Draw(*m_windowContext->Batch2D, m_content.get(), context.TargetRect.Location(), RenderSizePx(), m_contentColor);
     }
 
 
-    Vector2 Image::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D Image::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      return ImageImpl::ArrangeOverride(finalSize, m_content, m_scalePolicy);
+      return ImageImpl::ArrangeOverride(finalSizePx, m_content.get(), m_scalePolicy);
     }
 
 
-    Vector2 Image::MeasureOverride(const Vector2& availableSize)
+    PxSize2D Image::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      return ImageImpl::MeasureOverride(availableSize, m_content);
+      return ImageImpl::MeasureOverride(availableSizePx, m_content.get());
     }
   }
 }

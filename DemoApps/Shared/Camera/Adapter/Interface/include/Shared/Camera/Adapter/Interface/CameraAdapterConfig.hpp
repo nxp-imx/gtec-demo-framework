@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraType.hpp>
@@ -43,18 +43,18 @@ namespace Fsl
   {
     struct CameraAdapterConfig
     {
-      Extent2D Extent;
+      PxExtent2D Extent;
       PixelFormat ActivePixelFormat{PixelFormat::Undefined};
       uint32_t Stride{0};
 
       CameraAdapterConfig() = default;
 
-      CameraAdapterConfig(const Extent2D& extent, const PixelFormat activePixelFormat)
+      CameraAdapterConfig(const PxExtent2D& extent, const PixelFormat activePixelFormat)
         : CameraAdapterConfig(extent, activePixelFormat, PixelFormatUtil::CalcMinimumStride(extent.Width, activePixelFormat))
       {
       }
 
-      CameraAdapterConfig(const Extent2D& extent, const PixelFormat activePixelFormat, const uint32_t stride)
+      CameraAdapterConfig(const PxExtent2D& extent, const PixelFormat activePixelFormat, const uint32_t stride)
         : Extent(extent)
         , ActivePixelFormat(activePixelFormat)
         , Stride(stride)

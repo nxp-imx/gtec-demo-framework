@@ -102,7 +102,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     bool boolValue;
     int intValue;
@@ -110,57 +110,57 @@ namespace Fsl
     switch (cmdId)
     {
     case CommandId::VSync:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_useForceVSync = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::Cache:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_useCache = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::Animate:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_useAnimation = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::Align:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_alignFB = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::High:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_use32BPP = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::Manual:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_useManual = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::Dummy:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_useDummyMode = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::Offscreen:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_useOffscreen = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::OffscreenFormat:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_offscreenFormat = intValue;
       return OptionParseResult::Parsed;
     case CommandId::Test:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_test = intValue;
       return OptionParseResult::Parsed;
     case CommandId::Test2:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         return OptionParseResult::Failed;
       m_test2 = intValue;
       return OptionParseResult::Parsed;

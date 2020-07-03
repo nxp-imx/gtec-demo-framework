@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "FractalShaderJulia.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -50,7 +51,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -70,7 +71,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -122,7 +123,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.BindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.AttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.AttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.AttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -203,7 +204,7 @@ namespace Fsl
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -224,9 +225,10 @@ namespace Fsl
     }
   }
 
-  FractalShaderJulia::FractalShaderJulia(const DemoAppConfig& config, const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
+  FractalShaderJulia::FractalShaderJulia(const DemoAppConfig& config, const Vulkan::VUDevice& device,
+                                         const Vulkan::VUDeviceQueueRecord& /*deviceQueue*/,
                                          const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
-                                         const RapidVulkan::DescriptorPool& descriptorPool, const uint32_t maxFrames)
+                                         const RapidVulkan::DescriptorPool& descriptorPool, const uint32_t /*maxFrames*/)
     : m_screenResolution(config.ScreenResolution)
     , m_config(config.GetOptions<OptionParser>()->GetConfig())
     , m_helper(m_config, m_config.TheAnimationMode, config.DemoServiceProvider)
@@ -238,7 +240,7 @@ namespace Fsl
         throw NotSupportedException("Force unroll is not supported");
       }
 
-      std::string fragmentShaderFile;
+      IO::Path fragmentShaderFile;
       switch (m_config.TheRenderMode)
       {
       // case RenderMode::Tex:
@@ -317,17 +319,17 @@ namespace Fsl
   }
 
 
-  void FractalShaderJulia::Draw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer)
+  void FractalShaderJulia::Draw(const uint32_t /*frameIndex*/, const VkCommandBuffer hCmdBuffer)
   {
-    const auto pipelineLayout = m_resources.ScenePipelineLayout.Get();
+    const VkPipelineLayout pipelineLayout = m_resources.ScenePipelineLayout.Get();
 
     vkCmdPushConstants(hCmdBuffer, pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants), &m_pushConstants);
 
     vkCmdBindDescriptorSets(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &m_resources.DescriptorSet, 0, nullptr);
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.Pipeline.Get());
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
 
     m_helper.Draw(m_screenResolution);

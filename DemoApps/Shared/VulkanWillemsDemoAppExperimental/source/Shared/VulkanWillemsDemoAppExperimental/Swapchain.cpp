@@ -14,21 +14,15 @@
 
 #include <Shared/VulkanWillemsDemoAppExperimental/Swapchain.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/DebugStrings.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <utility>
 
-using namespace RapidVulkan;
-
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
-  using namespace Vulkan::PhysicalDeviceKHRUtil;
-
   namespace Willems
   {
     //! @brief Move assignment operator
@@ -74,11 +68,11 @@ namespace Fsl
     }
 
 
-    Swapchain::Swapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+    Swapchain::Swapchain(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const PxExtent2D& extentPx,
                          const bool enableVSync)
       : Swapchain()
     {
-      Reset(physicalDevice, device, surface, extent, enableVSync);
+      Reset(physicalDevice, device, surface, extentPx, enableVSync);
     }
 
 
@@ -102,7 +96,7 @@ namespace Fsl
     }
 
 
-    void Swapchain::Reset(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const Extent2D extent,
+    void Swapchain::Reset(const VkPhysicalDevice physicalDevice, const VkDevice device, const VkSurfaceKHR surface, const PxExtent2D& extentPx,
                           const bool enableVSync)
     {
       try
@@ -115,7 +109,7 @@ namespace Fsl
         VkSurfaceCapabilitiesKHR surfCaps{};
         RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps));
 
-        const auto presentModes = GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface);
+        const auto presentModes = Vulkan::PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface);
 
         // Select a present mode for the swapchain
 
@@ -149,7 +143,7 @@ namespace Fsl
         }
 
         // Find the transformation of the surface
-        VkSurfaceTransformFlagBitsKHR preTransform;
+        VkSurfaceTransformFlagBitsKHR preTransform{};
         if ((surfCaps.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR) != 0u)
         {
           // We prefer a non-rotated transform
@@ -160,8 +154,8 @@ namespace Fsl
           preTransform = surfCaps.currentTransform;
         }
 
-        const auto surfaceFormats = GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
-        VkFormat colorFormat;
+        const auto surfaceFormats = Vulkan::PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
+        VkFormat colorFormat = VK_FORMAT_UNDEFINED;
         // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
         // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
         if ((surfaceFormats.size() == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED))
@@ -188,7 +182,7 @@ namespace Fsl
         m_createInfo.minImageCount = desiredNumberOfSwapchainImages;
         m_createInfo.imageFormat = colorFormat;
         m_createInfo.imageColorSpace = colorSpace;
-        m_createInfo.imageExtent = Convert(extent);
+        m_createInfo.imageExtent = TypeConverter::UncheckedTo<VkExtent2D>(extentPx);
         m_createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
         m_createInfo.preTransform = preTransform;
         m_createInfo.imageArrayLayers = 1;
@@ -207,7 +201,7 @@ namespace Fsl
         m_createInfo.oldSwapchain = VK_NULL_HANDLE;
         m_buffers.clear();
 
-        const auto images = SwapchainKHRUtil::GetSwapchainImagesKHR(device, m_swapchain.Get());
+        const auto images = Vulkan::SwapchainKHRUtil::GetSwapchainImagesKHR(device, m_swapchain.Get());
 
         // Get the swap chain buffers containing the image and imageview
         m_buffers.resize(images.size());

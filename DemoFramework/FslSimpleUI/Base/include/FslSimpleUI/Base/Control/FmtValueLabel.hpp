@@ -34,14 +34,14 @@
 #include <FslSimpleUI/Base/Control/LabelBase.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <fmt/format.h>
 #include <cstring>
 #include <string>
+#include <type_traits>
 
 namespace Fsl
 {
-  class AtlasFont;
-
   namespace UI
   {
     template <typename TValue>
@@ -57,8 +57,9 @@ namespace Fsl
       mutable bool m_cacheIsValid{false};
 
     public:
-      FmtValueLabel(const std::shared_ptr<WindowContext>& context)
+      explicit FmtValueLabel(const std::shared_ptr<WindowContext>& context)
         : LabelBase(context)
+        , m_format(std::is_floating_point<value_type>::value ? "{:.2f}" : "{}")
       {
       }
 
@@ -72,44 +73,58 @@ namespace Fsl
         return m_format;
       }
 
-      void SetFormatString(const char* const psz)
+      //! @return true if the format string was changed (false if the format string was already equal to the value being set)
+      bool SetFormatString(const char* const psz)
       {
-        if (psz == nullptr)
-        {
-          throw std::invalid_argument("psz can not be null");
-        }
-
-        SetFormatString(StringViewLite(psz, std::strlen(psz)));
+        return SetFormatString(StringViewLite(psz));
       }
 
-      void SetFormatString(const StringViewLite& value)
+      //! @return true if the format string was changed (false if the format string was already equal to the value being set)
+      bool SetFormatString(const StringViewLite& value)
       {
-        if (value != StringViewLite(m_format.data(), m_format.size()))
+        if (value == m_format)
         {
-          m_format.assign(value.data(), value.size());
-          m_cacheIsValid = false;
-          PropertyUpdated(PropertyType::Content);
+          return false;
         }
+
+        m_format.assign(value.data(), value.size());
+        m_cacheIsValid = false;
+        PropertyUpdated(PropertyType::Content);
+        return true;
       }
 
-      void SetFormatString(const std::string& strFormat)
+      //! @return true if the format string was changed (false if the format string was already equal to the value being set)
+      bool SetFormatString(const std::string& strFormat)
       {
-        if (strFormat != m_format)
+        if (strFormat == m_format)
         {
-          m_format = strFormat;
-          m_cacheIsValid = false;
-          PropertyUpdated(PropertyType::Content);
+          return false;
         }
+
+        m_format = strFormat;
+        m_cacheIsValid = false;
+        PropertyUpdated(PropertyType::Content);
+        return true;
       }
 
-      void SetContent(const value_type value)
+      bool SetContent(const value_type value)
       {
-        if (m_content != value)
+        if (m_content == value)
         {
-          m_content = value;
-          m_cacheIsValid = false;
-          PropertyUpdated(PropertyType::Content);
+          return false;
         }
+
+        m_content = value;
+        m_cacheIsValid = false;
+        PropertyUpdated(PropertyType::Content);
+        return true;
+      }
+
+      PxPoint2 MeasureRenderedValue(const value_type value) const
+      {
+        fmt::memory_buffer tmpBuffer;
+        fmt::format_to(tmpBuffer, m_format, value);
+        return DoMeasureRenderedString(StringViewLite(tmpBuffer.data(), tmpBuffer.size()));
       }
 
     protected:

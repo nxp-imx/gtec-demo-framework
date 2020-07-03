@@ -38,7 +38,7 @@ namespace Fsl
   class Window101 : public DemoAppWindow
   {
   public:
-    Window101(const DemoAppConfig& config);
+    explicit Window101(const DemoAppConfig& config);
     ~Window101() override;
 
   protected:

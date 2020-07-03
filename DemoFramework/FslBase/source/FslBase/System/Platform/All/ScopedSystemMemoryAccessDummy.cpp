@@ -45,34 +45,33 @@ namespace Fsl
     FSLLOG3_WARNING("ScopedSystemMemoryAccess is a dummy implementation that does nothing");
   }
 
-  ScopedSystemMemoryAccessDummy::~ScopedSystemMemoryAccessDummy() = default;
 
-  uint8_t ScopedSystemMemoryAccessDummy::GetUInt8() const
+  uint8_t ScopedSystemMemoryAccessDummy::GetUInt8() const    // NOLINT(readability-convert-member-functions-to-static)
   {
     return static_cast<uint8_t>(0);
   }
 
-  uint16_t ScopedSystemMemoryAccessDummy::GetUInt16() const
+  uint16_t ScopedSystemMemoryAccessDummy::GetUInt16() const    // NOLINT(readability-convert-member-functions-to-static)
   {
     return static_cast<uint16_t>(0);
   }
 
-  uint32_t ScopedSystemMemoryAccessDummy::GetUInt32() const
+  uint32_t ScopedSystemMemoryAccessDummy::GetUInt32() const    // NOLINT(readability-convert-member-functions-to-static)
   {
     return static_cast<uint32_t>(0);
   }
 
-  void ScopedSystemMemoryAccessDummy::SetUInt8(const uint8_t value)
+  void ScopedSystemMemoryAccessDummy::SetUInt8(const uint8_t value)    // NOLINT(readability-convert-member-functions-to-static)
   {
     FSL_PARAM_NOT_USED(value);
   }
 
-  void ScopedSystemMemoryAccessDummy::SetUInt16(const uint16_t value)
+  void ScopedSystemMemoryAccessDummy::SetUInt16(const uint16_t value)    // NOLINT(readability-convert-member-functions-to-static)
   {
     FSL_PARAM_NOT_USED(value);
   }
 
-  void ScopedSystemMemoryAccessDummy::SetUInt32(const uint32_t value)
+  void ScopedSystemMemoryAccessDummy::SetUInt32(const uint32_t value)    // NOLINT(readability-convert-member-functions-to-static)
   {
     FSL_PARAM_NOT_USED(value);
   }

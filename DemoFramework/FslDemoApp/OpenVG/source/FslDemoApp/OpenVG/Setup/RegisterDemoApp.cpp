@@ -40,7 +40,7 @@
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/EGL/EGLDemoHostSetup.hpp>
 #include <FslDemoHost/EGL/Service/EGLHost/EGLHostServiceFactory.hpp>
-#include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsServiceFactory.hpp>
 #include <FslDemoService/NativeGraphics/OpenVG/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
@@ -52,9 +52,7 @@ namespace Fsl
 {
   namespace
   {
-    using GraphicsServiceFactory = ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl>;
-
-    const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       // Use the EGLDemoHost for OpenVG
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
@@ -68,13 +66,13 @@ namespace Fsl
 
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);
-      return DemoHostFeature(DemoHostFeatureName::OpenVG, DemoHostFeatureUtil::EncodeOpenVGVersion(1));
+      return {DemoHostFeatureName::OpenVG, DemoHostFeatureUtil::EncodeOpenVGVersion(1)};
     }
 
 
     inline bool TryFormatEGLGraphicsException(const std::exception& ex, std::string& rMessage)
     {
-      auto pException = dynamic_cast<const EGLGraphicsException*>(&ex);
+      const auto* pException = dynamic_cast<const EGLGraphicsException*>(&ex);
       if (pException == nullptr)
       {
         rMessage = std::string();

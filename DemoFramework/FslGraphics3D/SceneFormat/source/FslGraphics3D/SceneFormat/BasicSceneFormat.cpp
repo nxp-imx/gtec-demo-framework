@@ -41,11 +41,13 @@
 #include <FslGraphics3D/SceneFormat/VertexElementUsage.hpp>
 #include "SFVertexElement.hpp"
 #include "Conversion.hpp"
+#include <array>
 #include <algorithm>
 #include <cassert>
 #include <deque>
 #include <fstream>
 #include <limits>
+#include <utility>
 #include <vector>
 
 // Nasty hack for dealing with UTF8 file names on windows,
@@ -53,15 +55,19 @@
 // but instead provides its own 'hack' for opening wstring's
 #if _WIN32
 #include <FslBase/System/Platform/PlatformWin32.hpp>
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PATH_GET_NAME(X) X.ToUTF8String()
 #endif
 
 //! workaround for GCC complaint
 #ifdef __GNUC__
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define REMOVE_WARNING_VARIABLE_IS_NOT_USED __attribute__((unused))
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define REMOVE_WARNING_VARIABLE_IS_NOT_USED
 #endif
 
@@ -107,9 +113,8 @@ namespace Fsl
 
       InternalVertexDeclaration() = default;
 
-      InternalVertexDeclaration(const SFVertexDeclaration& declaration)
+      explicit InternalVertexDeclaration(const SFVertexDeclaration& declaration)
         : SFVertexDeclaration(declaration)
-        , VertexByteSize(0)
       {
         for (auto itr = declaration.Elements.begin(); itr != declaration.Elements.end(); ++itr)
         {
@@ -203,7 +208,6 @@ namespace Fsl
         ChunkHeader(const uint32_t byteSize, const ChunkType chunkType, const uint16_t version)
           : ByteSize(byteSize)
           , Type(chunkType)
-          , Reserved(0)
           , Version(version)
         {
         }
@@ -293,58 +297,58 @@ namespace Fsl
 
       FormatHeader ReadHeader(std::ifstream& rStream)
       {
-        uint8_t buffer[SIZE_OF_FORMATHEADER];
-        rStream.read(reinterpret_cast<char*>(buffer), SIZE_OF_FORMATHEADER);
+        std::array<uint8_t, SIZE_OF_FORMATHEADER> buffer{};
+        rStream.read(reinterpret_cast<char*>(buffer.data()), SIZE_OF_FORMATHEADER);
         if (!rStream.good())
         {
           throw FormatException("Failed to read the expected data");
         }
 
-        const uint32_t magic = ByteArrayUtil::ReadUInt32LE(buffer, SIZE_OF_FORMATHEADER, FORMATHEADER_OFFSET_Magic);
-        const uint32_t version = ByteArrayUtil::ReadUInt32LE(buffer, SIZE_OF_FORMATHEADER, FORMATHEADER_OFFSET_Version);
+        const uint32_t magic = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Magic);
+        const uint32_t version = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Version);
 
         if (magic != FORMAT_MAGIC || version != FORMAT_CURRENT_VERSION)
         {
           throw NotSupportedException("File format not supported");
         }
-        return FormatHeader(magic, version);
+        return {magic, version};
       }
 
 
       void WriteHeader(std::ofstream& rStream, const FormatHeader& header)
       {
-        uint8_t buffer[SIZE_OF_FORMATHEADER];
-        ByteArrayUtil::WriteUInt32LE(buffer, SIZE_OF_FORMATHEADER, FORMATHEADER_OFFSET_Magic, header.Magic);
-        ByteArrayUtil::WriteUInt32LE(buffer, SIZE_OF_FORMATHEADER, FORMATHEADER_OFFSET_Version, header.Version);
-        rStream.write(reinterpret_cast<const char*>(buffer), SIZE_OF_FORMATHEADER);
+        std::array<uint8_t, SIZE_OF_FORMATHEADER> buffer{};
+        ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Magic, header.Magic);
+        ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), FORMATHEADER_OFFSET_Version, header.Version);
+        rStream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
       }
 
 
       ChunkHeader ReadChunkHeader(std::ifstream& rStream)
       {
-        uint8_t buffer[SIZE_OF_CHUNKHEADER];
-        rStream.read(reinterpret_cast<char*>(buffer), SIZE_OF_CHUNKHEADER);
+        std::array<uint8_t, SIZE_OF_CHUNKHEADER> buffer{};
+        rStream.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
         if (!rStream.good())
         {
           throw FormatException("Failed to read the expected data");
         }
 
-        const uint32_t byteSize = ByteArrayUtil::ReadUInt32LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_ByteSize);
-        const uint8_t chunkType = ByteArrayUtil::ReadUInt8LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Type);
-        // const uint8_t reserved = ByteArrayUtil::ReadUInt8LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Reserved);
-        const uint16_t version = ByteArrayUtil::ReadUInt16LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Version);
-        return ChunkHeader(byteSize, static_cast<ChunkType>(chunkType), version);
+        const uint32_t byteSize = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_ByteSize);
+        const uint8_t chunkType = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Type);
+        // const uint8_t reserved = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Reserved);
+        const uint16_t version = ByteArrayUtil::ReadUInt16LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Version);
+        return {byteSize, static_cast<ChunkType>(chunkType), version};
       }
 
 
       void WriteChunkHeader(std::ofstream& rStream, const ChunkHeader& header)
       {
-        uint8_t buffer[SIZE_OF_CHUNKHEADER];
-        ByteArrayUtil::WriteUInt32LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_ByteSize, header.ByteSize);
-        ByteArrayUtil::WriteUInt8LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Type, static_cast<uint8_t>(header.Type));
-        ByteArrayUtil::WriteUInt8LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Reserved, header.Reserved);
-        ByteArrayUtil::WriteUInt16LE(buffer, SIZE_OF_FORMATHEADER, CHUNKHEADER_OFFSET_Version, header.Version);
-        rStream.write(reinterpret_cast<const char*>(buffer), SIZE_OF_CHUNKHEADER);
+        std::array<uint8_t, SIZE_OF_CHUNKHEADER> buffer{};
+        ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_ByteSize, header.ByteSize);
+        ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Type, static_cast<uint8_t>(header.Type));
+        ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Reserved, header.Reserved);
+        ByteArrayUtil::WriteUInt16LE(buffer.data(), buffer.size(), CHUNKHEADER_OFFSET_Version, header.Version);
+        rStream.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
       }
 
 
@@ -441,38 +445,38 @@ namespace Fsl
         const auto startPos = rStream.tellg();
 
         // Read the vertex declarations
-        uint8_t buffer[BUFFER_ENTRY_SIZE];
-        rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_VERTEX_DECLARATION_LIST_HEADER);
+        std::array<uint8_t, BUFFER_ENTRY_SIZE> buffer{};
+        rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_LIST_HEADER);
         if (!rStream.good())
         {
           throw FormatException("Failed to read the expected data");
         }
 
         // Read the number of vertex declarations
-        const uint32_t numVertexDeclarations = ByteArrayUtil::ReadUInt32LE(buffer, BUFFER_ENTRY_SIZE, 0);
+        const uint32_t numVertexDeclarations = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), 0);
 
         for (uint32_t declarationIndex = 0; declarationIndex < numVertexDeclarations; ++declarationIndex)
         {
           SFVertexDeclaration vertexDecl;
 
-          rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_VERTEX_DECLARATION_HEADER);
+          rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_HEADER);
           if (!rStream.good())
           {
             throw FormatException("Failed to read the expected data");
           }
 
-          const uint16_t elementCount = ByteArrayUtil::ReadUInt16LE(buffer, BUFFER_ENTRY_SIZE, 0);
+          const uint16_t elementCount = ByteArrayUtil::ReadUInt16LE(buffer.data(), buffer.size(), 0);
           for (uint16_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
           {
-            rStream.read(reinterpret_cast<char*>(buffer), SIZE_OF_VERTEXELEMENT);
+            rStream.read(reinterpret_cast<char*>(buffer.data()), SIZE_OF_VERTEXELEMENT);
             if (!rStream.good())
             {
               throw FormatException("Failed to read the expected data");
             }
 
-            const uint8_t format = ByteArrayUtil::ReadUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_Format);
-            const uint8_t usage = ByteArrayUtil::ReadUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_Usage);
-            const uint8_t usageIndex = ByteArrayUtil::ReadUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_UsageIndex);
+            const uint8_t format = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Format);
+            const uint8_t usage = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Usage);
+            const uint8_t usageIndex = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_UsageIndex);
 
             vertexDecl.Elements.emplace_back(ConvertToFormat(format), ConvertToUsage(usage), usageIndex);
           }
@@ -503,10 +507,10 @@ namespace Fsl
         WriteChunkHeader(rStream, header);
 
         // Write the vertex declarations
-        uint8_t buffer[BUFFER_ENTRY_SIZE];
+        std::array<uint8_t, BUFFER_ENTRY_SIZE> buffer{};
         // Write the number of vertex declarations
-        ByteArrayUtil::WriteUInt32LE(buffer, BUFFER_ENTRY_SIZE, 0, static_cast<uint32_t>(uniqueEntries.size()));
-        rStream.write(reinterpret_cast<const char*>(buffer), SIZEOF_VERTEX_DECLARATION_LIST_HEADER);
+        ByteArrayUtil::WriteUInt32LE(buffer.data(), buffer.size(), 0, static_cast<uint32_t>(uniqueEntries.size()));
+        rStream.write(reinterpret_cast<const char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_LIST_HEADER);
 
         auto itrDecl = uniqueEntries.begin();
         while (itrDecl != uniqueEntries.end())
@@ -514,8 +518,8 @@ namespace Fsl
           // Write the vertex element count
           assert(itrDecl->Elements.size() <= std::numeric_limits<uint16_t>::max());
           const auto elementCount = static_cast<uint16_t>(itrDecl->Elements.size());
-          ByteArrayUtil::WriteUInt16LE(buffer, BUFFER_ENTRY_SIZE, 0, elementCount);
-          rStream.write(reinterpret_cast<const char*>(buffer), SIZEOF_VERTEX_DECLARATION_HEADER);
+          ByteArrayUtil::WriteUInt16LE(buffer.data(), buffer.size(), 0, elementCount);
+          rStream.write(reinterpret_cast<const char*>(buffer.data()), SIZEOF_VERTEX_DECLARATION_HEADER);
 
           for (std::size_t i = 0; i < elementCount; ++i)
           {
@@ -527,10 +531,10 @@ namespace Fsl
             const auto usage = static_cast<uint8_t>(itrDecl->Elements[i].Usage);
             const uint8_t usageIndex = itrDecl->Elements[i].UsageIndex;
 
-            ByteArrayUtil::WriteUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_Format, format);
-            ByteArrayUtil::WriteUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_Usage, usage);
-            ByteArrayUtil::WriteUInt8LE(buffer, BUFFER_ENTRY_SIZE, VERTEXELEMENT_OFFSET_UsageIndex, usageIndex);
-            rStream.write(reinterpret_cast<const char*>(buffer), SIZE_OF_VERTEXELEMENT);
+            ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Format, format);
+            ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_Usage, usage);
+            ByteArrayUtil::WriteUInt8LE(buffer.data(), buffer.size(), VERTEXELEMENT_OFFSET_UsageIndex, usageIndex);
+            rStream.write(reinterpret_cast<const char*>(buffer.data()), SIZE_OF_VERTEXELEMENT);
           }
 
           ++itrDecl;
@@ -1034,14 +1038,14 @@ namespace Fsl
 
         const auto startPos = rStream.tellg();
 
-        uint8_t buffer[MESH_HEADERS];
-        rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_MESH_LIST_HEADER);
+        std::array<uint8_t, MESH_HEADERS> buffer{};
+        rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_MESH_LIST_HEADER);
         if (!rStream.good())
         {
           throw FormatException("Failed to read the expected data");
         }
 
-        const uint32_t meshCount = ByteArrayUtil::ReadUInt32LE(buffer, SIZEOF_MESH_LIST_HEADER, 0);
+        const uint32_t meshCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), SIZEOF_MESH_LIST_HEADER, 0);
 
         // Create the scene
         std::shared_ptr<Scene> scene = sceneAllocator(meshCount);
@@ -1049,19 +1053,19 @@ namespace Fsl
 
         for (uint32_t meshIndex = 0; meshIndex < meshCount; ++meshIndex)
         {
-          rStream.read(reinterpret_cast<char*>(buffer), SIZEOF_MESH_HEADER);
+          rStream.read(reinterpret_cast<char*>(buffer.data()), SIZEOF_MESH_HEADER);
           if (!rStream.good())
           {
             throw FormatException("Failed to read the expected data");
           }
 
-          const uint32_t materialIndex = ByteArrayUtil::ReadUInt32LE(buffer, MESH_HEADERS, MESH_OFFSET_MaterialIndex);
-          const uint32_t vertexCount = ByteArrayUtil::ReadUInt32LE(buffer, MESH_HEADERS, MESH_OFFSET_VertexCount);
-          const uint32_t indexCount = ByteArrayUtil::ReadUInt32LE(buffer, MESH_HEADERS, MESH_OFFSET_IndexCount);
-          const uint32_t nameLength = ByteArrayUtil::ReadUInt32LE(buffer, MESH_HEADERS, MESH_OFFSET_NameLength);
-          const auto primitiveType = ConvertToPrimitiveType(ByteArrayUtil::ReadUInt8LE(buffer, MESH_HEADERS, MESH_OFFSET_PrimitiveType));
-          const uint8_t vertexDeclarationIndex = ByteArrayUtil::ReadUInt8LE(buffer, MESH_HEADERS, MESH_OFFSET_VertexDeclarationIndex);
-          const uint8_t indexByteSize = ByteArrayUtil::ReadUInt8LE(buffer, MESH_HEADERS, MESH_OFFSET_IndexByteSize);
+          const uint32_t materialIndex = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_MaterialIndex);
+          const uint32_t vertexCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_VertexCount);
+          const uint32_t indexCount = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_IndexCount);
+          const uint32_t nameLength = ByteArrayUtil::ReadUInt32LE(buffer.data(), buffer.size(), MESH_OFFSET_NameLength);
+          const auto primitiveType = ConvertToPrimitiveType(ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MESH_OFFSET_PrimitiveType));
+          const uint8_t vertexDeclarationIndex = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MESH_OFFSET_VertexDeclarationIndex);
+          const uint8_t indexByteSize = ByteArrayUtil::ReadUInt8LE(buffer.data(), buffer.size(), MESH_OFFSET_IndexByteSize);
 
           if (vertexDeclarationIndex >= vertexDeclarations.size())
           {
@@ -1214,8 +1218,8 @@ namespace Fsl
         std::shared_ptr<SceneNode> Node;
         uint32_t Index;
 
-        NodeInfo(const std::shared_ptr<SceneNode>& node, const uint32_t index)
-          : Node(node)
+        NodeInfo(std::shared_ptr<SceneNode> node, const uint32_t index)
+          : Node(std::move(node))
           , Index(index)
         {
         }
@@ -1224,8 +1228,8 @@ namespace Fsl
       struct NodeComp
       {
         const std::shared_ptr<SceneNode> Node;
-        explicit NodeComp(const std::shared_ptr<SceneNode>& node)
-          : Node(node)
+        explicit NodeComp(std::shared_ptr<SceneNode> node)
+          : Node(std::move(node))
         {
         }
 
@@ -1463,7 +1467,7 @@ namespace Fsl
       {
         if (!node)
         {
-          return NodesInfo(0, 0);
+          return {0, 0};
         }
 
 
@@ -1524,7 +1528,7 @@ namespace Fsl
         static_assert(sizeof(float) == 4, "We expect a float to be four bytes");
 
         // Runtime verification of endian assumptions
-        uint32_t tmp;
+        uint32_t tmp = 0;
         auto* pUInt32 = reinterpret_cast<uint32_t*>(&tmp);
         auto* pFloat = reinterpret_cast<float*>(&tmp);
         auto* pTmp = reinterpret_cast<uint8_t*>(&tmp);

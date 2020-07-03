@@ -31,13 +31,14 @@
 
 #include "ParticleVertexDescription.hpp"
 #include "../Particle.hpp"
+#include <array>
 #include <cstddef>
 
 namespace Fsl
 {
   VertexDeclaration ParticleVertexDescription::GetVertexDeclaration()
   {
-    static VertexElementEx elements[] = {
+    constexpr static std::array<VertexElementEx, 7> elements = {
       VertexElementEx(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(Particle, Velocity), VertexElementFormat::Vector3, VertexElementUsage::Color, 0),
       VertexElementEx(offsetof(Particle, Energy), VertexElementFormat::Single, VertexElementUsage::Custom, 0),
@@ -47,6 +48,6 @@ namespace Fsl
       VertexElementEx(offsetof(Particle, EndSize), VertexElementFormat::Single, VertexElementUsage::Custom, 4),
       // VertexElementEx(offsetof(Particle, TextureId), VertexElementFormat::Single, VertexElementUsage::Custom, 1),
     };
-    return VertexDeclaration(elements, sizeof(elements) / sizeof(VertexElementEx), sizeof(Particle));
+    return VertexDeclaration(elements.data(), elements.size(), sizeof(Particle));
   }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TexturePackerConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1" DefaultCompany="NXP">
+  <CreateAtlasConfig OutputAtlasFormat="bta4">
+    <AtlasConfig TransparencyMode="premultiply">
+      <ElementConfig DefaultDpi="160" Extrude="1" Trim="true" TrimMargin="1" TransparencyTreshold="1" ShapePadding="2" BorderPadding="2"/>
+      <LayoutConfig AllowRotation="false"/>
+      <TextureConfig MaxSize="2048,2048" SizeRestriction="pow2"/>
+    </AtlasConfig>
+    <AddBitmapFontConfig OutputFontFormat="nbf"/>
+  </CreateAtlasConfig>
+  <LicenseConfig File="License.json" Type="nxpJson" AllowMasterFileCreation="true" RequiredForAllContent="true"/>
+</TexturePackerConfig>

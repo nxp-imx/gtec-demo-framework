@@ -42,8 +42,8 @@ namespace Fsl
     static Matrix3 ToMatrix3(const Matrix& value)
     {
       const float* const pValue = value.DirectAccess();
-      return Matrix3(pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1], pValue[(4 * 1) + 2],
-                     pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]);
+      return {pValue[(4 * 0) + 0], pValue[(4 * 0) + 1], pValue[(4 * 0) + 2], pValue[(4 * 1) + 0], pValue[(4 * 1) + 1],
+              pValue[(4 * 1) + 2], pValue[(4 * 2) + 0], pValue[(4 * 2) + 1], pValue[(4 * 2) + 2]};
     }
 
     static Matrix3Std140 ToMatrix3Std140(const Matrix& value)

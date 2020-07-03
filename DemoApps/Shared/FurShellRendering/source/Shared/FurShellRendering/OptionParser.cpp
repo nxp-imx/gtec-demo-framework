@@ -109,24 +109,24 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    bool boolValue;
-    int intValue;
-    uint32_t uint32Value;
-    float floatValue;
+    bool boolValue = false;
+    int intValue = 0;
+    uint32_t uint32Value = 0;
+    float floatValue = 0.0f;
 
     switch (cmdId)
     {
     case CommandId::RenderMode:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetRenderMode(intValue);
       return OptionParseResult::Parsed;
     case CommandId::LayerCount:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -134,7 +134,7 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::LayerCount);
       return OptionParseResult::Parsed;
     case CommandId::HairLength:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -142,14 +142,14 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::HairLength);
       return OptionParseResult::Parsed;
     case CommandId::HairDensity:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetHairDensity(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::FurTextureSize:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -161,7 +161,7 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::FurTextureDimension);
       return OptionParseResult::Parsed;
     case CommandId::TorusMajorSegments:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -169,7 +169,7 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::TorusMajor);
       return OptionParseResult::Parsed;
     case CommandId::TorusMinorSegments:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -177,21 +177,21 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::TorusMinor);
       return OptionParseResult::Parsed;
     case CommandId::UseTriangleStrips:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetUseTriangleStrip(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::ShowNormals:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetShowNormals(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::TextureRepeatCountX:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -199,7 +199,7 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::TextureRepeatX);
       return OptionParseResult::Parsed;
     case CommandId::TextureRepeatCountY:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -207,28 +207,28 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::TextureRepeatY);
       return OptionParseResult::Parsed;
     case CommandId::HighShaderPrecision:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetUseHighShaderPrecision(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::Lights:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetLightCount(intValue);
       return OptionParseResult::Parsed;
     case CommandId::ForceFinish:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetForceFinishEachFrame(boolValue);
       return OptionParseResult::Parsed;
     case CommandId::BackgroundColor:
-      if (StringParseUtil::Parse(uint32Value, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(uint32Value, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -236,22 +236,22 @@ namespace Fsl
       m_modified.Flag(ModifiedFlags::BackgroundColor);
       return OptionParseResult::Parsed;
     case CommandId::Demo:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetDemoId(intValue);
       return OptionParseResult::Parsed;
     case CommandId::Quality:
-      if (strcmp(pszOptArg, "low") == 0)
+      if (strOptArg == "low")
       {
         m_quality = Quality::Low;
       }
-      else if (strcmp(pszOptArg, "medium") == 0)
+      else if (strOptArg == "medium")
       {
         m_quality = Quality::Medium;
       }
-      else if (strcmp(pszOptArg, "high") == 0)
+      else if (strOptArg == "high")
       {
         m_quality = Quality::High;
       }

@@ -37,7 +37,7 @@
 
 namespace Fsl
 {
-  class HostInfoService
+  class HostInfoService final
     : public ThreadLocalService
     , public IHostInfo
     , public IHostInfoControl
@@ -48,20 +48,20 @@ namespace Fsl
     HostConfig m_hostConfig;
 
   public:
-    HostInfoService(const ServiceProvider& serviceProvider);
-    ~HostInfoService() override;
+    explicit HostInfoService(const ServiceProvider& serviceProvider);
+    ~HostInfoService() final;
 
     // From IHostInfo
-    bool IsConsoleBasedHost() const override;
-    DemoHostFeature GetActiveAPI() const override;
-    std::shared_ptr<DemoAppHostConfig> TryGetAppHostConfig() const override;
-    HostConfig GetConfig() const override;
+    bool IsConsoleBasedHost() const final;
+    DemoHostFeature GetActiveAPI() const final;
+    std::shared_ptr<DemoAppHostConfig> TryGetAppHostConfig() const final;
+    HostConfig GetConfig() const final;
 
     // From IHostInfoControl
-    void SetIsConsoleBasedHost(const bool isConsoleBasedHost) override;
-    void SetActiveAPI(const DemoHostFeature feature) override;
-    void SetAppHostConfig(std::shared_ptr<DemoAppHostConfig> appHostConfig) override;
-    void SetConfig(const HostConfig& config) override;
+    void SetIsConsoleBasedHost(const bool isConsoleBasedHost) final;
+    void SetActiveAPI(const DemoHostFeature feature) final;
+    void SetAppHostConfig(std::shared_ptr<DemoAppHostConfig> appHostConfig) final;
+    void SetConfig(const HostConfig& config) final;
 
   private:
   };

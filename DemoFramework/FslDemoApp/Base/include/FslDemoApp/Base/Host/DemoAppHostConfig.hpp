@@ -45,7 +45,7 @@ namespace Fsl
   public:
     DemoAppHostConfig() = default;
 
-    DemoAppHostConfig(std::shared_ptr<ITag> userTag)
+    explicit DemoAppHostConfig(std::shared_ptr<ITag> userTag)
       : m_userTag(std::move(userTag))
     {
     }

@@ -145,7 +145,7 @@ namespace Fsl
     UBOData m_uboData;
 
   public:
-    ModelLoaderBasics(const DemoAppConfig& config);
+    explicit ModelLoaderBasics(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

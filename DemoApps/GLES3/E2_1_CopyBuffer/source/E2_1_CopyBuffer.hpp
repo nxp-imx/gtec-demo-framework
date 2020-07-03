@@ -8,6 +8,7 @@
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -16,9 +17,9 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[2]{};
+      std::array<GLuint, 2> vboIds{};
       // VertexBufferObject Ids to copy
-      GLuint copyVboIds[2]{};
+      std::array<GLuint, 2> copyVboIds{};
       // x-offset uniform location
       GLuint offsetLoc{0};
 
@@ -35,7 +36,7 @@ namespace Fsl
     UserData m_userData;
 
   public:
-    E2_1_CopyBuffer(const DemoAppConfig& config);
+    explicit E2_1_CopyBuffer(const DemoAppConfig& config);
     ~E2_1_CopyBuffer() override;
 
   protected:

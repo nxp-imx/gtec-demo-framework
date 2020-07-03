@@ -32,8 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/RectangleSizeRestrictionFlag.hpp>
-#include <FslBase/Math/Point2.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 
 namespace Fsl
@@ -51,24 +52,24 @@ namespace Fsl
     static uint8_t MinCharacter();
     static uint8_t MaxCharacter();
     static uint8_t CharacterCount();
-    static Point2 CharacterSize();
+    static PxSize2D CharacterSize();
     static void ExtractCharacter(const uint8_t theCharacter, uint8_t* pDst, const int32_t dstLength);
 
     //! @brief Write a character to the bitmap (convenience method)
     //! @note We currently support B8G8R8_UINT, R8G8B8_UINT, B8G8R8A8_UINT, R8G8B8A8_UINT and EX_ALPHA8_UINT
-    static void ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const Point2& dstPos);
+    static void ExtractCharacter(const uint8_t theCharacter, Bitmap& rDstBitmap, const PxPoint2& dstPos);
 
     //! @brief Write a character to the bitmap (convenience method)
     //! @note We currently support B8G8R8_UINT, R8G8B8_UINT, B8G8R8A8_UINT, R8G8B8A8_UINT and EX_ALPHA8_UINT
-    static void ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const Point2& dstPos);
+    static void ExtractCharacter(const uint8_t theCharacter, RawBitmapEx& rDstBitmap, const PxPoint2& dstPos);
 
     //! @brief Extract all characters in the font (convenience method)
-    static void CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const Point2& padding,
-                                 const RectangleSizeRestrictionFlag::Enum restrictionFlags);
+    static void CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const PxPoint2& padding,
+                                 const RectangleSizeRestrictionFlag restrictionFlags);
 
     //! @brief Extract the supplied range of characters (convenience method)
     static void CreateFontBitmap(Bitmap& rDstBitmap, const PixelFormat dstPixelFormat, const uint8_t startCharacter, const uint8_t length,
-                                 const Point2& padding, const RectangleSizeRestrictionFlag::Enum restrictionFlags);
+                                 const PxPoint2& padding, const RectangleSizeRestrictionFlag restrictionFlags);
   };
 }
 

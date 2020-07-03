@@ -65,7 +65,7 @@ namespace Fsl
     bool m_enableDevOverride;
 
   public:
-    OptionParser(const RenderMode defaultRenderMode = RenderMode::Instanced);
+    explicit OptionParser(const RenderMode defaultRenderMode = RenderMode::Instanced);
     ~OptionParser() override;
 
     Config GetConfig() const
@@ -75,7 +75,7 @@ namespace Fsl
 
   protected:
     void OnArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult OnParse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg) override;
     bool OnParsingComplete() override;
   };
 }

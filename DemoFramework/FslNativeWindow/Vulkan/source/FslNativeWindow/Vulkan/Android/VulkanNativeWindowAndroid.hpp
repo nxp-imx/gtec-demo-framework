@@ -35,41 +35,18 @@
 #include <FslNativeWindow/Platform/Android/PlatformNativeWindowAndroid.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 
-#include "../AVulkanNativeWindow.hpp"
+#include "../VulkanNativeWindow.hpp"
 
 namespace Fsl
 {
   struct NativeVulkanSetup;
 
-  class VulkanNativeWindowAndroid
-    : public AVulkanNativeWindow
-    , public PlatformNativeWindowAndroid
+  class VulkanNativeWindowAndroid : public VulkanNativeWindow<PlatformNativeWindowAndroid>
   {
   public:
     VulkanNativeWindowAndroid(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                               const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     virtual ~VulkanNativeWindowAndroid();
-
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    virtual bool TryGetDPI(Vector2& rDPI) const override
-    {
-      return PlatformNativeWindowAndroid::TryGetDPI(rDPI);
-    }
-
-    bool TryGetSize(Point2& rSize) const override
-    {
-      return TryDoGetSize(rSize);
-    }
-
-    virtual bool TryGetActualSize(Point2& rSize) const override
-    {
-      return PlatformNativeWindowAndroid::TryGetSize(rSize);
-    }
-
-    virtual bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return PlatformNativeWindowAndroid::TryCaptureMouse(enableCapture);
-    }
 
     virtual PlatformNativeWindowType GetWindowType() const override;
   };

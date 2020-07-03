@@ -42,6 +42,7 @@ from FslBuildGen import ParseUtil
 from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
+from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
@@ -97,7 +98,6 @@ class ToolFlowBuild(AToolAppFlow):
     def __init__(self, toolAppContext: ToolAppContext) -> None:
         super().__init__(toolAppContext)
 
-
     def ProcessFromCommandLine(self, args: Any, currentDirPath: str, toolConfig: ToolConfig, userTag: Optional[object]) -> None:
         # Process the inpurt arguments here, before calling the real work function
         localToolConfig = LocalToolConfig()
@@ -131,19 +131,23 @@ class ToolFlowBuild(AToolAppFlow):
             config.IgnoreNotSupported = True
 
         # Get the platform and see if its supported
-        platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
-                                                                      config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
+                                                                                                 localToolConfig.Generator, buildVariantConfig, False,
+                                                                                                 config.ToolConfig.CMakeConfiguration,
+                                                                                                 localToolConfig.GetUserCMakeConfig())
         PlatformUtil.CheckBuildPlatform(platformGeneratorPlugin.PlatformName)
 
         config.LogPrint("Active platform: {0}".format(platformGeneratorPlugin.PlatformName))
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
 
-        generatorContext = GeneratorContext(config, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
-        PluginConfig.SetLegacyGeneratorType(localToolConfig.GenType)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager,
+                                            config.ToolConfig.Experimental, platformGeneratorPlugin)
+        self.ToolAppContext.PluginConfigContext.SetLegacyGeneratorType(localToolConfig.GenType)
 
         packageFilters = localToolConfig.BuildPackageFilters
-        packages = MainFlow.DoGenerateBuildFilesNoAll(config, theFiles, platformGeneratorPlugin, packageFilters)
+        packages = MainFlow.DoGenerateBuildFilesNoAll(config, self.ErrorHelpManager, theFiles, platformGeneratorPlugin, packageFilters)
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)
 
@@ -207,7 +211,7 @@ class ToolAppFlowFactory(AToolAppFlowFactory):
         parser.add_argument('--IgnoreNotSupported', action='store_true', help='try to build things that are marked as not supported')
         parser.add_argument('--ContentBuilder', default=defaultContentBuilder, help='Enable/disable the content builder')
         parser.add_argument('--ForAllExe', default=DefaultValue.ForAllExe, help='For each executable run the given command. (EXE) = the full path to the executable. (EXE_NAME) = name of the executable. (EXE_PATH) = the executables dir. (PACKAGE_PATH) = full path to package (CONTENT_PATH) = full path to package content directory. *Experimental*')
-        parser.add_argument('-c', "--Command", default=DefaultValue.Command, help='The build command, defaults to build. Choices: build, clean, install. Beware install is not supported by all build backends')
+        parser.add_argument('-c', "--Command", default=DefaultValue.Command, help='The build command, defaults to build. Choices: build, clean, install, open. Beware install is not supported by all build backends')
 
 
     def Create(self, toolAppContext: ToolAppContext) -> AToolAppFlow:

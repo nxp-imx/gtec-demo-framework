@@ -44,7 +44,6 @@ namespace Fsl
     EmitCounter m_emitCounter;
     bool m_isInitialized;
     std::mt19937 m_random;
-    bool m_emit;
     int32_t m_particlesPerSecond;
     float m_energyMin;
     float m_energyMax;

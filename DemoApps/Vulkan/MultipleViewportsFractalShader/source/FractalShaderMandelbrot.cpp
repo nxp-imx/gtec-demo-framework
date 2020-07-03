@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "FractalShaderMandelbrot.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/String/StringUtil.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
@@ -56,7 +57,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -76,7 +77,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -128,7 +129,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.BindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.AttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.AttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.AttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -210,12 +211,12 @@ namespace Fsl
       VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
       pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
       pipelineDynamicStateCreateInfo.flags = 0;
-      pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+      pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicState.size());
       pipelineDynamicStateCreateInfo.pDynamicStates = dynamicState.data();
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -237,9 +238,9 @@ namespace Fsl
   }
 
   FractalShaderMandelbrot::FractalShaderMandelbrot(const DemoAppConfig& config, const uint32_t sceneIndex, const Vulkan::VUDevice& device,
-                                                   const Vulkan::VUDeviceQueueRecord& deviceQueue,
+                                                   const Vulkan::VUDeviceQueueRecord& /*deviceQueue*/,
                                                    const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager,
-                                                   const RapidVulkan::DescriptorPool& descriptorPool, const uint32_t maxFrames)
+                                                   const RapidVulkan::DescriptorPool& descriptorPool, const uint32_t /*maxFrames*/)
     : m_screenResolution(config.ScreenResolution)
     , m_sceneIndex(sceneIndex)
     , m_angle(0, 1.0f)
@@ -249,7 +250,7 @@ namespace Fsl
 
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
     {
-      std::string fragmentShaderFile;
+      IO::Path fragmentShaderFile;
       switch (cfg.TheRenderMode)
       {
       // case RenderMode::Tex:
@@ -368,9 +369,9 @@ namespace Fsl
   }
 
 
-  void FractalShaderMandelbrot::Draw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer, const Rectangle2D& drawRect)
+  void FractalShaderMandelbrot::Draw(const uint32_t /*frameIndex*/, const VkCommandBuffer hCmdBuffer, const Rectangle2D& drawRect)
   {
-    const auto pipelineLayout = m_resources.ScenePipelineLayout.Get();
+    const VkPipelineLayout pipelineLayout = m_resources.ScenePipelineLayout.Get();
 
     vkCmdPushConstants(hCmdBuffer, pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstants), &m_pushConstants);
 
@@ -388,8 +389,8 @@ namespace Fsl
     scissor.extent = {drawRect.Extent.Width, drawRect.Extent.Height};
     vkCmdSetScissor(hCmdBuffer, 0, 1, &scissor);
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 }

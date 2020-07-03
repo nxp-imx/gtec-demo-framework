@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslGraphics/Render/BatchSdfRenderConfig.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 
 namespace Fsl
@@ -41,25 +42,26 @@ namespace Fsl
   {
     using texture_info_type = TTexture;
 
-    texture_info_type TextureInfo;
+    texture_info_type TextureInfo{};
     BlendState ActiveBlendState{BlendState::Opaque};
+    BatchSdfRenderConfig SdfRenderConfig;
     uint32_t VertexCount{0};
 
-    inline constexpr BatchSegmentInfo()
-      : TextureInfo{}
+    inline constexpr BatchSegmentInfo() = default;
+
+    inline constexpr BatchSegmentInfo(const texture_info_type& nativeTexture, const BlendState blendState,
+                                      const BatchSdfRenderConfig& sdfRenderConfig)
+      : TextureInfo(nativeTexture)
+      , ActiveBlendState(blendState)
+      , SdfRenderConfig(sdfRenderConfig)
     {
     }
 
-    inline constexpr BatchSegmentInfo(const texture_info_type& nativeTexture, const BlendState blendState)
+    inline constexpr BatchSegmentInfo(const texture_info_type& nativeTexture, const BlendState blendState,
+                                      const BatchSdfRenderConfig& sdfRenderConfig, const uint32_t vertexCount)
       : TextureInfo(nativeTexture)
       , ActiveBlendState(blendState)
-      , VertexCount(0)
-    {
-    }
-
-    inline constexpr BatchSegmentInfo(const texture_info_type& nativeTexture, const BlendState blendState, const uint32_t vertexCount)
-      : TextureInfo(nativeTexture)
-      , ActiveBlendState(blendState)
+      , SdfRenderConfig(sdfRenderConfig)
       , VertexCount(vertexCount)
     {
     }

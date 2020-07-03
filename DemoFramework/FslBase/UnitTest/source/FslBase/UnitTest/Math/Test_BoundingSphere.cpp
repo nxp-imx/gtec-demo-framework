@@ -193,7 +193,8 @@ TEST(TestMath_BoundingSphere, CreateFromBoundingBox_Ref)
   const BoundingBox box2(Vector3(-5.0f, -5.0f, -5.0f), Vector3(5.0f, 5.0f, 5.0f));
   constexpr float tolerance = 0.000001f;
 
-  BoundingSphere res1, res2;
+  BoundingSphere res1;
+  BoundingSphere res2;
   BoundingSphere::CreateFromBoundingBox(box1, res1);
   BoundingSphere::CreateFromBoundingBox(box2, res2);
 

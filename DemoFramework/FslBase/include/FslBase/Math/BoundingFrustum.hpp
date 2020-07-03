@@ -108,7 +108,7 @@ namespace Fsl
 
     //! @brief Creates a new instance of BoundingFrustum
     //! @param value Combined matrix which usually is (View * Projection).
-    BoundingFrustum(const Matrix& value);
+    explicit BoundingFrustum(const Matrix& value);
 
     //! @brief Containment test between this BoundingFrustum and specified BoundingBox.
     //! @param box A BoundingBox for testing.

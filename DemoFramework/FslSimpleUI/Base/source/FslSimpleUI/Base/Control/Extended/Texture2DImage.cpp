@@ -39,7 +39,7 @@
 #include <FslSimpleUI/Base/UIScaleUtil.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
 #include <cassert>
-#include "../Impl/ImageImpl.hpp"
+#include "../Impl/ImageImpl_AtlasTexture2D.hpp"
 
 namespace Fsl
 {
@@ -54,7 +54,7 @@ namespace Fsl
     }
 
 
-    void Texture2DImage::SetContent(const Texture2D& value)
+    void Texture2DImage::SetContent(const BaseTexture2D& value)
     {
       if (value != m_content)
       {
@@ -92,33 +92,27 @@ namespace Fsl
     }
 
 
-    Vector2 Texture2DImage::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D Texture2DImage::ArrangeOverride(const PxSize2D& finalSizePx)
     {
       if (!m_content.IsValid())
       {
-        return finalSize;
+        return finalSizePx;
       }
 
-      Vector2 contentSize(m_content.GetSize().X, m_content.GetSize().Y);
-      Vector2 calcedSize;
-      if (!UIScaleUtil::TryCalcSize(calcedSize, finalSize, contentSize, m_scalePolicy))
+      const PxSize2D contentSize(m_content.GetSize());
+      PxSize2D calcedSizePx;
+      if (!UIScaleUtil::TryCalcSize(calcedSizePx, finalSizePx, contentSize, m_scalePolicy))
       {
-        return finalSize;
+        return finalSizePx;
       }
-      return calcedSize;
+      return calcedSizePx;
     }
 
 
-    Vector2 Texture2DImage::MeasureOverride(const Vector2& availableSize)
+    PxSize2D Texture2DImage::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      FSL_PARAM_NOT_USED(availableSize);
-
-      if (!m_content.IsValid())
-      {
-        return Vector2();
-      }
-
-      return Vector2(m_content.GetSize().X, m_content.GetSize().Y);
+      FSL_PARAM_NOT_USED(availableSizePx);
+      return m_content.GetSize();
     }
   }
 }

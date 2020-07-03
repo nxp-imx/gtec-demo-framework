@@ -38,7 +38,7 @@ namespace Fsl
 
   S07_EnvironmentMapping::S07_EnvironmentMapping(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_renderState(config.ScreenResolution)
+    , m_renderState(config.WindowMetrics.GetSizePx())
     , m_fast(false)
   {
     const std::shared_ptr<IContentManager> content = config.DemoServiceProvider.Get<IContentManager>();
@@ -100,7 +100,7 @@ namespace Fsl
   }
 
 
-  void S07_EnvironmentMapping::Draw(const DemoTime& demoTime)
+  void S07_EnvironmentMapping::Draw(const DemoTime& /*demoTime*/)
   {
     // If enabled, cull polygons based on their winding in window coordinates
     glEnable(GL_CULL_FACE);

@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Arguments/ArgumentParser.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
 #include <fmt/format.h>
 #include <array>
 #include <limits>
@@ -80,11 +81,14 @@ namespace Fsl
       case ParseResult::ArgumentEmptyError:
         o << "ParseResult::ArgumentEmptyError";
         break;
-      case ParseResult::ArgumentListContainedNullError:
-        o << "ParseResult::ArgumentListContainedNullError";
-        break;
+      // case ParseResult::ArgumentListContainedNullError:
+      //  o << "ParseResult::ArgumentListContainedNullError";
+      //  break;
       case ParseResult::CommandListIsInvalidError:
         o << "ParseResult::CommandListIsInvalidError";
+        break;
+      case ParseResult::UnsupportedNumberOfArguments:
+        o << "ParseResult::UnsupportedNumberOfArguments";
         break;
       default:
         o << static_cast<uint32_t>(value);
@@ -97,7 +101,7 @@ namespace Fsl
     class ArgumentParserException : public std::runtime_error
     {
     public:
-      ArgumentParserException(const std::string& msg)
+      explicit ArgumentParserException(const std::string& msg)
         : std::runtime_error(msg)
       {
       }
@@ -107,7 +111,7 @@ namespace Fsl
     class InternalException : public ArgumentParserException
     {
     public:
-      InternalException(const std::string& msg)
+      explicit InternalException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -117,7 +121,7 @@ namespace Fsl
     class DuplicatedSwitchArgumentException : public ArgumentParserException
     {
     public:
-      DuplicatedSwitchArgumentException(const std::string& msg)
+      explicit DuplicatedSwitchArgumentException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -127,7 +131,7 @@ namespace Fsl
     class DuplicatedValueArgumentException : public ArgumentParserException
     {
     public:
-      DuplicatedValueArgumentException(const std::string& msg)
+      explicit DuplicatedValueArgumentException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -137,7 +141,7 @@ namespace Fsl
     class UnknownArgumentException : public ArgumentParserException
     {
     public:
-      UnknownArgumentException(const std::string& msg)
+      explicit UnknownArgumentException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -147,7 +151,7 @@ namespace Fsl
     class ArgumentMissingValueException : public ArgumentParserException
     {
     public:
-      ArgumentMissingValueException(const std::string& msg)
+      explicit ArgumentMissingValueException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -157,7 +161,7 @@ namespace Fsl
     class CombinedValueArgumentMustBeLastException : public ArgumentParserException
     {
     public:
-      CombinedValueArgumentMustBeLastException(const std::string& msg)
+      explicit CombinedValueArgumentMustBeLastException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -167,7 +171,7 @@ namespace Fsl
     class ArgumentFormatException : public ArgumentParserException
     {
     public:
-      ArgumentFormatException(const std::string& msg)
+      explicit ArgumentFormatException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -177,7 +181,7 @@ namespace Fsl
     class RequiredArgumentNotFoundException : public ArgumentParserException
     {
     public:
-      RequiredArgumentNotFoundException(const std::string& msg)
+      explicit RequiredArgumentNotFoundException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -187,7 +191,7 @@ namespace Fsl
     class ArgumentEmptyException : public ArgumentParserException
     {
     public:
-      ArgumentEmptyException(const std::string& msg)
+      explicit ArgumentEmptyException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -197,7 +201,7 @@ namespace Fsl
     class ArgumentListContainedNullException : public ArgumentParserException
     {
     public:
-      ArgumentListContainedNullException(const std::string& msg)
+      explicit ArgumentListContainedNullException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -207,7 +211,7 @@ namespace Fsl
     class CommandListIsInvalidErrorException : public ArgumentParserException
     {
     public:
-      CommandListIsInvalidErrorException(const std::string& msg)
+      explicit CommandListIsInvalidErrorException(const std::string& msg)
         : ArgumentParserException(msg)
       {
       }
@@ -215,11 +219,11 @@ namespace Fsl
 
 
     template <std::size_t TSize>
-    std::deque<EncodedCommand> ParseNow(const std::array<const char*, TSize>& testArgs, const std::deque<Command>& commands,
+    std::deque<EncodedCommand> ParseNow(const std::array<StringViewLite, TSize>& testArgs, const std::deque<Command>& commands,
                                         ParseErrorInfo* pErrorInfo = nullptr)
     {
       std::deque<EncodedCommand> encodedArguments;
-      auto res = ArgumentParser::TryParse(encodedArguments, static_cast<int>(testArgs.size()), testArgs.data(), commands, pErrorInfo);
+      auto res = ArgumentParser::TryParse(encodedArguments, ReadOnlySpanUtil::AsSpan(testArgs), commands, pErrorInfo);
       switch (res)
       {
       case ParseResult::InternalError:
@@ -244,10 +248,12 @@ namespace Fsl
         throw RequiredArgumentNotFoundException("RequiredArgumentNotFound");
       case ParseResult::ArgumentEmptyError:
         throw ArgumentEmptyException("ArgumentEmptyError");
-      case ParseResult::ArgumentListContainedNullError:
-        throw ArgumentListContainedNullException("ArgumentListContainedNullError");
+      // case ParseResult::ArgumentListContainedNullError:
+      //  throw ArgumentListContainedNullException("ArgumentListContainedNullError");
       case ParseResult::CommandListIsInvalidError:
         throw CommandListIsInvalidErrorException("CommandListIsInvalidError");
+      case ParseResult::UnsupportedNumberOfArguments:
+        throw CommandListIsInvalidErrorException("UnsupportedNumberOfArguments");
       default:
         throw std::runtime_error(fmt::format("Unhandled ParseResult {0}", res));
       }
@@ -255,10 +261,10 @@ namespace Fsl
 
 
     template <std::size_t TSize>
-    ParseResult TryParseNow(std::deque<EncodedCommand>& rEncodedArguments, const std::array<const char*, TSize>& testArgs,
+    ParseResult TryParseNow(std::deque<EncodedCommand>& rEncodedArguments, const std::array<StringViewLite, TSize>& testArgs,
                             const std::deque<Command>& commands, ParseErrorInfo* pErrorInfo = nullptr)
     {
-      return ArgumentParser::TryParse(rEncodedArguments, static_cast<int>(testArgs.size()), testArgs.data(), commands, pErrorInfo);
+      return ArgumentParser::TryParse(rEncodedArguments, ReadOnlySpanUtil::AsSpan(testArgs), commands, pErrorInfo);
     }
   }
 }

@@ -34,9 +34,9 @@
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector3.hpp>
-#include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
-#include <FslDemoApp/Base/Service/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslDemoApp/OpenGLES2/DemoAppGLES2.hpp>
+#include <FslDemoService/Profiler/IProfilerService.hpp>
+#include <FslDemoService/Profiler/ScopedProfilerCustomCounterHandle.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <FslUtil/OpenGLES2/GLIndexBufferArray.hpp>
@@ -130,7 +130,7 @@ namespace Fsl
     bool m_wireframe{false};
 
   public:
-    ModelViewer(const DemoAppConfig& config);
+    explicit ModelViewer(const DemoAppConfig& config);
     ~ModelViewer() override;
 
   protected:

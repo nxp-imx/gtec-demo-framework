@@ -52,6 +52,7 @@ namespace Fsl
       // Tap,
       // Tunnel,
       // Bubble
+      MouseOver,
     };
   }
 }

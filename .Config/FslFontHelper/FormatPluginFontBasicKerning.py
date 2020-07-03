@@ -30,69 +30,74 @@
 #
 #****************************************************************************************************************************************************
 
-from FslFontHelper.FormatPlugin import FormatPlugin
+from typing import List
 from FslFontHelper import IOUtil
-from FslFontHelper.FormatPluginFontBasicKerningUtil import *
+from FslFontHelper import FormatPluginFontBasicKerningUtil
+from FslFontHelper.BasicFont import BasicFont
+from FslFontHelper.BasicFont import BasicFontGlyphKerning
+from FslFontHelper.BasicFont import BasicFontGlyphRange
+from FslFontHelper.FormatPlugin import FormatPlugin
+from FslFontHelper.FormatPlugin import FormatPluginType
 
 class FormatPluginFontBasicKerning(FormatPlugin):
-    def __init__(self):
-        super(FormatPluginFontBasicKerning, self).__init__("fbk")
+    def __init__(self) -> None:
+        super().__init__("fbk", FormatPluginType.BasicFont)
 
-    def Process(self, basicKerning, outputFilename):
+    def Process(self, basicFont: BasicFont, outputFilename: str) -> None:
 
-        list = []
-        offsetSize = self.__WriteHeader(list)
-        sizeOfHeader = len(list)
+        dst = [] # type: List[int]
+        offsetSize = self.__WriteHeader(dst)
+        sizeOfHeader = len(dst)
 
-        self.__WriteRanges(list, basicKerning.Ranges)
-        self.__WriteRangeGlyphKernings(list, basicKerning.BasicGlyphKerning)
-        self.__WriteDescription(list, basicKerning)
-        AddString(list, basicKerning.Name)
-        AddString(list, basicKerning.Header.PathName)
+        self.__WriteRanges(dst, basicFont.Ranges)
+        self.__WriteRangeGlyphKernings(dst, basicFont.BasicGlyphKerning)
+        self.__WriteDescription(dst, basicFont)
+        FormatPluginFontBasicKerningUtil.AddString(dst, basicFont.Name)
+        FormatPluginFontBasicKerningUtil.AddString(dst, basicFont.Header.PathName)
 
         # Write the number of bytes that were written to the extended header
-        bytesWritten = len(list) - sizeOfHeader
-        SetUInt32(list, offsetSize, bytesWritten)
+        bytesWritten = len(dst) - sizeOfHeader
+        FormatPluginFontBasicKerningUtil.SetUInt32(dst, offsetSize, bytesWritten)
 
-        content = bytearray(list)
-        finalOutputFilename = '%s.%s' % (outputFilename, 'fbk')
+        content = bytearray(dst)
+        finalOutputFilename = '{}.{}'.format(outputFilename, 'fbk')
         IOUtil.WriteBinaryFileIfChanged(finalOutputFilename, content)
 
 
-    def __WriteHeader(self, list):
-        AddUInt32(list, 0x004B4246)
-        AddUInt32(list, 1)
-        offset = len(list)
-        AddUInt32(list, 0)
+    def __WriteHeader(self, dst: List[int]) -> int:
+        FormatPluginFontBasicKerningUtil.AddUInt32(dst, 0x004B4246)
+        FormatPluginFontBasicKerningUtil.AddUInt32(dst, 1)
+        offset = len(dst)
+        FormatPluginFontBasicKerningUtil.AddUInt32(dst, 0)
         return offset
 
 
-    def __WriteDescription(self, list, basicKerning):
-        AddEncodedUInt32(list, basicKerning.Header.LineSpacing)
-        AddEncodedUInt32(list, basicKerning.Header.BaseLine)
-        AddEncodedUInt32(list, basicKerning.Header.MaxGlyphLeadingOverdrawArea.X)
-        AddEncodedUInt32(list, basicKerning.Header.MaxGlyphLeadingOverdrawArea.Y)
+    def __WriteDescription(self, dst: List[int], basicFont: BasicFont) -> None:
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, basicFont.Header.LineSpacing)
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, basicFont.Header.BaseLine)
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, basicFont.Header.MaxGlyphLeadingOverdrawArea.X)
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, basicFont.Header.MaxGlyphLeadingOverdrawArea.Y)
 
 
-    def __WriteRangeGlyphKernings(self, list, kernings):
-        AddEncodedUInt32(list, len(kernings))
+    def __WriteRangeGlyphKernings(self, dst: List[int], kernings: List[BasicFontGlyphKerning]) -> None:
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, len(kernings))
         for kerning in kernings:
-            self.__WriteGlyphKerning(list, kerning)
+            self.__WriteGlyphKerning(dst, kerning)
 
 
-    def __WriteGlyphKerning(self, list, kerning):
-        AddEncodedInt32(list, kerning.OffsetX)
-        AddEncodedInt32(list, kerning.OffsetY)
-        AddEncodedUInt32(list, kerning.LayoutWidth)
+    def __WriteGlyphKerning(self, dst: List[int], kerning: BasicFontGlyphKerning) -> None:
+        FormatPluginFontBasicKerningUtil.AddEncodedInt32(dst, kerning.OffsetX)
+        FormatPluginFontBasicKerningUtil.AddEncodedInt32(dst, kerning.OffsetY)
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, kerning.LayoutWidth)
 
 
-    def __WriteRanges(self, list, ranges):
-        AddEncodedUInt32(list, len(ranges))
+    def __WriteRanges(self, dst: List[int], ranges: List[BasicFontGlyphRange]) -> None:
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, len(ranges))
         for range in ranges:
-            self.__WriteRange(list, range)
+            self.__WriteRange(dst, range)
 
 
-    def __WriteRange(self, list, range):
-        AddEncodedUInt32(list, range.From)
-        AddEncodedUInt32(list, range.Length)
+    def __WriteRange(self, dst: List[int], range: BasicFontGlyphRange) -> None:
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, range.From)
+        FormatPluginFontBasicKerningUtil.AddEncodedUInt32(dst, range.Length)
 

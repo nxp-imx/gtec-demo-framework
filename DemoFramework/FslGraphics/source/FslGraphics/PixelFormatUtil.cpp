@@ -33,6 +33,7 @@
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
+#include <array>
 #include <cassert>
 #include <map>
 #include <vector>
@@ -41,7 +42,7 @@ namespace Fsl
 {
   namespace
   {
-    PixelFormat g_pixelFormats[] = {
+    constexpr const std::array<PixelFormat, 188> g_pixelFormats = {
       PixelFormat::Undefined,
       PixelFormat::R4G4_UNORM_PACK8,
       PixelFormat::R4G4B4A4_UNORM_PACK16,
@@ -235,183 +236,202 @@ namespace Fsl
     };
 
     // Do some sanity checking
-    static_assert(static_cast<uint32_t>(sizeof(g_pixelFormats) / sizeof(PixelFormat)) == static_cast<uint32_t>(PixelFormat::ENUM_ID_RANGE_SIZE),
+    static_assert(g_pixelFormats.size() == static_cast<std::size_t>(PixelFormat::ENUM_ID_RANGE_SIZE),
                   "g_pixelFormats needs to match the size of the enum range");
 
-    const PixelFormat g_pixelLayoutUndefined[] = {PixelFormat::Undefined};
-    const PixelFormat g_pixelLayoutR4G4[] = {PixelFormat::R4G4_UNORM_PACK8};
-    const PixelFormat g_pixelLayoutR4G4B4A4_PACK16[] = {PixelFormat::R4G4B4A4_UNORM_PACK16};
-    const PixelFormat g_pixelLayoutB4G4R4A4_PACK16[] = {PixelFormat::B4G4R4A4_UNORM_PACK16};
-    const PixelFormat g_pixelLayoutR5G6B5_PACK16[] = {PixelFormat::R5G6B5_UNORM_PACK16};
-    const PixelFormat g_pixelLayoutB5G6R5_PACK16[] = {PixelFormat::B5G6R5_UNORM_PACK16};
-    const PixelFormat g_pixelLayoutR5G5B5A1_PACK16[] = {PixelFormat::R5G5B5A1_UNORM_PACK16};
-    const PixelFormat g_pixelLayoutB5G5R5A1_PACK16[] = {PixelFormat::B5G5R5A1_UNORM_PACK16};
-    const PixelFormat g_pixelLayoutA1R5G5B5_PACK16[] = {PixelFormat::A1R5G5B5_UNORM_PACK16};
-    const PixelFormat g_pixelLayoutR8[] = {PixelFormat::R8_UNORM, PixelFormat::R8_SNORM, PixelFormat::R8_USCALED, PixelFormat::R8_SSCALED,
-                                           PixelFormat::R8_UINT,  PixelFormat::R8_SINT,  PixelFormat::R8_SRGB};
-    const PixelFormat g_pixelLayoutR8G8[] = {PixelFormat::R8G8_UNORM, PixelFormat::R8G8_SNORM, PixelFormat::R8G8_USCALED, PixelFormat::R8G8_SSCALED,
-                                             PixelFormat::R8G8_UINT,  PixelFormat::R8G8_SINT,  PixelFormat::R8G8_SRGB};
-    const PixelFormat g_pixelLayoutR8G8B8[] = {PixelFormat::R8G8B8_UNORM,   PixelFormat::R8G8B8_SNORM, PixelFormat::R8G8B8_USCALED,
-                                               PixelFormat::R8G8B8_SSCALED, PixelFormat::R8G8B8_UINT,  PixelFormat::R8G8B8_SINT,
-                                               PixelFormat::R8G8B8_SRGB};
-    const PixelFormat g_pixelLayoutB8G8R8[] = {PixelFormat::B8G8R8_UNORM,   PixelFormat::B8G8R8_SNORM, PixelFormat::B8G8R8_USCALED,
-                                               PixelFormat::B8G8R8_SSCALED, PixelFormat::B8G8R8_UINT,  PixelFormat::B8G8R8_SINT,
-                                               PixelFormat::B8G8R8_SRGB};
-    const PixelFormat g_pixelLayoutR8G8B8A8[] = {PixelFormat::R8G8B8A8_UNORM,   PixelFormat::R8G8B8A8_SNORM, PixelFormat::R8G8B8A8_USCALED,
-                                                 PixelFormat::R8G8B8A8_SSCALED, PixelFormat::R8G8B8A8_UINT,  PixelFormat::R8G8B8A8_SINT,
-                                                 PixelFormat::R8G8B8A8_SRGB};
-    const PixelFormat g_pixelLayoutB8G8R8A8[] = {PixelFormat::B8G8R8A8_UNORM,   PixelFormat::B8G8R8A8_SNORM, PixelFormat::B8G8R8A8_USCALED,
-                                                 PixelFormat::B8G8R8A8_SSCALED, PixelFormat::B8G8R8A8_UINT,  PixelFormat::B8G8R8A8_SINT,
-                                                 PixelFormat::B8G8R8A8_SRGB};
-    const PixelFormat g_pixelLayoutA8B8G8R8_PACK32[] = {PixelFormat::A8B8G8R8_UNORM_PACK32,   PixelFormat::A8B8G8R8_SNORM_PACK32,
-                                                        PixelFormat::A8B8G8R8_USCALED_PACK32, PixelFormat::A8B8G8R8_SSCALED_PACK32,
-                                                        PixelFormat::A8B8G8R8_UINT_PACK32,    PixelFormat::A8B8G8R8_SINT_PACK32,
-                                                        PixelFormat::A8B8G8R8_SRGB_PACK32};
-    const PixelFormat g_pixelLayoutA2R10G10B10_PACK32[] = {PixelFormat::A2R10G10B10_UNORM_PACK32,   PixelFormat::A2R10G10B10_SNORM_PACK32,
-                                                           PixelFormat::A2R10G10B10_USCALED_PACK32, PixelFormat::A2R10G10B10_SSCALED_PACK32,
-                                                           PixelFormat::A2R10G10B10_UINT_PACK32,    PixelFormat::A2R10G10B10_SINT_PACK32};
-    const PixelFormat g_pixelLayoutA2B10G10R10_PACK32[] = {PixelFormat::A2B10G10R10_UNORM_PACK32,   PixelFormat::A2B10G10R10_SNORM_PACK32,
-                                                           PixelFormat::A2B10G10R10_USCALED_PACK32, PixelFormat::A2B10G10R10_SSCALED_PACK32,
-                                                           PixelFormat::A2B10G10R10_UINT_PACK32,    PixelFormat::A2B10G10R10_SINT_PACK32};
-    const PixelFormat g_pixelLayoutR16[] = {PixelFormat::R16_UNORM, PixelFormat::R16_SNORM, PixelFormat::R16_USCALED, PixelFormat::R16_SSCALED,
-                                            PixelFormat::R16_UINT,  PixelFormat::R16_SINT,  PixelFormat::R16_SFLOAT};
-    const PixelFormat g_pixelLayoutR16G16[] = {PixelFormat::R16G16_UNORM,   PixelFormat::R16G16_SNORM, PixelFormat::R16G16_USCALED,
-                                               PixelFormat::R16G16_SSCALED, PixelFormat::R16G16_UINT,  PixelFormat::R16G16_SINT,
-                                               PixelFormat::R16G16_SFLOAT};
-    const PixelFormat g_pixelLayoutR16G16B16[] = {PixelFormat::R16G16B16_UNORM,   PixelFormat::R16G16B16_SNORM, PixelFormat::R16G16B16_USCALED,
-                                                  PixelFormat::R16G16B16_SSCALED, PixelFormat::R16G16B16_UINT,  PixelFormat::R16G16B16_SINT,
-                                                  PixelFormat::R16G16B16_SFLOAT};
-    const PixelFormat g_pixelLayoutR16G16B16A16[] = {
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutUndefined = {PixelFormat::Undefined};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutR4G4 = {PixelFormat::R4G4_UNORM_PACK8};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutR4G4B4A4_PACK16 = {PixelFormat::R4G4B4A4_UNORM_PACK16};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutB4G4R4A4_PACK16 = {PixelFormat::B4G4R4A4_UNORM_PACK16};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutR5G6B5_PACK16 = {PixelFormat::R5G6B5_UNORM_PACK16};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutB5G6R5_PACK16 = {PixelFormat::B5G6R5_UNORM_PACK16};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutR5G5B5A1_PACK16 = {PixelFormat::R5G5B5A1_UNORM_PACK16};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutB5G5R5A1_PACK16 = {PixelFormat::B5G5R5A1_UNORM_PACK16};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutA1R5G5B5_PACK16 = {PixelFormat::A1R5G5B5_UNORM_PACK16};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR8 = {PixelFormat::R8_UNORM,   PixelFormat::R8_SNORM, PixelFormat::R8_USCALED,
+                                                                  PixelFormat::R8_SSCALED, PixelFormat::R8_UINT,  PixelFormat::R8_SINT,
+                                                                  PixelFormat::R8_SRGB};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR8G8 = {PixelFormat::R8G8_UNORM,   PixelFormat::R8G8_SNORM, PixelFormat::R8G8_USCALED,
+                                                                    PixelFormat::R8G8_SSCALED, PixelFormat::R8G8_UINT,  PixelFormat::R8G8_SINT,
+                                                                    PixelFormat::R8G8_SRGB};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR8G8B8 = {
+      PixelFormat::R8G8B8_UNORM, PixelFormat::R8G8B8_SNORM, PixelFormat::R8G8B8_USCALED, PixelFormat::R8G8B8_SSCALED,
+      PixelFormat::R8G8B8_UINT,  PixelFormat::R8G8B8_SINT,  PixelFormat::R8G8B8_SRGB};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutB8G8R8 = {
+      PixelFormat::B8G8R8_UNORM, PixelFormat::B8G8R8_SNORM, PixelFormat::B8G8R8_USCALED, PixelFormat::B8G8R8_SSCALED,
+      PixelFormat::B8G8R8_UINT,  PixelFormat::B8G8R8_SINT,  PixelFormat::B8G8R8_SRGB};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR8G8B8A8 = {
+      PixelFormat::R8G8B8A8_UNORM, PixelFormat::R8G8B8A8_SNORM, PixelFormat::R8G8B8A8_USCALED, PixelFormat::R8G8B8A8_SSCALED,
+      PixelFormat::R8G8B8A8_UINT,  PixelFormat::R8G8B8A8_SINT,  PixelFormat::R8G8B8A8_SRGB};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutB8G8R8A8 = {
+      PixelFormat::B8G8R8A8_UNORM, PixelFormat::B8G8R8A8_SNORM, PixelFormat::B8G8R8A8_USCALED, PixelFormat::B8G8R8A8_SSCALED,
+      PixelFormat::B8G8R8A8_UINT,  PixelFormat::B8G8R8A8_SINT,  PixelFormat::B8G8R8A8_SRGB};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutA8B8G8R8_PACK32 = {
+      PixelFormat::A8B8G8R8_UNORM_PACK32,   PixelFormat::A8B8G8R8_SNORM_PACK32, PixelFormat::A8B8G8R8_USCALED_PACK32,
+      PixelFormat::A8B8G8R8_SSCALED_PACK32, PixelFormat::A8B8G8R8_UINT_PACK32,  PixelFormat::A8B8G8R8_SINT_PACK32,
+      PixelFormat::A8B8G8R8_SRGB_PACK32};
+    constexpr const std::array<PixelFormat, 6> g_pixelLayoutA2R10G10B10_PACK32 = {
+      PixelFormat::A2R10G10B10_UNORM_PACK32,   PixelFormat::A2R10G10B10_SNORM_PACK32, PixelFormat::A2R10G10B10_USCALED_PACK32,
+      PixelFormat::A2R10G10B10_SSCALED_PACK32, PixelFormat::A2R10G10B10_UINT_PACK32,  PixelFormat::A2R10G10B10_SINT_PACK32};
+    constexpr const std::array<PixelFormat, 6> g_pixelLayoutA2B10G10R10_PACK32 = {
+      PixelFormat::A2B10G10R10_UNORM_PACK32,   PixelFormat::A2B10G10R10_SNORM_PACK32, PixelFormat::A2B10G10R10_USCALED_PACK32,
+      PixelFormat::A2B10G10R10_SSCALED_PACK32, PixelFormat::A2B10G10R10_UINT_PACK32,  PixelFormat::A2B10G10R10_SINT_PACK32};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR16{PixelFormat::R16_UNORM,   PixelFormat::R16_SNORM, PixelFormat::R16_USCALED,
+                                                                PixelFormat::R16_SSCALED, PixelFormat::R16_UINT,  PixelFormat::R16_SINT,
+                                                                PixelFormat::R16_SFLOAT};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR16G16 = {
+      PixelFormat::R16G16_UNORM, PixelFormat::R16G16_SNORM, PixelFormat::R16G16_USCALED, PixelFormat::R16G16_SSCALED,
+      PixelFormat::R16G16_UINT,  PixelFormat::R16G16_SINT,  PixelFormat::R16G16_SFLOAT};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR16G16B16 = {
+      PixelFormat::R16G16B16_UNORM, PixelFormat::R16G16B16_SNORM, PixelFormat::R16G16B16_USCALED, PixelFormat::R16G16B16_SSCALED,
+      PixelFormat::R16G16B16_UINT,  PixelFormat::R16G16B16_SINT,  PixelFormat::R16G16B16_SFLOAT};
+    constexpr const std::array<PixelFormat, 7> g_pixelLayoutR16G16B16A16 = {
       PixelFormat::R16G16B16A16_UNORM, PixelFormat::R16G16B16A16_SNORM, PixelFormat::R16G16B16A16_USCALED, PixelFormat::R16G16B16A16_SSCALED,
       PixelFormat::R16G16B16A16_UINT,  PixelFormat::R16G16B16A16_SINT,  PixelFormat::R16G16B16A16_SFLOAT};
-    const PixelFormat g_pixelLayoutR32[] = {PixelFormat::R32_UINT, PixelFormat::R32_SINT, PixelFormat::R32_SFLOAT};
-    const PixelFormat g_pixelLayoutR32G32[] = {PixelFormat::R32G32_UINT, PixelFormat::R32G32_SINT, PixelFormat::R32G32_SFLOAT};
-    const PixelFormat g_pixelLayoutR32G32B32[] = {PixelFormat::R32G32B32_UINT, PixelFormat::R32G32B32_SINT, PixelFormat::R32G32B32_SFLOAT};
-    const PixelFormat g_pixelLayoutR32G32B32A32[] = {PixelFormat::R32G32B32A32_UINT, PixelFormat::R32G32B32A32_SINT,
-                                                     PixelFormat::R32G32B32A32_SFLOAT};
-    const PixelFormat g_pixelLayoutR64[] = {PixelFormat::R64_UINT, PixelFormat::R64_SINT, PixelFormat::R64_SFLOAT};
-    const PixelFormat g_pixelLayoutR64G64[] = {PixelFormat::R64G64_UINT, PixelFormat::R64G64_SINT, PixelFormat::R64G64_SFLOAT};
-    const PixelFormat g_pixelLayoutR64G64B64[] = {PixelFormat::R64G64B64_UINT, PixelFormat::R64G64B64_SINT, PixelFormat::R64G64B64_SFLOAT};
-    const PixelFormat g_pixelLayoutR64G64B64A64[] = {PixelFormat::R64G64B64A64_UINT, PixelFormat::R64G64B64A64_SINT,
-                                                     PixelFormat::R64G64B64A64_SFLOAT};
-    const PixelFormat g_pixelLayoutB10G11R11_PACK32[] = {PixelFormat::B10G11R11_UFLOAT_PACK32};
-    const PixelFormat g_pixelLayoutE5B9G9R9_PACK32[] = {PixelFormat::E5B9G9R9_UFLOAT_PACK32};
-    const PixelFormat g_pixelLayoutD16[] = {PixelFormat::D16_UNORM};
-    const PixelFormat g_pixelLayoutX8_D24_PACK32[] = {PixelFormat::X8_D24_UNORM_PACK32};
-    const PixelFormat g_pixelLayoutD32[] = {PixelFormat::D32_SFLOAT};
-    const PixelFormat g_pixelLayoutS8[] = {PixelFormat::S8_UINT};
-    const PixelFormat g_pixelLayoutD16_S8[] = {PixelFormat::D16_UNORM_S8_UINT};
-    const PixelFormat g_pixelLayoutD24_S8[] = {PixelFormat::D24_UNORM_S8_UINT};
-    const PixelFormat g_pixelLayoutD32_S8[] = {PixelFormat::D32_SFLOAT_S8_UINT};
-    const PixelFormat g_pixelLayoutBC1_RGB_BLOCK[] = {PixelFormat::BC1_RGB_UNORM_BLOCK, PixelFormat::BC1_RGB_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutBC1_RGBA_BLOCK[] = {PixelFormat::BC1_RGBA_UNORM_BLOCK, PixelFormat::BC1_RGBA_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutBC2_BLOCK[] = {PixelFormat::BC2_UNORM_BLOCK, PixelFormat::BC2_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutBC3_BLOCK[] = {PixelFormat::BC3_UNORM_BLOCK, PixelFormat::BC3_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutBC4_BLOCK[] = {PixelFormat::BC4_UNORM_BLOCK, PixelFormat::BC4_SNORM_BLOCK};
-    const PixelFormat g_pixelLayoutBC5_BLOCK[] = {PixelFormat::BC5_UNORM_BLOCK, PixelFormat::BC5_SNORM_BLOCK};
-    const PixelFormat g_pixelLayoutBC6H_BLOCK[] = {PixelFormat::BC6H_UFLOAT_BLOCK, PixelFormat::BC6H_SFLOAT_BLOCK};
-    const PixelFormat g_pixelLayoutBC7_BLOCK[] = {PixelFormat::BC7_UNORM_BLOCK, PixelFormat::BC7_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutETC2_R8G8B8_BLOCK[] = {PixelFormat::ETC2_R8G8B8_UNORM_BLOCK, PixelFormat::ETC2_R8G8B8_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutETC2_R8G8B8A1_BLOCK[] = {PixelFormat::ETC2_R8G8B8A1_UNORM_BLOCK, PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutETC2_R8G8B8A8_BLOCK[] = {PixelFormat::ETC2_R8G8B8A8_UNORM_BLOCK, PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutEAC_R11_BLOCK[] = {PixelFormat::EAC_R11_UNORM_BLOCK, PixelFormat::EAC_R11_SNORM_BLOCK};
-    const PixelFormat g_pixelLayoutEAC_R11G11_BLOCK[] = {PixelFormat::EAC_R11G11_UNORM_BLOCK, PixelFormat::EAC_R11G11_SNORM_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_4x4_BLOCK[] = {PixelFormat::ASTC_4x4_UNORM_BLOCK, PixelFormat::ASTC_4x4_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_5x4_BLOCK[] = {PixelFormat::ASTC_5x4_UNORM_BLOCK, PixelFormat::ASTC_5x4_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_5x5_BLOCK[] = {PixelFormat::ASTC_5x5_UNORM_BLOCK, PixelFormat::ASTC_5x5_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_6x5_BLOCK[] = {PixelFormat::ASTC_6x5_UNORM_BLOCK, PixelFormat::ASTC_6x5_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_6x6_BLOCK[] = {PixelFormat::ASTC_6x6_UNORM_BLOCK, PixelFormat::ASTC_6x6_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_8x5_BLOCK[] = {PixelFormat::ASTC_8x5_UNORM_BLOCK, PixelFormat::ASTC_8x5_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_8x6_BLOCK[] = {PixelFormat::ASTC_8x6_UNORM_BLOCK, PixelFormat::ASTC_8x6_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_8x8_BLOCK[] = {PixelFormat::ASTC_8x8_UNORM_BLOCK, PixelFormat::ASTC_8x8_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_10x5_BLOCK[] = {PixelFormat::ASTC_10x5_UNORM_BLOCK, PixelFormat::ASTC_10x5_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_10x6_BLOCK[] = {PixelFormat::ASTC_10x6_UNORM_BLOCK, PixelFormat::ASTC_10x6_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_10x8_BLOCK[] = {PixelFormat::ASTC_10x8_UNORM_BLOCK, PixelFormat::ASTC_10x8_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_10x10_BLOCK[] = {PixelFormat::ASTC_10x10_UNORM_BLOCK, PixelFormat::ASTC_10x10_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_12x10_BLOCK[] = {PixelFormat::ASTC_12x10_UNORM_BLOCK, PixelFormat::ASTC_12x10_SRGB_BLOCK};
-    const PixelFormat g_pixelLayoutASTC_12x12_BLOCK[] = {PixelFormat::ASTC_12x12_UNORM_BLOCK, PixelFormat::ASTC_12x12_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR32 = {PixelFormat::R32_UINT, PixelFormat::R32_SINT, PixelFormat::R32_SFLOAT};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR32G32 = {PixelFormat::R32G32_UINT, PixelFormat::R32G32_SINT, PixelFormat::R32G32_SFLOAT};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR32G32B32 = {PixelFormat::R32G32B32_UINT, PixelFormat::R32G32B32_SINT,
+                                                                         PixelFormat::R32G32B32_SFLOAT};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR32G32B32A32 = {PixelFormat::R32G32B32A32_UINT, PixelFormat::R32G32B32A32_SINT,
+                                                                            PixelFormat::R32G32B32A32_SFLOAT};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR64 = {PixelFormat::R64_UINT, PixelFormat::R64_SINT, PixelFormat::R64_SFLOAT};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR64G64 = {PixelFormat::R64G64_UINT, PixelFormat::R64G64_SINT, PixelFormat::R64G64_SFLOAT};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR64G64B64 = {PixelFormat::R64G64B64_UINT, PixelFormat::R64G64B64_SINT,
+                                                                         PixelFormat::R64G64B64_SFLOAT};
+    constexpr const std::array<PixelFormat, 3> g_pixelLayoutR64G64B64A64 = {PixelFormat::R64G64B64A64_UINT, PixelFormat::R64G64B64A64_SINT,
+                                                                            PixelFormat::R64G64B64A64_SFLOAT};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutB10G11R11_PACK32 = {PixelFormat::B10G11R11_UFLOAT_PACK32};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutE5B9G9R9_PACK32 = {PixelFormat::E5B9G9R9_UFLOAT_PACK32};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutD16 = {PixelFormat::D16_UNORM};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutX8_D24_PACK32 = {PixelFormat::X8_D24_UNORM_PACK32};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutD32 = {PixelFormat::D32_SFLOAT};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutS8 = {PixelFormat::S8_UINT};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutD16_S8 = {PixelFormat::D16_UNORM_S8_UINT};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutD24_S8 = {PixelFormat::D24_UNORM_S8_UINT};
+    constexpr const std::array<PixelFormat, 1> g_pixelLayoutD32_S8 = {PixelFormat::D32_SFLOAT_S8_UINT};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC1_RGB_BLOCK = {PixelFormat::BC1_RGB_UNORM_BLOCK, PixelFormat::BC1_RGB_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC1_RGBA_BLOCK = {PixelFormat::BC1_RGBA_UNORM_BLOCK, PixelFormat::BC1_RGBA_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC2_BLOCK = {PixelFormat::BC2_UNORM_BLOCK, PixelFormat::BC2_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC3_BLOCK = {PixelFormat::BC3_UNORM_BLOCK, PixelFormat::BC3_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC4_BLOCK = {PixelFormat::BC4_UNORM_BLOCK, PixelFormat::BC4_SNORM_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC5_BLOCK = {PixelFormat::BC5_UNORM_BLOCK, PixelFormat::BC5_SNORM_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC6H_BLOCK = {PixelFormat::BC6H_UFLOAT_BLOCK, PixelFormat::BC6H_SFLOAT_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutBC7_BLOCK = {PixelFormat::BC7_UNORM_BLOCK, PixelFormat::BC7_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutETC2_R8G8B8_BLOCK = {PixelFormat::ETC2_R8G8B8_UNORM_BLOCK,
+                                                                                 PixelFormat::ETC2_R8G8B8_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutETC2_R8G8B8A1_BLOCK = {PixelFormat::ETC2_R8G8B8A1_UNORM_BLOCK,
+                                                                                   PixelFormat::ETC2_R8G8B8A1_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutETC2_R8G8B8A8_BLOCK = {PixelFormat::ETC2_R8G8B8A8_UNORM_BLOCK,
+                                                                                   PixelFormat::ETC2_R8G8B8A8_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutEAC_R11_BLOCK = {PixelFormat::EAC_R11_UNORM_BLOCK, PixelFormat::EAC_R11_SNORM_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutEAC_R11G11_BLOCK = {PixelFormat::EAC_R11G11_UNORM_BLOCK,
+                                                                                PixelFormat::EAC_R11G11_SNORM_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_4x4_BLOCK = {PixelFormat::ASTC_4x4_UNORM_BLOCK, PixelFormat::ASTC_4x4_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_5x4_BLOCK = {PixelFormat::ASTC_5x4_UNORM_BLOCK, PixelFormat::ASTC_5x4_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_5x5_BLOCK = {PixelFormat::ASTC_5x5_UNORM_BLOCK, PixelFormat::ASTC_5x5_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_6x5_BLOCK = {PixelFormat::ASTC_6x5_UNORM_BLOCK, PixelFormat::ASTC_6x5_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_6x6_BLOCK = {PixelFormat::ASTC_6x6_UNORM_BLOCK, PixelFormat::ASTC_6x6_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_8x5_BLOCK = {PixelFormat::ASTC_8x5_UNORM_BLOCK, PixelFormat::ASTC_8x5_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_8x6_BLOCK = {PixelFormat::ASTC_8x6_UNORM_BLOCK, PixelFormat::ASTC_8x6_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_8x8_BLOCK = {PixelFormat::ASTC_8x8_UNORM_BLOCK, PixelFormat::ASTC_8x8_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_10x5_BLOCK = {PixelFormat::ASTC_10x5_UNORM_BLOCK, PixelFormat::ASTC_10x5_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_10x6_BLOCK = {PixelFormat::ASTC_10x6_UNORM_BLOCK, PixelFormat::ASTC_10x6_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_10x8_BLOCK = {PixelFormat::ASTC_10x8_UNORM_BLOCK, PixelFormat::ASTC_10x8_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_10x10_BLOCK = {PixelFormat::ASTC_10x10_UNORM_BLOCK,
+                                                                                PixelFormat::ASTC_10x10_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_12x10_BLOCK = {PixelFormat::ASTC_12x10_UNORM_BLOCK,
+                                                                                PixelFormat::ASTC_12x10_SRGB_BLOCK};
+    constexpr const std::array<PixelFormat, 2> g_pixelLayoutASTC_12x12_BLOCK = {PixelFormat::ASTC_12x12_UNORM_BLOCK,
+                                                                                PixelFormat::ASTC_12x12_SRGB_BLOCK};
 
     struct PixelLayoutFormatArray
     {
       const PixelFormat* const Formats{nullptr};
       const std::size_t Entries{0};
 
-      PixelLayoutFormatArray() = default;
+      constexpr PixelLayoutFormatArray() = default;
 
-      PixelLayoutFormatArray(const PixelFormat* const pFormats, const std::size_t entries)
+      explicit constexpr PixelLayoutFormatArray(const PixelFormat* const pFormats, const std::size_t entries)
         : Formats(pFormats)
         , Entries(entries)
       {
       }
+
+      template <std::size_t TCount>
+      explicit PixelLayoutFormatArray(const std::array<PixelFormat, TCount>& formats)
+        : PixelLayoutFormatArray(formats.data(), formats.size())
+      {
+      }
     };
 
-    const PixelLayoutFormatArray g_pixelLayoutToFormats[] = {
-      PixelLayoutFormatArray(g_pixelLayoutUndefined, sizeof(g_pixelLayoutUndefined) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR4G4, sizeof(g_pixelLayoutR4G4) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR4G4B4A4_PACK16, sizeof(g_pixelLayoutR4G4B4A4_PACK16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutB4G4R4A4_PACK16, sizeof(g_pixelLayoutB4G4R4A4_PACK16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR5G6B5_PACK16, sizeof(g_pixelLayoutR5G6B5_PACK16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutB5G6R5_PACK16, sizeof(g_pixelLayoutB5G6R5_PACK16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR5G5B5A1_PACK16, sizeof(g_pixelLayoutR5G5B5A1_PACK16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutB5G5R5A1_PACK16, sizeof(g_pixelLayoutB5G5R5A1_PACK16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutA1R5G5B5_PACK16, sizeof(g_pixelLayoutA1R5G5B5_PACK16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR8, sizeof(g_pixelLayoutR8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR8G8, sizeof(g_pixelLayoutR8G8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR8G8B8, sizeof(g_pixelLayoutR8G8B8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutB8G8R8, sizeof(g_pixelLayoutB8G8R8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR8G8B8A8, sizeof(g_pixelLayoutR8G8B8A8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutB8G8R8A8, sizeof(g_pixelLayoutB8G8R8A8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutA8B8G8R8_PACK32, sizeof(g_pixelLayoutA8B8G8R8_PACK32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutA2R10G10B10_PACK32, sizeof(g_pixelLayoutA2R10G10B10_PACK32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutA2B10G10R10_PACK32, sizeof(g_pixelLayoutA2B10G10R10_PACK32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR16, sizeof(g_pixelLayoutR16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR16G16, sizeof(g_pixelLayoutR16G16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR16G16B16, sizeof(g_pixelLayoutR16G16B16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR16G16B16A16, sizeof(g_pixelLayoutR16G16B16A16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR32, sizeof(g_pixelLayoutR32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR32G32, sizeof(g_pixelLayoutR32G32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR32G32B32, sizeof(g_pixelLayoutR32G32B32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR32G32B32A32, sizeof(g_pixelLayoutR32G32B32A32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR64, sizeof(g_pixelLayoutR64) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR64G64, sizeof(g_pixelLayoutR64G64) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR64G64B64, sizeof(g_pixelLayoutR64G64B64) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutR64G64B64A64, sizeof(g_pixelLayoutR64G64B64A64) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutB10G11R11_PACK32, sizeof(g_pixelLayoutB10G11R11_PACK32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutE5B9G9R9_PACK32, sizeof(g_pixelLayoutE5B9G9R9_PACK32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutD16, sizeof(g_pixelLayoutD16) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutX8_D24_PACK32, sizeof(g_pixelLayoutX8_D24_PACK32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutD32, sizeof(g_pixelLayoutD32) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutS8, sizeof(g_pixelLayoutS8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutD16_S8, sizeof(g_pixelLayoutD16_S8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutD24_S8, sizeof(g_pixelLayoutD24_S8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutD32_S8, sizeof(g_pixelLayoutD32_S8) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC1_RGB_BLOCK, sizeof(g_pixelLayoutBC1_RGB_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC1_RGBA_BLOCK, sizeof(g_pixelLayoutBC1_RGBA_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC2_BLOCK, sizeof(g_pixelLayoutBC2_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC3_BLOCK, sizeof(g_pixelLayoutBC3_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC4_BLOCK, sizeof(g_pixelLayoutBC4_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC5_BLOCK, sizeof(g_pixelLayoutBC5_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC6H_BLOCK, sizeof(g_pixelLayoutBC6H_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutBC7_BLOCK, sizeof(g_pixelLayoutBC7_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutETC2_R8G8B8_BLOCK, sizeof(g_pixelLayoutETC2_R8G8B8_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutETC2_R8G8B8A1_BLOCK, sizeof(g_pixelLayoutETC2_R8G8B8A1_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutETC2_R8G8B8A8_BLOCK, sizeof(g_pixelLayoutETC2_R8G8B8A8_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutEAC_R11_BLOCK, sizeof(g_pixelLayoutEAC_R11_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutEAC_R11G11_BLOCK, sizeof(g_pixelLayoutEAC_R11G11_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_4x4_BLOCK, sizeof(g_pixelLayoutASTC_4x4_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_5x4_BLOCK, sizeof(g_pixelLayoutASTC_5x4_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_5x5_BLOCK, sizeof(g_pixelLayoutASTC_5x5_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_6x5_BLOCK, sizeof(g_pixelLayoutASTC_6x5_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_6x6_BLOCK, sizeof(g_pixelLayoutASTC_6x6_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_8x5_BLOCK, sizeof(g_pixelLayoutASTC_8x5_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_8x6_BLOCK, sizeof(g_pixelLayoutASTC_8x6_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_8x8_BLOCK, sizeof(g_pixelLayoutASTC_8x8_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_10x5_BLOCK, sizeof(g_pixelLayoutASTC_10x5_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_10x6_BLOCK, sizeof(g_pixelLayoutASTC_10x6_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_10x8_BLOCK, sizeof(g_pixelLayoutASTC_10x8_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_10x10_BLOCK, sizeof(g_pixelLayoutASTC_10x10_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_12x10_BLOCK, sizeof(g_pixelLayoutASTC_12x10_BLOCK) / sizeof(PixelFormat)),
-      PixelLayoutFormatArray(g_pixelLayoutASTC_12x12_BLOCK, sizeof(g_pixelLayoutASTC_12x12_BLOCK) / sizeof(PixelFormat)),
+
+    const std::array<PixelLayoutFormatArray, 66> g_pixelLayoutToFormats = {
+      PixelLayoutFormatArray(g_pixelLayoutUndefined),
+      PixelLayoutFormatArray(g_pixelLayoutR4G4),
+      PixelLayoutFormatArray(g_pixelLayoutR4G4B4A4_PACK16),
+      PixelLayoutFormatArray(g_pixelLayoutB4G4R4A4_PACK16),
+      PixelLayoutFormatArray(g_pixelLayoutR5G6B5_PACK16),
+      PixelLayoutFormatArray(g_pixelLayoutB5G6R5_PACK16),
+      PixelLayoutFormatArray(g_pixelLayoutR5G5B5A1_PACK16),
+      PixelLayoutFormatArray(g_pixelLayoutB5G5R5A1_PACK16),
+      PixelLayoutFormatArray(g_pixelLayoutA1R5G5B5_PACK16),
+      PixelLayoutFormatArray(g_pixelLayoutR8),
+      PixelLayoutFormatArray(g_pixelLayoutR8G8),
+      PixelLayoutFormatArray(g_pixelLayoutR8G8B8),
+      PixelLayoutFormatArray(g_pixelLayoutB8G8R8),
+      PixelLayoutFormatArray(g_pixelLayoutR8G8B8A8),
+      PixelLayoutFormatArray(g_pixelLayoutB8G8R8A8),
+      PixelLayoutFormatArray(g_pixelLayoutA8B8G8R8_PACK32),
+      PixelLayoutFormatArray(g_pixelLayoutA2R10G10B10_PACK32),
+      PixelLayoutFormatArray(g_pixelLayoutA2B10G10R10_PACK32),
+      PixelLayoutFormatArray(g_pixelLayoutR16),
+      PixelLayoutFormatArray(g_pixelLayoutR16G16),
+      PixelLayoutFormatArray(g_pixelLayoutR16G16B16),
+      PixelLayoutFormatArray(g_pixelLayoutR16G16B16A16),
+      PixelLayoutFormatArray(g_pixelLayoutR32),
+      PixelLayoutFormatArray(g_pixelLayoutR32G32),
+      PixelLayoutFormatArray(g_pixelLayoutR32G32B32),
+      PixelLayoutFormatArray(g_pixelLayoutR32G32B32A32),
+      PixelLayoutFormatArray(g_pixelLayoutR64),
+      PixelLayoutFormatArray(g_pixelLayoutR64G64),
+      PixelLayoutFormatArray(g_pixelLayoutR64G64B64),
+      PixelLayoutFormatArray(g_pixelLayoutR64G64B64A64),
+      PixelLayoutFormatArray(g_pixelLayoutB10G11R11_PACK32),
+      PixelLayoutFormatArray(g_pixelLayoutE5B9G9R9_PACK32),
+      PixelLayoutFormatArray(g_pixelLayoutD16),
+      PixelLayoutFormatArray(g_pixelLayoutX8_D24_PACK32),
+      PixelLayoutFormatArray(g_pixelLayoutD32),
+      PixelLayoutFormatArray(g_pixelLayoutS8),
+      PixelLayoutFormatArray(g_pixelLayoutD16_S8),
+      PixelLayoutFormatArray(g_pixelLayoutD24_S8),
+      PixelLayoutFormatArray(g_pixelLayoutD32_S8),
+      PixelLayoutFormatArray(g_pixelLayoutBC1_RGB_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutBC1_RGBA_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutBC2_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutBC3_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutBC4_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutBC5_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutBC6H_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutBC7_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutETC2_R8G8B8_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutETC2_R8G8B8A1_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutETC2_R8G8B8A8_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutEAC_R11_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutEAC_R11G11_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_4x4_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_5x4_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_5x5_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_6x5_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_6x6_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_8x5_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_8x6_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_8x8_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_10x5_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_10x6_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_10x8_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_10x10_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_12x10_BLOCK),
+      PixelLayoutFormatArray(g_pixelLayoutASTC_12x12_BLOCK),
     };
 
     PixelLayoutFormatArray TryGetArray(const PixelFormatLayout pixelFormatLayout)
@@ -569,13 +589,15 @@ namespace Fsl
   }
 
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_ERROR_MESSAGE "The index did not match our assumption"
+
 
   // Due to lack of constexpr we use this nasty macro
   // So because of the macros be sure to keep all real code above this so you dont get any interference from them
   //#define LOCAL_GET_PIXELFORMAT_ID(X) ((static_cast<uint32_t>((X)) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)) -
   // static_cast<uint32_t>(PixelFormat::ENUM_ID_BEGIN_RANGE))
-  constexpr int LOCAL_GET_PIXELFORMAT_ID(const PixelFormat pf)
+  constexpr uint32_t LOCAL_GET_PIXELFORMAT_ID(const PixelFormat pf)
   {
     return ((static_cast<uint32_t>((pf)) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)) -
             static_cast<uint32_t>(PixelFormat::ENUM_ID_BEGIN_RANGE));
@@ -774,7 +796,10 @@ namespace Fsl
   static_assert(LOCAL_GET_PIXELFORMAT_ID(PixelFormat::EX_LUMINANCE8_UNORM) == 186, LOCAL_ERROR_MESSAGE);
   static_assert(LOCAL_GET_PIXELFORMAT_ID(PixelFormat::EX_LUMINANCE8_ALPHA8_UNORM) == 187, LOCAL_ERROR_MESSAGE);
 
-#define LOCAL_GET_PIXELLAYOUT_ID(X) (static_cast<uint32_t>(X) & static_cast<uint32_t>(PixelFormatLayoutFlags::BIT_MASK_FORMAT_ID))
+  constexpr uint32_t LOCAL_GET_PIXELLAYOUT_ID(const PixelFormatLayout pixelFormatLayout)
+  {
+    return (static_cast<uint32_t>(pixelFormatLayout) & static_cast<uint32_t>(PixelFormatLayoutFlags::BIT_MASK_FORMAT_ID));
+  }
 
   // Layout to pixelFormat lookup
   static_assert(LOCAL_GET_PIXELLAYOUT_ID(PixelFormatLayout::Undefined) == 0, LOCAL_ERROR_MESSAGE);

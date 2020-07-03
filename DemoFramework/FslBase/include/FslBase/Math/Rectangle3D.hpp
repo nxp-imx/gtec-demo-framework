@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Extent3D.hpp>
 #include <FslBase/Math/Offset3D.hpp>
+#include <limits>
 
 namespace Fsl
 {
@@ -41,86 +42,90 @@ namespace Fsl
     Offset3D Offset;
     Extent3D Extent;
 
-    Rectangle3D() = default;
+    constexpr Rectangle3D() = default;
 
-    Rectangle3D(const Offset3D& offset, const Extent3D& extent)
+    constexpr Rectangle3D(const Offset3D& offset, const Extent3D& extent)
       : Offset(offset)
       , Extent(extent)
     {
     }
 
-    Rectangle3D(const int32_t x, const int32_t y, int32_t z, const uint16_t width, const uint16_t height, const uint16_t depth)
+    constexpr Rectangle3D(const int32_t x, const int32_t y, int32_t z, const uint16_t width, const uint16_t height, const uint16_t depth) noexcept
       : Offset(x, y, z)
-      , Extent(static_cast<Extent3D::element_type>(width), static_cast<Extent3D::element_type>(height), static_cast<Extent3D::element_type>(depth))
+      , Extent(static_cast<Extent3D::value_type>(width), static_cast<Extent3D::value_type>(height), static_cast<Extent3D::value_type>(depth))
     {
     }
 
-    Rectangle3D(const int32_t left, const int32_t top, const int32_t front, const int32_t right, const int32_t bottom, const int32_t back,
-                bool reserved);
+    static Rectangle3D FromLeftTopFrontRightBottomBack(const int32_t left, const int32_t top, const int32_t front, const int32_t right,
+                                                       const int32_t bottom, const int32_t back);
 
 
-    static Rectangle3D Empty()
+    static constexpr Rectangle3D Empty() noexcept
     {
       return {};
     }
 
 
-    inline int32_t Left() const
+    inline constexpr int32_t Left() const noexcept
     {
       return Offset.X;
     }
 
-    inline int32_t Top() const
+    inline constexpr int32_t Top() const noexcept
     {
       return Offset.Y;
     }
 
-    inline int32_t Front() const
+    inline constexpr int32_t Front() const noexcept
     {
       return Offset.Z;
     }
 
-    inline int32_t Right() const
+    inline constexpr int32_t Right() const noexcept
     {
       return Offset.X + Extent.Width;
     }
 
-    inline int32_t Bottom() const
+    inline constexpr int32_t Bottom() const noexcept
     {
       return Offset.Y + Extent.Height;
     }
 
-    inline int32_t Back() const
+    inline constexpr int32_t Back() const noexcept
     {
       return Offset.Z + Extent.Depth;
     }
 
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
-    bool Contains(const int32_t x, const int32_t y, const int32_t z) const
+    constexpr bool Contains(const int32_t x, const int32_t y, const int32_t z) const noexcept
     {
       return (x >= Left() && x < Right() && y >= Top() && y < Bottom() && z >= Front() && z < Back());
     }
 
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
-    bool Contains(const Offset3D& value) const
+    constexpr bool Contains(const Offset3D& value) const noexcept
     {
       return Contains(value.X, value.Y, value.Z);
     }
 
 
     //! @brief Check if the rectangle is considered to be contained within this rectangle
-    bool Contains(const Rectangle3D& value) const
+    constexpr bool Contains(const Rectangle3D& value) const noexcept
     {
       return Contains(value.Offset) && Contains(value.Right(), value.Bottom(), value.Back());
     }
 
 
     //! @brief Get the center of this rect
-    Offset3D GetCenter() const
+    constexpr Offset3D GetCenter() const noexcept
     {
-      return Offset3D(Offset.X + (Extent.Width / 2), Offset.Y + (Extent.Height / 2), Offset.Z + (Extent.Depth / 2));
+      static_assert(Extent3D::value_type(std::numeric_limits<Offset3D::value_type>::max()) <= (std::numeric_limits<Extent3D::value_type>::max() / 2),
+                    "overflow should not be possible");
+
+      return {Offset.X + Offset3D::value_type(Extent.Width / 2), Offset.Y + Offset3D::value_type(Extent.Height / 2),
+              Offset.Z + Offset3D::value_type(Extent.Depth / 2)};
     }
 
 
@@ -130,14 +135,14 @@ namespace Fsl
 
     //! @brief Gets a value that indicates whether the Rectangle is empty
     //!        An empty rectangle has all its values set to 0.
-    bool IsEmpty() const
+    constexpr bool IsEmpty() const noexcept
     {
       return (Offset.X == 0 && Offset.Y == 0 && Offset.Z == 0 && Extent.Width == 0 && Extent.Height == 0 && Extent.Depth == 0);
     }
 
 
     //! @brief Determines whether a specified Rectangle intersects with this Rectangle.
-    bool Intersects(const Rectangle3D& value) const
+    constexpr bool Intersects(const Rectangle3D& value) const noexcept
     {
       return value.Left() < Right() && Left() < value.Right() && value.Top() < Bottom() && Top() < value.Bottom() && value.Front() < Back() &&
              Front() < value.Back();
@@ -151,13 +156,13 @@ namespace Fsl
     static Rectangle3D Union(const Rectangle3D& rect1, const Rectangle3D& rect2);
 
 
-    bool operator==(const Rectangle3D& rhs) const
+    constexpr bool operator==(const Rectangle3D& rhs) const noexcept
     {
       return (Offset == rhs.Offset && Extent == rhs.Extent);
     }
 
 
-    bool operator!=(const Rectangle3D& rhs) const
+    constexpr bool operator!=(const Rectangle3D& rhs) const noexcept
     {
       return (Offset != rhs.Offset || Extent != rhs.Extent);
     }

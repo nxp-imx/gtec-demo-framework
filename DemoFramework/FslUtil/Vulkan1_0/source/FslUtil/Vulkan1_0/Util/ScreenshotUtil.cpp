@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Util/ScreenshotUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <FslUtil/Vulkan1_0/VUScopedMapMemory.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -173,7 +173,7 @@ namespace Fsl
 
         Bitmap ExtractToBitmap(const ImageRecord& image, const PixelFormat imagePixelFormat)
         {
-          const auto device = image.TheImage.GetDevice();
+          const VkDevice device = image.TheImage.GetDevice();
 
           // Get information about the image layout
           VkImageSubresource subResource{VK_IMAGE_ASPECT_COLOR_BIT, 0, 0};
@@ -198,7 +198,7 @@ namespace Fsl
           assert(subResourceLayout.offset <= image.AllocationSize);
 
           const uint8_t* pImageMemory = static_cast<const uint8_t*>(pImage) + subResourceLayout.offset;
-          const Extent2D extent(image.Extent.width, image.Extent.height);
+          const PxExtent2D extent(image.Extent.width, image.Extent.height);
           assert(subResourceLayout.rowPitch <= std::numeric_limits<uint32_t>::max());
           const auto stride = static_cast<uint32_t>(subResourceLayout.rowPitch);
 
@@ -243,7 +243,7 @@ namespace Fsl
           return Bitmap();
         }
 
-        auto pixelFormat = ConvertUtil::Convert(srcImageFormat);
+        auto pixelFormat = VulkanConvert::ToPixelFormat(srcImageFormat);
         if (PixelFormatUtil::IsCompressed(pixelFormat))
         {
           FSLLOG3_WARNING("srcPixelFormat is compressed, capture cancelled");

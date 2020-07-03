@@ -31,7 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/Util/Graphics/Service/ImageLibrary/ImageLibrarySTBService.hpp>
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
@@ -144,7 +144,7 @@ namespace Fsl
 
       T* pContent;
 
-      ScopedSTBImage(T* pImageData)
+      explicit ScopedSTBImage(T* pImageData)
         : pContent(pImageData)
       {
       }
@@ -179,7 +179,7 @@ namespace Fsl
       try
       {
         const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R32G32B32_SFLOAT : PixelFormat::R32G32B32A32_SFLOAT);
-        Extent2D extent(width, height);
+        PxExtent2D extent(width, height);
         const std::size_t cbContent = (sizeof(float) * channels) * extent.Width * extent.Height;
 
         rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
@@ -192,8 +192,8 @@ namespace Fsl
     }
 
 
-    bool TryReadPNG(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint,
-                    const PixelChannelOrder preferredChannelOrderHint)
+    bool TryReadImage(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint,
+                      const PixelChannelOrder preferredChannelOrderHint)
     {
       FSL_PARAM_NOT_USED(pixelFormatHint);
       FSL_PARAM_NOT_USED(originHint);
@@ -212,7 +212,7 @@ namespace Fsl
       try
       {
         const PixelFormat pixelFormat = (channels == 3 ? PixelFormat::R8G8B8_UINT : PixelFormat::R8G8B8A8_UINT);
-        Extent2D extent(width, height);
+        PxExtent2D extent(width, height);
         const std::size_t cbContent = channels * extent.Width * extent.Height;
 
         rBitmap.Reset(imageData.pContent, cbContent, extent, pixelFormat);
@@ -224,6 +224,7 @@ namespace Fsl
       }
     }
   }
+
 
   ImageLibrarySTBService::ImageLibrarySTBService(const ServiceProvider& serviceProvider)
     : ThreadLocalService(serviceProvider)
@@ -259,8 +260,11 @@ namespace Fsl
     {
     case ImageFormat::Hdr:
       return TryReadHDR(rBitmap, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint);
+    case ImageFormat::Bmp:
+    case ImageFormat::Jpeg:
     case ImageFormat::Png:
-      return TryReadPNG(rBitmap, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint);
+    case ImageFormat::Tga:
+      return TryReadImage(rBitmap, absolutePath, pixelFormatHint, originHint, preferredChannelOrderHint);
     default:
       return false;
     }
@@ -290,12 +294,10 @@ namespace Fsl
       return false;
     }
 
-    const auto dstName = absolutePath.ToUTF8String();
-
-    int comp;
+    int comp = 0;
     if (bitmap.GetOrigin() == BitmapOrigin::UpperLeft && TryConvert(comp, bitmap.GetPixelFormat()))
     {
-      return TryWrite(dstName, bitmap, comp, imageFormat);
+      return TryWrite(absolutePath, bitmap, comp, imageFormat);
     }
 
     // Try to see if there is a directly compatible format we can try instead
@@ -318,11 +320,11 @@ namespace Fsl
     {
       return false;
     }
-    return TryWrite(dstName, bitmapClone, comp, imageFormat);
+    return TryWrite(absolutePath, bitmapClone, comp, imageFormat);
   }
 
 
-  bool ImageLibrarySTBService::TryWrite(const std::string& dstName, const Bitmap& bitmap, const int comp, const ImageFormat imageFormat)
+  bool ImageLibrarySTBService::TryWrite(const IO::Path& dstName, const Bitmap& bitmap, const int comp, const ImageFormat imageFormat)
   {
     assert(IO::Path::IsPathRooted(dstName));
     assert(comp >= MIN_COMP && comp <= MAX_COMP);
@@ -330,6 +332,7 @@ namespace Fsl
     {
       return false;
     }
+    const auto& dstPathNameString = dstName.ToUTF8String();
 
     RawBitmap rawBitmap;
     Bitmap::ScopedDirectAccess directAccess(bitmap, rawBitmap);
@@ -343,21 +346,22 @@ namespace Fsl
     switch (imageFormat)
     {
     case ImageFormat::Bmp:
-      return stbi_write_bmp(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
+      return stbi_write_bmp(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
     // case ImageFormat::Hdr:
     //  return stbi_write_hdr(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
     case ImageFormat::Jpeg:
-      return stbi_write_jpg(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content(), DEFAULT_JPG_QUALITY) != 0;
+      return stbi_write_jpg(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content(), DEFAULT_JPG_QUALITY) != 0;
     case ImageFormat::Png:
+      // NOLINTNEXTLINE(misc-redundant-expression)
       static_assert(std::numeric_limits<int>::max() >= std::numeric_limits<int32_t>::max(), "We expect int to be at least 32bit");
       if (rawBitmap.Stride() >= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()))
       {
         return false;
       }
-      return stbi_write_png(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content(),
+      return stbi_write_png(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content(),
                             static_cast<uint32_t>(rawBitmap.Stride())) != 0;
     case ImageFormat::Tga:
-      return stbi_write_tga(dstName.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
+      return stbi_write_tga(dstPathNameString.c_str(), rawBitmap.Width(), rawBitmap.Height(), comp, rawBitmap.Content()) != 0;
     default:
       return false;
     }

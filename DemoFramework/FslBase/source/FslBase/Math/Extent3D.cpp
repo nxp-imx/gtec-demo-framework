@@ -38,9 +38,9 @@
 namespace Fsl
 {
   Extent3D::Extent3D(const int32_t width, const int32_t height, const int32_t depth)
-    : Width(static_cast<element_type>(width))
-    , Height(static_cast<element_type>(height))
-    , Depth(static_cast<element_type>(depth))
+    : Width(static_cast<value_type>(width))
+    , Height(static_cast<value_type>(height))
+    , Depth(static_cast<value_type>(depth))
   {
     if (width < 0)
     {
@@ -57,8 +57,8 @@ namespace Fsl
   }
 
 
-  Extent3D::Extent3D(const Point2& value, const element_type depth)
-    : Extent3D(static_cast<element_type>(value.X), static_cast<element_type>(value.Y), static_cast<element_type>(depth))
+  Extent3D::Extent3D(const Point2& value, const value_type depth)
+    : Extent3D(static_cast<value_type>(value.X), static_cast<value_type>(value.Y), static_cast<value_type>(depth))
   {
     if (value.X < 0)
     {
@@ -71,7 +71,7 @@ namespace Fsl
   }
 
 
-  Extent3D::Extent3D(const Extent2D& extent, const element_type depth)
+  Extent3D::Extent3D(const Extent2D& extent, const value_type depth)
     : Extent3D(extent.Width, extent.Height, depth)
   {
   }

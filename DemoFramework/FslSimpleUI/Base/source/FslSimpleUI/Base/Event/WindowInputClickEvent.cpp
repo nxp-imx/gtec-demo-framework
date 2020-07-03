@@ -43,16 +43,16 @@ namespace Fsl
 
 
     void WindowInputClickEvent::SYS_Construct(const int32_t sourceId, const int32_t sourceSubId, const EventTransactionState state,
-                                              const bool isRepeat, const Vector2& screenPosition)
+                                              const bool isRepeat, const PxPoint2& screenPositionPx)
     {
       WindowInputEvent::SYS_DoConstruct(sourceId, sourceSubId, state, isRepeat);
-      m_screenPosition = screenPosition;
+      m_screenPositionPx = screenPositionPx;
     }
 
 
     void WindowInputClickEvent::SYS_Destruct()
     {
-      m_screenPosition = Vector2();
+      m_screenPositionPx = {};
       WindowInputEvent::SYS_Destruct();
     }
   }

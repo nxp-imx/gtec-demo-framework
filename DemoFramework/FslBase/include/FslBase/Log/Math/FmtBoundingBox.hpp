@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Log/Math/FmtVector3.hpp>
+#include <FslBase/Math/BoundingBox.hpp>
 #include <fmt/format.h>
 
 namespace fmt

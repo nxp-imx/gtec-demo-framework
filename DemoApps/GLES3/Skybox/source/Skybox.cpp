@@ -67,13 +67,16 @@ namespace Fsl
 
     const auto contentManager = GetContentManager();
 
-    std::string texture = options->GetScene() == SceneState::Scene1 ? "Textures/Cubemap/Yokohama3/Raw" : "Textures/Cubemap/Test/Raw";
+    IO::Path texture(options->GetScene() == SceneState::Scene1 ? "Textures/Cubemap/Yokohama3/Raw" : "Textures/Cubemap/Test/Raw");
 
+    FSLLOG3_INFO("Preparing cubemap");
     m_resources.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, texture, PixelFormat::R8G8B8A8_UNORM);
+    FSLLOG3_INFO("Preparing shaders");
     m_resources.MainSkyboxProgram.Reset(contentManager->ReadAllText("skybox.vert"), contentManager->ReadAllText("skybox.frag"));
     m_resources.MainSkyboxMesh.Reset(m_resources.MainSkyboxProgram.Program);
 
     GL_CHECK_FOR_ERROR();
+    FSLLOG3_INFO("Ready");
   }
 
 
@@ -124,15 +127,14 @@ namespace Fsl
     }
     UpdateCameraControlInput(demoTime, m_keyboard->GetState());
 
-    const auto screenResolution = GetScreenResolution();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;
+    const float aspect = GetWindowAspectRatio();
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 1000.0f);
 
     m_vertexUboData.MatView = m_camera.GetViewMatrix();
   }
 
 
-  void Skybox::Draw(const DemoTime& demoTime)
+  void Skybox::Draw(const DemoTime& /*demoTime*/)
   {
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);

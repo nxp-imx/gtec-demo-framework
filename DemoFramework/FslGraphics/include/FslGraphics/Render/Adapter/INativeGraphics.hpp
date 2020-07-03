@@ -32,12 +32,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics/TextureFlags.hpp>
 #include <FslGraphics/Render/Texture2DFilterHint.hpp>
+#include <FslGraphics/TextureFlags.hpp>
 #include <memory>
 
 namespace Fsl
 {
+  class IDynamicNativeTexture2D;
   class INativeTexture2D;
   class RawBitmap;
   class RawTexture;
@@ -47,10 +48,15 @@ namespace Fsl
   public:
     virtual ~INativeGraphics() = default;
 
-    virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                              const TextureFlags& textureFlags) = 0;
+    //! @brief Create a immutable texture from a RawTexture
+    //! @note  This should be the preferred creation method.
     virtual std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                              const TextureFlags& textureFlags) = 0;
+                                                              const TextureFlags textureFlags) = 0;
+
+    //! @brief Create a mutable texture from a RawTexture
+    //! @note Only use this if you need to be able to update the texture dynamically. On some API's its much more expensive.
+    virtual std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                            const TextureFlags textureFlags) = 0;
   };
 }
 

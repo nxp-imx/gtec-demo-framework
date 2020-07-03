@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Collections/CircularFixedSizeBuffer.hpp>
-#include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
 #include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
+#include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <vector>
@@ -42,7 +42,7 @@ namespace Fsl
 {
   class ProfilerServiceOptionParser;
 
-  class ProfilerService
+  class ProfilerService final
     : public ThreadLocalService
     , public IProfilerService
     , public IProfilerServiceControl
@@ -83,25 +83,25 @@ namespace Fsl
 
   public:
     ProfilerService(const ServiceProvider& serviceProvider, const std::shared_ptr<ProfilerServiceOptionParser>& optionParser);
-    ~ProfilerService() override;
+    ~ProfilerService() final;
 
     // From IProfilerService
-    ProfilerFrameTime GetLastFrameTime() const override;
-    ProfilerFrameTime GetAverageFrameTime() const override;
-    int32_t GetCustomCounterCapacity() const override;
-    int32_t GetCustomCounterCount() const override;
-    ProfilerCustomCounterHandle GetCustomCounterHandle(const int32_t index) const override;
+    ProfilerFrameTime GetLastFrameTime() const final;
+    ProfilerFrameTime GetAverageFrameTime() const final;
+    int32_t GetCustomCounterCapacity() const final;
+    int32_t GetCustomCounterCount() const final;
+    ProfilerCustomCounterHandle GetCustomCounterHandle(const int32_t index) const final;
     ProfilerCustomCounterHandle CreateCustomCounter(const std::string& name, const int32_t minValue, const int32_t maxValue,
-                                                    const Color& colorHint) override;
-    void DestroyCustomCounter(const ProfilerCustomCounterHandle& handle) override;
-    int32_t Get(const ProfilerCustomCounterHandle& handle) const override;
-    void Set(const ProfilerCustomCounterHandle& handle, const int32_t value) override;
-    ProfilerCustomCounterDesc GetDescription(const ProfilerCustomCounterHandle& handle) const override;
-    uint32_t GetCustomConfigurationRevision() const override;
-    bool IsValidHandle(const ProfilerCustomCounterHandle& handle) const override;
+                                                    const Color& colorHint) final;
+    void DestroyCustomCounter(const ProfilerCustomCounterHandle& handle) final;
+    int32_t Get(const ProfilerCustomCounterHandle& handle) const final;
+    void Set(const ProfilerCustomCounterHandle& handle, const int32_t value) final;
+    ProfilerCustomCounterDesc GetDescription(const ProfilerCustomCounterHandle& handle) const final;
+    uint32_t GetCustomConfigurationRevision() const final;
+    bool IsValidHandle(const ProfilerCustomCounterHandle& handle) const final;
 
     // From IProfilerServiceControl
-    void AddFrameTimes(const uint64_t updateTime, const uint64_t drawTime, const uint64_t totalTime) override;
+    void AddFrameTimes(const uint64_t updateTime, const uint64_t drawTime, const uint64_t totalTime) final;
 
   private:
     inline int32_t ConvertHandleToIndex(const ProfilerCustomCounterHandle& handle) const;

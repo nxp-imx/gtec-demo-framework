@@ -71,11 +71,4 @@ namespace Fsl
   }
 }
 
-
-// Register a pure Vulkan demo
-#define FSL_REGISTER_VULKAN_DEMO(tdEMOaPP, dEMOhOSTcONFIG) \
-  static_assert(false, "The FSL_REGISTER_VULKAN_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_VULKAN_DEMO_EX(tdEMOaPP, dEMOhOSTcONFIG, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_VULKAN_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

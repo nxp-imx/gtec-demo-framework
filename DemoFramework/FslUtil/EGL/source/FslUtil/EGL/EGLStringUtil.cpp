@@ -38,17 +38,21 @@
 #include <sstream>
 #include <iomanip>
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define DEFINE_BITFLAG_NAMERECORD(fLAG) BitFlagAndNameRecord((fLAG), #fLAG)
 
 #ifndef EGL_OPENGL_ES3_BIT
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_OPENGL_ES3_BIT 0x0040
 #endif
 // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_stream_producer_eglsurface.txt
 #ifndef EGL_STREAM_BIT_KHR
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_STREAM_BIT_KHR 0x0800
 #endif
 // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_mutable_render_buffer.txt
 #ifndef EGL_MUTABLE_RENDER_BUFFER_BIT_KHR
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define EGL_MUTABLE_RENDER_BUFFER_BIT_KHR 0x00001000
 #endif
 
@@ -68,6 +72,7 @@ namespace Fsl
       }
     };
 
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     BitFlagAndNameRecord g_bitflags_EGL_CONFORMANT[] = {
 #ifdef EGL_OPENGL_BIT
       DEFINE_BITFLAG_NAMERECORD(EGL_OPENGL_BIT),
@@ -87,6 +92,7 @@ namespace Fsl
     };
 
 
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     BitFlagAndNameRecord g_bitflags_EGL_SURFACE_TYPE[] = {
 #ifdef EGL_MULTISAMPLE_RESOLVE_BOX_BIT
       DEFINE_BITFLAG_NAMERECORD(EGL_MULTISAMPLE_RESOLVE_BOX_BIT),

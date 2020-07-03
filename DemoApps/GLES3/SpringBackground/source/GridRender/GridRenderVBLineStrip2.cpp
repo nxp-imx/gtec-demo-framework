@@ -34,7 +34,7 @@
 #include <FslBase/Math/VectorHelper.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -121,16 +121,14 @@ namespace Fsl
   }
 
 
-  void GridRenderVBLineStrip2::Update(const DemoTime& demoTime, const Vector2& areaSize, const std::vector<PointMass>& points)
+  void GridRenderVBLineStrip2::Update(const DemoTime& /*demoTime*/, const Vector2& /*areaSize*/, const std::vector<PointMass>& points)
   {
     Calc3DCoordinates(m_coordinates, points);
   }
 
 
-  void GridRenderVBLineStrip2::Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& points)
+  void GridRenderVBLineStrip2::Draw(const GridRenderDrawContext& /*drawContext*/, const std::vector<PointMass>& /*points*/)
   {
-    Color color(0.12f, 0.12f, 0.55f, 0.33f);
-
     // glLineWidth(4);
     // glLineWidth(3);
     glDisable(GL_DEPTH_TEST);

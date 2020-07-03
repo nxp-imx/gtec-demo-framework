@@ -31,6 +31,8 @@
 
 #include <FslBase/Getopt/OptionParser.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
@@ -51,11 +53,11 @@ namespace
       return std::string("dummy");
     }
 
-    void ArgumentSetup(std::deque<Option>& rOptions) override
+    void ArgumentSetup(std::deque<Option>& /*rOptions*/) override
     {
     }
 
-    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override
+    OptionParseResult Parse(const int32_t /*cmdId*/, const StringViewLite& /*strOptArg*/) override
     {
       return OptionParseResult::NotHandled;
     }
@@ -69,12 +71,72 @@ namespace
   };
 }
 
+TEST(TestGetOpt_OptionParser, Parse0_LegacyArgs)
+{
+  std::array<char, 8> pszLegacySkipped = {'s', 'k', 'i', 'p', 'p', 'e', 'd', 0};
+  std::array<char, 3> pszLegacyOption = {'-', 'v', 0};
+  std::array<char*, 2> testArgs = {pszLegacySkipped.data(), pszLegacyOption.data()};
+
+  auto result = OptionParser::Parse(NumericCast<int>(testArgs.size()), testArgs.data(), "help caption");
+
+  EXPECT_EQ(OptionParser::Result::OK, result.Status);
+  EXPECT_EQ(1u, result.VerbosityLevel);
+}
+
+
+TEST(TestGetOpt_OptionParser, Parse1_LegacyArgs)
+{
+  std::array<char, 8> pszLegacySkipped = {'s', 'k', 'i', 'p', 'p', 'e', 'd', 0};
+  std::array<char, 3> pszLegacyOption = {'-', 'v', 0};
+  std::array<char*, 2> testArgs = {pszLegacySkipped.data(), pszLegacyOption.data()};
+
+  DummyOptionParser dummyOptionParser;
+  auto result = OptionParser::Parse(NumericCast<int>(testArgs.size()), testArgs.data(), dummyOptionParser, "help caption");
+
+  EXPECT_EQ(OptionParser::Result::OK, result.Status);
+  EXPECT_EQ(1u, result.VerbosityLevel);
+}
+
+
+TEST(TestGetOpt_OptionParser, Parse2_LegacyArgs)
+{
+  std::array<char, 8> pszLegacySkipped = {'s', 'k', 'i', 'p', 'p', 'e', 'd', 0};
+  std::array<char, 3> pszLegacyOption = {'-', 'v', 0};
+  std::array<char*, 2> testArgs = {pszLegacySkipped.data(), pszLegacyOption.data()};
+
+  DummyOptionParser dummyOptionParser;
+  std::deque<IOptionParser*> optionParsers;
+  optionParsers.push_back(&dummyOptionParser);
+
+  auto result = OptionParser::Parse(NumericCast<int>(testArgs.size()), testArgs.data(), optionParsers, "help caption");
+
+  EXPECT_EQ(OptionParser::Result::OK, result.Status);
+  EXPECT_EQ(1u, result.VerbosityLevel);
+}
+
+
+TEST(TestGetOpt_OptionParser, Parse3_LegacyArgs)
+{
+  std::array<char, 8> pszLegacySkipped = {'s', 'k', 'i', 'p', 'p', 'e', 'd', 0};
+  std::array<char, 3> pszLegacyOption = {'-', 'v', 0};
+  std::array<char*, 2> testArgs = {pszLegacySkipped.data(), pszLegacyOption.data()};
+
+  DummyOptionParser dummyOptionParser;
+  std::deque<OptionParser::ParserRecord> optionParsers;
+  optionParsers.emplace_back(&dummyOptionParser, 0x1000);
+
+  auto result = OptionParser::Parse(NumericCast<int>(testArgs.size()), testArgs.data(), optionParsers, "help caption");
+
+  EXPECT_EQ(OptionParser::Result::OK, result.Status);
+  EXPECT_EQ(1u, result.VerbosityLevel);
+}
+
 
 TEST(TestGetOpt_OptionParser, Parse0)
 {
-  std::array<const char*, 2> testArgs = {"skipped", "-v"};
+  std::array<StringViewLite, 1> testArgs = {"-v"};
 
-  auto result = OptionParser::Parse(static_cast<int>(testArgs.size()), const_cast<char**>(testArgs.data()), "help caption");
+  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -83,10 +145,10 @@ TEST(TestGetOpt_OptionParser, Parse0)
 
 TEST(TestGetOpt_OptionParser, Parse1)
 {
-  std::array<const char*, 2> testArgs = {"skipped", "-v"};
+  std::array<StringViewLite, 1> testArgs = {"-v"};
 
   DummyOptionParser dummyOptionParser;
-  auto result = OptionParser::Parse(static_cast<int>(testArgs.size()), const_cast<char**>(testArgs.data()), dummyOptionParser, "help caption");
+  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), dummyOptionParser, "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -95,13 +157,13 @@ TEST(TestGetOpt_OptionParser, Parse1)
 
 TEST(TestGetOpt_OptionParser, Parse2)
 {
-  std::array<const char*, 2> testArgs = {"skipped", "-v"};
+  std::array<StringViewLite, 1> testArgs = {"-v"};
 
   DummyOptionParser dummyOptionParser;
   std::deque<IOptionParser*> optionParsers;
   optionParsers.push_back(&dummyOptionParser);
 
-  auto result = OptionParser::Parse(static_cast<int>(testArgs.size()), const_cast<char**>(testArgs.data()), optionParsers, "help caption");
+  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), optionParsers, "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -110,13 +172,13 @@ TEST(TestGetOpt_OptionParser, Parse2)
 
 TEST(TestGetOpt_OptionParser, Parse3)
 {
-  std::array<const char*, 2> testArgs = {"skipped", "-v"};
+  std::array<StringViewLite, 1> testArgs = {"-v"};
 
   DummyOptionParser dummyOptionParser;
   std::deque<OptionParser::ParserRecord> optionParsers;
   optionParsers.emplace_back(&dummyOptionParser, 0x1000);
 
-  auto result = OptionParser::Parse(static_cast<int>(testArgs.size()), const_cast<char**>(testArgs.data()), optionParsers, "help caption");
+  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), optionParsers, "help caption");
 
   EXPECT_EQ(OptionParser::Result::OK, result.Status);
   EXPECT_EQ(1u, result.VerbosityLevel);
@@ -125,9 +187,9 @@ TEST(TestGetOpt_OptionParser, Parse3)
 
 TEST(TestGetOpt_OptionParser, Parse_Help)
 {
-  std::array<const char*, 2> testArgs = {"skipped", "-h"};
+  std::array<StringViewLite, 1> testArgs = {"-h"};
 
-  auto result = OptionParser::Parse(static_cast<int>(testArgs.size()), const_cast<char**>(testArgs.data()), "help caption");
+  auto result = OptionParser::Parse(ReadOnlySpanUtil::AsSpan(testArgs), "help caption");
 
   // We expect help to cause a exit
   EXPECT_EQ(OptionParser::Result::Exit, result.Status);

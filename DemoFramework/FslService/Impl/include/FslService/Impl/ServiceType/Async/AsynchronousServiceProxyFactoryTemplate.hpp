@@ -44,7 +44,7 @@ namespace Fsl
     {
     }
 
-    AsynchronousServiceProxyFactoryTemplate0(const ServiceCaps::Flags flags)
+    explicit AsynchronousServiceProxyFactoryTemplate0(const ServiceCaps::Flags flags)
       : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(T)), flags)
     {
     }
@@ -65,7 +65,7 @@ namespace Fsl
     {
     }
 
-    AsynchronousServiceProxyFactoryTemplate(const ServiceCaps::Flags flags)
+    explicit AsynchronousServiceProxyFactoryTemplate(const ServiceCaps::Flags flags)
       : AsynchronousServiceProxyFactoryBase(std::type_index(typeid(TItf)), flags)
     {
     }
@@ -85,7 +85,7 @@ namespace Fsl
   public:
     AsynchronousServiceProxyFactoryTemplate2() = default;
 
-    AsynchronousServiceProxyFactoryTemplate2(const ServiceCaps::Flags flags)
+    explicit AsynchronousServiceProxyFactoryTemplate2(const ServiceCaps::Flags flags)
       : m_flags(flags)
     {
     }
@@ -124,7 +124,7 @@ namespace Fsl
   public:
     AsynchronousServiceProxyFactoryTemplate3() = default;
 
-    AsynchronousServiceProxyFactoryTemplate3(const ServiceCaps::Flags flags)
+    explicit AsynchronousServiceProxyFactoryTemplate3(const ServiceCaps::Flags flags)
       : m_flags(flags)
     {
     }

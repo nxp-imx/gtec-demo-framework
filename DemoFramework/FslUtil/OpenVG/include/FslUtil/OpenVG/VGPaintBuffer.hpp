@@ -33,8 +33,6 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/OpenVG/Common.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslGraphics/Bitmap/RawBitmap.hpp>
 #include <VG/openvg.h>
 
 namespace Fsl
@@ -58,7 +56,7 @@ namespace Fsl
 
       //! @brief Let this VGPaintBuffer object assume control over the given VGPaint handle.
       //! @param handle the VGPaint handle
-      VGPaintBuffer(const VGPaint handle);
+      explicit VGPaintBuffer(const VGPaint handle);
 
       ~VGPaintBuffer();
 

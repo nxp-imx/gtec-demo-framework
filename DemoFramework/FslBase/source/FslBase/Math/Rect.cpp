@@ -31,32 +31,12 @@
 
 #include <FslBase/Math/Rect.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/OptimizationFlag.hpp>
 #include <algorithm>
 #include <cassert>
 
 namespace Fsl
 {
-  Rect::Rect(const float x, const float y, const float width, const float height)
-    : m_left(x)
-    , m_top(y)
-    , m_right(x + width)
-    , m_bottom(y + height)
-  {
-    assert(IsValid());
-  }
-
-
-  Rect::Rect(const float left, const float top, const float right, const float bottom, const bool reserved)
-    : m_left(left)
-    , m_top(top)
-    , m_right(right)
-    , m_bottom(bottom)
-  {
-    FSL_PARAM_NOT_USED(reserved);
-    assert(IsValid());
-  }
-
-
   void Rect::SetWidth(const float value)
   {
     FSLLOG3_WARNING_IF(value < 0, "width can not be less than zero, capping it.");

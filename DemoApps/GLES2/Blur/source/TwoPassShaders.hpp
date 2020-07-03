@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslUtil/OpenGLES2/GLProgram.hpp>
 #include <memory>
 #include <vector>
@@ -56,10 +56,11 @@ namespace Fsl
     GLES2::GLProgram ProgramBlurY;
 
     TwoPassShaders();
-    void Reset(const std::shared_ptr<IContentManager>& contentManager, const int32_t kernelLength, const float sigma, const Point2& sizeTextureBlurX,
-               const Point2& sizeTextureBlurY, const TwoPassShaders::Enum mode, const ShaderType::Enum shaderType);
-    void Reset(const std::shared_ptr<IContentManager>& contentManager, const std::vector<double>& kernelSlice, const Point2& sizeTextureBlurX,
-               const Point2& sizeTextureBlurY, const TwoPassShaders::Enum mode, const ShaderType::Enum shaderType);
+    void Reset(const std::shared_ptr<IContentManager>& contentManager, const int32_t kernelLength, const float sigma,
+               const PxSize2D& sizeTextureBlurX, const PxSize2D& sizeTextureBlurY, const TwoPassShaders::Enum mode,
+               const ShaderType::Enum shaderType);
+    void Reset(const std::shared_ptr<IContentManager>& contentManager, const std::vector<double>& kernelSlice, const PxSize2D& sizeTextureBlurX,
+               const PxSize2D& sizeTextureBlurY, const TwoPassShaders::Enum mode, const ShaderType::Enum shaderType);
   };
 }
 

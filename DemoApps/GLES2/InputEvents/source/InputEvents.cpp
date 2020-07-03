@@ -88,18 +88,18 @@ namespace Fsl
   }
 
 
-  void InputEvents::Update(const DemoTime& demoTime)
+  void InputEvents::Update(const DemoTime& /*demoTime*/)
   {
     m_logger.UpdateGamepadStates();
   }
 
 
-  void InputEvents::Draw(const DemoTime& demoTime)
+  void InputEvents::Draw(const DemoTime& /*demoTime*/)
   {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_logger.Draw(GetScreenResolution());
+    m_logger.Draw(GetWindowSizePx());
   }
 
 }

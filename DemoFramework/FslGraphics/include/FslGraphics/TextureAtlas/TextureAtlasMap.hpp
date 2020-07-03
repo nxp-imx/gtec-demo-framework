@@ -32,8 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/IO/Path.hpp>
+#include <FslGraphics/TextureAtlas/AtlasNineSlicePatchInfo.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
-#include <FslBase/String/UTF8String.hpp>
+#include <functional>
 #include <map>
 
 namespace Fsl
@@ -42,14 +44,38 @@ namespace Fsl
 
   class TextureAtlasMap
   {
-    std::map<UTF8String, AtlasTextureInfo> m_map;
+    std::map<IO::Path, AtlasTextureInfo, std::less<>> m_map;
+    std::map<IO::Path, AtlasNineSlicePatchInfo, std::less<>> m_ninesliceMap;
 
   public:
+    TextureAtlasMap(const TextureAtlasMap&) = default;
+    TextureAtlasMap& operator=(const TextureAtlasMap&) = default;
+
+    // move assignment operator
+    TextureAtlasMap& operator=(TextureAtlasMap&& other) noexcept = default;
+    // move constructor
+    TextureAtlasMap(TextureAtlasMap&& other) noexcept = default;
+
     TextureAtlasMap();
-    TextureAtlasMap(ITextureAtlas& atlas);
+    explicit TextureAtlasMap(const ITextureAtlas& atlas);
 
     //! @brief Get the atlas texture info for the supplied texture
-    AtlasTextureInfo GetAtlasTextureInfo(const UTF8String& name) const;
+    AtlasTextureInfo GetAtlasTextureInfo(const IO::PathView& name) const;
+
+    //! @brief Get the atlas texture info for the supplied texture
+    AtlasTextureInfo GetAtlasTextureInfo(const IO::Path& name) const
+    {
+      return GetAtlasTextureInfo(name.AsPathView());
+    }
+
+    //! @brief Get the atlas texture info for the supplied texture
+    AtlasNineSlicePatchInfo GetAtlasNineSlicePatchInfo(const IO::PathView& name) const;
+
+    //! @brief Get the atlas texture info for the supplied texture
+    AtlasNineSlicePatchInfo GetAtlasNineSlicePatchInfo(const IO::Path& name) const
+    {
+      return GetAtlasNineSlicePatchInfo(name.AsPathView());
+    }
   };
 }
 #endif

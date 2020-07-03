@@ -43,6 +43,7 @@ from FslBuildGen.Exceptions import CircularDependencyException
 from FslBuildGen.Exceptions import CircularDependencyInDependentModuleException
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.Package import PackageDependency
 from FslBuildGen.PackageConfig import PackageNameMagicString
@@ -52,13 +53,13 @@ from FslBuildGen.Xml.XmlBase2 import FakeXmlGenFileDependency
 
 
 class PackageBuilder(object):
-    def __init__(self, config: Config, platformName: str, genFiles: List[XmlGenFile], logVerbosity: int = 1) -> None:
+    def __init__(self, config: Config, platformName: str, generatorInfo: GeneratorInfo, genFiles: List[XmlGenFile], logVerbosity: int = 1) -> None:
         super().__init__()
 
         # create top level package and resolve build order
         config.LogPrintVerbose(logVerbosity, "Validating dependencies")
 
-        packageManager = PackageManager(config, platformName, genFiles)
+        packageManager = PackageManager(config, platformName, generatorInfo, genFiles)
         packages = packageManager.Packages
 
         # Build a graph containing all packages

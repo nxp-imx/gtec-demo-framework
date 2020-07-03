@@ -35,6 +35,7 @@
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/PixelFormatUtil.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <array>
 #include <cassert>
 #include <GLES2/gl2ext.h>
 
@@ -64,17 +65,12 @@ namespace Fsl
       struct FormatGL
       {
         FormatState State{FormatState::Invalid};
-        GLint InternalFormat;
-        GLint Format;
-        GLenum Type;
+        GLint InternalFormat{};
+        GLint Format{};
+        GLenum Type{};
         ByteAlignment Alignment{ByteAlignment::Undefined};
 
-        constexpr FormatGL()
-          : InternalFormat{}
-          , Format{}
-          , Type{}
-        {
-        }
+        constexpr FormatGL() = default;
 
         constexpr FormatGL(const GLint internalFormat, const GLint format, const GLenum type)
           : State(FormatState::Normal)
@@ -98,7 +94,6 @@ namespace Fsl
           : State(formatState)
           , InternalFormat(internalFormat)
           , Format(format)
-          , Type{}
           , Alignment(alignment)
         {
         }
@@ -107,7 +102,6 @@ namespace Fsl
           : State(formatState)
           , InternalFormat(internalFormat)
           , Format(format)
-          , Type{}
           , Alignment(ByteAlignment::B4)
         {
         }
@@ -120,7 +114,7 @@ namespace Fsl
 
 
       // clang-format off
-      FormatGL g_convert[] = {
+      constexpr std::array<FormatGL, 188> g_convert = {
                                                                                                   // Internal Format       | Format             | Type                                | Bits | Bits  | Bits | Bits  | Bits     | Format (-) means this would be a conversion operation
         FormatGL(),                                                                               //                                                                                                                           | Undefined
         FormatGL(),                                                                               //                                                                                                                           | R4G4_UNORM_PACK8
@@ -315,7 +309,7 @@ namespace Fsl
       // clang-format on
 
       // Do some sanity checking
-      static_assert(static_cast<uint32_t>(sizeof(g_convert) / sizeof(FormatGL)) == static_cast<uint32_t>(PixelFormat::ENUM_ID_RANGE_SIZE),
+      static_assert(static_cast<uint32_t>(g_convert.size()) == static_cast<uint32_t>(PixelFormat::ENUM_ID_RANGE_SIZE),
                     "g_convert needs to match the size of the enum range");
 
 
@@ -331,10 +325,9 @@ namespace Fsl
         {
           if (format.Alignment == ByteAlignment::Find)
           {
-            return GLRawBitmapUtil::Result(format.InternalFormat, format.Format, format.Type,
-                                           RawBitmapUtil::CalcAlignment(pixelFormat, width, stride, bytesPerPixel));
+            return {format.InternalFormat, format.Format, format.Type, RawBitmapUtil::CalcAlignment(pixelFormat, width, stride, bytesPerPixel)};
           }
-          return GLRawBitmapUtil::Result(format.InternalFormat, format.Format, format.Type, static_cast<GLint>(format.Alignment));
+          return {format.InternalFormat, format.Format, format.Type, static_cast<GLint>(format.Alignment)};
         }
 
         throw UnsupportedPixelFormatException(pixelFormat);
@@ -349,7 +342,7 @@ namespace Fsl
         const auto format = g_convert[index];
         if (format.State == FormatState::Compressed && format.Alignment != ByteAlignment::Find)
         {
-          return GLRawBitmapUtil::CompressedResult(format.InternalFormat, format.Format, static_cast<GLint>(format.Alignment));
+          return {format.InternalFormat, format.Format, static_cast<GLint>(format.Alignment)};
         }
         throw UnsupportedPixelFormatException(pixelFormat);
       }
@@ -368,19 +361,18 @@ namespace Fsl
       switch (pixelFormat)
       {
       case PixelFormat::EX_ALPHA8_UNORM:
-        return Result(GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE,
-                      RawBitmapUtil::CalcAlignment(pixelFormat, width, stride,
-                                                   1));    // GL_ALPHA              | GL_ALPHA           | GL_UNSIGNED_BYTE              | Alpha | A
+        return {GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE,
+                RawBitmapUtil::CalcAlignment(pixelFormat, width, stride,
+                                             1)};    // GL_ALPHA              | GL_ALPHA           | GL_UNSIGNED_BYTE              | Alpha | A
       case PixelFormat::EX_LUMINANCE8_UNORM:
-        return Result(
-          GL_LUMINANCE, GL_LUMINANCE, GL_UNSIGNED_BYTE,
-          RawBitmapUtil::CalcAlignment(pixelFormat, width, stride,
-                                       1));    // GL_LUMINANCE          | GL_LUMINANCE       | GL_UNSIGNED_BYTE              | Luminance | L
+        return {GL_LUMINANCE, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                RawBitmapUtil::CalcAlignment(pixelFormat, width, stride,
+                                             1)};    // GL_LUMINANCE          | GL_LUMINANCE       | GL_UNSIGNED_BYTE              | Luminance | L
       case PixelFormat::EX_LUMINANCE8_ALPHA8_UNORM:
-        return Result(
+        return {
           GL_LUMINANCE_ALPHA, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE,
           RawBitmapUtil::CalcAlignment(pixelFormat, width, stride,
-                                       2));    // GL_LUMINANCE_ALPHA    | GL_LUMINANCE_ALPHA | GL_UNSIGNED_BYTE              | Luminance, Alpha | L, A
+                                       2)};    // GL_LUMINANCE_ALPHA    | GL_LUMINANCE_ALPHA | GL_UNSIGNED_BYTE              | Luminance, Alpha | L, A
       default:
         break;
       }
@@ -415,13 +407,14 @@ namespace Fsl
   namespace
   {
     // Some cut and pasted verification checks just to be 100% on the safe side and its a compile time check so its fine
+    // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_ERROR_MESSAGE "The index did not match our assumption"
 
     // Due to lack of constexpr we use this nasty macro
     // So because of the macros be sure to keep all real code above this so you dont get any interference from them
     //#define LOCAL_GET_PIXELFORMAT_ID(X) ((static_cast<uint32_t>((X)) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)) -
     // static_cast<uint32_t>(PixelFormat::ENUM_ID_BEGIN_RANGE))
-    constexpr int LOCAL_GET_PIXELFORMAT_ID(const PixelFormat pf)
+    constexpr uint32_t LOCAL_GET_PIXELFORMAT_ID(const PixelFormat pf)
     {
       return ((static_cast<uint32_t>((pf)) & static_cast<uint32_t>(PixelFormatFlags::BIT_MASK_FORMAT_ID)) -
               static_cast<uint32_t>(PixelFormat::ENUM_ID_BEGIN_RANGE));

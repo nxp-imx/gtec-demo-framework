@@ -43,7 +43,7 @@ namespace Fsl
     std::function<std::unique_ptr<ICpuStatsAdapter>()> m_fnAllocateAdapter;
 
   public:
-    CpuStatsServiceFactory(const std::function<std::unique_ptr<ICpuStatsAdapter>()>& fnAllocateAdapter);
+    explicit CpuStatsServiceFactory(const std::function<std::unique_ptr<ICpuStatsAdapter>()>& fnAllocateAdapter);
     std::shared_ptr<IService> Allocate(ServiceProvider& provider) override;
   };
 }

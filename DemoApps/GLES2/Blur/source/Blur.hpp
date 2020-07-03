@@ -45,7 +45,7 @@ namespace Fsl
     std::shared_ptr<AScene> m_scene;
 
   public:
-    Blur(const DemoAppConfig& config);
+    explicit Blur(const DemoAppConfig& config);
     ~Blur() override;
 
   protected:

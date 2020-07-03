@@ -10,13 +10,15 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "TexturingArrays.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <array>
@@ -24,14 +26,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-using namespace RapidVulkan;
-
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
-  using namespace Willems;
-
   namespace
   {
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
@@ -75,14 +71,14 @@ namespace Fsl
 
   void TexturingArrays::BuildCommandBuffers()
   {
-    const auto screenExtent = Convert(GetScreenExtent());
+    const auto screenExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
 
     VkCommandBufferBeginInfo cmdBufInfo{};
     cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     cmdBufInfo.pNext = nullptr;
 
 
-    VkClearValue clearValues[2];
+    std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = m_defaultClearColor;
     clearValues[1].depthStencil = {1.0f, 0};
 
@@ -94,8 +90,8 @@ namespace Fsl
     renderPassBeginInfo.renderArea.offset.x = 0;
     renderPassBeginInfo.renderArea.offset.y = 0;
     renderPassBeginInfo.renderArea.extent = screenExtent;
-    renderPassBeginInfo.clearValueCount = 2;
-    renderPassBeginInfo.pClearValues = clearValues;
+    renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
 
     for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
     {
@@ -123,8 +119,8 @@ namespace Fsl
 
         vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
 
-        VkDeviceSize offsets[1] = {0};
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Quad.GetVertices().GetBufferPointer(), offsets);
+        VkDeviceSize offsets = 0;
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Quad.GetVertices().GetBufferPointer(), &offsets);
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Quad.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Solid.Get());
 
@@ -145,12 +141,12 @@ namespace Fsl
   }
 
 
-  void TexturingArrays::Update(const DemoTime& demoTime)
+  void TexturingArrays::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void TexturingArrays::Draw(const DemoTime& demoTime)
+  void TexturingArrays::Draw(const DemoTime& /*demoTime*/)
   {
     if (!TryPrepareFrame())
     {
@@ -191,9 +187,9 @@ namespace Fsl
 
     m_vertices.InputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     m_vertices.InputState.pNext = nullptr;
-    m_vertices.InputState.vertexBindingDescriptionCount = static_cast<uint32_t>(m_vertices.BindingDescriptions.size());
+    m_vertices.InputState.vertexBindingDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.BindingDescriptions.size());
     m_vertices.InputState.pVertexBindingDescriptions = m_vertices.BindingDescriptions.data();
-    m_vertices.InputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertices.AttributeDescriptions.size());
+    m_vertices.InputState.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.AttributeDescriptions.size());
     m_vertices.InputState.pVertexAttributeDescriptions = m_vertices.AttributeDescriptions.data();
   }
 
@@ -216,9 +212,9 @@ namespace Fsl
   }
 
 
-  VulkanTexture TexturingArrays::LoadTextureArray(const std::string& filename, const VkFormat format)
+  Willems::VulkanTexture TexturingArrays::LoadTextureArray(const IO::Path& filename, const VkFormat format)
   {
-    auto pixelFormat = ConvertUtil::Convert(format);
+    auto pixelFormat = Vulkan::VulkanConvert::ToPixelFormat(format);
     auto textureArray = GetContentManager()->ReadTexture(filename, pixelFormat);
     auto texExtent = textureArray.GetExtent();
     texExtent.Depth = 1;
@@ -237,7 +233,7 @@ namespace Fsl
     bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    Buffer stagingBuffer(m_device.Get(), bufferCreateInfo);
+    RapidVulkan::Buffer stagingBuffer(m_device.Get(), bufferCreateInfo);
 
     // Get memory requirements for the staging buffer (alignment, memory type bits)
     VkMemoryRequirements memReqs = stagingBuffer.GetBufferMemoryRequirements();
@@ -250,7 +246,7 @@ namespace Fsl
     memAllocInfo.memoryTypeIndex =
       m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-    Memory stagingMemory(m_device.Get(), memAllocInfo);
+    RapidVulkan::Memory stagingMemory(m_device.Get(), memAllocInfo);
 
     RAPIDVULKAN_CHECK(vkBindBufferMemory(m_device.Get(), stagingBuffer.Get(), stagingMemory.Get(), 0));
 
@@ -291,7 +287,7 @@ namespace Fsl
       bufferCopyRegion.imageSubresource.mipLevel = 0;
       bufferCopyRegion.imageSubresource.baseArrayLayer = 0;
       bufferCopyRegion.imageSubresource.layerCount = textureArray.GetLayers();
-      bufferCopyRegion.imageExtent = Convert(texExtent);
+      bufferCopyRegion.imageExtent = TypeConverter::UncheckedTo<VkExtent3D>(texExtent);
       bufferCopyRegion.bufferOffset = 0;
 
       bufferCopyRegions.push_back(bufferCopyRegion);
@@ -332,22 +328,22 @@ namespace Fsl
     imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageCreateInfo.extent = Convert(texExtent);
+    imageCreateInfo.extent = TypeConverter::UncheckedTo<VkExtent3D>(texExtent);
     imageCreateInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
-    Image texImage(m_device.Get(), imageCreateInfo);
+    RapidVulkan::Image texImage(m_device.Get(), imageCreateInfo);
 
     memReqs = texImage.GetImageMemoryRequirements();
 
     memAllocInfo.allocationSize = memReqs.size;
     memAllocInfo.memoryTypeIndex = m_vulkanDevice.GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    Memory texMemory(m_device.Get(), memAllocInfo);
+    RapidVulkan::Memory texMemory(m_device.Get(), memAllocInfo);
     RAPIDVULKAN_CHECK(vkBindImageMemory(m_device.Get(), texImage.Get(), texMemory.Get(), 0));
 
     const VkImageLayout texImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     {
-      CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+      RapidVulkan::CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 
       // Image barrier for optimal image (target)
       // Set initial layout for all array layers (faces) of the optimal (target) tiled texture
@@ -357,16 +353,16 @@ namespace Fsl
       subresourceRange.levelCount = 1;
       subresourceRange.layerCount = textureArray.GetLayers();
 
-      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+      Vulkan::CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+                                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
 
       // Copy the cube map faces from the staging buffer to the optimal tiled image
       vkCmdCopyBufferToImage(copyCmd.Get(), stagingBuffer.Get(), texImage.Get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                             static_cast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
+                             UncheckedNumericCast<uint32_t>(bufferCopyRegions.size()), bufferCopyRegions.data());
 
       // Change texture image layout to shader read after all faces have been copied
-      CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                        texImageLayout, subresourceRange);
+      Vulkan::CommandBufferUtil::SetImageLayout(copyCmd.Get(), texImage.Get(), VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                texImageLayout, subresourceRange);
 
       FlushCommandBuffer(copyCmd, m_deviceQueue.Queue, true);
     }
@@ -388,7 +384,7 @@ namespace Fsl
     sampler.maxLod = 0.0f;
     sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-    Sampler texSampler(m_device.Get(), sampler);
+    RapidVulkan::Sampler texSampler(m_device.Get(), sampler);
 
     // Create image view
     VkImageViewCreateInfo view{};
@@ -401,7 +397,7 @@ namespace Fsl
     view.subresourceRange.layerCount = textureArray.GetLayers();
     view.image = texImage.Get();
 
-    ImageView texImageView(m_device.Get(), view);
+    RapidVulkan::ImageView texImageView(m_device.Get(), view);
 
     VkDescriptorImageInfo texDescriptor{};
     texDescriptor.sampler = texSampler.Get();
@@ -409,8 +405,8 @@ namespace Fsl
     texDescriptor.imageLayout = texImageLayout;
 
     // Transfer ownership to the texture object (move)
-    return VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory), std::move(texImageView), texExtent,
-                         textureArray.GetLevels(), textureArray.GetLayers(), texDescriptor);
+    return Willems::VulkanTexture(std::move(texSampler), std::move(texImage), texImageLayout, std::move(texMemory), std::move(texImageView),
+                                  texExtent, textureArray.GetLevels(), textureArray.GetLayers(), texDescriptor);
   }
 
 
@@ -420,22 +416,22 @@ namespace Fsl
     std::vector<Vertex> vertexBuffer = {
       {{dim, dim, 0.0f}, {1.0f, 1.0f}}, {{-dim, dim, 0.0f}, {0.0f, 1.0f}}, {{-dim, -dim, 0.0f}, {0.0f, 0.0f}}, {{dim, -dim, 0.0f}, {1.0f, 0.0f}}};
 
-    MeshLoader::MeshBufferInfo meshVertexInfo;
+    Willems::MeshLoader::MeshBufferInfo meshVertexInfo;
     CreateBuffer(meshVertexInfo.Buffer, meshVertexInfo.Memory, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexBuffer.size() * sizeof(Vertex),
                  vertexBuffer.data());
 
     // Setup indices
     const std::vector<uint32_t> indexBuffer = {0, 1, 2, 2, 3, 0};
 
-    MeshLoader::MeshBufferInfo meshIndexInfo;
+    Willems::MeshLoader::MeshBufferInfo meshIndexInfo;
     CreateBuffer(meshIndexInfo.Buffer, meshIndexInfo.Memory, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indexBuffer.size() * sizeof(uint32_t),
                  indexBuffer.data());
 
-    std::vector<MeshLoader::MeshDescriptor> meshDescriptors;
-    meshDescriptors.emplace_back(static_cast<uint32_t>(vertexBuffer.size()), 0, static_cast<uint32_t>(indexBuffer.size()));
+    std::vector<Willems::MeshLoader::MeshDescriptor> meshDescriptors;
+    meshDescriptors.emplace_back(UncheckedNumericCast<uint32_t>(vertexBuffer.size()), 0, UncheckedNumericCast<uint32_t>(indexBuffer.size()));
 
-    m_meshes.Quad.Reset(std::move(meshDescriptors), std::move(meshVertexInfo), std::move(meshIndexInfo), static_cast<uint32_t>(indexBuffer.size()),
-                        glm::vec3(dim));
+    m_meshes.Quad.Reset(std::move(meshDescriptors), std::move(meshVertexInfo), std::move(meshIndexInfo),
+                        UncheckedNumericCast<uint32_t>(indexBuffer.size()), glm::vec3(dim));
   }
 
 
@@ -524,7 +520,7 @@ namespace Fsl
     VkDescriptorSetLayoutCreateInfo descriptorLayout{};
     descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorLayout.pNext = nullptr;
-    descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+    descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
     descriptorLayout.pBindings = setLayoutBindings.data();
 
     m_descriptorSetLayout.Reset(m_device.Get(), descriptorLayout);
@@ -590,7 +586,7 @@ namespace Fsl
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicState.flags = 0;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+    dynamicState.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateEnables.size());
     dynamicState.pDynamicStates = dynamicStateEnables.data();
 
     // Instacing pipeline
@@ -614,7 +610,7 @@ namespace Fsl
     pipelineCreateInfo.pViewportState = &viewportState;
     pipelineCreateInfo.pDepthStencilState = &depthStencilState;
     pipelineCreateInfo.pDynamicState = &dynamicState;
-    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(shaderStages.size());
     pipelineCreateInfo.pStages = shaderStages.data();
 
     m_pipelines.Solid.Reset(m_device.Get(), m_pipelineCache.Get(), pipelineCreateInfo);
@@ -633,7 +629,7 @@ namespace Fsl
     descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolInfo.pNext = nullptr;
     descriptorPoolInfo.maxSets = 2;
-    descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
     descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
     m_descriptorPool.Reset(m_device.Get(), descriptorPoolInfo);
@@ -669,6 +665,6 @@ namespace Fsl
     writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     writeDescriptorSets[1].pImageInfo = m_textureArray.GetImageDescriptorPointer();
 
-    vkUpdateDescriptorSets(m_device.Get(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+    vkUpdateDescriptorSets(m_device.Get(), UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
   }
 }

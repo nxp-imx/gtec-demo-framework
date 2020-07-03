@@ -31,12 +31,13 @@
 
 #include <FslService/Impl/ServiceType/Async/AsynchronousServiceMessageHandlerRegistry.hpp>
 #include <FslService/Impl/ServiceType/Async/IAsynchronousServiceMessageHandlerRegistry.hpp>
+#include <utility>
 
 namespace Fsl
 {
   AsynchronousServiceMessageHandlerRegistry::AsynchronousServiceMessageHandlerRegistry(
-    const std::shared_ptr<IAsynchronousServiceMessageHandlerRegistry>& registry)
-    : m_registry(registry)
+    std::shared_ptr<IAsynchronousServiceMessageHandlerRegistry> registry)
+    : m_registry(std::move(registry))
   {
   }
 

@@ -39,12 +39,12 @@ struct WindowMethodFlags
 
   WindowMethodFlags() = default;
 
-  WindowMethodFlags(const uint32_t value)
+  explicit WindowMethodFlags(const uint32_t value)
     : Value(value)
   {
   }
 
-  WindowMethodFlags(const WindowMethod value)
+  WindowMethodFlags(const WindowMethod value)    // NOLINT(google-explicit-constructor)
     : Value(static_cast<uint32_t>(value))
   {
   }

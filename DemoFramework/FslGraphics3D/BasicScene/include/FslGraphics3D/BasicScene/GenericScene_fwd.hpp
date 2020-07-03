@@ -45,7 +45,7 @@ namespace Fsl
       using mesh_type = TMesh;
 
       GenericScene();
-      GenericScene(const std::size_t numMeshes);
+      explicit GenericScene(const std::size_t numMeshes);
       GenericScene(const MeshAllocatorFunc& meshAllocator, const std::size_t numMeshes);
 
       std::deque<std::shared_ptr<TMesh>> Meshes;

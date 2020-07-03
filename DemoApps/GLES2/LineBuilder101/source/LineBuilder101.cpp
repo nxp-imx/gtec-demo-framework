@@ -55,7 +55,7 @@ namespace Fsl
 
   void LineBuilder101::Update(const DemoTime& demoTime)
   {
-    m_example.Update(demoTime, GetScreenResolution());
+    m_example.Update(demoTime, GetWindowSizePx());
 
     m_vertexUboData.MatViewProjection = m_example.GetViewMatrix() * m_example.GetProjectionMatrix();
   }

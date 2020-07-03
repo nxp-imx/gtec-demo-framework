@@ -57,7 +57,7 @@ namespace Fsl
       MeshRenderNormals RenderNormals;
       MeshRender& Render;
 
-      MeshStuffRecord(const Procedural::BasicMesh& mesh)
+      explicit MeshStuffRecord(const Procedural::BasicMesh& mesh)
         : Mesh(mesh)
         , MeshRender1(mesh)
         , MeshRender2(mesh)
@@ -96,7 +96,7 @@ namespace Fsl
     float m_radians;
 
   public:
-    T3DStressTest(const DemoAppConfig& config);
+    explicit T3DStressTest(const DemoAppConfig& config);
     ~T3DStressTest() override;
 
   protected:

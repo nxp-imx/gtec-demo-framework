@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "Bloom.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
@@ -62,7 +63,7 @@ namespace Fsl
       DemoAppVulkanSetup setup;
       setup.DepthBuffer = DepthBufferMode::Enabled;
       // Ensure that we can reuse the depth buffer for offscreen rendering even when the 'screen resolution' would be lower
-      setup.DepthBufferMinimumExtent = Extent2D(SIZE_256, SIZE_256);
+      setup.DepthBufferMinimumExtent = PxExtent2D(SIZE_256, SIZE_256);
       return setup;
     }
 
@@ -77,7 +78,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -94,7 +95,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -113,7 +114,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -136,7 +137,7 @@ namespace Fsl
       writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[0].pImageInfo = &textureImageInfo0;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
       return descriptorSet;
     }
 
@@ -155,7 +156,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -188,7 +189,7 @@ namespace Fsl
         writeDescriptorSets[i].pImageInfo = &imageInfo[i];
       }
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
       return descriptorSet;
     }
 
@@ -280,8 +281,8 @@ namespace Fsl
 
       const uint32_t attachmentCount = enableDepth ? 2 : 1;
 
-      return RapidVulkan::RenderPass(device, 0, attachmentCount, attachments.data(), static_cast<uint32_t>(subpassDescription.size()),
-                                     subpassDescription.data(), static_cast<uint32_t>(subpassDependency.size()), subpassDependency.data());
+      return RapidVulkan::RenderPass(device, 0, attachmentCount, attachments.data(), UncheckedNumericCast<uint32_t>(subpassDescription.size()),
+                                     subpassDescription.data(), UncheckedNumericCast<uint32_t>(subpassDependency.size()), subpassDependency.data());
     }
 
 
@@ -316,7 +317,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.flags = 0;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &vertexBufferInfo.BindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = vertexBufferInfo.AttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -406,13 +407,13 @@ namespace Fsl
       VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
       pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
       pipelineDynamicStateCreateInfo.flags = 0;
-      pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+      pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicState.size());
       pipelineDynamicStateCreateInfo.pDynamicStates = dynamicState.data();
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
       graphicsPipelineCreateInfo.flags = 0;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -463,7 +464,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.flags = 0;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &vertexBufferInfo.BindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = vertexBufferInfo.AttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -552,7 +553,7 @@ namespace Fsl
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
       graphicsPipelineCreateInfo.flags = 0;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -582,7 +583,7 @@ namespace Fsl
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
     , m_menuUI(config)
     , m_batch(std::dynamic_pointer_cast<Vulkan::NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
-    , m_camera(config.ScreenResolution)
+    , m_camera(config.WindowMetrics.GetSizePx())
     , m_rotationSpeed(0, -0.6f, 0)
     , m_renderUI(true)
     , m_gaussianBlurKernelWeight(m_menuUI.GetKernelWeightMod())
@@ -785,7 +786,7 @@ namespace Fsl
 
     if (m_scene)
     {
-      m_scene->Update(demoTime, m_camera.GetViewMatrix(), m_camera.GetRotationMatrix(), m_rotation, GetScreenResolution());
+      m_scene->Update(demoTime, m_camera.GetViewMatrix(), m_camera.GetRotationMatrix(), m_rotation, GetWindowSizePx());
     }
 
     if (m_menuUI.GetKernelWeightMod() != m_gaussianBlurKernelWeight)
@@ -796,12 +797,12 @@ namespace Fsl
   }
 
 
-  void Bloom::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void Bloom::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     if (m_scene)
     {
       m_scene->PreDraw(frameIndex, hCmdBuffer);
@@ -812,7 +813,7 @@ namespace Fsl
       DrawOffscreenRenderpasses(rCmdBuffers, drawContext);
 
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+      clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -822,7 +823,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -845,9 +846,9 @@ namespace Fsl
     const auto offscreenRFormat = context.SwapchainImageFormat;
     m_dependentResources.OffscreenRP = CreateRenderPass(m_device.Get(), offscreenRFormat, context.DepthBufferImageFormat);
     m_dependentResources.OffscreenRPNoDepth = CreateRenderPass(m_device.Get(), offscreenRFormat);
-    const auto offscreenRP = m_dependentResources.OffscreenRP.Get();
-    const auto offscreenRPNoDepth = m_dependentResources.OffscreenRPNoDepth.Get();
-    const auto depthImageView = context.DepthImageView;
+    const VkRenderPass offscreenRP = m_dependentResources.OffscreenRP.Get();
+    const VkRenderPass offscreenRPNoDepth = m_dependentResources.OffscreenRPNoDepth.Get();
+    const VkImageView depthImageView = context.DepthImageView;
 
     m_dependentResources.OffscreenFB256.Reset(m_device, VkExtent2D{SIZE_256, SIZE_256}, offscreenRFormat, offscreenRP, depthImageView, "FB256");
     m_dependentResources.OffscreenFB256A.Reset(m_device, VkExtent2D{SIZE_256, SIZE_256}, offscreenRFormat, offscreenRPNoDepth, "FB256A");
@@ -883,8 +884,8 @@ namespace Fsl
     {
       const auto& blurPipelineLayout = m_resources.BlurPipelineLayout;
       const auto blurExtent = context.SwapchainImageExtent;
-      const auto hVertShader = m_resources.ShaderPassVert.Get();
-      const auto hRP = offscreenRPNoDepth;
+      const VkShaderModule hVertShader = m_resources.ShaderPassVert.Get();
+      const VkRenderPass hRP = offscreenRPNoDepth;
       const auto& vb = m_resources.VBFullScreen;
       m_dependentResources.PipelineBlurCustomH =
         CreatePipeline(blurPipelineLayout, blurExtent, hVertShader, m_resources.ShaderBlurHCustomFrag.Get(), vb, hRP, 0);
@@ -953,13 +954,13 @@ namespace Fsl
   {
     const auto currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
     const auto frameIndex = drawContext.CurrentFrameIndex;
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
 
     // 1. Render the scene to a low res frame buffer
     {
       const VkExtent2D fbExtent{SIZE_256, SIZE_256};
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+      clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -968,7 +969,7 @@ namespace Fsl
       renderPassBeginInfo.framebuffer = m_dependentResources.OffscreenFB256.GetFramebuffer();
       renderPassBeginInfo.renderArea.offset = {0, 0};
       renderPassBeginInfo.renderArea.extent = fbExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -995,8 +996,8 @@ namespace Fsl
     }
 
     // 2. Apply bright pass
-    const auto hPipelineLayout = m_resources.OffscreenPipelineLayout.Get();
-    const auto renderPass = m_dependentResources.OffscreenRPNoDepth.Get();
+    const VkPipelineLayout hPipelineLayout = m_resources.OffscreenPipelineLayout.Get();
+    const VkRenderPass renderPass = m_dependentResources.OffscreenRPNoDepth.Get();
     if (m_menuUI.IsBrightPassEnabled())
     {
       PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, m_dependentResources.OffscreenFB256A, hPipelineLayout,
@@ -1090,15 +1091,15 @@ namespace Fsl
     // Draw bloom with a fullscreen additive pass
     if (m_menuUI.IsFinalBloomEnabled())
     {
-      const auto hBloomPipelineLayout = m_resources.BloomPipelineLayout.Get();
+      const VkPipelineLayout hBloomPipelineLayout = m_resources.BloomPipelineLayout.Get();
       const auto currentLayer = m_menuUI.GetBlendLevel();
       vkCmdPushConstants(hCmdBuffer, hBloomPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(float), &currentLayer);
 
       vkCmdBindDescriptorSets(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hBloomPipelineLayout, 0, 1, &m_resources.BloomDescriptorSet, 0, nullptr);
       vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineBloom.Get());
 
-      VkDeviceSize offsets[1] = {0};
-      vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), offsets);
+      VkDeviceSize offsets = 0;
+      vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), &offsets);
       vkCmdDraw(hCmdBuffer, m_resources.VBFullScreen.VertexBuffer.GetVertexCount(), 1, 0, 0);
     }
 
@@ -1138,14 +1139,14 @@ namespace Fsl
       {
       case BlurShaderType::Gaussian5X5:
       {
-        const auto hPipelineLayout = m_resources.BlurPipelineLayout5.Get();
+        const VkPipelineLayout hPipelineLayout = m_resources.BlurPipelineLayout5.Get();
         std::array<float, 3> pushConstants = {m_gaussian5.Weight0, m_gaussian5.Weight1, m_gaussian5.Offset0 * texSize};
         vkCmdPushConstants(hCmdBuffer, hPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushConstants), pushConstants.data());
         return hPipelineLayout;
       }
       case BlurShaderType::Gaussian9X9:
       {
-        const auto hPipelineLayout = m_resources.BlurPipelineLayout9.Get();
+        const VkPipelineLayout hPipelineLayout = m_resources.BlurPipelineLayout9.Get();
         std::array<float, 5> pushConstants = {m_gaussian9.Weight0, m_gaussian9.Weight1, m_gaussian9.Weight2, m_gaussian9.Offset0 * texSize,
                                               m_gaussian9.Offset1 * texSize};
         vkCmdPushConstants(hCmdBuffer, hPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(pushConstants), pushConstants.data());
@@ -1157,7 +1158,7 @@ namespace Fsl
     }
 
     {
-      const auto hPipelineLayout = m_resources.BlurPipelineLayout.Get();
+      const VkPipelineLayout hPipelineLayout = m_resources.BlurPipelineLayout.Get();
       vkCmdPushConstants(hCmdBuffer, hPipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(float), &texSize);
       return hPipelineLayout;
     }
@@ -1199,9 +1200,9 @@ namespace Fsl
   void Bloom::PostProcessBlurH(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
                                const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet)
   {
-    const auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     // works since the dst and src size should be the same
-    const auto hPipelineLayout = PrepareBlurPipeline(m_activeBlueShaderType, hCmdBuffer, dst.GetExtent2D().width);
+    const VkPipelineLayout hPipelineLayout = PrepareBlurPipeline(m_activeBlueShaderType, hCmdBuffer, dst.GetExtent2D().width);
     const auto& pipeline = GetBlurHPipeline(m_activeBlueShaderType);
 
     PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, dst, hPipelineLayout, srcDescriptorSet, pipeline);
@@ -1211,26 +1212,26 @@ namespace Fsl
   void Bloom::PostProcessBlurV(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
                                const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkDescriptorSet& srcDescriptorSet)
   {
-    const auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     // works since the dst and src size should be the same
-    const auto hPipelineLayout = PrepareBlurPipeline(m_activeBlueShaderType, hCmdBuffer, dst.GetExtent2D().height);
+    const VkPipelineLayout hPipelineLayout = PrepareBlurPipeline(m_activeBlueShaderType, hCmdBuffer, dst.GetExtent2D().height);
     const auto& pipeline = GetBlurVPipeline(m_activeBlueShaderType);
 
     PostProcess(rCmdBuffers, currentSwapBufferIndex, frameIndex, renderPass, dst, hPipelineLayout, srcDescriptorSet, pipeline);
   }
 
 
-  void Bloom::PostProcess(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t frameIndex,
+  void Bloom::PostProcess(RapidVulkan::CommandBuffers& rCmdBuffers, const uint32_t currentSwapBufferIndex, const uint32_t /*frameIndex*/,
                           const VkRenderPass renderPass, const Vulkan::VUFramebuffer& dst, const VkPipelineLayout hPipelineLayout,
                           const VkDescriptorSet& srcDescriptorSet, const RapidVulkan::GraphicsPipeline& pipeline)
   {
-    const auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
 
     // Composite everything
     const auto dstExtent = dst.GetExtent2D();
 
     std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+    clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
     clearValues[1].depthStencil = {1.0f, 0};
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -1239,7 +1240,7 @@ namespace Fsl
     renderPassBeginInfo.framebuffer = dst.GetFramebuffer();
     renderPassBeginInfo.renderArea.offset = {0, 0};
     renderPassBeginInfo.renderArea.extent = dstExtent;
-    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
     renderPassBeginInfo.pClearValues = clearValues.data();
 
     rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -1269,8 +1270,8 @@ namespace Fsl
     vkCmdBindDescriptorSets(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, hPipelineLayout, 0, 1, &srcDescriptorSet, 0, nullptr);
     vkCmdBindPipeline(hCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.Get());
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VBFullScreen.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.VBFullScreen.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

@@ -1,5 +1,92 @@
 # Latest version
 
+* Renamed the new UIDemoAppExtension2 to UIDemoAppExtension as it has now replaced the former UIDemoAppExtension which is now called UIDemoAppLegacyExtension.
+* **Breaking change** Renamed UIDemoAppExtension to UIDemoAppLegacyExtension.
+* Downgraded ninja from 1.9.0 to 1.8.2 for better default compatibility with Ubuntu 18.04
+* Ubuntu builds now rely on cmake find package to locate the OpenCL implementation.
+* **Breaking change** OptionParser OnParse changed from  pszOptArg (cstring) to a StringViewLite.
+* **Breaking change** Replaced Rectangle with PxRectangle on GenericBatch2D, INativeBatch2D.
+* **Breaking change** Replaced Rect with PxAreaRectangleF on GenericBatch2D, INativeBatch2D.
+* **Breaking change** FslSimpleUI renamed Image.hpp to AtlasTexture2DImage.hpp. This was done to make room for the DP aware Image control.
+* Clang tidy+format now requires clang 10 (this is the default version in Ubuntu20.04)
+* FslBuild changed default generator on Yocto to *Ninja* instead of *Unix Makefiles* to improve build speed.
+* Replaced the default fbk format with nbf bitmap fonts. So we now have more advanced kerning support.
+* FslBuild changed default generator on Ubuntu to *Ninja* instead of *Unix Makefiles* to improve build speed.
+* FslBuild improved cmake generator support.
+* Added GLES2, GLES3, Vulkan SDF font rendering example.
+* FslFontHelper added  angle code font support.
+* Added GLES2, GLES3, Vulkan UI.DevNativeTexture2D
+* Added GLES2, GLES3, Vulkan UI.DevNativeTexture2D
+* Added GLES2, GLES3, Vulkan UI.DpiScale
+* Added GLES2, GLES3, Vulkan UI.SmoothScroll
+* Added GLES2, GLES3, Vulkan UI.ThemeBasicUI
+* Added GLES2, GLES3, UI.PixelPerfect
+* Added NumericCast<type> for safe type conversion.
+* Added UncheckedNumericCast<type> for debug checked type conversion.
+* Added TypeConverter to convert between common types (Rectangle to PxRectangle etc)
+* **Breaking change** Replaced FslUtil/Vulkan1_0/Util/ConvertUtil.hpp with FslUtil/Vulkan1_0/TypeConverter.hpp and FslUtil/Vulkan1_0/Util/VulkanConvert.hpp.
+* Upgraded fmt from 6.1.2 to 6.2.0
+* Added Convert::To<type> for safe type conversion.
+* Added FastConvert::To<type> for debug checked type conversion.
+* **Breaking change** Replaced FslUtil/Vulkan1_0/Util/ConvertUtil.hpp with FslUtil/Vulkan1_0/Convert.hpp and FslUtil/Vulkan1_0/Util/VulkanConvert.hpp.
+* ADemoApp GetScreenResolution was deprecated, use GetWindowSizePx instead.
+* **Breaking change** BaseWindow & IWindowInfo PointFrom now uses PxPoint2 instead of Vector2
+* **Breaking change** BaseWindow & IWindowInfo PointTo now uses PxPoint2 instead of Vector2
+* **Breaking change** BaseWindow ArrangeOverride now uses PxSize2D instead of Vector2
+* **Breaking change** BaseWindow Arrange now uses PxRectangle instead of Rect
+* **Breaking change** BaseWindow MeasureOverride now uses PxSize2D and PxAvailableSize instead of Vector2
+* **Breaking change** BaseWindow Measure now uses PxPoint2 instead of Vector2
+* **Breaking change** Removed FSL_REGISTER_OPENCL_DEMO, FSL_REGISTER_OPENCL_DEMO_EX, FSL_REGISTER_G2D_DEMO, FSL_REGISTER_G2D_DEMO_EX,
+  FSL_REGISTER_CONSOLE_DEMO, FSL_REGISTER_CONSOLE_DEMO_EX, FSL_REGISTER_OPENGLES2_DEMO, FSL_REGISTER_OPENGLES2_DEMO_EX,
+  FSL_REGISTER_OPENGLES3_DEMO, FSL_REGISTER_OPENGLES3_DEMO_EX, FSL_REGISTER_OPENGLES3_X_DEMO, FSL_REGISTER_OPENGLES3_X_DEMO_EX,
+  FSL_REGISTER_OPENVG_DEMO, FSL_REGISTER_OPENVG_DEMO_EX, FSL_REGISTER_OPENVX_DEMO, FSL_REGISTER_OPENVX_DEMO_EX,
+  FSL_REGISTER_STUB_DEMO, FSL_REGISTER_STUB_DEMO_EX, FSL_REGISTER_VULKAN_DEMO, FSL_REGISTER_VULKAN_DEMO_EX,
+  FSL_REGISTER_WINDOW_DEMO, FSL_REGISTER_WINDOW_DEMO_EX
+* Clang tidy+format now requires clang 9
+* **Breaking change** Removed FSL_ATTR_DEPRECATED and replaced it with the C++14 alternative.
+* **Breaking change** TextureFlags is now a enum class and the helper methods was moved to TextureFlagsUtil
+* **Breaking change** Removed SliderAndValueLabel use SliderAndFmtValueLabel<int32_t> instead.
+* **Breaking change** Removed ValueLabel use FmtValueLabel<int32_t> instead.
+* **Breaking change** Removed FloatValueLabel use FmtValueLabel<float> instead.
+* **Breaking change** Removed FloatSlider use Slider<float> instead.
+* **Breaking change** Removed FloatSliderAndValue use SliderAndFmtValueLabel<float> instead.
+* Unified the px naming scheme.
+* Renamed Vulkan.DevBatch to Vulkan.UI.DevBatch
+* Renamed GLES2.DFSimpleUI101 to GLES2.UI.SimpleUI101
+* Renamed GLES3.DFSimpleUI101 to GLES3.UI.SimpleUI101
+* Renamed Vulkan.DFSimpleUI101 to Vulkan.UI.SimpleUI101
+* Renamed GLES2.DFSimpleUI100 to GLES2.UI.SimpleUI100
+* Renamed GLES3.DFSimpleUI100 to GLES3.UI.SimpleUI100
+* Renamed Vulkan.DFSimpleUI100 to Vulkan.UI.SimpleUI100
+* More unit tests
+* **Breaking change** FslSimpleUI SetValueLimits renamed to SetRange.
+* **Breaking change** All events containing positions now use PxPoint2 instead of Point2.
+* **Breaking change** FslUtil.OpenGLES2 NativeTexture renamed to DynamicNativeTexture.
+* **Breaking change** FslUtil.OpenGLES3 NativeTexture renamed to DynamicNativeTexture.
+* **Breaking change** AtlasFont.GetAtlasTexture() now returns a BaseTexture2D instead of a Texture2D.
+* **Breaking change** AtlasTexture2D.GetAtlasTexture() now returns a BaseTexture2D instead of a Texture2D.
+* **Breaking change** Texture2D SetData removed. Use DynamicTexture2D if you need to modify the texture content after creation.
+* **Breaking change** INativeTexture2D SetData removed. Use IDynamicNativeTexture2D if you need to modify the texture content after creation.
+* **Breaking change** IO::Path are no longer implicitly constructed from std::string
+* **Breaking change** IO::Path are no longer implicitly constructed from UTF8String
+* **Breaking change** struct CustomDemoAppConfig replaced RestartOnResize with RestartFlags.
+  So for many apps the configuration changed from "customDemoAppConfig.RestartOnResize = false" to "customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never".
+  This allows more configuration of the restart options and makes it easier to extend.
+* **Breaking change** Resized method replaced with ConfigurationChanged.
+* Renamed Vulkan.DFScaling to Vulkan.UI.PixelPerfect
+* Updated JNIUtil and NDKHelper with changes from latest NDK.
+* Simplified the Vulkan Native Window implementation.
+* Added UTIL function to patch a bitmap texture atlas with RED/BLUE texture entries.
+* Added PX helper classes.
+* Added BTA2+3 support
+* Clang tidy pass
+* Removed legacy MMDC support.
+* Fixed CMake template to ensure that the content directory is properly installed.
+* Vulkan.DFScaling added
+* More samples takes advantage of the ContentPipeline and the shared resource directory.
+* Added more constexpr methods to the FslBase
+* Upgraded TPConvert
+
 ## Release 5.5.1
 * Fixed shader precision issue (that also exist in 5.4.0 and previous releases).
 * Workaround for OpenVG reference implementation EGL bug.

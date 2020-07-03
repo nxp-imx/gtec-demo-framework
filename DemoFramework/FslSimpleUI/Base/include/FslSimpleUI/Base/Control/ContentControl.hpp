@@ -41,15 +41,15 @@ namespace Fsl
     class ContentControl : public ContentControlBase
     {
     public:
-      ContentControl(const std::shared_ptr<BaseWindowContext>& context);
+      explicit ContentControl(const std::shared_ptr<BaseWindowContext>& context);
 
 
-      ThicknessF GetPadding() const
+      DpThickness GetPadding() const
       {
         return DoGetPadding();
       }
 
-      void SetPadding(const ThicknessF& value)
+      void SetPadding(const DpThickness& value)
       {
         DoSetPadding(value);
       }

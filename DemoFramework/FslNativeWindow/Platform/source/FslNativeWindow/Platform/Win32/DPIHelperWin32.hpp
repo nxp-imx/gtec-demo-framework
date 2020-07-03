@@ -61,7 +61,7 @@ namespace Fsl
     DPIHelperWin32();
     ~DPIHelperWin32();
 
-    bool TryGetDPI(HWND hWnd, Point2& rDPI) const;
+    bool TryGetDpi(HWND hWnd, Point2& rDPI) const;
   };
 }    // namespace Fsl
 

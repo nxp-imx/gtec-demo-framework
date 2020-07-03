@@ -33,6 +33,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <algorithm>
 #include <cassert>
+#include <utility>
 #include "IModuleCallbackReceiver.hpp"
 #include "../TreeNode.hpp"
 
@@ -45,8 +46,8 @@ namespace Fsl
       struct ReceiverComp
       {
         const std::shared_ptr<IModuleCallbackReceiver> Key;
-        explicit ReceiverComp(const std::shared_ptr<IModuleCallbackReceiver>& key)
-          : Key(key)
+        explicit ReceiverComp(std::shared_ptr<IModuleCallbackReceiver> key)
+          : Key(std::move(key))
         {
         }
         inline bool operator()(const std::weak_ptr<IModuleCallbackReceiver>& record) const

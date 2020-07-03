@@ -33,6 +33,7 @@
 
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslUtil/Vulkan1_0/Common.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferUsage.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
@@ -122,16 +123,16 @@ namespace Fsl
 
       //! @brief Create a initialized vertex buffer
       template <typename T>
-      VMVertexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const T* const pVertices, const std::size_t elementCount,
-                     const VMBufferUsage usage)
+      [[deprecated("use the ReadOnlySpan variant")]] VMVertexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const T* const pVertices,
+                                                                    const std::size_t elementCount, const VMBufferUsage usage)
         : VMVertexBuffer()
       {
-        Reset(bufferManager, pVertices, elementCount, usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(pVertices, elementCount), usage);
       }
 
       //! @brief Create a initialized vertex buffer
-      template <typename T, std::size_t TSize>
-      VMVertexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<T, TSize>& vertices, const VMBufferUsage usage)
+      template <typename T>
+      VMVertexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlySpan<T> vertices, const VMBufferUsage usage)
         : VMVertexBuffer()
       {
         Reset(bufferManager, vertices, usage);
@@ -139,10 +140,27 @@ namespace Fsl
 
       //! @brief Create a initialized vertex buffer
       template <typename T>
+      VMVertexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlySpan<T> vertices, const std::size_t elementCapacity,
+                     const VMBufferUsage usage)
+        : VMVertexBuffer()
+      {
+        Reset(bufferManager, vertices, elementCapacity, usage);
+      }
+
+      //! @brief Create a initialized vertex buffer
+      template <typename T, std::size_t TSize>
+      VMVertexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<T, TSize>& vertices, const VMBufferUsage usage)
+        : VMVertexBuffer()
+      {
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(vertices), usage);
+      }
+
+      //! @brief Create a initialized vertex buffer
+      template <typename T>
       VMVertexBuffer(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<T>& vertices, const VMBufferUsage usage)
         : VMVertexBuffer()
       {
-        Reset(bufferManager, vertices, usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(vertices), usage);
       }
 
 
@@ -167,7 +185,16 @@ namespace Fsl
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
       void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pVertices, const std::size_t elementCount,
-                 const VertexDeclaration& vertexDeclaration, const VMBufferUsage usage);
+                 const VertexDeclaration& vertexDeclaration, const VMBufferUsage usage)
+      {
+        Reset(bufferManager, pVertices, elementCount, elementCount, vertexDeclaration, usage);
+      }
+
+      //! @brief Reset the buffer to contain the supplied elements
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const void* const pVertices, const std::size_t elementCount,
+                 const std::size_t elementCapacity, const VertexDeclaration& vertexDeclaration, const VMBufferUsage usage);
 
       //! @brief Reset the buffer to a dynamic buffer of the given capacity
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
@@ -180,10 +207,29 @@ namespace Fsl
       //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
       //! internally)
       template <typename T>
-      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const T* const pVertices, const std::size_t elementCount,
-                 const VMBufferUsage usage)
+      [[deprecated("use the ReadOnlySpan variant")]] void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const T* const pVertices,
+                                                                const std::size_t elementCount, const VMBufferUsage usage)
       {
         Reset(bufferManager, pVertices, elementCount, T::GetVertexDeclaration(), usage);
+      }
+
+      //! @brief Reset the buffer to contain the supplied elements
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      template <typename T>
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlySpan<T> vertices, const VMBufferUsage usage)
+      {
+        Reset(bufferManager, vertices.data(), vertices.size(), vertices.size(), T::GetVertexDeclaration(), usage);
+      }
+
+      //! @brief Reset the buffer to contain the supplied elements
+      //! @note  This is a very slow operation and its not recommended for updating the content of the buffer (since it creates a new buffer
+      //! internally)
+      template <typename T>
+      void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, ReadOnlySpan<T> vertices, const std::size_t elementCapacity,
+                 const VMBufferUsage usage)
+      {
+        Reset(bufferManager, vertices.data(), vertices.size(), elementCapacity, T::GetVertexDeclaration(), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
@@ -192,7 +238,7 @@ namespace Fsl
       template <typename T, std::size_t TSize>
       void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::array<T, TSize>& vertices, const VMBufferUsage usage)
       {
-        Reset(bufferManager, vertices.data(), vertices.size(), T::GetVertexDeclaration(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(vertices), usage);
       }
 
       //! @brief Reset the buffer to contain the supplied elements
@@ -201,10 +247,28 @@ namespace Fsl
       template <typename T>
       void Reset(const std::shared_ptr<VMBufferManager>& bufferManager, const std::vector<T>& vertices, const VMBufferUsage usage)
       {
-        Reset(bufferManager, vertices.data(), vertices.size(), T::GetVertexDeclaration(), usage);
+        Reset(bufferManager, ReadOnlySpanUtil::AsSpan(vertices), usage);
       }
 
-      void SetData(const void* pVertices, const std::size_t elementCount, const uint32_t elementStride);
+      template <typename T>
+      void SetData(ReadOnlySpan<T> vertices)
+      {
+        SetData(vertices.data(), vertices.size(), sizeof(T));
+      }
+
+      template <typename T>
+      void SetData(const uint32_t dstElementOffset, ReadOnlySpan<T> vertices)
+      {
+        SetData(dstElementOffset, vertices.data(), vertices.size(), sizeof(T));
+      }
+
+
+      void SetData(const void* pVertices, const std::size_t elementCount, const uint32_t elementStride)
+      {
+        SetData(0u, pVertices, elementCount, elementStride);
+      }
+
+      void SetData(const uint32_t dstElementOffset, const void* pVertices, const std::size_t elementCount, const uint32_t elementStride);
 
       bool IsValid() const
       {

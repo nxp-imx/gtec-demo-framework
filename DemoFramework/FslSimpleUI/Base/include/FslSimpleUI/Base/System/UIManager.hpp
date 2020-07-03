@@ -31,6 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
+#include <FslSimpleUI/Base/UIStats.hpp>
 #include <memory>
 
 namespace Fsl
@@ -40,7 +42,7 @@ namespace Fsl
   class MouseButtonEvent;
   class MouseMoveEvent;
   class MouseWheelEvent;
-  struct Point2;
+  struct PxPoint2;
 
   namespace UI
   {
@@ -51,6 +53,7 @@ namespace Fsl
     class IWindowManager;
     class ModuleCallbackRegistry;
     class RootWindow;
+    class SimpleEventSender;
     class UIContext;
     class UITree;
     class WindowEventPool;
@@ -68,18 +71,19 @@ namespace Fsl
       std::shared_ptr<UIContext> m_uiContext;
       std::shared_ptr<BaseWindowContext> m_baseWindowContext;
       std::shared_ptr<RootWindow> m_rootWindow;
+      std::shared_ptr<SimpleEventSender> m_simpleEventSender;
       std::shared_ptr<IModuleHost> m_moduleHost;
       std::shared_ptr<InputModule> m_inputModule;
       bool m_leftButtonDown;
 
     public:
-      UIManager(const Point2& currentSize);
+      explicit UIManager(const DemoWindowMetrics& windowMetrics);
       ~UIManager();
 
-      std::shared_ptr<UIContext> GetUIContext() const;
+      const std::shared_ptr<UIContext>& GetUIContext() const;
       std::shared_ptr<IWindowManager> GetWindowManager() const;
-      std::shared_ptr<WindowEventPool> GetEventPool() const;
-      std::shared_ptr<WindowEventSender> GetEventSender() const;
+      const std::shared_ptr<WindowEventPool>& GetEventPool() const;
+      const std::shared_ptr<WindowEventSender>& GetEventSender() const;
 
       // bool SendKeyEvent(const KeyEvent& event);
       //! @brief Send a mouse button event
@@ -88,10 +92,15 @@ namespace Fsl
       bool SendMouseMoveEvent(const MouseMoveEvent& event);
       // bool SendMouseWheelEvent(const MouseWheelEvent& event);
 
+      //! Check if the UI system is considered idle
+      bool IsIdle() const;
+
+      UIStats GetStats() const;
+
       void ProcessEvents();
 
-      void SetDPI(const Point2& dpi);
-      void Resized(const Point2& size);
+      void SetDensityDpi(const uint32_t dpi);
+      void Resized(const DemoWindowMetrics& windowMetrics);
       void FixedUpdate(const DemoTime& demoTime);
       void Update(const DemoTime& demoTime);
       void Draw();

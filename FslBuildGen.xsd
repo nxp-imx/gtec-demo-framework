@@ -112,6 +112,7 @@
     </xs:annotation>
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Access" type="_TP_DependencyAccess" use="optional"/>
+    <xs:attribute name="If" type="xs:string" use="optional"/>
   </xs:complexType>
 
 
@@ -125,6 +126,19 @@
     <xs:attribute name="Location" type="xs:string" use="optional"/>
     <xs:attribute name="Access" type="_TP_Access" use="optional"/>
     <xs:attribute name="Type" type="_TP_ExternalDependencyType" use="required"/>
+    <xs:attribute name="Version" type="xs:string" use="optional"/>
+    <xs:attribute name="If" type="xs:string" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="_T_FindPackage">
+    <xs:annotation>
+      <xs:documentation>Specifies a dependency to something external, should preferably be used in ExternalLibrary packages.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="Name" type="xs:string" use="required"/>
+    <xs:attribute name="Version" type="xs:string" use="optional"/>
+    <xs:attribute name="TargetName" type="xs:string" use="optional"/>
+    <xs:attribute name="Path" type="xs:string" use="optional"/>
+    <xs:attribute name="If" type="xs:string" use="optional"/>
   </xs:complexType>
 
 
@@ -206,6 +220,11 @@
     </xs:choice>
   </xs:group>
 
+  <xs:group name="_G_FindPackageElement">
+    <xs:choice>
+      <xs:element name="FindPackage" type="_T_FindPackage"/>
+    </xs:choice>
+  </xs:group>
 
   <xs:group name="_G_DefineElement">
     <xs:choice>
@@ -226,7 +245,7 @@
       <xs:element name="BuildCustomization.Debug.Optimization" type="_T_BuildCustomization.Debug.Optimization"/>
     </xs:choice>
   </xs:group>
-  
+
   <xs:group name="_G_DefaultElements">
     <xs:choice>
       <xs:element name="Default.Platform.Supported" type="_T_Default.Platform.Supported"/>
@@ -255,6 +274,7 @@
       <xs:group ref="_G_UsesFeatureElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_ImportTemplate" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DependencyElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_FindPackageElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DefineElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_PlatformElement" minOccurs="0" maxOccurs="unbounded"/>
@@ -265,6 +285,7 @@
     <xs:sequence>
       <xs:group ref="_G_UsesFeatureElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DependencyElement" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:group ref="_G_FindPackageElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DefineElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_VariantElement" minOccurs="0" maxOccurs="unbounded"/>
@@ -279,6 +300,7 @@
 
   <xs:group name="_G_VariantOptionCommandList">
     <xs:sequence>
+      <xs:group ref="_G_FindPackageElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_ExternalDependencyElement" minOccurs="0" maxOccurs="unbounded"/>
       <xs:group ref="_G_DefineElement" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
@@ -292,6 +314,7 @@
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="NoInclude" type="_TP_Bool" use="optional"/>
     <xs:attribute name="Company" type="xs:string" use="optional"/>
+    <xs:attribute name="CreationYear" type="xs:integer" use="optional"/>
     <xs:attribute name="TemplateType" type="xs:string" use="optional"/>
     <xs:attribute name="OverrideInclude" type="xs:string" use="optional"/>
     <xs:attribute name="OverrideSource" type="xs:string" use="optional"/>
@@ -309,6 +332,7 @@
     <xs:group ref="_G_CommandList"/>
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Company" type="xs:string" use="optional"/>
+    <xs:attribute name="CreationYear" type="xs:integer" use="optional"/>
     <xs:attribute name="TemplateType" type="xs:string" use="optional"/>
     <xs:attribute name="OverrideInclude" type="xs:string" use="optional"/>
     <xs:attribute name="OverrideSource" type="xs:string" use="optional"/>
@@ -324,6 +348,7 @@
     <xs:group ref="_G_ExternalCommandList"/>
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Company" type="xs:string" use="optional"/>
+    <xs:attribute name="CreationYear" type="xs:integer" use="optional"/>
     <xs:attribute name="TemplateType" type="xs:string" use="optional"/>
     <xs:attribute name="AllowCheck" type="_TP_Bool" use="optional"/>
   </xs:complexType>
@@ -336,6 +361,7 @@
     <xs:group ref="_G_CommandList"/>
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Company" type="xs:string" use="optional"/>
+    <xs:attribute name="CreationYear" type="xs:integer" use="optional"/>
     <xs:attribute name="TemplateType" type="xs:string" use="optional"/>
     <xs:attribute name="OverrideInclude" type="xs:string" use="optional"/>
     <xs:attribute name="OverrideSource" type="xs:string" use="optional"/>
@@ -438,7 +464,7 @@
       <xs:element name="CMakeBuild" type="_T_PipelineCommandCMakeBuild"/>
     </xs:choice>
   </xs:group>
-  
+
 
   <xs:group name="_G_PipelineCommandCombineCommandList">
     <xs:sequence>
@@ -533,13 +559,13 @@
     </xs:annotation>
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Alternatives" type="xs:string" use="required"/>
-	<xs:attribute name="MinVersion" type="xs:string" use="optional"/> 
-	<xs:attribute name="VersionCommand" type="xs:string" use="optional"/> 
-	<xs:attribute name="VersionRegEx" type="xs:string" use="optional"/> 
+	<xs:attribute name="MinVersion" type="xs:string" use="optional"/>
+	<xs:attribute name="VersionCommand" type="xs:string" use="optional"/>
+	<xs:attribute name="VersionRegEx" type="xs:string" use="optional"/>
     <xs:attribute name="ExpectedPath" type="xs:string" use="optional"/>
     <xs:attribute name="Help" type="xs:string" use="optional"/>
   </xs:complexType>
-  
+
   <xs:complexType name="_T_ValidateCommandAddHeaders">
     <xs:annotation>
       <xs:documentation>Automatically ensures the headers is added as a external dependency and checks if the directory exist.</xs:documentation>
@@ -573,7 +599,7 @@
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Help" type="xs:string" use="optional"/>
   </xs:complexType>
-  
+
   <xs:group name="_G_ValidateCommand">
     <xs:choice>
       <xs:element name="EnvironmentVariable" type="_T_ValidateCommandEnvironmentVariable"/>
@@ -623,6 +649,10 @@
     </xs:annotation>
     <xs:group ref="_G_ExperimentalRecipeCommandList"/>
     <xs:attribute name="Name" type="xs:string" use="optional"/>
+    <xs:attribute name="Version" type="xs:string" use="optional"/>
+    <xs:attribute name="Find" type="_TP_Bool" use="optional"/>
+    <xs:attribute name="FindVersion" type="xs:string" use="optional"/>
+    <xs:attribute name="FindTargetName" type="xs:string" use="optional"/>
     <xs:attribute name="ExternalInstallDirectory" type="xs:string" use="optional"/>
   </xs:complexType>
 
@@ -687,7 +717,7 @@
       <xs:group ref="_G_PlatformExternalElement" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:group>
-  
+
 
   <xs:complexType name="_T_ToolRecipe">
     <xs:annotation>
@@ -696,6 +726,7 @@
     <xs:group ref="_G_ToolRecipeCommandList"/>
     <xs:attribute name="Name" type="xs:string" use="required"/>
     <xs:attribute name="Company" type="xs:string" use="optional"/>
+    <xs:attribute name="CreationYear" type="xs:integer" use="optional"/>
   </xs:complexType>
 
 

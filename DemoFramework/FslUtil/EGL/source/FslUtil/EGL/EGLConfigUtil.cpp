@@ -45,13 +45,10 @@ namespace Fsl
     {
       struct RatedConfigRecord
       {
-        EGLConfig Config;
+        EGLConfig Config{};
         uint64_t Rating{0};
 
-        RatedConfigRecord()
-          : Config{}
-        {
-        }
+        RatedConfigRecord() = default;
 
         RatedConfigRecord(const EGLConfig& config, const uint64_t& rating)
           : Config(config)
@@ -108,11 +105,12 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       uint64_t ApplyScoreAdjustments(const uint64_t score, const EGLDisplay hDisplay, const EGLConfig& config)
       {
         uint64_t adjustedScore = std::max(score, static_cast<uint64_t>(1)) << 32;
 
-        EGLint actualValue;
+        EGLint actualValue = 0;
 
         if (eglGetConfigAttrib(hDisplay, config, EGL_CONFIG_CAVEAT, &actualValue) != 0u)
         {
@@ -129,6 +127,7 @@ namespace Fsl
       }
 
 
+      // NOLINTNEXTLINE(misc-misplaced-const)
       uint64_t RateConfig(const EGLDisplay hDisplay, const EGLConfig& config, const std::deque<EGLint>& configAttribs, const EGLint maxColorBits)
       {
         assert((configAttribs.size() % 2) == 0);
@@ -143,7 +142,7 @@ namespace Fsl
           const auto desiredValue = *itr;
           ++itr;
 
-          EGLint configValue;
+          EGLint configValue = 0;
           if (eglGetConfigAttrib(hDisplay, config, key, &configValue) == 0u)
           {
             FSLLOG3_DEBUG_WARNING("Failed to retrieve attribute value for key: {}", key);
@@ -201,6 +200,7 @@ namespace Fsl
     }
 
 
+    // NOLINTNEXTLINE(misc-misplaced-const)
     bool TryChooseConfig(const EGLDisplay hDisplay, const std::deque<EGLint>& configAttribs, const bool allowHDR, EGLConfig& rEGLConfig)
     {
       auto searchConfigAttribs = BuildSearchConfigAttribs(configAttribs);
@@ -214,7 +214,7 @@ namespace Fsl
       uint64_t bestScore = 0;
       for (std::size_t i = 0; i < records.size(); ++i)
       {
-        const auto activeConfig = allConfigs[i];
+        EGLConfig activeConfig = allConfigs[i];
         const auto rating = RateConfig(hDisplay, activeConfig, searchConfigAttribs, maxColorBits);
         RatedConfigRecord current(activeConfig, rating);
         records[i] = current;

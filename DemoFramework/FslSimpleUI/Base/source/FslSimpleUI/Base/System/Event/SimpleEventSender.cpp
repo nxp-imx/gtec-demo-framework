@@ -33,7 +33,6 @@
 #include "EventRoute.hpp"
 #include "../TreeNode.hpp"
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/Rect.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/EventDescription.hpp>
@@ -41,21 +40,21 @@
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
 #include "../ITreeContextInfo.hpp"
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
   namespace UI
   {
-    SimpleEventSender::SimpleEventSender(const std::shared_ptr<ITreeContextInfo>& treeContextInfo,
-                                         const std::shared_ptr<WindowEventPool>& windowEventPool, const std::shared_ptr<IEventHandler>& eventHandler,
-                                         const std::shared_ptr<TreeNode>& rootNode,
-                                         const std::shared_ptr<ITreeNodeClickInputTargetLocator>& clickTargetLocator)
-      : m_treeContextInfo(treeContextInfo)
-      , m_windowEventPool(windowEventPool)
-      , m_eventHandler(eventHandler)
-      , m_eventRouter(rootNode, clickTargetLocator)
+    SimpleEventSender::SimpleEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<WindowEventPool> windowEventPool,
+                                         std::shared_ptr<IEventHandler> eventHandler, const std::shared_ptr<TreeNode>& rootNode,
+                                         const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater)
+      : m_treeContextInfo(std::move(treeContextInfo))
+      , m_windowEventPool(std::move(windowEventPool))
+      , m_eventHandler(std::move(eventHandler))
+      , m_eventRouter(rootNode, clickTargetLocater)
     {
-      if (!m_treeContextInfo || !m_windowEventPool || !rootNode || !clickTargetLocator || !m_eventHandler)
+      if (!m_treeContextInfo || !m_windowEventPool || !rootNode || !clickTargetLocater || !m_eventHandler)
       {
         throw std::invalid_argument("arguments can not be null");
       }
@@ -65,7 +64,7 @@ namespace Fsl
     SimpleEventSender::~SimpleEventSender() = default;
 
 
-    void SimpleEventSender::Send(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& target, const bool manageEvent)
+    SendResult SimpleEventSender::Send(const std::shared_ptr<WindowEvent>& theEvent, const std::shared_ptr<TreeNode>& target, const bool manageEvent)
     {
       if (!m_treeContextInfo->IsInSystemContext())
       {
@@ -75,12 +74,12 @@ namespace Fsl
       if (!theEvent)
       {
         FSLLOG3_WARNING("Can not send a null event, request ignored.");
-        return;
+        return SendResult::Error;
       }
       if (!target)
       {
         FSLLOG3_WARNING("can not send to a null target, request ignored.");
-        return;
+        return SendResult::Error;
       }
 
       try
@@ -89,22 +88,28 @@ namespace Fsl
         EventRoute::StackScopedInit scopedInit(m_eventRoute, eventDesc.RequiredFlags);
         m_eventRouter.CreateRoute(m_eventRoute, eventDesc.RoutingStrategy, target);
         m_eventRoute.Send(m_eventHandler.get(), theEvent);
+        const auto result = (theEvent->IsHandled() ? SendResult::Handled : SendResult::Unhandled);
+
+        m_eventRoute.Clear();
         if (manageEvent)
         {
           m_windowEventPool->Release(theEvent);
         }
+        return result;
       }
       catch (...)
       {
+        m_eventRoute.Clear();
         if (manageEvent)
         {
           m_windowEventPool->Release(theEvent);
         }
       }
+      return SendResult::Error;
     }
 
 
-    void SimpleEventSender::Send(const std::shared_ptr<WindowEvent>& theEvent, const Vector2& screenHitPosition, const bool manageEvent)
+    SendResult SimpleEventSender::Send(const std::shared_ptr<WindowEvent>& theEvent, const PxPoint2& screenHitPositionPx, const bool manageEvent)
     {
       if (!m_treeContextInfo->IsInSystemContext())
       {
@@ -114,27 +119,33 @@ namespace Fsl
       if (!theEvent)
       {
         FSLLOG3_WARNING("Can not send a null event, request ignored.");
-        return;
+        return SendResult::Error;
       }
 
       try
       {
         const EventDescription eventDesc = theEvent->GetDescription();
         EventRoute::StackScopedInit scopedInit(m_eventRoute, eventDesc.RequiredFlags);
-        m_eventRouter.CreateRoute(m_eventRoute, eventDesc.RoutingStrategy, screenHitPosition);
+        m_eventRouter.CreateRoute(m_eventRoute, eventDesc.RoutingStrategy, screenHitPositionPx);
         m_eventRoute.Send(m_eventHandler.get(), theEvent);
+        const auto result = (theEvent->IsHandled() ? SendResult::Handled : SendResult::Unhandled);
+
+        m_eventRoute.Clear();
         if (manageEvent)
         {
           m_windowEventPool->Release(theEvent);
         }
+        return result;
       }
       catch (...)
       {
+        m_eventRoute.Clear();
         if (manageEvent)
         {
           m_windowEventPool->Release(theEvent);
         }
       }
+      return SendResult::Error;
     }
   }
 }

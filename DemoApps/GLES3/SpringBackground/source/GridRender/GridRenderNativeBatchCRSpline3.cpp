@@ -31,7 +31,7 @@
 
 #include "GridRenderNativeBatchCRSpline3.hpp"
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -40,7 +40,7 @@ namespace Fsl
 
   namespace
   {
-    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const Rectangle nativeTexRect, const Vector2& start,
+    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const PxRectangleU nativeTexRect, const Vector2& start,
                          const Vector2& end, const Color& color, const float thickness)
     {
       Vector2 delta = end - start;
@@ -68,33 +68,33 @@ namespace Fsl
   }
 
 
-  void GridRenderNativeBatchCRSpline3::Update(const DemoTime& demoTime, const Vector2& areaSize, const std::vector<PointMass>& points)
+  void GridRenderNativeBatchCRSpline3::Update(const DemoTime& /*demoTime*/, const Vector2& areaSize, const std::vector<PointMass>& points)
   {
     Calc3DCoordinates(m_coordinates3D, points);
     CalcFinalCoordinates(m_coordinates2D, m_coordinates3D, areaSize);
   }
 
 
-  void GridRenderNativeBatchCRSpline3::Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& points)
+  void GridRenderNativeBatchCRSpline3::Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& /*points*/)
   {
-    const std::shared_ptr<NativeTexture2D> nativeTex = std::dynamic_pointer_cast<NativeTexture2D>(drawContext.TexFill.TryGetNative());
+    auto nativeTex = std::dynamic_pointer_cast<DynamicNativeTexture2D>(drawContext.TexFill.TryGetNative());
     assert(nativeTex);
     GLBatch2D::texture_type texFillNative(nativeTex->Get(), drawContext.TexFill.GetAtlasSize());
 
-    const Rectangle texTrimmedRect(drawContext.TexFill.GetInfo().TrimmedRect);
-    const Rectangle rectFillTex(texTrimmedRect.X() + (texTrimmedRect.Width() / 2), texTrimmedRect.Y() + (texTrimmedRect.Height() / 2), 1, 1);
+    const PxRectangleU texTrimmedRect(drawContext.TexFill.GetInfo().TrimmedRectPx);
+    const PxRectangleU rectFillTex(texTrimmedRect.X + (texTrimmedRect.Width / 2), texTrimmedRect.Y + (texTrimmedRect.Height / 2), 1, 1);
 
-    auto pBatch = drawContext.pBatch;
+    auto* pBatch = drawContext.pBatch;
 
     int width = m_gridFinalSize.X;
     int height = m_gridFinalSize.Y;
     Color color(0.12f, 0.12f, 0.55f, 0.33f);
 
-    auto pSrc = m_coordinates2D.data();
-    const auto pSrcArrayEnd = pSrc + m_coordinates2D.size();
+    auto* pSrc = m_coordinates2D.data();
+    auto* const pSrcArrayEnd = pSrc + m_coordinates2D.size();
 
     {    // Draw horizontal lines
-      const auto pSrcEnd = pSrc + (m_gridFinalSize.X * m_gridSize.Y);
+      auto* const pSrcEnd = pSrc + (m_gridFinalSize.X * m_gridSize.Y);
       assert(pSrcEnd < pSrcArrayEnd);
       int lineCount = 0;
       while (pSrc < pSrcEnd)
@@ -278,9 +278,9 @@ namespace Fsl
     const Vector2 halfSize(finalSize * 0.5f);
 
     const std::size_t count = src.size();
-    auto pSrc = src.data();
-    const auto pSrcEnd = pSrc + count;
-    auto pDst = rDst.data();
+    const auto* pSrc = src.data();
+    const auto* const pSrcEnd = pSrc + count;
+    auto* pDst = rDst.data();
 
     // Convert to 2D
     while (pSrc < pSrcEnd)

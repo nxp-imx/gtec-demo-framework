@@ -56,7 +56,7 @@ namespace Fsl
       DeviceQueueCreateInfoCopy(DeviceQueueCreateInfoCopy&& other) noexcept;
 
       DeviceQueueCreateInfoCopy();
-      DeviceQueueCreateInfoCopy(const VkDeviceQueueCreateInfo& value);
+      explicit DeviceQueueCreateInfoCopy(const VkDeviceQueueCreateInfo& value);
 
 
       const VkDeviceQueueCreateInfo& Get() const

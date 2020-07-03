@@ -49,7 +49,7 @@ TEST(TestBitmap_RawCubeBitmapEx, Construct_Default)
   ASSERT_FALSE(bitmap.IsValid());
   EXPECT_EQ(0u, bitmap.Width());
   EXPECT_EQ(0u, bitmap.Height());
-  EXPECT_EQ(Extent2D(), bitmap.GetExtent());
+  EXPECT_EQ(PxExtent2D(), bitmap.GetExtent());
   EXPECT_EQ(PixelFormat::Undefined, bitmap.GetPixelFormat());
   EXPECT_EQ(BitmapOrigin::UpperLeft, bitmap.GetOrigin());
   EXPECT_EQ(RawBitmap(), bitmap.GetPosX());

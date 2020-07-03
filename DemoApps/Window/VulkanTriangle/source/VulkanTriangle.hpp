@@ -68,7 +68,7 @@ namespace Fsl
     RapidVulkan::Semaphore m_renderingCompleteSemaphore;
 
   public:
-    VulkanTriangle(const DemoAppConfig& config);
+    explicit VulkanTriangle(const DemoAppConfig& config);
     ~VulkanTriangle() override;
 
   protected:

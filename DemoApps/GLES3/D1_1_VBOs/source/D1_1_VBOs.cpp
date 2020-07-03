@@ -10,6 +10,7 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "D1_1_VBOs.hpp"
 #include <GLES3/gl3.h>
+#include <array>
 #include <iostream>
 
 namespace Fsl
@@ -29,16 +30,16 @@ namespace Fsl
 
     {    // Initialization
       // 3 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      VertexPositionColor vertices[3] = {
+      constexpr std::array<VertexPositionColor, 3> vertices = {
         VertexPositionColor(Vector3(-0.5f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
         VertexPositionColor(Vector3(-1.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
         VertexPositionColor(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),     // v2, c2
       };
       // Index buffer data
-      GLushort indices[3] = {0, 1, 2};
+      constexpr std::array<GLushort, 3> indices = {0, 1, 2};
 
       // 4 vertices, with (x,y,z), (r, g, b, a) per-vertex
-      VertexPositionColor vertices2[4] = {
+      constexpr std::array<VertexPositionColor, 4> vertices2 = {
         VertexPositionColor(Vector3(0.0f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f)),     // v0, c0
         VertexPositionColor(Vector3(0.0f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f)),    // v1, c1
         VertexPositionColor(Vector3(1.0f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f)),    // v2, c2
@@ -46,15 +47,15 @@ namespace Fsl
       };
 
       // Index buffer data
-      GLushort indices2[6] = {0, 2, 1, 0, 3, 2};
+      constexpr std::array<GLushort, 6> indices2 = {0, 2, 1, 0, 3, 2};
 
       // Prepare the vertex and index buffer
-      m_vertexBuffer0.Reset(vertices, sizeof(vertices) / sizeof(VertexPositionColor), GL_STATIC_DRAW);
-      m_indexBuffer0.Reset(indices, sizeof(indices) / sizeof(GLushort), GL_STATIC_DRAW);
+      m_vertexBuffer0.Reset(vertices.data(), vertices.size(), GL_STATIC_DRAW);
+      m_indexBuffer0.Reset(indices.data(), indices.size(), GL_STATIC_DRAW);
 
       // Prepare the vertex and index buffer
-      m_vertexBuffer1.Reset(vertices2, sizeof(vertices2) / sizeof(VertexPositionColor), GL_STATIC_DRAW);
-      m_indexBuffer1.Reset(indices2, sizeof(indices2) / sizeof(GLushort), GL_STATIC_DRAW);
+      m_vertexBuffer1.Reset(vertices2.data(), vertices2.size(), GL_STATIC_DRAW);
+      m_indexBuffer1.Reset(indices2.data(), indices2.size(), GL_STATIC_DRAW);
     }
   }
 
@@ -62,16 +63,16 @@ namespace Fsl
   D1_1_VBOs::~D1_1_VBOs() = default;
 
 
-  void D1_1_VBOs::Update(const DemoTime& demoTime)
+  void D1_1_VBOs::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void D1_1_VBOs::Draw(const DemoTime& demoTime)
+  void D1_1_VBOs::Draw(const DemoTime& /*demoTime*/)
   {
-    const Point2 size = GetScreenResolution();
+    const PxSize2D sizePx = GetWindowSizePx();
 
-    glViewport(0, 0, size.X, size.Y);
+    glViewport(0, 0, sizePx.Width(), sizePx.Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // OSTEP4 BIND your already filled buffers

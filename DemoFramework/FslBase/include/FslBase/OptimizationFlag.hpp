@@ -37,6 +37,18 @@ namespace Fsl
   {
     NoInitialization
   };
+
+  enum class OptimizationCheckFlag
+  {
+    NoCheck
+  };
+
+  enum class OptimizationInternal
+  {
+    Internal
+  };
+
+
 }
 
 #endif

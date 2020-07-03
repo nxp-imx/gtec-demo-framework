@@ -47,7 +47,7 @@ namespace Fsl
 
     constexpr BoundingSphere() = default;
 
-    constexpr BoundingSphere(Vector3 center, float radius)
+    constexpr BoundingSphere(const Vector3& center, const float radius)
       : Center(center)
       , Radius(radius)
     {

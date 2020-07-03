@@ -48,7 +48,7 @@ namespace fmt
     template <typename FormatContext>
     auto format(const Fsl::Rect& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{X={} Y={} Width={} Height={}}}", value.X(), value.Y(), value.Width(), value.Height());
+      return format_to(ctx.out(), "{{Left={} Top={} Right={} Bottom={}}}", value.Left(), value.Top(), value.Right(), value.Bottom());
     }
   };
 }

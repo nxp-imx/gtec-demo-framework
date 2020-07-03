@@ -30,13 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include "NativeWindowTest.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxPoint2.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
 #include <FslUtil/Vulkan1_0/SurfaceFormatInfo.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Debug/Strings/VkCompositeAlphaFlagBitsKHR.hpp>
@@ -109,7 +111,7 @@ namespace Fsl
 
 
     void CheckPhysicalDeviceSurfaceCapabilitiesPostSwapchain(const VkPhysicalDevice physicalDevice, const VkSurfaceKHR surface,
-                                                             const VkExtent2D windowExtent, const bool swapchainDependentSurface)
+                                                             const VkExtent2D windowExtent, const bool /*swapchainDependentSurface*/)
     {
       VkSurfaceCapabilitiesKHR surfaceCapabilities{};
       RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities));
@@ -129,15 +131,15 @@ namespace Fsl
   NativeWindowTest::NativeWindowTest(const DemoAppConfig& config)
     : VulkanWindowDemoApp(config)
   {
-    auto windowExtent = Vulkan::ConvertUtil::Convert(GetScreenExtent());
-    Point2 actualSize;
+    auto windowExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
+    PxPoint2 actualSize;
     if (GetNativeWindow()->TryGetActualSize(actualSize))
     {
-      if (static_cast<uint32_t>(actualSize.X) != windowExtent.width)
+      if (UncheckedNumericCast<uint32_t>(actualSize.X) != windowExtent.width)
       {
         FSLLOG3_WARNING("actual native window width does not match reported width: {} != {}", actualSize.X, windowExtent.width);
       }
-      if (static_cast<uint32_t>(actualSize.Y) != windowExtent.height)
+      if (UncheckedNumericCast<uint32_t>(actualSize.Y) != windowExtent.height)
       {
         FSLLOG3_WARNING("actual native window height does not match reported height: {} != {}", actualSize.Y, windowExtent.height);
       }

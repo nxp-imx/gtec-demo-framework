@@ -38,7 +38,7 @@
 
 namespace Fsl
 {
-  class OptionsService
+  class OptionsService final
     : public ThreadLocalService
     , public IOptions
     , public IOptionsServiceControl
@@ -46,16 +46,16 @@ namespace Fsl
     std::map<OptionParserId, std::shared_ptr<IOptionParser>> m_optionParsers;
 
   public:
-    OptionsService(const ServiceProvider& serviceProvider);
+    explicit OptionsService(const ServiceProvider& serviceProvider);
 
     // From IOptions
-    std::shared_ptr<IOptionParser> GetOptionParser(const OptionParserId& optionParserId) const override;
-    std::shared_ptr<IOptionParser> TryGetOptionParser(const OptionParserId& optionParserId) const override;
-    std::shared_ptr<IOptionParser> GetOptionParser(const std::function<bool(const std::shared_ptr<IOptionParser>&)>& matchFunction) const override;
-    std::shared_ptr<IOptionParser> TryGetOptionParser(const std::function<bool(const std::shared_ptr<IOptionParser>&)>& matchFunction) const override;
+    std::shared_ptr<IOptionParser> GetOptionParser(const OptionParserId& optionParserId) const final;
+    std::shared_ptr<IOptionParser> TryGetOptionParser(const OptionParserId& optionParserId) const final;
+    std::shared_ptr<IOptionParser> GetOptionParser(const std::function<bool(const std::shared_ptr<IOptionParser>&)>& matchFunction) const final;
+    std::shared_ptr<IOptionParser> TryGetOptionParser(const std::function<bool(const std::shared_ptr<IOptionParser>&)>& matchFunction) const final;
 
     // From IOptionsServiceControl
-    void AddOptionParser(const std::shared_ptr<IOptionParser>& optionParser) override;
+    void AddOptionParser(const std::shared_ptr<IOptionParser>& optionParser) final;
   };
 }
 

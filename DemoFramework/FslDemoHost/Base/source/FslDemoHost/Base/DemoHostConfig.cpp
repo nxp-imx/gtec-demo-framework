@@ -30,15 +30,16 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/DemoHostConfig.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  DemoHostConfig::DemoHostConfig(const std::shared_ptr<ADemoHostOptionParser>& optionParser, const std::weak_ptr<INativeWindowEventQueue>& eventQueue,
-                                 const DemoHostAppSetup& demoHostAppSetup, const std::weak_ptr<IServiceProvider>& serviceProvider,
+  DemoHostConfig::DemoHostConfig(std::shared_ptr<ADemoHostOptionParser> optionParser, std::weak_ptr<INativeWindowEventQueue> eventQueue,
+                                 DemoHostAppSetup demoHostAppSetup, const std::weak_ptr<IServiceProvider>& serviceProvider,
                                  const uint32_t verbosityLevel)
-    : m_optionParser(optionParser)
-    , m_eventQueue(eventQueue)
-    , m_demoHostAppSetup(demoHostAppSetup)
+    : m_optionParser(std::move(optionParser))
+    , m_eventQueue(std::move(eventQueue))
+    , m_demoHostAppSetup(std::move(demoHostAppSetup))
     , m_serviceProvider(serviceProvider)
     , m_verbosityLevel(verbosityLevel)
   {

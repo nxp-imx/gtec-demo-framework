@@ -30,10 +30,27 @@
 #
 #****************************************************************************************************************************************************
 
-class FormatPlugin(object):
-    def __init__(self, name):
-        super(FormatPlugin, self).__init__()
-        self.Name = name
+from enum import Enum
+from FslFontHelper.BasicFont import BasicFont
+from FslFontHelper.BitmapFont import BitmapFont
 
-    def Process(self, basicKerning, outputFilename):
-         raise NotImplementedError("FormatPlugin did not implement Process")
+class FormatPluginType(Enum):
+    BasicFont = 1
+    BitmapFont = 2
+    #Both = BasicFont | BitmapFont
+
+class FormatPlugin(object):
+    def __init__(self, name: str, pluginType: FormatPluginType) -> None:
+        super().__init__()
+        self.Name = name
+        self.PluginType = pluginType
+
+    def Process(self, basicFont: BasicFont, outputFilename: str) -> None:
+        if self.PluginType == FormatPluginType.BitmapFont:
+             raise Exception("FormatPlugin does not support BasicFont")
+        raise NotImplementedError("FormatPlugin did not implement Process")
+
+    def ProcessBitmapFont(self, bitmapFont: BitmapFont, outputFilename: str) -> None:
+        if self.PluginType == FormatPluginType.BasicFont:
+             raise Exception("FormatPlugin does not support BitmapFont")
+        raise NotImplementedError("FormatPlugin did not implement ProcessBitmapFont")

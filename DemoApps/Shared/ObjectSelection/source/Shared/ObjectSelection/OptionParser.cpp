@@ -85,36 +85,36 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    uint32_t uintValue;
-    bool boolValue;
+    uint32_t uintValue = 0;
+    bool boolValue = false;
 
     switch (cmdId)
     {
     case CommandId::NearPlaneMouse:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_nearPlaneMouseEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::FarPlaneMouse:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_farPlaneMouseEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::OrientedBoundingBox:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_orientedBoundingBoxEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::AxisAlignedBoundingBox:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -124,7 +124,7 @@ namespace Fsl
       m_randomSeedEnabled = true;
       return OptionParseResult::Parsed;
     case CommandId::Objects:
-      if (StringParseUtil::Parse(uintValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(uintValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

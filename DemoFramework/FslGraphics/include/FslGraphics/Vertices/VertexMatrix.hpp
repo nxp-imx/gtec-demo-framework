@@ -42,9 +42,9 @@ namespace Fsl
   {
     Fsl::Matrix Matrix;
 
-    constexpr VertexMatrix() = default;
+    constexpr VertexMatrix() noexcept = default;
 
-    constexpr VertexMatrix(const Fsl::Matrix& matrix)
+    constexpr explicit VertexMatrix(const Fsl::Matrix& matrix) noexcept
       : Matrix(matrix)
     {
     }

@@ -33,6 +33,7 @@
 
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
@@ -47,11 +48,11 @@ namespace Fsl
   public:
     virtual ~IVulkanScene() = default;
 
-    virtual void OnBuildResources(const VulkanBasic::BuildResourcesContext& context, const VkRenderPass hRenderPass){};
+    virtual void OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/, const VkRenderPass /*hRenderPass*/){};
     virtual void OnFreeResources(){};
 
     virtual void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
-                        const Point2& screenResolution) = 0;
+                        const PxSize2D& windowSizePx) = 0;
     virtual void PreDraw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) = 0;
     virtual void Draw(const uint32_t frameIndex, const VkCommandBuffer hCmdBuffer) = 0;
   };

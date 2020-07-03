@@ -12,24 +12,19 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "ComputeParticles.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/Config.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <array>
 #include <cstddef>
 #include <cstring>
 #include <random>
 
-using namespace RapidVulkan;
-
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
-  using namespace Willems;
-
   namespace
   {
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
@@ -86,9 +81,9 @@ namespace Fsl
   }
 
 
-  void ComputeParticles::GetOverlayText(VulkanTextOverlay& rTextOverlay)
+  void ComputeParticles::GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay)
   {
-    rTextOverlay.AddText("Particles: " + ToString(m_optionParser->GetParticleCount()), 5.0f, 85.0f, VulkanTextOverlay::TextAlign::Left);
+    rTextOverlay.AddText("Particles: " + ToString(m_optionParser->GetParticleCount()), 5.0f, 85.0f, Willems::VulkanTextOverlay::TextAlign::Left);
   }
 
 
@@ -116,12 +111,12 @@ namespace Fsl
   }
 
 
-  void ComputeParticles::Update(const DemoTime& demoTime)
+  void ComputeParticles::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void ComputeParticles::Draw(const DemoTime& demoTime)
+  void ComputeParticles::Draw(const DemoTime& /*demoTime*/)
   {
     {    // Do the draw
       // Submit graphics commands
@@ -182,14 +177,14 @@ namespace Fsl
     //  DestroyCommandBuffers();
     //  CreateCommandBuffers();
     //}
-    auto screenExtent = Convert(GetScreenExtent());
+    auto screenExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
 
 
     VkCommandBufferBeginInfo cmdBufInfo{};
     cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     cmdBufInfo.pNext = nullptr;
 
-    VkClearValue clearValues[2];
+    std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = m_defaultClearColor;
     clearValues[1].depthStencil = {1.0f, 0};
 
@@ -201,8 +196,8 @@ namespace Fsl
     renderPassBeginInfo.renderArea.offset.x = 0;
     renderPassBeginInfo.renderArea.offset.y = 0;
     renderPassBeginInfo.renderArea.extent = screenExtent;
-    renderPassBeginInfo.clearValueCount = 2;
-    renderPassBeginInfo.pClearValues = clearValues;
+    renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
 
     VkViewport viewport{};
     viewport.width = static_cast<float>(screenExtent.width);
@@ -215,7 +210,7 @@ namespace Fsl
     scissor.offset.y = 0;
     scissor.extent = screenExtent;
 
-    VkDeviceSize offsets[1] = {0};
+    VkDeviceSize offsets = 0;
 
     for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
     {
@@ -234,7 +229,7 @@ namespace Fsl
           vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphics.PipelineLayout.Get(), 0, 1,
                                   &m_graphics.DescriptorSet, 0, nullptr);
 
-          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_compute.StorageBuffer.GetBufferPointer(), offsets);
+          vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_compute.StorageBuffer.GetBufferPointer(), &offsets);
           vkCmdDraw(m_drawCmdBuffers[i], m_optionParser->GetParticleCount(), 1, 0, 0);
 
           DrawUI(m_drawCmdBuffers[i]);
@@ -275,7 +270,7 @@ namespace Fsl
     // Staging
     // SSBO won't be changed on the host after upload so copy to device local memory
 
-    VulkanBuffer stagingBuffer =
+    Willems::VulkanBuffer stagingBuffer =
       m_vulkanDevice.CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                                   storageBufferSize, particleBuffer.data());
 
@@ -285,7 +280,7 @@ namespace Fsl
                                   VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, storageBufferSize);
 
     // Copy to staging buffer
-    CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+    RapidVulkan::CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
     VkBufferCopy copyRegion{};
     copyRegion.size = storageBufferSize;
     vkCmdCopyBuffer(copyCmd.Get(), stagingBuffer.GetBuffer(), m_compute.StorageBuffer.GetBuffer(), 1, &copyRegion);
@@ -316,9 +311,9 @@ namespace Fsl
     m_vertices.InputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     m_vertices.InputState.pNext = nullptr;
 
-    m_vertices.InputState.vertexBindingDescriptionCount = static_cast<uint32_t>(m_vertices.BindingDescriptions.size());
+    m_vertices.InputState.vertexBindingDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.BindingDescriptions.size());
     m_vertices.InputState.pVertexBindingDescriptions = m_vertices.BindingDescriptions.data();
-    m_vertices.InputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertices.AttributeDescriptions.size());
+    m_vertices.InputState.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.AttributeDescriptions.size());
     m_vertices.InputState.pVertexAttributeDescriptions = m_vertices.AttributeDescriptions.data();
   }
 
@@ -379,7 +374,7 @@ namespace Fsl
     VkDescriptorSetLayoutCreateInfo descriptorLayout{};
     descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorLayout.pNext = nullptr;
-    descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+    descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
     descriptorLayout.pBindings = setLayoutBindings.data();
 
     m_graphics.DescriptorSetLayout.Reset(m_device.Get(), descriptorLayout);
@@ -445,7 +440,7 @@ namespace Fsl
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicState.flags = 0;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+    dynamicState.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateEnables.size());
     dynamicState.pDynamicStates = dynamicStateEnables.data();
 
     // Rendering pipeline, load shaders
@@ -467,7 +462,7 @@ namespace Fsl
     pipelineCreateInfo.pViewportState = &viewportState;
     pipelineCreateInfo.pDepthStencilState = &depthStencilState;
     pipelineCreateInfo.pDynamicState = &dynamicState;
-    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(shaderStages.size());
     pipelineCreateInfo.pStages = shaderStages.data();
     pipelineCreateInfo.renderPass = m_renderPass.Get();
 
@@ -499,7 +494,7 @@ namespace Fsl
     descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolInfo.pNext = nullptr;
     descriptorPoolInfo.maxSets = 2;
-    descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
     descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
     m_descriptorPool.Reset(m_device.Get(), descriptorPoolInfo);
@@ -537,7 +532,7 @@ namespace Fsl
     writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     writeDescriptorSets[1].pImageInfo = m_textures.Gradient.GetImageDescriptorPointer();
 
-    vkUpdateDescriptorSets(m_device.Get(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+    vkUpdateDescriptorSets(m_device.Get(), UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
   }
 
 
@@ -567,7 +562,7 @@ namespace Fsl
     VkDescriptorSetLayoutCreateInfo descriptorLayout{};
     descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorLayout.pNext = nullptr;
-    descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+    descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
     descriptorLayout.pBindings = setLayoutBindings.data();
 
     m_compute.DescriptorSetLayout.Reset(m_device.Get(), descriptorLayout);
@@ -607,7 +602,8 @@ namespace Fsl
     computeWriteDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     computeWriteDescriptorSets[1].pBufferInfo = m_compute.UniformBuffer.GetDescriptorPointer();
 
-    vkUpdateDescriptorSets(m_device.Get(), static_cast<uint32_t>(computeWriteDescriptorSets.size()), computeWriteDescriptorSets.data(), 0, nullptr);
+    vkUpdateDescriptorSets(m_device.Get(), UncheckedNumericCast<uint32_t>(computeWriteDescriptorSets.size()), computeWriteDescriptorSets.data(), 0,
+                           nullptr);
 
     // Create pipeline
     VkComputePipelineCreateInfo computePipelineCreateInfo{};
@@ -671,7 +667,7 @@ namespace Fsl
         m_vulkanDevice.GetQueueFamilyIndices().Compute;    // Required as compute and graphics queue may have different families
 
       vkCmdPipelineBarrier(m_compute.CommandBuffer.Get(), VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                           Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
+                           Willems::Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
 
       vkCmdBindPipeline(m_compute.CommandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_compute.Pipeline.Get());
       vkCmdBindDescriptorSets(m_compute.CommandBuffer.Get(), VK_PIPELINE_BIND_POINT_COMPUTE, m_compute.PipelineLayout.Get(), 0, 1,
@@ -694,7 +690,7 @@ namespace Fsl
         m_vulkanDevice.GetQueueFamilyIndices().Graphics;    // Required as compute and graphics queue may have different families
 
       vkCmdPipelineBarrier(m_compute.CommandBuffer.Get(), VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-                           Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
+                           Willems::Config::FLAGS_NONE, 0, nullptr, 1, &bufferBarrier, 0, nullptr);
     }
     m_compute.CommandBuffer.End();
   }

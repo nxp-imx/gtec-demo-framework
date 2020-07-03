@@ -33,103 +33,97 @@
 
 namespace Fsl
 {
-  const Priority ServicePriorityList::BitmapConverterService()
+  Priority ServicePriorityList::BitmapConverterService()
   {
     return Priority::Max() - 10;
   }
 
-  const Priority ServicePriorityList::ImageConverterLibraryService()
+  Priority ServicePriorityList::ImageConverterLibraryService()
   {
     return Priority::Max() - 9;
   }
 
-  const Priority ServicePriorityList::EGLHostService()
+  Priority ServicePriorityList::EGLHostService()
   {
     return Priority::Max() - 40;
   }
 
-  const Priority ServicePriorityList::WindowHostService()
+  Priority ServicePriorityList::WindowHostService()
   {
     return Priority::Max() - 30;
   }
 
-  const Priority ServicePriorityList::VulkanHostService()
+  Priority ServicePriorityList::VulkanHostService()
   {
     return Priority::Max() - 30;
   }
 
-  const Priority ServicePriorityList::NativeGraphicsService()
+  Priority ServicePriorityList::NativeGraphicsService()
   {
     return Priority::Max() - 40;
   }
 
-  const Priority ServicePriorityList::ImageLibraryService()
+  Priority ServicePriorityList::ImageLibraryService()
   {
     return Priority::Max() - 20;
   }
 
-  const Priority ServicePriorityList::ImageBasicService()
+  Priority ServicePriorityList::ImageBasicService()
   {
     return Priority::Max() - 30;
   }
 
-  const Priority ServicePriorityList::AsyncImageService()
+  Priority ServicePriorityList::AsyncImageService()
   {
     return Priority::Max() - 40;
   }
 
-  const Priority ServicePriorityList::ImageService()
+  Priority ServicePriorityList::ImageService()
   {
     return Priority::Max() - 50;
   }
 
-  const Priority ServicePriorityList::EventsService()
+  Priority ServicePriorityList::EventsService()
   {
     return Priority::Max() - 20;
   }
 
 
-  const Priority ServicePriorityList::NativeWindowEventsService()
+  Priority ServicePriorityList::NativeWindowEventsService()
   {
     return Priority::Max() - 10;
   }
 
 
-  const Priority ServicePriorityList::TestService()
+  Priority ServicePriorityList::TestService()
   {
     return Priority::Min();
   }
 
 
-  const Priority ServicePriorityList::PlatformControlService()
+  Priority ServicePriorityList::PlatformControlService()
   {
     return Priority::Max() - 10;
   }
 
 
-  const Priority ServicePriorityList::ProfilerService()
+  Priority ServicePriorityList::ProfilerService()
   {
     return Priority::Max() - 10;
   }
 
 
-  const Priority ServicePriorityList::MMDCStatsService()
+  Priority ServicePriorityList::ContentMonitor()
   {
     return Priority::Min();
   }
 
-
-  const Priority ServicePriorityList::ContentMonitor()
+  Priority ServicePriorityList::Options()
   {
     return Priority::Min();
   }
 
-  const Priority ServicePriorityList::Options()
-  {
-    return Priority::Min();
-  }
-
-  const Priority ServicePriorityList::HostInfo()
+  Priority ServicePriorityList::HostInfo()
   {
     return Priority::Max();
   }

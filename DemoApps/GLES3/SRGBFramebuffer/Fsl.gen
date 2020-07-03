@@ -5,6 +5,7 @@
     <!--Requirement Name="EGL_KHR_gl_colorspace" Type="extension" Extends="EGL"/-->
     <ImportTemplate Name="DemoAppGLES3"/>
     <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslSimpleUI.Theme.Basic"/>
     <Dependency Name="FslGraphics3D.Camera"/>
     <Dependency Name="FslUtil.EGL"/>
     <Platform Name="Windows" ProjectId="764467F3-BE8B-4355-88B1-FF5877A768E1"/>

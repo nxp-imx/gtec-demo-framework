@@ -50,6 +50,7 @@ from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageLanguage
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.DataTypes import SpecialFiles
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.DataTypes import VisualStudioVersion
 from FslBuildGen.Exceptions import InternalErrorException
@@ -277,7 +278,7 @@ class GeneratorVC(GeneratorBase):
         includeFiles = self.__CreateVisualStudioStyleFileList(template.AddHeaderFile, resolvedBuildAllIncludeFiles)
         sourceFiles = self.__CreateVisualStudioStyleFileList(template.AddSourceFile, package.ResolvedBuildSourceFiles)
         contentSourceFiles = self.__CreateContentSourceFilesList(template.Snippet9, template.Snippet9_1, package.ResolvedContentBuilderBuildInputFiles)
-
+        natvisFile = self.__CreateNatvis(template.AddNatvisFile, package)
 
         variantConfigurations = self.__VariantSimpleReplace(variantHelper, template.VariantConfiguration, package)
         importGroups = self.__GenerateImportGroups(variantHelper, template.VariantPropertySheets, package)
@@ -293,6 +294,7 @@ class GeneratorVC(GeneratorBase):
         featureList = [entry.Name for entry in package.ResolvedAllUsedFeatures]
         strFeatureList = ",".join(featureList)
 
+
         build = template.Master
         build = build.replace("##ADD_PROJECT_CONFIGURATIONS##", projectionConfigurations)
         build = build.replace("##ADD_PROJECT_REFERENCES##", libDepVC)
@@ -306,6 +308,7 @@ class GeneratorVC(GeneratorBase):
         build = build.replace("##ADD_COPY_FILES_TO_OUTPUT##", copyFileToFolders)
         build = build.replace("##SNIPPET8##", compilerSettingsGroups)
         build = build.replace("##ADD_CUSTOM_BUILD_FILES##", contentSourceFiles)
+        build = build.replace("##ADD_NATVIS_FILE##", natvisFile)
         build = build.replace("##PACKAGE_PLATFORM_PROJECT_ID##", package.ResolvedPlatform.ProjectId)
         build = build.replace("##PACKAGE_TARGET_NAME##", targetName)
         build = build.replace("##FEATURE_LIST##", strFeatureList)
@@ -409,13 +412,21 @@ class GeneratorVC(GeneratorBase):
         itemGroupHeader = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemHeader, headerFiles)
         itemGroupSource = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemSource, sourceFiles)
         itemGroupShader = self.__GenerateItemGroup(template.FilterItemGroup, template.FilterItemShader, shaderFiles)
+        itemGroupNatvis = self.__GenerateNatvisItemGroup(template.FilterItemGroupNatvis, package)
 
         content = template.FilterMaster
         content = content.replace("##PACKAGE_TARGET_NAME##", packageTargetName)
         content = content.replace("##ITEM_GROUP_HEADER##", itemGroupHeader)
         content = content.replace("##ITEM_GROUP_SOURCE##", itemGroupSource)
         content = content.replace("##ITEM_GROUP_SHADER##", itemGroupShader)
+        content = content.replace("##ITEM_GROUP_NATVIS##", itemGroupNatvis)
         return content
+
+    def __GenerateNatvisItemGroup(self, groupSnippet: str, package: Package) -> str:
+        if len(groupSnippet) <= 0 or not self.__ContainsNatvis(package):
+            return ""
+        content = groupSnippet.replace("##FILENAME##", SpecialFiles.Natvis)
+        return "\n{0}".format(content)
 
     def __GenerateItemGroup(self, groupSnippet: str, snippet: str, files: Optional[List[str]]) -> str:
         if files is None or len(files) <= 0:
@@ -424,6 +435,7 @@ class GeneratorVC(GeneratorBase):
         content = ""
         for entry in files:
             itemContent = snippet
+            entry = entry.replace("/", "\\")
             content += "\n" + itemContent.replace("##FILENAME##", entry)
         groupContent = groupContent.replace("##ITEMS##", content)
         return groupContent
@@ -702,6 +714,18 @@ class GeneratorVC(GeneratorBase):
         result = snippet
         result = result.replace("##SNIPPET##", fileEntries)
         return result
+
+    def __ContainsNatvis(self, package: Package) -> bool:
+        for entry in package.ResolvedSpecialFiles:
+            if entry.SourcePath == SpecialFiles.Natvis:
+                return True
+        return False
+
+    def __CreateNatvis(self, snippetAddNatvisFile: str, package: Package) -> str:
+        if len(snippetAddNatvisFile) <= 0 or not self.__ContainsNatvis(package):
+            return ""
+        content = snippetAddNatvisFile.replace("##FILENAME##", SpecialFiles.Natvis)
+        return "\n{0}".format(content)
 
 
     def __CreateVisualStudioStyleList(self, entries: Union[List[str], Set[str]]) -> str:
@@ -1095,7 +1119,7 @@ class GeneratorVC(GeneratorBase):
             if entry.Version is None:
                 raise Exception("PackageReference version can not be null")
             strContent = snippet.replace("##PACKAGE_NAME##", entry.Name)
-            strContent = strContent.replace("##PACKAGE_VERSION##", entry.Version)
+            strContent = strContent.replace("##PACKAGE_VERSION##", str(entry.Version))
             res.append(strContent)
         return "\n".join(res)
 
@@ -1171,7 +1195,7 @@ class GeneratorVC(GeneratorBase):
         return self.__GetExternalDependenciesByType(package, ExternalDependencyType.Assembly)
 
 
-    def __GetExternalDependenciesByType(self, package: Package, extDepType: int) -> List[PackageExternalDependency]:
+    def __GetExternalDependenciesByType(self, package: Package, extDepType: ExternalDependencyType) -> List[PackageExternalDependency]:
         foundDeps = Util.FilterByType(package.ResolvedDirectExternalDependencies, extDepType)
 
         for entry in package.ResolvedAllDependencies:
@@ -1249,9 +1273,9 @@ class GeneratorVC(GeneratorBase):
                 raise Exception("Invalid package")
             content = "\n" + nuGetPackageConfig.PackageEntry
             content = content.replace("##PACKAGE_NAME##", entry.Name)
-            if entry.PackageManager.PackageVersion is None or entry.PackageManager.PackageTargetFramework is None:
+            if entry.PackageManager.Version is None or entry.PackageManager.PackageTargetFramework is None:
                 raise Exception("Not supported")
-            content = content.replace("##PACKAGE_VERSION##", entry.PackageManager.PackageVersion)
+            content = content.replace("##PACKAGE_VERSION##", entry.PackageManager.Version)
             content = content.replace("##PACKAGE_TARGET_FRAMEWORK##", entry.PackageManager.PackageTargetFramework)
             contentPackageList += content
 

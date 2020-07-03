@@ -40,24 +40,24 @@ namespace Fsl
     class UTControl : public BaseWindow
     {
     public:
-      Vector2 TestLastMeasureOverrideAvailableSize;
-      Vector2 TestLastArrangeOverrideFinalSize;
+      PxAvailableSize TestLastMeasureOverrideAvailableSize;
+      PxSize2D TestLastArrangeOverrideFinalSize;
 
-      UTControl(const std::shared_ptr<BaseWindowContext>& context)
+      explicit UTControl(const std::shared_ptr<BaseWindowContext>& context)
         : BaseWindow(context)
       {
       }
 
-      Vector2 MeasureOverride(const Vector2& availableSize) override
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override
       {
-        TestLastMeasureOverrideAvailableSize = availableSize;
-        return BaseWindow::MeasureOverride(availableSize);
+        TestLastMeasureOverrideAvailableSize = availableSizePx;
+        return BaseWindow::MeasureOverride(availableSizePx);
       }
 
-      Vector2 ArrangeOverride(const Vector2& finalSize) override
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override
       {
-        TestLastArrangeOverrideFinalSize = finalSize;
-        return BaseWindow::ArrangeOverride(finalSize);
+        TestLastArrangeOverrideFinalSize = finalSizePx;
+        return BaseWindow::ArrangeOverride(finalSizePx);
       }
     };
   }

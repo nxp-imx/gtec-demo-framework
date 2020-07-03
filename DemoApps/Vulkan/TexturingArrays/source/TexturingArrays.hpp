@@ -23,22 +23,19 @@ namespace Fsl
   // Vertex layout for this example
   struct Vertex
   {
-    float pos[3];
-    float uv[2];
+    float pos[3];    // NOLINT(modernize-avoid-c-arrays)
+    float uv[2];     // NOLINT(modernize-avoid-c-arrays)
   };
 
   class TexturingArrays : public Willems::VulkanWillemsDemoApp
   {
     struct Vertices
     {
-      VkPipelineVertexInputStateCreateInfo InputState;
+      VkPipelineVertexInputStateCreateInfo InputState{};
       std::vector<VkVertexInputBindingDescription> BindingDescriptions;
       std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
 
-      Vertices()
-        : InputState{}
-      {
-      }
+      Vertices() = default;
     };
 
     struct Meshes
@@ -94,7 +91,7 @@ namespace Fsl
 
 
   public:
-    TexturingArrays(const DemoAppConfig& config);
+    explicit TexturingArrays(const DemoAppConfig& config);
     ~TexturingArrays() override;
 
   protected:
@@ -107,7 +104,7 @@ namespace Fsl
   private:
     void SetupVertexDescriptions();
     void LoadTextures();
-    Willems::VulkanTexture LoadTextureArray(const std::string& filename, const VkFormat format);
+    Willems::VulkanTexture LoadTextureArray(const IO::Path& filename, const VkFormat format);
     void GenerateQuad();
     void PrepareUniformBuffers();
     void UpdateUniformBufferMatrices();

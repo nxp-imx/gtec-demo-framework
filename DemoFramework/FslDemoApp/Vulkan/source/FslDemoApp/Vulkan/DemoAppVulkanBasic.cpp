@@ -37,8 +37,8 @@
 #include <FslDemoHost/Vulkan/Config/DemoAppHostConfigVulkan.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/Vulkan/NativeGraphicsSwapchainInfo.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Log/All.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/CommandBufferUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceKHRUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/SwapchainKHRUtil.hpp>
@@ -50,11 +50,10 @@
 #include <array>
 #include <cassert>
 #include <iostream>
+#include <memory>
 
 namespace Fsl
 {
-  using namespace Vulkan;
-
   namespace VulkanBasic
   {
     namespace
@@ -130,19 +129,20 @@ namespace Fsl
           throw NotSupportedException("No surface formats found");
         }
         // Default to the first supported format (not optimal but at least its something)
-        return Vulkan::SurfaceFormatInfo(supportedFormats[0].format, supportedFormats[0].colorSpace);
+        return {supportedFormats[0].format, supportedFormats[0].colorSpace};
       }
     }
 
     DemoAppVulkanBasic::DemoAppVulkanBasic(const DemoAppConfig& demoAppConfig, const DemoAppVulkanSetup& demoAppVulkanSetup)
       : DemoAppVulkan(demoAppConfig)
       , m_appSetup(ProcessDemoAppSetup(demoAppVulkanSetup, GetDefaultMaxFramesInFlight()))
+      , m_cachedExtentPx(demoAppConfig.WindowMetrics.ExtentPx)
     {
       auto hostInfo = demoAppConfig.DemoServiceProvider.Get<IHostInfo>();
       auto hostConfig = hostInfo->GetConfig();
       if (hostConfig.StatOverlay)
       {
-        m_demoAppProfilerOverlay.reset(new DemoAppProfilerOverlay(demoAppConfig.DemoServiceProvider, hostConfig.LogStatsFlags));
+        m_demoAppProfilerOverlay = std::make_unique<DemoAppProfilerOverlay>(demoAppConfig.DemoServiceProvider, hostConfig.LogStatsFlags);
       }
       auto demoHostConfig = hostInfo->TryGetAppHostConfig();
       if (!demoHostConfig)
@@ -181,14 +181,19 @@ namespace Fsl
         catch (const std::exception& ex)
         {
           FSLLOG3_ERROR("Exception during FreeResources: {}", ex.what());
-
           FSLLOG3_ERROR("FreeResources failed to complete. Setting exit code to failure");
-
-          // IMPROVEMENT: Be able to RequestExit and change exit code in one operation
-          // We request a exit (this might silently return if a exit is already scheduled so the exit code will not be set)
-          GetDemoAppControl()->RequestExit(EXIT_FAILURE);
-          // Which is why we also call ChangeExitCode (beware this only changes the exit code if a non-default exit code has not been set)
-          GetDemoAppControl()->ChangeExitCode(EXIT_FAILURE);
+          try
+          {
+            // IMPROVEMENT: Be able to RequestExit and change exit code in one operation
+            // We request a exit (this might silently return if a exit is already scheduled so the exit code will not be set)
+            GetDemoAppControl()->RequestExit(EXIT_FAILURE);
+            // Which is why we also call ChangeExitCode (beware this only changes the exit code if a non-default exit code has not been set)
+            GetDemoAppControl()->ChangeExitCode(EXIT_FAILURE);
+          }
+          catch (const std::exception& ex2)
+          {
+            FSLLOG3_ERROR("internal error, failed to request exit: {0}", ex2.what());
+          }
         }
       }
     }
@@ -270,16 +275,21 @@ namespace Fsl
     }
 
 
-    void DemoAppVulkanBasic::Resized(const Point2& size)
+    void DemoAppVulkanBasic::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
     {
-      DemoAppVulkan::Resized(size);
+      DemoAppVulkan::ConfigurationChanged(windowMetrics);
 
-      // Quick, dirty and slow resize support by destroying any screen size dependent Vulkan resources.
-      if (m_appSetup.ActiveResizeStrategy == ResizeStrategy::RebuildResources)
+      if (windowMetrics.ExtentPx != m_cachedExtentPx)
       {
-        if (IsResourcesAllocated())
+        m_cachedExtentPx = windowMetrics.ExtentPx;
+
+        // Quick, dirty and slow resize support by destroying any screen size dependent Vulkan resources.
+        if (m_appSetup.ActiveResizeStrategy == ResizeStrategy::RebuildResources)
         {
-          TryRebuildResources();
+          if (IsResourcesAllocated())
+          {
+            TryRebuildResources();
+          }
         }
       }
     }
@@ -289,7 +299,7 @@ namespace Fsl
     {
       const auto currentSwapBufferIndex = m_dependentResources.CurrentSwapBufferIndex;
       // Allow the app to draw
-      auto framebuffer = m_dependentResources.SwapchainRecords[currentSwapBufferIndex].Framebuffer.Get();
+      const VkFramebuffer framebuffer = m_dependentResources.SwapchainRecords[currentSwapBufferIndex].Framebuffer.Get();
 
       // Possible improvement:
       // We could replace the VulkanDraw with a normal Draw call but that would just mean that all implementations would have
@@ -301,9 +311,9 @@ namespace Fsl
       DrawContext drawContext(m_swapchain.GetImageExtent(), framebuffer, m_dependentResources.CurrentSwapBufferIndex, m_resources.CurrentFrame);
       VulkanDraw(demoTime, m_dependentResources.CmdBuffers, drawContext);
 
-      const auto waitSemaphore = m_resources.Frames[m_resources.CurrentFrame].ImageAcquiredSemaphore.Get();
-      const auto signalSemaphore = m_resources.Frames[m_resources.CurrentFrame].RenderingCompleteSemaphore.Get();
-      const auto inFlightFence = m_resources.Frames[m_resources.CurrentFrame].InFlightFence.Get();
+      const VkSemaphore waitSemaphore = m_resources.Frames[m_resources.CurrentFrame].ImageAcquiredSemaphore.Get();
+      const VkSemaphore signalSemaphore = m_resources.Frames[m_resources.CurrentFrame].RenderingCompleteSemaphore.Get();
+      const VkFence inFlightFence = m_resources.Frames[m_resources.CurrentFrame].InFlightFence.Get();
 
       // Submit the draw operations
       const VkPipelineStageFlags waitDstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -339,7 +349,7 @@ namespace Fsl
 
       if (m_demoAppProfilerOverlay)
       {
-        m_demoAppProfilerOverlay->Draw(GetScreenResolution());
+        m_demoAppProfilerOverlay->Draw(GetWindowMetrics());
       }
     }
 
@@ -367,13 +377,13 @@ namespace Fsl
           desiredSwapchainImageUsageFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
         }
 
-        auto fallbackExtent = ConvertUtil::Convert(GetScreenExtent());
+        auto fallbackExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
         const VkPresentModeKHR presentMode =
           !m_launchOptions.OverridePresentMode ? m_appSetup.DesiredSwapchainPresentMode : m_launchOptions.PresentMode;
         const auto supportedImageUsageFlags = FilterUnsupportedImageUsageFlags(m_physicalDevice.Device, m_surface, desiredSwapchainImageUsageFlags);
         const VkImageUsageFlags desiredImageUsageFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | supportedImageUsageFlags;
 
-        m_swapchain = SwapchainKHRUtil::CreateSwapchain(
+        m_swapchain = Vulkan::SwapchainKHRUtil::CreateSwapchain(
           m_physicalDevice.Device, m_device.Get(), 0, m_surface, DESIRED_MIN_SWAP_BUFFER_COUNT, 1, desiredImageUsageFlags, VK_SHARING_MODE_EXCLUSIVE,
           0, nullptr, VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR, presentMode, VK_TRUE, m_swapchain.Get(), fallbackExtent, m_surfaceFormatInfo);
 
@@ -410,7 +420,7 @@ namespace Fsl
         BuildResourcesContext buildResourcesContext(m_swapchain.GetImageExtent(), m_swapchain.GetImageFormat(), swapchainImageCount,
                                                     m_dependentResources.MaxFramesInFlight, depthImageView, depthImageFormat, depthImageExtent,
                                                     m_resources.MainCommandPool.Get());
-        auto mainRenderPass = OnBuildResources(buildResourcesContext);
+        const VkRenderPass mainRenderPass = OnBuildResources(buildResourcesContext);
 
         FSLLOG3_VERBOSE2("DemoAppVulkanBasic::BuildResources(): Populate swapchain records");
 
@@ -420,7 +430,7 @@ namespace Fsl
         for (uint32_t i = 0; i < swapchainImageCount; ++i)
         {
           BuildSwapchainImageView(m_dependentResources.SwapchainRecords[i], i);
-          const auto swapchainImageView = m_dependentResources.SwapchainRecords[i].SwapchainImageView.Get();
+          const VkImageView swapchainImageView = m_dependentResources.SwapchainRecords[i].SwapchainImageView.Get();
 
           FrameBufferCreateContext frameBufferCreateContext(swapchainImageView, m_swapchain.GetImageExtent(), mainRenderPass, depthImageView);
           m_dependentResources.SwapchainRecords[i].Framebuffer = CreateFramebuffer(frameBufferCreateContext);
@@ -656,8 +666,8 @@ namespace Fsl
         beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         commandBuffer.Begin(beginInfo);
         {
-          CommandBufferUtil::SetImageLayout(commandBuffer.Get(), depthImageMemoryView.Image().Get(), VK_IMAGE_ASPECT_COLOR_BIT,
-                                            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, subresourceRange);
+          Vulkan::CommandBufferUtil::SetImageLayout(commandBuffer.Get(), depthImageMemoryView.Image().Get(), VK_IMAGE_ASPECT_COLOR_BIT,
+                                                    VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, subresourceRange);
         }
         commandBuffer.End();
       }
@@ -693,6 +703,11 @@ namespace Fsl
       {
         FreeResources();
         BuildResources();
+
+        if (m_nativeGraphicsService)
+        {
+          m_nativeGraphicsService->OnVulkanSwapchainEvent(Vulkan::VulkanSwapchainEvent::Recreated);
+        }
         return RecreateSwapchainResult::Completed;
       }
       catch (const std::exception& ex)
@@ -727,8 +742,8 @@ namespace Fsl
       }
 
 
-      const auto waitSemaphore = m_resources.Frames[m_resources.CurrentFrame].ImageAcquiredSemaphore.Get();
-      const auto inFlightFence = m_resources.Frames[m_resources.CurrentFrame].InFlightFence.Get();
+      const VkSemaphore waitSemaphore = m_resources.Frames[m_resources.CurrentFrame].ImageAcquiredSemaphore.Get();
+      const VkFence inFlightFence = m_resources.Frames[m_resources.CurrentFrame].InFlightFence.Get();
 
       auto result = vkAcquireNextImageKHR(m_device.Get(), m_swapchain.Get(), DEFAULT_TIMEOUT, waitSemaphore, VK_NULL_HANDLE,
                                           &m_dependentResources.CurrentSwapBufferIndex);
@@ -751,6 +766,12 @@ namespace Fsl
           FSLLOG3_WARNING("vkResetFences failed with: {}", RapidVulkan::Debug::ToString(resetResult));
           return AppDrawResult::Failed;
         }
+
+        if (m_nativeGraphicsService)
+        {
+          // Give the native graphics service a chance to do some pre-processing before we start the new frame
+          m_nativeGraphicsService->VulkanPreProcessFrame(m_dependentResources.CurrentSwapBufferIndex);
+        }
         return AppDrawResult::Completed;
       }
       case VK_ERROR_OUT_OF_DATE_KHR:
@@ -768,7 +789,7 @@ namespace Fsl
 
       auto renderConfig = GetRenderConfig();
 
-      const auto signalSemaphore = m_resources.Frames[m_resources.CurrentFrame].RenderingCompleteSemaphore.Get();
+      const VkSemaphore signalSemaphore = m_resources.Frames[m_resources.CurrentFrame].RenderingCompleteSemaphore.Get();
       const auto currentSwapBufferIndex = m_dependentResources.CurrentSwapBufferIndex;
 
       auto result = m_swapchain.TryQueuePresent(m_deviceQueue.Queue, 1, &signalSemaphore, &currentSwapBufferIndex, nullptr);
@@ -809,8 +830,20 @@ namespace Fsl
       case AppDrawResult::NotReady:
       case AppDrawResult::Retry:
       default:
-        FSLLOG3_VERBOSE_IF(m_currentAppState != AppState::WaitForSwapchainRecreation,
-                           "DemoAppVulkanBasic::SetAppState(): WaitForSwapchainRecreation");
+        if (m_currentAppState != AppState::WaitForSwapchainRecreation)
+        {
+          FSLLOG3_VERBOSE("DemoAppVulkanBasic::SetAppState(): WaitForSwapchainRecreation");
+          if (m_nativeGraphicsService)
+          {
+            if (m_device.IsValid())
+            {
+              FSLLOG3_VERBOSE4("Swapchain lost, waiting for device to be idle");
+              vkDeviceWaitIdle(m_device.Get());
+            }
+            // Give the native graphics service a chance to do some processing when this occurs
+            m_nativeGraphicsService->OnVulkanSwapchainEvent(Vulkan::VulkanSwapchainEvent::Lost);
+          }
+        }
         m_currentAppState = AppState::WaitForSwapchainRecreation;
         break;
       }

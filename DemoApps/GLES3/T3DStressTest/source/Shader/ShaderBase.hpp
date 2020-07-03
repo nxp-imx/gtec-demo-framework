@@ -54,7 +54,7 @@ namespace Fsl
       ScopedUse(const ScopedUse&) = delete;
       ScopedUse& operator=(const ScopedUse&) = delete;
 
-      ScopedUse(ShaderBase& shader)
+      explicit ScopedUse(ShaderBase& shader)
         : m_shader(shader)
       {
         m_shader.Load();
@@ -67,12 +67,12 @@ namespace Fsl
     ShaderBase(const std::string& strVertexShader, const std::string& strFragmentShader);
     virtual ~ShaderBase();
 
-    const ShaderVertexConfig GetShaderConfig() const;
+    ShaderVertexConfig GetShaderConfig() const;
 
   protected:
     ShaderVertexConfig m_shaderConfig;
 
-  protected:
+
     bool IsValid() const;
     GLuint Get() const;
     const GLES3::GLProgram& GetProgram() const

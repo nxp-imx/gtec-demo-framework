@@ -30,7 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/NativeTextureArea.hpp>
-#include <FslGraphics/UnitTest/Helper/Common.hpp>
+#include <FslGraphics/Log/LogNativeTextureArea.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <array>
 #include <limits>
@@ -48,10 +48,10 @@ TEST(Test_NativeTextureArea, Construct_Empty)
 {
   NativeTextureArea area;
 
+  EXPECT_EQ(0.0f, area.X0);
+  EXPECT_EQ(0.0f, area.Y0);
   EXPECT_EQ(0.0f, area.X1);
   EXPECT_EQ(0.0f, area.Y1);
-  EXPECT_EQ(0.0f, area.X2);
-  EXPECT_EQ(0.0f, area.Y2);
 }
 
 
@@ -59,8 +59,32 @@ TEST(Test_NativeTextureArea, Construct_1)
 {
   NativeTextureArea area(1.0f, 2.0f, 3.0f, 4.0f);
 
-  EXPECT_EQ(1.0f, area.X1);
-  EXPECT_EQ(2.0f, area.Y1);
-  EXPECT_EQ(3.0f, area.X2);
-  EXPECT_EQ(4.0f, area.Y2);
+  EXPECT_EQ(1.0f, area.X0);
+  EXPECT_EQ(2.0f, area.Y0);
+  EXPECT_EQ(3.0f, area.X1);
+  EXPECT_EQ(4.0f, area.Y1);
+}
+
+
+TEST(Test_NativeTextureArea, OpEqual)
+{
+  NativeTextureArea area0(1.0f, 2.0f, 3.0f, 4.0f);
+  NativeTextureArea areaA(1.0f, 2.0f, 3.0f, 4.0f);
+
+  EXPECT_EQ(area0, areaA);
+}
+
+
+TEST(Test_NativeTextureArea, OpNotEqual)
+{
+  NativeTextureArea area0(1.0f, 2.0f, 3.0f, 4.0f);
+  NativeTextureArea areaA(9.0f, 2.0f, 3.0f, 4.0f);
+  NativeTextureArea areaB(1.0f, 9.0f, 3.0f, 4.0f);
+  NativeTextureArea areaC(1.0f, 2.0f, 9.0f, 4.0f);
+  NativeTextureArea areaD(1.0f, 2.0f, 3.0f, 9.0f);
+
+  EXPECT_NE(area0, areaA);
+  EXPECT_NE(area0, areaB);
+  EXPECT_NE(area0, areaC);
+  EXPECT_NE(area0, areaD);
 }

@@ -41,7 +41,7 @@ namespace Fsl
 {
   class ICpuStatsAdapter;
 
-  class CpuStatsService
+  class CpuStatsService final
     : public ThreadLocalService
     , public ICpuStatsService
   {
@@ -50,14 +50,14 @@ namespace Fsl
 
   public:
     CpuStatsService(const ServiceProvider& serviceProvider, const std::function<std::unique_ptr<ICpuStatsAdapter>()>& fnAllocateAdapter);
-    ~CpuStatsService() override;
+    ~CpuStatsService() final;
 
-    void Update() override;
+    void Update() final;
 
-    uint32_t GetCpuCount() const override;
-    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const override;
-    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const override;
-    bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const override;
+    uint32_t GetCpuCount() const final;
+    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const final;
+    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const final;
+    bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const final;
 
   private:
   };

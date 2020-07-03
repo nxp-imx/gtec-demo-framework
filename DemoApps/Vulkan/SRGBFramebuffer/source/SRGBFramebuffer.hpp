@@ -39,6 +39,7 @@
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
@@ -51,7 +52,7 @@
 
 namespace Fsl
 {
-  class SRGBFramebuffer
+  class SRGBFramebuffer final
     : public VulkanBasic::DemoAppVulkanBasic
     , public UI::EventListener
   {
@@ -89,8 +90,8 @@ namespace Fsl
 
     struct FragmentUboData
     {
-      Vector4 LightPositions[4];
-      Vector4 LightColors[4];
+      Vector4 LightPositions[4];    // NOLINT(modernize-avoid-c-arrays)
+      Vector4 LightColors[4];       // NOLINT(modernize-avoid-c-arrays)
       Vector4 ViewPos;
       bool Gamma = false;
     };
@@ -146,18 +147,22 @@ namespace Fsl
 
     std::shared_ptr<UI::Label> m_labelLeft;
     std::shared_ptr<UI::Label> m_labelRight;
+    std::shared_ptr<UI::Switch> m_leftCB;
+    std::shared_ptr<UI::Switch> m_rightCB;
 
   public:
-    SRGBFramebuffer(const DemoAppConfig& config);
+    explicit SRGBFramebuffer(const DemoAppConfig& config);
+
+    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void Update(const DemoTime& demoTime) final;
+    void VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext) final;
 
-    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) override;
-    void OnFreeResources() override;
+    VkRenderPass OnBuildResources(const VulkanBasic::BuildResourcesContext& context) final;
+    void OnFreeResources() final;
 
   private:
     void UpdateInput(const DemoTime& demoTime);
@@ -168,6 +173,8 @@ namespace Fsl
     void CreateTextures(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& textureFile);
     void CreateVertexArray();
     void CreateUI(const bool hasSRGBFramebuffer);
+    void SetState(State state);
+    void UpdateUIToState();
   };
 }
 

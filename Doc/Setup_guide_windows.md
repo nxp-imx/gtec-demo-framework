@@ -4,7 +4,7 @@
 
 - [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/)
   (community or better)
-- [Python 3.4+](https://www.python.org/ftp/python/3.8.1/python-3.8.1-amd64.exe)
+- [Python 3.4+](https://www.python.org/ftp/python/3.8.3/python-3.8.3-amd64.exe)
   To be able run python scripts.
   If you use 3.4 you need to install the 'typing' library manually so we highly recommended using 3.5 or newer.
   To install the typing library in Python **3.4** run:
@@ -116,9 +116,9 @@ If you add source files to a project or change the Fsl.gen file then run the
 FslBuildGen.py script in the project root folder to regenerate the various
 build files.
 
-## Building OpenCV 4.0 demo framework apps
+## Building OpenCV 4.2 demo framework apps
 
-1. See [Setup OpenCV 4.0](#setup-opencv-4.0)
+1. See [Setup OpenCV 4.2](#setup-opencv-4.2)
 2. Run `prepare.bat` as usual.
 3. Add a dependency to OpenCV to your "fsl.gen" file like this
 
@@ -158,18 +158,18 @@ build files.
 3. Run `FslBuildGen.py` to regenerate the project files.
 4. Start the project
 
-## Setup OpenCV 4.0
+## Setup OpenCV 4.2
 
-1. Install the 4.0.1 sdk files.
+1. Install the 4.2.0 sdk files.
 2. Configure the environment variable OPENCV_DIR to point to the sdk location like this
 
     ```bash
-    set OPENCV_DIR=c:\_sdk\opencv-4.0.1\build
+    set OPENCV_DIR=c:\_sdk\opencv-4.2.0\build
     ```
 
 ## Setup OpenVX
 
-1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4.0)
+1. Follow the guide for setting up OpenCL and OpenCV support. (need OpenCV4.2)
 
 ## Legacy Git note
 

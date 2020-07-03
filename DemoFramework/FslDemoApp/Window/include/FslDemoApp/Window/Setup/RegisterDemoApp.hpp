@@ -67,10 +67,4 @@ namespace Fsl
   }
 }
 
-// Register a pure Window demo
-#define FSL_REGISTER_WINDOW_DEMO(tdEMOaPP, dEMOhOSTcONFIG) \
-  static_assert(false, "The FSL_REGISTER_WINDOW_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_WINDOW_DEMO_EX(tdEMOaPP, dEMOhOSTcONFIG, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_WINDOW_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

@@ -37,6 +37,7 @@
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
@@ -68,7 +69,7 @@ namespace Fsl
           throw NotSupportedException("We only support triangle mesh faces");
         }
 
-        const auto srcIndices = pSrc[faceIndex].mIndices;
+        auto* const srcIndices = pSrc[faceIndex].mIndices;
         for (std::size_t i = 0; i < 3; ++i)
         {
           if (dstIndexCount >= dstCapacity)
@@ -329,8 +330,8 @@ namespace Fsl
   }
 
 
-  MeshImporter::MeshImporter(const MeshAllocatorFunc& meshAllocator)
-    : m_meshAllocator(meshAllocator)
+  MeshImporter::MeshImporter(MeshAllocatorFunc meshAllocator)
+    : m_meshAllocator(std::move(meshAllocator))
   {
   }
 

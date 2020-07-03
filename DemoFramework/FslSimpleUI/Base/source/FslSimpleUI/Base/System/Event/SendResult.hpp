@@ -35,7 +35,7 @@ namespace Fsl
 {
   namespace UI
   {
-    enum SendResult
+    enum class SendResult
     {
       Handled,
       Unhandled,

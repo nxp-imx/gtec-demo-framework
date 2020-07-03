@@ -50,7 +50,6 @@ namespace Fsl
 
         MeshDescriptor(const uint32_t vertexCount, const uint32_t indexCount)
           : VertexCount(vertexCount)
-          , IndexBase(0)
           , IndexCount(indexCount)
         {
         }

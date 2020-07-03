@@ -40,19 +40,19 @@ namespace Fsl
   public:
     static uint32_t EncodeOpenGLESVersion(const uint16_t major);
     static uint32_t EncodeOpenGLESVersion(const uint16_t major, const uint16_t minor);
-    static void DecodeOpenGLESVersion(uint32_t encodedValue, int& rMajor, int& rMinor);
+    static void DecodeOpenGLESVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor);
 
     static uint32_t EncodeOpenVGVersion(const uint16_t major);
     static uint32_t EncodeOpenVGVersion(const uint16_t major, const uint16_t minor);
-    static void DecodeOpenVGVersion(uint32_t encodedValue, int& rMajor, int& rMinor);
+    static void DecodeOpenVGVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor);
 
     static uint32_t EncodeG2DVersion(const uint16_t major);
     static uint32_t EncodeG2DVersion(const uint16_t major, const uint16_t minor);
-    static void DecodeG2DVersion(uint32_t encodedValue, int& rMajor, int& rMinor);
+    static void DecodeG2DVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor);
 
     static uint32_t EncodeVersion(const uint16_t major);
     static uint32_t EncodeVersion(const uint16_t major, const uint16_t minor);
-    static void DecodeVersion(uint32_t encodedValue, int& rMajor, int& rMinor);
+    static void DecodeVersion(uint32_t encodedValue, int32_t& rMajor, int32_t& rMinor);
   };
 }
 

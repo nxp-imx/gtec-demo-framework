@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/FmtPxRectangle.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxSize2D.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
-#include <FslBase/Log/Math/FmtRectangle.hpp>
-#include <FslBase/Log/Math/FmtPoint2.hpp>
 #include <fmt/format.h>
 
 namespace fmt

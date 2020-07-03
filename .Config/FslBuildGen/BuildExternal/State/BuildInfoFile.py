@@ -43,9 +43,13 @@ from FslBuildGen import PackageListUtil
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.State.BuildInfoFilePackageDependency import BuildInfoFilePackageDependency
 from FslBuildGen.BuildExternal.State.JsonDictType import JsonDictType
+from FslBuildGen.BuildExternal.State.JsonRecipeCMakeConfig import JsonRecipeCMakeConfig
+from FslBuildGen.BuildExternal.State.JsonRecipeCMakeConfig import JsonRecipeCMakeVersion
 from FslBuildGen.BuildExternal.State.JsonRecipePackageContentState import JsonRecipePackageContentState
 from FslBuildGen.BuildExternal.State.RecipePackageState import RecipePackageState
 from FslBuildGen.BuildExternal.State.RecipePackageStateCache import RecipePackageStateCache
+from FslBuildGen.CMakeUtil import CMakeVersion
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 
@@ -59,7 +63,9 @@ class BuildInfoFileElements(object):
     SourceState = "SourceState"
     SourceStateHash = "SourceStateHash"
 
-    CURRENT_VERSION = "2"
+    CMakeConfig = "CMakeConfig"
+
+    CURRENT_VERSION = "3"
 
 
 class BuildInfoFile(object):
@@ -71,6 +77,7 @@ class BuildInfoFile(object):
         self.RecipeHash = jsonDict[BuildInfoFileElements.RecipeHash]                        # type: str
         self.ContentState = jsonDict[BuildInfoFileElements.ContentState]                    # type: JsonRecipePackageContentState
         self.ContentStateHash = jsonDict[BuildInfoFileElements.ContentStateHash]            # type: str
+        self.CMakeConfig = jsonDict[BuildInfoFileElements.CMakeConfig]                      # type: JsonRecipeCMakeConfig
         self.DecodedPackageDependencies = [BuildInfoFilePackageDependency(entry) for entry in self.PackageDependencies]
         # Optional entries
         self.SourceState = jsonDict[BuildInfoFileElements.SourceState] if BuildInfoFileElements.SourceState in jsonDict else JsonRecipePackageContentState()    # type: JsonRecipePackageContentState
@@ -83,6 +90,7 @@ class BuildInfoFile(object):
             not BuildInfoFileElements.FileFormatVersion in srcDict or
             not BuildInfoFileElements.RecipeHash in srcDict or
             not BuildInfoFileElements.ContentState in srcDict or
+            not BuildInfoFileElements.CMakeConfig in srcDict or
             not BuildInfoFileElements.ContentStateHash in srcDict):
             return False
         if not isinstance(srcDict[BuildInfoFileElements.PackageName], str):
@@ -97,6 +105,8 @@ class BuildInfoFile(object):
             return False
         if not isinstance(srcDict[BuildInfoFileElements.ContentStateHash], str):
             return False
+        if not isinstance(srcDict[BuildInfoFileElements.CMakeConfig], Dict):
+            return False
         if BuildInfoFileElements.SourceState in srcDict and not isinstance(srcDict[BuildInfoFileElements.SourceState], Dict):
             return False
         if BuildInfoFileElements.SourceStateHash in srcDict and not isinstance(srcDict[BuildInfoFileElements.SourceStateHash], str):
@@ -107,6 +117,7 @@ class BuildInfoFile(object):
     @staticmethod
     def TryCreateJsonBuildInfoRootDict(log: Log, cacheFilename: str, sourcePackage: Package, sourceRecipe: PackageExperimentalRecipe,
                                        recipePackageStateCache: RecipePackageStateCache,
+                                       cmakeConfig: GeneratorCMakeConfig,
                                        cachedContentState: Optional[JsonRecipePackageContentState] = None,
                                        cachedSourceState: Optional[JsonRecipePackageContentState] = None) -> Optional[JsonDictType]:
         try:
@@ -138,6 +149,7 @@ class BuildInfoFile(object):
             jsonRootDict[BuildInfoFileElements.RecipeHash] = recipeHash
             jsonRootDict[BuildInfoFileElements.ContentState] = recipePackageState.ContentState
             jsonRootDict[BuildInfoFileElements.ContentStateHash] = recipePackageState.ContentStateHash
+            jsonRootDict[BuildInfoFileElements.CMakeConfig] = BuildInfoFile.ToJsonRecipeCMakeConfig(cmakeConfig)
             if localSourceState is not None:
                 jsonRootDict[BuildInfoFileElements.SourceState] = localSourceState.ContentState
                 jsonRootDict[BuildInfoFileElements.SourceStateHash] = localSourceState.ContentStateHash
@@ -146,6 +158,18 @@ class BuildInfoFile(object):
             log.LogPrintWarning("TryCreateJsonBuildInfoRootDict failed {0}".format(ex))
             return None
 
+    @staticmethod
+    def ToJsonRecipeCMakeConfig(cmakeConfig: GeneratorCMakeConfig) -> JsonRecipeCMakeConfig:
+        result = JsonRecipeCMakeConfig()
+        result.Set(cmakeConfig.CMakeFinalGeneratorName, BuildInfoFile.ToJsonRecipeCMakeVersion(cmakeConfig.CMakeVersion),
+                   cmakeConfig.CMakeInternalArguments, cmakeConfig.CMakeConfigUserGlobalArguments)
+        return result
+
+    @staticmethod
+    def ToJsonRecipeCMakeVersion(cmakeConfig: CMakeVersion) -> JsonRecipeCMakeVersion:
+        result = JsonRecipeCMakeVersion()
+        result.Set(cmakeConfig.Major, cmakeConfig.Minor)
+        return result
 
     @staticmethod
     def CreateReferencedPackageNameList(referencedPackageSet: Set[Package],

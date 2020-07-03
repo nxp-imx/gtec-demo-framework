@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslSimpleUI/Base/Event/EventTransactionState.hpp>
-#include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 
 namespace Fsl
 {
@@ -45,7 +45,7 @@ namespace Fsl
       int32_t m_sourceSubId{0};
       EventTransactionState m_transactionState{EventTransactionState::End};
       bool m_isRepeat{false};
-      Vector2 m_param1;
+      PxPoint2 m_param1;
       int32_t m_tag{0};
 
     public:
@@ -108,11 +108,11 @@ namespace Fsl
         return m_tag;
       }
 
-      Vector2 Param1() const
+      PxPoint2 Param1() const
       {
         return m_param1;
       }
-      void SetParam1(const Vector2& value)
+      void SetParam1(const PxPoint2& value)
       {
         m_param1 = value;
       }

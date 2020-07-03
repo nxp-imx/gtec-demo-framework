@@ -58,7 +58,7 @@ namespace Fsl
 
     Point2 GetGridSize() const
     {
-      return Point2(m_gridX, m_gridY);
+      return {m_gridX, m_gridY};
     }
 
     void FixedUpdate();

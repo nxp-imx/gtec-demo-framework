@@ -68,12 +68,12 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     switch (cmdId)
     {
     case CommandId::Length:
-      StringParseUtil::Parse(m_length, pszOptArg);
+      StringParseUtil::Parse(m_length, strOptArg);
       return OptionParseResult::Parsed;
     default:
       return OptionParseResult::NotHandled;

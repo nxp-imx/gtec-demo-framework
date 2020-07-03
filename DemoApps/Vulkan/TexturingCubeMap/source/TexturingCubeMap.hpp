@@ -33,14 +33,11 @@ namespace Fsl
     };
     struct Vertices
     {
-      VkPipelineVertexInputStateCreateInfo InputState;
+      VkPipelineVertexInputStateCreateInfo InputState{};
       std::vector<VkVertexInputBindingDescription> BindingDescriptions;
       std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
 
-      Vertices()
-        : InputState{}
-      {
-      }
+      Vertices() = default;
     };
 
     struct UniformData
@@ -90,7 +87,7 @@ namespace Fsl
     DescriptorSet m_descriptorSets;
 
   public:
-    TexturingCubeMap(const DemoAppConfig& config);
+    explicit TexturingCubeMap(const DemoAppConfig& config);
     ~TexturingCubeMap() override;
 
   protected:
@@ -107,7 +104,7 @@ namespace Fsl
     void SetupVertexDescriptions();
     void PrepareUniformBuffers();
     void UpdateUniformBuffers();
-    Willems::VulkanTexture LoadCubemap(const std::string& filename, const VkFormat format, const bool forceLinearTiling);
+    Willems::VulkanTexture LoadCubemap(const IO::Path& filename, const VkFormat format, const bool forceLinearTiling);
     void SetupDescriptorSetLayout();
     void PreparePipelines();
     void SetupDescriptorPool();

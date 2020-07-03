@@ -107,6 +107,9 @@ def WriteBinaryFileIfChanged(filename: str, content: bytes) -> None:
         WriteBinaryFile(filename, content)
 
 
+def FileLength(filename: str) -> int:
+    return os.stat(filename).st_size
+
 def SetFileExecutable(filename: str) -> None:
     st = os.stat(filename)
     os.chmod(filename, st.st_mode | stat.S_IEXEC)
@@ -329,7 +332,7 @@ def GetFilePaths(directory: str, endswithFilter: Optional[Union[str, Tuple[str, 
                 if endswithFilter is None or filename.endswith(endswithFilter):
                     # Join the two strings in order to form the full filepath.
                     filepath = os.path.join(root, filename)
-                    filePaths.append(ToUnixStylePath(filepath))  # Add it to the list.
+                    filePaths.append(NormalizePath(filepath))  # Add it to the list.
     except StopIteration: # Python >2.5
         pass
     return filePaths
@@ -360,7 +363,7 @@ def GetDirectoriesAt(directory: str, absolutePaths: bool) -> List[str]:
             dirpath = path
             if absolutePaths:
                 dirpath = os.path.join(root, path)
-            res.append(ToUnixStylePath(dirpath))
+            res.append(NormalizePath(dirpath))
     except StopIteration: # Python >2.5
         pass
     return res

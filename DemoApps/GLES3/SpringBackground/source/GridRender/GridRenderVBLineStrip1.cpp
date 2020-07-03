@@ -34,7 +34,7 @@
 #include <FslBase/Math/VectorHelper.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
-#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -90,13 +90,13 @@ namespace Fsl
   }
 
 
-  void GridRenderVBLineStrip1::Update(const DemoTime& demoTime, const Vector2& areaSize, const std::vector<PointMass>& points)
+  void GridRenderVBLineStrip1::Update(const DemoTime& /*demoTime*/, const Vector2& /*areaSize*/, const std::vector<PointMass>& points)
   {
     Calc3DCoordinates(m_coordinates, points);
   }
 
 
-  void GridRenderVBLineStrip1::Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& points)
+  void GridRenderVBLineStrip1::Draw(const GridRenderDrawContext& /*drawContext*/, const std::vector<PointMass>& /*points*/)
   {
     Color color(0.12f, 0.12f, 0.55f, 0.33f);
 
@@ -269,14 +269,15 @@ namespace Fsl
         assert((pDstBottom + 1) < (pDstTop + dstStride));
 
         // Bottom to top
-        pDstBottom[1] = pSrcTop[x].m_position;
-        pDstBottom[0] = VectorHelper::CatmullRom(pSrcTop[x].m_position, pSrcTop[x].m_position, pSrcTop[x + srcStride].m_position,
-                                                 pSrcTop[x + (2 * srcStride)].m_position, 0.5f);
-        pDstBottom[-1] = pSrcTop[x + srcStride].m_position;
+        pDstBottom[1] = VertexPosition(pSrcTop[x].m_position);
+        pDstBottom[0] = VertexPosition(VectorHelper::CatmullRom(pSrcTop[x].m_position, pSrcTop[x].m_position, pSrcTop[x + srcStride].m_position,
+                                                                pSrcTop[x + (2 * srcStride)].m_position, 0.5f));
+        pDstBottom[-1] = VertexPosition(pSrcTop[x + srcStride].m_position);
 
-        pDstTop[1] = VectorHelper::CatmullRom(pSrcBottom[x].m_position, pSrcBottom[x + srcStride].m_position,
-                                              pSrcBottom[x + (srcStride * 2)].m_position, pSrcBottom[x + (srcStride * 2)].m_position, 0.5f);
-        pDstTop[0] = pSrcBottom[x + (srcStride * 2)].m_position;
+        pDstTop[1] =
+          VertexPosition(VectorHelper::CatmullRom(pSrcBottom[x].m_position, pSrcBottom[x + srcStride].m_position,
+                                                  pSrcBottom[x + (srcStride * 2)].m_position, pSrcBottom[x + (srcStride * 2)].m_position, 0.5f));
+        pDstTop[0] = VertexPosition(pSrcBottom[x + (srcStride * 2)].m_position);
 
         pDstTop += dstStride;
         pDstBottom += dstStride;
@@ -290,14 +291,15 @@ namespace Fsl
         assert(pDstBottom < (pDstTop + dstStride));
         assert((pDstBottom + 1) < (pDstTop + dstStride));
 
-        pDstTop[0] = pSrcTop[x].m_position;
-        pDstTop[1] = VectorHelper::CatmullRom(pSrcTop[x].m_position, pSrcTop[x].m_position, pSrcTop[x + srcStride].m_position,
-                                              pSrcTop[x + (2 * srcStride)].m_position, 0.5f);
-        pDstTop[2] = pSrcTop[x + srcStride].m_position;
+        pDstTop[0] = VertexPosition(pSrcTop[x].m_position);
+        pDstTop[1] = VertexPosition(VectorHelper::CatmullRom(pSrcTop[x].m_position, pSrcTop[x].m_position, pSrcTop[x + srcStride].m_position,
+                                                             pSrcTop[x + (2 * srcStride)].m_position, 0.5f));
+        pDstTop[2] = VertexPosition(pSrcTop[x + srcStride].m_position);
 
-        pDstBottom[0] = VectorHelper::CatmullRom(pSrcBottom[x].m_position, pSrcBottom[x + srcStride].m_position,
-                                                 pSrcBottom[x + (srcStride * 2)].m_position, pSrcBottom[x + (srcStride * 2)].m_position, 0.5f);
-        pDstBottom[1] = pSrcBottom[x + (srcStride * 2)].m_position;
+        pDstBottom[0] =
+          VertexPosition(VectorHelper::CatmullRom(pSrcBottom[x].m_position, pSrcBottom[x + srcStride].m_position,
+                                                  pSrcBottom[x + (srcStride * 2)].m_position, pSrcBottom[x + (srcStride * 2)].m_position, 0.5f));
+        pDstBottom[1] = VertexPosition(pSrcBottom[x + (srcStride * 2)].m_position);
 
         pDstTop += dstStride;
         pDstBottom += dstStride;

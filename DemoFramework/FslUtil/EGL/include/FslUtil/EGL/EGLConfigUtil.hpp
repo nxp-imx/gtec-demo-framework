@@ -40,6 +40,7 @@ namespace Fsl
   namespace EGLConfigUtil
   {
     //! @brief This is a very basic configuration chooser.
+    // NOLINTNEXTLINE(misc-misplaced-const)
     bool TryChooseConfig(const EGLDisplay hDisplay, const std::deque<EGLint>& configAttribs, const bool allowHDR, EGLConfig& rEGLConfig);
   }
 }

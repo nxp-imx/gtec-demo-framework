@@ -42,15 +42,15 @@ namespace Fsl
 
   namespace GLES3
   {
-    GLBatch2D::GLBatch2D(const Point2& screenResolution)
+    GLBatch2D::GLBatch2D(const PxExtent2D& extentPx)
       : GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>(
-          std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2D_DEFAULT_CAPACITY), screenResolution)
+          std::make_shared<GLBatch2DQuadRenderer>(GenericBatch2D_DEFAULT_CAPACITY), extentPx)
     {
     }
 
 
-    GLBatch2D::GLBatch2D(const std::shared_ptr<GLBatch2DQuadRenderer>& quadRenderer, const Point2& screenResolution)
-      : GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>(quadRenderer, screenResolution)
+    GLBatch2D::GLBatch2D(const std::shared_ptr<GLBatch2DQuadRenderer>& quadRenderer, const PxExtent2D& extentPx)
+      : GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>(quadRenderer, extentPx)
     {
     }
   }

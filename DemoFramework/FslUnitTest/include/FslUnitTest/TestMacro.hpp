@@ -33,6 +33,7 @@
 
 #include <gtest/gtest.h>
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_ASSERT_SUB(X)                   \
                                             \
   {                                         \

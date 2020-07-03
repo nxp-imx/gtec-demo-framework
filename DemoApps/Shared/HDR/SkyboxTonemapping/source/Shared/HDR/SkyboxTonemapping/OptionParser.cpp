@@ -66,14 +66,14 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    uint32_t uintValue;
+    uint32_t uintValue = 0;
 
     switch (cmdId)
     {
     case CommandId::Scene:
-      if (StringParseUtil::Parse(uintValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(uintValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -103,7 +103,7 @@ namespace Fsl
       }
       return OptionParseResult::Parsed;
     case CommandId::Mask:
-      if (StringParseUtil::Parse(uintValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(uintValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

@@ -40,6 +40,7 @@
 #include "../ParticleDrawContext.hpp"
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
@@ -51,11 +52,11 @@ namespace Fsl
     VertexDeclaration GetVertexDeclaration(const uint32_t cbParticleRecord)
     {
       assert(cbParticleRecord >= sizeof(Particle));
-      static VertexElementEx elements[] = {
+      static std::array<VertexElementEx, 2> elements = {
         VertexElementEx(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElementEx(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::PointSize, 0),
       };
-      return VertexDeclaration(elements, sizeof(elements) / sizeof(VertexElementEx), cbParticleRecord);
+      return VertexDeclaration(elements.data(), elements.size(), cbParticleRecord);
     }
   }
 
@@ -87,7 +88,7 @@ namespace Fsl
 
 
   void ParticleDrawGeometryShaderGLES3::Draw(const ParticleDrawContext& context, const uint8_t* pParticles, const uint32_t particleCount,
-                                             const uint32_t particleStride)
+                                             const uint32_t /*particleStride*/)
   {
     if (particleCount <= 0)
     {

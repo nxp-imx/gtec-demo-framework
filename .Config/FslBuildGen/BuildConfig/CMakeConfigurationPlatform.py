@@ -38,7 +38,7 @@ from FslBuildGen import IOUtil
 from FslBuildGen import PathUtil
 
 class CMakeConfigurationPlatform(object):
-    def __init__(self, name: str, defaultGeneratorName: Optional[str], defaultInstallPrefix: Optional[str]) -> None:
+    def __init__(self, name: str, defaultGeneratorName: Optional[str], defaultInstallPrefix: Optional[str], allowFindPackage: Optional[bool]) -> None:
         super().__init__()
 
         if defaultInstallPrefix is not None:
@@ -47,3 +47,4 @@ class CMakeConfigurationPlatform(object):
         self.Name = name
         self.DefaultGeneratorName = defaultGeneratorName
         self.DefaultInstallPrefix = defaultInstallPrefix
+        self.AllowFindPackage = allowFindPackage

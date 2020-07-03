@@ -50,7 +50,7 @@ namespace Fsl
   ParticleSystem::ParticleSystem(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
   {
     RegisterExtension(m_uiExtension);
 
@@ -136,7 +136,7 @@ namespace Fsl
   }
 
 
-  void ParticleSystem::Draw(const DemoTime& demoTime)
+  void ParticleSystem::Draw(const DemoTime& /*demoTime*/)
   {
     if (!m_scene)
     {

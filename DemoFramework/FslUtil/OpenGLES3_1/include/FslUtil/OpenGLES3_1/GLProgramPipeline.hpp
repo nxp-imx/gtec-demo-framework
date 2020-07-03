@@ -85,10 +85,10 @@ namespace Fsl
       GLProgramPipeline();
       //! @brief Reset to a initialized state.
       //! @param notUsed this parameter is not used.
-      GLProgramPipeline(bool notUsed);
+      explicit GLProgramPipeline(bool notUsed);
       //! @brief Let this GLProgramPipeline object assume control over the given program pipeline handle.
       //! @param handle the GL handle of the program pipeline
-      GLProgramPipeline(GLuint handle);
+      explicit GLProgramPipeline(GLuint handle);
       ~GLProgramPipeline();
 
       //! @brief Check if this contains a valid gl handle.
@@ -115,7 +115,7 @@ namespace Fsl
       }
 
       //! @brief Get the handle to the shader program
-      FSL_ATTR_DEPRECATED GLuint GetHandle() const
+      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
         return Get();
       }

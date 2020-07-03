@@ -41,7 +41,7 @@ namespace Fsl
     bool m_fast;
 
   public:
-    S07_EnvironmentMapping(const DemoAppConfig& config);
+    explicit S07_EnvironmentMapping(const DemoAppConfig& config);
     ~S07_EnvironmentMapping() override;
 
   protected:

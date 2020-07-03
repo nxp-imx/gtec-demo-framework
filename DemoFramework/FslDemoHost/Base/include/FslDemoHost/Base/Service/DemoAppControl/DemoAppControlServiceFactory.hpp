@@ -36,35 +36,35 @@
 
 namespace Fsl
 {
-  class DemoAppControlServiceFactory : public IThreadLocalSingletonServiceFactory
+  class DemoAppControlServiceFactory final : public IThreadLocalSingletonServiceFactory
   {
     int m_defaultExitCode;
 
   public:
-    DemoAppControlServiceFactory(const int defaultExitCode)
+    explicit DemoAppControlServiceFactory(const int defaultExitCode)
       : m_defaultExitCode(defaultExitCode)
     {
     }
 
 
-    std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
+    std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
       return std::shared_ptr<AServiceOptionParser>();
     }
 
 
-    ServiceCaps::Flags GetFlags() const override
+    ServiceCaps::Flags GetFlags() const final
     {
       return ServiceCaps::Default;
     }
 
-    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const override
+    void FillInterfaceType(ServiceSupportedInterfaceDeque& rServiceInterfaceTypeDeque) const final
     {
       rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IDemoAppControl)));
       rServiceInterfaceTypeDeque.push_back(std::type_index(typeid(IDemoAppControlEx)));
     }
 
-    std::shared_ptr<IService> Allocate(ServiceProvider& provider) override
+    std::shared_ptr<IService> Allocate(ServiceProvider& provider) final
     {
       return std::make_shared<DemoAppControlService>(provider, m_defaultExitCode);
     }

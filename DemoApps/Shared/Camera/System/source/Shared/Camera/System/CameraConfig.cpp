@@ -36,7 +36,8 @@ namespace Fsl
 {
   namespace Helios
   {
-    CameraConfig::CameraConfig(const CameraType cameraType, const Extent2D& extent, const PixelFormat nativePixelFormat, const uint32_t nativeStride)
+    CameraConfig::CameraConfig(const CameraType cameraType, const PxExtent2D& extent, const PixelFormat nativePixelFormat,
+                               const uint32_t nativeStride)
       : Type(cameraType)
       , Extent(extent)
       , NativePixelFormat(nativePixelFormat)

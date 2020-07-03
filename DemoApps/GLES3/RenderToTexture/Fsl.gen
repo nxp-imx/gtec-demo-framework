@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.RenderToTexture" NoInclude="true" CreationYear="2020">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="glm"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Platform Name="Windows" ProjectId="E7CA4EAA-E153-4DDC-A8CE-DA362C53FFE6"/>
+    <Platform Name="Yocto" Supported="true">
+      <ExternalDependency Name="g2d" Type="StaticLib"/>
+      <Requirement Name="GL_VIV_direct_texture" Type="extension" Extends="OpenGLES3"/>
+    </Platform>    
+  </Executable>
+</FslBuildGen>

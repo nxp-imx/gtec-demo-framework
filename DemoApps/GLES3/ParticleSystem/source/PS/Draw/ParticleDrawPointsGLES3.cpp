@@ -35,6 +35,7 @@
 #include <FslBase/System/HighResolutionTimer.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include "../ParticleDrawContext.hpp"
 #include <cstddef>
@@ -48,11 +49,11 @@ namespace Fsl
     VertexDeclaration GetVertexDeclaration(const uint32_t cbParticleRecord)
     {
       assert(cbParticleRecord >= sizeof(Particle));
-      static VertexElementEx elements[] = {
+      static std::array<VertexElementEx, 2> elements = {
         VertexElementEx(offsetof(Particle, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
         VertexElementEx(offsetof(Particle, Size), VertexElementFormat::Single, VertexElementUsage::PointSize, 0),
       };
-      return VertexDeclaration(elements, sizeof(elements) / sizeof(VertexElementEx), cbParticleRecord);
+      return VertexDeclaration(elements.data(), elements.size(), cbParticleRecord);
     }
   }
 
@@ -84,7 +85,7 @@ namespace Fsl
 
 
   void ParticleDrawPointsGLES3::Draw(const ParticleDrawContext& context, const uint8_t* pParticles, const uint32_t particleCount,
-                                     const uint32_t particleStride)
+                                     const uint32_t /*particleStride*/)
   {
     const GLuint hProgram = m_program.Get();
     // Set the shader program

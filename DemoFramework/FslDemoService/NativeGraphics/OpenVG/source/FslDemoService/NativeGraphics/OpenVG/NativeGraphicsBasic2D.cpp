@@ -32,6 +32,7 @@
 #include "NativeGraphicsBasic2D.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/EmbeddedFont8x8.hpp>
@@ -55,8 +56,8 @@ namespace Fsl
 
   namespace OpenVG
   {
-    NativeGraphicsBasic2D::NativeGraphicsBasic2D(const Point2& currentResolution)
-      : m_currentResolution(currentResolution)
+    NativeGraphicsBasic2D::NativeGraphicsBasic2D(const PxExtent2D& extentPx)
+      : m_pxCurrentSize(TypeConverter::UncheckedTo<PxSize2D>(extentPx))
       , m_fontSize(EmbeddedFont8x8::CharacterSize())
       , m_inBegin(false)
       , m_oldMatrixMode(0)
@@ -73,7 +74,7 @@ namespace Fsl
 
       // Create the parent image
       Bitmap bitmap;
-      EmbeddedFont8x8::CreateFontBitmap(bitmap, PixelFormat::R8G8B8A8_UNORM, Point2::Zero(), RectangleSizeRestrictionFlag::Power2);
+      EmbeddedFont8x8::CreateFontBitmap(bitmap, PixelFormat::R8G8B8A8_UNORM, PxPoint2(), RectangleSizeRestrictionFlag::Power2);
 
       // Other filtering possibilities:
       // VG_IMAGE_QUALITY_NONANTIALIASED
@@ -93,22 +94,22 @@ namespace Fsl
       // Create child images for each glyph and assign them to the valid chars
       const VGFont parentImage = m_fontImage.GetHandle();
       const int32_t imageWidth = bitmap.Width();
-      const Point2 fontSize = EmbeddedFont8x8::CharacterSize();
-      VGfloat origin[2] = {0.0f, static_cast<VGfloat>(fontSize.Y)};
-      VGfloat escapement[2] = {static_cast<VGfloat>(fontSize.X), 0.0f};
+      const PxSize2D fontSize = EmbeddedFont8x8::CharacterSize();
+      std::array<VGfloat, 2> origin = {0.0f, static_cast<VGfloat>(fontSize.Height())};
+      std::array<VGfloat, 2> escapement = {static_cast<VGfloat>(fontSize.Width()), 0.0f};
       int32_t srcX = 0;
       int32_t srcY = 0;
       for (uint16_t i = 0; i < numChars; ++i)
       {
-        const VGFont childImage = vgChildImage(parentImage, srcX, bitmap.Height() - srcY - fontSize.Y, fontSize.X, fontSize.Y);
-        vgSetGlyphToImage(m_font.GetHandle(), firstChar + i, childImage, origin, escapement);
+        const VGFont childImage = vgChildImage(parentImage, srcX, bitmap.Height() - srcY - fontSize.Height(), fontSize.Width(), fontSize.Height());
+        vgSetGlyphToImage(m_font.GetHandle(), firstChar + i, childImage, origin.data(), escapement.data());
         m_fontImages[i].Reset(childImage, fontSize);
 
-        srcX += fontSize.X;
-        if ((srcX + fontSize.X) > imageWidth)
+        srcX += fontSize.Width();
+        if ((srcX + fontSize.Width()) > imageWidth)
         {
           srcX = 0;
-          srcY += fontSize.Y;
+          srcY += fontSize.Height();
         }
       }
     }
@@ -117,10 +118,10 @@ namespace Fsl
     NativeGraphicsBasic2D::~NativeGraphicsBasic2D() = default;
 
 
-    void NativeGraphicsBasic2D::SetScreenResolution(const Point2& currentResolution)
+    void NativeGraphicsBasic2D::SetScreenExtent(const PxExtent2D& extentPx)
     {
       assert(!m_inBegin);
-      m_currentResolution = currentResolution;
+      m_pxCurrentSize = TypeConverter::UncheckedTo<PxSize2D>(extentPx);
     }
 
 
@@ -131,8 +132,8 @@ namespace Fsl
 
       // Query the old state. This is unfortunately necessary since we have to restore it.
       m_oldMatrixMode = vgGeti(VG_MATRIX_MODE);
-      vgGetfv(VG_GLYPH_ORIGIN, 2, m_oldOrigin);
-      vgGetfv(VG_CLEAR_COLOR, 4, m_oldClearColor);
+      vgGetfv(VG_GLYPH_ORIGIN, static_cast<VGint>(m_oldOrigin.size()), m_oldOrigin.data());
+      vgGetfv(VG_CLEAR_COLOR, static_cast<VGint>(m_oldClearColor.size()), m_oldClearColor.data());
       m_oldScissorEnabled = vgGeti(VG_SCISSORING);
 
       // Disable scissoring
@@ -147,8 +148,8 @@ namespace Fsl
       m_inBegin = false;
 
       // Restore the state we modified to ensure that we don't modify the state too much behind the app's back
-      vgSetfv(VG_GLYPH_ORIGIN, 2, m_oldOrigin);
-      vgSetfv(VG_CLEAR_COLOR, 4, m_oldClearColor);
+      vgSetfv(VG_GLYPH_ORIGIN, static_cast<VGint>(m_oldOrigin.size()), m_oldOrigin.data());
+      vgSetfv(VG_CLEAR_COLOR, static_cast<VGint>(m_oldClearColor.size()), m_oldClearColor.data());
       vgSeti(VG_MATRIX_MODE, m_oldMatrixMode);
       vgSeti(VG_SCISSORING, m_oldScissorEnabled);
     }
@@ -170,7 +171,7 @@ namespace Fsl
       // Benchmarking has shown that vgClear is fairly fast for single dot rendering on most platforms
       // On some creating and destroying a VGPath is faster (especially as the dot count increase)
 
-      const VGint screenHeight = m_currentResolution.Y - 1;
+      const VGint screenHeight = m_pxCurrentSize.Height() - 1;
       const Vector2* pSrcCoord = pSrc;
       const Vector2* const pSrcCoordEnd = pSrcCoord + length;
       while (pSrcCoord < pSrcCoordEnd)
@@ -202,7 +203,7 @@ namespace Fsl
       const char* const pSrcEnd = pSrc + strView.size();
       int32_t numGlyphs = 0;
 
-      const auto charWidth = static_cast<float>(m_fontSize.X);
+      const auto charWidth = static_cast<float>(m_fontSize.Width());
 
       VGfloat dstX = dstPosition.X;
 
@@ -219,7 +220,7 @@ namespace Fsl
       {
         if (IsValidChar(int(*pSrc)))
         {
-          m_glyphs[numGlyphs] = *pSrc;
+          m_glyphs[numGlyphs] = static_cast<unsigned char>(*pSrc);
           if (numGlyphs > 0)
           {
             m_xAdjust[numGlyphs - 1] = currentGlyphWidth;
@@ -238,15 +239,15 @@ namespace Fsl
       m_xAdjust[numGlyphs - 1] = currentGlyphWidth;
 
       // Finally render the text
-      vgSetfv(VG_GLYPH_ORIGIN, 2, m_zeroOrigin);
+      vgSetfv(VG_GLYPH_ORIGIN, static_cast<VGint>(m_zeroOrigin.size()), m_zeroOrigin.data());
       vgSeti(VG_MATRIX_MODE, VG_MATRIX_GLYPH_USER_TO_SURFACE);
       vgLoadIdentity();
-      vgTranslate(dstX, (m_currentResolution.Y - dstPosition.Y));
+      vgTranslate(dstX, (m_pxCurrentSize.Height() - dstPosition.Y));
       vgDrawGlyphs(m_font.GetHandle(), numGlyphs, m_glyphs.data(), m_xAdjust.data(), nullptr, VG_FILL_PATH, VG_TRUE);
     }
 
 
-    Point2 NativeGraphicsBasic2D::FontSize() const
+    PxSize2D NativeGraphicsBasic2D::FontSize() const
     {
       return m_fontSize;
     }

@@ -108,7 +108,6 @@ namespace Fsl
       , Type(ConvertToNativeType(source.Format))
       , Normalized(IsNormalized(source.Format))
       , Pointer(reinterpret_cast<const GLvoid*>(intptr_t(source.Offset)))
-      , ExtendedIndex(0)
     {
     }
 

@@ -46,20 +46,24 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "E7_0_ParticleSystem.hpp"
 #include <GLES3/gl3.h>
+#include <array>
+#include <cstdlib>
 #include <iostream>
-
-#define ATTRIBUTE_LIFETIME_LOCATION 0
-#define ATTRIBUTE_STARTPOSITION_LOCATION 1
-#define ATTRIBUTE_ENDPOSITION_LOCATION 2
 
 namespace Fsl
 {
   using namespace GLES3;
 
+  namespace
+  {
+    constexpr GLuint ATTRIBUTE_LIFETIME_LOCATION = 0;
+    constexpr GLuint ATTRIBUTE_STARTPOSITION_LOCATION = 1;
+    constexpr GLuint ATTRIBUTE_ENDPOSITION_LOCATION = 2;
+  }
+
 
   E7_0_ParticleSystem::E7_0_ParticleSystem(const DemoAppConfig& config)
     : DemoAppGLES3(config)
-    , m_bIsInitialized(false)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
     m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"));
@@ -120,8 +124,8 @@ namespace Fsl
 
     if (m_userData.time >= 1.0f)
     {
-      float centerPos[3];
-      float color[4];
+      std::array<float, 3> centerPos{};
+      std::array<float, 4> color{};
 
       m_userData.time = 0.0f;
 
@@ -130,7 +134,7 @@ namespace Fsl
       centerPos[1] = (static_cast<float>(rand() % 10000) / 10000.0f) - 0.5f;
       centerPos[2] = (static_cast<float>(rand() % 10000) / 10000.0f) - 0.5f;
 
-      GL_CHECK(glUniform3fv(m_userData.centerPositionLoc, 1, &centerPos[0]));
+      GL_CHECK(glUniform3fv(m_userData.centerPositionLoc, 1, centerPos.data()));
 
       // Random color
       color[0] = (static_cast<float>(rand() % 10000) / 20000.0f) + 0.5f;
@@ -138,7 +142,7 @@ namespace Fsl
       color[2] = (static_cast<float>(rand() % 10000) / 20000.0f) + 0.5f;
       color[3] = 0.5;
 
-      GL_CHECK(glUniform4fv(m_userData.colorLoc, 1, &color[0]));
+      GL_CHECK(glUniform4fv(m_userData.colorLoc, 1, color.data()));
     }
 
     // Load uniform time variable
@@ -146,11 +150,11 @@ namespace Fsl
   }
 
 
-  void E7_0_ParticleSystem::Draw(const DemoTime& demoTime)
+  void E7_0_ParticleSystem::Draw(const DemoTime& /*demoTime*/)
   {
-    Point2 size = GetScreenResolution();
+    PxSize2D sizePx = GetWindowSizePx();
 
-    glViewport(0, 0, size.X, size.Y);
+    glViewport(0, 0, sizePx.Width(), sizePx.Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Load the vertex attributes

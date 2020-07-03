@@ -60,7 +60,7 @@ namespace Fsl
 
     Vulkan::VUDeviceQueueRecord m_deviceQueue;
 
-    VulkanWindowDemoApp(const DemoAppConfig& demoAppConfig);
+    explicit VulkanWindowDemoApp(const DemoAppConfig& demoAppConfig);
     ~VulkanWindowDemoApp() override;
 
     void OnDestroy() override;

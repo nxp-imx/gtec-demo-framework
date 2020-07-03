@@ -52,7 +52,7 @@ namespace Fsl
         {
           stream << "0x" << std::hex << flags << " (";
           uint32_t bitFlags = flags;
-          for (uint32_t i = 0; i <= 32; ++i)
+          for (uint32_t i = 0; i < 32; ++i)
           {
             if ((bitFlags & 0x80000000u) != 0)
             {

@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /Vulkan.MultipleViewportsFractalShader.VC.VC.opendb

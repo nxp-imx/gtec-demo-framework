@@ -31,42 +31,39 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/UTF8String.hpp>
+#include <FslBase/IO/Path.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU.hpp>
+#include <FslBase/Math/Pixel/PxThicknessU.hpp>
+#include <FslGraphics/TextureAtlas/AtlasNineSlicePatchInfo.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
+#include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
+#include <FslGraphics/TextureAtlas/TextureAtlasNineSlicePatch.hpp>
 #include <utility>
 #include <vector>
 
 namespace Fsl
 {
-  class UTF8String;
   struct Rectangle;
+  class UTF8String;
 
-  class BasicTextureAtlas : public ITextureAtlas
+  class BasicTextureAtlas final : public ITextureAtlas
   {
-    struct Record
-    {
-      Rectangle SrcRect;
-      Rectangle TrimmedRect;
-      UTF8String Name;
-
-      Record() = default;
-
-      Record(const Rectangle& srcRect, const Rectangle& trimmedRect, UTF8String name)
-        : SrcRect(srcRect)
-        , TrimmedRect(trimmedRect)
-        , Name(std::move(name))
-      {
-      }
-    };
-
-    std::vector<Record> m_entries;
+    std::vector<NamedAtlasTexture> m_entries;
+    std::vector<TextureAtlasNineSlicePatch> m_nineSlices;
 
   public:
-    int32_t Count() const override;
-    NamedAtlasTexture GetEntry(const int32_t index) const override;
+    uint32_t Count() const final;
+    const NamedAtlasTexture& GetEntry(const uint32_t index) const final;
+    uint32_t NineSliceCount() const final;
+    const TextureAtlasNineSlicePatch& GetNineSlicePatch(const uint32_t index) const final;
 
-    void Reset(const int32_t capacity);
-    void SetEntry(const int32_t index, const Rectangle& srcRect, const Rectangle& trimmedRect, const UTF8String& name);
+    void Reset(const uint32_t capacity);
+
+    [[deprecated]] void SetEntry(const int32_t index, const Rectangle& srcRect, const Rectangle& trimmedRect, UTF8String name);
+
+    void SetEntry(const uint32_t index, const PxRectangleU& rectanglePx, const PxThicknessU& trimPx, const uint32_t dpi, IO::Path path);
+
+    void AddNineSlice(const uint32_t textureIndex, const PxThicknessU& nineSlicePx, const PxThicknessU& contentMarginPx);
   };
 }
 

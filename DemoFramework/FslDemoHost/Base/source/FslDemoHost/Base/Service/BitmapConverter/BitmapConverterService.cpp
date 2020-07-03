@@ -45,7 +45,7 @@ namespace Fsl
     bool TryConvertLibraries(Bitmap& rBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
                              const std::deque<std::shared_ptr<IImageConverterLibraryService>>& converterLibraries)
     {
-      for (auto& converter : converterLibraries)
+      for (const auto& converter : converterLibraries)
       {
         if (converter->TryConvert(rBitmap, rBitmap, desiredPixelFormat, desiredOrigin))
         {
@@ -58,7 +58,7 @@ namespace Fsl
     bool TryConvertLibraries(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
                              const std::deque<std::shared_ptr<IImageConverterLibraryService>>& converterLibraries)
     {
-      for (auto& converter : converterLibraries)
+      for (const auto& converter : converterLibraries)
       {
         if (converter->TryConvert(rTexture, rTexture, desiredPixelFormat, desiredOrigin))
         {

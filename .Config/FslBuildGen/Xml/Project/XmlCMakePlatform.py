@@ -44,3 +44,5 @@ class XmlCMakePlatform(XmlBase):
         self.Name = self._ReadAttrib(xmlElement, "Name")
         self.DefaultGeneratorName = self._TryReadAttrib(xmlElement, "DefaultGeneratorName")
         self.DefaultInstallPrefix = self._TryReadAttrib(xmlElement, "DefaultInstallPrefix")
+        self.AllowFindPackage = self._TryReadBoolAttrib(xmlElement, "AllowFindPackage", None)
+

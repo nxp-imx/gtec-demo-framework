@@ -39,14 +39,16 @@ from FslBuildGen import IOUtil
 from FslBuildGen import Main as MainFlow
 from FslBuildGen import PackageListUtil
 from FslBuildGen import ParseUtil
-from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import PluginSharedValues
-from FslBuildGen.Config import Config
+from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildExternal import RecipeBuilder
 from FslBuildGen.BuildConfig import Validate
 from FslBuildGen.BuildContent import ContentBuilder
 from FslBuildGen.BuildContent.SharedValues import CONFIG_FSLBUILDCONTENT_ENABLED
+from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
+from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Generator import PluginConfig
 from FslBuildGen.Log import Log
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageFilters import PackageFilters
@@ -114,10 +116,12 @@ class ToolFlowBuildContent(AToolAppFlow):
                         localToolConfig.BuildVariantsDict, localToolConfig.AllowDevelopmentPlugins)
 
         # Get the platform and see if its supported
-        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
-                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
+                                                                                   buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
+                                                                                   localToolConfig.GetUserCMakeConfig())
         PlatformUtil.CheckBuildPlatform(generator.PlatformName)
-        generatorContext = GeneratorContext(config, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
 
         config.LogPrint("Active platform: {0}".format(generator.PlatformName))
 
@@ -147,17 +151,28 @@ class ToolFlowBuildContent(AToolAppFlow):
             return
 
         locations = toolConfig.PackageConfiguration[localToolConfig.PackageConfigurationType].Locations
-        location = self.__FindLocation(locations, currentDirPath)
-        packagePath = PackagePath(currentDirPath, location)
+        if not localToolConfig.Recursive or topLevelPackage is None:
+            location = self.__TryFindLocation(locations, currentDirPath)
+            if location is None:
+                raise Exception("Could not locate location for {0}".format(currentDirPath))
+            packagePath = PackagePath(currentDirPath, location)
+            ContentBuilder.Build(config, packagePath, featureList, localToolConfig.Output)
+        else:
+            # Location not found, but its ok since '-r' was specified and we have a top level package
+            for foundPackage in topLevelPackage.ResolvedBuildOrder:
+                if foundPackage.Type == PackageType.Executable:
+                    foundFeatureList = [entry.Name for entry in foundPackage.ResolvedAllUsedFeatures]
+                    if foundPackage.Path is None:
+                        raise Exception("Invalid package")
+                    ContentBuilder.Build(config, foundPackage.Path, foundFeatureList)
 
-        ContentBuilder.Build(config, packagePath, featureList, localToolConfig.Output)
 
-    def __FindLocation(self, locations: List[ToolConfigPackageLocation], fullProjectPath: str) -> ToolConfigPackageLocation:
+
+    def __TryFindLocation(self, locations: List[ToolConfigPackageLocation], fullProjectPath: str) -> Optional[ToolConfigPackageLocation]:
         for location in locations:
-            if fullProjectPath.startswith(location.ResolvedPathEx):
+            if fullProjectPath.startswith(location.ResolvedPathEx) or fullProjectPath == location.ResolvedPath:
                 return location
-        raise Exception("Could not locate location for {0}".format(fullProjectPath))
-
+        return None
 
     def __ResolveAndGetTopLevelPackage(self, generatorContext: GeneratorContext, config: Config, currentDir: str,
                                        toolMiniConfig: ToolMinimalConfig, recursive: bool) -> Package:

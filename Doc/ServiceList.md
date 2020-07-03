@@ -35,5 +35,4 @@ ITestService                  | TestService
 IEGLHostInfo                  | EGLHostService
 IWindowHostInfo               | WindowHostService
 IDemoPlatformControl          | DemoPlatformControl
-IMMDCStatsService             | MMDCStatsService
 INativeGraphicsService        | FslDemoService.NativeGraphics.G2D.NativeGraphicsService, FslDemoService.NativeGraphics.OpenGLES2.NativeGraphicsService, FslDemoService.NativeGraphics.OpenGLES3.NativeGraphicsService, FslDemoService.NativeGraphics.OpenVG.NativeGraphicsService, FslDemoService.NativeGraphics.Stub.NativeGraphicsService, FslDemoService.NativeGraphics.Vulkan.NativeGraphicsService

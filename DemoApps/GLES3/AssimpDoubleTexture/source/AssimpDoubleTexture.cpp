@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "AssimpDoubleTexture.hpp"
+#include <FslBase/NumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -45,6 +46,7 @@ namespace Fsl
   using namespace GLES3;
   namespace
   {
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     void Color4ToFloat4(const aiColor4D* c, float f[4])
     {
       f[0] = c->r;
@@ -58,7 +60,6 @@ namespace Fsl
   AssimpDoubleTexture::AssimpDoubleTexture(const DemoAppConfig& config)
     : DemoAppGLES3(config)
   {
-    const Point2 screenResolution = GetScreenResolution();
     auto contentManger = GetContentManager();
     auto contentPath = contentManger->GetContentPath();
 
@@ -85,7 +86,7 @@ namespace Fsl
 
     m_viewMatrix = glm::lookAt(glm::vec3(0, 4.0, -9.5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
-    const float aspectRatio = static_cast<float>(screenResolution.X) / static_cast<float>(screenResolution.Y);
+    const float aspectRatio = GetWindowAspectRatio();
     m_projectionMatrix = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f);
 
     m_lightPosition = m_viewMatrix * glm::vec4(0, 3.0f, -2.0, 1.0f);
@@ -147,7 +148,7 @@ namespace Fsl
   }
 
 
-  void AssimpDoubleTexture::Draw(const DemoTime& demoTime)
+  void AssimpDoubleTexture::Draw(const DemoTime& /*demoTime*/)
   {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(m_program3D.Get());
@@ -239,7 +240,7 @@ namespace Fsl
         faceArray.push_back(face->mIndices[1]);
         faceArray.push_back(face->mIndices[2]);
       }
-      m_mesh[n].numFaces = mesh->mNumFaces;
+      m_mesh[n].numFaces = NumericCast<int>(mesh->mNumFaces);
 
       // Store All Vertices Data into the Mesh Structure
       m_mesh[n].vertexData.resize(mesh->mNumVertices);
@@ -303,7 +304,7 @@ namespace Fsl
         Color4ToFloat4(&aiSpecular, m_mesh[n].specular);
       }
 
-      unsigned int max;
+      unsigned int max = 0;
       aiGetMaterialFloatArray(material, AI_MATKEY_SHININESS, &m_mesh[n].shininess, &max);
     }
   }

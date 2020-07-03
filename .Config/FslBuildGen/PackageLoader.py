@@ -95,11 +95,13 @@ class PackageLoader(object):
                 inputFiles = self.PackageFinder.GetKnownPackageFiles(inputFiles)
 
             if (generator.PlatformName == PlatformNameString.ANDROID or generator.PlatformId == PlatformNameString.ALL.lower()):
-                internalNinjaToolPackageName = "Recipe.BuildTool.ninja"
+                internalNinjaToolPackageName = config.ToolConfig.CMakeConfiguration.NinjaRecipePackageName
                 config.LogPrintVerbose(4, "Adding package {0}".format(internalNinjaToolPackageName))
                 self.__AddPackageToList(inputFiles, internalNinjaToolPackageName, _ThrowToolDependencyNotFoundException)
-
-            #if generator.IsCMake:
+            elif generator.IsCMake and generator.CMakeConfig is not None and generator.CMakeConfig.CMakeFinalGeneratorName.upper() == "NINJA":
+                internalNinjaToolPackageName = config.ToolConfig.CMakeConfiguration.NinjaRecipePackageName
+                config.LogPrintVerbose(4, "Adding package {0}".format(internalNinjaToolPackageName))
+                self.__AddPackageToList(inputFiles, internalNinjaToolPackageName, _ThrowToolDependencyNotFoundException)
             #    internalCMakeToolPackageName = "Recipe.BuildTool.CMake"
             #    config.LogPrintVerbose(4, "Adding package {0}".format(internalCMakeToolPackageName))
             #    self.__AddPackageToList(inputFiles, internalCMakeToolPackageName, _ThrowToolDependencyNotFoundException)

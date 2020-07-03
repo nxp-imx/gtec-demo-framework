@@ -50,7 +50,7 @@ namespace Fsl
 
       AsyncServiceMessageHandler() = default;
 
-      AsyncServiceMessageHandler(std::function<void(Message& message)> handler)
+      explicit AsyncServiceMessageHandler(std::function<void(Message& message)> handler)
         : Handler(std::move(handler))
       {
       }

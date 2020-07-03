@@ -19,7 +19,7 @@
       </ExperimentalRecipe>
     </Platform-->
     <Platform Name="Windows" Supported="true">
-      <ExperimentalRecipe Name="OpenCV-4.2.0" ExternalInstallDirectory="$(OPENCV_DIR)">
+      <ExperimentalRecipe Name="OpenCV" Version="4.2.0" ExternalInstallDirectory="$(OPENCV_DIR)">
         <Installation>
           <AddHeaders Name="include"/>
           <AddLib Name="x64/vc15/lib/opencv_world420.lib" DebugName="x64/vc15/lib/opencv_world420d.lib"/>

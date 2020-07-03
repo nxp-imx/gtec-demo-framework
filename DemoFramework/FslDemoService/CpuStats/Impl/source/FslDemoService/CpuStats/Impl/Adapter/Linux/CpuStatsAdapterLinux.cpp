@@ -31,6 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoService/CpuStats/Impl/Adapter/Linux/CpuStatsAdapterLinux.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/File.hpp>
 #include <unistd.h>
@@ -53,7 +54,7 @@ namespace Fsl
   CpuStatsAdapterLinux::CpuStatsAdapterLinux(const bool coreParserEnabled)
     : m_coreParserEnabled(coreParserEnabled)
   {
-    m_cpuCount = std::min(DoGetCpuCount(), static_cast<uint32_t>(m_cpuStats.size()));
+    m_cpuCount = std::min(DoGetCpuCount(), UncheckedNumericCast<uint32_t>(m_cpuStats.size()));
     m_cpuInfo.reserve(m_cpuCount);
 
     if (!TryGetProcessTimes(m_appProcessLast))
@@ -62,7 +63,9 @@ namespace Fsl
     }
 
     TryParseCpuLoadNow();
-    m_lastTryGetCpuUsage = m_timer.GetTime() - MIN_INTERVAL_CORE_CPU_USAGE;
+    auto currentTime = m_timer.GetTime();
+    m_lastAppTime = currentTime;
+    m_lastTryGetCpuUsage = currentTime - MIN_INTERVAL_CORE_CPU_USAGE;
     m_lastTryGetApplicationCpuUsageTime = m_timer.GetTime() - MIN_INTERVAL_APPLICATION_CPU_USAGE;
   }
 
@@ -139,17 +142,17 @@ namespace Fsl
 
 
     auto totalAppTime = (processTimes.KernelTime - m_appProcessLast.KernelTime) + (processTimes.UserTime - m_appProcessLast.UserTime);
-    m_appProcessLast = processTimes;
 
     auto deltaTime = currentAppTime - m_lastAppTime;
     if (deltaTime > 0)
     {
+      m_appProcessLast = processTimes;
       m_lastAppTime = currentAppTime;
       m_appCpuUsagePercentage = static_cast<float>(static_cast<double>(totalAppTime) / deltaTime) * 100.0f;
     }
     else
     {
-      FSLLOG3_DEBUG_WARNING("not enough time passed");
+      FSLLOG3_DEBUG_VERBOSE2("not enough time passed");
     }
 
     rUsagePercentage = m_appCpuUsagePercentage;

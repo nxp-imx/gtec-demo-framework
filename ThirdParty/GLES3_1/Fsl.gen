@@ -4,8 +4,5 @@
     <Requirement Name="OpenGLES3.1" Type="feature" Extends="OpenGLES3" Version="3.1"/>
     <Define Name="FSL_ENABLE_OPENGLES3_1" Access="Public"/> 
     <Dependency Name="GLES3"/>
-    <Platform Name="CMake">
-      <ExternalDependency Name="OpenGLES" Type="Find"/>
-    </Platform>
   </ExternalLibrary>
 </FslBuildGen>

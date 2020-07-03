@@ -35,43 +35,18 @@
 #include <FslNativeWindow/Platform/FB/PlatformNativeWindowFB.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 
-#include "../AVulkanNativeWindow.hpp"
+#include "../VulkanNativeWindow.hpp"
 
 namespace Fsl
 {
   struct NativeVulkanSetup;
 
-  class VulkanNativeWindowFB
-    : public AVulkanNativeWindow
-    , public PlatformNativeWindowFB
+  class VulkanNativeWindowFB : public VulkanNativeWindow<PlatformNativeWindowFB>
   {
   public:
     VulkanNativeWindowFB(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                          const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     virtual ~VulkanNativeWindowFB();
-
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    virtual bool TryGetDPI(Vector2& rDPI) const override
-    {
-      return PlatformNativeWindowFB::TryGetDPI(rDPI);
-    }
-
-    bool TryGetSize(Point2& rSize) const override
-    {
-      return TryDoGetSize(rSize);
-    }
-
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    virtual bool TryGetActualSize(Point2& rSize) const override
-    {
-      return PlatformNativeWindowFB::TryGetSize(rSize);
-    }
-
-    virtual bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return PlatformNativeWindowFB::TryCaptureMouse(enableCapture);
-    }
-
 
     virtual PlatformNativeWindowType GetWindowType() const override;
   };

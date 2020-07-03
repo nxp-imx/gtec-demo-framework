@@ -135,9 +135,10 @@ namespace Fsl
 
       AppState m_currentAppState = AppState::Ready;
       std::unique_ptr<DemoAppProfilerOverlay> m_demoAppProfilerOverlay;
+      PxExtent2D m_cachedExtentPx;
 
     protected:
-      DemoAppVulkanBasic(const DemoAppConfig& demoAppConfig, const DemoAppVulkanSetup& demoAppVulkanSetup = {});
+      explicit DemoAppVulkanBasic(const DemoAppConfig& demoAppConfig, const DemoAppVulkanSetup& demoAppVulkanSetup = {});
       ~DemoAppVulkanBasic() override;
       void OnConstructed() override;
       void OnDestroy() override;
@@ -152,7 +153,7 @@ namespace Fsl
       void _Draw(const DemoTime& demoTime) override;
 
     protected:
-      void Resized(const Point2& size) override;
+      void ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
       void Draw(const DemoTime& demoTime) override;
       AppDrawResult TrySwapBuffers(const DemoTime& demoTime) override;
 

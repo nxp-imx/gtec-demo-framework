@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Rectangle3D.hpp>
 #include <FslBase/Log/Math/LogExtent3D.hpp>
 #include <FslBase/Log/Math/LogOffset3D.hpp>
+#include <FslBase/Math/Rectangle3D.hpp>
 #include <ostream>
 
 namespace Fsl

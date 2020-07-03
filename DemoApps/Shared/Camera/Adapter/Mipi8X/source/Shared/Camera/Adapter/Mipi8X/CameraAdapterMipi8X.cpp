@@ -384,7 +384,7 @@ namespace Fsl
       if (!allocateInfo.Flags.IsEnabled(CameraAdapterAllocateFlags::CustomExtent))
       {
         FSLLOG3_INFO("FIX: Using fixed default size");
-        m_extent = Extent2D(640, 480);
+        m_extent = PxExtent2D(640, 480);
       }
 
       int ret;

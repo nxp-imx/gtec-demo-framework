@@ -55,10 +55,6 @@ namespace Fsl
     {
     }
 
-
-    FirstPersonCamera::~FirstPersonCamera() = default;
-
-
     void FirstPersonCamera::SetPosition(const Vector3& position)
     {
       m_base.SetPosition(position);
@@ -109,11 +105,11 @@ namespace Fsl
     }
 
 
-    void FirstPersonCamera::RotateViaPosition(const bool rotateCamera, const Point2& currentPosition)
+    void FirstPersonCamera::RotateViaPosition(const bool rotateCamera, const PxPoint2& currentPosition)
     {
       if (rotateCamera && m_hasOldPosition)
       {
-        Point2 deltaPosition = currentPosition - m_oldPosition;
+        PxPoint2 deltaPosition = currentPosition - m_oldPosition;
         if (deltaPosition.X != 0 || deltaPosition.Y != 0)
         {
           Rotate(Vector2(deltaPosition.X, -deltaPosition.Y));

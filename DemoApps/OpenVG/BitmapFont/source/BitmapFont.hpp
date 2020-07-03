@@ -33,6 +33,7 @@
 
 #include <FslDemoApp/OpenVG/DemoAppVG.hpp>
 #include <FslUtil/OpenVG/VGImageBuffer.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -42,10 +43,10 @@ namespace Fsl
     float m_angle;
     float m_scale;
     OpenVG::VGImageBuffer m_fontImage;
-    OpenVG::VGImageBuffer m_fontImages[128 - 33];
+    std::array<OpenVG::VGImageBuffer, 128 - 33> m_fontImages;
 
   public:
-    BitmapFont(const DemoAppConfig& config);
+    explicit BitmapFont(const DemoAppConfig& config);
     ~BitmapFont() override;
 
   protected:

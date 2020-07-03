@@ -32,7 +32,10 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Exceptions.hpp>
 #include <FslBase/Transition/TransitionTimeUnit.hpp>
+#include <cassert>
+#include <limits>
 
 namespace Fsl
 {
@@ -44,17 +47,76 @@ namespace Fsl
     //! a negative or positive time interval
     int64_t Ticks{0};
 
-    TransitionTimeSpan() = default;
+    constexpr TransitionTimeSpan() = default;
 
     constexpr explicit TransitionTimeSpan(const int64_t ticks)
       : Ticks(ticks)
     {
     }
 
-    TransitionTimeSpan(const int32_t time, TransitionTimeUnit unit);
-    TransitionTimeSpan(const uint32_t time, TransitionTimeUnit unit);
-    TransitionTimeSpan(const int64_t time, TransitionTimeUnit unit);
-    TransitionTimeSpan(const uint64_t time, TransitionTimeUnit unit);
+    constexpr TransitionTimeSpan(const int32_t time, TransitionTimeUnit unit)
+    {
+      switch (unit)
+      {
+      case TransitionTimeUnit::Milliseconds:
+        Ticks = static_cast<int64_t>(time) * 10000;
+        break;
+      case TransitionTimeUnit::Microseconds:
+        Ticks = static_cast<int64_t>(time) * 10;
+        break;
+      default:
+        throw NotSupportedException("The given time unit has not been implemented");
+      }
+    }
+
+    constexpr TransitionTimeSpan(const uint32_t time, TransitionTimeUnit unit)
+    {
+      switch (unit)
+      {
+      case TransitionTimeUnit::Milliseconds:
+        Ticks = static_cast<int64_t>(time) * 10000;
+        break;
+      case TransitionTimeUnit::Microseconds:
+        Ticks = static_cast<int64_t>(time) * 10;
+        break;
+      default:
+        throw NotSupportedException("The given time unit has not been implemented");
+      }
+    }
+
+    constexpr TransitionTimeSpan(const int64_t time, TransitionTimeUnit unit)
+    {
+      switch (unit)
+      {
+      case TransitionTimeUnit::Milliseconds:
+        assert(time <= (std::numeric_limits<int64_t>::max() / 10000));
+        Ticks = time * 10000;
+        break;
+      case TransitionTimeUnit::Microseconds:
+        assert(time <= (std::numeric_limits<int64_t>::max() / 10));
+        Ticks = time * 10;
+        break;
+      default:
+        throw NotSupportedException("The given time unit has not been implemented");
+      }
+    }
+
+    constexpr TransitionTimeSpan(const uint64_t time, TransitionTimeUnit unit)
+    {
+      switch (unit)
+      {
+      case TransitionTimeUnit::Milliseconds:
+        assert(time <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max() / 10000));
+        Ticks = time * 10000;
+        break;
+      case TransitionTimeUnit::Microseconds:
+        assert(time <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max() / 10));
+        Ticks = time * 10;
+        break;
+      default:
+        throw NotSupportedException("The given time unit has not been implemented");
+      }
+    }
 
     constexpr bool operator==(const TransitionTimeSpan& rhs) const
     {

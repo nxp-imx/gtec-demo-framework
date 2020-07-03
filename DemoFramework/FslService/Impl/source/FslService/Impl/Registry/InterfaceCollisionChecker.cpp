@@ -40,7 +40,7 @@ namespace Fsl
   {
     // Catch attempts to register a service interface as a different service type
     // While we might want to allow that in the long run, its easier to ban it for now to prevent issues
-    for (auto& entry : interfaces)
+    for (const auto& entry : interfaces)
     {
       const auto itrFind = m_typeToServiceType.find(entry);
       if (itrFind == m_typeToServiceType.end())

@@ -161,7 +161,7 @@ namespace Fsl
       //! @param size (Optional) Size of the memory range to map. Pass VK_WHOLE_SIZE to map the complete buffer range.
       //! @param offset (Optional) Byte offset from beginning
       //! @note The ordering of these params are reversed compared to vulkan so this is deprecated, use MapEx instead
-      FSL_ATTR_DEPRECATED void Map(const VkDeviceSize size = VK_WHOLE_SIZE, const VkDeviceSize offset = 0);
+      [[deprecated("use MapEx instead")]] void Map(const VkDeviceSize size = VK_WHOLE_SIZE, const VkDeviceSize offset = 0);
 
       //! @brief Map a memory range of this buffer. If successful, mapped points to the specified buffer range.
       //! @param offset (Optional) Byte offset from beginning

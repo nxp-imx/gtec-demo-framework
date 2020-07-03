@@ -40,28 +40,28 @@
 
 namespace Fsl
 {
-  class BitmapConverterService
+  class BitmapConverterService final
     : public ThreadLocalService
     , public IBitmapConverter
   {
     std::deque<std::shared_ptr<IImageConverterLibraryService>> m_converterLibraries;
 
   public:
-    BitmapConverterService(const ServiceProvider& serviceProvider);
-    ~BitmapConverterService() override;
+    explicit BitmapConverterService(const ServiceProvider& serviceProvider);
+    ~BitmapConverterService() final;
 
     // From IBitmapConverter
     bool TryConvert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                    const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) override;
+                    const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) final;
     void Convert(Bitmap& rBitmap, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) override;
+                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) final;
     bool TryConvert(Texture& rTexture, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                    const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) override;
+                    const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) final;
     void Convert(Texture& rTexture, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) override;
+                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) final;
 
-    // virtual bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) override;
-    // virtual void Convert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) override;
+    // virtual bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) final;
+    // virtual void Convert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat) final;
   };
 }
 

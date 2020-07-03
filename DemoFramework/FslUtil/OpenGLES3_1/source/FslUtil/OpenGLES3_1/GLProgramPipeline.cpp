@@ -78,7 +78,7 @@ namespace Fsl
     }
 
 
-    void GLProgramPipeline::Reset(bool notUsed)
+    void GLProgramPipeline::Reset(bool /*notUsed*/)
     {
       Reset();
       GL_CHECK(glGenProgramPipelines(1, &m_handle));
@@ -98,7 +98,7 @@ namespace Fsl
     }
 
 
-    void GLProgramPipeline::BindClear()
+    void GLProgramPipeline::BindClear()    // NOLINT(readability-convert-member-functions-to-static)
     {
       glBindProgramPipeline(0);
     }

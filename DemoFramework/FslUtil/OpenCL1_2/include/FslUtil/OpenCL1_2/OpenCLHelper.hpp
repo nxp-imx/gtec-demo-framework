@@ -51,28 +51,35 @@ namespace Fsl
       extern std::vector<cl_platform_id> GetPlatformIDs();
 
       //! @brief Enumerate the device id's
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern std::vector<cl_device_id> GetDeviceIDs(const cl_platform_id platformId, const cl_device_type deviceType);
 
       //! @brief Try to enumerate the device id's
       //! @param rDeviceId's a array that will be filled with the device id's (if this returns false the rDeviceIds will be resized to zero)
       //! @return true if the device id's were enumerated, false otherwise
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern bool TryGetDeviceIDs(std::vector<cl_device_id>& rDeviceIds, const cl_platform_id platformId, const cl_device_type deviceType);
 
 
       //! @brief Get and decode the version string.
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern bool TryGetPlatformVersion(const cl_platform_id platformId, VersionInfo& rVersionInfo);
 
       //! @brief Get and decode the version string.
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern VersionInfo GetPlatformVersion(const cl_platform_id platformId);
 
       //! @brief Get and decode the version string.
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern bool TryGetDeviceVersion(const cl_device_id deviceId, VersionInfo& rVersionInfo);
 
       //! @brief Get and decode the version string.
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern VersionInfo GetDeviceVersion(const cl_device_id deviceId);
 
       //! @brief Template version of GetPlatformInfo, its your responsibility to set the correct type for the platformInfo
       template <typename T>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline T GetPlatformInfo(const cl_platform_id platformId, const cl_platform_info platformInfo)
       {
         // If you want to fill a std::vector<POD type> then use the TryGetPlatformInfo
@@ -86,9 +93,10 @@ namespace Fsl
 
       //! @brief Template version of GetPlatformInfo, its your responsibility to set the correct type for the platformInfo
       template <>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline std::string GetPlatformInfo<std::string>(const cl_platform_id platformId, const cl_platform_info platformInfo)
       {
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         RAPIDOPENCL_CHECK(clGetPlatformInfo(platformId, platformInfo, 0, nullptr, &contentSize));
         std::vector<char> content(contentSize);
         RAPIDOPENCL_CHECK(clGetPlatformInfo(platformId, platformInfo, content.size(), content.data(), nullptr));
@@ -98,6 +106,7 @@ namespace Fsl
 
       //! @brief Template version of TryGetPlatformInfo, its your responsibility to set the correct type for the platformInfo
       template <typename T>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline bool TryGetPlatformInfo(const cl_platform_id platformId, const cl_platform_info platformInfo, T& rValue)
       {
         static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
@@ -114,6 +123,7 @@ namespace Fsl
 
       //! @brief Template of TryGetPlatformInfo for std::vector<T> its your responsibility to set the correct type for the platformInfo
       template <typename T>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline bool TryGetPlatformInfo(const cl_platform_id platformId, const cl_platform_info platformInfo, std::vector<T>& rContainer)
       {
         static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
@@ -138,9 +148,10 @@ namespace Fsl
 
       //! @brief Template of TryGetPlatformInfo for std::string its your responsibility to request the correct deviceInfo
       template <>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline bool TryGetPlatformInfo<std::string>(const cl_platform_id platformId, const cl_platform_info platformInfo, std::string& rValue)
       {
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         if (clGetPlatformInfo(platformId, platformInfo, 0, nullptr, &contentSize) != CL_SUCCESS)
         {
           rValue = std::string();
@@ -161,6 +172,7 @@ namespace Fsl
 
       //! @brief Template version of GetDeviceInfo, its your responsibility to set the correct type for the platformInfo
       template <typename T>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline T GetDeviceInfo(const cl_device_id deviceId, const cl_device_info deviceInfo)
       {
         // If you want to fill a std::vector<POD type> then use the TryGetDeviceInfo
@@ -174,9 +186,10 @@ namespace Fsl
 
       //! @brief Template version of GetDeviceInfo, its your responsibility to set the correct type for the platformInfo
       template <>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline std::string GetDeviceInfo<std::string>(const cl_device_id deviceId, const cl_device_info deviceInfo)
       {
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         RAPIDOPENCL_CHECK(clGetDeviceInfo(deviceId, deviceInfo, 0, nullptr, &contentSize));
         std::vector<char> content(contentSize);
         RAPIDOPENCL_CHECK(clGetDeviceInfo(deviceId, deviceInfo, content.size(), content.data(), nullptr));
@@ -186,6 +199,7 @@ namespace Fsl
 
       //! @brief Template version of TryGetDeviceInfo, its your responsibility to set the correct type for the platformInfo
       template <typename T>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline bool TryGetDeviceInfo(const cl_device_id deviceId, const cl_device_info deviceInfo, T& rValue)
       {
         static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
@@ -202,6 +216,7 @@ namespace Fsl
 
       //! @brief Template of TryGetDeviceInfo for std::vector<T> its your responsibility to set the correct type for the platformInfo
       template <typename T>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline bool TryGetDeviceInfo(const cl_device_id deviceId, const cl_device_info deviceInfo, std::vector<T>& rContainer)
       {
         static_assert(std::is_pod<T>::value, "We only support writing to Plain Old Data types");
@@ -226,9 +241,10 @@ namespace Fsl
 
       //! @brief Template of TryGetDeviceInfo for std::string its your responsibility to request the correct deviceInfo
       template <>
+      // NOLINTNEXTLINE(misc-misplaced-const)
       inline bool TryGetDeviceInfo<std::string>(const cl_device_id deviceId, const cl_device_info deviceInfo, std::string& rValue)
       {
-        std::size_t contentSize;
+        std::size_t contentSize = 0;
         if (clGetDeviceInfo(deviceId, deviceInfo, 0, nullptr, &contentSize) != CL_SUCCESS)
         {
           rValue = std::string();
@@ -247,13 +263,16 @@ namespace Fsl
       }
 
       //! @brief GetProgramBuildInfo for std::string its your responsibility to request the correct build info (one of string type)
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern std::string GetProgramBuildInfoString(const cl_program program, const cl_device_id deviceId, const cl_program_build_info paramName);
 
       //! @brief GetProgramBuildInfo for std::string its your responsibility to request the correct build info
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern bool TryGetProgramBuildInfo(const cl_program program, const cl_device_id deviceId, const cl_program_build_info paramName,
                                          std::string& rResult);
 
       //! @brief GetProgramBuildInfo for cl_build_status its your responsibility to request the correct build info
+      // NOLINTNEXTLINE(misc-misplaced-const)
       extern bool TryGetProgramBuildInfo(const cl_program program, const cl_device_id deviceId, const cl_program_build_info paramName,
                                          cl_build_status& rResult);
     };

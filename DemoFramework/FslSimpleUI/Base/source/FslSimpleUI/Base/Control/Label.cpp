@@ -33,8 +33,10 @@
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <cassert>
 #include <cstring>
+#include <utility>
 
 namespace Fsl
 {
@@ -46,38 +48,33 @@ namespace Fsl
     }
 
 
-    void Label::SetContent(const char* const psz)
-    {
-      if (psz == nullptr)
-      {
-        throw std::invalid_argument("psz can not be null");
-      }
-
-      SetContent(StringViewLite(psz, std::strlen(psz)));
-    }
-
-
     void Label::SetContent(const StringViewLite& value)
     {
-      if (value == StringViewLite(m_content.data(), m_content.size()))
+      if (value != m_content)
       {
-        return;
+        m_content = StringViewLiteUtil::ToString(value);
+        PropertyUpdated(PropertyType::Content);
       }
-
-      m_content.assign(value.data(), value.size());
-      PropertyUpdated(PropertyType::Content);
     }
 
 
     void Label::SetContent(const std::string& value)
     {
-      if (value == m_content)
+      if (value != m_content)
       {
-        return;
+        m_content = value;
+        PropertyUpdated(PropertyType::Content);
       }
+    }
 
-      m_content = value;
-      PropertyUpdated(PropertyType::Content);
+
+    void Label::SetContent(std::string&& value)
+    {
+      if (value != m_content)
+      {
+        m_content = std::move(value);
+        PropertyUpdated(PropertyType::Content);
+      }
     }
 
   }

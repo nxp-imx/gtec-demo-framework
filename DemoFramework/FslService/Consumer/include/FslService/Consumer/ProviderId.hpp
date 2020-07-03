@@ -63,7 +63,7 @@ namespace Fsl
     //! @brief  Return a invalid service id
     static ProviderId Invalid()
     {
-      return ProviderId();
+      return {};
     }
 
     bool IsValid() const

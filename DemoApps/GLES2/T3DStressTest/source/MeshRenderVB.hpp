@@ -36,6 +36,7 @@
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 #include <FslUtil/OpenGLES2/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES2/GLIndexBuffer.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -47,10 +48,10 @@ namespace Fsl
     GLES2::GLVertexBuffer m_vb;
     GLES2::GLIndexBuffer m_ib;
     GLenum m_primitiveType;
-    GLES2::GLVertexAttribLink m_link[3];
+    std::array<GLES2::GLVertexAttribLink, 3> m_link;
 
   public:
-    MeshRenderVB(const Procedural::BasicMesh& mesh);
+    explicit MeshRenderVB(const Procedural::BasicMesh& mesh);
 
     void Bind(const ShaderBase& shader) override;
     void Draw() override;

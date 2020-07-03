@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Arguments/CommandType.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <cstdint>
 
 namespace Fsl
@@ -43,14 +44,14 @@ namespace Fsl
       CommandType Type{CommandType::Undefined};
       uint32_t Id{0};
       uint32_t Count{0};
-      const char* pszOptArg{nullptr};
+      StringViewLite StrOptArg;
 
       constexpr EncodedCommand() noexcept = default;
-      constexpr EncodedCommand(const CommandType type, const uint32_t commandId, const char* pszTheOptArg, const uint32_t count = 1) noexcept
+      constexpr EncodedCommand(const CommandType type, const uint32_t commandId, const StringViewLite strOptArg, const uint32_t count = 1) noexcept
         : Type(type)
         , Id(commandId)
         , Count(count)
-        , pszOptArg(pszTheOptArg)
+        , StrOptArg(strOptArg)
       {
       }
     };

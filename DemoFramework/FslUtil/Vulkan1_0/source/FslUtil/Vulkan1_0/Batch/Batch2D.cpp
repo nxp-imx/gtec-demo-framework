@@ -39,8 +39,8 @@ namespace Fsl
 
   namespace Vulkan
   {
-    Batch2D::Batch2D(const std::shared_ptr<QuadBatch>& quadRenderer, const Point2& screenResolution)
-      : GenericBatch2D<std::shared_ptr<QuadBatch>, VUTextureInfo, GenericBatch2DFormat::Normal>(quadRenderer, screenResolution)
+    Batch2D::Batch2D(const std::shared_ptr<QuadBatch>& quadRenderer, const PxExtent2D& currentExtent)
+      : GenericBatch2D<std::shared_ptr<QuadBatch>, VUTextureInfo, GenericBatch2DFormat::Normal>(quadRenderer, currentExtent)
     {
     }
   }

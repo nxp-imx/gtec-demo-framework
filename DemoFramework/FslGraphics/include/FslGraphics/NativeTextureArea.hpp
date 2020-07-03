@@ -38,19 +38,31 @@ namespace Fsl
   //! Describes a area on the texture in the native texture coordinate system
   struct NativeTextureArea
   {
+    float X0{0.0f};
+    float Y0{0.0f};
     float X1{0.0f};
     float Y1{0.0f};
-    float X2{0.0f};
-    float Y2{0.0f};
 
-    constexpr NativeTextureArea() = default;
+    constexpr NativeTextureArea() noexcept = default;
 
-    constexpr NativeTextureArea(const float x1, const float y1, const float x2, const float y2)
-      : X1(x1)
-      , Y1(y1)
-      , X2(x2)
-      , Y2(y2)
+    constexpr NativeTextureArea(const float x0, const float y0, const float x2, const float y2) noexcept
+      : X0(x0)
+      , Y0(y0)
+      , X1(x2)
+      , Y1(y2)
     {
+    }
+
+
+    constexpr bool operator==(const NativeTextureArea& rhs) const noexcept
+    {
+      return ((X0 == rhs.X0) && (Y0 == rhs.Y0) && (X1 == rhs.X1) && (Y1 == rhs.Y1));
+    }
+
+
+    constexpr bool operator!=(const NativeTextureArea& rhs) const noexcept
+    {
+      return !((*this) == rhs);
     }
   };
 }

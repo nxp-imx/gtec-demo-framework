@@ -34,6 +34,7 @@
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include "StateEventInfo.hpp"
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
@@ -48,8 +49,8 @@ namespace Fsl
     public:
       StateEvent() = default;
 
-      StateEvent(const std::shared_ptr<WindowEvent>& content, const StateEventInfo& info)
-        : m_content(content)
+      StateEvent(std::shared_ptr<WindowEvent> content, const StateEventInfo& info)
+        : m_content(std::move(content))
         , m_info(info)
       {
       }

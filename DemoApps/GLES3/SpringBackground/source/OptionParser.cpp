@@ -77,36 +77,35 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    int32_t intValue;
-    bool boolValue;
-    Point2 point;
+    int32_t intValue = 0;
+    bool boolValue = false;
 
     switch (cmdId)
     {
     case CommandId::RenderId:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_renderId = intValue;
       return OptionParseResult::Parsed;
     case CommandId::Grid:
-      if (StringParseUtil::Parse(m_gridResolution, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(m_gridResolution, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       return OptionParseResult::Parsed;
     case CommandId::Bloom:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_bloomEnabled = boolValue;
       return OptionParseResult::Parsed;
     case CommandId::ShowBuffers:
-      if (StringParseUtil::Parse(boolValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(boolValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

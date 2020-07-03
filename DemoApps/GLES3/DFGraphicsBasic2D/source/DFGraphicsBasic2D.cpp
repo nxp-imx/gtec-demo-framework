@@ -57,11 +57,11 @@ namespace Fsl
 
   void DFGraphicsBasic2D::Update(const DemoTime& demoTime)
   {
-    m_shared.Update(demoTime, GetScreenResolution());
+    m_shared.Update(demoTime, GetWindowSizePx());
   }
 
 
-  void DFGraphicsBasic2D::Draw(const DemoTime& demoTime)
+  void DFGraphicsBasic2D::Draw(const DemoTime& /*demoTime*/)
   {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

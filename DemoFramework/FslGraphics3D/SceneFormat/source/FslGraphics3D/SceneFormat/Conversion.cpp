@@ -172,7 +172,7 @@ namespace Fsl
       }
 
       // We dont convert the offset as we assume the converted elements have been sorted and tightly packed
-      return SFVertexElement(Convert(element.Format), Convert(element.Usage), static_cast<uint8_t>(element.UsageIndex));
+      return {Convert(element.Format), Convert(element.Usage), static_cast<uint8_t>(element.UsageIndex)};
     }
 
 

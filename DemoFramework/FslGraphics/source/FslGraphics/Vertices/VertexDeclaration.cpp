@@ -102,7 +102,8 @@ namespace Fsl
         else
         {
           // back track and make room until we find a offset that is smaller
-          int tmpIndex = dstIndex - 1;
+          assert(dstIndex <= static_cast<uint32_t>(std::numeric_limits<int32_t>::max()));
+          auto tmpIndex = static_cast<int32_t>(dstIndex) - 1;
           while (tmpIndex >= 0 && currentOffset < rDstElements[tmpIndex].Offset)
           {
             rDstElements[tmpIndex + 1] = rDstElements[tmpIndex];

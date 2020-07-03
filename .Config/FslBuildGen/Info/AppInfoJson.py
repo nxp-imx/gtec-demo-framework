@@ -40,6 +40,7 @@ from typing import Union
 import json
 from FslBuildGen import IOUtil
 from FslBuildGen.DataTypes import PackageType
+from FslBuildGen.Generator.Report.Datatypes import FormatStringEnvironmentVariableResolveMethod
 from FslBuildGen.Info.AppInfo import AppInfo
 from FslBuildGen.Info.RequirementInfo import RequirementInfo
 from FslBuildGen.Info.RequirementInfo import RequirementType
@@ -203,7 +204,9 @@ def __ParsePackageGeneratorExecutableReport(log: Log, packageName: str, jsonDict
     environmentVariableResolveMethod = __ReadDictIntAttrib(jsonDict, JsonPackageGeneratorExecutableReport.EnvironmentVariableResolveMethod)  # type: int
     exeFormatString = __ReadDictStrAttrib(jsonDict, JsonPackageGeneratorExecutableReport.ExeFormatString)
     runScript = __TryReadDictStrAttrib(jsonDict, JsonPackageGeneratorExecutableReport.RunScript)
-    return PackageGeneratorExecutableReportInfo(useAsRelative, exeFormatString, runScript, environmentVariableResolveMethod)
+
+    convertedEnvironmentVariableResolveMethod = FormatStringEnvironmentVariableResolveMethod.Convert(environmentVariableResolveMethod)
+    return PackageGeneratorExecutableReportInfo(useAsRelative, exeFormatString, runScript, convertedEnvironmentVariableResolveMethod)
 
 
 

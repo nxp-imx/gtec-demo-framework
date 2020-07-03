@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TexturePacker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="1">
+  <CreateAtlas Name="TestGraphicsAtlas">
+    <AddFolder Path="TextureAtlas" KeepDpiInFilename="true"/>
+  </CreateAtlas>
+
+  <AtlasFlavors Name="TestGraphicsAtlas">
+    <CreateAtlas Name="TestGraphicsAtlas_80dpi" SourcePath="TextureAtlas">
+      <AddImage Path="Scale/RedBlue/RedBlueNineSlice_${Atlas.DefaultDpi}dpi.9.png"/>
+      <AddImage Path="Scale/RedBlue/RedBlueNineSliceTrimL4T4R4B4_${Atlas.DefaultDpi}dpi.9.png">
+        <ElementConfig TrimMargin="0"/>
+      </AddImage>
+      <AddImage Path="Scale/RedBlue/Test40x40_TrimL4T4R4B4_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_Trim_L16T16R16B16_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestBig_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestSmall_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/Text2/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+    </CreateAtlas>
+    <CreateAtlas Name="TestGraphicsAtlas_160dpi" SourcePath="TextureAtlas">
+      <AddImage Path="Scale/RedBlue/RedBlueNineSlice_${Atlas.DefaultDpi}dpi.9.png"/>
+      <AddImage Path="Scale/RedBlue/RedBlueNineSliceTrimL4T4R4B4_${Atlas.DefaultDpi}dpi.9.png">
+        <ElementConfig TrimMargin="0"/>
+      </AddImage>
+      <AddImage Path="Scale/RedBlue/Test40x40_TrimL4T4R4B4_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_Trim_L16T16R16B16_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestBig_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestSmall_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/Text2/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+    </CreateAtlas>
+    <CreateAtlas Name="TestGraphicsAtlas_320dpi" SourcePath="TextureAtlas">
+      <AddImage Path="Scale/RedBlue/RedBlueNineSlice_${Atlas.DefaultDpi}dpi.9.png"/>
+      <AddImage Path="Scale/RedBlue/RedBlueNineSliceTrimL4T4R4B4_${Atlas.DefaultDpi}dpi.9.png">
+        <ElementConfig TrimMargin="0"/>
+      </AddImage>
+      <AddImage Path="Scale/RedBlue/Test40x40_TrimL4T4R4B4_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_Trim_L16T16R16B16_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestBig_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestSmall_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/Text2/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+    </CreateAtlas>
+    <CreateAtlas Name="TestGraphicsAtlas_480dpi" SourcePath="TextureAtlas">
+      <AddImage Path="Scale/RedBlue/RedBlueNineSlice_${Atlas.DefaultDpi}dpi.9.png"/>
+      <AddImage Path="Scale/RedBlue/RedBlueNineSliceTrimL4T4R4B4_${Atlas.DefaultDpi}dpi.9.png">
+        <ElementConfig TrimMargin="0"/>
+      </AddImage>
+      <AddImage Path="Scale/RedBlue/Test40x40_TrimL4T4R4B4_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_Trim_L16T16R16B16_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestBig_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestSmall_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/Text2/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+    </CreateAtlas>
+    <CreateAtlas Name="TestGraphicsAtlas_640dpi" SourcePath="TextureAtlas">
+      <AddImage Path="Scale/RedBlue/RedBlueNineSlice_${Atlas.DefaultDpi}dpi.9.png"/>
+      <AddImage Path="Scale/RedBlue/RedBlueNineSliceTrimL4T4R4B4_${Atlas.DefaultDpi}dpi.9.png">
+        <ElementConfig TrimMargin="0"/>
+      </AddImage>
+      <AddImage Path="Scale/RedBlue/Test40x40_TrimL4T4R4B4_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/Test64x64_Trim_L16T16R16B16_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestBig_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/RedBlue/TestSmall_${Atlas.DefaultDpi}dpi.png"/>
+      <AddImage Path="Scale/Text2/Test64x64_${Atlas.DefaultDpi}dpi.png"/>
+    </CreateAtlas>
+  </AtlasFlavors>
+</TexturePacker>

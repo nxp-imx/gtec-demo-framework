@@ -168,7 +168,7 @@ namespace Fsl
     bool m_enableForce;
 
   public:
-    FurShellRendering(const DemoAppConfig& config);
+    explicit FurShellRendering(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

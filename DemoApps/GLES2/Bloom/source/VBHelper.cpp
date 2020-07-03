@@ -32,19 +32,20 @@
 #include "VBHelper.hpp"
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
+#include <array>
 #include <cassert>
 
 namespace Fsl
 {
   void VBHelper::BuildVB(GLES2::GLVertexBuffer& rVB, const BoxF& coords, const BoxF& uv)
   {
-    VertexPositionTexture vertices[] = {
+    const std::array<VertexPositionTexture, 4> vertices = {
       VertexPositionTexture(Vector3(coords.X1, coords.Y2, 0.0f), Vector2(uv.X1, uv.Y2)),
       VertexPositionTexture(Vector3(coords.X1, coords.Y1, 0.0f), Vector2(uv.X1, uv.Y1)),
       VertexPositionTexture(Vector3(coords.X2, coords.Y2, 0.0f), Vector2(uv.X2, uv.Y2)),
       VertexPositionTexture(Vector3(coords.X2, coords.Y1, 0.0f), Vector2(uv.X2, uv.Y1)),
     };
 
-    rVB.Reset(vertices, 4, GL_STATIC_DRAW);
+    rVB.Reset(vertices, GL_STATIC_DRAW);
   }
 }

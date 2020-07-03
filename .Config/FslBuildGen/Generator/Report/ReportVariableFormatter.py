@@ -115,7 +115,7 @@ def GetFormattedString(rFormatList: List[str],
     return "".join(rFormatList)
 
 
-def TryGetEnvironmentVariableResolveMethod(environmentVariableResolveMethod: int) -> Optional[FormatStringEnvironmentVariableResolver]:
+def TryGetEnvironmentVariableResolveMethod(environmentVariableResolveMethod: FormatStringEnvironmentVariableResolveMethod) -> Optional[FormatStringEnvironmentVariableResolver]:
     if environmentVariableResolveMethod == FormatStringEnvironmentVariableResolveMethod.Lookup:
         return None
     elif environmentVariableResolveMethod == FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable:
@@ -133,7 +133,7 @@ class ReportVariableFormatter(object):
     @staticmethod
     def Format(strFormat: str, generatorVariableReport: GeneratorVariableReport,
                userVariantSettingDict: Dict[str, str],
-               environmentVariableResolveMethod: int = FormatStringEnvironmentVariableResolveMethod.Lookup) -> str:
+               environmentVariableResolveMethod: FormatStringEnvironmentVariableResolveMethod = FormatStringEnvironmentVariableResolveMethod.Lookup) -> str:
         environmentVariableResolver = TryGetEnvironmentVariableResolveMethod(environmentVariableResolveMethod)
         parsedFormatString = ParsedFormatString(strFormat, generatorVariableReport, environmentVariableResolver)
         sourceVariableDict, linkedVariables = CreateLookupDict(parsedFormatString.VarCommandList, generatorVariableReport)

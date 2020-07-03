@@ -82,4 +82,28 @@ namespace Fsl
   {
     m_displayId = std::max(displayId, static_cast<int32_t>(0));
   }
+
+
+  Optional<uint32_t> NativeWindowConfig::GetForcedDensityDpi() const
+  {
+    return m_forcedDensityDpi;
+  }
+
+
+  void NativeWindowConfig::SetForcedDensityDpi(const Optional<uint32_t>& densityDpi)
+  {
+    m_forcedDensityDpi = densityDpi;
+  }
+
+
+  Optional<Point2U> NativeWindowConfig::GetForcedActualDpi() const
+  {
+    return m_forcedActualDpi;
+  }
+
+
+  void NativeWindowConfig::SetForcedActualDpi(const Optional<Point2U>& actualDpi)
+  {
+    m_forcedActualDpi = actualDpi;
+  }
 }

@@ -35,6 +35,7 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "S06_Texturing.hpp"
 #include <GLES2/gl2.h>
+#include <array>
 #include <iostream>
 #include <vector>
 
@@ -48,10 +49,10 @@ namespace Fsl
     const GLuint g_hVertexLoc = 0;
     const GLuint g_hColorLoc = 1;
     const GLuint g_hVertexTexLoc = 2;
-    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", "g_vTexCoord", nullptr};
+    const std::array<const char*, 4> g_shaderAttributeArray = {"g_vPosition", "g_vColor", "g_vTexCoord", nullptr};
 
 
-    float g_vertexPositions[] = {
+    const std::array<float, 24 * 3> g_vertexPositions = {
       // Draw A Quad
 
       // Top Right Of The Quad (Top)
@@ -105,7 +106,7 @@ namespace Fsl
       // Bottom Left Of The Quad (Right)
       1.0f, -1.0f, 1.0f};
 
-    float g_vertexTexCoords[] = {
+    const std::array<float, 24 * 2> g_vertexTexCoords = {
       // Top Face
       0.0f,
       0.0f,
@@ -166,7 +167,7 @@ namespace Fsl
 
     };
 
-    float g_vertexColors[] = {
+    const std::array<float, 24 * 4> g_vertexColors = {
       // Red
       1.0f, 0.0f, 0.0f, 1.0f,
       // Red
@@ -231,7 +232,7 @@ namespace Fsl
 
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
 
     {    // Load the texture (we use a scope here, so the bitmap objects is thrown away as soon as we dont need it)
       Bitmap bitmap;
@@ -240,15 +241,13 @@ namespace Fsl
       m_texture.SetData(bitmap, params);
     }
 
-
     const GLuint hProgram = m_program.Get();
 
     // Get uniform locations
     m_hModelViewMatrixLoc = glGetUniformLocation(hProgram, "g_matModelView");
     m_hProjMatrixLoc = glGetUniformLocation(hProgram, "g_matProj");
 
-    const Point2 currentSize = GetScreenResolution();
-    const float aspectRatio = currentSize.X / float(currentSize.Y);
+    const float aspectRatio = GetWindowAspectRatio();
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, -6.0f);
   }
@@ -273,8 +272,8 @@ namespace Fsl
     const Matrix matModel =
       Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Clear the color-buffer and depth-buffer
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);
@@ -295,13 +294,13 @@ namespace Fsl
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matProj.DirectAccess());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions);
+    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
     glEnableVertexAttribArray(g_hVertexLoc);
 
-    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors);
+    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors.data());
     glEnableVertexAttribArray(g_hColorLoc);
 
-    glVertexAttribPointer(g_hVertexTexLoc, 2, GL_FLOAT, 0, 0, g_vertexTexCoords);
+    glVertexAttribPointer(g_hVertexTexLoc, 2, GL_FLOAT, 0, 0, g_vertexTexCoords.data());
     glEnableVertexAttribArray(g_hVertexTexLoc);
 
     // Select Our Texture

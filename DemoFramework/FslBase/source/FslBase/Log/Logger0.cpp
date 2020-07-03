@@ -38,11 +38,13 @@
 
 #ifdef __ANDROID__
 #include <android/log.h>
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IDE_LOG(PSZfORMAT, ...) \
   {                             \
   }
 #elif defined(FSL_PLATFORM_FREERTOS)
 #include <Platform/FreeRTOS/Stuff/PlatformStuff.hpp>
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IDE_LOG(PSZfORMAT, ...) \
   {                             \
   }
@@ -63,8 +65,10 @@ namespace
   }
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IDE_LOG(PSZfORMAT, ...) IdeLog((PSZfORMAT), __VA_ARGS__)
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IDE_LOG(PSZfORMAT, ...) \
   {                             \
   }
@@ -152,6 +156,7 @@ namespace Fsl
 
     void WriteLine(const LogLocation& location, const LogType logType, const char* const psz) noexcept
     {
+      FSL_PARAM_NOT_USED(location);
       try
       {
         if (psz == nullptr)

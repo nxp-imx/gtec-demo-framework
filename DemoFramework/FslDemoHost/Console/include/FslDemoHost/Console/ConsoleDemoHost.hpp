@@ -45,7 +45,7 @@ namespace Fsl
     DemoHostFeature m_activeApi;
 
   public:
-    ConsoleDemoHost(const DemoHostConfig& demoHostConfig);
+    explicit ConsoleDemoHost(const DemoHostConfig& demoHostConfig);
     ~ConsoleDemoHost() override;
 
     void OnActivate() override;
@@ -53,7 +53,7 @@ namespace Fsl
     void OnSuspend() override;
     void OnResume() override;
     DemoHostFeature GetActiveAPI() const override;
-    Point2 GetScreenResolution() const override;
+    DemoWindowMetrics GetWindowMetrics() const override;
     SwapBuffersResult TrySwapBuffers() override;
     bool ProcessNativeMessages(const bool allowBlock) override;
 

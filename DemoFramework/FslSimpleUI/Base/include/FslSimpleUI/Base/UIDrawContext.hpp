@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Rect.hpp>
+#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 
 namespace Fsl
 {
@@ -42,17 +42,17 @@ namespace Fsl
     {
       UIDrawContext() = default;
 
-      UIDrawContext(const Rect& targetRect)
+      explicit UIDrawContext(const PxAreaRectangleF& targetRect)
         : TargetRect(targetRect)
         , ClippedTargetRect(targetRect)
       {
       }
 
       //! @brief The target rect that the draw should occur to
-      Rect TargetRect;
+      PxAreaRectangleF TargetRect;
 
       //! @brief The target rect clipped against the parent
-      Rect ClippedTargetRect;
+      PxAreaRectangleF ClippedTargetRect;
 
       //! @brief If clip to parent is enabled
       bool ClipToParentEnabled{false};

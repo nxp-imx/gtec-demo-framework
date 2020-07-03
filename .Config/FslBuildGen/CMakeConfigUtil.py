@@ -32,41 +32,56 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
+import shlex
+from FslBuildGen.Log import Log
 from FslBuildGen import IOUtil
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
 from FslBuildGen.BuildExternal import CMakeTypes
 from FslBuildGen.CMakeUtil import CMakeUtil
 from FslBuildGen.CMakeUtil import CMakeVersion
+from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.Version import Version
 from FslBuildGen.Tool.UserCMakeConfig import UserCMakeConfig
 
-def BuildGeneratorCMakeConfig(platformName: str, userCMakeConfig: Optional[UserCMakeConfig],
-                              cmakeConfiguration: CMakeConfiguration, defaultCompilerVersion: int) -> GeneratorCMakeConfig:
+def BuildGeneratorCMakeConfig(log: Log, toolVersion: Version, platformName: str, buildVariantConfig: BuildVariantConfig,
+                              userCMakeConfig: Optional[UserCMakeConfig], cmakeConfiguration: CMakeConfiguration,
+                              defaultCompilerVersion: int) -> GeneratorCMakeConfig:
     """
     Build the CMake config based on the supplied parameters and the default settings from the toolconfig
     """
 
     # Setup default configuration
     buildDir = IOUtil.Join(cmakeConfiguration.DefaultBuildDir, platformName)
+    checkDir = IOUtil.Join(buildDir, 'fsl')
     generatorName = ""
     installPrefix = cmakeConfiguration.DefaultInstallPrefix
 
     # Give the platform a chance to override the config
     platformConfig = cmakeConfiguration.TryGetPlatformConfig(platformName)
+    allowFindPackage = True
     if platformConfig is not None:
         if platformConfig.DefaultGeneratorName is not None:
             generatorName = platformConfig.DefaultGeneratorName
         if platformConfig.DefaultInstallPrefix is not None:
             installPrefix = platformConfig.DefaultInstallPrefix
+        if platformConfig.AllowFindPackage is not None:
+            allowFindPackage = platformConfig.AllowFindPackage
+            log.LogPrintVerbose(2, "project defined AllowFindPackage to {0}".format(allowFindPackage))
 
     # Apply the commandline overrides (so the user gets the final say)
+    buildDirSetByUser = False
     if userCMakeConfig is not None:
         if userCMakeConfig.BuildDir is not None:
             buildDir = userCMakeConfig.BuildDir
+            buildDirSetByUser = True
         if userCMakeConfig.GeneratorName is not None:
             generatorName = userCMakeConfig.GeneratorName
         if userCMakeConfig.InstallPrefix is not None:
             installPrefix = userCMakeConfig.InstallPrefix
+        if userCMakeConfig.AllowFindPackage is not None:
+            allowFindPackage = userCMakeConfig.AllowFindPackage
+            log.LogPrintVerbose(2, "Command line set AllowFindPackage to {0}".format(allowFindPackage))
 
     # If we still dont have a generator name then try to select a good default
     if len(generatorName) <= 0:
@@ -75,4 +90,8 @@ def BuildGeneratorCMakeConfig(platformName: str, userCMakeConfig: Optional[UserC
 
     cmakeVersion = CMakeUtil.GetVersion()
 
-    return GeneratorCMakeConfig(buildDir, generatorName, installPrefix, cmakeVersion)
+    cmakeConfigGlobalArgs = [] if userCMakeConfig is None else shlex.split(userCMakeConfig.ConfigGlobalArgs)
+    cmakeConfigAppArgs = [] if userCMakeConfig is None else shlex.split(userCMakeConfig.ConfigAppArgs)
+
+    return GeneratorCMakeConfig(toolVersion, platformName, buildVariantConfig, buildDir, buildDirSetByUser, checkDir, generatorName, installPrefix,
+                                cmakeVersion, cmakeConfigGlobalArgs, cmakeConfigAppArgs, allowFindPackage)

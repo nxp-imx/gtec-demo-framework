@@ -53,13 +53,13 @@ namespace Fsl
 
         const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_GRAPHICS_BIT, 0, &supportFilter);
 
-        const float queuePriorities[1] = {0.0f};
+        std::array<float, 1> queuePriorities = {0.0f};
         VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
         deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         deviceQueueCreateInfo.flags = 0;
         deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
-        deviceQueueCreateInfo.queueCount = 1;
-        deviceQueueCreateInfo.pQueuePriorities = queuePriorities;
+        deviceQueueCreateInfo.queueCount = static_cast<uint32_t>(queuePriorities.size());
+        deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
 
         std::array<const char*, 1> extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 

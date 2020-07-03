@@ -37,15 +37,11 @@ namespace Fsl
     {
       RapidVulkan::Memory Memory;    // Handle to the device memory for this buffer
       RapidVulkan::Buffer Buffer;    // Handle to the Vulkan buffer object that the memory is bound to
-      VkPipelineVertexInputStateCreateInfo InputState;
-      VkVertexInputBindingDescription InputBinding;
+      VkPipelineVertexInputStateCreateInfo InputState{};
+      VkVertexInputBindingDescription InputBinding{};
       std::vector<VkVertexInputAttributeDescription> InputAttributes;
 
-      VertexBuffer()
-        : InputState{}
-        , InputBinding{}
-      {
-      }
+      VertexBuffer() = default;
     };
 
     // Index buffer
@@ -107,7 +103,7 @@ namespace Fsl
     VkDescriptorSet m_descriptorSet;
 
   public:
-    Triangle(const DemoAppConfig& config);
+    explicit Triangle(const DemoAppConfig& config);
     ~Triangle() override;
 
   protected:

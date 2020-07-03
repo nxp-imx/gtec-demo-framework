@@ -40,8 +40,10 @@ from FslBuildGen import PackageListUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.AndroidUtil import AndroidUtil
 from FslBuildGen.BuildConfig.CMakeConfiguration import CMakeConfiguration
+from FslBuildGen.CMakeUtil import CMakeVersion
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.PlatformContext import PlatformContext
+from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import BuildVariantType
 from FslBuildGen.DataTypes import GeneratorType
 from FslBuildGen.DataTypes import PackageLanguage
@@ -63,6 +65,7 @@ from FslBuildGen.Generator.GeneratorConfig import GeneratorConfig
 from FslBuildGen.Generator.GeneratorPlugin import GeneratorPlugin
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorVariant
 from FslBuildGen.Generator.GeneratorVSTemplateInfo import GeneratorVSTemplateInfo
+from FslBuildGen.Generator.PluginConfigContext import PluginConfigContext
 from FslBuildGen.Generator.Report.GeneratorConfigReport import GeneratorConfigReport
 from FslBuildGen.Generator.Report.PackageGeneratorBuildExecutableInfo import PackageGeneratorBuildExecutableInfo
 from FslBuildGen.Generator.Report.PackageGeneratorConfigReport import PackageGeneratorConfigReport
@@ -71,6 +74,7 @@ from FslBuildGen.Generator.Report.TheGeneratorBuildReport import TheGeneratorBui
 from FslBuildGen.Log import Log
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.Packages.PackageRequirement import PackageRequirement
+from FslBuildGen.Version import Version
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PackageLoader import PackageLoader
 from FslBuildGen.PackageResolver import PackageResolver
@@ -166,7 +170,7 @@ class GeneratorPluginYoctoLegacy(GeneratorPluginMakefile):
         super().__init__(PackageConfig.PlatformNameString.YOCTO, "GNUmakefile_Yocto", False)
 
 
-class GeneratorPluginQNX(GeneratorPlugin):
+class GeneratorPluginQNXLegacy(GeneratorPlugin):
     def __init__(self) -> None:
         super().__init__(PackageConfig.PlatformNameString.QNX)
         self.InDevelopment = True
@@ -240,15 +244,22 @@ class GeneratorPluginWindows(GeneratorPlugin):
 class GeneratorPluginCMakeBase(GeneratorPlugin):
     def __init__(self, platformName: str, templateName: Optional[str] = None, overrideTemplateName: Optional[str] = None) -> None:
         super().__init__(platformName)
-        self.InDevelopment = True
+        self.AddGeneratorVariantConfigOption(ToolAddedVariantConfigOption.Coverage)
+        self.InDevelopment = False
         self.IsCMake = True
         self.SupportCommandClean = True
         self.SupportCommandInstall = True
+        self.SupportCommandOpen = False
+        self.SupportCommandOpenHintMessage = "Please upgrade to cmake 3.11+"
         self.PackageResolveConfig_MarkExternalLibFirstUse = True
         self.__CMakeTemplateName = templateName if templateName is not None else "CMake"
         self.__CMakeOverrideTemplateName = overrideTemplateName
-        self.CMakeConfig = None   # type: Optional[GeneratorCMakeConfig]
 
+    def SYS_SetCMakeConfig(self, cmakeConfig: Optional[GeneratorCMakeConfig]) -> None:
+        super().SYS_SetCMakeConfig(cmakeConfig)
+        if cmakeConfig is not None and cmakeConfig.CMakeVersion >= CMakeVersion(3, 11, 0):
+            self.SupportCommandOpen = True
+            self.SupportCommandOpenHintMessage = ""
 
     def DoGenerate(self, platformContext: PlatformContext, config: Config, packages: List[Package]) -> List[Package]:
         generator = GeneratorCMake(config, packages, self.PlatformName, self.__CMakeTemplateName, self.__CMakeOverrideTemplateName)
@@ -261,7 +272,7 @@ class GeneratorPluginCMakeBase(GeneratorPlugin):
         configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
         resultDict = {} # type: Dict[Package, PackageGeneratorReport]
         for package in packageList:
-            buildReport = GeneratorCMake.TryGenerateGeneratorPackageReport(log, generatorConfig, self.PlatformName, self.CMakeConfig, package, configVariant.Options)
+            buildReport = GeneratorCMake.TryGenerateGeneratorPackageReport(log, generatorConfig, self.CMakeConfig, package, configVariant.Options)
             if buildReport is not None:
                 resultDict[package] = buildReport
         return TheGeneratorBuildReport(resultDict)
@@ -271,8 +282,7 @@ class GeneratorPluginCMakeBase(GeneratorPlugin):
             raise Exception("internal error generator not configured")
 
         configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
-        return GeneratorCMake.GenerateGeneratorBuildConfigReport(log, generatorConfig, self.PlatformName, self.CMakeConfig,
-                                                                 topLevelPackage, configVariant.Options)
+        return GeneratorCMake.GenerateGeneratorBuildConfigReport(log, generatorConfig, self.CMakeConfig, topLevelPackage, configVariant.Options)
 
     def _DoTryGetBuildExecutableInfo(self, log: Log, generatorConfig: GeneratorConfig, package: Package,
                                      generatorReport: PackageGeneratorReport,
@@ -280,8 +290,8 @@ class GeneratorPluginCMakeBase(GeneratorPlugin):
         if self.CMakeConfig is None:
             raise Exception("internal error generator not configured")
         configVariant = self.GeneratorVariants[ToolAddedVariant.CONFIG]
-        return GeneratorCMake.TryGetBuildExecutableInfo(log, generatorConfig, self.PlatformName, self.CMakeConfig,
-                                                        package, generatorReport, variantSettingsDict, configVariant.Options)
+        return GeneratorCMake.TryGetBuildExecutableInfo(log, generatorConfig, self.CMakeConfig, package, generatorReport, variantSettingsDict,
+                                                        configVariant.Options)
 
 
 class GeneratorPluginUbuntu(GeneratorPluginCMakeBase):
@@ -292,6 +302,10 @@ class GeneratorPluginYocto(GeneratorPluginCMakeBase):
     def __init__(self) -> None:
         super().__init__(PackageConfig.PlatformNameString.YOCTO)
 
+class GeneratorPluginQNX(GeneratorPluginCMakeBase):
+    def __init__(self) -> None:
+        super().__init__(PackageConfig.PlatformNameString.QNX)
+
 class GeneratorPluginCMake(GeneratorPluginCMakeBase):
     def __init__(self) -> None:
         super().__init__(PackageConfig.PlatformNameString.CMAKE)
@@ -300,15 +314,7 @@ class GeneratorPluginCMake(GeneratorPluginCMakeBase):
 class GeneratorPluginFreeRTOS(GeneratorPluginCMakeBase):
     def __init__(self) -> None:
         super().__init__(PackageConfig.PlatformNameString.FREERTOS, None, "CMakeFreeRTOS")
-
-
-__g_generatorPlugins = [GeneratorPluginAndroid(), GeneratorPluginUbuntu(), GeneratorPluginYocto(), GeneratorPluginWindows(), GeneratorPluginFreeRTOS(),
-                        GeneratorPluginQNX(), GeneratorPluginCMake()]
-__g_generatorPluginDict = {}  # type: Dict[str, GeneratorPlugin]
-
-for _entry in __g_generatorPlugins:
-    __g_generatorPluginDict[_entry.PlatformId] = _entry
-__g_generatorPluginDict[PluginSharedValues.PLATFORM_ID_ALL] = GeneratorPlugin(PluginSharedValues.PLATFORM_ID_ALL)
+        self.InDevelopment = True
 
 
 #def __CreateCustomWindowGenerator(platformName):
@@ -325,75 +331,88 @@ __g_generatorPluginDict[PluginSharedValues.PLATFORM_ID_ALL] = GeneratorPlugin(Pl
 #    __g_generatorPluginDict[ubuntuGen.Id] = ubuntuGen
 #    PlatformUtil.AddExtraGenerators(ubuntuGen.Name)
 
-class GlobalContext(object):
-    def __init__(self) -> None:
+class ActualPluginConfigContext(PluginConfigContext):
+    def __init__(self, log: Log, toolVersion: Version, allowDevelopmentPlugins: bool) -> None:
         self.DotEnabled = False
         self.VSVersion = 0
         self.LegacyGeneratorType = "default"
+        self.__Log = log
+        self.__ToolVersion = toolVersion
+        # prepare plugins
+        self.__GeneratorPlugins = [GeneratorPluginAndroid(), GeneratorPluginUbuntu(),
+                                   GeneratorPluginYocto(), GeneratorPluginWindows(),
+                                   GeneratorPluginFreeRTOS(), GeneratorPluginQNX(),
+                                   GeneratorPluginCMake()]
+        if not allowDevelopmentPlugins:
+            self.__GeneratorPlugins = [entry for entry in self.__GeneratorPlugins if not entry.InDevelopment]
 
-__g_globalContext = GlobalContext()
+        self.__GeneratorPluginDict = {} # Dict[str, GeneratorPlugin]
+        for _entry in self.__GeneratorPlugins:
+            self.__GeneratorPluginDict[_entry.PlatformId] = _entry
+        self.__GeneratorPluginDict[PluginSharedValues.PLATFORM_ID_ALL] = GeneratorPlugin(PluginSharedValues.PLATFORM_ID_ALL)
+
+    def GetGeneratorPlugins(self) -> List[GeneratorPlugin]:
+        return self.__GeneratorPlugins
+
+    def GetGeneratorPluginById(self, pluginId: str, generatorType: GeneratorType, buildVariantConfig: BuildVariantConfig,
+                               allowAll: bool, cmakeConfiguration: CMakeConfiguration, userCMakeConfig: Optional[UserCMakeConfig]) -> GeneratorPlugin:
+        generator = self.__GetGenerator(pluginId, generatorType, allowAll)
+        # Patch the generator with the global context variables
+        generator.DotEnabled =  self.DotEnabled
+        generator.ToolVersion = self.VSVersion
+        generator.SetLegacyGeneratorType(self.LegacyGeneratorType)
+
+        if isinstance(generator, GeneratorPlugin):
+            # patch the GeneratorPlugin generators with cmake configuration data
+            generator.SYS_SetCMakeConfig(CMakeConfigUtil.BuildGeneratorCMakeConfig(self.__Log, self.__ToolVersion, generator.PlatformName,
+                                                                                   buildVariantConfig, userCMakeConfig, cmakeConfiguration,
+                                                                                   generator.ToolVersion))
+        return generator
+
+    def EnableGraph(self) -> None:
+        for entry in self.__GeneratorPlugins:
+            entry.DotEnabled = True
+        self.DotEnabled = True
+
+    def SetVSVersion(self, vsVersion: str) -> None:
+        nameId = PackageConfig.PlatformNameString.WINDOWS.lower()
+        if nameId in self.__GeneratorPluginDict:
+            value = int(vsVersion)
+            self.__GeneratorPluginDict[nameId].ToolVersion = value
+            self.VSVersion = value
+
+    def SetLegacyGeneratorType(self, legacyGeneratorType: str) -> None:
+        self.LegacyGeneratorType = legacyGeneratorType
+
+    def __GetGenerator(self, pluginId: str, generatorType: GeneratorType, allowAll: bool) -> GeneratorPlugin:
+        pluginId = pluginId.lower()
+        generatorPluginDict = self.__GeneratorPluginDict
+        if not pluginId in generatorPluginDict:
+            raise UsageErrorException("Unknown platform: '{0}'".format(pluginId))
+        if pluginId == PluginSharedValues.PLATFORM_ID_ALL and not allowAll:
+            raise UsageErrorException("Platform '{0}' is not allowed".format(pluginId))
+        if  generatorType == GeneratorType.CMake:
+            platformName = generatorPluginDict[pluginId].PlatformName
+            return GeneratorPluginCMakeBase(platformName)
+        elif  generatorType == GeneratorType.Legacy:
+            platformName = generatorPluginDict[pluginId].PlatformName
+            if platformName == PlatformNameString.UBUNTU:
+                legacyUbuntuGenerator = GeneratorPluginUbuntuLegacy()
+                return legacyUbuntuGenerator
+            elif platformName == PlatformNameString.YOCTO:
+                legacyYoctoGenerator = GeneratorPluginYoctoLegacy()
+                return legacyYoctoGenerator
+            elif platformName == PlatformNameString.QNX:
+                legacyQnxGenerator = GeneratorPluginQNXLegacy()
+                return legacyQnxGenerator
+        return generatorPluginDict[pluginId]
 
 
-def GetGeneratorPlugins(allowDevelopmentPlugins: bool) -> List[GeneratorPlugin]:
-    if allowDevelopmentPlugins:
-        return __g_generatorPlugins
-    return [entry for entry in __g_generatorPlugins if not entry.InDevelopment]
-
-def __PrepareGenerator(generator: GeneratorPlugin) -> None:
-    generator.DotEnabled =  __g_globalContext.DotEnabled
-    generator.ToolVersion = __g_globalContext.VSVersion
-    generator.SetLegacyGeneratorType(__g_globalContext.LegacyGeneratorType)
+__g_globalContext = None # type ActualPluginConfigContext
 
 
-def __GetGenerator(pluginId: str, generatorType: int, allowAll: bool) -> GeneratorPlugin:
-    pluginId = pluginId.lower()
-    if not pluginId in __g_generatorPluginDict:
-        raise UsageErrorException("Unknown platform: '{0}'".format(pluginId))
-    if pluginId == PluginSharedValues.PLATFORM_ID_ALL and not allowAll:
-        raise UsageErrorException("Platform '{0}' is not allowed".format(pluginId))
-    if  generatorType == GeneratorType.CMake:
-        platformName = __g_generatorPluginDict[pluginId].PlatformName
-        return GeneratorPluginCMakeBase(platformName)
-    elif  generatorType == GeneratorType.Legacy:
-        platformName = __g_generatorPluginDict[pluginId].PlatformName
-        if platformName == PlatformNameString.UBUNTU:
-            legacyUbuntuGenerator = GeneratorPluginUbuntuLegacy()
-            __PrepareGenerator(legacyUbuntuGenerator)
-            return legacyUbuntuGenerator
-        elif platformName == PlatformNameString.YOCTO:
-            legacyYoctoGenerator = GeneratorPluginYoctoLegacy()
-            __PrepareGenerator(legacyYoctoGenerator)
-            return legacyYoctoGenerator
-    return __g_generatorPluginDict[pluginId]
-
-
-
-def GetGeneratorPluginById(pluginId: str, generatorType: int, allowAll: bool,
-                           cmakeConfiguration: CMakeConfiguration,
-                           userCMakeConfig: Optional[UserCMakeConfig]) -> GeneratorPlugin:
-    generator = __GetGenerator(pluginId, generatorType, allowAll)
-    # Patch the generator with the global variables
-    __PrepareGenerator(generator)
-    if isinstance(generator, GeneratorPluginCMakeBase):
-        # patch the cmake generators with configuration data
-        generator.CMakeConfig = CMakeConfigUtil.BuildGeneratorCMakeConfig(generator.PlatformName, userCMakeConfig, cmakeConfiguration, generator.ToolVersion)
-    return generator
-
-
-
-def EnableGraph() -> None:
-    for entry in __g_generatorPlugins:
-        entry.DotEnabled = True
-    __g_globalContext.DotEnabled = True
-
-
-def SetVSVersion(vsVersion: str) -> None:
-    nameId = PackageConfig.PlatformNameString.WINDOWS.lower()
-    if nameId in __g_generatorPluginDict:
-        value = int(vsVersion)
-        __g_generatorPluginDict[nameId].ToolVersion = value
-        __g_globalContext.VSVersion = value
-
-
-def SetLegacyGeneratorType(legacyGeneratorType: str) -> None:
-    __g_globalContext.LegacyGeneratorType = legacyGeneratorType
+def InitPluginConfigContext(log: Log, toolVersion: Version, allowDevelopmentPlugins: bool) -> PluginConfigContext:
+    global __g_globalContext
+    if __g_globalContext is None:
+        __g_globalContext = ActualPluginConfigContext(log, toolVersion, allowDevelopmentPlugins)
+    return __g_globalContext

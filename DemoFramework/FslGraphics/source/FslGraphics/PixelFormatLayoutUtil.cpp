@@ -34,6 +34,7 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormatLayoutUtil.hpp>
+#include <array>
 #include <cassert>
 
 namespace Fsl
@@ -56,14 +57,14 @@ namespace Fsl
       PixelFormatLayout Layout1{PixelFormatLayout::Undefined};
       PixelFormatLayout Layout2{PixelFormatLayout::Undefined};
 
-      MirrorLayout() = default;
+      constexpr MirrorLayout() = default;
 
-      MirrorLayout(const PixelFormatLayout layout)
+      constexpr explicit MirrorLayout(const PixelFormatLayout layout)
         : Layout1(layout)
       {
       }
 
-      MirrorLayout(const PixelFormatLayout layout1, const PixelFormatLayout layout2)
+      constexpr MirrorLayout(const PixelFormatLayout layout1, const PixelFormatLayout layout2)
         : Layout1(layout1)
         , Layout2(layout2)
       {
@@ -79,17 +80,17 @@ namespace Fsl
       MirrorLayout Mirror;
       uint8_t ChannelCount{0};
 
-      PixelFormatLayoutRecord() = default;
+      constexpr PixelFormatLayoutRecord() = default;
 
-      PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder)
+      constexpr PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder)
         : Layout(layout)
         , ChannelOrder(channelOrder)
         , ChannelCount(channelCount)
       {
       }
 
-      PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder,
-                              const SwizzleCompatibilityId swizzleCompatibilityId)
+      constexpr PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder,
+                                        const SwizzleCompatibilityId swizzleCompatibilityId)
         : Layout(layout)
         , ChannelOrder(channelOrder)
         , SwizzleCompatibility(swizzleCompatibilityId)
@@ -98,7 +99,8 @@ namespace Fsl
       }
 
 
-      PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder, const MirrorLayout& mirror)
+      constexpr PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder,
+                                        const MirrorLayout& mirror)
         : Layout(layout)
         , ChannelOrder(channelOrder)
         , Mirror(mirror)
@@ -108,8 +110,8 @@ namespace Fsl
         assert(layout != mirror.Layout2 || layout == PixelFormatLayout::Undefined);
       }
 
-      PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder,
-                              const SwizzleCompatibilityId swizzleCompatibilityId, const MirrorLayout& mirror)
+      constexpr PixelFormatLayoutRecord(const PixelFormatLayout layout, uint8_t channelCount, const PixelChannelOrder channelOrder,
+                                        const SwizzleCompatibilityId swizzleCompatibilityId, const MirrorLayout& mirror)
         : Layout(layout)
         , ChannelOrder(channelOrder)
         , SwizzleCompatibility(swizzleCompatibilityId)
@@ -121,7 +123,7 @@ namespace Fsl
       }
     };
 
-    PixelFormatLayoutRecord g_pixelFormatLayouts[] = {
+    constexpr const std::array<PixelFormatLayoutRecord, 66> g_pixelFormatLayouts = {
       PixelFormatLayoutRecord(),
       PixelFormatLayoutRecord(PixelFormatLayout::R4G4, 2, PixelChannelOrder::RGBA),
       PixelFormatLayoutRecord(PixelFormatLayout::R4G4B4A4_PACK16, 4, PixelChannelOrder::RGBA, SwizzleCompatibilityId::R4G4B4A4_PACK16,
@@ -353,13 +355,14 @@ namespace Fsl
     return layout;
   }
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_ERROR_MESSAGE "The index did not match our assumption"
 
   // Due to lack of constexpr we use this nasty macro
   // So because of the macros be sure to keep all real code above this so you dont get any interference from them
   //#define LOCAL_GET_PIXELFORMATLAYOUT_ID(X) ((static_cast<uint32_t>((X)) & static_cast<uint32_t>(PixelFormatLayoutFlags::BIT_MASK_FORMAT_ID)) -
   // static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_BEGIN_RANGE))
-  constexpr int LOCAL_GET_PIXELFORMATLAYOUT_ID(const PixelFormatLayout pfl)
+  constexpr uint32_t LOCAL_GET_PIXELFORMATLAYOUT_ID(const PixelFormatLayout pfl)
   {
     return ((static_cast<uint32_t>((pfl)) & static_cast<uint32_t>(PixelFormatLayoutFlags::BIT_MASK_FORMAT_ID)) -
             static_cast<uint32_t>(PixelFormatLayout::ENUM_ID_BEGIN_RANGE));

@@ -39,6 +39,7 @@
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
@@ -47,7 +48,7 @@
 
 namespace Fsl
 {
-  class SRGBFramebuffer
+  class SRGBFramebuffer final
     : public DemoAppGLES3
     , public UI::EventListener
   {
@@ -99,16 +100,20 @@ namespace Fsl
 
     std::shared_ptr<UI::Label> m_labelLeft;
     std::shared_ptr<UI::Label> m_labelRight;
+    std::shared_ptr<UI::Switch> m_leftCB;
+    std::shared_ptr<UI::Switch> m_rightCB;
 
   public:
-    SRGBFramebuffer(const DemoAppConfig& config);
-    ~SRGBFramebuffer() override;
+    explicit SRGBFramebuffer(const DemoAppConfig& config);
+    ~SRGBFramebuffer() final;
+
+    void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) final;
 
   protected:
-    void OnKeyEvent(const KeyEvent& event) override;
-    void OnMouseButtonEvent(const MouseButtonEvent& event) override;
-    void Update(const DemoTime& demoTime) override;
-    void Draw(const DemoTime& demoTime) override;
+    void OnKeyEvent(const KeyEvent& event) final;
+    void OnMouseButtonEvent(const MouseButtonEvent& event) final;
+    void Update(const DemoTime& demoTime) final;
+    void Draw(const DemoTime& demoTime) final;
 
   private:
     void UpdateInput(const DemoTime& demoTime);
@@ -120,6 +125,8 @@ namespace Fsl
     GLES3::GLProgram CreateShader(const std::shared_ptr<IContentManager>& contentManager, const bool hasSRGBFramebuffer);
     void CreateVertexArray(const GLES3::GLProgram& program);
     void CreateUI(const bool hasSRGBFramebuffer);
+    void SetState(State state);
+    void UpdateUIToState();
   };
 }
 

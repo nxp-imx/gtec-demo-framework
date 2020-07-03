@@ -51,16 +51,16 @@ namespace Fsl
       return origin != BitmapOrigin::Undefined ? origin : BitmapOrigin::UpperLeft;
     }
 
-    inline Extent3D CalcExtent(const Extent3D& startExtent, const std::size_t level)
+    inline PxExtent3D CalcExtent(const PxExtent3D& startExtent, const std::size_t level)
     {
       return level == 0 ? startExtent
-                        : Extent3D(std::max(startExtent.Width >> level, static_cast<uint32_t>(1u)),
-                                   std::max(startExtent.Height >> level, static_cast<uint32_t>(1u)),
-                                   std::max(startExtent.Depth >> level, static_cast<uint32_t>(1u)));
+                        : PxExtent3D(std::max(startExtent.Width >> level, static_cast<uint32_t>(1u)),
+                                     std::max(startExtent.Height >> level, static_cast<uint32_t>(1u)),
+                                     std::max(startExtent.Depth >> level, static_cast<uint32_t>(1u)));
     }
 
     //! @brief Returns the total texel count
-    uint32_t ValidateBlobs(const std::vector<uint8_t>& srcContent, const std::vector<BlobRecord>& srcBlobs, const Extent3D& extent,
+    uint32_t ValidateBlobs(const std::vector<uint8_t>& srcContent, const std::vector<BlobRecord>& srcBlobs, const PxExtent3D& extent,
                            const PixelFormat pixelFormat, const TextureInfo& textureInfo)
     {
       const bool isCompressed = PixelFormatUtil::IsCompressed(pixelFormat);
@@ -68,7 +68,7 @@ namespace Fsl
       const std::size_t contentByteSize = srcContent.size();
 
       uint32_t totalTexelCount = 0;
-      Extent3D currentExtent = extent;
+      PxExtent3D currentExtent = extent;
       for (uint32_t level = 0; level < textureInfo.Levels; ++level)
       {
         if (level > 0 && (extent.Width == 0 || extent.Height == 0 || extent.Depth == 0))
@@ -136,7 +136,7 @@ namespace Fsl
       m_isLocked = other.m_isLocked;
 
       // Remove the data from other
-      other.m_extent = Extent3D();
+      other.m_extent = PxExtent3D();
       other.m_pixelFormat = PixelFormat::Undefined;
       other.m_textureType = TextureType::Undefined;
       other.m_textureInfo = TextureInfo();
@@ -161,7 +161,7 @@ namespace Fsl
     , m_isLocked(other.m_isLocked)
   {
     // Remove the data from other
-    other.m_extent = Extent3D();
+    other.m_extent = PxExtent3D();
     other.m_pixelFormat = PixelFormat::Undefined;
     other.m_textureType = TextureType::Undefined;
     other.m_textureInfo = TextureInfo();
@@ -202,14 +202,14 @@ namespace Fsl
   }
 
 
-  Texture::Texture(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  Texture::Texture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
     : Texture()
   {
     DoReset(extent, pixelFormat, origin);
   }
 
 
-  Texture::Texture(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  Texture::Texture(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
     : Texture()
   {
     DoReset(std::move(content), extent, pixelFormat, origin);
@@ -321,7 +321,7 @@ namespace Fsl
   }
 
 
-  void Texture::Reset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  void Texture::Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
     if (m_isLocked)
     {
@@ -332,7 +332,7 @@ namespace Fsl
   }
 
 
-  void Texture::Reset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  void Texture::Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
     if (m_isLocked)
     {
@@ -355,7 +355,7 @@ namespace Fsl
   }
 
 
-  Extent3D Texture::GetExtent(const std::size_t level) const
+  PxExtent3D Texture::GetExtent(const std::size_t level) const
   {
     if (!IsValid())
     {
@@ -367,6 +367,16 @@ namespace Fsl
     }
 
     return CalcExtent(m_extent, level);
+  }
+
+  PxExtent2D Texture::GetExtent2D(const std::size_t level) const
+  {
+    auto res = GetExtent(level);
+    if (res.Depth != 1u)
+    {
+      throw UsageErrorException("GetExtent2D called on a non 2d texture");
+    }
+    return {res.Width, res.Height};
   }
 
 
@@ -381,7 +391,7 @@ namespace Fsl
       throw std::invalid_argument("argument out of bounds");
     }
 
-    const Extent3D levelExtent = CalcExtent(m_extent, level);
+    const PxExtent3D levelExtent = CalcExtent(m_extent, level);
     return PixelFormatUtil::CalcMinimumStride(levelExtent.Width, m_pixelFormat);
   }
 
@@ -473,7 +483,7 @@ namespace Fsl
       return;
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
-    const Extent3D levelExtent = CalcExtent(m_extent, level);
+    const PxExtent3D levelExtent = CalcExtent(m_extent, level);
     const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
     if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
     {
@@ -509,7 +519,7 @@ namespace Fsl
       return 0;
     }
     const auto bytesPerPixel = PixelFormatUtil::GetBytesPerPixel(m_pixelFormat);
-    const Extent3D levelExtent = CalcExtent(m_extent, level);
+    const PxExtent3D levelExtent = CalcExtent(m_extent, level);
     const auto levelWidthInBytes = (levelExtent.Width * bytesPerPixel);
     if (x >= levelWidthInBytes || y >= levelExtent.Height || z >= levelExtent.Depth)
     {
@@ -733,7 +743,7 @@ namespace Fsl
   }
 
 
-  void Texture::DoReset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  void Texture::DoReset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
     // If any of these fire the caller did not keep its contract.
     assert(!m_isLocked);
@@ -762,7 +772,7 @@ namespace Fsl
     }
 
     // We don't copy the content here size we 'moved' the source into this object
-    m_extent = Extent3D(extent.Width, extent.Height, 1u);
+    m_extent = PxExtent3D(extent.Width, extent.Height, 1u);
     m_pixelFormat = pixelFormat;
     m_textureType = TextureType::Tex2D;
     m_textureInfo = TextureInfo(1, 1, 1);
@@ -771,7 +781,7 @@ namespace Fsl
   }
 
 
-  void Texture::DoReset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+  void Texture::DoReset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
   {
     // If any of these fire the caller did not keep its contract.
     assert(!m_isLocked);
@@ -802,7 +812,7 @@ namespace Fsl
     }
 
     // We don't copy the content here size we 'moved' the source into this object
-    m_extent = Extent3D(extent.Width, extent.Height, 1u);
+    m_extent = PxExtent3D(extent.Width, extent.Height, 1u);
     m_pixelFormat = pixelFormat;
     m_textureType = TextureType::Tex2D;
     m_textureInfo = TextureInfo(1, 1, 1);
@@ -819,15 +829,15 @@ namespace Fsl
     }
     m_isLocked = true;
 
-    const auto pData = m_content.data();
+    const auto* const pData = m_content.data();
     if (pData != nullptr)
     {
-      return RawTexture(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
-                        m_bitmapOrigin);
+      return {m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(),
+              m_extent,      m_pixelFormat,    m_textureInfo,    m_bitmapOrigin};
     }
     assert((m_extent.Width * m_extent.Height * m_extent.Depth) == 0u);
-    return RawTexture(m_textureType, &g_dummyAreaForZeroSizedBitmaps, 0u, m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
-                      m_bitmapOrigin);
+    return {m_textureType, &g_dummyAreaForZeroSizedBitmaps, 0u, m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
+            m_bitmapOrigin};
   }
 
 
@@ -839,15 +849,15 @@ namespace Fsl
     }
 
     m_isLocked = true;
-    auto pData = m_content.data();
+    auto* pData = m_content.data();
     if (pData != nullptr)
     {
-      return RawTextureEx(m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
-                          m_bitmapOrigin);
+      return {m_textureType, m_content.data(), m_content.size(), m_blobs.data(), m_blobs.size(),
+              m_extent,      m_pixelFormat,    m_textureInfo,    m_bitmapOrigin};
     }
     assert((m_extent.Width * m_extent.Height * m_extent.Depth) == 0u);
-    return RawTextureEx(m_textureType, &g_dummyAreaForZeroSizedBitmaps, m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat,
-                        m_textureInfo, m_bitmapOrigin);
+    return {m_textureType, &g_dummyAreaForZeroSizedBitmaps, m_content.size(), m_blobs.data(), m_blobs.size(), m_extent, m_pixelFormat, m_textureInfo,
+            m_bitmapOrigin};
   }
 
 
@@ -883,7 +893,7 @@ namespace Fsl
     FSLLOG3_WARNING_IF(m_isLocked, "Destroying a locked texture, the content being accessed will no longer be available");
     m_content.clear();
     m_blobs.clear();
-    m_extent = Extent3D();
+    m_extent = PxExtent3D();
     m_pixelFormat = PixelFormat::Undefined;
     m_textureType = TextureType::Undefined;
     m_textureInfo = TextureInfo();

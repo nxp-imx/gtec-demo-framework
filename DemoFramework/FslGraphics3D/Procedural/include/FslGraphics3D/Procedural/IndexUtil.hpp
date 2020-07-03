@@ -85,18 +85,6 @@ namespace Fsl
       if (dstIndex < 0 || srcStartIndex < 0 || srcCount < 0 || std::size_t(srcStartIndex + srcCount) > srcIndices.size() ||
           std::size_t(dstIndex + srcCount) > rDstIndices.size())
       {
-        if (dstIndex < 0)
-        {
-          throw std::invalid_argument("dstIndex should be >= 0");
-        }
-        if (srcStartIndex < 0)
-        {
-          throw std::invalid_argument("srcStartIndex should be >= 0");
-        }
-        if (srcCount < 0)
-        {
-          throw std::invalid_argument("srcCount should be >= 0");
-        }
         if (std::size_t(srcStartIndex + srcCount) > srcIndices.size())
         {
           throw std::invalid_argument("(srcStartIndex + srcCount) should be <= srcIndices.size()");

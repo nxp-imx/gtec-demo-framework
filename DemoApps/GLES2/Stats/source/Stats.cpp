@@ -48,13 +48,13 @@ namespace Fsl
   }
 
 
-  void Stats::Update(const DemoTime& demoTime)
+  void Stats::Update(const DemoTime& /*demoTime*/)
   {
     m_shared.Update();
   }
 
 
-  void Stats::Draw(const DemoTime& demoTime)
+  void Stats::Draw(const DemoTime& /*demoTime*/)
   {
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

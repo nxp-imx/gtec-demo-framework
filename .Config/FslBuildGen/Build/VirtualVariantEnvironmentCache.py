@@ -40,13 +40,14 @@ from FslBuildGen.Log import Log
 
 
 class VirtualVariantEnvironmentCache(object):
-    def __init__(self, log: Log, pythonScriptRoot: str) -> None:
+    def __init__(self, log: Log, pythonScriptRoot: str, allowCaching: bool) -> None:
         super().__init__()
         if not IOUtil.IsAbsolutePath(pythonScriptRoot):
             raise Exception("pythonScriptRoot '{0}' is not absolute".format(pythonScriptRoot))
         self.Log = log
         self.PythonScriptRoot = pythonScriptRoot    # type: str
         self.EnvDict = {}                           # type: Dict[str,str]
+        self.AllowCaching = allowCaching
 
     def GetCachedValue(self, key: str) -> str:
         if key not in self.EnvDict:
@@ -66,13 +67,28 @@ class VirtualVariantEnvironmentCache(object):
         #if len(keys) == numFound:
         #    return
 
-        # we can't cache the environment variables as each package could modify them :(
-        self.EnvDict.clear()
+        if not self.AllowCaching:
+            # we can't cache the environment variables as each package could modify them :(
+            self.EnvDict.clear()
 
-        captureDict = CaptureEnvironmentVariablesFromScript.Capture(self.Log, runCommand, self.PythonScriptRoot, keys)
-        for key, value in captureDict.items():
-            if not key in self.EnvDict:
-                self.EnvDict[key] = value
-            elif self.EnvDict[key] != value:
-                raise Exception("newly cached value for key '{0} does not match cached value. Cached: {1}, new: {2}".format(key, self.EnvDict[key], value))
+        keys = list(set(keys))
+        unknownKeys = keys
+        if self.AllowCaching:
+            unknownKeys = []
+            for entry in keys:
+                if not (entry.startswith("$(") and entry.endswith(")")):
+                    raise Exception("Environment variable not in the correct $(NAME) format {0}".format(entry))
+                strippedEntry = entry[2:-1]
+                if strippedEntry not in self.EnvDict:
+                    unknownKeys.append(entry)
+                else:
+                    self.Log.LogPrintVerbose(4, "Using captured value for {0}".format(entry))
+
+        if len(unknownKeys) > 0:
+            captureDict = CaptureEnvironmentVariablesFromScript.Capture(self.Log, runCommand, self.PythonScriptRoot, unknownKeys)
+            for key, value in captureDict.items():
+                if not key in self.EnvDict:
+                    self.EnvDict[key] = value
+                elif self.EnvDict[key] != value:
+                    raise Exception("newly cached value for key '{0} does not match cached value. Cached: {1}, new: {2}".format(key, self.EnvDict[key], value))
 

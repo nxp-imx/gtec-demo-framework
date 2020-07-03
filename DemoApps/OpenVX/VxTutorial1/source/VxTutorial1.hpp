@@ -41,7 +41,7 @@ namespace Fsl
     RapidOpenVX::Context m_context;
 
   public:
-    VxTutorial1(const DemoAppConfig& config);
+    explicit VxTutorial1(const DemoAppConfig& config);
     ~VxTutorial1() override;
 
   protected:

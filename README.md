@@ -1,5 +1,5 @@
 <!-- #AG_PROJECT_CAPTION_BEGIN# -->
-# DemoFramework 5.5.3
+# DemoFramework 5.6.0
 <!-- #AG_PROJECT_CAPTION_END# -->
 
 A multi-platform framework for fast and easy demo development.
@@ -59,12 +59,15 @@ since the exact same demo/benchmark code run on all of them.
   * [Console](#console)
   * [G2D](#g2d)
   * [GLES2](#gles2)
+  * [GLES2.UI](#gles2.ui)
   * [GLES3](#gles3)
+  * [GLES3.UI](#gles3.ui)
   * [OpenCL](#opencl)
   * [OpenCV](#opencv)
   * [OpenVG](#openvg)
   * [OpenVX](#openvx)
   * [Vulkan](#vulkan)
+  * [Vulkan.UI](#vulkan.ui)
   * [Window](#window)
 <!-- #AG_TOC_END# -->
 
@@ -110,14 +113,13 @@ For details about the build system see the [FslBuildGen document](./Doc/FslBuild
 
 ## Reasoning
 
-While writing this we currently have twenty-six OpenGL ES 2 samples, fifty-seven OpenGL ES 3.x samples,
-thirty six Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
-three OpenVX sample and five other samples. Which is *142 sample applications*.
-
+While writing this we currently have thirty-four OpenGL ES 2 samples, sixty-four OpenGL ES 3.x samples,
+fifty-three Vulkan samples, eight OpenVG samples, two G2D samples, three OpenCL samples, two OpenCV samples,
+three OpenVX sample and five other samples. Which is *174 sample applications*.
 
 The demo framework currently runs on at least four platforms so using a traditional approach we would have to
-maintain 142 * 4 = *568 build files* for the samples alone.
-Maintaining 568 or even just 142 build files would be an extremely time consuming and error prone process.
+maintain 174 * 4 = *696 build files* for the samples alone.
+Maintaining 696 or even just 174 build files would be an extremely time consuming and error prone process.
 So ideally, we wanted to use a build tool that supported
 
 1. Minimalistic build description files, that are used to ‘auto generate’ real build files.
@@ -184,11 +186,11 @@ android gradle+cmake build.
 ## Build system per platform
 
 Operating System | Build system
---- | ---
-Android|gradle + cmake (Android Studio can be used with the generated projects)
-Ubuntu|cmake (make)
-Windows|Visual studio 2019 (IDE or msbuild)
-Yocto|cmake (make)
+-----------------|---------------------
+Android          | gradle + cmake (Android Studio can be used with the generated projects)
+Ubuntu           | cmake (ninja)
+Windows          | Visual studio 2019 (IDE or msbuild)
+Yocto            | cmake (ninja)
 
 ## Scripts
 
@@ -300,7 +302,7 @@ S01_SimpleTriangle(const DemoAppConfig& config)
 ~S01_SimpleTriangle()
 // OPTIONAL: Custom resize logic (if the app requested it). The default logic is to
 // restart the app.
-void Resized(const Point2& size)
+void ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
 // OPTIONAL: Fixed time step update method that will be called the set number of times
 // per second. The fixed time step update is often used for physics.
 void FixedUpdate(const DemoTime& demoTime)
@@ -318,9 +320,9 @@ It is recommended that you do all your setup in the constructor.
 This also means that you should never try to shutdown EGL in the destructor since the framework will do it at the appropriate time.
 The destructor should only worry about resources that your demo app actually allocated by itself.
 
-### Resized
+### ConfigurationChanged
 
-The resized method will be called if the screen resolution changes (if your app never changes resolution this will never be called) .
+The ConfigurationChanged method will be called if the screen metrics changes.
 
 ### FixedUpdate
 
@@ -351,7 +353,7 @@ since there are lots of arguments for both. It’s also worth noting that game e
 
 The methods will be called in this order
 * Events (if any occurred)
-* Resized
+* ConfigurationChanged
 * FixedUpdate (0-N calls. The first frame will always have a FixedUpdate call)
 * Update
 * Draw
@@ -617,28 +619,6 @@ The native batch is very useful for quickly getting something on the screen whic
 It is however not a optimized way of rendering things.
 
 
-### [DFSimpleUI100](DemoApps/GLES2/DFSimpleUI100)
-<a href="DemoApps/GLES2/DFSimpleUI100/Example.jpg">
-<img src="DemoApps/GLES2/DFSimpleUI100/Example.jpg" height="108px">
-</a>
-
-A very basic example of how to utilize the DemoFramework's UI library.
-The sample displays four buttons and reacts to clicks.
-
-The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
-
-
-### [DFSimpleUI101](DemoApps/GLES2/DFSimpleUI101)
-<a href="DemoApps/GLES2/DFSimpleUI101/Example.jpg">
-<img src="DemoApps/GLES2/DFSimpleUI101/Example.jpg" height="108px">
-</a>
-
-A more complex example of how to utilize the DemoFramework's UI library.
-It displays various UI controls and ways to utilize them.
-
-The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
-
-
 ### [DirectMultiSamplingVideoYUV](DemoApps/GLES2/DirectMultiSamplingVideoYUV)
 This sample shows how to use Gstreamer and OpenGL ES to display a YUV video on a texture by doing the YUV to RGB conversion on a shader and also use the DirectVIV extensions to avoid copying data from the Video Buffer to the GL Texture.
 
@@ -811,6 +791,21 @@ into a Texture utility class which is then used to used to create a OpenGL ES cu
 This sample shows how to use the Verisilicon extensions to create a texture without having the need to copy the image data to GL.
 
 
+### [SdfFonts](DemoApps/GLES2/SdfFonts)
+<a href="DemoApps/GLES2/SdfFonts/Example.jpg">
+<img src="DemoApps/GLES2/SdfFonts/Example.jpg" height="108px">
+</a>
+
+Simple example of bitmap fonts vs SDF bitmap fonts.
+This example shows the worst case differences as we only use one resolution for the bitmap font meaning we often upscale the image which gives the worst ouput.
+A proper bitmap font solution should have multiple font textures at various DPI's and select the one closest to the actual font rendering size and preferbly also prefer to downscale the image instead of upscaling it.
+
+It also showcases two simple SDF effects:
+
+- Outline
+- Shadow
+
+
 ### [Stats](DemoApps/GLES2/Stats)
 <a href="DemoApps/GLES2/Stats/Example.jpg">
 <img src="DemoApps/GLES2/Stats/Example.jpg" height="108px">
@@ -842,6 +837,74 @@ It also outputs information about the compression support.
 
 ### [VIVDirectTextureMultiSampling](DemoApps/GLES2/VIVDirectTextureMultiSampling)
 This example shows how to use the DirectVIV extension to use an existing buffer as a texture source without having to copy the data to GL.
+
+
+
+## GLES2.UI
+
+### [DevNativeTexture2D](DemoApps/GLES2/UI/DevNativeTexture2D)
+<a href="DemoApps/GLES2/UI/DevNativeTexture2D/Example.jpg">
+<img src="DemoApps/GLES2/UI/DevNativeTexture2D/Example.jpg" height="108px">
+</a>
+
+Development project for the Vulkan NativeTexture2D and DynamicNativeTexture2D implementation.
+Makes it easy to provoke certain NativeTexture2D/DynamicNativeTexture2D scenarios.
+
+
+### [DpiScale](DemoApps/GLES2/UI/DpiScale)
+<a href="DemoApps/GLES2/UI/DpiScale/Example.jpg">
+<img src="DemoApps/GLES2/UI/DpiScale/Example.jpg" height="108px">
+</a>
+
+This sample showcases a UI that is DPI aware vs one rendered using the standard pixel based method.
+
+It also showcases various ways to render scaled strings and the errors that are easy to introduce.
+
+
+### [PixelPerfect](DemoApps/GLES2/UI/PixelPerfect)
+<a href="DemoApps/GLES2/UI/PixelPerfect/Example.jpg">
+<img src="DemoApps/GLES2/UI/PixelPerfect/Example.jpg" height="108px">
+</a>
+
+This sample showcases some of the common scaling traps that can occur when trying to achieve pixel perfect rendering.
+
+
+### [SimpleUI100](DemoApps/GLES2/UI/SimpleUI100)
+<a href="DemoApps/GLES2/UI/SimpleUI100/Example.jpg">
+<img src="DemoApps/GLES2/UI/SimpleUI100/Example.jpg" height="108px">
+</a>
+
+A very basic example of how to utilize the DemoFramework's UI library.
+The sample displays four buttons and reacts to clicks.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
+### [SimpleUI101](DemoApps/GLES2/UI/SimpleUI101)
+<a href="DemoApps/GLES2/UI/SimpleUI101/Example.jpg">
+<img src="DemoApps/GLES2/UI/SimpleUI101/Example.jpg" height="108px">
+</a>
+
+A more complex example of how to utilize the DemoFramework's UI library.
+It displays various UI controls and ways to utilize them.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
+### [SmoothScroll](DemoApps/GLES2/UI/SmoothScroll)
+<a href="DemoApps/GLES2/UI/SmoothScroll/Example.jpg">
+<img src="DemoApps/GLES2/UI/SmoothScroll/Example.jpg" height="108px">
+</a>
+
+This sample showcases the difference between sub pixel accuracy vs pixel accuracy when scrolling.
+
+
+### [ThemeBasicUI](DemoApps/GLES2/UI/ThemeBasicUI)
+<a href="DemoApps/GLES2/UI/ThemeBasicUI/Example.jpg">
+<img src="DemoApps/GLES2/UI/ThemeBasicUI/Example.jpg" height="108px">
+</a>
+
+Showcase all controls that is part of the Basic UI theme.
 
 
 
@@ -937,28 +1000,6 @@ It is however not a optimized way of rendering things.
 
 Showcases how to use the helios camera API.
 It captures a image from the camera and renders it using the nativebatch.
-
-
-### [DFSimpleUI100](DemoApps/GLES3/DFSimpleUI100)
-<a href="DemoApps/GLES3/DFSimpleUI100/Example.jpg">
-<img src="DemoApps/GLES3/DFSimpleUI100/Example.jpg" height="108px">
-</a>
-
-A very basic example of how to utilize the DemoFramework's UI library.
-The sample displays four buttons and reacts to clicks.
-
-The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
-
-
-### [DFSimpleUI101](DemoApps/GLES3/DFSimpleUI101)
-<a href="DemoApps/GLES3/DFSimpleUI101/Example.jpg">
-<img src="DemoApps/GLES3/DFSimpleUI101/Example.jpg" height="108px">
-</a>
-
-A more complex example of how to utilize the DemoFramework's UI library.
-It displays various UI controls and ways to utilize them.
-
-The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
 
 
 ### [DirectMultiSamplingVideoYUV](DemoApps/GLES3/DirectMultiSamplingVideoYUV)
@@ -1265,6 +1306,22 @@ Creates a configurable particle system where you can select the type of primitiv
 .
 
 
+### [RenderToTexture](DemoApps/GLES3/RenderToTexture)
+<a href="DemoApps/GLES3/RenderToTexture/Example.jpg">
+<img src="DemoApps/GLES3/RenderToTexture/Example.jpg" height="108px">
+</a>
+
+This sample covers how to use OpenGL ES 3.0 to render to a texture.
+It also shows how to use the DirectVIV extensions to:
+
+1) Map an existing buffer to be used as a texture and as a FBO.
+This scheme uses glTexDirectVIVMap, this function creates a texture which contents are backed by an already existing buffer. In this case we create a buffer using the g2d allocator.
+
+2) Create a texture and obtain a user accessible pointer to modify it, this texture can also be used as a FBO.
+This scheme uses glTexDirectVIV, this function creates a Texture in memory, but gives you access to its content buffer in GPU memory via a pointer, so
+you can write in it.
+
+
 ### [S01_SimpleTriangle](DemoApps/GLES3/S01_SimpleTriangle)
 <a href="DemoApps/GLES3/S01_SimpleTriangle/Example.jpg">
 <img src="DemoApps/GLES3/S01_SimpleTriangle/Example.jpg" height="108px">
@@ -1363,6 +1420,21 @@ A simple example of how glScissor works.
 This is showcased by rendering the insides of a rotating cube and using a animated scissor rectangle to clip.
 
 
+### [SdfFonts](DemoApps/GLES3/SdfFonts)
+<a href="DemoApps/GLES3/SdfFonts/Example.jpg">
+<img src="DemoApps/GLES3/SdfFonts/Example.jpg" height="108px">
+</a>
+
+Simple example of bitmap fonts vs SDF bitmap fonts.
+This example shows the worst case differences as we only use one resolution for the bitmap font meaning we often upscale the image which gives the worst ouput.
+A proper bitmap font solution should have multiple font textures at various DPI's and select the one closest to the actual font rendering size and preferbly also prefer to downscale the image instead of upscaling it.
+
+It also showcases two simple SDF effects:
+
+- Outline
+- Shadow
+
+
 ### [Skybox](DemoApps/GLES3/Skybox)
 <a href="DemoApps/GLES3/Skybox/Example.jpg">
 <img src="DemoApps/GLES3/Skybox/Example.jpg" height="108px">
@@ -1444,6 +1516,74 @@ A very simple [verlet integration](https://en.wikipedia.org/wiki/Verlet_integrat
 It's inspired by: [Coding Math: Episode 36 - Verlet Integration Part I+IV](https://www.youtube.com/watch?v=3HjO_RGIjCU&index=1&list=PL_-Pk4fSWzGv_EAW9hW2ioo9Xtr-9DuoZ)
 
 .
+
+
+
+## GLES3.UI
+
+### [DevNativeTexture2D](DemoApps/GLES3/UI/DevNativeTexture2D)
+<a href="DemoApps/GLES3/UI/DevNativeTexture2D/Example.jpg">
+<img src="DemoApps/GLES3/UI/DevNativeTexture2D/Example.jpg" height="108px">
+</a>
+
+Development project for the Vulkan NativeTexture2D and DynamicNativeTexture2D implementation.
+Makes it easy to provoke certain NativeTexture2D/DynamicNativeTexture2D scenarios.
+
+
+### [DpiScale](DemoApps/GLES3/UI/DpiScale)
+<a href="DemoApps/GLES3/UI/DpiScale/Example.jpg">
+<img src="DemoApps/GLES3/UI/DpiScale/Example.jpg" height="108px">
+</a>
+
+This sample showcases a UI that is DPI aware vs one rendered using the standard pixel based method.
+
+It also showcases various ways to render scaled strings and the errors that are easy to introduce.
+
+
+### [PixelPerfect](DemoApps/GLES3/UI/PixelPerfect)
+<a href="DemoApps/GLES3/UI/PixelPerfect/Example.jpg">
+<img src="DemoApps/GLES3/UI/PixelPerfect/Example.jpg" height="108px">
+</a>
+
+This sample showcases some of the common scaling traps that can occur when trying to achieve pixel perfect rendering.
+
+
+### [SimpleUI100](DemoApps/GLES3/UI/SimpleUI100)
+<a href="DemoApps/GLES3/UI/SimpleUI100/Example.jpg">
+<img src="DemoApps/GLES3/UI/SimpleUI100/Example.jpg" height="108px">
+</a>
+
+A very basic example of how to utilize the DemoFramework's UI library.
+The sample displays four buttons and reacts to clicks.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
+### [SimpleUI101](DemoApps/GLES3/UI/SimpleUI101)
+<a href="DemoApps/GLES3/UI/SimpleUI101/Example.jpg">
+<img src="DemoApps/GLES3/UI/SimpleUI101/Example.jpg" height="108px">
+</a>
+
+A more complex example of how to utilize the DemoFramework's UI library.
+It displays various UI controls and ways to utilize them.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
+### [SmoothScroll](DemoApps/GLES3/UI/SmoothScroll)
+<a href="DemoApps/GLES3/UI/SmoothScroll/Example.jpg">
+<img src="DemoApps/GLES3/UI/SmoothScroll/Example.jpg" height="108px">
+</a>
+
+This sample showcases the difference between sub pixel accuracy vs pixel accuracy when scrolling.
+
+
+### [ThemeBasicUI](DemoApps/GLES3/UI/ThemeBasicUI)
+<a href="DemoApps/GLES3/UI/ThemeBasicUI/Example.jpg">
+<img src="DemoApps/GLES3/UI/ThemeBasicUI/Example.jpg" height="108px">
+</a>
+
+Showcase all controls that is part of the Basic UI theme.
 
 
 
@@ -1638,17 +1778,6 @@ Based on a example called [ComputeParticles](https://github.com/SaschaWillems/Vu
 Recreated as a DemoFramework freestyle window sample in 2016.
 
 
-### [DevBatch](DemoApps/Vulkan/DevBatch)
-<a href="DemoApps/Vulkan/DevBatch/Example.jpg">
-<img src="DemoApps/Vulkan/DevBatch/Example.jpg" height="108px">
-</a>
-
-Early development prototype of a basic quad batch implementation that can be used to implement the native batch for Vulkan.
-This will allow the UI library to work with Vulkan.
-
-.
-
-
 ### [DFGraphicsBasic2D](DemoApps/Vulkan/DFGraphicsBasic2D)
 <a href="DemoApps/Vulkan/DFGraphicsBasic2D/Example.jpg">
 <img src="DemoApps/Vulkan/DFGraphicsBasic2D/Example.jpg" height="108px">
@@ -1670,28 +1799,6 @@ The native batch functionality works across various 3D backends and also allows 
 
 The native batch is very useful for quickly getting something on the screen which can be useful for prototyping and debugging.
 It is however not a optimized way of rendering things.
-
-
-### [DFSimpleUI100](DemoApps/Vulkan/DFSimpleUI100)
-<a href="DemoApps/Vulkan/DFSimpleUI100/Example.jpg">
-<img src="DemoApps/Vulkan/DFSimpleUI100/Example.jpg" height="108px">
-</a>
-
-A very basic example of how to utilize the DemoFramework's UI library.
-The sample displays four buttons and reacts to clicks.
-
-The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
-
-
-### [DFSimpleUI101](DemoApps/Vulkan/DFSimpleUI101)
-<a href="DemoApps/Vulkan/DFSimpleUI101/Example.jpg">
-<img src="DemoApps/Vulkan/DFSimpleUI101/Example.jpg" height="108px">
-</a>
-
-A more complex example of how to utilize the DemoFramework's UI library.
-It displays various UI controls and ways to utilize them.
-
-The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
 
 
 ### [DisplacementMapping](DemoApps/Vulkan/DisplacementMapping)
@@ -1987,6 +2094,21 @@ This is showcased by rendering the insides of a rotating cube and using a animat
 Shows how to take a screenshot from code.
 
 
+### [SdfFonts](DemoApps/Vulkan/SdfFonts)
+<a href="DemoApps/Vulkan/SdfFonts/Example.jpg">
+<img src="DemoApps/Vulkan/SdfFonts/Example.jpg" height="108px">
+</a>
+
+Simple example of bitmap fonts vs SDF bitmap fonts.
+This example shows the worst case differences as we only use one resolution for the bitmap font meaning we often upscale the image which gives the worst ouput.
+A proper bitmap font solution should have multiple font textures at various DPI's and select the one closest to the actual font rendering size and preferbly also prefer to downscale the image instead of upscaling it.
+
+It also showcases two simple SDF effects:
+
+- Outline
+- Shadow
+
+
 ### [Skybox](DemoApps/Vulkan/Skybox)
 <a href="DemoApps/Vulkan/Skybox/Example.jpg">
 <img src="DemoApps/Vulkan/Skybox/Example.jpg" height="108px">
@@ -2120,6 +2242,84 @@ Recreated as a DemoFramework freestyle console sample in 2016.
 Commandline tool to dump vulkan system information to the console.
 
 This is a easy way to quickly query the hardware capabilities as reported by vulkan.
+
+
+
+## Vulkan.UI
+
+### [DevBatch](DemoApps/Vulkan/UI/DevBatch)
+<a href="DemoApps/Vulkan/UI/DevBatch/Example.jpg">
+<img src="DemoApps/Vulkan/UI/DevBatch/Example.jpg" height="108px">
+</a>
+
+Development project for the basic quad batch implementation that is used to implement the native batch for Vulkan.
+The NativeBatch implementation is what allows the UI library to work with Vulkan.
+.
+
+
+### [DevNativeTexture2D](DemoApps/Vulkan/UI/DevNativeTexture2D)
+<a href="DemoApps/Vulkan/UI/DevNativeTexture2D/Example.jpg">
+<img src="DemoApps/Vulkan/UI/DevNativeTexture2D/Example.jpg" height="108px">
+</a>
+
+Development project for the Vulkan NativeTexture2D and DynamicNativeTexture2D implementation.
+Makes it easy to provoke certain NativeTexture2D/DynamicNativeTexture2D scenarios.
+
+
+### [DpiScale](DemoApps/Vulkan/UI/DpiScale)
+<a href="DemoApps/Vulkan/UI/DpiScale/Example.jpg">
+<img src="DemoApps/Vulkan/UI/DpiScale/Example.jpg" height="108px">
+</a>
+
+This sample showcases a UI that is DPI aware vs one rendered using the standard pixel based method.
+
+It also showcases various ways to render scaled strings and the errors that are easy to introduce.
+
+
+### [PixelPerfect](DemoApps/Vulkan/UI/PixelPerfect)
+<a href="DemoApps/Vulkan/UI/PixelPerfect/Example.jpg">
+<img src="DemoApps/Vulkan/UI/PixelPerfect/Example.jpg" height="108px">
+</a>
+
+This sample showcases some of the common scaling traps that can occur when trying to achieve pixel perfect rendering.
+
+
+### [SimpleUI100](DemoApps/Vulkan/UI/SimpleUI100)
+<a href="DemoApps/Vulkan/UI/SimpleUI100/Example.jpg">
+<img src="DemoApps/Vulkan/UI/SimpleUI100/Example.jpg" height="108px">
+</a>
+
+A very basic example of how to utilize the DemoFramework's UI library.
+The sample displays four buttons and reacts to clicks.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
+### [SimpleUI101](DemoApps/Vulkan/UI/SimpleUI101)
+<a href="DemoApps/Vulkan/UI/SimpleUI101/Example.jpg">
+<img src="DemoApps/Vulkan/UI/SimpleUI101/Example.jpg" height="108px">
+</a>
+
+A more complex example of how to utilize the DemoFramework's UI library.
+It displays various UI controls and ways to utilize them.
+
+The UI framework that makes it easy to get a basic UI up and running. The main UI code is API independent. It is not a show case of how to render a UI fast but only intended to allow you to quickly get a UI ready that is good enough for a demo.
+
+
+### [SmoothScroll](DemoApps/Vulkan/UI/SmoothScroll)
+<a href="DemoApps/Vulkan/UI/SmoothScroll/Example.jpg">
+<img src="DemoApps/Vulkan/UI/SmoothScroll/Example.jpg" height="108px">
+</a>
+
+This sample showcases the difference between sub pixel accuracy vs pixel accuracy when scrolling.
+
+
+### [ThemeBasicUI](DemoApps/Vulkan/UI/ThemeBasicUI)
+<a href="DemoApps/Vulkan/UI/ThemeBasicUI/Example.jpg">
+<img src="DemoApps/Vulkan/UI/ThemeBasicUI/Example.jpg" height="108px">
+</a>
+
+Showcase all controls that is part of the Basic UI theme.
 
 
 

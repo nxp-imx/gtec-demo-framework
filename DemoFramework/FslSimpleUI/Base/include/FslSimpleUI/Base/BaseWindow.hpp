@@ -33,31 +33,38 @@
 
 #include <FslBase/ITag.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <FslBase/Math/Rect.hpp>
-#include <FslBase/Math/ThicknessF.hpp>
-#include <FslSimpleUI/Base/System/IEventListener.hpp>
+#include <FslBase/Math/Dp/DpThicknessF.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
+#include <FslSimpleUI/Base/BaseWindowFlags.hpp>
+#include <FslSimpleUI/Base/DefaultValues.hpp>
+#include <FslSimpleUI/Base/DpLayoutSize1D.hpp>
+#include <FslSimpleUI/Base/DpLayoutSize2D.hpp>
 #include <FslSimpleUI/Base/ItemAlignment.hpp>
 #include <FslSimpleUI/Base/IWindowId.hpp>
 #include <FslSimpleUI/Base/LayoutCache.hpp>
-#include <FslSimpleUI/Base/BaseWindowFlags.hpp>
+#include <FslSimpleUI/Base/PxAvailableSize.hpp>
+#include <FslSimpleUI/Base/System/IEventListener.hpp>
 #include <memory>
 #include <stdexcept>
 
 namespace Fsl
 {
   struct DemoTime;
+  struct TransitionTimeSpan;
 
   namespace UI
   {
+    class BaseWindowContext;
     struct PropertyTypeFlags;
+    struct ResolutionChangedInfo;
     struct RoutedEvent;
     struct RoutedEventArgs;
     struct UIDrawContext;
-    class BaseWindowContext;
     class WindowEvent;
     class WindowEventPool;
-    class WindowInputClickEvent;
-    class WindowSelectEvent;
 
     class BaseWindow
       : public IWindowId
@@ -65,8 +72,8 @@ namespace Fsl
     {
       const std::shared_ptr<BaseWindowContext> m_context;
       std::shared_ptr<ITag> m_tag;
-      Vector2 m_size;
-      ThicknessF m_margin;
+      DpLayoutSize2D m_sizeDp;
+      DpThicknessF m_marginDp;
       ItemAlignment m_alignmentX;
       ItemAlignment m_alignmentY;
       BaseWindowFlags m_flags;
@@ -76,34 +83,38 @@ namespace Fsl
       BaseWindow(const BaseWindow&) = delete;
       BaseWindow& operator=(const BaseWindow&) = delete;
 
-      BaseWindow(const std::shared_ptr<BaseWindowContext>& context);
+      explicit BaseWindow(const std::shared_ptr<BaseWindowContext>& context);
       ~BaseWindow() override;
 
       //! @brief Called on windows that registered for it once they become known to the window manager.
       virtual void WinInit()
       {
       }
+
+      //! @brief Called by the engine to inform the window that the resolution has been modified and give it a chance to recache things as needed.
+      //! @note this will also mark the layout as dirty
+      //! @warning This method is not allowed to throw a exception!!!!!
+      virtual void WinResolutionChanged(const ResolutionChangedInfo& info);
+
       //! @brief Called by the engine to mark the layout of the window as dirty.
       //! @warning This method is not allowed to throw a exception!!!!!
       //! @return true if the window was marked as dirty, false if it was already dirty.
       virtual bool WinMarkLayoutAsDirty();
+
       virtual WindowFlags WinGetFlags() const
       {
-        return m_flags;
+        return WindowFlags(m_flags);    // NOLINT(modernize-return-braced-init-list)
       }
 
-      virtual Rect WinGetContentRect() const
+      virtual const PxRectangle& WinGetContentPxRectangle() const
       {
-        return m_layoutCache.ContentRect;
+        return m_layoutCache.ContentRectPx;
       }
 
       virtual void WinHandleEvent(const RoutedEvent& routedEvent);
 
       //! @note This is only called if enabled.
-      virtual void WinUpdate(const DemoTime& demoTime)
-      {
-        FSL_PARAM_NOT_USED(demoTime);
-      }
+      virtual void WinUpdate(const DemoTime& demoTime);
 
       //! @brief Called by the UITree to request a draw operation.
       //! @param drawContext the UIDrawContext.
@@ -120,77 +131,80 @@ namespace Fsl
         FSL_PARAM_NOT_USED(demoTime);
       }
 
-      void Arrange(const Rect& finalRect);
-      void Measure(const Vector2& availableSize);
+      void Arrange(const PxRectangle& finalRectPx);
+
+      void Measure(const PxAvailableSize& availableSizePx);
 
       //! @brief Get the current width
       //! @return the width or a negative value if auto sizing is used
-      float GetWidth() const
+      DpLayoutSize1D GetWidth() const
       {
-        return m_size.X;
+        return m_sizeDp.LayoutSizeWidth();
       }
 
       //! @brief Set the current Width
       //! @param value the new width (set it to a negative value to use auto sizing)
-      void SetWidth(const float value);
-
-      //! @brief Set the current Width
-      //! @param value the new width (set it to a negative value to use auto sizing)
-      void SetWidth(const int32_t value);
+      void SetWidth(const DpLayoutSize1D value);
 
       //! @brief Get the current height
       //! @return the height or a negative value if auto sizing is used
-      float GetHeight() const
+      DpLayoutSize1D GetHeight() const
       {
-        return m_size.Y;
+        return m_sizeDp.LayoutSizeHeight();
       }
 
       //! @brief Set the current height
       //! @param value the new height (set it to a negative value to use auto sizing)
-      void SetHeight(const float value);
+      void SetHeight(const DpLayoutSize1D value);
 
-      //! @brief Set the current height
-      //! @param value the new height (set it to a negative value to use auto sizing)
-      void SetHeight(const int32_t value);
-
-      ThicknessF GetMargin() const
+      DpThicknessF GetMargin() const
       {
-        return m_margin;
+        return m_marginDp;
       }
-      void SetMargin(const ThicknessF& value);
+
+      void SetMargin(const DpThicknessF& valueDp);
 
       ItemAlignment GetAlignmentX() const
       {
         return m_alignmentX;
       }
+
       void SetAlignmentX(const ItemAlignment& value);
 
       ItemAlignment GetAlignmentY() const
       {
         return m_alignmentY;
       };
+
       void SetAlignmentY(const ItemAlignment& value);
 
       //! @brief Get the layout desired size.
-      const Vector2& DesiredSize() const
+      const PxSize2D& DesiredSizePx() const
       {
-        return m_layoutCache.DesiredSize;
+        return m_layoutCache.DesiredSizePx;
       }
 
       //! @brief Get the layout render size.
-      const Vector2& RenderSize() const
+      const PxSize2D& RenderSizePx() const
       {
-        return m_layoutCache.RenderSize;
+        return m_layoutCache.RenderSizePx;
+      }
+
+
+      //! @brief Get the layout render size in pixels.
+      PxExtent2D RenderExtentPx() const
+      {
+        return TypeConverter::UncheckedTo<PxExtent2D>(m_layoutCache.RenderSizePx);
       }
 
       //! @brief Transform a screen point to be relative to this window
-      Vector2 PointFromScreen(const Vector2& screenPoint) const;
+      PxPoint2 PointFromScreen(const PxPoint2& screenPoint) const;
 
       //! @brief Transform a point relative to fromWin window, to be relative to this window
-      Vector2 PointFrom(const IWindowId* const pFromWin, const Vector2& point) const;
+      PxPoint2 PointFrom(const IWindowId* const pFromWin, const PxPoint2& pointPx) const;
 
       // @brief Transform a point relative to this window, to be relative to the toWin
-      Vector2 PointTo(const IWindowId* const pToWin, const Vector2& point) const;
+      PxPoint2 PointTo(const IWindowId* const pToWin, const PxPoint2& pointPx) const;
 
       //! @brief Get the user tag value
       std::shared_ptr<ITag> GetTag() const
@@ -205,13 +219,42 @@ namespace Fsl
         m_tag = value;
       }
 
+      //! @brief call this to ensure that all animation is force finished (all factories should end their creation with this)
+      void FinishAnimation()
+      {
+        SetAnimationUpdate(UpdateAnimationState(true));
+      }
+
     protected:
+      virtual void UpdateAnimation(const TransitionTimeSpan& timeSpan)
+      {
+        FSL_PARAM_NOT_USED(timeSpan);
+      }
+
+      //! @brief Update the basic animation state and return true if a animation is active
+      virtual bool UpdateAnimationState(const bool forceCompleteAnimation)
+      {
+        FSL_PARAM_NOT_USED(forceCompleteAnimation);
+        return false;
+      }
+
+
       void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
       {
         FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
       void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
+      }
+      void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+      {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
+      }
+      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
       {
         FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
@@ -251,7 +294,14 @@ namespace Fsl
         return m_flags.IsEnabled(BaseWindowFlags::LayoutDirty);
       };
 
+      //! @brief Check if update is enabled
+      inline bool IsUpdateEnabled() const
+      {
+        return m_flags.IsEnabled(BaseWindowFlags::UpdateEnabled);
+      };
+
       void Enable(const WindowFlags& flags);
+      void Disable(const WindowFlags& flags);
 
       inline void MarkLayoutArrangeBegin()
       {
@@ -279,9 +329,9 @@ namespace Fsl
       //! @note If you wish to customize the arrange pass of the layout process you should override this method.
       //!       A overridden method is responsible for calling Arrange on each visible child window and pass the final desiredSize and
       //!       position to each child window.
-      virtual Vector2 ArrangeOverride(const Vector2& finalSize)
+      virtual PxSize2D ArrangeOverride(const PxSize2D& finalSizePx)
       {
-        return finalSize;
+        return finalSizePx;
       }
 
       //! @brief Measure this window and its children.
@@ -296,10 +346,10 @@ namespace Fsl
       //!          During this process the child windows can return a larger DesiredSize than the initial AvailableSpace to
       //!          indicate that it needs more space. Which can be handled by introducing a scrollable region, resizing the parent control, adding
       //!          some form of stacked order or another appropriate solution for measuring and arranging.
-      virtual Vector2 MeasureOverride(const Vector2& availableSize)
+      virtual PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx)
       {
-        FSL_PARAM_NOT_USED(availableSize);
-        return Vector2::Zero();
+        FSL_PARAM_NOT_USED(availableSizePx);
+        return {};
       }
 
       //! @brief Call this when a property has been updated, to allow the controls to react on it.
@@ -313,6 +363,10 @@ namespace Fsl
 
       //! @brief Control the layout dirty flag
       void SetLayoutDirty(const bool isDirty);
+
+    private:
+      //! @brief Toggle update calls on / off due to animation state
+      void SetAnimationUpdate(const bool isAnimating);
 
     public:
       //! @brief Do not call this, intended for internal UI framework use only

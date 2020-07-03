@@ -49,7 +49,7 @@ namespace Fsl
     std::shared_ptr<CameraRender> m_cameraRender;
 
   public:
-    CameraDemo(const DemoAppConfig& config);
+    explicit CameraDemo(const DemoAppConfig& config);
     ~CameraDemo() override;
 
   protected:

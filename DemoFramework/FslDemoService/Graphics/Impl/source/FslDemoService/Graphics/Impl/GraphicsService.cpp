@@ -36,23 +36,58 @@
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslDemoService/Graphics/Impl/Basic2D.hpp>
 #include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsServiceOptionParser.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsService.hpp>
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
+#include <FslDemoService/Profiler/DefaultProfilerColors.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 #include <cassert>
 #include <limits>
 
 namespace Fsl
 {
-  GraphicsService::GraphicsService(const ServiceProvider& serviceProvider)
+  GraphicsService::GraphicsService(const ServiceProvider& serviceProvider, const std::shared_ptr<GraphicsServiceOptionParser>& optionParser)
     : ThreadLocalService(serviceProvider)
   {
+    if (optionParser->ProfileEnabled())
+    {
+      m_profilerService = serviceProvider.TryGet<IProfilerService>();
+      FSLLOG3_INFO_IF(!m_profilerService, "Failed to acquire the profiler service, request ignored.");
+    }
+    if (m_profilerService)
+    {
+      m_hProfilerBatchDrawCalls.Reset(m_profilerService,
+                                      m_profilerService->CreateCustomCounter("batches", 0, 200, DefaultProfilerColors::BatchDrawCalls));
+      m_hProfilerBatchVertices.Reset(m_profilerService,
+                                     m_profilerService->CreateCustomCounter("vertices", 0, 9000, DefaultProfilerColors::BatchVertices));
+    }
+
     // Acquire all providers of the INativeGraphicsService interface
     serviceProvider.Get(m_nativeGraphicsServices);
   }
 
 
   GraphicsService::~GraphicsService() = default;
+
+
+  void GraphicsService::Update()
+  {
+    ThreadLocalService::Update();
+    if (m_profilerService)
+    {
+      uint32_t batchDrawCount = 0;
+      uint32_t batchVertices = 0;
+      if (m_nativeBatch2D)
+      {
+        Batch2DStats stats = m_nativeBatch2D->GetStats();
+        batchDrawCount = stats.Native.DrawCalls;
+        batchVertices = stats.Native.Vertices;
+      }
+
+      m_profilerService->Set(m_hProfilerBatchDrawCalls, batchDrawCount);
+      m_profilerService->Set(m_hProfilerBatchVertices, batchVertices);
+    }
+  }
 
 
   void GraphicsService::Capture(Bitmap& rBitmap, const PixelFormat desiredPixelFormat)
@@ -62,7 +97,7 @@ namespace Fsl
       throw UsageErrorException("Not linked to native service");
     }
 
-    const Rectangle srcRectangle(0, 0, m_resolution.X, m_resolution.Y);
+    const Rectangle srcRectangle(0, 0, m_windowMetrics.ExtentPx.Width, m_windowMetrics.ExtentPx.Height);
     Capture(rBitmap, desiredPixelFormat, srcRectangle);
   }
 
@@ -103,7 +138,7 @@ namespace Fsl
       return m_basic2D;
     }
 
-    m_nativBasic2D = m_nativeService->CreateBasic2D(m_resolution);
+    m_nativBasic2D = m_nativeService->CreateBasic2D(m_windowMetrics.ExtentPx);
     m_basic2D = std::make_shared<Basic2D>(m_nativBasic2D);
     if (!m_basic2D)
     {
@@ -125,7 +160,7 @@ namespace Fsl
       return m_nativeBatch2D;
     }
 
-    m_nativeBatch2D = m_nativeService->CreateNativeBatch2D(m_resolution);
+    m_nativeBatch2D = m_nativeService->CreateNativeBatch2D(m_windowMetrics.ExtentPx);
     if (!m_nativeBatch2D)
     {
       throw NotSupportedException("Native service returned a null pointer for CreateNativeBatch2D");
@@ -171,16 +206,16 @@ namespace Fsl
   }
 
 
-  void GraphicsService::SetScreenResolution(const Point2& resolution, const bool preallocateBasic2D)
+  void GraphicsService::SetWindowMetrics(const DemoWindowMetrics& windowMetrics, const bool preallocateBasic2D)
   {
-    m_resolution = resolution;
+    m_windowMetrics = windowMetrics;
     if (m_nativBasic2D)
     {
-      m_nativBasic2D->SetScreenResolution(resolution);
+      m_nativBasic2D->SetScreenExtent(windowMetrics.ExtentPx);
     }
     if (m_nativeBatch2D)
     {
-      m_nativeBatch2D->SetScreenResolution(resolution);
+      m_nativeBatch2D->SetScreenExtent(windowMetrics.ExtentPx);
     }
     if (preallocateBasic2D)
     {

@@ -32,11 +32,13 @@
 // Make sure Common.hpp is the first include file (to make the error message as helpful as possible when disabled)
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/Font/SdfFontUtil.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLBatch2DQuadRenderer.hpp>
-#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <cassert>
 #include <cmath>
 
@@ -46,17 +48,12 @@ namespace Fsl
   {
     namespace
     {
-      const int32_t QUAD_BATCH_SIZE = 2048;
-      const int32_t QUAD_VERTEX_COUNT = 4;
+      constexpr const int32_t QUAD_BATCH_SIZE = 2048;
+      constexpr const int32_t QUAD_VERTEX_COUNT = 4;
 
-
-      const char* g_vertexShader =
+      const char* const g_vertexShader =
         "#version 300 es\n"
-        "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-        "precision highp float;\n"
-        "#else\n"
         "precision mediump float;\n"
-        "#endif\n"
         "uniform mat4 g_matModelViewProj;\n"
         "\n"
         "in vec4 VertexPosition;\n"
@@ -74,13 +71,9 @@ namespace Fsl
         "}";
 
 
-      const char* g_fragmentShader =
+      const char* const g_fragmentShader =
         "#version 300 es\n"
-        "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-        "precision highp float;\n"
-        "#else\n"
         "precision mediump float;\n"
-        "#endif\n"
         "\n"
         "uniform sampler2D Texture;\n"
         "\n"
@@ -92,6 +85,26 @@ namespace Fsl
         "void main()\n"
         "{\n"
         "  o_fragColor = texture(Texture,FragTextureCoord) * FragColor;\n"
+        "}\n";
+
+
+      const char* const g_fragmentSdfShader =
+        "#version 300 es\n"
+        "precision mediump float;\n"
+        "\n"
+        "uniform sampler2D Texture;\n"
+        "uniform float g_smoothing;\n"
+        "\n"
+        "in vec4 FragColor;\n"
+        "in vec2 FragTextureCoord;\n"
+        "\n"
+        "out vec4 o_fragColor;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "  float distance = texture(Texture, FragTextureCoord).a;\n"
+        "  float alpha = smoothstep(0.5 - g_smoothing, 0.5 + g_smoothing, distance);\n"
+        "  o_fragColor = vec4(FragColor.rgb, FragColor.a * alpha);\n"
         "}\n";
 
 
@@ -141,11 +154,8 @@ namespace Fsl
 
 
     GLBatch2DQuadRenderer::GLBatch2DQuadRenderer(const int32_t quadCapacityHint)
-      : m_program(g_vertexShader, g_fragmentShader)
-      , m_vertexOffset(0)
+      : m_vertexOffset(0)
       , m_indexOffset(0)
-      , m_locMatModelViewProj(GLValues::INVALID_LOCATION)
-      , m_locTexture(GLValues::INVALID_LOCATION)
     {
       const int32_t quadCapacity = std::max(quadCapacityHint, QUAD_BATCH_SIZE);
       // (4*(quadCapacity-1) because we need four degenerated triangles to bind the quads together
@@ -162,31 +172,17 @@ namespace Fsl
       m_indexBuffer.Reset(indices.data(), indexCapacity, GL_STATIC_DRAW);
 
 
-      // Configure the program to vertex links
-      {
-        const GLint hProgram = m_program.Get();
-        const GLint locPosition = GL_CHECK(glGetAttribLocation(hProgram, "VertexPosition"));
-        const GLint locColor = GL_CHECK(glGetAttribLocation(hProgram, "VertexColor"));
-        const GLint locTexCoord = GL_CHECK(glGetAttribLocation(hProgram, "VertexTextureCoord"));
-        assert(locPosition >= 0);
-        assert(locColor >= 0);
-        assert(locPosition >= 0);
-
-        m_link[0] = GLVertexAttribLink(locPosition, m_vertexBuffer.GetVertexElementIndex(VertexElementUsage::Position, 0));
-        m_link[1] = GLVertexAttribLink(locColor, m_vertexBuffer.GetVertexElementIndex(VertexElementUsage::Color, 0));
-        m_link[2] = GLVertexAttribLink(locTexCoord, m_vertexBuffer.GetVertexElementIndex(VertexElementUsage::TextureCoordinate, 0));
-      }
-
-      const GLint hProgram = m_program.Get();
-      m_locMatModelViewProj = GL_CHECK(glGetUniformLocation(hProgram, "g_matModelViewProj"));
-      m_locTexture = GL_CHECK(glGetUniformLocation(hProgram, "Texture"));
+      m_normalInfo = PrepareProgram(m_vertexBuffer, false);
+      m_sdfInfo = PrepareProgram(m_vertexBuffer, true);
     }
 
 
-    void GLBatch2DQuadRenderer::Begin(const Point2& screenResolution, const BlendState blendState, const bool restoreState)
+    void GLBatch2DQuadRenderer::Begin(const PxSize2D& sizePx, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig,
+                                      const bool restoreState)
     {
-      FSL_PARAM_NOT_USED(restoreState);
+      auto& activeInfo = (blendState != BlendState::Sdf ? m_normalInfo : m_sdfInfo);
 
+      FSL_PARAM_NOT_USED(restoreState);
       // FIX: saving of state should be controlled by a parameter
       {
         m_oldState.Blend = glIsEnabled(GL_BLEND);
@@ -205,20 +201,20 @@ namespace Fsl
         glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &m_oldState.VertexBuffer);
         glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &m_oldState.IndexBuffer);
         // store the attrib state before we modify it
-        for (int i = 0; i < 3; ++i)
+        for (uint32_t i = 0; i < activeInfo.AttribLink.size(); ++i)
         {
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &m_oldState.Attrib[i].Enabled);
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &m_oldState.Attrib[i].Size);
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &m_oldState.Attrib[i].Type);
-          GLint normalized;
+          GLint normalized = 0;
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &normalized);
           m_oldState.Attrib[i].Normalized = (normalized != GL_FALSE ? GL_TRUE : GL_FALSE);
           glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &m_oldState.Attrib[i].Stride);
-          glGetVertexAttribPointerv(m_link[i].AttribIndex, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_oldState.Attrib[i].Pointer);
+          glGetVertexAttribPointerv(activeInfo.AttribLink[i].AttribIndex, GL_VERTEX_ATTRIB_ARRAY_POINTER, &m_oldState.Attrib[i].Pointer);
         }
       }
 
-      const GLint hProgram = m_program.Get();
+      const GLint hProgram = activeInfo.Program.Get();
 
       switch (blendState)
       {
@@ -241,6 +237,7 @@ namespace Fsl
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         break;
       case BlendState::NonPremultiplied:
+      case BlendState::Sdf:
         m_currentState.Blend = GL_TRUE;
         m_currentState.BlendSrcRGB = GL_SRC_ALPHA;
         m_currentState.BlendDstRGB = GL_ONE_MINUS_SRC_ALPHA;
@@ -280,23 +277,29 @@ namespace Fsl
       glBindBuffer(m_vertexBuffer.GetTarget(), m_vertexBuffer.Get());
       glBindBuffer(m_indexBuffer.GetTarget(), m_indexBuffer.Get());
 
-      m_vertexBuffer.EnableAttribArrays(m_link, 3);
+      m_vertexBuffer.EnableAttribArrays(activeInfo.AttribLink);
 
-      if (screenResolution != m_screenResolution)
+      if (sizePx != activeInfo.CachedSizePx)
       {
-        m_screenResolution = screenResolution;
+        activeInfo.CachedSizePx = sizePx;
 
         // Setup the shader
-        const auto screenWidth = static_cast<float>(m_screenResolution.X);
-        const auto screenHeight = static_cast<float>(m_screenResolution.Y);
-        const float screenOffsetX = std::floor(screenWidth / 2.0f);
-        const float screenOffsetY = std::floor(screenHeight / 2.0f);
+        const auto screenWidth = static_cast<float>(sizePx.Width());
+        const auto screenHeight = static_cast<float>(sizePx.Height());
+        const float screenOffsetX = screenWidth / 2.0f;
+        const float screenOffsetY = screenHeight / 2.0f;
 
         const Matrix matViewProj = Matrix::CreateTranslation(-screenOffsetX, -screenOffsetY, 1.0f) *
                                    Matrix::CreateRotationX(MathHelper::ToRadians(180)) *
                                    Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10.0f);
-        glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
-        glUniform1i(m_locTexture, 0);
+        glUniformMatrix4fv(activeInfo.LocMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());
+        glUniform1i(activeInfo.LocTexture, 0);
+      }
+
+      if (activeInfo.LocSmoothing != GLValues::INVALID_LOCATION)
+      {
+        float smoothing = SdfFontUtil::CalcSpread(sdfRenderConfig.Spread, sdfRenderConfig.Scale);
+        glUniform1f(activeInfo.LocSmoothing, smoothing);
       }
 
       m_vertexOffset = 0;
@@ -335,6 +338,7 @@ namespace Fsl
       {
         glActiveTexture(m_oldState.ActiveTexture);
       }
+
       glBindTexture(GL_TEXTURE_2D, m_oldState.CurrentTexture);
       glUseProgram(m_oldState.CurrentProgram);
       glBindBuffer(GL_ARRAY_BUFFER, m_oldState.VertexBuffer);
@@ -354,6 +358,7 @@ namespace Fsl
           glDisableVertexAttribArray(i);
         }
       }
+      m_stats = {};
     }
 
 
@@ -383,6 +388,7 @@ namespace Fsl
         const auto numIndices = 4 + (((verticesToAdd / QUAD_VERTEX_COUNT) - 1) * 6);
         assert((m_indexOffset + numIndices) <= m_indexBuffer.GetCapacity());
         glDrawElements(GL_TRIANGLE_STRIP, numIndices, m_indexBuffer.GetType(), reinterpret_cast<const void*>(m_indexOffset * sizeof(uint16_t)));
+        ++m_stats.DrawCalls;
         m_indexOffset += numIndices + 2;
         verticesLeft -= verticesToAdd;
       }
@@ -413,10 +419,33 @@ namespace Fsl
         const int32_t numIndices = 4 + (((verticesLeft / QUAD_VERTEX_COUNT) - 1) * 6);
         assert((m_indexOffset + numIndices) <= m_indexBuffer.GetCapacity());
         glDrawElements(GL_TRIANGLE_STRIP, numIndices, m_indexBuffer.GetType(), reinterpret_cast<const void*>(m_indexOffset * sizeof(uint16_t)));
+        ++m_stats.DrawCalls;
         m_indexOffset += numIndices + 2;
-        verticesLeft -= verticesLeft;
+        verticesLeft = 0;
         assert(verticesLeft == 0);
       }
+    }
+
+
+    GLBatch2DQuadRenderer::ProgramInfo GLBatch2DQuadRenderer::PrepareProgram(const GLVertexBuffer& vertexBuffer, const bool sdf)
+    {
+      ProgramInfo info;
+      info.Program.Reset(g_vertexShader, !sdf ? g_fragmentShader : g_fragmentSdfShader);
+
+      // Configure the program to vertex links
+      {
+        const GLint locPosition = info.Program.GetAttribLocation("VertexPosition");
+        const GLint locColor = info.Program.GetAttribLocation("VertexColor");
+        const GLint locTexCoord = info.Program.GetAttribLocation("VertexTextureCoord");
+        info.AttribLink[0] = GLVertexAttribLink(locPosition, vertexBuffer.GetVertexElementIndex(VertexElementUsage::Position, 0));
+        info.AttribLink[1] = GLVertexAttribLink(locColor, vertexBuffer.GetVertexElementIndex(VertexElementUsage::Color, 0));
+        info.AttribLink[2] = GLVertexAttribLink(locTexCoord, vertexBuffer.GetVertexElementIndex(VertexElementUsage::TextureCoordinate, 0));
+      }
+
+      info.LocMatModelViewProj = info.Program.GetUniformLocation("g_matModelViewProj");
+      info.LocTexture = info.Program.GetUniformLocation("Texture");
+      info.LocSmoothing = sdf ? info.Program.GetUniformLocation("g_smoothing") : GLValues::INVALID_LOCATION;
+      return info;
     }
   }
 }

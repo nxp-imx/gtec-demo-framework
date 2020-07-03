@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
@@ -40,7 +41,7 @@
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/EGL/Service/EGLHost/EGLHostServiceFactory.hpp>
 #include <FslDemoHost/OpenGLES2/DemoHostSetupOpenGLES2.hpp>
-#include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsServiceFactory.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES2/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
@@ -48,15 +49,13 @@
 #include <FslUtil/EGL/DebugStrings.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/DebugStrings.hpp>
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 namespace Fsl
 {
   namespace
   {
-    using GraphicsServiceFactory = ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl>;
-
-    const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       // Use the EGLDemoHost for OpenGLES
       std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
@@ -70,12 +69,12 @@ namespace Fsl
 
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);
-      return DemoHostFeature(DemoHostFeatureName::OpenGLES, DemoHostFeatureUtil::EncodeOpenGLESVersion(2));
+      return {DemoHostFeatureName::OpenGLES, DemoHostFeatureUtil::EncodeOpenGLESVersion(2)};
     }
 
     inline bool TryFormatGLESGraphicsException(const std::exception& ex, std::string& rMessage)
     {
-      auto pException = dynamic_cast<const GLES2::GLESGraphicsException*>(&ex);
+      const auto* pException = dynamic_cast<const GLES2::GLESGraphicsException*>(&ex);
       if (pException == nullptr)
       {
         rMessage = std::string();
@@ -92,7 +91,7 @@ namespace Fsl
 
     inline bool TryFormatEGLGraphicsException(const std::exception& ex, std::string& rMessage)
     {
-      auto pException = dynamic_cast<const EGLGraphicsException*>(&ex);
+      const auto* pException = dynamic_cast<const EGLGraphicsException*>(&ex);
       if (pException == nullptr)
       {
         rMessage = std::string();

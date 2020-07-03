@@ -14,180 +14,178 @@
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "S04_Projection.hpp"
 #include <GLES3/gl3.h>
-#include <iostream>
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
     // Define vertices for a 4-sided pyramid
-    float g_vertexPositions[] = {
-      /* Top Of Triangle (Front) */
+
+    const std::array<float, 12 * 3> g_vertexPositions = {
+      // Top Of Triangle (Front)
       0.0f,
       1.0f,
       0.0f,
-      /* Left Of Triangle (Front) */
+      // Left Of Triangle (Front)
       -1.0f,
       -1.0f,
       1.0f,
-      /* Right Of Triangle (Front) */
+      // Right Of Triangle (Front)
       1.0f,
       -1.0f,
       1.0f,
-      /* Top Of Triangle (Right) */
+      // Top Of Triangle (Right)
       0.0f,
       1.0f,
       0.0f,
-      /* Left Of Triangle (Right) */
+      // Left Of Triangle (Right)
       1.0f,
       -1.0f,
       1.0f,
-      /* Right Of Triangle (Right) */
+      // Right Of Triangle (Right)
       1.0f,
       -1.0f,
       -1.0f,
-      /* Top Of Triangle (Back) */
+      // Top Of Triangle (Back)
       0.0f,
       1.0f,
       0.0f,
-      /* Left Of Triangle (Back) */
+      // Left Of Triangle (Back)
       1.0f,
       -1.0f,
       -1.0f,
-      /* Right Of Triangle (Back) */
+      // Right Of Triangle (Back)
       -1.0f,
       -1.0f,
       -1.0f,
-      /* Top Of Triangle (Left) */
+      // Top Of Triangle (Left)
       0.0f,
       1.0f,
       0.0f,
-      /* Left Of Triangle (Left) */
+      // Left Of Triangle (Left)
       -1.0f,
       -1.0f,
       -1.0f,
-      /* Right Of Triangle (Left) */
+      // Right Of Triangle (Left)
       -1.0f,
       -1.0f,
       1.0f,
     };
 
-    float g_vertexPositions2[] = {
-
-
+    const std::array<float, 24 * 3> g_vertexPositions2 = {
       /* Draw A Quad */
 
-
-      /* Top Right Of The Quad (Top) */
+      // Top Right Of The Quad (Top)
       1.0f, 1.0f, -1.0f,
-      /* Top Left Of The Quad (Top) */
+      // Top Left Of The Quad (Top)
       -1.0f, 1.0f, -1.0f,
-      /* Bottom Right Of The Quad (Top) */
+      // Bottom Right Of The Quad (Top)
       1.0f, 1.0f, 1.0f,
-      /* Bottom Left Of The Quad (Top) */
+      // Bottom Left Of The Quad (Top)
       -1.0f, 1.0f, 1.0f,
-      /* Top Right Of The Quad (Bottom) */
+      // Top Right Of The Quad (Bottom)
       1.0f, -1.0f, 1.0f,
-      /* Top Left Of The Quad (Bottom) */
+      // Top Left Of The Quad (Bottom)
       -1.0f, -1.0f, 1.0f,
-      /* Bottom Right Of The Quad (Bottom) */
+      // Bottom Right Of The Quad (Bottom)
       1.0f, -1.0f, -1.0f,
-      /* Bottom Left Of The Quad (Bottom) */
+      // Bottom Left Of The Quad (Bottom)
       -1.0f, -1.0f, -1.0f,
-      /* Top Right Of The Quad (Front) */
+      // Top Right Of The Quad (Front)
       1.0f, 1.0f, 1.0f,
-      /* Top Left Of The Quad (Front) */
+      // Top Left Of The Quad (Front)
       -1.0f, 1.0f, 1.0f,
-      /* Bottom Right Of The Quad (Front) */
+      // Bottom Right Of The Quad (Front)
       1.0f, -1.0f, 1.0f,
-      /* Bottom Left Of The Quad (Front) */
+      // Bottom Left Of The Quad (Front)
       -1.0f, -1.0f, 1.0f,
 
-      /* Top Right Of The Quad (Back) */
+      // Top Right Of The Quad (Back)
       1.0f, -1.0f, -1.0f,
-      /* Top Left Of The Quad (Back) */
+      // Top Left Of The Quad (Back)
       -1.0f, -1.0f, -1.0f,
-      /* Bottom Right Of The Quad (Back) */
+      // Bottom Right Of The Quad (Back)
       1.0f, 1.0f, -1.0f,
-      /* Bottom Left Of The Quad (Back) */
+      // Bottom Left Of The Quad (Back)
       -1.0f, 1.0f, -1.0f,
 
-      /* Top Right Of The Quad (Left) */
+      // Top Right Of The Quad (Left)
       -1.0f, 1.0f, 1.0f,
-      /* Top Left Of The Quad (Left) */
+      // Top Left Of The Quad (Left)
       -1.0f, 1.0f, -1.0f,
-      /* Bottom Right Of The Quad (Left) */
+      // Bottom Right Of The Quad (Left)
       -1.0f, -1.0f, 1.0f,
-      /* Bottom Left Of The Quad (Left) */
+      // Bottom Left Of The Quad (Left)
       -1.0f, -1.0f, -1.0f,
-      /* Top Right Of The Quad (Right) */
+      // Top Right Of The Quad (Right)
       1.0f, 1.0f, -1.0f,
-      /* Top Left Of The Quad (Right) */
+      // Top Left Of The Quad (Right)
       1.0f, 1.0f, 1.0f,
-      /* Bottom Right Of The Quad (Right) */
+      // Bottom Right Of The Quad (Right)
       1.0f, -1.0f, -1.0f,
-      /* Bottom Left Of The Quad (Right) */
+      // Bottom Left Of The Quad (Right)
       1.0f, -1.0f, 1.0f
 
     };
 
-    float g_vertexColors[] = {
-      /* Red */
+    const std::array<float, 12 * 4> g_vertexColors = {
+      // Red
       1.0f,
       0.0f,
       0.0f,
       1.0f,
-      /* Green */
+      // Green
       0.0f,
       1.0f,
       0.0f,
       1.0f,
-      /* Blue */
+      // Blue
       0.0f,
       0.0f,
       1.0f,
       1.0f,
-      /* Red */
+      // Red
       1.0f,
       0.0,
       0.0f,
       1.0f,
-      /* Blue */
+      // Blue
       0.0f,
       0.0f,
       1.0f,
       1.0f,
-      /* Green */
+      // Green
       0.0f,
       1.0f,
       0.0f,
       1.0f,
-      /* Red */
+      // Red
       1.0f,
       0.0f,
       0.0f,
       1.0f,
-      /* Green */
+      // Green
       0.0f,
       1.0f,
       0.0f,
       1.0f,
-      /* Blue */
+      // Blue
       0.0f,
       0.0f,
       1.0f,
       1.0f,
-      /* Red */
+      // Red
       1.0f,
       0.0f,
       0.0f,
       1.0f,
-      /* Blue */
+      // Blue
       0.0f,
       0.0f,
       1.0f,
       1.0f,
-      /* Green */
+      // Green
       0.0f,
       1.0f,
       0.0f,
@@ -195,68 +193,67 @@ namespace Fsl
 
     };
 
-    float g_vertexColors2[] = {
-
-      /* Red */
+    const std::array<float, 24 * 4> g_vertexColors2 = {
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      /* Red */
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
 
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
 
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
 
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
 
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
 
-      /* Red */
+      // Red
       1.0f, 0.0, 0.0f, 1.0f,
-      /* Red */
+      // Red
       1.0f, 0.0, 0.0f, 1.0f,
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      /* Red */
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      /* Red */
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      /* Red */
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      /* Red */
+      // Red
       1.0f, 0.0f, 0.0f, 1.0f,
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f,
-      /* Blue */
+      // Blue
       0.0f, 0.0f, 1.0f, 1.0f,
 
-      /* Green */
+      // Green
       0.0f, 1.0f, 0.0f, 1.0f};
 
 
     // The index in these variables should match the g_pszShaderAttributeArray ordering
     const GLuint g_hVertexLoc = 0;
     const GLuint g_hColorLoc = 1;
-    const char* const g_pszShaderAttributeArray[] = {"g_vPosition", "g_vColor", nullptr};
+    const std::array<const char*, 3> g_shaderAttributeArray = {"g_vPosition", "g_vColor", nullptr};
   }
 
 
@@ -267,7 +264,7 @@ namespace Fsl
     , m_angle(0)
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
-    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_pszShaderAttributeArray);
+    m_program.Reset(content->ReadAllText("Shader.vert"), content->ReadAllText("Shader.frag"), g_shaderAttributeArray.data());
 
     const GLuint hProgram = m_program.Get();
 
@@ -276,8 +273,7 @@ namespace Fsl
     GL_CHECK(m_hProjMatrixLoc = glGetUniformLocation(hProgram, "g_matProj"));
 
 
-    const Point2 res = GetScreenResolution();
-    const float aspectRatio = res.X / float(res.Y);
+    const float aspectRatio = GetWindowAspectRatio();
     // Build a perspective projection matrix
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(57.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate1 = Matrix::CreateTranslation(1.5f, 0.0f, -6.0f);
@@ -294,10 +290,10 @@ namespace Fsl
   }
 
 
-  void S04_Projection::Draw(const DemoTime& demoTime)
+  void S04_Projection::Draw(const DemoTime& /*demoTime*/)
   {
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Rotate and translate the model view matrices
     const Matrix matModelView1 = Matrix::CreateRotationY(m_angle) * m_matTranslate1;
@@ -321,10 +317,10 @@ namespace Fsl
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matProj.DirectAccess());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions);
+    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions.data());
     glEnableVertexAttribArray(g_hVertexLoc);
 
-    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors);
+    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors.data());
     glEnableVertexAttribArray(g_hColorLoc);
 
 
@@ -334,8 +330,8 @@ namespace Fsl
     glUniformMatrix4fv(m_hModelViewMatrixLoc, 1, 0, matModelView2.DirectAccess());
 
     // Bind the vertex attributes
-    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions2);
-    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors2);
+    glVertexAttribPointer(g_hVertexLoc, 3, GL_FLOAT, 0, 0, g_vertexPositions2.data());
+    glVertexAttribPointer(g_hColorLoc, 4, GL_FLOAT, 0, 0, g_vertexColors2.data());
 
     /* Drawing Using Triangle strips, draw triangle strips using 4 vertices */
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

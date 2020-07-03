@@ -95,12 +95,12 @@ namespace Fsl
     GLint m_locBloomTexture16;
     GLint m_locBloomTextureLevel;
 
-    bool m_renderUI;
+    // bool m_renderUI;
     std::string m_strShaderVertPass;
     BloomConfig m_config;
 
   public:
-    BloomRender(const DemoAppConfig& config);
+    explicit BloomRender(const DemoAppConfig& config);
     ~BloomRender();
 
     BloomConfig GetConfig() const

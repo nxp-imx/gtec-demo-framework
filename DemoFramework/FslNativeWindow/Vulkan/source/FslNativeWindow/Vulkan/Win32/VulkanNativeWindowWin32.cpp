@@ -47,17 +47,6 @@ namespace Fsl
     {
       return std::make_shared<VulkanNativeWindowWin32>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
-
-
-    NativeVulkanSetup ToNativeVulkanSetup(const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    {
-      const auto pNativeSetup = dynamic_cast<const NativeVulkanSetup*>(pPlatformCustomWindowAllocationParams);
-      if (pNativeSetup == nullptr)
-      {
-        throw NotSupportedException("NativeVulkanSetup pointer expected");
-      }
-      return *pNativeSetup;
-    }
   }    // namespace
 
 
@@ -69,8 +58,7 @@ namespace Fsl
 
   VulkanNativeWindowWin32::VulkanNativeWindowWin32(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                    const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : AVulkanNativeWindow(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
-    , PlatformNativeWindowWin32(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
+    : VulkanNativeWindow<PlatformNativeWindowWin32>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
   {
     VkWin32SurfaceCreateInfoKHR win32SurfaceCreateInfoKHR{};
     win32SurfaceCreateInfoKHR.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
@@ -78,7 +66,7 @@ namespace Fsl
     win32SurfaceCreateInfoKHR.hinstance = GetPlatformDisplay();
     win32SurfaceCreateInfoKHR.hwnd = GetPlatformWindow();
 
-    RAPIDVULKAN_CHECK(vkCreateWin32SurfaceKHR(m_instance, &win32SurfaceCreateInfoKHR, nullptr, &m_surface));
+    RAPIDVULKAN_CHECK(vkCreateWin32SurfaceKHR(m_setup.Instance, &win32SurfaceCreateInfoKHR, nullptr, &m_surface));
   }
 
 

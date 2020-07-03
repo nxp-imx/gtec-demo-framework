@@ -12,6 +12,15 @@ if there might be a collision and then utilize a more precise calculation to ver
 
 The sample has a first person camera so use 'wasd' to move around and hold 'right mouse button' to look around.
 
+The app can be controlled using:
+
+Key         | Result
+------------|------------------------------------------------
+O           | Toggle draw oriented bounding boxes on/off
+B           | Toggle draw axis aligned bounding boxes on/off
+N           | Toggle draw new plane cross on/off
+F           | Toggle draw far plane cross on/off
+
 <!-- #AG_DEMOAPP_COMMANDLINE_ARGUMENTS_BEGIN# -->
 
 Command line arguments':
@@ -24,6 +33,8 @@ Argument                        |Description                                    
 --OBB \<arg>                    |Draw the Oriented Bounding Boxes on/off                                                                                                                             |Demo
 --Objects \<arg>                |Specify the number of objects to generate                                                                                                                           |Demo
 --RandomSeed                    |Use a random seed for the scene generation instead of a fixed one                                                                                                   |Demo
+--ActualDpi \<arg>              |ActualDpi [x,y] Override the actual dpi reported by the native window                                                                                               |DemoHost
+--DensityDpi \<arg>             |DensityDpi \<number> Override the density dpi reported by the native window                                                                                         |DemoHost
 --DisplayId \<arg>              |DisplayId \<number>                                                                                                                                                 |DemoHost
 --EGLAlphaSize \<arg>           |Force EGL_ALPHA_SIZE to the given value                                                                                                                             |DemoHost
 --EGLBlueSize \<arg>            |Force EGL_BLUE_SIZE to the given value                                                                                                                              |DemoHost
@@ -47,6 +58,7 @@ Argument                        |Description                                    
 --ScreenshotNameScheme \<arg>   |Chose the screenshot name scheme: frame, sequence or exact (defaults to frame)                                                                                      |DemoHostManager
 --Stats                         |Display basic frame profiling stats                                                                                                                                 |DemoHostManager
 --StatsFlags \<arg>             |Select the stats to be displayed/logged. Defaults to frame\|cpu. Can be 'frame', 'cpu' or any combination                                                           |DemoHostManager
+--Graphics.Profile              |Enable graphics service stats                                                                                                                                       |GraphicsService
 --Profiler.AverageEntries \<arg>|The number of frames used to calculate the average frame-time. Defaults to: 60                                                                                      |ProfilerService
 --ghelp \<arg>                  |Display option groups: all, demo or host                                                                                                                            |base
 -h, --help                      |Display options                                                                                                                                                     |base

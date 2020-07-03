@@ -35,11 +35,12 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 namespace Fsl
 {
-  std::vector<uint8_t> FurTexture::GenerateWave(const int width, const int height, const float density, const int numLayers)
+  std::vector<uint8_t> FurTexture::GenerateWave(const int width, const int height, const float /*density*/, const int /*numLayers*/)
   {
     // read the width and height of the texture
     int totalPixels = width * height;
@@ -52,7 +53,7 @@ namespace Fsl
     {
       for (int x = 0; x < width; ++x)
       {
-        float max_layer_n = 0.2f + 0.8f * (std::sin(x / static_cast<float>(height) * 20.0f) / 2.0f + 0.5f);
+        float max_layer_n = 0.2f + 0.8f * (std::sin(static_cast<float>(x) / static_cast<float>(height) * 20.0f) / 2.0f + 0.5f);
 
         const int dstPixelIndex = (y * width * 4) + (x * 4);
         assert((dstPixelIndex % 4) == 0);
@@ -80,7 +81,7 @@ namespace Fsl
     std::fill(colors.begin(), colors.end(), 0);
 
     // compute the number of opaque pixels = nr of hair strands
-    const auto nrStrands = static_cast<int>(density * totalPixels);
+    const auto nrStrands = static_cast<int>(density * static_cast<float>(totalPixels));
 
     // compute the number of strands that stop at each layer
     const int strandsPerLayer = std::max(nrStrands / numLayers, 1);
@@ -91,7 +92,8 @@ namespace Fsl
     // fill texture with opaque pixels
     for (int i = 0; i < nrStrands; i++)
     {
-      int x, y;
+      int x = 0;
+      int y = 0;
       // random position on the texture
       x = rand() % width;
       y = rand() % height;
@@ -136,7 +138,7 @@ namespace Fsl
     std::fill(colors.begin(), colors.end(), 0);
 
     // compute the number of opaque pixels = nr of hair strands
-    const auto nrStrands = static_cast<int>(density * totalPixels);
+    const auto nrStrands = static_cast<int>(density * static_cast<float>(totalPixels));
 
     // compute the number of strands that stop at each layer
     const int strandsPerLayer = std::max(nrStrands / numLayers, 1);
@@ -149,7 +151,8 @@ namespace Fsl
     // fill texture with opaque pixels
     for (int i = 0; i < nrStrands; i++)
     {
-      int x, y;
+      int x = 0;
+      int y = 0;
       // random position on the texture
       x = rand() % width;
       y = rand() % height;

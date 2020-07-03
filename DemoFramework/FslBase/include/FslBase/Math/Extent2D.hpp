@@ -39,98 +39,98 @@ namespace Fsl
 
   struct Extent2D
   {
-  public:
-    using element_type = uint32_t;
+    using value_type = uint32_t;
 
-    element_type Width{0};
-    element_type Height{0};
+    value_type Width{0};
+    value_type Height{0};
 
-    constexpr Extent2D() = default;
+    constexpr Extent2D() noexcept = default;
 
-    constexpr Extent2D(const element_type width, const element_type height)
+    constexpr Extent2D(const value_type width, const value_type height) noexcept
       : Width(width)
       , Height(height)
     {
     }
 
     //! @brief Create a Extent
-    //! @note  width and height is expected to be positive and able to fit in a element_type, if not a exception is thrown
+    //! @note  width and height is expected to be positive and able to fit in a value_type, if not a exception is thrown
     Extent2D(int32_t width, int32_t height);
 
     //! @brief Create a Extent
-    //! @note  Value is expected to be positive and able to fit in a element_type, if not a exception is thrown
+    //! @note  Value is expected to be positive and able to fit in a value_type, if not a exception is thrown
     explicit Extent2D(const Point2& value);
 
 
-    Extent2D& operator+=(const Extent2D& arg)
+    constexpr Extent2D& operator+=(const Extent2D& arg) noexcept
     {
       Width += arg.Width;
       Height += arg.Height;
       return *this;
     }
 
-    Extent2D& operator-=(const Extent2D& arg)
+    constexpr Extent2D& operator-=(const Extent2D& arg) noexcept
     {
       Width -= arg.Width;
       Height -= arg.Height;
       return *this;
     }
 
-    Extent2D& operator*=(const Extent2D& arg)
+    constexpr Extent2D& operator*=(const Extent2D& arg) noexcept
     {
       Width *= arg.Width;
       Height *= arg.Height;
       return *this;
     }
 
-    Extent2D& operator*=(const int arg)
+    constexpr Extent2D& operator*=(const int arg) noexcept
     {
       Width *= arg;
       Height *= arg;
       return *this;
     }
 
-    constexpr bool operator==(const Extent2D& rhs) const
+    constexpr bool operator==(const Extent2D& rhs) const noexcept
     {
       return Width == rhs.Width && Height == rhs.Height;
     }
 
-    constexpr bool operator!=(const Extent2D& rhs) const
+    constexpr bool operator!=(const Extent2D& rhs) const noexcept
     {
       return Width != rhs.Width || Height != rhs.Height;
     }
 
     // @brief Returns a Extent2D with all components being zero (0, 0)
-    static constexpr Extent2D Zero()
+    static constexpr Extent2D Zero() noexcept
     {
       return {};
     }
   };
-}
 
-inline Fsl::Extent2D operator+(const Fsl::Extent2D& lhs, const Fsl::Extent2D& rhs)
-{
-  return Fsl::Extent2D(lhs.Width + rhs.Width, lhs.Height + rhs.Height);
-}
+  inline constexpr Extent2D operator+(const Extent2D& lhs, const Extent2D& rhs) noexcept
+  {
+    return {lhs.Width + rhs.Width, lhs.Height + rhs.Height};
+  }
 
-inline Fsl::Extent2D operator-(const Fsl::Extent2D& lhs, const Fsl::Extent2D& rhs)
-{
-  return Fsl::Extent2D(lhs.Width - rhs.Width, lhs.Height - rhs.Height);
-}
+  inline constexpr Extent2D operator-(const Extent2D& lhs, const Extent2D& rhs) noexcept
+  {
+    return {lhs.Width - rhs.Width, lhs.Height - rhs.Height};
+  }
 
-inline Fsl::Extent2D operator*(const Fsl::Extent2D& lhs, const Fsl::Extent2D& rhs)
-{
-  return Fsl::Extent2D(lhs.Width * rhs.Width, lhs.Height * rhs.Height);
-}
+  inline constexpr Extent2D operator*(const Extent2D& lhs, const Extent2D& rhs) noexcept
+  {
+    return {lhs.Width * rhs.Width, lhs.Height * rhs.Height};
+  }
 
-inline Fsl::Extent2D operator*(const Fsl::Extent2D& lhs, const int rhs)
-{
-  return Fsl::Extent2D(lhs.Width * rhs, lhs.Height * rhs);
-}
+  inline constexpr Extent2D operator*(const Extent2D& lhs, const int rhs)
+  {
+    return {lhs.Width * rhs, lhs.Height * rhs};
+  }
 
-inline Fsl::Extent2D operator*(const int lhs, const Fsl::Extent2D& rhs)
-{
-  return rhs * lhs;
+  inline constexpr Extent2D operator*(const int lhs, const Extent2D& rhs)
+  {
+    return rhs * lhs;
+  }
+
 }
 
 #endif

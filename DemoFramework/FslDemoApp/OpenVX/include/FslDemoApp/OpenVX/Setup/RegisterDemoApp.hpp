@@ -66,11 +66,4 @@ namespace Fsl
   }
 }
 
-
-// Register a pure OpenVX demo
-#define FSL_REGISTER_OPENVX_DEMO(tdEMOaPP) \
-  static_assert(false, "The FSL_REGISTER_OPENVX_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_OPENVX_DEMO_EX(tdEMOaPP, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_OPENVX_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

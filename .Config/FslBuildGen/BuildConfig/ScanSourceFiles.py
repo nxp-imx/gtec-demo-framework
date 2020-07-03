@@ -317,7 +317,7 @@ def __ProcessSourceFile(log: Log, package: Package, fullPath: str, repairEnabled
 
 
 def __ScanFiles(log: Log, package: Package, filteredFiles: Optional[List[str]],
-                repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int, disableWrite: bool) -> int:
+                repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: CheckType, disableWrite: bool) -> int:
     """
     :param filteredFiles: a optional list of specifc files to scan in this package (if supplied the rest should be ignored)
     """
@@ -355,7 +355,7 @@ def __ScanFiles(log: Log, package: Package, filteredFiles: Optional[List[str]],
 
 
 def Scan(log: Log, scanPackageList: List[Package], customPackageFileFilter: Optional[CustomPackageFileFilter],
-         repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: int,
+         repairEnabled: bool, thirdpartyExceptionDir: Optional[str], checkType: CheckType,
          disableWrite: bool) -> None:
     """
     Run through all source files that are part of the packages and check for common errors

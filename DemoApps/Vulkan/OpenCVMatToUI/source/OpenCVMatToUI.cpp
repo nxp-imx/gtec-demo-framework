@@ -40,10 +40,11 @@
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Fsl
@@ -57,7 +58,7 @@ namespace Fsl
 
     cv::Mat SafeImread(const IO::Path& path)
     {
-      const cv::Mat srcImage = cv::imread(path.ToUTF8String());
+      cv::Mat srcImage = cv::imread(path.ToUTF8String());
       if (srcImage.data == nullptr)
       {
         throw GraphicsException("Failed to load image");
@@ -85,6 +86,7 @@ namespace Fsl
 
       const auto label = std::make_shared<UI::Label>(context);
       label->SetContent(strCaption);
+      label->SetAlignmentY(UI::ItemAlignment::Center);
 
       auto stack = std::make_shared<UI::StackLayout>(context);
       stack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
@@ -126,7 +128,8 @@ namespace Fsl
   OpenCVMatToUI::OpenCVMatToUI(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(m_graphics->GetNativeBatch2D())    // We just acquire the completely API independent version (see DFNativeBatch2D if you want
                                                        // access to the Vulkan specific methods)
@@ -147,16 +150,16 @@ namespace Fsl
   OpenCVMatToUI::~OpenCVMatToUI() = default;
 
 
-  void OpenCVMatToUI::Update(const DemoTime& demoTime)
+  void OpenCVMatToUI::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void OpenCVMatToUI::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
+  void OpenCVMatToUI::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers, const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
@@ -165,7 +168,7 @@ namespace Fsl
       clearColorValue.float32[2] = 0.5f;
       clearColorValue.float32[3] = 1.0f;
 
-      VkClearValue clearValues[1] = {clearColorValue};
+      VkClearValue clearValues = {clearColorValue};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -175,7 +178,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
       renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.pClearValues = &clearValues;
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
@@ -191,7 +194,7 @@ namespace Fsl
   }
 
 
-  VkRenderPass OpenCVMatToUI::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
+  VkRenderPass OpenCVMatToUI::OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/)
   {
     // Since we only draw using the NativeBatch we just create the most basic render pass that is compatible
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();

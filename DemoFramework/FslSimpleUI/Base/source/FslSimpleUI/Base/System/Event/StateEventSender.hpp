@@ -50,7 +50,7 @@ namespace Fsl
     //! @brief A state event sender ensures that we always sends a Begin as the first event.
     //! @note  It also ensures that a cancel event is send if the target window dies before the End event is received, then silently consumes
     //         all future events until the real end or cancel is received
-    class StateEventSender
+    class StateEventSender final
       : public IStateEventSender
       , public IModuleCallbackReceiver
     {
@@ -72,26 +72,29 @@ namespace Fsl
       State m_state;
 
     public:
-      StateEventSender(const std::shared_ptr<ITreeContextInfo>& treeContextInfo, const std::shared_ptr<EventRouter>& eventRouter,
-                       const std::shared_ptr<WindowEventPool>& eventPool, const std::shared_ptr<IEventHandler>& eventHandler,
-                       const WindowFlags& windowFlags, const FunctionCreateTargetWindowDeathEvent& fnCreateTargetWindowDeathEvent);
-      ~StateEventSender() override;
+      StateEventSender(std::shared_ptr<ITreeContextInfo> treeContextInfo, std::shared_ptr<EventRouter> eventRouter,
+                       std::shared_ptr<WindowEventPool> eventPool, std::shared_ptr<IEventHandler> eventHandler, const WindowFlags& windowFlags,
+                       FunctionCreateTargetWindowDeathEvent fnCreateTargetWindowDeathEvent);
+      ~StateEventSender() final;
 
-      const std::shared_ptr<WindowEventPool>& GetEventPool() const override
+      const std::shared_ptr<WindowEventPool>& GetEventPool() const final
       {
         return m_eventPool;
       }
-      bool HasHistory() const override;
-      SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target) override;
-      SendResult Send(const StateEvent& theEvent, const Vector2& hitPosition) override;
+      bool HasActiveEvent() const final;
+      bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const final;
+
+      bool HasHistory() const final;
+      SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target) final;
+      SendResult Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx) final;
 
       // From IModuleCallbackReceiver
-      void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) override;
+      void ModuleOnTreeNodeDispose(const std::shared_ptr<TreeNode>& node) final;
 
     private:
-      SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const Vector2& hitPosition);
+      SendResult Send(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const PxPoint2& hitPositionPx);
       SendResult SendViaHistory(const StateEvent& theEvent);
-      void BuildEventRoute(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const Vector2& hitPosition);
+      void BuildEventRoute(const StateEvent& theEvent, const std::shared_ptr<TreeNode>& target, const bool isHitBased, const PxPoint2& hitPositionPx);
       SendResult SendToEventRoute(const StateEvent& theEvent);
 
       class ScopedStateChange

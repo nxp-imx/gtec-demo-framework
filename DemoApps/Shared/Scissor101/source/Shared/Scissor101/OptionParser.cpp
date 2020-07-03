@@ -73,9 +73,9 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    FSL_PARAM_NOT_USED(pszOptArg);
+    FSL_PARAM_NOT_USED(strOptArg);
 
     switch (cmdId)
     {

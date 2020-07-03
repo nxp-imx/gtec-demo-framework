@@ -42,7 +42,7 @@ class WindowCallIdManager : public CallIdManager
 public:
   WindowCallIdManager() = default;
 
-  WindowCallIdManager(const WindowMethodFlags& methodFlags)
+  explicit WindowCallIdManager(const WindowMethodFlags& methodFlags)
     : m_enabledFlags(methodFlags)
   {
   }

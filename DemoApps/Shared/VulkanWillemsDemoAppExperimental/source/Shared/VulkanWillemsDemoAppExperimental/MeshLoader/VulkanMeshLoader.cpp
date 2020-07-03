@@ -18,6 +18,7 @@
 
 #include <Shared/VulkanWillemsDemoAppExperimental/MeshLoader/VulkanMeshLoader.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <FslBase/Exceptions.hpp>
@@ -87,7 +88,7 @@ namespace Fsl
         for (std::size_t i = 0; i < m_entries[m].Vertices.size(); ++i)
         {
           // Push vertex data depending on layout
-          for (auto& layoutDetail : layout)
+          for (const auto& layoutDetail : layout)
           {
             // Position
             if (layoutDetail == VertexLayout::VERTEX_LAYOUT_POSITION)
@@ -151,15 +152,15 @@ namespace Fsl
       {    // Create mesh descriptors and index buffer
         for (std::size_t m = 0; m < m_entries.size(); ++m)
         {
-          auto indexBase = static_cast<uint32_t>(indexBuffer.size());
+          auto indexBase = UncheckedNumericCast<uint32_t>(indexBuffer.size());
           for (uint32_t i = 0; i < m_entries[m].Indices.size(); i++)
           {
             indexBuffer.push_back(m_entries[m].Indices[i] + indexBase);
           }
           MeshDescriptor descriptor;
           descriptor.IndexBase = indexBase;
-          descriptor.IndexCount = static_cast<uint32_t>(m_entries[m].Indices.size());
-          descriptor.VertexCount = static_cast<uint32_t>(m_entries[m].Vertices.size());
+          descriptor.IndexCount = UncheckedNumericCast<uint32_t>(m_entries[m].Indices.size());
+          descriptor.VertexCount = UncheckedNumericCast<uint32_t>(m_entries[m].Vertices.size());
           meshDescriptors.push_back(descriptor);
         }
       }
@@ -237,7 +238,7 @@ namespace Fsl
       }
 
 
-      const auto meshIndexCount = static_cast<uint32_t>(indexBuffer.size());
+      const auto meshIndexCount = UncheckedNumericCast<uint32_t>(indexBuffer.size());
       // Note the original code modified the 'loaded mesh' so the next mesh would be affected
       // this was removed as it's unexpected side effect.
       auto meshDim = m_dim;

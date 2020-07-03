@@ -37,7 +37,7 @@
 
 namespace Fsl
 {
-  class ImageConverterLibraryFP16Service
+  class ImageConverterLibraryFP16Service final
     : public ThreadLocalService
     , public IImageConverterLibraryService
   {
@@ -46,10 +46,9 @@ namespace Fsl
     ~ImageConverterLibraryFP16Service();
 
     // From IImageConverterLibraryService
-    virtual bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat,
-                            const BitmapOrigin desiredOriginHint) override;
-    virtual bool TryConvert(Texture& rDstTexture, const Texture& srcTexture, const PixelFormat desiredPixelFormat,
-                            const BitmapOrigin desiredOriginHint) override;
+    bool TryConvert(Bitmap& rDstBitmap, const Bitmap& srcBitmap, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOriginHint) final;
+    bool TryConvert(Texture& rDstTexture, const Texture& srcTexture, const PixelFormat desiredPixelFormat,
+                    const BitmapOrigin desiredOriginHint) final;
   };
 }
 

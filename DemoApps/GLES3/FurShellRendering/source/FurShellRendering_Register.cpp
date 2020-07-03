@@ -34,6 +34,7 @@
 #include <EGL/egl.h>
 #include "FurShellRendering.hpp"
 #include "RenderMode.hpp"
+#include <array>
 
 namespace Fsl
 {
@@ -49,20 +50,20 @@ namespace Fsl
     };
 
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-    const EGLint g_eglConfigAttribs[] = {EGL_SAMPLES,      0,
-                                         EGL_RED_SIZE,     8,
-                                         EGL_GREEN_SIZE,   8,
-                                         EGL_BLUE_SIZE,    8,
-                                         EGL_ALPHA_SIZE,   0,     // chose the smallest possible
-                                         EGL_DEPTH_SIZE,   24,    // Prefer 24bit dept if possible
-                                         EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-                                         EGL_NONE};
+    const std::array<EGLint, (7 * 2) + 1> g_eglConfigAttribs = {EGL_SAMPLES,      0,
+                                                                EGL_RED_SIZE,     8,
+                                                                EGL_GREEN_SIZE,   8,
+                                                                EGL_BLUE_SIZE,    8,
+                                                                EGL_ALPHA_SIZE,   0,     // chose the smallest possible
+                                                                EGL_DEPTH_SIZE,   24,    // Prefer 24bit dept if possible
+                                                                EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+                                                                EGL_NONE};
   }
 
   // Configure the demo environment to run this demo app in a OpenGLES3 host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+    DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
     DemoAppRegister::GLES3::Register<FurShellRendering, CustomOptionParser>(rSetup, "GLES3.FurShellRendering", config);
   }

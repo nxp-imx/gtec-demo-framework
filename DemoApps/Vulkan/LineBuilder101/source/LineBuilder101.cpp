@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include "LineBuilder101.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
@@ -39,8 +40,6 @@
 
 namespace Fsl
 {
-  using namespace Vulkan;
-
   namespace
   {
     constexpr uint32_t INITIAL_LINE_CAPACITY = 4096u;
@@ -56,7 +55,7 @@ namespace Fsl
     m_resources.FragShaderModule.Reset(m_device.Get(), 0, contentManager->ReadBytes("VertexColorLine.frag.spv"));
 
     m_resources.BufferManager =
-      std::make_shared<VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
+      std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
 
     const uint32_t maxFramesInFlight = GetRenderConfig().MaxFramesInFlight;
     m_resources.LineDraw.Reset(m_device, m_resources.BufferManager, maxFramesInFlight, sizeof(VertexUBOData), INITIAL_LINE_CAPACITY);
@@ -71,11 +70,11 @@ namespace Fsl
 
   void LineBuilder101::Update(const DemoTime& demoTime)
   {
-    m_example.Update(demoTime, GetScreenResolution());
+    m_example.Update(demoTime, GetWindowSizePx());
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
-    const auto vulkanClipMatrix = MatrixUtil::GetClipMatrix();
+    const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     m_vertexUboData.MatViewProjection = m_example.GetViewMatrix() * m_example.GetProjectionMatrix() * vulkanClipMatrix;
   }
@@ -89,11 +88,11 @@ namespace Fsl
     m_resources.LineDraw.UpdateVertexUBO(&m_vertexUboData, sizeof(VertexUBOData), frameIndex);
 
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 1> clearValues{};
-      clearValues[0].color = {0.4f, 0.4f, 0.4f, 1.0f};
+      clearValues[0].color = {{0.4f, 0.4f, 0.4f, 1.0f}};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -102,7 +101,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);

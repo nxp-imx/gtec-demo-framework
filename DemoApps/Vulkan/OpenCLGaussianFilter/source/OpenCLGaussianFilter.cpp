@@ -30,13 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include "OpenCLGaussianFilter.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslBase/Math/TypeConverter.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslDemoApp/Base/Service/BitmapConverter/IBitmapConverter.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslUtil/OpenCL1_1/ContextEx.hpp>
-#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <FslUtil/OpenCL1_2/ContextEx.hpp>
+#include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
@@ -52,13 +54,8 @@
 #include <array>
 #include <vector>
 
-using namespace RapidOpenCL1;
-
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace OpenCL;
-
   namespace
   {
     const auto VERTEX_BUFFER_BIND_ID = 0;
@@ -75,44 +72,46 @@ namespace Fsl
 
     void PrintInfo(const cl_platform_id rplatformId, const cl_device_id deviceId)
     {
-      const int arrSize = 4;
+      constexpr const int arrSize = 4;
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const char* attributeNames[arrSize] = {"Name", "Vendor", "Version", "Profile"};
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const cl_platform_info attributeTypes[arrSize] = {CL_PLATFORM_NAME, CL_PLATFORM_VENDOR, CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE};
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const cl_device_info deviceAttributeTypes[arrSize] = {CL_DEVICE_NAME, CL_DEVICE_VENDOR, CL_DEVICE_VERSION, CL_DEVICE_PROFILE};
-      const int attributeCount = sizeof(attributeNames) / sizeof(char*);
 
       FSLLOG3_INFO("\n-=-=-=- Platform and Device information -=-=-=-\n\n");
 
-      for (int count = 0; count < attributeCount; ++count)
+      for (int count = 0; count < arrSize; ++count)
       {
-        const std::string info = OpenCLHelper::GetPlatformInfo<std::string>(rplatformId, attributeTypes[count]);
-        const std::string deviceInfo = OpenCLHelper::GetDeviceInfo<std::string>(deviceId, deviceAttributeTypes[count]);
+        const std::string info = OpenCL::OpenCLHelper::GetPlatformInfo<std::string>(rplatformId, attributeTypes[count]);
+        const std::string deviceInfo = OpenCL::OpenCLHelper::GetDeviceInfo<std::string>(deviceId, deviceAttributeTypes[count]);
 
         FSLLOG3_INFO("Platform Attributes {}: {}", attributeNames[count], info);
         FSLLOG3_INFO("Device Attributes {}: {}", attributeNames[count], deviceInfo);
       }
 
-      const auto deviceItems = OpenCLHelper::GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+      const auto deviceItems = OpenCL::OpenCLHelper::GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
       FSLLOG3_INFO("Device Max Work Item Dimensions: {}-D", deviceItems);
 
-      const auto deviceSize = OpenCLHelper::GetDeviceInfo<std::size_t>(deviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE);
+      const auto deviceSize = OpenCL::OpenCLHelper::GetDeviceInfo<std::size_t>(deviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE);
       FSLLOG3_INFO("Device Max Work Group Size: {}", deviceSize);
 
       FSLLOG3_INFO("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     }
 
 
-    Program BuildProgram(const cl_context context, const cl_device_id deviceId, const std::string& kernelSrc)
+    RapidOpenCL1::Program BuildProgram(const cl_context context, const cl_device_id deviceId, const std::string& kernelSrc)
     {
       const char* pszKernelSource = kernelSrc.c_str();
       const std::size_t kernelSize = kernelSrc.size();
 
-      Program program(context, 1, &pszKernelSource, &kernelSize);
+      RapidOpenCL1::Program program(context, 1, &pszKernelSource, &kernelSize);
 
       const cl_int error = clBuildProgram(program.Get(), 1, &deviceId, "", nullptr, nullptr);
       if (error != CL_SUCCESS)
       {
-        const auto buildInfo = OpenCLHelper::GetProgramBuildInfoString(program.Get(), deviceId, CL_PROGRAM_BUILD_LOG);
+        const auto buildInfo = OpenCL::OpenCLHelper::GetProgramBuildInfoString(program.Get(), deviceId, CL_PROGRAM_BUILD_LOG);
         FSLLOG3_INFO(buildInfo);
         RAPIDOPENCL_CHECK(error);
       }
@@ -121,20 +120,20 @@ namespace Fsl
 
     void ProcessBitmapUsingOpenCL(Bitmap& rBitmap, const std::string& strProgram)
     {
-      ContextEx context;
-      cl_device_id deviceId;
+      OpenCL::ContextEx context;
+      cl_device_id deviceId = nullptr;
       context.Reset(CL_DEVICE_TYPE_GPU, &deviceId);
 
-      CommandQueue commandQueue(context.Get(), deviceId, 0);
+      RapidOpenCL1::CommandQueue commandQueue(context.Get(), deviceId, 0);
 
       PrintInfo(context.GetPlatformId(), deviceId);
 
-      Program program = BuildProgram(context.Get(), deviceId, strProgram);
-      Kernel kernel(program.Get(), "gaussian_filter");
+      RapidOpenCL1::Program program = BuildProgram(context.Get(), deviceId, strProgram);
+      RapidOpenCL1::Kernel kernel(program.Get(), "gaussian_filter");
 
       const std::size_t size2d = rBitmap.Width() * rBitmap.Height();
-      Buffer gaussMemInput(context.Get(), CL_MEM_READ_ONLY, size2d, nullptr);
-      Buffer gaussMemOutput(context.Get(), CL_MEM_WRITE_ONLY, size2d, nullptr);
+      RapidOpenCL1::Buffer gaussMemInput(context.Get(), CL_MEM_READ_ONLY, size2d, nullptr);
+      RapidOpenCL1::Buffer gaussMemOutput(context.Get(), CL_MEM_WRITE_ONLY, size2d, nullptr);
 
       const auto width = static_cast<cl_int>(rBitmap.Width());
       const auto height = static_cast<cl_int>(rBitmap.Height());
@@ -150,11 +149,12 @@ namespace Fsl
         Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
         auto* pImgData = static_cast<uint8_t*>(rawBitmap.Content());
 
-        const std::size_t global[2] = {rawBitmap.Width(), rawBitmap.Height()};
-        const int dimension = 2;
-        std::size_t local[dimension] = {16, 8};
+        constexpr const int dimension = 2;
+        const std::array<std::size_t, dimension> global = {rawBitmap.Width(), rawBitmap.Height()};
+        constexpr std::array<std::size_t, dimension> local = {16, 8};
         RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), gaussMemInput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
-        RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global, local, 0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(
+          clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global.data(), local.data(), 0, nullptr, nullptr));
         RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), gaussMemOutput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
       }
     }
@@ -219,7 +219,7 @@ namespace Fsl
 
     Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue, const Bitmap& bitmap)
     {
-      VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
+      Vulkan::VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
 
       VkSamplerCreateInfo samplerCreateInfo{};
       samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -246,9 +246,9 @@ namespace Fsl
                                                 const std::array<VertexElementUsage, 2>& shaderBindOrder)
     {
       OpenCLGaussianFilter::SimpleMesh mesh;
-      mesh.VertexBuffer.Reset(bufferManager, g_vertices, VMBufferUsage::STATIC);
+      mesh.VertexBuffer.Reset(bufferManager, g_vertices, Vulkan::VMBufferUsage::STATIC);
 
-      VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.VertexAttributeDescription, shaderBindOrder, mesh.VertexBuffer);
+      Vulkan::VMVertexBufferUtil::FillVertexInputAttributeDescription(mesh.VertexAttributeDescription, shaderBindOrder, mesh.VertexBuffer);
       mesh.VertexInputBindingDescription.binding = 0;
       mesh.VertexInputBindingDescription.stride = mesh.VertexBuffer.GetElementStride();
       mesh.VertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
@@ -256,7 +256,7 @@ namespace Fsl
     }
 
 
-    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const VUDevice& device)
+    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
       std::array<VkDescriptorSetLayoutBinding, 2> setLayoutBindings{};
       // Binding 0 : Vertex shader uniform buffer
@@ -273,7 +273,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -292,7 +292,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -327,7 +327,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -362,7 +362,7 @@ namespace Fsl
       writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[1].pImageInfo = &textureImageInfo;
 
-      vkUpdateDescriptorSets(device, static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
 
       return descriptorSet;
     }
@@ -406,7 +406,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.VertexInputBindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.VertexAttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.VertexAttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.VertexAttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -486,7 +486,7 @@ namespace Fsl
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -510,7 +510,8 @@ namespace Fsl
 
   OpenCLGaussianFilter::OpenCLGaussianFilter(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
-    , m_bufferManager(std::make_shared<VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
+    , m_bufferManager(
+        std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
   {
     const std::shared_ptr<IContentManager> content = GetContentManager();
 
@@ -567,7 +568,7 @@ namespace Fsl
   }
 
 
-  void OpenCLGaussianFilter::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers,
+  void OpenCLGaussianFilter::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
                                         const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t frameIndex = drawContext.CurrentFrameIndex;
@@ -576,11 +577,11 @@ namespace Fsl
     // Upload the changes
     m_resources.MainFrameResources[frameIndex].VertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUBOData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.0f, 0.0f, 0.5f, 1.0f};
+      clearValues[0].color = {{0.0f, 0.0f, 0.5f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -590,7 +591,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -630,8 +631,8 @@ namespace Fsl
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_resources.MainPipelineLayout.Get(), 0, 1, &frame.DescriptorSet, 0,
                             nullptr);
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
 
     // Not efficient to render this way, but this is the way the OpenGLES3 sample did it.
     vkCmdDraw(commandBuffer, 4, 1, 0, 0);
@@ -649,7 +650,7 @@ namespace Fsl
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
-    const auto vulkanClipMatrix = MatrixUtil::GetClipMatrix();
+    const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(60.0f), aspectRatio, 1.0f, 1000.0f) * vulkanClipMatrix;
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, -3.0f);

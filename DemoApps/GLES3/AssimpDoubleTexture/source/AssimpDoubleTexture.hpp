@@ -53,13 +53,15 @@ namespace Fsl
   struct Mesh
   {
     std::vector<MeshVertex> vertexData;
-    GLuint VAO, posVBO, indexBO;
-    int numFaces;
+    GLuint VAO{};
+    GLuint posVBO{};
+    GLuint indexBO{};
+    int numFaces{};
 
-    float diffuse[4];
-    float ambient[4];
-    float specular[4];
-    float shininess;
+    float diffuse[4]{};     // NOLINT(modernize-avoid-c-arrays)
+    float ambient[4]{};     // NOLINT(modernize-avoid-c-arrays)
+    float specular[4]{};    // NOLINT(modernize-avoid-c-arrays)
+    float shininess{};
   };
 
   class AssimpDoubleTexture : public DemoAppGLES3
@@ -84,9 +86,9 @@ namespace Fsl
     glm::mat3 m_normalMatrix{};
 
     // Matrices shader location
-    GLint m_modelMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_viewMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
-    GLint m_projectionMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
+    // GLint m_modelMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
+    // GLint m_viewMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
+    // GLint m_projectionMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
     GLint m_modelViewMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
     GLint m_modelViewProjectionMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
     GLint m_normalMatrixLoc{GLES3::GLValues::INVALID_LOCATION};
@@ -96,8 +98,8 @@ namespace Fsl
     glm::vec3 m_lightIntensity{};
     glm::vec4 m_lightPosition{};
     glm::vec3 m_lightColor{};
-    GLfloat m_ambientStrength{};
-    GLfloat m_specularStrength{};
+    // GLfloat m_ambientStrength{};
+    // GLfloat m_specularStrength{};
 
     // Light Locations
     GLint m_lightIntensityLoc{GLES3::GLValues::INVALID_LOCATION};
@@ -122,7 +124,7 @@ namespace Fsl
     int m_dirtDirection{0};
 
   public:
-    AssimpDoubleTexture(const DemoAppConfig& config);
+    explicit AssimpDoubleTexture(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

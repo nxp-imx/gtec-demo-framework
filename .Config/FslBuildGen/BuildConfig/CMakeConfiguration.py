@@ -41,7 +41,7 @@ from FslBuildGen.CMakeUtil import CMakeVersion
 
 class CMakeConfiguration(object):
     def __init__(self, defaultBuildDir: str, defaultInstallPrefix: Optional[str], minimumVersion: CMakeVersion,
-                 platforms: List[CMakeConfigurationPlatform]) -> None:
+                 platforms: List[CMakeConfigurationPlatform], ninjaRecipePackageName: str) -> None:
         super().__init__()
 
         PathUtil.ValidateIsNormalizedPath(defaultBuildDir, "DefaultBuildDir")
@@ -51,6 +51,7 @@ class CMakeConfiguration(object):
         self.DefaultBuildDir = defaultBuildDir
         self.DefaultInstallPrefix = defaultInstallPrefix
         self.MinimumVersion = minimumVersion
+        self.NinjaRecipePackageName = ninjaRecipePackageName;
 
 
         platformDict = {}                                                # type: Dict[str,CMakeConfigurationPlatform]

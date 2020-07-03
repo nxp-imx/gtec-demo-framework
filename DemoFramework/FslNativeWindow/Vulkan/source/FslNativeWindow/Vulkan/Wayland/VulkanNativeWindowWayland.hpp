@@ -35,42 +35,18 @@
 #include <FslNativeWindow/Platform/Wayland/PlatformNativeWindowWayland.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 
-#include "../AVulkanNativeWindow.hpp"
+#include "../VulkanNativeWindow.hpp"
 
 namespace Fsl
 {
   struct NativeVulkanSetup;
 
-  class VulkanNativeWindowWayland
-    : public AVulkanNativeWindow
-    , public PlatformNativeWindowWayland
+  class VulkanNativeWindowWayland : public VulkanNativeWindow<PlatformNativeWindowWayland>
   {
   public:
     VulkanNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                               const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     virtual ~VulkanNativeWindowWayland();
-
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    virtual bool TryGetDPI(Vector2& rDPI) const override
-    {
-      return PlatformNativeWindowWayland::TryGetDPI(rDPI);
-    }
-
-    bool TryGetSize(Point2& rSize) const override
-    {
-      return TryDoGetSize(rSize);
-    }
-
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    virtual bool TryGetActualSize(Point2& rSize) const override
-    {
-      return PlatformNativeWindowWayland::TryGetSize(rSize);
-    }
-
-    virtual bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return PlatformNativeWindowWayland::TryCaptureMouse(enableCapture);
-    }
 
     virtual PlatformNativeWindowType GetWindowType() const override;
   };

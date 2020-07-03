@@ -51,7 +51,7 @@ namespace Fsl
 
       GLVertexElement();
 
-      GLVertexElement(const VertexElementEx& source);
+      explicit GLVertexElement(const VertexElementEx& source);
 
       void Reset(const VertexElementEx& source);
       void Reset(const VertexElementEx& source, const VertexElementFormat internalFormat, const int32_t offsetAdd);

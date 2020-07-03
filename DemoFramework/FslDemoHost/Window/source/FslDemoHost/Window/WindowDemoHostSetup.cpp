@@ -36,7 +36,7 @@
 
 namespace Fsl
 {
-  const DemoHostSetup WindowDemoHostSetup::Get()
+  DemoHostSetup WindowDemoHostSetup::Get()
   {
     std::shared_ptr<IDemoHostFactory> demoHostFactory(new TemplateIDemoHostFactory<WindowDemoHost>());
     std::shared_ptr<ADemoHostOptionParser> optionParser(new WindowDemoHostOptionParser());

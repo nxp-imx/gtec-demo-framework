@@ -40,28 +40,33 @@ namespace Fsl
     struct LayoutLength
     {
     private:
-      float m_value{0};
       LayoutUnitType m_unitType{LayoutUnitType::Auto};
+      float m_value{0};
 
     public:
       LayoutLength() = default;
 
-      LayoutLength(const float value)
-        : m_value(value)
-        , m_unitType(LayoutUnitType::Fixed)
+      explicit LayoutLength(const float value)
+        : LayoutLength(LayoutUnitType::Fixed, value)
       {
       }
 
-      LayoutLength(const float value, const LayoutUnitType unitType)
+      explicit LayoutLength(const LayoutUnitType unitType)
+        : LayoutLength(unitType, 1.0f)
       {
-        m_value = value;
-        m_unitType = unitType;
+      }
+
+      LayoutLength(const LayoutUnitType unitType, const float value)
+        : m_unitType(unitType)
+        , m_value(value)
+      {
       }
 
       float Value() const
       {
         return m_value;
       }
+
       LayoutUnitType UnitType() const
       {
         return m_unitType;

@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_IMAGEBUTTON_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_IMAGEBUTTON_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -33,36 +33,84 @@
 
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslGraphics/Transition/TransitionColor.hpp>
 #include <FslSimpleUI/Base/Control/ButtonBase.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 
 namespace Fsl
 {
+  class ImageSprite;
+
   namespace UI
   {
     class WindowContext;
 
     //! @brief A simple image button. While you can create a image button with the more
     //         generic button class this one performs better.
-    class ImageButton : public ButtonBase
+    class ImageButton final : public ButtonBase
     {
-    protected:
+      struct Background
+      {
+        std::shared_ptr<ImageSprite> Sprite;
+        std::shared_ptr<ImageSprite> HoverSprite;
+        Color HoverUpColor{DefaultColor::Button::BackgroundHoverUp};
+        Color UpColor{DefaultColor::Button::BackgroundUp};
+        Color DownColor{DefaultColor::Button::BackgroundDown};
+        Color DisabledColor{DefaultColor::Button::BackgroundDisabled};
+        ItemScalePolicy ScalePolicy{ItemScalePolicy::NoScaling};
+      };
       const std::shared_ptr<WindowContext> m_windowContext;
 
-    private:
-      AtlasTexture2D m_content;
-      ItemScalePolicy m_scalePolicy;
-      Color m_colorUp;
-      Color m_colorDown;
+      std::shared_ptr<ImageSprite> m_content;
+
+      Background m_background;
+      // BackgroundHoverOverlay m_backgroundHoverOverlay;
+
+      ItemScalePolicy m_scalePolicy{ItemScalePolicy::NoScaling};
+      Color m_upColor{DefaultColor::Button::Up};
+      Color m_downColor{DefaultColor::Button::Down};
+      Color m_disabledColor{DefaultColor::Button::BackgroundDisabled};
+
+      bool m_isHovering{false};
+
+      TransitionColor m_currentColor;
+      TransitionColor m_backgroundCurrentColor;
 
     public:
-      ImageButton(const std::shared_ptr<WindowContext>& context);
+      explicit ImageButton(const std::shared_ptr<WindowContext>& context);
 
-      const AtlasTexture2D& GetContent() const
+      const std::shared_ptr<ImageSprite>& GetContent() const
       {
         return m_content;
       }
-      void SetContent(const AtlasTexture2D& value);
+      void SetContent(const std::shared_ptr<ImageSprite>& value);
+      void SetContent(std::shared_ptr<ImageSprite>&& value);
+
+      Color GetBackgroundColorHoverUp() const
+      {
+        return m_background.HoverUpColor;
+      }
+
+      void SetBackgroundColorHoverUp(const Color& value);
+
+      Color GetBackgroundColorUp() const
+      {
+        return m_background.UpColor;
+      }
+      void SetBackgroundColorUp(const Color& value);
+
+      Color GetBackgroundColorDown() const
+      {
+        return m_background.DownColor;
+      }
+      void SetBackgroundColorDown(const Color& value);
+
+      Color GetBackgroundColorDisabled() const
+      {
+        return m_background.DisabledColor;
+      }
+      void SetBackgroundColorDisabled(const Color& value);
+
 
       ItemScalePolicy GetScalePolicy() const
       {
@@ -70,24 +118,50 @@ namespace Fsl
       }
       void SetScalePolicy(const ItemScalePolicy value);
 
-      Color GetColorUp() const
+      Color SetUpColor() const
 
       {
-        return m_colorUp;
+        return m_upColor;
       }
-      void SetColorUp(const Color& value);
+      void SetUpColor(const Color& value);
 
-      Color GetColorDown() const
+      Color GetDownColor() const
       {
-        return m_colorDown;
+        return m_downColor;
       }
-      void SetColorDown(const Color& value);
+      void SetDownColor(const Color& value);
 
-      void WinDraw(const UIDrawContext& context) override;
+      Color GetDisabledColor() const
+      {
+        return m_disabledColor;
+      }
+      void SetDisabledColor(const Color& value);
+
+      const std::shared_ptr<ImageSprite>& GetBackground() const
+      {
+        return m_background.Sprite;
+      }
+
+      void SetBackground(const std::shared_ptr<ImageSprite>& value);
+
+      const std::shared_ptr<ImageSprite>& GetBackgroundHover() const
+      {
+        return m_background.HoverSprite;
+      }
+
+      void SetBackgroundHover(const std::shared_ptr<ImageSprite>& value);
+
+
+      void WinDraw(const UIDrawContext& context) final;
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final;
+
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) final;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final;
+
+      void UpdateAnimation(const TransitionTimeSpan& timeSpan) final;
+      bool UpdateAnimationState(const bool forceCompleteAnimation) final;
     };
   }
 }

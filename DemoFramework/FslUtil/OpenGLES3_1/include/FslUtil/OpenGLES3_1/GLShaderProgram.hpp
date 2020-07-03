@@ -107,7 +107,7 @@ namespace Fsl
         return m_handle;
       }
 
-      FSL_ATTR_DEPRECATED GLuint GetHandle() const
+      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
         return Get();
       }

@@ -48,7 +48,7 @@ namespace Fsl
     assert((m_gridX & 1) == 0);
     assert((m_gridY & 1) == 0);
 
-    const Vector2 spacing(rect.Width() / (m_gridX - 1), rect.Height() / (m_gridY - 1));
+    const Vector2 spacing(rect.Width() / float(m_gridX - 1), rect.Height() / float(m_gridY - 1));
     InitPoints(rect, spacing);
     InitSprings();
   }

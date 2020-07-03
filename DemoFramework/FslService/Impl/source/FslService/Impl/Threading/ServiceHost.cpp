@@ -40,6 +40,7 @@
 #include "ServiceHostCreateInfo.hpp"
 #include "Provider/ServiceProviderImpl.hpp"
 #include <cassert>
+#include <memory>
 
 namespace Fsl
 {
@@ -49,7 +50,7 @@ namespace Fsl
   {
     m_serviceProvider =
       ServiceLauncher::Launch(createInfo.ServiceConfig.GlobalServiceTypeMaps, createInfo.ServiceConfig.ThreadLocalServices, clearOwnedUniqueServices);
-    m_asyncServiceImplHost.reset(new AsyncServiceImplHost(createInfo.ServiceConfig.AsyncServiceImplLaunchFactories, m_serviceProvider));
+    m_asyncServiceImplHost = std::make_unique<AsyncServiceImplHost>(createInfo.ServiceConfig.AsyncServiceImplLaunchFactories, m_serviceProvider);
   }
 
 

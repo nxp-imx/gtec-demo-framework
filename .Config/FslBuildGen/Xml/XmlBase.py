@@ -35,6 +35,7 @@ from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen.DataTypes import BoolStringHelper
 from FslBuildGen.Log import Log
+from FslBuildGen.Version import Version
 from FslBuildGen.Xml.XmlBaseInfo import XmlBaseInfo
 from FslBuildGen.Xml.Exceptions import XmlException2
 from FslBuildGen.Xml.Exceptions import XmlFormatException
@@ -103,3 +104,15 @@ class XmlBase(XmlBaseInfo):
         elif defaultValue is not None:
             return defaultValue
         raise XmlFormatException("{0} expects a value of either 'true' or 'false' not '{1}'".format(attribName, strValue))
+
+
+    def _TryReadAttribAsVersion(self, xmlElement: ET.Element, attribName: str,
+                                defaultValue: Optional[Version] = None) -> Optional[Version]:
+        """ Read the attrib if its available, else return defaultValue """
+        strValue = self._TryReadAttrib(xmlElement, attribName, None)
+        if strValue is not None:
+            res = Version.TryFromString(strValue)
+            if res is None:
+                raise XmlFormatException("{0} expects a value in the format 'major[.minor[.patch[.tweak]]]' not '{1}'".format(attribName, strValue))
+            return res
+        return defaultValue

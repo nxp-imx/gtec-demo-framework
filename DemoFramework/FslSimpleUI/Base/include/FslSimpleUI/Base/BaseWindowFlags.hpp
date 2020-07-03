@@ -58,7 +58,7 @@ namespace Fsl
 
       BaseWindowFlags() = default;
 
-      BaseWindowFlags(const uint32_t flags)
+      explicit BaseWindowFlags(const uint32_t flags)
         : Value(flags)
       {
       }
@@ -88,13 +88,18 @@ namespace Fsl
         Value &= ~static_cast<uint32_t>(flag);
       }
 
+      inline void Disable(const WindowFlags& flags)
+      {
+        Value &= ~flags.GetValue();
+      }
+
       inline void Set(Enum flag, const bool enabled)
       {
         Value = enabled ? (Value | static_cast<uint32_t>(flag)) : (Value & ~static_cast<uint32_t>(flag));
       }
 
       //! Conversion operator for easy conversion to WindowFlags
-      operator WindowFlags() const
+      explicit operator WindowFlags() const
       {
         return WindowFlags(Value & MASK_WindowFlags);
       }

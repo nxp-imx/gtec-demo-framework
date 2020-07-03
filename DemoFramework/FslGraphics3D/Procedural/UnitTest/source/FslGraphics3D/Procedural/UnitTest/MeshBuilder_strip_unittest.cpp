@@ -33,7 +33,7 @@
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 #include <FslGraphics3D/Procedural/MeshBuilder.hpp>
 #include <gtest/gtest.h>
-
+#include <array>
 
 namespace
 {
@@ -43,14 +43,12 @@ namespace
   using SimpleMeshBuilder = MeshBuilder<VertexPosition, uint16_t>;
   using SimpleMesh = GenericMesh<VertexPosition, uint16_t>;
 
-  VertexPosition g_vertices[] = {VertexPosition(-1.0f, -1.0f, 0.0f), VertexPosition(-1.0f, 1.0f, 0.0f), VertexPosition(1.0f, 1.0f, 0.0f),
-                                 VertexPosition(1.0f, 1.0f, 0.0f)};
+  constexpr const std::array<VertexPosition, 4> g_vertices = {VertexPosition(-1.0f, -1.0f, 0.0f), VertexPosition(-1.0f, 1.0f, 0.0f),
+                                                              VertexPosition(1.0f, 1.0f, 0.0f), VertexPosition(1.0f, 1.0f, 0.0f)};
 
 
-  uint16_t g_indices[] = {0, 1, 2, 3};
+  constexpr const std::array<uint16_t, 4> g_indices = {0, 1, 2, 3};
 
-  const size_t g_vertexCount = sizeof(g_vertices) / sizeof(g_vertices[0]);
-  const size_t g_indexCount = sizeof(g_indices) / sizeof(g_indices[0]);
   const PrimitiveType g_primitiveType = PrimitiveType::TriangleStrip;
   const PrimitiveType g_otherPrimitiveType = PrimitiveType::TriangleList;
 }
@@ -60,7 +58,7 @@ namespace
 
 TEST(MeshBuilder, AppendStripToIncompatible)
 {
-  SimpleMesh mesh(g_vertices, g_vertexCount, g_indices, g_indexCount, g_primitiveType);
+  SimpleMesh mesh(g_vertices.data(), g_vertices.size(), g_indices.data(), g_indices.size(), g_primitiveType);
 
   EXPECT_EQ(2u, mesh.GetPrimitiveCount());
 
@@ -71,7 +69,7 @@ TEST(MeshBuilder, AppendStripToIncompatible)
 
 TEST(MeshBuilder, AppendTriangleStrip)
 {
-  SimpleMesh mesh(g_vertices, g_vertexCount, g_indices, g_indexCount, g_primitiveType);
+  SimpleMesh mesh(g_vertices.data(), g_vertices.size(), g_indices.data(), g_indices.size(), g_primitiveType);
 
   EXPECT_EQ(2u, mesh.GetPrimitiveCount());
 
@@ -93,7 +91,7 @@ namespace
 {
   void AppendInstances(const int instances, const bool shareInstanceVertices)
   {
-    SimpleMesh mesh(g_vertices, g_vertexCount, g_indices, g_indexCount, g_primitiveType);
+    SimpleMesh mesh(g_vertices.data(), g_vertices.size(), g_indices.data(), g_indices.size(), g_primitiveType);
 
     EXPECT_EQ(2u, mesh.GetPrimitiveCount());
 

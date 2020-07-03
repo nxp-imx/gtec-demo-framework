@@ -37,6 +37,9 @@
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
+#include <FslSimpleUI/Base/Control/FmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
+#include <array>
 #include "AScene.hpp"
 #include "PS/ParticleDrawContext.hpp"
 
@@ -50,11 +53,9 @@ namespace Fsl
 
   namespace UI
   {
-    class CheckBox;
     class Label;
-    class Slider;
-    class SliderAndValueLabel;
-    class ValueLabel;
+    class RadioButton;
+    class Switch;
     class WindowContext;
   }
 
@@ -70,20 +71,20 @@ namespace Fsl
 
 
     std::shared_ptr<IGraphicsService> m_graphics;
-    std::shared_ptr<UI::ValueLabel> m_valueLabelParticleCount;
-    std::shared_ptr<UI::SliderAndValueLabel> m_sliderEmit;
-    std::shared_ptr<UI::CheckBox> m_particleSystemPoints;
-    std::shared_ptr<UI::CheckBox> m_particleSystemQuads;
-    std::shared_ptr<UI::CheckBox> m_particleSystemGeometryShader;
-    std::shared_ptr<UI::CheckBox> m_cbParticleSystemGPU1;
-    std::shared_ptr<UI::CheckBox> m_cbParticleSystemGPU2;
-    std::shared_ptr<UI::ValueLabel> m_valueLabelGPUParticleCount;
+    std::shared_ptr<UI::FmtValueLabel<int32_t>> m_valueLabelParticleCount;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<int32_t>> m_sliderEmit;
+    std::shared_ptr<UI::RadioButton> m_particleSystemPoints;
+    std::shared_ptr<UI::RadioButton> m_particleSystemQuads;
+    std::shared_ptr<UI::RadioButton> m_particleSystemGeometryShader;
+    std::shared_ptr<UI::Switch> m_cbParticleSystemGPU1;
+    std::shared_ptr<UI::Switch> m_cbParticleSystemGPU2;
+    std::shared_ptr<UI::FmtValueLabel<int32_t>> m_valueLabelGPUParticleCount;
     bool m_allowAdvancedTechniques;
 
     Graphics3D::ArcballCamera m_camera;
     GLES3::GLProgram m_program;
     GLES3::GLVertexBuffer m_vbCube;
-    GLES3::GLVertexAttribLink m_cubeAttribLink[3];
+    std::array<GLES3::GLVertexAttribLink, 3> m_cubeAttribLink;
     GLES3::GLTexture m_texParticle;
     GLES3::GLTexture m_texParticleSnow;
     GLES3::GLTexture m_texCube;

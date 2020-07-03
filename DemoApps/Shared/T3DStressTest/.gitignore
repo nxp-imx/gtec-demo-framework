@@ -1,5 +1,6 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Shared.T3DStressTest.VC.VC.opendb
 /Shared.T3DStressTest.VC.db
 /Shared.T3DStressTest.manifest

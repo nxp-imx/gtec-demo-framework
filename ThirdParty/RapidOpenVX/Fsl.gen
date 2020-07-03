@@ -4,6 +4,6 @@
     <Dependency Name="FslBase"/>
     <Dependency Name="OpenVX"/>
     <Define Name="FSL_DEMOFRAMEWORK" Access="Public"/>
-    <Dependency Name="Recipe.RapidOpenVX_1_1_0"/>
+    <Dependency Name="Recipe.RapidOpenVX_1_1"/>
   </ExternalLibrary>
 </FslBuildGen>

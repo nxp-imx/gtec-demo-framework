@@ -4,6 +4,7 @@
 /Android/
 /CMakeLists.txt
 /Content/Textures/Bricks/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES3.HDR02_FBBasicToneMapping.VC.VC.opendb

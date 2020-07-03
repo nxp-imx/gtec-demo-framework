@@ -36,8 +36,8 @@
 #include "OpenCV101.hpp"
 #include <opencv2/highgui.hpp>
 #include <opencv2/opencv.hpp>
+#include <cmath>
 #include <iostream>
-
 namespace Fsl
 {
   using namespace cv;
@@ -59,10 +59,12 @@ namespace Fsl
   void OpenCV101::Run()
   {
     double alpha = 0.5;
-    double beta;
-    double input;
+    double beta = 0.0;
+    double input = 0.0;
 
-    Mat src1, src2, dst;
+    Mat src1;
+    Mat src2;
+    Mat dst;
 
     /// Ask the user enter alpha
     std::cout << " Simple Linear Blender " << std::endl;

@@ -35,46 +35,31 @@
 #include <FslNativeWindow/Platform/Win32/PlatformNativeWindowWin32.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 
-#include "../AVulkanNativeWindow.hpp"
+#include "../VulkanNativeWindow.hpp"
+
+#pragma warning(push)
+// Disable the warning about inheritance via dominance
+#pragma warning(disable : 4250)
+
 
 namespace Fsl
 {
   struct NativeVulkanSetup;
 
-  class VulkanNativeWindowWin32
-    : public AVulkanNativeWindow
-    , public PlatformNativeWindowWin32
+  class VulkanNativeWindowWin32 : public VulkanNativeWindow<PlatformNativeWindowWin32>
   {
   public:
     VulkanNativeWindowWin32(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                             const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     ~VulkanNativeWindowWin32() override;
 
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    bool TryGetDPI(Vector2& rDPI) const override
-    {
-      return PlatformNativeWindowWin32::TryGetDPI(rDPI);
-    }
-
-    bool TryGetSize(Point2& rSize) const override
-    {
-      return TryDoGetSize(rSize);
-    }
-
-    bool TryGetActualSize(Point2& rSize) const override
-    {
-      return PlatformNativeWindowWin32::TryGetSize(rSize);
-    }
-
-
-    bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return PlatformNativeWindowWin32::TryCaptureMouse(enableCapture);
-    }
 
     PlatformNativeWindowType GetWindowType() const override;
   };
 }    // namespace Fsl
+
+#pragma warning(pop)
+
 
 #endif
 #endif

@@ -36,8 +36,17 @@
 #include <FslNativeWindow/EGL/NativeEGLSetup.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 
+
+#ifdef _WIN32
+#pragma warning(push)
+// Disable the warning about inheritance via dominance
+#pragma warning(disable : 4250)
+#endif
+
 namespace Fsl
 {
+  struct PxPoint2;
+
   template <typename TNativeWindow>
   class EGLNativeWindowTemplate
     : public virtual IEGLNativeWindow
@@ -60,23 +69,22 @@ namespace Fsl
       return reinterpret_cast<EGLNativeWindowType>(TNativeWindow::GetPlatformWindow());
     }
 
-    // Get rid of the inheritance via dominance warning
-    bool TryGetDPI(Vector2& rDPI) const override
-    {
-      return TNativeWindow::TryGetDPI(rDPI);
-    }
-
-    // Get rid of the inheritance via dominance warning
-    bool TryGetSize(Point2& rSize) const override
-    {
-      return TNativeWindow::TryGetSize(rSize);
-    }
-
     bool TryCaptureMouse(const bool enableCapture) override
     {
       return TNativeWindow::TryCaptureMouse(enableCapture);
     }
+
+  protected:
+    // Get rid of the inheritance via dominance warning
+    bool TryGetNativeSize(PxPoint2& rSize) const final
+    {
+      return TNativeWindow::TryGetNativeSize(rSize);
+    }
   };
 }
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 #endif

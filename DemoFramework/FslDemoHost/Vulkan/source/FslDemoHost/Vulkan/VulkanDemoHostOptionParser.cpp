@@ -32,6 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslDemoHost/Vulkan/VulkanDemoHostOptionParser.hpp>
 #include <algorithm>
@@ -63,16 +64,17 @@ namespace Fsl
     struct PresentMode
     {
       VkPresentModeKHR Mode;
-      std::string StrMode;
+      StringViewLite StrMode;
 
-      PresentMode(const VkPresentModeKHR mode, std::string str)
+      constexpr PresentMode(const VkPresentModeKHR mode, StringViewLite str)
         : Mode(mode)
-        , StrMode(std::move(str))
+        , StrMode(str)
       {
       }
     };
 
-    PresentMode g_presentModes[] = {
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    constexpr const PresentMode g_presentModes[] = {
       PresentMode(VK_PRESENT_MODE_IMMEDIATE_KHR, "VK_PRESENT_MODE_IMMEDIATE_KHR"),
       PresentMode(VK_PRESENT_MODE_MAILBOX_KHR, "VK_PRESENT_MODE_MAILBOX_KHR"),
       PresentMode(VK_PRESENT_MODE_FIFO_KHR, "VK_PRESENT_MODE_FIFO_KHR"),
@@ -96,7 +98,7 @@ namespace Fsl
       return fmt::to_string(buf);
     }
 
-    bool TryParseAsString(VkPresentModeKHR& rPresentMode, const std::string& strOptArg)
+    bool TryParseAsString(VkPresentModeKHR& rPresentMode, const StringViewLite& strOptArg)
     {
       // Try to see if we can find a string match
       for (std::size_t i = 0; i < g_presentModeCount; ++i)
@@ -111,14 +113,14 @@ namespace Fsl
       return false;
     }
 
-    bool TryParseAsValue(VkPresentModeKHR& rPresentMode, const std::string& strOptArg)
+    bool TryParseAsValue(VkPresentModeKHR& rPresentMode, const StringViewLite& strOptArg)
     {
       rPresentMode = VK_PRESENT_MODE_FIFO_KHR;
       // Try to see if we can parse it as a number
-      int32_t value;
+      int32_t value = 0;
       try
       {
-        StringParseUtil::Parse(value, strOptArg.c_str());
+        StringParseUtil::Parse(value, strOptArg);
       }
       catch (const std::exception&)
       {
@@ -137,7 +139,7 @@ namespace Fsl
       return true;
     }
 
-    bool TryParse(VkPresentModeKHR& rPresentMode, const std::string& strOptArg)
+    bool TryParse(VkPresentModeKHR& rPresentMode, const StringViewLite& strOptArg)
     {
       if (TryParseAsString(rPresentMode, strOptArg))
       {
@@ -148,7 +150,10 @@ namespace Fsl
   }
 
 
-  VulkanDemoHostOptionParser::VulkanDemoHostOptionParser() = default;
+  VulkanDemoHostOptionParser::VulkanDemoHostOptionParser()
+    : ADemoHostOptionParser(DemoHostOptionConfig::WindowApp)
+  {
+  }
 
   void VulkanDemoHostOptionParser::ArgumentSetup(std::deque<Option>& rOptions)
   {
@@ -174,16 +179,16 @@ namespace Fsl
   }
 
 
-  OptionParseResult VulkanDemoHostOptionParser::Parse(const int cmdId, const char* const pszOptArg)
+  OptionParseResult VulkanDemoHostOptionParser::Parse(const int cmdId, const StringViewLite& strOptArg)
   {
-    bool boolValue;
+    bool boolValue = false;
     switch (cmdId)
     {
     case CommandId::VkPhysicalDevice:
-      StringParseUtil::Parse(m_physicalDeviceIndex, pszOptArg);
+      StringParseUtil::Parse(m_physicalDeviceIndex, strOptArg);
       return OptionParseResult::Parsed;
     case CommandId::VkValidate:
-      StringParseUtil::Parse(boolValue, pszOptArg);
+      StringParseUtil::Parse(boolValue, strOptArg);
       m_validationLayer = boolValue ? OptionUserChoice::On : OptionUserChoice::Off;
       return OptionParseResult::Parsed;
     case CommandId::VkApiDump:
@@ -192,7 +197,7 @@ namespace Fsl
     case CommandId::VkPresentMode:
     {
       VkPresentModeKHR presentMode = VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
-      if (pszOptArg != nullptr && TryParse(presentMode, pszOptArg))
+      if (TryParse(presentMode, strOptArg))
       {
         m_launchOptions.OverridePresentMode = true;
         m_launchOptions.PresentMode = presentMode;
@@ -212,11 +217,11 @@ namespace Fsl
       m_logSurfaceFormats = true;
       return OptionParseResult::Parsed;
     case CommandId::VkScreenshot:
-      StringParseUtil::Parse(boolValue, pszOptArg);
+      StringParseUtil::Parse(boolValue, strOptArg);
       m_launchOptions.ScreenshotsEnabled = boolValue ? OptionUserChoice::On : OptionUserChoice::Off;
       return OptionParseResult::Parsed;
     default:
-      return ADemoHostOptionParser::Parse(cmdId, pszOptArg);
+      return ADemoHostOptionParser::Parse(cmdId, strOptArg);
     }
   }
 

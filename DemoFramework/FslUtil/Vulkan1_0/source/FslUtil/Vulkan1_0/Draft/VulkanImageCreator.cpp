@@ -37,7 +37,7 @@
 #include <FslGraphics/Texture/RawTexture.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreatorUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <cassert>
 #include <limits>
 #include <utility>
@@ -64,7 +64,7 @@ namespace Fsl
         imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         imageViewCreateInfo.flags = 0;
         imageViewCreateInfo.image = image;
-        imageViewCreateInfo.viewType = ConvertUtil::ToImageViewType(textureType);
+        imageViewCreateInfo.viewType = VulkanConvert::ToVkImageViewType(textureType);
         imageViewCreateInfo.format = imageFormat;
         imageViewCreateInfo.components = {VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY, VK_COMPONENT_SWIZZLE_IDENTITY,
                                           VK_COMPONENT_SWIZZLE_IDENTITY};

@@ -42,7 +42,7 @@ namespace Fsl
     std::weak_ptr<IOptions> m_options;
 
   public:
-    Options(std::weak_ptr<IOptions> options);
+    explicit Options(std::weak_ptr<IOptions> options);
 
     std::shared_ptr<IOptionParser> GetOptionParser(const OptionParserId& optionParserId) const;
     std::shared_ptr<IOptionParser> TryGetOptionParser(const OptionParserId& optionParserId) const;

@@ -43,7 +43,7 @@ namespace Fsl
     std::exception_ptr Exception;
 
 
-    ThreadShutdownBasicMessage(const ServiceGroupId& id)
+    explicit ThreadShutdownBasicMessage(const ServiceGroupId& id)
       : Id(id)
     {
     }
@@ -56,7 +56,7 @@ namespace Fsl
     }
 
 
-    operator BasicMessage() const
+    operator BasicMessage() const    // NOLINT(google-explicit-constructor);
     {
       return BasicMessage(BasicMessageType::ThreadShutdown, static_cast<int32_t>(Id.GetValue()), Exception);
     }

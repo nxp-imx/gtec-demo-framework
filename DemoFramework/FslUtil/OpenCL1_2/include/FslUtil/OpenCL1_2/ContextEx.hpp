@@ -64,12 +64,14 @@ namespace Fsl
       ~ContextEx();
 
       //! @brief Assume control of the Context (this object becomes responsible for releasing it)
+      // NOLINTNEXTLINE(misc-misplaced-const)
       explicit ContextEx(const cl_platform_id platformId, const cl_context context);
 
       //! @brief Create the requested resource
       //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
       //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
-      ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
+      // NOLINTNEXTLINE(misc-misplaced-const)
+      explicit ContextEx(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
 
       //! @brief returns the managed handle and releases the ownership.
       cl_context Release() FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
@@ -86,6 +88,7 @@ namespace Fsl
       }
 
       //! @brief Destroys any owned resources and assume control of the ContextEx (this object becomes responsible for releasing it)
+      // NOLINTNEXTLINE(misc-misplaced-const)
       void Reset(const cl_platform_id platformId, const cl_context context)
       {
         m_context.Reset(context);
@@ -95,6 +98,7 @@ namespace Fsl
       //! @brief Destroys any owned resources and then creates the requested one
       //! @param pDeviceId the chosen device id (if nullptr this is ignored, else it will be assigned the chosen deviceId)
       //! @param allowFallback if the specified device type can't be found allow using a fallback of CL_DEVICE_TYPE_ALL
+      // NOLINTNEXTLINE(misc-misplaced-const)
       void Reset(const cl_device_type deviceType, cl_device_id* pDeviceId = nullptr, const bool allowFallback = true);
 
       //! @brief Get the associated resource handle

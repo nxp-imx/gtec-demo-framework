@@ -178,7 +178,7 @@ namespace Fsl
 
         if (pInstanceCreateInfoCopy != nullptr)
         {
-          *pInstanceCreateInfoCopy = std::move(InstanceCreateInfoCopy(instanceCreateInfo));
+          *pInstanceCreateInfoCopy = InstanceCreateInfoCopy(instanceCreateInfo);
         }
         return RapidVulkan::Instance(instanceCreateInfo);
       }
@@ -203,7 +203,7 @@ namespace Fsl
 
       std::vector<VkLayerProperties> EnumerateInstanceLayerProperties()
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkEnumerateInstanceLayerProperties(&count, nullptr), "failed to acquire the count");
 
         std::vector<VkLayerProperties> result(count);
@@ -214,7 +214,7 @@ namespace Fsl
 
       std::vector<VkExtensionProperties> EnumerateInstanceExtensionProperties(const char* const pszLayerName)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkEnumerateInstanceExtensionProperties(pszLayerName, &count, nullptr), "failed to acquire the count");
 
         std::vector<VkExtensionProperties> result(count);
@@ -225,7 +225,7 @@ namespace Fsl
 
       std::vector<VkPhysicalDevice> EnumeratePhysicalDevices(const VkInstance instance)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkEnumeratePhysicalDevices(instance, &count, nullptr), "failed to acquire the count");
 
         std::vector<VkPhysicalDevice> result(count);

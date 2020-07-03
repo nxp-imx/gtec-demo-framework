@@ -38,16 +38,23 @@
 
 namespace Fsl
 {
+  enum class DemoHostOptionConfig
+  {
+    ConsoleApp,
+    WindowApp
+  };
+
   class ADemoHostOptionParser : public IOptionParser
   {
     NativeWindowConfig m_nativeWindowConfig;
     std::shared_ptr<ITag> m_nativeWindowTag;
+    DemoHostOptionConfig m_demoHostOptionConfig;
     bool m_userControlledWindow;
 
   public:
     ADemoHostOptionParser(const ADemoHostOptionParser&) = delete;
     ADemoHostOptionParser& operator=(const ADemoHostOptionParser&) = delete;
-    ADemoHostOptionParser();
+    explicit ADemoHostOptionParser(const DemoHostOptionConfig config);
 
 
     std::string GetName() const override
@@ -56,7 +63,7 @@ namespace Fsl
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int32_t cmdId, const StringViewLite& strOptArg) override;
     bool ParsingComplete() override;
 
     //! @brief Get the native window config

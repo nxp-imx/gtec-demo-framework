@@ -111,21 +111,21 @@ namespace Fsl
       ILint Format{0};
       ILint Type{0};
 
-      DevILPixelFormat() = default;
+      constexpr DevILPixelFormat() = default;
 
-      DevILPixelFormat(const ILint format, const ILint type)
+      constexpr DevILPixelFormat(const ILint format, const ILint type)
         : Format(format)
         , Type(type)
       {
       }
 
-      bool operator==(const DevILPixelFormat& rhs) const
+      constexpr bool operator==(const DevILPixelFormat& rhs) const
       {
         return Format == rhs.Format && Type == rhs.Type;
       }
 
 
-      bool operator!=(const DevILPixelFormat& rhs) const
+      constexpr bool operator!=(const DevILPixelFormat& rhs) const
       {
         return !(*this == rhs);
       }
@@ -245,11 +245,11 @@ namespace Fsl
       switch (format)
       {
       case PixelFormat::EX_ALPHA8_UNORM:
-        return DevILPixelFormat(IL_ALPHA, IL_UNSIGNED_BYTE);
+        return {IL_ALPHA, IL_UNSIGNED_BYTE};
       case PixelFormat::EX_LUMINANCE8_UNORM:
-        return DevILPixelFormat(IL_LUMINANCE, IL_UNSIGNED_BYTE);
+        return {IL_LUMINANCE, IL_UNSIGNED_BYTE};
       case PixelFormat::EX_LUMINANCE8_ALPHA8_UNORM:
-        return DevILPixelFormat(IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE);
+        return {IL_LUMINANCE_ALPHA, IL_UNSIGNED_BYTE};
       default:
         break;
       }
@@ -257,21 +257,21 @@ namespace Fsl
       switch (PixelFormatUtil::GetPixelFormatLayout(format))
       {
       case PixelFormatLayout::R8G8B8:
-        return DevILPixelFormat(IL_RGB, IL_UNSIGNED_BYTE);
+        return {IL_RGB, IL_UNSIGNED_BYTE};
       case PixelFormatLayout::B8G8R8:
-        return DevILPixelFormat(IL_BGR, IL_UNSIGNED_BYTE);
+        return {IL_BGR, IL_UNSIGNED_BYTE};
       case PixelFormatLayout::R8G8B8A8:
-        return DevILPixelFormat(IL_RGBA, IL_UNSIGNED_BYTE);
+        return {IL_RGBA, IL_UNSIGNED_BYTE};
       case PixelFormatLayout::B8G8R8A8:
-        return DevILPixelFormat(IL_BGRA, IL_UNSIGNED_BYTE);
+        return {IL_BGRA, IL_UNSIGNED_BYTE};
       case PixelFormatLayout::R32G32B32:
-        return DevILPixelFormat(IL_RGB, IL_FLOAT);
+        return {IL_RGB, IL_FLOAT};
       case PixelFormatLayout::R32G32B32A32:
-        return DevILPixelFormat(IL_RGBA, IL_FLOAT);
+        return {IL_RGBA, IL_FLOAT};
       case PixelFormatLayout::R16G16B16:
-        return DevILPixelFormat(IL_RGB, IL_HALF);
+        return {IL_RGB, IL_HALF};
       case PixelFormatLayout::R16G16B16A16:
-        return DevILPixelFormat(IL_RGBA, IL_HALF);
+        return {IL_RGBA, IL_HALF};
       default:
         throw UnsupportedPixelFormatException(format);
       }
@@ -299,14 +299,14 @@ namespace Fsl
     };
 
 
-    void ResetObject(Bitmap& rBitmap, std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat,
+    void ResetObject(Bitmap& rBitmap, std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
                      const BitmapOrigin bitmapOrigin)
     {
       rBitmap.Reset(std::move(content), extent, pixelFormat, bitmapOrigin);
     }
 
 
-    void ResetObject(Texture& rTexture, std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat,
+    void ResetObject(Texture& rTexture, std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat,
                      const BitmapOrigin bitmapOrigin)
     {
       rTexture.Reset(std::move(content), extent, pixelFormat, bitmapOrigin);
@@ -401,7 +401,7 @@ namespace Fsl
         std::vector<uint8_t> content(widthEx * height * bytesPerPixel);
         ilCopyPixels(0, 0, 0, width, height, 1, activeImageFormat.Format, activeImageFormat.Type, content.data());
 
-        ResetObject(rImageContainer, std::move(content), Extent2D(width, height), activePixelFormat, bitmapOrigin);
+        ResetObject(rImageContainer, std::move(content), PxExtent2D(width, height), activePixelFormat, bitmapOrigin);
       }
 
       devilError = ilGetError();

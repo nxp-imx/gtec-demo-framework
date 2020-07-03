@@ -31,6 +31,7 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.Log import Log
@@ -43,6 +44,8 @@ class XmlGenFileDependency(XmlBase):
         super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
         access = self._ReadAttrib(xmlElement, 'Access', 'Public')  # type: str
+        self.IfCondition = self._TryReadAttrib(xmlElement, 'If')  # type: Optional[str]
+
         if access == "Public":
             self.Access = AccessType.Public  # type: int
         elif access == "Private":

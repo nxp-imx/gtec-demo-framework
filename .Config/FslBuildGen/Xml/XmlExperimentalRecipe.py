@@ -41,6 +41,7 @@ from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.DataTypes import BuildRecipeValidateMethod
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.DataTypes import CMakeTargetType
+from FslBuildGen.Version import Version
 from FslBuildGen.Log import Log
 from FslBuildGen import Util
 #from FslBuildGen.Xml.Exceptions import XmlUnsupportedPlatformException
@@ -92,7 +93,7 @@ class XmlRecipeFileDependency(XmlBase):
 
 
 class XmlRecipeValidateCommand(XmlBase):
-    def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: int) -> None:
+    def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: BuildRecipeValidateCommand) -> None:
         super().__init__(log, xmlElement)
         self.CommandName = commandName
         self.CommandType = commandType
@@ -144,6 +145,22 @@ class XmlRecipeValidateCommandFindFileInPath(XmlRecipeValidateCommand):
             self.ExpectedPath = IOUtil.NormalizePath(self.ExpectedPath)
 
 
+class XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning(XmlBase):
+    def __init__(self, log: Log, xmlElement: ET.Element) -> None:
+        super().__init__(log, xmlElement)
+        self.StartVersion = self._ReadAttrib(xmlElement, 'StartVersion')
+        self.EndVersion = self._TryReadAttrib(xmlElement, 'EndVersion')
+        self.Help = self._ReadAttrib(xmlElement, 'Help')
+
+        trimmed = self.StartVersion.strip()
+        if trimmed != self.StartVersion:
+            raise Exception("StartVersion contained leading or ending whitespaces")
+        if self.EndVersion is not None:
+            trimmed = self.EndVersion.strip()
+            if trimmed != self.EndVersion:
+                raise Exception("EndVersion contained leading or ending whitespaces")
+
+
 class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "FindFileInPath", BuildRecipeValidateCommand.FindExecutableFileInPath)
@@ -153,6 +170,8 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
         self.MinVersion = self._TryReadAttrib(xmlElement, 'MinVersion')
         self.VersionCommand = self._TryReadAttrib(xmlElement, 'VersionCommand')
         self.VersionRegEx = self._TryReadAttrib(xmlElement, 'VersionRegEx')
+
+        self.AddOnErrorWarning = self.__ParseAddOnErrorWarning(log, xmlElement)
 
         self.Alternatives = self.__ParseAlternatives(alternatives)
 
@@ -170,6 +189,10 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
 
         self.__ValidateName()
         self.__ValidateVersionCheck()
+
+    def __ParseAddOnErrorWarning(self, log: Log, xmlElement: ET.Element) -> List[XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]:
+        entries = xmlElement.findall('AddOnErrorWarning')
+        return [XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning(log, entry) for entry in entries]
 
     def __ParseAlternatives(self, alternatives: Optional[str]) -> List[str]:
         if alternatives is None:
@@ -191,7 +214,7 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
     def __ValidateVersionCheck(self) -> None:
         if self.MinVersion is None and self.VersionCommand is None and self.VersionRegEx is None:
             return
-        if self.MinVersion is None or self.VersionCommand is None or self.VersionRegEx is None:
+        if (self.MinVersion is None and len(self.AddOnErrorWarning) == 0) or self.VersionCommand is None or self.VersionRegEx is None:
             missingAttribs = []
             if self.MinVersion is None:
               missingAttribs.append("MinVersion")
@@ -200,9 +223,10 @@ class XmlRecipeValidateCommandFindExecutableFileInPath(XmlRecipeValidateCommand)
             if self.VersionRegEx is None:
               missingAttribs.append("VersionRegEx")
             raise Exception("{0} are not defined".format(", ".join(missingAttribs)))
-        trimmed = self.MinVersion.strip()
-        if trimmed != self.MinVersion:
-            raise Exception("MinVersion contained leading or ending whitespaces")
+        if self.MinVersion is not None:
+            trimmed = self.MinVersion.strip()
+            if trimmed != self.MinVersion:
+                raise Exception("MinVersion contained leading or ending whitespaces")
         trimmed = self.VersionCommand.strip()
         if trimmed != self.VersionCommand:
             raise Exception("VersionCommand contained leading or ending whitespaces")
@@ -259,10 +283,37 @@ class XmlRecipeValidateCommandAddTool(XmlRecipeValidateCommand):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement, "AddTool", BuildRecipeValidateCommand.AddTool)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type:str
+        self.MinVersion = self._TryReadAttrib(xmlElement, 'MinVersion')
+        self.VersionCommand = self._TryReadAttrib(xmlElement, 'VersionCommand')
+        self.VersionRegEx = self._TryReadAttrib(xmlElement, 'VersionRegEx')
         if '\\' in self.Name:
             raise Exception("A path can not contain backslash '\\': '{0}'".format(self.Name))
         if self.Name.endswith('/'):
             raise Exception("A path can not end with a slash '/': '{0}'".format(self.Name))
+        self.__ValidateVersionCheck()
+
+    def __ValidateVersionCheck(self) -> None:
+        if self.MinVersion is None and self.VersionCommand is None and self.VersionRegEx is None:
+            return
+        if self.MinVersion is None or self.VersionCommand is None or self.VersionRegEx is None:
+            missingAttribs = []
+            if self.MinVersion is None:
+              missingAttribs.append("MinVersion")
+            if self.VersionCommand is None:
+              missingAttribs.append("VersionCommand")
+            if self.VersionRegEx is None:
+              missingAttribs.append("VersionRegEx")
+            raise Exception("{0} are not defined".format(", ".join(missingAttribs)))
+        if self.MinVersion is not None:
+            trimmed = self.MinVersion.strip()
+            if trimmed != self.MinVersion:
+                raise Exception("MinVersion contained leading or ending whitespaces")
+        trimmed = self.VersionCommand.strip()
+        if trimmed != self.VersionCommand:
+            raise Exception("VersionCommand contained leading or ending whitespaces")
+        trimmed = self.VersionRegEx.strip()
+        if trimmed != self.VersionRegEx:
+            raise Exception("VersionRegEx contained leading or ending whitespaces")
 
 class XmlRecipeInstallation(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
@@ -295,10 +346,10 @@ class XmlRecipeInstallation(XmlBase):
 
 
 class XmlRecipePipelineBasicCommand(XmlBase):
-    def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: int, buildToolPackageName: Optional[str] = None) -> None:
+    def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: BuildRecipePipelineCommand, buildToolPackageName: Optional[str] = None) -> None:
         super().__init__(log, xmlElement)
         self.CommandName = commandName  # type: str
-        self.CommandType = commandType  # type: int
+        self.CommandType = commandType  # type: BuildRecipePipelineCommand
         self.BuildToolPackageNames = None if buildToolPackageName is None else [buildToolPackageName] # type: Optional[List[str]]
 
 
@@ -337,7 +388,7 @@ class XmlRecipePipelineJoinCommandGitApply(XmlRecipePipelineJoinCommand):
 
 
 class XmlRecipePipelineCommand(XmlRecipePipelineBasicCommand):
-    def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: int,
+    def __init__(self, log: Log, xmlElement: ET.Element, commandName: str, commandType: BuildRecipePipelineCommand,
                  outputPathAllowed: bool = True, buildToolPackageName: Optional[str] = None, allowJoinCommandList: bool = True) -> None:
         super().__init__(log, xmlElement, commandName, commandType, buildToolPackageName)
         self.JoinCommandList = self.__GetJoinCommandList(log, xmlElement) if allowJoinCommandList else []
@@ -368,7 +419,7 @@ class XmlRecipePipelineFetchCommand(XmlRecipePipelineCommand):
     def __init__(self, log: Log,
                  xmlElement: ET.Element,
                  commandName: str,
-                 commandType: int,
+                 commandType: BuildRecipePipelineCommand,
                  outputPathAllowed: bool = True,
                  buildToolPackageName: Optional[str] = None,
                  allowJoinCommandList: bool = True) -> None:
@@ -424,7 +475,7 @@ class XmlRecipePipelineCommandCMakeBuild(XmlRecipePipelineBuildCommand):
         self.ConfigurationList = self.__ParseConfiguration(configuration)
 
 
-    def __ParseConfiguration(self, configuration: str) -> List[int]:
+    def __ParseConfiguration(self, configuration: str) -> List[BuildVariantConfig]:
         configurations = configuration.split(';')
         configurationList = []
         for entry in configurations:
@@ -529,15 +580,41 @@ class XmlRecipePipeline(XmlBase):
 class XmlExperimentalRecipe(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element, defaultName: str) -> None:
         super().__init__(log, xmlElement)
-        self.Name = self._ReadAttrib(xmlElement, 'Name', defaultName)
+        self.ShortName = self._ReadAttrib(xmlElement, 'Name', defaultName)
+        self.Version = self._TryReadAttribAsVersion(xmlElement, 'Version')  # type: Optional[Version]
         self.Pipeline = self.__TryGetPipeline(xmlElement)
         self.ValidateInstallation = self.__TryGetValidateInstallation(log, xmlElement)
         self.ExternalInstallDirectory = self._TryReadAttrib(xmlElement, 'ExternalInstallDirectory')
+        self.FindVersion = self._TryReadAttribAsVersion(xmlElement, 'FindVersion') # type: Optional[Version]
+        self.FindTargetName = self._TryReadAttrib(xmlElement, 'FindTargetName')
+        findResult = self._TryReadBoolAttrib(xmlElement, "Find", None)
+        self.Find = False if findResult is None else findResult
+
+        if self.FindVersion is not None:
+            if findResult is not None and findResult == False:
+                self.FindVersion = None
+                log.LogPrintVerbose(2, "Recipe specified Find=False, so discarding the specified FindVersion '{0}'".format(self.FindVersion))
+            else:
+                self.Find = True
+                if self.Version is not None and not self.FindVersion.IsCompatible(self.Version):
+                    raise Exception("Recipe '{0}' version {1} is not compatible with the specified FindVersion '{2}'.".format(self.ShortName, self.Version, self.FindVersion))
+
+        if self.FindTargetName is not None:
+            if findResult is not None and findResult == False:
+                self.FindTargetName = None
+                log.LogPrintVerbose(2, "Recipe specified Find=False, so discarding the specified FindTargetName '{0}'".format(self.FindTargetName))
+            else:
+                self.Find = True
 
         #if self.Pipeline is None and self.ExternalInstallDirectory is None:
-        #    raise Exception("Recipe '{0}' has to have either a pipeline or a ExternalInstallDirectory defined.".format(self.Name))
+        #    raise Exception("Recipe '{0}' has to have either a pipeline or a ExternalInstallDirectory defined.".format(self.ShortName))
         if not self.Pipeline is None and not self.ExternalInstallDirectory is None:
-            raise Exception("Recipe '{0}' can only a pipeline or a ExternalInstallDirectory defined not both.".format(self.Name))
+            raise Exception("Recipe '{0}' can only a pipeline or a ExternalInstallDirectory defined not both.".format(self.ShortName))
+
+        self.FullName = self.__GenerateName(self.ShortName, self.Version)
+
+    def __GenerateName(self, name: str, version: Optional[Version]) -> str:
+        return name if version is None else "{0}-{1}".format(name, version)
 
 
     def __TryGetPipeline(self, xmlElement: ET.Element) -> Optional[XmlRecipePipeline]:
@@ -551,6 +628,6 @@ class XmlExperimentalRecipe(XmlBase):
         child = self._TryGetElement(xmlElement, 'Installation')
         if child is None:
             if log.Verbosity >= 2:
-                log.LogPrint("The Installation element is missing for recipe {0}".format(self.Name))
+                log.LogPrint("The Installation element is missing for recipe {0}".format(self.ShortName))
             return None
         return XmlRecipeInstallation(log, child)

@@ -108,6 +108,7 @@ class CodeTemplateVC(object):
         self.AssemblyReferenceComplex_Private = IOUtil.TryReadFile(IOUtil.Join(strTemplateProjectPath, "AssemblyReferenceComplex_Private.txt"))
         self.AddHeaderFile = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "AddHeaderFile.txt"))
         self.AddSourceFile = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "AddSourceFile.txt"))
+        self.AddNatvisFile = self.SafeReadFile(IOUtil.Join(strTemplateProjectPath, "AddNatvisFile.txt"), "")
         self.VariantConfiguration = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "VariantConfiguration.txt"))
         self.VariantPropertySheets = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "VariantPropertySheets.txt"))
         self.VariantPropertyGroups = IOUtil.ReadFile(IOUtil.Join(strTemplateProjectPath, "VariantPropertyGroups.txt"))
@@ -129,6 +130,7 @@ class CodeTemplateVC(object):
         # Filter master file
         self.FilterMaster = IOUtil.TryReadFile(IOUtil.Join(strTemplateFilterPath, "master.txt"))
         self.FilterItemGroup = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "itemgroup.txt"), "")
+        self.FilterItemGroupNatvis = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "itemgroup_natvis.txt"), "")
         self.FilterItemHeader = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "item_header.txt"), "")
         self.FilterItemShader = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "item_shader.txt"), "")
         self.FilterItemSource = self.SafeReadFile(IOUtil.Join(strTemplateFilterPath, "item_source.txt"), "")

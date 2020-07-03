@@ -33,24 +33,10 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
-#include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Render/AtlasFont.hpp>
-#include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
-#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/SliderAndValueLabel.hpp>
-#include <FslSimpleUI/Base/Control/ValueLabel.hpp>
-#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
-#include <FslSimpleUI/Base/Layout/FillLayout.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include "ParticleSystemBasicScene.hpp"
 #include "PS/Draw/ParticleDrawPointsGLES3.hpp"
 #include "PS/Draw/ParticleDrawQuadsGLES3.hpp"
@@ -61,7 +47,8 @@
 #include "PSGpu/ParticleSystemGLES3.hpp"
 #include "PSGpu/ParticleSystemSnow.hpp"
 #include <GLES3/gl3.h>
-#include <iostream>
+#include <array>
+#include <memory>
 
 namespace Fsl
 {
@@ -83,7 +70,7 @@ namespace Fsl
       const float x = dimensions.X * 0.5f;
       const float y = dimensions.Y * 0.5f;
       const float z = dimensions.Z * 0.5f;
-      VertexPositionColorTexture vertices[6 * 6] = {
+      const std::array<VertexPositionColorTexture, 6 * 6> vertices = {
         // Front
         VertexPositionColorTexture(Vector3(-x, +y, +z), Color::White(), Vector2(0, 1)),
         VertexPositionColorTexture(Vector3(-x, -y, +z), Color::White(), Vector2(0, 0)),
@@ -133,7 +120,7 @@ namespace Fsl
         VertexPositionColorTexture(Vector3(+x, -y, +z), Color::White(), Vector2(1, 1)),
       };
 
-      rDst.Reset(vertices, 6 * 6, GL_STATIC_DRAW);
+      rDst.Reset(vertices, GL_STATIC_DRAW);
     }
   }
 
@@ -142,13 +129,15 @@ namespace Fsl
     : AScene(config)
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_allowAdvancedTechniques(false)
-    , m_camera(config.ScreenResolution)
+    , m_camera(config.WindowMetrics.GetSizePx())
     , m_locWorldViewMatrix(GLValues::INVALID_LOCATION)
     , m_locProjMatrix(GLValues::INVALID_LOCATION)
     , m_rotationSpeed(0.0f, 0.5f, 0.0f)
     , m_rotate(false)
     , m_particleSystemType(ParticleSystemType::GeometryShader)
   {
+    FSL_PARAM_NOT_USED(uiExtension);
+
     m_camera.SetZoom(DEFAULT_ZOOM);
 
     auto contentManager = GetContentManager();
@@ -271,21 +260,19 @@ namespace Fsl
       m_particleSystemGpu2->Update(demoTime);
     }
 
-    const Point2 screenResolution = GetScreenResolution();
-
     if (m_rotate)
     {
       m_rotation += m_rotationSpeed * demoTime.DeltaTime;
     }
 
+    const auto aspectRatio = GetAspectRatio();
     m_particleDrawContext.MatrixWorld =
       Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
     m_particleDrawContext.MatrixView = m_camera.GetViewMatrix();
-    m_particleDrawContext.MatrixProjection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
+    m_particleDrawContext.MatrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 1, 1000.0f);
     m_particleDrawContext.MatrixWorldView = m_particleDrawContext.MatrixWorld * m_particleDrawContext.MatrixView;
     m_particleDrawContext.MatrixWorldViewProjection = m_particleDrawContext.MatrixWorldView * m_particleDrawContext.MatrixProjection;
-    m_particleDrawContext.ScreenAspectRatio = GetScreenResolution().X / static_cast<float>(GetScreenResolution().Y);
+    m_particleDrawContext.ScreenAspectRatio = aspectRatio;
   }
 
 
@@ -347,7 +334,7 @@ namespace Fsl
 
     // bind the vertex buffer and enable the attrib array
     glBindBuffer(m_vbCube.GetTarget(), m_vbCube.Get());
-    m_vbCube.EnableAttribArrays(m_cubeAttribLink, sizeof(m_cubeAttribLink) / sizeof(GLES3::GLVertexAttribLink));
+    m_vbCube.EnableAttribArrays(m_cubeAttribLink);
     glDrawArrays(GL_TRIANGLES, 0, m_vbCube.GetCapacity());
   }
 
@@ -403,7 +390,7 @@ namespace Fsl
     if (particleDraw)
     {
       m_particleSystem = std::make_shared<ParticleSystemOneArray>(particleDraw, PARTICLE_CAPACITY);
-      m_boxEmitter.reset(new BoxEmitter());
+      m_boxEmitter = std::make_shared<BoxEmitter>();
       m_particleSystem->AddEmitter(m_boxEmitter);
     }
   }

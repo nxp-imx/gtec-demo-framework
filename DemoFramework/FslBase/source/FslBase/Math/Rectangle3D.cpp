@@ -37,18 +37,17 @@
 
 namespace Fsl
 {
-  Rectangle3D::Rectangle3D(const int32_t left, const int32_t top, const int32_t front, const int32_t right, const int32_t bottom, const int32_t back,
-                           bool reserved)
-    : Offset(left, top, front)
-    , Extent(static_cast<Extent3D::element_type>(right - left), static_cast<Extent3D::element_type>(bottom - top),
-             static_cast<Extent3D::element_type>(back - front))
+  Rectangle3D Rectangle3D::FromLeftTopFrontRightBottomBack(const int32_t left, const int32_t top, const int32_t front, const int32_t right,
+                                                           const int32_t bottom, const int32_t back)
   {
-    FSL_PARAM_NOT_USED(reserved);
-    static_assert(sizeof(Extent3D::element_type) >= sizeof(int32_t), "for the below check to work this has to be true");
+    static_assert(sizeof(Extent3D::value_type) >= sizeof(int32_t), "for the below check to work this has to be true");
     if (left > right || top > bottom || front > back)
     {
       throw std::invalid_argument("arguments out of range");
     }
+
+    return {Offset3D(left, top, front), Extent3D(static_cast<Extent3D::value_type>(right - left), static_cast<Extent3D::value_type>(bottom - top),
+                                                 static_cast<Extent3D::value_type>(back - front))};
   }
 
 
@@ -78,10 +77,10 @@ namespace Fsl
       const int32_t bottomSide = std::min(rect1.Bottom(), rect2.Bottom());
       const int32_t frontSide = std::max(rect1.Front(), rect2.Front());
       const int32_t backSide = std::min(rect1.Back(), rect2.Back());
-      return Rectangle3D(leftSide, topSide, frontSide, rightSide, bottomSide, backSide, true);
+      return FromLeftTopFrontRightBottomBack(leftSide, topSide, frontSide, rightSide, bottomSide, backSide);
     }
 
-    return Rectangle3D();
+    return {};
   }
 
 
@@ -93,6 +92,6 @@ namespace Fsl
     const int32_t x2 = std::max(rect1.Right(), rect2.Right());
     const int32_t y2 = std::max(rect1.Bottom(), rect2.Bottom());
     const int32_t z2 = std::max(rect1.Back(), rect2.Back());
-    return Rectangle3D(x, y, z, x2, y2, z2, true);
+    return FromLeftTopFrontRightBottomBack(x, y, z, x2, y2, z2);
   }
 }

@@ -48,7 +48,7 @@ namespace Fsl
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int32_t cmdId, const StringViewLite& strOptArg) override;
     bool ParsingComplete() override;
 
   protected:
@@ -57,7 +57,7 @@ namespace Fsl
     //! @brief This is just a dummy implementation for you to override, there is no need to call it
     virtual void OnArgumentSetup(std::deque<Option>& rOptions);
     //! @brief This is just a dummy implementation for you to override, there is no need to call it
-    virtual OptionParseResult OnParse(const int32_t cmdId, const char* const pszOptArg);
+    virtual OptionParseResult OnParse(const int32_t cmdId, const StringViewLite& strOptArg);
     //! @brief This is just a dummy implementation for you to override, there is no need to call it
     virtual bool OnParsingComplete();
   };

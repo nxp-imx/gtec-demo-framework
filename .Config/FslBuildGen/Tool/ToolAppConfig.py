@@ -57,6 +57,9 @@ class DefaultValue(object):
     CMakeBuildDir = None # type: Optional[str]
     CMakeInstallPrefix = None # type: Optional[str]
     CMakeGeneratorName = None # type: Optional[str]
+    CMakeConfigArgs = None # type: Optional[str]               # applied to app cmake config only
+    CMakeConfigGlobalArgs = None # type: Optional[str]         # applied to both recipe and app config.
+    CMakeAllowFindPackage = None # type: Optional[bool]        #
 
 
 class ToolAppConfig(object):
@@ -77,6 +80,9 @@ class ToolAppConfig(object):
         self.CMakeBuildDir = DefaultValue.CMakeBuildDir
         self.CMakeInstallPrefix = DefaultValue.CMakeInstallPrefix
         self.CMakeGeneratorName = DefaultValue.CMakeGeneratorName
+        self.CMakeConfigArgs = DefaultValue.CMakeConfigArgs
+        self.CMakeConfigGlobalArgs = DefaultValue.CMakeConfigGlobalArgs
+        self.CMakeAllowFindPackage = DefaultValue.CMakeAllowFindPackage
 
 
     def SetToolAppConfigValues(self, toolAppConfig: 'ToolAppConfig') -> None:
@@ -99,6 +105,10 @@ class ToolAppConfig(object):
         self.CMakeBuildDir = toolAppConfig.CMakeBuildDir
         self.CMakeInstallPrefix = toolAppConfig.CMakeInstallPrefix
         self.CMakeGeneratorName = toolAppConfig.CMakeGeneratorName
+        self.CMakeConfigArgs = toolAppConfig.CMakeConfigArgs
+        self.CMakeConfigGlobalArgs = toolAppConfig.CMakeConfigGlobalArgs
+        self.CMakeAllowFindPackage = toolAppConfig.CMakeAllowFindPackage
 
     def GetUserCMakeConfig(self) -> UserCMakeConfig:
-        return UserCMakeConfig(self.CMakeBuildDir, self.CMakeGeneratorName, self.CMakeInstallPrefix)
+        return UserCMakeConfig(self.CMakeBuildDir, self.CMakeGeneratorName, self.CMakeInstallPrefix, self.CMakeConfigArgs,
+                               self.CMakeConfigGlobalArgs, self.CMakeAllowFindPackage)

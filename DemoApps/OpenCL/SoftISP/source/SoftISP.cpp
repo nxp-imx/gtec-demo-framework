@@ -122,7 +122,9 @@ namespace Fsl
   {
     auto optionParser = config.GetOptions<OptionParser>();
     m_denoiseEn = optionParser->GetDenoiseStatus();
+    m_cycleNum = optionParser->GetCycleNumStatus();
     FSLLOG3_INFO("Denoise status: {}", m_denoiseEn);
+    FSLLOG3_INFO("CycleNum status: {}", m_cycleNum);
     FSLLOG3_INFO("Initializing device(s)...");
     const cl_device_type deviceType = CL_DEVICE_TYPE_GPU;
     // create the OpenCL context on available GPU devices
@@ -225,7 +227,6 @@ namespace Fsl
     const std::size_t globalWorkSizeStd[2] = {m_imgWid, m_imgHei};
     const std::size_t globalWorkSizeDenoise[2] = {m_imgWid / 8, m_imgHei};
     const std::size_t globalWorkSizeOne[2] = {32, 2};
-
     GetContentManager()->ReadAllBytes(m_dst0.data(), m_imgSize, "bayer.data");
 
     RAPIDOPENCL_CHECK(
@@ -245,18 +246,27 @@ namespace Fsl
       clEnqueueWriteBuffer(m_commandQueue.Get(), m_pixelValue[1].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueG, 0, nullptr, nullptr));
     RAPIDOPENCL_CHECK(
       clEnqueueWriteBuffer(m_commandQueue.Get(), m_pixelValue[2].Get(), CL_FALSE, 0, sizeof(cl_int), &m_pixelValueB, 0, nullptr, nullptr));
+    double timeTotal = 0;
+    for (int i = 0; i < m_cycleNum; i++)
+    {
+      RAPIDOPENCL_CHECK(
+        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[1].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize32, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      timeTotal += time;
+    }
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: sigma): {} ms", timeTotal / m_cycleNum);
 
-    RAPIDOPENCL_CHECK(
-      clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[1].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize32, 0, nullptr, &hEvent));
-    RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-    time = GetExecutionTime(hEvent);
-    FSLLOG3_INFO("Kernel execution time on GPU (kernel: sigma): {} ms", time);
-
-    RAPIDOPENCL_CHECK(
-      clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[2].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
-    RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-    time = GetExecutionTime(hEvent);
-    FSLLOG3_INFO("Kernel execution time on GPU (kernel: awb): {} ms", time);
+    timeTotal = 0;
+    for (int i = 0; i < m_cycleNum; i++)
+    {
+      RAPIDOPENCL_CHECK(
+        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[2].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      timeTotal += time;
+    }
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: awb): {} ms", timeTotal / m_cycleNum);
 
     if ((!m_inDistR.empty()) && (!m_inDistG.empty()) && (!m_inDistB.empty()))
     {
@@ -271,23 +281,38 @@ namespace Fsl
     RAPIDOPENCL_CHECK(
       clEnqueueWriteBuffer(m_commandQueue.Get(), m_deviceDist[2].Get(), CL_FALSE, 0, sizeof(cl_int) * m_BINS, m_inDistB.data(), 0, nullptr, nullptr));
 
-    RAPIDOPENCL_CHECK(
-      clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[3].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
-    RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-    time = GetExecutionTime(hEvent);
-    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize1): {} ms", time);
+    timeTotal = 0;
+    for (int i = 0; i < m_cycleNum; i++)
+    {
+      RAPIDOPENCL_CHECK(
+        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[3].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      timeTotal += time;
+    }
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize1): {} ms", timeTotal / m_cycleNum);
 
-    RAPIDOPENCL_CHECK(
-      clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[4].Get(), 2, nullptr, globalWorkSizeOne, localWorkSize16, 0, nullptr, &hEvent));
-    RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-    time = GetExecutionTime(hEvent);
-    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize2): {} ms", time);
+    timeTotal = 0;
+    for (int i = 0; i < m_cycleNum; i++)
+    {
+      RAPIDOPENCL_CHECK(
+        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[4].Get(), 2, nullptr, globalWorkSizeOne, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      timeTotal += time;
+    }
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize2): {} ms", timeTotal / m_cycleNum);
 
-    RAPIDOPENCL_CHECK(
-      clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[5].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
-    RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
-    time = GetExecutionTime(hEvent);
-    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize3): {} ms", time);
+    timeTotal = 0;
+    for (int i = 0; i < m_cycleNum; i++)
+    {
+      RAPIDOPENCL_CHECK(
+        clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[5].Get(), 2, nullptr, globalWorkSizeDiv16, localWorkSize16, 0, nullptr, &hEvent));
+      RAPIDOPENCL_CHECK(clWaitForEvents(1, &hEvent));
+      time = GetExecutionTime(hEvent);
+      timeTotal += time;
+    }
+    FSLLOG3_INFO("Kernel execution time on GPU (kernel: equalize3): {} ms", timeTotal / m_cycleNum);
 
     RAPIDOPENCL_CHECK(
       clEnqueueNDRangeKernel(m_commandQueue.Get(), kernels[6].Get(), 2, nullptr, globalWorkSizeDiv8, localWorkSize32, 0, nullptr, &hEvent));
@@ -396,7 +421,7 @@ namespace Fsl
 
   void SoftISP::CopyToBMP(Bitmap& bitmap, const IO::Path& fileName, const void* ptr)
   {
-    bitmap.Reset(ptr, m_imgSize * 4, Extent2D(static_cast<int32_t>(m_imgWid), static_cast<int32_t>(m_imgHei)), PixelFormat::B8G8R8A8_UNORM,
+    bitmap.Reset(ptr, m_imgSize * 4, PxExtent2D(static_cast<int32_t>(m_imgWid), static_cast<int32_t>(m_imgHei)), PixelFormat::B8G8R8A8_UNORM,
                  BitmapOrigin::UpperLeft);
     GetPersistentDataManager()->Write(fileName, bitmap);
   }

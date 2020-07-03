@@ -47,10 +47,10 @@ namespace Fsl
                                 const float ringRadius, const float mod, const float horizontalAngularStride, const float sinTheta,
                                 const float cosTheta, const float uCurrent, const float v1, const float v2, const float vAdd)
       {
-        float phi;
+        float phi = 0.0f;
         for (int horizontalIndex = 0; horizontalIndex < minorSegments; ++horizontalIndex)
         {
-          phi = horizontalAngularStride * horizontalIndex;
+          phi = horizontalAngularStride * float(horizontalIndex);
 
           // position
           float z = ringRadius * std::sin(phi);
@@ -70,7 +70,7 @@ namespace Fsl
             pos.Normalize();
             rVertices[rVertexIndex].Normal = pos;
           }
-          rVertices[rVertexIndex].TextureCoordinate = Vector2(uCurrent, v1 + (horizontalIndex * vAdd));
+          rVertices[rVertexIndex].TextureCoordinate = Vector2(uCurrent, v1 + (float(horizontalIndex) * vAdd));
           ++rVertexIndex;
         }
 
@@ -83,10 +83,10 @@ namespace Fsl
       void GenerateVertices(std::vector<BasicMesh::vertex_type>& rVertices, const int majorSegments, const int minorSegments, const float radius,
                             const float ringRadius, const NativeTextureArea& textureArea, const WindingOrder::Enum windingOrder)
       {
-        const float verticalAngularStride = (MathHelper::PI * 2.0f) / majorSegments;
-        const float horizontalAngularStride = (MathHelper::PI * 2.0f) / minorSegments;
+        const float verticalAngularStride = (MathHelper::PI * 2.0f) / float(majorSegments);
+        const float horizontalAngularStride = (MathHelper::PI * 2.0f) / float(minorSegments);
 
-        float mod;
+        float mod = 0.0f;
         if (windingOrder == WindingOrder::CCW)
         {
           mod = 1.0f;
@@ -96,22 +96,22 @@ namespace Fsl
           mod = -1.0f;
         }
 
-        const float u1 = textureArea.X1;
-        const float v1 = textureArea.Y2;
-        const float u2 = textureArea.X2;
-        const float v2 = textureArea.Y1;
-        const float uAdd = (u2 - u1) / majorSegments;
-        const float vAdd = (v2 - v1) / minorSegments;
+        const float u1 = textureArea.X0;
+        const float v1 = textureArea.Y1;
+        const float u2 = textureArea.X1;
+        const float v2 = textureArea.Y0;
+        const float uAdd = (u2 - u1) / float(majorSegments);
+        const float vAdd = (v2 - v1) / float(minorSegments);
 
 
         float theta = 0.0f;
         int vertexIndex = 0;
         for (int verticalIndex = 0; verticalIndex < majorSegments; ++verticalIndex)
         {
-          theta = verticalAngularStride * verticalIndex;
+          theta = verticalAngularStride * float(verticalIndex);
           const float sinTheta = std::sin(theta);
           const float cosTheta = std::cos(theta);
-          const auto uCurrent = static_cast<float>(u1 + (verticalIndex * uAdd));
+          const auto uCurrent = static_cast<float>(u1 + (float(verticalIndex) * uAdd));
 
           GenerateRingVertices(rVertices, vertexIndex, minorSegments, radius, ringRadius, mod, horizontalAngularStride, sinTheta, cosTheta, uCurrent,
                                v1, v2, vAdd);

@@ -59,7 +59,7 @@ namespace Fsl
 
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
     {
-      std::string fragmentShaderFile;
+      IO::Path fragmentShaderFile;
       switch (cfg.TheRenderMode)
       {
       // case RenderMode::Tex:

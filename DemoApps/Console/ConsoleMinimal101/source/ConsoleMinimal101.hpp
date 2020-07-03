@@ -38,7 +38,7 @@ namespace Fsl
   class ConsoleMinimal101 : public DemoAppConsoleMinimal
   {
   public:
-    ConsoleMinimal101(const DemoAppConfig& config);
+    explicit ConsoleMinimal101(const DemoAppConfig& config);
     ~ConsoleMinimal101() override;
 
   protected:

@@ -41,33 +41,33 @@ namespace Fsl
   struct Extent3D
   {
   public:
-    using element_type = uint32_t;
+    using value_type = uint32_t;
 
-    element_type Width{0};
-    element_type Height{0};
-    element_type Depth{0};
+    value_type Width{0};
+    value_type Height{0};
+    value_type Depth{0};
 
-    constexpr Extent3D() = default;
+    constexpr Extent3D() noexcept = default;
 
-    // constexpr Extent3D(const element_type width, const element_type height)
+    // constexpr Extent3D(const value_type width, const value_type height)
     //  : Extent3D(width, height, 1)
     //{
     //}
 
     Extent3D(const int32_t width, const int32_t height, const int32_t depth);
 
-    constexpr Extent3D(const element_type width, const element_type height, const element_type depth)
+    constexpr Extent3D(const value_type width, const value_type height, const value_type depth) noexcept
       : Width(width)
       , Height(height)
       , Depth(depth)
     {
     }
 
-    Extent3D(const Point2& value, const element_type depth);
-    Extent3D(const Extent2D& extent, const element_type depth);
+    Extent3D(const Point2& value, const value_type depth);
+    Extent3D(const Extent2D& extent, const value_type depth);
 
 
-    Extent3D& operator+=(const Extent3D& arg)
+    constexpr Extent3D& operator+=(const Extent3D& arg) noexcept
     {
       Width += arg.Width;
       Height += arg.Height;
@@ -75,7 +75,7 @@ namespace Fsl
       return *this;
     }
 
-    Extent3D& operator-=(const Extent3D& arg)
+    constexpr Extent3D& operator-=(const Extent3D& arg) noexcept
     {
       Width -= arg.Width;
       Height -= arg.Height;
@@ -83,7 +83,7 @@ namespace Fsl
       return *this;
     }
 
-    Extent3D& operator*=(const Extent3D& arg)
+    constexpr Extent3D& operator*=(const Extent3D& arg) noexcept
     {
       Width *= arg.Width;
       Height *= arg.Height;
@@ -91,7 +91,7 @@ namespace Fsl
       return *this;
     }
 
-    Extent3D& operator*=(const int arg)
+    constexpr Extent3D& operator*=(const int arg) noexcept
     {
       Width *= arg;
       Height *= arg;
@@ -99,47 +99,59 @@ namespace Fsl
       return *this;
     }
 
-    constexpr bool operator==(const Extent3D& rhs) const
+    constexpr bool operator==(const Extent3D& rhs) const noexcept
     {
       return Width == rhs.Width && Height == rhs.Height && Depth == rhs.Depth;
     }
 
-    constexpr bool operator!=(const Extent3D& rhs) const
+    constexpr bool operator!=(const Extent3D& rhs) const noexcept
     {
       return Width != rhs.Width || Height != rhs.Height || Depth != rhs.Depth;
     }
 
     // @brief Returns a Extent3D with all components being zero (0, 0)
-    static constexpr Extent3D Zero()
+    static constexpr Extent3D Zero() noexcept
     {
       return {};
     }
   };
-}
 
-inline Fsl::Extent3D operator+(const Fsl::Extent3D& lhs, const Fsl::Extent3D& rhs)
-{
-  return Fsl::Extent3D(lhs.Width + rhs.Width, lhs.Height + rhs.Height, lhs.Depth + rhs.Depth);
-}
+  inline constexpr Extent3D operator+(const Extent3D& lhs, const Extent3D& rhs) noexcept
+  {
+    return {lhs.Width + rhs.Width, lhs.Height + rhs.Height, lhs.Depth + rhs.Depth};
+  }
 
-inline Fsl::Extent3D operator-(const Fsl::Extent3D& lhs, const Fsl::Extent3D& rhs)
-{
-  return Fsl::Extent3D(lhs.Width - rhs.Width, lhs.Height - rhs.Height, lhs.Depth - rhs.Depth);
-}
+  inline constexpr Extent3D operator-(const Extent3D& lhs, const Extent3D& rhs) noexcept
+  {
+    return {lhs.Width - rhs.Width, lhs.Height - rhs.Height, lhs.Depth - rhs.Depth};
+  }
 
-inline Fsl::Extent3D operator*(const Fsl::Extent3D& lhs, const Fsl::Extent3D& rhs)
-{
-  return Fsl::Extent3D(lhs.Width * rhs.Width, lhs.Height * rhs.Height, lhs.Depth * rhs.Depth);
-}
+  inline constexpr Extent3D operator*(const Extent3D& lhs, const Extent3D& rhs) noexcept
+  {
+    return {lhs.Width * rhs.Width, lhs.Height * rhs.Height, lhs.Depth * rhs.Depth};
+  }
 
-inline Fsl::Extent3D operator*(const Fsl::Extent3D& lhs, const int rhs)
-{
-  return Fsl::Extent3D(lhs.Width * rhs, lhs.Height * rhs, lhs.Depth + rhs);
-}
+  inline constexpr Extent3D operator*(const Extent3D& lhs, const uint32_t rhs) noexcept
+  {
+    return {lhs.Width * rhs, lhs.Height * rhs, lhs.Depth + rhs};
+  }
 
-inline Fsl::Extent3D operator*(const int lhs, const Fsl::Extent3D& rhs)
-{
-  return rhs * lhs;
+  inline constexpr Extent3D operator*(const uint32_t lhs, const Extent3D& rhs) noexcept
+  {
+    return rhs * lhs;
+  }
+
+
+  inline constexpr Extent3D operator*(const Extent3D& lhs, const int32_t rhs)
+  {
+    return {lhs.Width * rhs, lhs.Height * rhs, lhs.Depth + rhs};
+  }
+
+  inline constexpr Extent3D operator*(const int32_t lhs, const Extent3D& rhs)
+  {
+    return rhs * lhs;
+  }
+
 }
 
 #endif

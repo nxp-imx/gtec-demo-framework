@@ -59,7 +59,7 @@ namespace Fsl
 
       vx_rectangle_t imageRect = {0, 0, imageWidth, imageHeight};
       vx_imagepatch_addressing_t imageInfo = VX_IMAGEPATCH_ADDR_INIT;
-      vx_map_id mapId;
+      vx_map_id mapId = 0;
       void* pImageAddress = nullptr;
       RAPIDOPENVX_CHECK(vxMapImagePatch(rImage.Get(), &imageRect, 0, &mapId, &imageInfo, &pImageAddress, VX_WRITE_ONLY, VX_MEMORY_TYPE_HOST, 0));
 
@@ -100,8 +100,8 @@ namespace Fsl
       // transfer image from gpu to cpu
       vx_imagepatch_addressing_t imageInfo1 = VX_IMAGEPATCH_ADDR_INIT;
       vx_imagepatch_addressing_t imageInfo2 = VX_IMAGEPATCH_ADDR_INIT;
-      vx_map_id mapId1;
-      vx_map_id mapId2;
+      vx_map_id mapId1 = 0;
+      vx_map_id mapId2 = 0;
       void* pImageAddress1 = nullptr;
       void* pImageAddress2 = nullptr;
       RAPIDOPENVX_CHECK(vxMapImagePatch(srcImage1.Get(), &imageRect, 0, &mapId1, &imageInfo1, &pImageAddress1, VX_READ_ONLY, VX_MEMORY_TYPE_HOST, 0));
@@ -190,21 +190,21 @@ namespace Fsl
   OpenVX101::~OpenVX101() = default;
 
 
-  void OpenVX101::Update(const DemoTime& demoTime)
+  void OpenVX101::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void OpenVX101::Draw(const DemoTime& demoTime)
+  void OpenVX101::Draw(const DemoTime& /*demoTime*/)
   {
-    auto res = GetScreenResolution();
+    auto resPx = GetWindowSizePx();
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto halfWidth = res.X / 2;
-    Rectangle leftRect(0, 0, halfWidth, res.Y);
-    Rectangle rightRect(halfWidth, 0, halfWidth, res.Y);
+    const auto halfWidth = resPx.Width() / 2;
+    PxRectangle leftRect(0, 0, halfWidth, resPx.Height());
+    PxRectangle rightRect(halfWidth, 0, halfWidth, resPx.Height());
 
     m_nativeBatch->Begin();
     m_nativeBatch->Draw(m_texSrc, leftRect, Color::White());

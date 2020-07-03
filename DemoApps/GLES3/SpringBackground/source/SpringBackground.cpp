@@ -29,12 +29,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
+#include <FslGraphics/Sprite/ISpriteResourceManager.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
-#include <FslBase/Math/MathHelper.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
+#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include "SpringBackground.hpp"
 #include "OptionParser.hpp"
 #include <GLES3/gl3.h>
@@ -44,34 +52,41 @@
 namespace Fsl
 {
   using namespace GLES3;
-  using namespace UI;
-
-  namespace
-  {
-  }
 
 
   // Geometry Wars had 60.000 points in its spring grid :)
   SpringBackground::SpringBackground(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
-    , m_texFill(m_uiExtension->GetAtlasTexture2D("Fill"))
-    , m_texBall(m_uiExtension->GetAtlasTexture2D("SliderCursor"))
-    , m_gridScene(config, m_texFill, config.GetOptions<OptionParser>()->GetGridResolution())
     , m_isLeftButtonDown(false)
     , m_bloomRender(config)
     , m_balls(4)
     , m_explostionType(false)
   {
+    {
+      auto nativeGraphicsService = config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeGraphics();
+      auto contentManager = GetContentManager();
+      BasicTextureAtlas atlas;
+      contentManager->Read(atlas, "MainAtlas.bta");
+      auto texture = contentManager->ReadTexture("MainAtlas.png");
+      Texture2D atlasTexture(nativeGraphicsService, texture, Texture2DFilterHint::Smooth);
+      TextureAtlasMap textureAtlasMap(atlas);
+
+      m_texFill = AtlasTexture2D(atlasTexture, textureAtlasMap.GetAtlasTextureInfo("Fill"));
+      m_texBall = AtlasTexture2D(atlasTexture, textureAtlasMap.GetAtlasTextureInfo("SliderCursor"));
+    }
+    m_gridScene = std::make_unique<GridScene>(config, m_texFill, config.GetOptions<OptionParser>()->GetGridResolution());
+
+
     RegisterExtension(m_uiExtension);
 
     auto options = config.GetOptions<OptionParser>();
 
     if (options->GetRenderId() >= 0)
     {
-      m_gridScene.SetRenderId(options->GetRenderId());
+      m_gridScene->SetRenderId(options->GetRenderId());
     }
 
     m_config.Bloom = options->IsBloomEnabled();
@@ -104,10 +119,6 @@ namespace Fsl
 
     switch (event.GetKey())
     {
-    case VirtualKey::M:
-      ToggleMenu();
-      event.Handled();
-      break;
     case VirtualKey::B:
       event.Handled();
       m_config.Bloom = !m_config.Bloom;
@@ -128,14 +139,9 @@ namespace Fsl
   }
 
 
-  void SpringBackground::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void SpringBackground::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
-    if (theEvent->GetSource() == m_btnMenu)
-    {
-      theEvent->Handled();
-      ToggleMenu();
-    }
-    else if (theEvent->GetSource() == m_btnRenderTypePrev)
+    if (theEvent->GetSource() == m_btnRenderTypePrev)
     {
       PrevGridRender();
     }
@@ -146,7 +152,7 @@ namespace Fsl
   }
 
 
-  void SpringBackground::OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  void SpringBackground::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     if (theEvent->GetSource() == m_cbBloom)
     {
@@ -176,11 +182,11 @@ namespace Fsl
         Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
         if (!m_explostionType)
         {
-          m_gridScene.ApplyExplosiveForce(30, mousePos, 300);
+          m_gridScene->ApplyExplosiveForce(30, mousePos, 300);
         }
         else
         {
-          m_gridScene.ApplyDirectedForce(Vector3(0, 0, 1000), mousePos, 300);
+          m_gridScene->ApplyDirectedForce(Vector3(0, 0, 1000), mousePos, 300);
         }
         m_explostionType = !m_explostionType;
       }
@@ -190,7 +196,7 @@ namespace Fsl
       if (event.IsPressed())
       {
         Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
-        m_gridScene.ApplyImplosiveForce(500, mousePos, 300);
+        m_gridScene->ApplyImplosiveForce(500, mousePos, 300);
       }
       break;
     default:
@@ -213,22 +219,22 @@ namespace Fsl
       Vector3 mousePosDeep(mousePos.X, mousePos.Y, 50);
       Vector3 delta = mousePos - m_oldMouse;
 
-      // m_gridScene.ApplyExplosiveForce(30, mousePosDeep, 200);
-      // m_gridScene.ApplyExplosiveForce(100, mousePos, 80);
-      // m_gridScene.ApplyImplosiveForce(100, mousePos, 80);
-      // m_gridScene.ApplyDirectedForce(Vector3(100, 0, 0), mousePos, 80);
-      // m_gridScene.ApplyDirectedForce(delta, mousePos, 80);
-      m_gridScene.ApplyDirectedForce(delta * 0.2f * 2, mousePos, 40);
-      //      m_gridScene.ApplyDirectedForce(delta * 0.2f * 20, mousePos - delta, 40);
+      // m_gridScene->ApplyExplosiveForce(30, mousePosDeep, 200);
+      // m_gridScene->ApplyExplosiveForce(100, mousePos, 80);
+      // m_gridScene->ApplyImplosiveForce(100, mousePos, 80);
+      // m_gridScene->ApplyDirectedForce(Vector3(100, 0, 0), mousePos, 80);
+      // m_gridScene->ApplyDirectedForce(delta, mousePos, 80);
+      m_gridScene->ApplyDirectedForce(delta * 0.2f * 2, mousePos, 40);
+      //      m_gridScene->ApplyDirectedForce(delta * 0.2f * 20, mousePos - delta, 40);
     }
 
     if (m_config.Balls)
     {
-      auto screenRes = GetScreenResolution();
+      auto windowSizePx = GetWindowSizePx();
       const float boundaryLeft = 0;
-      const auto boundaryRight = static_cast<float>(screenRes.X);
+      const auto boundaryRight = static_cast<float>(windowSizePx.Width());
       const float boundaryTop = 0;
-      const auto boundaryBottom = static_cast<float>(screenRes.Y);
+      const auto boundaryBottom = static_cast<float>(windowSizePx.Height());
       const float bounce = 1.0f;
       for (auto itr = m_balls.begin(); itr != m_balls.end(); ++itr)
       {
@@ -236,18 +242,18 @@ namespace Fsl
         itr->OldPosition = itr->Position;
         itr->Position += velocity;
 
-        m_gridScene.ApplyDirectedForce(Vector3(velocity.X, velocity.Y, 0.0f) * 1.0f, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        m_gridScene->ApplyDirectedForce(Vector3(velocity.X, velocity.Y, 0.0f) * 1.0f, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
 
-        // m_gridScene.ApplyDirectedForce(Vector3(0, 0, 100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        // m_gridScene.ApplyDirectedForce(Vector3(0, 0, -100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        // m_gridScene.ApplyImplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        // m_gridScene.ApplyImplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        // m_gridScene.ApplyImplosiveForce(30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        // m_gridScene.ApplyImplosiveForce(10, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyDirectedForce(Vector3(0, 0, 100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyDirectedForce(Vector3(0, 0, -100.0f), Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyImplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyImplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyImplosiveForce(30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyImplosiveForce(10, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
 
-        // m_gridScene.ApplyExplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        // m_gridScene.ApplyExplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
-        // m_gridScene.ApplyExplosiveForce(-30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyExplosiveForce(100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyExplosiveForce(-100, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
+        // m_gridScene->ApplyExplosiveForce(-30, Vector3(itr->Position.X, itr->Position.Y, 0.0f), 40);
 
 
         if (itr->Position.X > boundaryRight)
@@ -273,7 +279,7 @@ namespace Fsl
       }
     }
 
-    m_gridScene.FixedUpdate(demoTime);
+    m_gridScene->FixedUpdate(demoTime);
   }
 
 
@@ -282,23 +288,20 @@ namespace Fsl
     Vector3 mousePos(static_cast<float>(m_mousePosition.X), static_cast<float>(m_mousePosition.Y), 0.0f);
     m_oldMouse = mousePos;
 
-    auto resolution = GetScreenResolution();
-    Vector2 screenSize(static_cast<float>(resolution.X), static_cast<float>(resolution.Y));
-
-    m_gridScene.Update(demoTime);
+    m_gridScene->Update(demoTime);
     m_bloomRender.Update(demoTime);
   }
 
 
-  void SpringBackground::Draw(const DemoTime& demoTime)
+  void SpringBackground::Draw(const DemoTime& /*demoTime*/)
   {
     if (m_config.Bloom)
     {
-      m_bloomRender.Draw(m_gridScene);
+      m_bloomRender.Draw(*m_gridScene);
     }
     else
     {
-      m_gridScene.Draw();
+      m_gridScene->Draw();
     }
 
 
@@ -308,7 +311,7 @@ namespace Fsl
 
       const Color ballColor = Color::White();
       Vector2 scale(1, 1);
-      Vector2 origin(m_texBall.GetSize().X * 0.5f, m_texBall.GetSize().Y * 0.5f);
+      Vector2 origin(m_texBall.GetSize().Width() * 0.5f, m_texBall.GetSize().Height() * 0.5f);
       for (auto itr = m_balls.begin(); itr != m_balls.end(); ++itr)
       {
         m_batch->Draw(m_texBall, itr->Position, ballColor, origin, scale);
@@ -325,140 +328,68 @@ namespace Fsl
   {
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
-    AtlasTexture2D texMenu = m_uiExtension->GetAtlasTexture2D("Player/Pause");
 
-    m_btnMenu = std::make_shared<ImageButton>(context);
-    m_btnMenu->SetContent(texMenu);
-    m_btnMenu->SetAlignmentX(ItemAlignment::Near);
-    m_btnMenu->SetAlignmentY(ItemAlignment::Far);
+    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
 
-    m_mainMenuStack = std::make_shared<StackLayout>(context);
-    m_mainMenuStack->SetLayoutOrientation(LayoutOrientation::Vertical);
-    m_mainMenuStack->SetAlignmentX(ItemAlignment::Near);
-    m_mainMenuStack->SetAlignmentY(ItemAlignment::Near);
+    auto layoutMenu = std::make_shared<UI::StackLayout>(context);
+    auto menuBar = factory.CreateBottomBar(layoutMenu, UI::Theme::BarType::Transparent);
+    {    // Create the menu
+      layoutMenu->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      layoutMenu->SetAlignmentX(UI::ItemAlignment::Near);
+      layoutMenu->SetAlignmentY(UI::ItemAlignment::Near);
+      layoutMenu->SetSpacing(10.0f);
 
-    auto internalStack = std::make_shared<StackLayout>(context);
-    internalStack->SetLayoutOrientation(LayoutOrientation::Vertical);
-    internalStack->SetAlignmentX(ItemAlignment::Near);
-    internalStack->SetAlignmentY(ItemAlignment::Far);
-    internalStack->AddChild(m_mainMenuStack);
-    internalStack->AddChild(m_btnMenu);
+      ISpriteResourceManager& rSpriteManager = m_uiExtension->GetSpriteResourceManager();
+      const auto defaultMaterialId = m_uiExtension->GetDefaultMaterialId();
 
-    m_rootLayout = std::make_shared<FillLayout>(context);
-    m_rootLayout->AddChild(internalStack);
+      auto spriteBackSmall = rSpriteManager.CreateImageSprite(defaultMaterialId, "Icon/Navigation/ic_chevron_left_white_36dp");
+      auto spriteNextSmall = rSpriteManager.CreateImageSprite(defaultMaterialId, "Icon/Navigation/ic_chevron_right_white_36dp");
+
+      m_menuLabelRenderType = factory.CreateLabel("");
+      m_menuLabelRenderType->SetAlignmentY(UI::ItemAlignment::Center);
+
+      m_btnRenderTypePrev = factory.CreateImageButton(UI::Theme::ImageButtonType::Small, spriteBackSmall);
+      m_btnRenderTypePrev->SetAlignmentY(UI::ItemAlignment::Center);
+
+      m_btnRenderTypeNext = factory.CreateImageButton(UI::Theme::ImageButtonType::Small, spriteNextSmall);
+      m_btnRenderTypeNext->SetAlignmentY(UI::ItemAlignment::Center);
+
+      m_cbBloom = factory.CreateSwitch("Bloom");
+      m_cbBloom->SetAlignmentY(UI::ItemAlignment::Center);
+
+      auto stack = std::make_shared<UI::StackLayout>(context);
+      stack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+      stack->SetAlignmentY(UI::ItemAlignment::Center);
+      stack->AddChild(m_btnRenderTypePrev);
+      stack->AddChild(m_btnRenderTypeNext);
+      stack->AddChild(m_menuLabelRenderType);
+
+      layoutMenu->AddChild(m_cbBloom);
+      layoutMenu->AddChild(stack);
+      UpdateControls();
+    }
 
     // Finally add everything to the window manager (to ensure its seen)
-    m_uiExtension->GetWindowManager()->Add(m_rootLayout);
+    m_uiExtension->GetWindowManager()->Add(menuBar);
   }
-
-
-  void SpringBackground::ToggleMenu()
-  {
-    if (m_layoutMenu)
-    {
-      DestroyMenuUI();
-    }
-    else
-    {
-      CreateMenuUI();
-    }
-  }
-
-
-  void SpringBackground::CreateMenuUI()
-  {
-    if (m_layoutMenu)
-    {
-      return;
-    }
-
-    auto context = m_uiExtension->GetContext();
-    AtlasTexture2D texCheckBoxC(m_uiExtension->GetAtlasTexture2D("CheckBoxC"));
-    AtlasTexture2D texCheckBoxU(m_uiExtension->GetAtlasTexture2D("CheckBoxU"));
-    // AtlasTexture2D texSlider(m_uiExtension->GetAtlasTexture2D("Slider"));
-    // AtlasTexture2D texSliderCursor(m_uiExtension->GetAtlasTexture2D("SliderCursor"));
-    // ThicknessF sliderCursorPadding(13, 0, 13, 0);
-    // NineSlice sliderNineSlice(13, 0, 13, 0);
-    AtlasTexture2D texBackSmall(m_uiExtension->GetAtlasTexture2D("Player/BackSmall"));
-    AtlasTexture2D texNextSmall(m_uiExtension->GetAtlasTexture2D("Player/NextSmall"));
-
-
-    // Create the outer stack for the menu
-    m_layoutMenu = std::make_shared<StackLayout>(context);
-    m_layoutMenu->SetLayoutOrientation(LayoutOrientation::Vertical);
-    m_layoutMenu->SetAlignmentX(ItemAlignment::Near);
-    m_layoutMenu->SetAlignmentY(ItemAlignment::Near);
-    m_mainMenuStack->AddChild(m_layoutMenu);
-
-
-    auto stack = std::make_shared<StackLayout>(context);
-    stack->SetLayoutOrientation(LayoutOrientation::Horizontal);
-    m_menuLabelRenderType = std::make_shared<Label>(context);
-    m_menuLabelRenderType->SetAlignmentY(ItemAlignment::Center);
-
-    m_btnRenderTypePrev = std::make_shared<ImageButton>(context);
-    m_btnRenderTypePrev->SetContent(texBackSmall);
-    m_btnRenderTypePrev->SetAlignmentY(ItemAlignment::Center);
-
-    m_btnRenderTypeNext = std::make_shared<ImageButton>(context);
-    m_btnRenderTypeNext->SetContent(texNextSmall);
-    m_btnRenderTypeNext->SetAlignmentY(ItemAlignment::Center);
-
-    m_cbBloom = std::make_shared<CheckBox>(context);
-    m_cbBloom->SetText("Bloom");
-    m_cbBloom->SetCheckedTexture(texCheckBoxC);
-    m_cbBloom->SetUncheckedTexture(texCheckBoxU);
-
-    stack->AddChild(m_btnRenderTypePrev);
-    stack->AddChild(m_btnRenderTypeNext);
-    stack->AddChild(m_menuLabelRenderType);
-
-    m_layoutMenu->AddChild(m_cbBloom);
-    m_layoutMenu->AddChild(stack);
-    UpdateControls();
-  }
-
-
-  void SpringBackground::DestroyMenuUI()
-  {
-    if (!m_layoutMenu)
-    {
-      return;
-    }
-
-    // Close the menu window
-    m_mainMenuStack->RemoveChild(m_layoutMenu);
-    m_layoutMenu.reset();
-
-    m_btnRenderTypePrev.reset();
-    m_btnRenderTypeNext.reset();
-    m_menuLabelRenderType.reset();
-    m_cbBloom.reset();
-  }
-
 
   void SpringBackground::UpdateControls()
   {
-    if (!m_layoutMenu)
-    {
-      return;
-    }
-
-    m_menuLabelRenderType->SetContent(m_gridScene.GetRenderName());
+    m_menuLabelRenderType->SetContent(m_gridScene->GetRenderName());
     m_cbBloom->SetIsChecked(m_config.Bloom);
   }
 
 
   void SpringBackground::PrevGridRender()
   {
-    m_gridScene.PrevGridRender();
+    m_gridScene->PrevGridRender();
     UpdateControls();
   }
 
 
   void SpringBackground::NextGridRender()
   {
-    m_gridScene.NextGridRender();
+    m_gridScene->NextGridRender();
     UpdateControls();
   }
 }

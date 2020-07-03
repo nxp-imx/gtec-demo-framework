@@ -24,7 +24,7 @@ namespace Fsl
     GLuint m_hProjMatrixLoc;
 
   public:
-    S02_ColoredTriangle(const DemoAppConfig& config);
+    explicit S02_ColoredTriangle(const DemoAppConfig& config);
     ~S02_ColoredTriangle() override;
 
   protected:

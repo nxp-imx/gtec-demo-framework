@@ -51,10 +51,12 @@ namespace Fsl
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
   {
     double alpha = 0.5;
-    double beta;
-    double input;
+    double beta = 0.0f;
+    double input = 0.0f;
 
-    Mat src1, src2, dst;
+    Mat src1;
+    Mat src2;
+    Mat dst;
 
     /// Ask the user enter alpha
     std::cout << " Simple Linear Blender " << std::endl;
@@ -102,7 +104,7 @@ namespace Fsl
   OpenCV101::~OpenCV101() = default;
 
 
-  void OpenCV101::Update(const DemoTime& demoTime)
+  void OpenCV101::Update(const DemoTime& /*demoTime*/)
   {
     // This call is only necessary if you utilize the highgui components.
     // It allow OpenCV to process its queue. Unfortunately its the only way and can cause a 1ms delay.
@@ -110,7 +112,7 @@ namespace Fsl
   }
 
 
-  void OpenCV101::Draw(const DemoTime& demoTime)
+  void OpenCV101::Draw(const DemoTime& /*demoTime*/)
   {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

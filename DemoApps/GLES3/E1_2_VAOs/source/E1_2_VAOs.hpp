@@ -9,6 +9,7 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -17,9 +18,9 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[4]{};
+      std::array<GLuint, 4> vboIds{};
       // VertexArrayObject Id
-      GLuint vaoId[2]{};
+      std::array<GLuint, 2> vaoId{};
 
       UserData()
       {
@@ -36,7 +37,7 @@ namespace Fsl
     UserData m_userData;
 
   public:
-    E1_2_VAOs(const DemoAppConfig& config);
+    explicit E1_2_VAOs(const DemoAppConfig& config);
     ~E1_2_VAOs() override;
 
   protected:

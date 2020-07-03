@@ -47,7 +47,7 @@ namespace Fsl
     VkFormat m_format;
     uint32_t m_mipLevels;
     uint32_t m_arrayLayers;
-    uint32_t m_tmpSize{};
+    // uint32_t m_tmpSize{};
     uint32_t m_bytesPerPixel{};
 
   public:
@@ -62,12 +62,12 @@ namespace Fsl
 
     ImageData();
     ImageData(const uint32_t width, const uint32_t height, const uint32_t depth, const VkImageType imageType, const VkFormat format);
-    ~ImageData();
+    ~ImageData() noexcept;
 
 
     void Reset() noexcept;
 
-    bool IsValid() const;
+    bool IsValid() const noexcept;
 
     VkFormat GetPixelFormat() const
     {
@@ -103,7 +103,7 @@ namespace Fsl
     {
       const ImageData* m_pImageData1;
       // ImageData* m_pImageData2;
-      RawBitmapEx* m_pRawBitmapEx;
+      // RawBitmapEx* m_pRawBitmapEx;
 
     public:
       ScopedRawBitmapAccess(const ScopedRawBitmapAccess&) = delete;
@@ -112,8 +112,8 @@ namespace Fsl
       // Read only lock
       ScopedRawBitmapAccess(const ImageData& imageData, RawBitmap& rRawBitmap)
         : m_pImageData1(&imageData)
-        //, m_pImageData2(nullptr)
-        , m_pRawBitmapEx(nullptr)
+      //, m_pImageData2(nullptr)
+      //, m_pRawBitmapEx(nullptr)
       {
         rRawBitmap = imageData.Lock();
       }

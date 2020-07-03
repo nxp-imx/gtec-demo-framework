@@ -35,9 +35,9 @@
 #include <FslUtil/OpenGLES3/Common.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
-#include <FslBase/Math/Extent2D.hpp>
-#include <FslBase/Math/Extent3D.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 
 namespace Fsl
 {
@@ -50,10 +50,10 @@ namespace Fsl
     struct GLTextureInfo
     {
       GLuint Handle;
-      Extent3D Extent;
+      PxExtent3D Extent;
 
       //! @brief Create a uninitialized texture (use SetData to add texture data to it)
-      GLTextureInfo()
+      constexpr GLTextureInfo()
         : Handle(GLValues::INVALID_HANDLE)
       {
       }
@@ -61,39 +61,44 @@ namespace Fsl
       //! @brief Supply the object with information about a texture
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
-      GLTextureInfo(const GLuint handle, const Point2& size)
-        : GLTextureInfo(handle, Extent3D(size.X, size.Y, 1))
+      constexpr GLTextureInfo(const GLuint handle, const PxSize2D& size)
+        : GLTextureInfo(handle, PxExtent3D(size.Width(), size.Height(), 1))
       {
       }
 
       //! @brief Supply the object with information about a texture
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
-      GLTextureInfo(const GLuint handle, const Extent2D& extent)
-        : GLTextureInfo(handle, Extent3D(extent.Width, extent.Height, 1u))
+      constexpr GLTextureInfo(const GLuint handle, const PxExtent2D& extent)
+        : GLTextureInfo(handle, PxExtent3D(extent.Width, extent.Height, 1u))
       {
       }
 
       //! @brief Supply the object with information about a texture
       //! @param handle the GL handle to the texture (it's assumed the handle is a GL_TEXTURE_2D or GL_TEXTURE_3D)
       //! @param size the size of the texture
-      GLTextureInfo(const GLuint handle, const Extent3D& extent)
+      constexpr GLTextureInfo(const GLuint handle, const PxExtent3D& extent)
         : Handle(handle)
         , Extent(extent)
       {
       }
 
-      void Reset()
+      constexpr void Reset()
       {
         Handle = GLValues::INVALID_HANDLE;
-        Extent = Extent3D();
+        Extent = PxExtent3D();
       }
 
-      bool operator==(const GLTextureInfo& rhs) const
+      constexpr bool IsValid() const
+      {
+        return Handle != GLValues::INVALID_HANDLE;
+      }
+
+      constexpr bool operator==(const GLTextureInfo& rhs) const
       {
         return Handle == rhs.Handle && Extent == rhs.Extent;
       }
-      bool operator!=(const GLTextureInfo& rhs) const
+      constexpr bool operator!=(const GLTextureInfo& rhs) const
       {
         return !(*this == rhs);
       }

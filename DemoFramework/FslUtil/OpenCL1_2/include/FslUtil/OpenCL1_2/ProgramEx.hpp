@@ -63,9 +63,11 @@ namespace Fsl
       ProgramEx();
 
       //! @brief Assume control of the Program (this object becomes responsible for releasing it)
+      // NOLINTNEXTLINE(misc-misplaced-const)
       explicit ProgramEx(const cl_program program);
 
       //! @brief Create the requested resource
+      // NOLINTNEXTLINE(misc-misplaced-const)
       ProgramEx(const cl_context context, const cl_device_id deviceId, const std::string& program);
 
       //! @brief returns the managed handle and releases the ownership.
@@ -81,12 +83,14 @@ namespace Fsl
       }
 
       //! @brief Destroys any owned resources and assume control of the Program (this object becomes responsible for releasing it)
+      // NOLINTNEXTLINE(misc-misplaced-const)
       void Reset(const cl_program program)
       {
         m_program.Reset(program);
       }
 
       //! @brief Destroys any owned resources and then creates the requested one
+      // NOLINTNEXTLINE(misc-misplaced-const)
       void Reset(const cl_context context, const cl_device_id deviceId, const std::string& program);
 
       //! @brief Get the associated resource handle

@@ -38,7 +38,7 @@ namespace Fsl
   namespace UI
   {
     //! @brief This should only be used in combination with the CallbackEventListener scope
-    class CallbackEventListener : public IEventListener
+    class CallbackEventListener final : public IEventListener
     {
       IEventListener* m_callback;
 
@@ -48,7 +48,7 @@ namespace Fsl
         m_callback = nullptr;
       }
 
-      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      void OnClickInputPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
       {
         if (m_callback != nullptr)
         {
@@ -57,7 +57,7 @@ namespace Fsl
       }
 
 
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override
+      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) final
       {
         if (m_callback != nullptr)
         {
@@ -65,8 +65,24 @@ namespace Fsl
         }
       }
 
+      void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+      {
+        if (m_callback != nullptr)
+        {
+          m_callback->OnMouseOverPreview(args, theEvent);
+        }
+      }
 
-      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
+      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+      {
+        if (m_callback != nullptr)
+        {
+          m_callback->OnMouseOver(args, theEvent);
+        }
+      }
+
+
+      void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) final
       {
         if (m_callback != nullptr)
         {
@@ -75,7 +91,7 @@ namespace Fsl
       }
 
 
-      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override
+      void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) final
       {
         if (m_callback != nullptr)
         {
@@ -84,7 +100,7 @@ namespace Fsl
       }
 
     private:
-      CallbackEventListener(IEventListener* const pForwardTo)
+      explicit CallbackEventListener(IEventListener* const pForwardTo)
         : m_callback(pForwardTo)
       {
       }

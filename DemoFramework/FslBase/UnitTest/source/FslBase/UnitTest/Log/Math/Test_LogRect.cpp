@@ -31,7 +31,6 @@
 
 #include <FslBase/Log/Math/LogRect.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <array>
 #include <limits>
@@ -48,9 +47,9 @@ namespace
 
 TEST(TestLog_Math_LogRect, Log)
 {
-  Rect value(1.0f, 2.0f, 10.0f, 20.0f);
+  auto value = Rect::FromLeftTopRightBottom(1.0f, 2.0f, 10.0f, 20.0f);
 
   std::stringstream stream;
   stream << value;
-  EXPECT_EQ(std::string("{X=1 Y=2 Width=10 Height=20}"), stream.str());
+  EXPECT_EQ(std::string("{Left=1 Top=2 Right=10 Bottom=20}"), stream.str());
 }

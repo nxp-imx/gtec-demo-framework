@@ -33,6 +33,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <X11/Xlib.h>
@@ -48,7 +49,7 @@ namespace Fsl
   {
     XVisualInfo* m_pVisual;
     Colormap m_colormap;
-    Point2 m_cachedWindowSize;
+    PxPoint2 m_cachedWindowSize;
     Point2 m_cachedScreenDPI;
 
   public:
@@ -58,15 +59,12 @@ namespace Fsl
                             const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     ~PlatformNativeWindowX11() override;
 
-    bool TryGetDPI(Vector2& rDPI) const override;
-    bool TryGetSize(Point2& rSize) const override;
-    bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return false;
-    }
-
     void OnConfigureNotify(const XConfigureEvent& event, const std::shared_ptr<INativeWindowEventQueue>& eventQueue);
     void OnRRScreenChangeNotify(XEvent* pEvent, const std::shared_ptr<INativeWindowEventQueue>& eventQueue);
+
+  protected:
+    bool TryGetNativeSize(PxPoint2& rSize) const override;
+    bool TryGetNativeDpi(Vector2& rDPI) const override;
   };
 }    // namespace Fsl
 

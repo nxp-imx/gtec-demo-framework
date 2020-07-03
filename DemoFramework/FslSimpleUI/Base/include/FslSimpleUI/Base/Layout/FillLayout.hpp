@@ -40,11 +40,11 @@ namespace Fsl
     class FillLayout : public SimpleLayout
     {
     public:
-      FillLayout(const std::shared_ptr<BaseWindowContext>& context);
+      explicit FillLayout(const std::shared_ptr<BaseWindowContext>& context);
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

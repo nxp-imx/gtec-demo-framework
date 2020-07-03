@@ -35,6 +35,7 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <sstream>
 #include <cassert>
+#include <cmath>
 
 namespace Fsl
 {
@@ -56,10 +57,10 @@ namespace Fsl
   Shared::~Shared() = default;
 
 
-  void Shared::Update(const DemoTime& demoTime, const Point2& currentScreenResolution)
+  void Shared::Update(const DemoTime& demoTime, const PxSize2D& windowSizePx)
   {
-    const auto sx = static_cast<float>(currentScreenResolution.X);
-    const auto sy = static_cast<float>(currentScreenResolution.Y);
+    const auto sx = static_cast<float>(windowSizePx.Width());
+    const auto sy = static_cast<float>(windowSizePx.Height());
 
     // Red
     m_controlPoints[0] = Vector2(0, 0);
@@ -89,7 +90,8 @@ namespace Fsl
     const float xdist2 = sx2 - xdist1;
     const float ydist1 = (sy2 / 10) * 6.0f;
     const float ydist2 = sy2 - ydist1;
-    float x, y;
+    float x = 0.0f;
+    float y = 0.0f;
     float x1Ang = m_x1Ang;
     float x2Ang = m_x2Ang;
     float y1Ang = m_y1Ang;
@@ -122,8 +124,8 @@ namespace Fsl
 
   void Shared::Draw()
   {
-    const Point2 fontSize = m_basic2D->FontSize();
-    const auto fontHeight = static_cast<float>(fontSize.Y);
+    const PxSize2D fontSize = m_basic2D->FontSize();
+    const auto fontHeight = static_cast<float>(fontSize.Height());
 
     m_basic2D->Begin();
 

@@ -42,7 +42,7 @@ namespace Fsl
   class VulkanNativeWindowSystemWin32 : public VulkanNativeWindowSystemTemplate<PlatformNativeWindowSystemWin32>
   {
   public:
-    VulkanNativeWindowSystemWin32(const NativeWindowSystemSetup& setup);
+    explicit VulkanNativeWindowSystemWin32(const NativeWindowSystemSetup& setup);
   };
 }    // namespace Fsl
 

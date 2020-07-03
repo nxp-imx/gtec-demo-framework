@@ -38,7 +38,7 @@ namespace Fsl
     //! If this is true the process message method is allowed to block until the next system message arrives
     bool AllowBlock;
 
-    NativeWindowProcessMessagesArgs(const bool allowBlock)
+    explicit NativeWindowProcessMessagesArgs(const bool allowBlock)
       : AllowBlock(allowBlock)
     {
     }

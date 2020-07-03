@@ -32,6 +32,7 @@
 #include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <cassert>
+#include <utility>
 #include "../System/Event/WindowEventQueue.hpp"
 #include "../System/ITreeNodeLocator.hpp"
 
@@ -39,11 +40,11 @@ namespace Fsl
 {
   namespace UI
   {
-    WindowEventSender::WindowEventSender(const std::shared_ptr<WindowEventQueue>& windowEventQueue, const std::shared_ptr<WindowEventPool>& eventPool,
-                                         const std::shared_ptr<ITreeNodeLocator>& treeNodeLocator)
-      : m_windowEventQueue(windowEventQueue)
-      , m_treeNodeLocator(treeNodeLocator)
-      , EventPool(eventPool)
+    WindowEventSender::WindowEventSender(std::shared_ptr<WindowEventQueue> windowEventQueue, std::shared_ptr<WindowEventPool> eventPool,
+                                         std::shared_ptr<ITreeNodeLocator> treeNodeLocator)
+      : m_windowEventQueue(std::move(windowEventQueue))
+      , m_treeNodeLocator(std::move(treeNodeLocator))
+      , EventPool(std::move(eventPool))
     {
     }
 

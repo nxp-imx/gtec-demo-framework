@@ -55,7 +55,7 @@ namespace Fsl
     BasicMessageQueue(const BasicMessageQueue&) = delete;
     BasicMessageQueue& operator=(const BasicMessageQueue&) = delete;
 
-    BasicMessageQueue(const ServiceGroupId& serviceGroupId);
+    explicit BasicMessageQueue(const ServiceGroupId& serviceGroupId);
 
     // Inherited via IBasicMessageQueue
     void Push(const BasicMessage& message) override;

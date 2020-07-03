@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppG2D : public ADemoApp
   {
   public:
-    DemoAppG2D(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppG2D(const DemoAppConfig& demoAppConfig);
   };
 }
 

@@ -31,7 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxAreaRectangleF.hpp>
 #include <FslBase/Math/Point2.hpp>
+#include <FslGraphics/NativeQuadTextureCoords.hpp>
+#include <FslGraphics/NativeTextureArea.hpp>
+#include <FslGraphics/Render/BatchSdfRenderConfig.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
 #include <FslGraphics/Render/Strategy/BatchSegmentInfo.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
@@ -99,7 +103,7 @@ namespace Fsl
       {
       }
 
-      bool IsValid(const std::vector<vertex_type>& quadVertices, const std::vector<segment_type>& segments) const
+      bool IsValid(const std::vector<vertex_type>& /*quadVertices*/, const std::vector<segment_type>& /*segments*/) const
       {
         return (pNextDstVertex != nullptr && pCurrentDstSegment != nullptr);
       }
@@ -116,7 +120,7 @@ namespace Fsl
     StrategyBatchByState& operator=(const StrategyBatchByState&) = delete;
     StrategyBatchByState& operator=(StrategyBatchByState&& other) = delete;
 
-    StrategyBatchByState(const uint32_t quadCapacity = 4096)
+    explicit StrategyBatchByState(const uint32_t quadCapacity = 4096)
       : m_quadVertices((std::max(quadCapacity, 1u) + SAFETY) * VERTICES_PER_QUAD)
       , m_segments(std::max(quadCapacity, 1u) + SAFETY)
       , m_addQuad(AddQuadPointers(m_quadVertices.data(), m_segments.data()))
@@ -136,7 +140,16 @@ namespace Fsl
       return m_addQuad.pCurrentDstSegment->ActiveBlendState;
     }
 
-    texture_info_type GetActiveTexture() const
+    const BatchSdfRenderConfig& GetActiveSdfRenderConfig() const
+    {
+      // If these assert fire it means we have a internal error
+      assert(IsValid());
+      assert(m_addQuad.pCurrentDstSegment != nullptr);
+
+      return m_addQuad.pCurrentDstSegment->SdfRenderConfig;
+    }
+
+    const texture_info_type& GetActiveTexture() const
     {
       assert(IsValid());
       assert(m_addQuad.pCurrentDstSegment != nullptr);
@@ -191,7 +204,7 @@ namespace Fsl
       return vertex_span_type(m_quadVertices.data(), GetVertexCount());
     }
 
-    segment_type GetSegment(const uint32_t index) const
+    const segment_type& GetSegment(const uint32_t index) const
     {
       assert(index < GetSegmentCount());
       // If this assert fire it means we have a internal error
@@ -217,13 +230,21 @@ namespace Fsl
       assert(IsValid());
 
       // Read the current texture info so we have it available before we update pointers
-      UpdateSegmentState(GetActiveTexture(), blendState);
+      UpdateSegmentState(GetActiveTexture(), blendState, GetActiveSdfRenderConfig());
     }
+
+
+    inline void SetBatchSdfRenderConfig(const BatchSdfRenderConfig& config)
+    {
+      assert(IsValid());
+      UpdateSegmentState(GetActiveTexture(), GetActiveBlendState(), config);
+    }
+
 
     //! Make sure you call SetBlendState before SetTexture!
     inline void SetTexture(const texture_info_type& textureInfo)
     {
-      UpdateSegmentState(textureInfo, GetActiveBlendState());
+      UpdateSegmentState(textureInfo, GetActiveBlendState(), GetActiveSdfRenderConfig());
     }
 
     inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3, const Vector2& texCoords0,
@@ -270,6 +291,128 @@ namespace Fsl
       assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
       m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
     }
+
+    inline void AddQuad(const Vector2& vec0, const Vector2& vec1, const Vector2& vec2, const Vector2& vec3,
+                        const NativeQuadTextureCoords& textureCoords, const Vector4& color)
+    {
+      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+
+      assert(IsValid());
+
+      // We expect the user called ensure capacity before starting to use this
+      assert(m_addQuad.pNextDstVertex != nullptr);
+      assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
+      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+
+      m_addQuad.pNextDstVertex->Position.X = vec0.X;
+      m_addQuad.pNextDstVertex->Position.Y = vec0.Y;
+      m_addQuad.pNextDstVertex->TextureCoordinate = textureCoords.TopLeft;
+      m_addQuad.pNextDstVertex->Color = color;
+
+      (m_addQuad.pNextDstVertex + 1)->Position.X = vec1.X;
+      (m_addQuad.pNextDstVertex + 1)->Position.Y = vec1.Y;
+      (m_addQuad.pNextDstVertex + 1)->TextureCoordinate = textureCoords.TopRight;
+      (m_addQuad.pNextDstVertex + 1)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 2)->Position.X = vec2.X;
+      (m_addQuad.pNextDstVertex + 2)->Position.Y = vec2.Y;
+      (m_addQuad.pNextDstVertex + 2)->TextureCoordinate = textureCoords.BottomLeft;
+      (m_addQuad.pNextDstVertex + 2)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 3)->Position.X = vec3.X;
+      (m_addQuad.pNextDstVertex + 3)->Position.Y = vec3.Y;
+      (m_addQuad.pNextDstVertex + 3)->TextureCoordinate = textureCoords.BottomRight;
+      (m_addQuad.pNextDstVertex + 3)->Color = color;
+
+      // Update our records
+      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+
+      assert(m_addQuad.pCurrentDstSegment != nullptr);
+      assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
+      assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
+      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+    }
+
+    inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeTextureArea& srcArea, const Vector4& color)
+    {
+      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+
+      assert(IsValid());
+
+      // We expect the user called ensure capacity before starting to use this
+      assert(m_addQuad.pNextDstVertex != nullptr);
+      assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
+      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+
+      m_addQuad.pNextDstVertex->Position.X = dstRect.Left();
+      m_addQuad.pNextDstVertex->Position.Y = dstRect.Top();
+      m_addQuad.pNextDstVertex->TextureCoordinate = Vector2(srcArea.X0, srcArea.Y0);
+      m_addQuad.pNextDstVertex->Color = color;
+
+      (m_addQuad.pNextDstVertex + 1)->Position.X = dstRect.Right();
+      (m_addQuad.pNextDstVertex + 1)->Position.Y = dstRect.Top();
+      (m_addQuad.pNextDstVertex + 1)->TextureCoordinate = Vector2(srcArea.X1, srcArea.Y0);
+      (m_addQuad.pNextDstVertex + 1)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 2)->Position.X = dstRect.Left();
+      (m_addQuad.pNextDstVertex + 2)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 2)->TextureCoordinate = Vector2(srcArea.X0, srcArea.Y1);
+      (m_addQuad.pNextDstVertex + 2)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 3)->Position.X = dstRect.Right();
+      (m_addQuad.pNextDstVertex + 3)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 3)->TextureCoordinate = Vector2(srcArea.X1, srcArea.Y1);
+      (m_addQuad.pNextDstVertex + 3)->Color = color;
+
+      // Update our records
+      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+
+      assert(m_addQuad.pCurrentDstSegment != nullptr);
+      assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
+      assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
+      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+    }
+
+    inline void AddQuad(const PxAreaRectangleF& dstRect, const NativeQuadTextureCoords& srcArea, const Vector4& color)
+    {
+      static_assert(VERTICES_PER_QUAD == 4, "we assume four vertices per quad here");
+
+      assert(IsValid());
+
+      // We expect the user called ensure capacity before starting to use this
+      assert(m_addQuad.pNextDstVertex != nullptr);
+      assert(m_addQuad.pNextDstVertex >= m_quadVertices.data());
+      assert((m_addQuad.pNextDstVertex + VERTICES_PER_QUAD) <= (m_quadVertices.data() + m_quadVertices.size()));
+
+      m_addQuad.pNextDstVertex->Position.X = dstRect.Left();
+      m_addQuad.pNextDstVertex->Position.Y = dstRect.Top();
+      m_addQuad.pNextDstVertex->TextureCoordinate = srcArea.TopLeft;
+      m_addQuad.pNextDstVertex->Color = color;
+
+      (m_addQuad.pNextDstVertex + 1)->Position.X = dstRect.Right();
+      (m_addQuad.pNextDstVertex + 1)->Position.Y = dstRect.Top();
+      (m_addQuad.pNextDstVertex + 1)->TextureCoordinate = srcArea.TopRight;
+      (m_addQuad.pNextDstVertex + 1)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 2)->Position.X = dstRect.Left();
+      (m_addQuad.pNextDstVertex + 2)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 2)->TextureCoordinate = srcArea.BottomLeft;
+      (m_addQuad.pNextDstVertex + 2)->Color = color;
+
+      (m_addQuad.pNextDstVertex + 3)->Position.X = dstRect.Right();
+      (m_addQuad.pNextDstVertex + 3)->Position.Y = dstRect.Bottom();
+      (m_addQuad.pNextDstVertex + 3)->TextureCoordinate = srcArea.BottomRight;
+      (m_addQuad.pNextDstVertex + 3)->Color = color;
+
+      // Update our records
+      m_addQuad.pNextDstVertex += VERTICES_PER_QUAD;
+
+      assert(m_addQuad.pCurrentDstSegment != nullptr);
+      assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
+      assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
+      m_addQuad.pCurrentDstSegment->VertexCount += VERTICES_PER_QUAD;
+    }
+
 
     inline void EnsureCapacity(const std::size_t desiredQuadCapacity)
     {
@@ -334,7 +477,7 @@ namespace Fsl
       return m_addQuad.IsValid(m_quadVertices, m_segments);
     }
 
-    void UpdateSegmentState(const texture_info_type& textureInfo, const BlendState blendState)
+    void UpdateSegmentState(const texture_info_type& textureInfo, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig)
     {
       assert(IsValid());
       // If this assert fire it means we have a internal error
@@ -353,10 +496,11 @@ namespace Fsl
           assert(pPreviousDstSegment >= m_segments.data());
           assert(pPreviousDstSegment < (m_segments.data() + m_segments.size()));
 
-          if (textureInfo == pPreviousDstSegment->TextureInfo && blendState == pPreviousDstSegment->ActiveBlendState)
+          if (textureInfo == pPreviousDstSegment->TextureInfo && blendState == pPreviousDstSegment->ActiveBlendState &&
+              (blendState != BlendState::Sdf || sdfRenderConfig == pPreviousDstSegment->SdfRenderConfig))
           {
             // The state match so we can reuse it, so we clear the now unused segment and move back to the previous one
-            m_addQuad.pCurrentDstSegment = {};
+            //            m_addQuad.pCurrentDstSegment = {};
 
             // Move to the previous segment and quick exit
             m_addQuad.pCurrentDstSegment = pPreviousDstSegment;
@@ -366,12 +510,14 @@ namespace Fsl
         // No previous compatible segment so we reuse the active segment with the new state, so lets update it.
         m_addQuad.pCurrentDstSegment->TextureInfo = textureInfo;
         m_addQuad.pCurrentDstSegment->ActiveBlendState = blendState;
+        m_addQuad.pCurrentDstSegment->SdfRenderConfig = sdfRenderConfig;
         assert(IsValid());
         return;
       }
 
       // There are vertices so we check if the state is compatible
-      if ((textureInfo == m_addQuad.pCurrentDstSegment->TextureInfo && blendState == m_addQuad.pCurrentDstSegment->ActiveBlendState))
+      if (textureInfo == m_addQuad.pCurrentDstSegment->TextureInfo && blendState == m_addQuad.pCurrentDstSegment->ActiveBlendState &&
+          (blendState != BlendState::Sdf || sdfRenderConfig == m_addQuad.pCurrentDstSegment->SdfRenderConfig))
       {
         assert(IsValid());
         return;
@@ -384,19 +530,24 @@ namespace Fsl
       assert(m_addQuad.pCurrentDstSegment >= m_segments.data());
       assert(m_addQuad.pCurrentDstSegment < (m_segments.data() + m_segments.size()));
       // Update the segment and exit
-      (*m_addQuad.pCurrentDstSegment) = segment_type(textureInfo, blendState);
+      (*m_addQuad.pCurrentDstSegment) = segment_type(textureInfo, blendState, sdfRenderConfig);
 
       assert(IsValid());
       return;
     }
   };
 
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const int32_t StrategyBatchByState<TTextureInfo>::VERTICES_PER_QUAD;
+  const int32_t StrategyBatchByState<TTextureInfo>::VERTICES_PER_QUAD;    // NOLINT(readability-redundant-declaration)
+
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const uint32_t StrategyBatchByState<TTextureInfo>::EXPAND_QUAD_GROWTH;
+  const uint32_t StrategyBatchByState<TTextureInfo>::EXPAND_QUAD_GROWTH;    // NOLINT(readability-redundant-declaration)
+
+  // FIX-LATER: Remove once we move to C++17
   template <typename TTextureInfo>
-  const uint32_t StrategyBatchByState<TTextureInfo>::SAFETY;
+  const uint32_t StrategyBatchByState<TTextureInfo>::SAFETY;    // NOLINT(readability-redundant-declaration)
 }
 
 #endif

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.UI.PixelPerfect" NoInclude="true" CreationYear="2020">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="Shared.UI.PixelPerfect"/>
+    <Platform Name="Windows" ProjectId="CFCA90B1-4A14-4869-B260-874B860227B8"/>
+  </Executable>
+</FslBuildGen>

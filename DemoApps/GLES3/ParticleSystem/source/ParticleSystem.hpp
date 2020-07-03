@@ -47,7 +47,7 @@ namespace Fsl
     std::shared_ptr<AScene> m_scene;
 
   public:
-    ParticleSystem(const DemoAppConfig& config);
+    explicit ParticleSystem(const DemoAppConfig& config);
     ~ParticleSystem() override;
     void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
     void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;

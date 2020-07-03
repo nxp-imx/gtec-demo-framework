@@ -33,6 +33,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslBase/IO/File.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
@@ -73,7 +74,7 @@ namespace Fsl
     }
 
     template <typename TEnum, typename TArray>
-    bool TryParseAsString(TEnum& rEnum, const TArray& entries, const std::string& strOptArg, const TEnum defaultValue)
+    bool TryParseAsString(TEnum& rEnum, const TArray& entries, const StringViewLite& strOptArg, const TEnum defaultValue)
     {
       // Try to see if we can find a string match
       for (std::size_t i = 0; i < entries.size(); ++i)
@@ -90,14 +91,14 @@ namespace Fsl
 
 
     template <typename TEnum, typename TArray>
-    bool TryParseAsValue(TEnum& rEnum, const TArray& entries, const std::string& strOptArg, const TEnum defaultValue)
+    bool TryParseAsValue(TEnum& rEnum, const TArray& entries, const StringViewLite& strOptArg, const TEnum defaultValue)
     {
       rEnum = defaultValue;
       // Try to see if we can parse it as a number
-      int32_t value;
+      int32_t value = 0;
       try
       {
-        StringParseUtil::Parse(value, strOptArg.c_str());
+        StringParseUtil::Parse(value, strOptArg);
       }
       catch (const std::exception&)
       {
@@ -116,7 +117,7 @@ namespace Fsl
     }
 
     template <typename TEnum, typename TArray>
-    bool TryParse(TEnum& rEnum, const TArray& entries, const std::string& strOptArg, const TEnum defaultValue)
+    bool TryParse(TEnum& rEnum, const TArray& entries, const StringViewLite& strOptArg, const TEnum defaultValue)
     {
       if (TryParseAsString(rEnum, entries, strOptArg, defaultValue))
       {
@@ -160,33 +161,33 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    int intValue;
+    int intValue = 0;
 
     switch (cmdId)
     {
     case CommandId::Scene:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_scene = intValue;
       return OptionParseResult::Parsed;
     case CommandId::Model:
-      m_customModelPath = pszOptArg;
+      m_customModelPath = strOptArg;
       return OptionParseResult::Parsed;
     case CommandId::MeshMode:
-      if (!TryParse(m_meshMode, g_meshModes, pszOptArg, MeshMode::SingleMesh))
+      if (!TryParse(m_meshMode, g_meshModes, strOptArg, MeshMode::SingleMesh))
       {
-        FSLLOG3_INFO("Unsupported MeshMode: {}", pszOptArg);
+        FSLLOG3_INFO("Unsupported MeshMode: {}", strOptArg);
         return OptionParseResult::Failed;
       }
       return OptionParseResult::Parsed;
     case CommandId::ShaderMode:
-      if (!TryParse(m_shaderMode, g_shaderMode, pszOptArg, ShaderMode::PerPixelTextured))
+      if (!TryParse(m_shaderMode, g_shaderMode, strOptArg, ShaderMode::PerPixelTextured))
       {
-        FSLLOG3_INFO("Unsupported ShaderMode: {}", pszOptArg);
+        FSLLOG3_INFO("Unsupported ShaderMode: {}", strOptArg);
         return OptionParseResult::Failed;
       }
       return OptionParseResult::Parsed;

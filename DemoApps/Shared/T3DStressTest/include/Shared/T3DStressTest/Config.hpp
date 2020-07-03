@@ -75,7 +75,7 @@ namespace Fsl
     bool m_forceFinishEachFrame;
 
   public:
-    Config(const RenderMode defaultRenderMode = RenderMode::Instanced);
+    explicit Config(const RenderMode defaultRenderMode = RenderMode::Instanced);
 
     RenderMode GetRenderMode() const;
     void SetRenderMode(const RenderMode mode);

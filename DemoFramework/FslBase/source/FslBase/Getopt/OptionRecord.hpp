@@ -44,7 +44,7 @@ namespace Fsl
 
     OptionSourceRecord() = default;
 
-    OptionSourceRecord(std::string name)
+    explicit OptionSourceRecord(std::string name)
       : Name(std::move(name))
     {
     }

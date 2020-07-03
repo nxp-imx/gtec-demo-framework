@@ -31,20 +31,20 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslSimpleUI/Base/LayoutHelper.hpp>
-
 namespace Fsl
 {
   namespace UI
   {
     enum class GridUnitType
     {
-      //! Fixed size
+      //! Fixed size in dp
       Fixed = 0,
+      //! Fixed size in px
+      FixedPx = 1,
       //! Auto value, any specified size is ignored
-      Auto = 1,
-      //! Weight
-      Weight = 2
+      Auto = 2,
+      //! Star
+      Star = 3
     };
 
     struct GridRowColumnDefinitionBase
@@ -52,9 +52,9 @@ namespace Fsl
       GridUnitType Unit;
       float Size;
 
-      //! @brief defaults to Weight of size 1
+      //! @brief defaults to Star of size 1
       constexpr GridRowColumnDefinitionBase() noexcept
-        : GridRowColumnDefinitionBase(GridUnitType::Weight, 1.0f)
+        : GridRowColumnDefinitionBase(GridUnitType::Star, 1.0f)
       {
       }
 

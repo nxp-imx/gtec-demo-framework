@@ -40,24 +40,18 @@
 //#include <FslNativeGraphicsGLES3/NativeGraphicsServiceGLES3.hpp>
 //#include <FslNativeGraphicsVG/NativeGraphicsServiceVG.hpp>
 #include "../PlatformConfig.hpp"
-#include <FslDemoPlatform/Service/MMDCStats/MMDCStatsServiceFactory.hpp>
 
 #include <memory>
 
 namespace Fsl
 {
-  void PlatformConfig::Configure(IDemoHostRegistry& registry, ServiceRegistry serviceRegistry, bool& rEnableFirewallRequest)
+  void PlatformConfig::Configure(IDemoHostRegistry& /*registry*/, ServiceRegistry serviceRegistry, bool& /*rEnableFirewallRequest*/)
   {
     // Use the EGLDemoHost for OpenGLES
     // std::deque<DemoHostFeatureName::Enum> eglHostFeatures;
     // eglHostFeatures.push_back(DemoHostFeatureName::OpenGLES);
     // eglHostFeatures.push_back(DemoHostFeatureName::OpenVG);
     // registry.Register(eglHostFeatures, EGLDemoHostSetup::Get());
-
-#ifdef FSL_PLATFORM_YOCTO
-    serviceRegistry.Register<MMDCStatsServiceFactory>(ServicePriorityList::MMDCStatsService());
-#endif
-
 
     //#ifdef FSL_ENABLE_GRAPHICS_ES2
     //    serviceRegistry.Register<ThreadLocalSingletonServiceFactoryTemplate<NativeGraphicsServiceGLES2, INativeGraphicsService>

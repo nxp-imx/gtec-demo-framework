@@ -31,8 +31,9 @@
 
 #include <FslGraphics/Bitmap/RawCubeBitmap.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Log/Math/LogExtent2D.hpp>
 #include <FslBase/Log/Math/LogPoint2.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxExtent2D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
 #include <FslGraphics/Log/LogPixelFormat.hpp>
 #include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
@@ -52,7 +53,7 @@ TEST(TestBitmap_RawCubeBitmap, Construct_Default)
   ASSERT_FALSE(bitmap.IsValid());
   EXPECT_EQ(0u, bitmap.Width());
   EXPECT_EQ(0u, bitmap.Height());
-  EXPECT_EQ(Extent2D(), bitmap.GetExtent());
+  EXPECT_EQ(PxExtent2D(), bitmap.GetExtent());
   EXPECT_EQ(PixelFormat::Undefined, bitmap.GetPixelFormat());
   EXPECT_EQ(BitmapOrigin::UpperLeft, bitmap.GetOrigin());
   EXPECT_EQ(RawBitmap(), bitmap.GetPosX());

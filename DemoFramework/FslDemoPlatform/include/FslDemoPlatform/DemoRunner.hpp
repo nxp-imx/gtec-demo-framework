@@ -35,6 +35,7 @@
 
 namespace Fsl
 {
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   extern int RunDemo(int argc, char* argv[], const DemoRunnerConfig& demoRunnerConfig);
 }
 

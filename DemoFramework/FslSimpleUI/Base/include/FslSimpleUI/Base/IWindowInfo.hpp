@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 
 namespace Fsl
 {
@@ -47,12 +48,12 @@ namespace Fsl
       //! @brief Convert the point from coordinates relative to the window to screen coordinates.
       //!        If the window is unknown in the window manager Vector2.Zero is returned (and a warning is logged in debug builds)
       //! @param pWindow the window coordinate system to convert from (if window == null, we expect the point to be relative to the root window)
-      virtual Vector2 PointToScreen(const IWindowId* const pWindow, const Vector2& point) const = 0;
+      virtual PxPoint2 PointToScreen(const IWindowId* const pWindow, const PxPoint2& point) const = 0;
 
       //! @brief Convert the point from coordinates relative to the screen to be relative to the supplied window.
       //!        if the window is unknown in the window manager Vector2.Zero is returned (and a warning is logged in debug builds)
       //! @param pWindow the window coordinate system to convert to (if window == null we convert it to be relative to the root window)
-      virtual Vector2 PointFromScreen(const IWindowId* const pWindow, const Vector2& point) const = 0;
+      virtual PxPoint2 PointFromScreen(const IWindowId* const pWindow, const PxPoint2& point) const = 0;
     };
   }
 }

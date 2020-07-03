@@ -37,7 +37,7 @@
 
 namespace Fsl
 {
-  class ImageLibraryServiceDevILFactory : public ThreadLocalSingletonServiceFactoryTemplate<ImageLibraryServiceDevIL, IImageLibraryService>
+  class ImageLibraryServiceDevILFactory final : public ThreadLocalSingletonServiceFactoryTemplate<ImageLibraryServiceDevIL, IImageLibraryService>
   {
   public:
     ImageLibraryServiceDevILFactory()

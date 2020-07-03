@@ -32,9 +32,12 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
+#include <FslBase/Math/Pixel/PxRectangleU.hpp>
 #include <FslGraphics/Bitmap/RawBitmap.hpp>
+#include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
+#include <FslGraphics/Render/Texture2DFilterHint.hpp>
 #include <FslGraphics/Texture/RawTexture.hpp>
+#include <FslGraphics/TextureFlags.hpp>
 #include <cassert>
 #include <vector>
 
@@ -43,40 +46,29 @@ namespace Fsl
   class NativeTextureTestImpl : public INativeTexture2D
   {
     std::vector<uint8_t> m_content;
+    PxExtent3D m_extentPx;
 
   public:
-    NativeTextureTestImpl(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
-    {
-      SetData(bitmap, filterHint, textureFlags);
-    }
-
-    NativeTextureTestImpl(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags)
-    {
-      SetData(texture, filterHint, textureFlags);
-    }
-
-
-    void SetData(const RawBitmap& bitmap, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override
+    NativeTextureTestImpl(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
+      : m_extentPx(texture.GetExtent())
     {
       FSL_PARAM_NOT_USED(filterHint);
       FSL_PARAM_NOT_USED(textureFlags);
 
       m_content.clear();
-      const auto pSrc = static_cast<const uint8_t*>(bitmap.Content());
-      assert(pSrc != nullptr);
-      m_content.insert(m_content.begin(), pSrc, pSrc + bitmap.GetByteSize());
-    }
-
-    //! @brief Set the data of the texture
-    void SetData(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags& textureFlags) override
-    {
-      FSL_PARAM_NOT_USED(filterHint);
-      FSL_PARAM_NOT_USED(textureFlags);
-
-      m_content.clear();
-      const auto pSrc = static_cast<const uint8_t*>(texture.GetContent());
+      const auto* const pSrc = static_cast<const uint8_t*>(texture.GetContent());
       assert(pSrc != nullptr);
       m_content.insert(m_content.begin(), pSrc, pSrc + texture.GetByteSize());
+    }
+
+    NativeTextureArea CalcNativeTextureArea(const PxRectangleU& imageRectanglePx) const override
+    {
+      assert(static_cast<float>(m_extentPx.Width) >= 0.0f);
+      assert(static_cast<float>(m_extentPx.Height) >= 0.0f);
+      return {imageRectanglePx.Left() == 0 ? 0.0f : imageRectanglePx.Left() / static_cast<float>(m_extentPx.Width),
+              imageRectanglePx.Top() == 0 ? 0.0f : imageRectanglePx.Top() / static_cast<float>(m_extentPx.Height),
+              imageRectanglePx.Right() == m_extentPx.Width ? 1.0f : imageRectanglePx.Right() / static_cast<float>(m_extentPx.Width),
+              imageRectanglePx.Bottom() == m_extentPx.Height ? 1.0f : imageRectanglePx.Bottom() / static_cast<float>(m_extentPx.Height)};
     }
   };
 }

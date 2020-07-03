@@ -1,7 +1,7 @@
 #ifndef FSLSIMPLEUI_BASE_CONTROL_SLIDER_HPP
 #define FSLSIMPLEUI_BASE_CONTROL_SLIDER_HPP
 /****************************************************************************************************************************************************
- * Copyright (c) 2015 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -14,7 +14,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -31,10 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/ThicknessF.hpp>
-#include <FslGraphics/Render/AtlasTexture2D.hpp>
-#include <FslSimpleUI/Base/BaseWindow.hpp>
-#include <FslBase/Math/NineSlice.hpp>
+#include <FslSimpleUI/Base/UIDrawContext.hpp>
+#include <FslSimpleUI/Base/WindowFlags.hpp>
+#include <FslSimpleUI/Base/Control/SliderBase.hpp>
+#include <FslSimpleUI/Base/Control/Impl/SliderRenderImpl.hpp>
 
 namespace Fsl
 {
@@ -42,96 +42,201 @@ namespace Fsl
   {
     class WindowContext;
 
-    class Slider : public BaseWindow
+    template <typename T>
+    class Slider final : public SliderBase<T>
     {
-    protected:
-      const std::shared_ptr<WindowContext> m_windowContext;
-
-    private:
-      enum class DragState
-      {
-        Idle,
-        Dragging
-      };
-
-      AtlasTexture2D m_texBackground;
-      AtlasTexture2D m_texCursor;
-      float m_percentage;
-      int32_t m_value;
-      int32_t m_minValue;
-      int32_t m_maxValue;
-      Rect m_barClickRect;
-      DragState m_dragState;
-      float m_barStart{};
-      float m_dragStartPos;
-      float m_dragOffset;
-      float m_renderXMin;
-      float m_renderXMax;
-      ThicknessF m_backgroundPadding;
-      ThicknessF m_cursorPadding;
-      NineSlice m_nineSlice;
+      SliderRenderImpl m_impl;
 
     public:
-      Slider(const std::shared_ptr<WindowContext>& context);
-
-      //! @brief Check if the slider is being dragged or not (a idle slider is not being dragged)
-      bool IsIdle() const;
-
-      const AtlasTexture2D& GetBackgroundTexture() const
+      explicit Slider(const std::shared_ptr<WindowContext>& context)
+        : SliderBase<T>(context)
+        , m_impl(context->UITransitionCache)
       {
-        return m_texBackground;
+        // We need to be draw enabled, accept click input and receive a notification on init
+        this->Enable(WindowFlags(WindowFlags::DrawEnabled | WindowFlags::ClickInput | WindowFlags::MouseOver));
       }
-      void SetBackgroundTexture(const AtlasTexture2D& value);
 
-      const AtlasTexture2D& GetCursorTexture() const
-      {
-        return m_texCursor;
-      }
-      void SetCursorTexture(const AtlasTexture2D& value);
 
-      int32_t GetValue() const
+      bool GetEnableVerticalGraphicsRotation() const
       {
-        return m_value;
+        return m_impl.GetEnableVerticalGraphicsRotation();
       }
-      void SetValue(const int32_t& value);
 
-      int32_t GetMinValue() const
+      void SetEnableVerticalGraphicsRotation(const bool enabled)
       {
-        return m_minValue;
+        if (m_impl.SetEnableVerticalGraphicsRotation(enabled))
+        {
+          this->PropertyUpdated(PropertyType::Content);
+        }
       }
-      int32_t GetMaxValue() const
-      {
-        return m_maxValue;
-      }
-      bool SetValueLimits(const int32_t& min, const int32_t& max);
 
-      const ThicknessF& GetBackgroundPadding() const
+      const std::shared_ptr<ImageSprite>& GetCursorSprite() const
       {
-        return m_backgroundPadding;
+        return m_impl.GetCursorSprite();
       }
-      void SetBackgroundPadding(const ThicknessF& value);
 
-      const ThicknessF& GetCursorPadding() const
+      void SetCursorSprite(const std::shared_ptr<ImageSprite>& value)
       {
-        return m_cursorPadding;
+        if (m_impl.SetCursorSprite(value))
+        {
+          this->PropertyUpdated(PropertyType::Content);
+        }
       }
-      void SetCursorPadding(const ThicknessF& value);
 
-      const NineSlice GetNineSlice() const
+      const DpPoint& GetCursorOrigin() const
       {
-        return m_nineSlice;
+        return m_impl.GetCursorOrigin();
       }
-      void SetNineSlice(const NineSlice& value);
 
-      void WinDraw(const UIDrawContext& context) override;
+      void SetCursorOrigin(const DpPoint& value)
+      {
+        if (m_impl.SetCursorOrigin(value))
+        {
+          this->PropertyUpdated(PropertyType::Content);
+        }
+      }
+
+      const DpSize& GetCursorSize() const
+      {
+        return m_impl.GetCursorSize();
+      }
+
+      void SetCursorSize(const DpSize& value)
+      {
+        if (m_impl.SetCursorSize(value))
+        {
+          this->PropertyUpdated(PropertyType::Content);
+        }
+      }
+
+      const Color& GetCursorColor() const
+      {
+        return m_impl.GetCursorColor();
+      }
+
+      void SetCursorColor(const Color& value)
+      {
+        if (m_impl.SetCursorColor(value))
+        {
+          this->PropertyUpdated(PropertyType::Other);
+        }
+      }
+
+      const Color& GetCursorDisabledColor() const
+      {
+        return m_impl.GetCursorDisabledColor();
+      }
+
+      void SetCursorDisabledColor(const Color& value)
+      {
+        if (m_impl.SetCursorDisabledColor(value))
+        {
+          this->PropertyUpdated(PropertyType::Other);
+        }
+      }
+
+      // ------
+
+      const std::shared_ptr<ImageSprite>& GetCursorOverlaySprite() const
+      {
+        return m_impl.GetCursorOverlaySprite();
+      }
+
+      void SetCursorOverlaySprite(const std::shared_ptr<ImageSprite>& value)
+      {
+        if (m_impl.SetCursorOverlaySprite(value))
+        {
+          this->PropertyUpdated(PropertyType::Content);
+        }
+      }
+
+      const Color& GetCursorOverlayColor() const
+      {
+        return m_impl.GetCursorOverlayColor();
+      }
+
+      void SetCursorOverlayColor(const Color& value)
+      {
+        if (m_impl.SetCursorOverlayColor(value))
+        {
+          this->PropertyUpdated(PropertyType::Other);
+        }
+      }
+
+      // ------
+
+      const std::shared_ptr<NineSliceSprite>& GetBackgroundSprite() const
+      {
+        return m_impl.GetBackgroundSprite();
+      }
+
+      void SetBackgroundSprite(const std::shared_ptr<NineSliceSprite>& value)
+      {
+        if (m_impl.SetBackgroundSprite(value))
+        {
+          this->PropertyUpdated(PropertyType::Content);
+        }
+      }
+
+      const Color& GetBackgroundColor() const
+      {
+        return m_impl.GetBackgroundColor();
+      }
+
+      void SetBackgroundColor(const Color& value)
+      {
+        if (m_impl.SetBackgroundColor(value))
+        {
+          this->PropertyUpdated(PropertyType::Other);
+        }
+      }
+
+      const Color& GetBackgroundDisabledColor() const
+      {
+        return m_impl.GetBackgroundDisabledColor();
+      }
+
+      void SetBackgroundDisabledColor(const Color& value)
+      {
+        if (m_impl.SetBackgroundDisabledColor(value))
+        {
+          this->PropertyUpdated(PropertyType::Other);
+        }
+      }
+
+      // ------
+
+      void WinDraw(const UIDrawContext& context) final
+      {
+        SliderBase<T>::WinDraw(context);
+
+        auto spanInfo = m_impl.WinDraw(*(this->m_windowContext->Batch2D), context.TargetRect.TopLeft(), this->RenderSizePx(), this->GetOrientation(),
+                                       this->GetDirection(), this->IsEnabled(), this->GetCursorPositionPx(), this->IsDragging(),
+                                       this->m_windowContext->UnitConverter);
+        this->SetSpanInfo(spanInfo);
+      }
 
     protected:
-      inline void DoSetValue(const int32_t& value, const int32_t reason);
-      void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
-      inline void RecalcPercentage();
-      inline void SetValueBasedOnPosition(const float position);
+      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) final
+      {
+        m_impl.OnMouseOver(args, theEvent);
+      }
+
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) final
+      {
+        return m_impl.Measure(availableSizePx);
+      }
+
+      void UpdateAnimation(const TransitionTimeSpan& timeSpan) final
+      {
+        SliderBase<T>::UpdateAnimation(timeSpan);
+        m_impl.UpdateAnimation(timeSpan);
+      }
+
+      bool UpdateAnimationState(const bool forceCompleteAnimation) final
+      {
+        return m_impl.UpdateAnimationState(forceCompleteAnimation, this->IsEnabled(), this->IsDragging());
+      }
     };
   }
 }

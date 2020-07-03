@@ -35,12 +35,13 @@
 #include <FslBase/Transition/TransitionValue.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
-#include <FslGraphics/Render/AtlasFont.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/FloatSliderAndValueLabel.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/CanvasLayout.hpp>
 #include "OptionParser.hpp"
 #include "RenderRecord.hpp"
@@ -57,15 +58,13 @@ namespace Fsl
     std::shared_ptr<UIDemoAppExtension> m_uiExtension;
     std::shared_ptr<UI::CanvasLayout> m_rootCanvas;
     std::shared_ptr<UI::BaseWindow> m_configWindow;
-    std::shared_ptr<UI::FloatSliderAndValueLabel> m_exposureSlider;
-    std::vector<std::shared_ptr<UI::CheckBox>> m_checkboxes;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_exposureSlider;
+    std::vector<std::shared_ptr<UI::Switch>> m_checkboxes;
 
     std::shared_ptr<INativeBatch2D> m_nativeBatch;
-    std::shared_ptr<AtlasFont> m_defaultFont;
+    std::shared_ptr<SpriteFont> m_defaultFont;
 
-    Point2 m_screenResolution;
-
-    float m_exposure;
+    DemoWindowMetrics m_windowMetrics;
 
     TransitionCache m_transitionCache;
     std::vector<RenderRecord> m_render;
@@ -88,25 +87,22 @@ namespace Fsl
 
     void UpdateExposureInput(const DemoTime& demoTime, const KeyboardState& keyboardState);
 
-    float GetExposure() const
-    {
-      return m_exposure;
-    }
+    float GetExposure() const;
 
     const std::vector<RenderRecord>& GetRenderRecords() const
     {
       return m_render;
     }
 
-    void SetScreenResolution(const Point2& resolution)
+    void SetWindowMetrics(const DemoWindowMetrics& windowMetrics)
     {
-      m_screenResolution = resolution;
+      m_windowMetrics = windowMetrics;
       SetStateViaFlags(m_sceneRenderFlags, true);
     }
 
   private:
     void DrawLabels();
-    void UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::CheckBox>& source);
+    void UpdateStateBasedOnCheckboxes(const std::shared_ptr<UI::Switch>& source);
     void ToggleState(const SceneFlags newState);
     void SetState(const SceneFlags newState, const bool enabled);
     void SetStateViaFlags(const uint32_t flags, const bool forceInstant = false);
@@ -116,11 +112,6 @@ namespace Fsl
     void ForceCompleteTransitions(std::vector<RenderRecord>& rRender);
     std::shared_ptr<UI::CanvasLayout> CreateUI();
     std::shared_ptr<UI::BaseWindow> CreateConfigDialog(const std::vector<RenderRecord>& render);
-
-    Point2 GetScreenResolution() const
-    {
-      return m_screenResolution;
-    }
   };
 }
 

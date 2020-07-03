@@ -31,6 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/String/StringViewLite.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
 
 namespace Fsl
@@ -38,9 +39,12 @@ namespace Fsl
   class MainAtlas : public ITextureAtlas
   {
   public:
-    virtual std::string GetName() const;
-    int32_t Count() const override;
-    NamedAtlasTexture GetEntry(const int32_t index) const override;
+    virtual StringViewLite GetName() const;
+
+    uint32_t Count() const final;
+    const NamedAtlasTexture& GetEntry(const uint32_t index) const final;
+    uint32_t NineSliceCount() const final;
+    const TextureAtlasNineSlicePatch& GetNineSlicePatch(const uint32_t index) const final;
   };
 }
 #endif

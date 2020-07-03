@@ -35,42 +35,18 @@
 #include <FslNativeWindow/Platform/X11/PlatformNativeWindowX11.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
 
-#include "../AVulkanNativeWindow.hpp"
+#include "../VulkanNativeWindow.hpp"
 
 namespace Fsl
 {
   struct NativeVulkanSetup;
 
-  class VulkanNativeWindowX11
-    : public AVulkanNativeWindow
-    , public PlatformNativeWindowX11
+  class VulkanNativeWindowX11 : public VulkanNativeWindow<PlatformNativeWindowX11>
   {
   public:
     VulkanNativeWindowX11(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                           const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     ~VulkanNativeWindowX11() override;
-
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    bool TryGetDPI(Vector2& rDPI) const override
-    {
-      return PlatformNativeWindowX11::TryGetDPI(rDPI);
-    }
-
-    bool TryGetSize(Point2& rSize) const override
-    {
-      return TryDoGetSize(rSize);
-    }
-
-    //! Done this way instead a 'using' to prevent warnings from some compilers
-    bool TryGetActualSize(Point2& rSize) const override
-    {
-      return PlatformNativeWindowX11::TryGetSize(rSize);
-    }
-
-    bool TryCaptureMouse(const bool enableCapture) override
-    {
-      return PlatformNativeWindowX11::TryCaptureMouse(enableCapture);
-    }
 
     PlatformNativeWindowType GetWindowType() const override;
   };

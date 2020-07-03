@@ -1,31 +1,42 @@
 {
   "ContentBuilder" : {
     "Version": "1",
-    "Content.Sync": {
-      "SourcePath" : "${ProjectRoot}/Resources",
-      "Content": [
-        "Textures/GPUSdkTest/CustomTexture_ASTC_4x4_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_5x4_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_5x5_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_6x5_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_6x6_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_8x5_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_8x6_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_8x8_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x5_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x6_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x8_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x10_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_12x10_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_12x12_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_A1_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ETC2_RGBA_flipped.ktx",
-        "Textures/GPUSdkTest/CustomTexture_R8G8B8A8_flipped.ktx",
-        "Textures/GPUSdkTest/License.json",
-        "Textures/NotSupported/NotSupported_pre.png",
-        "Textures/NotSupported/License.json"
-      ]
-    }
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlas_*dpi.bta",
+          "UIAtlas/UIAtlas_*dpi.png",
+          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Textures/GPUSdkTest/CustomTexture_ASTC_4x4_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_5x4_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_5x5_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_6x5_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_6x6_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_8x5_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_8x6_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_8x8_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x5_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x6_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x8_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x10_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_12x10_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_12x12_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_A1_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ETC2_RGBA_flipped.ktx",
+          "Textures/GPUSdkTest/CustomTexture_R8G8B8A8_flipped.ktx",
+          "Textures/GPUSdkTest/License.json",
+          "Textures/NotSupported/NotSupported_pre.png",
+          "Textures/NotSupported/License.json"
+        ]
+      }
+    ]
   }
 }

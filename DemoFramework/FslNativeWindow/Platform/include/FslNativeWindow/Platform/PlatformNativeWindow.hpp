@@ -31,6 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Optional.hpp>
+#include <FslBase/Math/Point2U.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslNativeWindow/Base/INativeWindow.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemTypes.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindowAllocationParams.hpp>
@@ -46,15 +49,38 @@ namespace Fsl
   {
     std::weak_ptr<INativeWindowEventQueue> m_eventQueue;
 
+    Optional<Point2U> m_forcedActualDpi;
+    Optional<uint32_t> m_forcedDensityDpi;
+    NativeWindowCapabilityFlags m_capabilityFlags;
+
+    mutable bool m_loggedOnceGetWindowMetrics{false};
+
   protected:
     PlatformNativeDisplayType m_platformDisplay;
     PlatformNativeWindowType m_platformWindow;
 
   public:
     PlatformNativeWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
-                         const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
+                         const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams,
+                         const NativeWindowCapabilityFlags capabilityFlags);
     ~PlatformNativeWindow() override;
 
+
+    NativeWindowCapabilityFlags GetCapabilityFlags() const final
+    {
+      return m_capabilityFlags;
+    }
+
+
+    NativeWindowMetrics GetWindowMetrics() const final;
+    bool TryGetExtent(PxExtent2D& rExtent) const final;
+    bool TryGetDpi(Vector2& rDPI) const final;
+    bool TryGetDensityDpi(uint32_t& rDensityDpi) const final;
+
+    bool TryCaptureMouse(const bool /*enableCapture*/) override
+    {
+      return false;
+    }
 
     PlatformNativeDisplayType GetPlatformDisplay() const
     {
@@ -66,6 +92,26 @@ namespace Fsl
     {
       return m_platformWindow;
     }
+
+  protected:
+    virtual bool TryGetNativeSize(PxPoint2& rSize) const
+    {
+      rSize = {};
+      return false;
+    }
+    virtual bool TryGetNativeDpi(Vector2& rDPI) const
+    {
+      rDPI = {};
+      return false;
+    }
+
+
+    virtual bool TryGetNativeDensityDpi(uint32_t& rDensityDpi) const
+    {
+      rDensityDpi = 0u;
+      return false;
+    }
+
 
     //! @brief Try to acquire the event queue
     std::shared_ptr<INativeWindowEventQueue> TryGetEventQueue();

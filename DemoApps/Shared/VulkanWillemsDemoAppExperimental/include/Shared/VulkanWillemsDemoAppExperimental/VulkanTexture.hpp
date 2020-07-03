@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslUtil/Vulkan1_0/Common.hpp>
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <RapidVulkan/CheckError.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <RapidVulkan/Image.hpp>
@@ -53,7 +53,7 @@ namespace Fsl
       VkImageLayout m_imageLayout;
       RapidVulkan::Memory m_deviceMemory;
       RapidVulkan::ImageView m_view;
-      Extent3D m_extent;
+      PxExtent3D m_extent;
       uint32_t m_mipLevels;
       uint32_t m_layerCount;
       VkDescriptorImageInfo m_descriptor;
@@ -71,7 +71,7 @@ namespace Fsl
 
       //! @brief Move objects into this object
       VulkanTexture(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout, RapidVulkan::Memory&& deviceMemory,
-                    RapidVulkan::ImageView&& view, const Extent3D& extent, const uint32_t mipLevels, const uint32_t layerCount,
+                    RapidVulkan::ImageView&& view, const PxExtent3D& extent, const uint32_t mipLevels, const uint32_t layerCount,
                     const VkDescriptorImageInfo& descriptor);
 
       //! @brief Create a 'invalid' instance (use Reset to populate it)
@@ -87,7 +87,7 @@ namespace Fsl
 
       //! @brief Move objects into this object
       void Reset(RapidVulkan::Sampler&& sampler, RapidVulkan::Image&& image, const VkImageLayout& imageLayout, RapidVulkan::Memory&& deviceMemory,
-                 RapidVulkan::ImageView&& view, const Extent3D& extent, const uint32_t mipLevels, const uint32_t layerCount,
+                 RapidVulkan::ImageView&& view, const PxExtent3D& extent, const uint32_t mipLevels, const uint32_t layerCount,
                  const VkDescriptorImageInfo& descriptor);
 
       //! @brief Change the associated sampler (destroys the old one)
@@ -125,7 +125,7 @@ namespace Fsl
         return m_view.Get();
       }
 
-      Extent3D GetExent() const
+      PxExtent3D GetExent() const
       {
         return m_extent;
       }

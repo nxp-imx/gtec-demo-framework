@@ -47,7 +47,7 @@ namespace Fsl
     Shared m_shared;
 
   public:
-    DFGraphicsBasic2D(const DemoAppConfig& config);
+    explicit DFGraphicsBasic2D(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

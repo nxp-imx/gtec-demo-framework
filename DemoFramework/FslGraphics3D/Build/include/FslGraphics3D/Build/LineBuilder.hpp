@@ -85,7 +85,7 @@ namespace Fsl
       {
       }
 
-      LineBuilder(const uint32_t initialLineCapacity)
+      explicit LineBuilder(const uint32_t initialLineCapacity)
         : m_vertices(std::max(static_cast<std::size_t>(initialLineCapacity) * static_cast<std::size_t>(VERTICES_PER_LINE), MIN_VERTEX_CAPACITY))
       {
       }
@@ -104,7 +104,7 @@ namespace Fsl
 
       inline VertexSpan<vertex_type> GetVertexSpan() const
       {
-        return VertexSpan<vertex_type>(m_vertices.data(), m_entries);
+        return {m_vertices.data(), m_entries};
       }
 
       inline bool IsEmpty() const

@@ -40,14 +40,16 @@
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/LabelButton.hpp>
-#include <FslSimpleUI/Base/Control/Slider.hpp>
-#include <FslSimpleUI/Base/Layout/FillLayout.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
+#include <FslSimpleUI/Base/Control/RadioButton.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
 #include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
+#include <memory>
 
 // Because of inconsistency in khronos extension definition both the 31 and 2 headers are needed
 #include <GLES3/gl31.h>
@@ -55,36 +57,30 @@
 #include "TestScene/TestScene.hpp"
 #include "LoadedScene.hpp"
 #include "OptionParser.hpp"
-#include "SliderControl.hpp"
 
 namespace Fsl
 {
   using namespace GLES3;
-  using namespace UI;
 
   namespace
   {
-    std::shared_ptr<SliderControl> CreateSlider(const std::shared_ptr<WindowContext>& context, const std::string& name, const int32_t min,
-                                                const int32_t max, const float widthF1, const float widthF2, const float widthF3,
-                                                const AtlasTexture2D& texBackground, const AtlasTexture2D& texCursor, const NineSlice& nineSlice,
-                                                const ThicknessF& cursorPadding)
+    namespace LocalConfig
     {
-      std::shared_ptr<SliderControl> slider(new SliderControl(context, name, min, max, widthF1, widthF2, widthF3));
-      slider->GetSlider()->SetBackgroundTexture(texBackground);
-      slider->GetSlider()->SetCursorTexture(texCursor);
-      slider->GetSlider()->SetCursorPadding(cursorPadding);
-      slider->GetSlider()->SetNineSlice(nineSlice);
-      return slider;
+      constexpr ConstrainedValue<float> TInner(1.0f, 1.0f, 50.0f);
+      constexpr ConstrainedValue<float> TOuter(1.0f, 1.0f, 50.0f);
+      constexpr ConstrainedValue<float> DispFactor(1.0f, 0.0f, 50.0f);
+      constexpr ConstrainedValue<float> DispMod(1.0f, -10.0f, 10.0f);
+      constexpr ConstrainedValue<float> Shininess(1.0f, 0.0f, 100.0f);
     }
 
     template <typename T>
-    SceneRecord CreateSceneRecord(StackLayout& stack, const std::shared_ptr<WindowContext>& context, const DemoAppConfig& config,
-                                  const std::shared_ptr<OptionParser>& options, const int32_t id, const std::string& name)
+    SceneRecord CreateSceneRecord(UI::Theme::BasicThemeFactory& factory, UI::StackLayout& stack, const DemoAppConfig& config,
+                                  const std::shared_ptr<OptionParser>& options, const int32_t id, const std::string& name,
+                                  const std::shared_ptr<UI::RadioGroup>& radioGroup)
     {
       SceneRecord record;
       record.Scene = std::make_shared<T>(config, options, id);
-      record.Button.reset(new LabelButton(context));
-      record.Button->SetContent(name);
+      record.Button = factory.CreateRadioButton(radioGroup, name);
       stack.AddChild(record.Button);
       return record;
     }
@@ -96,29 +92,40 @@ namespace Fsl
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(std::dynamic_pointer_cast<GLES3::NativeBatch2D>(m_graphics->GetNativeBatch2D()))
     , m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
+    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))
   {
     RegisterExtension(m_uiExtension);
 
     auto options = config.GetOptions<OptionParser>();
 
     const std::shared_ptr<IContentManager> contentManager = config.DemoServiceProvider.Get<IContentManager>();
-    BuildUI(contentManager);
 
-    m_scenes.push_back(CreateSceneRecord<LoadedScene>(*m_buttonStack, m_context, config, options, 0, "Face"));
-    m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 0, "Torus"));
-    m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 1, "Rocks"));
-    // m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 2, "Plane"));
-    m_scenes.push_back(CreateSceneRecord<TestScene>(*m_buttonStack, m_context, config, options, 3, "Cube"));
+    m_context = m_uiExtension->GetContext();
+    UI::Theme::BasicThemeFactory factory(m_context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+
+    m_buttonStack = std::make_shared<UI::StackLayout>(m_context);
+
+    auto radioGroup = factory.CreateRadioGroup("Scene");
+    m_scenes.push_back(CreateSceneRecord<LoadedScene>(factory, *m_buttonStack, config, options, 0, "Face", radioGroup));
+    m_scenes.push_back(CreateSceneRecord<TestScene>(factory, *m_buttonStack, config, options, 0, "Torus", radioGroup));
+    m_scenes.push_back(CreateSceneRecord<TestScene>(factory, *m_buttonStack, config, options, 1, "Rocks", radioGroup));
+    // m_scenes.push_back(CreateSceneRecord<TestScene>(factory, *m_buttonStack, config, options, 2, "Plane", radioGroup));
+    m_scenes.push_back(CreateSceneRecord<TestScene>(factory, *m_buttonStack, config, options, 3, "Cube", radioGroup));
+
+    BuildUI(factory);
 
 
     switch (options->GetScene())
     {
     case 0:
       m_scene = m_scenes.front().Scene;
+      m_scenes.front().Button->SetIsChecked(true);
+      m_scenes.front().Button->FinishAnimation();
       break;
     default:
       m_scene = m_scenes.back().Scene;
+      m_scenes.back().Button->SetIsChecked(true);
+      m_scenes.back().Button->FinishAnimation();
       break;
     }
 
@@ -129,22 +136,13 @@ namespace Fsl
   TessellationSample::~TessellationSample() = default;
 
 
-  void TessellationSample::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void TessellationSample::OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& theEvent)
   {
-    auto source = theEvent->GetSource();
-
-    for (auto itr = m_scenes.begin(); itr != m_scenes.end(); ++itr)
-    {
-      if (source == itr->Button)
-      {
-        m_scene = itr->Scene;
-        UpdateUIWithSceneSettings();
-      }
-    }
+    FSL_PARAM_NOT_USED(theEvent);
   }
 
 
-  void TessellationSample::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void TessellationSample::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
   {
     auto source = theEvent->GetSource();
     if (source == m_sliderTInner)
@@ -187,6 +185,17 @@ namespace Fsl
     else if (source == m_checkRotate)
     {
       m_drawConfig.UseRotation = m_checkRotate->IsChecked();
+    }
+    else
+    {
+      for (auto itr = m_scenes.begin(); itr != m_scenes.end(); ++itr)
+      {
+        if (source == itr->Button && itr->Button->IsChecked())
+        {
+          m_scene = itr->Scene;
+          UpdateUIWithSceneSettings();
+        }
+      }
     }
   }
 
@@ -276,7 +285,7 @@ namespace Fsl
   }
 
 
-  void TessellationSample::Draw(const DemoTime& demoTime)
+  void TessellationSample::Draw(const DemoTime& /*demoTime*/)
   {
     if (m_scene)
     {
@@ -289,18 +298,8 @@ namespace Fsl
   }
 
 
-  void TessellationSample::BuildUI(const std::shared_ptr<IContentManager>& contentManager)
+  void TessellationSample::BuildUI(UI::Theme::BasicThemeFactory& factory)
   {
-    m_context = m_uiExtension->GetContext();
-
-    AtlasTexture2D texSlider = m_uiExtension->GetAtlasTexture2D("Slider");
-    AtlasTexture2D texSliderCursor = m_uiExtension->GetAtlasTexture2D("SliderCursor");
-    AtlasTexture2D texCheckBoxC = m_uiExtension->GetAtlasTexture2D("CheckBoxC");
-    AtlasTexture2D texCheckBoxU = m_uiExtension->GetAtlasTexture2D("CheckBoxU");
-
-    NineSlice sliderNineSlice(13, 0, 13, 0);
-    ThicknessF sliderCursorPadding(13, 0, 13, 0);
-
     // RenderMode:
     // Displacement on/off
     // WireFrame on/off
@@ -312,71 +311,53 @@ namespace Fsl
     // DispMod slider
     // Shininess slider
 
-    m_checkDisplacement.reset(new CheckBox(m_context));
-    m_checkDisplacement->SetText("Displacement");
-    m_checkDisplacement->SetCheckedTexture(texCheckBoxC);
-    m_checkDisplacement->SetUncheckedTexture(texCheckBoxU);
+    m_checkDisplacement = factory.CreateSwitch("Displacement", true);
+    m_checkWireframe = factory.CreateSwitch("WireFrame", false);
+    m_checkTexture = factory.CreateSwitch("Texture", true);
+    m_checkRotate = factory.CreateSwitch("Rotate", false);
 
-    m_checkWireframe.reset(new CheckBox(m_context));
-    m_checkWireframe->SetText("WireFrame");
-    m_checkWireframe->SetCheckedTexture(texCheckBoxC);
-    m_checkWireframe->SetUncheckedTexture(texCheckBoxU);
+    auto labalTInner = factory.CreateLabel("Inner tessellation");
+    auto labalTOuter = factory.CreateLabel("Outer tessellation");
+    auto labalDispFactor = factory.CreateLabel("Displacement factor");
+    auto labalDispMod = factory.CreateLabel("Displacement mod");
+    auto labalShininess = factory.CreateLabel("Shininess");
+    m_sliderTInner = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::TInner);
+    m_sliderTOuter = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::TOuter);
+    m_sliderTDispFactor = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::DispFactor);
+    m_sliderTDispMod = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::DispMod);
+    m_sliderShininess = factory.CreateSliderFmtValue<float>(UI::LayoutOrientation::Horizontal, LocalConfig::Shininess);
 
-    m_checkTexture.reset(new CheckBox(m_context));
-    m_checkTexture->SetText("Texture");
-    m_checkTexture->SetCheckedTexture(texCheckBoxC);
-    m_checkTexture->SetUncheckedTexture(texCheckBoxU);
 
-    m_checkRotate.reset(new CheckBox(m_context));
-    m_checkRotate->SetText("Rotate");
-    m_checkRotate->SetCheckedTexture(texCheckBoxC);
-    m_checkRotate->SetUncheckedTexture(texCheckBoxU);
+    m_buttonStack->SetLayoutOrientation(UI::LayoutOrientation::Vertical);
+    m_buttonStack->SetAlignmentX(UI::ItemAlignment::Near);
+    m_buttonStack->SetAlignmentY(UI::ItemAlignment::Far);
+    m_buttonStack->AddChild(m_checkDisplacement);
+    m_buttonStack->AddChild(m_checkWireframe);
+    m_buttonStack->AddChild(m_checkTexture);
+    m_buttonStack->AddChild(m_checkRotate);
+    m_buttonStack->AddChild(labalTInner);
+    m_buttonStack->AddChild(m_sliderTInner);
+    m_buttonStack->AddChild(labalTOuter);
+    m_buttonStack->AddChild(m_sliderTOuter);
+    m_buttonStack->AddChild(labalDispFactor);
+    m_buttonStack->AddChild(m_sliderTDispFactor);
+    m_buttonStack->AddChild(labalDispMod);
+    m_buttonStack->AddChild(m_sliderTDispMod);
+    m_buttonStack->AddChild(labalShininess);
+    m_buttonStack->AddChild(m_sliderShininess);
 
-    float widthF1 = 250;
-    float widthF2 = 200;
-    float widthF3 = 80;
+    // m_caption = factory.CreateLabel();
+    // m_caption->SetAlignmentX(ItemAlignment::Near);
+    // m_caption->SetAlignmentY(ItemAlignment::Near);
 
-    m_sliderTInner =
-      CreateSlider(m_context, "TInner", 1, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderTOuter =
-      CreateSlider(m_context, "TOuter", 1, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderTDispFactor =
-      CreateSlider(m_context, "DispFactor", 0, 50, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderTDispMod =
-      CreateSlider(m_context, "DispMod", -10, 10, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
-    m_sliderShininess =
-      CreateSlider(m_context, "Shininess", 0, 100, widthF1, widthF2, widthF3, texSlider, texSliderCursor, sliderNineSlice, sliderCursorPadding);
+    m_buttonStack->SetAlignmentX(UI::ItemAlignment::Near);
+    m_buttonStack->SetAlignmentY(UI::ItemAlignment::Near);
 
-    std::shared_ptr<StackLayout> stackLayout(new StackLayout(m_context));
-    stackLayout->SetLayoutOrientation(LayoutOrientation::Vertical);
-    stackLayout->SetAlignmentX(ItemAlignment::Near);
-    stackLayout->SetAlignmentY(ItemAlignment::Far);
-    stackLayout->AddChild(m_checkDisplacement);
-    stackLayout->AddChild(m_checkWireframe);
-    stackLayout->AddChild(m_checkTexture);
-    stackLayout->AddChild(m_checkRotate);
-    stackLayout->AddChild(m_sliderTInner);
-    stackLayout->AddChild(m_sliderTOuter);
-    stackLayout->AddChild(m_sliderTDispFactor);
-    stackLayout->AddChild(m_sliderTDispMod);
-    stackLayout->AddChild(m_sliderShininess);
 
-    m_caption.reset(new Label(m_context));
-    m_caption->SetAlignmentX(ItemAlignment::Near);
-    m_caption->SetAlignmentY(ItemAlignment::Near);
-
-    m_buttonStack.reset(new StackLayout(m_context));
-    m_buttonStack->SetAlignmentX(ItemAlignment::Near);
-    m_buttonStack->SetAlignmentY(ItemAlignment::Near);
-
-    m_fillLayout.reset(new FillLayout(m_context));
-    m_fillLayout->AddChild(m_caption);
-    m_fillLayout->AddChild(stackLayout);
-    m_fillLayout->AddChild(m_buttonStack);
-
+    auto bar = factory.CreateLeftBar(m_buttonStack, UI::Theme::BarType::Transparent);
 
     // Add the fill layout to the window manager to ensure it is visible
-    m_uiExtension->GetWindowManager()->Add(m_fillLayout);
+    m_uiExtension->GetWindowManager()->Add(bar);
 
 
     m_checkDisplacement->SetIsChecked(true);
@@ -402,10 +383,10 @@ namespace Fsl
     m_material = m_scene->GetRenderMaterial();
 
     // For now methods that cause a event to be send need to be called after the window has been added to the window manager.
-    m_sliderTInner->SetValue(static_cast<int32_t>(m_tessellationConfig.TessLevelInner));
-    m_sliderTOuter->SetValue(static_cast<int32_t>(m_tessellationConfig.TessLevelOuter));
-    m_sliderTDispFactor->SetValue(static_cast<int32_t>(m_tessellationConfig.DisplacementFactor));
-    m_sliderTDispMod->SetValue(static_cast<int32_t>(m_tessellationConfig.DisplacementMod));
-    m_sliderShininess->SetValue(static_cast<int32_t>(m_material.Shininess));
+    m_sliderTInner->SetValue(m_tessellationConfig.TessLevelInner);
+    m_sliderTOuter->SetValue(m_tessellationConfig.TessLevelOuter);
+    m_sliderTDispFactor->SetValue(m_tessellationConfig.DisplacementFactor);
+    m_sliderTDispMod->SetValue(m_tessellationConfig.DisplacementMod);
+    m_sliderShininess->SetValue(m_material.Shininess);
   }
 }

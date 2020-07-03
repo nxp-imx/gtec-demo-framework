@@ -55,9 +55,9 @@ namespace Fsl
     std::unique_ptr<std::vector<PlatformGamepadStateWin32>> m_gamepadState;
 
   public:
-    PlatformNativeWindowSystemWin32(const NativeWindowSystemSetup& setup,
-                                    const PlatformNativeWindowAllocationFunction& allocateWindowFunction = nullptr,
-                                    const PlatformNativeWindowSystemParams& systemParams = PlatformNativeWindowSystemParams());
+    explicit PlatformNativeWindowSystemWin32(const NativeWindowSystemSetup& setup,
+                                             const PlatformNativeWindowAllocationFunction& allocateWindowFunction = nullptr,
+                                             const PlatformNativeWindowSystemParams& systemParams = PlatformNativeWindowSystemParams());
     ~PlatformNativeWindowSystemWin32() override;
 
     std::shared_ptr<INativeWindow>

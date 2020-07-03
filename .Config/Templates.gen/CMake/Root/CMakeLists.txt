@@ -1,5 +1,7 @@
 ##COMMON_HEADER##
 
+message(STATUS "Using CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
+
 ##########
 # CHECKS #
 ##########

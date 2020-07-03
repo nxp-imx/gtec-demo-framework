@@ -44,7 +44,7 @@ namespace Fsl
     // -----------------------------------------------------------------------------------------------------------------------------------------------
 
 
-    const R8G8B8::pixel_t R8G8B8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+    R8G8B8::pixel_t R8G8B8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
     {
       if (!image.IsValid())
       {
@@ -84,7 +84,7 @@ namespace Fsl
     // R8G8B8A8
     // -----------------------------------------------------------------------------------------------------------------------------------------------
 
-    const R8G8B8A8::pixel_t R8G8B8A8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
+    R8G8B8A8::pixel_t R8G8B8A8::GetPixel(const image_t& image, const uint32_t x, const uint32_t y, const bool ignoreOrigin)
     {
       if (!image.IsValid())
       {

@@ -34,6 +34,7 @@
 #include <FslService/Consumer/ProviderId.hpp>
 #include <FslService/Impl/Foundation/Message/IBasicMessageQueue.hpp>
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
@@ -43,9 +44,9 @@ namespace Fsl
     //! The service queue
     std::weak_ptr<IBasicMessageQueue> ServiceQueue;
 
-    AsynchronousServiceProxyCreateInfo(const ProviderId& id, const std::weak_ptr<IBasicMessageQueue>& serviceQueue)
+    AsynchronousServiceProxyCreateInfo(const ProviderId& id, std::weak_ptr<IBasicMessageQueue> serviceQueue)
       : Id(id)
-      , ServiceQueue(serviceQueue)
+      , ServiceQueue(std::move(serviceQueue))
     {
     }
   };

@@ -37,6 +37,7 @@
 #include <FslService/Impl/Foundation/Message/Message.hpp>
 #include <exception>
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
@@ -54,7 +55,7 @@ namespace Fsl
     BasicMessage() = default;
 
 
-    BasicMessage(const BasicMessageType type)
+    explicit BasicMessage(const BasicMessageType type)
       : Type(type)
     {
     }
@@ -67,26 +68,25 @@ namespace Fsl
     }
 
 
-    BasicMessage(const BasicMessageType type, const std::shared_ptr<Message>& content)
+    BasicMessage(const BasicMessageType type, std::shared_ptr<Message> content)
       : Type(type)
-      , Content(content)
+      , Content(std::move(content))
     {
     }
 
 
-    BasicMessage(const BasicMessageType type, const int32_t param1, const std::shared_ptr<Message>& content,
-                 const std::shared_ptr<IMessagePool>& messagePool)
+    BasicMessage(const BasicMessageType type, const int32_t param1, std::shared_ptr<Message> content, std::shared_ptr<IMessagePool> messagePool)
       : Type(type)
       , Param1(param1)
-      , Content(content)
-      , MessagePool(messagePool)
+      , Content(std::move(content))
+      , MessagePool(std::move(messagePool))
     {
     }
 
-    BasicMessage(const BasicMessageType type, const std::shared_ptr<Message>& content, const std::shared_ptr<IMessagePool>& messagePool)
+    BasicMessage(const BasicMessageType type, std::shared_ptr<Message> content, std::shared_ptr<IMessagePool> messagePool)
       : Type(type)
-      , Content(content)
-      , MessagePool(messagePool)
+      , Content(std::move(content))
+      , MessagePool(std::move(messagePool))
     {
     }
 
@@ -106,13 +106,13 @@ namespace Fsl
 
 
     BasicMessage(const BasicMessageType type, const int32_t param1, const int32_t param2, const std::exception_ptr& exception,
-                 const std::shared_ptr<Message>& content, const std::shared_ptr<IMessagePool>& messagePool)
+                 std::shared_ptr<Message> content, std::shared_ptr<IMessagePool> messagePool)
       : Type(type)
       , Param1(param1)
       , Param2(param2)
       , Exception(exception)
-      , Content(content)
-      , MessagePool(messagePool)
+      , Content(std::move(content))
+      , MessagePool(std::move(messagePool))
     {
     }
   };

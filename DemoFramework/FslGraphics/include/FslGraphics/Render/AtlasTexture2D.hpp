@@ -31,22 +31,23 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslGraphics/Render/Texture2D.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
+#include <FslGraphics/Render/BaseTexture2D.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 
 namespace Fsl
 {
   class AtlasTexture2D
   {
-    Texture2D m_atlas;
+    BaseTexture2D m_atlas;
     AtlasTextureInfo m_info;
 
   public:
     //! @brief Create a uninitialized texture (use SetData to add texture data to it)
-    AtlasTexture2D();
+    AtlasTexture2D() = default;
 
     //! @brief Create a initialized texture
-    AtlasTexture2D(const Texture2D& texAtlas, const AtlasTextureInfo& info);
+    AtlasTexture2D(const BaseTexture2D& texAtlas, const AtlasTextureInfo& info);
 
     ~AtlasTexture2D();
 
@@ -54,27 +55,44 @@ namespace Fsl
     bool IsValid() const;
 
     //! @brief Get the texture size of the atlas.
-    Point2 GetAtlasSize() const
+    PxSize2D GetAtlasSize() const
     {
       return m_atlas.GetSize();
     }
 
     //! @brief Get the virtual texture size.
-    Point2 GetSize() const
+    //! @note Not valid entries will be zero size
+    PxSize2D GetSize() const
     {
-      return m_info.OriginalSize;
+      return TypeConverter::UncheckedTo<PxSize2D>(m_info.ExtentPx);
+    }
+
+    PxExtent2D GetExtent() const
+    {
+      return m_info.ExtentPx;
     }
 
     //! @brief Get the virtual texture size.
-    AtlasTextureInfo GetInfo() const;
+    const AtlasTextureInfo& GetInfo() const
+    {
+      return m_info;
+    }
 
     //! @brief Acquire the native texture (returns null if none exist)
     std::shared_ptr<INativeTexture2D> TryGetNative() const;
 
-    Texture2D GetAtlasTexture() const;
+    const INativeTexture2D* TryGetNativePointer() const
+    {
+      return m_atlas.TryGetNativePointer();
+    }
+
+    const BaseTexture2D& GetAtlasTexture() const
+    {
+      return m_atlas;
+    }
 
     void Reset();
-    void Reset(const Texture2D& texAtlas, const AtlasTextureInfo& info);
+    void Reset(const BaseTexture2D& texAtlas, const AtlasTextureInfo& info);
 
     bool operator==(const AtlasTexture2D& rhs) const
     {

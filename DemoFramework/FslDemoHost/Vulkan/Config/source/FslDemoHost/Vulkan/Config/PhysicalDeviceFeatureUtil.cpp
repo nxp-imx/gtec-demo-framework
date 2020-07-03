@@ -223,7 +223,7 @@ namespace Fsl
 
     VkBool32 PhysicalDeviceFeatureUtil::Get(const VkPhysicalDeviceFeatures& features, const PhysicalDeviceFeature featureName)
     {
-      std::size_t offset;
+      std::size_t offset = 0;
       if (!TryGetOffset(featureName, offset))
       {
         throw std::invalid_argument("Unknown Vulkan PhysicalDeviceFeature");
@@ -231,14 +231,14 @@ namespace Fsl
 
       // Nasty lookup that breaks without warning if the type changes from VkBool32 in VkPhysicalDeviceFeatures (this is the reason we have the static
       // asserts at the bottom of this file)
-      const auto pMember = reinterpret_cast<const VkBool32*>((reinterpret_cast<const uint8_t*>(&features) + offset));
+      const auto* const pMember = reinterpret_cast<const VkBool32*>((reinterpret_cast<const uint8_t*>(&features) + offset));
       return *pMember;
     }
 
 
     void PhysicalDeviceFeatureUtil::Set(VkPhysicalDeviceFeatures& rFeatures, const PhysicalDeviceFeature featureName, const VkBool32 value)
     {
-      std::size_t offset;
+      std::size_t offset = 0;
       if (!TryGetOffset(featureName, offset))
       {
         throw std::invalid_argument("Unknown Vulkan PhysicalDeviceFeature");
@@ -246,7 +246,7 @@ namespace Fsl
 
       // Nasty lookup that breaks without warning if the type changes from VkBool32 in VkPhysicalDeviceFeatures (this is the reason we have the static
       // asserts at the bottom of this file)
-      auto pMember = reinterpret_cast<VkBool32*>((reinterpret_cast<uint8_t*>(&rFeatures) + offset));
+      auto* pMember = reinterpret_cast<VkBool32*>((reinterpret_cast<uint8_t*>(&rFeatures) + offset));
       *pMember = value;
     }
 

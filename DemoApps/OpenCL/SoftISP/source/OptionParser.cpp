@@ -49,12 +49,14 @@ namespace Fsl
       enum Enum
       {
         DenoiseStatus = DEMO_APP_OPTION_BASE,
+        CycleNum
       };
     };
   }
 
   OptionParser::OptionParser()
     : m_denoiseStatus(false)
+    , m_cycleNum(1000)
   {
   }
 
@@ -67,15 +69,19 @@ namespace Fsl
   void OptionParser::OnArgumentSetup(std::deque<Option>& rOptions)
   {
     rOptions.push_back(Option("Enable", OptionArgument::OptionNone, CommandId::DenoiseStatus, "Enable denoise function."));
+    rOptions.emplace_back("c", "m_cycleNum", OptionArgument::OptionRequired, CommandId::CycleNum, "Control the number of cycle");
   }
 
-
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     switch (cmdId)
     {
     case CommandId::DenoiseStatus:
       m_denoiseStatus = true;
+      return OptionParseResult::Parsed;
+    case CommandId::CycleNum:
+      StringParseUtil::Parse(m_cycleNum, strOptArg);
+      m_cycleNum = std::max(m_cycleNum, uint32_t(1));
       return OptionParseResult::Parsed;
     default:
       return OptionParseResult::NotHandled;

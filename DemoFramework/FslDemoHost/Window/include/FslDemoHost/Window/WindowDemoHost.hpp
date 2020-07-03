@@ -58,7 +58,7 @@ namespace Fsl
     std::shared_ptr<INativeWindow> m_window;
 
   public:
-    WindowDemoHost(const DemoHostConfig& demoHostConfig);
+    explicit WindowDemoHost(const DemoHostConfig& demoHostConfig);
     ~WindowDemoHost() override;
 
     void OnActivate() override;
@@ -66,7 +66,7 @@ namespace Fsl
     void OnSuspend() override;
     void OnResume() override;
     DemoHostFeature GetActiveAPI() const override;
-    Point2 GetScreenResolution() const override;
+    DemoWindowMetrics GetWindowMetrics() const override;
     SwapBuffersResult TrySwapBuffers() override;
     bool ProcessNativeMessages(const bool allowBlock) override;
 

@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -42,12 +42,12 @@ namespace Fsl
   {
     const void* Content{nullptr};
 
-    Extent2D Extent;
+    PxExtent2D Extent;
     uint32_t Stride{0};
 
     RawBitmapArea() = default;
 
-    RawBitmapArea(const void* pContent, const Extent2D& extent, const uint32_t stride)
+    RawBitmapArea(const void* pContent, const PxExtent2D& extent, const uint32_t stride)
       : Content(pContent)
       , Extent(extent)
       , Stride(stride)

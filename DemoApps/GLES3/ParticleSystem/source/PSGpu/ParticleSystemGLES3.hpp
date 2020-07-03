@@ -36,7 +36,7 @@
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include <FslUtil/OpenGLES3_1/GLProgramPipeline.hpp>
 #include <FslUtil/OpenGLES3_1/GLShaderProgram.hpp>
-
+#include <array>
 #include <cstddef>
 #include <memory>
 #include "../PS/ParticleDrawContext.hpp"
@@ -58,13 +58,13 @@ namespace Fsl
     GLuint m_transformFeedbackObject;
     GLuint m_transformFeedbackQuery;
     GLint m_locFeedbackDeltaTime;
-    GLES3::GLVertexAttribLink m_particleAttribLinkFeedback[4];
+    std::array<GLES3::GLVertexAttribLink, 4> m_particleAttribLinkFeedback;
 
     GLES3::GLProgramPipeline m_pipeline;
     GLES3::GLShaderProgram m_shaderVert;
     GLES3::GLShaderProgram m_shaderFrag;
     GLES3::GLShaderProgram m_shaderGeom;
-    GLES3::GLVertexAttribLink m_particleAttribLink[1];
+    std::array<GLES3::GLVertexAttribLink, 1> m_particleAttribLink;
     GLint m_locViewProjectionMatrix;
     GLint m_locWorldViewProjectionMatrix;
 

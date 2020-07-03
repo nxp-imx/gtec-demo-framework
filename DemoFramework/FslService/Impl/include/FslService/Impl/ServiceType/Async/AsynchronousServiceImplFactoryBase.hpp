@@ -41,7 +41,7 @@ namespace Fsl
     std::type_index m_interfaceType;
 
   public:
-    AsynchronousServiceImplFactoryBase(const std::type_index& interfaceType);
+    explicit AsynchronousServiceImplFactoryBase(const std::type_index& interfaceType);
 
     std::shared_ptr<IService> Allocate(const AsynchronousServiceImplCreateInfo& createInfo, ServiceProvider& provider) override = 0;
   };

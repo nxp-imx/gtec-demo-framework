@@ -37,8 +37,6 @@
 
 namespace Fsl
 {
-  class AtlasFont;
-
   namespace UI
   {
     class Label : public LabelBase
@@ -46,16 +44,21 @@ namespace Fsl
       std::string m_content;
 
     public:
-      Label(const std::shared_ptr<WindowContext>& context);
+      explicit Label(const std::shared_ptr<WindowContext>& context);
 
       const std::string& GetContent() const
       {
         return m_content;
       }
 
-      void SetContent(const char* const psz);
+      void SetContent(const char* const psz)
+      {
+        SetContent(StringViewLite(psz));
+      }
+
       void SetContent(const StringViewLite& value);
       void SetContent(const std::string& value);
+      void SetContent(std::string&& value);
 
     protected:
       StringViewLite DoGetContent() const override

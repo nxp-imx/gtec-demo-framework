@@ -30,12 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include "OpenCLGaussianFilter.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslBase/Math/TypeConverter.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslUtil/OpenCL1_1/ContextEx.hpp>
-#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <FslUtil/OpenCL1_2/ContextEx.hpp>
+#include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <RapidOpenCL1/Buffer.hpp>
@@ -48,55 +50,54 @@
 #include <array>
 #include <vector>
 
-using namespace RapidOpenCL1;
-
 namespace Fsl
 {
   using namespace GLES3;
-  using namespace OpenCL;
 
   namespace
   {
     void PrintInfo(const cl_platform_id rplatformId, const cl_device_id deviceId)
     {
-      const int arrSize = 4;
+      constexpr const int arrSize = 4;
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const char* attributeNames[arrSize] = {"Name", "Vendor", "Version", "Profile"};
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const cl_platform_info attributeTypes[arrSize] = {CL_PLATFORM_NAME, CL_PLATFORM_VENDOR, CL_PLATFORM_VERSION, CL_PLATFORM_PROFILE};
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       const cl_device_info deviceAttributeTypes[arrSize] = {CL_DEVICE_NAME, CL_DEVICE_VENDOR, CL_DEVICE_VERSION, CL_DEVICE_PROFILE};
-      const int attributeCount = sizeof(attributeNames) / sizeof(char*);
 
       FSLLOG3_INFO("\n-=-=-=- Platform and Device information -=-=-=-\n\n");
 
-      for (int count = 0; count < attributeCount; ++count)
+      for (int count = 0; count < arrSize; ++count)
       {
-        const std::string info = OpenCLHelper::GetPlatformInfo<std::string>(rplatformId, attributeTypes[count]);
-        const std::string deviceInfo = OpenCLHelper::GetDeviceInfo<std::string>(deviceId, deviceAttributeTypes[count]);
+        const std::string info = OpenCL::OpenCLHelper::GetPlatformInfo<std::string>(rplatformId, attributeTypes[count]);
+        const std::string deviceInfo = OpenCL::OpenCLHelper::GetDeviceInfo<std::string>(deviceId, deviceAttributeTypes[count]);
 
         FSLLOG3_INFO("Platform Attributes {}: {}", attributeNames[count], info);
         FSLLOG3_INFO("Device Attributes {}: {}", attributeNames[count], deviceInfo);
       }
 
-      const auto deviceItems = OpenCLHelper::GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+      const auto deviceItems = OpenCL::OpenCLHelper::GetDeviceInfo<cl_uint>(deviceId, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
       FSLLOG3_INFO("Device Max Work Item Dimensions: {}-D", deviceItems);
 
-      const auto deviceSize = OpenCLHelper::GetDeviceInfo<std::size_t>(deviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE);
+      const auto deviceSize = OpenCL::OpenCLHelper::GetDeviceInfo<std::size_t>(deviceId, CL_DEVICE_MAX_WORK_GROUP_SIZE);
       FSLLOG3_INFO("Device Max Work Group Size: {}", deviceSize);
 
       FSLLOG3_INFO("\n-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n");
     }
 
 
-    Program BuildProgram(const cl_context context, const cl_device_id deviceId, const std::string& kernelSrc)
+    RapidOpenCL1::Program BuildProgram(const cl_context context, const cl_device_id deviceId, const std::string& kernelSrc)
     {
       const char* pszKernelSource = kernelSrc.c_str();
       const std::size_t kernelSize = kernelSrc.size();
 
-      Program program(context, 1, &pszKernelSource, &kernelSize);
+      RapidOpenCL1::Program program(context, 1, &pszKernelSource, &kernelSize);
 
       const cl_int error = clBuildProgram(program.Get(), 1, &deviceId, "", nullptr, nullptr);
       if (error != CL_SUCCESS)
       {
-        const auto buildInfo = OpenCLHelper::GetProgramBuildInfoString(program.Get(), deviceId, CL_PROGRAM_BUILD_LOG);
+        const auto buildInfo = OpenCL::OpenCLHelper::GetProgramBuildInfoString(program.Get(), deviceId, CL_PROGRAM_BUILD_LOG);
         FSLLOG3_INFO(buildInfo);
         RAPIDOPENCL_CHECK(error);
       }
@@ -105,20 +106,20 @@ namespace Fsl
 
     void ProcessBitmapUsingOpenCL(Bitmap& rBitmap, const std::string& strProgram)
     {
-      ContextEx context;
-      cl_device_id deviceId;
+      OpenCL::ContextEx context;
+      cl_device_id deviceId = nullptr;
       context.Reset(CL_DEVICE_TYPE_GPU, &deviceId);
 
-      CommandQueue commandQueue(context.Get(), deviceId, 0);
+      RapidOpenCL1::CommandQueue commandQueue(context.Get(), deviceId, 0);
 
       PrintInfo(context.GetPlatformId(), deviceId);
 
-      Program program = BuildProgram(context.Get(), deviceId, strProgram);
-      Kernel kernel(program.Get(), "gaussian_filter");
+      RapidOpenCL1::Program program = BuildProgram(context.Get(), deviceId, strProgram);
+      RapidOpenCL1::Kernel kernel(program.Get(), "gaussian_filter");
 
       const std::size_t size2d = rBitmap.Width() * rBitmap.Height();
-      Buffer gaussMemInput(context.Get(), CL_MEM_READ_ONLY, size2d, nullptr);
-      Buffer gaussMemOutput(context.Get(), CL_MEM_WRITE_ONLY, size2d, nullptr);
+      RapidOpenCL1::Buffer gaussMemInput(context.Get(), CL_MEM_READ_ONLY, size2d, nullptr);
+      RapidOpenCL1::Buffer gaussMemOutput(context.Get(), CL_MEM_WRITE_ONLY, size2d, nullptr);
 
       const auto width = static_cast<cl_int>(rBitmap.Width());
       const auto height = static_cast<cl_int>(rBitmap.Height());
@@ -134,11 +135,12 @@ namespace Fsl
         Bitmap::ScopedDirectAccess scopedAccess(rBitmap, rawBitmap);
         auto* pImgData = static_cast<uint8_t*>(rawBitmap.Content());
 
-        const std::size_t global[2] = {rawBitmap.Width(), rawBitmap.Height()};
-        const int dimension = 2;
-        std::size_t local[dimension] = {16, 8};
+        constexpr const int dimension = 2;
+        const std::array<std::size_t, dimension> global = {rawBitmap.Width(), rawBitmap.Height()};
+        constexpr std::array<std::size_t, dimension> local = {16, 8};
         RAPIDOPENCL_CHECK(clEnqueueWriteBuffer(commandQueue.Get(), gaussMemInput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
-        RAPIDOPENCL_CHECK(clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global, local, 0, nullptr, nullptr));
+        RAPIDOPENCL_CHECK(
+          clEnqueueNDRangeKernel(commandQueue.Get(), kernel.Get(), dimension, nullptr, global.data(), local.data(), 0, nullptr, nullptr));
         RAPIDOPENCL_CHECK(clEnqueueReadBuffer(commandQueue.Get(), gaussMemOutput.Get(), CL_TRUE, 0, size2d, pImgData, 0, nullptr, nullptr));
       }
     }
@@ -261,8 +263,8 @@ namespace Fsl
   {
     FSL_PARAM_NOT_USED(demoTime);
 
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Clear the color-buffer and depth-buffer
     glClearColor(0.0f, 0.0f, 0.5f, 1.0f);

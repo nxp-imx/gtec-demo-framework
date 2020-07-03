@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
@@ -40,6 +41,7 @@
 #include <Shared/Camera/System/Camera.hpp>
 #include <Shared/Camera/System/CameraSystem.hpp>
 #include <GLES3/gl3.h>
+#include <array>
 // Includes for glm and matrix manipulation
 #include <glm/glm.hpp>
 
@@ -56,7 +58,7 @@ namespace Fsl
     GLuint m_textureHandle{};
     uint32_t m_frameId{};
 
-    GLfloat m_cameraPlaneVertices[12] = {};
+    std::array<GLfloat, 12> m_cameraPlaneVertices{};
 
     GLuint m_cameraVAO{};
 
@@ -71,7 +73,7 @@ namespace Fsl
     GLint m_textureLoc{};
 
   public:
-    CameraRender(const std::shared_ptr<IContentManager>& contentManager, const Point2& currentSize);
+    CameraRender(const std::shared_ptr<IContentManager>& contentManager, const PxSize2D& currentSizePx);
 
     void Draw(const DemoTime& demoTime);
   };

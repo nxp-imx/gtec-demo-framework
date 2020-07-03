@@ -47,24 +47,27 @@ namespace Fsl
   //! @brief This represents the minimal set of drawing operations that are supported on all hardware.
   //! @note  This is useful for rendering basic debug output. Since this is designed for basic debugging its also very
   //         lenient with its input parameters. Most wrong parameters just produce no output and a log message.
-  class Basic2D : public IBasic2D
+  class Basic2D final : public IBasic2D
   {
     std::shared_ptr<INativeGraphicsBasic2D> m_native;
-    Point2 m_fontSize;
+    PxSize2D m_fontSize;
     bool m_inBegin;
 
   public:
-    Basic2D(const std::shared_ptr<INativeGraphicsBasic2D>& native);
+    explicit Basic2D(std::shared_ptr<INativeGraphicsBasic2D> native);
 
     //! @brief Begin the draw sequence
     //! @note all draw operations must occur between a begin and end call.
-    void Begin() override;
-    void End() override;
-    void DrawPoints(const Vector2* const pSrc, const int32_t length, const Color& color) override;
-    void DrawString(const char* const psz, const Vector2& dstPosition) override;
-    void DrawString(const std::string& str, const Vector2& dstPosition) override;
-    void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
-    const Point2 FontSize() const override;
+    void Begin() final;
+    void End() final;
+    void DrawPoints(const Vector2* const pSrc, const int32_t length, const Color& color) final;
+    void DrawString(const char* const psz, const Vector2& dstPositionPxf) final;
+    void DrawString(const std::string& str, const Vector2& dstPositionPxf) final;
+    void DrawString(const StringViewLite& strView, const Vector2& dstPositionPxf) final;
+    void DrawString(const char* const psz, const PxPoint2& dstPositionPx) final;
+    void DrawString(const std::string& str, const PxPoint2& dstPositionPx) final;
+    void DrawString(const StringViewLite& strView, const PxPoint2& dstPositionPx) final;
+    PxSize2D FontSize() const final;
   };
 }
 

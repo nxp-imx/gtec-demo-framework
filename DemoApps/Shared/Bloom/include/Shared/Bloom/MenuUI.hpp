@@ -33,9 +33,9 @@
 
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/ImageButton.hpp>
-#include <FslSimpleUI/Base/Control/SliderAndValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
+#include <FslSimpleUI/Base/Control/SliderAndFmtValueLabel.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 
@@ -52,20 +52,17 @@ namespace Fsl
     std::shared_ptr<OptionParser> m_optionParser;
 
     std::shared_ptr<UI::FillLayout> m_rootLayout;
-    std::shared_ptr<UI::ImageButton> m_btnMenu;
-    std::shared_ptr<UI::StackLayout> m_mainMenuStack;
 
-    std::shared_ptr<UI::StackLayout> m_layoutMenu;
-    std::shared_ptr<UI::CheckBox> m_cbMenuRotate;
-    std::shared_ptr<UI::CheckBox> m_cbMenuBlur;
-    std::shared_ptr<UI::CheckBox> m_cbMenuBright;
-    std::shared_ptr<UI::CheckBox> m_cbMenuFinalScene;
-    std::shared_ptr<UI::CheckBox> m_cbMenuFinalBloom;
-    std::shared_ptr<UI::CheckBox> m_cbMenuShowBuffers;
-    std::shared_ptr<UI::CheckBox> m_cbScaleInputSequentially;
+    std::shared_ptr<UI::Switch> m_cbMenuRotate;
+    std::shared_ptr<UI::Switch> m_cbMenuBlur;
+    std::shared_ptr<UI::Switch> m_cbMenuBright;
+    std::shared_ptr<UI::Switch> m_cbMenuFinalScene;
+    std::shared_ptr<UI::Switch> m_cbMenuFinalBloom;
+    std::shared_ptr<UI::Switch> m_cbMenuShowBuffers;
+    std::shared_ptr<UI::Switch> m_cbScaleInputSequentially;
 
-    std::shared_ptr<UI::SliderAndValueLabel> m_sliderBlur;
-    std::shared_ptr<UI::SliderAndValueLabel> m_sliderBlend;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_sliderBlur;
+    std::shared_ptr<UI::SliderAndFmtValueLabel<float>> m_sliderBlend;
 
     int32_t m_sceneId;
     bool m_rotateEnabled;
@@ -75,11 +72,11 @@ namespace Fsl
     bool m_renderFinalBloom;
     bool m_showBuffersEnabled;
     bool m_scaleInputSequentially;
-    int32_t m_kernelWeightMod;
+    float m_kernelWeightMod;
     float m_blendLevel;
 
   public:
-    MenuUI(const DemoAppConfig& config);
+    explicit MenuUI(const DemoAppConfig& config);
     ~MenuUI() override;
 
     std::shared_ptr<UIDemoAppExtension> GetUIDemoAppExtension() const
@@ -91,8 +88,6 @@ namespace Fsl
 
     void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
     void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent) override;
-
-    void ToggleMenu();
 
     int32_t GetSceneId() const
     {
@@ -141,9 +136,12 @@ namespace Fsl
     }
     void SetScaleInputSequentiallyEnabled(bool enabled);
 
-    int32_t GetKernelWeightRange() const;
+    float GetKernelWeightRange() const
+    {
+      return 1.0f;
+    }
 
-    int32_t GetKernelWeightMod() const
+    float GetKernelWeightMod() const
     {
       return m_kernelWeightMod;
     }
@@ -156,8 +154,6 @@ namespace Fsl
 
   private:
     void BuildUI();
-    void CreateMenuUI();
-    void DestroyMenuUI();
     void UpdateControls();
   };
 }

@@ -47,6 +47,7 @@ namespace Fsl
     cl_device_id m_deviceId;
     RapidOpenCL1::CommandQueue m_commandQueue;
     bool m_denoiseEn;
+    int32_t m_cycleNum = 1000;
     const std::size_t m_BINS = 256;
     const std::size_t m_imgWid = 1920;
     const std::size_t m_imgHei = 1080;

@@ -33,6 +33,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <string>
+#include <utility>
 
 namespace Fsl
 {
@@ -68,10 +69,10 @@ namespace Fsl
     }
 
 
-    EGLGraphicsException(const std::string& str, int error, const std::string& filename, const int line)
+    EGLGraphicsException(const std::string& str, int error, std::string filename, const int line)
       : GraphicsException(str)
       , m_error(error)
-      , m_filename(filename)
+      , m_filename(std::move(filename))
       , m_lineNumber(line)
     {
     }

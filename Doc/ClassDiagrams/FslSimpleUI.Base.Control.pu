@@ -1,0 +1,312 @@
+@startuml NativeBatch Class Diagram
+scale 1
+
+' FslGraphics
+
+namespace FslGraphics {
+    class NativeNineSliceTextureArea
+    class NativeTextureArea
+
+    namespace Render {
+        class AtlasFont
+        class AtlasTexture2D
+        class BaseTexture2D
+        class DynamicTexture2D
+        class Texture2D
+
+
+        namespace Adapter {
+            interface INativeTexture2D
+            interface IDynamicNativeTexture2D
+            interface INativeBatch2D
+            interface INativeGraphics
+
+            INativeTexture2D <|-- IDynamicNativeTexture2D
+            INativeGraphics ..> INativeBatch2D
+            INativeGraphics ..> FslGraphics.Render.Adapter.INativeTexture2D
+        }
+
+        AtlasFont *-- BaseTexture2D
+        BaseTexture2D o-- FslGraphics.Render.Adapter.INativeTexture2D
+        AtlasTexture2D *-- BaseTexture2D 
+        BaseTexture2D <|-- DynamicTexture2D
+        BaseTexture2D <|-- Texture2D
+    }
+
+
+    namespace Sprite {
+        namespace Material {
+            class SpriteMaterialId
+            interface ISpriteMaterial
+            ISpriteMaterial <|-- FslGraphics.Render.Adapter.INativeTexture2D
+        }
+        namespace Font {
+            class SpriteFont
+            class SpriteFontInfo
+
+            FslGraphics.Sprite.ISprite <|-- SpriteFont 
+
+            SpriteFont *-- SpriteFontInfo
+            SpriteFont *-- FslGraphics.Font.TextureAtlasBitmapFont
+            SpriteFontInfo *-- FslGraphics.Sprite.SpriteMaterialInfo
+        }
+
+        class SpriteUnitConverter
+
+        class BasicImageSpriteInfo
+        class BasicNineSliceSpriteInfo
+        class ImageSpriteInfo
+        class NineSliceSpriteInfo
+        class SpriteMaterialInfo
+
+
+        BasicImageSpriteInfo *-- SpriteMaterialInfo
+        BasicImageSpriteInfo *-- FslGraphics.NativeTextureArea
+        BasicNineSliceSpriteInfo *-- SpriteMaterialInfo
+        BasicNineSliceSpriteInfo *-- FslGraphics.NativeNineSliceTextureArea
+        ImageSpriteInfo *-- SpriteMaterialInfo
+        ImageSpriteInfo *-- FslGraphics.NativeTextureArea
+        NineSliceSpriteInfo *-- SpriteMaterialInfo
+        NineSliceSpriteInfo *-- FslGraphics.NativeNineSliceTextureArea
+        SpriteMaterialInfo *-- FslGraphics.Sprite.Material.SpriteMaterialId
+        SpriteMaterialInfo o-- FslGraphics.Sprite.Material.ISpriteMaterial
+
+        interface ISprite
+        interface IImageSprite
+        interface INineSliceSprite
+        class BasicImageSprite
+        class BasicNineSliceSprite
+        class ImageSprite
+        class NineSliceSprite
+        class SpriteManager
+
+        ISprite <|-- IImageSprite
+        ISprite <|-- INineSliceSprite
+
+        IImageSprite <|-- ImageSprite
+        ImageSprite *-- ImageSpriteInfo
+
+        IImageSprite <|-- BasicImageSprite
+        BasicImageSprite *-- BasicImageSpriteInfo
+
+        INineSliceSprite <|-- BasicNineSliceSprite
+        BasicNineSliceSprite *-- BasicNineSliceSpriteInfo
+
+        INineSliceSprite <|-- NineSliceSprite
+        NineSliceSprite *-- NineSliceSpriteInfo
+
+        SpriteManager o-- ISprite
+    }
+}
+
+namespace FslUtil {
+    namespace OpenGLES2 {
+        class DynamicNativeTexture2D
+
+        FslGraphics.Render.Adapter.IDynamicNativeTexture2D <|-- DynamicNativeTexture2D
+    }
+
+    namespace Vulkan1_0 {
+        class DynamicNativeTexture2D
+        class NativeTexture2D
+
+        FslGraphics.Render.INativeTexture2D <|--  NativeTexture2D
+        FslGraphics.Render.Adapter.IDynamicNativeTexture2D <|--  DynamicNativeTexture2D
+
+    }
+}
+
+namespace FslDemoService.NativeGraphics {
+    namespace Base {
+        interface INativeGraphicsService
+
+        FslGraphics.Render.Adapter.INativeGraphics <|-- INativeGraphicsService
+    }
+
+    namespace OpenGLES2 {
+        class NativeGraphicsService
+
+        FslDemoService.NativeGraphics.Base.INativeGraphicsService <|-- NativeGraphicsService
+        NativeGraphicsService o-- FslUtil.OpenGLES2.DynamicNativeTexture2D
+    }
+    namespace Vulkan {
+        class NativeGraphicsService
+
+        FslDemoService.NativeGraphics.Base.INativeGraphicsService <|-- NativeGraphicsService
+        NativeGraphicsService o-- FslUtil.Vulkan1_0.NativeTexture2D
+        NativeGraphicsService o-- FslUtil.Vulkan1_0.DynamicNativeTexture2D
+    }
+}
+
+namespace FslSimpleUI {
+    namespace Base {
+        interface IWindowId
+        interface ITreeNodeLocator
+        interface IWindowManager
+        class WindowEvent
+        class WindowEventQueue
+        class WindowEventQueueEx
+        class WindowEventQueueRecord
+        class WindowEventSender
+        class BaseWindow
+        class BaseWindowContext
+        class CustomContext
+        class TreeNode
+        class WindowContext
+        class UIContext
+        class UIManager
+        class UITree
+
+        ITreeNodeLocator <|-- UITree
+        IWindowManager <|-- UITree
+       
+        WindowEvent o.. IWindowId
+
+        WindowEventSender o-- ITreeNodeLocator
+        WindowEventSender o-- WindowEventQueue
+        
+        WindowEventQueue <|-- WindowEventQueueEx
+        WindowEventQueue o-- WindowEventQueueRecord
+
+        WindowEventQueueRecord o-- TreeNode
+        WindowEventQueueRecord o-- WindowEvent
+        
+        UIManager o-- WindowEventQueueEx
+        UIManager o-- WindowEventSender
+        UIManager o-- UIContext
+        UIManager o-- UITree
+        UITree o-- TreeNode
+        TreeNode o-- BaseWindow
+
+        IWindowId <|-- BaseWindow
+        BaseWindow o-- BaseWindowContext
+        BaseWindowContext <|-- WindowContext
+        BaseWindowContext *-- CustomContext
+        BaseWindowContext *-- FslGraphics.Sprite.SpriteUnitConverter
+        CustomContext o.. UIContext
+        UIContext o-- IWindowManager
+        UIContext o-- WindowEventSender
+        WindowContext o-- FslGraphics.Render.Adapter.INativeBatch2D
+        WindowContext o-- FslGraphics.Render.AtlasFont
+
+        namespace Layout {
+            class CanvasLayout
+            class ComplexLayout<TEntry>
+            class ComplexStackLayout
+            class FillLayout
+            class GridLayout
+            class Layout
+            class SimpleLayout
+            class StackLayout
+            class WrapLayout
+            
+            class "ComplexLayout<CanvasLayoutWindowRecord>" as ComplexLayout_CanvasLayoutWindowRecord
+            class "ComplexLayout<ComplexStackLayoutWindowRecord>" as ComplexLayout_ComplexStackLayoutWindowRecord
+            class "ComplexLayout<GridWindowCollectionRecord>" as ComplexLayout_GridWindowCollectionRecord
+            class "ComplexLayout<WrapLayoutWindowRecord>" as ComplexLayout_WrapLayoutWindowRecord
+
+            ComplexLayout -- ComplexLayout_CanvasLayoutWindowRecord
+            ComplexLayout -- ComplexLayout_ComplexStackLayoutWindowRecord
+            ComplexLayout -- ComplexLayout_GridWindowCollectionRecord
+            ComplexLayout -- ComplexLayout_WrapLayoutWindowRecord
+
+            FslSimpleUI.Base.BaseWindow <|-- Layout
+
+            Layout <|-- ComplexLayout
+            Layout <|-- SimpleLayout
+
+            SimpleLayout <|-- FillLayout
+            SimpleLayout <|-- StackLayout
+
+            ComplexLayout_CanvasLayoutWindowRecord <|-- CanvasLayout
+            ComplexLayout_ComplexStackLayoutWindowRecord <|-- ComplexStackLayout
+            ComplexLayout_GridWindowCollectionRecord <|-- GridLayout
+            ComplexLayout_WrapLayoutWindowRecord <|-- WrapLayout
+        }
+
+        namespace Control {
+            class AtlasTexture2DImage
+            abstract class ButtonBase
+            class Button
+            class CheckBox
+            abstract class ContentControlBase
+            class ContentControl
+            abstract class LabelBase
+            class FmtValueLabel
+            class Image
+            class ImageImpl_ImageSprite
+            class Label9SliceButton
+            abstract class SliderBase<T>
+            class Slider<T>
+            class SliderAndFmtValueLabel<T>
+            
+            FslSimpleUI.Base.BaseWindow <|-- AtlasTexture2DImage
+            FslSimpleUI.Base.BaseWindow <|-- ButtonBase
+            FslSimpleUI.Base.BaseWindow <|-- CheckBox
+            FslSimpleUI.Base.BaseWindow <|-- LabelBase
+            FslSimpleUI.Base.BaseWindow <|-- SliderBase
+
+            ButtonBase <|-- ImageButton
+            ButtonBase <|-- Label9SliceButton
+            ButtonBase <|-- LabelButton
+
+            FslSimpleUI.Base.BaseWindow <|--  ContentControlBase
+            ContentControlBase <|-- ContentControl
+
+            ContentControl <|-- Background9Slice
+            ContentControl <|-- Button
+
+            LabelBase <|-- FmtValueLabel
+
+            SliderBase <|-- Slider
+
+            ContentControlBase <|-- SliderAndFmtValueLabel
+            SliderAndFmtValueLabel o-- FmtValueLabel
+            SliderAndFmtValueLabel o-- Slider
+            SliderAndFmtValueLabel o-- FslSimpleUI.Base.Layout.ComplexStackLayout
+
+            FslSimpleUI.Base.BaseWindow <|-- Image
+            Image o-- FslSimpleUI.Base.WindowContext
+            Image *-- FslGraphics.Sprite.ImageSprite
+            Image ..> ImageImpl_Sprite
+            ImageImpl_ImageSprite ..> FslGraphics.Sprite.ImageSprite
+            ImageImpl_ImageSprite ..> FslGraphics.Render.Adapter.INativeBatch2D
+        }
+    }
+    namespace App {
+        class UIDemoAppExtension
+        class UIAppResourceManager
+
+        UIAppResourceManager o-- FslGraphics.Sprite.SpriteManager
+        UIAppResourceManager o-- FslGraphics.Render.Adapter.INativeGraphics
+        UIAppResourceManager ..> FslGraphics.Sprite.Material.ISpriteMaterial
+        UIAppResourceManager ..> FslGraphics.Sprite.Material.SpriteMaterialId
+
+        UIDemoAppExtension *-- UIAppResourceManager
+        UIDemoAppExtension *.. FslSimpleUI.Base.UIManager
+    }
+    namespace Theme {
+        namespace Basic {
+            class BasicThemeFactory
+
+            BasicThemeFactory ..> FslSimpleUI.Base.Control.Image
+        }
+    }
+}
+
+namespace CustomApp {
+    class TheApp
+    class Dummy0
+    class Dummy1
+    class Dummy2
+
+    TheApp o-- FslSimpleUI.Base.Control.Image
+    TheApp o-- FslDemoService.NativeGraphics.Base.INativeGraphicsService
+    TheApp o-- FslSimpleUI.App.UIDemoAppExtension
+    TheApp o-- FslSimpleUI.App.UIAppResourceManager
+    TheApp o-- FslSimpleUI.Theme.Basic.BasicThemeFactory
+    ' TheApp o-- FslSimpleUI.Base.Control.Image
+}
+
+
+@enduml

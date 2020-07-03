@@ -55,7 +55,7 @@ namespace Fsl
 
     cv::Mat SafeImread(const IO::Path& path)
     {
-      const cv::Mat srcImage = cv::imread(path.ToUTF8String());
+      cv::Mat srcImage = cv::imread(path.ToUTF8String());
       if (srcImage.data == nullptr)
       {
         throw GraphicsException("Failed to load image");
@@ -93,17 +93,17 @@ namespace Fsl
   OpenCVMatToNativeBatch::~OpenCVMatToNativeBatch() = default;
 
 
-  void OpenCVMatToNativeBatch::Update(const DemoTime& demoTime)
+  void OpenCVMatToNativeBatch::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void OpenCVMatToNativeBatch::VulkanDraw(const DemoTime& demoTime, RapidVulkan::CommandBuffers& rCmdBuffers,
+  void OpenCVMatToNativeBatch::VulkanDraw(const DemoTime& /*demoTime*/, RapidVulkan::CommandBuffers& rCmdBuffers,
                                           const VulkanBasic::DrawContext& drawContext)
   {
     const uint32_t currentSwapBufferIndex = drawContext.CurrentSwapBufferIndex;
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
@@ -112,7 +112,7 @@ namespace Fsl
       clearColorValue.float32[2] = 0.5f;
       clearColorValue.float32[3] = 1.0f;
 
-      VkClearValue clearValues[1] = {clearColorValue};
+      VkClearValue clearValues = {clearColorValue};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -122,7 +122,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
       renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.pClearValues = &clearValues;
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
@@ -131,7 +131,7 @@ namespace Fsl
         const auto sizeTex1 = m_texTest.GetSize();
 
         Vector2 dst1;
-        Vector2 dst2(0, sizeTex1.Y);
+        Vector2 dst2(0, sizeTex1.Height());
 
         DrawImages(dst1, m_texTest, m_texTestR, m_texTestG, m_texTestB, "Reference");
         DrawImages(dst2, m_texTestMat, m_texTestMatR, m_texTestMatG, m_texTestMatB, "OpenCV");
@@ -148,7 +148,7 @@ namespace Fsl
   }
 
 
-  VkRenderPass OpenCVMatToNativeBatch::OnBuildResources(const VulkanBasic::BuildResourcesContext& context)
+  VkRenderPass OpenCVMatToNativeBatch::OnBuildResources(const VulkanBasic::BuildResourcesContext& /*context*/)
   {
     // Since we only draw using the NativeBatch we just create the most basic render pass that is compatible
     m_dependentResources.MainRenderPass = CreateBasicRenderPass();
@@ -180,30 +180,30 @@ namespace Fsl
     const auto sizeTexB = texB.GetSize();
 
     // Show the reference color images centered just after the image
-    const int32_t heightCaptionRGB = sizeTexR.Y + sizeTexG.Y + sizeTexB.Y + sizeTextCaption.Y;
-    const int32_t yAdjust = (sizeTex1.Y - heightCaptionRGB) / 2;
+    const int32_t heightCaptionRGB = sizeTexR.Height() + sizeTexG.Height() + sizeTexB.Height() + sizeTextCaption.Height();
+    const int32_t yAdjust = (sizeTex1.Height() - heightCaptionRGB) / 2;
 
-    dstPosR.X += sizeTex1.X;
-    dstPosG.X += sizeTex1.X;
-    dstPosB.X += sizeTex1.X;
+    dstPosR.X += sizeTex1.Width();
+    dstPosG.X += sizeTex1.Width();
+    dstPosB.X += sizeTex1.Width();
 
-    dstPosR.Y += yAdjust + sizeTextCaption.Y;
-    dstPosG.Y += yAdjust + sizeTextCaption.Y + sizeTexR.Y;
-    dstPosB.Y += yAdjust + sizeTextCaption.Y + sizeTexR.Y + sizeTexG.Y;
+    dstPosR.Y += static_cast<float>(yAdjust + sizeTextCaption.Height());
+    dstPosG.Y += static_cast<float>(yAdjust + sizeTextCaption.Height() + sizeTexR.Height());
+    dstPosB.Y += static_cast<float>(yAdjust + sizeTextCaption.Height() + sizeTexR.Height() + sizeTexG.Height());
 
     m_nativeBatch->Draw(tex1, dstPos1, Color::White());
     m_nativeBatch->Draw(texR, dstPosR, Color::White());
     m_nativeBatch->Draw(texG, dstPosG, Color::White());
     m_nativeBatch->Draw(texB, dstPosB, Color::White());
 
-    Vector2 dstPosText1(sizeTex1.X, dstPosition.Y + yAdjust);
+    Vector2 dstPosText1(sizeTex1.Width(), dstPosition.Y + yAdjust);
     Vector2 dstPosTextR = dstPosR;
     Vector2 dstPosTextG = dstPosG;
     Vector2 dstPosTextB = dstPosB;
 
-    dstPosTextR.X += sizeTexR.X;
-    dstPosTextG.X += sizeTexG.X;
-    dstPosTextB.X += sizeTexB.X;
+    dstPosTextR.X += sizeTexR.Width();
+    dstPosTextG.X += sizeTexG.Width();
+    dstPosTextB.X += sizeTexB.Width();
 
     // BEWARE its very bad for render performance to switch blend state before we finish rendering all the Opaque elements,
     // but its simpler in this example, so we reset the state back after we rendered the text

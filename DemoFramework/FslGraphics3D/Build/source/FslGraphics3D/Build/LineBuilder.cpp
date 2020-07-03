@@ -40,13 +40,16 @@
 #include <FslBase/Math/Rectangle2D.hpp>
 #include <FslBase/Math/Rectangle3D.hpp>
 #include <FslBase/Math/Vector3.hpp>
+#include <array>
 
 namespace Fsl
 {
   namespace Graphics3D
   {
-    constexpr std::size_t LineBuilder::MIN_VERTEX_CAPACITY;
-    constexpr float LineBuilder::RAY_LENGTH;
+    // FIX-LATER: remove once we move to C++17
+    constexpr std::size_t LineBuilder::MIN_VERTEX_CAPACITY;    // NOLINT(readability-redundant-declaration)
+    // FIX-LATER: remove once we move to C++17
+    constexpr float LineBuilder::RAY_LENGTH;    // NOLINT(readability-redundant-declaration)
 
     namespace
     {
@@ -527,26 +530,26 @@ namespace Fsl
 
     void LineBuilder::Add(const Ray& value, const Vector4& color)
     {
-      vertex_type vertices[2];
+      std::array<vertex_type, 2> vertices;
       vertices[0].Position = value.Position;
       vertices[0].Color = color;
       // Add directly into Position
       Vector3::Add(value.Position, Vector3::Normalize(value.Direction) * RAY_LENGTH, vertices[1].Position);
       vertices[1].Color = color;
 
-      AddLines(vertices, 2);
+      AddLines(vertices.data(), vertices.size());
     }
 
 
     void LineBuilder::Add(const Ray& value, const Vector4& color, const Matrix& matrix)
     {
-      vertex_type vertices[2];
+      std::array<vertex_type, 2> vertices;
       Vector3::Transform(value.Position, matrix, vertices[0].Position);
       vertices[0].Color = color;
       Vector3::Transform((value.Position + (Vector3::Normalize(value.Direction) * RAY_LENGTH)), matrix, vertices[1].Position);
       vertices[1].Color = color;
 
-      AddLines(vertices, 2);
+      AddLines(vertices.data(), vertices.size());
     }
 
     void LineBuilder::Add(const Rect& value, const Vector4& color)
@@ -1082,7 +1085,7 @@ namespace Fsl
 
       // Completely unrolled with direct sets to prevent unnecessary temporary writes
       {
-        const float xAdd = rect.Width() / (steps + 1);
+        const float xAdd = rect.Width() / float(steps + 1);
         const float z1 = rect.Top();
         const float z2 = rect.Bottom();
         float x = rect.Left() + xAdd;
@@ -1102,7 +1105,7 @@ namespace Fsl
         }
       }
       {
-        const float zAdd = rect.Height() / (steps + 1);
+        const float zAdd = rect.Height() / float(steps + 1);
         const float x1 = rect.Left();
         const float x2 = rect.Right();
         float z = rect.Top() + zAdd;
@@ -1135,7 +1138,7 @@ namespace Fsl
 
       // Completely unrolled with direct sets to prevent unnecessary temporary writes
       {
-        const float xAdd = rect.Width() / (steps + 1);
+        const float xAdd = rect.Width() / float(steps + 1);
         const float z1 = rect.Top();
         const float z2 = rect.Bottom();
         float x = rect.Left() + xAdd;
@@ -1151,7 +1154,7 @@ namespace Fsl
         }
       }
       {
-        const float zAdd = rect.Height() / (steps + 1);
+        const float zAdd = rect.Height() / float(steps + 1);
         const float x1 = rect.Left();
         const float x2 = rect.Right();
         float z = rect.Top() + zAdd;

@@ -31,9 +31,12 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslNativeWindow/Base/NativeWindowMetrics.hpp>
+#include <FslNativeWindow/Base/NativeWindowCapabilityFlags.hpp>
+
 namespace Fsl
 {
-  struct Point2;
+  struct PxExtent2D;
   struct Vector2;
 
   class INativeWindow
@@ -43,13 +46,24 @@ namespace Fsl
     INativeWindow& operator=(const INativeWindow&) = delete;
     virtual ~INativeWindow() = default;
 
+    //! @brief Get information about what capabilities this native window implementation supports.
+    //! @note  The returned capabilities for a specific implementation will always be the same (so it does not change between calls).
+    virtual NativeWindowCapabilityFlags GetCapabilityFlags() const = 0;
+
+    //! @brief Get window metrics
+    virtual NativeWindowMetrics GetWindowMetrics() const = 0;
+
     //! @brief Get the windows native DPI.
     //! @return true if the DPI could be retrieved, else false
-    virtual bool TryGetDPI(Vector2& rDPI) const = 0;
+    virtual bool TryGetDpi(Vector2& rDPI) const = 0;
+
+    //! @brief Get the windows density DPI.
+    //! @return true if the DPI could be retrieved, else false
+    virtual bool TryGetDensityDpi(uint32_t& rDensityDpi) const = 0;
 
     //! @brief Get the size of the client area (the actual area where we are drawing pixels)
     //! @return true if the size could be retrieved, else false
-    virtual bool TryGetSize(Point2& rSize) const = 0;
+    virtual bool TryGetExtent(PxExtent2D& rExtent) const = 0;
 
     //! @brief Try to enable mouse capture for the given window.
     //! @return true if the request succeeded.

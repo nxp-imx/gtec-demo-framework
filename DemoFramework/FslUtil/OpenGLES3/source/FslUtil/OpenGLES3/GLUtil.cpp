@@ -36,6 +36,7 @@
 #include <FslGraphics/Bitmap/BitmapUtil.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/Bitmap/RawBitmapUtil.hpp>
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <GLES3/gl3.h>
@@ -44,7 +45,7 @@ namespace Fsl
 {
   namespace GLES3
   {
-    std::vector<std::string> GLUtil::GetExtensions()
+    std::vector<StringViewLite> GLUtil::GetExtensions()
     {
       const auto* pszExtensions = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
       if (pszExtensions == nullptr)
@@ -113,8 +114,8 @@ namespace Fsl
     void GLUtil::Capture(Bitmap& rBitmap, const PixelFormat pixelFormat)
     {
       // Read the viewport to get the current size
-      GLint viewport[4];
-      GL_CHECK(glGetIntegerv(GL_VIEWPORT, viewport))
+      std::array<GLint, 4> viewport{};
+      GL_CHECK(glGetIntegerv(GL_VIEWPORT, viewport.data()))
 
       const Rectangle srcRectangle(viewport[0], viewport[1], viewport[2], viewport[3]);
       return Capture(rBitmap, pixelFormat, srcRectangle);
@@ -127,7 +128,7 @@ namespace Fsl
       // We utilize PixelFormatLayout::R8G8B8A8 here since that is what glReadPixels is filling it with
       // that also allows the convert method to detect if the the supplied pixelFormat is different and then
       // convert as necessary
-      rBitmap.Reset(Extent2D(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
+      rBitmap.Reset(PxExtent2D(srcRectangle.Width(), srcRectangle.Height()), PixelFormat::R8G8B8A8_UINT, BitmapOrigin::LowerLeft,
                     BitmapClearMethod::DontClear);
 
       // glFinish();

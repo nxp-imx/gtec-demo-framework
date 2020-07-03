@@ -31,7 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/PixelFormat.hpp>
@@ -50,7 +51,7 @@ namespace Fsl
       std::shared_ptr<ICameraAdapter> m_nativeCamera;
 
     public:
-      Camera(const CameraConfig& cameraConfig, const std::shared_ptr<ICameraAdapter>& nativeCamera);
+      Camera(const CameraConfig& cameraConfig, std::shared_ptr<ICameraAdapter> nativeCamera);
       ~Camera();
 
       CameraType GetType() const
@@ -65,15 +66,15 @@ namespace Fsl
       }
 
       //! @brief Returns the camera size (unsigned)
-      Extent2D GetExtent() const
+      PxExtent2D GetExtent() const
       {
         return m_cameraConfig.Extent;
       }
 
       //! @brief Returns the camera size (signed)
-      Point2 GetSize() const
+      PxSize2D GetSize() const
       {
-        return Point2(m_cameraConfig.Extent.Width, m_cameraConfig.Extent.Height);
+        return TypeConverter::UncheckedTo<PxSize2D>(m_cameraConfig.Extent);
       }
 
       PixelFormat GetPixelFormat() const

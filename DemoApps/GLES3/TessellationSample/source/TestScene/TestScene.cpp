@@ -35,6 +35,7 @@
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector4.hpp>
 #include <FslBase/Math/MatrixConverter.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
@@ -47,6 +48,7 @@
 #include <FslGraphics3D/BasicScene/MeshConverter.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/TextureUtil.hpp>
 #include <FslGraphics3D/Procedural/BasicMesh.hpp>
 #include <FslGraphics3D/Procedural/BoxGenerator.hpp>
 #include <FslGraphics3D/Procedural/TorusGenerator.hpp>
@@ -56,6 +58,8 @@
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
 #include "../OptionParser.hpp"
+#include <cmath>
+
 
 namespace Fsl
 {
@@ -125,16 +129,16 @@ namespace Fsl
   TestScene::~TestScene() = default;
 
 
-  void TestScene::ConstructMesh(const std::shared_ptr<IContentManager>& contentManager, const int32_t sceneId)
+  void TestScene::ConstructMesh(const std::shared_ptr<IContentManager>& /*contentManager*/, const int32_t sceneId)
   {
     ModelMesh mesh;
     {
       BasicMesh tmpMesh;
       WindingOrder::Enum windingOrder = WindingOrder::CCW;
-      Point2 tex1Size(128, 128);
-      TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
-      const NativeTextureArea texArea(GLTexture::CalcTextureArea(texRect, 1, 1));
-      NativeTextureArea texAreas[6] = {texArea, texArea, texArea, texArea, texArea, texArea};
+      PxSize2D tex1Size(128, 128);
+      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect));
+      const std::array<NativeTextureArea, 6> texAreas = {texArea, texArea, texArea, texArea, texArea, texArea};
       // tmpMesh = BoxGenerator::GenerateList(Vector3::Zero(), 150, 150, 150, texAreas, 6, windingOrder);
       switch (sceneId)
       {
@@ -144,7 +148,8 @@ namespace Fsl
         tmpMesh = SegmentedQuadGenerator::GenerateList(Vector3::Zero(), 800, 800, 40, 40, texArea, windingOrder);
         break;
       case 3:
-        tmpMesh = BoxGenerator::GenerateList(Vector3::Zero(), 150, 150, 150, texAreas, 6, windingOrder);
+        tmpMesh =
+          BoxGenerator::GenerateList(Vector3::Zero(), 150, 150, 150, texAreas.data(), UncheckedNumericCast<int32_t>(texAreas.size()), windingOrder);
         break;
       case 0:
       default:
@@ -153,8 +158,8 @@ namespace Fsl
       }
 
       MeshConverter::Convert(mesh, tmpMesh);
-      auto vertex = mesh.DirectAccessVertices();
-      float swap;
+      auto* vertex = mesh.DirectAccessVertices();
+      float swap = 0.0;
       for (uint32_t i = 0; i < mesh.GetVertexCount(); ++i)
       {
         auto tmp = vertex[i];
@@ -172,7 +177,7 @@ namespace Fsl
         vertex[i] = tmp;
       }
       {
-        auto indices = mesh.DirectAccessIndices();
+        auto* indices = mesh.DirectAccessIndices();
         for (uint32_t i = 0; i < mesh.GetIndexCount(); i += 3)
         {
           const auto i0 = indices[i + 0];
@@ -210,8 +215,8 @@ namespace Fsl
     GLTextureParameters texParams1(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
     m_textureDiffuse.SetData(bitmap, texParams1);
 
-    std::string strTexDisplace;
-    std::string strTexNormal;
+    IO::Path strTexDisplace;
+    IO::Path strTexNormal;
     bool isFloatTexture = false;
 
     switch (sceneId)

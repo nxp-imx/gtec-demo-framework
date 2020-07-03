@@ -105,7 +105,7 @@ namespace Fsl
         allocInfo.descriptorSetCount = 1;
         allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-        VkDescriptorSet descriptorSet;
+        VkDescriptorSet descriptorSet{};
         RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets",
                                 __FILE__, __LINE__);
 
@@ -448,8 +448,9 @@ namespace Fsl
 
       vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.PipelineRender.Get());
 
-      VkDeviceSize offsets[1] = {0};
-      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, rFrame.LineVertBuffer.GetBufferPointer(), offsets);
+      std::array<VkDeviceSize, 1> offsets = {0};
+      vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, static_cast<uint32_t>(offsets.size()), rFrame.LineVertBuffer.GetBufferPointer(),
+                             offsets.data());
 
       assert(vertexCount <= std::numeric_limits<uint32_t>::max());
       vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertexCount), 1, 0, 0);

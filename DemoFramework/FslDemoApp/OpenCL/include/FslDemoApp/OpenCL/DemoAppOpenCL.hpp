@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppOpenCL : public AConsoleDemoApp
   {
   public:
-    DemoAppOpenCL(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppOpenCL(const DemoAppConfig& demoAppConfig);
 
   protected:
     //! @brief Overload this

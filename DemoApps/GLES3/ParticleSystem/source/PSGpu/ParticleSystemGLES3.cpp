@@ -32,6 +32,7 @@
 #include "ParticleSystemGLES3.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/System/HighResolutionTimer.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -40,10 +41,11 @@
 #include <GLES3/gl31.h>
 #include <GLES2/gl2ext.h>
 #include "ParticleGPU.hpp"
-#include <random>
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
+#include <random>
 #include <vector>
 
 namespace Fsl
@@ -54,7 +56,8 @@ namespace Fsl
   {
     void DumpDebugInformation(const GLuint hProgram)
     {
-      GLint errorBufSize, errorLength;
+      GLint errorBufSize = 0;
+      GLint errorLength = 0;
       glGetProgramiv(hProgram, GL_INFO_LOG_LENGTH, &errorBufSize);
 
       std::vector<char> errorLog(std::max(errorBufSize, 1));
@@ -133,7 +136,7 @@ namespace Fsl
     }
 
 
-    void GenerateRandomTexture(GLTexture& rTexture, const int32_t width, const BitmapOrigin bitmapOrigin)
+    void GenerateRandomTexture(GLTexture& rTexture, const int32_t width, const BitmapOrigin /*bitmapOrigin*/)
     {
       std::mt19937 random;
       Bitmap bitmap(width, 1, PixelFormat::R8G8B8A8_UNORM);
@@ -155,8 +158,10 @@ namespace Fsl
 
     void PostCompilePreLinkCallback(const GLuint hProgram)
     {
-      const char* particleAttribLinkFeedback[] = {"block.ParticlePosition", "block.ParticleVelocity", "block.ParticleEnergy", "block.ParticleType"};
-      glTransformFeedbackVaryings(hProgram, 4, particleAttribLinkFeedback, GL_INTERLEAVED_ATTRIBS);
+      const std::array<const char*, 4> particleAttribLinkFeedback = {"block.ParticlePosition", "block.ParticleVelocity", "block.ParticleEnergy",
+                                                                     "block.ParticleType"};
+      glTransformFeedbackVaryings(hProgram, UncheckedNumericCast<GLsizei>(particleAttribLinkFeedback.size()), particleAttribLinkFeedback.data(),
+                                  GL_INTERLEAVED_ATTRIBS);
 
       GL_CHECK_FOR_ERROR();
     }
@@ -190,14 +195,14 @@ namespace Fsl
     {
       const auto hProgram = m_programTransform.Get();
       const auto vertexDecl = ParticleGPU::GetVertexDeclaration();
-      m_particleAttribLinkFeedback[0] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticlePosition"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
-      m_particleAttribLinkFeedback[1] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleVelocity"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
+      m_particleAttribLinkFeedback[0] = GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticlePosition"),
+                                                           vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Position, 0));
+      m_particleAttribLinkFeedback[1] = GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleVelocity"),
+                                                           vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 0));
       m_particleAttribLinkFeedback[2] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleEnergy"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
+        GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleEnergy"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 1));
       m_particleAttribLinkFeedback[3] =
-        GLVertexAttribLink(glGetAttribLocation(hProgram, "ParticleType"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 2));
+        GLVertexAttribLink(m_programTransform.GetAttribLocation("ParticleType"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::Custom, 2));
 
       m_locFeedbackDeltaTime = glGetUniformLocation(hProgram, "DeltaTime");
     }
@@ -225,7 +230,7 @@ namespace Fsl
     // Advance the simulation using the GPU :)
     glEnable(GL_RASTERIZER_DISCARD);
     glBindBuffer(m_pCurrentVertexBuffer->GetTarget(), m_pCurrentVertexBuffer->Get());
-    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLinkFeedback, sizeof(m_particleAttribLinkFeedback) / sizeof(GLVertexAttribLink));
+    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLinkFeedback);
 
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedbackObject);
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_pOtherVertexBuffer->Get());
@@ -277,7 +282,7 @@ namespace Fsl
     }
 
     glBindBuffer(m_pCurrentVertexBuffer->GetTarget(), m_pCurrentVertexBuffer->Get());
-    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLink, 1);
+    m_pCurrentVertexBuffer->EnableAttribArrays(m_particleAttribLink);
 
     glDrawArrays(GL_POINTS, 0, m_primitiveCount);
 

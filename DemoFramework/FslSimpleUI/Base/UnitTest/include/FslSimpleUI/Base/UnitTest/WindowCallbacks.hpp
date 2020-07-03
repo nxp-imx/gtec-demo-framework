@@ -51,8 +51,8 @@ namespace Fsl
       std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowInputClickEvent>&)> HookOnClickInput;
       std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowSelectEvent>&)> HookOnSelect;
       std::function<void(const RoutedEventArgs&, const std::shared_ptr<WindowContentChangedEvent>&)> HookOnContentChanged;
-      std::function<void(const Vector2&)> HookArrangeOverride;
-      std::function<void(const Vector2&)> HookMeasureOverride;
+      std::function<void(const PxSize2D&)> HookArrangeOverride;
+      std::function<void(const PxAvailableSize&)> HookMeasureOverride;
       std::function<void(const PropertyTypeFlags&)> HookOnPropertiesUpdated;
 
       void WinInit()
@@ -135,19 +135,19 @@ namespace Fsl
         }
       }
 
-      void ArrangeOverride(const Vector2& finalSize)
+      void ArrangeOverride(const PxSize2D& finalSizePx)
       {
         if (HookArrangeOverride)
         {
-          HookArrangeOverride(finalSize);
+          HookArrangeOverride(finalSizePx);
         }
       }
 
-      void MeasureOverride(const Vector2& availableSize)
+      void MeasureOverride(const PxAvailableSize& availableSizePx)
       {
         if (HookMeasureOverride)
         {
-          HookMeasureOverride(availableSize);
+          HookMeasureOverride(availableSizePx);
         }
       }
 

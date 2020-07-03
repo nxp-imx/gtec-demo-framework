@@ -30,12 +30,12 @@
  ****************************************************************************************************************************************************/
 
 #include "Scissor101.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/Vulkan1_0/Draft/VulkanImageCreator.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <vulkan/vulkan.h>
 #include <array>
@@ -44,8 +44,6 @@
 
 namespace Fsl
 {
-  using namespace Vulkan;
-
   namespace
   {
     const float SPEED = 0.8f;
@@ -143,17 +141,17 @@ namespace Fsl
 
     Vector2 Clamp(const Vector2& value)
     {
-      return Vector2(Clamp(value.X), Clamp(value.Y));
+      return {Clamp(value.X), Clamp(value.Y)};
     }
 
-    VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
-                            const std::shared_ptr<IContentManager>& contentManager)
+    Vulkan::VUTexture CreateTexture(const Vulkan::VUDevice& device, const Vulkan::VUDeviceQueueRecord& deviceQueue,
+                                    const std::shared_ptr<IContentManager>& contentManager)
     {
       // Improvement: use mip maps
       // GLTextureParameters params(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       // return GLTexture(texture, params, TextureFlags::GenerateMipMaps);
 
-      VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
+      Vulkan::VulkanImageCreator imageCreator(device, deviceQueue.Queue, deviceQueue.QueueFamilyIndex);
 
       Texture texture = contentManager->ReadTexture("Texturing.png", PixelFormat::R8G8B8A8_UNORM);
 
@@ -178,7 +176,7 @@ namespace Fsl
     }
 
 
-    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const VUDevice& device)
+    RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const Vulkan::VUDevice& device)
     {
       std::array<VkDescriptorSetLayoutBinding, 2> setLayoutBindings{};
       // Binding 0 : Vertex shader uniform buffer
@@ -195,7 +193,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -213,7 +211,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -235,8 +233,8 @@ namespace Fsl
 
 
     VkDescriptorSet CreateDescriptorSet(const RapidVulkan::DescriptorPool& descriptorPool,
-                                        const RapidVulkan::DescriptorSetLayout& descriptorSetLayout, const VUBufferMemory& uboBuffer,
-                                        const VUTexture& texture)
+                                        const RapidVulkan::DescriptorSetLayout& descriptorSetLayout, const Vulkan::VUBufferMemory& uboBuffer,
+                                        const Vulkan::VUTexture& texture)
     {
       assert(descriptorPool.IsValid());
       assert(descriptorSetLayout.IsValid());
@@ -250,7 +248,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -275,7 +273,8 @@ namespace Fsl
       writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       writeDescriptorSets[1].pImageInfo = &textureImageInfo;
 
-      vkUpdateDescriptorSets(descriptorPool.GetDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(descriptorPool.GetDevice(), UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0,
+                             nullptr);
 
       return descriptorSet;
     }
@@ -336,7 +335,8 @@ namespace Fsl
   Scissor101::Scissor101(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config)
     , m_options(config.GetOptions<OptionParser>())
-    , m_bufferManager(std::make_shared<VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
+    , m_bufferManager(
+        std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
     , m_speed1A(SPEED * -2.0f, SPEED * -0.9f)
     , m_speed1B(SPEED * 1.4f, SPEED * 1.4f)
     , m_speed2A(SPEED * -1.7f, SPEED * -2.2f)
@@ -366,8 +366,8 @@ namespace Fsl
 
     m_resources.MainPipelineLayout = CreatePipelineLayout(m_resources.MainDescriptorSetLayout);
 
-    const Point2 currentSize = GetScreenResolution();
-    const float aspectRatio = currentSize.X / static_cast<float>(currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    const float aspectRatio = currentSizePx.Width() / static_cast<float>(currentSizePx.Height());
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(75.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
 
@@ -415,17 +415,17 @@ namespace Fsl
     m_matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
     {    // Do some funky double sinus movement we can use for a bit of unpredictable clipping
-      const auto resolution = GetScreenResolution();
-      const Vector2 dist(resolution.X, resolution.Y);
+      const auto sizePx = GetWindowSizePx();
+      const Vector2 dist(sizePx.Width(), sizePx.Height());
 
       const auto clip1X = (2.0f + (std::sin(m_angle1A.X) + std::sin(m_angle1B.X))) * dist.X / 4.0f;
       const auto clip1Y = (2.0f + (std::sin(m_angle1A.Y) + std::sin(m_angle1B.Y))) * dist.Y / 4.0f;
       const auto clip2X = (2.0f + (std::sin(m_angle2A.X) + std::sin(m_angle2B.X))) * dist.X / 4.0f;
       const auto clip2Y = (2.0f + (std::sin(m_angle2A.Y) + std::sin(m_angle2B.Y))) * dist.Y / 4.0f;
-      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), resolution.X);
-      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), resolution.Y);
-      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), resolution.X);
-      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), resolution.Y);
+      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), sizePx.Width());
+      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), sizePx.Height());
+      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), sizePx.Width());
+      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), sizePx.Height());
 
       m_angle1A += m_speed1A * demoTime.DeltaTime;
       m_angle1B += m_speed1B * demoTime.DeltaTime;
@@ -454,7 +454,7 @@ namespace Fsl
     buffer.MatProj = m_matProj;
     m_resources.MainFrameResources[frameIndex].UboBuffer.Upload(0, &buffer, sizeof(VertexUBOData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       VkClearColorValue clearColorValue{};
@@ -463,7 +463,7 @@ namespace Fsl
       clearColorValue.float32[2] = 0.2f;
       clearColorValue.float32[3] = 1.0f;
 
-      VkClearValue clearValues[1] = {clearColorValue};
+      VkClearValue clearValues = {clearColorValue};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
       renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -473,7 +473,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
       renderPassBeginInfo.clearValueCount = 1;
-      renderPassBeginInfo.pClearValues = clearValues;
+      renderPassBeginInfo.pClearValues = &clearValues;
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
       {
@@ -505,12 +505,12 @@ namespace Fsl
 
   void Scissor101::DrawToCommandBuffer(const FrameResources& frame, const VkCommandBuffer commandBuffer)
   {
-    auto screenResolution = GetScreenResolution();
+    auto sizePx = GetWindowSizePx();
 
-    assert(m_clip1.X >= 0 && m_clip1.X <= screenResolution.X);
-    assert(m_clip1.Y >= 0 && m_clip1.Y <= screenResolution.Y);
-    assert(m_clip2.X >= 0 && m_clip2.X <= screenResolution.X);
-    assert(m_clip2.Y >= 0 && m_clip2.Y <= screenResolution.Y);
+    assert(m_clip1.X >= 0 && m_clip1.X <= sizePx.Width());
+    assert(m_clip1.Y >= 0 && m_clip1.Y <= sizePx.Height());
+    assert(m_clip2.X >= 0 && m_clip2.X <= sizePx.Width());
+    assert(m_clip2.Y >= 0 && m_clip2.Y <= sizePx.Height());
 
     Point2 nearClip = m_clip1;
     Point2 farClip = m_clip2;
@@ -527,21 +527,21 @@ namespace Fsl
 
     int32_t clipX = m_clipX ? nearClip.X : 0;
     int32_t clipY = m_clipY ? nearClip.Y : 0;
-    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : screenResolution.X;
-    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : screenResolution.Y;
+    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : sizePx.Width();
+    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : sizePx.Height();
 
-    if (clipX < 0 || (clipX + clipWidth) > screenResolution.X || clipY < 0 || (clipY + clipHeight) > screenResolution.Y)
+    if (clipX < 0 || (clipX + clipWidth) > sizePx.Width() || clipY < 0 || (clipY + clipHeight) > sizePx.Height())
     {
       FSLLOG3_ERROR("Scissor rect out of bounds");
       clipX = 0;
       clipY = 0;
-      clipWidth = screenResolution.X;
-      clipHeight = screenResolution.Y;
+      clipWidth = sizePx.Width();
+      clipHeight = sizePx.Height();
     }
 
     VkRect2D scissor{};
     scissor.offset = {clipX, clipY};
-    scissor.extent = {static_cast<uint32_t>(clipWidth), static_cast<uint32_t>(clipHeight)};
+    scissor.extent = {UncheckedNumericCast<uint32_t>(clipWidth), UncheckedNumericCast<uint32_t>(clipHeight)};
 
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
@@ -559,8 +559,8 @@ namespace Fsl
     FSL_PARAM_NOT_USED(programInfo);
     FSL_PARAM_NOT_USED(matModel);
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MainVertexBufferInfo.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MainVertexBufferInfo.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MainVertexBufferInfo.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 
@@ -577,7 +577,7 @@ namespace Fsl
   Scissor101::VertexBufferInfo Scissor101::CreateVertexBuffer(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager)
   {
     VertexBufferInfo info;
-    info.VertexBuffer.Reset(bufferManager, g_vertices, VMBufferUsage::STATIC);
+    info.VertexBuffer.Reset(bufferManager, g_vertices, Vulkan::VMBufferUsage::STATIC);
 
     // Generate attribute description by matching shader layout with the vertex declarations
     std::array<VertexElementUsage, 2> shaderAttribOrder = {VertexElementUsage::Position, VertexElementUsage::TextureCoordinate};
@@ -587,7 +587,7 @@ namespace Fsl
     {
       const auto& vertexDeclElement = info.VertexBuffer.GetVertexElement(shaderAttribOrder[i], 0);
 
-      info.AttributeDescription[i].location = static_cast<uint32_t>(i);
+      info.AttributeDescription[i].location = UncheckedNumericCast<uint32_t>(i);
       info.AttributeDescription[i].binding = 0;
       info.AttributeDescription[i].format = vertexDeclElement.NativeFormat;
       info.AttributeDescription[i].offset = vertexDeclElement.Offset;
@@ -629,7 +629,7 @@ namespace Fsl
     pipelineVertexInputCreateInfo.flags = 0;
     pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
     pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &vertexBufferInfo.BindingDescription;
-    pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
+    pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
     pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = vertexBufferInfo.AttributeDescription.data();
 
     VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -708,13 +708,13 @@ namespace Fsl
     VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
     pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     pipelineDynamicStateCreateInfo.flags = 0;
-    pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+    pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicState.size());
     pipelineDynamicStateCreateInfo.pDynamicStates = dynamicState.data();
 
     VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
     graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     graphicsPipelineCreateInfo.flags = 0;
-    graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+    graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
     graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
     graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
     graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;

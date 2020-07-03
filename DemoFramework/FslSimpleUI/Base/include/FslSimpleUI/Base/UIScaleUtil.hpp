@@ -32,7 +32,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+//#include <FslSimpleUI/Base/PxAvailableSize.hpp>
 #include <FslSimpleUI/Base/ItemScalePolicy.hpp>
 
 namespace Fsl
@@ -55,6 +57,16 @@ namespace Fsl
       static bool TryCalcSize(Vector2& rSize, const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy);
       static bool TryCalcSize(Vector2& rSize, const Vector2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy);
 
+      //! @brief Try to calc the size based on the requested targetSize, srcSize and scale policy
+      //! @return true if ok, false if one if one of the components of the output size is zero
+      static bool TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy);
+      static bool TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const PxPoint2& srcSize, const ItemScalePolicy scalePolicy);
+      static bool TryCalcSize(PxPoint2& rSize, const PxPoint2& targetSize, const Vector2& srcSize, const ItemScalePolicy scalePolicy);
+
+      /*    static bool TryCalcSize(PxAvailableSize& rSize, const PxAvailableSize& targetSize, const PxAvailableSize& srcSize,
+                                  const ItemScalePolicy scalePolicy);
+      */
+      static bool TryCalcSize(PxSize2D& rSize, const PxSize2D& targetSize, const PxSize2D& srcSize, const ItemScalePolicy scalePolicy);
 
       //! @brief Calc the scaling factor based on the requested targetSize, srcSize and scale policy
       static Vector2 CalcScaling(const Vector2& targetSize, const Point2& srcSize, const ItemScalePolicy scalePolicy);

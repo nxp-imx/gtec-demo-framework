@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppConsoleMinimal : public AConsoleDemoApp
   {
   public:
-    DemoAppConsoleMinimal(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppConsoleMinimal(const DemoAppConfig& demoAppConfig);
 
   protected:
     //! @brief Overload this

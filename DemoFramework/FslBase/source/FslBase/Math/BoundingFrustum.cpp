@@ -60,7 +60,7 @@ namespace Fsl
       const Vector3 v2 = Vector3::Cross(c.Normal, a.Normal) * b.D;
       const Vector3 v3 = Vector3::Cross(a.Normal, b.Normal) * c.D;
 
-      return Vector3((v1.X + v2.X + v3.X) / f, (v1.Y + v2.Y + v3.Y) / f, (v1.Z + v2.Z + v3.Z) / f);
+      return {(v1.X + v2.X + v3.X) / f, (v1.Y + v2.Y + v3.Y) / f, (v1.Z + v2.Z + v3.Z) / f};
     }
 
 
@@ -290,7 +290,7 @@ namespace Fsl
           }
         }
 
-        float distance;
+        float distance = 0.0f;
         if (ray.Intersects(plane, distance))
         {
           minVal = std::min(minVal, distance);

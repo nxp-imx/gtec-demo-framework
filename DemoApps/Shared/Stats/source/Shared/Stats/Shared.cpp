@@ -46,7 +46,6 @@
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/ValueLabel.hpp>
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 //#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
@@ -74,19 +73,14 @@ namespace Fsl
 
   Shared::Shared(const DemoAppConfig& config)
     : m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_cpuStats(config.DemoServiceProvider.TryGet<ICpuStatsService>())
   {
     auto contentManager = config.DemoServiceProvider.Get<IContentManager>();
 
-    auto atlasTexture = m_uiExtension->GetAtlasTexture();
     auto windowContext = m_uiExtension->GetContext();
-
-    AtlasTexture2D texBackground = m_uiExtension->GetAtlasTexture2D("Background9R");
-
-    AtlasTexture2D texCheckBox1C = m_uiExtension->GetAtlasTexture2D("CheckBoxC");
-    AtlasTexture2D texCheckBox1U = m_uiExtension->GetAtlasTexture2D("CheckBoxU");
 
     auto cpuCount = m_cpuStats ? m_cpuStats->GetCpuCount() : 0u;
 
@@ -170,7 +164,7 @@ namespace Fsl
   Shared::~Shared() = default;
 
 
-  void Shared::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void Shared::OnSelect(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowSelectEvent>& /*theEvent*/)
   {
     // if (theEvent->GetSource() == m_button1)
     //{

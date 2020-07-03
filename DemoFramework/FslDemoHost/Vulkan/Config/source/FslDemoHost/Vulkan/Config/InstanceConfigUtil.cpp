@@ -113,8 +113,8 @@ namespace Fsl
 
 
       InstanceConfigRequest BuildHostInstanceConfigRequest(const std::string& khrSurfaceExtensionName, const InstanceUserChoice& instanceUserChoice,
-                                                           const ConfigControl instanceLayerConfigControl,
-                                                           const ConfigControl instanceExtensionConfigControl)
+                                                           const ConfigControl /*instanceLayerConfigControl*/,
+                                                           const ConfigControl /*instanceExtensionConfigControl*/)
       {
         InstanceConfigRequest instanceConfig;
 

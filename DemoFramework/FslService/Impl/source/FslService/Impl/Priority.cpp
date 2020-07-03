@@ -34,32 +34,14 @@
 
 namespace Fsl
 {
-  Priority::Priority()
-    : m_value(0)
-  {
-  }
-
-
-  Priority::Priority(const int32_t priority)
-    : m_value(priority)
-  {
-  }
-
-
-  const Priority Priority::Min()
+  Priority Priority::Min()
   {
     return Priority(std::numeric_limits<int32_t>::min());
   }
 
 
-  const Priority Priority::Max()
+  Priority Priority::Max()
   {
     return Priority(std::numeric_limits<int32_t>::max());
-  }
-
-
-  int32_t Priority::GetValue() const
-  {
-    return m_value;
   }
 }

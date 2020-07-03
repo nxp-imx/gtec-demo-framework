@@ -36,6 +36,7 @@ from typing import Optional
 import xml.etree.ElementTree as ET
 from FslBuildGen.DataTypes import AccessType
 from FslBuildGen.DataTypes import ExternalDependencyType
+from FslBuildGen.Version import Version
 from FslBuildGen.Log import Log
 from FslBuildGen.Xml import FakeXmlElementFactory
 from FslBuildGen.Xml.Exceptions import XmlException
@@ -49,15 +50,18 @@ class XmlGenFileExternalDependency(XmlBase):
         super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')
         self.DebugName = self._ReadAttrib(xmlElement, 'DebugName', self.Name) # type: str
+        defaultTargetName = "{0}::{0}".format(self.Name)
+        self.TargetName = self._ReadAttrib(xmlElement, 'TargetName', defaultTargetName) # type: str
         self.Include = self._TryReadAttrib(xmlElement, 'Include')  # type: Optional['str']
         self.Location = self._TryReadAttrib(xmlElement, 'Location')  # type: Optional['str']
         # New assembly keywords primarily used for C# assemblies
         self.HintPath = self._TryReadAttrib(xmlElement, 'HintPath')  # type: Optional['str']
-        self.Version = self._TryReadAttrib(xmlElement, 'Version')  # type: Optional['str']
+        self.Version =  self._TryReadAttribAsVersion(xmlElement, 'Version')  # type: Optional[Version]
         self.PublicKeyToken = self._TryReadAttrib(xmlElement, 'PublicKeyToken')  # type: Optional['str']
         self.ProcessorArchitecture = self._TryReadAttrib(xmlElement, 'ProcessorArchitecture')  # type: Optional['str']
         self.Culture = self._TryReadAttrib(xmlElement, 'Culture')  # type: Optional['str']
         self.PackageManager = self.__TryGetPackageManager(log, xmlElement)
+        self.IfCondition = self._TryReadAttrib(xmlElement, 'If')  # type: Optional[str]
         # Can only be set from code, and it indicates that this dependency is managed by a recipe or similar
         self.IsManaged = False # type: bool
         strAccess = self._TryReadAttrib(xmlElement, 'Access')  # type: Optional['str']
@@ -75,8 +79,9 @@ class XmlGenFileExternalDependency(XmlBase):
         strElementType = self._ReadAttrib(xmlElement, 'Type')
         elementType = ExternalDependencyType.TryFromString(strElementType)
         if elementType is None:
-            raise XmlException(xmlElement, "Unknown external dependency type: '{0}' expected: StaticLib, DLL, Headers, Assembly, Find".format(type))
-        self.Type = elementType  # type: int
+            raise XmlException(xmlElement, "Unknown external dependency type: '{0}' expected: {1}".format(strElementType,
+                                                                                                          ExternalDependencyType.AllStrings()))
+        self.Type = elementType  # type: ExternalDependencyType
 
         # The access type is only relevant for the include file location
         # the rest should always be included
@@ -106,7 +111,7 @@ class XmlGenFileExternalDependency(XmlBase):
 
 
 class FakeXmlGenFileExternalDependency(XmlGenFileExternalDependency):
-    def __init__(self, log: Log, name: str, location: str, access: int, extDepType: int,
+    def __init__(self, log: Log, name: str, location: str, access: int, extDepType: ExternalDependencyType,
                  debugName: Optional[str] = None, includeLocation: Optional[str] = None, isManaged: bool = False) -> None:
         strType = ExternalDependencyType.ToString(extDepType)
         fakeXmlElementAttribs = {'Name': name, 'Location': location, 'Access': AccessType.ToString(access), "Type": strType} # type: Dict[str, str]
@@ -145,3 +150,18 @@ class FakeXmlGenFileExternalDependencyStaticLib(FakeXmlGenFileExternalDependency
 class FakeXmlGenFileExternalDependencyDLL(FakeXmlGenFileExternalDependency):
     def __init__(self, log: Log, name: str, debugName: str, location: str, access: int, isManaged: bool) -> None:
         super().__init__(log, name, location, access, ExternalDependencyType.DLL, debugName, isManaged=isManaged)
+
+class FakeXmlGenFileExternalDependencyCMakeFindModern(XmlGenFileExternalDependency):
+    def __init__(self, log: Log, name: str, version: Optional[Version], targetName: Optional[str], path: Optional[str], ifCondition: Optional[str]) -> None:
+        fakeXmlElementAttribs = {'Name': name, 'Type': ExternalDependencyType.ToString(ExternalDependencyType.CMakeFindModern)}
+        if version is not None:
+            fakeXmlElementAttribs['Version'] = str(version)
+        if targetName is not None:
+            fakeXmlElementAttribs['TargetName'] = targetName
+        if path is not None:
+            fakeXmlElementAttribs['Location'] = path
+        if ifCondition is not None:
+            fakeXmlElementAttribs['If'] = ifCondition
+
+        fakeXmlElement = FakeXmlElementFactory.Create("FakeExternalDep", fakeXmlElementAttribs)
+        super().__init__(log, fakeXmlElement)

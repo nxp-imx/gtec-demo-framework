@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraType.hpp>
 
@@ -43,11 +43,11 @@ namespace Fsl
     struct CameraConfig
     {
       CameraType Type;
-      Extent2D Extent;
+      PxExtent2D Extent;
       PixelFormat NativePixelFormat;
       uint32_t NativeStride;
 
-      CameraConfig(const CameraType cameraType, const Extent2D& extent, const PixelFormat nativePixelFormat, const uint32_t nativeStride);
+      CameraConfig(const CameraType cameraType, const PxExtent2D& extent, const PixelFormat nativePixelFormat, const uint32_t nativeStride);
     };
   }
 }

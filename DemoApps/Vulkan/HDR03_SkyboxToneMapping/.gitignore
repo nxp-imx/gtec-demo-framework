@@ -2,6 +2,7 @@
 /.vs/
 /CMakeLists.txt
 /Content/Textures/Cubemap/HDR_Lookout/1024/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GNUmakefile

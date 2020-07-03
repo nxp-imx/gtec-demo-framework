@@ -32,11 +32,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
 #include <FslGraphics/Render/AtlasTexture2D.hpp>
+#include <FslGraphics/Render/Texture2D.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
@@ -52,35 +55,38 @@ namespace Fsl
     std::shared_ptr<INativeBatch2D> m_batch;
     int32_t m_blendStateIndex;
     BlendState m_blendState;
+    Texture2D m_texSdf;
     TextureAtlasBitmapFont m_font;
     TextureAtlasBitmapFont m_fontSmall;
+    TextureAtlasBitmapFont m_fontSdf;
     AtlasTexture2D m_atlasTexture1;
     AtlasTexture2D m_atlasTexture2;
     AtlasTexture2D m_atlasTexture3;
     AtlasTexture2D m_atlasTexture4;
     AtlasTexture2D m_atlasTextureFill;
-    Rectangle m_fillCenter;
+    PxRectangle m_fillCenter;
     float m_angle;
     float m_zoomAngle1;
     float m_zoomAngle2;
+    float m_zoomFactorAngle{};
     int m_sceneId;
 
   public:
-    TextureAtlasScene(const ServiceProvider& serviceProvider);
+    explicit TextureAtlasScene(const ServiceProvider& serviceProvider);
     int32_t GetGridOffsetY() const;
     void OnKeyEvent(const KeyEvent& event);
     void Update(const DemoTime& demoTime);
-    void Draw(const Point2& screenResolution);
+    void Draw(const PxSize2D& windowSizePx);
 
   private:
-    void DrawStrings(const Texture2D& atlasTexture, const TextureAtlasBitmapFont& font, const char* const psz, const int32_t areaWidth);
+    void DrawStrings(const BaseTexture2D& atlasTexture, const TextureAtlasBitmapFont& font, const char* const psz, const int32_t areaWidth);
     void DrawAtlasTextureSimpleRotationUsingDstPos(const Point2& dstOffset);
     void DrawAtlasTextureSimpleUsingDstPos(const Point2& dstOffset);
     void DrawAtlasTextureSimpleUsingDstRectangle(const Point2& dstOffset);
     void DrawGrid(const int32_t cellWidth, const int32_t cellHeight, const int32_t areaWidth, const int32_t areaHeight, const Color& colorBorder,
                   const Color& colorCenter, const Point2& offset);
-    void DrawTargetingRect(const Rectangle& dstRect, const Color& colorBorder, const Color& colorCenter);
-    void DrawRect(const Rectangle& dstRect, const Color& color);
+    void DrawTargetingRect(const PxRectangle& dstRect, const Color& colorBorder, const Color& colorCenter);
+    void DrawRect(const PxRectangle& dstRect, const Color& color);
   };
 }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
   <Library Name="FslUnitTest" CreationYear="2018">
-    <Dependency Name="GoogleTest"/>
+    <Dependency Name="GTest"/>
     <Dependency Name="fmt"/>
     <Platform Name="Windows" ProjectId="F91BFD45-C0B9-47AE-AAB9-889FCF0974AF"/>
   </Library>

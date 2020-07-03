@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Span.hpp>
+#include <FslBase/Math/SpanRange.hpp>
 #include <FslUtil/Vulkan1_0/VUScopedMapMemory.hpp>
 #include <vulkan/vulkan.h>
 #include <cassert>
@@ -49,13 +49,13 @@ namespace Fsl
       struct MemorySpan
       {
         //! The span of the touched 'pages' (this span will be aligned to full 'pages')
-        Span<VkDeviceSize> Touched;
+        SpanRange<VkDeviceSize> Touched;
         //! The start index relative to the start of the 'page'
         VkDeviceSize RelativeStartOffset{};
 
         MemorySpan() = default;
 
-        MemorySpan(Span<VkDeviceSize> touched, VkDeviceSize relativeStartOffset)
+        MemorySpan(SpanRange<VkDeviceSize> touched, VkDeviceSize relativeStartOffset)
           : Touched(touched)
           , RelativeStartOffset(relativeStartOffset)
         {
@@ -91,7 +91,7 @@ namespace Fsl
         assert(pageRelativeStartOffset <= touchedLength);
         assert(length <= (touchedLength - pageRelativeStartOffset));
 
-        return MemorySpan(Span<VkDeviceSize>(touchedPageStart, touchedLength), pageRelativeStartOffset);
+        return {SpanRange<VkDeviceSize>(touchedPageStart, touchedLength), pageRelativeStartOffset};
       }
 
       //! @brief Upload a memory buffer to host visible coherent device memory.
@@ -127,7 +127,7 @@ namespace Fsl
         // 2. Copy the src data to dst
         // 3. Unmap the memory
         {
-          void* pDstMemory;
+          void* pDstMemory = nullptr;
           RapidVulkan::CheckError(vkMapMemory(device, deviceMemory, dstOffset, srcDataSize, flags, &pDstMemory), "vkMapMemory", __FILE__, __LINE__);
 
           std::memcpy(pDstMemory, pSrcData, srcDataSize);
@@ -178,9 +178,9 @@ namespace Fsl
         // 2. Copy the src data to dst
         // 3. Flush the changes
         // 4. Unmap the memory
-        VkResult result;
+        VkResult result = VK_SUCCESS;
         {
-          void* pDstMemory;
+          void* pDstMemory = nullptr;
           RapidVulkan::CheckError(
             vkMapMemory(device, deviceMemory, dstDeviceMemory.Touched.Start, dstDeviceMemory.Touched.Length, flags, &pDstMemory), "vkMapMemory",
             __FILE__, __LINE__);

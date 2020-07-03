@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Executable Name="GLES3.UI.SmoothScroll" NoInclude="true" CreationYear="2020">
+    <ImportTemplate Name="DemoAppGLES3"/>
+    <Dependency Name="Shared.UI.SmoothScroll"/>
+    <Platform Name="Windows" ProjectId="C406E7DB-F8FF-4716-8881-49E53FA814FA"/>
+  </Executable>
+</FslBuildGen>

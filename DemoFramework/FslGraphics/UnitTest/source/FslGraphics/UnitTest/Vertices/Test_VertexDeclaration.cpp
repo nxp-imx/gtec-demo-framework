@@ -190,7 +190,7 @@ TEST(TestVertices_VertexDeclaration, MoveConstruct)
   VertexDeclaration decl2(std::move(decl1));
 
   // FslGraphics types prefer to reset their content when moved
-  EXPECT_EQ(VertexDeclaration(), decl1);
+  EXPECT_EQ(VertexDeclaration(), decl1);    // NOLINT(bugprone-use-after-move)
 
   EXPECT_EQ(sizeof(Vector3), decl2.VertexStride());
   EXPECT_EQ(elements.size(), decl2.Count());
@@ -212,7 +212,7 @@ TEST(TestVertices_VertexDeclaration, MoveAssign)
   decl2 = std::move(decl1);
 
   // FslGraphics types prefer to reset their content when moved
-  EXPECT_EQ(VertexDeclaration(), decl1);
+  EXPECT_EQ(VertexDeclaration(), decl1);    // NOLINT(bugprone-use-after-move)
 
   EXPECT_EQ(sizeof(Vector3), decl2.VertexStride());
   EXPECT_EQ(elements.size(), decl2.Count());

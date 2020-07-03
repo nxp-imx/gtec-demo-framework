@@ -30,9 +30,9 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/File.hpp>
-#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include <fmt/format.h>
 #include <cassert>
 #include <fstream>
@@ -44,8 +44,10 @@
 // but instead provides its own 'hack' for opening wstring's
 #ifdef _WIN32
 #include <FslBase/System/Platform/PlatformWin32.hpp>
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PATH_GET_NAME(X) PlatformWin32::Widen(X.ToUTF8String())
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PATH_GET_NAME(X) X.ToUTF8String()
 #endif
 
@@ -196,6 +198,14 @@ namespace Fsl
         throw IOException(fmt::format("Failed to open file '{0}'", path));
       }
       return file.tellg();
+    }
+
+
+    std::vector<uint8_t> File::ReadAllBytes(const Path& path)
+    {
+      std::vector<uint8_t> content;
+      ReadAllBytes(content, path);
+      return content;
     }
 
 

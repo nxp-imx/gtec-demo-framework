@@ -46,7 +46,7 @@ namespace Fsl
     FractalShaderMandelbrot m_scene3;
 
   public:
-    MultipleViewportsFractalShader(const DemoAppConfig& config);
+    explicit MultipleViewportsFractalShader(const DemoAppConfig& config);
     ~MultipleViewportsFractalShader() override;
 
   protected:

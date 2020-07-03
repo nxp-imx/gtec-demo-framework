@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Log/Math/Pixel/LogPxRectangle.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxSize2D.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
-#include <FslBase/Log/Math/LogRectangle.hpp>
-#include <FslBase/Log/Math/LogPoint2.hpp>
 #include <ostream>
 
 namespace Fsl

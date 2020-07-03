@@ -92,7 +92,7 @@ TEST_F(TestUITree_Window, Window_Update)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount, WindowMethod::WinGetContentRect | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -110,7 +110,7 @@ TEST_F(TestUITree_Window, Window_Update_UpdateEnabled)
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
   CheckZeroExcept(callCount,
-                  WindowMethod::WinGetContentRect | WindowMethod::WinUpdate | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+                  WindowMethod::WinGetContentPxRectangle | WindowMethod::WinUpdate | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -127,7 +127,7 @@ TEST_F(TestUITree_Window, Window_Resolve)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount, WindowMethod::WinGetContentRect | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -146,7 +146,7 @@ TEST_F(TestUITree_Window, Window_Resolve_ResolveEnabled)
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
   CheckZeroExcept(callCount,
-                  WindowMethod::WinGetContentRect | WindowMethod::WinResolve | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+                  WindowMethod::WinGetContentPxRectangle | WindowMethod::WinResolve | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 TEST_F(TestUITree_Window, Window_Update2X_LayoutCacheCheck)
@@ -160,7 +160,7 @@ TEST_F(TestUITree_Window, Window_Update2X_LayoutCacheCheck)
   // ASSERT_EQ(1u, callCount.WinGetContentRect);
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
-  const auto ignoreFlags = WindowMethod::WinGetContentRect | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
+  const auto ignoreFlags = WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
   CheckZeroExcept(callCount, ignoreFlags);
 
 
@@ -194,7 +194,7 @@ TEST_F(TestUITree_Window, Window_Draw)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount, WindowMethod::WinGetContentRect | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount, WindowMethod::WinGetContentPxRectangle | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -216,7 +216,8 @@ TEST_F(TestUITree_Window, Window_Draw_DrawEnabled)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  CheckZeroExcept(callCount, WindowMethod::WinGetContentRect | WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
+  CheckZeroExcept(callCount,
+                  WindowMethod::WinGetContentPxRectangle | WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride);
 }
 
 
@@ -238,7 +239,8 @@ TEST_F(TestUITree_Window, Window_Draw2x_DrawEnabled)
   ASSERT_EQ(1u, callCount.ArrangeOverride);
   ASSERT_EQ(1u, callCount.MeasureOverride);
 
-  const auto ignoreFlags = WindowMethod::WinGetContentRect | WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
+  const auto ignoreFlags =
+    WindowMethod::WinGetContentPxRectangle | WindowMethod::WinDraw | WindowMethod::ArrangeOverride | WindowMethod::MeasureOverride;
   CheckZeroExcept(callCount, ignoreFlags);
 
   m_tree->Draw();

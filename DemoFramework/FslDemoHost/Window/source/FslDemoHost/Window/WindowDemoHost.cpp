@@ -45,19 +45,24 @@
 #include <FslNativeWindow/Platform/PlatformNativeWindowSystemFactory.hpp>
 #include <cassert>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #if 0
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG(X) FSLLOG3_INFO("VulkanDemoHost: {}", (X))
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG(X) \
   {                  \
   }
 #endif
 
 #if 1
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG_WARNING(X) FSLLOG3_WARNING("WindowDemoHost: {}", (X))
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG_WARNING(X) \
   {                          \
   }
@@ -66,7 +71,7 @@
 namespace Fsl
 {
   WindowDemoHost::WindowDemoHost(const DemoHostConfig& demoHostConfig)
-    : ADemoHost(demoHostConfig)
+    : ADemoHost(demoHostConfig, false)
     , m_demoHostConfig(demoHostConfig)
     , m_isActivated(true)
     , m_activeApi(DemoHostFeatureName::Window, 0)
@@ -109,8 +114,9 @@ namespace Fsl
 
     m_activeApi = hostAppSetup.DemoHostFeatures->front();
 
-    m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
-                                                    m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel()));
+    m_nativeWindowSetup =
+      std::make_unique<NativeWindowSetup>(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
+                                          m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel());
     Init();
   }
 
@@ -152,16 +158,10 @@ namespace Fsl
   }
 
 
-  Point2 WindowDemoHost::GetScreenResolution() const
+  DemoWindowMetrics WindowDemoHost::GetWindowMetrics() const
   {
-    Point2 size;
-    if (m_window && m_window->TryGetSize(size))
-    {
-      return size;
-    }
-
-    FSLLOG3_DEBUG_WARNING("Failed to GetScreenResolution, returning zero");
-    return Point2();
+    auto nativeWindowMetrics = (m_window ? m_window->GetWindowMetrics() : NativeWindowMetrics());
+    return {nativeWindowMetrics.ExtentPx, nativeWindowMetrics.ExactDpi, nativeWindowMetrics.DensityDpi};
   }
 
 

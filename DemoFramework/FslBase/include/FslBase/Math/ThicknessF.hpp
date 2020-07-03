@@ -34,6 +34,7 @@
 
 namespace Fsl
 {
+  //! @brief Can not contain negative values
   struct ThicknessF
   {
   private:
@@ -46,10 +47,10 @@ namespace Fsl
     constexpr ThicknessF() = default;
 
     constexpr ThicknessF(const float left, const float top, const float right, const float bottom)
-      : m_left(left)
-      , m_top(top)
-      , m_right(right)
-      , m_bottom(bottom)
+      : m_left(left >= 0.0f ? left : 0.0f)
+      , m_top(top >= 0.0f ? top : 0.0f)
+      , m_right(right >= 0.0f ? right : 0.0f)
+      , m_bottom(bottom >= 0.0f ? bottom : 0.0f)
     {
     }
 

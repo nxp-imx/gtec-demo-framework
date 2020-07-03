@@ -32,19 +32,20 @@
 #include <FslDemoApp/OpenGLES2/Setup/RegisterDemoApp.hpp>
 #include <EGL/egl.h>
 #include "DirectMultiSamplingVideoYUV.hpp"
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-    static const EGLint g_eglConfigAttribs[] = {EGL_NONE};
+    const std::array<EGLint, 1> g_eglConfigAttribs = {EGL_NONE}
   }
 
   // Configure the demo environment to run this demo app in a OpenGLES2 host environment
-  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
+  void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup);
   {
-    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+    DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
     DemoAppRegister::GLES2::Register<DirectMultiSamplingVideoYUV>(rSetup, "GLES2.DirectMultiSamplingVideoYUV", config);
   }

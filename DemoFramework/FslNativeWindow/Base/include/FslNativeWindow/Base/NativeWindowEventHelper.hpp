@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslNativeWindow/Base/NativeWindowEvent.hpp>
 #include <FslNativeWindow/Base/VirtualKey.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButton.hpp>
@@ -60,8 +60,8 @@ namespace Fsl
     //! @brief Create window resize event
     static NativeWindowEvent EncodeWindowResizedEvent();
 
-    //! @brief Create window DPI updated event
-    static NativeWindowEvent EncodeWindowDPIChanged(const Point2& newDPI);
+    //! @brief Create window config updated event (dpi, dp, etc)
+    static NativeWindowEvent EncodeWindowConfigChanged();
 
     //! @brief Create a low memory event
     static NativeWindowEvent EncodeLowMemoryEvent();
@@ -73,38 +73,38 @@ namespace Fsl
     static void DecodeInputKeyEvent(const NativeWindowEvent& event, VirtualKey::Enum& rVirtualKey, bool& rIsPressed, uint32_t& rDeviceId);
 
     //! @brief Create a input mouse button event
-    static NativeWindowEvent EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const Point2& position);
+    static NativeWindowEvent EncodeInputMouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position);
 
     //! @brief Decode a input mouse button event
-    static void DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed, Point2& rPosition);
+    static void DecodeInputMouseButtonEvent(const NativeWindowEvent& event, VirtualMouseButton::Enum& rButton, bool& rIsPressed, PxPoint2& rPosition);
 
     //! @brief Create a input mouse move event
     static NativeWindowEvent
-      EncodeInputMouseMoveEvent(const Point2& position,
+      EncodeInputMouseMoveEvent(const PxPoint2& position,
                                 const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
 
     //! @brief Decode a input mouse move event
-    static void DecodeInputMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags);
+    static void DecodeInputMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags);
 
     //! @brief Create a input mouse wheel event
-    static NativeWindowEvent EncodeInputMouseWheelEvent(const int32_t delta, const Point2& position);
+    static NativeWindowEvent EncodeInputMouseWheelEvent(const int32_t delta, const PxPoint2& position);
 
     //! @brief Decode a input mouse wheel event
-    static void DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, Point2& rPosition);
+    static void DecodeInputMouseWheelEvent(const NativeWindowEvent& event, int32_t& rDelta, PxPoint2& rPosition);
 
     //! @brief Create a raw input mouse move event
     static NativeWindowEvent
-      EncodeInputRawMouseMoveEvent(const Point2& position,
+      EncodeInputRawMouseMoveEvent(const PxPoint2& position,
                                    const VirtualMouseButtonFlags& buttonFlags = VirtualMouseButtonFlags(VirtualMouseButton::Undefined));
 
     //! @brief Decode a raw input mouse move event
-    static void DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, Point2& rPosition, VirtualMouseButtonFlags& rFlags);
+    static void DecodeInputRawMouseMoveEvent(const NativeWindowEvent& event, PxPoint2& rPosition, VirtualMouseButtonFlags& rFlags);
 
     //! @brief Encode a position in a int32 (the x,y coordinates are expected to fit in a int16_t each)
-    static int32_t EncodePosition(const Point2& position);
+    static int32_t EncodePosition(const PxPoint2& position);
 
     //! @brief Decode a position
-    static Point2 DecodePosition(const int32_t encodedPosition);
+    static PxPoint2 DecodePosition(const int32_t encodedPosition);
 
     //! @brief Encode the mouse-button flags
     static int32_t EncodeVirtualMouseButtonFlags(const VirtualMouseButtonFlags& flags);

@@ -33,24 +33,17 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionColorTexture.hpp>
-#include <FslGraphics/Font/BasicFontKerning.hpp>
-#include <FslGraphics/Render/AtlasFont.hpp>
-#include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
-#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
 #include <FslUtil/OpenGLES3/GLUtil.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUI/Base/IWindowManager.hpp>
-#include <FslSimpleUI/Base/WindowContext.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/SliderAndValueLabel.hpp>
-#include <FslSimpleUI/Base/Control/ValueLabel.hpp>
-#include <FslSimpleUI/Base/Event/WindowContentChangedEvent.hpp>
-#include <FslSimpleUI/Base/Event/WindowSelectEvent.hpp>
+#include <FslSimpleUI/Base/Control/RadioButton.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include "ParticleSystemScene.hpp"
 #include "PS/Draw/ParticleDrawPointsGLES3.hpp"
 #include "PS/Draw/ParticleDrawQuadsGLES3.hpp"
@@ -61,7 +54,7 @@
 #include "PSGpu/ParticleSystemGLES3.hpp"
 #include "PSGpu/ParticleSystemSnow.hpp"
 #include <GLES3/gl3.h>
-#include <iostream>
+#include <array>
 
 namespace Fsl
 {
@@ -74,6 +67,11 @@ namespace Fsl
 
     const float DEFAULT_ZOOM = 32;
 
+    namespace LocalConfig
+    {
+      ConstrainedValue<int32_t> EmitRange(0, 0, 2000);
+    }
+
 
     void BuildCube(GLVertexBuffer& rDst, const Vector3 dimensions)
     {
@@ -83,7 +81,7 @@ namespace Fsl
       const float x = dimensions.X * 0.5f;
       const float y = dimensions.Y * 0.5f;
       const float z = dimensions.Z * 0.5f;
-      VertexPositionColorTexture vertices[6 * 6] = {
+      std::array<VertexPositionColorTexture, 6 * 6> vertices = {
         // Front
         VertexPositionColorTexture(Vector3(-x, +y, +z), Color::White(), Vector2(0, 1)),
         VertexPositionColorTexture(Vector3(-x, -y, +z), Color::White(), Vector2(0, 0)),
@@ -133,7 +131,7 @@ namespace Fsl
         VertexPositionColorTexture(Vector3(+x, -y, +z), Color::White(), Vector2(1, 1)),
       };
 
-      rDst.Reset(vertices, 6 * 6, GL_STATIC_DRAW);
+      rDst.Reset(vertices, GL_STATIC_DRAW);
     }
   }
 
@@ -142,7 +140,7 @@ namespace Fsl
     : AScene(config)
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_allowAdvancedTechniques(false)
-    , m_camera(config.ScreenResolution)
+    , m_camera(config.WindowMetrics.GetSizePx())
     , m_locWorldViewMatrix(GLValues::INVALID_LOCATION)
     , m_locProjMatrix(GLValues::INVALID_LOCATION)
     , m_rotationSpeed(0.0f, 0.5f, 0.0f)
@@ -200,14 +198,14 @@ namespace Fsl
   ParticleSystemScene::~ParticleSystemScene() = default;
 
 
-  void ParticleSystemScene::OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent)
+  void ParticleSystemScene::OnSelect(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowSelectEvent>& /*theEvent*/)
   {
     // auto source = theEvent->GetSource();
     // if
   }
 
 
-  void ParticleSystemScene::OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
+  void ParticleSystemScene::OnContentChanged(const RoutedEventArgs& /*args*/, const std::shared_ptr<WindowContentChangedEvent>& theEvent)
   {
     auto source = theEvent->GetSource();
 
@@ -219,15 +217,6 @@ namespace Fsl
     {
       if (m_particleSystemPoints->IsChecked())
       {
-        if (m_particleSystemQuads)
-        {
-          m_particleSystemQuads->SetIsChecked(false);
-        }
-        if (m_particleSystemGeometryShader)
-        {
-          m_particleSystemGeometryShader->SetIsChecked(false);
-        }
-
         SetParticleSystem(ParticleSystemType::Points, true);
       }
     }
@@ -235,15 +224,6 @@ namespace Fsl
     {
       if (m_particleSystemQuads->IsChecked())
       {
-        if (m_particleSystemPoints)
-        {
-          m_particleSystemPoints->SetIsChecked(false);
-        }
-        if (m_particleSystemGeometryShader)
-        {
-          m_particleSystemGeometryShader->SetIsChecked(false);
-        }
-
         SetParticleSystem(ParticleSystemType::Instancing, true);
       }
     }
@@ -251,15 +231,6 @@ namespace Fsl
     {
       if (m_particleSystemGeometryShader->IsChecked())
       {
-        if (m_particleSystemPoints)
-        {
-          m_particleSystemPoints->SetIsChecked(false);
-        }
-        if (m_particleSystemQuads)
-        {
-          m_particleSystemQuads->SetIsChecked(false);
-        }
-
         SetParticleSystem(ParticleSystemType::GeometryShader, true);
       }
     }
@@ -409,21 +380,19 @@ namespace Fsl
     }
 
 
-    const Point2 screenResolution = GetScreenResolution();
-
     if (m_rotate)
     {
       m_rotation += m_rotationSpeed * demoTime.DeltaTime;
     }
+    const float aspectRatio = GetAspectRatio();
 
     m_particleDrawContext.MatrixWorld =
       Matrix::CreateRotationX(m_rotation.X) * Matrix::CreateRotationY(m_rotation.Y) * Matrix::CreateRotationZ(m_rotation.Z);
     m_particleDrawContext.MatrixView = m_camera.GetViewMatrix();
-    m_particleDrawContext.MatrixProjection =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 1000.0f);
+    m_particleDrawContext.MatrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 1, 1000.0f);
     m_particleDrawContext.MatrixWorldView = m_particleDrawContext.MatrixWorld * m_particleDrawContext.MatrixView;
     m_particleDrawContext.MatrixWorldViewProjection = m_particleDrawContext.MatrixWorldView * m_particleDrawContext.MatrixProjection;
-    m_particleDrawContext.ScreenAspectRatio = GetScreenResolution().X / static_cast<float>(GetScreenResolution().Y);
+    m_particleDrawContext.ScreenAspectRatio = aspectRatio;
   }
 
 
@@ -485,7 +454,7 @@ namespace Fsl
 
     // bind the vertex buffer and enable the attrib array
     glBindBuffer(m_vbCube.GetTarget(), m_vbCube.Get());
-    m_vbCube.EnableAttribArrays(m_cubeAttribLink, sizeof(m_cubeAttribLink) / sizeof(GLES3::GLVertexAttribLink));
+    m_vbCube.EnableAttribArrays(m_cubeAttribLink);
     glDrawArrays(GL_TRIANGLES, 0, m_vbCube.GetCapacity());
   }
 
@@ -506,85 +475,56 @@ namespace Fsl
   }
 
 
-  void ParticleSystemScene::BuildUI(const std::shared_ptr<IContentManager>& contentManager, const std::shared_ptr<UIDemoAppExtension>& uiExtension)
+  void ParticleSystemScene::BuildUI(const std::shared_ptr<IContentManager>& /*contentManager*/,
+                                    const std::shared_ptr<UIDemoAppExtension>& uiExtension)
   {
-    AtlasTexture2D texCheckBoxC(uiExtension->GetAtlasTexture2D("CheckBoxC"));
-    AtlasTexture2D texCheckBoxU(uiExtension->GetAtlasTexture2D("CheckBoxU"));
-    AtlasTexture2D texSlider(uiExtension->GetAtlasTexture2D("Slider"));
-    AtlasTexture2D texSliderCursor(uiExtension->GetAtlasTexture2D("SliderCursor"));
-    ThicknessF sliderCursorPadding(13, 0, 13, 0);
-    NineSlice sliderNineSlice(13, 0, 13, 0);
-
     auto context = uiExtension->GetContext();
+    UI::Theme::BasicThemeFactory factory(context, uiExtension->GetSpriteResourceManager(), uiExtension->GetDefaultMaterialId());
 
 
-    m_valueLabelParticleCount.reset(new ValueLabel(context));
-    m_valueLabelParticleCount->SetContent(10);
+    m_valueLabelParticleCount = factory.CreateFmtValueLabel<int32_t>(10);
 
-    std::shared_ptr<Label> labelParticles(new Label(context));
-    labelParticles->SetContent("Particles: ");
+    auto labelParticles = factory.CreateLabel("Particles: ");
 
-    std::shared_ptr<StackLayout> stackLayout(new StackLayout(context));
+    auto stackLayout = std::make_shared<StackLayout>(context);
     stackLayout->SetLayoutOrientation(LayoutOrientation::Horizontal);
     stackLayout->AddChild(labelParticles);
     stackLayout->AddChild(m_valueLabelParticleCount);
 
-    m_sliderEmit.reset(new SliderAndValueLabel(context));
-    m_sliderEmit->SetValueLimits(0, 20000);
-    m_sliderEmit->SetBackgroundTexture(texSlider);
-    m_sliderEmit->SetCursorTexture(texSliderCursor);
-    m_sliderEmit->SetCursorPadding(sliderCursorPadding);
-    m_sliderEmit->SetNineSlice(sliderNineSlice);
-    m_sliderEmit->SetWidth(500);
+    m_sliderEmit = factory.CreateSliderFmtValue<int32_t>(UI::LayoutOrientation::Horizontal, LocalConfig::EmitRange);
 
-
-    std::shared_ptr<StackLayout> outerStack(new StackLayout(context));
+    auto outerStack = std::make_shared<StackLayout>(context);
     outerStack->SetLayoutOrientation(LayoutOrientation::Vertical);
     outerStack->AddChild(stackLayout);
     outerStack->AddChild(m_sliderEmit);
 
 
     {
-      m_particleSystemPoints.reset(new CheckBox(context));
-      m_particleSystemPoints->SetText("Point sprites");
-      m_particleSystemPoints->SetCheckedTexture(texCheckBoxC);
-      m_particleSystemPoints->SetUncheckedTexture(texCheckBoxU);
+      auto radioGroup = factory.CreateRadioGroup("technique");
+      m_particleSystemPoints = factory.CreateRadioButton(radioGroup, "Point sprites");
+      m_particleSystemPoints->SetAlignmentX(UI::ItemAlignment::Stretch);
+      m_particleSystemQuads = factory.CreateRadioButton(radioGroup, "Quads");
+      m_particleSystemQuads->SetAlignmentX(UI::ItemAlignment::Stretch);
 
-      m_particleSystemQuads.reset(new CheckBox(context));
-      m_particleSystemQuads->SetText("Quads");
-      m_particleSystemQuads->SetCheckedTexture(texCheckBoxC);
-      m_particleSystemQuads->SetUncheckedTexture(texCheckBoxU);
-
-      std::shared_ptr<StackLayout> stackLayoutQ(new StackLayout(context));
+      auto stackLayoutQ = std::make_shared<StackLayout>(context);
       if (m_allowAdvancedTechniques)
       {
-        m_particleSystemGeometryShader.reset(new CheckBox(context));
-        m_particleSystemGeometryShader->SetText("Geometry shader");
-        m_particleSystemGeometryShader->SetCheckedTexture(texCheckBoxC);
-        m_particleSystemGeometryShader->SetUncheckedTexture(texCheckBoxU);
+        m_particleSystemGeometryShader = factory.CreateRadioButton(radioGroup, "Geometry shader");
+        m_particleSystemGeometryShader->SetAlignmentX(UI::ItemAlignment::Stretch);
+        m_cbParticleSystemGPU1 = factory.CreateSwitch("GPUSystem1");
+        m_cbParticleSystemGPU1->SetAlignmentX(UI::ItemAlignment::Stretch);
+        m_cbParticleSystemGPU2 = factory.CreateSwitch("GPUSystem2");
+        m_cbParticleSystemGPU2->SetAlignmentX(UI::ItemAlignment::Stretch);
 
-        m_cbParticleSystemGPU1.reset(new CheckBox(context));
-        m_cbParticleSystemGPU1->SetText("GPUSystem1");
-        m_cbParticleSystemGPU1->SetCheckedTexture(texCheckBoxC);
-        m_cbParticleSystemGPU1->SetUncheckedTexture(texCheckBoxU);
+        m_valueLabelGPUParticleCount = factory.CreateFmtValueLabel<int32_t>(10);
 
-        m_cbParticleSystemGPU2.reset(new CheckBox(context));
-        m_cbParticleSystemGPU2->SetText("GPUSystem2");
-        m_cbParticleSystemGPU2->SetCheckedTexture(texCheckBoxC);
-        m_cbParticleSystemGPU2->SetUncheckedTexture(texCheckBoxU);
-
-        m_valueLabelGPUParticleCount.reset(new ValueLabel(context));
-        m_valueLabelGPUParticleCount->SetContent(10);
-
-
-        std::shared_ptr<Label> labelParticles2(new Label(context));
-        labelParticles2->SetContent("GPUParticles: ");
+        auto labelParticles2 = factory.CreateLabel("GPUParticles: ");
         stackLayoutQ->SetLayoutOrientation(LayoutOrientation::Horizontal);
         stackLayoutQ->AddChild(labelParticles2);
         stackLayoutQ->AddChild(m_valueLabelGPUParticleCount);
       }
 
-      std::shared_ptr<StackLayout> comboStack(new StackLayout(context));
+      auto comboStack = std::make_shared<StackLayout>(context);
       comboStack->SetLayoutOrientation(LayoutOrientation::Vertical);
       if (m_particleSystemPoints)
       {
@@ -615,8 +555,9 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<FillLayout> layout(new FillLayout(context));
-    layout->AddChild(outerStack);
+    auto bar = factory.CreateLeftBar(outerStack, UI::Theme::BarType::Transparent);
+    auto layout = std::make_shared<FillLayout>(context);
+    layout->AddChild(bar);
 
     // Add the fill layout to the window manager to ensure it is visible
     uiExtension->GetWindowManager()->Add(layout);
@@ -634,12 +575,14 @@ namespace Fsl
       if (m_particleSystemPoints)
       {
         m_particleSystemPoints->SetIsChecked(true);
+        m_particleSystemPoints->FinishAnimation();
       }
       break;
     case ParticleSystemType::GeometryShader:
       if (m_particleSystemGeometryShader)
       {
         m_particleSystemGeometryShader->SetIsChecked(true);
+        m_particleSystemGeometryShader->FinishAnimation();
       }
       break;
     case ParticleSystemType::Instancing:
@@ -647,6 +590,7 @@ namespace Fsl
       if (m_particleSystemQuads)
       {
         m_particleSystemQuads->SetIsChecked(true);
+        m_particleSystemQuads->FinishAnimation();
       }
       break;
     }
@@ -654,6 +598,7 @@ namespace Fsl
     if (m_cbParticleSystemGPU2)
     {
       m_cbParticleSystemGPU2->SetIsChecked(true);
+      m_cbParticleSystemGPU2->FinishAnimation();
     }
   }
 
@@ -696,7 +641,7 @@ namespace Fsl
     {
       m_particleSystem = std::make_shared<particle_system_type>(particleDraw, PARTICLE_CAPACITY);
 
-      m_boxEmitter.reset(new BoxEmitter());
+      m_boxEmitter = std::make_shared<BoxEmitter>();
       m_particleSystem->AddEmitter(m_boxEmitter);
       if (m_sliderEmit)
       {

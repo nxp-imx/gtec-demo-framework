@@ -63,7 +63,7 @@ namespace Fsl
     Texture2D m_texTestMatB;
 
   public:
-    OpenCVMatToUI(const DemoAppConfig& config);
+    explicit OpenCVMatToUI(const DemoAppConfig& config);
     ~OpenCVMatToUI() override;
 
   protected:

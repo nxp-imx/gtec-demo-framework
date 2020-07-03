@@ -30,11 +30,12 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/TextureCompression/VerticalScroller.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Math/MathHelper.hpp>
-#include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
-#include <FslSimpleUI/Base/LayoutHelper.hpp>
+#include <FslSimpleUI/Base/BaseWindowContext.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <algorithm>
 
@@ -65,36 +66,40 @@ namespace Fsl
     }
 
 
-    void VerticalScroller::SetScrollPadding(const ThicknessF& padding)
+    void VerticalScroller::SetScrollPadding(const DpThicknessF& paddingDp)
     {
-      m_scrollPadding = padding;
+      m_scrollPaddingDp = paddingDp;
     }
 
 
-    Vector2 VerticalScroller::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D VerticalScroller::ArrangeOverride(const PxSize2D& finalSizePx)
     {
       if (m_animate)
       {
-        auto contentDesiredSize = GetContentDesiredSize();
-        contentDesiredSize.X = finalSize.X;
-        contentDesiredSize.Y += m_scrollPadding.SumY();
-        auto scollarea = (contentDesiredSize.Y - finalSize.Y);
-        float pos = scollarea > 0.0f ? -(((std::cos(m_animationPosition + MathHelper::RADS180) + 1.0f) / 2.0f) * scollarea) : 0.0f;
-        ContentControl::CustomArrange(contentDesiredSize, Vector2(0, pos));
+        const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+        auto scrollPaddingPx = unitConverter.ToPxThickness(m_scrollPaddingDp);
+
+        PxSize2D contentDesiredSizePx = GetContentDesiredSizePx();
+        contentDesiredSizePx.SetWidth(finalSizePx.Width());
+        contentDesiredSizePx.AddHeight(scrollPaddingPx.SumY());
+        const auto scollarea = (contentDesiredSizePx.Height() - finalSizePx.Height());
+        const float pos = scollarea > 0.0f ? -(((std::cos(m_animationPosition + MathHelper::RADS180) + 1.0f) / 2.0f) * scollarea) : 0.0f;
+        const int32_t posPx = TypeConverter::UncheckedChangeTo<int32_t>(pos);
+        ContentControl::CustomArrange(contentDesiredSizePx, PxPoint2(0, posPx));
 
         m_animationSpeed = scollarea > 0.001f ? (1.0f / scollarea) * 600.0f : 0.0f;
         m_animationSpeed = std::min(m_animationSpeed, 4.0f);
-        return finalSize;
+        return finalSizePx;
       }
 
-      return ContentControl::ArrangeOverride(finalSize);
+      return ContentControl::ArrangeOverride(finalSizePx);
     }
 
 
-    Vector2 VerticalScroller::MeasureOverride(const Vector2& availableSize)
+    PxSize2D VerticalScroller::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      auto desiredSize = ContentControl::MeasureOverride(Vector2(availableSize.X, LayoutHelper::InfiniteSpace));
-      if (desiredSize.Y > availableSize.Y)
+      PxSize2D desiredSizePx = ContentControl::MeasureOverride(PxAvailableSize(availableSizePx.Width(), PxAvailableSizeUtil::InfiniteSpacePx));
+      if (desiredSizePx.Height() > availableSizePx.Height())
       {
         // Enable scrolling
         m_animate = true;
@@ -106,7 +111,7 @@ namespace Fsl
       }
       // We always only take the available size in y (this is kind of a hack, but it works for this purpose)
       // desiredSize.Y = availableSize.Y;
-      return availableSize;
+      return availableSizePx.ToPxSize2D();
     }
   }
 }

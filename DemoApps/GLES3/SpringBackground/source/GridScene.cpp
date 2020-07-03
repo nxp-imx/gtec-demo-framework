@@ -131,7 +131,7 @@ namespace Fsl
   }
 
 
-  void GridScene::FixedUpdate(const DemoTime& demoTime)
+  void GridScene::FixedUpdate(const DemoTime& /*demoTime*/)
   {
     m_grid.FixedUpdate();
   }
@@ -139,7 +139,7 @@ namespace Fsl
   void GridScene::Update(const DemoTime& demoTime)
   {
     assert(m_activeRenderQueueIndex >= 0 && m_activeRenderQueueIndex <= static_cast<int32_t>(m_renderDeque.size()));
-    auto pActiveGridRender = m_renderDeque[m_activeRenderQueueIndex];
+    auto* pActiveGridRender = m_renderDeque[m_activeRenderQueueIndex];
     assert(pActiveGridRender != nullptr);
 
     m_grid.Update(demoTime, m_screenSize, *pActiveGridRender);
@@ -152,7 +152,7 @@ namespace Fsl
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     assert(m_activeRenderQueueIndex >= 0 && m_activeRenderQueueIndex <= static_cast<int32_t>(m_renderDeque.size()));
-    auto pActiveGridRender = m_renderDeque[m_activeRenderQueueIndex];
+    auto* pActiveGridRender = m_renderDeque[m_activeRenderQueueIndex];
     assert(pActiveGridRender != nullptr);
 
     GridRenderDrawContext gridDrawContext(m_batch.get(), m_texFill, m_screenSize);
@@ -166,7 +166,7 @@ namespace Fsl
   IGridRender* GridScene::GetActiveRender() const
   {
     assert(m_activeRenderQueueIndex >= 0 && m_activeRenderQueueIndex <= static_cast<int32_t>(m_renderDeque.size()));
-    auto pActiveGridRender = m_renderDeque[m_activeRenderQueueIndex];
+    auto* pActiveGridRender = m_renderDeque[m_activeRenderQueueIndex];
     assert(pActiveGridRender != nullptr);
     return pActiveGridRender;
   }

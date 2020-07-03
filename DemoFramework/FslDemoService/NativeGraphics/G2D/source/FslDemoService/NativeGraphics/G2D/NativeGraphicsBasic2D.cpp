@@ -40,8 +40,8 @@ namespace Fsl
 {
   namespace G2D
   {
-    NativeGraphicsBasic2D::NativeGraphicsBasic2D(const Point2& currentResolution)
-      : m_currentResolution(currentResolution)
+    NativeGraphicsBasic2D::NativeGraphicsBasic2D(const PxExtent2D& extentPx)
+      : m_pxCurrentExtent(extentPx)
       , m_fontSize(EmbeddedFont8x8::CharacterSize())
       , m_inBegin(false)
     {
@@ -52,10 +52,10 @@ namespace Fsl
     NativeGraphicsBasic2D::~NativeGraphicsBasic2D() = default;
 
 
-    void NativeGraphicsBasic2D::SetScreenResolution(const Point2& currentResolution)
+    void NativeGraphicsBasic2D::SetScreenExtent(const PxExtent2D& extentPx)
     {
       assert(!m_inBegin);
-      m_currentResolution = currentResolution;
+      m_pxCurrentExtent = extentPx;
     }
 
 
@@ -86,7 +86,7 @@ namespace Fsl
     }
 
 
-    Point2 NativeGraphicsBasic2D::FontSize() const
+    PxSize2D NativeGraphicsBasic2D::FontSize() const
     {
       return m_fontSize;
     }

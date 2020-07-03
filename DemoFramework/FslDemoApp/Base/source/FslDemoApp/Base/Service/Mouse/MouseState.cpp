@@ -46,14 +46,14 @@ namespace Fsl
   }
 
 
-  MouseState::MouseState(const uint32_t buttonState, const Point2& position)
+  MouseState::MouseState(const uint32_t buttonState, const PxPoint2& position)
     : m_mouseButtonFlags(buttonState)
     , Position(position)
   {
   }
 
 
-  MouseState::MouseState(const uint32_t buttonState, const Point2& position, const Point2& rawPosition)
+  MouseState::MouseState(const uint32_t buttonState, const PxPoint2& position, const PxPoint2& rawPosition)
     : m_mouseButtonFlags(buttonState)
     , Position(position)
     , RawPosition(rawPosition)
@@ -68,14 +68,14 @@ namespace Fsl
   }
 
 
-  MouseState::MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position)
+  MouseState::MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const PxPoint2& position)
     : m_mouseButtonFlags(mouseButtonFlags)
     , Position(position)
   {
   }
 
 
-  MouseState::MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position, const Point2& rawPosition)
+  MouseState::MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const PxPoint2& position, const PxPoint2& rawPosition)
     : m_mouseButtonFlags(mouseButtonFlags)
     , Position(position)
     , RawPosition(rawPosition)

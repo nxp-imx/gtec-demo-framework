@@ -37,6 +37,7 @@
 
 using namespace Fsl;
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_TO_STRUCT(X) LocalPixelFormatRecord((X), #X)
 
 namespace

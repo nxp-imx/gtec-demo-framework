@@ -41,7 +41,7 @@ namespace Fsl
 {
   class IEventPoster;
 
-  class KeyboardService
+  class KeyboardService final
     : public ThreadLocalService
     , public std::enable_shared_from_this<KeyboardService>
     , public IKeyboard
@@ -51,15 +51,15 @@ namespace Fsl
     std::shared_ptr<IEventPoster> m_eventPoster;
 
   public:
-    KeyboardService(const ServiceProvider& serviceProvider);
-    ~KeyboardService() override;
-    void Link(const ServiceProvider& serviceProvider) override;
+    explicit KeyboardService(const ServiceProvider& serviceProvider);
+    ~KeyboardService() final;
+    void Link(const ServiceProvider& serviceProvider) final;
 
     // From IKeyboard
-    KeyboardState GetState() const override;
+    KeyboardState GetState() const final;
 
     // From INativeWindowEventListener
-    void OnNativeWindowEvent(const NativeWindowEvent& event) override;
+    void OnNativeWindowEvent(const NativeWindowEvent& event) final;
   };
 }
 

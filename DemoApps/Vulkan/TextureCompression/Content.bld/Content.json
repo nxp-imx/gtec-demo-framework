@@ -1,39 +1,50 @@
 {
   "ContentBuilder" : {
     "Version": "1",
-    "Content.Sync": {
-      "SourcePath" : "${ProjectRoot}/Resources",
-      "Content": [
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x10.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x5.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x6.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_10x8.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_12x10.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_12x12.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_4x4.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_5x4.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_5x5.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_6x5.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_6x6.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_8x5.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_8x6.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ASTC_8x8.ktx",
-        "Textures/GPUSdkTest/CustomTexture_BC1.ktx",
-        "Textures/GPUSdkTest/CustomTexture_BC2.ktx",
-        "Textures/GPUSdkTest/CustomTexture_BC3.ktx",
-        "Textures/GPUSdkTest/CustomTexture_BC4.dds",
-        "Textures/GPUSdkTest/CustomTexture_BC5.dds",
-        "Textures/GPUSdkTest/CustomTexture_BC6H.dds",
-        "Textures/GPUSdkTest/CustomTexture_BC6H_SF.dds",
-        "Textures/GPUSdkTest/CustomTexture_BC7.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ETC2_RGB.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_A1.ktx",
-        "Textures/GPUSdkTest/CustomTexture_ETC2_RGBA.ktx",
-        "Textures/GPUSdkTest/CustomTexture_R8G8B8A8.ktx",
-        "Textures/GPUSdkTest/License.json",
-        "Textures/NotSupported/NotSupported_pre.png",
-        "Textures/NotSupported/License.json"
-      ]
-    }
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlas_*dpi.bta",
+          "UIAtlas/UIAtlas_*dpi.png",
+          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x10.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x5.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x6.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_10x8.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_12x10.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_12x12.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_4x4.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_5x4.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_5x5.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_6x5.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_6x6.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_8x5.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_8x6.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ASTC_8x8.ktx",
+          "Textures/GPUSdkTest/CustomTexture_BC1.ktx",
+          "Textures/GPUSdkTest/CustomTexture_BC2.ktx",
+          "Textures/GPUSdkTest/CustomTexture_BC3.ktx",
+          "Textures/GPUSdkTest/CustomTexture_BC4.dds",
+          "Textures/GPUSdkTest/CustomTexture_BC5.dds",
+          "Textures/GPUSdkTest/CustomTexture_BC6H.dds",
+          "Textures/GPUSdkTest/CustomTexture_BC6H_SF.dds",
+          "Textures/GPUSdkTest/CustomTexture_BC7.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ETC2_RGB.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ETC2_RGB_A1.ktx",
+          "Textures/GPUSdkTest/CustomTexture_ETC2_RGBA.ktx",
+          "Textures/GPUSdkTest/CustomTexture_R8G8B8A8.ktx",
+          "Textures/GPUSdkTest/License.json",
+          "Textures/NotSupported/NotSupported_pre.png",
+          "Textures/NotSupported/License.json"
+        ]
+      }
+    ]
   }
 }

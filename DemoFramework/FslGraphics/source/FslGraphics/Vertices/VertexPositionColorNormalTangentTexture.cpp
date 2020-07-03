@@ -32,6 +32,7 @@
 #include <FslGraphics/Vertices/VertexPositionColorNormalTangentTexture.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Color.hpp>
+#include <array>
 #include <cstddef>
 
 namespace Fsl
@@ -49,13 +50,13 @@ namespace Fsl
 
   VertexDeclaration VertexPositionColorNormalTangentTexture::GetVertexDeclaration()
   {
-    static VertexElementEx g_elements[] = {
+    static constexpr std::array<VertexElementEx, 5> g_elements = {
       VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Position), VertexElementFormat::Vector3, VertexElementUsage::Position, 0),
       VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Color), VertexElementFormat::Vector4, VertexElementUsage::Color, 0),
       VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Normal), VertexElementFormat::Vector3, VertexElementUsage::Normal, 0),
       VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, Tangent), VertexElementFormat::Vector3, VertexElementUsage::Tangent, 0),
       VertexElementEx(offsetof(VertexPositionColorNormalTangentTexture, TextureCoordinate), VertexElementFormat::Vector2,
                       VertexElementUsage::TextureCoordinate, 0)};
-    return VertexDeclaration(g_elements, sizeof(g_elements) / sizeof(VertexElementEx), sizeof(VertexPositionColorNormalTangentTexture));
+    return VertexDeclaration(g_elements.data(), g_elements.size(), sizeof(VertexPositionColorNormalTangentTexture));
   }
 }

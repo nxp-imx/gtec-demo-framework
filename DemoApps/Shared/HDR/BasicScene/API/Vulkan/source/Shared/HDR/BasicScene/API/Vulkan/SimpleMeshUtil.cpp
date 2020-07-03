@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <Shared/HDR/BasicScene/API/Vulkan/SimpleMeshUtil.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <Shared/HDR/BasicScene/ModelVertices.hpp>
 

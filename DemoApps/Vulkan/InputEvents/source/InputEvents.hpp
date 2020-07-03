@@ -47,7 +47,7 @@ namespace Fsl
     InputLogger m_logger;
 
   public:
-    InputEvents(const DemoAppConfig& config);
+    explicit InputEvents(const DemoAppConfig& config);
 
     void OnKeyEvent(const KeyEvent& event) override;
     void OnMouseButtonEvent(const MouseButtonEvent& event) override;

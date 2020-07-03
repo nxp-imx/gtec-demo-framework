@@ -63,10 +63,10 @@ namespace Fsl
   ReferenceTwoPassLinearBlurredDraw::ReferenceTwoPassLinearBlurredDraw(const DemoAppConfig& config, const Config& blurConfig)
     : ABlurredDraw("Reference two pass linear")
     , m_batch2D(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
-    , m_screenResolution(config.ScreenResolution)
+    , m_screenResolution(config.WindowMetrics.GetSizePx())
     , m_framebufferOrg(m_screenResolution, GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams,
                        GL_DEPTH_COMPONENT16)
-    , m_framebufferBlur(Point2(m_screenResolution.X / 2, m_screenResolution.Y),
+    , m_framebufferBlur(PxSize2D(m_screenResolution.Width() / 2, m_screenResolution.Height()),
                         GLTextureParameters(GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE), g_framebufferImageParams)
   {
     if (!m_batch2D)
@@ -108,7 +108,7 @@ namespace Fsl
     // Blur the right side using the BlurX shader
     glBindFramebuffer(GL_FRAMEBUFFER, m_framebufferBlur.Get());
     {
-      glViewport(0, 0, m_framebufferBlur.GetSize().X, m_framebufferBlur.GetSize().Y);
+      glViewport(0, 0, m_framebufferBlur.GetSize().Width(), m_framebufferBlur.GetSize().Height());
       glClear(GL_COLOR_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);
@@ -123,7 +123,7 @@ namespace Fsl
     // Composite the final image
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     {
-      glViewport(0, 0, m_screenResolution.X, m_screenResolution.Y);
+      glViewport(0, 0, m_screenResolution.Width(), m_screenResolution.Height());
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       glActiveTexture(GL_TEXTURE0);

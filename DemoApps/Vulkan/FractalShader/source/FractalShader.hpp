@@ -58,7 +58,7 @@ namespace Fsl
     std::shared_ptr<IVulkanScene> m_scene;
 
   public:
-    FractalShader(const DemoAppConfig& config);
+    explicit FractalShader(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

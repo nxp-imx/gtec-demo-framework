@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/IDemoApp.hpp>
@@ -69,12 +69,12 @@ namespace Fsl
     ObjectLifeCycle m_currentLifeCycleState = ObjectLifeCycle::Constructing;
 
   public:
-    ADemoApp(const DemoAppConfig& demoAppConfig);
+    explicit ADemoApp(const DemoAppConfig& demoAppConfig);
     ~ADemoApp() override;
     void _PostConstruct() override;
     void _PreDestruct() override;
     void _OnEvent(IEvent* const pEvent) override;
-    void _Resized(const Point2& size) override;
+    void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void _PreUpdate(const DemoTime& demoTime) override;
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;
@@ -84,6 +84,8 @@ namespace Fsl
     AppDrawResult _TrySwapBuffers(const DemoTime& demoTime) override;
 
   protected:
+    // Overload these methods instead of the original IDemoApp ones!
+
     //! @brief Called just after the object has been successfully constructed
     virtual void OnConstructed()
     {
@@ -126,11 +128,11 @@ namespace Fsl
       FSL_PARAM_NOT_USED(event);
     }
 
-    // Overload these methods instead of the original IDemoApp ones!
-    virtual void Resized(const Point2& size)
+    virtual void ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
     {
-      FSL_PARAM_NOT_USED(size);
+      FSL_PARAM_NOT_USED(windowMetrics);
     }
+
 
     virtual void PreUpdate(const DemoTime& demoTime)
     {
@@ -174,15 +176,27 @@ namespace Fsl
     void RegisterExtension(const std::shared_ptr<DemoAppExtension>& extension);
     void UnregisterExtension(const std::shared_ptr<DemoAppExtension>& extension);
 
+    //! @brief Get the current window metrics
+    const DemoWindowMetrics& GetWindowMetrics() const
+    {
+      return m_demoAppConfig.WindowMetrics;
+    }
+
+    //! @brief Get the size of the window client area in pixels.
+    PxSize2D GetWindowSizePx() const;
+
+    //! @brief Get the aspect ratio of the window
+    float GetWindowAspectRatio() const;
+
     //! @brief Get the current screen resolution
-    Point2 GetScreenResolution() const
+    [[deprecated("use GetWindowSizePx instead")]] const Point2& GetScreenResolution() const
     {
       return m_demoAppConfig.ScreenResolution;
     }
 
-    Extent2D GetScreenExtent() const
+    const PxExtent2D& GetScreenExtent() const
     {
-      return Extent2D(m_demoAppConfig.ScreenResolution);
+      return m_demoAppConfig.WindowMetrics.ExtentPx;
     }
 
     //! @brief Get access to the demo app control interface

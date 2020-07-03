@@ -35,15 +35,16 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <array>
+#include <cassert>
 #include <iomanip>
 #include <sstream>
-#include <cassert>
 
 namespace Fsl
 {
   namespace
   {
-    const int32_t MAX_KERNEL_SLICE_LENGTH = 128;
+    constexpr const int32_t MAX_KERNEL_SLICE_LENGTH = 128;
 
     void Normalize(std::vector<double>& rKernel, const int32_t entries, const double sum)
     {
@@ -138,6 +139,7 @@ namespace Fsl
 
     const double calculatedEuler = 1.0 / (2.0 * MathHelper::PI * sigma * sigma);
 
+    // coverity[integer_division]
     double mean = length / 2;    // NOLINT(bugprone-integer-division)
     double sum = 0.0;
     for (int y = 0; y < length; ++y)
@@ -176,9 +178,9 @@ namespace Fsl
 
   //! This shader is basically the worst case scenario for blurring. It's just a simple and slow reference implementation
   std::string GausianHelper::GenerateGausianFragmentShader(const std::string& shaderTemplate, const std::vector<double>& kernel, const int32_t length,
-                                                           const Point2& texSize)
+                                                           const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.X, 1.0f / texSize.Y);
+    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
 
     int halfLength = length / 2;
 
@@ -191,8 +193,8 @@ namespace Fsl
     {
       for (int x = 0; x < length; ++x)
       {
-        str << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * (x - halfLength)) << ", " << (texStep.Y * (y - halfLength))
-            << ")) * " << static_cast<float>(kernel[index]) << ";\n";
+        str << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * float(x - halfLength)) << ", "
+            << (texStep.Y * float(y - halfLength)) << ")) * " << static_cast<float>(kernel[index]) << ";\n";
         ++index;
       }
     }
@@ -208,13 +210,14 @@ namespace Fsl
 
 
   void GausianHelper::GenerateGausianFragmentShader(std::string& rGaussianFragX, std::string& rGaussianFragY, const std::vector<double>& kernelSlice,
-                                                    const Point2& texSize)
+                                                    const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.X, 1.0f / texSize.Y);
+    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
 
     const auto halfLength = static_cast<int32_t>(kernelSlice.size() - 1);
 
-    std::stringstream strX, strY;
+    std::stringstream strX;
+    std::stringstream strY;
     strX << std::setprecision(13) << std::fixed;
     strY << std::setprecision(13) << std::fixed;
 
@@ -222,13 +225,17 @@ namespace Fsl
     strY << "  vec4 color;\n";
     for (int i = halfLength; i > 0; --i)
     {
-      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * -i) << ", 0.0)) * " << static_cast<float>(kernelSlice[i]) << ";\n";
-      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * -i) << ")) * " << static_cast<float>(kernelSlice[i]) << ";\n";
+      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * float(-i)) << ", 0.0)) * " << static_cast<float>(kernelSlice[i])
+           << ";\n";
+      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * float(-i)) << ")) * " << static_cast<float>(kernelSlice[i])
+           << ";\n";
     }
     for (int i = 0; i <= halfLength; ++i)
     {
-      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * i) << ", 0.0)) * " << static_cast<float>(kernelSlice[i]) << ";\n";
-      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * i) << ")) * " << static_cast<float>(kernelSlice[i]) << ";\n";
+      strX << "  color += texture2D(s_texture,v_texcoord + vec2(" << (texStep.X * float(i)) << ", 0.0)) * " << static_cast<float>(kernelSlice[i])
+           << ";\n";
+      strY << "  color += texture2D(s_texture,v_texcoord + vec2(0.0, " << (texStep.Y * float(i)) << ")) * " << static_cast<float>(kernelSlice[i])
+           << ";\n";
     }
 
     strX << "  gl_FragColor = color;\n";
@@ -242,9 +249,9 @@ namespace Fsl
 
 
   void GausianHelper::GenerateGausianFragmentShaderLinear(std::string& rGaussianFragX, std::string& rGaussianFragY,
-                                                          const std::vector<double>& kernelSlice, const Point2& texSize)
+                                                          const std::vector<double>& kernelSlice, const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.X, 1.0f / texSize.Y);
+    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
     if ((kernelSlice.size() & 1) == 0)
     {
       throw std::invalid_argument("Kernel radius must be odd not even");
@@ -256,10 +263,11 @@ namespace Fsl
       throw std::invalid_argument("Kernel size is too large");
     }
 
-    LinearData linearData[MAX_KERNEL_SLICE_LENGTH];
-    CalcLinearWeightsAndOffset(linearData, MAX_KERNEL_SLICE_LENGTH, kernelSlice, texStep);
+    std::array<LinearData, MAX_KERNEL_SLICE_LENGTH> linearData{};
+    CalcLinearWeightsAndOffset(linearData.data(), MAX_KERNEL_SLICE_LENGTH, kernelSlice, texStep);
 
-    std::stringstream strX, strY;
+    std::stringstream strX;
+    std::stringstream strY;
     strX << std::setprecision(13) << std::fixed;
     strY << std::setprecision(13) << std::fixed;
 
@@ -290,9 +298,9 @@ namespace Fsl
 
 
   void GausianHelper::GenerateNonDependentShaders(std::string& rGaussianVertX, std::string& rGaussianVertY, std::string& rGaussianFrag,
-                                                  const std::vector<double>& kernelSlice, const Point2& texSize)
+                                                  const std::vector<double>& kernelSlice, const PxSize2D& texSize)
   {
-    Vector2 texStep(1.0f / texSize.X, 1.0f / texSize.Y);
+    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
 
     const auto halfLength = static_cast<int32_t>(kernelSlice.size() - 1);
 
@@ -306,15 +314,16 @@ namespace Fsl
 
     // Generate the fragment shader
     {
-      std::stringstream strX, strY;
+      std::stringstream strX;
+      std::stringstream strY;
       strX << std::setprecision(13) << std::fixed;
       strY << std::setprecision(13) << std::fixed;
 
       int index = 0;
       for (int i = halfLength; i > 0; --i)
       {
-        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (-i * texStep.X) << ", 0.0);\n";
-        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (-i * texStep.Y) << ");\n";
+        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (float(-i) * texStep.X) << ", 0.0);\n";
+        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (float(-i) * texStep.Y) << ");\n";
         ++index;
       }
       strX << "  v_texcoord[" << index << "] = TexCoord.xy;\n";
@@ -322,8 +331,8 @@ namespace Fsl
       ++index;
       for (int i = 1; i <= halfLength; ++i)
       {
-        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (i * texStep.X) << ", 0.0);\n";
-        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (i * texStep.Y) << ");\n";
+        strX << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(" << (float(i) * texStep.X) << ", 0.0);\n";
+        strY << "  v_texcoord[" << index << "] = TexCoord.xy + vec2(0.0, " << (float(i) * texStep.Y) << ");\n";
         ++index;
       }
 
@@ -359,14 +368,14 @@ namespace Fsl
 
 
   void GausianHelper::GenerateNonDependentShadersLinear(std::string& rGaussianVertX, std::string& rGaussianVertY, std::string& rGaussianFrag,
-                                                        const std::vector<double>& kernelSlice, const Point2& texSize)
+                                                        const std::vector<double>& kernelSlice, const PxSize2D& texSize)
   {
     if ((kernelSlice.size() & 1) == 0)
     {
       throw std::invalid_argument("Kernel radius must be odd not even");
     }
 
-    Vector2 texStep(1.0f / texSize.X, 1.0f / texSize.Y);
+    Vector2 texStep(1.0f / texSize.Width(), 1.0f / texSize.Height());
 
     int halfLength = static_cast<int32_t>(kernelSlice.size()) / 2;
     if (halfLength > MAX_KERNEL_SLICE_LENGTH)
@@ -374,8 +383,8 @@ namespace Fsl
       throw std::invalid_argument("Kernel size is too large");
     }
 
-    LinearData linearData[MAX_KERNEL_SLICE_LENGTH];
-    CalcLinearWeightsAndOffset(linearData, MAX_KERNEL_SLICE_LENGTH, kernelSlice, texStep);
+    std::array<LinearData, MAX_KERNEL_SLICE_LENGTH> linearData;
+    CalcLinearWeightsAndOffset(linearData.data(), MAX_KERNEL_SLICE_LENGTH, kernelSlice, texStep);
 
     {
       std::stringstream str2;
@@ -387,7 +396,8 @@ namespace Fsl
 
     // Generate the vertex shader
     {
-      std::stringstream strX, strY;
+      std::stringstream strX;
+      std::stringstream strY;
       strX << std::setprecision(13) << std::fixed;
       strY << std::setprecision(13) << std::fixed;
 
@@ -414,7 +424,7 @@ namespace Fsl
     }
 
     // Generate the fragment shader
-    GenerateNonDependentFragmentShader(rGaussianFrag, halfLength, linearData);
+    GenerateNonDependentFragmentShader(rGaussianFrag, halfLength, linearData.data());
   }
 
 

@@ -33,40 +33,42 @@
 
 #include <FslDemoService/NativeGraphics/Base/INativeGraphicsBasic2D.hpp>
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslUtil/OpenVG/VGFontBuffer.hpp>
 #include <FslUtil/OpenVG/VGImageBuffer.hpp>
+#include <array>
 
 namespace Fsl
 {
   namespace OpenVG
   {
-    class NativeGraphicsBasic2D : public INativeGraphicsBasic2D
+    class NativeGraphicsBasic2D final : public INativeGraphicsBasic2D
     {
-      Point2 m_currentResolution;
-      Point2 m_fontSize;
+      PxSize2D m_pxCurrentSize;
+      PxSize2D m_fontSize;
       VGFontBuffer m_font;
       std::vector<VGuint> m_glyphs;
       std::vector<VGfloat> m_xAdjust;
       bool m_inBegin;
       VGint m_oldMatrixMode;
       VGImageBuffer m_fontImage;
-      VGImageBuffer m_fontImages[128 - 33];
+      std::array<VGImageBuffer, 128 - 33> m_fontImages{};
       VGint m_oldScissorEnabled;
-      VGfloat m_oldClearColor[4]{};
-      VGfloat m_oldOrigin[2]{};
-      VGfloat m_zeroOrigin[2]{};
+      std::array<VGfloat, 4> m_oldClearColor{};
+      std::array<VGfloat, 2> m_oldOrigin{};
+      std::array<VGfloat, 2> m_zeroOrigin{};
 
     public:
-      NativeGraphicsBasic2D(const Point2& currentResolution);
-      ~NativeGraphicsBasic2D() override;
+      explicit NativeGraphicsBasic2D(const PxExtent2D& extentPx);
+      ~NativeGraphicsBasic2D() final;
 
       // From INativeGraphicsBasic2D
-      void SetScreenResolution(const Point2& currentResolution) override;
-      void Begin() override;
-      void End() override;
-      void DrawPoints(const Vector2* const pSrc, const uint32_t length, const Color& color) override;
-      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) override;
-      Point2 FontSize() const override;
+      void SetScreenExtent(const PxExtent2D& extentPx) final;
+      void Begin() final;
+      void End() final;
+      void DrawPoints(const Vector2* const pSrc, const uint32_t length, const Color& color) final;
+      void DrawString(const StringViewLite& strView, const Vector2& dstPosition) final;
+      PxSize2D FontSize() const final;
 
     private:
     };

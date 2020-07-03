@@ -83,7 +83,7 @@ namespace Fsl
       case PrimitiveType::TriangleStrip:
       {
         const std::size_t mod = ((srcIndexCount & 1) == 0 ? 4 : 5);
-        std::size_t startCapacity;
+        std::size_t startCapacity = 0;
         if (currentIndexCount == 0)
         {
           startCapacity = 0;

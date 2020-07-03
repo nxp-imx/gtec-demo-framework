@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BlobRecord.hpp>
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Texture/TextureInfo.hpp>
@@ -45,7 +45,7 @@ namespace Fsl
   class TextureBlobBuilder
   {
     TextureType m_textureType{TextureType::Undefined};
-    Extent3D m_extent;
+    PxExtent3D m_extent;
     PixelFormat m_pixelFormat{PixelFormat::Undefined};
     TextureInfo m_textureInfo;
     BitmapOrigin m_bitmapOrigin{BitmapOrigin::Undefined};
@@ -64,15 +64,15 @@ namespace Fsl
     TextureBlobBuilder& operator=(const TextureBlobBuilder&) = default;
 
     TextureBlobBuilder();
-    TextureBlobBuilder(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
+    TextureBlobBuilder(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                        const BitmapOrigin bitmapOrigin);
-    TextureBlobBuilder(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
+    TextureBlobBuilder(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                        const BitmapOrigin bitmapOrigin, const std::size_t contentSize);
 
     void Reset();
-    void Reset(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
+    void Reset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                const BitmapOrigin bitmapOrigin);
-    void Reset(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
+    void Reset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                const BitmapOrigin bitmapOrigin, const std::size_t contentSize);
 
     BlobRecord GetBlob(const uint32_t level, const uint32_t face, const uint32_t layer) const;
@@ -94,7 +94,7 @@ namespace Fsl
     }
 
     //! @brief The extent of the texture
-    Extent3D GetExtent(const uint32_t level = 0) const;
+    PxExtent3D GetExtent(const uint32_t level = 0) const;
 
     //! @brief The total number of faces (1 for normal textures, 6 for cube maps)
     uint32_t GetFaces() const
@@ -154,7 +154,7 @@ namespace Fsl
     }
 
   private:
-    void DoReset(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
+    void DoReset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
                  const BitmapOrigin bitmapOrigin, const bool hasContentSize, const std::size_t contentSize);
     void ResetNoThrow() noexcept;
   };

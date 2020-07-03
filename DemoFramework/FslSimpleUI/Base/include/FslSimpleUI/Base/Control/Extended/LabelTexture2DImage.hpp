@@ -48,7 +48,7 @@ namespace Fsl
       std::string m_content;
 
     public:
-      LabelTexture2DImage(const std::shared_ptr<WindowContext>& context);
+      explicit LabelTexture2DImage(const std::shared_ptr<WindowContext>& context);
 
       const Texture2D& GetTexture() const
       {
@@ -74,8 +74,8 @@ namespace Fsl
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

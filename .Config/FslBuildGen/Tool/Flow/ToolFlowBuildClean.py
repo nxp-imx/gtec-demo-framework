@@ -43,6 +43,7 @@ from FslBuildGen.Generator import PluginConfig
 from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
+from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildExternal.RecipeInfo import RecipeInfo
 from FslBuildGen.Config import Config
 from FslBuildGen.Context.GeneratorContext import GeneratorContext
@@ -115,11 +116,13 @@ class ToolFlowBuildInfo(AToolAppFlow):
 
         packageFilters = localToolConfig.BuildPackageFilters
 
-        generator = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, False,
-                                                        config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
+                                                                                   buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
+                                                                                   localToolConfig.GetUserCMakeConfig())
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
-        generatorContext = GeneratorContext(config, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, packageFilters.RecipeFilterManager, config.ToolConfig.Experimental, generator)
         packages = MainFlow.DoGetPackages(generatorContext, config, theFiles, packageFilters, autoAddRecipeExternals=False)
 
         topLevelPackage = PackageListUtil.GetTopLevelPackage(packages)

@@ -48,7 +48,7 @@ namespace Fsl
     int32_t m_benchDrawCount;
 
   public:
-    SimpleBench(const DemoAppConfig& config);
+    explicit SimpleBench(const DemoAppConfig& config);
     ~SimpleBench() override;
 
   protected:

@@ -47,7 +47,7 @@ namespace Fsl
       std::shared_ptr<CallbackEventListener> m_listener;
 
     public:
-      CallbackEventListenerScope(IEventListener* const pForwardTo);
+      explicit CallbackEventListenerScope(IEventListener* const pForwardTo);
       ~CallbackEventListenerScope();
 
       std::shared_ptr<IEventListener> GetListener() const;

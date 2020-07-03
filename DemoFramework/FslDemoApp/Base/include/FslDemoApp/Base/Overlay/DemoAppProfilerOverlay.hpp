@@ -33,7 +33,8 @@
 
 #include <FslDemoApp/Base/Overlay/DemoAppProfilerGraph.hpp>
 #include <FslDemoApp/Base/DemoAppStatsFlags.hpp>
-#include <FslDemoApp/Base/Service/Profiler/ProfilerCustomCounterHandle.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
+#include <FslDemoService/Profiler/ProfilerCustomCounterHandle.hpp>
 #include <FslGraphics/Color.hpp>
 #include <fmt/format.h>
 #include <list>
@@ -69,8 +70,7 @@ namespace Fsl
         FormatString[2] = 0;
       }
 
-      CustomRecord(const ProfilerCustomCounterHandle& handle, const ProfilerCustomCounterDesc& desc,
-                   const std::shared_ptr<DemoAppProfilerGraph>& graph);
+      CustomRecord(const ProfilerCustomCounterHandle& handle, const ProfilerCustomCounterDesc& desc, std::shared_ptr<DemoAppProfilerGraph> graph);
     };
 
     std::shared_ptr<IProfilerService> m_profilerService;
@@ -95,7 +95,7 @@ namespace Fsl
     DemoAppProfilerOverlay(const ServiceProvider& serviceProvider, const DemoAppStatsFlags& logStatsFlags);
     ~DemoAppProfilerOverlay();
 
-    void Draw(const Point2& screenResolution);
+    void Draw(const DemoWindowMetrics& windowMetrics);
 
   private:
     void MaintainCachedCustomEntries();

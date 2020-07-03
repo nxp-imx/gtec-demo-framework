@@ -1,5 +1,5 @@
 /****************************************************************************************************************************************************
- * Copyright (c) 2016 Freescale Semiconductor, Inc.
+ * Copyright 2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  *      this list of conditions and the following disclaimer in the documentation
  *      and/or other materials provided with the distribution.
  *
- *    * Neither the name of the Freescale Semiconductor, Inc. nor the names of
+ *    * Neither the name of the NXP. nor the names of
  *      its contributors may be used to endorse or promote products derived from
  *      this software without specific prior written permission.
  *
@@ -38,123 +38,70 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
+#include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
+#include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslGraphics/Render/AtlasFont.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslGraphics/TextureAtlas/TextureAtlasHelper.hpp>
+#include <FslGraphics/Sprite/Material/SpriteMaterialId.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFont.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFontConfig.hpp>
+#include <FslGraphics/TextureAtlas/CompatibilityTextureAtlasMap.hpp>
+#include <FslSimpleUI/App/UIAppConfig.hpp>
+#include <FslSimpleUI/App/UIAppResourceManager.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <utility>
 
 namespace Fsl
 {
-  using namespace UI;
-
   namespace
   {
-    std::shared_ptr<AtlasFont> PrepareDefaultFont(const std::shared_ptr<IContentManager>& contentManager,
-                                                  const std::shared_ptr<INativeGraphics>& nativeGraphics, const UTF8String& fontName,
-                                                  BasicTextureAtlas& rFontAtlas)
+    namespace LocalConfig
     {
-      const auto defaultPath = "UI";
-      const auto& strFontname = fontName.ToUTF8String();
-      IO::Path pathFontnameAtlas(strFontname + ".bta");
-      IO::Path pathFontnameKerning(strFontname + ".fbk");
-      IO::Path pathFontnameTexture(strFontname + ".png");
+      constexpr IO::PathView FontNbf("Font.nbf");
+      // constexpr IO::PathView FontAtlasExtension(".bta");
+      constexpr IO::PathView FontTextureExtension(".png");
 
-      IO::Path tempPath = IO::Path::Combine(defaultPath, pathFontnameAtlas);
-      if (contentManager->Exists(tempPath))
-      {
-        pathFontnameAtlas = std::move(tempPath);
-        pathFontnameKerning = IO::Path::Combine(defaultPath, pathFontnameKerning);
-        pathFontnameTexture = IO::Path::Combine(defaultPath, pathFontnameTexture);
-      }
+      constexpr PixelFormat UIPixelFormat = PixelFormat::R8G8B8A8_UNORM;
+      constexpr Texture2DFilterHint UITextureFilterHint = Texture2DFilterHint::Smooth;
 
-      BasicFontKerning fontKerning;
-      Bitmap fontBitmap;
-      contentManager->Read(rFontAtlas, pathFontnameAtlas);
-      contentManager->Read(fontKerning, pathFontnameKerning);
-      contentManager->Read(fontBitmap, pathFontnameTexture, PixelFormat::R8G8B8A8_UNORM);
-
-      // Prepare the texture
-      Texture2D atlasTexture(nativeGraphics, fontBitmap, Texture2DFilterHint::Smooth);
-
-      // Prepare the bitmap font
-      TextureAtlasBitmapFont bitmapFont(rFontAtlas, fontKerning);
-
-      // Create the font instance
-      return std::make_shared<AtlasFont>(atlasTexture, bitmapFont);
+      constexpr SpriteFontConfig DefaultFontConfig(true);
     }
   }
 
 
   UIDemoAppExtension::UIDemoAppExtension(const DemoAppConfig& demoAppConfig, const std::shared_ptr<UI::IEventListener>& eventListener,
-                                         const UTF8String& fontName)
-    : m_uiManager(demoAppConfig.ScreenResolution)
-    , m_transitionCache(std::make_shared<TransitionCache>())
+                                         const IO::Path& atlasName, const UITestPatternMode testPatternMode)
+    : UIDemoAppExtensionBase(demoAppConfig, eventListener)
   {
-    m_uiManager.RegisterEventListener(eventListener);
-
     auto contentManager = demoAppConfig.DemoServiceProvider.Get<IContentManager>();
     auto graphicsService = demoAppConfig.DemoServiceProvider.Get<IGraphicsService>();
+    m_resourceManager =
+      std::make_unique<UIAppResourceManager>(contentManager, graphicsService->GetNativeGraphics(), demoAppConfig.WindowMetrics, testPatternMode);
 
-    // Load the default texture atlas and font stuff
-    m_defaultFont = PrepareDefaultFont(contentManager, graphicsService->GetNativeGraphics(), fontName, m_defaultTextureAtlas);
-
-    // Prepare a quick look up map for textures
-    m_textureAtlasMap = TextureAtlasMap(m_defaultTextureAtlas);
+    m_resources = PrepareResources(*m_resourceManager, atlasName);
 
     // Prepare the window context
-    m_context = std::make_shared<WindowContext>(m_uiManager.GetUIContext(), graphicsService->GetNativeBatch2D(), m_defaultFont);
+    m_context = std::make_shared<UI::WindowContext>(GetUIContext(), graphicsService->GetNativeBatch2D(), m_resources.DefaultFont,
+                                                    demoAppConfig.WindowMetrics.DensityDpi);
+
+    if (testPatternMode == UITestPatternMode::EnabledAllowSwitching)
+    {
+      SetTestPattern(true);
+    }
   }
 
 
   UIDemoAppExtension::~UIDemoAppExtension() = default;
 
-  void UIDemoAppExtension::RegisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener)
+
+  void UIDemoAppExtension::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
-    m_uiManager.RegisterEventListener(eventListener);
+    m_context->UnitConverter.SetDensityDpi(windowMetrics.DensityDpi);
+    m_resourceManager->ConfigurationChanged(windowMetrics);
+
+    UIDemoAppExtensionBase::ConfigurationChanged(windowMetrics);
   }
-
-  void UIDemoAppExtension::UnregisterEventListener(const std::shared_ptr<UI::IEventListener>& eventListener)
-  {
-    m_uiManager.UnregisterEventListener(eventListener);
-  }
-
-
-  void UIDemoAppExtension::OnMouseButtonEvent(const MouseButtonEvent& event)
-  {
-    m_uiManager.SendMouseButtonEvent(event);
-  }
-
-
-  void UIDemoAppExtension::OnMouseMoveEvent(const MouseMoveEvent& event)
-  {
-    m_uiManager.SendMouseMoveEvent(event);
-  }
-
-  void UIDemoAppExtension::Resized(const Point2& size)
-  {
-    m_uiManager.Resized(size);
-  }
-
-  void UIDemoAppExtension::PreUpdate(const DemoTime& demoTime)
-  {
-    FSL_PARAM_NOT_USED(demoTime);
-    m_uiManager.ProcessEvents();
-  }
-
-  void UIDemoAppExtension::Update(const DemoTime& demoTime)
-  {
-    FSL_PARAM_NOT_USED(demoTime);
-    m_uiManager.ProcessEvents();
-  }
-
-
-  void UIDemoAppExtension::PostUpdate(const DemoTime& demoTime)
-  {
-    // We call the UIManager in post update to allow the app to modify the UI in its update method
-    m_uiManager.Update(demoTime);
-  }
-
 
   void UIDemoAppExtension::Draw()
   {
@@ -162,26 +109,96 @@ namespace Fsl
     {
       const auto batch = m_context->Batch2D;
       batch->Begin();
-      m_uiManager.Draw();
+      DoDraw();
       batch->End();
     }
   }
 
-
-  AtlasTexture2D UIDemoAppExtension::GetAtlasTexture2D(const UTF8String& filename) const
+  SpriteMaterialId UIDemoAppExtension::GetDefaultMaterialId() const
   {
-    return AtlasTexture2D(m_defaultFont->GetAtlasTexture(), m_textureAtlasMap.GetAtlasTextureInfo(filename));
+    return UIAppConfig::DefaultUIAlphaBlendMaterialId;
+  }
+
+  bool UIDemoAppExtension::SetTestPattern(const bool enabled)
+  {
+    bool result = false;
+    if (m_resourceManager)
+    {
+      result = m_resourceManager->SetTestPattern(enabled);
+    }
+    return result;
   }
 
 
-  Texture2D UIDemoAppExtension::GetAtlasTexture() const
+  UIAppTextureHandle UIDemoAppExtension::CreateTexture(const IO::PathView& atlasPath, const UIAppTextureResourceCreationInfo& textureCreationInfo,
+                                                       const bool isUITexture)
   {
-    return m_defaultFont->GetAtlasTexture();
+    if (!m_resourceManager)
+    {
+      throw UsageErrorException("resource manager is not valid");
+    }
+    const auto flags = isUITexture ? UIAppResourceFlag::UIGroup : UIAppResourceFlag::Undefined;
+    auto res = m_resourceManager->CreateTexture(atlasPath, textureCreationInfo, flags);
+    return res.Handle;
+  }
+
+  UIAppTextureHandle UIDemoAppExtension::CreateAtlasTexture(const IO::PathView& atlasPath,
+                                                            const UIAppTextureResourceCreationInfo& textureCreationInfo, const bool isUITexture)
+  {
+    if (!m_resourceManager)
+    {
+      throw UsageErrorException("resource manager is not valid");
+    }
+    const auto flags = isUITexture ? UIAppResourceFlag::UIGroup | UIAppResourceFlag::Atlas : UIAppResourceFlag::Atlas;
+    auto res = m_resourceManager->CreateTexture(atlasPath, textureCreationInfo, flags);
+    return res.Handle;
   }
 
 
-  std::shared_ptr<TransitionCache> UIDemoAppExtension::GetTransitionCache() const
+  void UIDemoAppExtension::AddSpriteMaterial(const SpriteMaterialId& spriteMaterialId, const UIAppTextureHandle& hTexture,
+                                             const BlendState blendState)
   {
-    return m_transitionCache;
+    if (!m_resourceManager)
+    {
+      throw UsageErrorException("resource manager is not valid");
+    }
+    m_resourceManager->AddSpriteMaterial(spriteMaterialId, hTexture, blendState);
+  }
+
+
+  const ISpriteResourceManager& UIDemoAppExtension::GetSpriteResourceManager() const
+  {
+    ISpriteResourceManager* pResourceManager = m_resourceManager.get();
+    if (!m_resourceManager)
+    {
+      throw UsageErrorException("resource manager is not valid");
+    }
+    return *pResourceManager;
+  }
+
+  ISpriteResourceManager& UIDemoAppExtension::GetSpriteResourceManager()
+  {
+    ISpriteResourceManager* pResourceManager = m_resourceManager.get();
+    if (pResourceManager == nullptr)
+    {
+      throw UsageErrorException("resource manager is not valid");
+    }
+    return *pResourceManager;
+  }
+
+
+  UIDemoAppExtension::Resources UIDemoAppExtension::PrepareResources(UIAppResourceManager& rResourceManager, const IO::Path& atlasName)
+  {
+    IO::Path defaultAtlasTexturePath(atlasName + LocalConfig::FontTextureExtension);
+    UIAppTextureResourceCreationInfo textureCreationInfo(LocalConfig::UIPixelFormat, LocalConfig::UITextureFilterHint);
+
+    // Texture, material and a default font
+    auto textureResult =
+      rResourceManager.CreateTexture(defaultAtlasTexturePath, textureCreationInfo, UIAppResourceFlag::Atlas | UIAppResourceFlag::UIGroup);
+    rResourceManager.AddSpriteMaterial(UIAppConfig::DefaultUIAlphaBlendMaterialId, textureResult.Handle, BlendState::AlphaBlend);
+    std::shared_ptr<SpriteFont> defaultFont =
+      rResourceManager.CreateSpriteFont(UIAppConfig::DefaultUIAlphaBlendMaterialId, LocalConfig::FontNbf, LocalConfig::DefaultFontConfig);
+
+    return {defaultFont};
   }
 }

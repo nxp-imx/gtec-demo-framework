@@ -42,7 +42,7 @@
 
 namespace Fsl
 {
-  class CpuStatsAdapterLinux : public ICpuStatsAdapter
+  class CpuStatsAdapterLinux final : public ICpuStatsAdapter
   {
     struct ProcessTimes
     {
@@ -86,11 +86,11 @@ namespace Fsl
 
   public:
     CpuStatsAdapterLinux(const bool coreParserEnabled = true);
-    void Process() override{};
-    uint32_t GetCpuCount() const override;
-    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const override;
-    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const override;
-    bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const override;
+    void Process() final{};
+    uint32_t GetCpuCount() const final;
+    bool TryGetCpuUsage(float& rUsagePercentage, const uint32_t cpuIndex) const final;
+    bool TryGetApplicationCpuUsage(float& rUsagePercentage) const final;
+    bool TryGetApplicationRamUsage(uint64_t& rRamUsage) const final;
 
   private:
     bool TryParseCpuLoadNow() const;

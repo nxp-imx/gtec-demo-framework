@@ -251,47 +251,49 @@ namespace Fsl
     }
 
 
-    void GLVertexElements::EnableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
-    {
-      if (pAttributeIndices == nullptr)
-      {
-        throw std::invalid_argument("pAttributeIndices can not be null");
-      }
-      if (count > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("We only support 32bit of elements");
-      }
-      FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
+    // void GLVertexElements::EnableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
+    //{
+    //  if (pAttributeIndices == nullptr)
+    //  {
+    //    throw std::invalid_argument("pAttributeIndices can not be null");
+    //  }
+    //  if (count > std::numeric_limits<uint32_t>::max())
+    //  {
+    //    throw NotSupportedException("We only support 32bit of elements");
+    //  }
+    //  FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements
+    //  ignored!");
 
-      const auto vertexStride = VertexStride();
+    //  const auto vertexStride = VertexStride();
 
-      const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
-      for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
-      {
-        EnableAttribArray(m_vertexElements, elementIndex, pAttributeIndices[elementIndex], vertexStride);
-        ++elementIndex;
-      }
-    }
+    //  const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
+    //  for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
+    //  {
+    //    EnableAttribArray(m_vertexElements, elementIndex, pAttributeIndices[elementIndex], vertexStride);
+    //    ++elementIndex;
+    //  }
+    //}
 
 
-    void GLVertexElements::DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
-    {
-      if (pAttributeIndices == nullptr)
-      {
-        throw std::invalid_argument("pAttributeIndices can not be null");
-      }
-      if (count > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("We only support 32bit of elements");
-      }
-      FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
+    // void GLVertexElements::DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
+    //{
+    //  if (pAttributeIndices == nullptr)
+    //  {
+    //    throw std::invalid_argument("pAttributeIndices can not be null");
+    //  }
+    //  if (count > std::numeric_limits<uint32_t>::max())
+    //  {
+    //    throw NotSupportedException("We only support 32bit of elements");
+    //  }
+    //  FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements
+    //  ignored!");
 
-      const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
-      for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
-      {
-        DisableAttribArray(m_vertexElements, elementIndex, pAttributeIndices[elementIndex]);
-      }
-    }
+    //  const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
+    //  for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
+    //  {
+    //    DisableAttribArray(m_vertexElements, elementIndex, pAttributeIndices[elementIndex]);
+    //  }
+    //}
 
 
     void GLVertexElements::EnableAttribArrays(const GLVertexAttribLink* const pLinks, const std::size_t count) const
@@ -356,24 +358,25 @@ namespace Fsl
     }
 
 
-    void GLVertexElements::SetVertexAttribPointers(const GLuint* const pAttributeIndices, const std::size_t count) const
-    {
-      if (count > std::numeric_limits<uint32_t>::max())
-      {
-        throw NotSupportedException("We only support 32bit of elements");
-      }
+    // void GLVertexElements::SetVertexAttribPointers(const GLuint* const pAttributeIndices, const std::size_t count) const
+    //{
+    //  if (count > std::numeric_limits<uint32_t>::max())
+    //  {
+    //    throw NotSupportedException("We only support 32bit of elements");
+    //  }
 
-      FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements ignored!");
+    //  FSLLOG3_WARNING_IF(count > m_originalVertexElementCount, "Attribute indices is larger than the vertex element count, extra elements
+    //  ignored!");
 
-      const auto vertexStride = VertexStride();
+    //  const auto vertexStride = VertexStride();
 
-      const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
-      for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
-      {
-        EnableAttribPointer(m_vertexElements, elementIndex, pAttributeIndices[elementIndex], vertexStride);
-        ++elementIndex;
-      }
-    }
+    //  const uint32_t elementCount = std::min(m_originalVertexElementCount, static_cast<uint32_t>(count));
+    //  for (uint32_t elementIndex = 0; elementIndex < elementCount; ++elementIndex)
+    //  {
+    //    EnableAttribPointer(m_vertexElements, elementIndex, pAttributeIndices[elementIndex], vertexStride);
+    //    ++elementIndex;
+    //  }
+    //}
 
 
     void GLVertexElements::SetVertexAttribPointers(const GLVertexAttribLink* const pLinks, const std::size_t count) const

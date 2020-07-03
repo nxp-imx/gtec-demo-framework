@@ -46,21 +46,21 @@ namespace Fsl
         uint8_t G{0};
         uint8_t B{0};
 
-        PixelUInt8() = default;
+        constexpr PixelUInt8() = default;
 
-        PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b)
+        constexpr PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b)
           : R(r)
           , G(g)
           , B(b)
         {
         }
 
-        bool operator==(const PixelUInt8& rhs) const
+        constexpr bool operator==(const PixelUInt8& rhs) const
         {
           return R == rhs.R && G == rhs.G && B == rhs.B;
         }
 
-        bool operator!=(const PixelUInt8& rhs) const
+        constexpr bool operator!=(const PixelUInt8& rhs) const
         {
           return !(*this == rhs);
         }
@@ -69,25 +69,25 @@ namespace Fsl
 
       struct DefaultColorTemplate
       {
-        static const PixelUInt8 R()
+        static constexpr PixelUInt8 R()
         {
-          return PixelUInt8(0xFF, 0x00, 0x00);
+          return {0xFF, 0x00, 0x00};
         }
-        static const PixelUInt8 G()
+        static constexpr PixelUInt8 G()
         {
-          return PixelUInt8(0x00, 0xFF, 0x00);
+          return {0x00, 0xFF, 0x00};
         }
-        static const PixelUInt8 B()
+        static constexpr PixelUInt8 B()
         {
-          return PixelUInt8(0x00, 0x00, 0xFF);
+          return {0x00, 0x00, 0xFF};
         }
-        static const PixelUInt8 Black()
+        static constexpr PixelUInt8 Black()
         {
-          return PixelUInt8(0x00, 0x00, 0x00);
+          return {0x00, 0x00, 0x00};
         }
-        static const PixelUInt8 White()
+        static constexpr PixelUInt8 White()
         {
-          return PixelUInt8(0xFF, 0xFF, 0xFF);
+          return {0xFF, 0xFF, 0xFF};
         }
       };
     };
@@ -107,9 +107,9 @@ namespace Fsl
         uint8_t B{0};
         uint8_t A{0};
 
-        PixelUInt8() = default;
+        constexpr PixelUInt8() = default;
 
-        PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
+        constexpr PixelUInt8(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
           : R(r)
           , G(g)
           , B(b)
@@ -117,12 +117,12 @@ namespace Fsl
         {
         }
 
-        bool operator==(const PixelUInt8& rhs) const
+        constexpr bool operator==(const PixelUInt8& rhs) const
         {
           return R == rhs.R && G == rhs.G && B == rhs.B && A == rhs.A;
         }
 
-        bool operator!=(const PixelUInt8& rhs) const
+        constexpr bool operator!=(const PixelUInt8& rhs) const
         {
           return !(*this == rhs);
         }
@@ -130,28 +130,28 @@ namespace Fsl
 
       struct DefaultColorTemplate
       {
-        static const PixelUInt8 R()
+        static constexpr PixelUInt8 R()
         {
-          return PixelUInt8(0xFF, 0x00, 0x00, 0x40);
+          return {0xFF, 0x00, 0x00, 0x40};
         }
-        static const PixelUInt8 G()
+        static constexpr PixelUInt8 G()
         {
-          return PixelUInt8(0x00, 0xFF, 0x00, 0x40);
-        }
-
-        static const PixelUInt8 B()
-        {
-          return PixelUInt8(0x00, 0x00, 0xFF, 0x40);
+          return {0x00, 0xFF, 0x00, 0x40};
         }
 
-        static const PixelUInt8 Black()
+        static constexpr PixelUInt8 B()
         {
-          return PixelUInt8(0x00, 0x00, 0x00, 0x40);
+          return {0x00, 0x00, 0xFF, 0x40};
         }
 
-        static const PixelUInt8 White()
+        static constexpr PixelUInt8 Black()
         {
-          return PixelUInt8(0xFF, 0xFF, 0xFF, 0x40);
+          return {0x00, 0x00, 0x00, 0x40};
+        }
+
+        static constexpr PixelUInt8 White()
+        {
+          return {0xFF, 0xFF, 0xFF, 0x40};
         }
       };
     };

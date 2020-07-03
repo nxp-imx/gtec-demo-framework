@@ -34,9 +34,10 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 #include <FslUtil/OpenGLES3/NativeBatch2D.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
 #include <FslSimpleUI/Base/Control/ImageButton.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
+#include <FslSimpleUI/Base/Control/SimpleImageButton.hpp>
+#include <FslSimpleUI/Base/Control/Switch.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
@@ -75,22 +76,18 @@ namespace Fsl
     AtlasTexture2D m_texFill;
     AtlasTexture2D m_texBall;
 
-    GridScene m_gridScene;
+    std::unique_ptr<GridScene> m_gridScene;
 
 
     bool m_isLeftButtonDown;
-    Point2 m_mousePosition;
+    PxPoint2 m_mousePosition;
     Vector3 m_oldMouse;
 
-    std::shared_ptr<UI::FillLayout> m_rootLayout;
-    std::shared_ptr<UI::ImageButton> m_btnMenu;
-    std::shared_ptr<UI::StackLayout> m_mainMenuStack;
 
-    std::shared_ptr<UI::StackLayout> m_layoutMenu;
     std::shared_ptr<UI::Label> m_menuLabelRenderType;
     std::shared_ptr<UI::ImageButton> m_btnRenderTypePrev;
     std::shared_ptr<UI::ImageButton> m_btnRenderTypeNext;
-    std::shared_ptr<UI::CheckBox> m_cbBloom;
+    std::shared_ptr<UI::Switch> m_cbBloom;
 
     BloomRender m_bloomRender;
     RenderConfig m_config;
@@ -99,7 +96,7 @@ namespace Fsl
     bool m_explostionType;
 
   public:
-    SpringBackground(const DemoAppConfig& config);
+    explicit SpringBackground(const DemoAppConfig& config);
     ~SpringBackground() override;
 
     void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
@@ -116,9 +113,6 @@ namespace Fsl
 
   private:
     void BuildUI();
-    void ToggleMenu();
-    void CreateMenuUI();
-    void DestroyMenuUI();
     void UpdateControls();
     void PrevGridRender();
     void NextGridRender();

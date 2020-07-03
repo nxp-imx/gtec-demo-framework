@@ -57,7 +57,7 @@ namespace Fsl
       InstanceCreateInfoCopy(InstanceCreateInfoCopy&& other) noexcept;
 
       InstanceCreateInfoCopy();
-      InstanceCreateInfoCopy(const VkInstanceCreateInfo& value);
+      explicit InstanceCreateInfoCopy(const VkInstanceCreateInfo& value);
 
       const VkApplicationInfo& GetApplicationInfo() const
       {

@@ -34,76 +34,30 @@
 
 namespace Fsl
 {
-  bool operator==(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  // FIX-LATER: Remove once we move to C++17
+  // NOLINTNEXTLINE(readability-redundant-declaration)
+  const StringViewLite::size_type StringViewLite::npos;
+
+  int StringViewLite::compare(StringViewLite value) const noexcept
   {
-    return lhs.size() == rhs.size() && strncmp(lhs.data(), rhs.data(), lhs.size()) == 0;
+    // min of m_length and value.m_length
+    const auto countCompare = m_length <= value.m_length ? m_length : value.m_length;
+    const auto result = (countCompare == 0 ? 0 : strncmp(m_pStr, value.m_pStr, countCompare));
+
+    return (result == 0 ? (static_cast<int>(m_length > value.m_length) - static_cast<int>(m_length < value.m_length)) : (result < 0 ? -1 : 1));
   }
 
-  bool operator!=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  bool StringViewLite::starts_with(StringViewLite value) const noexcept
   {
-    return lhs.size() != rhs.size() || strncmp(lhs.data(), rhs.data(), lhs.size()) != 0;
+    return m_length >= value.m_length ? (strncmp(m_pStr, value.m_pStr, value.m_length) == 0) : false;
   }
 
-  bool operator<(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  bool StringViewLite::ends_with(StringViewLite value) const noexcept
   {
-    if (lhs.size() <= rhs.size())
-    {
-      auto cmp = strncmp(lhs.data(), rhs.data(), lhs.size());
-      return cmp < 0 || (cmp == 0 && lhs.size() < rhs.size());
-    }
-    auto cmp = strncmp(rhs.data(), lhs.data(), rhs.size());
-    return cmp < 0 || (cmp == 0 && lhs.size() < rhs.size());
+    return m_length >= value.m_length ? (strncmp(m_pStr + (m_length - value.m_length), value.m_pStr, value.m_length) == 0) : false;
   }
 
-  bool operator<=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
-  {
-    if (lhs.size() <= rhs.size())
-    {
-      return strncmp(lhs.data(), rhs.data(), lhs.size()) <= 0;
-    }
-    return strncmp(rhs.data(), lhs.data(), rhs.size()) < 0;
-  }
 
-  bool operator>(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
-  {
-    return rhs < lhs;
-  }
+  // StringViewLite::size_type StringViewLite::find(StringViewLite value, const size_type pos = 0) const noexcept
 
-  bool operator>=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
-  {
-    return rhs <= lhs;
-  }
-
-  bool operator==(const StringViewLite& lhs, const char* const pszRhs) noexcept
-  {
-    if (pszRhs == nullptr)
-    {
-      return false;
-    }
-
-    const char* pLhs = lhs.data();
-    const char* const pLhsEnd = lhs.data() + lhs.size();
-    const char* psz = pszRhs;
-    while (pLhs < pLhsEnd && (*psz) != 0 && (*pLhs) == (*psz))
-    {
-      ++pLhs;
-      ++psz;
-    }
-    return pLhs == pLhsEnd && (*psz) == 0u;
-  }
-
-  bool operator!=(const StringViewLite& lhs, const char* const pszRhs) noexcept
-  {
-    return !(lhs == pszRhs);
-  }
-
-  bool operator==(const char* const pszLhs, const StringViewLite& rhs) noexcept
-  {
-    return rhs == pszLhs;
-  }
-
-  bool operator!=(const char* const pszLhs, const StringViewLite& rhs) noexcept
-  {
-    return rhs != pszLhs;
-  }
 }

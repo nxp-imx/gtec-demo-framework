@@ -44,7 +44,7 @@ namespace Fsl
       : m_physicalDevice(physicalDevice)
       , m_device(device)
       , m_queue(queue)
-      , m_queueFamilyIndex(queueFamilyIndex)
+      //, m_queueFamilyIndex(queueFamilyIndex)
       , m_commandPool(device, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, queueFamilyIndex)
       , m_commandBuffer(device, m_commandPool.Get(), VK_COMMAND_BUFFER_LEVEL_PRIMARY)
     {
@@ -68,36 +68,43 @@ namespace Fsl
     }
 
     //! @param elementStride the size of one element in bytes
-    VUBufferMemory VMBufferManager::CreateBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementStride,
-                                                 const VkBufferUsageFlags bufferUsageFlags, const VMBufferUsage usage)
+    VUBufferMemory VMBufferManager::CreateBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementCapacity,
+                                                 const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags,
+                                                 const VMBufferUsage usage)
     {
       switch (usage)
       {
       case VMBufferUsage::STATIC:
-        return CreateStaticBuffer(pVertices, elementCount, elementStride, bufferUsageFlags);
+        return CreateStaticBuffer(pVertices, elementCount, elementCapacity, elementStride, bufferUsageFlags);
       case VMBufferUsage::DYNAMIC:
-        return CreateDynamicBuffer(pVertices, elementCount, elementStride, bufferUsageFlags);
+        return CreateDynamicBuffer(pVertices, elementCount, elementCapacity, elementStride, bufferUsageFlags);
       default:
         throw NotSupportedException("Unsupported VMBufferUsage");
       }
     }
 
-    VUBufferMemory VMBufferManager::CreateDynamicBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementStride,
+    VUBufferMemory VMBufferManager::CreateDynamicBuffer(const void* const pVertices, const std::size_t elementCount,
+                                                        const std::size_t elementCapacity, const std::size_t elementStride,
                                                         const VkBufferUsageFlags bufferUsageFlags)
     {
+      if (elementCount > elementCapacity)
+      {
+        throw std::invalid_argument("elementCount must be <= elementCapacity");
+      }
+
       assert(m_physicalDevice.IsValid());
       assert(m_device != VK_NULL_HANDLE);
 
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-      bufferCreateInfo.size = elementCount * elementStride;
+      bufferCreateInfo.size = elementCapacity * elementStride;
       bufferCreateInfo.usage = bufferUsageFlags;
       bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
       VUBufferMemory buffer(m_physicalDevice, m_device, bufferCreateInfo, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
       buffer.Map();
-      buffer.Upload(0, pVertices, bufferCreateInfo.size);
+      buffer.Upload(0, pVertices, elementCount * elementStride);
       // We leave the buffer mapped as this is a dynamic buffer that will be changed often
       return buffer;
     }
@@ -121,12 +128,16 @@ namespace Fsl
       return buffer;
     }
 
-    VUBufferMemory VMBufferManager::CreateStaticBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementStride,
-                                                       const VkBufferUsageFlags bufferUsageFlags)
+    VUBufferMemory VMBufferManager::CreateStaticBuffer(const void* const pVertices, const std::size_t elementCount, const std::size_t elementCapacity,
+                                                       const std::size_t elementStride, const VkBufferUsageFlags bufferUsageFlags)
     {
       if ((bufferUsageFlags & (VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT)) != 0)
       {
         throw NotSupportedException("Transfer buffers can not created using this method");
+      }
+      if (elementCount > elementCapacity)
+      {
+        throw std::invalid_argument("elementCount must be <= elementCapacity");
       }
 
       // IMPROVEMENT:
@@ -138,13 +149,13 @@ namespace Fsl
 
       VkBufferCreateInfo bufferCreateInfo{};
       bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-      bufferCreateInfo.size = elementCount * elementStride;
+      bufferCreateInfo.size = elementCapacity * elementStride;
       bufferCreateInfo.usage = bufferUsageFlags | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
       bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
       VUBufferMemory stagingBuffer(m_physicalDevice, m_device, bufferCreateInfo,
                                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-      stagingBuffer.Upload(0, pVertices, bufferCreateInfo.size);
+      stagingBuffer.Upload(0, pVertices, elementCount * elementStride);
 
       bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
       VUBufferMemory finalBuffer(m_physicalDevice, m_device, bufferCreateInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);

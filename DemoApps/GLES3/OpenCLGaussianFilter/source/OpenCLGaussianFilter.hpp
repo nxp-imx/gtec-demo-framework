@@ -66,7 +66,7 @@ namespace Fsl
     std::array<GLES3::GLVertexAttribLink, 2> m_attribLink;
 
   public:
-    OpenCLGaussianFilter(const DemoAppConfig& config);
+    explicit OpenCLGaussianFilter(const DemoAppConfig& config);
     ~OpenCLGaussianFilter() override;
 
   protected:

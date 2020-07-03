@@ -24,7 +24,7 @@ namespace Fsl
     GLuint m_hProjMatrixLoc;
 
   public:
-    S01_SimpleTriangle(const DemoAppConfig& config);
+    explicit S01_SimpleTriangle(const DemoAppConfig& config);
     ~S01_SimpleTriangle() override;
 
   protected:

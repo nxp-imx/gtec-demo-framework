@@ -51,7 +51,7 @@ namespace Fsl
     Matrix m_matTransform;
 
   public:
-    S03_Transform(const DemoAppConfig& config);
+    explicit S03_Transform(const DemoAppConfig& config);
     ~S03_Transform() override;
 
   protected:

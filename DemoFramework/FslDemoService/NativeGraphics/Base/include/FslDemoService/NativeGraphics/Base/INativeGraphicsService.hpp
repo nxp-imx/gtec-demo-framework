@@ -34,6 +34,7 @@
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeature.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
 
@@ -56,10 +57,10 @@ namespace Fsl
     virtual void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) = 0;
 
     //! @brief Create a basic 2d instance
-    virtual std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const Point2& currentResolution) = 0;
+    virtual std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) = 0;
 
     //! @brief Create a NativeBatch2d instance
-    virtual std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const Point2& currentResolution) = 0;
+    virtual std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) = 0;
   };
 }
 

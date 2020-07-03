@@ -326,7 +326,7 @@ namespace Fsl
     m_toggleMinMax = m_config.GetToggleMinMax();
 
 
-    const Point2 screenResolution = GetScreenResolution();
+    const PxSize2D windowSizePx = GetWindowSizePx();
 
     m_stroke = vgCreatePaint();
     vgSetPaint(m_stroke, VG_STROKE_PATH);
@@ -371,15 +371,15 @@ namespace Fsl
       Rectangle dstArea;
 
       int dim = 0;
-      if (screenResolution.X >= screenResolution.Y)
+      if (windowSizePx.Width() >= windowSizePx.Height())
       {
-        dim = screenResolution.X;
-        dstArea = Rectangle(0, (screenResolution.Y - screenResolution.X) / 2, dim, dim);
+        dim = windowSizePx.Width();
+        dstArea = Rectangle(0, (windowSizePx.Height() - windowSizePx.Width()) / 2, dim, dim);
       }
       else
       {
-        dim = screenResolution.Y / 2;
-        dstArea = Rectangle((screenResolution.X - screenResolution.Y) / 2, 0, dim, dim);
+        dim = windowSizePx.Height() / 2;
+        dstArea = Rectangle((windowSizePx.Width() - windowSizePx.Height()) / 2, 0, dim, dim);
       }
 
       {
@@ -404,7 +404,7 @@ namespace Fsl
       case 0:
       case 1:
         GenerateQuadricSpiral(m_test, m_config.GetQuadricSpiralRevolutionCount(),
-                              m_config.GetQuadricSpiralRevolutionChange(screenResolution.X, screenResolution.Y), dstArea);
+                              m_config.GetQuadricSpiralRevolutionChange(windowSizePx.Width(), windowSizePx.Height()), dstArea);
         break;
       case 2:
         GenerateCubicSegmentedSpiral(m_paths, m_config.GetSegmentedSpiralRevolutionCount(),
@@ -479,7 +479,7 @@ namespace Fsl
     }
     if (bypassRender == false)
     {
-      const Point2 screenResolution = GetScreenResolution();
+      const PxSize2D windowSizePx = GetWindowSizePx();
 
       float col[] = {0.0f, 0.0f, 0.0f, 0.5f};
 
@@ -487,7 +487,7 @@ namespace Fsl
       float colorStroke2[] = {1.0f, 1.0f, 1.0f, 0.1f};
 
       vgSetfv(VG_CLEAR_COLOR, 4, col);
-      vgClear(0, 0, screenResolution.X, screenResolution.Y);
+      vgClear(0, 0, windowSizePx.Width(), windowSizePx.Height());
 
       switch (m_config.GetType())
       {

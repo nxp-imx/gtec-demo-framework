@@ -67,7 +67,7 @@ namespace Fsl
     }
 
     //! @brief Get the extent
-    constexpr Extent2D GetExtent() const
+    constexpr PxExtent2D GetExtent() const
     {
       return m_bitmapPosX.GetExtent();
     }

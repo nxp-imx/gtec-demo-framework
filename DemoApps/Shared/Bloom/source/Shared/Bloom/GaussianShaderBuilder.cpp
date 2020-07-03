@@ -33,6 +33,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/String/StringUtil.hpp>
+#include <array>
 #include <cassert>
 #include <iomanip>
 #include <sstream>
@@ -54,10 +55,13 @@ namespace Fsl
   // To determine the weights of an n x n kernel, select the row that has n numbers in it, then convolve it.
   // This basically means do a vector multiply with its own transpose.
 
-#define CALC_LINEAR_KERNEL_LENGTH(X) ((((X)-1) / 2) + 1)
-
   namespace
   {
+    constexpr std::size_t CalcLinearKernelLength(const std::size_t value)
+    {
+      return ((((value)-1) / 2) + 1);
+    }
+
     struct LinearData
     {
       float Weight{0};
@@ -77,7 +81,7 @@ namespace Fsl
     {
       assert(pLinearKernel != nullptr);
       assert(pActualKernel != nullptr);
-      assert(linearKernelLength == CALC_LINEAR_KERNEL_LENGTH(actualKernelLength));
+      assert(linearKernelLength == CalcLinearKernelLength(actualKernelLength));
       assert((actualKernelLength & 1) != 0);
       assert(((actualKernelLength - 1) % 2) == 0);
 
@@ -92,8 +96,8 @@ namespace Fsl
       for (std::size_t i = dstMiddleIndex + 1; i < linearKernelLength; ++i)
       {
         const auto value = pActualKernel[srcIndex] + pActualKernel[srcIndex + 1];
-        const float offsetAT = pActualKernel[srcIndex] * (srcIndex - srcMiddleIndex);
-        const float offsetBT = pActualKernel[srcIndex + 1] * (srcIndex + 1 - srcMiddleIndex);
+        const float offsetAT = pActualKernel[srcIndex] * static_cast<float>(srcIndex - srcMiddleIndex);
+        const float offsetBT = pActualKernel[srcIndex + 1] * static_cast<float>(srcIndex + 1 - srcMiddleIndex);
         const auto offset = (offsetAT + offsetBT) / value;
 
         pLinearKernel[i].Weight = value;
@@ -139,39 +143,35 @@ namespace Fsl
 
   Gaussian5 GaussianShaderBuilder::Build5x5(const float kernelWeightMod)
   {
-    const float actualKernel[] = {1, 4, 6, 4, 1};
-    const std::size_t actualKernelLength = sizeof(actualKernel) / sizeof(float);
+    constexpr const std::array<float, 5> actualKernel = {1, 4, 6, 4, 1};
 
-    LinearData linearKernel[CALC_LINEAR_KERNEL_LENGTH(actualKernelLength)];
-    const std::size_t linearKernelLength = sizeof(linearKernel) / sizeof(LinearData);
+    std::array<LinearData, CalcLinearKernelLength(actualKernel.size())> linearKernel;
 
-    BuildLinearKernel(linearKernel, linearKernelLength, actualKernel, actualKernelLength);
+    BuildLinearKernel(linearKernel.data(), linearKernel.size(), actualKernel.data(), actualKernel.size());
 
     // Normalize kernel coefficients
-    NormalizeKernel(linearKernel, linearKernelLength, kernelWeightMod);
+    NormalizeKernel(linearKernel.data(), linearKernel.size(), kernelWeightMod);
 
-    return Gaussian5(linearKernel[0].Weight, linearKernel[1].Weight, linearKernel[0].Offset);
+    return {linearKernel[0].Weight, linearKernel[1].Weight, linearKernel[0].Offset};
   }
 
   Gaussian9 GaussianShaderBuilder::Build9x9(const float kernelWeightMod)
   {
     // yes we could take advantage of the fact that the kernel is mirrored around the middle but for now its not important and
     // the code is more 'clear' when we just ignore it
-    const float actualKernel[] = {1, 8, 28, 56, 70, 56, 28, 8, 1};
-    // const float actualKernel[] = { 0, 5, 0, 5, 5, 5, 0, 5, 0 };
-    // const float actualKernel[] = { 5, 0, 5, 0, 5, 0, 5, 0, 5 };
-    // const float actualKernel[] = { 5, 5, 5, 5, 5, 5, 5, 5, 5 };
-    const std::size_t actualKernelLength = sizeof(actualKernel) / sizeof(float);
+    constexpr const std::array<float, 9> actualKernel = {1, 8, 28, 56, 70, 56, 28, 8, 1};
+    // constexpr const std::array<float, 9>  = { 0, 5, 0, 5, 5, 5, 0, 5, 0 };
+    // constexpr const std::array<float, 9>  = { 5, 0, 5, 0, 5, 0, 5, 0, 5 };
+    // constexpr const std::array<float, 9>  = { 5, 5, 5, 5, 5, 5, 5, 5, 5 };
 
-    LinearData linearKernel[CALC_LINEAR_KERNEL_LENGTH(actualKernelLength)];
-    const std::size_t linearKernelLength = sizeof(linearKernel) / sizeof(LinearData);
+    std::array<LinearData, CalcLinearKernelLength(actualKernel.size())> linearKernel;
 
-    BuildLinearKernel(linearKernel, linearKernelLength, actualKernel, actualKernelLength);
+    BuildLinearKernel(linearKernel.data(), linearKernel.size(), actualKernel.data(), actualKernel.size());
 
     // Normalize kernel coefficients
-    NormalizeKernel(linearKernel, linearKernelLength, kernelWeightMod);
+    NormalizeKernel(linearKernel.data(), linearKernel.size(), kernelWeightMod);
 
-    return Gaussian9(linearKernel[0].Weight, linearKernel[1].Weight, linearKernel[2].Weight, linearKernel[0].Offset, linearKernel[1].Offset);
+    return {linearKernel[0].Weight, linearKernel[1].Weight, linearKernel[2].Weight, linearKernel[0].Offset, linearKernel[1].Offset};
   }
 
   std::string GaussianShaderBuilder::Build5x5(const std::string& strTemplate, const float kernelWeightMod)

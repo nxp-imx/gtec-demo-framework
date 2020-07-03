@@ -35,8 +35,8 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Transition/TransitionState.hpp>
-#include <FslBase/Transition/TransitionType.hpp>
 #include <FslBase/Transition/TransitionTimeSpan.hpp>
+#include <FslBase/Transition/TransitionType.hpp>
 #include <memory>
 #include <vector>
 

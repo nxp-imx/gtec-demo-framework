@@ -40,9 +40,9 @@ namespace Fsl
     {
       VUDeviceQueueRecord GetDeviceQueue(const VkDevice device, const uint32_t queueFamilyIndex, const uint32_t queueIndex)
       {
-        VkQueue queue;
+        VkQueue queue = nullptr;
         vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, &queue);
-        return VUDeviceQueueRecord(device, queueFamilyIndex, queueIndex, queue);
+        return {device, queueFamilyIndex, queueIndex, queue};
       }
     }
   }

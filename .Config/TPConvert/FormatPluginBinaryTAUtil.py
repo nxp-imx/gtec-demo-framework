@@ -120,3 +120,19 @@ def AddRectangle(entries: List[int], valueX: int, valueY: int, valueWidth: int, 
     AddEncodedInt32(entries, valueY)
     AddEncodedUInt32(entries, valueWidth)
     AddEncodedUInt32(entries, valueHeight)
+
+def AddRectangleU(entries: List[int], valueX: int, valueY: int, valueWidth: int, valueHeight: int) -> None:
+    if( valueX < 0 or valueY < 0 or valueWidth < 0 or valueHeight < 0):
+        raise Exception("Unsupported rect")
+    AddEncodedUInt32(entries, valueX)
+    AddEncodedUInt32(entries, valueY)
+    AddEncodedUInt32(entries, valueWidth)
+    AddEncodedUInt32(entries, valueHeight)
+
+def AddThicknessU(entries: List[int], valueX: int, valueY: int, valueWidth: int, valueHeight: int) -> None:
+    if( valueX < 0 or valueY < 0 or valueWidth < 0 or valueHeight < 0):
+        raise Exception("Unsupported thickness")
+    AddEncodedUInt32(entries, valueX)
+    AddEncodedUInt32(entries, valueY)
+    AddEncodedUInt32(entries, valueWidth)
+    AddEncodedUInt32(entries, valueHeight)

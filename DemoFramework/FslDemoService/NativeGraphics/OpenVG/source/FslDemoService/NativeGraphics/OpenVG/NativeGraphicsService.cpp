@@ -34,8 +34,10 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslDemoApp/Shared/Host/DemoHostFeatureUtil.hpp>
-#include "NativeGraphicsBasic2D.hpp"
+#include <FslGraphics/Render/Adapter/IDynamicNativeTexture2D.hpp>
+#include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <FslUtil/OpenVG/VGUtil.hpp>
+#include "NativeGraphicsBasic2D.hpp"
 
 namespace Fsl
 {
@@ -50,17 +52,17 @@ namespace Fsl
     NativeGraphicsService::~NativeGraphicsService() = default;
 
 
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags& textureFlags)
+    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                             const TextureFlags textureFlags)
     {
       return std::shared_ptr<INativeTexture2D>();
     }
 
 
-    std::shared_ptr<INativeTexture2D> NativeGraphicsService::CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                                             const TextureFlags& textureFlags)
+    std::shared_ptr<IDynamicNativeTexture2D>
+      NativeGraphicsService::CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint, const TextureFlags textureFlags)
     {
-      return std::shared_ptr<INativeTexture2D>();
+      return std::shared_ptr<IDynamicNativeTexture2D>();
     }
 
 
@@ -71,7 +73,8 @@ namespace Fsl
         return false;
       }
 
-      int major, minor;
+      int major = 0;
+      int minor = 0;
       DemoHostFeatureUtil::DecodeOpenVGVersion(activeAPI.Version, major, minor);
       return major == 1;
     }
@@ -83,13 +86,13 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const Point2& currentResolution)
+    std::shared_ptr<INativeGraphicsBasic2D> NativeGraphicsService::CreateBasic2D(const PxExtent2D& extentPx)
     {
-      return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(currentResolution));
+      return std::shared_ptr<INativeGraphicsBasic2D>(new NativeGraphicsBasic2D(extentPx));
     }
 
 
-    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const Point2& currentResolution)
+    std::shared_ptr<INativeBatch2D> NativeGraphicsService::CreateNativeBatch2D(const PxExtent2D& extentPx)
     {
       return std::shared_ptr<INativeBatch2D>();
     }

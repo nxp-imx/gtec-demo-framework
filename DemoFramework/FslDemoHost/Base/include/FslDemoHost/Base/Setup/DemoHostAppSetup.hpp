@@ -48,11 +48,11 @@ namespace Fsl
     std::shared_ptr<DemoHostFeatureDeque> DemoHostFeatures;
     std::shared_ptr<DemoAppHostConfig> AppHostConfig;
 
-    DemoHostAppSetup(const DemoAppSetup& demoAppSetup, const std::shared_ptr<DemoHostFeatureDeque>& demoHostFeatures,
-                     const std::shared_ptr<DemoAppHostConfig>& demoAppHostConfig);
+    DemoHostAppSetup(DemoAppSetup demoAppSetup, std::shared_ptr<DemoHostFeatureDeque> demoHostFeatures,
+                     std::shared_ptr<DemoAppHostConfig> demoAppHostConfig);
 
     template <typename T>
-    const std::shared_ptr<T> GetDemoAppHostConfig() const
+    std::shared_ptr<T> GetDemoAppHostConfig() const
     {
       const std::shared_ptr<T> ptr = std::dynamic_pointer_cast<T>(AppHostConfig);
       if (!ptr)

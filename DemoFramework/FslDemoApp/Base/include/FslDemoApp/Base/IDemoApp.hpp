@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
-#include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/AppDrawResult.hpp>
+#include <FslDemoApp/Base/DemoTime.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 
 namespace Fsl
 {
@@ -52,7 +52,7 @@ namespace Fsl
     //! brief Called just before the app is destroyed (this is a good place for shutdown code that can throw exceptions)
     virtual void _PreDestruct() = 0;
     virtual void _OnEvent(IEvent* const pEvent) = 0;
-    virtual void _Resized(const Point2& size) = 0;
+    virtual void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) = 0;
     virtual void _PreUpdate(const DemoTime& demoTime) = 0;
     virtual void _FixedUpdate(const DemoTime& demoTime) = 0;
     virtual void _Update(const DemoTime& demoTime) = 0;

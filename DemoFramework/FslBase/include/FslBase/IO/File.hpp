@@ -77,6 +77,12 @@ namespace Fsl
       //! @param rTargetArray the array to load the content into. The array will be resized to fit the file content
       //! @param path to the file that should be loaded
       //! @throws IOException if the file isn't found or something goes wrong reading it.
+      static std::vector<uint8_t> ReadAllBytes(const Path& path);
+
+      //! @brief Read the entire content of the given file into a binary array.
+      //! @param rTargetArray the array to load the content into. The array will be resized to fit the file content
+      //! @param path to the file that should be loaded
+      //! @throws IOException if the file isn't found or something goes wrong reading it.
       static void ReadAllBytes(std::vector<uint8_t>& rTargetArray, const Path& path);
 
       //! @brief Read the entire content of the given file into a binary array.

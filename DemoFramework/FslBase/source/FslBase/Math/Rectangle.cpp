@@ -47,15 +47,11 @@ namespace Fsl
   }
 
 
-  Rectangle::Rectangle(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom, bool reserved)
-    : m_x(left)
-    , m_y(top)
-    , m_width(std::max(right - left, static_cast<int32_t>(0)))
-    , m_height(std::max(bottom - top, static_cast<int32_t>(0)))
+  Rectangle Rectangle::FromLeftTopRigtBottom(const int32_t left, const int32_t top, const int32_t right, const int32_t bottom)
   {
-    FSL_PARAM_NOT_USED(reserved);
     FSLLOG3_WARNING_IF((right - left) < 0, "Tried to set width to less than zero");
     FSLLOG3_WARNING_IF((bottom - top) < 0, "Tried to set height to less than zero");
+    return {left, top, std::max(right - left, static_cast<int32_t>(0)), std::max(bottom - top, static_cast<int32_t>(0))};
   }
 
 

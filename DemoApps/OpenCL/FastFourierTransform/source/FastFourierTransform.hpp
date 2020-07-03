@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenCL/DemoAppOpenCL.hpp>
-#include <FslUtil/OpenCL1_1/ContextEx.hpp>
+#include <FslUtil/OpenCL1_2/ContextEx.hpp>
 #include <RapidOpenCL1/Buffer.hpp>
 #include <RapidOpenCL1/CommandQueue.hpp>
 #include <RapidOpenCL1/Kernel.hpp>
@@ -83,7 +83,7 @@ namespace Fsl
     std::array<RapidOpenCL1::UserEvent, FFT_MAX_LOG2N> m_gpuExecution;
 
   public:
-    FastFourierTransform(const DemoAppConfig& config);
+    explicit FastFourierTransform(const DemoAppConfig& config);
     ~FastFourierTransform() override;
 
   protected:

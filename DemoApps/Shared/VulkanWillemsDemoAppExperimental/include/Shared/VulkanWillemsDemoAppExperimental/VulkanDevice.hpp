@@ -57,7 +57,7 @@ namespace Fsl
       //! Default command pool for the graphics queue family index
       RapidVulkan::CommandPool m_commandPool;
       // Set to true when the debug marker extension is detected
-      bool m_enableDebugMarkers;
+      // bool m_enableDebugMarkers;
 
       QueueFamilyIndices m_queueFamilyIndices;
 

@@ -33,9 +33,9 @@
 #include <FslSimpleUI/Base/Control/LabelButton.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
-#include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
-#include <FslGraphics/Render/AtlasFont.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
@@ -49,9 +49,8 @@ namespace Fsl
       : ButtonBase(context)
       , m_windowContext(context)
       , m_font(context->DefaultFont)
-      , m_colorUp(Color::White())
-      , m_colorDown(0xB0B0B0B0)
     {
+      assert(m_font);
       Enable(WindowFlags(WindowFlags::DrawEnabled));
     }
 
@@ -68,7 +67,7 @@ namespace Fsl
     }
 
 
-    void LabelButton::SetFont(const std::shared_ptr<AtlasFont>& value)
+    void LabelButton::SetFont(const std::shared_ptr<SpriteFont>& value)
     {
       if (!value)
       {
@@ -114,25 +113,28 @@ namespace Fsl
 
       const auto color = !IsDown() ? m_colorUp : m_colorDown;
       const auto batch = m_windowContext->Batch2D;
-      const auto pFont = m_font.get();
+      const auto* const pFont = m_font.get();
       assert(pFont != nullptr);
-      batch->DrawString(pFont->GetAtlasTexture(), pFont->GetAtlasBitmapFont(), m_content, context.TargetRect.TopLeft(), color);
+      batch->ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
+      batch->DrawString(*pFont, m_content, context.TargetRect.TopLeft(), color);
     }
 
 
-    Vector2 LabelButton::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D LabelButton::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      return finalSize;
+      return finalSizePx;
     }
 
 
-    Vector2 LabelButton::MeasureOverride(const Vector2& availableSize)
+    PxSize2D LabelButton::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      FSL_PARAM_NOT_USED(availableSize);
+      FSL_PARAM_NOT_USED(availableSizePx);
 
-      const auto& fontInfo = m_font->GetAtlasBitmapFont();
-      auto measured = fontInfo.MeasureString(m_content.c_str(), 0, m_content.size());
-      return Vector2(measured.X, fontInfo.LineSpacing());
+      const auto* const pFont = m_font.get();
+      assert(pFont != nullptr);
+      const auto& fontInfo = pFont->GetInfo();
+      auto measuredPx = pFont->MeasureString(StringViewLiteUtil::AsStringViewLite(m_content));
+      return {measuredPx.Width(), fontInfo.ScaledLineSpacingPx};
     }
   }
 }

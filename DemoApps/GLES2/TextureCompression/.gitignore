@@ -3,6 +3,7 @@
 /CMakeLists.txt
 /Content/Textures/GPUSdkTest/
 /Content/Textures/NotSupported/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GLES2.TextureCompression.VC.VC.opendb

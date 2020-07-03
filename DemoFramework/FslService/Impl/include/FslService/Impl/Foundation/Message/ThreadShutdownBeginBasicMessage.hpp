@@ -37,7 +37,7 @@ namespace Fsl
 {
   struct ThreadShutdownBeginBasicMessage
   {
-    operator BasicMessage() const
+    operator BasicMessage() const    // NOLINT(google-explicit-constructor);
     {
       return BasicMessage(BasicMessageType::ThreadShutdownBegin);
     }

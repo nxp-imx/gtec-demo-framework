@@ -33,28 +33,33 @@
 
 from typing import Optional
 from FslBuildGen.Log import Log
-from FslBuildGen.DataTypes import BuildPlatformType
-from FslBuildGen.Context.Context import Context
 from FslBuildGen.BuildExternal.RecipeBuilderSetup import RecipeBuilderSetup
 from FslBuildGen.BuildExternal.RecipePathBuilder import RecipePathBuilder
+from FslBuildGen.Context.Context import Context
+from FslBuildGen.DataTypes import BuildPlatformType
+from FslBuildGen.ErrorHelpManager import ErrorHelpManager
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Location.PathBuilder import PathBuilder
 from FslBuildGen.PackageConfig import PlatformNameString
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
 
+
 class PlatformContext(Context):
-    def __init__(self, log: Log, platformName: str,
-                 generatorName: str,
-                 compilerGeneratorName: str, recipeBuilderSetup: Optional[RecipeBuilderSetup]) -> None:
+    def __init__(self, log: Log, errorHelpManager: ErrorHelpManager, platformName: str, generatorName: str,
+                 generatorInfo: GeneratorInfo, cmakeConfig: GeneratorCMakeConfig, recipeBuilderSetup: Optional[RecipeBuilderSetup]) -> None:
         super().__init__(log)
 
+        self.ErrorHelpManager = errorHelpManager
         self.HostPlatformName = self.__DetermineHostPlatformName(platformName)
         self.PlatformName = platformName # type: str
         self.GeneratorName = generatorName # type: str
-        self.GeneratorCompilerName = compilerGeneratorName # type: str
+        self.GeneratorInfo = generatorInfo
+        self.CMakeConfig = cmakeConfig
         self.VariableProcessor = VariableProcessor(log)
         self.PathBuilder = PathBuilder(log, self.VariableProcessor, platformName)
-        self.RecipePathBuilder = RecipePathBuilder(log, self.VariableProcessor, recipeBuilderSetup, platformName, compilerGeneratorName)
+        self.RecipePathBuilder = RecipePathBuilder(log, self.VariableProcessor, recipeBuilderSetup, platformName, cmakeConfig)
 
 
     def __DetermineHostPlatformName(self, platformName: str) -> str:

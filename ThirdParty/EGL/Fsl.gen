@@ -17,25 +17,22 @@
       <!-- ExternalDependency Name="screen" Type="StaticLib"/ -->
     </Platform>
     <Platform Name="Yocto" Supported="true">
+      <ExternalDependency Name="EGL" Type="StaticLib"/>
       <Variant Name="WindowSystem" Extend="true">
         <Option Name="FB">
-          <ExternalDependency Name="EGL" Type="StaticLib"/>
           <Define Name="EGL_API_FB" Access="Public"/>
         </Option>
         <Option Name="Wayland">
-          <ExternalDependency Name="EGL" Type="StaticLib"/>
           <ExternalDependency Name="wayland-egl" Type="StaticLib"/>
           <Define Name="EGL_API_WL" Access="Public"/>
           <Define Name="EGL_API_FB" Access="Public"/>
         </Option>
         <Option Name="Wayland_IVI">
-          <ExternalDependency Name="EGL" Type="StaticLib"/>
           <ExternalDependency Name="wayland-egl" Type="StaticLib"/>
           <Define Name="EGL_API_WL" Access="Public"/>
           <Define Name="EGL_API_FB" Access="Public"/>
         </Option>
         <Option Name="X11">
-          <ExternalDependency Name="EGL" Type="StaticLib"/>
           <Define Name="EGL_USE_X11" Access="Public"/>
         </Option>
       </Variant>
@@ -46,9 +43,6 @@
           <ExternalDependency Name="$(FSL_GLES_LIB_EGL)" Include="$(FSL_GLES_INCLUDE_PATH)" Access="Public" Location="$(FSL_GLES_LIB_PATH)" Type="StaticLib"/>
         </Option>
       </Variant>
-    </Platform>
-    <Platform Name="CMake" Supported="true">
-      <ExternalDependency Name="EGL" Type="Find"/>
     </Platform>
   </ExternalLibrary>
 </FslBuildGen>

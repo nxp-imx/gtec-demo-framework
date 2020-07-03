@@ -30,8 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
-#include <FslGraphics/Font/IFontBasicKerning.hpp>
-#include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
+#include <FslGraphics/Font/BitmapFontConverter.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
@@ -46,358 +45,425 @@ namespace Fsl
 {
   namespace
   {
-    struct TextureAtlasGlyphEntry
+    inline int32_t ScaledBaseLine(const int32_t baseLinePx, const float fontScale)
     {
-      int32_t Id{0};
-      AtlasTextureInfo TextureInfo;
+      return int32_t(std::round(static_cast<float>(baseLinePx) * std::max(fontScale, 0.0f)));
+    }
 
-      TextureAtlasGlyphEntry() = default;
-
-      TextureAtlasGlyphEntry(const int32_t id, const AtlasTextureInfo& textureInfo)
-        : Id(id)
-        , TextureInfo(textureInfo)
-      {
-      }
-    };
-
-
-    //! @brief Run through the texture atlas and extract all glyphs found at the basicFontKerning path
-    int32_t ExtractAndSortGlyphs(std::vector<TextureAtlasGlyphEntry>& rTextureAtlasGlyphs, const ITextureAtlas& textureAtlas,
-                                 const IFontBasicKerning& basicFontKerning)
+    inline PxSize2D DoMeasureString(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, const StringViewLite& strView)
     {
-      assert(rTextureAtlasGlyphs.size() == std::size_t(basicFontKerning.Count()));
-
-      const int32_t atlasEntries = textureAtlas.Count();
-
-      const IO::Path fontPath(basicFontKerning.GetPathName().ToUTF8String() + "/");
-      const int32_t fontPathLength = static_cast<int32_t>(fontPath.ToUTF8String().size());
-      const int32_t dstEndIndex = basicFontKerning.Count();
-      int32_t dstIndex = 0;
-      for (int32_t i = 0; i < atlasEntries; ++i)
+      int32_t renderRightPx = 0;
+      int32_t renderBottomPx = 0;
+      if (!strView.empty())
       {
-        NamedAtlasTexture namedEntry = textureAtlas.GetEntry(i);
-        IO::Path str(namedEntry.Name);
-        if (str.StartsWith(fontPath))
+        // extract information about the characters we are rendering
+        int32_t layoutXOffsetPx = 0;
+        for (std::size_t index = 0; index < strView.size(); ++index)
         {
-          // std::stoi is not present on android :/
-          // const int32_t glyphId = std::stoi(str.ToUTF8String().substr(fontPathLength), nullptr, 16);
-          const int32_t glyphId = static_cast<int32_t>(std::strtol(str.ToUTF8String().substr(fontPathLength).c_str(), nullptr, 16));
-
-          rTextureAtlasGlyphs[dstIndex] = TextureAtlasGlyphEntry(glyphId, namedEntry.TextureInfo);
-          ++dstIndex;
-          if (dstIndex > dstEndIndex)
+          const BitmapFontChar& charInfo = lookup.GetChar(strView[index], unknownChar);
+          if (charInfo.SrcTextureRectPx.Width > 0u && charInfo.SrcTextureRectPx.Height > 0u)
           {
-            throw std::invalid_argument("The texture atlas contains more glyphs than expected");
+            const int32_t currentRightPx = layoutXOffsetPx + charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width;
+            const int32_t currentBottomPx = charInfo.OffsetPx.Y + charInfo.SrcTextureRectPx.Height;
+            renderRightPx = (currentRightPx > renderRightPx ? currentRightPx : renderRightPx);
+            renderBottomPx = (currentBottomPx > renderBottomPx ? currentBottomPx : renderBottomPx);
           }
+          layoutXOffsetPx += charInfo.XAdvancePx;
         }
       }
-      return dstIndex;
+      return {renderRightPx, renderBottomPx};
+    }
+
+    bool DoExtractRenderRules(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, std::vector<FontGlyphPosition>& rDst,
+                              const StringViewLite& strView)
+    {
+      if (strView.empty())
+      {
+        return false;
+      }
+      if (strView.length() > std::numeric_limits<uint32_t>::max())
+      {
+        throw std::invalid_argument("length can not be larger than a uint32");
+      }
+      if (rDst.size() < strView.length())
+      {
+        throw std::invalid_argument("rDst is too small");
+      }
+
+      // extract information about the characters we are rendering
+      int32_t layoutXOffsetPx = 0;
+      const auto viewLength = strView.length();
+      for (uint32_t index = 0; index < viewLength; ++index)
+      {
+        const BitmapFontChar& charInfo = lookup.GetChar(strView[index], unknownChar);
+
+        const PxRectangle2D dstRectPx(layoutXOffsetPx + charInfo.OffsetPx.X, charInfo.OffsetPx.Y, charInfo.SrcTextureRectPx.Width,
+                                      charInfo.SrcTextureRectPx.Height);
+        rDst[index] = FontGlyphPosition(dstRectPx, charInfo.SrcTextureRectPx);
+        layoutXOffsetPx += charInfo.XAdvancePx;
+      }
+      return true;
     }
 
 
-    struct TextureAtlasGlyphEntryComparator
+    inline PxSize2D DoMeasureStringWithKerning(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, const StringViewLite& strView)
     {
-      bool operator()(const TextureAtlasGlyphEntry& lhs, const TextureAtlasGlyphEntry& rhs)
+      int32_t renderRightPx = 0;
+      int32_t renderBottomPx = 0;
+      if (!strView.empty())
       {
-        return (lhs.Id < rhs.Id);
-      }
-    };
-
-
-    int32_t ExtractAtlasGlyphs(std::vector<TextureAtlasGlyphEntry>& rTextureAtlasGlyphs, const ITextureAtlas& textureAtlas,
-                               const IFontBasicKerning& basicFontKerning)
-    {
-      const int32_t atlasGlyphCount = ExtractAndSortGlyphs(rTextureAtlasGlyphs, textureAtlas, basicFontKerning);
-      // Sort the glyphs by id
-      std::sort(rTextureAtlasGlyphs.begin(), rTextureAtlasGlyphs.begin() + atlasGlyphCount, TextureAtlasGlyphEntryComparator());
-      return atlasGlyphCount;
-    }
-
-
-    void ExtractRanges(std::vector<FontGlyphRange>& rRanges, const IFontBasicKerning& basicFontKerning)
-    {
-      const int32_t rangeCount = basicFontKerning.RangeCount();
-      assert(rRanges.size() == std::size_t(rangeCount));
-
-      int32_t totalGlyphs = 0;
-      for (int32_t i = 0; i < rangeCount; ++i)
-      {
-        rRanges[i] = basicFontKerning.GetRange(i);
-        totalGlyphs += rRanges[i].Length;
-      }
-
-      if (totalGlyphs != basicFontKerning.Count())
-      {
-        throw std::invalid_argument("The basicFontKerning object is invalid");
-      }
-    }
-
-
-    void BuildGlyphs(std::vector<TextureAtlasGlyphInfo>& rGlyphs, const std::vector<FontGlyphRange>& ranges,
-                     const std::vector<TextureAtlasGlyphEntry>& textureAtlasGlyphs, const int32_t textureAtlasGlyphCount,
-                     const IFontBasicKerning& basicFontKerning)
-    {
-      const auto endRangeIndex = static_cast<int32_t>(ranges.size());
-      // const int32_t glyphEndIndex = static_cast<int32_t>(rGlyphs.size());
-
-      int32_t glyphIndex = 0;
-      int32_t atlasGlyphIndex = 0;
-      for (int32_t rangeIndex = 0; rangeIndex < endRangeIndex; ++rangeIndex)
-      {
-        int32_t rangeGlyphId = ranges[rangeIndex].From;
-        const int32_t rangeGlyphEndId = rangeGlyphId + ranges[rangeIndex].Length;
-
-        // Skip unused glyphs
-        while (atlasGlyphIndex < textureAtlasGlyphCount && rangeGlyphId > textureAtlasGlyphs[atlasGlyphIndex].Id)
+        // extract information about the characters we are rendering
+        int32_t layoutXOffsetPx = 0;
+        uint32_t previousChar = 0;
+        for (std::size_t index = 0; index < strView.size(); ++index)
         {
-          FSLLOG3_WARNING("The texture atlas contained a unexpected glyph: {}", textureAtlasGlyphs[atlasGlyphIndex].Id);
-          ++atlasGlyphIndex;
-        }
-
-        while (rangeGlyphId < rangeGlyphEndId && atlasGlyphIndex < textureAtlasGlyphCount)
-        {
-          if (textureAtlasGlyphs[atlasGlyphIndex].Id == rangeGlyphId)
+          const uint32_t currentChar = static_cast<unsigned char>(strView[index]);
+          const BitmapFontChar& charInfo = lookup.GetChar(currentChar, unknownChar);
+          // apply kerning
+          layoutXOffsetPx += lookup.GetKerning(previousChar, currentChar);
+          if (charInfo.SrcTextureRectPx.Width > 0u && charInfo.SrcTextureRectPx.Height > 0u)
           {
-            // The texture atlas contained information about the glyph so lets use that
-            // textureAtlasGlyphs[atlasGlyphIndex].TextureInfo.;
-            const Rectangle atlasRect = textureAtlasGlyphs[atlasGlyphIndex].TextureInfo.TrimmedRect;
-            FontGlyphBasicKerning basicKerning = basicFontKerning.Get(glyphIndex);
-
-            rGlyphs[glyphIndex] = TextureAtlasGlyphInfo(atlasRect, basicKerning);
-            ++atlasGlyphIndex;
+            const int32_t currentRightPx = layoutXOffsetPx + charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width;
+            const int32_t currentBottomPx = charInfo.OffsetPx.Y + charInfo.SrcTextureRectPx.Height;
+            renderRightPx = (currentRightPx > renderRightPx ? currentRightPx : renderRightPx);
+            renderBottomPx = (currentBottomPx > renderBottomPx ? currentBottomPx : renderBottomPx);
           }
-          else
-          {
-            // The texture atlas did not contain information about the glyph, so mark is as a unavailable glyph
-            assert(rangeGlyphId < textureAtlasGlyphs[atlasGlyphIndex].Id);
-            FontGlyphBasicKerning basicKerning = basicFontKerning.Get(glyphIndex);
-            rGlyphs[glyphIndex] = TextureAtlasGlyphInfo(Rectangle(), basicKerning, TextureAtlasGlyphInfo::Flags::Unavailable);
-          }
-          ++glyphIndex;
-          ++rangeGlyphId;
-        }
-
-        // Handle 'ending' glyphs not found in the atlas
-        while (rangeGlyphId < rangeGlyphEndId)
-        {
-          rGlyphs[glyphIndex] = TextureAtlasGlyphInfo();
-          ++glyphIndex;
-          ++rangeGlyphId;
+          layoutXOffsetPx += charInfo.XAdvancePx;
+          previousChar = currentChar;
         }
       }
+      return {renderRightPx, renderBottomPx};
     }
 
-    //! @brief Find the glyph index
-    //! @param ranges the glyph ranges supported by the font.
-    //! @param glyph the glyph to find a index for.
-    //! @param unknownGlyphIndex the index that will be returned for glyphs outside of our supported ranges
-    inline int32_t FindGlyphIndex(const std::vector<FontGlyphRange>& ranges, const int32_t glyph, const int32_t unknownGlyphIndex)
+    bool DoExtractRenderRulesWithKerning(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, std::vector<FontGlyphPosition>& rDst,
+                                         const StringViewLite& strView)
     {
-      auto itr = ranges.begin();
-      int index = 0;
-      while (itr != ranges.end())
+      if (strView.empty())
       {
-        if (itr->Contains(glyph))
-        {
-          return index + (glyph - itr->From);
-        }
-        index += itr->Length;
-        ++itr;
+        return false;
       }
-      return unknownGlyphIndex;
+      if (strView.length() > std::numeric_limits<uint32_t>::max())
+      {
+        throw std::invalid_argument("length can not be larger than a uint32");
+      }
+      if (rDst.size() < strView.length())
+      {
+        throw std::invalid_argument("rDst is too small");
+      }
+
+      // extract information about the characters we are rendering
+      int32_t layoutXOffsetPx = 0;
+      const auto viewLength = strView.length();
+      uint32_t previousChar = 0;
+      for (uint32_t index = 0; index < viewLength; ++index)
+      {
+        const uint32_t currentChar = static_cast<unsigned char>(strView[index]);
+        const BitmapFontChar& charInfo = lookup.GetChar(currentChar, unknownChar);
+        // apply kerning
+        layoutXOffsetPx += lookup.GetKerning(previousChar, currentChar);
+
+        const PxRectangle2D dstRectPx(layoutXOffsetPx + charInfo.OffsetPx.X, charInfo.OffsetPx.Y, charInfo.SrcTextureRectPx.Width,
+                                      charInfo.SrcTextureRectPx.Height);
+        rDst[index] = FontGlyphPosition(dstRectPx, charInfo.SrcTextureRectPx);
+        layoutXOffsetPx += charInfo.XAdvancePx;
+        previousChar = currentChar;
+      }
+      return true;
+    }
+
+    inline PxSize2D DoMeasureStringWithKerning(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, const StringViewLite& strView,
+                                               const float fontScale)
+    {
+      int32_t renderRightPx = 0;
+      int32_t renderBottomPx = 0;
+      if (!strView.empty() || fontScale <= 0.0f)
+      {
+        const auto baseLinePx = lookup.GetBaseLinePx();
+        const auto scaledBaseLinePx = ScaledBaseLine(baseLinePx, fontScale);
+
+        // extract information about the characters we are rendering
+
+        float layoutXOffsetPxf = 0;
+        uint32_t previousChar = 0;
+        for (std::size_t index = 0; index < strView.size(); ++index)
+        {
+          const uint32_t currentChar = static_cast<unsigned char>(strView[index]);
+          const BitmapFontChar& charInfo = lookup.GetChar(currentChar, unknownChar);
+
+          // apply kerning
+          layoutXOffsetPxf += float(lookup.GetKerning(previousChar, currentChar)) * fontScale;
+
+          // This should match the algorithm in ExtractRenderRules
+          if (charInfo.SrcTextureRectPx.Width > 0u && charInfo.SrcTextureRectPx.Height > 0u)
+          {
+            // calc distance from original baseline to the startY, then scale it
+            // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
+            // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
+            const int32_t glyphHeight = charInfo.SrcTextureRectPx.Height;
+            auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
+            const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
+
+            const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
+            auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
+
+            dstXEndPx = dstXEndPx > dstXPx ? dstXEndPx : (dstXEndPx + 1);
+            scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
+
+            const int32_t currentRightPx = dstXEndPx;
+            const int32_t currentBottomPx = scaledYEndPx;
+            renderRightPx = (currentRightPx >= renderRightPx ? currentRightPx : renderRightPx);
+            renderBottomPx = (currentBottomPx > renderBottomPx ? currentBottomPx : renderBottomPx);
+          }
+
+          layoutXOffsetPxf += float(charInfo.XAdvancePx) * fontScale;
+          previousChar = currentChar;
+        }
+      }
+      return {renderRightPx, renderBottomPx};
+    }
+
+
+    bool DoExtractRenderRules(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, std::vector<FontGlyphPosition>& rDst,
+                              const StringViewLite& strView, const float fontScale)
+    {
+      if (strView.empty() || fontScale <= 0.0f)
+      {
+        // Fill(rDst, strView.length(), {});
+        return false;
+      }
+      if (strView.length() > std::numeric_limits<uint32_t>::max())
+      {
+        throw std::invalid_argument("length can not be larger than a uint32");
+      }
+      if (rDst.size() < strView.length())
+      {
+        throw std::invalid_argument("rDst is too small");
+      }
+
+      const auto baseLinePx = lookup.GetBaseLinePx();
+      const auto scaledBaseLinePx = ScaledBaseLine(baseLinePx, fontScale);
+      // extract information about the characters we are rendering
+      float layoutXOffsetPxf = 0.0f;
+      const auto viewLength = strView.length();
+      for (uint32_t index = 0; index < viewLength; ++index)
+      {
+        const BitmapFontChar& charInfo = lookup.GetChar(strView[index], unknownChar);
+
+        // calc distance from original baseline to the startY, then scale it
+        // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
+        // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
+        const int32_t glyphYOffsetPx = charInfo.OffsetPx.Y;
+        const auto glyphHeight = UncheckedNumericCast<int32_t>(charInfo.SrcTextureRectPx.Height);
+        auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
+
+        const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
+        auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
+
+        if (dstXPx >= dstXEndPx)
+        {
+          dstXEndPx = charInfo.SrcTextureRectPx.Width > 0u ? (dstXEndPx + 1) : dstXEndPx;
+        }
+        if (scaledYStartPx >= scaledYEndPx)
+        {
+          scaledYStartPx = glyphHeight > 0 ? (scaledYEndPx - 1) : scaledYEndPx;
+        }
+
+        const auto dstRectPx = PxRectangle2D::FromLeftTopRightBottom(dstXPx, scaledYStartPx, dstXEndPx, scaledYEndPx);
+        rDst[index] = FontGlyphPosition(dstRectPx, charInfo.SrcTextureRectPx);
+        layoutXOffsetPxf += float(charInfo.XAdvancePx) * fontScale;
+      }
+      return true;
+    }
+
+    inline PxSize2D DoMeasureString(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, const StringViewLite& strView,
+                                    const float& fontScale)
+    {
+      int32_t renderRightPx = 0;
+      int32_t renderBottomPx = 0;
+      if (!strView.empty() || fontScale <= 0.0f)
+      {
+        const auto baseLinePx = lookup.GetBaseLinePx();
+        const auto scaledBaseLinePx = ScaledBaseLine(baseLinePx, fontScale);
+
+        // extract information about the characters we are rendering
+
+        float layoutXOffsetPxf = 0;
+        for (std::size_t index = 0; index < strView.size(); ++index)
+        {
+          const BitmapFontChar& charInfo = lookup.GetChar(strView[index], unknownChar);
+
+          // This should match the algorithm in ExtractRenderRules
+          if (charInfo.SrcTextureRectPx.Width > 0u && charInfo.SrcTextureRectPx.Height > 0u)
+          {
+            // calc distance from original baseline to the startY, then scale it
+            // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
+            // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
+            const int32_t glyphHeight = charInfo.SrcTextureRectPx.Height;
+            auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y - baseLinePx) * fontScale))));
+            const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(charInfo.OffsetPx.Y + glyphHeight - baseLinePx) * fontScale))));
+
+            const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
+            auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
+
+            dstXEndPx = dstXEndPx > dstXPx ? dstXEndPx : (dstXEndPx + 1);
+            scaledYStartPx = scaledYStartPx < scaledYEndPx ? scaledYStartPx : (scaledYEndPx - 1);
+
+            const int32_t currentRightPx = dstXEndPx;
+            const int32_t currentBottomPx = scaledYEndPx;
+            renderRightPx = (currentRightPx >= renderRightPx ? currentRightPx : renderRightPx);
+            renderBottomPx = (currentBottomPx > renderBottomPx ? currentBottomPx : renderBottomPx);
+          }
+
+          layoutXOffsetPxf += float(charInfo.XAdvancePx) * fontScale;
+        }
+      }
+      return {renderRightPx, renderBottomPx};
+    }
+
+    bool DoExtractRenderRulesWithKerning(const BitmapFontFastLookup& lookup, const BitmapFontChar& unknownChar, std::vector<FontGlyphPosition>& rDst,
+                                         const StringViewLite& strView, const float fontScale)
+    {
+      if (strView.empty() || fontScale <= 0.0f)
+      {
+        // Fill(rDst, strView.length(), {});
+        return false;
+      }
+      if (strView.length() > std::numeric_limits<uint32_t>::max())
+      {
+        throw std::invalid_argument("length can not be larger than a uint32");
+      }
+      if (rDst.size() < strView.length())
+      {
+        throw std::invalid_argument("rDst is too small");
+      }
+
+      const auto baseLinePx = lookup.GetBaseLinePx();
+      const auto scaledBaseLinePx = ScaledBaseLine(baseLinePx, fontScale);
+      // extract information about the characters we are rendering
+      float layoutXOffsetPxf = 0.0f;
+      const auto viewLength = strView.length();
+      uint32_t previousChar = 0;
+      for (uint32_t index = 0; index < viewLength; ++index)
+      {
+        const uint32_t currentChar = static_cast<unsigned char>(strView[index]);
+        const BitmapFontChar& charInfo = lookup.GetChar(currentChar, unknownChar);
+        // apply kerning
+        layoutXOffsetPxf += float(lookup.GetKerning(previousChar, currentChar)) * fontScale;
+
+        // calc distance from original baseline to the startY, then scale it
+        // then add the distance to the scaled baseline and round it (this ensures we have high accuracy)
+        // we store the kerning offset in a int32_t to ensure that the "-" operation doesn't underflow (due to unsigned subtraction)
+        const int32_t glyphYOffsetPx = charInfo.OffsetPx.Y;
+        const auto glyphHeight = UncheckedNumericCast<int32_t>(charInfo.SrcTextureRectPx.Height);
+        auto scaledYStartPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx - baseLinePx) * fontScale))));
+        const auto scaledYEndPx = int32_t(std::round((scaledBaseLinePx + (float(glyphYOffsetPx + glyphHeight - baseLinePx) * fontScale))));
+
+        const auto dstXPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X) * fontScale)));
+        auto dstXEndPx = int32_t(std::round(layoutXOffsetPxf + (float(charInfo.OffsetPx.X + charInfo.SrcTextureRectPx.Width) * fontScale)));
+
+        if (dstXPx >= dstXEndPx)
+        {
+          dstXEndPx = charInfo.SrcTextureRectPx.Width > 0u ? (dstXEndPx + 1) : dstXEndPx;
+        }
+        if (scaledYStartPx >= scaledYEndPx)
+        {
+          scaledYStartPx = glyphHeight > 0 ? (scaledYEndPx - 1) : scaledYEndPx;
+        }
+
+        const auto dstRectPx = PxRectangle2D::FromLeftTopRightBottom(dstXPx, scaledYStartPx, dstXEndPx, scaledYEndPx);
+        rDst[index] = FontGlyphPosition(dstRectPx, charInfo.SrcTextureRectPx);
+        layoutXOffsetPxf += float(charInfo.XAdvancePx) * fontScale;
+        previousChar = currentChar;
+      }
+      return true;
     }
   }
-
-
-  TextureAtlasBitmapFont::TextureAtlasBitmapFont()
-    : m_glyphs(0)
-  {
-  }
-
 
   TextureAtlasBitmapFont::TextureAtlasBitmapFont(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning)
-    : m_ranges(basicFontKerning.RangeCount())
-    , m_glyphs(basicFontKerning.Count())
-
+    : TextureAtlasBitmapFont(BitmapFontConverter::ToBitmapFont(textureAtlas, basicFontKerning))
   {
-    DoConstruct(textureAtlas, basicFontKerning);
   }
 
+
+  TextureAtlasBitmapFont::TextureAtlasBitmapFont(const BitmapFont& bitmapFont)
+    : m_lookup(bitmapFont)
+  {
+    // dump kerning info
+    // auto kerningSpan = bitmapFont.GetKernings();
+    // for (std::size_t i = 0; i < kerningSpan.size(); ++i)
+    //{
+    //  FSLLOG3_INFO("{} {}", (char)kerningSpan[i].First, (char)kerningSpan[i].Second);
+    //}
+  }
+
+  void TextureAtlasBitmapFont::Reset(const BitmapFont& bitmapFont)
+  {
+    Reset();
+    m_lookup = BitmapFontFastLookup(bitmapFont);
+  }
 
   void TextureAtlasBitmapFont::Reset(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning)
   {
-    m_ranges.resize(basicFontKerning.RangeCount());
-    m_minGlyphId = 0;
-    m_maxGlyphId = 0;
-    m_unknownGlyphIndex = 0;
-    m_glyphs.resize(basicFontKerning.Count());
-    m_baseLine = 0;
-    m_lineSpacing = 0;
-    DoConstruct(textureAtlas, basicFontKerning);
+    Reset();
+    m_lookup = BitmapFontFastLookup(BitmapFontConverter::ToBitmapFont(textureAtlas, basicFontKerning));
   }
 
 
-  Point2 TextureAtlasBitmapFont::MeasureString(const char* const psz) const
+  int32_t TextureAtlasBitmapFont::BaseLinePx(const BitmapFontConfig& fontConfig) const
   {
-    if (psz == nullptr)
-    {
-      throw std::invalid_argument("psz can not null");
-    }
-
-    return MeasureString(psz, 0, std::strlen(psz));
-  }
-
-  Point2 TextureAtlasBitmapFont::MeasureString(const StringViewLite& strView) const
-  {
-    if (strView.empty())
-    {
-      return Point2();
-    }
-    if (strView.size() > std::numeric_limits<uint32_t>::max())
-    {
-      throw std::invalid_argument("length can not be larger than a uint32");
-    }
-    return MeasureString(strView.data(), 0, strView.size());
-  }
-
-  Point2 TextureAtlasBitmapFont::MeasureString(const char* const pStr, const uint32_t startIndex, const std::size_t length) const
-  {
-    if (pStr == nullptr)
-    {
-      throw std::invalid_argument("pStr can not null");
-    }
-    if (length > std::numeric_limits<uint32_t>::max())
-    {
-      throw std::invalid_argument("length can not be larger than a uint32");
-    }
-
-    if (m_minGlyphId == m_maxGlyphId)
-    {
-      return Point2(0, 0);
-    }
-
-    // extract information about the characters we are rendering
-    int32_t renderRight = 0;
-    int32_t renderBottom = 0;
-
-    int32_t layoutOffsetX = 0;
-    int32_t dstIndex = 0;
-    for (uint32_t index = startIndex; index < length; ++index)
-    {
-      const auto currentGlyph = static_cast<int32_t>(pStr[index]);
-      int32_t currentGlyphIndex;
-      if (currentGlyph >= m_minGlyphId && currentGlyph < m_maxGlyphId)
-      {
-        // a glyph that we might have information about
-        currentGlyphIndex = FindGlyphIndex(m_ranges, currentGlyph, m_unknownGlyphIndex);
-      }
-      else
-      {
-        // A unknown glyph
-        currentGlyphIndex = m_unknownGlyphIndex;
-      }
-
-      const int32_t currentRight = layoutOffsetX + m_glyphs[currentGlyphIndex].Kerning.OffsetX + m_glyphs[currentGlyphIndex].SrcRect.Width();
-      const int32_t currentBottom = m_glyphs[currentGlyphIndex].Kerning.OffsetY + m_glyphs[currentGlyphIndex].SrcRect.Height();
-      if (currentRight > renderRight)
-      {
-        renderRight = currentRight;
-      }
-      if (currentBottom > renderBottom)
-      {
-        renderBottom = currentBottom;
-      }
-
-      layoutOffsetX += m_glyphs[currentGlyphIndex].Kerning.LayoutWidth;
-      ++dstIndex;
-    }
-    return Point2(renderRight, renderBottom);
-  }
-
-  void TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView) const
-  {
-    if (strView.empty())
-    {
-      return;
-    }
-    ExtractRenderRules(rDst, strView.data(), 0, strView.size());
-  }
-
-  void TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const char* const pStr, const uint32_t startIndex,
-                                                  const std::size_t length) const
-  {
-    if (pStr == nullptr)
-    {
-      throw std::invalid_argument("pStr can not null");
-    }
-    if (length > std::numeric_limits<uint32_t>::max())
-    {
-      throw std::invalid_argument("length can not be larger than a uint32");
-    }
-    if (rDst.size() < std::size_t(length))
-    {
-      throw std::invalid_argument("rDst is too small");
-    }
-
-    if (m_minGlyphId == m_maxGlyphId)
-    {
-      uint32_t dstIndex = 0;
-      for (uint32_t index = startIndex; index < length; ++index)
-      {
-        rDst[dstIndex] = FontGlyphPosition(Vector2(0.0f, 0.0f), Rectangle(), 0);
-        ++dstIndex;
-      }
-      return;
-    }
-
-    // extract information about the characters we are rendering
-    int32_t layoutOffsetX = 0;
-    uint32_t dstIndex = 0;
-    for (uint32_t index = startIndex; index < length; ++index)
-    {
-      const auto currentGlyph = static_cast<int32_t>(pStr[index]);
-      int32_t currentGlyphIndex;
-      if (currentGlyph >= m_minGlyphId && currentGlyph < m_maxGlyphId)
-      {
-        // a glyph that we might have information about
-        currentGlyphIndex = FindGlyphIndex(m_ranges, currentGlyph, m_unknownGlyphIndex);
-      }
-      else
-      {
-        // A unknown glyph
-        currentGlyphIndex = m_unknownGlyphIndex;
-      }
-
-      const Vector2 dstOffset = Vector2(static_cast<float>(layoutOffsetX + m_glyphs[currentGlyphIndex].Kerning.OffsetX),
-                                        static_cast<float>(m_glyphs[currentGlyphIndex].Kerning.OffsetY));
-      rDst[dstIndex] = FontGlyphPosition(dstOffset, m_glyphs[currentGlyphIndex].SrcRect, m_glyphs[currentGlyphIndex].Kerning.LayoutWidth);
-      layoutOffsetX += m_glyphs[currentGlyphIndex].Kerning.LayoutWidth;
-      ++dstIndex;
-    }
+    return ScaledBaseLine(m_lookup.GetBaseLinePx(), fontConfig.Scale);
   }
 
 
-  void TextureAtlasBitmapFont::DoConstruct(const ITextureAtlas& textureAtlas, const IFontBasicKerning& basicFontKerning)
+  int32_t TextureAtlasBitmapFont::LineSpacingPx(const BitmapFontConfig& fontConfig) const
   {
-    // Setup everything
-    const FontDesc fontDesc = basicFontKerning.GetDesc();
-    m_baseLine = fontDesc.BaseLine;
-    m_lineSpacing = fontDesc.LineSpacing;
+    return int32_t(std::round(static_cast<float>(m_lookup.GetLineSpacingPx()) * std::max(fontConfig.Scale, 0.0f)));
+  }
 
-    // Extract the ranges and validate the glyph count
-    ExtractRanges(m_ranges, basicFontKerning);
 
-    if (!m_ranges.empty())
+  PxSize2D TextureAtlasBitmapFont::MeasureString(const StringViewLite& strView) const
+  {
+    return m_lookup.HasKerning() ? DoMeasureStringWithKerning(m_lookup, m_unknownChar, strView) : DoMeasureString(m_lookup, m_unknownChar, strView);
+  }
+
+
+  PxSize2D TextureAtlasBitmapFont::MeasureString(const StringViewLite& strView, const BitmapFontConfig& fontConfig) const
+  {
+    PxSize2D result;
+    if (fontConfig.Kerning && m_lookup.HasKerning())
     {
-      m_minGlyphId = m_ranges.front().From;
-      m_maxGlyphId = (m_ranges.back().From + std::max(m_ranges.back().Length, static_cast<int32_t>(0)));
+      result = fontConfig.Scale == 1.0f ? DoMeasureStringWithKerning(m_lookup, m_unknownChar, strView)
+                                        : DoMeasureStringWithKerning(m_lookup, m_unknownChar, strView, fontConfig.Scale);
     }
+    else
+    {
+      result = fontConfig.Scale == 1.0f ? DoMeasureString(m_lookup, m_unknownChar, strView)
+                                        : DoMeasureString(m_lookup, m_unknownChar, strView, fontConfig.Scale);
+    }
+    return result;
+  }
 
-    // Extract the glyph entries from the texture atlas
-    std::vector<TextureAtlasGlyphEntry> textureAtlasGlyphs(basicFontKerning.Count());
-    const int32_t textureAtlasGlyphCount = ExtractAtlasGlyphs(textureAtlasGlyphs, textureAtlas, basicFontKerning);
+  bool TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView) const
+  {
+    return m_lookup.HasKerning() ? DoExtractRenderRulesWithKerning(m_lookup, m_unknownChar, rDst, strView)
+                                 : DoExtractRenderRules(m_lookup, m_unknownChar, rDst, strView);
+  }
 
-    // Use the extracted information to build the glyphs
-    BuildGlyphs(m_glyphs, m_ranges, textureAtlasGlyphs, textureAtlasGlyphCount, basicFontKerning);
+  bool TextureAtlasBitmapFont::ExtractRenderRules(std::vector<FontGlyphPosition>& rDst, const StringViewLite& strView,
+                                                  const BitmapFontConfig& fontConfig) const
+  {
+    bool result = false;
+    if (fontConfig.Kerning && m_lookup.HasKerning())
+    {
+      result = fontConfig.Scale == 1.0f ? DoExtractRenderRulesWithKerning(m_lookup, m_unknownChar, rDst, strView)
+                                        : DoExtractRenderRulesWithKerning(m_lookup, m_unknownChar, rDst, strView, fontConfig.Scale);
+    }
+    else
+    {
+      result = fontConfig.Scale == 1.0f ? DoExtractRenderRules(m_lookup, m_unknownChar, rDst, strView)
+                                        : DoExtractRenderRules(m_lookup, m_unknownChar, rDst, strView, fontConfig.Scale);
+    }
+    return result;
   }
 }

@@ -135,7 +135,7 @@ namespace Fsl
     EffectFragUBOData m_effectUboData;
 
   public:
-    EffectSubpass(const DemoAppConfig& config);
+    explicit EffectSubpass(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

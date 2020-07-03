@@ -47,7 +47,8 @@ namespace Fsl
     {
       void DumpDebugInformation(const GLuint hProgram)
       {
-        GLint errorBufSize, errorLength;
+        GLint errorBufSize = 0;
+        GLint errorLength = 0;
         glGetProgramiv(hProgram, GL_INFO_LOG_LENGTH, &errorBufSize);
 
         std::vector<char> errorLog(std::max(errorBufSize, 1));
@@ -82,7 +83,6 @@ namespace Fsl
         for (GLuint i = 0; i < attributes.size(); ++i)
         {
           GL_CHECK(glBindAttribLocation(handle, i, attributes[i].c_str()));
-          ++i;
         }
 
         // Link the vertex shader and fragment shader together

@@ -34,6 +34,7 @@
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Content/IContentManager.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Matrix3.hpp>
 #include <FslBase/Math/Vector4.hpp>
@@ -46,7 +47,7 @@ namespace Fsl
     virtual ~IScene() = default;
 
     virtual void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
-                        const Point2& screenResolution) = 0;
+                        const PxSize2D& windowSizePx) = 0;
     virtual void Draw() = 0;
   };
 }

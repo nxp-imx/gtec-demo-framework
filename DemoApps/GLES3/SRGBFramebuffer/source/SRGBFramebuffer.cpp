@@ -32,21 +32,27 @@
 #include "SRGBFramebuffer.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
-#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/Control/BackgroundNineSlice.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
+#include <FslSimpleUI/Base/Layout/ComplexStackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/Layout/StackLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
+#include <FslSimpleUI/Theme/Basic/BasicThemeFactory.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslUtil/OpenGLES3/GLValues.hpp>
 #include <GLES3/gl3.h>
-#include <cmath>
 #include "SharedData.hpp"
+#include <array>
+#include <cmath>
 
 namespace Fsl
 {
   using namespace GLES3;
-  using namespace UI;
 
   namespace
   {
@@ -58,7 +64,8 @@ namespace Fsl
   SRGBFramebuffer::SRGBFramebuffer(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -88,10 +95,48 @@ namespace Fsl
     CreateTextures(contentManager);
     m_program = CreateShader(contentManager, hasSRGBFramebuffer);
     CreateVertexArray(m_program);
+
+    UpdateUIToState();
+    UpdateSceneTransition(DemoTime());
+    m_splitX.ForceComplete();
+    m_splitSceneWidthL.ForceComplete();
+    m_splitSceneWidthR.ForceComplete();
+    m_splitSceneAlphaL.ForceComplete();
+    m_splitSceneAlphaR.ForceComplete();
   }
 
 
   SRGBFramebuffer::~SRGBFramebuffer() = default;
+
+
+  void SRGBFramebuffer::OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent)
+  {
+    if (theEvent->GetSource() == m_leftCB || theEvent->GetSource() == m_rightCB)
+    {
+      const bool isCheckedL = m_leftCB->IsChecked();
+      const bool isCheckedR = m_rightCB->IsChecked();
+      if (isCheckedL)
+      {
+        if (isCheckedR)
+        {
+          SetState(State::Split2);
+        }
+        else
+        {
+          SetState(State::Scene1);
+        }
+      }
+      else if (isCheckedR)
+      {
+        SetState(State::Scene2);
+      }
+      else
+      {
+        // If none is checked we force update the UI
+        UpdateUIToState();
+      }
+    }
+  }
 
 
   void SRGBFramebuffer::OnKeyEvent(const KeyEvent& event)
@@ -104,14 +149,14 @@ namespace Fsl
     switch (event.GetKey())
     {
     case VirtualKey::Code1:
-      m_state = State::Scene1;
+      SetState(State::Scene1);
       break;
     case VirtualKey::Code2:
-      m_state = State::Scene2;
+      SetState(State::Scene2);
       break;
     case VirtualKey::Code3:
     case VirtualKey::Space:
-      m_state = State::Split2;
+      SetState(State::Split2);
       break;
     default:
       break;
@@ -160,21 +205,21 @@ namespace Fsl
     UpdateInput(demoTime);
     UpdateSceneTransition(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
     auto matrixWorld = Matrix::GetIdentity();
     auto matrixView = m_camera.GetViewMatrix();
 
-    const float aspectL = m_splitSceneWidthL.GetValue() / screenResolution.Y;
+    const float aspectL = m_splitSceneWidthL.GetValue() / windowSizePx.Height();
     m_matrixProjectionL = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectL, 0.1f, 100.0f);
     m_matrixWorldViewL = matrixWorld * matrixView;
 
-    const float aspectR = m_splitSceneWidthR.GetValue() / screenResolution.Y;
+    const float aspectR = m_splitSceneWidthR.GetValue() / windowSizePx.Height();
     m_matrixProjectionR = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectR, 0.1f, 100.0f);
     m_matrixWorldViewR = matrixWorld * matrixView;
   }
 
 
-  void SRGBFramebuffer::Draw(const DemoTime& demoTime)
+  void SRGBFramebuffer::Draw(const DemoTime& /*demoTime*/)
   {
     GL_CHECK(glUseProgram(m_program.Get()));
 
@@ -236,13 +281,13 @@ namespace Fsl
 
   void SRGBFramebuffer::UpdateSceneTransition(const DemoTime& demoTime)
   {
-    const auto res = Vector2(GetScreenResolution().X, GetScreenResolution().Y);
+    const auto resPxf = TypeConverter::UncheckedTo<Vector2>(GetWindowSizePx());
 
     switch (m_state)
     {
     case State::Scene1:
-      m_splitX.SetValue(res.X);
-      m_splitSceneWidthL.SetValue(res.X);
+      m_splitX.SetValue(resPxf.X);
+      m_splitSceneWidthL.SetValue(resPxf.X);
       m_splitSceneWidthR.SetValue(0.0f);
       m_splitSceneAlphaL.SetValue(1.0f);
       m_splitSceneAlphaR.SetValue(0.0f);
@@ -250,15 +295,15 @@ namespace Fsl
     case State::Scene2:
       m_splitX.SetValue(0.0f);
       m_splitSceneWidthL.SetValue(0.0f);
-      m_splitSceneWidthR.SetValue(res.X);
+      m_splitSceneWidthR.SetValue(resPxf.X);
       m_splitSceneAlphaL.SetValue(0.0f);
       m_splitSceneAlphaR.SetValue(1.0f);
       break;
     case State::Split2:
     default:
-      m_splitX.SetValue(res.X / 2.0f);
-      m_splitSceneWidthL.SetValue(res.X / 2.0f);
-      m_splitSceneWidthR.SetValue(res.X / 2.0f);
+      m_splitX.SetValue(resPxf.X / 2.0f);
+      m_splitSceneWidthL.SetValue(resPxf.X / 2.0f);
+      m_splitSceneWidthR.SetValue(resPxf.X / 2.0f);
       m_splitSceneAlphaL.SetValue(1.0f);
       m_splitSceneAlphaR.SetValue(1.0f);
       break;
@@ -278,7 +323,7 @@ namespace Fsl
 
   void SRGBFramebuffer::DrawScenes()
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
     // Set the shader program
     glUseProgram(m_program.Get());
@@ -302,13 +347,13 @@ namespace Fsl
     // Android build complains about std::round (so this makes all happy)
     using namespace std;
     const auto splitX = static_cast<GLint>(round(m_splitX.GetValue()));
-    const GLint remainderX = screenResolution.X - splitX;
+    const GLint remainderX = windowSizePx.Width() - splitX;
 
     glBindTexture(GL_TEXTURE_2D, m_texLinear.Get());
 
 
     // left (gamma correction enabled, rgb texture)
-    glViewport(0, 0, splitX, screenResolution.Y);
+    glViewport(0, 0, splitX, windowSizePx.Height());
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     glActiveTexture(GL_TEXTURE0);
@@ -317,24 +362,24 @@ namespace Fsl
     // Bottom right (gamma correction, srgb texture)
     glUniformMatrix4fv(m_hModelViewMatrixLoc, 1, 0, m_matrixWorldViewR.DirectAccess());
     glUniformMatrix4fv(m_hProjMatrixLoc, 1, 0, m_matrixProjectionR.DirectAccess());
-    glViewport(splitX, 0, remainderX, screenResolution.Y);
+    glViewport(splitX, 0, remainderX, windowSizePx.Height());
     // glUniform1i(m_hGamma, true);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     m_vertexArray.Unbind();
 
     // Restore the viewport
-    glViewport(0, 0, screenResolution.X, screenResolution.Y);
+    glViewport(0, 0, windowSizePx.Width(), windowSizePx.Height());
   }
 
 
   void SRGBFramebuffer::PrepareTransition()
   {
     // Force set the initial value so we dont begin with a transition
-    const auto res = Vector2(GetScreenResolution().X, GetScreenResolution().Y);
-    m_splitX.SetActualValue(res.X / 2.0f);
-    m_splitSceneWidthL.SetActualValue(res.X / 2.0f);
-    m_splitSceneWidthR.SetActualValue(res.X / 2.0f);
+    const auto resPxf = TypeConverter::UncheckedTo<Vector2>(GetWindowSizePx());
+    m_splitX.SetActualValue(resPxf.X / 2.0f);
+    m_splitSceneWidthL.SetActualValue(resPxf.X / 2.0f);
+    m_splitSceneWidthR.SetActualValue(resPxf.X / 2.0f);
     m_splitSceneAlphaL.SetActualValue(1.0f);
     m_splitSceneAlphaL.SetActualValue(1.0f);
   }
@@ -366,7 +411,7 @@ namespace Fsl
 
   GLES3::GLProgram SRGBFramebuffer::CreateShader(const std::shared_ptr<IContentManager>& contentManager, const bool hasSRGBFramebuffer)
   {
-    const auto fragmentShaderFile = hasSRGBFramebuffer ? "Shader.frag" : "GammaCorrection.frag";
+    const auto* const fragmentShaderFile = hasSRGBFramebuffer ? "Shader.frag" : "GammaCorrection.frag";
     GLProgram program(contentManager->ReadAllText("Shader.vert"), contentManager->ReadAllText(fragmentShaderFile));
 
     // Get uniform locations (vertex shader)
@@ -397,7 +442,7 @@ namespace Fsl
     const float v0 = 10.0f;
     const float v1 = 0.0f;
     const Vector3 normal(0.0f, 1.0f, 0.0f);
-    VertexPositionNormalTexture vertices[6] = {
+    const std::array<VertexPositionNormalTexture, 6> vertices = {
       VertexPositionNormalTexture(Vector3(x0, y, z0), normal, Vector2(u0, v0)),
       VertexPositionNormalTexture(Vector3(x0, y, z1), normal, Vector2(u0, v1)),
       VertexPositionNormalTexture(Vector3(x1, y, z1), normal, Vector2(u1, v1)),
@@ -416,7 +461,7 @@ namespace Fsl
       GLVertexAttribLink(program.GetAttribLocation("VertexTexCoord"), vertexDecl.VertexElementGetIndexOf(VertexElementUsage::TextureCoordinate, 0));
 
 
-    m_vertexBuffer.Reset(vertices, sizeof(vertices) / sizeof(VertexPositionNormalTexture), GL_STATIC_DRAW);
+    m_vertexBuffer.Reset(vertices, GL_STATIC_DRAW);
 
     // Prepare the vertex arrays
     m_vertexArray.Reset(true);
@@ -438,53 +483,84 @@ namespace Fsl
     // Next up we prepare the actual UI
     auto context = m_uiExtension->GetContext();
 
+    UI::Theme::BasicThemeFactory factory(context, m_uiExtension->GetSpriteResourceManager(), m_uiExtension->GetDefaultMaterialId());
+
     // Create a label to write stuff into when a button is pressed
 
-    m_labelLeft = std::make_shared<Label>(context);
-    m_labelLeft->SetAlignmentX(ItemAlignment::Near);
-    m_labelLeft->SetAlignmentY(ItemAlignment::Near);
-    m_labelLeft->SetContent("RGB texture, gamma correction");
+    m_labelLeft = factory.CreateLabel("RGB texture, gamma correction");
+    m_labelLeft->SetAlignmentX(UI::ItemAlignment::Near);
+    m_labelLeft->SetAlignmentY(UI::ItemAlignment::Near);
 
-    m_labelRight = std::make_shared<Label>(context);
-    m_labelRight->SetAlignmentX(ItemAlignment::Far);
-    m_labelRight->SetAlignmentY(ItemAlignment::Near);
-    m_labelRight->SetContent("SRGB texture, gamma correction (Correct)");
+    m_labelRight = factory.CreateLabel("SRGB texture, gamma correction (Correct)");
+    m_labelRight->SetAlignmentX(UI::ItemAlignment::Far);
+    m_labelRight->SetAlignmentY(UI::ItemAlignment::Near);
 
-    auto infoArea = std::make_shared<StackLayout>(context);
-    infoArea->SetLayoutOrientation(LayoutOrientation::Vertical);
-    infoArea->SetAlignmentX(ItemAlignment::Center);
-    infoArea->SetAlignmentY(ItemAlignment::Far);
-    if (!hasSRGBFramebuffer)
-    {
-      auto label1 = std::make_shared<Label>(context);
-      label1->SetAlignmentX(ItemAlignment::Center);
-      label1->SetContent("SRGB framebuffer not available");
+    auto label1 = factory.CreateLabel(hasSRGBFramebuffer ? "SRGB framebuffer" : "SRGB framebuffer not available. Emulating output using shader");
+    label1->SetAlignmentX(UI::ItemAlignment::Center);
+    label1->SetAlignmentY(UI::ItemAlignment::Center);
 
-      auto label2 = std::make_shared<Label>(context);
-      label2->SetAlignmentX(ItemAlignment::Center);
-      label2->SetContent("Emulating output using shader");
+    auto leftCB = factory.CreateSwitch("Incorrect");
+    auto rightCB = factory.CreateSwitch("Correct");
+    leftCB->SetAlignmentX(UI::ItemAlignment::Center);
+    rightCB->SetAlignmentX(UI::ItemAlignment::Center);
+    auto controls = std::make_shared<UI::ComplexStackLayout>(context);
+    controls->SetAlignmentX(UI::ItemAlignment::Stretch);
+    controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
+    controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Auto));
+    controls->PushLayoutLength(UI::LayoutLength(UI::LayoutUnitType::Star));
+    controls->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
+    controls->AddChild(leftCB);
+    controls->AddChild(label1);
+    controls->AddChild(rightCB);
 
-      infoArea->AddChild(label1);
-      infoArea->AddChild(label2);
-    }
-    else
-    {
-      auto label1 = std::make_shared<Label>(context);
-      label1->SetAlignmentX(ItemAlignment::Center);
-      label1->SetContent("SRGB framebuffer");
 
-      infoArea->AddChild(label1);
-    }
+    auto bottomBar = factory.CreateBottomBar(controls);
 
     // Create a 'root' layout we use the recommended fill layout as it will utilize all available space on the screen
     // We then add the 'player' stack to it and the label
-    auto fillLayout = std::make_shared<FillLayout>(context);
+    auto fillLayout = std::make_shared<UI::FillLayout>(context);
     fillLayout->AddChild(m_labelLeft);
     fillLayout->AddChild(m_labelRight);
-    fillLayout->AddChild(infoArea);
+    fillLayout->AddChild(bottomBar);
 
+    m_leftCB = leftCB;
+    m_rightCB = rightCB;
 
     // Finally add everything to the window manager (to ensure its seen)
     m_uiExtension->GetWindowManager()->Add(fillLayout);
   }
+
+  void SRGBFramebuffer::SetState(State state)
+  {
+    if (state == m_state)
+    {
+      return;
+    }
+
+    m_state = state;
+    UpdateUIToState();
+  }
+
+  void SRGBFramebuffer::UpdateUIToState()
+  {
+    switch (m_state)
+    {
+    case State::Scene1:
+      m_leftCB->SetIsChecked(true);
+      m_rightCB->SetIsChecked(false);
+      break;
+    case State::Scene2:
+      m_leftCB->SetIsChecked(false);
+      m_rightCB->SetIsChecked(true);
+      break;
+    case State::Split2:
+      m_leftCB->SetIsChecked(true);
+      m_rightCB->SetIsChecked(true);
+      break;
+    default:
+      FSLLOG3_WARNING("Unsupported");
+      break;
+    }
+  }
+
 }

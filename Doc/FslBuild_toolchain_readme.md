@@ -54,15 +54,11 @@ Argument           | Description
 
 Platform | Build system
 ---------|--------------------------------
-Android  | ant
+Android  | gradle + cmake
 Qnx      | make
-Ubuntu   | cmake -> makefiles
+Ubuntu   | cmake -> ninja
 Windows  | Visual studio (IDE or nmake)
-Yocto    | make
-
-### Known issues
-
-- Android has experimental support.
+Yocto    | cmake -> ninja
 
 ## FslBuildInfo.py
 

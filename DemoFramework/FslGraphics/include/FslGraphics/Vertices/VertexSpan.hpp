@@ -41,14 +41,10 @@ namespace Fsl
   {
     using vertex_type = TVertex;
 
-    const vertex_type* pVertices;
-    uint32_t VertexCount;
+    const vertex_type* pVertices{nullptr};
+    uint32_t VertexCount{0};
 
-    constexpr VertexSpan()
-      : pVertices{nullptr}
-      , VertexCount{0}
-    {
-    }
+    constexpr VertexSpan() noexcept = default;
 
     inline constexpr VertexSpan(const vertex_type* pSrcVertices, const uint32_t vertexCount)
       : pVertices(pSrcVertices)

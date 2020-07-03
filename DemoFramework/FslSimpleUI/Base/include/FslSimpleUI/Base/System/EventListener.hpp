@@ -51,6 +51,18 @@ namespace Fsl
         FSL_PARAM_NOT_USED(args);
         FSL_PARAM_NOT_USED(theEvent);
       }
+      void OnMouseOverPreview(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+      {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
+      }
+
+      void OnMouseOver(const RoutedEventArgs& args, const std::shared_ptr<WindowMouseOverEvent>& theEvent) override
+      {
+        FSL_PARAM_NOT_USED(args);
+        FSL_PARAM_NOT_USED(theEvent);
+      }
+
       void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override
       {
         FSL_PARAM_NOT_USED(args);

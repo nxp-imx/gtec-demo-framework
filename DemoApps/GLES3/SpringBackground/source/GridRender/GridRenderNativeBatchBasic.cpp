@@ -31,7 +31,7 @@
 
 #include "GridRenderNativeBatchBasic.hpp"
 #include <FslBase/Math/VectorHelper.hpp>
-#include <FslUtil/OpenGLES3/NativeTexture2D.hpp>
+#include <FslUtil/OpenGLES3/DynamicNativeTexture2D.hpp>
 #include <cassert>
 
 namespace Fsl
@@ -47,7 +47,7 @@ namespace Fsl
     }
 
 
-    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const Rectangle nativeTexRect, const Vector2& start,
+    inline void DrawLine(NativeBatch2D* pBatch, const GLBatch2D::texture_type& texFill, const PxRectangleU& nativeTexRect, const Vector2& start,
                          const Vector2& end, const Color& color, const float thickness)
     {
       Vector2 delta = end - start;
@@ -69,26 +69,26 @@ namespace Fsl
   }
 
 
-  void GridRenderNativeBatchBasic::Update(const DemoTime& demoTime, const Vector2& areaSize, const std::vector<PointMass>& points)
+  void GridRenderNativeBatchBasic::Update(const DemoTime& /*demoTime*/, const Vector2& /*areaSize*/, const std::vector<PointMass>& /*points*/)
   {
   }
 
 
   void GridRenderNativeBatchBasic::Draw(const GridRenderDrawContext& drawContext, const std::vector<PointMass>& points)
   {
-    const std::shared_ptr<NativeTexture2D> nativeTex = std::dynamic_pointer_cast<NativeTexture2D>(drawContext.TexFill.TryGetNative());
+    auto nativeTex = std::dynamic_pointer_cast<DynamicNativeTexture2D>(drawContext.TexFill.TryGetNative());
     assert(nativeTex);
     GLBatch2D::texture_type texFillNative(nativeTex->Get(), drawContext.TexFill.GetAtlasSize());
-    const Rectangle texTrimmedRect(drawContext.TexFill.GetInfo().TrimmedRect);
-    const Rectangle rectFillTex(texTrimmedRect.X() + (texTrimmedRect.Width() / 2), texTrimmedRect.Y() + (texTrimmedRect.Height() / 2), 1, 1);
+    const auto texTrimmedRect = drawContext.TexFill.GetInfo().TrimmedRectPx;
+    const PxRectangleU rectFillTex(texTrimmedRect.X + (texTrimmedRect.Width / 2), texTrimmedRect.Y + (texTrimmedRect.Height / 2), 1, 1);
 
 
     const int32_t width = m_gridSize.X;
     const int32_t height = m_gridSize.Y;
     Color color(0.12f, 0.12f, 0.55f, 0.33f);
 
-    auto pBatch = drawContext.pBatch;
-    const auto pPoints = points.data();
+    auto* pBatch = drawContext.pBatch;
+    const auto* const pPoints = points.data();
     const auto gridStride = m_gridSize.X;
     const auto areaSize = drawContext.AreaSize;
 
@@ -98,7 +98,8 @@ namespace Fsl
       Vector2 previousPointX = ToVec2(pPoints[(y * gridStride)].m_position, areaSize);
       for (int x = 1; x < width - 1; x++)
       {
-        Vector2 left, up;
+        Vector2 left;
+        Vector2 up;
         Vector2 currentPoint = ToVec2(pPoints[x + (y * gridStride)].m_position, areaSize);
         if (x > 1)
         {

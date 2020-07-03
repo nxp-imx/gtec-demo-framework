@@ -39,6 +39,7 @@
 #include <FslUtil/OpenGLES3/GLVertexBuffer.hpp>
 #include "AScene.hpp"
 #include "PS/ParticleDrawContext.hpp"
+#include <array>
 
 namespace Fsl
 {
@@ -50,11 +51,7 @@ namespace Fsl
 
   namespace UI
   {
-    class CheckBox;
     class Label;
-    class Slider;
-    class SliderAndValueLabel;
-    class ValueLabel;
     class WindowContext;
   }
 
@@ -74,7 +71,7 @@ namespace Fsl
     Graphics3D::ArcballCamera m_camera;
     GLES3::GLProgram m_program;
     GLES3::GLVertexBuffer m_vbCube;
-    GLES3::GLVertexAttribLink m_cubeAttribLink[3];
+    std::array<GLES3::GLVertexAttribLink, 3> m_cubeAttribLink;
     GLES3::GLTexture m_texParticle;
     GLES3::GLTexture m_texParticleSnow;
     GLES3::GLTexture m_texCube;

@@ -89,14 +89,14 @@ namespace Fsl
     const float u2 = 1.0f;
     const float v2 = 1.0f;
 
-    VertexPositionTexture vertices[] = {
+    const std::array<VertexPositionTexture, 4> vertices = {
       VertexPositionTexture(Vector3(x1, y2, z), Vector2(u1, v2)),
       VertexPositionTexture(Vector3(x1, y1, z), Vector2(u1, v1)),
       VertexPositionTexture(Vector3(x2, y2, z), Vector2(u2, v2)),
       VertexPositionTexture(Vector3(x2, y1, z), Vector2(u2, v1)),
     };
 
-    m_vertexBuffer.Reset(vertices, 4, GL_STATIC_DRAW);
+    m_vertexBuffer.Reset(vertices, GL_STATIC_DRAW);
 
     m_locMatModelViewProj = GL_CHECK(glGetUniformLocation(m_program.Get(), "g_matModelViewProj"));
     GL_CHECK_FOR_ERROR();
@@ -112,16 +112,16 @@ namespace Fsl
 
     float xRangeFirst = (1200.0f / 2.0f);
     float xRangeLast = (1920.0f / 2.0f);
-    float xRangeAdd = (xRangeLast - xRangeFirst) / (LAYER_COUNT - 1);
+    float xRangeAdd = (xRangeLast - xRangeFirst) / float(m_layers.size() - 1u);
     float xRange = xRangeFirst;
-    for (int i = 0; i < LAYER_COUNT; ++i)
+    for (std::size_t i = 0; i < m_layers.size(); ++i)
     {
       m_layers[i].Position = pos * xRange;
       xRange += xRangeAdd;
     }
 
-    const Point2 res = GetScreenResolution();
-    m_matViewProj = Matrix::CreateOrthographic(static_cast<float>(res.X), static_cast<float>(res.Y), 1.0f, 10.0f);
+    const PxSize2D res = GetWindowSizePx();
+    m_matViewProj = Matrix::CreateOrthographic(static_cast<float>(res.Width()), static_cast<float>(res.Height()), 1.0f, 10.0f);
 
     m_angle += 0.4f * demoTime.DeltaTime;
     if (m_angle > (MathHelper::TO_RADS * 360.0f))
@@ -131,7 +131,7 @@ namespace Fsl
   }
 
 
-  void EightLayerBlend::Draw(const DemoTime& demoTime)
+  void EightLayerBlend::Draw(const DemoTime& /*demoTime*/)
   {
     const GLuint hProgram = m_program.Get();
 
@@ -165,7 +165,7 @@ namespace Fsl
     // 1.0f, 10.0f);  glUniformMatrix4fv(m_locMatModelViewProj, 1, GL_FALSE, matViewProj.DirectAccess());  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glEnable(GL_BLEND);
-    for (int i = 1; i < LAYER_COUNT; ++i)
+    for (std::size_t i = 1; i < m_layers.size(); ++i)
     {
       glBindTexture(GL_TEXTURE_2D, m_layers[i].Texture.Get());
 

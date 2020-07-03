@@ -21,9 +21,14 @@
 #* EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #****************************************************************************************************************************************************
 
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Tuple
 from TPConvert import IOUtil
 from TPConvert.FormatPlugin import FormatPlugin
 from TPConvert.TexturePackerObjects import TexturePackerAtlas
+from TPConvert.TexturePackerObjects import TexturePackerFrame
 from TPConvert.FormatPluginBinaryTAUtil import *
 
 
@@ -33,14 +38,14 @@ class FormatPluginBinaryTA2(FormatPlugin):
 
     def Process(self, atlas: TexturePackerAtlas, outputFilename: str) -> None:
         pathInfo = self.__BuildPathDirectory(atlas.Entries)
-        #self.__DebugPaths(atlas.Entries, pathInfo)
+        self.__DebugPaths(atlas.Entries, pathInfo)
 
-        entryDict = {}
-        for entry in pathInfo[1]:
-            entryDict[entry[2]+entry[1]] = entry
+        entryDict = {}  # type: Dict[str, Tuple[int,str,str]]
+        for pathEntry in pathInfo[1]:
+            entryDict[pathEntry[2]+pathEntry[1]] = pathEntry
 
-        entryList = []
-        AddHeader(entryList, 2);
+        entryList = []                  # type: List[int]
+        AddHeader(entryList, 0x1001);
         # make room for a number of bytes written entry and store the offset where it was written so we can pacth it later
         offset = len(entryList)
         AddUInt32(entryList, 0);
@@ -53,7 +58,8 @@ class FormatPluginBinaryTA2(FormatPlugin):
             rectY = entry.Frame.Y - entry.SpriteSourceSize.Y
             rectWidth = entry.SourceSize.Width
             rectHeight = entry.SourceSize.Height
-            self.__AddEntry(entryList, rectX, rectY, rectWidth, rectHeight, entry.Frame.X, entry.Frame.Y, entry.Frame.Width, entry.Frame.Height, entryDict[entry.FullFilenameWithoutExt])
+            self.__AddEntry(entryList, rectX, rectY, rectWidth, rectHeight, entry.Frame.X, entry.Frame.Y, entry.Frame.Width, entry.Frame.Height, 
+                            entryDict[entry.FullFilenameWithoutExt])
 
         # Write the number of bytes that were written to the extended header
         # -4 because we dont count the 'size' entry
@@ -65,59 +71,60 @@ class FormatPluginBinaryTA2(FormatPlugin):
         IOUtil.WriteBinaryFileIfChanged(outputFilename, content)
 
 
-    def __DebugReconstructFilename(self, paths, file):
+    def __DebugReconstructFilename(self, paths: List[Tuple[int,str]], file: Tuple[int,str,str]) -> str:
         if file[0] <= 0:
             return file[1]
         return self.__DebugReconstructFilenameNow(paths, file[0]-1) + '/' + file[1]
 
-    def __DebugReconstructFilenameNow(self, paths, pathIndex):
+    def __DebugReconstructFilenameNow(self, paths: List[Tuple[int,str]], pathIndex: int) -> str:
         if paths[pathIndex][0] <= 0:
             return paths[pathIndex][1]
         return self.__DebugReconstructFilenameNow(paths, paths[pathIndex][0]-1) + '/' + paths[pathIndex][1]
 
 
-    def __DebugPaths(self, entries, pathInfo):
+    def __DebugPaths(self, entries: List[TexturePackerFrame], pathInfo: Tuple[List[Tuple[int,str]], List[Tuple[int,str,str]]]) -> None:
         reconstructed = []
         for file in pathInfo[1]:
             reconstructed.append(self.__DebugReconstructFilename(pathInfo[0], file))
 
         reconstructedSet = set()
-        for entry in reconstructed:
-            reconstructedSet.add(entry)
+        for reconstructedEntry in reconstructed:
+            reconstructedSet.add(reconstructedEntry)
 
         for entry in entries:
             if not entry.FullFilenameWithoutExt in reconstructedSet:
                 raise Exception("NotFound %s" % (entry.FullFilenameWithoutExt));
 
 
-    def __BuildPathDirectory(self, entries):
+    def __BuildPathDirectory(self, entries: List[TexturePackerFrame]) -> Tuple[List[Tuple[int,str]], List[Tuple[int,str,str]]]:
         # Build path tree using dicts
-        entryDict = {}
+        entryDict = {}  # type: Dict[str, Dict[str, Any]]
         for entry in entries:
             currentDict = entryDict
             pathElements = entry.FullFilenameWithoutExt.split('/')
             for element in pathElements:
                 if not element in currentDict:
-                    newDict = {}
+                    newDict = {} # type: Dict[str, Dict[str, Any]]
                     currentDict[element] = newDict
                     currentDict = newDict
                 else:
                     currentDict = currentDict[element]
-        listDirs = []
-        listFiles = []
+        listDirs = []       # type: List[Tuple[int,str]]
+        listFiles = []      # type: List[Tuple[int,str,str]]
         # Offset the indices by one so that 'zero' can mean the root
         self.__BuildPathList(listDirs, listFiles, entryDict, 0, 1, "")
         #print listDirs
-        return [listDirs, listFiles]
+        return (listDirs, listFiles)
 
 
-    def __BuildPathList(self, listDirs, listFiles, entryDict, parentIndex, startIndex, parentName):
+    def __BuildPathList(self, listDirs: List[Tuple[int,str]], listFiles: List[Tuple[int,str,str]], 
+                        entryDict: Dict[str, Dict[str, Any]], parentIndex: int, startIndex: int, parentName: str) -> int:
         totalIndex = startIndex
         for item in entryDict.items():
             if len(item[1]) == 0:
-                listFiles.append([parentIndex, item[0], parentName])
+                listFiles.append((parentIndex, item[0], parentName))
             else:
-                listDirs.append([parentIndex, item[0]])
+                listDirs.append((parentIndex, item[0]))
                 totalIndex = totalIndex + 1
 
         count2 = startIndex
@@ -128,13 +135,14 @@ class FormatPluginBinaryTA2(FormatPlugin):
         return totalIndex
 
 
-    def __AddPathList(self, entryList, pathList):
-        AddEncodedUInt32(entryList, len(entryList))
+    def __AddPathList(self, entryList: List[int], pathList: List[Tuple[int,str]]) -> None:
+        AddEncodedUInt32(entryList, len(pathList))
         for entry in pathList:
             AddEncodedUInt32(entryList, entry[0])
             AddString(entryList, entry[1])
 
-    def __AddEntry(self, entryList, srcRectX, srcRectY, srcRectWidth, srcRectHeight, trimmedRectX, trimmedRectY, trimmedRectWidth, trimmedRectHeight, pathInfo):
+    def __AddEntry(self, entryList: List[int], srcRectX: int, srcRectY: int, srcRectWidth: int, srcRectHeight: int, 
+                   trimmedRectX: int, trimmedRectY: int, trimmedRectWidth: int, trimmedRectHeight: int, pathInfo: Tuple[int,str,str]) -> None:
         AddRectangle(entryList, srcRectX, srcRectY, srcRectWidth, srcRectHeight)
         AddRectangle(entryList, trimmedRectX, trimmedRectY, trimmedRectWidth, trimmedRectHeight)
         AddEncodedUInt32(entryList, pathInfo[0])

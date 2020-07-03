@@ -33,7 +33,7 @@ namespace Fsl
       VkPhysicalDevice m_physicalDevice;
       VkDevice m_device;
       VkQueue m_queue;
-      VkCommandPool m_cmdPool;
+      // VkCommandPool m_cmdPool;
       RapidVulkan::CommandBuffer m_cmdBuffer;
       float m_maxAnisotropy;
 

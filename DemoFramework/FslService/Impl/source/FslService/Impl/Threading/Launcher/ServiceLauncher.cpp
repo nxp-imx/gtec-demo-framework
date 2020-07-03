@@ -59,7 +59,7 @@ namespace Fsl
 
     std::string SafeGetTypeName(const std::shared_ptr<IServiceFactory>& factory)
     {
-      auto pFactory = factory.get();
+      auto* pFactory = factory.get();
 
       return (pFactory != nullptr ? std::string(typeid(*pFactory).name()) : std::string());
     }
@@ -125,7 +125,7 @@ namespace Fsl
 
       assert(!deque.empty());
 
-      const std::shared_ptr<IService> service(record.Factory->Allocate(provider));
+      std::shared_ptr<IService> service(record.Factory->Allocate(provider));
       if (!service)
       {
         if ((record.Factory->GetFlags() & ServiceCaps::AvailableOnDemand) != 0)

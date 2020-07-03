@@ -46,7 +46,7 @@ namespace Fsl
     public:
       std::deque<std::shared_ptr<Mesh>> Meshes;
 
-      ComplexScene(const std::size_t numMeshes)
+      explicit ComplexScene(const std::size_t numMeshes)
         : Meshes(numMeshes)
       {
       }

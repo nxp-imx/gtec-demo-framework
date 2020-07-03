@@ -30,16 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include "HDR03_SkyboxToneMapping.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Bits/BitsUtil.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/MatrixUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VMVertexBufferUtil.hpp>
 #include <RapidVulkan/Check.hpp>
@@ -50,9 +49,6 @@
 
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace UI;
-
   namespace
   {
     const Vector3 DEFAULT_CAMERA_POSITION(0.0f, 0.0f, 0.0f);
@@ -109,7 +105,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -130,7 +126,7 @@ namespace Fsl
       VkDescriptorPoolCreateInfo descriptorPoolInfo{};
       descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
       descriptorPoolInfo.maxSets = count;
-      descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+      descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
       descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
       return RapidVulkan::DescriptorPool(device.Get(), descriptorPoolInfo);
@@ -212,9 +208,9 @@ namespace Fsl
       attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
       attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
-      return RapidVulkan::RenderPass(device, 0, static_cast<uint32_t>(attachments.size()), attachments.data(),
-                                     static_cast<uint32_t>(subpassDescription.size()), subpassDescription.data(),
-                                     static_cast<uint32_t>(subpassDependency.size()), subpassDependency.data());
+      return RapidVulkan::RenderPass(device, 0, UncheckedNumericCast<uint32_t>(attachments.size()), attachments.data(),
+                                     UncheckedNumericCast<uint32_t>(subpassDescription.size()), subpassDescription.data(),
+                                     UncheckedNumericCast<uint32_t>(subpassDependency.size()), subpassDependency.data());
     }
 
     Vulkan::VUImageMemoryView CreateRenderAttachment(const Vulkan::VUDevice& device, const VkExtent2D& extent, const VkFormat format,
@@ -279,7 +275,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &mesh.VertexInputBindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(mesh.VertexAttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(mesh.VertexAttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = mesh.VertexAttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -349,7 +345,7 @@ namespace Fsl
 
       VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
       pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-      pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(dynamicState.size());
+      pipelineDynamicStateCreateInfo.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicState.size());
       pipelineDynamicStateCreateInfo.pDynamicStates = dynamicState.data();
 
       VkPipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo{};
@@ -366,7 +362,7 @@ namespace Fsl
 
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -391,7 +387,8 @@ namespace Fsl
   HDR03_SkyboxToneMapping::HDR03_SkyboxToneMapping(const DemoAppConfig& config)
     : VulkanBasic::DemoAppVulkanBasic(config, CreateSetup())
     , m_menuUI(config, Tonemapper::COUNT)
-    , m_bufferManager(std::make_shared<VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
+    , m_bufferManager(
+        std::make_shared<Vulkan::VMBufferManager>(m_physicalDevice, m_device.Get(), m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex))
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -473,11 +470,11 @@ namespace Fsl
   }
 
 
-  void HDR03_SkyboxToneMapping::Resized(const Point2& size)
+  void HDR03_SkyboxToneMapping::ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
-    VulkanBasic::DemoAppVulkanBasic::Resized(size);
+    VulkanBasic::DemoAppVulkanBasic::ConfigurationChanged(windowMetrics);
 
-    m_menuUI.SetScreenResolution(size);
+    m_menuUI.SetWindowMetrics(windowMetrics);
   }
 
 
@@ -486,14 +483,13 @@ namespace Fsl
     UpdateInput(demoTime);
     m_menuUI.Update(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     // m_vertexUboData.MatModel = Matrix::GetIdentity();
     m_vertexUboData.MatView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
 
     // Deal with the new Vulkan coordinate system (see method description for more info).
     // Consider using: https://github.com/KhronosGroup/Vulkan-Docs/blob/master/appendices/VK_KHR_maintenance1.txt
-    const auto vulkanClipMatrix = MatrixUtil::GetClipMatrix();
+    const auto vulkanClipMatrix = Vulkan::MatrixUtil::GetClipMatrix();
 
     // The ordering in the monogame based Matrix library is the reverse of glm (so perspective * clip instead of clip * perspective)
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f) * vulkanClipMatrix;
@@ -512,11 +508,11 @@ namespace Fsl
     m_resources.MainFrameResources[frameIndex].SceneVertUboBuffer.Upload(0, &m_vertexUboData, sizeof(VertexUBOData));
     m_resources.MainFrameResources[frameIndex].TonemapVertUboBuffer.Upload(0, &m_tonemapUboData, sizeof(TonemapperUBOData));
 
-    auto hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
+    const VkCommandBuffer hCmdBuffer = rCmdBuffers[currentSwapBufferIndex];
     rCmdBuffers.Begin(currentSwapBufferIndex, VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, VK_FALSE, 0, 0);
     {
       std::array<VkClearValue, 2> clearValues{};
-      clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+      clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
       clearValues[1].depthStencil = {1.0f, 0};
 
       VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -526,7 +522,7 @@ namespace Fsl
       renderPassBeginInfo.renderArea.offset.x = 0;
       renderPassBeginInfo.renderArea.offset.y = 0;
       renderPassBeginInfo.renderArea.extent = drawContext.SwapchainImageExtent;
-      renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+      renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
       renderPassBeginInfo.pClearValues = clearValues.data();
 
       rCmdBuffers.CmdBeginRenderPass(currentSwapBufferIndex, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -588,7 +584,7 @@ namespace Fsl
     std::array<VkImageView, 3> imageViews = {m_dependentResources.RenderAttachment.ImageView().Get(), frameBufferCreateContext.DepthBufferImageView,
                                              frameBufferCreateContext.SwapchainImageView};
 
-    return RapidVulkan::Framebuffer(m_device.Get(), 0, frameBufferCreateContext.RenderPass, static_cast<uint32_t>(imageViews.size()),
+    return RapidVulkan::Framebuffer(m_device.Get(), 0, frameBufferCreateContext.RenderPass, UncheckedNumericCast<uint32_t>(imageViews.size()),
                                     imageViews.data(), frameBufferCreateContext.SwapChainImageExtent.width,
                                     frameBufferCreateContext.SwapChainImageExtent.height, 1);
   }
@@ -685,16 +681,16 @@ namespace Fsl
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_dependentResources.ScenePipeline.Get());
 
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, scene.Mesh.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, scene.Mesh.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, scene.Mesh.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 
 
-  void HDR03_SkyboxToneMapping::DrawTonemappedScene(const FrameResources& frame, const VkCommandBuffer commandBuffer)
+  void HDR03_SkyboxToneMapping::DrawTonemappedScene(const FrameResources& /*frame*/, const VkCommandBuffer commandBuffer)
   {
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshQuad.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(commandBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.MeshQuad.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(commandBuffer, m_resources.MeshQuad.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 
@@ -704,7 +700,7 @@ namespace Fsl
     FSLLOG3_INFO("Preparing scene");
     FSLLOG3_INFO("- loading cubemaps")
 
-    VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
+    Vulkan::VulkanImageCreator imageCreator(m_device, m_deviceQueue.Queue, m_deviceQueue.QueueFamilyIndex);
     // rScene.CubemapTexture = TextureUtil::CreateCubemapTextureFromSix(contentManager, "floral_tent/1024", imageCreator,
     // PixelFormat::R16G16B16A16_SFLOAT);
     rScene.CubemapTexture =
@@ -721,13 +717,13 @@ namespace Fsl
   }
 
 
-  std::vector<RapidVulkan::ShaderModule> HDR03_SkyboxToneMapping::CreateTonemappers(const VkDevice device,
+  std::vector<RapidVulkan::ShaderModule> HDR03_SkyboxToneMapping::CreateTonemappers(const VkDevice /*device*/,
                                                                                     const std::shared_ptr<IContentManager>& contentManager)
   {
     std::vector<RapidVulkan::ShaderModule> shaderModules(Tonemapper::COUNT);
     for (std::size_t i = 0; i < shaderModules.size(); ++i)
     {
-      const auto fragmentShaderName = GetTonemapperShaderName(static_cast<Tonemapper::Enum>(i));
+      const auto* const fragmentShaderName = GetTonemapperShaderName(static_cast<Tonemapper::Enum>(i));
       shaderModules[i].Reset(m_device.Get(), 0, contentManager->ReadBytes(fragmentShaderName));
     }
     return shaderModules;

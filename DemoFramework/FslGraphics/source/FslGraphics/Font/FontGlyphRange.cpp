@@ -35,9 +35,6 @@
 
 namespace Fsl
 {
-  FontGlyphRange::FontGlyphRange() = default;
-
-
   FontGlyphRange::FontGlyphRange(const int32_t from, const int32_t length)
     : From(from)
     , Length(length)

@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Plane.hpp>
 #include <FslBase/Log/Math/FmtVector3.hpp>
+#include <FslBase/Math/Plane.hpp>
 #include <fmt/format.h>
 
 namespace fmt

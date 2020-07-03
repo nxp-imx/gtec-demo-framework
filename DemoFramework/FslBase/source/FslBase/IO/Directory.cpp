@@ -30,8 +30,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Directory.hpp>
-#include <FslBase/IO/File.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/IO/File.hpp>
 #include <FslBase/System/Platform/PlatformFileSystem.hpp>
 #include "../System/Platform/Platform.hpp"
 #include <cassert>

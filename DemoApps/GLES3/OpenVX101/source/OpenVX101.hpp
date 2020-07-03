@@ -49,7 +49,7 @@ namespace Fsl
     GLES3::GLTexture m_texDst;
 
   public:
-    OpenVX101(const DemoAppConfig& config);
+    explicit OpenVX101(const DemoAppConfig& config);
     ~OpenVX101() override;
 
   protected:

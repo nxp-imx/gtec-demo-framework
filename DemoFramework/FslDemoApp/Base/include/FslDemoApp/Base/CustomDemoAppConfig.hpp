@@ -37,9 +37,38 @@
 
 namespace Fsl
 {
+  enum class CustomDemoAppConfigRestartFlags : uint32_t
+  {
+    //! No flags set, so no restart
+    Never = 0x00,
+    Resize = 0x01,
+    DpiChange = 0x02,
+    ConfigurationChanged = (Resize | DpiChange),
+  };
+
+  constexpr inline CustomDemoAppConfigRestartFlags operator|(const CustomDemoAppConfigRestartFlags lhs, const CustomDemoAppConfigRestartFlags rhs)
+  {
+    return static_cast<CustomDemoAppConfigRestartFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+  }
+
+  constexpr inline CustomDemoAppConfigRestartFlags operator&(const CustomDemoAppConfigRestartFlags lhs, const CustomDemoAppConfigRestartFlags rhs)
+  {
+    return static_cast<CustomDemoAppConfigRestartFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+  }
+
+
+  namespace CustomDemoAppConfigRestartFlagsUtil
+  {
+    constexpr inline bool IsFlagged(const CustomDemoAppConfigRestartFlags src, const CustomDemoAppConfigRestartFlags flag)
+    {
+      return (src & flag) == flag;
+    }
+  };
+
+
   struct CustomDemoAppConfig
   {
-    bool RestartOnResize = true;
+    CustomDemoAppConfigRestartFlags RestartFlags{CustomDemoAppConfigRestartFlags::ConfigurationChanged};
     std::shared_ptr<ITag> AppRegistrationUserTag;
 
     CustomDemoAppConfig() = default;

@@ -49,7 +49,7 @@ namespace Fsl
 
   public:
     ServiceRegistry();
-    ServiceRegistry(const std::weak_ptr<IServiceRegistry>& registry);
+    explicit ServiceRegistry(std::weak_ptr<IServiceRegistry> registry);
     ~ServiceRegistry();
 
     ServiceGroupId CreateServiceGroup();

@@ -35,6 +35,7 @@
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslDemoHost/Base/Service/Test/TestScreenshotNameScheme.hpp>
 #include <string>
+#include <utility>
 
 namespace Fsl
 {
@@ -48,12 +49,11 @@ namespace Fsl
 
     TestScreenshotConfig() = default;
 
-    TestScreenshotConfig(const TestScreenshotNameScheme namingScheme, const ImageFormat& format, const uint32_t frequency,
-                         const std::string& filenamePrefix)
+    TestScreenshotConfig(const TestScreenshotNameScheme namingScheme, const ImageFormat& format, const uint32_t frequency, std::string filenamePrefix)
       : NamingScheme(namingScheme)
       , Format(format)
       , Frequency(frequency)
-      , FilenamePrefix(filenamePrefix)
+      , FilenamePrefix(std::move(filenamePrefix))
     {
     }
   };

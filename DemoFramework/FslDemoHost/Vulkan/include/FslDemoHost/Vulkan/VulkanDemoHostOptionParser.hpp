@@ -86,7 +86,7 @@ namespace Fsl
     }
 
     void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult Parse(const int cmdId, const char* const pszOptArg) override;
+    OptionParseResult Parse(const int cmdId, const StringViewLite& strOptArg) override;
     bool ParsingComplete() override;
   };
 }

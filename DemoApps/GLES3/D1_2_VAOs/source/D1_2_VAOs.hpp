@@ -25,7 +25,7 @@ namespace Fsl
     GLES3::GLVertexArray m_vertexArray1;
 
   public:
-    D1_2_VAOs(const DemoAppConfig& config);
+    explicit D1_2_VAOs(const DemoAppConfig& config);
     ~D1_2_VAOs() override;
 
   protected:

@@ -43,16 +43,28 @@ namespace Fsl
     class IStateEventCreator;
     class IStateEventSender;
     class IStateEventSenderGroup;
-    class WindowEventPool;
+    class ITreeNodeClickInputTargetLocater;
+    class SimpleEventSender;
     struct StateEventInfo;
+    class WindowEventPool;
+    class WindowEventSender;
 
     class IModuleHost
     {
     public:
       virtual ~IModuleHost() = default;
 
+      //! @brief Get the click target locater
+      virtual std::shared_ptr<ITreeNodeClickInputTargetLocater> GetTargetLocater() const = 0;
+
       //! @brief Get the window event pool
       virtual std::shared_ptr<WindowEventPool> GetWindowEventPool() const = 0;
+
+      //! @brief Get the window event sender (used for queuing events)
+      virtual std::shared_ptr<WindowEventSender> GetWindowEventSender() const = 0;
+
+      //! @brief Get the simple event sender (used for sending non-state-full events directly)
+      virtual std::shared_ptr<SimpleEventSender> GetSimpleEventSender() const = 0;
 
       //! @brief Create a state event sender
       virtual std::shared_ptr<IStateEventSender>

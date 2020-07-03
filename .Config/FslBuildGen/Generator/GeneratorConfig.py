@@ -31,10 +31,11 @@
 #
 #****************************************************************************************************************************************************
 
+from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.ToolConfig import ToolConfig
 
 class GeneratorConfig(object):
-    def __init__(self, platformName: str, sdkConfigTemplatePath: str, toolConfig: ToolConfig, numBuildThreads: int, buildCommand: int) -> None:
+    def __init__(self, platformName: str, sdkConfigTemplatePath: str, toolConfig: ToolConfig, numBuildThreads: int, buildCommand: CommandType) -> None:
         super().__init__()
         if numBuildThreads < 1:
             raise Exception("numBuildThreads must be > 0")

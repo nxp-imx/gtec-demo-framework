@@ -38,7 +38,7 @@ namespace Fsl
   class AThreadSafeSynchronousService : public IService
   {
   public:
-    AThreadSafeSynchronousService(const ServiceProvider& serviceProvider);
+    explicit AThreadSafeSynchronousService(const ServiceProvider& serviceProvider);
 
     // Inherited via IService
     void Link(const ServiceProvider& serviceProvider) override;

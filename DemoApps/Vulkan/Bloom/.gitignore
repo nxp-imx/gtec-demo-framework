@@ -1,7 +1,9 @@
 /.StartProject.bat
 /.vs/
+/CMakeLists.txt
 /Content/Models/
 /Content/Shaders/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /Vulkan.Bloom.VC.VC.opendb

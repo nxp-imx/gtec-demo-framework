@@ -38,6 +38,7 @@
 #include <FslUtil/OpenGLES2/GLValues.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Matrix.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -54,13 +55,12 @@ namespace Fsl
       float Position{0};
       LayerRecord() = default;
     };
-    static const int32_t LAYER_COUNT = 8;
-    LayerRecord m_layers[LAYER_COUNT];
+    std::array<LayerRecord, 8> m_layers;
     float m_angle;
     Matrix m_matViewProj;
 
   public:
-    EightLayerBlend(const DemoAppConfig& config);
+    explicit EightLayerBlend(const DemoAppConfig& config);
     ~EightLayerBlend() override;
 
   protected:

@@ -45,7 +45,7 @@ namespace Fsl
     int32_t Arg4;
 
     NativeWindowEvent();
-    NativeWindowEvent(const NativeWindowEventType type);
+    explicit NativeWindowEvent(const NativeWindowEventType type);
     NativeWindowEvent(const NativeWindowEventType type, const int32_t arg1);
     NativeWindowEvent(const NativeWindowEventType type, const int32_t arg1, const int32_t arg2);
     NativeWindowEvent(const NativeWindowEventType type, const int32_t arg1, const int32_t arg2, const int32_t arg3);

@@ -86,7 +86,7 @@ namespace Fsl
       return info;
     }
 
-    GLES3::GLFrameBuffer CreateFrameBuffer(const Point2 resolution, const GLTextureImageParameters& texImageParams)
+    GLES3::GLFrameBuffer CreateFrameBuffer(const PxSize2D& resolution, const GLTextureImageParameters& texImageParams)
     {
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       return GLFrameBuffer(resolution, params, texImageParams, GL_DEPTH_COMPONENT24);
@@ -107,7 +107,7 @@ namespace Fsl
     }
 
 
-    GLTexture GenerateCubemap(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& texturePath, const Point2& resolution,
+    GLTexture GenerateCubemap(const std::shared_ptr<IContentManager>& contentManager, const IO::Path& texturePath, const PxSize2D& resolution,
                               const bool hdr)
     {
       auto tex = contentManager->ReadTexture(texturePath);
@@ -130,7 +130,7 @@ namespace Fsl
       auto viewpoints = GenerateCubemapViewpoints();
       glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
 
-      GLuint envCubemap;
+      GLuint envCubemap = 0;
       glGenTextures(1, &envCubemap);
       GL_CHECK_FOR_ERROR();
       glBindTexture(GL_TEXTURE_CUBE_MAP, envCubemap);
@@ -141,8 +141,8 @@ namespace Fsl
         // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 
         // With EXT_color_buffer_float the format GL_RGBA16F is supported as Texture and renderbuffer color formats.
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, texImageParams.InternalFormat, resolution.X, resolution.Y, 0, texImageParams.Format,
-                     texImageParams.Type, nullptr);
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, texImageParams.InternalFormat, resolution.Width(), resolution.Height(), 0,
+                     texImageParams.Format, texImageParams.Type, nullptr);
         GL_CHECK_FOR_ERROR();
       }
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -152,7 +152,7 @@ namespace Fsl
       glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
       GL_CHECK_FOR_ERROR();
 
-      glViewport(0, 0, resolution.X, resolution.Y);
+      glViewport(0, 0, resolution.Width(), resolution.Height());
       glEnable(GL_CULL_FACE);
       glEnable(GL_DEPTH_TEST);
       glDisable(GL_BLEND);
@@ -216,7 +216,7 @@ namespace Fsl
     IO::Path texturePath(hdrEnabled ? "Textures/Equirectangular/FloralTent/floral_tent_1k.hdr"
                                     : "Textures/Equirectangular/Stairs/equirectangular.jpg");
 
-    Point2 resolution(2048, 2048);
+    PxSize2D resolution(2048, 2048);
     m_cubemapTexture = GenerateCubemap(contentManager, texturePath, resolution, hdrEnabled);
 
     std::string texture = "Stairs";
@@ -224,8 +224,7 @@ namespace Fsl
     m_skyboxProgram.Reset(contentManager->ReadAllText("skybox.vert"), contentManager->ReadAllText("skybox.frag"));
     m_skyboxMesh.Reset(m_skyboxProgram.Program);
 
-    const auto screenResolution = GetScreenResolution();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;
+    const float aspect = GetWindowAspectRatio();
     m_matrixProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 1000.0f);
 
     GL_CHECK_FOR_ERROR();
@@ -281,10 +280,10 @@ namespace Fsl
   }
 
 
-  void EquirectangularToCubemap::Draw(const DemoTime& demoTime)
+  void EquirectangularToCubemap::Draw(const DemoTime& /*demoTime*/)
   {
-    const auto resolution = GetScreenResolution();
-    glViewport(0, 0, resolution.X, resolution.Y);
+    const auto resolution = GetWindowSizePx();
+    glViewport(0, 0, resolution.Width(), resolution.Height());
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);

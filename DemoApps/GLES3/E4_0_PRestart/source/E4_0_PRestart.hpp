@@ -16,9 +16,9 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[2]{};
+      GLuint vboIds[2]{};    // NOLINT(modernize-avoid-c-arrays)
       // VertexArrayObject Id
-      GLuint vaoId[1]{};
+      GLuint vaoId[1]{};    // NOLINT(modernize-avoid-c-arrays)
 
       UserData()
       {
@@ -32,7 +32,7 @@ namespace Fsl
     UserData m_userData;
 
   public:
-    E4_0_PRestart(const DemoAppConfig& config);
+    explicit E4_0_PRestart(const DemoAppConfig& config);
     ~E4_0_PRestart() override;
 
   protected:

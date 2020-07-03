@@ -37,12 +37,17 @@ namespace Fsl
 {
   struct FontGlyphBasicKerning
   {
-    int16_t OffsetX{0};
-    int16_t OffsetY{0};
-    int16_t LayoutWidth{0};
+    int16_t OffsetXPx{0};
+    int16_t OffsetYPx{0};
+    uint16_t LayoutWidthPx{0};
 
-    FontGlyphBasicKerning();
-    FontGlyphBasicKerning(const int16_t offsetX, const int16_t offsetY, const int16_t layoutWidth);
+    constexpr FontGlyphBasicKerning() noexcept = default;
+    constexpr FontGlyphBasicKerning(const int16_t offsetXPx, const int16_t offsetYPx, const uint16_t layoutWidthPx)
+      : OffsetXPx(offsetXPx)
+      , OffsetYPx(offsetYPx)
+      , LayoutWidthPx(layoutWidthPx)
+    {
+    }
   };
 }
 

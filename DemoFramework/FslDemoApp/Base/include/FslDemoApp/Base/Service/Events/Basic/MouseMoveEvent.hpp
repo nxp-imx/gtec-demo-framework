@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/BasicEvent.hpp>
 
@@ -51,10 +51,10 @@ namespace Fsl
       }
     }
 
-    MouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& mouseButtonFlags);
+    MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags);
 
     //! @brief Get the current position
-    const Point2 GetPosition() const;
+    PxPoint2 GetPosition() const;
 
     //! @brief Get the mouse button flags
     VirtualMouseButtonFlags GetMouseButtonFlags() const;

@@ -33,11 +33,12 @@
 #include <FslService/Consumer/Exceptions.hpp>
 #include <FslService/Consumer/IServiceProvider.hpp>
 #include <FslBase/Log/Log3Core.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  ServiceProvider::ServiceProvider(const std::weak_ptr<IServiceProvider>& serviceProvider)
-    : m_serviceProvider(serviceProvider)
+  ServiceProvider::ServiceProvider(std::weak_ptr<IServiceProvider> serviceProvider)
+    : m_serviceProvider(std::move(serviceProvider))
   {
   }
 

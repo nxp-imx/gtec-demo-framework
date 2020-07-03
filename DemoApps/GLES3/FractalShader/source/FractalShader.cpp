@@ -35,6 +35,7 @@
 #include "FractalShaderJulia.hpp"
 #include "FractalShaderMandelbrot.hpp"
 #include <Shared/FractalShader/OptionParser.hpp>
+#include <memory>
 #include <GLES3/gl3.h>
 
 namespace Fsl
@@ -48,12 +49,6 @@ namespace Fsl
   // - load color / gray / tex based shader
   // - demo scene 2 -> mandelbrot zoom
 
-
-  namespace
-  {
-  }
-
-
   FractalShader::FractalShader(const DemoAppConfig& config)
     : DemoAppGLES3(config)
   {
@@ -63,11 +58,11 @@ namespace Fsl
     switch (cfg.Scene)
     {
     case 1:
-      m_scene.reset(new FractalShaderMandelbrot(config));
+      m_scene = std::make_shared<FractalShaderMandelbrot>(config);
       break;
     case 0:
     default:
-      m_scene.reset(new FractalShaderJulia(config));
+      m_scene = std::make_shared<FractalShaderJulia>(config);
       break;
     }
   }
@@ -82,7 +77,7 @@ namespace Fsl
   }
 
 
-  void FractalShader::Draw(const DemoTime& demoTime)
+  void FractalShader::Draw(const DemoTime& /*demoTime*/)
   {
     m_scene->Draw();
   }

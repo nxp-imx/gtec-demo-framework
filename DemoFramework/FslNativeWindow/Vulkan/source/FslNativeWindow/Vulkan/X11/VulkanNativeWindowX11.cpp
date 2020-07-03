@@ -47,17 +47,6 @@ namespace Fsl
     {
       return std::make_shared<VulkanNativeWindowX11>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
-
-
-    NativeVulkanSetup ToNativeVulkanSetup(const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    {
-      const auto pNativeSetup = dynamic_cast<const NativeVulkanSetup*>(pPlatformCustomWindowAllocationParams);
-      if (pNativeSetup == nullptr)
-      {
-        throw NotSupportedException("NativeVulkanSetup pointer expected");
-      }
-      return *pNativeSetup;
-    }
   }    // namespace
 
 
@@ -69,8 +58,7 @@ namespace Fsl
 
   VulkanNativeWindowX11::VulkanNativeWindowX11(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : AVulkanNativeWindow(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
-    , PlatformNativeWindowX11(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
+    : VulkanNativeWindow<PlatformNativeWindowX11>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
   {
     VkXlibSurfaceCreateInfoKHR surfaceCreateInfo{};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
@@ -79,7 +67,7 @@ namespace Fsl
     surfaceCreateInfo.dpy = GetPlatformDisplay();
     surfaceCreateInfo.window = GetPlatformWindow();
 
-    RAPIDVULKAN_CHECK(vkCreateXlibSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_surface));
+    RAPIDVULKAN_CHECK(vkCreateXlibSurfaceKHR(m_setup.Instance, &surfaceCreateInfo, nullptr, &m_surface));
   }
 
 

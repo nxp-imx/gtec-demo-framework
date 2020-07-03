@@ -32,13 +32,16 @@
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
 #include <FslBase/Bits/AlignmentUtil.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
+#include <FslGraphics/Font/SdfFontUtil.hpp>
 #include <FslGraphics/Vertices/VertexDeclaration.hpp>
 #include <FslGraphics/Vertices/VertexElementFormat.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Util/MemoryTypeUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/VUBufferMemoryUtil.hpp>
+#include <FslUtil/Vulkan1_0/Util/VulkanConvert.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Debug/Strings/VkResult.hpp>
 #include <algorithm>
@@ -46,15 +49,13 @@
 #include <cassert>
 #include <utility>
 
-using namespace RapidVulkan;
-
 namespace Fsl
 {
   namespace Vulkan
   {
     namespace
     {
-      const uint32_t DEFAULT_COMMAND_BUFFER_COUNT = 2;
+      // const uint32_t DEFAULT_COMMAND_BUFFER_COUNT = 2;
       const uint32_t QUAD_MIN_BATCH_SIZE = 2048;
       const int32_t INTERNAL_QUAD_VERTEX_COUNT = 6;
 
@@ -79,7 +80,8 @@ namespace Fsl
       }
 
 
-      DescriptorSetLayout CreateDescriptorSetLayout(const VkDevice device, const VkDescriptorType descriptorType, const VkShaderStageFlags stageFlags)
+      RapidVulkan::DescriptorSetLayout CreateDescriptorSetLayout(const VkDevice device, const VkDescriptorType descriptorType,
+                                                                 const VkShaderStageFlags stageFlags)
       {
         // Descriptor set layout
         VkDescriptorSetLayoutBinding setLayoutBindings{};
@@ -94,11 +96,11 @@ namespace Fsl
         descriptorSetLayoutInfo.bindingCount = 1;
         descriptorSetLayoutInfo.pBindings = &setLayoutBindings;
 
-        return DescriptorSetLayout(device, descriptorSetLayoutInfo);
+        return RapidVulkan::DescriptorSetLayout(device, descriptorSetLayoutInfo);
       }
 
 
-      DescriptorPool CreateDescriptorPool(const VkDevice device, const VkDescriptorType type)
+      RapidVulkan::DescriptorPool CreateDescriptorPool(const VkDevice device, const VkDescriptorType type)
       {
         VkDescriptorPoolSize poolSize{};
         poolSize.type = type;
@@ -110,11 +112,12 @@ namespace Fsl
         descriptorPoolCreateInfo.poolSizeCount = 1;
         descriptorPoolCreateInfo.pPoolSizes = &poolSize;
 
-        return DescriptorPool(device, descriptorPoolCreateInfo);
+        return RapidVulkan::DescriptorPool(device, descriptorPoolCreateInfo);
       }
 
 
-      VkDescriptorSet CreateDescriptorSet(const VkDevice device, const DescriptorPool& descriptorPool, const DescriptorSetLayout& descriptorSetLayout)
+      VkDescriptorSet CreateDescriptorSet(const VkDevice device, const RapidVulkan::DescriptorPool& descriptorPool,
+                                          const RapidVulkan::DescriptorSetLayout& descriptorSetLayout)
       {
         VkDescriptorSetAllocateInfo descriptorSetAllocInfo{};
         descriptorSetAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -128,25 +131,47 @@ namespace Fsl
       }
 
 
-      PipelineLayout CreatePipelineLayout(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
-                                          const VkDescriptorSetLayout& descriptorSetLayoutTexture)
+      RapidVulkan::PipelineLayout CreatePipelineLayout(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
+                                                       const VkDescriptorSetLayout& descriptorSetLayoutTexture)
       {
-        VkDescriptorSetLayout layouts[] = {descriptorSetLayoutUniform, descriptorSetLayoutTexture};
+        const std::array<VkDescriptorSetLayout, 2> layouts = {descriptorSetLayoutUniform, descriptorSetLayoutTexture};
 
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 2;
-        pipelineLayoutInfo.pSetLayouts = layouts;
-        return PipelineLayout(device, pipelineLayoutInfo);
+        pipelineLayoutInfo.setLayoutCount = UncheckedNumericCast<uint32_t>(layouts.size());
+        pipelineLayoutInfo.pSetLayouts = layouts.data();
+        return RapidVulkan::PipelineLayout(device, pipelineLayoutInfo);
       }
 
 
-      PipelineCache CreatePipelineCache(const VkDevice device)
+      RapidVulkan::PipelineLayout CreatePipelineLayoutWithPushConstant(const VkDevice device, const VkDescriptorSetLayout& descriptorSetLayoutUniform,
+                                                                       const VkDescriptorSetLayout& descriptorSetLayoutTexture,
+                                                                       const uint32_t cbPushConstants)
+      {
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = cbPushConstants;
+
+        const std::array<VkDescriptorSetLayout, 2> layouts = {descriptorSetLayoutUniform, descriptorSetLayoutTexture};
+
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = UncheckedNumericCast<uint32_t>(layouts.size());
+        pipelineLayoutInfo.pSetLayouts = layouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+
+        return RapidVulkan::PipelineLayout(device, pipelineLayoutInfo);
+      }
+
+
+      RapidVulkan::PipelineCache CreatePipelineCache(const VkDevice device)
       {
         // Pipeline cache
         VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
         pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-        return PipelineCache(device, pipelineCacheCreateInfo);
+        return RapidVulkan::PipelineCache(device, pipelineCacheCreateInfo);
       }
 
 
@@ -159,9 +184,9 @@ namespace Fsl
         for (std::size_t i = 0; i < vertexAttributes.size(); ++i)
         {
           auto entry = vertexDecl.At(i);
-          vertexAttributes[i].location = static_cast<uint32_t>(i);
+          vertexAttributes[i].location = UncheckedNumericCast<uint32_t>(i);
           vertexAttributes[i].binding = 0;
-          vertexAttributes[i].format = ConvertUtil::Convert(entry.Format);
+          vertexAttributes[i].format = VulkanConvert::ToVkFormat(entry.Format);
           vertexAttributes[i].offset = entry.Offset;
         }
         return vertexAttributes;
@@ -194,6 +219,7 @@ namespace Fsl
           blendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD;
           break;
         case BlendState::NonPremultiplied:
+        case BlendState::Sdf:
           blendAttachmentState.blendEnable = VK_TRUE;
           blendAttachmentState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
           blendAttachmentState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -217,9 +243,11 @@ namespace Fsl
         return blendAttachmentState;
       }
 
-      GraphicsPipeline CreateGraphicsPipeline(const VkDevice device, const ShaderModule& vertexShader, const ShaderModule& fragmentShader,
-                                              const PipelineLayout& pipelineLayout, const PipelineCache& pipelineCache, const VkRenderPass renderPass,
-                                              const uint32_t subpass, const Extent2D& screenExtent, const BlendState blendState)
+      RapidVulkan::GraphicsPipeline CreateGraphicsPipeline(const VkDevice device, const RapidVulkan::ShaderModule& vertexShader,
+                                                           const RapidVulkan::ShaderModule& fragmentShader,
+                                                           const RapidVulkan::PipelineLayout& pipelineLayout,
+                                                           const RapidVulkan::PipelineCache& pipelineCache, const VkRenderPass renderPass,
+                                                           const uint32_t subpass, const PxExtent2D& screenExtentPx, const BlendState blendState)
       {
         assert(device != VK_NULL_HANDLE);
         assert(vertexShader.IsValid());
@@ -227,7 +255,7 @@ namespace Fsl
         assert(pipelineLayout.IsValid());
         assert(pipelineCache.IsValid());
         assert(renderPass != VK_NULL_HANDLE);
-        VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo[2]{};
+        std::array<VkPipelineShaderStageCreateInfo, 2> pipelineShaderStageCreateInfo{};
         pipelineShaderStageCreateInfo[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         pipelineShaderStageCreateInfo[0].flags = 0;
         pipelineShaderStageCreateInfo[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -263,10 +291,10 @@ namespace Fsl
         inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
         VkViewport viewport{};
-        viewport.width = static_cast<float>(screenExtent.Width);
-        viewport.height = static_cast<float>(screenExtent.Height);
+        viewport.width = static_cast<float>(screenExtentPx.Width);
+        viewport.height = static_cast<float>(screenExtentPx.Height);
         VkRect2D scissor{};
-        scissor.extent = ConvertUtil::Convert(screenExtent);
+        scissor.extent = TypeConverter::UncheckedTo<VkExtent2D>(screenExtentPx);
 
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -303,8 +331,8 @@ namespace Fsl
 
         VkGraphicsPipelineCreateInfo pipelineCreateInfo{};
         pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineCreateInfo.stageCount = 2;
-        pipelineCreateInfo.pStages = pipelineShaderStageCreateInfo;
+        pipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+        pipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
         pipelineCreateInfo.pVertexInputState = &vertexInputState;
         pipelineCreateInfo.pInputAssemblyState = &inputAssemblyState;
         pipelineCreateInfo.pViewportState = &viewportState;
@@ -317,7 +345,7 @@ namespace Fsl
         pipelineCreateInfo.renderPass = renderPass;
         pipelineCreateInfo.subpass = subpass;
 
-        return GraphicsPipeline(device, pipelineCache.Get(), pipelineCreateInfo);
+        return RapidVulkan::GraphicsPipeline(device, pipelineCache.Get(), pipelineCreateInfo);
       }
 
 
@@ -351,13 +379,15 @@ namespace Fsl
     }
 
 
-    QuadBatch::QuadBatch(const std::vector<uint8_t>& vertexShaderBinary, const std::vector<uint8_t>& fragmentShaderBinary,
-                         const uint32_t quadCapacityHint, const bool logEnabled)
-      : m_vertexShaderBinary(vertexShaderBinary)
-      , m_fragmentShaderBinary(fragmentShaderBinary)
+    QuadBatch::QuadBatch(std::vector<uint8_t> vertexShaderBinary, std::vector<uint8_t> fragmentShaderBinary,
+                         std::vector<uint8_t> sdfFragmentShaderBinary, const uint32_t quadCapacityHint, const bool logEnabled)
+      : m_vertexShaderBinary(std::move(vertexShaderBinary))
+      , m_fragmentShaderBinary(std::move(fragmentShaderBinary))
+      , m_sdfFragmentShaderBinary(std::move(sdfFragmentShaderBinary))
       , m_quadCapacity(std::max(quadCapacityHint, QUAD_MIN_BATCH_SIZE))
-      , m_vertexCapacity(INTERNAL_QUAD_VERTEX_COUNT * m_quadCapacity)
+      //, m_vertexCapacity(INTERNAL_QUAD_VERTEX_COUNT * m_quadCapacity)
       , m_logEnabled(logEnabled)
+      , m_pushConstantsDefault(SdfFontUtil::CalcSpread(4.0f, 1.0f))
     {
     }
 
@@ -405,13 +435,17 @@ namespace Fsl
       assert(m_deviceResource.Render[commandBufferIndex].IsValid());
       m_deviceResource.Render[commandBufferIndex].Clear();
 
+      // Reset the push constants to their default value
+      m_pushConstants = m_pushConstantsDefault;
       m_activeFrame.CurrentState = FrameState::DrawFrame;
       m_activeFrame.CommandBuffer = commandBuffer;
       m_activeFrame.CommandBufferIndex = commandBufferIndex;
+      m_stats = {};
     }
 
 
-    void QuadBatch::Begin(const Point2& screenResolution, const BlendState blendState, const bool restoreState)
+    void QuadBatch::Begin(const PxSize2D& sizePx, const BlendState blendState, const BatchSdfRenderConfig& sdfRenderConfig,
+                          const bool /*restoreState*/)
     {
       // First we ensure that we that the 'activeFrame' state is correct
       if (m_activeFrame.CurrentState == FrameState::NotReady)
@@ -424,8 +458,8 @@ namespace Fsl
       }
 
       // Then we check the input parameters
-      if ((static_cast<uint32_t>(screenResolution.X) != m_deviceResource.CachedScreenExtent.Width ||
-           static_cast<uint32_t>(screenResolution.Y) != m_deviceResource.CachedScreenExtent.Height) &&
+      if ((static_cast<uint32_t>(sizePx.Width()) != m_deviceResource.CachedScreenExtentPx.Width ||
+           static_cast<uint32_t>(sizePx.Height()) != m_deviceResource.CachedScreenExtentPx.Height) &&
           m_activeFrame.CurrentState != FrameState::DrawVoidFrame)
       {
         throw NotSupportedException("Dynamic changes of the screen resolution is not supported");
@@ -435,19 +469,29 @@ namespace Fsl
       assert(m_activeFrame.CommandBuffer != VK_NULL_HANDLE || m_activeFrame.CurrentState == FrameState::DrawVoidFrame);
       assert(!m_activeFrame.Block.IsValid);
       VkPipeline selectedPipeline = VK_NULL_HANDLE;
+      VkPipelineLayout selectedPipelineLayout = VK_NULL_HANDLE;
       switch (blendState)
       {
       case BlendState::Additive:
         selectedPipeline = m_dependentResource.PipelineAdditive.Get();
+        selectedPipelineLayout = m_deviceResource.PipelineLayout.Get();
         break;
       case BlendState::AlphaBlend:
         selectedPipeline = m_dependentResource.PipelineAlphaBlend.Get();
+        selectedPipelineLayout = m_deviceResource.PipelineLayout.Get();
         break;
       case BlendState::NonPremultiplied:
         selectedPipeline = m_dependentResource.PipelineNonPremultiplied.Get();
+        selectedPipelineLayout = m_deviceResource.PipelineLayout.Get();
         break;
       case BlendState::Opaque:
         selectedPipeline = m_dependentResource.PipelineOpaque.Get();
+        selectedPipelineLayout = m_deviceResource.PipelineLayout.Get();
+        break;
+      case BlendState::Sdf:
+        selectedPipeline = m_dependentResource.PipelineSdf.Get();
+        selectedPipelineLayout = m_deviceResource.PipelineLayoutSdf.Get();
+        m_pushConstants.Spread = SdfFontUtil::CalcSpread(sdfRenderConfig.Spread, sdfRenderConfig.Scale);
         break;
       default:
         throw NotSupportedException("Unsupported blend state");
@@ -455,6 +499,7 @@ namespace Fsl
       assert(selectedPipeline != VK_NULL_HANDLE || m_activeFrame.CurrentState == FrameState::DrawVoidFrame);
       m_activeFrame.Block.IsValid = true;
       m_activeFrame.Block.ActivePipeline = selectedPipeline;
+      m_activeFrame.Block.ActivePipelineLayout = selectedPipelineLayout;
     }
 
     // Basic quad vertex format
@@ -484,8 +529,8 @@ namespace Fsl
       {
         auto current = rRender.VertexBuffers.NextFree(remainingQuads * INTERNAL_QUAD_VERTEX_COUNT);
 
-        auto pDst = current.pMapped;
-        auto pDstEnd = current.pMapped + current.VertexCapacity;
+        auto* pDst = current.pMapped;
+        auto* pDstEnd = current.pMapped + current.VertexCapacity;
 
         static_assert(INTERNAL_QUAD_VERTEX_COUNT == 6, "the code below expects the internal quad vertex count to be six");
         while (pDst < pDstEnd)
@@ -507,7 +552,15 @@ namespace Fsl
         assert(m_activeFrame.CommandBuffer != VK_NULL_HANDLE);
         assert(m_activeFrame.Block.ActivePipeline != VK_NULL_HANDLE);
 
-        auto currentPipeline = m_activeFrame.Block.ActivePipeline;
+        if (m_activeFrame.Block.ActivePipelineLayout == m_deviceResource.PipelineLayoutSdf.Get() &&
+            m_pushConstants != m_activeFrame.Block.CachedPushConstants)
+        {
+          vkCmdPushConstants(m_activeFrame.CommandBuffer, m_activeFrame.Block.ActivePipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                             sizeof(m_pushConstants), &m_pushConstants);
+          m_activeFrame.Block.CachedPushConstants = m_pushConstants;
+        }
+
+        VkPipeline currentPipeline = m_activeFrame.Block.ActivePipeline;
         if (currentPipeline != m_activeFrame.Block.CachedPipeline)
         {
           m_activeFrame.Block.CachedPipeline = currentPipeline;
@@ -517,21 +570,23 @@ namespace Fsl
         if (textureInfo != m_activeFrame.Block.CachedTextureInfo)
         {
           m_activeFrame.Block.CachedTextureInfo = textureInfo;
-          auto textureDescriptorSet = rRender.TextureDescriptorSets.NextFree();
+          VkDescriptorSet textureDescriptorSet = rRender.TextureDescriptorSets.NextFree();
 
           assert(textureDescriptorSet != VK_NULL_HANDLE);
 
           UpdateDescriptorSetTexture(m_deviceResource.UniformBuffer.GetDevice(), textureDescriptorSet, textureInfo.ImageInfo);
 
-          VkDescriptorSet descriptorSets[2] = {m_deviceResource.DescriptorSetUniform, textureDescriptorSet};
-          vkCmdBindDescriptorSets(m_activeFrame.CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_deviceResource.PipelineLayout.Get(), 0, 2,
-                                  descriptorSets, 0, nullptr);
+          std::array<VkDescriptorSet, 2> descriptorSets = {m_deviceResource.DescriptorSetUniform, textureDescriptorSet};
+          vkCmdBindDescriptorSets(m_activeFrame.CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_activeFrame.Block.ActivePipelineLayout, 0,
+                                  static_cast<int32_t>(descriptorSets.size()), descriptorSets.data(), 0, nullptr);
         }
 
         VkDeviceSize offsets = 0;
         vkCmdBindVertexBuffers(m_activeFrame.CommandBuffer, 0, 1, &current.VertexBuffer, &offsets);
         vkCmdDraw(m_activeFrame.CommandBuffer, current.VertexCapacity, 1, current.UsedStartIndex, 0);
+        ++m_stats.DrawCalls;
       }
+      m_stats.Vertices += (length * 6);
     }
 
 
@@ -541,10 +596,7 @@ namespace Fsl
       {
         throw UsageErrorException("Call Begin before End");
       }
-      assert(m_activeFrame.CurrentState != FrameState::NotReady);
-
-      m_activeFrame.Block = {};
-      assert(m_activeFrame.Block.CheckIsEmpty());
+      DoEnd();
     }
 
 
@@ -558,13 +610,7 @@ namespace Fsl
       {
         throw UsageErrorException("Can not call EndFrame without a BeginFrame");
       }
-
-      // Sanity check that the m_activeFrame.Block has been returned to its default state
-      assert(m_activeFrame.Block.CheckIsEmpty());
-      m_activeFrame = {};
-
-      // Sanity check that the m_activeFrame is in its default state
-      assert(m_activeFrame.CheckIsEmpty());
+      DoEndFrame();
     }
 
 
@@ -595,8 +641,13 @@ namespace Fsl
           CreateDescriptorSetLayout(device, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT);
         m_deviceResource.VertexShader.Reset(device, 0, m_vertexShaderBinary);
         m_deviceResource.FragmentShader.Reset(device, 0, m_fragmentShaderBinary);
+        m_deviceResource.SdfFragmentShader.Reset(device, 0, m_sdfFragmentShaderBinary);
+
         m_deviceResource.PipelineLayout =
           CreatePipelineLayout(device, m_deviceResource.DescriptorSetLayoutUniform.Get(), m_deviceResource.DescriptorSetTexture.Get());
+        m_deviceResource.PipelineLayoutSdf = CreatePipelineLayoutWithPushConstant(
+          device, m_deviceResource.DescriptorSetLayoutUniform.Get(), m_deviceResource.DescriptorSetTexture.Get(), sizeof(PushConstantRecord));
+
         m_deviceResource.PipelineCache = CreatePipelineCache(device);
 
         m_deviceResource.Render.clear();
@@ -628,7 +679,7 @@ namespace Fsl
 
 
     void QuadBatch::CreateDependentResources(const uint32_t commandBufferCount, const VkRenderPass renderPass, const uint32_t subpass,
-                                             const Extent2D& screenExtent)
+                                             const PxExtent2D& screenExtentPx)
     {
       if (m_activeFrame.CurrentState != FrameState::NotReady)
       {
@@ -648,15 +699,15 @@ namespace Fsl
       }
 
 
-      if (screenExtent != m_deviceResource.CachedScreenExtent)
+      if (screenExtentPx != m_deviceResource.CachedScreenExtentPx)
       {
-        m_deviceResource.CachedScreenExtent = screenExtent;
+        m_deviceResource.CachedScreenExtentPx = screenExtentPx;
 
         // Setup the shader
-        const auto screenWidth = static_cast<float>(screenExtent.Width);
-        const auto screenHeight = static_cast<float>(screenExtent.Height);
-        const float screenOffsetX = std::floor(screenWidth / 2.0f);
-        const float screenOffsetY = std::floor(screenHeight / 2.0f);
+        const auto screenWidth = static_cast<float>(screenExtentPx.Width);
+        const auto screenHeight = static_cast<float>(screenExtentPx.Height);
+        const float screenOffsetX = screenWidth / 2.0f;
+        const float screenOffsetY = screenHeight / 2.0f;
 
         const Matrix matViewProj =
           Matrix::CreateTranslation(-screenOffsetX, -screenOffsetY, -2.0f) * Matrix::CreateOrthographic(screenWidth, screenHeight, 1.0f, 10.0f);
@@ -669,7 +720,7 @@ namespace Fsl
 
       try
       {
-        const auto device = m_deviceResource.UniformBuffer.GetDevice();
+        VkDevice const device = m_deviceResource.UniformBuffer.GetDevice();
 
         // We set IsValid here to ensure that the DestroyDependentResources tries to free everything if its called.
         // Just don't call any other method that works on m_dependentResource before its been fully filled
@@ -677,19 +728,23 @@ namespace Fsl
         m_dependentResource.CommandBufferCount = commandBufferCount;
         m_dependentResource.PipelineAdditive =
           CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtent, BlendState::Additive);
+                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::Additive);
 
         m_dependentResource.PipelineAlphaBlend =
           CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtent, BlendState::AlphaBlend);
+                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::AlphaBlend);
 
         m_dependentResource.PipelineNonPremultiplied =
           CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtent, BlendState::NonPremultiplied);
+                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::NonPremultiplied);
 
         m_dependentResource.PipelineOpaque =
           CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.FragmentShader, m_deviceResource.PipelineLayout,
-                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtent, BlendState::Opaque);
+                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::Opaque);
+
+        m_dependentResource.PipelineSdf =
+          CreateGraphicsPipeline(device, m_deviceResource.VertexShader, m_deviceResource.SdfFragmentShader, m_deviceResource.PipelineLayoutSdf,
+                                 m_deviceResource.PipelineCache, renderPass, subpass, screenExtentPx, BlendState::Sdf);
       }
       catch (const std::exception& ex)
       {
@@ -704,12 +759,12 @@ namespace Fsl
       if (m_activeFrame.Block.IsValid)
       {
         FSLLOG3_ERROR_IF(m_logEnabled, "DestroyDependentResources called inside a Begin/End block, force ending it");
-        End();
+        DoEnd();
       }
       if (m_activeFrame.CurrentState != FrameState::NotReady)
       {
         FSLLOG3_ERROR_IF(m_logEnabled, "DestroyDependentResources called inside a BeginFrame/EndFrame block, force ending it");
-        EndFrame();
+        DoEndFrame();
       }
 
       if (!m_deviceResource.IsValid)
@@ -746,7 +801,7 @@ namespace Fsl
         return;
       }
       m_deviceResource.Render.resize(commandBufferCount);
-      auto device = m_deviceResource.UniformBuffer.GetDevice();
+      VkDevice device = m_deviceResource.UniformBuffer.GetDevice();
       assert(device != VK_NULL_HANDLE);
       for (auto& rEntry : m_deviceResource.Render)
       {
@@ -755,6 +810,28 @@ namespace Fsl
           rEntry.Reset(m_deviceResource.PhysicalDevice, device, m_deviceResource.DescriptorSetTexture.Get(), INTERNAL_QUAD_VERTEX_COUNT);
         }
       }
+    }
+
+    void QuadBatch::DoEnd() noexcept
+    {
+      assert(m_activeFrame.Block.IsValid);
+      assert(m_activeFrame.CurrentState != FrameState::NotReady);
+
+      m_activeFrame.Block = {};
+      assert(m_activeFrame.Block.CheckIsEmpty());
+    }
+
+    void QuadBatch::DoEndFrame() noexcept
+    {
+      assert(!m_activeFrame.Block.IsValid);
+      assert(m_activeFrame.CurrentState != FrameState::NotReady);
+
+      // Sanity check that the m_activeFrame.Block has been returned to its default state
+      assert(m_activeFrame.Block.CheckIsEmpty());
+      m_activeFrame = {};
+
+      // Sanity check that the m_activeFrame is in its default state
+      assert(m_activeFrame.CheckIsEmpty());
     }
   }
 }

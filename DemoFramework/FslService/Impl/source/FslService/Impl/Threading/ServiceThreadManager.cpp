@@ -39,6 +39,7 @@
 //#include <experimental/future>
 #include <cassert>
 #include <exception>
+#include <memory>
 #include <thread>
 #include "Launcher/AsynchronousServiceProxyLaunchFactory.hpp"
 #include "Launcher/AsynchronousServiceImplLaunchFactoryRecord.hpp"
@@ -57,7 +58,7 @@ namespace Fsl
                                                      const ThreadLocalServiceConfig& serviceConfig,
                                                      const std::shared_ptr<IServiceHostFactory>& serviceHostFactory)
     {
-      return std::unique_ptr<ServiceThreadRecord>(new ServiceThreadRecord(ownerQueue, hostReceiveQueue, serviceConfig, serviceHostFactory));
+      return std::make_unique<ServiceThreadRecord>(ownerQueue, hostReceiveQueue, serviceConfig, serviceHostFactory);
     }
 
 
@@ -103,7 +104,7 @@ namespace Fsl
 
     m_hostRecords.clear();
 
-    for (auto& rEntry : serviceGroups)
+    for (const auto& rEntry : serviceGroups)
     {
       if (rEntry.Type != ServiceGroupType::MainThread)
       {

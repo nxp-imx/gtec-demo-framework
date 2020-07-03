@@ -31,21 +31,22 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslGraphics/Render/Adapter/INativeTexture2D.hpp>
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
   struct NativeTextureInfo
   {
     std::shared_ptr<INativeTexture2D> Handle;
-    Point2 Size;
+    PxSize2D Size;
 
     NativeTextureInfo() = default;
 
-    NativeTextureInfo(const std::shared_ptr<INativeTexture2D>& handle, const Point2& size)
-      : Handle(handle)
+    NativeTextureInfo(std::shared_ptr<INativeTexture2D> handle, const PxSize2D& size)
+      : Handle(std::move(handle))
       , Size(size)
     {
     }
@@ -54,7 +55,8 @@ namespace Fsl
     {
       return Handle;
     }
-    Point2 GetSize() const
+
+    PxSize2D GetSize() const
     {
       return Size;
     }
@@ -62,7 +64,7 @@ namespace Fsl
     void Reset()
     {
       Handle.reset();
-      Size = Point2();
+      Size = {};
     }
 
     bool operator==(const NativeTextureInfo& rhs) const

@@ -44,7 +44,7 @@ namespace Fsl
     DemoHostAppSetup App;
     uint32_t VerbosityLevel;
 
-    DemoBasicSetup(const DemoHostSetup& hostSetup, const DemoHostAppSetup& appSetup, const uint32_t verbosityLevel);
+    DemoBasicSetup(DemoHostSetup hostSetup, DemoHostAppSetup appSetup, const uint32_t verbosityLevel);
     ~DemoBasicSetup();
   };
 }

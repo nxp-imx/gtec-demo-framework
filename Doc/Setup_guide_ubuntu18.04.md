@@ -6,8 +6,10 @@
 - Build tools and xrand
 
     ```bash
-    sudo apt-get install build-essential libxrandr-dev
+    sudo apt-get install build-essential libxrandr-dev ninja-build
     ```
+
+  **Beware we now use ninja-build as the default build system instead of make!**
 
 - Python 3.5+
   To be able run python scripts, they are not needed to build.

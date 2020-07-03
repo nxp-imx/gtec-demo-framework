@@ -43,10 +43,7 @@ namespace Fsl
 
 
   TransitionValue::TransitionValue(TransitionCache& rTransitionCache, const TransitionTimeSpan& time)
-    : m_val(0)
-    , m_from(0)
-    , m_target(0)
-    , m_currentTime(time.Ticks)
+    : m_currentTime(time.Ticks)
     , m_endTime(time.Ticks)
   {
     SetTransitionTime(rTransitionCache, time, m_transitionType);
@@ -55,9 +52,6 @@ namespace Fsl
 
   TransitionValue::TransitionValue(TransitionCache& rTransitionCache, const TransitionTimeSpan& time, const TransitionType type)
     : m_transitionType(type)
-    , m_val(0)
-    , m_from(0)
-    , m_target(0)
     , m_currentTime(time.Ticks)
     , m_endTime(time.Ticks)
   {

@@ -55,7 +55,7 @@ namespace Fsl
 
     static constexpr size_type NumElements = 4 * 4;
 
-    constexpr size_type size() const
+    constexpr size_type size() const noexcept    // NOLINT(readability-convert-member-functions-to-static)
     {
       return NumElements;
     }
@@ -88,15 +88,15 @@ namespace Fsl
     //  };
     //  float m[4 * 4];
     //};
-    float m[NumElements]{};
+    float m[NumElements]{};    // NOLINT(modernize-avoid-c-arrays)
 
   public:
     //! @brief Creates a empty matrix (all components are set to zero)
-    constexpr Matrix() = default;
+    constexpr Matrix() noexcept = default;
 
     constexpr Matrix(const float m11, const float m12, const float m13, const float m14, const float m21, const float m22, const float m23,
                      const float m24, const float m31, const float m32, const float m33, const float m34, const float m41, const float m42,
-                     const float m43, const float m44)
+                     const float m43, const float m44) noexcept
       : m{m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44}
     {
     }
@@ -118,13 +118,13 @@ namespace Fsl
     static void Add(const Matrix& matrix1, const Matrix& matrix2, Matrix& rResult);
 
     //! @brief Direct access to the matrix array
-    constexpr const float* DirectAccess() const
+    constexpr const float* DirectAccess() const noexcept
     {
       return m;
     }
 
     //! @brief Direct access to the matrix array
-    float* DirectAccess()
+    float* DirectAccess() noexcept
     {
       return m;
     }
@@ -148,9 +148,9 @@ namespace Fsl
     void SetForward(const Vector3& value);
 
     //! @brief Return a instance of the identity matrix
-    static constexpr Matrix GetIdentity()
+    static constexpr Matrix GetIdentity() noexcept
     {
-      return Matrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+      return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     }
 
     //! @brief Get the left vector of the Matrix.
@@ -228,7 +228,7 @@ namespace Fsl
     //! @param The axis of rotation.
     //! @param The angle of rotation in radians.
     //! @param The rotation Matrix as a out parameter.
-    FSL_ATTR_DEPRECATED static void CreateFromAxisAngle(Matrix& rResult, const Vector3& axis, const float angle)
+    [[deprecated("use one of the other overloads instead")]] static void CreateFromAxisAngle(Matrix& rResult, const Vector3& axis, const float angle)
     {
       CreateFromAxisAngle(axis, angle, rResult);
     }
@@ -247,7 +247,7 @@ namespace Fsl
     //! @brief Creates a new rotation Matrix from a Quaternion.
     //! @param rRotation The rotation Matrix as an output parameter.
     //! @param quaternion Quaternion of rotation moment.
-    FSL_ATTR_DEPRECATED static void CreateFromQuaternion(Matrix& rResult, const Quaternion& quaternion)
+    [[deprecated("use one of the other overloads instead")]] static void CreateFromQuaternion(Matrix& rResult, const Quaternion& quaternion)
     {
       CreateFromQuaternion(quaternion, rResult);
     }
@@ -272,7 +272,8 @@ namespace Fsl
     //! @param roll The roll rotation value in radians.
     //! @return The rotation matrix
     //! Creates a new rotation Matrix from the specified yaw, pitch and roll values.
-    FSL_ATTR_DEPRECATED static void CreateFromYawPitchRoll(Matrix& rResult, const float yaw, const float pitch, const float roll)
+    [[deprecated("use one of the other overloads instead")]] static void CreateFromYawPitchRoll(Matrix& rResult, const float yaw, const float pitch,
+                                                                                                const float roll)
     {
       CreateFromYawPitchRoll(yaw, pitch, roll, rResult);
     }
@@ -290,8 +291,8 @@ namespace Fsl
     static Matrix CreateLookAt(const Vector3& cameraPosition, const Vector3& cameraTarget, const Vector3& cameraUpVector);
 
     //! @brief Creates a view matrix
-    FSL_ATTR_DEPRECATED static void CreateLookAt(Matrix& rResult, const Vector3& cameraPosition, const Vector3& cameraTarget,
-                                                 const Vector3& cameraUpVector)
+    [[deprecated("use one of the other overloads instead")]] static void CreateLookAt(Matrix& rResult, const Vector3& cameraPosition,
+                                                                                      const Vector3& cameraTarget, const Vector3& cameraUpVector)
     {
       CreateLookAt(cameraPosition, cameraTarget, cameraUpVector, rResult);
     }
@@ -303,8 +304,8 @@ namespace Fsl
     static Matrix CreateOrthographic(const float width, const float height, const float zNearPlane, const float zFarPlane);
 
     //! @brief Builds an orthogonal projection matrix.
-    FSL_ATTR_DEPRECATED static void CreateOrthographic(Matrix& rResult, const float width, const float height, const float zNearPlane,
-                                                       const float zFarPlane)
+    [[deprecated("use one of the other overloads of CreateOrthographic instead")]] static void
+      CreateOrthographic(Matrix& rResult, const float width, const float height, const float zNearPlane, const float zFarPlane)
     {
       CreateOrthographic(width, height, zNearPlane, zFarPlane, rResult);
     }
@@ -345,8 +346,8 @@ namespace Fsl
     static Matrix CreatePerspective(const float width, const float height, const float nearPlaneDistance, const float farPlaneDistance);
 
     //! @brief Builds a perspective projection matrix.
-    FSL_ATTR_DEPRECATED static void CreatePerspective(Matrix& rResult, const float width, const float height, const float nearPlaneDistance,
-                                                      const float farPlaneDistance)
+    [[deprecated("use one of the other overloads instead")]] static void
+      CreatePerspective(Matrix& rResult, const float width, const float height, const float nearPlaneDistance, const float farPlaneDistance)
     {
       CreatePerspective(width, height, nearPlaneDistance, farPlaneDistance, rResult);
     }
@@ -372,8 +373,10 @@ namespace Fsl
     //! @param nearPlaneDistance Distance to the near view plane.
     //! @param farPlaneDistance Distance to the far view plane.
     //! @note   This produces a similar matrix to GLM::perspectiveRH with GLM_DEPTH_ZERO_TO_ONE
-    FSL_ATTR_DEPRECATED static void CreatePerspectiveFieldOfView(Matrix& rResult, const float fieldOfView, const float aspectRatio,
-                                                                 const float nearPlaneDistance, const float farPlaneDistance)
+    [[deprecated("use one of the other overloads instead")]] static void CreatePerspectiveFieldOfView(Matrix& rResult, const float fieldOfView,
+                                                                                                      const float aspectRatio,
+                                                                                                      const float nearPlaneDistance,
+                                                                                                      const float farPlaneDistance)
     {
       CreatePerspectiveFieldOfView(fieldOfView, aspectRatio, nearPlaneDistance, farPlaneDistance, rResult);
     }
@@ -431,7 +434,7 @@ namespace Fsl
     static Matrix CreateRotationX(const float radians);
 
     //! @brief Creates a matrix that can be used to rotate a set of vertices around the x-axis
-    FSL_ATTR_DEPRECATED static void CreateRotationX(Matrix& rResult, const float radians)
+    [[deprecated("use one of the other overloads instead")]] static void CreateRotationX(Matrix& rResult, const float radians)
     {
       CreateRotationX(radians, rResult);
     }
@@ -443,7 +446,7 @@ namespace Fsl
     static Matrix CreateRotationY(const float radians);
 
     //! @brief Creates a matrix that can be used to rotate a set of vertices around the y-axis
-    FSL_ATTR_DEPRECATED static void CreateRotationY(Matrix& rResult, const float radians)
+    [[deprecated("use one of the other overloads instead")]] static void CreateRotationY(Matrix& rResult, const float radians)
     {
       CreateRotationY(radians, rResult);
     }
@@ -455,7 +458,7 @@ namespace Fsl
     static Matrix CreateRotationZ(const float radians);
 
     //! @brief Creates a matrix that can be used to rotate a set of vertices around the z-axis
-    FSL_ATTR_DEPRECATED static void CreateRotationZ(Matrix& rResult, const float radians)
+    [[deprecated("use one of the other overloads instead")]] static void CreateRotationZ(Matrix& rResult, const float radians)
     {
       CreateRotationZ(radians, rResult);
     }
@@ -466,12 +469,12 @@ namespace Fsl
     //! @brief Creates a scaling matrix
     static constexpr Matrix CreateScale(const float scale)
     {
-      // -----------M11,   M12,  M13,  M14,  M21,  M22,   M23,  M24,  M31,  M32,  M33,   M34,  M41,  M42,  M43,  M44
-      return Matrix(scale, 0.0f, 0.0f, 0.0f, 0.0f, scale, 0.0f, 0.0f, 0.0f, 0.0f, scale, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+      // -----M11,   M12,  M13,  M14,  M21,  M22,   M23,  M24,  M31,  M32,  M33,   M34,  M41,  M42,  M43,  M44
+      return {scale, 0.0f, 0.0f, 0.0f, 0.0f, scale, 0.0f, 0.0f, 0.0f, 0.0f, scale, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     }
 
     //! @brief Creates a scaling matrix
-    FSL_ATTR_DEPRECATED static void CreateScale(Matrix& rResult, const float scale)
+    [[deprecated("use one of the other overloads instead")]] static void CreateScale(Matrix& rResult, const float scale)
     {
       CreateScale(scale, rResult);
     }
@@ -482,12 +485,13 @@ namespace Fsl
     //! @brief Creates a scaling matrix
     static constexpr Matrix CreateScale(const float scaleX, const float scaleY, const float scaleZ)
     {
-      // -----------M11,    M12,  M13,  M14,  M21,  M22,    M23,  M24,  M31,  M32,  M33,    M34,  M41,  M42,  M43,  M44
-      return Matrix(scaleX, 0.0f, 0.0f, 0.0f, 0.0f, scaleY, 0.0f, 0.0f, 0.0f, 0.0f, scaleZ, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+      // -----M11,    M12,  M13,  M14,  M21,  M22,    M23,  M24,  M31,  M32,  M33,    M34,  M41,  M42,  M43,  M44
+      return {scaleX, 0.0f, 0.0f, 0.0f, 0.0f, scaleY, 0.0f, 0.0f, 0.0f, 0.0f, scaleZ, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     }
 
     //! @brief Creates a scaling matrix
-    FSL_ATTR_DEPRECATED static void CreateScale(Matrix& rResult, const float scaleX, const float scaleY, const float scaleZ)
+    [[deprecated("use one of the other overloads instead")]] static void CreateScale(Matrix& rResult, const float scaleX, const float scaleY,
+                                                                                     const float scaleZ)
     {
       CreateScale(scaleX, scaleY, scaleZ, rResult);
     }
@@ -498,12 +502,12 @@ namespace Fsl
     //! @brief Creates a scaling matrix
     static constexpr Matrix CreateScale(const Vector3& scale)
     {
-      // -----------M11,     M12,  M13,  M14,  M21,  M22,     M23,  M24,  M31,  M32,  M33,     M34,  M41,  M42,  M43,  M44
-      return Matrix(scale.X, 0.0f, 0.0f, 0.0f, 0.0f, scale.Y, 0.0f, 0.0f, 0.0f, 0.0f, scale.Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+      // -----M11,     M12,  M13,  M14,  M21,  M22,     M23,  M24,  M31,  M32,  M33,     M34,  M41,  M42,  M43,  M44
+      return {scale.X, 0.0f, 0.0f, 0.0f, 0.0f, scale.Y, 0.0f, 0.0f, 0.0f, 0.0f, scale.Z, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     }
 
     //! @brief Creates a scaling matrix
-    FSL_ATTR_DEPRECATED static void CreateScale(Matrix& rResult, const Vector3& scale)
+    [[deprecated("use one of the other overloads instead")]] static void CreateScale(Matrix& rResult, const Vector3& scale)
     {
       CreateScale(scale, rResult);
     }
@@ -530,8 +534,8 @@ namespace Fsl
     //! @return The created translation Matrix.
     static constexpr Matrix CreateTranslation(const float x, const float y, const float z)
     {
-      // -----------M11,  M12,  M13,  M14,  M21,  M22,  M23,  M24,  M31,  M32,  M33, M34,   41,42,43,44
-      return Matrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, x, y, z, 1.0f);
+      // -----M11,  M12,  M13,  M14,  M21,  M22,  M23,  M24,  M31,  M32,  M33, M34,   41,42,43,44
+      return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, x, y, z, 1.0f};
     }
 
     //! @brief Creates a translation matrix
@@ -539,7 +543,8 @@ namespace Fsl
     //! @param x Value to translate by on the x-axis
     //! @param y Value to translate by on the y-axis
     //! @param z Value to translate by on the z-axis
-    FSL_ATTR_DEPRECATED static void CreateTranslation(Matrix& rResult, const float x, const float y, const float z)
+    [[deprecated("use one of the other overloads instead")]] static void CreateTranslation(Matrix& rResult, const float x, const float y,
+                                                                                           const float z)
     {
       CreateTranslation(x, y, z, rResult);
     }
@@ -556,14 +561,14 @@ namespace Fsl
     //! @return The created translation Matrix.
     static constexpr Matrix CreateTranslation(const Vector3& value)
     {
-      // -----------M11,  M12,  M13,  M14,  M21,  M22,  M23,  M24,  M31,  M32,  M33, M34,   M41,     M42,     M43,     M44
-      return Matrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, value.X, value.Y, value.Z, 1.0f);
+      // -----M11,  M12,  M13,  M14,  M21,  M22,  M23,  M24,  M31,  M32,  M33, M34,   M41,     M42,     M43,     M44
+      return {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, value.X, value.Y, value.Z, 1.0f};
     }
 
     //! @brief Creates a translation matrix
     //! @param rResult The created translation Matrix.
     //! @param value Amounts to translate by on the x, y, and z axes.
-    FSL_ATTR_DEPRECATED static void CreateTranslation(Matrix& rResult, const Vector3& value)
+    [[deprecated("use one of the other overloads instead")]] static void CreateTranslation(Matrix& rResult, const Vector3& value)
     {
       CreateTranslation(value, rResult);
     }
@@ -585,7 +590,8 @@ namespace Fsl
     //! @param position Position of the object. This value is used in translation operations.
     //! @param forward Forward direction of the object.
     //! @param up Upward direction of the object. Usually [0, 1, 0]
-    FSL_ATTR_DEPRECATED static void CreateWorld(Matrix& rResult, const Vector3& position, const Vector3& forward, const Vector3& up)
+    [[deprecated("use one of the other overloads instead")]] static void CreateWorld(Matrix& rResult, const Vector3& position, const Vector3& forward,
+                                                                                     const Vector3& up)
     {
       CreateWorld(position, forward, up, rResult);
     }
@@ -612,15 +618,15 @@ namespace Fsl
     static constexpr Matrix Divide(const Matrix& matrix1, const Matrix& matrix2)
     {
       using namespace MatrixFields;
-      return Matrix(
+      return {
         matrix1.m[_M11] / matrix2.m[_M11], matrix1.m[_M12] / matrix2.m[_M12], matrix1.m[_M13] / matrix2.m[_M13], matrix1.m[_M14] / matrix2.m[_M14],
         matrix1.m[_M21] / matrix2.m[_M21], matrix1.m[_M22] / matrix2.m[_M22], matrix1.m[_M23] / matrix2.m[_M23], matrix1.m[_M24] / matrix2.m[_M24],
         matrix1.m[_M31] / matrix2.m[_M31], matrix1.m[_M32] / matrix2.m[_M32], matrix1.m[_M33] / matrix2.m[_M33], matrix1.m[_M34] / matrix2.m[_M34],
-        matrix1.m[_M41] / matrix2.m[_M41], matrix1.m[_M42] / matrix2.m[_M42], matrix1.m[_M43] / matrix2.m[_M43], matrix1.m[_M44] / matrix2.m[_M44]);
+        matrix1.m[_M41] / matrix2.m[_M41], matrix1.m[_M42] / matrix2.m[_M42], matrix1.m[_M43] / matrix2.m[_M43], matrix1.m[_M44] / matrix2.m[_M44]};
     }
 
     //! @brief Divides the components of a matrix by the corresponding components of another matrix.
-    FSL_ATTR_DEPRECATED static void Divide(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
+    [[deprecated("use one of the other overloads instead")]] static void Divide(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
     {
       Divide(matrix1, matrix2, rResult);
     }
@@ -654,14 +660,14 @@ namespace Fsl
       // Multiply usually has better performance
       const float num = 1.0f / divider;
 
-      return Matrix(matrix1.m[_M11] * num, matrix1.m[_M12] * num, matrix1.m[_M13] * num, matrix1.m[_M14] * num, matrix1.m[_M21] * num,
-                    matrix1.m[_M22] * num, matrix1.m[_M23] * num, matrix1.m[_M24] * num, matrix1.m[_M31] * num, matrix1.m[_M32] * num,
-                    matrix1.m[_M33] * num, matrix1.m[_M34] * num, matrix1.m[_M41] * num, matrix1.m[_M42] * num, matrix1.m[_M43] * num,
-                    matrix1.m[_M44] * num);
+      return {matrix1.m[_M11] * num, matrix1.m[_M12] * num, matrix1.m[_M13] * num, matrix1.m[_M14] * num,
+              matrix1.m[_M21] * num, matrix1.m[_M22] * num, matrix1.m[_M23] * num, matrix1.m[_M24] * num,
+              matrix1.m[_M31] * num, matrix1.m[_M32] * num, matrix1.m[_M33] * num, matrix1.m[_M34] * num,
+              matrix1.m[_M41] * num, matrix1.m[_M42] * num, matrix1.m[_M43] * num, matrix1.m[_M44] * num};
     }
 
     //! @brief Divides the components of a matrix by a scalar.
-    FSL_ATTR_DEPRECATED static void Divide(Matrix& rResult, const Matrix& matrix1, const float divider)
+    [[deprecated("use one of the other overloads instead")]] static void Divide(Matrix& rResult, const Matrix& matrix1, const float divider)
     {
       Divide(matrix1, divider, rResult);
     }
@@ -698,7 +704,7 @@ namespace Fsl
     //! @brief Creates a new Matrix which contains inversion of the specified matrix.
     //! @param rResult The inverted matrix as output parameter.
     //! @param matrix Source Matrix.
-    FSL_ATTR_DEPRECATED static void Invert(Matrix& rResult, const Matrix& matrix)
+    [[deprecated("use one of the other overloads instead")]] static void Invert(Matrix& rResult, const Matrix& matrix)
     {
       Invert(matrix, rResult);
     }
@@ -720,7 +726,8 @@ namespace Fsl
     //! @param value1 source matrix1
     //! @param value2 source matrix2
     //! @param amount interpolation value (0 means full value1, 1 = full value2)
-    FSL_ATTR_DEPRECATED static void Lerp(Matrix& rResult, const Matrix& value1, const Matrix& value2, const float amount)
+    [[deprecated("use one of the other overloads instead")]] static void Lerp(Matrix& rResult, const Matrix& value1, const Matrix& value2,
+                                                                              const float amount)
     {
       Lerp(value1, value2, amount, rResult);
     }
@@ -736,42 +743,42 @@ namespace Fsl
     static constexpr Matrix Multiply(const Matrix& matrix1, const Matrix& matrix2)
     {
       using namespace MatrixFields;
-      return Matrix((((matrix1.m[_M11] * matrix2.m[_M11]) + (matrix1.m[_M12] * matrix2.m[_M21])) + (matrix1.m[_M13] * matrix2.m[_M31])) +
-                      (matrix1.m[_M14] * matrix2.m[_M41]),
-                    (((matrix1.m[_M11] * matrix2.m[_M12]) + (matrix1.m[_M12] * matrix2.m[_M22])) + (matrix1.m[_M13] * matrix2.m[_M32])) +
-                      (matrix1.m[_M14] * matrix2.m[_M42]),
-                    (((matrix1.m[_M11] * matrix2.m[_M13]) + (matrix1.m[_M12] * matrix2.m[_M23])) + (matrix1.m[_M13] * matrix2.m[_M33])) +
-                      (matrix1.m[_M14] * matrix2.m[_M43]),
-                    (((matrix1.m[_M11] * matrix2.m[_M14]) + (matrix1.m[_M12] * matrix2.m[_M24])) + (matrix1.m[_M13] * matrix2.m[_M34])) +
-                      (matrix1.m[_M14] * matrix2.m[_M44]),
-                    (((matrix1.m[_M21] * matrix2.m[_M11]) + (matrix1.m[_M22] * matrix2.m[_M21])) + (matrix1.m[_M23] * matrix2.m[_M31])) +
-                      (matrix1.m[_M24] * matrix2.m[_M41]),
-                    (((matrix1.m[_M21] * matrix2.m[_M12]) + (matrix1.m[_M22] * matrix2.m[_M22])) + (matrix1.m[_M23] * matrix2.m[_M32])) +
-                      (matrix1.m[_M24] * matrix2.m[_M42]),
-                    (((matrix1.m[_M21] * matrix2.m[_M13]) + (matrix1.m[_M22] * matrix2.m[_M23])) + (matrix1.m[_M23] * matrix2.m[_M33])) +
-                      (matrix1.m[_M24] * matrix2.m[_M43]),
-                    (((matrix1.m[_M21] * matrix2.m[_M14]) + (matrix1.m[_M22] * matrix2.m[_M24])) + (matrix1.m[_M23] * matrix2.m[_M34])) +
-                      (matrix1.m[_M24] * matrix2.m[_M44]),
-                    (((matrix1.m[_M31] * matrix2.m[_M11]) + (matrix1.m[_M32] * matrix2.m[_M21])) + (matrix1.m[_M33] * matrix2.m[_M31])) +
-                      (matrix1.m[_M34] * matrix2.m[_M41]),
-                    (((matrix1.m[_M31] * matrix2.m[_M12]) + (matrix1.m[_M32] * matrix2.m[_M22])) + (matrix1.m[_M33] * matrix2.m[_M32])) +
-                      (matrix1.m[_M34] * matrix2.m[_M42]),
-                    (((matrix1.m[_M31] * matrix2.m[_M13]) + (matrix1.m[_M32] * matrix2.m[_M23])) + (matrix1.m[_M33] * matrix2.m[_M33])) +
-                      (matrix1.m[_M34] * matrix2.m[_M43]),
-                    (((matrix1.m[_M31] * matrix2.m[_M14]) + (matrix1.m[_M32] * matrix2.m[_M24])) + (matrix1.m[_M33] * matrix2.m[_M34])) +
-                      (matrix1.m[_M34] * matrix2.m[_M44]),
-                    (((matrix1.m[_M41] * matrix2.m[_M11]) + (matrix1.m[_M42] * matrix2.m[_M21])) + (matrix1.m[_M43] * matrix2.m[_M31])) +
-                      (matrix1.m[_M44] * matrix2.m[_M41]),
-                    (((matrix1.m[_M41] * matrix2.m[_M12]) + (matrix1.m[_M42] * matrix2.m[_M22])) + (matrix1.m[_M43] * matrix2.m[_M32])) +
-                      (matrix1.m[_M44] * matrix2.m[_M42]),
-                    (((matrix1.m[_M41] * matrix2.m[_M13]) + (matrix1.m[_M42] * matrix2.m[_M23])) + (matrix1.m[_M43] * matrix2.m[_M33])) +
-                      (matrix1.m[_M44] * matrix2.m[_M43]),
-                    (((matrix1.m[_M41] * matrix2.m[_M14]) + (matrix1.m[_M42] * matrix2.m[_M24])) + (matrix1.m[_M43] * matrix2.m[_M34])) +
-                      (matrix1.m[_M44] * matrix2.m[_M44]));
+      return {(((matrix1.m[_M11] * matrix2.m[_M11]) + (matrix1.m[_M12] * matrix2.m[_M21])) + (matrix1.m[_M13] * matrix2.m[_M31])) +
+                (matrix1.m[_M14] * matrix2.m[_M41]),
+              (((matrix1.m[_M11] * matrix2.m[_M12]) + (matrix1.m[_M12] * matrix2.m[_M22])) + (matrix1.m[_M13] * matrix2.m[_M32])) +
+                (matrix1.m[_M14] * matrix2.m[_M42]),
+              (((matrix1.m[_M11] * matrix2.m[_M13]) + (matrix1.m[_M12] * matrix2.m[_M23])) + (matrix1.m[_M13] * matrix2.m[_M33])) +
+                (matrix1.m[_M14] * matrix2.m[_M43]),
+              (((matrix1.m[_M11] * matrix2.m[_M14]) + (matrix1.m[_M12] * matrix2.m[_M24])) + (matrix1.m[_M13] * matrix2.m[_M34])) +
+                (matrix1.m[_M14] * matrix2.m[_M44]),
+              (((matrix1.m[_M21] * matrix2.m[_M11]) + (matrix1.m[_M22] * matrix2.m[_M21])) + (matrix1.m[_M23] * matrix2.m[_M31])) +
+                (matrix1.m[_M24] * matrix2.m[_M41]),
+              (((matrix1.m[_M21] * matrix2.m[_M12]) + (matrix1.m[_M22] * matrix2.m[_M22])) + (matrix1.m[_M23] * matrix2.m[_M32])) +
+                (matrix1.m[_M24] * matrix2.m[_M42]),
+              (((matrix1.m[_M21] * matrix2.m[_M13]) + (matrix1.m[_M22] * matrix2.m[_M23])) + (matrix1.m[_M23] * matrix2.m[_M33])) +
+                (matrix1.m[_M24] * matrix2.m[_M43]),
+              (((matrix1.m[_M21] * matrix2.m[_M14]) + (matrix1.m[_M22] * matrix2.m[_M24])) + (matrix1.m[_M23] * matrix2.m[_M34])) +
+                (matrix1.m[_M24] * matrix2.m[_M44]),
+              (((matrix1.m[_M31] * matrix2.m[_M11]) + (matrix1.m[_M32] * matrix2.m[_M21])) + (matrix1.m[_M33] * matrix2.m[_M31])) +
+                (matrix1.m[_M34] * matrix2.m[_M41]),
+              (((matrix1.m[_M31] * matrix2.m[_M12]) + (matrix1.m[_M32] * matrix2.m[_M22])) + (matrix1.m[_M33] * matrix2.m[_M32])) +
+                (matrix1.m[_M34] * matrix2.m[_M42]),
+              (((matrix1.m[_M31] * matrix2.m[_M13]) + (matrix1.m[_M32] * matrix2.m[_M23])) + (matrix1.m[_M33] * matrix2.m[_M33])) +
+                (matrix1.m[_M34] * matrix2.m[_M43]),
+              (((matrix1.m[_M31] * matrix2.m[_M14]) + (matrix1.m[_M32] * matrix2.m[_M24])) + (matrix1.m[_M33] * matrix2.m[_M34])) +
+                (matrix1.m[_M34] * matrix2.m[_M44]),
+              (((matrix1.m[_M41] * matrix2.m[_M11]) + (matrix1.m[_M42] * matrix2.m[_M21])) + (matrix1.m[_M43] * matrix2.m[_M31])) +
+                (matrix1.m[_M44] * matrix2.m[_M41]),
+              (((matrix1.m[_M41] * matrix2.m[_M12]) + (matrix1.m[_M42] * matrix2.m[_M22])) + (matrix1.m[_M43] * matrix2.m[_M32])) +
+                (matrix1.m[_M44] * matrix2.m[_M42]),
+              (((matrix1.m[_M41] * matrix2.m[_M13]) + (matrix1.m[_M42] * matrix2.m[_M23])) + (matrix1.m[_M43] * matrix2.m[_M33])) +
+                (matrix1.m[_M44] * matrix2.m[_M43]),
+              (((matrix1.m[_M41] * matrix2.m[_M14]) + (matrix1.m[_M42] * matrix2.m[_M24])) + (matrix1.m[_M43] * matrix2.m[_M34])) +
+                (matrix1.m[_M44] * matrix2.m[_M44])};
     }
 
     //! @brief Multiplies a matrix by another matrix.
-    FSL_ATTR_DEPRECATED static void Multiply(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
+    [[deprecated("use one of the other overloads instead")]] static void Multiply(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
     {
       Multiply(matrix1, matrix2, rResult);
     }
@@ -838,14 +845,14 @@ namespace Fsl
     static constexpr Matrix Multiply(const Matrix& matrix1, const float factor)
     {
       using namespace MatrixFields;
-      return Matrix(matrix1.m[_M11] * factor, matrix1.m[_M12] * factor, matrix1.m[_M13] * factor, matrix1.m[_M14] * factor, matrix1.m[_M21] * factor,
-                    matrix1.m[_M22] * factor, matrix1.m[_M23] * factor, matrix1.m[_M24] * factor, matrix1.m[_M31] * factor, matrix1.m[_M32] * factor,
-                    matrix1.m[_M33] * factor, matrix1.m[_M34] * factor, matrix1.m[_M41] * factor, matrix1.m[_M42] * factor, matrix1.m[_M43] * factor,
-                    matrix1.m[_M44] * factor);
+      return {matrix1.m[_M11] * factor, matrix1.m[_M12] * factor, matrix1.m[_M13] * factor, matrix1.m[_M14] * factor,
+              matrix1.m[_M21] * factor, matrix1.m[_M22] * factor, matrix1.m[_M23] * factor, matrix1.m[_M24] * factor,
+              matrix1.m[_M31] * factor, matrix1.m[_M32] * factor, matrix1.m[_M33] * factor, matrix1.m[_M34] * factor,
+              matrix1.m[_M41] * factor, matrix1.m[_M42] * factor, matrix1.m[_M43] * factor, matrix1.m[_M44] * factor};
     }
 
     //! @brief Multiplies a matrix by a scalar.
-    FSL_ATTR_DEPRECATED static void Multiply(Matrix& rResult, const Matrix& matrix1, const float factor)
+    [[deprecated("use one of the other overloads instead")]] static void Multiply(Matrix& rResult, const Matrix& matrix1, const float factor)
     {
       Multiply(matrix1, factor, rResult);
     }
@@ -876,13 +883,12 @@ namespace Fsl
     static constexpr Matrix Negate(const Matrix& matrix)
     {
       using namespace MatrixFields;
-      return Matrix(-matrix.m[_M11], -matrix.m[_M12], -matrix.m[_M13], -matrix.m[_M14], -matrix.m[_M21], -matrix.m[_M22], -matrix.m[_M23],
-                    -matrix.m[_M24], -matrix.m[_M31], -matrix.m[_M32], -matrix.m[_M33], -matrix.m[_M34], -matrix.m[_M41], -matrix.m[_M42],
-                    -matrix.m[_M43], -matrix.m[_M44]);
+      return {-matrix.m[_M11], -matrix.m[_M12], -matrix.m[_M13], -matrix.m[_M14], -matrix.m[_M21], -matrix.m[_M22], -matrix.m[_M23], -matrix.m[_M24],
+              -matrix.m[_M31], -matrix.m[_M32], -matrix.m[_M33], -matrix.m[_M34], -matrix.m[_M41], -matrix.m[_M42], -matrix.m[_M43], -matrix.m[_M44]};
     }
 
     //! @brief Negate the matrix
-    FSL_ATTR_DEPRECATED static void Negate(Matrix& rResult, const Matrix& matrix)
+    [[deprecated("use one of the other overloads instead")]] static void Negate(Matrix& rResult, const Matrix& matrix)
     {
       Negate(matrix, rResult);
     }
@@ -897,15 +903,15 @@ namespace Fsl
     static constexpr Matrix Subtract(const Matrix& matrix1, const Matrix& matrix2)
     {
       using namespace MatrixFields;
-      return Matrix(
+      return {
         matrix1.m[_M11] - matrix2.m[_M11], matrix1.m[_M12] - matrix2.m[_M12], matrix1.m[_M13] - matrix2.m[_M13], matrix1.m[_M14] - matrix2.m[_M14],
         matrix1.m[_M21] - matrix2.m[_M21], matrix1.m[_M22] - matrix2.m[_M22], matrix1.m[_M23] - matrix2.m[_M23], matrix1.m[_M24] - matrix2.m[_M24],
         matrix1.m[_M31] - matrix2.m[_M31], matrix1.m[_M32] - matrix2.m[_M32], matrix1.m[_M33] - matrix2.m[_M33], matrix1.m[_M34] - matrix2.m[_M34],
-        matrix1.m[_M41] - matrix2.m[_M41], matrix1.m[_M42] - matrix2.m[_M42], matrix1.m[_M43] - matrix2.m[_M43], matrix1.m[_M44] - matrix2.m[_M44]);
+        matrix1.m[_M41] - matrix2.m[_M41], matrix1.m[_M42] - matrix2.m[_M42], matrix1.m[_M43] - matrix2.m[_M43], matrix1.m[_M44] - matrix2.m[_M44]};
     }
 
     //! @brief Subtracts matrices.
-    FSL_ATTR_DEPRECATED static void Subtract(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
+    [[deprecated("use one of the other overloads instead")]] static void Subtract(Matrix& rResult, const Matrix& matrix1, const Matrix& matrix2)
     {
       Subtract(matrix1, matrix2, rResult);
     }
@@ -917,13 +923,13 @@ namespace Fsl
     static constexpr Matrix Transpose(const Matrix& matrix)
     {
       using namespace MatrixFields;
-      return Matrix(matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M41], matrix.m[_M12], matrix.m[_M22], matrix.m[_M32], matrix.m[_M42],
-                    matrix.m[_M13], matrix.m[_M23], matrix.m[_M33], matrix.m[_M43], matrix.m[_M14], matrix.m[_M24], matrix.m[_M34], matrix.m[_M44]);
+      return {matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M41], matrix.m[_M12], matrix.m[_M22], matrix.m[_M32], matrix.m[_M42],
+              matrix.m[_M13], matrix.m[_M23], matrix.m[_M33], matrix.m[_M43], matrix.m[_M14], matrix.m[_M24], matrix.m[_M34], matrix.m[_M44]};
     }
 
     //! @brief  Transposes the rows and columns of a matrix.
     //! @note matrix can be equal to rResult.
-    FSL_ATTR_DEPRECATED static void Transpose(Matrix& rResult, const Matrix& src)
+    [[deprecated("use one of the other overloads instead")]] static void Transpose(Matrix& rResult, const Matrix& src)
     {
       Transpose(src, rResult);
     }
@@ -1010,44 +1016,43 @@ namespace Fsl
               m[_M44] != rhs.m[_M44]);
     }
   };
+
+  //! @brief Matrix multiply
+  inline Matrix operator*(const Matrix& lhs, const Matrix& rhs)
+  {
+    using namespace MatrixFields;
+
+    const float* pLhs = lhs.DirectAccess();
+    const float* pRhs = rhs.DirectAccess();
+    return {(((pLhs[_M11] * pRhs[_M11]) + (pLhs[_M12] * pRhs[_M21])) + (pLhs[_M13] * pRhs[_M31])) + (pLhs[_M14] * pRhs[_M41]),
+            (((pLhs[_M11] * pRhs[_M12]) + (pLhs[_M12] * pRhs[_M22])) + (pLhs[_M13] * pRhs[_M32])) + (pLhs[_M14] * pRhs[_M42]),
+            (((pLhs[_M11] * pRhs[_M13]) + (pLhs[_M12] * pRhs[_M23])) + (pLhs[_M13] * pRhs[_M33])) + (pLhs[_M14] * pRhs[_M43]),
+            (((pLhs[_M11] * pRhs[_M14]) + (pLhs[_M12] * pRhs[_M24])) + (pLhs[_M13] * pRhs[_M34])) + (pLhs[_M14] * pRhs[_M44]),
+            (((pLhs[_M21] * pRhs[_M11]) + (pLhs[_M22] * pRhs[_M21])) + (pLhs[_M23] * pRhs[_M31])) + (pLhs[_M24] * pRhs[_M41]),
+            (((pLhs[_M21] * pRhs[_M12]) + (pLhs[_M22] * pRhs[_M22])) + (pLhs[_M23] * pRhs[_M32])) + (pLhs[_M24] * pRhs[_M42]),
+            (((pLhs[_M21] * pRhs[_M13]) + (pLhs[_M22] * pRhs[_M23])) + (pLhs[_M23] * pRhs[_M33])) + (pLhs[_M24] * pRhs[_M43]),
+            (((pLhs[_M21] * pRhs[_M14]) + (pLhs[_M22] * pRhs[_M24])) + (pLhs[_M23] * pRhs[_M34])) + (pLhs[_M24] * pRhs[_M44]),
+            (((pLhs[_M31] * pRhs[_M11]) + (pLhs[_M32] * pRhs[_M21])) + (pLhs[_M33] * pRhs[_M31])) + (pLhs[_M34] * pRhs[_M41]),
+            (((pLhs[_M31] * pRhs[_M12]) + (pLhs[_M32] * pRhs[_M22])) + (pLhs[_M33] * pRhs[_M32])) + (pLhs[_M34] * pRhs[_M42]),
+            (((pLhs[_M31] * pRhs[_M13]) + (pLhs[_M32] * pRhs[_M23])) + (pLhs[_M33] * pRhs[_M33])) + (pLhs[_M34] * pRhs[_M43]),
+            (((pLhs[_M31] * pRhs[_M14]) + (pLhs[_M32] * pRhs[_M24])) + (pLhs[_M33] * pRhs[_M34])) + (pLhs[_M34] * pRhs[_M44]),
+            (((pLhs[_M41] * pRhs[_M11]) + (pLhs[_M42] * pRhs[_M21])) + (pLhs[_M43] * pRhs[_M31])) + (pLhs[_M44] * pRhs[_M41]),
+            (((pLhs[_M41] * pRhs[_M12]) + (pLhs[_M42] * pRhs[_M22])) + (pLhs[_M43] * pRhs[_M32])) + (pLhs[_M44] * pRhs[_M42]),
+            (((pLhs[_M41] * pRhs[_M13]) + (pLhs[_M42] * pRhs[_M23])) + (pLhs[_M43] * pRhs[_M33])) + (pLhs[_M44] * pRhs[_M43]),
+            (((pLhs[_M41] * pRhs[_M14]) + (pLhs[_M42] * pRhs[_M24])) + (pLhs[_M43] * pRhs[_M34])) + (pLhs[_M44] * pRhs[_M44])};
+  }
+
+  //! @brief Matrix addition
+  inline Matrix operator+(const Matrix& lhs, const Matrix& rhs)
+  {
+    return Matrix::Add(lhs, rhs);
+  }
+
+  //! @brief Matrix subtraction
+  inline Matrix operator-(const Matrix& lhs, const Matrix& rhs)
+  {
+    return Matrix::Subtract(lhs, rhs);
+  }
 }
-
-//! @brief Matrix multiply
-inline const Fsl::Matrix operator*(const Fsl::Matrix& lhs, const Fsl::Matrix& rhs)
-{
-  using namespace Fsl::MatrixFields;
-
-  const float* pLhs = lhs.DirectAccess();
-  const float* pRhs = rhs.DirectAccess();
-  return Fsl::Matrix((((pLhs[_M11] * pRhs[_M11]) + (pLhs[_M12] * pRhs[_M21])) + (pLhs[_M13] * pRhs[_M31])) + (pLhs[_M14] * pRhs[_M41]),
-                     (((pLhs[_M11] * pRhs[_M12]) + (pLhs[_M12] * pRhs[_M22])) + (pLhs[_M13] * pRhs[_M32])) + (pLhs[_M14] * pRhs[_M42]),
-                     (((pLhs[_M11] * pRhs[_M13]) + (pLhs[_M12] * pRhs[_M23])) + (pLhs[_M13] * pRhs[_M33])) + (pLhs[_M14] * pRhs[_M43]),
-                     (((pLhs[_M11] * pRhs[_M14]) + (pLhs[_M12] * pRhs[_M24])) + (pLhs[_M13] * pRhs[_M34])) + (pLhs[_M14] * pRhs[_M44]),
-                     (((pLhs[_M21] * pRhs[_M11]) + (pLhs[_M22] * pRhs[_M21])) + (pLhs[_M23] * pRhs[_M31])) + (pLhs[_M24] * pRhs[_M41]),
-                     (((pLhs[_M21] * pRhs[_M12]) + (pLhs[_M22] * pRhs[_M22])) + (pLhs[_M23] * pRhs[_M32])) + (pLhs[_M24] * pRhs[_M42]),
-                     (((pLhs[_M21] * pRhs[_M13]) + (pLhs[_M22] * pRhs[_M23])) + (pLhs[_M23] * pRhs[_M33])) + (pLhs[_M24] * pRhs[_M43]),
-                     (((pLhs[_M21] * pRhs[_M14]) + (pLhs[_M22] * pRhs[_M24])) + (pLhs[_M23] * pRhs[_M34])) + (pLhs[_M24] * pRhs[_M44]),
-                     (((pLhs[_M31] * pRhs[_M11]) + (pLhs[_M32] * pRhs[_M21])) + (pLhs[_M33] * pRhs[_M31])) + (pLhs[_M34] * pRhs[_M41]),
-                     (((pLhs[_M31] * pRhs[_M12]) + (pLhs[_M32] * pRhs[_M22])) + (pLhs[_M33] * pRhs[_M32])) + (pLhs[_M34] * pRhs[_M42]),
-                     (((pLhs[_M31] * pRhs[_M13]) + (pLhs[_M32] * pRhs[_M23])) + (pLhs[_M33] * pRhs[_M33])) + (pLhs[_M34] * pRhs[_M43]),
-                     (((pLhs[_M31] * pRhs[_M14]) + (pLhs[_M32] * pRhs[_M24])) + (pLhs[_M33] * pRhs[_M34])) + (pLhs[_M34] * pRhs[_M44]),
-                     (((pLhs[_M41] * pRhs[_M11]) + (pLhs[_M42] * pRhs[_M21])) + (pLhs[_M43] * pRhs[_M31])) + (pLhs[_M44] * pRhs[_M41]),
-                     (((pLhs[_M41] * pRhs[_M12]) + (pLhs[_M42] * pRhs[_M22])) + (pLhs[_M43] * pRhs[_M32])) + (pLhs[_M44] * pRhs[_M42]),
-                     (((pLhs[_M41] * pRhs[_M13]) + (pLhs[_M42] * pRhs[_M23])) + (pLhs[_M43] * pRhs[_M33])) + (pLhs[_M44] * pRhs[_M43]),
-                     (((pLhs[_M41] * pRhs[_M14]) + (pLhs[_M42] * pRhs[_M24])) + (pLhs[_M43] * pRhs[_M34])) + (pLhs[_M44] * pRhs[_M44]));
-}
-
-//! @brief Matrix addition
-inline const Fsl::Matrix operator+(const Fsl::Matrix& lhs, const Fsl::Matrix& rhs)
-{
-  return Fsl::Matrix::Add(lhs, rhs);
-}
-
-//! @brief Matrix subtraction
-inline const Fsl::Matrix operator-(const Fsl::Matrix& lhs, const Fsl::Matrix& rhs)
-{
-  return Fsl::Matrix::Subtract(lhs, rhs);
-}
-
 
 #endif

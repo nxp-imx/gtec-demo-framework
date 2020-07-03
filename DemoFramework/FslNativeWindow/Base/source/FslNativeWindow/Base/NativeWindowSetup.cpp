@@ -30,13 +30,14 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Base/NativeWindowSetup.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  NativeWindowSetup::NativeWindowSetup(const std::string& applicationName, const std::weak_ptr<INativeWindowEventQueue>& eventQueue,
+  NativeWindowSetup::NativeWindowSetup(std::string applicationName, std::weak_ptr<INativeWindowEventQueue> eventQueue,
                                        const NativeWindowConfig& config, const uint32_t verbosityLevel)
-    : m_applicationName(applicationName)
-    , m_eventQueue(eventQueue)
+    : m_applicationName(std::move(applicationName))
+    , m_eventQueue(std::move(eventQueue))
     , m_config(config)
     , m_verbosityLevel(verbosityLevel)
   {

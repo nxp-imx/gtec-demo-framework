@@ -37,7 +37,9 @@ from typing import Tuple
 import os
 import re
 import subprocess
+from enum import Enum
 from FslBuildGen import IOUtil
+from FslBuildGen import Util
 from FslBuildGen.BasicConfig import BasicConfig
 from FslBuildGen.BuildExternal.PackageExperimentalRecipe import PackageExperimentalRecipe
 from FslBuildGen.BuildExternal.PackageRecipeResult import PackageRecipeResult
@@ -45,11 +47,12 @@ from FslBuildGen.BuildExternal.PackageRecipeResultFoundExecutable import Package
 from FslBuildGen.BuildExternal.PackageRecipeResultManager import PackageRecipeResultManager
 from FslBuildGen.DataTypes import BuildRecipeValidateCommand
 from FslBuildGen.DataTypes import BuildRecipeValidateMethod
+from FslBuildGen.ErrorHelpManager import ErrorHelpManager
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Packages.Package import Package
 from FslBuildGen.PlatformUtil import PlatformUtil
 from FslBuildGen.Vars.VariableProcessor import VariableProcessor
-from FslBuildGen import Util
+from FslBuildGen.Version import Version
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeInstallation
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddHeaders
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddLib
@@ -58,9 +61,10 @@ from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandAddToo
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandEnvironmentVariable
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindFileInPath
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindExecutableFileInPath
+from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning
 from FslBuildGen.Xml.XmlExperimentalRecipe import XmlRecipeValidateCommandPath
 
-class InstallationStatus(object):
+class InstallationStatus(Enum):
     NotInstalled = 0
     Installed = 1
     # There was a user environment error that caused the validation to fail.
@@ -88,10 +92,12 @@ class ErrorRecord(object):
 
 class ValidationEngine(object):
     def __init__(self, basicConfig: BasicConfig, variableProcessor: VariableProcessor,
-                 packageRecipeResultManager: PackageRecipeResultManager) -> None:
+                 packageRecipeResultManager: PackageRecipeResultManager,
+                 errorHelpManager: ErrorHelpManager) -> None:
         self.__BasicConfig = basicConfig
         self.__VariableProcessor = variableProcessor
         self.__PackageRecipeResultManager = packageRecipeResultManager
+        self.__ErrorHelpManager = errorHelpManager
 
 
     def Process(self, sourcePackage: Package) -> None:
@@ -116,13 +122,13 @@ class ValidationEngine(object):
         if sourceRecipe is None:
             raise Exception("Invalid recipe")
 
-        exceptionList = [Exception("Installation validation failed for package '{0}' recipe '{1}'".format(sourcePackage.Name, sourceRecipe.Name))]
+        exceptionList = [Exception("Installation validation failed for package '{0}' recipe '{1}'".format(sourcePackage.Name, sourceRecipe.FullName))]
         for errorRecord in errorRecordList:
             exceptionList.append(Exception(errorRecord.ToString()))
         raise GroupedException(exceptionList)
 
 
-    def GetInstallationStatus(self, sourcePackage: Package, rErrorRecordList: Optional[List[ErrorRecord]] = None) -> int:
+    def GetInstallationStatus(self, sourcePackage: Package, rErrorRecordList: Optional[List[ErrorRecord]] = None) -> InstallationStatus:
         packageRecipeResult = self.__PackageRecipeResultManager.AddIfMissing(sourcePackage.Name)
 
         sourceRecipe = sourcePackage.ResolvedDirectExperimentalRecipe
@@ -136,7 +142,7 @@ class ValidationEngine(object):
             return status
 
         if rErrorRecordList is None:
-            self.__BasicConfig.LogPrintWarning("Installation validation failed for package '{0}' recipe '{1}'".format(sourcePackage.Name, sourceRecipe.Name))
+            self.__BasicConfig.LogPrintWarning("Installation validation failed for package '{0}' recipe '{1}'".format(sourcePackage.Name, sourceRecipe.FullName))
             for errorRecord in errorRecordList:
                 self.__BasicConfig.LogPrintWarning(errorRecord.ToString())
         return status
@@ -146,7 +152,7 @@ class ValidationEngine(object):
         return errorClassification1 if errorClassification1 > errorClassification2 else errorClassification2
 
 
-    def __GetStatusFromErrorRecords(self, errorRecordList: List[ErrorRecord]) -> int:
+    def __GetStatusFromErrorRecords(self, errorRecordList: List[ErrorRecord]) -> InstallationStatus:
         errorClassification = ErrorClassification.NoError
         for record in errorRecordList:
             errorClassification = self.__ChoseMostSevereClasification(errorClassification, record.Classification)
@@ -154,7 +160,7 @@ class ValidationEngine(object):
         if errorClassification == ErrorClassification.NoError:
             return InstallationStatus.Installed
         elif errorClassification == ErrorClassification.Help:
-            return InstallationStatus.Installed
+            return InstallationStatus.NotInstalled
         elif errorClassification == ErrorClassification.Environment:
             return InstallationStatus.EnvironmentError
         elif errorClassification == ErrorClassification.Critical:
@@ -163,16 +169,16 @@ class ValidationEngine(object):
 
 
     def __GetInstallationStatus(self, rErrorRecordList: List[ErrorRecord], sourceRecipe: PackageExperimentalRecipe,
-                                recipeVariants: List[str], packageRecipeResult: PackageRecipeResult) -> int:
+                                recipeVariants: List[str], packageRecipeResult: PackageRecipeResult) -> InstallationStatus:
         if sourceRecipe.ValidateInstallation is None:
-            self.__BasicConfig.LogPrintVerbose(3, "WARNING: no intallation validation available for recipe '{0}'".format(sourceRecipe.Name))
+            self.__BasicConfig.LogPrintVerbose(3, "WARNING: no intallation validation available for recipe '{0}'".format(sourceRecipe.FullName))
             return InstallationStatus.Undefined
 
         if self.__BasicConfig.Verbosity >= 1:
             if len(sourceRecipe.ValidateInstallation.CommandList) > 0:
-                self.__BasicConfig.LogPrint("Validating installation for '{0}'".format(sourceRecipe.Name))
+                self.__BasicConfig.LogPrint("Validating installation for '{0}'".format(sourceRecipe.FullName))
             else:
-                self.__BasicConfig.LogPrint("WARNING: No installation validation commands available for '{0}'".format(sourceRecipe.Name))
+                self.__BasicConfig.LogPrint("WARNING: No installation validation commands available for '{0}'".format(sourceRecipe.FullName))
 
         self.__DoValidateInstallation(rErrorRecordList, sourceRecipe, recipeVariants, packageRecipeResult)
 
@@ -237,7 +243,7 @@ class ValidationEngine(object):
             elif command.CommandType == BuildRecipeValidateCommand.AddTool:
                 if not isinstance(command, XmlRecipeValidateCommandAddTool):
                     raise Exception("Invalid command")
-                result = self.__ValidateAddTool(rErrorRecordList, installationPath, command)
+                result = self.__ValidateAddTool(rErrorRecordList, installationPath, command, packageRecipeResult)
             else:
                 raise Exception("Unknown validation command '{0}'".format(command.CommandName))
             if not result and not command.Help is None:
@@ -287,7 +293,31 @@ class ValidationEngine(object):
                 return False
         return True
 
-    def __TryValidateCommandVersion(self, cmd: str, versionCommand: str, versionRegEx: str, minVersion: str) -> bool:
+
+    def __CheckOnErrorWarning(self, foundVersionList: List[int], versionRegEx: str,
+                             warning: XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning) -> None:
+        startVersionList = Util.ParseVersionString(warning.StartVersion, maxValues=4)
+        if len(startVersionList) > len(foundVersionList):
+            self.__BasicConfig.DoPrintWarning("The regex '{0}' did not capture the enough version number elements to compare against the start version '{1}'".format(versionRegEx, warning.StartVersion))
+            return  # Its just a warning hint we can't display, so we log it and skip it for now
+        if self.__CheckVersion(startVersionList, foundVersionList):
+            # ok we passed the start version check for this warning hint
+            if warning.EndVersion is not None:
+                endVersionList = Util.ParseVersionString(warning.EndVersion, maxValues=4)
+                if len(endVersionList) > len(foundVersionList):
+                    self.__BasicConfig.DoPrintWarning("The regex '{0}' did not capture the enough version number elements to compare against the end version '{1}'".format(versionRegEx, warning.EndVersion))
+                    return # Its just a warning hint we can't display, so we log it and skip it for now
+                if self.__CheckVersion(endVersionList, foundVersionList):
+                    return
+            self.__ErrorHelpManager.AddOnErrorWarningHint(warning.Help)
+
+    def __CheckOnErrorWarnings(self, foundVersionList: List[int], versionRegEx: str,
+                               addOnErrorWarning: List[XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]) -> None:
+        for warning in addOnErrorWarning:
+            self.__CheckOnErrorWarning(foundVersionList, versionRegEx, warning)
+
+    def __TryValidateCommandVersion(self, cmd: str, versionCommand: str, versionRegEx: str, minVersion: Optional[str],
+                                    addOnErrorWarning: List[XmlRecipeValidateCommandFindExecutableFileInPathAddOnErrorWarning]) -> List[int]:
         output = ""
         try:
             runCmd = [cmd, versionCommand]
@@ -297,15 +327,15 @@ class ValidationEngine(object):
                 result = proc.wait()
                 if result != 0:
                     self.__BasicConfig.LogPrintWarning("The command '{0}' failed with '{1}'".format(" ".join(runCmd), result))
-                    return False
+                    return []
         except FileNotFoundError:
                 self.__BasicConfig.DoPrintWarning("The command '{0}' failed with 'file not found'.".format(" ".join(runCmd)))
-                return False
+                return []
 
         match = re.search(versionRegEx, output)
         if match is None:
             self.__BasicConfig.DoPrintWarning("The regex '{0}' did not capture the version".format(versionRegEx))
-            return False
+            return []
         if len(match.groups()) > 1:
             self.__BasicConfig.DoPrintWarning("The regex '{0}' captured more than one group: {1}".format(versionRegEx, match.groups))
         if len(match.groups()) != 1:
@@ -314,17 +344,19 @@ class ValidationEngine(object):
         try:
             # time to parse the version string
             foundVersionList = Util.ParseVersionString(matchResult, maxValues=4)
-            minVersionList = Util.ParseVersionString(minVersion, maxValues=4)
-            if len(minVersionList) > len(foundVersionList):
-                self.__BasicConfig.DoPrintWarning("The regex '{0}' did not capture the enough version number elements to compare against the min version '{1}'".format(versionRegEx, minVersion))
-                return False
-            if not self.__CheckVersion(minVersionList, foundVersionList):
-                return False
-            self.__BasicConfig.LogPrint("  Found version {0} expected minVersion {1}".format(matchResult, minVersion))
+            if minVersion is not None:
+                minVersionList = Util.ParseVersionString(minVersion, maxValues=4)
+                if len(minVersionList) > len(foundVersionList):
+                    self.__BasicConfig.DoPrintWarning("The regex '{0}' did not capture the enough version number elements to compare against the min version '{1}'".format(versionRegEx, minVersion))
+                    return []
+                self.__BasicConfig.LogPrint("  Found version {0} expected minVersion {1}".format(matchResult, minVersion))
+                if not self.__CheckVersion(minVersionList, foundVersionList):
+                    return []
+            self.__CheckOnErrorWarnings(foundVersionList, versionRegEx, addOnErrorWarning)
+            return foundVersionList
         except Exception as ex:
             self.__BasicConfig.DoPrintWarning("Failed to parse version string: {0}".format(str(ex)))
-            return False
-        return True
+            return []
 
 
     def __ValidateFindExecutableFileInPath(self, rErrorRecordList: List[ErrorRecord],
@@ -345,14 +377,16 @@ class ValidationEngine(object):
 
             result, value = self.__TryFindFileInPath(newErrors, installationPath, platformFilename, command.ExpectedPath)
 
-            if result and value is not None and command.MinVersion is not None:
-                if command.VersionCommand is None or command.VersionRegEx is None or command.MinVersion is None:
+            foundVersion = [0]
+            if result and value is not None and command.VersionCommand is not None:
+                if command.VersionCommand is None or command.VersionRegEx is None:
                     raise Exception("Internal error")
-                result = self.__TryValidateCommandVersion(value, command.VersionCommand, command.VersionRegEx, command.MinVersion)
+                foundVersion = self.__TryValidateCommandVersion(value, command.VersionCommand, command.VersionRegEx, command.MinVersion, command.AddOnErrorWarning)
+                result = len(foundVersion) > 0
 
             # Cache information about what we discovered
             if result and value is not None:
-                exeRecord = PackageRecipeResultFoundExecutable(command.Name, currentCommandName, value)
+                exeRecord = PackageRecipeResultFoundExecutable(command.Name, currentCommandName, value, self.__ToVersion(foundVersion))
                 packageRecipeResult.AddFoundExecutable(exeRecord)
             elif len(alternatives) > 0:
                 alternatives = alternatives[1:]
@@ -381,6 +415,14 @@ class ValidationEngine(object):
 
         return result
 
+    def __ToVersion(self, foundVersion: List[int]) -> Version:
+        if len(foundVersion) >= 4:
+            return Version(foundVersion[0], foundVersion[1], foundVersion[2], foundVersion[3])
+        if len(foundVersion) >= 3:
+            return Version(foundVersion[0], foundVersion[1], foundVersion[2])
+        if len(foundVersion) >= 2:
+            return Version(foundVersion[0], foundVersion[1])
+        return Version(foundVersion[0])
 
     def __ValidateAddHeaders(self, rErrorRecordList: List[ErrorRecord],
                              installationPath: Optional[str],
@@ -432,13 +474,24 @@ class ValidationEngine(object):
 
     def __ValidateAddTool(self, rErrorRecordList: List[ErrorRecord],
                          installationPath: Optional[str],
-                         command: XmlRecipeValidateCommandAddTool) -> bool:
+                         command: XmlRecipeValidateCommandAddTool,
+                         packageRecipeResult: PackageRecipeResult) -> bool:
         toolName = PlatformUtil.GetPlatformDependentExecuteableName(command.Name, PlatformUtil.DetectBuildPlatformType())
         result, value = self.__DoValidateFile(rErrorRecordList, installationPath, toolName, False)
         if self.__BasicConfig.Verbosity >= 1:
             self.__BasicConfig.LogPrint("Validating AddTool '{0}': {1}".format(command.Name, result))
             if self.__BasicConfig.Verbosity >= 2:
                 self.__BasicConfig.LogPrint("  '{0}'".format(value))
+        if result and value is not None:
+            foundVersion = [0]
+            if result and value is not None and command.VersionCommand is not None:
+                if command.VersionCommand is None or command.VersionRegEx is None:
+                    raise Exception("Internal error")
+                foundVersion = self.__TryValidateCommandVersion(value, command.VersionCommand, command.VersionRegEx, command.MinVersion, [])
+                result = len(foundVersion) > 0
+
+            exeRecord = PackageRecipeResultFoundExecutable(command.Name, command.Name, value, self.__ToVersion(foundVersion))
+            packageRecipeResult.AddFoundExecutable(exeRecord)
         return result
 
 

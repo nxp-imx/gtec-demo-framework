@@ -89,7 +89,7 @@ namespace Fsl
       void SYS_SetOriginalSource(const std::shared_ptr<IWindowId>& value);
 
     protected:
-      WindowEvent(const EventTypeId typeId, const EventDescription& eventDescription);
+      WindowEvent(const EventTypeId typeId, EventDescription eventDescription);
       void SYS_DoConstruct();
       virtual void SYS_Destruct();
 

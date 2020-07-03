@@ -83,7 +83,7 @@ namespace Fsl
 
       //! @brief Create a initialized buffer
       //! @param bInitialize if true the VertexArray is initialized (the param really only exist to differentiate it from the empty constructor)
-      GLVertexArray(const bool bInitialize);
+      explicit GLVertexArray(const bool bInitialize);
 
       ~GLVertexArray();
 
@@ -109,7 +109,7 @@ namespace Fsl
 
       //! @brief Get the gl handle associated with the buffer.
       //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      FSL_ATTR_DEPRECATED GLuint GetHandle() const
+      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
         return m_handle;
       }

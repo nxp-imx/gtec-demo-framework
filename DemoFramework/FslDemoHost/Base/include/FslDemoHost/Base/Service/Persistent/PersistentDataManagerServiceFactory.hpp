@@ -33,28 +33,29 @@
 
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryBase.hpp>
 #include <FslDemoHost/Base/Service/Persistent/PersistentDataManagerService.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  class PersistentDataManagerServiceFactory : public ThreadLocalSingletonServiceFactoryBase
+  class PersistentDataManagerServiceFactory final : public ThreadLocalSingletonServiceFactoryBase
   {
     const IO::Path m_persistentDataPath;
 
   public:
-    PersistentDataManagerServiceFactory(const IO::Path& persistentDataPath)
+    explicit PersistentDataManagerServiceFactory(IO::Path persistentDataPath)
       : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(IPersistentDataManager)))
-      , m_persistentDataPath(persistentDataPath)
+      , m_persistentDataPath(std::move(persistentDataPath))
     {
     }
 
 
-    std::shared_ptr<AServiceOptionParser> GetOptionParser() const override
+    std::shared_ptr<AServiceOptionParser> GetOptionParser() const final
     {
       return std::shared_ptr<AServiceOptionParser>();
     }
 
 
-    std::shared_ptr<IService> Allocate(ServiceProvider& provider) override
+    std::shared_ptr<IService> Allocate(ServiceProvider& provider) final
     {
       return std::make_shared<PersistentDataManagerService>(provider, m_persistentDataPath);
     }

@@ -42,7 +42,9 @@ namespace Fsl
     //! Non pre-multiplied alpha blending
     NonPremultiplied = 2,
     //! Opaque blending
-    Opaque = 3
+    Opaque = 3,
+    //! Sdf with alpha blending
+    Sdf = 4
   };
 }
 

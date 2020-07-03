@@ -37,6 +37,7 @@
 #include <cstdint>
 #endif
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_PARAM_NOT_USED(pARAM) ((void)(pARAM))
 
 #endif

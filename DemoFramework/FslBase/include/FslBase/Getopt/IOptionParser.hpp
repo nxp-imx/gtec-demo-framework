@@ -31,14 +31,16 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <deque>
-#include <string>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Getopt/Option.hpp>
 #include <FslBase/Getopt/OptionParseResult.hpp>
+#include <deque>
+#include <string>
 
 namespace Fsl
 {
+  class StringViewLite;
+
   //! @brief This is a very thin layer that allows multiple sources to specify the getopt options they need
   class IOptionParser
   {
@@ -53,7 +55,7 @@ namespace Fsl
     virtual void ArgumentSetup(std::deque<Option>& rOptions) = 0;
 
     //! @brief Parse a input option.
-    virtual OptionParseResult Parse(const int32_t cmdId, const char* const pszOptArg) = 0;
+    virtual OptionParseResult Parse(const int32_t cmdId, const StringViewLite& strOptArg) = 0;
 
     //! @brief Parse a input option.
     //! @return true to continue, false to exit

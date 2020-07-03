@@ -42,18 +42,22 @@
 #include <FslBase/Log/Math/LogRectangle.hpp>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
-#include <iostream>
+#include <Platform/Android/JNIUtil/JNIUtil.hpp>
 #include <android/sensor.h>
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #include <android/native_window_jni.h>
-#include <Platform/Android/JNIUtil/JNIUtil.hpp>
+#include <algorithm>
+#include <thread>
 
-#if 0
-#define LOCAL_LOG(X) FSLLOG3_INFO("PlatformNativeWindowAndroid: {}", (X))
+//#define LOCAL_DEBUG_THREADS 1
+
+#ifdef LOCAL_DEBUG_THREADS
+#include <fmt/ostream.h>
+#define LOCAL_THREAD_PRINT(X) FSLLOG3_INFO("{} Current threadId: '{}'", (X), std::this_thread::get_id())
 #else
-#define LOCAL_LOG(X) \
-  {                  \
+#define LOCAL_THREAD_PRINT(X) \
+  {                           \
   }
 #endif
 
@@ -111,14 +115,14 @@ namespace Fsl
       // The window is being shown, get it ready.
       if (pAppState->window != nullptr)
       {
-        LOCAL_LOG("NativeWindow init");
+        FSLLOG3_VERBOSE("NativeWindow init");
         PostSuspend(eventQueue, false);
         g_hWindow = pAppState->window;
       }
       else
       {
         g_hWindow = nullptr;
-        LOCAL_LOG("No window pointer");
+        FSLLOG3_VERBOSE("No window pointer");
       }
     }
 
@@ -130,10 +134,28 @@ namespace Fsl
       g_hWindow = nullptr;
     }
 
+    void CmdResizedWindow(const std::shared_ptr<INativeWindowEventQueue>& eventQueue)
+    {
+      eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowResizedEvent());
+    }
+
 
     void CmdSetFocus(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const bool bEnabled)
     {
       PostActivated(eventQueue, bEnabled);
+    }
+
+
+    void CmdOnConfigChanged(android_app* pAppState, const std::shared_ptr<INativeWindowEventQueue>& eventQueue)
+    {
+      // Configuration was changed
+      eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowConfigChanged());
+
+      if (pAppState != nullptr && pAppState->userData != nullptr)
+      {
+        auto pNativeWindow = static_cast<PlatformNativeWindowAndroid*>(pAppState->userData);
+        pNativeWindow->SYS_OnConfigChanged();
+      }
     }
 
 
@@ -145,7 +167,9 @@ namespace Fsl
 
     void CmdCatcher(android_app* pAppState, int32_t cmd)
     {
-      LOCAL_LOG("HandleCmd");
+      LOCAL_THREAD_PRINT("CmdCatcher Construct");
+
+      FSLLOG3_VERBOSE4("HandleCmd");
 
       std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
       if (!eventQueue)
@@ -154,64 +178,66 @@ namespace Fsl
       switch (cmd)
       {
       case APP_CMD_INPUT_CHANGED:
-        LOCAL_LOG("APP_CMD_INPUT_CHANGED");
+        FSLLOG3_VERBOSE3("APP_CMD_INPUT_CHANGED");
         break;
       case APP_CMD_INIT_WINDOW:
-        LOCAL_LOG("APP_CMD_INIT_WINDOW");
+        FSLLOG3_VERBOSE3("APP_CMD_INIT_WINDOW");
         CmdInitWindow(pAppState, eventQueue);
         break;
       case APP_CMD_TERM_WINDOW:
-        LOCAL_LOG("APP_CMD_TERM_WINDOW");
+        FSLLOG3_VERBOSE3("APP_CMD_TERM_WINDOW");
         CmdShutdownWindow(eventQueue);
         break;
       case APP_CMD_WINDOW_RESIZED:
-        LOCAL_LOG("APP_CMD_WINDOW_RESIZED");
+        FSLLOG3_VERBOSE3("APP_CMD_WINDOW_RESIZED");
+        CmdResizedWindow(eventQueue);
         break;
       case APP_CMD_WINDOW_REDRAW_NEEDED:
-        LOCAL_LOG("APP_CMD_WINDOW_RESIZED");
+        FSLLOG3_VERBOSE3("APP_CMD_WINDOW_REDRAW_NEEDED");
         break;
       case APP_CMD_CONTENT_RECT_CHANGED:
-        LOCAL_LOG("APP_CMD_CONTENT_RECT_CHANGED");
+        FSLLOG3_VERBOSE3("APP_CMD_CONTENT_RECT_CHANGED");
         break;
 
       case APP_CMD_GAINED_FOCUS:
-        LOCAL_LOG("APP_CMD_GAINED_FOCUS");
+        FSLLOG3_VERBOSE3("APP_CMD_GAINED_FOCUS");
         CmdSetFocus(eventQueue, true);
         break;
       case APP_CMD_LOST_FOCUS:
-        LOCAL_LOG("APP_CMD_LOST_FOCUS");
+        FSLLOG3_VERBOSE3("APP_CMD_LOST_FOCUS");
         CmdSetFocus(eventQueue, false);
         break;
 
       case APP_CMD_CONFIG_CHANGED:
-        LOCAL_LOG("APP_CMD_CONFIG_CHANGED");
+        FSLLOG3_VERBOSE3("APP_CMD_CONFIG_CHANGED");
+        CmdOnConfigChanged(pAppState, eventQueue);
         break;
       case APP_CMD_LOW_MEMORY:
-        LOCAL_LOG("APP_CMD_LOW_MEMORY");
+        FSLLOG3_VERBOSE3("APP_CMD_LOW_MEMORY");
         CmdLowMemory(eventQueue);
         break;
 
       case APP_CMD_START:
-        LOCAL_LOG("APP_CMD_START");
+        FSLLOG3_VERBOSE3("APP_CMD_START");
         break;
       case APP_CMD_RESUME:
-        LOCAL_LOG("APP_CMD_RESUME");
+        FSLLOG3_VERBOSE3("APP_CMD_RESUME");
         break;
       case APP_CMD_SAVE_STATE:
-        LOCAL_LOG("APP_CMD_SAVE_STATE");
+        FSLLOG3_VERBOSE3("APP_CMD_SAVE_STATE");
         break;
       case APP_CMD_PAUSE:
-        LOCAL_LOG("APP_CMD_PAUSE");
+        FSLLOG3_VERBOSE3("APP_CMD_PAUSE");
         break;
       case APP_CMD_STOP:
-        LOCAL_LOG("APP_CMD_STOP");
+        FSLLOG3_VERBOSE3("APP_CMD_STOP");
         // PostSuspend(eventQueue, true);
         break;
       case APP_CMD_DESTROY:
-        LOCAL_LOG("APP_CMD_DESTROY");
+        FSLLOG3_VERBOSE3("APP_CMD_DESTROY");
         break;
       default:
-        LOCAL_LOG("Unknown cmd: " << cmd);
+        FSLLOG3_VERBOSE3("Unknown cmd: {}", cmd);
         break;
       }
     }
@@ -600,7 +626,7 @@ namespace Fsl
       const auto action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
       const auto posX = AMotionEvent_getX(event, 0);
       const auto posY = AMotionEvent_getY(event, 0);
-      const Point2 position(static_cast<int32_t>(posX), static_cast<int32_t>(posY));
+      const PxPoint2 position(static_cast<int32_t>(posX), static_cast<int32_t>(posY));
 
       switch (action)
       {
@@ -660,12 +686,17 @@ namespace Fsl
         // Check if we are exiting.
         if (pAppState->destroyRequested != 0)
         {
-          LOCAL_LOG("Destroy requested");
+          FSLLOG3_VERBOSE("Destroy requested");
           return false;
         }
       }
       return true;
     }
+
+
+    // void OnActivity_onConfigurationChanged(ANativeActivity* activity)
+    //{
+    //}
 
 
     std::shared_ptr<INativeWindow> AllocateWindow(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
@@ -685,6 +716,8 @@ namespace Fsl
     , m_isDisplayHDRCompatibleCached(false)
     , m_isDisplayHDRCompatible(false)
   {
+    LOCAL_THREAD_PRINT("PlatformNativeWindowSystemAndroid Construct");
+
     auto eventQueue = setup.GetEventQueue().lock();
     g_eventQueue = eventQueue;
     if (eventQueue)
@@ -699,14 +732,17 @@ namespace Fsl
     // Configure the callback handlers
     m_pAppState->onAppCmd = CmdCatcher;
     m_pAppState->onInputEvent = InputCatcher;
+    // m_pAppState->activity->callbacks->onConfigurationChanged = OnActivity_onConfigurationChanged();
   }
 
 
   PlatformNativeWindowSystemAndroid::~PlatformNativeWindowSystemAndroid()
   {
     g_eventQueue.reset();
+    g_hWindow = nullptr;
     m_pAppState->onAppCmd = nullptr;
     m_pAppState->onInputEvent = nullptr;
+    m_pAppState->userData = nullptr;
   }
 
 
@@ -744,65 +780,75 @@ namespace Fsl
 
   PlatformNativeWindowAndroid::PlatformNativeWindowAndroid(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                            const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : PlatformNativeWindow(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
+    : PlatformNativeWindow(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams, NativeWindowCapabilityFlags::GetDensityDpi)
     , m_eventQueue(nativeWindowSetup.GetEventQueue())
     , m_pAppState(windowParams.AppState)
   {
-    // Configure the callback handlers
-    m_pAppState->userData = this;
-
-    // Wait for a window to be ready
-    if (g_hWindow == nullptr)
+    LOCAL_THREAD_PRINT("PlatformNativeWindowAndroid");
+    try
     {
-      LOCAL_LOG("Waiting for window to be ready");
-      WaitForWindowReady();
+      m_pAppState->userData = this;
+
+      // Wait for a window to be ready
+      if (g_hWindow == nullptr)
+      {
+        FSLLOG3_VERBOSE("Waiting for window to be ready");
+        WaitForWindowReady();
+      }
+      FSLLOG3_VERBOSE("Window created");
+      m_platformWindow = g_hWindow;
+
+
+      if (windowParams.OnWindowCreated)
+      {
+        FSLLOG3_VERBOSE("NativeWindow onWindowCreated");
+        windowParams.OnWindowCreated(m_platformWindow, m_pAppState);
+      }
+
+      FSLLOG3_VERBOSE("NativeWindow show UI");
+      ShowUI(windowParams.AppState);
+
+      FSLLOG3_VERBOSE("NativeWindow ready");
     }
-    LOCAL_LOG("Window created");
-    m_platformWindow = g_hWindow;
-
-
-    if (windowParams.OnWindowCreated)
+    catch (...)
     {
-      LOCAL_LOG("NativeWindow onWindowCreated");
-      windowParams.OnWindowCreated(m_platformWindow, m_pAppState);
+      m_pAppState->userData = nullptr;
+      throw;
     }
-
-    LOCAL_LOG("NativeWindow show UI");
-    ShowUI(windowParams.AppState);
-    LOCAL_LOG("NativeWindow ready");
-
-    LOCAL_LOG("NativeWindow ready");
   }
 
 
   PlatformNativeWindowAndroid::~PlatformNativeWindowAndroid()
   {
+    FSLLOG3_VERBOSE("Destroying");
+
     // Clear the pointer
     m_pAppState->userData = nullptr;
+
+    FSLLOG3_VERBOSE("Destroyed");
   }
 
 
-  bool PlatformNativeWindowAndroid::TryGetDPI(Vector2& rDPI) const
+  void PlatformNativeWindowAndroid::SYS_OnConfigChanged()
   {
-    {    // Remove this once its implemented
-      static bool warnedNotImplementedOnce = false;
-      if (!warnedNotImplementedOnce)
-      {
-        FSLLOG3_INFO("PlatformNativeWindowAndroid: TryGetDPI is not implemented on this backend.");
-        warnedNotImplementedOnce = true;
-      }
-    }
-
-    rDPI = Vector2();
-    return false;
   }
 
-
-  bool PlatformNativeWindowAndroid::TryGetSize(Point2& rSize) const
+  bool PlatformNativeWindowAndroid::TryGetNativeSize(PxPoint2& rSize) const
   {
     const auto width = ANativeWindow_getWidth(m_platformWindow);
     const auto height = ANativeWindow_getHeight(m_platformWindow);
-    rSize = Point2(width, height);
+    rSize = PxPoint2(static_cast<PxPoint2::value_type>(width), static_cast<PxPoint2::value_type>(height));
+    return true;
+  }
+
+  bool PlatformNativeWindowAndroid::TryGetNativeDensityDpi(uint32_t& rDensityDpi) const
+  {
+    if (m_pAppState->config == nullptr)
+    {
+      return false;
+    }
+
+    rDensityDpi = static_cast<uint32_t>(std::max(AConfiguration_getDensity(m_pAppState->config), 1));
     return true;
   }
 
@@ -816,7 +862,9 @@ namespace Fsl
     }
 
     if (!bContinue)
+    {
       throw GraphicsException("Failed to create window");
+    }
   }
 }    // namespace Fsl
 

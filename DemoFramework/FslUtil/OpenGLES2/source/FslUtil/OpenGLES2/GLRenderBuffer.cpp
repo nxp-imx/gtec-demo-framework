@@ -45,9 +45,8 @@ namespace Fsl
     }
 
 
-    GLRenderBuffer::GLRenderBuffer(const Point2& size, const GLenum format)
+    GLRenderBuffer::GLRenderBuffer(const PxSize2D& size, const GLenum format)
       : m_handle(GLValues::INVALID_HANDLE)
-      , m_format(0)
     {
       Reset(size, format);
     }
@@ -69,7 +68,7 @@ namespace Fsl
     }
 
 
-    void GLRenderBuffer::Reset(const Point2& size, const GLenum format)
+    void GLRenderBuffer::Reset(const PxSize2D& size, const GLenum format)
     {
       if (m_handle != GLValues::INVALID_HANDLE)
       {
@@ -79,7 +78,7 @@ namespace Fsl
       // Create a renderbuffer and allocate storage for it
       GL_CHECK(glGenRenderbuffers(1, &m_handle));
       GL_CHECK(glBindRenderbuffer(GL_RENDERBUFFER, m_handle));
-      GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, format, size.X, size.Y));
+      GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, format, size.Width(), size.Height()));
     }
   }
 }

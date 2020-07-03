@@ -37,8 +37,8 @@
 namespace Fsl
 {
   Extent2D::Extent2D(const int32_t width, const int32_t height)
-    : Width(static_cast<element_type>(width))
-    , Height(static_cast<element_type>(height))
+    : Width(static_cast<value_type>(width))
+    , Height(static_cast<value_type>(height))
   {
     if (width < 0)
     {

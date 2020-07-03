@@ -44,7 +44,7 @@ namespace Fsl
     {
     }
 
-    ThreadLocalSingletonServiceFactoryTemplate0(const ServiceCaps::Flags flags)
+    explicit ThreadLocalSingletonServiceFactoryTemplate0(const ServiceCaps::Flags flags)
       : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(T)), flags)
     {
     }
@@ -65,7 +65,7 @@ namespace Fsl
     {
     }
 
-    ThreadLocalSingletonServiceFactoryTemplate(const ServiceCaps::Flags flags)
+    explicit ThreadLocalSingletonServiceFactoryTemplate(const ServiceCaps::Flags flags)
       : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(TItf)), flags)
     {
     }
@@ -85,7 +85,7 @@ namespace Fsl
   public:
     ThreadLocalSingletonServiceFactoryTemplate2() = default;
 
-    ThreadLocalSingletonServiceFactoryTemplate2(const ServiceCaps::Flags flags)
+    explicit ThreadLocalSingletonServiceFactoryTemplate2(const ServiceCaps::Flags flags)
       : m_flags(flags)
     {
     }
@@ -124,7 +124,7 @@ namespace Fsl
   public:
     ThreadLocalSingletonServiceFactoryTemplate3() = default;
 
-    ThreadLocalSingletonServiceFactoryTemplate3(const ServiceCaps::Flags flags)
+    explicit ThreadLocalSingletonServiceFactoryTemplate3(const ServiceCaps::Flags flags)
       : m_flags(flags)
     {
     }

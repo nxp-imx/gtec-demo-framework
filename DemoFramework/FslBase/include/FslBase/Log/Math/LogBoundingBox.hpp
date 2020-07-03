@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/BoundingBox.hpp>
 #include <FslBase/Log/Math/LogVector3.hpp>
+#include <FslBase/Math/BoundingBox.hpp>
 #include <ostream>
 
 namespace Fsl

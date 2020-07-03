@@ -33,25 +33,32 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslSimpleUI/Base/Event/WindowEventPool.hpp>
+#include <FslSimpleUI/Base/Event/WindowEventSender.hpp>
+#include <utility>
 #include "../Event/EventRouter.hpp"
 #include "../Event/StateEventSender.hpp"
+#include "../Event/SimpleEventSender.hpp"
 #include "ModuleCallbackRegistry.hpp"
 
 namespace Fsl
 {
   namespace UI
   {
-    ModuleHost::ModuleHost(const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry,
-                           const std::shared_ptr<ITreeContextInfo>& treeContextInfo, const std::shared_ptr<TreeNode>& rootNode,
-                           const std::shared_ptr<ITreeNodeClickInputTargetLocator>& clickTargetLocator,
-                           const std::shared_ptr<IEventHandler>& eventHandler, const std::shared_ptr<WindowEventPool>& windowEventPool)
-      : m_moduleCallbackRegistry(moduleCallbackRegistry)
-      , m_treeContextInfo(treeContextInfo)
-      , m_windowEventPool(windowEventPool)
-      , m_eventRouter(new EventRouter(rootNode, clickTargetLocator))
-      , m_eventHandler(eventHandler)
+    ModuleHost::ModuleHost(std::shared_ptr<ModuleCallbackRegistry> moduleCallbackRegistry, std::shared_ptr<ITreeContextInfo> treeContextInfo,
+                           const std::shared_ptr<TreeNode>& rootNode, const std::shared_ptr<ITreeNodeClickInputTargetLocater>& clickTargetLocater,
+                           std::shared_ptr<IEventHandler> eventHandler, std::shared_ptr<WindowEventPool> windowEventPool,
+                           const std::shared_ptr<WindowEventSender>& eventSender, const std::shared_ptr<SimpleEventSender>& simpleEventSender)
+      : m_moduleCallbackRegistry(std::move(moduleCallbackRegistry))
+      , m_treeContextInfo(std::move(treeContextInfo))
+      , m_windowEventPool(std::move(windowEventPool))
+      , m_targetLocater(clickTargetLocater)
+      , m_eventRouter(new EventRouter(rootNode, clickTargetLocater))
+      , m_eventHandler(std::move(eventHandler))
+      , m_eventSender(eventSender)
+      , m_simpleEventSender(simpleEventSender)
     {
-      if (!m_moduleCallbackRegistry && !m_treeContextInfo && !m_windowEventPool && !m_eventRouter && !m_eventHandler)
+      if (!m_moduleCallbackRegistry || !m_treeContextInfo || !m_windowEventPool || !m_eventRouter || !m_eventHandler || !eventSender ||
+          !simpleEventSender)
       {
         throw std::invalid_argument("treeContextInfo can not be null");
       }
@@ -61,11 +68,27 @@ namespace Fsl
     ModuleHost::~ModuleHost() = default;
 
 
+    std::shared_ptr<ITreeNodeClickInputTargetLocater> ModuleHost::GetTargetLocater() const
+    {
+      return m_targetLocater;
+    }
+
     std::shared_ptr<WindowEventPool> ModuleHost::GetWindowEventPool() const
     {
       return m_windowEventPool;
     }
 
+
+    std::shared_ptr<WindowEventSender> ModuleHost::GetWindowEventSender() const
+    {
+      return m_eventSender;
+    }
+
+
+    std::shared_ptr<SimpleEventSender> ModuleHost::GetSimpleEventSender() const
+    {
+      return m_simpleEventSender;
+    }
 
     std::shared_ptr<IStateEventSender> ModuleHost::CreateStateEventSender(const WindowFlags::Enum inputType,
                                                                           const FunctionCreateTargetWindowDeathEvent& fnCreateTargetWindowDeathEvent)

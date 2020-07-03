@@ -42,7 +42,7 @@ namespace Fsl
   class IWindowHostInfo;
   class INativeWindow;
 
-  class DemoAppControlService
+  class DemoAppControlService final
     : public ThreadLocalService
     , public IDemoAppControlEx
   {
@@ -60,31 +60,31 @@ namespace Fsl
 
   public:
     DemoAppControlService(const ServiceProvider& serviceProvider, const int defaultExitCode);
-    ~DemoAppControlService() override;
+    ~DemoAppControlService() final;
 
 
     // From IDemoAppControl
-    void RequestScreenshot() override;
-    void RequestAppRestart() override;
-    void RequestUpdateTimerReset() override;
-    void RequestExit() override;
-    void RequestExit(const int exitCode) override;
-    void ChangeExitCode(const int exitCode) override;
-    bool HasScreenshotRequest() const override;
-    bool HasAppRestartRequest() const override;
-    bool HasUpdateTimerResetRequest() const override;
-    bool HasExitRequest() const override;
-    int GetExitCode() const override;
-    void SetTimeStepMode(const TimeStepMode timeStepMode) override;
-    TimeStepMode GetTimeStepMode() const override;
-    bool TryEnableMouseCaptureMode(const bool enabled) override;
-    void EnableMouseCaptureMode(const bool enabled) override;
-    bool GetMouseCaptureMode() override;
+    void RequestScreenshot() final;
+    void RequestAppRestart() final;
+    void RequestUpdateTimerReset() final;
+    void RequestExit() final;
+    void RequestExit(const int exitCode) final;
+    void ChangeExitCode(const int exitCode) final;
+    bool HasScreenshotRequest() const final;
+    bool HasAppRestartRequest() const final;
+    bool HasUpdateTimerResetRequest() const final;
+    bool HasExitRequest() const final;
+    int GetExitCode() const final;
+    void SetTimeStepMode(const TimeStepMode timeStepMode) final;
+    TimeStepMode GetTimeStepMode() const final;
+    bool TryEnableMouseCaptureMode(const bool enabled) final;
+    void EnableMouseCaptureMode(const bool enabled) final;
+    bool GetMouseCaptureMode() final;
 
     // From IDemoAppControlServiceEx
-    void ClearScreenshotRequestRequest() override;
-    void ClearAppRestartRequestRequest() override;
-    void ClearUpdateTimerResetRequest() override;
+    void ClearScreenshotRequestRequest() final;
+    void ClearAppRestartRequestRequest() final;
+    void ClearUpdateTimerResetRequest() final;
 
   private:
     void DoRequestExit(const int exitCode);

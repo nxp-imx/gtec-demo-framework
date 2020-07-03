@@ -32,23 +32,23 @@
  ****************************************************************************************************************************************************/
 
 #if defined(_MSC_VER)
-#define FSL_ATTR_DEPRECATED __declspec(deprecated)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #elif defined(__GNUC__)
-#if __cplusplus > 201103
-#define FSL_ATTR_DEPRECATED [[deprecated]]
-#else
-#define FSL_ATTR_DEPRECATED
-#endif
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
-// __attribute__ ((deprecated)) but its a postfix thing again :(
-// So its better to wait for [[deprecated]](C++14)
+
+//#if __GNUC__ <= 5
+//#error GCC5 is unsupported as it has known issues with constexpr.
+//#endif
+
 #elif defined(__QNXNTO__)
-#define FSL_ATTR_DEPRECATED
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
 #else
-#pragma message("WARNING: It would be a good idea to implement FSL_ATTR_DEPRECATED, FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT for this compiler")
-#define FSL_ATTR_DEPRECATED
+#pragma message("WARNING: It would be a good idea to implement FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT for this compiler")
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define FSL_FUNC_POSTFIX_WARN_UNUSED_RESULT
 #endif
 

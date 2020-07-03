@@ -36,7 +36,7 @@
 namespace Fsl
 {
   // If PlatformNativeWindowSystemImpl isn't defined then check PlatformNativeWindowSystemImpl.hpp
-  const std::shared_ptr<INativeWindowSystem> PlatformNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
+  std::shared_ptr<INativeWindowSystem> PlatformNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
   {
     return std::make_shared<PlatformNativeWindowSystemImpl>(setup);
   }

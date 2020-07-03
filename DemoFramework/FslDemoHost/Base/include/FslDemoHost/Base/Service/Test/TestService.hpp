@@ -43,7 +43,7 @@ namespace Fsl
   class IGraphicsService;
   class IPersistentDataManager;
 
-  class TestService
+  class TestService final
     : public ThreadLocalService
     , public ITestService
   {
@@ -57,16 +57,16 @@ namespace Fsl
     Bitmap m_screenshot;
 
   public:
-    TestService(const ServiceProvider& serviceProvider);
-    ~TestService() override;
+    explicit TestService(const ServiceProvider& serviceProvider);
+    ~TestService() final;
 
     // From ITestService
-    uint32_t GetScreenshotFrequency() const override;
-    void SetScreenshotFrequency(const uint32_t frequency) override;
-    TestScreenshotNameScheme GetScreenshotNameScheme() const override;
-    void SetScreenshotNameScheme(const TestScreenshotNameScheme scheme) override;
-    void SetScreenshotConfig(const TestScreenshotConfig& config) override;
-    void OnFrameSwapCompleted() override;
+    uint32_t GetScreenshotFrequency() const final;
+    void SetScreenshotFrequency(const uint32_t frequency) final;
+    TestScreenshotNameScheme GetScreenshotNameScheme() const final;
+    void SetScreenshotNameScheme(const TestScreenshotNameScheme scheme) final;
+    void SetScreenshotConfig(const TestScreenshotConfig& config) final;
+    void OnFrameSwapCompleted() final;
 
   private:
     void SaveBitmap();

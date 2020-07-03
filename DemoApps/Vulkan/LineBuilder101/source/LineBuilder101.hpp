@@ -71,7 +71,7 @@ namespace Fsl
     VertexUBOData m_vertexUboData;
 
   public:
-    LineBuilder101(const DemoAppConfig& config);
+    explicit LineBuilder101(const DemoAppConfig& config);
 
   protected:
     // void OnKeyEvent(const KeyEvent& event) override;

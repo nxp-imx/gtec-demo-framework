@@ -31,6 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Transition/TransitionCache.hpp>
+#include <FslGraphics/Sprite/SpriteUnitConverter.hpp>
 #include <FslSimpleUI/Base/CustomContext.hpp>
 #include <FslSimpleUI/Base/UIContext.hpp>
 
@@ -44,7 +46,12 @@ namespace Fsl
       //! The UI context, this is a weak pointer to prevent circular dependencies between the UI window tree and its windows
       CustomContext<UIContext> TheUIContext;
 
-      BaseWindowContext(const std::shared_ptr<UIContext>& uiContext);
+      SpriteUnitConverter UnitConverter;
+
+      TransitionCache UITransitionCache;
+
+
+      explicit BaseWindowContext(const std::shared_ptr<UIContext>& uiContext, const uint32_t densityDpi);
       ~BaseWindowContext();
     };
   }

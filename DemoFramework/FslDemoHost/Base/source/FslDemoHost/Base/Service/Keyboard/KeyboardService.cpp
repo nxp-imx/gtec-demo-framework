@@ -93,9 +93,9 @@ namespace Fsl
       return;
     }
 
-    VirtualKey::Enum key;
-    bool isPressed;
-    uint32_t deviceId;
+    VirtualKey::Enum key = VirtualKey::Undefined;
+    bool isPressed = false;
+    uint32_t deviceId = 0;
     NativeWindowEventHelper::DecodeInputKeyEvent(event, key, isPressed, deviceId);
 
     const auto itr = std::find(m_keys.begin(), m_keys.end(), key);

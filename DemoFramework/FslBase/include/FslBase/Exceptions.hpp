@@ -154,11 +154,26 @@ namespace Fsl
     }
   };
 
-  class OverflowException : public std::runtime_error
+  class ConversionException : public std::logic_error
+  {
+  public:
+    ConversionException()
+      : std::logic_error("ConversionException")
+    {
+    }
+
+    explicit ConversionException(const std::string& whatArg)
+      : std::logic_error(whatArg)
+    {
+    }
+  };
+
+
+  class OverflowException : public ConversionException
   {
   public:
     explicit OverflowException(const std::string& whatArg)
-      : std::runtime_error(whatArg)
+      : ConversionException(whatArg)
     {
     }
   };
@@ -192,6 +207,20 @@ namespace Fsl
     }
   };
 
+
+  class PathFormatErrorException : public std::logic_error
+  {
+  public:
+    PathFormatErrorException()
+      : std::logic_error("PathFormatErrorException")
+    {
+    }
+
+    explicit PathFormatErrorException(const std::string& whatArg)
+      : std::logic_error(whatArg)
+    {
+    }
+  };
 
   // std::invalid_argument
 }

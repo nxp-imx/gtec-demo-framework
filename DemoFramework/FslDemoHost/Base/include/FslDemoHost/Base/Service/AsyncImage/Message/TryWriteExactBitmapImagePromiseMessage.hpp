@@ -36,6 +36,7 @@
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/ImageFormat.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -50,10 +51,10 @@ namespace Fsl
 
       TryWriteExactBitmapImagePromiseMessage() = default;
 
-      TryWriteExactBitmapImagePromiseMessage(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat,
+      TryWriteExactBitmapImagePromiseMessage(IO::Path absolutePath, Bitmap bitmap, const ImageFormat imageFormat,
                                              const PixelFormat desiredPixelFormat)
-        : AbsolutePath(absolutePath)
-        , TheBitmap(bitmap)
+        : AbsolutePath(std::move(absolutePath))
+        , TheBitmap(std::move(bitmap))
         , TheImageFormat(imageFormat)
         , DesiredPixelFormat(desiredPixelFormat)
       {

@@ -62,12 +62,14 @@ from FslBuildGen.DataTypes import ExternalDependencyType
 from FslBuildGen.DataTypes import PackageType
 from FslBuildGen.DataTypes import PackageRequirementTypeString
 from FslBuildGen.DataTypes import PackageLanguage
+from FslBuildGen.DataTypes import SpecialFiles
 from FslBuildGen.DataTypes import VariantType
 from FslBuildGen.Exceptions import GroupedException
 from FslBuildGen.Exceptions import PackageIncludeFilePathInvalidException
 from FslBuildGen.Exceptions import PackageRequirementExtendsUnusedFeatureException
 from FslBuildGen.Exceptions import UnsupportedException
 from FslBuildGen.Exceptions import UsageErrorException
+from FslBuildGen.Generator.GeneratorInfo import GeneratorInfo
 from FslBuildGen.Location.PathBuilder import PathBuilder
 from FslBuildGen.Location.ResolvedPath import ResolvedPath
 from FslBuildGen.Log import Log
@@ -120,71 +122,73 @@ class PackageResolver(object):
           This is useful for doing some filtering before doing a full resolve
         """
         super().__init__()
+        self.Log = config # type: Log
+        self.__GeneratorInfo = platformContext.GeneratorInfo
         logVerbosity = 1 if fullResolve else 4
         if fullResolve:
-            config.LogPrintVerbose(logVerbosity, "- Processing platform: {0}".format(platformContext.PlatformName))
+            self.Log.LogPrintVerbose(logVerbosity, "- Processing platform: {0}".format(platformContext.PlatformName))
         else:
-            config.LogPrintVerbose(logVerbosity, "- Partially processing platform: {0}".format(platformContext.PlatformName))
+            self.Log.LogPrintVerbose(logVerbosity, "- Partially processing platform: {0}".format(platformContext.PlatformName))
         try:
-            config.PushIndent()
+            self.Log.PushIndent()
             # Do the initial dependency checks
-            packageBuilder = PackageBuilder(config, platformContext.PlatformName, genFiles, logVerbosity)
+            packageBuilder = PackageBuilder(config, platformContext.PlatformName, self.__GeneratorInfo, genFiles, logVerbosity)
             packages = packageBuilder.AllPackages
 
             if fullResolve:
-                config.LogPrintVerbose(logVerbosity, "Resolving")
+                self.Log.LogPrintVerbose(logVerbosity, "Resolving")
             else:
-                config.LogPrintVerbose(logVerbosity, "Partial resolve")
+                self.Log.LogPrintVerbose(logVerbosity, "Partial resolve")
 
             # FIX:
             # If we resolve the packages using the top level package build order we can do everything a lot smarter
             # than we currently do
             finalResolveOrder = packageBuilder.TopLevelPackage.ResolvedBuildOrder  # type: List[Package]
-            #config.LogPrint("Order: " + ", ".join(Util.ExtractNames(finalResolveOrder)))
+            #self.Log.LogPrint("Order: " + ", ".join(Util.ExtractNames(finalResolveOrder)))
 
             self.__AutoHeaderCounter = 0  # type: int
-            config.LogPrintVerbose(4, "- Platform")
+            self.Log.LogPrintVerbose(4, "- Platform")
             self.__ResolvePlatform(platformContext.PlatformName, platformContext.HostPlatformName, packages, config.IgnoreNotSupported)
-            config.LogPrintVerbose(4, "- requirements")
+            self.Log.LogPrintVerbose(4, "- requirements")
             self.__ResolveBuildRequirements(config, platformContext.PlatformName, finalResolveOrder)
-            config.LogPrintVerbose(4, "- not supported")
+            self.Log.LogPrintVerbose(4, "- not supported")
             self.__ResolveBuildPlatformNotSupported(config, platformContext.PlatformName, finalResolveOrder)
 
             if fullResolve:
-                config.LogPrintVerbose(4, "- Recipe")
+                self.Log.LogPrintVerbose(4, "- Recipe")
                 # - Can trigger environment variables missing
                 self.__ResolveExperimentalRecipe(platformContext, finalResolveOrder, recipeFilterManager, autoAddRecipeExternals)
-                config.LogPrintVerbose(4, "- tool dependencies")
+                self.Log.LogPrintVerbose(4, "- tool dependencies")
                 self.__ResolveBuildToolDependencies(platformContext, finalResolveOrder)
-                config.LogPrintVerbose(4, "- Direct externals")
+                self.Log.LogPrintVerbose(4, "- Direct externals")
                 # - Can trigger environment variables missing
                 self.__ResolveDirectExternalDependencies(config, platformContext, finalResolveOrder, autoAddRecipeExternals)
-                config.LogPrintVerbose(4, "- Direct variants")
+                self.Log.LogPrintVerbose(4, "- Direct variants")
                 self.__ResolveDirectVariants(platformContext.PlatformName, finalResolveOrder)
-                config.LogPrintVerbose(4, "- Checking variants")
+                self.Log.LogPrintVerbose(4, "- Checking variants")
                 self.__CheckVariants(config, finalResolveOrder)
-                config.LogPrintVerbose(4, "- Resolving variants")
+                self.Log.LogPrintVerbose(4, "- Resolving variants")
                 self.__ResolveAllVariants(finalResolveOrder)
                 if markExternalLibFirstUse:
                     self.__MarkExternalLibFirstUse(packageBuilder.TopLevelPackage)
                 # Everything checks out, so we can now start resolving files for the packages
-                config.LogPrintVerbose(4, "- include dirs")
+                self.Log.LogPrintVerbose(4, "- include dirs")
                 self.__ResolveBuildIncludeDirs(config, finalResolveOrder)
-                config.LogPrintVerbose(4, "- source files")
+                self.Log.LogPrintVerbose(4, "- source files")
                 self.__ResolveBuildSourceFiles(packages)
-                config.LogPrintVerbose(4, "- include files")
+                self.Log.LogPrintVerbose(4, "- include files")
                 self.__ResolveBuildIncludeFiles(packages)
-                config.LogPrintVerbose(4, "- content files")
+                self.Log.LogPrintVerbose(4, "- content files")
                 self.__ResolveBuildContentFiles(config, packages)
-                config.LogPrintVerbose(4, "- defines")
+                self.Log.LogPrintVerbose(4, "- defines")
                 self.__ResolveBuildDefines(config, platformContext.PlatformName, finalResolveOrder)
-                config.LogPrintVerbose(4, "- MConfig")
+                self.Log.LogPrintVerbose(4, "- MConfig")
                 self.__ResolveMakeConfig(config, packages)
-                config.LogPrintVerbose(4, "- Done")
+                self.Log.LogPrintVerbose(4, "- Done")
 
             self.Packages = packages
         finally:
-            config.PopIndent()
+            self.Log.PopIndent()
 
 
     def __ResolveExperimentalRecipe(self,
@@ -210,7 +214,7 @@ class PackageResolver(object):
 
     def __ResolveExperimentalRecipeEntry(self, platformContext: PlatformContext, package: Package,
                                          rRecipe: PackageExperimentalRecipe, resolveInstallPath: bool) -> None:
-        rRecipe.ResolvedInstallLocation = platformContext.RecipePathBuilder.TryGetInstallPath(rRecipe.XmlSource) if resolveInstallPath else ResolvedPath("NotResolved", "NotResolved")
+        rRecipe.ResolvedInstallLocation = platformContext.RecipePathBuilder.TryGetInstallPath(rRecipe.SysXmlSource) if resolveInstallPath else ResolvedPath("NotResolved", "NotResolved")
 
 
     def __ResolveBuildToolDependencies(self,
@@ -407,7 +411,8 @@ class PackageResolver(object):
 
                 # Finally resolve the actual content files from the "Content" directory (excluding any files generated by the content builder)
                 package.ResolvedContentFiles = self.__ProcesssContentFiles(basicConfig, package, package.ResolvedContentBuilderAllOuputFiles)
-
+                # Resolve all known special files
+                package.ResolvedSpecialFiles = self.__ProcesssSpecialFiles(basicConfig, package)
             else:
                 package.ResolvedContentBuilderBuildInputFiles = []
                 package.ResolvedContentBuilderSyncInputFiles = []
@@ -416,7 +421,18 @@ class PackageResolver(object):
                 package.ResolvedContentBuilderSyncOutputFiles = []
                 package.ResolvedContentBuilderAllOuputFiles = []
                 package.ResolvedContentFiles = []
+                package.ResolvedSpecialFiles = []
 
+
+    def __ProcesssSpecialFiles(self, log: Log, package: Package) -> List[ResolvedPath]:
+        if package.AbsolutePath is None:
+            return []
+        res = [] # type: List[ResolvedPath]
+        natvisFilename = SpecialFiles.Natvis
+        fullPathToNatvisFile = IOUtil.Join(package.AbsolutePath, natvisFilename)
+        if IOUtil.IsFile(fullPathToNatvisFile):
+            res.append(ResolvedPath(natvisFilename,  fullPathToNatvisFile))
+        return res
 
     def __ProcesssContentFiles(self, log: Log, package: Package, resolvedContentBuilderAllOuputFiles: List[str]) -> List[PathRecord]:
         if package.ContentPath is None or not IOUtil.IsDirectory(package.ContentPath.AbsoluteDirPath):
@@ -811,40 +827,50 @@ class PackageResolver(object):
         if commandList is None or len(commandList) <= 0:
             return
 
+        isCMakeBuild = self.__GeneratorInfo.IsCMakeGenerator
         for command in commandList:
             if command.CommandType == BuildRecipeValidateCommand.AddHeaders:
                 if not isinstance(command, XmlRecipeValidateCommandAddHeaders):
                     raise Exception("Invalid command type")
-                processedEntry = self.__CreateExternalHeadersDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
-                self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
-                if basicConfig.Verbosity >= 2:
-                    if processedEntry.ResolvedLocation is None:
-                        raise Exception("processedEntry.ResolvedLocation is None")
-                    basicConfig.LogPrint("Package {0} recipe '{1}' AddHeaders automatically added external dependency to the headers at {2}".format(package.Name, sourceRecipe.Name, processedEntry.ResolvedLocation.ResolvedPath))
+                if not isCMakeBuild or not sourceRecipe.AllowFind:
+                    processedEntry = self.__CreateExternalHeadersDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
+                    self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
+                    if basicConfig.Verbosity >= 2:
+                        if processedEntry.ResolvedLocation is None:
+                            raise Exception("processedEntry.ResolvedLocation is None")
+                        basicConfig.LogPrint("Package {0} recipe '{1}' AddHeaders automatically added external dependency to the headers at {2}".format(package.Name, sourceRecipe.FullName, processedEntry.ResolvedLocation.ResolvedPath))
+                else:
+                    basicConfig.LogPrintVerbose(4, "Package {0} recipe '{1}' Skipped AddHeaders as we rely on cmake FindPackage to add the relevant information".format(package.Name, sourceRecipe.FullName))
             elif command.CommandType == BuildRecipeValidateCommand.AddLib:
                 if not isinstance(command, XmlRecipeValidateCommandAddLib):
                     raise Exception("Invalid command type")
-                processedEntry = self.__CreateExternalStaticLibDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
-                self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
-                if basicConfig.Verbosity >= 2:
-                    if processedEntry.ResolvedLocation is None:
-                        raise Exception("processedEntry.ResolvedLocation is None")
-                    if processedEntry.Name == processedEntry.DebugName:
-                        basicConfig.LogPrint("Package {0} recipe '{1}' AddLib automatically added external dependency to {2} at {3}".format(package.Name, sourceRecipe.Name, processedEntry.Name, processedEntry.ResolvedLocation.ResolvedPath))
-                    else:
-                        basicConfig.LogPrint("Package {0} recipe '{1}' AddLib automatically added external dependency to {2} and debug name {3} at {4}".format(package.Name, sourceRecipe.Name, processedEntry.Name, processedEntry.DebugName, processedEntry.ResolvedLocation.ResolvedPath))
+                if not isCMakeBuild or not sourceRecipe.AllowFind:
+                    processedEntry = self.__CreateExternalStaticLibDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
+                    self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
+                    if basicConfig.Verbosity >= 2:
+                        if processedEntry.ResolvedLocation is None:
+                            raise Exception("processedEntry.ResolvedLocation is None")
+                        if processedEntry.Name == processedEntry.DebugName:
+                            basicConfig.LogPrint("Package {0} recipe '{1}' AddLib automatically added external dependency to {2} at {3}".format(package.Name, sourceRecipe.FullName, processedEntry.Name, processedEntry.ResolvedLocation.ResolvedPath))
+                        else:
+                            basicConfig.LogPrint("Package {0} recipe '{1}' AddLib automatically added external dependency to {2} and debug name {3} at {4}".format(package.Name, sourceRecipe.FullName, processedEntry.Name, processedEntry.DebugName, processedEntry.ResolvedLocation.ResolvedPath))
+                else:
+                    basicConfig.LogPrintVerbose(4, "Package {0} recipe '{1}' Skipped AddLib as we rely on cmake FindPackage to add the relevant information".format(package.Name, sourceRecipe.FullName))
             elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
                 if not isinstance(command, XmlRecipeValidateCommandAddDLL):
                     raise Exception("Invalid command type")
-                processedEntry = self.__CreateExternalDLLDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
-                self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
-                if basicConfig.Verbosity >= 2:
-                    if processedEntry.ResolvedLocation is None:
-                        raise Exception("processedEntry.ResolvedLocation is None")
-                    if processedEntry.Name == processedEntry.DebugName:
-                        basicConfig.LogPrint("Package {0} recipe '{1}' AddDLL automatically added external dependency to {2} at {3}".format(package.Name, sourceRecipe.Name, processedEntry.Name, processedEntry.ResolvedLocation.ResolvedPath))
-                    else:
-                        basicConfig.LogPrint("Package {0} recipe '{1}' AddDLL automatically added external dependency to {2} and debug name {3} at {4}".format(package.Name, sourceRecipe.Name, processedEntry.Name, processedEntry.DebugName, processedEntry.ResolvedLocation.ResolvedPath))
+                if not isCMakeBuild or not sourceRecipe.AllowFind:
+                    processedEntry = self.__CreateExternalDLLDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
+                    self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
+                    if basicConfig.Verbosity >= 2:
+                        if processedEntry.ResolvedLocation is None:
+                            raise Exception("processedEntry.ResolvedLocation is None")
+                        if processedEntry.Name == processedEntry.DebugName:
+                            basicConfig.LogPrint("Package {0} recipe '{1}' AddDLL automatically added external dependency to {2} at {3}".format(package.Name, sourceRecipe.FullName, processedEntry.Name, processedEntry.ResolvedLocation.ResolvedPath))
+                        else:
+                            basicConfig.LogPrint("Package {0} recipe '{1}' AddDLL automatically added external dependency to {2} and debug name {3} at {4}".format(package.Name, sourceRecipe.FullName, processedEntry.Name, processedEntry.DebugName, processedEntry.ResolvedLocation.ResolvedPath))
+                else:
+                    basicConfig.LogPrintVerbose(4, "Package {0} recipe '{1}' Skipped AddLib as we rely on cmake FindPackage to add the relevant information".format(package.Name, sourceRecipe.FullName))
 
 
     def __ResolveDirectExternalDependencies(self, basicConfig: BasicConfig,
@@ -929,7 +955,7 @@ class PackageResolver(object):
         # First we resolve all direct variants introduced by a package
         for package in finalResolveOrder:
             sourceList = package.GetVariants(platformName)
-            package.ResolvedDirectVariants = [PackagePlatformVariant(package.Name, entry, True) for entry in sourceList]
+            package.ResolvedDirectVariants = [PackagePlatformVariant(self.Log, self.__GeneratorInfo, package.Name, entry, True) for entry in sourceList]
 
 
     def __GetVariantUndefinedOptions(self, baseVariant: PackagePlatformVariant, extendingVariant: PackagePlatformVariant) -> List[PackagePlatformVariantOption]:
@@ -975,7 +1001,7 @@ class PackageResolver(object):
             variantDict1 = {}  # type: Dict[str, PackagePlatformVariant]
             for depPackage in package.ResolvedBuildOrder:
                 for variant1 in depPackage.ResolvedDirectVariants:
-                    clonedVariant = PackagePlatformVariant(package.Name, variant1, depPackage == package)
+                    clonedVariant = PackagePlatformVariant(self.Log, self.__GeneratorInfo, package.Name, variant1, depPackage == package)
                     if not variant1.Name in variantDict1:
                         variantDict1[variant1.Name] = clonedVariant
                     else:

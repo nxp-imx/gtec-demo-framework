@@ -30,7 +30,6 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/Exceptions.hpp>
-#include <FslGraphics/UnitTest/Helper/Common.hpp>
 #include <FslGraphics/UnitTest/Helper/TestFixtureFslGraphics.hpp>
 #include <array>
 #include <limits>

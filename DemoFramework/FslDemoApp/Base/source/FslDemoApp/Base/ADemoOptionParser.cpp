@@ -40,9 +40,9 @@ namespace Fsl
   }
 
 
-  OptionParseResult ADemoOptionParser::Parse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult ADemoOptionParser::Parse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    return OnParse(cmdId, pszOptArg);
+    return OnParse(cmdId, strOptArg);
   }
 
 
@@ -59,10 +59,10 @@ namespace Fsl
   }
 
 
-  OptionParseResult ADemoOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult ADemoOptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     FSL_PARAM_NOT_USED(cmdId);
-    FSL_PARAM_NOT_USED(pszOptArg);
+    FSL_PARAM_NOT_USED(strOptArg);
     // Do nothing
     return OptionParseResult::NotHandled;
   }

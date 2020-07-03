@@ -45,7 +45,7 @@ namespace Fsl
     class Batch2D : public GenericBatch2D<std::shared_ptr<QuadBatch>, VUTextureInfo, GenericBatch2DFormat::Normal>
     {
     public:
-      Batch2D(const std::shared_ptr<QuadBatch>& quadRenderer, const Point2& screenResolution);
+      Batch2D(const std::shared_ptr<QuadBatch>& quadRenderer, const PxExtent2D& currentExtent);
     };
   }
 }

@@ -38,7 +38,6 @@
 #include <cassert>
 #include <cstring>
 #include <limits>
-#include <utility>
 
 namespace Fsl
 {
@@ -48,7 +47,7 @@ namespace Fsl
     const char UTF8_CHAR_MAX = 127;
 
 
-    bool IsValidUTF8(const char* const psz, const std::size_t startIndex, const std::size_t length)
+    constexpr inline bool IsValidUTF8(const char* const psz, const std::size_t startIndex, const std::size_t length)
     {
       FSL_PARAM_NOT_USED(startIndex);
       FSL_PARAM_NOT_USED(length);
@@ -57,32 +56,11 @@ namespace Fsl
     }
 
 
-    inline bool IsValidChar(const int ch)
+    constexpr inline bool IsValidChar(const int ch)
     {
       return (ch >= int(UTF8_CHAR_MIN) && ch <= int(UTF8_CHAR_MAX));
     }
   }
-
-
-  // move assignment operator
-  UTF8String& UTF8String::operator=(UTF8String&& other) noexcept
-  {
-    if (this != &other)
-    {
-      m_content = std::move(other.m_content);
-    }
-    return *this;
-  }
-
-
-  // Transfer ownership from other to this
-  UTF8String::UTF8String(UTF8String&& other) noexcept
-    : m_content(std::move(other.m_content))
-  {
-  }
-
-
-  UTF8String::UTF8String() = default;
 
 
   UTF8String::UTF8String(std::string str)
@@ -106,8 +84,20 @@ namespace Fsl
   }
 
 
-  UTF8String::UTF8String(const std::string& str, const std::size_t startIndex, const std::size_t length)
+  UTF8String::UTF8String(const StringViewLite& str)
+  {
+    if (!str.empty())
+    {
+      if (!IsValidUTF8(str.data(), 0u, str.size()))
+      {
+        throw InvalidUTF8StringException("The supplied UTF8 string is not valid");
+      }
+      m_content.assign(str.data(), 0u, str.size());
+    }
+  }
 
+
+  UTF8String::UTF8String(const std::string& str, const std::size_t startIndex, const std::size_t length)
   {
     if (startIndex >= str.size())
     {
@@ -144,24 +134,72 @@ namespace Fsl
   }
 
 
-  UTF8String::~UTF8String() = default;
-
-
   void UTF8String::Clear()
   {
     m_content.clear();
   }
 
 
-  bool UTF8String::IsEmpty() const
+  void UTF8String::Append(const std::size_t count, const char ch)
   {
-    return m_content.empty();
+    if (!IsValidChar(int(ch)))
+    {
+      throw std::invalid_argument("ch should be in the range 0 to 127");
+    }
+
+    m_content.append(count, ch);
   }
 
 
-  int32_t UTF8String::GetByteSize() const
+  void UTF8String::Append(const char* const psz)
   {
-    return static_cast<int32_t>(m_content.size());
+    FSLLOG3_DEBUG_WARNING_IF(psz == nullptr, "UTF8String was supplied a null pointer, using a empty string");
+    Append(StringViewLite(psz));
+  }
+
+
+  //! @brief append the string at the end of the string
+  void UTF8String::Append(const StringViewLite& str)
+  {
+    if (!str.empty())
+    {
+      if (!IsValidUTF8(str.data(), 0u, str.size()))
+      {
+        throw InvalidUTF8StringException("The supplied UTF8 string is not valid");
+      }
+
+      m_content.append(str.data(), str.size());
+    }
+  }
+
+  void UTF8String::Prepend(const std::size_t count, const char ch)
+  {
+    if (!IsValidChar(int(ch)))
+    {
+      throw std::invalid_argument("ch should be in the range 0 to 127");
+    }
+
+    m_content.insert(0u, count, ch);
+  }
+
+  void UTF8String::Prepend(const char* const psz)
+  {
+    FSLLOG3_DEBUG_WARNING_IF(psz == nullptr, "UTF8String was supplied a null pointer, using a empty string");
+    Prepend(StringViewLite(psz));
+  }
+
+  // @brief Insert the string at the beginning at the current string
+  void UTF8String::Prepend(const StringViewLite& str)
+  {
+    if (!str.empty())
+    {
+      if (!IsValidUTF8(str.data(), 0u, str.size()))
+      {
+        throw InvalidUTF8StringException("The supplied UTF8 string is not valid");
+      }
+
+      m_content.insert(0u, str.data(), str.size());
+    }
   }
 
 
@@ -266,7 +304,7 @@ namespace Fsl
     bool bIsFirst = true;
     while (itr != itrEnd)
     {
-      const uint32_t value = *itr;
+      const uint32_t value = static_cast<unsigned char>(*itr);
       if (value <= static_cast<uint32_t>(UTF8_CHAR_MAX))
       {
         fmt::format_to(buf, "{}", static_cast<char>(value));
@@ -283,41 +321,20 @@ namespace Fsl
   }
 
 
-  void UTF8String::Reset(const char* const psz, const std::size_t startIndex, const std::size_t length)
+  UTF8String& UTF8String::operator=(const StringViewLite& str)
   {
-    if (psz == nullptr)
+    if (!str.empty())
     {
-      throw std::invalid_argument("psz can not be null");
+      if (!IsValidUTF8(str.data(), 0u, str.size()))
+      {
+        throw InvalidUTF8StringException("The supplied UTF8 string is not valid");
+      }
+      m_content.assign(str.data(), 0u, str.size());
     }
-    if (!IsValidUTF8(psz, startIndex, length))
+    else
     {
-      throw InvalidUTF8StringException("The substring is not valid utf8");
+      m_content.clear();
     }
-
-    m_content.assign(psz + startIndex, length);
-  }
-
-  bool operator==(const UTF8String& lhs, const char* const pszRhs) noexcept
-  {
-    const StringViewLite& rLhs = lhs;
-    return rLhs == pszRhs;
-  }
-
-  bool operator!=(const UTF8String& lhs, const char* const pszRhs) noexcept
-  {
-    const StringViewLite& rLhs = lhs;
-    return rLhs != pszRhs;
-  }
-
-  bool operator==(const char* const pszLhs, const UTF8String& rhs) noexcept
-  {
-    const StringViewLite& rRhs = rhs;
-    return rRhs == pszLhs;
-  }
-
-  bool operator!=(const char* const pszLhs, const UTF8String& rhs) noexcept
-  {
-    const StringViewLite& rRhs = rhs;
-    return rRhs != pszLhs;
+    return *this;
   }
 }

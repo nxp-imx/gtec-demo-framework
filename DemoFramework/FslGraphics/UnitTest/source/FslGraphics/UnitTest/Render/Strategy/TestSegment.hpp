@@ -39,14 +39,11 @@ namespace Fsl
 {
   struct TestSegment
   {
-    uint32_t QuadCount;
+    uint32_t QuadCount{0};
     TestTextureInfo TextureInfo;
     BlendState ActiveBlendState{BlendState::Opaque};
 
-    constexpr TestSegment()
-      : QuadCount{0}
-    {
-    }
+    constexpr TestSegment() = default;
 
     constexpr TestSegment(const uint32_t quadCount, const TestTextureInfo& textureInfo, const BlendState blendState)
       : QuadCount{quadCount}

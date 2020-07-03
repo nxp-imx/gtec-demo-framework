@@ -32,8 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/IO/Path.hpp>
-#include <memory>
 #include <list>
+#include <memory>
 
 namespace Fsl
 {
@@ -47,7 +47,6 @@ namespace Fsl
     public:
       std::list<std::shared_ptr<PathWatcherInternalRecord>> m_paths;
 
-    public:
       PathWatcher();
       ~PathWatcher();
 

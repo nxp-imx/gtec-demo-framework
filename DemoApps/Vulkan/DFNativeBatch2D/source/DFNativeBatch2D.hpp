@@ -34,7 +34,7 @@
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslDemoService/Graphics/IGraphicsService.hpp>
 #include <FslGraphics/Render/Texture2D.hpp>
-#include <FslUtil/Vulkan1_0/NativeBatch2D.hpp>
+#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <RapidVulkan/RenderPass.hpp>
 #include <Shared/DFNativeBatch2D/TextureAtlasScene.hpp>
@@ -57,7 +57,7 @@ namespace Fsl
     Vulkan::VUTexture m_nativeTexture;
 
   public:
-    DFNativeBatch2D(const DemoAppConfig& config);
+    explicit DFNativeBatch2D(const DemoAppConfig& config);
 
   protected:
     void OnKeyEvent(const KeyEvent& event) override;

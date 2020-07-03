@@ -38,14 +38,11 @@ namespace Fsl
 
     struct Vertices
     {
-      VkPipelineVertexInputStateCreateInfo InputState;
+      VkPipelineVertexInputStateCreateInfo InputState{};
       std::vector<VkVertexInputBindingDescription> BindingDescriptions;
       std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
 
-      Vertices()
-        : InputState{}
-      {
-      }
+      Vertices() = default;
     };
 
 
@@ -95,7 +92,7 @@ namespace Fsl
     bool m_splitScreen;
 
   public:
-    TessellationPNTriangles(const DemoAppConfig& config);
+    explicit TessellationPNTriangles(const DemoAppConfig& config);
     ~TessellationPNTriangles() override;
 
   protected:

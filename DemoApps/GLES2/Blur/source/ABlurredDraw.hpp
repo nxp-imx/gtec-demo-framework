@@ -40,7 +40,7 @@ namespace Fsl
     const char* const m_pszName;
 
   public:
-    ABlurredDraw(const char* const pszName)
+    explicit ABlurredDraw(const char* const pszName)
       : m_pszName(pszName)
     {
     }

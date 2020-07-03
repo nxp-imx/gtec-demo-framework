@@ -10,18 +10,21 @@
 #include <iostream>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 
-// Attribute Arrays Indexes and Sizes
-#define VERTEX_POS_SIZE 3      // x, y and z
-#define VERTEX_COLOR_SIZE 4    // r, g, b, and a
-
-#define VERTEX_POS_INDX 0
-#define VERTEX_COLOR_INDX 1
-
-#define VERTEX_STRIDE (sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE))
-
 namespace Fsl
 {
   using namespace GLES3;
+
+  namespace
+  {
+    // Attribute Arrays Indexes and Sizes
+    constexpr GLint VERTEX_POS_SIZE = 3;      // x, y and z
+    constexpr GLint VERTEX_COLOR_SIZE = 4;    // r, g, b, and a
+
+    constexpr GLuint VERTEX_POS_INDX = 0;
+    constexpr GLuint VERTEX_COLOR_INDX = 1;
+
+    constexpr GLsizei VERTEX_STRIDE = (sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE));
+  }
 
   E1_2_VAOs::E1_2_VAOs(const DemoAppConfig& config)
     : DemoAppGLES3(config)
@@ -43,7 +46,7 @@ namespace Fsl
     // vboIds[3] - used to store element indices
     {    // Initialization
       // 3 vertices, with (x,y,z) ,(r, g, b, a) per-vertex
-      GLfloat vertices[3 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)] = {
+      const std::array<GLfloat, 3 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)> vertices = {
         -0.5f, 0.5f,  0.0f,          // v0
         1.0f,  0.0f,  0.0f, 1.0f,    // c0
         -1.0f, -0.5f, 0.0f,          // v1
@@ -52,10 +55,10 @@ namespace Fsl
         0.0f,  0.0f,  1.0f, 1.0f,    // c2
       };
       // Index buffer data
-      GLushort indices[3] = {0, 1, 2};
+      const std::array<GLushort, 3> indices = {0, 1, 2};
 
       // 4 vertices, with (x,y,z) ,(r, g, b, a) per-vertex
-      GLfloat vertices2[4 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)] = {
+      const std::array<GLfloat, 4 * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE)> vertices2 = {
         0.0f, 0.5f,  0.0f,          // v0
         1.0f, 0.0f,  0.0f, 1.0f,    // c0
         0.0f, -0.5f, 0.0f,          // v1
@@ -66,32 +69,32 @@ namespace Fsl
         0.0f, 0.0f,  1.0f, 1.0f,    // c3
       };
       // Index buffer data
-      GLushort indices2[6] = {0, 2, 1, 0, 3, 2};
+      const std::array<GLushort, 6> indices2 = {0, 2, 1, 0, 3, 2};
 
 
       try
       {
         // Create the Buffer Handles, one for Vertex data, and other for indices data
-        GL_CHECK(glGenBuffers(2, m_userData.vboIds));
+        GL_CHECK(glGenBuffers(2, m_userData.vboIds.data()));
 
         // Bind the buffer to be a Vertex Array and fill the data with it
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.vboIds[0]));
-        GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW));
+        GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), vertices.data(), GL_STATIC_DRAW));
 
         // Bind the buffer to hold Indices, fill it with your index data
         GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.vboIds[1]));
-        GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
+        GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * indices.size(), indices.data(), GL_STATIC_DRAW));
 
         // Create the Buffer Handles, one for Vertex data, and other for indices data
         GL_CHECK(glGenBuffers(2, &m_userData.vboIds[2]));
 
         // Bind the buffer to be a Vertex Array and fill the data with it
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_userData.vboIds[2]));
-        GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW));
+        GL_CHECK(glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices2.size(), vertices2.data(), GL_STATIC_DRAW));
 
         // Bind the buffer to hold Indices, fill it with your index data
         GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_userData.vboIds[3]));
-        GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices2), indices2, GL_STATIC_DRAW));
+        GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * indices2.size(), indices2.data(), GL_STATIC_DRAW));
 
         // OSTEP1 Generate VAO Id
         GL_CHECK(glGenVertexArrays(1, &m_userData.vaoId[0]));
@@ -108,7 +111,7 @@ namespace Fsl
 
         GL_CHECK(glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, nullptr));
         GL_CHECK(glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE,
-                                       (const void*)(VERTEX_POS_SIZE * sizeof(GLfloat))));
+                                       reinterpret_cast<const void*>(VERTEX_POS_SIZE * sizeof(GLfloat))));
 
         // OSTEP3 Generate VAO Id
         GL_CHECK(glGenVertexArrays(1, &m_userData.vaoId[1]));
@@ -125,7 +128,7 @@ namespace Fsl
 
         GL_CHECK(glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, nullptr));
         GL_CHECK(glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE,
-                                       (const void*)(VERTEX_POS_SIZE * sizeof(GLfloat))));
+                                       reinterpret_cast<const void*>(VERTEX_POS_SIZE * sizeof(GLfloat))));
 
         // Restore the VAO Id to the default
         GL_CHECK(glBindVertexArray(0));
@@ -145,16 +148,16 @@ namespace Fsl
   }
 
 
-  void E1_2_VAOs::Update(const DemoTime& demoTime)
+  void E1_2_VAOs::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void E1_2_VAOs::Draw(const DemoTime& demoTime)
+  void E1_2_VAOs::Draw(const DemoTime& /*demoTime*/)
   {
-    Point2 size = GetScreenResolution();
+    PxSize2D sizePx = GetWindowSizePx();
 
-    glViewport(0, 0, size.X, size.Y);
+    glViewport(0, 0, sizePx.Width(), sizePx.Height());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // OSTEP5 Bind the TRIANGLE VAO
@@ -188,7 +191,7 @@ namespace Fsl
 
     if (m_userData.vboIds[0] != GLValues::INVALID_HANDLE)
     {
-      glDeleteBuffers(2, m_userData.vboIds);
+      glDeleteBuffers(2, m_userData.vboIds.data());
       m_userData.vboIds[0] = GLValues::INVALID_HANDLE;
     }
     if (m_userData.vboIds[2] != GLValues::INVALID_HANDLE)

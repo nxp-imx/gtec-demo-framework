@@ -31,6 +31,7 @@
 
 #include <Shared/ObjectSelection/BoundingBoxUtil.hpp>
 #include <FslBase/Math/Vector4.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -38,11 +39,11 @@ namespace Fsl
   {
     BoundingBox CalculateAABB(const Matrix& matrix, const BoundingBox& box)
     {
-      Vector3 vertices[] = {Vector3(box.Min.X, box.Min.Y, box.Min.Z), Vector3(box.Max.X, box.Min.Y, box.Min.Z),
-                            Vector3(box.Min.X, box.Max.Y, box.Min.Z), Vector3(box.Max.X, box.Max.Y, box.Min.Z),
+      const std::array<Vector3, 8> vertices = {Vector3(box.Min.X, box.Min.Y, box.Min.Z), Vector3(box.Max.X, box.Min.Y, box.Min.Z),
+                                               Vector3(box.Min.X, box.Max.Y, box.Min.Z), Vector3(box.Max.X, box.Max.Y, box.Min.Z),
 
-                            Vector3(box.Min.X, box.Min.Y, box.Max.Z), Vector3(box.Max.X, box.Min.Y, box.Max.Z),
-                            Vector3(box.Min.X, box.Max.Y, box.Max.Z), Vector3(box.Max.X, box.Max.Y, box.Max.Z)};
+                                               Vector3(box.Min.X, box.Min.Y, box.Max.Z), Vector3(box.Max.X, box.Min.Y, box.Max.Z),
+                                               Vector3(box.Min.X, box.Max.Y, box.Max.Z), Vector3(box.Max.X, box.Max.Y, box.Max.Z)};
 
       Vector3 min = Vector3(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
       Vector3 max = Vector3(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
@@ -58,7 +59,7 @@ namespace Fsl
         max.Y = (entry.Y > max.Y ? entry.Y : max.Y);
         max.Z = (entry.Z > max.Z ? entry.Z : max.Z);
       }
-      return BoundingBox(min, max);
+      return {min, max};
     }
   }
 }

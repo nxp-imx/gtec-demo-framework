@@ -79,7 +79,7 @@ namespace Fsl
   }
 
 
-  OptionParseResult InputEventsOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult InputEventsOptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     switch (cmdId)
     {
@@ -87,10 +87,10 @@ namespace Fsl
       m_bTestASet = true;
       return OptionParseResult::Parsed;
     case CommandId::TestB:
-      StringParseUtil::Parse(m_testBValue, pszOptArg);
+      StringParseUtil::Parse(m_testBValue, strOptArg);
       return OptionParseResult::Parsed;
     case CommandId::TestC:
-      StringParseUtil::Parse(m_testCValue, pszOptArg);
+      StringParseUtil::Parse(m_testCValue, strOptArg);
       return OptionParseResult::Parsed;
     case CommandId::TestD:
       FSLLOG3_INFO("This option always fails parsing :)")

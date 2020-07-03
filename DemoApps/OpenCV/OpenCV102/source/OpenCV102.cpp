@@ -48,7 +48,7 @@ namespace Fsl
   {
     Mat image, gray, edge, cedge;
     // define a trackbar callback
-    void onTrackbar(int edgeThresh, void* data)
+    void onTrackbar(int edgeThresh, void* /*data*/)
     {
       blur(gray, edge, Size(3, 3));
       // Run the edge detector on grayscale

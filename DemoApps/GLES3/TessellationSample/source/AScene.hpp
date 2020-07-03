@@ -63,6 +63,7 @@ namespace Fsl
 
   protected:
     using vertex_type = VertexPositionNormalTangentTexture;
+
     Graphics3D::ArcballCamera m_camera;
     RenderTessellationConfig m_tessellationConfig;
     RenderCameraConfig m_cameraConfig;

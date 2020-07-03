@@ -95,7 +95,7 @@ namespace Fsl
       texture.ReleaseInto(contentVector);
       // Texture has now been reset, so dont use it
 
-      return Bitmap(std::move(contentVector), Extent2D(extent.Width, extent.Height), pixelFormat, static_cast<uint32_t>(stride), origin);
+      return Bitmap(std::move(contentVector), PxExtent2D(extent.Width, extent.Height), pixelFormat, static_cast<uint32_t>(stride), origin);
     }
   }
 }

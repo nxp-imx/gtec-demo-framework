@@ -41,7 +41,6 @@
 #include <FslDemoHost/Vulkan/Config/PhysicalDeviceFeatureUtil.hpp>
 #include <FslDemoHost/Vulkan/Config/VulkanValidationUtil.hpp>
 #include <FslNativeWindow/Vulkan/IVulkanNativeWindow.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/QueueUtil.hpp>
 #include <FslUtil/Vulkan1_0/Util/PhysicalDeviceUtil.hpp>
@@ -93,13 +92,13 @@ namespace Fsl
 
       const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_GRAPHICS_BIT, 0, &supportFilter);
 
-      const float queuePriorities[1] = {0.0f};
+      constexpr const std::array<const float, 1> queuePriorities = {0.0f};
       VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
       deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
       deviceQueueCreateInfo.flags = 0;
       deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
-      deviceQueueCreateInfo.queueCount = 1;
-      deviceQueueCreateInfo.pQueuePriorities = queuePriorities;
+      deviceQueueCreateInfo.queueCount = static_cast<uint32_t>(queuePriorities.size());
+      deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
 
       std::array<const char*, 1> extensions = {"VK_KHR_swapchain"};
 
@@ -122,7 +121,7 @@ namespace Fsl
       }
 
       m_device.Reset(m_physicalDevice.Device, deviceCreateInfo);
-      *m_deviceCreateInfo = std::move(Vulkan::DeviceCreateInfoCopy(deviceCreateInfo));
+      *m_deviceCreateInfo = Vulkan::DeviceCreateInfoCopy(deviceCreateInfo);
 
       m_deviceQueue = DeviceUtil::GetDeviceQueue(m_device.Get(), queueFamilyIndex, 0);
     }

@@ -66,11 +66,4 @@ namespace Fsl
   }
 }
 
-
-// Register a pure stub demo
-#define FSL_REGISTER_STUB_DEMO(tdEMOaPP) \
-  static_assert(false, "The FSL_REGISTER_STUB_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_STUB_DEMO_EX(tdEMOaPP, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_STUB_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

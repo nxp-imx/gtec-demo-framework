@@ -31,26 +31,21 @@
 
 #include <FslSimpleUI/Base/Layout/GridLayout.hpp>
 #include <FslBase/Exceptions.hpp>
-#include <FslBase/Math/EqualHelper.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslSimpleUI/Base/LayoutHelper.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
+#include <FslSimpleUI/Base/PxAvailableSizeUtil.hpp>
 #include <cassert>
 #include <cmath>
 #include <limits>
-
-
-// Workaround for issues with std::isinf and std::isnan on qnx
-using namespace std;
 
 namespace Fsl
 {
   namespace UI
   {
-    namespace
+    namespace LocalConfig
     {
-      const uint32_t INVALID_INDEX = std::numeric_limits<uint32_t>::max();
-      const uint32_t MAX_LOOP_COUNT = 4;
+      constexpr const uint32_t InvalidIndex = std::numeric_limits<uint32_t>::max();
+      constexpr const uint32_t MaxLoopCount = 4;
     }
 
     GridLayout::GridLayout(const std::shared_ptr<BaseWindowContext>& context)
@@ -107,11 +102,11 @@ namespace Fsl
     {
       if (columnIndex >= m_definitionsX.size())
       {
-        throw std::invalid_argument("columnIndex out of bounds");
+        throw std::invalid_argument(fmt::format("columnIndex {} out of bounds", columnIndex));
       }
       if (rowIndex >= m_definitionsY.size())
       {
-        throw std::invalid_argument("rowIndex out of bounds");
+        throw std::invalid_argument(fmt::format("rowIndex {} out of bounds", rowIndex));
       }
       auto itrFind = std::find_if(begin(), end(), [window](const GridWindowCollectionRecord& record) { return record.Window == window; });
       if (itrFind == end())
@@ -123,6 +118,16 @@ namespace Fsl
       {
         itrFind->IndexX = columnIndex;
         itrFind->IndexY = rowIndex;
+        PropertyUpdated(PropertyType::Layout);
+      }
+    }
+
+
+    void GridLayout::SetLimitToAvailableSpace(const bool enabled)
+    {
+      if (m_limitToAvailableSpace != enabled)
+      {
+        m_limitToAvailableSpace = enabled;
         PropertyUpdated(PropertyType::Layout);
       }
     }
@@ -174,110 +179,113 @@ namespace Fsl
     }
 
 
-    Vector2 GridLayout::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D GridLayout::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      Vector2 size;
-      {
-        for (auto& rEntry : m_definitionsX)
-        {
-          rEntry.TempValue = size.X;
-          size.X += rEntry.MinimumSize;
-        }
-        for (auto& rEntry : m_definitionsY)
-        {
-          rEntry.TempValue = size.Y;
-          size.Y += rEntry.MinimumSize;
-        }
-      }
-
+      PxSize2D sizePx = FinalizeSizes(finalSizePx);
 
       for (uint32_t index = 0; index < m_cellRecords.size(); ++index)
       {
         const auto& cell = m_cellRecords[index];
         assert(cell.IndexX <= m_definitionsX.size());
         assert(cell.IndexY <= m_definitionsY.size());
-        Rect rect(m_definitionsX[cell.IndexX].TempValue, m_definitionsY[cell.IndexY].TempValue, m_definitionsX[cell.IndexX].MinimumSize,
-                  m_definitionsY[cell.IndexY].MinimumSize);
 
-        ChildAt(index)->Arrange(rect);
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].TempValue));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].TempValue));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsX[cell.IndexX].MinimumSizePx));
+        assert(PxAvailableSizeUtil::IsNormalValue(m_definitionsY[cell.IndexY].MinimumSizePx));
+
+        PxRectangle rectPx(m_definitionsX[cell.IndexX].TempValue, m_definitionsY[cell.IndexY].TempValue, m_definitionsX[cell.IndexX].MinimumSizePx,
+                           m_definitionsY[cell.IndexY].MinimumSizePx);
+
+        ChildAt(index)->Arrange(rectPx);
       }
-      return size;
+      return !m_limitToAvailableSpace ? sizePx
+                                      : PxSize2D(std::min(finalSizePx.Width(), sizePx.Width()), std::min(finalSizePx.Height(), sizePx.Height()));
     }
 
 
-    Vector2 GridLayout::MeasureOverride(const Vector2& availableSize)
+    PxSize2D GridLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      bool isInfX = availableSize.X >= LayoutHelper::ConsideredInfiniteSpace;
-      bool isInfY = availableSize.Y >= LayoutHelper::ConsideredInfiniteSpace;
+      const SpriteUnitConverter& unitConverter = GetContext()->UnitConverter;
+
+      const bool isInfX = availableSizePx.IsInfinityWidth();
+      const bool isInfY = availableSizePx.IsInfinityHeight();
 
       // Update the definition cache to ensure the 'internal definition values' match our current available size etc
-      m_definitionCache.HasWeightX = UpdateDefinitionCache(m_definitionsX, isInfX);
-      m_definitionCache.HasWeightY = UpdateDefinitionCache(m_definitionsY, isInfY);
+      m_definitionCache.HasStarX = UpdateDefinitionCache(unitConverter, m_definitionsX, isInfX);
+      m_definitionCache.HasStarY = UpdateDefinitionCache(unitConverter, m_definitionsY, isInfY);
 
       // Classify each window cell based on which group it belongs to
       ClassifyWindowCell();
       // Measure the simplest group
-      MeasureCellGroup0(m_cellInfo.FirstIndexCellGroup0, availableSize);
+      MeasureCellGroup0(unitConverter, m_cellInfo.FirstIndexCellGroup0);
 
       if (!m_cellInfo.Group2HasAutoMembers)
       {
-        BasicMeasure(availableSize);
+        BasicMeasure(unitConverter, availableSizePx);
       }
       else
       {
         if (m_cellInfo.FirstIndexCellGroup1 >= m_cellRecords.size())
         {
-          SemiComplexMeasure(availableSize);
+          SemiComplexMeasure(unitConverter, availableSizePx);
         }
         else
         {
-          ComplexMeasure(availableSize);
+          ComplexMeasure(unitConverter, availableSizePx);
         }
       }
 
-      MeasureCellGroup3(m_cellInfo.FirstIndexCellGroup3, availableSize);
+      MeasureCellGroup3(unitConverter, m_cellInfo.FirstIndexCellGroup3, availableSizePx);
 
-      return ResolveMeasureSize();
+      auto resolvedSize = ResolveMeasureSize();
+      return !m_limitToAvailableSpace
+               ? resolvedSize
+               : PxSize2D(std::min(availableSizePx.Width(), resolvedSize.Width()), std::min(availableSizePx.Height(), resolvedSize.Height()));
     }
 
 
-    void GridLayout::BasicMeasure(const Vector2& availableSize)
+    void GridLayout::BasicMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx)
     {
       assert(!m_cellInfo.Group2HasAutoMembers);
 
-      // No "weight X auto" members, so we can do a simple resolve of the "y-weights"
-      if (m_definitionCache.HasWeightY)
+      // No "star X auto" members, so we can do a simple resolve of the "y-stars"
+      if (m_definitionCache.HasStarY)
       {
-        ResolveWeights(m_definitionsY, availableSize.Y);
+        assert(availableSizePx.IsNormalHeight());
+        ResolveStars(m_definitionsY, availableSizePx.Height());
       }
-      MeasureCellGroup1(m_cellInfo.FirstIndexCellGroup1, availableSize, false, false);
-      if (m_definitionCache.HasWeightX)
+      MeasureCellGroup1(m_cellInfo.FirstIndexCellGroup1, availableSizePx, false, false);
+      if (m_definitionCache.HasStarX)
       {
-        ResolveWeights(m_definitionsX, availableSize.X);
+        assert(availableSizePx.IsNormalWidth());
+        ResolveStars(m_definitionsX, availableSizePx.Width());
       }
-      MeasureCellGroup2(m_cellInfo.FirstIndexCellGroup2, availableSize);
+      MeasureCellGroup2(unitConverter, m_cellInfo.FirstIndexCellGroup2, availableSizePx);
     }
 
 
-    void GridLayout::SemiComplexMeasure(const Vector2& availableSize)
+    void GridLayout::SemiComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx)
     {
       assert(m_cellInfo.Group2HasAutoMembers);
       assert(m_cellInfo.FirstIndexCellGroup1 >= m_cellRecords.size());
 
       // There are no elements in group1 elements so we can do a simple resolve
-      if (m_definitionCache.HasWeightX)
+      if (m_definitionCache.HasStarX)
       {
-        ResolveWeights(m_definitionsX, availableSize.X);
+        assert(availableSizePx.IsNormalWidth());
+        ResolveStars(m_definitionsX, availableSizePx.Width());
       }
-      MeasureCellGroup2(m_cellInfo.FirstIndexCellGroup2, availableSize);
-      if (m_definitionCache.HasWeightY)
+      MeasureCellGroup2(unitConverter, m_cellInfo.FirstIndexCellGroup2, availableSizePx);
+      if (m_definitionCache.HasStarY)
       {
-        ResolveWeights(m_definitionsY, availableSize.Y);
+        assert(availableSizePx.IsNormalHeight());
+        ResolveStars(m_definitionsY, availableSizePx.Height());
       }
     }
 
 
-    void GridLayout::ComplexMeasure(const Vector2& availableSize)
+    void GridLayout::ComplexMeasure(const SpriteUnitConverter& unitConverter, const PxAvailableSize& availableSizePx)
     {
       assert(m_cellInfo.Group2HasAutoMembers);
       assert(m_cellInfo.FirstIndexCellGroup1 < m_cellRecords.size());
@@ -285,81 +293,89 @@ namespace Fsl
       StoreMinSizeX(m_cellInfo.FirstIndexCellGroup1);
       StoreMinSizeY(m_cellInfo.FirstIndexCellGroup2);
       bool hasXChanges = false;
-      MeasureCellGroup1(m_cellInfo.FirstIndexCellGroup1, availableSize, true, false);
+      MeasureCellGroup1(m_cellInfo.FirstIndexCellGroup1, availableSizePx, true, false);
       uint32_t retryCount = 0;
       do
       {
         // restore min sizes for g2
         RestoreMinSize(m_definitionsX);
 
-        if (m_definitionCache.HasWeightX)
+        if (m_definitionCache.HasStarX)
         {
-          ResolveWeights(m_definitionsX, availableSize.X);
+          assert(availableSizePx.IsNormalWidth());
+          ResolveStars(m_definitionsX, availableSizePx.Width());
         }
-        MeasureCellGroup2(m_cellInfo.FirstIndexCellGroup2, availableSize);
+        MeasureCellGroup2(unitConverter, m_cellInfo.FirstIndexCellGroup2, availableSizePx);
 
         // restore min sizes for g1
         RestoreMinSize(m_definitionsY);
 
-        if (m_definitionCache.HasWeightY)
+        if (m_definitionCache.HasStarY)
         {
-          ResolveWeights(m_definitionsY, availableSize.Y);
+          assert(availableSizePx.IsNormalHeight());
+          ResolveStars(m_definitionsY, availableSizePx.Height());
         }
-        hasXChanges = MeasureCellGroup1(m_cellInfo.FirstIndexCellGroup1, availableSize, false, retryCount == MAX_LOOP_COUNT);
+        hasXChanges = MeasureCellGroup1(m_cellInfo.FirstIndexCellGroup1, availableSizePx, false, retryCount == LocalConfig::MaxLoopCount);
 
         ++retryCount;
-      } while (hasXChanges && retryCount <= MAX_LOOP_COUNT);
+      } while (hasXChanges && retryCount <= LocalConfig::MaxLoopCount);
     }
 
 
-    Vector2 GridLayout::ResolveMeasureSize()
+    PxSize2D GridLayout::ResolveMeasureSize()
     {
-      float finalWidth = 0.0f;
+      int32_t finalWidth = 0;
       for (const auto& entry : m_definitionsX)
       {
-        finalWidth += entry.MinimumSize;
+        finalWidth += entry.MinimumSizePx;
       }
-      float finalHeight = 0.0f;
+      int32_t finalHeight = 0;
       for (const auto& entry : m_definitionsY)
       {
-        finalHeight += entry.MinimumSize;
+        finalHeight += entry.MinimumSizePx;
       }
 
-      return Vector2(finalWidth, finalHeight);
+      return {finalWidth, finalHeight};
     }
 
 
-    bool GridLayout::UpdateDefinitionCache(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const bool treatWeightAsAuto)
+    bool GridLayout::UpdateDefinitionCache(const SpriteUnitConverter& unitConverter, std::deque<GridRowColumnDefinitionEx>& rDefinitions,
+                                           const bool treatStarAsAuto)
     {
-      bool hasWeight = false;
+      bool hasStar = false;
       for (GridRowColumnDefinitionEx& rDef : rDefinitions)
       {
-        float userMinSize = 0.0f;
-        float userSize = 0.0f;
+        int32_t userMinSizePx = 0;
+        int32_t userSizePx = 0;
         switch (rDef.Unit)
         {
         case GridUnitType::Fixed:
-          rDef.MeasureUnitType = GridUnitType::Fixed;
-          userSize = rDef.Size;
-          userMinSize = userSize;
+          rDef.MeasureUnitType = InternalGridUnitType::Fixed;
+          userSizePx = unitConverter.DpToPxInt32(rDef.Size);
+          userMinSizePx = userSizePx;
+          break;
+        case GridUnitType::FixedPx:
+          rDef.MeasureUnitType = InternalGridUnitType::Fixed;
+          userSizePx = unitConverter.PxfToPxInt32(rDef.Size);
+          userMinSizePx = userSizePx;
           break;
         case GridUnitType::Auto:
-          rDef.MeasureUnitType = GridUnitType::Auto;
-          userSize = LayoutHelper::InfiniteSpace;
+          rDef.MeasureUnitType = InternalGridUnitType::Auto;
+          userSizePx = PxAvailableSizeUtil::InfiniteSpacePx;
           break;
-        case GridUnitType::Weight:
-          rDef.MeasureUnitType = !treatWeightAsAuto ? GridUnitType::Weight : GridUnitType::Auto;
-          userSize = LayoutHelper::InfiniteSpace;
-          hasWeight = true;
+        case GridUnitType::Star:
+          rDef.MeasureUnitType = !treatStarAsAuto ? InternalGridUnitType::Star : InternalGridUnitType::AutoStar;
+          userSizePx = PxAvailableSizeUtil::InfiniteSpacePx;
+          hasStar = !treatStarAsAuto;
           break;
         default:
           FSLLOG3_WARNING("Unsupported unit type: {}", static_cast<uint32_t>(rDef.Unit));
           break;
         }
-        rDef.MeasureSize = std::max(userSize, userMinSize);
-        rDef.MinimumSize = userMinSize;
+        rDef.MeasureSizePx = std::max(userSizePx, userMinSizePx);
+        rDef.MinimumSizePx = userMinSizePx;
       }
-      return hasWeight;
+      return hasStar;
     }
 
 
@@ -370,10 +386,10 @@ namespace Fsl
         m_cellRecords.resize(size());
       }
 
-      m_cellInfo.FirstIndexCellGroup0 = INVALID_INDEX;
-      m_cellInfo.FirstIndexCellGroup1 = INVALID_INDEX;
-      m_cellInfo.FirstIndexCellGroup2 = INVALID_INDEX;
-      m_cellInfo.FirstIndexCellGroup3 = INVALID_INDEX;
+      m_cellInfo.FirstIndexCellGroup0 = LocalConfig::InvalidIndex;
+      m_cellInfo.FirstIndexCellGroup1 = LocalConfig::InvalidIndex;
+      m_cellInfo.FirstIndexCellGroup2 = LocalConfig::InvalidIndex;
+      m_cellInfo.FirstIndexCellGroup3 = LocalConfig::InvalidIndex;
       bool group2HasAutoMembers = false;
 
       auto itr = begin();
@@ -393,14 +409,14 @@ namespace Fsl
           cell.UnitTypeFlagsX = m_definitionsX[cell.IndexX].Unit;
           cell.UnitTypeFlagsY = m_definitionsY[cell.IndexY].Unit;
 
-          //        | Fixed | Auto | Weight |
-          // Fixed  | 0     | 0    | 2      |
-          // Auto   | 0     | 0    | 2      |
-          // Weight | 3     | 1    | 3      |
+          //       | Fixed | Auto | Star |
+          // Fixed | 0     | 0    | 2    |
+          // Auto  | 0     | 0    | 2    |
+          // Star  | 3     | 1    | 3    |
 
-          if (cell.UnitTypeFlagsY != GridUnitType::Weight)
+          if (cell.UnitTypeFlagsY != GridUnitType::Star)
           {
-            if (cell.UnitTypeFlagsX != GridUnitType::Weight)
+            if (cell.UnitTypeFlagsX != GridUnitType::Star)
             {
               cell.NextIndex = m_cellInfo.FirstIndexCellGroup0;
               m_cellInfo.FirstIndexCellGroup0 = index;
@@ -436,49 +452,56 @@ namespace Fsl
 
 
     // As cell group zero only contains Fixed and auto we just measure them directly
-    //        | Fixed | Auto | Weight |
-    // Fixed  | 0     | 0    | 2      |
-    // Auto   | 0     | 0    | 2      |
-    // Weight | 3     | 1    | 3      |
+    //       | Fixed | Auto | Star |
+    // Fixed | 0     | 0    | 2    |
+    // Auto  | 0     | 0    | 2    |
+    // Star  | 3     | 1    | 3    |
 
-    void GridLayout::MeasureCellGroup0(const uint32_t groupStartIndex, const Vector2& availableSize)
+    void GridLayout::MeasureCellGroup0(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex)
     {
       uint32_t index = groupStartIndex;
-      assert(index == INVALID_INDEX || index < m_cellRecords.size());
+      assert(index == LocalConfig::InvalidIndex || index < m_cellRecords.size());
       assert(size() <= m_cellRecords.size());
       while (index < m_cellRecords.size())
       {
         assert(index < m_cellRecords.size());
-        assert(m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Auto || m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Fixed);
-        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto || m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Fixed);
+        assert(m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Auto || m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Fixed ||
+               m_cellRecords[index].UnitTypeFlagsX == GridUnitType::FixedPx);
+        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto || m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Fixed ||
+               m_cellRecords[index].UnitTypeFlagsY == GridUnitType::FixedPx);
 
         auto window = ChildAt(index);
         assert(window);
 
-        const auto indexX = m_cellRecords[index].IndexX;
-        const auto indexY = m_cellRecords[index].IndexY;
+        const uint32_t indexX = m_cellRecords[index].IndexX;
+        const uint32_t indexY = m_cellRecords[index].IndexY;
 
         assert(indexX < m_definitionsX.size());
         assert(indexY < m_definitionsY.size());
 
-        auto availX = m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Auto ? LayoutHelper::InfiniteSpace : m_definitionsX[indexX].MeasureSize;
-        auto availY = m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto ? LayoutHelper::InfiniteSpace : m_definitionsY[indexY].MeasureSize;
+        const PxAvailableSize avail(
+          m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Auto ? PxAvailableSizeUtil::InfiniteSpacePx : m_definitionsX[indexX].MeasureSizePx,
+          m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto ? PxAvailableSizeUtil::InfiniteSpacePx : m_definitionsY[indexY].MeasureSizePx);
 
         // Finally measure the cell
-        window->Measure(Vector2(availX, availY));
+        window->Measure(avail);
 
-        assert(m_definitionsX[indexX].MeasureUnitType != GridUnitType::Fixed || m_definitionsX[indexX].Size == m_definitionsX[indexX].MinimumSize);
-        assert(m_definitionsY[indexY].MeasureUnitType != GridUnitType::Fixed || m_definitionsY[indexY].Size == m_definitionsY[indexY].MinimumSize);
+        assert(m_definitionsX[indexX].MeasureUnitType != InternalGridUnitType::Fixed ||
+               (unitConverter.DpToPxInt32(m_definitionsX[indexX].Size) == m_definitionsX[indexX].MinimumSizePx ||
+                unitConverter.PxfToPxInt32(m_definitionsX[indexX].Size) == m_definitionsX[indexX].MinimumSizePx));
+        assert(m_definitionsY[indexY].MeasureUnitType != InternalGridUnitType::Fixed ||
+               (unitConverter.DpToPxInt32(m_definitionsY[indexY].Size) == m_definitionsY[indexY].MinimumSizePx ||
+                unitConverter.PxfToPxInt32(m_definitionsY[indexY].Size) == m_definitionsY[indexY].MinimumSizePx));
 
         // Apply the measured window dimensions to the minimum cell size
-        auto desiredSize = window->DesiredSize();
-        if (m_definitionsX[indexX].MeasureUnitType != GridUnitType::Fixed)
+        PxSize2D desiredSizePx = window->DesiredSizePx();
+        if (m_definitionsX[indexX].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsX[indexX].ApplyMinSize(desiredSize.X);
+          m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
         }
-        if (m_definitionsY[indexY].MeasureUnitType != GridUnitType::Fixed)
+        if (m_definitionsY[indexY].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsY[indexY].ApplyMinSize(desiredSize.Y);
+          m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
         }
 
         // Validate our assumptions
@@ -488,25 +511,25 @@ namespace Fsl
     }
 
 
-    //! Group1 cells are all of the type "auto X weight"
-    //        | Fixed | Auto | Weight |
-    // Fixed  | 0     | 0    | 2      |
-    // Auto   | 0     | 0    | 2      |
-    // Weight | 3     | 1    | 3      |
+    //! Group1 cells are all of the type "auto X star"
+    //       | Fixed | Auto | Star |
+    // Fixed | 0     | 0    | 2    |
+    // Auto  | 0     | 0    | 2    |
+    // Star  | 3     | 1    | 3    |
 
-    bool GridLayout::MeasureCellGroup1(const uint32_t groupStartIndex, const Vector2& availableSize, const bool useInfinityY,
+    bool GridLayout::MeasureCellGroup1(const uint32_t groupStartIndex, const PxAvailableSize& /*availableSizePx*/, const bool useInfinityY,
                                        const bool ignoreDesiredX)
     {
       bool widthModified = false;
       uint32_t index = groupStartIndex;
-      assert(index == INVALID_INDEX || index < m_cellRecords.size());
+      assert(index == LocalConfig::InvalidIndex || index < m_cellRecords.size());
       assert(size() <= m_cellRecords.size());
 
       while (index < m_cellRecords.size())
       {
         assert(index < m_cellRecords.size());
         assert(m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Auto);
-        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Weight);
+        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Star);
 
         auto window = ChildAt(index);
         assert(window);
@@ -517,24 +540,24 @@ namespace Fsl
         assert(indexX < m_definitionsX.size());
         assert(indexY < m_definitionsY.size());
 
-        auto availX = LayoutHelper::InfiniteSpace;
-        auto availY = !useInfinityY ? m_definitionsY[indexY].MeasureSize : LayoutHelper::InfiniteSpace;
+        const PxAvailableSize avail(PxAvailableSizeUtil::InfiniteSpacePx,
+                                    !useInfinityY ? m_definitionsY[indexY].MeasureSizePx : PxAvailableSizeUtil::InfiniteSpacePx);
 
-        float oldWidth = window->DesiredSize().X;
+        int32_t oldWidthPx = window->DesiredSizePx().Width();
         // Finally measure the cell
-        window->Measure(Vector2(availX, availY));
+        window->Measure(avail);
 
-        widthModified |= EqualHelper::IsAlmostEqual(oldWidth, window->DesiredSize().X);
+        widthModified |= (oldWidthPx != window->DesiredSizePx().Width());    // FIX: check if this is correct, it was modified from == to !=
 
         // Apply the measured window dimensions to the minimum cell size
-        auto desiredSize = window->DesiredSize();
+        PxSize2D desiredSizePx = window->DesiredSizePx();
         if (!ignoreDesiredX)
         {
-          m_definitionsX[indexX].ApplyMinSize(desiredSize.X);
+          m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
         }
         if (!useInfinityY)
         {
-          m_definitionsY[indexY].ApplyMinSize(desiredSize.Y);
+          m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
         }
 
         // Validate our assumptions
@@ -544,21 +567,23 @@ namespace Fsl
       return widthModified;
     }
 
-    //! Group2 cells are all of the type "weight X fixed", "weight x auto"
-    //        | Fixed | Auto | Weight |
-    // Fixed  | 0     | 0    | 2      |
-    // Auto   | 0     | 0    | 2      |
-    // Weight | 3     | 1    | 3      |
-    void GridLayout::MeasureCellGroup2(const uint32_t groupStartIndex, const Vector2& availableSize)
+    //! Group2 cells are all of the type "star X fixed", "star x auto"
+    //       | Fixed | Auto | Star |
+    // Fixed | 0     | 0    | 2    |
+    // Auto  | 0     | 0    | 2    |
+    // Star  | 3     | 1    | 3    |
+    void GridLayout::MeasureCellGroup2(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex,
+                                       const PxAvailableSize& /*availableSizePx*/)
     {
       uint32_t index = groupStartIndex;
-      assert(index == INVALID_INDEX || index < m_cellRecords.size());
+      assert(index == LocalConfig::InvalidIndex || index < m_cellRecords.size());
       assert(size() <= m_cellRecords.size());
       while (index < m_cellRecords.size())
       {
         assert(index < m_cellRecords.size());
-        assert(m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Weight);
-        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Fixed || m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto);
+        assert(m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Star);
+        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Fixed || m_cellRecords[index].UnitTypeFlagsY == GridUnitType::FixedPx ||
+               m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto);
 
         auto window = ChildAt(index);
         assert(window);
@@ -569,20 +594,23 @@ namespace Fsl
         assert(indexX < m_definitionsX.size());
         assert(indexY < m_definitionsY.size());
 
-        auto availX = m_definitionsX[indexX].MeasureSize;
-        auto availY = m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto ? LayoutHelper::InfiniteSpace : m_definitionsY[indexY].MeasureSize;
+        const PxAvailableSize avail(m_definitionsX[indexX].MeasureSizePx, m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Auto
+                                                                            ? PxAvailableSizeUtil::InfiniteSpacePx
+                                                                            : m_definitionsY[indexY].MeasureSizePx);
 
         // Finally measure the cell
-        window->Measure(Vector2(availX, availY));
+        window->Measure(avail);
 
-        assert(m_definitionsY[indexY].MeasureUnitType != GridUnitType::Fixed || m_definitionsY[indexY].Size == m_definitionsY[indexY].MinimumSize);
+        assert(m_definitionsY[indexY].MeasureUnitType != InternalGridUnitType::Fixed ||
+               (unitConverter.DpToPxInt32(m_definitionsY[indexY].Size) == m_definitionsY[indexY].MinimumSizePx ||
+                unitConverter.PxfToPxInt32(m_definitionsY[indexY].Size) == m_definitionsY[indexY].MinimumSizePx));
 
         // Apply the measured window dimensions to the minimum cell size
-        auto desiredSize = window->DesiredSize();
-        m_definitionsX[indexX].ApplyMinSize(desiredSize.X);
-        if (m_definitionsY[indexY].MeasureUnitType != GridUnitType::Fixed)
+        PxSize2D desiredSizePx = window->DesiredSizePx();
+        m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
+        if (m_definitionsY[indexY].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsY[indexY].ApplyMinSize(desiredSize.Y);
+          m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
         }
 
         // Validate our assumptions
@@ -591,21 +619,23 @@ namespace Fsl
       }
     }
 
-    //! Group3  cells are all of the type "weight X weight" or "fixed X weight"
-    //        | Fixed | Auto | Weight |
-    // Fixed  | 0     | 0    | 2      |
-    // Auto   | 0     | 0    | 2      |
-    // Weight | 3     | 1    | 3      |
-    void GridLayout::MeasureCellGroup3(const uint32_t groupStartIndex, const Vector2& availableSize)
+    //! Group3  cells are all of the type "star X star" or "fixed X star"
+    //       | Fixed | Auto | Star |
+    // Fixed | 0     | 0    | 2    |
+    // Auto  | 0     | 0    | 2    |
+    // Star  | 3     | 1    | 3    |
+    void GridLayout::MeasureCellGroup3(const SpriteUnitConverter& unitConverter, const uint32_t groupStartIndex,
+                                       const PxAvailableSize& /*availableSizePx*/)
     {
       uint32_t index = groupStartIndex;
-      assert(index == INVALID_INDEX || index < m_cellRecords.size());
+      assert(index == LocalConfig::InvalidIndex || index < m_cellRecords.size());
       assert(size() <= m_cellRecords.size());
       while (index < m_cellRecords.size())
       {
         assert(index < m_cellRecords.size());
-        assert(m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Fixed || m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Weight);
-        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Weight);
+        assert(m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Fixed || m_cellRecords[index].UnitTypeFlagsX == GridUnitType::FixedPx ||
+               m_cellRecords[index].UnitTypeFlagsX == GridUnitType::Star);
+        assert(m_cellRecords[index].UnitTypeFlagsY == GridUnitType::Star);
 
         auto window = ChildAt(index);
         assert(window);
@@ -616,21 +646,22 @@ namespace Fsl
         assert(indexX < m_definitionsX.size());
         assert(indexY < m_definitionsY.size());
 
-        auto availX = m_definitionsX[indexX].MeasureSize;
-        auto availY = m_definitionsY[indexY].MeasureSize;
+        const PxAvailableSize avail(m_definitionsX[indexX].MeasureSizePx, m_definitionsY[indexY].MeasureSizePx);
 
         // Finally measure the cell
-        window->Measure(Vector2(availX, availY));
+        window->Measure(avail);
 
-        assert(m_definitionsX[indexX].MeasureUnitType != GridUnitType::Fixed || m_definitionsX[indexX].Size == m_definitionsX[indexX].MinimumSize);
+        assert(m_definitionsX[indexX].MeasureUnitType != InternalGridUnitType::Fixed ||
+               (unitConverter.DpToPxInt32(m_definitionsX[indexX].Size == m_definitionsX[indexX].MinimumSizePx) ||
+                unitConverter.PxfToPxInt32(m_definitionsX[indexX].Size == m_definitionsX[indexX].MinimumSizePx)));
 
         // Apply the measured window dimensions to the minimum cell size
-        auto desiredSize = window->DesiredSize();
-        if (m_definitionsX[indexX].MeasureUnitType != GridUnitType::Fixed)
+        PxSize2D desiredSizePx = window->DesiredSizePx();
+        if (m_definitionsX[indexX].MeasureUnitType != InternalGridUnitType::Fixed)
         {
-          m_definitionsX[indexX].ApplyMinSize(desiredSize.X);
+          m_definitionsX[indexX].ApplyMinSize(desiredSizePx.Width());
         }
-        m_definitionsY[indexY].ApplyMinSize(desiredSize.Y);
+        m_definitionsY[indexY].ApplyMinSize(desiredSizePx.Height());
 
         // Validate our assumptions
         assert(index != m_cellRecords[index].NextIndex);
@@ -639,37 +670,122 @@ namespace Fsl
     }
 
 
-    void GridLayout::ResolveWeights(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const float totalAvailableSpace)
+    void GridLayout::ResolveStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx)
     {
-      // Figure out the total weight
-      float totalWeight = 0.0f;
-      float spaceLeft = totalAvailableSpace;
+      assert(!PxAvailableSizeUtil::IsConsideredInfiniteSpace(totalAvailableSpacePx));
+
+      // Figure out the total star
+      float totalStar = 0.0f;
+      int32_t spaceLeftPx = totalAvailableSpacePx;
+      uint32_t starCount = 0;
       for (const auto& entry : rDefinitions)
       {
-        if (entry.MeasureUnitType == GridUnitType::Weight)
+        if (entry.MeasureUnitType == InternalGridUnitType::Star)
         {
           assert(entry.Size >= 0.0f);
-          assert(entry.Size < LayoutHelper::ConsideredInfiniteSpace);
-          // We rely on reasonable weights being used (so overflow will not be a issue)
-          totalWeight += entry.Size;
+          assert(!std::isinf(entry.Size));
+          // We rely on reasonable stars being used (so overflow will not be a issue)
+          totalStar += entry.Size;
+          ++starCount;
         }
         else
         {
-          spaceLeft -= entry.MinimumSize;
+          spaceLeftPx -= entry.MinimumSizePx;
         }
       }
-      // This method should not be called if there are no weights
-      // We expect the total to be in a valid range
-      assert(totalWeight > 0.0f);
-      assert(totalWeight < LayoutHelper::ConsideredInfiniteSpace);
-      spaceLeft = std::max(spaceLeft, 0.0f);
-      for (auto& rEntry : rDefinitions)
+      if (starCount > 0)
       {
-        if (rEntry.MeasureUnitType == GridUnitType::Weight)
+        // This method should not be called if there are no stars
+        // We expect the total to be in a valid range
+        assert(totalStar > 0.0f);
+        assert(!std::isinf(totalStar));
+        spaceLeftPx = std::max(spaceLeftPx, 0);
+        for (auto& rEntry : rDefinitions)
         {
-          auto weightedSpace = spaceLeft * (rEntry.Size / totalWeight);
-          rEntry.MeasureSize = weightedSpace;
-          rEntry.ApplyMinSize(weightedSpace);
+          if (rEntry.MeasureUnitType == InternalGridUnitType::Star)
+          {
+            auto staredSpacePxf = static_cast<float>(spaceLeftPx) * (rEntry.Size / totalStar);
+            rEntry.MeasureSizePx = static_cast<int32_t>(std::round(staredSpacePxf));
+            rEntry.ApplyMinSize(rEntry.MeasureSizePx);
+          }
+        }
+      }
+    }
+
+    PxSize2D GridLayout::FinalizeSizes(const PxSize2D& finalSizePx)
+    {
+      FinalizeStars(m_definitionsY, finalSizePx.Height());
+      FinalizeStars(m_definitionsX, finalSizePx.Width());
+
+      PxSize2D sizePx;
+      {
+        for (auto& rEntry : m_definitionsX)
+        {
+          rEntry.TempValue = sizePx.Width();
+          sizePx.AddWidth(rEntry.MinimumSizePx);
+        }
+        for (auto& rEntry : m_definitionsY)
+        {
+          rEntry.TempValue = sizePx.Height();
+          sizePx.AddHeight(rEntry.MinimumSizePx);
+        }
+      }
+      return sizePx;
+    }
+
+
+    void GridLayout::FinalizeStars(std::deque<GridRowColumnDefinitionEx>& rDefinitions, const int32_t totalAvailableSpacePx)
+    {
+      assert(!PxAvailableSizeUtil::IsConsideredInfiniteSpace(totalAvailableSpacePx));
+
+      // Figure out the total star
+      float totalStar = 0.0f;
+      int32_t spaceLeftPx = totalAvailableSpacePx;
+      uint32_t starCount = 0;
+      int32_t minimumSize = 0;
+      for (const auto& entry : rDefinitions)
+      {
+        if ((uint32_t(entry.MeasureUnitType) & uint32_t(InternalGridUnitType::Star)) == uint32_t(InternalGridUnitType::Star))
+        {
+          assert(entry.Size >= 0.0f);
+          assert(!std::isinf(entry.Size));
+          // We rely on reasonable stars being used (so overflow will not be a issue)
+          totalStar += entry.Size;
+          ++starCount;
+          minimumSize += entry.MinimumSizePx;
+        }
+        else
+        {
+          spaceLeftPx -= entry.MinimumSizePx;
+        }
+      }
+      if (starCount > 0 && spaceLeftPx >= minimumSize)
+      {
+        // This method should not be called if there are no stars
+        // We expect the total to be in a valid range
+        assert(totalStar > 0.0f);
+        assert(!std::isinf(totalStar));
+        spaceLeftPx = std::max(spaceLeftPx, 0);
+
+        int32_t sizePx = 0;
+        for (auto& rEntry : rDefinitions)
+        {
+          if ((uint32_t(rEntry.MeasureUnitType) & uint32_t(InternalGridUnitType::Star)) == uint32_t(InternalGridUnitType::Star))
+          {
+            auto staredSpacePxf = static_cast<float>(spaceLeftPx) * (rEntry.Size / totalStar);
+            rEntry.MeasureSizePx = static_cast<int32_t>(std::round(staredSpacePxf));
+            sizePx += std::max(rEntry.MeasureSizePx, rEntry.MinimumSizePx);
+          }
+        }
+        if (sizePx <= spaceLeftPx)
+        {
+          for (auto& rEntry : rDefinitions)
+          {
+            if ((uint32_t(rEntry.MeasureUnitType) & uint32_t(InternalGridUnitType::Star)) == uint32_t(InternalGridUnitType::Star))
+            {
+              rEntry.ApplyMinSize(rEntry.MeasureSizePx);
+            }
+          }
         }
       }
     }
@@ -679,11 +795,11 @@ namespace Fsl
     {
       for (auto& rDef : m_definitionsX)
       {
-        rDef.TempValue = -42.0f;
+        rDef.TempValue = -42;
       }
 
       uint32_t index = groupStartIndex;
-      assert(index == INVALID_INDEX || index < m_cellRecords.size());
+      assert(index == LocalConfig::InvalidIndex || index < m_cellRecords.size());
       assert(size() <= m_cellRecords.size());
       while (index < m_cellRecords.size())
       {
@@ -693,7 +809,7 @@ namespace Fsl
         assert(indexX < m_definitionsX.size());
 
         // Store the min size
-        m_definitionsX[indexX].TempValue = m_definitionsX[indexX].MinimumSize;
+        m_definitionsX[indexX].TempValue = m_definitionsX[indexX].MinimumSizePx;
 
         // Validate our assumptions
         assert(index != m_cellRecords[index].NextIndex);
@@ -706,11 +822,11 @@ namespace Fsl
     {
       for (auto& rDef : m_definitionsY)
       {
-        rDef.TempValue = -42.0f;
+        rDef.TempValue = -42;
       }
 
       uint32_t index = groupStartIndex;
-      assert(index == INVALID_INDEX || index < m_cellRecords.size());
+      assert(index == LocalConfig::InvalidIndex || index < m_cellRecords.size());
       assert(size() <= m_cellRecords.size());
       while (index < m_cellRecords.size())
       {
@@ -720,7 +836,7 @@ namespace Fsl
         assert(indexY < m_definitionsY.size());
 
         // Store the min size
-        m_definitionsY[indexY].TempValue = m_definitionsY[indexY].MinimumSize;
+        m_definitionsY[indexY].TempValue = m_definitionsY[indexY].MinimumSizePx;
 
         // Validate our assumptions
         assert(index != m_cellRecords[index].NextIndex);
@@ -735,7 +851,7 @@ namespace Fsl
       {
         if (rDef.TempValue >= 0.0f)
         {
-          rDef.MinimumSize = rDef.TempValue;
+          rDef.MinimumSizePx = rDef.TempValue;
         }
       }
     }

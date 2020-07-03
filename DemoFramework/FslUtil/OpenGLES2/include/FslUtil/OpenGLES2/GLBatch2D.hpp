@@ -46,8 +46,8 @@ namespace Fsl
     class GLBatch2D : public GenericBatch2D<std::shared_ptr<GLBatch2DQuadRenderer>, GLTextureInfo>
     {
     public:
-      GLBatch2D(const Point2& screenResolution);
-      GLBatch2D(const std::shared_ptr<GLBatch2DQuadRenderer>& quadRenderer, const Point2& screenResolution);
+      explicit GLBatch2D(const PxExtent2D& extentPx);
+      GLBatch2D(const std::shared_ptr<GLBatch2DQuadRenderer>& quadRenderer, const PxExtent2D& extentPx);
     };
   }
 }

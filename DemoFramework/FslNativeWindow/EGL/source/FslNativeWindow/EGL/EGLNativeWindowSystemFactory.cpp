@@ -78,12 +78,12 @@ namespace Fsl
 
 namespace Fsl
 {
-  const std::shared_ptr<IEGLNativeWindowSystem> EGLNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
+  std::shared_ptr<IEGLNativeWindowSystem> EGLNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
   {
     return std::make_shared<EGLNATIVEWINDOWSYSTEM>(setup);
   }
 
-  const std::shared_ptr<INativeWindowSystem> EGLNativeWindowSystemFactory::AllocateNative(const NativeWindowSystemSetup& setup)
+  std::shared_ptr<INativeWindowSystem> EGLNativeWindowSystemFactory::AllocateNative(const NativeWindowSystemSetup& setup)
   {
     return Allocate(setup);
   }

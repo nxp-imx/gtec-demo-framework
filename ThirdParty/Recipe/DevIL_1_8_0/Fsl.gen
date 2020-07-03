@@ -4,7 +4,7 @@
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Windows" Supported="true">
-      <ExperimentalRecipe Name="DevIL-1.8.0">
+      <ExperimentalRecipe Name="DevIL" Version="1.8.0">
         <Pipeline>
           <Download URL="http://downloads.sourceforge.net/openil/DevIL-Windows-SDK-1.8.0.zip" Hash="343ea17b75975eb1659a018838af8270b0896bdcfb11ec4da8915814805f0a14"/>
           <Unpack File="DevIL-Windows-SDK-1.8.0.zip" OutputPath="DevIL Windows SDK"/>

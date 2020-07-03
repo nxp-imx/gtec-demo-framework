@@ -39,18 +39,18 @@
 
 namespace Fsl
 {
-  class WhiteRectScene : public IScene
+  class WhiteRectScene final : public IScene
   {
     GLES2::GLProgram m_program;
     GLES2::GLTexture m_texWhite;
     GLES2::GLVertexBuffer m_vbRect;
 
   public:
-    WhiteRectScene(const DemoAppConfig& config);
-    ~WhiteRectScene() override;
+    explicit WhiteRectScene(const DemoAppConfig& config);
+    ~WhiteRectScene() final;
     void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
-                const Point2& screenResolution) override;
-    void Draw() override;
+                const PxSize2D& windowSizePx) final;
+    void Draw() final;
   };
 }
 

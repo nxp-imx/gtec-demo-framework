@@ -35,8 +35,8 @@
 
 namespace Fsl
 {
-  EnvState::EnvState(const Point2& screenResolution)
-    : m_screenResolution(screenResolution)
+  EnvState::EnvState(const PxSize2D& windowSizePx)
+    : m_windowSizePx(windowSizePx)
     , m_stepsPerCircle(360)
     , m_time(0)
     , m_timeStep(20)
@@ -46,9 +46,6 @@ namespace Fsl
 
   {
   }
-
-
-  EnvState::~EnvState() = default;
 
 
   void EnvState::Update(const float deltaTime)
@@ -70,7 +67,7 @@ namespace Fsl
 
     Matrix::CreateLookAt(EyeVector, LookAt, UpVec, ViewMatrix);
 
-    float fAspect = m_screenResolution.X / float(m_screenResolution.Y);
+    float fAspect = m_windowSizePx.Width() / float(m_windowSizePx.Height());
 
     ProjMatrix = Matrix::CreatePerspectiveFieldOfView(MathHelper::PI / 4.0f, fAspect, 1.0f, 100.0f);
   }

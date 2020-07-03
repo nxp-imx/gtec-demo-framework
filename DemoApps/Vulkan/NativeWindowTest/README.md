@@ -19,6 +19,8 @@ Argument                        |Description                                    
 --------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------
 --VkPhysicalDevice \<arg>       |Set the physical device index.                                                                                                                                      |Demo
 --VkValidate \<arg>             |Enable/disable the VK_LAYER_LUNARG_standard_validation layer.                                                                                                       |Demo
+--ActualDpi \<arg>              |ActualDpi [x,y] Override the actual dpi reported by the native window                                                                                               |DemoHost
+--DensityDpi \<arg>             |DensityDpi \<number> Override the density dpi reported by the native window                                                                                         |DemoHost
 --DisplayId \<arg>              |DisplayId \<number>                                                                                                                                                 |DemoHost
 --Window \<arg>                 |Window mode [left,top,width,height]                                                                                                                                 |DemoHost
 --AppFirewall                   |Enable the app firewall, reporting crashes on-screen instead of exiting                                                                                             |DemoHostManager

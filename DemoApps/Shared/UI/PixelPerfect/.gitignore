@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/Shared.UI.PixelPerfect.VC.VC.opendb
+/Shared.UI.PixelPerfect.VC.db
+/Shared.UI.PixelPerfect.manifest
+/Shared.UI.PixelPerfect.opensdf
+/Shared.UI.PixelPerfect.sdf
+/Shared.UI.PixelPerfect.sln
+/Shared.UI.PixelPerfect.v12.sdf
+/Shared.UI.PixelPerfect.v12.suo
+/Shared.UI.PixelPerfect.vcxproj
+/Shared.UI.PixelPerfect.vcxproj.filters
+/Shared.UI.PixelPerfect.vcxproj.user
+/build/

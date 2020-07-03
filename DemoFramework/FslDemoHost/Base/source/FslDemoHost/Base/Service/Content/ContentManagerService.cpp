@@ -37,6 +37,7 @@
 #include <FslDemoApp/Base/Service/Image/IImageService.hpp>
 #include <FslDemoHost/Base/Service/Content/ContentManagerService.hpp>
 #include <FslGraphics/Font/BinaryFontBasicKerningLoader.hpp>
+#include <FslGraphics/Font/BitmapFontDecoder.hpp>
 #include <FslGraphics/TextureAtlas/BasicTextureAtlas.hpp>
 #include <FslGraphics/TextureAtlas/BinaryTextureAtlasLoader.hpp>
 #include <fmt/format.h>
@@ -47,7 +48,7 @@ namespace Fsl
 {
   namespace
   {
-    const IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
+    IO::Path ToAbsolutePath(const IO::Path& trustedAbsPath, const IO::Path& notTrustedRelativePath)
     {
       assert(!trustedAbsPath.IsEmpty());
 
@@ -129,6 +130,13 @@ namespace Fsl
   }
 
 
+  std::vector<uint8_t> ContentManagerService::ReadAllBytes(const IO::Path& relativePath) const
+  {
+    const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
+    return IO::File::ReadAllBytes(absPath);
+  }
+
+
   uint64_t ContentManagerService::ReadAllBytes(void* pDstArray, const uint64_t cbDstArray, const IO::Path& relativePath) const
   {
     const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
@@ -188,6 +196,17 @@ namespace Fsl
     BinaryFontBasicKerningLoader::Load(rFontKerning, absPath);
   }
 
+
+  void ContentManagerService::Read(BitmapFont& rBitmapFont, const IO::Path& relativePath) const
+  {
+    rBitmapFont = ReadBitmapFont(relativePath);
+  }
+
+  BitmapFont ContentManagerService::ReadBitmapFont(const IO::Path& relativePath) const
+  {
+    const IO::Path absPath(ToAbsolutePath(m_contentPath, relativePath));
+    return BitmapFontDecoder::Load(absPath);
+  }
 
   bool ContentManagerService::TryReadAllText(std::string& rText, const IO::Path& relativePath) const
   {

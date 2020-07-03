@@ -66,7 +66,7 @@ namespace Fsl
     }
 
 
-    VGImageBuffer::VGImageBuffer(const VGImage handle, const Point2& size)
+    VGImageBuffer::VGImageBuffer(const VGImage handle, const PxSize2D& size)
       : m_handle(handle)
       , m_size(size)
     {
@@ -101,12 +101,12 @@ namespace Fsl
       {
         vgDestroyImage(m_handle);
         m_handle = VG_INVALID_HANDLE;
-        m_size = Point2();
+        m_size = {};
       }
     }
 
 
-    void VGImageBuffer::Reset(const VGImage handle, const Point2& size)
+    void VGImageBuffer::Reset(const VGImage handle, const PxSize2D& size)
     {
       Reset();
       m_handle = handle;
@@ -149,7 +149,7 @@ namespace Fsl
     }
 
 
-    const Point2 VGImageBuffer::GetSize() const
+    PxSize2D VGImageBuffer::GetSize() const
     {
       return m_size;
     }

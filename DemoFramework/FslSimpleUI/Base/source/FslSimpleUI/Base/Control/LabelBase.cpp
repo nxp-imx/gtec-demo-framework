@@ -35,7 +35,8 @@
 #include <FslGraphics/Color.hpp>
 #include <FslGraphics/Font/TextureAtlasBitmapFont.hpp>
 #include <FslGraphics/Render/Adapter/INativeBatch2D.hpp>
-#include <FslGraphics/Render/AtlasFont.hpp>
+#include <FslGraphics/Render/BlendState.hpp>
+#include <FslGraphics/Sprite/Font/SpriteFont.hpp>
 #include <FslSimpleUI/Base/PropertyTypeFlags.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <FslSimpleUI/Base/WindowContext.hpp>
@@ -50,14 +51,47 @@ namespace Fsl
       : BaseWindow(context)
       , m_windowContext(context)
       , m_font(context->DefaultFont)
-      , m_fontColor(Color::White())
     {
-      assert(m_font);
+      if (!m_font)
+      {
+        throw std::invalid_argument("context->DefaultFont is invalid");
+      }
       Enable(WindowFlags(WindowFlags::DrawEnabled));
     }
 
+    bool LabelBase::SetEnabled(const bool enabled)
+    {
+      const bool modified = enabled != m_enabled;
+      if (modified)
+      {
+        m_enabled = enabled;
+        PropertyUpdated(PropertyType::Other);
+      }
+      return modified;
+    }
 
-    void LabelBase::SetFont(const std::shared_ptr<AtlasFont>& value)
+
+    void LabelBase::SetContentAlignmentX(const ItemAlignment& value)
+    {
+      if (value != m_contentAlignmentX)
+      {
+        m_contentAlignmentX = value;
+        PropertyUpdated(PropertyType::Alignment);
+      }
+    }
+
+
+    void LabelBase::SetContentAlignmentY(const ItemAlignment& value)
+    {
+      if (value != m_contentAlignmentY)
+      {
+        m_contentAlignmentY = value;
+        PropertyUpdated(PropertyType::Alignment);
+      }
+    }
+
+
+    void LabelBase::SetFont(const std::shared_ptr<SpriteFont>& value)
     {
       if (!value)
       {
@@ -73,13 +107,20 @@ namespace Fsl
 
     void LabelBase::SetFontColor(const Color& color)
     {
-      if (color == m_fontColor)
+      if (color != m_fontColor)
       {
-        return;
+        m_fontColor = color;
+        PropertyUpdated(PropertyType::Other);
       }
+    }
 
-      m_fontColor = color;
-      // PropertyUpdated(PropertyType::Other);
+    void LabelBase::SetFontDisabledColor(const Color& color)
+    {
+      if (color != m_fontDisabledColor)
+      {
+        m_fontDisabledColor = color;
+        PropertyUpdated(PropertyType::Other);
+      }
     }
 
 
@@ -88,41 +129,97 @@ namespace Fsl
       BaseWindow::WinDraw(context);
 
       const auto content = DoGetContent();
-      if (content.empty())
+
+      SpriteFont* const pFont = m_font.get();
+      if (content.empty() || pFont == nullptr)
       {
         return;
       }
 
       const auto batch = m_windowContext->Batch2D;
 
-      const auto pFont = m_font.get();
       assert(pFont != nullptr);
-      batch->DrawString(pFont->GetAtlasTexture(), pFont->GetAtlasBitmapFont(), content, context.TargetRect.TopLeft(), m_fontColor);
+
+      auto stringSizePx = pFont->MeasureString(content);
+      auto dstPosPxf = context.TargetRect.TopLeft();
+
+      switch (m_contentAlignmentX)
+      {
+      case ItemAlignment::Center:
+      {
+        auto renderSizePx = RenderSizePx();
+        // We intentionally do the following calc in integers and convert it to a float at the end
+        // NOLINTNEXTLINE(bugprone-integer-division)
+        dstPosPxf.X += float((renderSizePx.Width() - stringSizePx.Width()) / 2);
+        break;
+      }
+      case ItemAlignment::Far:
+      {
+        auto renderSizePx = RenderSizePx();
+        dstPosPxf.X += float(renderSizePx.Width() - stringSizePx.Width());
+        break;
+      }
+      case ItemAlignment::Near:
+      case ItemAlignment::Stretch:
+      default:
+        break;
+      }
+
+      switch (m_contentAlignmentY)
+      {
+      case ItemAlignment::Center:
+      {
+        auto renderSizePx = RenderSizePx();
+        // We intentionally do the following calc in integers and convert it to a float at the end
+        // NOLINTNEXTLINE(bugprone-integer-division)
+        dstPosPxf.Y += float((renderSizePx.Height() - stringSizePx.Height()) / 2);
+        break;
+      }
+      case ItemAlignment::Far:
+      {
+        auto renderSizePx = RenderSizePx();
+        dstPosPxf.Y += float(renderSizePx.Height() - stringSizePx.Height());
+        break;
+      }
+      case ItemAlignment::Near:
+      case ItemAlignment::Stretch:
+      default:
+        break;
+      }
+
+      const auto& color = m_enabled ? m_fontColor : m_fontDisabledColor;
+
+      batch->ChangeTo(static_cast<BlendState>(pFont->GetInfo().MaterialInfo.NativeMaterialFlags));
+      batch->DrawString(*pFont, content, dstPosPxf, color);
     }
 
 
-    Vector2 LabelBase::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D LabelBase::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      return finalSize;
+      return finalSizePx;
     }
 
 
-    Vector2 LabelBase::MeasureOverride(const Vector2& availableSize)
+    PxSize2D LabelBase::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      FSL_PARAM_NOT_USED(availableSize);
+      FSL_PARAM_NOT_USED(availableSizePx);
 
+      const auto* pFont = m_font.get();
+      assert(pFont != nullptr);
       const auto content = DoGetContent();
-      const auto& fontInfo = m_font->GetAtlasBitmapFont();
-      auto measured = fontInfo.MeasureString(content.data(), 0, content.size());
-      return Vector2(measured.X, fontInfo.LineSpacing());
+      const auto& fontInfo = pFont->GetInfo();
+      auto measured = pFont->MeasureString(content);
+      return {measured.Width(), fontInfo.ScaledLineSpacingPx};
     }
 
 
-    Vector2 LabelBase::DoMeasureRenderedString(const std::string& value)
+    PxPoint2 LabelBase::DoMeasureRenderedString(const StringViewLite& value) const
     {
-      const auto& fontInfo = m_font->GetAtlasBitmapFont();
-      auto measured = fontInfo.MeasureString(value.data(), 0, value.size());
-      return Vector2(measured.X, fontInfo.LineSpacing());
+      const auto* pFont = m_font.get();
+      assert(pFont != nullptr);
+      const auto& fontInfo = pFont->GetInfo();
+      auto measured = pFont->MeasureString(value);
+      return {measured.Width(), fontInfo.ScaledLineSpacingPx};
     }
   }
 }

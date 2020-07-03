@@ -54,14 +54,11 @@ namespace Fsl
 
     struct Vertices
     {
-      VkPipelineVertexInputStateCreateInfo InputState;
+      VkPipelineVertexInputStateCreateInfo InputState{};
       std::vector<VkVertexInputBindingDescription> BindingDescriptions;
       std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
 
-      Vertices()
-        : InputState{}
-      {
-      }
+      Vertices() = default;
     };
 
     // Resources for the graphics part of the example
@@ -83,7 +80,7 @@ namespace Fsl
         float DestY;     //    y position of the attractor
         int32_t ParticleCount;
 
-        ComputeUBO(const int32_t particleCount)
+        explicit ComputeUBO(const int32_t particleCount)
           : DeltaT(0)
           , DestX(0)
           , DestY(0)
@@ -104,7 +101,7 @@ namespace Fsl
       RapidVulkan::ComputePipeline Pipeline;                   // Compute pipeline for updating particle positions
       ComputeUBO Ubo;
 
-      Compute(const int32_t particleCount)
+      explicit Compute(const int32_t particleCount)
         : Queue(VK_NULL_HANDLE)
         , DescriptorSet(VK_NULL_HANDLE)
         , Ubo(particleCount)
@@ -137,7 +134,7 @@ namespace Fsl
     RapidVulkan::DescriptorPool m_descriptorPool;
 
   public:
-    ComputeParticles(const DemoAppConfig& config);
+    explicit ComputeParticles(const DemoAppConfig& config);
     ~ComputeParticles() override;
 
   protected:

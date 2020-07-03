@@ -45,7 +45,7 @@ namespace Fsl
       bool m_showWarning;
 
     public:
-      NativeGraphicsServiceFactory(const bool showWarning = true)
+      explicit NativeGraphicsServiceFactory(const bool showWarning = true)
         : ThreadLocalSingletonServiceFactoryBase(std::type_index(typeid(INativeGraphicsService)))
         , m_showWarning(showWarning)
       {

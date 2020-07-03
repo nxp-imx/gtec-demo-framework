@@ -33,6 +33,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslNativeWindow/Platform/PlatformNativeWindow.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 #include <vector>
@@ -57,14 +58,13 @@ namespace Fsl
                               const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams);
     ~PlatformNativeWindowWin32() override;
 
-    bool TryGetDPI(Vector2& rDPI) const override;
-    bool TryGetSize(Point2& rSize) const override;
+
     bool TryCaptureMouse(const bool enableCapture) override;
 
     void OnDPIChanged(const Point2& value);
 
     void OnRawInput(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const LPARAM lParam);
-    void OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const Point2& position);
+    void OnMouseMove(const std::shared_ptr<INativeWindowEventQueue>& eventQueue, const PxPoint2& position);
     void OnWindowCaptureChanged(const HWND newCaptureHwnd);
 
     void SYS_SetMouseCapture(const bool enableCapture);
@@ -72,6 +72,10 @@ namespace Fsl
     void ResolveMouseCapture();
     void ResolveMouseCursorClip();
     void ResolveMouseCursorVisible();
+
+  protected:
+    bool TryGetNativeSize(PxPoint2& rSize) const override;
+    bool TryGetNativeDpi(Vector2& rDPI) const override;
   };
 }    // namespace Fsl
 

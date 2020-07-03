@@ -65,22 +65,27 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <vector>
 #include "Service/VulkanHost/VulkanHostService.hpp"
 // Included last as a workaround
 #include <FslUtil/Vulkan1_0/Debug/BitFlags.hpp>
 
 #if 0
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG(X) FSLLOG3_INFO("VulkanDemoHost: {}", (X))
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG(X) \
   {                  \
   }
 #endif
 
 #if 1
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG_WARNING(X) FSLLOG3_WARNING("VulkanDemoHost: {}", (X))
 #else
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define LOCAL_LOG_WARNING(X) \
   {                          \
   }
@@ -127,7 +132,7 @@ namespace Fsl
     {
       const auto surfaceFormats = PhysicalDeviceKHRUtil::GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface);
       FSLLOG3_INFO("Supported surface formats: {}", surfaceFormats.size());
-      for (auto& entry : surfaceFormats)
+      for (const auto& entry : surfaceFormats)
       {
 #ifdef RAPIDVULKAN_VULKAN_VERSION_MAJOR
         FSLLOG3_INFO("- Format: {} ({}), ColorSpace: {} ({})", entry.format, RapidVulkan::Debug::ToString(entry.format), entry.colorSpace,
@@ -141,7 +146,7 @@ namespace Fsl
 
 
   VulkanDemoHost::VulkanDemoHost(const DemoHostConfig& demoHostConfig)
-    : ADemoHost(demoHostConfig)
+    : ADemoHost(demoHostConfig, false)
     , m_options(demoHostConfig.GetOptions<VulkanDemoHostOptionParser>())
     , m_nativeGraphicsService(demoHostConfig.GetServiceProvider().Get<Vulkan::NativeGraphicsService>())
     , m_windowHostInfoControl(demoHostConfig.GetServiceProvider().Get<IWindowHostInfoControl>())
@@ -175,8 +180,9 @@ namespace Fsl
 
       m_activeApi = hostAppSetup.DemoHostFeatures->front();
 
-      m_nativeWindowSetup.reset(new NativeWindowSetup(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
-                                                      m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel()));
+      m_nativeWindowSetup =
+        std::make_unique<NativeWindowSetup>(demoHostConfig.GetDemoHostAppSetup().AppSetup.ApplicationName, demoHostConfig.GetEventQueue(),
+                                            m_options->GetNativeWindowConfig(), demoHostConfig.GetVerbosityLevel());
 
       Init();
     }
@@ -224,15 +230,10 @@ namespace Fsl
   }
 
 
-  Point2 VulkanDemoHost::GetScreenResolution() const
+  DemoWindowMetrics VulkanDemoHost::GetWindowMetrics() const
   {
-    Point2 size;
-    if (m_window && m_window->TryGetSize(size))
-    {
-      return size;
-    }
-    FSLLOG3_VERBOSE4("Failed to get window size");
-    return Point2(0, 0);
+    auto nativeWindowMetrics = (m_window ? m_window->GetWindowMetrics() : NativeWindowMetrics());
+    return {nativeWindowMetrics.ExtentPx, nativeWindowMetrics.ExactDpi, nativeWindowMetrics.DensityDpi};
   }
 
 
@@ -273,7 +274,7 @@ namespace Fsl
       m_vulkanHostService->SetLaunchOptions(m_options->GetLaunchOptions());
       m_vulkanHostService->SetInstance(m_instance.Get());
       m_vulkanHostService->SetPhysicalDevice(m_physicalDevice);
-      auto surface = m_window->GetVulkanSurface();
+      VkSurfaceKHR surface = m_window->GetVulkanSurface();
       m_vulkanHostService->SetSurfaceKHR(surface);
 
       if (m_options->IsLogSurfaceFormatsEnabled())

@@ -2,19 +2,15 @@
 
 **The recipes are still experimental!**
 
+Since we no longer ship with precompiled versions of third party libraries we depend upon we introduced a new step in the build process that attempts to fetch and build these dependencies automatically on your machine.
 
-Since we no longer ship with precompiled versions of third party libraries we depend upon we introduced a new step in the build
-process that attempts to fetch and build these dependencies automatically on your machine.
-
-The environment variable ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR``` is used to determine which directory is used to build and 
-store these external dependencies. **Beware** that only one SDK installation can use a specific directory. 
-So if you have multiple installations each require its own third party installation directory. 
+The environment variable ```FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR``` is used to determine which directory is used to build and store these external dependencies. **Beware** that only one SDK installation can use a specific directory.
+So if you have multiple installations each require its own third party installation directory.
 This is necessary as multiple concurrent builds into the same directory will produce errors.
 
 To help facilitate package reuse you can utilize the experimental [ReadonlyCache](#ReadonlyCache)
 
-The external dependencies are build on a 'as required' basis meaning that we 'fetch & compile' them the 
-first time you try to build something that depends on them.
+The external dependencies are build on a 'as required' basis meaning that we 'fetch & compile' them the first time you try to build something that depends on them.
 
 ## Common requirements
 
@@ -44,23 +40,29 @@ FslBuildExternal.py -t sdk -v
 The paths below are subject to change.
 
 * All downloads and git clones are done to a cache area where each package must have a unique name. This cache exist at
+
   ```bash
   $(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)/.DownloadCache
   ```
+
 * All pipeline steps are executed under 
+
   ```bash
   $(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)/.Temp/Pipeline/<Platform>/<GeneratorShortName>/<PipelineStep>
   ```
+
 * The final package is installed to 
+
   ```bash
   $(FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR)/<Platform>/<GeneratorShortName>/<ExperimentalRecipeName>
   ```
   
-This setup allows us to 
-- Re-use a package from the download cache for future rebuilding.
-- Delete all pipeline 'steps' in case a error occurs or after the final package has been installed.
-- Support multiple platforms in one directory (if need be)
-- Support multiple generators in on directory, which for example allows packages for Visual Studio 2015 and 2017 to co-exist.
+This setup allows us to
+
+* Re-use a package from the download cache for future rebuilding.
+* Delete all pipeline 'steps' in case a error occurs or after the final package has been installed.
+* Support multiple platforms in one directory (if need be)
+* Support multiple generators in on directory, which for example allows packages for Visual Studio 2015 and 2017 to co-exist.
 
 
 ## Automatic download
@@ -79,15 +81,45 @@ by changing the the value in the root "Project.gen" file from
 ```
 
 # Package build recipe
+
 The recipe system is integrated into the Fsl.gen files used by the FslBuild tools.
 
-A recipe defines a 
+A recipe defines a:
+
 - optional build pipeline.
 - installation section.
 
 The build pipeline is responsible for fetching and building the recipe and 
 the installation section is responsible for defining where headers, libs and DLL's can be located and
 other optional installation validations steps.
+
+ExperimentalRecipe has basic support for CMake find_package as well so we can get a nice error if something is missing.
+
+| Attribute                | Description                                                                                    |
+|--------------------------|------------------------------------------------------------------------------------------------|
+| Name                     | The name of the package                                                                        |
+| Version                  | The package version (optional)                                                                 |
+| Find                     | CMake only: true, false. adds a find_package statement for the given recipe version (optional) |
+| FindVersion              | CMake only: the minimum find version. It  must be <= Version. (optional)                       |
+| FindTargetName           | CMake only: A optional target name, if not specified we use "Name::Name". (optional)           |
+| ExternalInstallDirectory | A environment variable the specifies the external location of the library (optional)           |
+
+```xml
+      <ExperimentalRecipe Name="zlib" Version="1.2.11" FindVersion="1.2">
+        <Pipeline>
+          <Download URL="https://zlib.net/zlib-1.2.11.tar.gz"/>
+          <Unpack File="zlib-1.2.11.tar.gz" OutputPath="zlib-1.2.11"/>
+          <CMakeBuild Project="" Target="install" Configuration="debug;release" OutputPath="_Install"/>
+        </Pipeline>
+        <Installation>
+          <AddHeaders Name="include"/>
+          <AddLib Name="lib/zlib.lib" DebugName="lib/zlibd.lib"/>
+          <AddDLL Name="bin/zlib.dll" DebugName="bin/zlibd.dll"/>
+          <Path Name="include/zconf.h" Method="IsFile"/>
+          <Path Name="include/zlib.h" Method="IsFile"/>
+        </Installation>
+      </ExperimentalRecipe>
+```
 
 ## The build pipeline
 
@@ -99,9 +131,9 @@ So if you have step StepA, StepB and StepC like this
 StepA->StepB->StepC
 ```
 
-- The output from StepA is used as input to StepB 
-- The output from StepB is used as input to StepC 
-- The output from StepC is installed into the 'installation' area
+* The output from StepA is used as input to StepB
+* The output from StepB is used as input to StepC
+* The output from StepC is installed into the 'installation' area
 
 A build recipe consists of a optional Pipeline and a mandatory ValidationInstallation step.
 
@@ -188,7 +220,7 @@ then adds the necessary headers, static libs and DLL's.
 The recipe below, downloads the zlib source, unpacks it and the builds it using cmake. It then finally adds its headers, static libs and dll's.
 
 ```xml
-      <ExperimentalRecipe Name="zlib-1.2.11">
+      <ExperimentalRecipe Name="zlib" Version="1.2.11">
         <Pipeline>
           <Download URL="https://zlib.net/zlib-1.2.11.tar.gz"/>
           <Unpack File="zlib-1.2.11.tar.gz" OutputPath="zlib-1.2.11"/>
@@ -423,10 +455,10 @@ All paths that defaults to use the output path, can use these:
 
 # Manual download/compile of external package
 
-1. Look in the recipe for the package and look at the name of the ExperimentalRecipe. In the example below its 'zlib-1.2.11'. 
+1. Look in the recipe for the package and look at the name and version of the ExperimentalRecipe. In the example below its 'zlib' and '1.2.11' which gets resolved to 'zlib-1.2.11'. 
 
   ```xml
-      <ExperimentalRecipe Name="zlib-1.2.11">
+      <ExperimentalRecipe Name="zlib" Version="1.2.11">
   ```
 2. Build the library with the required toolchain.
 3. Put the final files into the 'named' directory, for zlib it was 'zlib-1.2.11'

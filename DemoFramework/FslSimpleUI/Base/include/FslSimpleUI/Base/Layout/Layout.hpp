@@ -40,7 +40,7 @@ namespace Fsl
     class Layout : public BaseWindow
     {
     public:
-      Layout(const std::shared_ptr<BaseWindowContext>& context);
+      explicit Layout(const std::shared_ptr<BaseWindowContext>& context);
 
       virtual void ClearChildren() = 0;
       virtual void AddChild(const std::shared_ptr<BaseWindow>& window) = 0;

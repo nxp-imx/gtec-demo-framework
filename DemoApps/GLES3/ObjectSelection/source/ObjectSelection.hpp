@@ -173,7 +173,7 @@ namespace Fsl
     LightUBOData m_lightFragUboData;
 
   public:
-    ObjectSelection(const DemoAppConfig& config);
+    explicit ObjectSelection(const DemoAppConfig& config);
     ~ObjectSelection() override;
 
   protected:
@@ -186,7 +186,7 @@ namespace Fsl
   private:
     void UpdateCameraControlInput(const DemoTime& demoTime, const KeyboardState& keyboardState);
 
-    bool CheckCollision(const Point2& screenSpacePosition);
+    bool CheckCollision(const PxPoint2& screenSpacePosition);
 
     void DrawMeshes();
     void DrawPlaneMesh();

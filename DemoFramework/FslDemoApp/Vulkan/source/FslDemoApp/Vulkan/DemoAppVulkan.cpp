@@ -96,7 +96,6 @@ namespace Fsl
     }
   }
 
-
   DemoAppVulkan::~DemoAppVulkan()
   {
     SafeShutdown();

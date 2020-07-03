@@ -74,7 +74,7 @@ namespace Fsl
     Vector2 m_rotationSpeed;
 
   public:
-    Skybox(const DemoAppConfig& config);
+    explicit Skybox(const DemoAppConfig& config);
     ~Skybox() override;
 
   protected:

@@ -37,7 +37,8 @@
  * Which was based on Bretton Wade's, which is based on Ken Shoemake's from Graphic Gems IV p.175
  */
 
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Quaternion.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector2.hpp>
@@ -58,10 +59,12 @@ namespace Fsl
       Quaternion m_dragRotation;
 
     public:
-      ArcballCamera(const Point2& screenResolution);
-      ~ArcballCamera();
+      explicit ArcballCamera(const PxPoint2& screenResolution);
+      explicit ArcballCamera(const PxSize2D& screenResolution);
+      ~ArcballCamera() = default;
 
-      void SetScreenResolution(const Point2& screenResolution);
+      void SetScreenResolution(const PxPoint2& screenResolution);
+      void SetScreenResolution(const PxSize2D& screenResolution);
 
       float GetMinZoom() const;
       float GetMaxZoom() const;
@@ -77,13 +80,13 @@ namespace Fsl
       }
 
       //! @brief Start a camera drag operation
-      void BeginDrag(const Point2& position);
+      void BeginDrag(const PxPoint2& position);
 
       //! @brief Drag the camera around the object
-      void Drag(const Point2& position);
+      void Drag(const PxPoint2& position);
 
       //! @brief End the drag operation
-      void EndDrag(const Point2& position);
+      void EndDrag(const PxPoint2& position);
 
       //! @brief If a drag is active this will cancel it. If not active this does nothing.
       void CancelDrag();

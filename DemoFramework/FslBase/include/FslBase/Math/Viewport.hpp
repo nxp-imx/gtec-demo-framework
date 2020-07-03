@@ -71,7 +71,7 @@ namespace Fsl
 
     Rectangle GetBounds() const
     {
-      return Rectangle(X, Y, Width, Height);
+      return {X, Y, Width, Height};
     }
 
     void SetBounds(const Rectangle& value)
@@ -93,7 +93,7 @@ namespace Fsl
     {
     }
 
-    constexpr Viewport(const Rectangle& bounds)
+    constexpr explicit Viewport(const Rectangle& bounds)
       : Viewport(bounds.X(), bounds.Y(), bounds.Width(), bounds.Height())
     {
     }

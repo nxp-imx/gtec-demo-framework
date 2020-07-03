@@ -67,7 +67,7 @@ namespace Fsl
     glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(m_vertices.size()));
   }
 
-  void MeshRenderNormals::DrawInstanced(const int layerCount)
+  void MeshRenderNormals::DrawInstanced(const int /*layerCount*/)
   {
     FSLLOG3_DEBUG_WARNING("MeshRenderNormals::DrawInstanced Ignoring layerCount");
 

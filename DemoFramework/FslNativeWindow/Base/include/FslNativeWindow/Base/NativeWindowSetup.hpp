@@ -47,7 +47,7 @@ namespace Fsl
     uint32_t m_verbosityLevel;
 
   public:
-    NativeWindowSetup(const std::string& applicationName, const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const NativeWindowConfig& config,
+    NativeWindowSetup(std::string applicationName, std::weak_ptr<INativeWindowEventQueue> eventQueue, const NativeWindowConfig& config,
                       const uint32_t verbosityLevel);
     ~NativeWindowSetup();
 

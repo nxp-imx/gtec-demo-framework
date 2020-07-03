@@ -36,7 +36,7 @@
 
 namespace Fsl
 {
-  struct Vector2;
+  struct PxPoint2;
 
   namespace UI
   {
@@ -52,6 +52,11 @@ namespace Fsl
       //! @brief Get the associated event pool
       virtual const std::shared_ptr<WindowEventPool>& GetEventPool() const = 0;
 
+      //! @brief Check if there is a active event in the event sender
+      virtual bool HasActiveEvent() const = 0;
+      //! @brief Check if there is a active event in the event sender (that is not the given target)
+      virtual bool HasActiveClickEventThatIsNot(const std::shared_ptr<TreeNode>& target) const = 0;
+
       //! @brief check if there is a history associated with this event.
       virtual bool HasHistory() const = 0;
 
@@ -61,7 +66,7 @@ namespace Fsl
       /// <summary>
       /// Send a event to a window according to the rules
       /// </summary>
-      virtual SendResult Send(const StateEvent& theEvent, const Vector2& hitPosition) = 0;
+      virtual SendResult Send(const StateEvent& theEvent, const PxPoint2& hitPositionPx) = 0;
     };
   }
 }

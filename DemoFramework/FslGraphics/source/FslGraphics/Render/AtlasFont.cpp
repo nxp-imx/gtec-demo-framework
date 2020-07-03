@@ -35,7 +35,7 @@
 
 namespace Fsl
 {
-  AtlasFont::AtlasFont(const Texture2D& atlasTexture, TextureAtlasBitmapFont textureAtlasBitmapFont)
+  AtlasFont::AtlasFont(const BaseTexture2D& atlasTexture, TextureAtlasBitmapFont textureAtlasBitmapFont)
     : m_atlasTexture(atlasTexture)
     , m_textureAtlasBitmapFont(std::move(textureAtlasBitmapFont))
   {

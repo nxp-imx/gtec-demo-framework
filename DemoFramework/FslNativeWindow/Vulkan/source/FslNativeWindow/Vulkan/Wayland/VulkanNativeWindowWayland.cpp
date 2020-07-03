@@ -47,15 +47,6 @@ namespace Fsl
     {
       return std::make_shared<VulkanNativeWindowWayland>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams);
     }
-
-
-    NativeVulkanSetup ToNativeVulkanSetup(const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    {
-      const auto pNativeSetup = dynamic_cast<const NativeVulkanSetup*>(pPlatformCustomWindowAllocationParams);
-      if (!pNativeSetup)
-        throw NotSupportedException("NativeVulkanSetup pointer expected");
-      return *pNativeSetup;
-    }
   }    // namespace
 
 
@@ -67,8 +58,7 @@ namespace Fsl
 
   VulkanNativeWindowWayland::VulkanNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& windowParams,
                                                        const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : AVulkanNativeWindow(ToNativeVulkanSetup(pPlatformCustomWindowAllocationParams))
-    , PlatformNativeWindowWayland(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
+    : VulkanNativeWindow<PlatformNativeWindowWayland>(nativeWindowSetup, windowParams, pPlatformCustomWindowAllocationParams)
   {
     VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo{};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
@@ -76,13 +66,11 @@ namespace Fsl
     surfaceCreateInfo.display = GetPlatformDisplay();
     surfaceCreateInfo.surface = GetWaylandSurface();
 
-    RAPIDVULKAN_CHECK(vkCreateWaylandSurfaceKHR(m_instance, &surfaceCreateInfo, nullptr, &m_surface));
+    RAPIDVULKAN_CHECK(vkCreateWaylandSurfaceKHR(m_setup.Instance, &surfaceCreateInfo, nullptr, &m_surface));
   }
 
 
-  VulkanNativeWindowWayland::~VulkanNativeWindowWayland()
-  {
-  }
+  VulkanNativeWindowWayland::~VulkanNativeWindowWayland() = default;
 
 
   PlatformNativeWindowType VulkanNativeWindowWayland::GetWindowType() const

@@ -9,6 +9,7 @@
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define NUM_INSTANCES 100
 
 namespace Fsl
@@ -26,7 +27,8 @@ namespace Fsl
       int numIndices{0};
 
       // Rotation angle
-      GLfloat angle[NUM_INSTANCES]{};
+      GLfloat angle[NUM_INSTANCES]{};    // NOLINT(modernize-avoid-c-arrays)
+
       UserData()
         : positionVBO(GLES3::GLValues::INVALID_HANDLE)
         , colorVBO(GLES3::GLValues::INVALID_HANDLE)
@@ -44,7 +46,7 @@ namespace Fsl
     UserData m_userData;
 
   public:
-    E3_0_InstancingSimple(const DemoAppConfig& config);
+    explicit E3_0_InstancingSimple(const DemoAppConfig& config);
     ~E3_0_InstancingSimple() override;
 
   protected:

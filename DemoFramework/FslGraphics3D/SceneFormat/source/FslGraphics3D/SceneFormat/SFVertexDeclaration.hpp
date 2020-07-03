@@ -47,7 +47,7 @@ namespace Fsl
         = default;
 
 
-      SFVertexDeclaration(const std::size_t capacity)
+      explicit SFVertexDeclaration(const std::size_t capacity)
         : Elements(capacity)
       {
       }

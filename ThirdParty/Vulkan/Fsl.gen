@@ -7,7 +7,7 @@
       <Variant Name="WindowSystem" Extend="true">
         <Option Name="FB" />
         <Option Name="Wayland" >
-           <Define Name="VK_USE_PLATFORM_WAYLAND_KHR" Access="Public"/>
+          <Define Name="VK_USE_PLATFORM_WAYLAND_KHR" Access="Public"/>
         </Option>
         <Option Name="Wayland_IVI" >
            <Define Name="VK_USE_PLATFORM_WAYLAND_KHR" Access="Public"/>

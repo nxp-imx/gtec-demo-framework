@@ -41,7 +41,7 @@ namespace Fsl
   {
     RapidVulkan::Buffer Buffer;
     RapidVulkan::Memory Memory;
-    VkDescriptorBufferInfo Descriptor;
+    VkDescriptorBufferInfo Descriptor{};
     VkDeviceSize Size{0};
     VkDeviceSize Alignment{0};
     void* pMapped{nullptr};
@@ -51,10 +51,7 @@ namespace Fsl
     //! @brief Memory properties flags to be filled by external source at buffer creation (to query at some later point)
     VkMemoryPropertyFlags memoryPropertyFlags{0};
 
-    BufferData()
-      : Descriptor{}
-    {
-    }
+    BufferData() = default;
   };
 
 
@@ -62,14 +59,11 @@ namespace Fsl
   {
     struct Vertices
     {
-      VkPipelineVertexInputStateCreateInfo InputState;
+      VkPipelineVertexInputStateCreateInfo InputState{};
       std::vector<VkVertexInputBindingDescription> BindingDescriptions;
       std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
 
-      Vertices()
-        : InputState{}
-      {
-      }
+      Vertices() = default;
     };
 
     struct UboVS
@@ -91,15 +85,14 @@ namespace Fsl
       VkImageLayout ImageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
       RapidVulkan::Memory DeviceMemory;
       RapidVulkan::ImageView View;
-      VkDescriptorImageInfo Descriptor;
+      VkDescriptorImageInfo Descriptor{};
       uint32_t Width{0};
       uint32_t Height{0};
       uint32_t MipLevels{0};
 
       TextureData()
-        : Descriptor{}
-      {
-      }
+
+        = default;
     };
 
     // Generate quad
@@ -122,7 +115,7 @@ namespace Fsl
     VkDescriptorSet m_descriptorSet;
 
   public:
-    Texturing(const DemoAppConfig& config);
+    explicit Texturing(const DemoAppConfig& config);
     ~Texturing() override;
 
   protected:
@@ -139,7 +132,7 @@ namespace Fsl
     void SetupVertexDescriptions();
     void PrepareUniformBuffers();
     void UpdateUniformBuffers();
-    void LoadTexture(const std::string& fileName, const bool forceLinearTiling);
+    void LoadTexture(const IO::Path& fileName, const bool forceLinearTiling);
     void SetupDescriptorSetLayout();
     void PreparePipelines();
     void SetupDescriptorPool();

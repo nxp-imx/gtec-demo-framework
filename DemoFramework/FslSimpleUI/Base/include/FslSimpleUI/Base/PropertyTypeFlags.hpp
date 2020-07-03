@@ -51,7 +51,7 @@ namespace Fsl
       PropertyTypeFlags() = default;
 
 
-      PropertyTypeFlags(PropertyType type)
+      PropertyTypeFlags(PropertyType type)    // NOLINT(google-explicit-constructor)
         : Value(static_cast<uint16_t>(type))
       {
       }

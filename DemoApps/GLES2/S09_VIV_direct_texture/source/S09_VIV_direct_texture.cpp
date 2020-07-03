@@ -28,12 +28,15 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************************************************************************************/
+
+#include "S09_VIV_direct_texture.hpp"
+#include <FslBase/NumericCast.hpp>
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslUtil/OpenGLES2/GLCheck.hpp>
-#include "S09_VIV_direct_texture.hpp"
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <array>
 #include <cmath>
 #include <string.h>
 #include <vector>
@@ -57,46 +60,46 @@ namespace Fsl
     // Triangle Vertex positions.
     const GLfloat g_vertices[][2] = {{-0.5f, -0.5f}, {0.5f, -0.5f}, {-0.5f, 0.5f}, {0.5f, 0.5f}};
     const GLfloat g_texcoords[][2] = {{0.0f, 1.0f}, {1.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 0.0f}};
+
+    // Start with an identity matrix.
+    std::array<GLfloat, 16> g_transformMatrix = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+
+    const char* g_pszVertexShader =
+      "attribute vec4 my_Vertex;\n"
+      "uniform   mat4 my_TransformMatrix;\n"
+      "attribute vec2 my_Texcoor;\n"
+      "varying vec2 vTexcoor;\n"
+      "void main()\n"
+      "{\n"
+      "vTexcoor = my_Texcoor;\n"
+      "gl_Position = my_TransformMatrix * my_Vertex;\n"
+      "}\n";
+
+
+    const char* g_pszFragmentShader =
+      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+      "  precision highp float;\n"
+      "#else\n"
+      "  precision mediump float;\n"
+      "#endif\n"
+      "uniform sampler2D my_Sampler;\n"
+      "varying vec2 vTexcoor; \n"
+
+      "void main (void)\n"
+      "{\n"
+      "vec4 tex = texture2D(my_Sampler, vTexcoor);\n"
+      "gl_FragColor = tex;\n"
+      "}\n";
+
+
+    const std::array<const char*, 3> g_shaderAttributeArray = {"my_Vertex", "my_Texcoor", nullptr};
+
   }
-
-  // Start with an identity matrix.
-  GLfloat g_transformMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-
-
-  const char* g_pszVertexShader =
-    "attribute vec4 my_Vertex;\n"
-    "uniform   mat4 my_TransformMatrix;\n"
-    "attribute vec2 my_Texcoor;\n"
-    "varying vec2 vTexcoor;\n"
-    "void main()\n"
-    "{\n"
-    "vTexcoor = my_Texcoor;\n"
-    "gl_Position = my_TransformMatrix * my_Vertex;\n"
-    "}\n";
-
-
-  const char* g_pszFragmentShader =
-    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-    "  precision highp float;\n"
-    "#else\n"
-    "  precision mediump float;\n"
-    "#endif\n"
-    "uniform sampler2D my_Sampler;\n"
-    "varying vec2 vTexcoor; \n"
-
-    "void main (void)\n"
-    "{\n"
-    "vec4 tex = texture2D(my_Sampler, vTexcoor);\n"
-    "gl_FragColor = tex;\n"
-    "}\n";
-
-
-  const char* const g_pszShaderAttributeArray[] = {"my_Vertex", "my_Texcoor", nullptr};
-
 
   S09_VIV_direct_texture::S09_VIV_direct_texture(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_program(g_pszVertexShader, g_pszFragmentShader, g_pszShaderAttributeArray)
+    , m_program(g_pszVertexShader, g_pszFragmentShader, g_shaderAttributeArray.data())
     , m_matTransform()
     , m_angle(0.0)
     , m_raw_video()
@@ -117,7 +120,7 @@ namespace Fsl
 
     if (pFNglTexDirectVIV == nullptr)
     {
-      /* Get the pointer to the glTexDirectVIV function. */
+      // Get the pointer to the glTexDirectVIV function.
       pFNglTexDirectVIV = (PFNGLTEXDIRECTVIV)eglGetProcAddress("glTexDirectVIV");
 
       if (pFNglTexDirectVIV == nullptr)
@@ -128,7 +131,7 @@ namespace Fsl
 
     if (pFNglTexDirectInvalidateVIV == nullptr)
     {
-      /* Get the pointer to the glTexDirectInvalidate function. */
+      // Get the pointer to the glTexDirectInvalidate function.
       pFNglTexDirectInvalidateVIV = (PFNGLTEXDIRECTINVALIDATEVIV)eglGetProcAddress("glTexDirectInvalidateVIV");
 
       if (pFNglTexDirectInvalidateVIV == nullptr)
@@ -145,7 +148,7 @@ namespace Fsl
     GL_CHECK(locSampler = glGetUniformLocation(programHandle, "my_Sampler"));
 
     GetContentManager()->ReadAllBytes(m_raw_video, "f430_160x120xNV21.yuv");
-    m_fileSize = m_raw_video.size();
+    m_fileSize = NumericCast<int>(m_raw_video.size());
     gTexObj = Load420Texture(160, 120, GL_VIV_NV21);
 
 
@@ -159,26 +162,21 @@ namespace Fsl
     // set data in the arrays.
     GL_CHECK(glVertexAttribPointer(locVertices, 2, GL_FLOAT, GL_FALSE, 0, &g_vertices[0][0]));
     GL_CHECK(glVertexAttribPointer(locTexcoord, 2, GL_FLOAT, GL_FALSE, 0, &g_texcoords[0][0]));
-    GL_CHECK(glUniformMatrix4fv(m_locTransformMat, 1, GL_FALSE, g_transformMatrix));
+    GL_CHECK(glUniformMatrix4fv(m_locTransformMat, 1, GL_FALSE, g_transformMatrix.data()));
     GL_CHECK(glUniform1i(locSampler, 0));
-
-    return;
   }
 
 
   S09_VIV_direct_texture::~S09_VIV_direct_texture()
   {
     GLint locVertices = 0;
-
     GLint locTexcoord = 0;
     const GLuint programHandle = m_program.Get();
     // Grab location of shader attributes.
     locVertices = glGetAttribLocation(programHandle, "my_Vertex");
-
     locTexcoord = glGetAttribLocation(programHandle, "my_Texcoor");
     // cleanup
     glDisableVertexAttribArray(locVertices);
-
     glDisableVertexAttribArray(locTexcoord);
   }
 
@@ -192,8 +190,8 @@ namespace Fsl
 
   void S09_VIV_direct_texture::Draw(const DemoTime& demoTime)
   {
-    const Point2 currentSize = GetScreenResolution();
-    glViewport(0, 0, currentSize.X, currentSize.Y);
+    const PxSize2D currentSizePx = GetWindowSizePx();
+    glViewport(0, 0, currentSizePx.Width(), currentSizePx.Height());
 
     // Clear background.
     glClearColor(0.0f, 0.5f, 0.5f, 1.0f);
@@ -230,7 +228,7 @@ namespace Fsl
     m_data_index += m_frameSize;
     if ((m_fileSize - m_data_index) < m_frameSize)
       m_data_index = 0;
-    /* Mark as dirty. */
+    // Mark as dirty.
     (*pFNglTexDirectInvalidateVIV)(GL_TEXTURE_2D);
     if (GL_NO_ERROR != glGetError())
     {
@@ -273,13 +271,13 @@ namespace Fsl
       m_frameSize = m_ySize + m_uSize + m_vSize;
       m_vFrames = m_fileSize / m_frameSize;
 
-      /* Determine the number of frames in the file. */
+      // Determine the number of frames in the file.
       if ((m_fileSize <= 0) || (m_frameSize <= 0))
       {
         break;
       }
       m_data_index = 0;
-      /* Create the texture. */
+      // Create the texture.
       GL_CHECK(glGenTextures(1, &name));
       GL_CHECK(glBindTexture(GL_TEXTURE_2D, name));
 
@@ -311,17 +309,17 @@ namespace Fsl
       if ((m_fileSize - m_data_index) < m_frameSize)
         m_data_index = 0;
 
-      /* Mark as dirty. */
+      // Mark as dirty.
       (*pFNglTexDirectInvalidateVIV)(GL_TEXTURE_2D);
 
       if (GL_NO_ERROR != glGetError())
       {
         throw GraphicsException("Error while load texture");
       }
-      /* Success. */
+      // Success.
       result = name;
     } while (0);
-    /* Return result. */
+    // Return result
     return result;
   }
 }

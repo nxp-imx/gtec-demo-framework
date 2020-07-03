@@ -36,7 +36,6 @@
 #include <FslDemoApp/Base/DemoAppFirewall.hpp>
 #include <FslDemoApp/Base/Service/Events/IEventService.hpp>
 #include <FslDemoApp/Base/Service/ContentMonitor/IContentMonitor.hpp>
-#include <FslDemoApp/Base/Service/Profiler/IProfilerService.hpp>
 #include <FslDemoApp/Base/Overlay/DemoAppProfilerOverlay.hpp>
 #include <FslDemoHost/Base/Service/DemoAppControl/IDemoAppControlEx.hpp>
 #include <FslDemoHost/Base/Service/Profiler/IProfilerServiceControl.hpp>
@@ -44,17 +43,32 @@
 #include <FslDemoHost/Base/DemoAppManagerEventListener.hpp>
 #include <FslDemoService/CpuStats/ICpuStatsService.hpp>
 #include <FslDemoService/Graphics/Control/IGraphicsServiceControl.hpp>
+#include <FslDemoService/Profiler/IProfilerService.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 #include <cassert>
+#include <utility>
+#include <memory>
 
 namespace Fsl
 {
-  DemoAppManager::DemoAppManager(const DemoAppSetup& demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats,
+  namespace
+  {
+    constexpr inline bool CheckRestartFlags(const CustomDemoAppConfigRestartFlags restartFlags, const DemoWindowMetrics& newWindowMetrics,
+                                            const DemoWindowMetrics& oldWindowMetrics)
+    {
+      return (CustomDemoAppConfigRestartFlagsUtil::IsFlagged(restartFlags, CustomDemoAppConfigRestartFlags::Resize) &&
+              newWindowMetrics.ExtentPx != oldWindowMetrics.ExtentPx) ||
+             (CustomDemoAppConfigRestartFlagsUtil::IsFlagged(restartFlags, CustomDemoAppConfigRestartFlags::DpiChange) &&
+              !newWindowMetrics.IsEqualDpi(oldWindowMetrics));
+    }
+  }
+
+  DemoAppManager::DemoAppManager(DemoAppSetup demoAppSetup, const DemoAppConfig& demoAppConfig, const bool enableStats,
                                  const LogStatsMode logStatsMode, const DemoAppStatsFlags& logStatsFlags, const bool enableFirewall,
                                  const bool enableContentMonitor, const bool preallocateBasic2D, const uint32_t forcedUpdateTime,
                                  const bool renderSystemOverlay)
     : m_eventListener(std::make_shared<DemoAppManagerEventListener>())
-    , m_demoAppSetup(demoAppSetup)
+    , m_demoAppSetup(std::move(demoAppSetup))
     , m_demoAppConfig(demoAppConfig)
     , m_state(DemoState::Running)
     , m_forcedUpdateTime(forcedUpdateTime)
@@ -68,7 +82,7 @@ namespace Fsl
   {
     if (renderSystemOverlay)
     {
-      m_demoAppProfilerOverlay.reset(new DemoAppProfilerOverlay(demoAppConfig.DemoServiceProvider, logStatsFlags));
+      m_demoAppProfilerOverlay = std::make_unique<DemoAppProfilerOverlay>(demoAppConfig.DemoServiceProvider, logStatsFlags);
     }
 
     m_expectedFrameTime = m_frameTimeConfig;
@@ -129,7 +143,7 @@ namespace Fsl
   }
 
 
-  bool DemoAppManager::Process(const Point2& screenResolution, const bool isConsoleBasedApp)
+  bool DemoAppManager::Process(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp)
   {
     if (ManageExitRequests(true))
     {
@@ -141,22 +155,23 @@ namespace Fsl
       return true;
     }
 
-    ManageAppState(screenResolution, isConsoleBasedApp);
+    ManageAppState(windowMetrics, isConsoleBasedApp);
 
     if (ManageExitRequests(false))
     {
       return false;
     }
 
-    // Detect resolution changes
-    if (screenResolution != m_demoAppConfig.ScreenResolution)
+    // Detect metrics changes
+    if (windowMetrics != m_demoAppConfig.WindowMetrics)
     {
-      m_demoAppConfig.ScreenResolution = screenResolution;
+      m_demoAppConfig.UpdateWindowMetrics(windowMetrics);
+
       if (m_graphicsService)
       {
-        m_graphicsService->SetScreenResolution(screenResolution, true);
+        m_graphicsService->SetWindowMetrics(m_demoAppConfig.WindowMetrics, true);
       }
-      m_demoApp->_Resized(m_demoAppConfig.ScreenResolution);
+      m_demoApp->_ConfigurationChanged(windowMetrics);
     }
 
     // Check if the update timer should be reset or not
@@ -273,7 +288,7 @@ namespace Fsl
 
     if (m_enableStats && m_state == DemoState::Running && m_demoAppProfilerOverlay)
     {
-      m_demoAppProfilerOverlay->Draw(m_demoAppConfig.ScreenResolution);
+      m_demoAppProfilerOverlay->Draw(m_demoAppConfig.WindowMetrics);
     }
 
     ManageExitRequests(false);
@@ -398,7 +413,7 @@ namespace Fsl
   }
 
 
-  void DemoAppManager::ManageAppState(const Point2& screenResolution, const bool isConsoleBasedApp)
+  void DemoAppManager::ManageAppState(const DemoWindowMetrics& windowMetrics, const bool isConsoleBasedApp)
   {
     assert(m_demoAppControl);
 
@@ -411,7 +426,7 @@ namespace Fsl
       applyFirewall = true;
     }
 
-    if (m_demoApp && (restartRequest || (m_demoAppSetup.CustomAppConfig.RestartOnResize && screenResolution != m_demoAppConfig.ScreenResolution)))
+    if (m_demoApp && (restartRequest || CheckRestartFlags(m_demoAppSetup.CustomAppConfig.RestartFlags, windowMetrics, m_demoAppConfig.WindowMetrics)))
     {
       // Release the app
       DoShutdownAppNow();
@@ -427,12 +442,12 @@ namespace Fsl
     // Handle delayed app initialization
     if (!m_demoApp)
     {
+      m_demoAppConfig.UpdateWindowMetrics(windowMetrics);
       if (m_graphicsService)
       {
-        m_graphicsService->SetScreenResolution(screenResolution, m_preallocateBasic2D);
+        m_graphicsService->SetWindowMetrics(windowMetrics, m_preallocateBasic2D);
       }
-      m_demoAppConfig.ScreenResolution = screenResolution;
-      if (!applyFirewall && ((m_demoAppConfig.ScreenResolution.X > 0 && m_demoAppConfig.ScreenResolution.Y > 0) || isConsoleBasedApp))
+      if (!applyFirewall && ((windowMetrics.ExtentPx != PxExtent2D(0, 0)) || isConsoleBasedApp))
       {
         m_demoApp = m_demoAppSetup.Factory->Allocate(m_demoAppConfig);
       }

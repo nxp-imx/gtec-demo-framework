@@ -31,9 +31,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Rectangle2D.hpp>
 #include <FslBase/Log/Math/FmtExtent2D.hpp>
 #include <FslBase/Log/Math/FmtOffset2D.hpp>
+#include <FslBase/Math/Rectangle2D.hpp>
 #include <fmt/format.h>
 
 namespace fmt

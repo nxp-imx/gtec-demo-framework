@@ -164,16 +164,16 @@ namespace Fsl
       //! @brief Enable all attrib arrays binding them in order to the supplied index list.
       //         If count < m_vertexElements.size() only the attributes with supplied indices will be bound.
       //         If count >= m_vertexElements.size() only m_vertexElements.size attributes will be bound (the rest is ignored).
-      void EnableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
-      {
-        m_vertexElements.EnableAttribArrays(pAttributeIndices, count);
-      }
+      // void EnableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
+      //{
+      //  m_vertexElements.EnableAttribArrays(pAttributeIndices, count);
+      //}
 
       //! @brief Disable all attrib arrays in the supplied index list.
-      void DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
-      {
-        m_vertexElements.DisableAttribArrays(pAttributeIndices, count);
-      }
+      // void DisableAttribArrays(const GLuint* const pAttributeIndices, const std::size_t count) const
+      //{
+      //  m_vertexElements.DisableAttribArrays(pAttributeIndices, count);
+      //}
 
       //! @brief Enable all vertex elements listed in the supplied link list binding the to the requested index
       void EnableAttribArrays(const GLVertexAttribLink* const pLinks, const std::size_t count) const
@@ -221,10 +221,10 @@ namespace Fsl
       //! @brief Configure all attrib arrays binding them in order to the supplied index list.
       //         If count < m_vertexElements.size() only the attributes with supplied indices will be bound.
       //         If count >= m_vertexElements.size() only m_vertexElements.size attributes will be bound (the rest is ignored).
-      void SetVertexAttribPointers(const GLuint* const pAttributeIndices, const std::size_t count) const
-      {
-        m_vertexElements.SetVertexAttribPointers(pAttributeIndices, count);
-      }
+      // void SetVertexAttribPointers(const GLuint* const pAttributeIndices, const std::size_t count) const
+      //{
+      //  m_vertexElements.SetVertexAttribPointers(pAttributeIndices, count);
+      //}
 
       //! @brief Configure all vertex elements listed in the supplied link list binding the to the requested index
       void SetVertexAttribPointers(const GLVertexAttribLink* const pLinks, const std::size_t count) const

@@ -31,7 +31,7 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
-#include <FslUtil/OpenCL1_1/OpenCLHelper.hpp>
+#include <FslUtil/OpenCL1_2/OpenCLHelper.hpp>
 #include <RapidOpenCL1/Check.hpp>
 #include <RapidOpenCL1/Context.hpp>
 #include <RapidOpenCL1/DebugStrings.hpp>
@@ -191,6 +191,7 @@ namespace Fsl
       rLog.Print("Dumping detailed device info for {} platforms.", platformIds.size());
       rLog.PushIndent();
 
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       cl_device_type deviceTypes[] = {CL_DEVICE_TYPE_CPU, CL_DEVICE_TYPE_GPU, CL_DEVICE_TYPE_ACCELERATOR,
 #ifdef CL_DEVICE_TYPE_CUSTOM
                                       CL_DEVICE_TYPE_CUSTOM,

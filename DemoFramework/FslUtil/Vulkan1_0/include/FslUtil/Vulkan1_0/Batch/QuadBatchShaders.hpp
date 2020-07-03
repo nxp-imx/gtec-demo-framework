@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/ReadOnlySpan.hpp>
 
 namespace Fsl
 {
@@ -40,22 +41,9 @@ namespace Fsl
     class QuadBatchShaders
     {
     public:
-      struct Content
-      {
-        const uint8_t* Data{nullptr};
-        uint32_t Length{0};
-
-        Content() = default;
-
-        Content(const uint8_t* pData, const uint32_t length)
-          : Data(pData)
-          , Length(length)
-        {
-        }
-      };
-
-      static Content GetVertexShader();
-      static Content GetFragmentShader();
+      static ReadOnlySpan<uint8_t> GetVertexShader();
+      static ReadOnlySpan<uint8_t> GetFragmentShader();
+      static ReadOnlySpan<uint8_t> GetSdfFragmentShader();
     };
   }
 }

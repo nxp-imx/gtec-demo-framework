@@ -34,14 +34,14 @@
 
 namespace Fsl
 {
-  MouseMoveEvent::MouseMoveEvent(const Point2& position, const VirtualMouseButtonFlags& mouseButtonFlags)
+  MouseMoveEvent::MouseMoveEvent(const PxPoint2& position, const VirtualMouseButtonFlags& mouseButtonFlags)
     : BasicEvent(EventType::MouseMove, NativeWindowEventHelper::EncodePosition(position),
                  NativeWindowEventHelper::EncodeVirtualMouseButtonFlags(mouseButtonFlags))
   {
   }
 
 
-  const Point2 MouseMoveEvent::GetPosition() const
+  PxPoint2 MouseMoveEvent::GetPosition() const
   {
     return NativeWindowEventHelper::DecodePosition(m_arg1);
   }

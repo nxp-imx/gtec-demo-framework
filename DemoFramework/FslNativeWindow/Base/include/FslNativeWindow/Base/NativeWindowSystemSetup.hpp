@@ -47,8 +47,8 @@ namespace Fsl
     std::shared_ptr<ITag> m_tag;
 
   public:
-    NativeWindowSystemSetup(const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const uint32_t verbosityLevel, const NativeWindowConfig& config,
-                            const std::shared_ptr<ITag>& tag);
+    NativeWindowSystemSetup(std::weak_ptr<INativeWindowEventQueue> eventQueue, const uint32_t verbosityLevel, const NativeWindowConfig& config,
+                            std::shared_ptr<ITag> tag);
     ~NativeWindowSystemSetup();
 
     //! @brief Get the event queue if present

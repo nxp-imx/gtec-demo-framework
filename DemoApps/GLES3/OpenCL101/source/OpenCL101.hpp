@@ -40,7 +40,7 @@ namespace Fsl
   class OpenCL101 : public DemoAppGLES3
   {
   public:
-    OpenCL101(const DemoAppConfig& config);
+    explicit OpenCL101(const DemoAppConfig& config);
     ~OpenCL101() override;
 
   protected:

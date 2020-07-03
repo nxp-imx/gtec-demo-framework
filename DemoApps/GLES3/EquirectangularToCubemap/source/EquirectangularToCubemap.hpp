@@ -59,7 +59,7 @@ namespace Fsl
     Vector2 m_rotationSpeed;
 
   public:
-    EquirectangularToCubemap(const DemoAppConfig& config);
+    explicit EquirectangularToCubemap(const DemoAppConfig& config);
     ~EquirectangularToCubemap() override;
 
   protected:

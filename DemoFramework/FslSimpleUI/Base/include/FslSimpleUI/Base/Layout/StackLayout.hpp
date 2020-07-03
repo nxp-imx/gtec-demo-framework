@@ -41,10 +41,10 @@ namespace Fsl
     class StackLayout : public SimpleLayout
     {
       LayoutOrientation m_orientation;
-      float m_spacing;
+      float m_spacingDp;
 
     public:
-      StackLayout(const std::shared_ptr<BaseWindowContext>& context);
+      explicit StackLayout(const std::shared_ptr<BaseWindowContext>& context);
 
       LayoutOrientation GetLayoutOrientation() const
       {
@@ -53,13 +53,13 @@ namespace Fsl
       void SetLayoutOrientation(const LayoutOrientation& value);
       float GetSpacing() const
       {
-        return m_spacing;
+        return m_spacingDp;
       }
       void SetSpacing(const float& value);
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

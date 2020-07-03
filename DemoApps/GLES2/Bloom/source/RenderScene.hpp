@@ -40,7 +40,7 @@
 
 namespace Fsl
 {
-  class RenderScene : public IScene
+  class RenderScene final : public IScene
   {
     GLES2::GLProgram m_program;
     GLES2::GLTexture m_texture;
@@ -78,10 +78,10 @@ namespace Fsl
 
   public:
     RenderScene(const DemoAppConfig& config, const int32_t sceneId);
-    ~RenderScene() override;
+    ~RenderScene() final;
     void Update(const DemoTime& demoTime, const Matrix& cameraViewMatrix, const Matrix& cameraRotation, const Vector3& rotation,
-                const Point2& screenResolution) override;
-    void Draw() override;
+                const PxSize2D& windowSizePx) final;
+    void Draw() final;
 
   private:
     void DrawMeshes();

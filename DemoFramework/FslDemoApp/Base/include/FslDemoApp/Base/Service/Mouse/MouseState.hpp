@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslNativeWindow/Base/VirtualMouseButtonFlags.hpp>
 
 namespace Fsl
@@ -43,15 +43,15 @@ namespace Fsl
 
   public:
     MouseState();
-    MouseState(const uint32_t buttonState);
-    MouseState(const uint32_t buttonState, const Point2& position);
-    MouseState(const uint32_t buttonState, const Point2& position, const Point2& rawPosition);
-    MouseState(const VirtualMouseButtonFlags& mouseButtonFlags);
-    MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position);
-    MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const Point2& position, const Point2& rawPosition);
+    explicit MouseState(const uint32_t buttonState);
+    MouseState(const uint32_t buttonState, const PxPoint2& position);
+    MouseState(const uint32_t buttonState, const PxPoint2& position, const PxPoint2& rawPosition);
+    explicit MouseState(const VirtualMouseButtonFlags& mouseButtonFlags);
+    MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const PxPoint2& position);
+    MouseState(const VirtualMouseButtonFlags& mouseButtonFlags, const PxPoint2& position, const PxPoint2& rawPosition);
 
-    Point2 Position;
-    Point2 RawPosition;
+    PxPoint2 Position;
+    PxPoint2 RawPosition;
 
     bool IsLeftButtonPressed() const;
     bool IsMiddleButtonPressed() const;

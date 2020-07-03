@@ -29,7 +29,7 @@ namespace Fsl
     float m_angle;
 
   public:
-    S04_Projection(const DemoAppConfig& config);
+    explicit S04_Projection(const DemoAppConfig& config);
     ~S04_Projection() override;
 
   protected:

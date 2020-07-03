@@ -30,9 +30,17 @@
 #
 #****************************************************************************************************************************************************
 
+from typing import Optional
+from FslBuildGen.Generator.GeneratorCMakeConfig import GeneratorCMakeConfig
+
 class GeneratorPluginBase(object):
     def __init__(self, platformName: str) -> None:
         super().__init__()
         self.PlatformName = platformName  # type: str
         self.PlatformId = platformName.lower()  # type: str
         self.ToolVersion = 0  # type: int
+        self.IsCMake = False
+        self.CMakeConfig = None     # type: Optional[GeneratorCMakeConfig]     # This is the configuration that should be used by cmake (recipe builders and normal)
+
+    def SYS_SetCMakeConfig(self, cmakeConfig: Optional[GeneratorCMakeConfig]) -> None:
+        self.CMakeConfig = cmakeConfig

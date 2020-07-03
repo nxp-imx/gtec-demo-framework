@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Plane.hpp>
 #include <FslBase/Log/Math/LogVector3.hpp>
+#include <FslBase/Math/Plane.hpp>
 #include <ostream>
 
 namespace Fsl

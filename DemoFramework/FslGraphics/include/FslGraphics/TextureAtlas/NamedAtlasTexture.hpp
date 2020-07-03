@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/UTF8String.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 #include <utility>
 
@@ -39,14 +39,21 @@ namespace Fsl
 {
   struct NamedAtlasTexture
   {
-    UTF8String Name;
+    IO::Path Name;
     AtlasTextureInfo TextureInfo;
 
-    NamedAtlasTexture(UTF8String name, const AtlasTextureInfo& textureInfo)
-      : Name(std::move(name))
+    NamedAtlasTexture() noexcept = default;
+
+    NamedAtlasTexture(IO::Path pathName, const AtlasTextureInfo& textureInfo)
+      : Name(std::move(pathName))
       , TextureInfo(textureInfo)
     {
     }
+
+    NamedAtlasTexture& operator=(NamedAtlasTexture&& other) noexcept = default;
+    NamedAtlasTexture(NamedAtlasTexture&& other) noexcept = default;
+    NamedAtlasTexture(const NamedAtlasTexture&) = default;
+    NamedAtlasTexture& operator=(const NamedAtlasTexture&) = default;
   };
 }
 

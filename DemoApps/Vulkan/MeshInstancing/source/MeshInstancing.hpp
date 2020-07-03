@@ -90,7 +90,7 @@ namespace Fsl
     VkDescriptorSet m_descriptorSet;
 
   public:
-    MeshInstancing(const DemoAppConfig& config);
+    explicit MeshInstancing(const DemoAppConfig& config);
     ~MeshInstancing() override;
 
   protected:

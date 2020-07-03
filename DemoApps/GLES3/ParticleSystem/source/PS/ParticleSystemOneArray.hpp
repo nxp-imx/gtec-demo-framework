@@ -69,7 +69,7 @@ namespace Fsl
       return static_cast<uint32_t>(sizeof(ParticleRecord));
     }
 
-    ParticleSystemOneArray(const std::shared_ptr<IParticleDraw>& particleDraw, const std::size_t capacity);
+    ParticleSystemOneArray(std::shared_ptr<IParticleDraw> particleDraw, const std::size_t capacity);
 
     uint32_t GetParticleCount() const override;
     void AddEmitter(const std::shared_ptr<IParticleEmitter>& emitter) override;

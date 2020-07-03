@@ -6,18 +6,20 @@
 
     <Requirement Name="OpenCL" Type="feature" Version="1"/>
     <Requirement Name="EarlyAccess" Type="feature"/>
-    <Define Name="FSL_FEATURE_OPENCL" Access="Public"/> 
+
+    <Define Name="FSL_FEATURE_OPENCL" Access="Public"/>
+
     <Platform Name="Ubuntu" Supported="true">
-      <Dependency Name="Recipe.AmdAppSDK_2_9"/>
+      <FindPackage Name="OpenCL" Version="1.2"/>
     </Platform>
     <Platform Name="Yocto" Supported="true">
-      <ExternalDependency Name="OpenCL" Access="Public" Type="StaticLib"/>
-    </Platform>    
+      <!-- Find does not work on our yocto build -->
+      <FindPackage Name="OpenCL" Version="1.2"/>
+      <ExternalDependency Name="OpenCL" Access="Public" Type="StaticLib" If="!AllowFindPackage"/>
+    </Platform>
     <Platform Name="Windows" Supported="true">
-      <Dependency Name="Recipe.AmdAppSDK_3_0"/>
-    </Platform>    
-    <Platform Name="CMake" Supported="true">
-      <ExternalDependency Name="OpenCL" Type="Find"/>
-    </Platform>    
+      <FindPackage Name="OpenCL" Version="1.2"/>
+      <Dependency Name="Recipe.AmdAppSDK_3_0" If="!AllowFindPackage"/>
+    </Platform>
   </ExternalLibrary>
 </FslBuildGen>

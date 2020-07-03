@@ -63,7 +63,7 @@ namespace Fsl
     DependentResources m_dependentResources;
 
   public:
-    Vulkan101(const DemoAppConfig& config);
+    explicit Vulkan101(const DemoAppConfig& config);
     ~Vulkan101() override;
 
   protected:

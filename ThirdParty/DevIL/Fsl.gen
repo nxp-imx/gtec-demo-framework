@@ -5,7 +5,12 @@
     <Default.Platform.Supported Value="false"/>
     <Define Name="FSL_ENABLE_DEVIL" Access="Public"/> 
     <Platform Name="Ubuntu" Supported="true">
-     <ExternalDependency Name="IL" Type="StaticLib"/>
+      <ExternalDependency Name="IL" Type="StaticLib"/>
+      <!-- Not done because DevIL doesnt define a modern target name.
+           To support this we need additional cmake magic that generates the proper modern target name in the cmake file for this.
+      <FindPackage Name="DevIL" Version="1.8"/>
+      <ExternalDependency Name="IL" Type="StaticLib" If="!AllowFindPackage"/>
+      -->
     </Platform>
     <Platform Name="QNX" Supported="false">
       <!--ExternalDependency Name="devil" Type="StaticLib" Include="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/include" Location="$(FSL_GRAPHICS_SDK)/ThirdParty/Precompiled/devil-arm-v7-qnx/lib" Access="Public"/-->

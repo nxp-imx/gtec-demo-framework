@@ -33,23 +33,24 @@
 #include <EGL/egl.h>
 #include "TessellationSample.hpp"
 #include "OptionParser.hpp"
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-    const EGLint g_eglConfigAttribs[] = {EGL_NONE};
+    const std::array<EGLint, 1> g_eglConfigAttribs = {EGL_NONE};
   }
 
   // Configure the demo environment to run this demo app in a OpenGLES3.1 host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+    DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
     config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_EXT_tessellation_shader", ExtensionPrecense::Mandatory);
     config.AddExtensionRequest(ExtensionType::OpenGLES, "GL_EXT_geometry_shader", ExtensionPrecense::Mandatory);
 
-    DemoAppRegister::GLES3::Register<TessellationSample, OptionParser>(rSetup, "GLES3.TessellationSample", config, 1);
+    DemoAppRegister::GLES3::Register<TessellationSample, OptionParser>(rSetup, "GLES3.TessellationSample", config, OpenGLESMinorVersion(1));
   }
 }

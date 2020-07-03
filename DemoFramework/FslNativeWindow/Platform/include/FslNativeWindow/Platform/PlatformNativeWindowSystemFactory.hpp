@@ -42,7 +42,7 @@ namespace Fsl
   class PlatformNativeWindowSystemFactory
   {
   public:
-    static const std::shared_ptr<INativeWindowSystem> Allocate(const NativeWindowSystemSetup& setup);
+    static std::shared_ptr<INativeWindowSystem> Allocate(const NativeWindowSystemSetup& setup);
   };
 }    // namespace Fsl
 

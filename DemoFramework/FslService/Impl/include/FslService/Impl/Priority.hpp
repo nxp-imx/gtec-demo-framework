@@ -37,52 +37,58 @@ namespace Fsl
 {
   class Priority
   {
-    int32_t m_value;
+    int32_t m_value{0};
 
   public:
     using value_type = int32_t;
 
-    Priority();
+    constexpr Priority() noexcept = default;
 
     // @brief Create a new priority (higher value equals higher priority)
-    explicit Priority(const int32_t priority);
+    explicit constexpr Priority(const int32_t priority) noexcept
+      : m_value(priority)
+    {
+    }
 
     //! @brief Get the minimum priority
-    static const Priority Min();
+    static Priority Min();
 
     //! @brief Get the maximum priority
-    static const Priority Max();
+    static Priority Max();
 
     //! @brief Get the priority value
-    int32_t GetValue() const;
+    constexpr int32_t GetValue() const noexcept
+    {
+      return m_value;
+    }
 
-    bool operator==(const Priority& val) const
+    constexpr bool operator==(const Priority& val) const noexcept
     {
       return m_value == val.m_value;
     }
-    bool operator!=(const Priority& val) const
+    constexpr bool operator!=(const Priority& val) const noexcept
     {
       return m_value != val.m_value;
     }
-    bool operator<(const Priority& val) const
+    constexpr bool operator<(const Priority& val) const noexcept
     {
       return m_value < val.m_value;
     }
-    bool operator>(const Priority& val) const
+    constexpr bool operator>(const Priority& val) const noexcept
     {
       return m_value > val.m_value;
     }
   };
-}
 
-inline const Fsl::Priority operator-(const Fsl::Priority& lhs, const int32_t rhs)
-{
-  return Fsl::Priority(lhs.GetValue() - rhs);
-}
+  constexpr inline Priority operator-(const Priority& lhs, const int32_t rhs) noexcept
+  {
+    return Priority(lhs.GetValue() - rhs);
+  }
 
-inline const Fsl::Priority operator+(const Fsl::Priority& lhs, const int32_t rhs)
-{
-  return Fsl::Priority(lhs.GetValue() + rhs);
+  constexpr inline Priority operator+(const Priority& lhs, const int32_t rhs) noexcept
+  {
+    return Priority(lhs.GetValue() + rhs);
+  }
 }
 
 

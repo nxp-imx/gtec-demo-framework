@@ -37,87 +37,89 @@ namespace Fsl
 {
   struct Offset2D
   {
-  public:
-    int32_t X{0};
-    int32_t Y{0};
+    using value_type = int32_t;
 
-    Offset2D() = default;
+    value_type X{0};
+    value_type Y{0};
 
-    Offset2D(const int32_t x, const int32_t y)
+    constexpr Offset2D() noexcept = default;
+
+    constexpr Offset2D(const value_type x, const value_type y) noexcept
       : X(x)
       , Y(y)
     {
     }
 
-    Offset2D& operator+=(const Offset2D& arg)
+    constexpr Offset2D& operator+=(const Offset2D& arg) noexcept
     {
       X += arg.X;
       Y += arg.Y;
       return *this;
     }
 
-    Offset2D& operator-=(const Offset2D& arg)
+    constexpr Offset2D& operator-=(const Offset2D& arg) noexcept
     {
       X -= arg.X;
       Y -= arg.Y;
       return *this;
     }
 
-    Offset2D& operator*=(const Offset2D& arg)
+    constexpr Offset2D& operator*=(const Offset2D& arg) noexcept
     {
       X *= arg.X;
       Y *= arg.Y;
       return *this;
     }
 
-    Offset2D& operator*=(const int arg)
+    constexpr Offset2D& operator*=(const int arg) noexcept
     {
       X *= arg;
       Y *= arg;
       return *this;
     }
 
-    bool operator==(const Offset2D& rhs) const
+    constexpr bool operator==(const Offset2D& rhs) const noexcept
     {
       return X == rhs.X && Y == rhs.Y;
     }
 
-    bool operator!=(const Offset2D& rhs) const
+    constexpr bool operator!=(const Offset2D& rhs) const noexcept
     {
       return X != rhs.X || Y != rhs.Y;
     }
 
     // @brief Returns a Offset2D with all components being zero (0, 0)
-    static Offset2D Zero()
+    static constexpr Offset2D Zero() noexcept
     {
       return {};
     }
   };
-}
 
-inline Fsl::Offset2D operator+(const Fsl::Offset2D& lhs, const Fsl::Offset2D& rhs)
-{
-  return Fsl::Offset2D(lhs.X + rhs.X, lhs.Y + rhs.Y);
-}
+  inline constexpr Offset2D operator+(const Offset2D& lhs, const Offset2D& rhs) noexcept
+  {
+    return {lhs.X + rhs.X, lhs.Y + rhs.Y};
+  }
 
-inline Fsl::Offset2D operator-(const Fsl::Offset2D& lhs, const Fsl::Offset2D& rhs)
-{
-  return Fsl::Offset2D(lhs.X - rhs.X, lhs.Y - rhs.Y);
-}
+  inline constexpr Offset2D operator-(const Offset2D& lhs, const Offset2D& rhs) noexcept
+  {
+    return {lhs.X - rhs.X, lhs.Y - rhs.Y};
+  }
 
-inline Fsl::Offset2D operator*(const Fsl::Offset2D& lhs, const Fsl::Offset2D& rhs)
-{
-  return Fsl::Offset2D(lhs.X * rhs.X, lhs.Y * rhs.Y);
-}
+  inline constexpr Offset2D operator*(const Offset2D& lhs, const Offset2D& rhs) noexcept
+  {
+    return {lhs.X * rhs.X, lhs.Y * rhs.Y};
+  }
 
-inline Fsl::Offset2D operator*(const Fsl::Offset2D& lhs, const int rhs)
-{
-  return Fsl::Offset2D(lhs.X * rhs, lhs.Y * rhs);
-}
+  inline constexpr Offset2D operator*(const Offset2D& lhs, const int32_t rhs)
+  {
+    return {lhs.X * rhs, lhs.Y * rhs};
+  }
 
-inline Fsl::Offset2D operator*(const int lhs, const Fsl::Offset2D& rhs)
-{
-  return rhs * lhs;
+  inline constexpr Offset2D operator*(const int32_t lhs, const Offset2D& rhs)
+  {
+    return rhs * lhs;
+  }
+
 }
 
 #endif

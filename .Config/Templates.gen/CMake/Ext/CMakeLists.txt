@@ -16,6 +16,7 @@
 # Options #
 ###########
 
+option(CODE_COVERAGE "Enable code coverage (only works with GCC)" OFF)
 ##SNIPPET_OPTIONS_LIB##
 
 #########

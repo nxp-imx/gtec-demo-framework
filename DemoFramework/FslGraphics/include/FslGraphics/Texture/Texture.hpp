@@ -33,8 +33,7 @@
 
 #include <FslBase/BlobRecord.hpp>
 #include <FslBase/Log/Log3Core.hpp>
-#include <FslBase/Math/Point2.hpp>
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/Texture/RawTexture.hpp>
@@ -54,7 +53,7 @@ namespace Fsl
     //! The raw image data
     std::vector<uint8_t> m_content;
     std::vector<BlobRecord> m_blobs;
-    Extent3D m_extent;
+    PxExtent3D m_extent;
     PixelFormat m_pixelFormat{PixelFormat::Undefined};
     TextureType m_textureType{TextureType::Undefined};
     TextureInfo m_textureInfo;
@@ -76,7 +75,7 @@ namespace Fsl
     Texture();
 
     //! @brief Create a empty texture based on the given builder
-    Texture(const TextureBlobBuilder& builder);
+    explicit Texture(const TextureBlobBuilder& builder);
 
     //! @brief Create a texture based on the given builder
     //! @param pContent the content
@@ -97,11 +96,11 @@ namespace Fsl
 
     //! @brief Create a empty 2D texture of the given extent, pixelFormat and bitmap origin.
     //! @note  This is a easy way to populate this with a empty 2D texture
-    Texture(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    Texture(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
     //! @brief Create a empty 2D texture of the given extent, pixelFormat and bitmap origin.
     //! @note  This is a easy way to populate this with a 2D texture
-    Texture(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    Texture(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
 
     ~Texture();
@@ -134,11 +133,11 @@ namespace Fsl
 
     //! @brief Destroys the texture and creates a empty 2D texture of the given extent, pixelFormat and bitmap origin.
     //! @note  This is a easy way to populate this with a empty 2D texture
-    void Reset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    void Reset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
     //! @brief Destroys the texture and creates a empty 2D texture of the given extent, pixelFormat and bitmap origin.
     //! @note  This is a easy way to populate this with a 2D texture
-    void Reset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    void Reset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
     //! @brief Check if this object contains a valid resource
     bool IsValid() const
@@ -150,7 +149,10 @@ namespace Fsl
     BitmapOrigin GetBitmapOrigin() const;
 
     //! @brief The extent of the texture
-    Extent3D GetExtent(const std::size_t level = 0) const;
+    PxExtent3D GetExtent(const std::size_t level = 0) const;
+
+    //! @brief The extent of the texture
+    PxExtent2D GetExtent2D(const std::size_t level = 0) const;
 
     //! @brief The stride of the texture at level
     std::size_t GetStride(const std::size_t level = 0) const;
@@ -279,8 +281,8 @@ namespace Fsl
   private:
     void DoReset(const void* const pContent, const std::size_t contentByteSize, const TextureBlobBuilder& builder);
     void DoReset(std::vector<uint8_t>&& content, TextureBlobBuilder&& builder);
-    void DoReset(const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
-    void DoReset(std::vector<uint8_t>&& content, const Extent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    void DoReset(const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
+    void DoReset(std::vector<uint8_t>&& content, const PxExtent2D& extent, const PixelFormat pixelFormat, const BitmapOrigin origin);
 
     RawTexture Lock() const;
     RawTextureEx LockEx();

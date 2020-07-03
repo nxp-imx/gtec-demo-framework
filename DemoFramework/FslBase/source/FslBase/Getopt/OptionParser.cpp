@@ -35,22 +35,45 @@
 #include <FslBase/Arguments/ParseErrorInfo.hpp>
 #include <FslBase/BasicTypes.hpp>
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/IO/File.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/NumericCast.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
 #include <FslBase/String/StringUtil.hpp>
-#include <FslBase/IO/File.hpp>
-#include "OptionRecord.hpp"
-#include <fmt/format.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <fmt/format.h>
 #include <string>
 #include <vector>
+#include "OptionRecord.hpp"
 
 namespace Fsl
 {
   namespace
   {
+    std::vector<StringViewLite> ToArgsVector(int argc, char** argv)
+    {
+      if (argv == nullptr)
+      {
+        throw std::invalid_argument("argv can not be null");
+      }
+      if (argc < 1)
+      {
+        throw std::invalid_argument("argc must be >= 1 (since we expect the first argument to be the filename");
+      }
+
+      std::vector<StringViewLite> args(NumericCast<std::size_t>(argc));
+      for (int i = 0; i < argc; ++i)
+      {
+        args[i] = StringViewLite(argv[i]);
+      }
+      return args;
+    }
+
     bool IsUniqueOption(const std::deque<OptionRecord>& combinedOptions, const Option& option)
     {
       for (const auto& combinedOption : combinedOptions)
@@ -217,7 +240,7 @@ namespace Fsl
     }
 
 
-    const std::string GetFormattedName(const Option& option)
+    std::string GetFormattedName(const Option& option)
     {
       std::string str;
 
@@ -257,15 +280,15 @@ namespace Fsl
       return str;
     }
 
-    void ShowHelp(const char* const pszHelpCaption, const std::deque<OptionRecord>& options, const int32_t optionGroupFlags)
+    void ShowHelp(StringViewLite strHelpCaption, const std::deque<OptionRecord>& options, const int32_t optionGroupFlags)
     {
       const auto maxNameLength = FindMaxNameLength(options, optionGroupFlags);
       fmt::memory_buffer buf;
 
       // Add the caption if supplied
-      if (pszHelpCaption != nullptr)
+      if (!strHelpCaption.empty())
       {
-        fmt::format_to(buf, "{}\n", pszHelpCaption);
+        fmt::format_to(buf, "{}\n", strHelpCaption);
       }
 
       auto itr = options.begin();
@@ -288,7 +311,7 @@ namespace Fsl
     }
 
 
-    bool ProcessHelpOption(const std::string& strOptionParam, int32_t& rShowHelpOptionGroupFlags)
+    bool ProcessHelpOption(const StringViewLite& strOptionParam, int32_t& rShowHelpOptionGroupFlags)
     {
       bool bSuccess = true;
       if (strOptionParam.empty())
@@ -343,9 +366,9 @@ namespace Fsl
       return SafeJsonString(static_cast<uint32_t>(value));
     }
 
-    bool TrySaveArgumentsToJsonFile(const std::string& strOptionParam, const std::deque<OptionRecord>& combinedOptions)
+    bool TrySaveArgumentsToJsonFile(const IO::Path& strOptionParam, const std::deque<OptionRecord>& combinedOptions)
     {
-      if (strOptionParam.empty())
+      if (strOptionParam.IsEmpty())
       {
         FSLLOG3_ERROR("No filename specified");
         return false;
@@ -364,7 +387,7 @@ namespace Fsl
         std::size_t index = 0;
         const auto entries = combinedOptions.size();
 
-        for (auto& entry : combinedOptions)
+        for (const auto& entry : combinedOptions)
         {
           ++index;
           // stream << fmt::format(
@@ -437,9 +460,9 @@ namespace Fsl
     class ParseErrorFormatter : public Arguments::ArgumentParser::ErrorFormatter
     {
     public:
-      std::string Format(const char* const pszFormat, const char* const pszArg0) override
+      std::string Format(const char* const pszFormat, const StringViewLite strArg0) override
       {
-        return fmt::format(pszFormat, pszArg0);
+        return fmt::format(pszFormat, strArg0);
       }
       std::string Format(const char* const pszFormat, const std::string& str) override
       {
@@ -450,11 +473,6 @@ namespace Fsl
         return fmt::format(pszFormat, arg0);
       }
     };
-
-    inline const char* SafeCString(const char* const psz)
-    {
-      return psz != nullptr ? psz : "";
-    }
 
     std::deque<Arguments::Command> ToCommands(const std::deque<OptionRecord>& options)
     {
@@ -489,38 +507,64 @@ namespace Fsl
   }
 
 
-  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const char* const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, StringViewLite strHelpCaption)
   {
-    std::deque<ParserRecord> inputOptionParsers;
-    return Parse(argc, argv, inputOptionParsers, pszHelpCaption);
+    auto args = ToArgsVector(argc, argv);
+    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), strHelpCaption);
+  }
+
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, IOptionParser& inputOptionParser, StringViewLite strHelpCaption)
+  {
+    auto args = ToArgsVector(argc, argv);
+    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), inputOptionParser, strHelpCaption);
+  }
+
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers,
+                                                StringViewLite strHelpCaption)
+  {
+    auto args = ToArgsVector(argc, argv);
+    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), inputOptionParsers, strHelpCaption);
+  }
+
+  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers,
+                                                StringViewLite strHelpCaption)
+  {
+    auto args = ToArgsVector(argc, argv);
+    return Parse(ReadOnlySpanUtil::AsSpan(args).subspan(1u), inputOptionParsers, strHelpCaption);
   }
 
 
-  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, IOptionParser& inputOptionParser, const char* const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(const ReadOnlySpan<StringViewLite> args, StringViewLite strHelpCaption)
+  {
+    std::deque<ParserRecord> inputOptionParsers;
+    return Parse(args, inputOptionParsers, strHelpCaption);
+  }
+
+
+  OptionParser::ParseResult OptionParser::Parse(const ReadOnlySpan<StringViewLite> args, IOptionParser& inputOptionParser,
+                                                StringViewLite strHelpCaption)
   {
     std::deque<ParserRecord> inputOptionParsers;
     inputOptionParsers.emplace_back(&inputOptionParser, 0);
-    return Parse(argc, argv, inputOptionParsers, pszHelpCaption);
+    return Parse(args, inputOptionParsers, strHelpCaption);
   }
 
 
-  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<IOptionParser*>& inputOptionParsers,
-                                                const char* const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(const ReadOnlySpan<StringViewLite> args, const std::deque<IOptionParser*>& inputOptionParsers,
+                                                StringViewLite strHelpCaption)
   {
     std::deque<ParserRecord> inputOptionParsersEx;
     for (auto itr = inputOptionParsers.begin(); itr != inputOptionParsers.end(); ++itr)
     {
       inputOptionParsersEx.emplace_back(*itr, 0);
     }
-    return Parse(argc, argv, inputOptionParsersEx, pszHelpCaption);
+    return Parse(args, inputOptionParsersEx, strHelpCaption);
   }
 
 
-  OptionParser::ParseResult OptionParser::Parse(int argc, char** argv, const std::deque<ParserRecord>& inputOptionParsers,
-                                                const char* const pszHelpCaption)
+  OptionParser::ParseResult OptionParser::Parse(const ReadOnlySpan<StringViewLite> args, const std::deque<ParserRecord>& inputOptionParsers,
+                                                StringViewLite strHelpCaption)
   {
-    assert(argc > 0);
-    assert(argv != nullptr);
     std::deque<OptionRecord> combinedOptions = ArgumentSetup(inputOptionParsers);
 
     uint32_t verbosityLevel = 0;
@@ -531,17 +575,17 @@ namespace Fsl
       auto commands = ToCommands(combinedOptions);
       Arguments::ParseErrorInfo parseErrorInfo;
       std::deque<Arguments::EncodedCommand> encodedCommands;
-      auto parseResult = Arguments::ArgumentParser::TryParse(encodedCommands, argc - 1, argv + 1, commands, &parseErrorInfo);
+      auto parseResult = Arguments::ArgumentParser::TryParse(encodedCommands, args, commands, &parseErrorInfo);
       if (parseResult != Arguments::ParseResult::Completed)
       {
         ParseErrorFormatter formatter;
-        auto strParseError = Arguments::ArgumentParser::GetErrorString(parseResult, parseErrorInfo, argc - 1, argv + 1, commands, formatter);
+        auto strParseError = Arguments::ArgumentParser::GetErrorString(parseResult, parseErrorInfo, args, commands, formatter);
         throw std::runtime_error(strParseError);
       }
 
       for (const auto& encodedCommand : encodedCommands)
       {
-        auto pszOptArg = SafeCString(encodedCommand.pszOptArg);
+        const auto& strOptArg = encodedCommand.StrOptArg;
         switch (encodedCommand.Id)
         {
         case 'v':    // verbose
@@ -552,14 +596,14 @@ namespace Fsl
           break;
         case 1:    // ghelp
           assert(encodedCommand.Type == Arguments::CommandType::Value);
-          if (!ProcessHelpOption(pszOptArg, showHelpOptionGroupFlags))
+          if (!ProcessHelpOption(strOptArg, showHelpOptionGroupFlags))
           {
             ++optionErrors;
           }
           break;
         case 2:    // System.Arguments.Save
           assert(encodedCommand.Type == Arguments::CommandType::Value);
-          if (!TrySaveArgumentsToJsonFile(pszOptArg, combinedOptions))
+          if (!TrySaveArgumentsToJsonFile(strOptArg, combinedOptions))
           {
             ++optionErrors;
           }
@@ -578,7 +622,7 @@ namespace Fsl
             {
               // Remove the offset before we call the parser
               const int32_t cmdId = encodedCommand.Id - itr->CmdIdOffset;
-              result = itr->Parser->Parse(cmdId, pszOptArg);
+              result = itr->Parser->Parse(cmdId, strOptArg);
             }
             catch (const std::exception& ex)
             {
@@ -610,14 +654,14 @@ namespace Fsl
 
     if (showHelpOptionGroupFlags != 0)
     {
-      ShowHelp(pszHelpCaption, combinedOptions, showHelpOptionGroupFlags);
+      ShowHelp(strHelpCaption, combinedOptions, showHelpOptionGroupFlags);
     }
 
     if (optionErrors != 0)
     {
-      return ParseResult(Result::Failed, verbosityLevel);
+      return {Result::Failed, verbosityLevel};
     }
 
-    return ParseResult(!bForceExit && showHelpOptionGroupFlags == 0 ? Result::OK : Result::Exit, verbosityLevel);
+    return {!bForceExit && showHelpOptionGroupFlags == 0 ? Result::OK : Result::Exit, verbosityLevel};
   }
 }

@@ -40,7 +40,7 @@ namespace Fsl
 {
   class IImageService;
 
-  class PersistentDataManagerService
+  class PersistentDataManagerService final
     : public ThreadLocalService
     , public IPersistentDataManager
   {
@@ -48,37 +48,37 @@ namespace Fsl
     std::shared_ptr<IImageService> m_imageService;
 
   public:
-    PersistentDataManagerService(const ServiceProvider& serviceProvider, const IO::Path& persistentDataPath);
-    ~PersistentDataManagerService() override;
+    PersistentDataManagerService(const ServiceProvider& serviceProvider, IO::Path persistentDataPath);
+    ~PersistentDataManagerService() final;
 
     // From IPersistentDataManager
-    IO::Path GetPersistentDataPath() const override;
-    bool Exists(const IO::Path& relativePath) const override;
-    uint64_t GetLength(const IO::Path& relativePath) const override;
-    std::string ReadAllText(const IO::Path& relativePath) const override;
-    void ReadAllBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath) const override;
-    uint64_t ReadAllBytes(void* pDstArray, const uint64_t cbDstArray, const IO::Path& relativePath) const override;
+    IO::Path GetPersistentDataPath() const final;
+    bool Exists(const IO::Path& relativePath) const final;
+    uint64_t GetLength(const IO::Path& relativePath) const final;
+    std::string ReadAllText(const IO::Path& relativePath) const final;
+    void ReadAllBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath) const final;
+    uint64_t ReadAllBytes(void* pDstArray, const uint64_t cbDstArray, const IO::Path& relativePath) const final;
     void ReadBytes(std::vector<uint8_t>& rTargetArray, const IO::Path& relativePath, const uint64_t fileOffset,
-                   const uint64_t bytesToRead) const override;
+                   const uint64_t bytesToRead) const final;
     uint64_t ReadBytes(void* pDstArray, const uint64_t cbDstArray, const uint64_t dstStartIndex, const IO::Path& relativePath,
-                       const uint64_t fileOffset, const uint64_t bytesToRead) const override;
+                       const uint64_t fileOffset, const uint64_t bytesToRead) const final;
     void Read(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-              const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const override;
+              const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const final;
     void Read(Texture& rTexture, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-              const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const override;
-    void WriteAlltext(const IO::Path& relativePath, const std::string& content) override;
-    void WriteAllBytes(const IO::Path& relativePath, const std::vector<uint8_t>& content) override;
+              const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const final;
+    void WriteAlltext(const IO::Path& relativePath, const std::string& content) final;
+    void WriteAllBytes(const IO::Path& relativePath, const std::vector<uint8_t>& content) final;
     void Write(const IO::Path& relativePath, const Bitmap& bitmap, const ImageFormat imageFormat = ImageFormat::Undefined,
-               const PixelFormat desiredPixelFormat = PixelFormat::Undefined) override;
+               const PixelFormat desiredPixelFormat = PixelFormat::Undefined) final;
     void WriteExactImage(const IO::Path& relativePath, const Bitmap& bitmap, const ImageFormat imageFormat,
-                         const PixelFormat desiredPixelFormat = PixelFormat::Undefined) override;
-    bool TryReadAllText(std::string& rDst, const IO::Path& relativePath) const override;
+                         const PixelFormat desiredPixelFormat = PixelFormat::Undefined) final;
+    bool TryReadAllText(std::string& rDst, const IO::Path& relativePath) const final;
     bool TryRead(Bitmap& rBitmap, const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const override;
+                 const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const final;
     Bitmap ReadBitmap(const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                      const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const override;
+                      const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const final;
     Texture ReadTexture(const IO::Path& relativePath, const PixelFormat desiredPixelFormat = PixelFormat::Undefined,
-                        const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const override;
+                        const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined) const final;
 
   private:
   };

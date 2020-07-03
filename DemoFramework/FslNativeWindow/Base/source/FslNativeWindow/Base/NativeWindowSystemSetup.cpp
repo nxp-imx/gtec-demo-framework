@@ -30,15 +30,16 @@
  ****************************************************************************************************************************************************/
 
 #include <FslNativeWindow/Base/NativeWindowSystemSetup.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  NativeWindowSystemSetup::NativeWindowSystemSetup(const std::weak_ptr<INativeWindowEventQueue>& eventQueue, const uint32_t verbosityLevel,
-                                                   const NativeWindowConfig& config, const std::shared_ptr<ITag>& tag)
-    : m_eventQueue(eventQueue)
+  NativeWindowSystemSetup::NativeWindowSystemSetup(std::weak_ptr<INativeWindowEventQueue> eventQueue, const uint32_t verbosityLevel,
+                                                   const NativeWindowConfig& config, std::shared_ptr<ITag> tag)
+    : m_eventQueue(std::move(eventQueue))
     , m_verbosityLevel(verbosityLevel)
     , m_config(config)
-    , m_tag(tag)
+    , m_tag(std::move(tag))
   {
   }
 

@@ -32,6 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/Base/DemoAppConfig.hpp>
 #include <FslDemoApp/Base/DemoTime.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
@@ -47,28 +48,30 @@ namespace Fsl
 {
   class AScene
   {
-    Point2 m_screenResolution;
+    PxSize2D m_sizePx;
     std::shared_ptr<IContentManager> m_contentManager;
 
   public:
-    AScene(const DemoAppConfig& config);
+    explicit AScene(const DemoAppConfig& config);
     virtual ~AScene() = default;
 
-    virtual void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent){};
-    virtual void OnContentChanged(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowContentChangedEvent>& theEvent){};
-    virtual void OnKeyEvent(const KeyEvent& event){};
-    virtual void OnMouseButtonEvent(const MouseButtonEvent& event){};
-    virtual void OnMouseMoveEvent(const MouseMoveEvent& event){};
-    virtual void OnMouseWheelEvent(const MouseWheelEvent& event){};
+    virtual void OnSelect(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowSelectEvent>& /*theEvent*/){};
+    virtual void OnContentChanged(const UI::RoutedEventArgs& /*args*/, const std::shared_ptr<UI::WindowContentChangedEvent>& /*theEvent*/){};
+    virtual void OnKeyEvent(const KeyEvent& /*event*/){};
+    virtual void OnMouseButtonEvent(const MouseButtonEvent& /*event*/){};
+    virtual void OnMouseMoveEvent(const MouseMoveEvent& /*event*/){};
+    virtual void OnMouseWheelEvent(const MouseWheelEvent& /*event*/){};
 
-    virtual void Update(const DemoTime& demoTime){};
+    virtual void Update(const DemoTime& /*demoTime*/){};
     virtual void Draw(){};
 
   protected:
-    Point2 GetScreenResolution() const
+    PxSize2D GetSizePx() const
     {
-      return m_screenResolution;
+      return m_sizePx;
     }
+    float GetAspectRatio() const;
+
     std::shared_ptr<IContentManager> GetContentManager() const
     {
       return m_contentManager;

@@ -34,7 +34,7 @@
 
 namespace Fsl
 {
-  MouseButtonEvent::MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const Point2& position)
+  MouseButtonEvent::MouseButtonEvent(const VirtualMouseButton::Enum button, const bool isPressed, const PxPoint2& position)
     : BasicEvent(EventType::MouseButton, button, isPressed ? 1 : 0, NativeWindowEventHelper::EncodePosition(position))
   {
   }
@@ -46,7 +46,7 @@ namespace Fsl
   }
 
 
-  const Point2 MouseButtonEvent::GetPosition() const
+  PxPoint2 MouseButtonEvent::GetPosition() const
   {
     return NativeWindowEventHelper::DecodePosition(m_arg3);
   }

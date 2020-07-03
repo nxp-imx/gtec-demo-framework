@@ -204,7 +204,7 @@ namespace Fsl
 
       std::vector<VkImage> GetSwapchainImagesKHR(const VkDevice device, const VkSwapchainKHR swapchain)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkGetSwapchainImagesKHR(device, swapchain, &count, nullptr), "could not get swap chain images size");
 
         std::vector<VkImage> result(count);

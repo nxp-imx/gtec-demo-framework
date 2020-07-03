@@ -43,7 +43,7 @@ namespace Fsl
   class EGLNativeWindowSystemWin32 : public EGLNativeWindowSystemTemplate<PlatformNativeWindowSystemWin32>
   {
   public:
-    EGLNativeWindowSystemWin32(const NativeWindowSystemSetup& setup);
+    explicit EGLNativeWindowSystemWin32(const NativeWindowSystemSetup& setup);
   };
 }
 

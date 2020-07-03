@@ -35,6 +35,7 @@
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
 #include <memory>
+#include <utility>
 #include "FractalShaderJulia.hpp"
 #include "FractalShaderMandelbrot.hpp"
 
@@ -47,8 +48,8 @@ namespace Fsl
       std::shared_ptr<Vulkan::VMBufferManager> BufferManager;
       RapidVulkan::DescriptorPool DescriptorPool;
 
-      Resources(const std::shared_ptr<Vulkan::VMBufferManager>& bufferManager, RapidVulkan::DescriptorPool&& descriptorPool)
-        : BufferManager(bufferManager)
+      Resources(std::shared_ptr<Vulkan::VMBufferManager> bufferManager, RapidVulkan::DescriptorPool&& descriptorPool)
+        : BufferManager(std::move(bufferManager))
         , DescriptorPool(std::move(descriptorPool))
       {
       }
@@ -68,7 +69,7 @@ namespace Fsl
     FractalShaderMandelbrot m_scene3;
 
   public:
-    MultipleViewportsFractalShader(const DemoAppConfig& config);
+    explicit MultipleViewportsFractalShader(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

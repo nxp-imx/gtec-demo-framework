@@ -72,10 +72,10 @@ namespace Fsl
     if (!m_entries.empty())
     {
       const ProfilerRecord entry = m_entries.back();
-      return ProfilerFrameTime(entry.UpdateTime, entry.DrawTime, entry.TotalTime);
+      return {entry.UpdateTime, entry.DrawTime, entry.TotalTime};
     }
 
-    return ProfilerFrameTime();
+    return {};
   }
 
 
@@ -84,10 +84,10 @@ namespace Fsl
     const auto numFrames = static_cast<int32_t>(m_entries.size());
     if (numFrames > 0)
     {
-      return ProfilerFrameTime(m_combinedTime.UpdateTime / numFrames, m_combinedTime.DrawTime / numFrames, m_combinedTime.TotalTime / numFrames);
+      return {m_combinedTime.UpdateTime / numFrames, m_combinedTime.DrawTime / numFrames, m_combinedTime.TotalTime / numFrames};
     }
 
-    return ProfilerFrameTime();
+    return {};
   }
 
 

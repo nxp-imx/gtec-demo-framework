@@ -66,13 +66,13 @@ namespace Fsl
   }
 
 
-  OptionParseResult ProfilerServiceOptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult ProfilerServiceOptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     switch (cmdId)
     {
     case CommandId::AverageEntries:
     {
-      StringParseUtil::Parse(m_averageEntries, pszOptArg);
+      StringParseUtil::Parse(m_averageEntries, strOptArg);
       m_averageEntries = std::max(m_averageEntries, 1u);
       return OptionParseResult::Parsed;
     }

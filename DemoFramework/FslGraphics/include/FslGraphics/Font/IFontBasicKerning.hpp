@@ -32,10 +32,11 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics/Font/FontDesc.hpp>
-#include <FslGraphics/Font/FontGlyphRange.hpp>
-#include <FslGraphics/Font/FontGlyphBasicKerning.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslBase/String/UTF8String.hpp>
+#include <FslGraphics/Font/FontDesc.hpp>
+#include <FslGraphics/Font/FontGlyphBasicKerning.hpp>
+#include <FslGraphics/Font/FontGlyphRange.hpp>
 
 namespace Fsl
 {
@@ -44,10 +45,11 @@ namespace Fsl
   public:
     virtual ~IFontBasicKerning() = default;
 
-    virtual UTF8String GetName() const = 0;
-    virtual UTF8String GetPathName() const = 0;
+    virtual const UTF8String& GetName() const = 0;
+    virtual const IO::Path& GetPathName() const = 0;
     virtual FontDesc GetDesc() const = 0;
     virtual int32_t RangeCount() const = 0;
+    //! The ranges are sorted low to high and there will be no overlap
     virtual FontGlyphRange GetRange(const int32_t index) const = 0;
     virtual int32_t Count() const = 0;
     virtual FontGlyphBasicKerning Get(const int32_t index) const = 0;

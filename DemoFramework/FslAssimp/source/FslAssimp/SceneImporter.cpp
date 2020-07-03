@@ -37,6 +37,7 @@
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
@@ -46,8 +47,8 @@ namespace Fsl
   {
     Matrix Convert(const aiMatrix4x4& matrix)
     {
-      return Matrix(matrix.a1, matrix.a2, matrix.a3, matrix.a4, matrix.b1, matrix.b2, matrix.b3, matrix.b4, matrix.c1, matrix.c2, matrix.c3,
-                    matrix.c4, matrix.d1, matrix.d2, matrix.d3, matrix.d4);
+      return {matrix.a1, matrix.a2, matrix.a3, matrix.a4, matrix.b1, matrix.b2, matrix.b3, matrix.b4,
+              matrix.c1, matrix.c2, matrix.c3, matrix.c4, matrix.d1, matrix.d2, matrix.d3, matrix.d4};
     }
 
 
@@ -90,12 +91,13 @@ namespace Fsl
       dstScene->SetRootNode(rootNode);
     }
 
-    std::shared_ptr<Scene> ProcessScene(const SceneAllocatorFunc& sceneAllocator, MeshImporter& meshImporter, const aiScene* const pScene,
-                                        const float desiredSize, const bool centerModel)
+    std::shared_ptr<Scene> ProcessScene(const SceneAllocatorFunc& sceneAllocator, MeshImporter& /*meshImporter*/, const aiScene* const pScene,
+                                        const float desiredSize, const bool /*centerModel*/)
     {
       assert(pScene != nullptr);
 
-      Vector3 boundingMin, boundingMax;
+      Vector3 boundingMin;
+      Vector3 boundingMax;
       SceneHelper::GetBoundingBox(pScene, boundingMin, boundingMax);
       const auto delta = boundingMax - boundingMin;
       float currentMax = std::max(delta.X, std::max(delta.Y, delta.Z));
@@ -126,7 +128,7 @@ namespace Fsl
     }
 
 
-    std::shared_ptr<Scene> ProcessScene(const SceneAllocatorFunc& sceneAllocator, MeshImporter& meshImporter, const aiScene* const pScene)
+    std::shared_ptr<Scene> ProcessScene(const SceneAllocatorFunc& sceneAllocator, MeshImporter& /*meshImporter*/, const aiScene* const pScene)
     {
       assert(pScene != nullptr);
 
@@ -157,8 +159,8 @@ namespace Fsl
   }
 
 
-  SceneImporter::SceneImporter(const Graphics3D::SceneAllocatorFunc& sceneAllocator)
-    : m_sceneAllocator(sceneAllocator)
+  SceneImporter::SceneImporter(Graphics3D::SceneAllocatorFunc sceneAllocator)
+    : m_sceneAllocator(std::move(sceneAllocator))
   {
   }
 

@@ -56,7 +56,7 @@ namespace Fsl
 
   public:
     SceneImporter();
-    SceneImporter(const Graphics3D::SceneAllocatorFunc& sceneAllocator);
+    explicit SceneImporter(Graphics3D::SceneAllocatorFunc sceneAllocator);
 
     //! @brief Load the given file using the supplied pFlags
     //! @param filename the file to load.

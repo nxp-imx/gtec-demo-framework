@@ -36,6 +36,7 @@
 #include <memory>
 #include "TreeNodeFlags.hpp"
 #include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -53,15 +54,15 @@ namespace Fsl
     public:
       std::deque<std::shared_ptr<TreeNode>> m_children;
 
-      TreeNode(const std::shared_ptr<BaseWindow>& window)
+      explicit TreeNode(const std::shared_ptr<BaseWindow>& window)
         : m_window(window)
         , m_flags(ExtractWindowFlags(window))
       {
       }
 
 
-      TreeNode(const std::weak_ptr<TreeNode>& parent, const std::shared_ptr<BaseWindow>& window)
-        : m_parent(parent)
+      TreeNode(std::weak_ptr<TreeNode> parent, const std::shared_ptr<BaseWindow>& window)
+        : m_parent(std::move(parent))
         , m_window(window)
         , m_flags(ExtractWindowFlags(window))
       {
@@ -155,10 +156,10 @@ namespace Fsl
         return m_window->WinMarkLayoutAsDirty();
       }
 
-      inline Rect WinGetContentRect() const
+      inline const PxRectangle& WinGetContentPxRectangle() const
       {
         assert(m_flags.IsRunning());
-        return m_window->WinGetContentRect();
+        return m_window->WinGetContentPxRectangle();
       }
 
       inline void WinHandleEvent(const RoutedEvent& routedEvent)
@@ -167,14 +168,26 @@ namespace Fsl
         m_window->WinHandleEvent(routedEvent);
       }
 
-      inline Vector2 CalcScreenTopLeftCorner() const
+      inline PxPoint2 CalcScreenTopLeftCornerPx() const
       {
         std::shared_ptr<TreeNode> parent = m_parent.lock();
-        return (parent ? (parent->CalcScreenTopLeftCorner() + WinGetContentRect().TopLeft()) : WinGetContentRect().TopLeft());
+        return (parent ? (parent->CalcScreenTopLeftCornerPx() + WinGetContentPxRectangle().TopLeft()) : WinGetContentPxRectangle().TopLeft());
+      }
+
+      void OnResolutionChanged(const ResolutionChangedInfo& info)
+      {
+        if (m_flags.IsRunning())
+        {
+          m_window->WinResolutionChanged(info);
+          for (auto& rChild : m_children)
+          {
+            rChild->OnResolutionChanged(info);
+          }
+        }
       }
 
     private:
-      TreeNodeFlags ExtractWindowFlags(const std::shared_ptr<BaseWindow>& window) const
+      static TreeNodeFlags ExtractWindowFlags(const std::shared_ptr<BaseWindow>& window)
       {
         return TreeNodeFlags(window->WinGetFlags());
       }

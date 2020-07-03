@@ -1,0 +1,34 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/TestGraphics/TextureAtlas/Scale",
+        "Content": [
+          "Text2/License.json",
+          "Text2/Test64x64_240dpi.png",
+          "Text2/Test64x64_320dpi.png"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlas_*dpi.bta",
+          "UIAtlas/UIAtlas_*dpi.png",
+          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Textures",
+        "Content": [
+          "TestText/Premultiplied/License.json",
+          "TestText/Premultiplied/1.png",
+          "TestText/Premultiplied/2.png",
+          "TestText/Premultiplied/3.png",
+          "TestText/Premultiplied/4.png"
+        ]
+      }
+    ]
+  }
+}

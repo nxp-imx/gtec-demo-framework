@@ -122,7 +122,7 @@ namespace Fsl
     bool m_clipY;
 
   public:
-    Scissor101(const DemoAppConfig& config);
+    explicit Scissor101(const DemoAppConfig& config);
 
   protected:
     void OnKeyEvent(const KeyEvent& event) override;

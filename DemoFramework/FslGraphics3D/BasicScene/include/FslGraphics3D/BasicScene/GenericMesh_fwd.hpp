@@ -111,7 +111,7 @@ namespace Fsl
       TIndex* DirectAccessIndices();
 
       VertexDeclaration GetVertexDeclaration() const override;
-      const RawMeshContent GenericDirectAccess() const override;
+      RawMeshContent GenericDirectAccess() const override;
       RawMeshContentEx GenericDirectAccess() override;
     };
   }

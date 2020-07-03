@@ -1,14 +1,25 @@
 {
   "ContentBuilder" : {
     "Version": "1",
-    "Content.Sync": {
-      "SourcePath" : "${ProjectRoot}/Resources",
-      "Content": [
-        "Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx",
-        "Textures/WoodFloor/Floor_BC1_rgb.ktx",
-        "Textures/WoodFloor/Floor_ETC2_RGB.ktx",
-        "Textures/WoodFloor/License.json"
-      ]
-    }
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlas_*dpi.bta",
+          "UIAtlas/UIAtlas_*dpi.png",
+          "UIAtlas/UIAtlas_*dpi_Font.nbf"
+        ]
+      },
+      {
+        "SourcePath" : "${ProjectRoot}/Resources",
+        "Content": [
+          "Textures/WoodFloor/Floor_ASTC8x8_rgb.ktx",
+          "Textures/WoodFloor/Floor_BC1_rgb.ktx",
+          "Textures/WoodFloor/Floor_ETC2_RGB.ktx",
+          "Textures/WoodFloor/License.json"
+        ]
+      }
+    ]
   }
 }

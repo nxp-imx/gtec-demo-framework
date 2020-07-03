@@ -48,8 +48,8 @@ namespace Fsl
     ScopedSystemMemoryAccessDummy(const ScopedSystemMemoryAccessDummy&) = delete;
     ScopedSystemMemoryAccessDummy& operator=(const ScopedSystemMemoryAccessDummy&) = delete;
 
-    ScopedSystemMemoryAccessDummy(const std::size_t targetAddress);
-    ~ScopedSystemMemoryAccessDummy();
+    explicit ScopedSystemMemoryAccessDummy(const std::size_t targetAddress);
+    ~ScopedSystemMemoryAccessDummy() = default;
     uint8_t GetUInt8() const;
     uint16_t GetUInt16() const;
     uint32_t GetUInt32() const;

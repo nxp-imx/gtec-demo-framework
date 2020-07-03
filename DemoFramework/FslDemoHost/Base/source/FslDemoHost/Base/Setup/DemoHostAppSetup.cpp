@@ -30,14 +30,15 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Setup/DemoHostAppSetup.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  DemoHostAppSetup::DemoHostAppSetup(const DemoAppSetup& demoAppSetup, const std::shared_ptr<DemoHostFeatureDeque>& demoHostFeatures,
-                                     const std::shared_ptr<DemoAppHostConfig>& demoAppHostConfig)
-    : AppSetup(demoAppSetup)
-    , DemoHostFeatures(demoHostFeatures)
-    , AppHostConfig(demoAppHostConfig)
+  DemoHostAppSetup::DemoHostAppSetup(DemoAppSetup demoAppSetup, std::shared_ptr<DemoHostFeatureDeque> demoHostFeatures,
+                                     std::shared_ptr<DemoAppHostConfig> demoAppHostConfig)
+    : AppSetup(std::move(demoAppSetup))
+    , DemoHostFeatures(std::move(demoHostFeatures))
+    , AppHostConfig(std::move(demoAppHostConfig))
   {
   }
 }

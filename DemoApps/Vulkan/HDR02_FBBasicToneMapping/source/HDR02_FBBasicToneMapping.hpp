@@ -37,11 +37,6 @@
 #include <FslDemoApp/Base/Service/Keyboard/IKeyboard.hpp>
 #include <FslDemoApp/Base/Service/Mouse/IMouse.hpp>
 #include <FslGraphics3D/Camera/FirstPersonCamera.hpp>
-#include <FslSimpleUI/App/UIDemoAppExtension.hpp>
-#include <FslSimpleUI/Base/Control/CheckBox.hpp>
-#include <FslSimpleUI/Base/Control/FloatSliderAndValueLabel.hpp>
-#include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Layout/CanvasLayout.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMVertexBuffer.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
@@ -80,8 +75,8 @@ namespace Fsl
     // https://www.khronos.org/registry/vulkan/specs/1.0-wsi_extensions/html/vkspec.html#interfaces-resources
     struct FragmentUBOData
     {
-      Vector4 LightPositions[4];
-      Vector4 LightColors[4];
+      Vector4 LightPositions[4];    // NOLINT(modernize-avoid-c-arrays)
+      Vector4 LightColors[4];       // NOLINT(modernize-avoid-c-arrays)
       float Exposure = 0.0f;
     };
 
@@ -130,7 +125,7 @@ namespace Fsl
     FragmentUBOData m_fragmentUboData;
 
   public:
-    HDR02_FBBasicToneMapping(const DemoAppConfig& config);
+    explicit HDR02_FBBasicToneMapping(const DemoAppConfig& config);
 
   protected:
     void OnKeyEvent(const KeyEvent& event) override;

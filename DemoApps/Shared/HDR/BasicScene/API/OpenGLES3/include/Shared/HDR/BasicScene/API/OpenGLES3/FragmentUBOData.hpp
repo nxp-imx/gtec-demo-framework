@@ -37,8 +37,8 @@ namespace Fsl
 {
   struct FragmentUBOData
   {
-    Vector3 LightPositions[4];
-    Vector3 LightColors[4];
+    Vector3 LightPositions[4]{};    // NOLINT(modernize-avoid-c-arrays)
+    Vector3 LightColors[4]{};       // NOLINT(modernize-avoid-c-arrays)
     float Exposure = 0.0f;
   };
 }

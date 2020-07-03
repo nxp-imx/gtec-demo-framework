@@ -62,7 +62,7 @@ namespace Fsl
 
       // Remove the data from other
       other.m_textureType = TextureType::Undefined;
-      other.m_extent = Extent3D();
+      other.m_extent = PxExtent3D();
       other.m_pixelFormat = PixelFormat::Undefined;
       other.m_textureInfo = TextureInfo();
       other.m_bitmapOrigin = BitmapOrigin::Undefined;
@@ -86,7 +86,7 @@ namespace Fsl
   {
     // Remove the data from other
     other.m_textureType = TextureType::Undefined;
-    other.m_extent = Extent3D();
+    other.m_extent = PxExtent3D();
     other.m_pixelFormat = PixelFormat::Undefined;
     other.m_textureInfo = TextureInfo();
     other.m_bitmapOrigin = BitmapOrigin::Undefined;
@@ -98,7 +98,7 @@ namespace Fsl
   TextureBlobBuilder::TextureBlobBuilder() = default;
 
 
-  TextureBlobBuilder::TextureBlobBuilder(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat,
+  TextureBlobBuilder::TextureBlobBuilder(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat,
                                          const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin)
     : TextureBlobBuilder()
   {
@@ -106,7 +106,7 @@ namespace Fsl
   }
 
 
-  TextureBlobBuilder::TextureBlobBuilder(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat,
+  TextureBlobBuilder::TextureBlobBuilder(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat,
                                          const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin, const std::size_t contentSize)
   {
     Reset(textureType, extent, pixelFormat, textureInfo, bitmapOrigin, contentSize);
@@ -175,7 +175,7 @@ namespace Fsl
     uint32_t texel = 0;
     for (uint32_t level = 0; level < m_textureInfo.Levels; ++level)
     {
-      const Extent3D currentExtent = GetExtent(level);
+      const PxExtent3D currentExtent = GetExtent(level);
       const std::size_t stride = PixelFormatUtil::CalcMinimumStride(currentExtent.Width, bytesPerPixel);
       const std::size_t blobSize = (stride * currentExtent.Height) * currentExtent.Depth;
       uint32_t texel2 = currentExtent.Width * currentExtent.Height * currentExtent.Depth;
@@ -203,21 +203,21 @@ namespace Fsl
   }
 
 
-  void TextureBlobBuilder::Reset(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
-                                 const BitmapOrigin bitmapOrigin)
+  void TextureBlobBuilder::Reset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat,
+                                 const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin)
   {
     DoReset(textureType, extent, pixelFormat, textureInfo, bitmapOrigin, false, 0);
   }
 
 
-  void TextureBlobBuilder::Reset(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat, const TextureInfo& textureInfo,
-                                 const BitmapOrigin bitmapOrigin, const std::size_t contentSize)
+  void TextureBlobBuilder::Reset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat,
+                                 const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin, const std::size_t contentSize)
   {
     DoReset(textureType, extent, pixelFormat, textureInfo, bitmapOrigin, true, contentSize);
   }
 
 
-  Extent3D TextureBlobBuilder::GetExtent(const uint32_t level) const
+  PxExtent3D TextureBlobBuilder::GetExtent(const uint32_t level) const
   {
     if (!IsValid())
     {
@@ -252,7 +252,7 @@ namespace Fsl
   }
 
 
-  void TextureBlobBuilder::DoReset(const TextureType textureType, const Extent3D& extent, const PixelFormat pixelFormat,
+  void TextureBlobBuilder::DoReset(const TextureType textureType, const PxExtent3D& extent, const PixelFormat pixelFormat,
                                    const TextureInfo& textureInfo, const BitmapOrigin bitmapOrigin, const bool hasContentSize,
                                    const std::size_t contentSize)
   {
@@ -321,7 +321,7 @@ namespace Fsl
   void TextureBlobBuilder::ResetNoThrow() noexcept
   {
     m_textureType = TextureType::Undefined;
-    m_extent = Extent3D();
+    m_extent = PxExtent3D();
     m_pixelFormat = PixelFormat::Undefined;
     m_textureInfo = TextureInfo();
     m_bitmapOrigin = BitmapOrigin::Undefined;

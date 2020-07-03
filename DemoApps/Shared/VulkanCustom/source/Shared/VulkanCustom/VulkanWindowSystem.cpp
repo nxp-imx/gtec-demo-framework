@@ -71,8 +71,9 @@ namespace Fsl
     const std::string khrSurfaceExtensionName = vulkanWindowSystem->GetKHRSurfaceExtensionName();
 
     {
-      const auto instanceConfig = InstanceConfigUtil::InstanceConfigAsCharArrays(InstanceConfigUtil::BuildInstanceConfig(
-        khrSurfaceExtensionName, userChoiceValidationLayer, std::dynamic_pointer_cast<DemoAppHostConfigVulkan>(setup.CustomDemoAppHostConfig)));
+      const auto instanceConfig = InstanceConfigUtil::InstanceConfigAsCharArrays(
+        InstanceConfigUtil::BuildInstanceConfig(khrSurfaceExtensionName, InstanceConfigUtil::InstanceUserChoice(userChoiceValidationLayer),
+                                                std::dynamic_pointer_cast<DemoAppHostConfigVulkan>(setup.CustomDemoAppHostConfig)));
 
       m_instance = InstanceUtil::CreateInstance("VulkanWindowSystem", VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0, 0, instanceConfig.Layers,
                                                 instanceConfig.Extensions, m_instanceCreateInfo.get());

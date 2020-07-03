@@ -41,20 +41,15 @@ namespace Fsl
     : AsynchronousServiceImpl(createInfo, serviceProvider)
     , m_image(serviceProvider.Get<IImageBasicService>())
   {
-    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::ReadBitmapPromiseMessage>(
-      std::bind(&AsyncImageServiceImpl::ReadBitmap, this, std::placeholders::_1));
-    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::ReadTexturePromiseMessage>(
-      std::bind(&AsyncImageServiceImpl::ReadTexture, this, std::placeholders::_1));
-    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::WriteBitmapPromiseMessage>(
-      std::bind(&AsyncImageServiceImpl::Write, this, std::placeholders::_1));
+    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::ReadBitmapPromiseMessage>([this](auto& message) { ReadBitmap(message); });
+    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::ReadTexturePromiseMessage>([this](auto& message) { ReadTexture(message); });
+    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::WriteBitmapPromiseMessage>([this](auto& message) { Write(message); });
     createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::WriteExactBitmapImagePromiseMessage>(
-      std::bind(&AsyncImageServiceImpl::WriteExactImage, this, std::placeholders::_1));
-    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryReadBitmapPromiseMessage>(
-      std::bind(&AsyncImageServiceImpl::TryRead, this, std::placeholders::_1));
-    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryWriteBitmapPromiseMessage>(
-      std::bind(&AsyncImageServiceImpl::TryWrite, this, std::placeholders::_1));
+      [this](auto& message) { WriteExactImage(message); });
+    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryReadBitmapPromiseMessage>([this](auto& message) { TryRead(message); });
+    createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryWriteBitmapPromiseMessage>([this](auto& message) { TryWrite(message); });
     createInfo.MessageHandlerRegistry.Register<AsyncImageMessages::TryWriteExactBitmapImagePromiseMessage>(
-      std::bind(&AsyncImageServiceImpl::TryWriteExactImage, this, std::placeholders::_1));
+      [this](auto& message) { TryWriteExactImage(message); });
   }
 
 

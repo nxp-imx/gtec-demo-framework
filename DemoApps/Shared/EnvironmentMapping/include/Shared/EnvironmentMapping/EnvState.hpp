@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Vector4.hpp>
@@ -41,7 +41,7 @@ namespace Fsl
 {
   class EnvState
   {
-    Point2 m_screenResolution;
+    PxSize2D m_windowSizePx;
     float m_stepsPerCircle;
     float m_time;
     float m_timeStep;
@@ -55,12 +55,12 @@ namespace Fsl
     Matrix ViewMatrix;
     Matrix ProjMatrix;
 
-    EnvState(const Point2& screenResolution);
-    ~EnvState();
+    explicit EnvState(const PxSize2D& windowSizePx);
+    ~EnvState() = default;
 
-    Point2 GetScreenResolution() const
+    PxSize2D GetWindowSizePx() const
     {
-      return m_screenResolution;
+      return m_windowSizePx;
     }
 
     void Update(const float deltaTime);

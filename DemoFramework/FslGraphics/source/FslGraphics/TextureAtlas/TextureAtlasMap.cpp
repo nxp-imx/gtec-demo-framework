@@ -30,7 +30,12 @@
  ****************************************************************************************************************************************************/
 
 #include <FslGraphics/TextureAtlas/TextureAtlasMap.hpp>
+#include <FslBase/Log/IO/FmtPath.hpp>
+#include <FslBase/Log/IO/FmtPathView.hpp>
+#include <FslBase/IO/Path.hpp>
 #include <FslGraphics/TextureAtlas/ITextureAtlas.hpp>
+#include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
+#include <FslGraphics/TextureAtlas/TextureAtlasNineSlicePatch.hpp>
 #include <FslGraphics/Exceptions.hpp>
 #include <fmt/format.h>
 
@@ -39,23 +44,40 @@ namespace Fsl
   TextureAtlasMap::TextureAtlasMap() = default;
 
 
-  TextureAtlasMap::TextureAtlasMap(ITextureAtlas& atlas)
+  TextureAtlasMap::TextureAtlasMap(const ITextureAtlas& atlas)
   {
-    for (int32_t i = 0; i < atlas.Count(); ++i)
+    for (uint32_t i = 0; i < atlas.Count(); ++i)
     {
-      NamedAtlasTexture entry = atlas.GetEntry(i);
+      const NamedAtlasTexture& entry = atlas.GetEntry(i);
       m_map[entry.Name] = entry.TextureInfo;
+    }
+
+    for (uint32_t i = 0; i < atlas.NineSliceCount(); ++i)
+    {
+      const TextureAtlasNineSlicePatch& entry = atlas.GetNineSlicePatch(i);
+      m_ninesliceMap[atlas.GetEntry(entry.TextureIndex).Name] = entry.Patch;
     }
   }
 
 
-  AtlasTextureInfo TextureAtlasMap::GetAtlasTextureInfo(const UTF8String& name) const
+  AtlasTextureInfo TextureAtlasMap::GetAtlasTextureInfo(const IO::PathView& name) const
   {
     auto itr = m_map.find(name);
     if (itr == m_map.end())
     {
-      throw NotFoundException(fmt::format("Unknown texture: {}", name.ToUTF8String()));
+      throw NotFoundException(fmt::format("Unknown texture: '{}'", name));
     }
     return itr->second;
   }
+
+  AtlasNineSlicePatchInfo TextureAtlasMap::GetAtlasNineSlicePatchInfo(const IO::PathView& name) const
+  {
+    auto itr = m_ninesliceMap.find(name);
+    if (itr == m_ninesliceMap.end())
+    {
+      throw NotFoundException(fmt::format("Unknown texture nine-slice patch: '{}'", name));
+    }
+    return itr->second;
+  }
+
 }

@@ -17,8 +17,5 @@
       <ExternalDependency Name="GLESv3" Type="StaticLib"/>
     </Platform>
     <Platform Name="QNX" Supported="false"/>
-    <Platform Name="CMake">
-      <ExternalDependency Name="OpenGLES" Type="Find"/>
-    </Platform>
   </ExternalLibrary>
 </FslBuildGen>

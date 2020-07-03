@@ -35,8 +35,8 @@
 
 namespace Fsl
 {
-  class AtlasFont;
   class INativeBatch2D;
+  class SpriteFont;
 
   namespace UI
   {
@@ -44,10 +44,10 @@ namespace Fsl
     {
     public:
       const std::shared_ptr<INativeBatch2D> Batch2D;
-      const std::shared_ptr<AtlasFont> DefaultFont;
+      const std::shared_ptr<SpriteFont> DefaultFont;
 
-      WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, const std::shared_ptr<INativeBatch2D>& batch2D,
-                    const std::shared_ptr<AtlasFont>& defaultFont);
+      WindowContext(const std::shared_ptr<Fsl::UI::UIContext>& uiContext, std::shared_ptr<INativeBatch2D> batch2D,
+                    std::shared_ptr<SpriteFont> defaultFont, const uint32_t densityDpi);
       ~WindowContext();
     };
   }

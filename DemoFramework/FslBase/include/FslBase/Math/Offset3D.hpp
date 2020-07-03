@@ -37,21 +37,22 @@ namespace Fsl
 {
   struct Offset3D
   {
-  public:
-    int32_t X{0};
-    int32_t Y{0};
-    int32_t Z{0};
+    using value_type = int32_t;
 
-    Offset3D() = default;
+    value_type X{0};
+    value_type Y{0};
+    value_type Z{0};
 
-    Offset3D(const int32_t x, const int32_t y, const int32_t z)
+    constexpr Offset3D() noexcept = default;
+
+    constexpr Offset3D(const value_type x, const value_type y, const value_type z) noexcept
       : X(x)
       , Y(y)
       , Z(z)
     {
     }
 
-    Offset3D& operator+=(const Offset3D& arg)
+    constexpr Offset3D& operator+=(const Offset3D& arg) noexcept
     {
       X += arg.X;
       Y += arg.Y;
@@ -59,7 +60,7 @@ namespace Fsl
       return *this;
     }
 
-    Offset3D& operator-=(const Offset3D& arg)
+    constexpr Offset3D& operator-=(const Offset3D& arg) noexcept
     {
       X -= arg.X;
       Y -= arg.Y;
@@ -67,7 +68,7 @@ namespace Fsl
       return *this;
     }
 
-    Offset3D& operator*=(const Offset3D& arg)
+    constexpr Offset3D& operator*=(const Offset3D& arg) noexcept
     {
       X *= arg.X;
       Y *= arg.Y;
@@ -75,7 +76,7 @@ namespace Fsl
       return *this;
     }
 
-    Offset3D& operator*=(const int arg)
+    constexpr Offset3D& operator*=(const int32_t arg) noexcept
     {
       X *= arg;
       Y *= arg;
@@ -83,47 +84,48 @@ namespace Fsl
       return *this;
     }
 
-    bool operator==(const Offset3D& rhs) const
+    constexpr bool operator==(const Offset3D& rhs) const noexcept
     {
       return X == rhs.X && Y == rhs.Y && Z == rhs.Z;
     }
 
-    bool operator!=(const Offset3D& rhs) const
+    constexpr bool operator!=(const Offset3D& rhs) const noexcept
     {
       return X != rhs.X || Y != rhs.Y || Z != rhs.Z;
     }
 
     // @brief Returns a Offset3D with all components being zero (0, 0)
-    static Offset3D Zero()
+    static constexpr Offset3D Zero() noexcept
     {
       return {};
     }
   };
-}
 
-inline Fsl::Offset3D operator+(const Fsl::Offset3D& lhs, const Fsl::Offset3D& rhs)
-{
-  return Fsl::Offset3D(lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z);
-}
+  inline constexpr Offset3D operator+(const Offset3D& lhs, const Offset3D& rhs) noexcept
+  {
+    return {lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z};
+  }
 
-inline Fsl::Offset3D operator-(const Fsl::Offset3D& lhs, const Fsl::Offset3D& rhs)
-{
-  return Fsl::Offset3D(lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z);
-}
+  inline constexpr Offset3D operator-(const Offset3D& lhs, const Offset3D& rhs) noexcept
+  {
+    return {lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z};
+  }
 
-inline Fsl::Offset3D operator*(const Fsl::Offset3D& lhs, const Fsl::Offset3D& rhs)
-{
-  return Fsl::Offset3D(lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z);
-}
+  inline constexpr Offset3D operator*(const Offset3D& lhs, const Offset3D& rhs) noexcept
+  {
+    return {lhs.X * rhs.X, lhs.Y * rhs.Y, lhs.Z * rhs.Z};
+  }
 
-inline Fsl::Offset3D operator*(const Fsl::Offset3D& lhs, const int rhs)
-{
-  return Fsl::Offset3D(lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs);
-}
+  inline constexpr Offset3D operator*(const Offset3D& lhs, const int32_t rhs) noexcept
+  {
+    return {lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs};
+  }
 
-inline Fsl::Offset3D operator*(const int lhs, const Fsl::Offset3D& rhs)
-{
-  return rhs * lhs;
+  inline constexpr Offset3D operator*(const int32_t lhs, const Offset3D& rhs) noexcept
+  {
+    return rhs * lhs;
+  }
+
 }
 
 #endif

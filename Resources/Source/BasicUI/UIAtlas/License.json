@@ -1,0 +1,16 @@
+{
+  "ComplexLicense": {
+    "Licenses": [
+      {
+        "Origin": "Google",
+        "License": "Apache2.0",
+        "Comment": "https://material.io/resources/icons/?style=round",
+        "URL": "https://github.com/google/material-design-icons"
+      },
+      {
+        "Origin": "NXP",
+        "License": "CC0-1.0"
+      }
+    ]
+  }
+}

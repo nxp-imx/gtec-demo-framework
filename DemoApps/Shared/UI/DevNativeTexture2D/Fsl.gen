@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
+  <Library Name="Shared.UI.DevNativeTexture2D" CreationYear="2020">
+    <Dependency Name="FslGraphics"/>
+    <Dependency Name="FslDemoApp.Base"/>
+    <Dependency Name="FslSimpleUI.App"/>
+    <Dependency Name="FslSimpleUI.Theme.Basic"/>
+    <Platform Name="Windows" ProjectId="1ADF2958-85A1-49F1-9C1F-A803FA25810D"/>
+  </Library>
+</FslBuildGen>

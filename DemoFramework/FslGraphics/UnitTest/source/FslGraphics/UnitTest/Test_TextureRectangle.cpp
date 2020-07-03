@@ -52,15 +52,15 @@ TEST(Test_TextureRectangle, Construct_Empty)
   auto rect = rectangle.GetRectangle();
   auto size = rectangle.GetTextureSize();
 
-  EXPECT_EQ(Rectangle(0, 0, 0, 0), rect);
-  EXPECT_EQ(Point2(0, 0), size);
+  EXPECT_EQ(PxRectangle(0, 0, 0, 0), rect);
+  EXPECT_EQ(PxSize2D(0, 0), size);
 }
 
 
 TEST(Test_TextureRectangle, Equal)
 {
-  TextureRectangle rectangle1(Rectangle(1, 2, 3, 4), Point2(10, 20));
-  TextureRectangle rectangle2(Rectangle(1, 2, 3, 4), Point2(10, 20));
+  TextureRectangle rectangle1(PxRectangle(1, 2, 3, 4), PxSize2D(10, 20));
+  TextureRectangle rectangle2(PxRectangle(1, 2, 3, 4), PxSize2D(10, 20));
 
   EXPECT_EQ(rectangle1, rectangle2);
 }
@@ -68,13 +68,13 @@ TEST(Test_TextureRectangle, Equal)
 
 TEST(Test_TextureRectangle, NotEqual)
 {
-  TextureRectangle rectangle1(Rectangle(1, 2, 3, 4), Point2(10, 20));
-  TextureRectangle rectangle2(Rectangle(1, 2, 3, 4), Point2(10, 21));
-  TextureRectangle rectangle3(Rectangle(1, 2, 3, 4), Point2(11, 20));
-  TextureRectangle rectangle4(Rectangle(1, 2, 3, 5), Point2(10, 20));
-  TextureRectangle rectangle5(Rectangle(1, 2, 4, 4), Point2(10, 20));
-  TextureRectangle rectangle6(Rectangle(1, 3, 3, 4), Point2(10, 20));
-  TextureRectangle rectangle7(Rectangle(2, 1, 3, 4), Point2(10, 20));
+  TextureRectangle rectangle1(PxRectangle(1, 2, 3, 4), PxSize2D(10, 20));
+  TextureRectangle rectangle2(PxRectangle(1, 2, 3, 4), PxSize2D(10, 21));
+  TextureRectangle rectangle3(PxRectangle(1, 2, 3, 4), PxSize2D(11, 20));
+  TextureRectangle rectangle4(PxRectangle(1, 2, 3, 5), PxSize2D(10, 20));
+  TextureRectangle rectangle5(PxRectangle(1, 2, 4, 4), PxSize2D(10, 20));
+  TextureRectangle rectangle6(PxRectangle(1, 3, 3, 4), PxSize2D(10, 20));
+  TextureRectangle rectangle7(PxRectangle(2, 1, 3, 4), PxSize2D(10, 20));
 
   EXPECT_NE(rectangle1, rectangle2);
   EXPECT_NE(rectangle1, rectangle3);

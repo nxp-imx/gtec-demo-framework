@@ -10,14 +10,15 @@
 // Recreated as a DemoFramework freestyle window sample by Freescale (2016)
 
 #include "MeshInstancing.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/ToString.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
+#include <FslUtil/Vulkan1_0/TypeConverter.hpp>
 #include <FslUtil/Vulkan1_0/Exceptions.hpp>
-#include <FslUtil/Vulkan1_0/Util/ConvertUtil.hpp>
 #include <RapidVulkan/Check.hpp>
 #include <RapidVulkan/Memory.hpp>
 #include <array>
@@ -28,14 +29,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-using namespace RapidVulkan;
-
 namespace Fsl
 {
-  using namespace Vulkan;
-  using namespace Vulkan::ConvertUtil;
-  using namespace Willems;
-
   namespace
   {
     const uint32_t VERTEX_BUFFER_BIND_ID = 0;
@@ -43,9 +38,9 @@ namespace Fsl
 
 
     // Vertex layout for this example
-    const std::vector<MeshLoader::VertexLayout> g_vertexLayout = {
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION, MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL, MeshLoader::VertexLayout::VERTEX_LAYOUT_UV,
-      MeshLoader::VertexLayout::VERTEX_LAYOUT_COLOR};
+    const std::vector<Willems::MeshLoader::VertexLayout> g_vertexLayout = {
+      Willems::MeshLoader::VertexLayout::VERTEX_LAYOUT_POSITION, Willems::MeshLoader::VertexLayout::VERTEX_LAYOUT_NORMAL,
+      Willems::MeshLoader::VertexLayout::VERTEX_LAYOUT_UV, Willems::MeshLoader::VertexLayout::VERTEX_LAYOUT_COLOR};
   }
 
 
@@ -85,21 +80,22 @@ namespace Fsl
   }
 
 
-  void MeshInstancing::GetOverlayText(VulkanTextOverlay& rTextOverlay)
+  void MeshInstancing::GetOverlayText(Willems::VulkanTextOverlay& rTextOverlay)
   {
-    rTextOverlay.AddText("Rendering " + ToString(m_optionParser->GetInstanceCount()) + " instances", 5.0f, 85.0f, VulkanTextOverlay::TextAlign::Left);
+    rTextOverlay.AddText("Rendering " + ToString(m_optionParser->GetInstanceCount()) + " instances", 5.0f, 85.0f,
+                         Willems::VulkanTextOverlay::TextAlign::Left);
   }
 
 
   void MeshInstancing::BuildCommandBuffers()
   {
-    const auto screenExtent = Convert(GetScreenExtent());
+    const auto screenExtent = TypeConverter::UncheckedTo<VkExtent2D>(GetScreenExtent());
 
     VkCommandBufferBeginInfo cmdBufInfo{};
     cmdBufInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     cmdBufInfo.pNext = nullptr;
 
-    VkClearValue clearValues[2];
+    std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {{0.0f, 0.0f, 0.0f, 0.0f}};
     clearValues[1].depthStencil = {1.0f, 0};
 
@@ -108,8 +104,8 @@ namespace Fsl
     renderPassBeginInfo.pNext = nullptr;
     renderPassBeginInfo.renderPass = m_renderPass.Get();
     renderPassBeginInfo.renderArea.extent = screenExtent;
-    renderPassBeginInfo.clearValueCount = 2;
-    renderPassBeginInfo.pClearValues = clearValues;
+    renderPassBeginInfo.clearValueCount = UncheckedNumericCast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
 
     for (std::size_t i = 0; i < m_drawCmdBuffers.Size(); ++i)
     {
@@ -138,11 +134,11 @@ namespace Fsl
         vkCmdBindDescriptorSets(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout.Get(), 0, 1, &m_descriptorSet, 0, nullptr);
         vkCmdBindPipeline(m_drawCmdBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelines.Solid.Get());
 
-        VkDeviceSize offsets[1] = {0};
+        VkDeviceSize offsets = 0;
         // Binding point 0 : Mesh vertex buffer
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Example.GetVertices().GetBufferPointer(), offsets);
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], VERTEX_BUFFER_BIND_ID, 1, m_meshes.Example.GetVertices().GetBufferPointer(), &offsets);
         // Binding point 1 : Instance data buffer
-        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], INSTANCE_BUFFER_BIND_ID, 1, m_instanceBuffer.Buffer.GetPointer(), offsets);
+        vkCmdBindVertexBuffers(m_drawCmdBuffers[i], INSTANCE_BUFFER_BIND_ID, 1, m_instanceBuffer.Buffer.GetPointer(), &offsets);
 
         vkCmdBindIndexBuffer(m_drawCmdBuffers[i], m_meshes.Example.GetIndices().GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 
@@ -165,12 +161,12 @@ namespace Fsl
   }
 
 
-  void MeshInstancing::Update(const DemoTime& demoTime)
+  void MeshInstancing::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void MeshInstancing::Draw(const DemoTime& demoTime)
+  void MeshInstancing::Draw(const DemoTime& /*demoTime*/)
   {
     if (!TryPrepareFrame())
     {
@@ -228,13 +224,13 @@ namespace Fsl
         glm::vec3(MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator), MathHelper::PI * uniformDist(rndGenerator));
       const auto theta = static_cast<float>(2.0 * MathHelper::PI * uniformDist(rndGenerator));
       const auto phi = static_cast<float>(std::acos(1.0 - 2.0 * uniformDist(rndGenerator)));
-      glm::vec3 pos;
+      // glm::vec3 pos;
       instanceData[i].pos = glm::vec3(std::sin(phi) * std::cos(theta), std::sin(theta) * uniformDist(rndGenerator) / 1500.0f, std::cos(phi)) * 7.5f;
       instanceData[i].scale = static_cast<float>(1.0 + uniformDist(rndGenerator) * 2.0);
       instanceData[i].texIndex = uniformTexDist(rndGenerator);
     }
 
-    m_instanceBuffer.Size = static_cast<uint32_t>(instanceData.size() * sizeof(InstanceData));
+    m_instanceBuffer.Size = UncheckedNumericCast<uint32_t>(instanceData.size() * sizeof(InstanceData));
 
     // Staging
     // Instanced data is static, copy to device local memory
@@ -252,7 +248,7 @@ namespace Fsl
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_instanceBuffer.Size, nullptr);
 
     {    // Copy to staging buffer
-      CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+      RapidVulkan::CommandBuffer copyCmd = CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
 
       VkBufferCopy copyRegion{};
       copyRegion.size = m_instanceBuffer.Size;
@@ -274,7 +270,7 @@ namespace Fsl
 
     // Mesh vertex buffer (description) at binding point 0
     m_vertices.BindingDescriptions[0].binding = VERTEX_BUFFER_BIND_ID;
-    m_vertices.BindingDescriptions[0].stride = MeshLoader::VertexSize(g_vertexLayout);
+    m_vertices.BindingDescriptions[0].stride = Willems::MeshLoader::VertexSize(g_vertexLayout);
     m_vertices.BindingDescriptions[0].inputRate =
       VK_VERTEX_INPUT_RATE_VERTEX;    // Input rate for the data passed to shader// Step for each vertex rendered;
 
@@ -334,9 +330,9 @@ namespace Fsl
 
     m_vertices.InputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     m_vertices.InputState.pNext = nullptr;
-    m_vertices.InputState.vertexBindingDescriptionCount = static_cast<uint32_t>(m_vertices.BindingDescriptions.size());
+    m_vertices.InputState.vertexBindingDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.BindingDescriptions.size());
     m_vertices.InputState.pVertexBindingDescriptions = m_vertices.BindingDescriptions.data();
-    m_vertices.InputState.vertexAttributeDescriptionCount = static_cast<uint32_t>(m_vertices.AttributeDescriptions.size());
+    m_vertices.InputState.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(m_vertices.AttributeDescriptions.size());
     m_vertices.InputState.pVertexAttributeDescriptions = m_vertices.AttributeDescriptions.data();
   }
 
@@ -394,7 +390,7 @@ namespace Fsl
     VkDescriptorSetLayoutCreateInfo descriptorLayout{};
     descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorLayout.pNext = nullptr;
-    descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+    descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
     descriptorLayout.pBindings = setLayoutBindings.data();
 
     m_descriptorSetLayout.Reset(m_device.Get(), descriptorLayout);
@@ -460,7 +456,7 @@ namespace Fsl
     VkPipelineDynamicStateCreateInfo dynamicState{};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicState.flags = 0;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
+    dynamicState.dynamicStateCount = UncheckedNumericCast<uint32_t>(dynamicStateEnables.size());
     dynamicState.pDynamicStates = dynamicStateEnables.data();
 
 
@@ -487,7 +483,7 @@ namespace Fsl
     pipelineCreateInfo.pViewportState = &viewportState;
     pipelineCreateInfo.pDepthStencilState = &depthStencilState;
     pipelineCreateInfo.pDynamicState = &dynamicState;
-    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderStages.size());
+    pipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(shaderStages.size());
     pipelineCreateInfo.pStages = shaderStages.data();
 
     m_pipelines.Solid.Reset(m_device.Get(), m_pipelineCache.Get(), pipelineCreateInfo);
@@ -507,7 +503,7 @@ namespace Fsl
     descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolInfo.pNext = nullptr;
     descriptorPoolInfo.maxSets = 2;
-    descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    descriptorPoolInfo.poolSizeCount = UncheckedNumericCast<uint32_t>(poolSizes.size());
     descriptorPoolInfo.pPoolSizes = poolSizes.data();
 
     m_descriptorPool.Reset(m_device.Get(), descriptorPoolInfo);
@@ -543,6 +539,6 @@ namespace Fsl
     writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     writeDescriptorSets[1].pImageInfo = m_textures.ColorMap.GetImageDescriptorPointer();
 
-    vkUpdateDescriptorSets(m_device.Get(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+    vkUpdateDescriptorSets(m_device.Get(), UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
   }
 }

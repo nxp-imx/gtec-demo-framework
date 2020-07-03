@@ -104,7 +104,7 @@ namespace Fsl
       //! @brief Get the vertex declaration
       virtual VertexDeclaration GetVertexDeclaration() const = 0;
       //! @brief Get readonly direct access to the vertex data
-      virtual const RawMeshContent GenericDirectAccess() const = 0;
+      virtual RawMeshContent GenericDirectAccess() const = 0;
       //! @brief Get direct access to the vertex data
       virtual RawMeshContentEx GenericDirectAccess() = 0;
 

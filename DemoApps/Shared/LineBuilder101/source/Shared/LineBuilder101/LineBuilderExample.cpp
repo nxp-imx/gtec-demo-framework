@@ -97,11 +97,11 @@ namespace Fsl
     }
   }
 
-  void LineBuilderExample::Update(const DemoTime& demoTime, const Point2& screenResolution)
+  void LineBuilderExample::Update(const DemoTime& demoTime, const PxSize2D& windowSizePx)
   {
     UpdateInput(demoTime);
 
-    float aspectRatio = screenResolution.X / static_cast<float>(screenResolution.Y);
+    float aspectRatio = windowSizePx.Width() / static_cast<float>(windowSizePx.Height());
     m_matView = m_camera.GetViewMatrix();
     m_matProjection = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspectRatio, 0.001f, 500.0f);
 
@@ -124,7 +124,7 @@ namespace Fsl
     }
   }
 
-  void LineBuilderExample::Draw(const DemoTime& demoTime)
+  void LineBuilderExample::Draw(const DemoTime& /*demoTime*/)
   {
     m_basic2D->Begin();
     m_basic2D->DrawString(m_strLines, Vector2(0, 0));

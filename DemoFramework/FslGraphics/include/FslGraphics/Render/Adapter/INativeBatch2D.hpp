@@ -32,20 +32,31 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/String/StringViewLite.hpp>
+#include <FslGraphics/Render/BatchEffect.hpp>
 #include <FslGraphics/Render/BlendState.hpp>
+#include <FslGraphics/Render/Stats/Batch2DStats.hpp>
 #include <string>
 
 namespace Fsl
 {
   class AtlasTexture2D;
+  class BaseTexture2D;
+  struct BitmapFontConfig;
   struct Color;
+  class StringViewLite;
+  class INativeTexture2D;
+  struct NativeTextureArea;
+  struct NativeQuadTextureCoords;
   struct Point2;
-  struct Rect;
-  struct Rectangle;
-  struct Vector2;
-  class Texture2D;
+  struct PxAreaRectangleF;
+  struct PxClipRectangle;
+  struct PxExtent2D;
+  struct PxRectangle;
+  struct PxRectangleU;
+  class SpriteFont;
   class TextureAtlasBitmapFont;
+  struct Vector2;
+  struct Vector4;
 
   //! @brief A really simple API independent way to draw some graphics
   //!        All methods operate in screen coordinate pixel mode where 0,0 is the top left corner and
@@ -58,7 +69,7 @@ namespace Fsl
     virtual ~INativeBatch2D() = default;
 
     //! @brief Set the screen resolution used by the batch2d instance
-    virtual void SetScreenResolution(const Point2& resolution) = 0;
+    virtual void SetScreenExtent(const PxExtent2D& extentPx) = 0;
 
     //! @brief Begin drawing. Defaults to blendState == BlendState::AlphaBlend, restoreState == false
     virtual void Begin() = 0;
@@ -75,91 +86,276 @@ namespace Fsl
 
     virtual void End() = 0;
 
-    //! @brief Draw the full texture at dstPosition
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPosition, const Color& color) = 0;
-    //! @brief Draw the full texture at dstPosition
-    virtual void Draw(const Texture2D& srcTexture, const Vector2& dstPosition, const Color& color) = 0;
 
-    //! @brief Scale the full texture to fit inside the dstRectangle
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Rectangle& dstRectangle, const Color& color) = 0;
-    //! @brief Scale the full texture to fit inside the dstRectangle
-    virtual void Draw(const Texture2D& srcTexture, const Rectangle& dstRectangle, const Color& color) = 0;
+    //! @brief Get basic drawing stats
+    virtual Batch2DStats GetStats() const = 0;
 
+    // ---------- 0
+
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeTextureArea& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Color& color) = 0;
+    //! @note Low level draw access (almost a passthrough function)
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeTextureArea& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Vector4& color) = 0;
+    //! @brief draw the texture at dstRect using the native texture area
+    //! @note Low level draw access (almost a passthrough function)
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeQuadTextureCoords& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Color& color) = 0;
+    //! @brief draw the texture at dstRect using the native texture area
+    //! @note Low level draw access (almost a passthrough function)
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeQuadTextureCoords& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Vector4& color) = 0;
+
+    // ---------- 0 with clip
+
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeTextureArea& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Color& color, const PxClipRectangle& clipRectPx) = 0;
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeTextureArea& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Vector4& color, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief draw the texture at dstRect using the native texture area
+    //! @note Low level draw access (almost a passthrough function)
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeQuadTextureCoords& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Color& color, const PxClipRectangle& clipRectPx) = 0;
+    //! @brief draw the texture at dstRect using the native texture area
+    //! @note Low level draw access (almost a passthrough function)
+    virtual void Draw(const INativeTexture2D& srcTexture, const NativeQuadTextureCoords& srcArea, const PxAreaRectangleF& dstRectanglePxf,
+                      const Vector4& color, const PxClipRectangle& clipRectPx) = 0;
+
+    // ---------- 1
+
+    //! @brief Draw the full texture at dstPosition
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const Color& color) = 0;
+    //! @brief Draw the full texture at dstPosition
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const Color& color) = 0;
     //! @brief Scale the full texture to fit inside the dstRectangle
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Rect& dstRectangle, const Color& color) = 0;
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxRectangle& dstRectanglePx, const Color& color) = 0;
     //! @brief Scale the full texture to fit inside the dstRectangle
-    virtual void Draw(const Texture2D& srcTexture, const Rect& dstRectangle, const Color& color) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxRectangle& dstRectanglePx, const Color& color) = 0;
+    //! @brief Scale the full texture to fit inside the dstRectangle
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color) = 0;
+    //! @brief Scale the full texture to fit inside the dstRectangle
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color) = 0;
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color, const BatchEffect effect) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color, const BatchEffect effect) = 0;
+
+    // ---------- 2
 
     //! @brief Draw the texture area at dstPosition
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color) = 0;
     //! @brief Draw the texture area at dstPosition
-    virtual void Draw(const Texture2D& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color) = 0;
+    //! @brief Draw the texture area at dstPosition
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color) = 0;
+    //! @brief Draw the texture area at dstPosition
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color) = 0;
+
+
+    // ---------- 2 with clip
+
+    //! @brief Draw the texture area at dstPosition
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const PxClipRectangle& clipRectPx) = 0;
+    //! @brief Draw the texture area at dstPosition
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const PxClipRectangle& clipRectPx) = 0;
+    //! @brief Draw the texture area at dstPosition
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const PxClipRectangle& clipRectPx) = 0;
+    //! @brief Draw the texture area at dstPosition
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const PxClipRectangle& clipRectPx) = 0;
+
+    // ---------- 2A
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const BatchEffect effect) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const BatchEffect effect) = 0;
+    // ---------- 3
 
     //! @brief Scale the texture area so it fits inside the dstRectangle
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Rectangle& dstRectangle, const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxRectangle& dstRectanglePx, const PxRectangleU& srcRectanglePx,
+                      const Color& color) = 0;
     //! @brief Scale the texture area so it fits inside the dstRectangle
-    virtual void Draw(const Texture2D& srcTexture, const Rectangle& dstRectangle, const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxRectangle& dstRectanglePx, const PxRectangleU& srcRectanglePx, const Color& color) = 0;
 
     //! @brief Scale the texture area so it fits inside the dstRectangle
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxRectangle& dstRectanglePx, const PxRectangle& srcRectanglePx, const Color& color) = 0;
     //! @brief Scale the texture area so it fits inside the dstRectangle
-    virtual void Draw(const Texture2D& srcTexture, const Rect& dstRectangle, const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxRectangle& dstRectanglePx, const PxRectangle& srcRectanglePx, const Color& color) = 0;
+
+    // ---------- 4
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangleU& srcRectanglePx,
+                      const Color& color) = 0;
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangleU& srcRectanglePx,
+                      const Color& color) = 0;
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangle& srcRectanglePx,
+                      const Color& color) = 0;
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangle& srcRectanglePx,
+                      const Color& color) = 0;
+
+    // ---------- 4 With clip
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangleU& srcRectanglePx,
+                      const Color& color, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangleU& srcRectanglePx,
+                      const Color& color, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangle& srcRectanglePx,
+                      const Color& color, const PxClipRectangle& clipRectPx) = 0;
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const PxClipRectangle& clipRectPx) = 0;
+
+    // ---------- 4A
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const AtlasTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangleU& srcRectanglePx,
+                      const Color& color, const BatchEffect effect) = 0;
+
+    //! @brief Scale the texture area so it fits inside the dstRectangle
+    virtual void Draw(const BaseTexture2D& srcTexture, const PxAreaRectangleF& dstRectanglePxf, const PxRectangleU& srcRectanglePx,
+                      const Color& color, const BatchEffect effect) = 0;
+
+    // ---------- 5
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPosition, const Color& color, const Vector2& origin,
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                       const Vector2& scale) = 0;
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const Texture2D& srcTexture, const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale) = 0;
-
-    //! @brief Draw the full texture at dstPosition
-    //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin,
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
                       const Vector2& scale) = 0;
 
-    //! @brief Draw the full texture at dstPosition
-    //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const Texture2D& srcTexture, const Vector2& dstPosition, const Color& color, const float rotation, const Vector2& origin,
-                      const Vector2& scale) = 0;
+    // ---------- 6
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color,
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const Color& color, const float rotation,
                       const Vector2& origin, const Vector2& scale) = 0;
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const Texture2D& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color,
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const Color& color, const float rotation, const Vector2& origin,
+                      const Vector2& scale) = 0;
+
+    // ---------- 7
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
                       const Vector2& origin, const Vector2& scale) = 0;
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color,
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const Vector2& origin, const Vector2& scale) = 0;
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const Vector2& origin, const Vector2& scale) = 0;
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const Vector2& origin, const Vector2& scale) = 0;
+
+    // ---------- 7 with clip
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const Vector2& origin, const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const Vector2& origin, const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const Vector2& origin, const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const Vector2& origin, const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    // ---------- 8
+
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
                       const float rotation, const Vector2& origin, const Vector2& scale) = 0;
 
     //! @brief Draw the full texture at dstPosition
     //! @note Do not invalidate the srcTexture before End() is called.
-    virtual void Draw(const Texture2D& srcTexture, const Vector2& dstPosition, const Rectangle& srcRectangle, const Color& color,
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangleU& srcRectanglePx, const Color& color,
+                      const float rotation, const Vector2& origin, const Vector2& scale) = 0;
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
+                      const float rotation, const Vector2& origin, const Vector2& scale) = 0;
+    //! @brief Draw the full texture at dstPosition
+    //! @note Do not invalidate the srcTexture before End() is called.
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2& dstPositionPxf, const PxRectangle& srcRectanglePx, const Color& color,
                       const float rotation, const Vector2& origin, const Vector2& scale) = 0;
 
+    // ---------- 9
 
     //! @brief Draw the full texture at the given dst positions
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2* const pDstPositions, const int32_t dstPositionsLength, const Color& color) = 0;
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2* const pDstPositionsPxf, const int32_t dstPositionsLength,
+                      const Color& color) = 0;
     //! @brief Draw the full texture at the given dst positions
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void Draw(const Texture2D& srcTexture, const Vector2* const pDstPositions, const int32_t dstPositionsLength, const Color& color) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2* const pDstPositionsPxf, const int32_t dstPositionsLength,
+                      const Color& color) = 0;
+
+    // ---------- 10
 
     //! @brief Draw the texture area at the given dst positions
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2* const pDstPositions, const int32_t dstPositionsLength,
-                      const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2* const pDstPositionsPxf, const int32_t dstPositionsLength,
+                      const PxRectangleU& srcRectanglePx, const Color& color) = 0;
     //! @brief Draw the texture area at the given dst positions
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void Draw(const Texture2D& srcTexture, const Vector2* const pDstPositions, const int32_t dstPositionsLength,
-                      const Rectangle& srcRectangle, const Color& color) = 0;
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2* const pDstPositionsPxf, const int32_t dstPositionsLength,
+                      const PxRectangleU& srcRectanglePx, const Color& color) = 0;
+    //! @brief Draw the texture area at the given dst positions
+    //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
+    virtual void Draw(const AtlasTexture2D& srcTexture, const Vector2* const pDstPositionsPxf, const int32_t dstPositionsLength,
+                      const PxRectangle& srcRectanglePx, const Color& color) = 0;
+    //! @brief Draw the texture area at the given dst positions
+    //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
+    virtual void Draw(const BaseTexture2D& srcTexture, const Vector2* const pDstPositionsPxf, const int32_t dstPositionsLength,
+                      const PxRectangle& srcRectanglePx, const Color& color) = 0;
+
+    // ---------- 11
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
+                            const Vector2& dstPositionPxf, const Color& color) = 0;
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -167,7 +363,7 @@ namespace Fsl
     //! @param psz a zero terminated string that should be rendered (!= nullptr)
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz, const Vector2& dstPosition,
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz, const Vector2& dstPositionPxf,
                             const Color& color) = 0;
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
@@ -176,8 +372,10 @@ namespace Fsl
     //! @param str a string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition,
-                            const Color& color) = 0;
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str,
+                            const Vector2& dstPositionPxf, const Color& color) = 0;
+
+    // ---------- 12
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -185,8 +383,8 @@ namespace Fsl
     //! @param strView the string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
-                            const Vector2& dstPosition, const Color& color) = 0;
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
+                            const Vector2& dstPositionPxf, const Color& color, const Vector2& origin, const Vector2& scale) = 0;
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -194,7 +392,7 @@ namespace Fsl
     //! @param psz a zero terminated string that should be rendered (!= nullptr)
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz, const Vector2& dstPosition,
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz, const Vector2& dstPositionPxf,
                             const Color& color, const Vector2& origin, const Vector2& scale) = 0;
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
@@ -203,8 +401,77 @@ namespace Fsl
     //! @param str a string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str, const Vector2& dstPosition,
-                            const Color& color, const Vector2& origin, const Vector2& scale) = 0;
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str,
+                            const Vector2& dstPositionPxf, const Color& color, const Vector2& origin, const Vector2& scale) = 0;
+
+    // ---------- 13
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param fontConfig the font configuration.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param fontConfig the font configuration.
+    //! @param psz a zero terminated string that should be rendered (!= nullptr)
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const char* const psz, const Vector2& dstPositionPxf, const Color& color) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param fontConfig the font configuration.
+    //! @param str a string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const std::string& str, const Vector2& dstPositionPxf, const Color& color) = 0;
+
+    // ---------- 13 With clip
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param fontConfig the font configuration.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    //! @param clipRect the rendering will be clipped against this
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param fontConfig the font configuration.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    //! @param clipRect the rendering will be clipped against this
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const char* const psz, const Vector2& dstPositionPxf, const Color& color, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param fontConfig the font configuration.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    //! @param clipRect the rendering will be clipped against this
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const std::string& str, const Vector2& dstPositionPxf, const Color& color, const PxClipRectangle& clipRectPx) = 0;
+
+    // ---------- 14
 
     //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
     //! @param srcTexture the texture atlas that contains the font.
@@ -212,8 +479,176 @@ namespace Fsl
     //! @param strView the string that should be rendered
     //! @param the dstPosition to render the string at (top left corner)
     //! @param color the color to use.
-    virtual void DrawString(const Texture2D& srcTexture, const TextureAtlasBitmapFont& font, const StringViewLite& strView,
-                            const Vector2& dstPosition, const Color& color, const Vector2& origin, const Vector2& scale) = 0;
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param psz a zero terminated string that should be rendered (!= nullptr)
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz,
+                            const BitmapFontConfig& fontConfig, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param str a string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str,
+                            const BitmapFontConfig& fontConfig, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale) = 0;
+
+    // ---------- 14 with clip
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const BitmapFontConfig& fontConfig,
+                            const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param psz a zero terminated string that should be rendered (!= nullptr)
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const char* const psz,
+                            const BitmapFontConfig& fontConfig, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param str a string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const BaseTexture2D& srcTexture, const TextureAtlasBitmapFont& font, const std::string& str,
+                            const BitmapFontConfig& fontConfig, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    // ---------- 15
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param psz a zero terminated string that should be rendered (!= nullptr)
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const char* const psz, const Vector2& dstPositionPxf, const Color& color) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param str a string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color) = 0;
+
+    // ---------- 15 with clip
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color,
+                            const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param psz a zero terminated string that should be rendered (!= nullptr)
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const char* const psz, const Vector2& dstPositionPxf, const Color& color,
+                            const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param str a string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color,
+                            const PxClipRectangle& clipRectPx) = 0;
+
+    // ---------- 16
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color,
+                            const Vector2& origin, const Vector2& scale) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param psz a zero terminated string that should be rendered (!= nullptr)
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const char* const psz, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param str a string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale) = 0;
+
+    // ---------- 16 with clip
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param strView the string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const StringViewLite& strView, const Vector2& dstPositionPxf, const Color& color,
+                            const Vector2& origin, const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param psz a zero terminated string that should be rendered (!= nullptr)
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const char* const psz, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    //! @brief Draw a ASCII string using the supplied TextureAtlasBitmapFont.
+    //! @param srcTexture the texture atlas that contains the font.
+    //! @param font the font to use for rendering the string
+    //! @param str a string that should be rendered
+    //! @param the dstPosition to render the string at (top left corner)
+    //! @param color the color to use.
+    virtual void DrawString(const SpriteFont& font, const std::string& str, const Vector2& dstPositionPxf, const Color& color, const Vector2& origin,
+                            const Vector2& scale, const PxClipRectangle& clipRectPx) = 0;
+
+    // ----------
 
     //! @brief Draw a rectangle at the given location using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -221,7 +656,7 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawRectangle(const AtlasTexture2D& srcFillTexture, const Rectangle& dstRect, const Color& color) = 0;
+    virtual void DebugDrawRectangle(const AtlasTexture2D& srcFillTexture, const PxRectangle& dstRect, const Color& color) = 0;
 
     //! @brief Draw a rectangle at the given location using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -229,7 +664,7 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawRectangle(const Texture2D& srcFillTexture, const Rectangle& dstRect, const Color& color) = 0;
+    virtual void DebugDrawRectangle(const BaseTexture2D& srcFillTexture, const PxRectangle& dstRect, const Color& color) = 0;
 
     //! @brief Draw a rectangle at the given location using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -237,7 +672,7 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawRectangle(const AtlasTexture2D& srcFillTexture, const Rect& dstRect, const Color& color) = 0;
+    virtual void DebugDrawRectangle(const AtlasTexture2D& srcFillTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color) = 0;
 
     //! @brief Draw a rectangle at the given location using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -245,7 +680,9 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawRectangle(const Texture2D& srcFillTexture, const Rect& dstRect, const Color& color) = 0;
+    virtual void DebugDrawRectangle(const BaseTexture2D& srcFillTexture, const PxAreaRectangleF& dstRectanglePxf, const Color& color) = 0;
+
+    // ----------
 
     //! @brief Draw a line using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -253,7 +690,7 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color) = 0;
+    virtual void DebugDrawLine(const AtlasTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color) = 0;
 
     //! @brief Draw a line using a fill texture
     //! @param srcFillTexture a fill texture is texture containing a white rectangle, we will select the middle pixel of the texture and use it for
@@ -261,7 +698,7 @@ namespace Fsl
     //! @param color the color to use.
     //! @note Do not invalidate the srcTexture before End() is called.
     //! @note If you use this to draw a lot of instances consider using a more optimal way of rendering it.
-    virtual void DebugDrawLine(const Texture2D& srcFillTexture, const Vector2& dstFrom, const Vector2& dstTo, const Color& color) = 0;
+    virtual void DebugDrawLine(const BaseTexture2D& srcFillTexture, const Vector2& dstFromPxf, const Vector2& dstToPxf, const Color& color) = 0;
   };
 }
 

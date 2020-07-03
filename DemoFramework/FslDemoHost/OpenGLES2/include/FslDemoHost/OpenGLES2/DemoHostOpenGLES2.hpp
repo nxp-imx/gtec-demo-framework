@@ -37,6 +37,8 @@
 
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslDemoHost/EGL/EGLDemoHost.hpp>
 #include <FslUtil/OpenGLES2/GLUtil.hpp>
 #include <GLES2/gl2.h>
@@ -47,7 +49,7 @@ namespace Fsl
   class DemoHostGLES2 : public EGLDemoHost
   {
   public:
-    DemoHostGLES2(const DemoHostConfig& demoHostConfig)
+    explicit DemoHostGLES2(const DemoHostConfig& demoHostConfig)
       : EGLDemoHost(demoHostConfig)
     {
     }
@@ -92,7 +94,7 @@ namespace Fsl
           switch (request.Precense)
           {
           case ExtensionPrecense::Mandatory:
-            throw std::runtime_error(std::string("Required extension '") + request.Name + "' not found");
+            throw std::runtime_error(fmt::format("Required extension '{}' not found", request.Name));
           case ExtensionPrecense::Optional:
             FSLLOG3_DEBUG_INFO("Optional extension '{}' not available.", request.Name);
             break;

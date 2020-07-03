@@ -158,25 +158,25 @@ namespace Fsl
   }
 
 
-  void DemoAppFirewall::_Resized(const Point2& size)
+  void DemoAppFirewall::_ConfigurationChanged(const DemoWindowMetrics& windowMetrics)
   {
     if (!m_app)
     {
-      ADemoApp::_Resized(size);
+      ADemoApp::_ConfigurationChanged(windowMetrics);
       return;
     }
 
     try
     {
-      m_app->_Resized(size);
+      m_app->_ConfigurationChanged(windowMetrics);
     }
     catch (const std::exception& ex)
     {
       std::string message;
       message = GetExceptionFormatter().TryFormatException(ex, message) ? message : SafeStr(ex.what());
-      FSLLOG3_ERROR("App._Resized threw exception: {}", message);
+      FSLLOG3_ERROR("App._ConfigurationChanged threw exception: {}", message);
       SafeDispose();
-      BuildErrorString("App._Resized threw exception:", message);
+      BuildErrorString("App._ConfigurationChanged threw exception:", message);
     }
   }
 

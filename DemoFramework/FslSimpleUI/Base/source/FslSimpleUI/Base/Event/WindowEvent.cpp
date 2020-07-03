@@ -32,6 +32,7 @@
 #include <FslSimpleUI/Base/Event/WindowEvent.hpp>
 #include <FslSimpleUI/Base/IWindowId.hpp>
 #include <cassert>
+#include <utility>
 
 namespace Fsl
 {
@@ -93,9 +94,9 @@ namespace Fsl
     }
 
 
-    WindowEvent::WindowEvent(const EventTypeId typeId, const EventDescription& eventDescription)
+    WindowEvent::WindowEvent(const EventTypeId typeId, EventDescription eventDescription)
       : m_eventTypeId(typeId)
-      , m_eventDescription(eventDescription)
+      , m_eventDescription(std::move(eventDescription))
       , m_isHandled(false)
       , m_isInitialized(false)
     {

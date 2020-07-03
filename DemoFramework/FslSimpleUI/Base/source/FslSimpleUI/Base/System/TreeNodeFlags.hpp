@@ -48,6 +48,7 @@ namespace Fsl
         UpdateEnabled = WindowFlags::UpdateEnabled,
         DrawEnabled = WindowFlags::DrawEnabled,
         ClickInput = WindowFlags::ClickInput,
+        MouseOver = WindowFlags::MouseOver,
         ResolveEnabled = WindowFlags::ResolveEnabled,
         Disposed = 0x01 << WindowFlags::BitsReserved,
       };
@@ -55,7 +56,7 @@ namespace Fsl
 
       TreeNodeFlags() = default;
 
-      TreeNodeFlags(const Enum flag)
+      TreeNodeFlags(const Enum flag)    // NOLINT(google-explicit-constructor)
         : Value(static_cast<uint32_t>(flag))
       {
       }

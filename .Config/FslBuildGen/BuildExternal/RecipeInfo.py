@@ -49,16 +49,16 @@ class RecipeInfo(object):
             return
 
         recipePackages = list(topLevelPackage.ResolvedExperimentalRecipeBuildOrder)
-        recipePackages.sort(key=lambda s: s.ResolvedDirectExperimentalRecipe.Name.lower() if s.ResolvedDirectExperimentalRecipe is not None else s.Name.lower())
+        recipePackages.sort(key=lambda s: s.ResolvedDirectExperimentalRecipe.FullName.lower() if s.ResolvedDirectExperimentalRecipe is not None else s.Name.lower())
         strAddIndent = "  "
         print("Recipes")
         for package in recipePackages:
             packageRecipe = package.ResolvedDirectExperimentalRecipe
             if packageRecipe is not None and packageRecipe.Type != RecipeType.External:
-                print("{0}{1} (introduced by: {2}), type: {3}".format(strAddIndent, packageRecipe.Name, package.Name, RecipeType.ToString(packageRecipe.Type)))
+                print("{0}{1} (introduced by: {2}), type: {3}".format(strAddIndent, packageRecipe.FullName, package.Name, RecipeType.ToString(packageRecipe.Type)))
 
         print("External")
         for package in recipePackages:
             packageRecipe = package.ResolvedDirectExperimentalRecipe
             if packageRecipe is not None and packageRecipe.Type == RecipeType.External:
-                print("{0}{1} (introduced by: {2})".format(strAddIndent, packageRecipe.Name, package.Name))
+                print("{0}{1} (introduced by: {2})".format(strAddIndent, packageRecipe.FullName, package.Name))

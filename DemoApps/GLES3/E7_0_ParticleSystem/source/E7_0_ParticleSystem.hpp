@@ -48,7 +48,10 @@
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
 #include <FslUtil/OpenGLES3/GLTexture.hpp>
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define NUM_PARTICLES 2000
+
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define PARTICLE_SIZE 7
 
 namespace Fsl
@@ -70,7 +73,7 @@ namespace Fsl
       GLES3::GLTexture Texture;
 
       // Particle vertex data
-      float particleData[NUM_PARTICLES * PARTICLE_SIZE]{};
+      float particleData[NUM_PARTICLES * PARTICLE_SIZE]{};    // NOLINT[modernize-avoid-c-arrays]
 
       // Current time
       float time{1.0f};
@@ -86,10 +89,9 @@ namespace Fsl
 
     GLES3::GLProgram m_program;
     UserData m_userData;
-    bool m_bIsInitialized;
 
   public:
-    E7_0_ParticleSystem(const DemoAppConfig& config);
+    explicit E7_0_ParticleSystem(const DemoAppConfig& config);
     ~E7_0_ParticleSystem() override;
 
   protected:

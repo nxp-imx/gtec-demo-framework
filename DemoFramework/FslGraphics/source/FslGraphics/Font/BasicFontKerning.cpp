@@ -31,16 +31,17 @@
 
 #include <FslGraphics/Font/BasicFontKerning.hpp>
 #include <FslGraphics/Exceptions.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  UTF8String BasicFontKerning::GetName() const
+  const UTF8String& BasicFontKerning::GetName() const
   {
     return m_name;
   }
 
 
-  UTF8String BasicFontKerning::GetPathName() const
+  const IO::Path& BasicFontKerning::GetPathName() const
   {
     return m_pathName;
   }
@@ -62,7 +63,7 @@ namespace Fsl
   {
     if (index < 0 || index >= RangeCount())
     {
-      throw std::invalid_argument("index out of bounds");
+      throw std::invalid_argument("range index out of bounds");
     }
     return m_range;
   }
@@ -78,14 +79,14 @@ namespace Fsl
   {
     if (index < 0 || static_cast<std::size_t>(index) >= m_entries.size())
     {
-      throw std::invalid_argument("index out of bounds");
+      throw std::invalid_argument("glyph index out of bounds");
     }
 
     return m_entries[index];
   }
 
 
-  void BasicFontKerning::SetRangeCapacity(const int32_t capacity)
+  void BasicFontKerning::SetRangeCapacity(const int32_t capacity)    // NOLINT(readability-convert-member-functions-to-static)
   {
     if (capacity != 1)
     {
@@ -106,9 +107,15 @@ namespace Fsl
   }
 
 
-  void BasicFontKerning::SetPathName(const UTF8String& name)
+  void BasicFontKerning::SetPathName(const IO::PathView& name)
   {
     m_pathName = name;
+  }
+
+
+  void BasicFontKerning::SetPathName(IO::Path name)
+  {
+    m_pathName = std::move(name);
   }
 
 
@@ -122,7 +129,7 @@ namespace Fsl
   {
     if (index != 0)
     {
-      throw std::invalid_argument("out of bounds");
+      throw std::invalid_argument("range index out of bounds");
     }
     m_range = range;
   }
@@ -132,15 +139,16 @@ namespace Fsl
   {
     if (index < 0 || static_cast<std::size_t>(index) >= m_entries.size())
     {
-      throw std::invalid_argument("index out of bounds");
+      throw std::invalid_argument("kerning index out of bounds");
     }
     m_entries[index] = kerning;
   }
 
 
-  bool BasicFontKerning::IsValid() const
+  bool BasicFontKerning::IsValid() const    // NOLINT(readability-convert-member-functions-to-static)
   {
     // FIX: implement a validation check
     return true;
   }
+
 }

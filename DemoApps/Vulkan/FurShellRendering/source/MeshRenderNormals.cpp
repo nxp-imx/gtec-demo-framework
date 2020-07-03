@@ -31,6 +31,7 @@
  ****************************************************************************************************************************************************/
 
 #include "MeshRenderNormals.hpp"
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Vertices/VertexPositionColor.hpp>
 #include <FslGraphics3D/Procedural/VertexUtil.hpp>
 #include <cassert>
@@ -53,7 +54,7 @@ namespace Fsl
 
       VkDescriptorSetLayoutCreateInfo descriptorLayout{};
       descriptorLayout.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-      descriptorLayout.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
+      descriptorLayout.bindingCount = UncheckedNumericCast<uint32_t>(setLayoutBindings.size());
       descriptorLayout.pBindings = setLayoutBindings.data();
 
       return RapidVulkan::DescriptorSetLayout(device.Get(), descriptorLayout);
@@ -86,7 +87,7 @@ namespace Fsl
       allocInfo.descriptorSetCount = 1;
       allocInfo.pSetLayouts = descriptorSetLayout.GetPointer();
 
-      VkDescriptorSet descriptorSet;
+      VkDescriptorSet descriptorSet = nullptr;
       RapidVulkan::CheckError(vkAllocateDescriptorSets(descriptorPool.GetDevice(), &allocInfo, &descriptorSet), "vkAllocateDescriptorSets", __FILE__,
                               __LINE__);
 
@@ -102,7 +103,8 @@ namespace Fsl
       writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
       writeDescriptorSets[0].pBufferInfo = &uboBufferInfo;
 
-      vkUpdateDescriptorSets(descriptorPool.GetDevice(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+      vkUpdateDescriptorSets(descriptorPool.GetDevice(), UncheckedNumericCast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0,
+                             nullptr);
 
       return descriptorSet;
     }
@@ -133,7 +135,7 @@ namespace Fsl
       {
         const auto& vertexDeclElement = info.VertexBuffer.GetVertexElement(shaderAttribOrder[i], 0);
 
-        info.AttributeDescription[i].location = static_cast<uint32_t>(i);
+        info.AttributeDescription[i].location = UncheckedNumericCast<uint32_t>(i);
         info.AttributeDescription[i].binding = 0;
         info.AttributeDescription[i].format = vertexDeclElement.NativeFormat;
         info.AttributeDescription[i].offset = vertexDeclElement.Offset;
@@ -177,7 +179,7 @@ namespace Fsl
       pipelineVertexInputCreateInfo.flags = 0;
       pipelineVertexInputCreateInfo.vertexBindingDescriptionCount = 1;
       pipelineVertexInputCreateInfo.pVertexBindingDescriptions = &vertexBufferInfo.BindingDescription;
-      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
+      pipelineVertexInputCreateInfo.vertexAttributeDescriptionCount = UncheckedNumericCast<uint32_t>(vertexBufferInfo.AttributeDescription.size());
       pipelineVertexInputCreateInfo.pVertexAttributeDescriptions = vertexBufferInfo.AttributeDescription.data();
 
       VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{};
@@ -268,7 +270,7 @@ namespace Fsl
       VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
       graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
       graphicsPipelineCreateInfo.flags = 0;
-      graphicsPipelineCreateInfo.stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfo.size());
+      graphicsPipelineCreateInfo.stageCount = UncheckedNumericCast<uint32_t>(pipelineShaderStageCreateInfo.size());
       graphicsPipelineCreateInfo.pStages = pipelineShaderStageCreateInfo.data();
       graphicsPipelineCreateInfo.pVertexInputState = &pipelineVertexInputCreateInfo;
       graphicsPipelineCreateInfo.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo;
@@ -341,8 +343,8 @@ namespace Fsl
 
   void MeshRenderNormals::Draw(const VkCommandBuffer hCmdBuffer)
   {
-    VkDeviceSize offsets[1] = {0};
-    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VB.VertexBuffer.GetBufferPointer(), offsets);
+    VkDeviceSize offsets = 0;
+    vkCmdBindVertexBuffers(hCmdBuffer, VERTEX_BUFFER_BIND_ID, 1, m_resources.VB.VertexBuffer.GetBufferPointer(), &offsets);
     vkCmdDraw(hCmdBuffer, m_resources.VB.VertexBuffer.GetVertexCount(), 1, 0, 0);
   }
 

@@ -49,19 +49,19 @@ namespace Fsl
 {
   namespace
   {
-    const DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
+    DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup)
     {
       std::deque<DemoHostFeatureName::Enum> hostFeatures;
       hostFeatures.push_back(DemoHostFeatureName::OpenCL);
       rSetup.TheHostRegistry.Register(hostFeatures, ConsoleDemoHostSetup::Get());
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);
-      return DemoHostFeature(DemoHostFeatureName::OpenCL, DemoHostFeatureUtil::EncodeVersion(1));
+      return {DemoHostFeatureName::OpenCL, DemoHostFeatureUtil::EncodeVersion(1)};
     }
 
     bool TryFormatException(const std::exception& ex, std::string& rMessage)
     {
-      auto pException = dynamic_cast<const RapidOpenCL1::OpenCLErrorException*>(&ex);
+      const auto* pException = dynamic_cast<const RapidOpenCL1::OpenCLErrorException*>(&ex);
       if (pException == nullptr)
       {
         rMessage = std::string();

@@ -48,7 +48,7 @@ namespace Fsl
     class PathWatcher;
   }
 
-  class ContentMonitorService
+  class ContentMonitorService final
     : public ThreadLocalService
     , public IContentMonitor
   {
@@ -58,13 +58,13 @@ namespace Fsl
     std::shared_ptr<IDemoAppControl> m_appControl;
 
   public:
-    ContentMonitorService(const ServiceProvider& serviceProvider);
-    ~ContentMonitorService() override;
+    explicit ContentMonitorService(const ServiceProvider& serviceProvider);
+    ~ContentMonitorService() final;
 
-    void Update() override;
+    void Update() final;
 
     // From IContentMonitor
-    void Enable(const bool enabled) override;
+    void Enable(const bool enabled) final;
 
   private:
   };

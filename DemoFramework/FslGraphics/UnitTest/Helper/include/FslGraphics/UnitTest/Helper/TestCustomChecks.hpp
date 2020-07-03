@@ -31,7 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Math/LogExtent3D.hpp>
+#include <FslBase/Log/Math/Pixel/FmtPxExtent3D.hpp>
+#include <FslBase/Log/Math/Pixel/LogPxExtent3D.hpp>
 #include <FslGraphics/UnitTest/Helper/Log/LogPixelUInt8.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/Texture/Texture.hpp>
@@ -59,7 +60,7 @@ namespace Fsl
   }
 
 
-  inline ::testing::AssertionResult ExtentEquals(const Texture& tex, const Extent3D& expectedValue)
+  inline ::testing::AssertionResult ExtentEquals(const Texture& tex, const PxExtent3D& expectedValue)
   {
     const auto currentValue = tex.GetExtent();
     if (currentValue == expectedValue)
@@ -75,7 +76,7 @@ namespace Fsl
 
   inline ::testing::AssertionResult ExtentEquals(const Texture& tex, const uint32_t width, const uint32_t height, const uint32_t depth)
   {
-    return ExtentEquals(tex, Extent3D(width, height, depth));
+    return ExtentEquals(tex, PxExtent3D(width, height, depth));
   }
 }
 

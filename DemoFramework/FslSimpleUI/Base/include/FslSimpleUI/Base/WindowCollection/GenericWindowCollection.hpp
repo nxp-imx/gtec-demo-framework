@@ -34,6 +34,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslSimpleUI/Base/WindowCollection/WindowCollectionBase.hpp>
 #include <algorithm>
+#include <utility>
 
 namespace Fsl
 {
@@ -43,8 +44,8 @@ namespace Fsl
     {
       std::shared_ptr<BaseWindow> Window;
 
-      GenericWindowCollectionRecordBase(const std::shared_ptr<BaseWindow>& window)
-        : Window(window)
+      explicit GenericWindowCollectionRecordBase(std::shared_ptr<BaseWindow> window)
+        : Window(std::move(window))
       {
       }
     };

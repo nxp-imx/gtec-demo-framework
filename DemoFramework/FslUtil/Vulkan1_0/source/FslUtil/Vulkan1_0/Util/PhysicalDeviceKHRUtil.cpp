@@ -43,7 +43,7 @@ namespace Fsl
     {
       std::vector<VkPresentModeKHR> GetPhysicalDeviceSurfacePresentModesKHR(const VkPhysicalDevice device, const VkSurfaceKHR surface)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &count, nullptr), "failed to acquire the count");
 
         std::vector<VkPresentModeKHR> result(count);
@@ -54,7 +54,7 @@ namespace Fsl
 
       std::vector<VkSurfaceFormatKHR> GetPhysicalDeviceSurfaceFormatsKHR(const VkPhysicalDevice device, const VkSurfaceKHR surface)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &count, nullptr), "failed to acquire the device count");
 
         std::vector<VkSurfaceFormatKHR> result(count);
@@ -70,7 +70,7 @@ namespace Fsl
         std::vector<bool> supported;
         for (uint32_t currentQueueFamilyIndex = 0; currentQueueFamilyIndex < queueFamilyIndexCount; ++currentQueueFamilyIndex)
         {
-          VkBool32 isSupported;
+          VkBool32 isSupported = 0;
           RAPIDVULKAN_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, currentQueueFamilyIndex, surface, &isSupported));
           supported.push_back(isSupported != VK_FALSE);
         }
@@ -81,7 +81,7 @@ namespace Fsl
 #ifndef __ANDROID__
       std::vector<VkDisplayPropertiesKHR> GetPhysicalDeviceDisplayPropertiesKHR(const VkPhysicalDevice device)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkGetPhysicalDeviceDisplayPropertiesKHR(device, &count, nullptr), "failed to acquire the count");
 
         std::vector<VkDisplayPropertiesKHR> result(count);
@@ -92,7 +92,7 @@ namespace Fsl
 
       std::vector<VkDisplayModePropertiesKHR> GetDisplayModePropertiesKHR(const VkPhysicalDevice device, const VkDisplayKHR display)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkGetDisplayModePropertiesKHR(device, display, &count, nullptr), "failed to acquire the count");
 
         std::vector<VkDisplayModePropertiesKHR> result(count);
@@ -103,7 +103,7 @@ namespace Fsl
 
       std::vector<VkDisplayPlanePropertiesKHR> GetPhysicalDeviceDisplayPlanePropertiesKHR(const VkPhysicalDevice device)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkGetPhysicalDeviceDisplayPlanePropertiesKHR(device, &count, nullptr), "failed to acquire the plane count");
 
         std::vector<VkDisplayPlanePropertiesKHR> result(count);
@@ -114,7 +114,7 @@ namespace Fsl
 
       std::vector<VkDisplayKHR> GetDisplayPlaneSupportedDisplaysKHR(const VkPhysicalDevice device, const uint32_t planeIndex)
       {
-        uint32_t count;
+        uint32_t count = 0;
         RAPIDVULKAN_CHECK2(vkGetDisplayPlaneSupportedDisplaysKHR(device, planeIndex, &count, nullptr),
                            "failed to acquire the supported display count");
 

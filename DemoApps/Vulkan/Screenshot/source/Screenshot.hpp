@@ -37,8 +37,8 @@
 #include <FslGraphics/Render/Texture2D.hpp>
 #include <FslSimpleUI/App/UIDemoAppExtension.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/Label9SliceButton.hpp>
-#include <FslUtil/Vulkan1_0/NativeBatch2D.hpp>
+#include <FslSimpleUI/Base/Control/LabelNineSliceButton.hpp>
+#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
 
 namespace Fsl
 {
@@ -63,13 +63,13 @@ namespace Fsl
     Texture2D m_texture;
     DependentResources m_dependentResources;
 
-    std::shared_ptr<UI::Label9SliceButton> m_btnScreenshot;
+    std::shared_ptr<UI::LabelNineSliceButton> m_btnScreenshot;
     std::shared_ptr<UI::Label> m_label;
 
     bool m_screenshotRequested{false};
 
   public:
-    Screenshot(const DemoAppConfig& config);
+    explicit Screenshot(const DemoAppConfig& config);
     void OnSelect(const UI::RoutedEventArgs& args, const std::shared_ptr<UI::WindowSelectEvent>& theEvent) override;
 
   protected:

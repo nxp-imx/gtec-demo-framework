@@ -48,7 +48,7 @@ namespace fmt
     template <typename FormatContext>
     auto format(const Fsl::Extent3D& value, FormatContext& ctx)
     {
-      return format_to(ctx.out(), "{{Width={} Height={}  Depth={}}}", value.Width, value.Height, value.Depth);
+      return format_to(ctx.out(), "{{Width={} Height={} Depth={}}}", value.Width, value.Height, value.Depth);
     }
   };
 }

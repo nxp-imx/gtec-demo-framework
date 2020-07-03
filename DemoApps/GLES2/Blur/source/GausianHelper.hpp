@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <string>
 #include <vector>
 
@@ -46,16 +46,16 @@ namespace Fsl
     static void CalculateGausianKernel(std::vector<double>& rKernel, const int32_t length, const double sigma);
     static void CalculateGausianKernelSlice(std::vector<double>& rKernel, const int32_t length, const double sigma);
     static std::string GenerateGausianFragmentShader(const std::string& shaderTemplate, const std::vector<double>& kernel, const int32_t length,
-                                                     const Point2& texSize);
+                                                     const PxSize2D& texSize);
     static void GenerateGausianFragmentShader(std::string& rGaussianFragX, std::string& rGaussianFragY, const std::vector<double>& kernelSlice,
-                                              const Point2& texSize);
+                                              const PxSize2D& texSize);
     static void GenerateGausianFragmentShaderLinear(std::string& rGaussianFragX, std::string& rGaussianFragY, const std::vector<double>& kernelSlice,
-                                                    const Point2& texSize);
+                                                    const PxSize2D& texSize);
 
     static void GenerateNonDependentShaders(std::string& rGaussianVertX, std::string& rGaussianVertY, std::string& rGaussianFrag,
-                                            const std::vector<double>& kernelSlice, const Point2& texSize);
+                                            const std::vector<double>& kernelSlice, const PxSize2D& texSize);
     static void GenerateNonDependentShadersLinear(std::string& rGaussianVertX, std::string& rGaussianVertY, std::string& rGaussianFrag,
-                                                  const std::vector<double>& kernelSlice, const Point2& texSize);
+                                                  const std::vector<double>& kernelSlice, const PxSize2D& texSize);
 
     static void DebugDumpKernel2D(const std::vector<double>& kernel, const int32_t length);
   };

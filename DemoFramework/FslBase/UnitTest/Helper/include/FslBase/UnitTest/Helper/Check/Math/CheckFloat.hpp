@@ -41,7 +41,8 @@ namespace Fsl
   {
     inline bool AlmostEqual(const float lhs, const float rhs)
     {
-      ::testing::internal::FloatingPoint<float> lhs1(lhs), rhs1(rhs);
+      ::testing::internal::FloatingPoint<float> lhs1(lhs);
+      ::testing::internal::FloatingPoint<float> rhs1(rhs);
       return lhs1.AlmostEquals(rhs1);
     }
 

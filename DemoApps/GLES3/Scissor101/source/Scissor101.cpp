@@ -32,6 +32,7 @@
 #include "Scissor101.hpp"
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Pixel/TypeConverter_Math.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -138,7 +139,7 @@ namespace Fsl
 
     Vector2 Clamp(const Vector2& value)
     {
-      return Vector2(Clamp(value.X), Clamp(value.Y));
+      return {Clamp(value.X), Clamp(value.Y)};
     }
   }
 
@@ -163,8 +164,7 @@ namespace Fsl
     m_vertexBufferInfo = CreateVertexBuffer(m_programInfo.Program);
 
 
-    const Point2 currentSize = GetScreenResolution();
-    const float aspectRatio = currentSize.X / static_cast<float>(currentSize.Y);
+    const float aspectRatio = GetWindowAspectRatio();
     m_matProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(75.0f), aspectRatio, 1.0f, 1000.0f);
     m_matTranslate = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
   }
@@ -212,17 +212,17 @@ namespace Fsl
     m_matModel = Matrix::CreateRotationX(m_angle.X) * Matrix::CreateRotationY(m_angle.Y) * Matrix::CreateRotationZ(m_angle.Z) * m_matTranslate;
 
     {    // Do some funky double sinus movement we can use for a bit of unpredictable clipping
-      const auto resolution = GetScreenResolution();
-      const Vector2 dist(resolution.X, resolution.Y);
+      const auto resolutionPx = GetWindowSizePx();
+      const Vector2 dist(TypeConverter::UncheckedTo<Vector2>(resolutionPx));
 
       const auto clip1X = (2.0f + (std::sin(m_angle1A.X) + std::sin(m_angle1B.X))) * dist.X / 4.0f;
       const auto clip1Y = (2.0f + (std::sin(m_angle1A.Y) + std::sin(m_angle1B.Y))) * dist.Y / 4.0f;
       const auto clip2X = (2.0f + (std::sin(m_angle2A.X) + std::sin(m_angle2B.X))) * dist.X / 4.0f;
       const auto clip2Y = (2.0f + (std::sin(m_angle2A.Y) + std::sin(m_angle2B.Y))) * dist.Y / 4.0f;
-      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), resolution.X);
-      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), resolution.Y);
-      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), resolution.X);
-      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), resolution.Y);
+      m_clip1.X = std::min(std::max(static_cast<int32_t>(clip1X), 0), resolutionPx.Width());
+      m_clip1.Y = std::min(std::max(static_cast<int32_t>(clip1Y), 0), resolutionPx.Height());
+      m_clip2.X = std::min(std::max(static_cast<int32_t>(clip2X), 0), resolutionPx.Width());
+      m_clip2.Y = std::min(std::max(static_cast<int32_t>(clip2Y), 0), resolutionPx.Height());
 
       m_angle1A += m_speed1A * demoTime.DeltaTime;
       m_angle1B += m_speed1B * demoTime.DeltaTime;
@@ -242,7 +242,7 @@ namespace Fsl
   {
     FSL_PARAM_NOT_USED(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -251,10 +251,10 @@ namespace Fsl
     glCullFace(GL_BACK);
     glDisable(GL_CULL_FACE);
 
-    assert(m_clip1.X >= 0 && m_clip1.X <= screenResolution.X);
-    assert(m_clip1.Y >= 0 && m_clip1.Y <= screenResolution.Y);
-    assert(m_clip2.X >= 0 && m_clip2.X <= screenResolution.X);
-    assert(m_clip2.Y >= 0 && m_clip2.Y <= screenResolution.Y);
+    assert(m_clip1.X >= 0 && m_clip1.X <= windowSizePx.Width());
+    assert(m_clip1.Y >= 0 && m_clip1.Y <= windowSizePx.Height());
+    assert(m_clip2.X >= 0 && m_clip2.X <= windowSizePx.Width());
+    assert(m_clip2.Y >= 0 && m_clip2.Y <= windowSizePx.Height());
 
     Point2 nearClip = m_clip1;
     Point2 farClip = m_clip2;
@@ -271,10 +271,10 @@ namespace Fsl
 
     int32_t clipX = m_clipX ? nearClip.X : 0;
     int32_t clipY = m_clipY ? nearClip.Y : 0;
-    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : screenResolution.X;
-    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : screenResolution.Y;
+    int32_t clipWidth = m_clipX ? (farClip.X - nearClip.X) : windowSizePx.Width();
+    int32_t clipHeight = m_clipY ? (farClip.Y - nearClip.Y) : windowSizePx.Height();
 
-    if (clipX < 0 || (clipX + clipWidth) > screenResolution.X || clipY < 0 || (clipY + clipHeight) > screenResolution.Y)
+    if (clipX < 0 || (clipX + clipWidth) > windowSizePx.Width() || clipY < 0 || (clipY + clipHeight) > windowSizePx.Height())
     {
       throw std::runtime_error("Scissor rect out of bounds");
     }
@@ -283,11 +283,11 @@ namespace Fsl
 
     if (m_options->ForceInvalidWidth)
     {
-      clipWidth += (screenResolution.X - (clipX + clipWidth)) + 10;
+      clipWidth += (windowSizePx.Width() - (clipX + clipWidth)) + 10;
     }
     if (m_options->ForceInvalidHeight)
     {
-      clipHeight += (screenResolution.Y - (clipY + clipHeight)) + 10;
+      clipHeight += (windowSizePx.Height() - (clipY + clipHeight)) + 10;
     }
 
     glScissor(clipX, clipY, clipWidth, clipHeight);

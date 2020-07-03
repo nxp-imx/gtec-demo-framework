@@ -8,6 +8,7 @@
 
 #include <FslDemoApp/OpenGLES3/DemoAppGLES3.hpp>
 #include <FslUtil/OpenGLES3/GLProgram.hpp>
+#include <array>
 
 namespace Fsl
 {
@@ -16,7 +17,7 @@ namespace Fsl
     struct UserData
     {
       // VertexBufferObject Ids
-      GLuint vboIds[4]{};
+      std::array<GLuint, 4> vboIds{};
       // x-offset uniform location
       GLuint offsetLoc{0};
 
@@ -33,7 +34,7 @@ namespace Fsl
     UserData m_userData;
 
   public:
-    E1_1_VBOs(const DemoAppConfig& config);
+    explicit E1_1_VBOs(const DemoAppConfig& config);
     ~E1_1_VBOs() override;
 
   protected:

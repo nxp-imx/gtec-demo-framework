@@ -41,15 +41,26 @@ namespace Fsl
     //! @note  This is intended as a base class for simple buttons.
     class ButtonBase : public BaseWindow
     {
-      bool m_isClickable;
-      bool m_isDown;
+      bool m_isEnabled{true};
+      bool m_isDown{false};
 
     public:
-      virtual bool IsClickable() const;
-      virtual void SetClickable(const bool value);
+      enum class ButtonPressState
+      {
+        Down = 0,
+        Up = 1,
+        //! The button was released but the 'press' was canceled
+        UpCancelled = 0x2 | Up,
+      };
+
+      virtual bool IsEnabled() const
+      {
+        return m_isEnabled;
+      }
+      virtual void SetEnabled(const bool enabled);
 
     protected:
-      ButtonBase(const std::shared_ptr<BaseWindowContext>& context);
+      explicit ButtonBase(const std::shared_ptr<BaseWindowContext>& context);
       void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;
 
       //! @brief Check if the button is down at the moment
@@ -59,16 +70,13 @@ namespace Fsl
       }
 
       //! @brief Called when the button is pressed
-      virtual void Down()
+      virtual void Pressed(const ButtonPressState state)
       {
+        FSL_PARAM_NOT_USED(state);
       }
 
-      //! @brief Called when the button is released
-      //! @param wasCanceled true if the press was canceled.
-      virtual void Up(bool wasCanceled)
-      {
-        FSL_PARAM_NOT_USED(wasCanceled);
-      }
+    private:
+      void CancelButtonDown();
     };
   }
 }

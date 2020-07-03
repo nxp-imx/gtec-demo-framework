@@ -44,6 +44,8 @@ using namespace Fsl;
 
 namespace
 {
+  constexpr const uint32_t DEFAULT_DP = 160;
+
   class TestTextureAtlas_BinaryTextureAtlasLoader : public TestFixtureFslGraphicsContent
   {
   protected:
@@ -67,12 +69,13 @@ TEST_F(TestTextureAtlas_BinaryTextureAtlasLoader, Load)
 
   EXPECT_EQ(1, atlas.Count());
 
-  const auto entry0 = atlas.GetEntry(0);
+  const auto& entry0 = atlas.GetEntry(0);
   EXPECT_EQ(UTF8String("Banners"), entry0.Name);
-  EXPECT_EQ(Point2(-15, -7), entry0.TextureInfo.Offset);
-  EXPECT_EQ(Point2(1920, 1080), entry0.TextureInfo.OriginalSize);
-  EXPECT_EQ(Thickness(17, 9, 1426, 873), entry0.TextureInfo.TrimMargin);
-  EXPECT_EQ(Rectangle(2, 2, 477, 198), entry0.TextureInfo.TrimmedRect);
+  EXPECT_EQ(PxPoint2(-15, -7), entry0.TextureInfo.OffsetPx);
+  EXPECT_EQ(PxExtent2D(1920, 1080), entry0.TextureInfo.ExtentPx);
+  EXPECT_EQ(PxThicknessU(17, 9, 1426, 873), entry0.TextureInfo.TrimMarginPx);
+  EXPECT_EQ(PxRectangleU(2, 2, 477, 198), entry0.TextureInfo.TrimmedRectPx);
+  EXPECT_EQ(DEFAULT_DP, entry0.TextureInfo.Dpi);
 }
 
 

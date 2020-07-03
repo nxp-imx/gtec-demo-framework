@@ -64,6 +64,7 @@ from FslBuildGen.Exceptions import DuplicatedConfigRootPath
 from FslBuildGen.Exceptions import DuplicatedNewProjectTemplatesRootPath
 from FslBuildGen.Exceptions import UsageErrorException
 from FslBuildGen.Log import Log
+from FslBuildGen.Version import Version
 from FslBuildGen.ToolConfigBasePackage import ToolConfigBasePackage
 from FslBuildGen.ToolConfigExperimental import ToolConfigExperimental
 from FslBuildGen.ToolConfigPackageRootUtil import ToolConfigPackageRootUtil
@@ -344,9 +345,10 @@ class ToolConfigContentBuilderConfiguration(object):
 
 
 class ToolConfig(object):
-    def __init__(self, basicConfig: BasicConfig, filename: str, projectRootConfig: XmlProjectRootConfigFile) -> None:
+    def __init__(self, toolVersion: Version, basicConfig: BasicConfig, filename: str, projectRootConfig: XmlProjectRootConfigFile) -> None:
         super().__init__()
         basedUponXML = XmlToolConfigFile(basicConfig, filename, projectRootConfig)
+        self.ToolVersion = toolVersion
         self.BasedOn = basedUponXML
         self.GenFileName = basedUponXML.GenFileName.Name
         self.RootDirectories = self.__ResolveRootDirectories(basicConfig, basedUponXML.RootDirectories, filename)
@@ -362,9 +364,9 @@ class ToolConfig(object):
         self.ProjectRootConfig = projectRootConfig
         self.ProjectInfo = self.__GenerateProjectInfo(basicConfig, projectRootConfig)
         self.BuildDocConfiguration = self.__TryGetBuildDocConfiguration(basedUponXML.BuildDocConfiguration)
-        self.ClangFormatConfiguration = self.__TryGetClangFormatConfiguration(basedUponXML.ClangFormatConfiguration)
-        self.ClangTidyConfiguration = self.__TryGetClangTidyConfiguration(basedUponXML.ClangTidyConfiguration)
         self.CMakeConfiguration = self.__GetCMakeConfiguration(basedUponXML.CMakeConfiguration)
+        self.ClangFormatConfiguration = self.__TryGetClangFormatConfiguration(basedUponXML.ClangFormatConfiguration, self.CMakeConfiguration.NinjaRecipePackageName)
+        self.ClangTidyConfiguration = self.__TryGetClangTidyConfiguration(basedUponXML.ClangTidyConfiguration, self.CMakeConfiguration.NinjaRecipePackageName)
         self.CompilerConfigurationDict = self.__ProcessCompilerConfiguration(basicConfig, basedUponXML.CompilerConfiguration)
         self.RequirementTypes = [PackageRequirementTypeString.Extension, PackageRequirementTypeString.Feature]
         self.Experimental = self.__ResolveExperimental(basicConfig, self.RootDirectories, basedUponXML.Experimental, filename, projectRootConfig.RootDirectory) # type: Optional[ToolConfigExperimental]
@@ -388,18 +390,18 @@ class ToolConfig(object):
             requirementList.append(BuildDocConfigurationRequirement(requirement.Name, requirement.Skip))
         return BuildDocConfiguration(requirementList)
 
-    def __TryGetClangFormatConfiguration(self, configList: List[XmlClangFormatConfiguration]) -> Optional[ClangFormatConfiguration]:
+    def __TryGetClangFormatConfiguration(self, configList: List[XmlClangFormatConfiguration], ninjaRecipePackageName: str) -> Optional[ClangFormatConfiguration]:
         if len(configList) < 1:
             return None
         config = configList[0];
-        return ClangFormatConfiguration(config.FileExtensions, config.Recipe)
+        return ClangFormatConfiguration(config.FileExtensions, config.Recipe, ninjaRecipePackageName)
 
-    def __TryGetClangTidyConfiguration(self, configList: List[XmlClangTidyConfiguration]) -> Optional[ClangTidyConfiguration]:
+    def __TryGetClangTidyConfiguration(self, configList: List[XmlClangTidyConfiguration], ninjaRecipePackageName: str) -> Optional[ClangTidyConfiguration]:
         if len(configList) < 1:
             return None
         config = configList[0];
         platforms = self.__GetClangTidyPlatforms(config.Platforms)
-        clangConfig =  ClangTidyConfiguration(config.FileExtensions, config.Recipe, platforms)
+        clangConfig =  ClangTidyConfiguration(config.FileExtensions, config.ClangRecipe, config.ClangTidyRecipe, ninjaRecipePackageName, platforms)
         allPlatformName = 'all'
         if allPlatformName in clangConfig.PlatformDict:
             # append the all configuration to all other configurations
@@ -444,24 +446,26 @@ class ToolConfig(object):
     def __GetCMakeConfiguration(self, configList: List[XmlCMakeConfiguration]) -> CMakeConfiguration:
         if len(configList) != 1:
             if len(configList) <= 0:
-                return CMakeConfiguration("${TopProjectRoot}/build", None, CMakeUtil.GetMinimumVersion(), [])
+                return CMakeConfiguration("${TopProjectRoot}/build", None, CMakeUtil.GetMinimumVersion(), [], "Recipe.BuildTool.ninja")
             raise Exception("There can only be one CMakeConfiguration")
         configEntry = configList[0]
 
         defaultBuildDir = configEntry.DefaultBuildDir
         defaultInstallPrefix = configEntry.DefaultInstallPrefix
         minVersion = self.__ParseCMakeVersionString(configEntry.MinVersion)
+        ninjaRecipePackageName = configEntry.NinjaRecipePackageName
 
         platformList = [] # type: List[CMakeConfigurationPlatform]
         for platformEntry in configEntry.Platforms:
             # Default to the platform one if its defined, else default to the general one (which can be None)
             platformEntryDefaultInstallPrefix = platformEntry.DefaultInstallPrefix if platformEntry.DefaultInstallPrefix is not None else defaultInstallPrefix
             # Generate the platform config object
-            platformList.append(CMakeConfigurationPlatform(platformEntry.Name, platformEntry.DefaultGeneratorName, platformEntryDefaultInstallPrefix))
+            platformList.append(CMakeConfigurationPlatform(platformEntry.Name, platformEntry.DefaultGeneratorName, platformEntryDefaultInstallPrefix,
+                                                           platformEntry.AllowFindPackage))
 
         if defaultBuildDir is None:
             raise Exception("CMakleConfiguration.DefaultBuildDir must be defined")
-        return CMakeConfiguration(defaultBuildDir, defaultInstallPrefix, minVersion, platformList)
+        return CMakeConfiguration(defaultBuildDir, defaultInstallPrefix, minVersion, platformList, ninjaRecipePackageName)
 
 
     def __ParseCMakeVersionString(self, versionStr: Optional[str]) -> CMakeVersion:

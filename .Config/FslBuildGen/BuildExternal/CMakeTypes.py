@@ -33,6 +33,7 @@
 
 from typing import List
 from typing import Optional
+from enum import Enum
 from FslBuildGen import IOUtil
 from FslBuildGen import PackageConfig
 from FslBuildGen.AndroidUtil import AndroidUtil
@@ -43,6 +44,7 @@ from FslBuildGen.Generator.GeneratorPluginBase import GeneratorPluginBase
 from FslBuildGen.PlatformUtil import PlatformUtil
 
 class CMakeGeneratorName(object):
+    NotDefined = "NotDefined"
     UnixMakeFile = "Unix Makefiles"
     VisualStudio2015_X64 = "Visual Studio 14 2015 Win64"
     VisualStudio2017_X64 = "Visual Studio 15 2017 Win64"
@@ -60,8 +62,12 @@ class CMakeGeneratorName(object):
             return CMakeGeneratorName.VisualStudio2019_X64
         raise Exception("Unsupported visual studio version: {0}".format(version))
 
+    @staticmethod
+    def IsVisualStudio(name: str) -> bool:
+        return (name == CMakeGeneratorName.VisualStudio2015_X64 or name == CMakeGeneratorName.VisualStudio2017_X64 or
+                name == CMakeGeneratorName.VisualStudio2019_X64)
 
-class CMakeGeneratorMultiConfigCapability(object):
+class CMakeGeneratorMultiConfigCapability(Enum):
     No = 0
     Yes = 1
     Unknown = 2
@@ -71,10 +77,10 @@ class CMakeBuildType(object):
     Debug = "DEBUG"
 
     @staticmethod
-    def FromBuildVariantConfig(buildVariantConfig: int) -> str:
-        if BuildVariantConfig.Release:
+    def FromBuildVariantConfig(buildVariantConfig: BuildVariantConfig) -> str:
+        if buildVariantConfig == BuildVariantConfig.Release:
             return CMakeBuildType.Release
-        elif BuildVariantConfig.Debug:
+        elif buildVariantConfig == BuildVariantConfig.Debug or buildVariantConfig == BuildVariantConfig.Coverage:
             return CMakeBuildType.Debug
         raise Exception("Unsupported BuildVariantConfig '{0}'".format(BuildVariantConfig.ToString(buildVariantConfig)))
 
@@ -130,7 +136,7 @@ def DetermineCMakeGenerator(generator: GeneratorPluginBase) -> str:
     raise Exception("CMake generator name could not be determined for this platform '{0}".format(generator.PlatformName))
 
 
-def TryGetCompilerShortIdFromGeneratorName(generatorName: str) -> Optional[str]:
+def GetCompilerShortIdFromGeneratorName(generatorName: str) -> str:
     if generatorName == CMakeGeneratorName.UnixMakeFile:
         return "Make"
     elif generatorName == CMakeGeneratorName.VisualStudio2015_X64:
@@ -144,14 +150,10 @@ def TryGetCompilerShortIdFromGeneratorName(generatorName: str) -> Optional[str]:
         id = AndroidUtil.GetSDKNDKId()
         sdkVersion = AndroidUtil.GetMinimumSDKVersion()
         return "V{1}{0}".format(id, sdkVersion)
-    return None
 
-
-def GetCompilerShortIdFromGeneratorName(generatorName: str) -> str:
-    shortName = TryGetCompilerShortIdFromGeneratorName(generatorName)
-    if not shortName is None:
-        return shortName
-    raise Exception("No short name has been defined for generator '{0}'".format(generatorName))
+    generatorName = generatorName.strip()
+    generatorName = generatorName.replace(' ', '_')
+    return generatorName
 
 
 def DeterminePlatformArguments(platformName: str) -> List[str]:
@@ -196,7 +198,7 @@ def GetNativeBuildThreadArguments(cmakeGeneratorName: str, numBuildThreads: int)
     return []
 
 
-def GetGeneratorMultiConfigCapabilities(cmakeGeneratorName: str) -> int:
+def GetGeneratorMultiConfigCapabilities(cmakeGeneratorName: str) -> CMakeGeneratorMultiConfigCapability:
     """
     Hardcode some knowledge about certain generators to avoid cmake warnings
     """

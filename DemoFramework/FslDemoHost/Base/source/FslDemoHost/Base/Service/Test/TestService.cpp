@@ -132,7 +132,8 @@ namespace Fsl
             fmt::memory_buffer buf;
             fmt::format_to(buf, "UserScreenshot-{:010}{}", m_userScreenshotCount, ImageFormatUtil::GetDefaultExtension(m_config.Format));
 
-            m_persistentDataManager->Write(fmt::to_string(buf), m_screenshot, m_config.Format);
+            IO::Path dstFilename(fmt::to_string(buf));
+            m_persistentDataManager->Write(dstFilename, m_screenshot, m_config.Format);
           }
         }
       }
@@ -158,6 +159,7 @@ namespace Fsl
       fmt::format_to(buf, "{}{}", m_config.FilenamePrefix, ImageFormatUtil::GetDefaultExtension(m_config.Format));
     }
 
-    m_persistentDataManager->Write(fmt::to_string(buf), m_screenshot, m_config.Format);
+    IO::Path dstFilename(fmt::to_string(buf));
+    m_persistentDataManager->Write(dstFilename, m_screenshot, m_config.Format);
   }
 }

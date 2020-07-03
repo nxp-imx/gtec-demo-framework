@@ -38,7 +38,7 @@ namespace Fsl
   class DemoHostCustomWindowSystem : public NativeWindowSystemProxy
   {
   public:
-    DemoHostCustomWindowSystem(const std::shared_ptr<INativeWindowSystem>& windowSystem);
+    explicit DemoHostCustomWindowSystem(const std::shared_ptr<INativeWindowSystem>& windowSystem);
 
     //! @brief Allow the custom system to do stuff after a swap is supposed to occur
     //! @return false to indicate some kind of error happened and the app should try to be restarted

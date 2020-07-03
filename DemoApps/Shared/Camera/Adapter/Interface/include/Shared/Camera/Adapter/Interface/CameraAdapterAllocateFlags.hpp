@@ -57,7 +57,7 @@ namespace Fsl
       {
       }
 
-      CameraAdapterAllocateFlags(const Enum flag)
+      CameraAdapterAllocateFlags(const Enum flag)    // NOLINT(google-explicit-constructor)
         : Value(static_cast<uint32_t>(flag))
       {
       }

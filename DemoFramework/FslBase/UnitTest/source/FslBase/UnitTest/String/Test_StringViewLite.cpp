@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/String/StringViewLite.hpp>
+#include <FslBase/Log/String/LogStringViewLite.hpp>
 #include <FslBase/UnitTest/Helper/Common.hpp>
 #include <FslBase/UnitTest/Helper/TestFixtureFslBase.hpp>
 #include <cstring>
@@ -58,9 +59,9 @@ TEST(TestString_StringViewLite, Construct)
 }
 
 
-TEST(TestString_StringViewLite, Construct_FromNullTerminated)
+TEST(TestString_StringViewLite, Construct_FromZeroTerminated)
 {
-  const auto psz = "Hello world";
+  const auto* const psz = "Hello world";
   auto lenPsz = std::strlen(psz);
   StringViewLite strView(psz, lenPsz);
 
@@ -80,6 +81,38 @@ TEST(TestString_StringViewLite, Construct_FromStr)
   EXPECT_NE(strView.data(), nullptr);
   EXPECT_EQ(strView.size(), str.size());
   EXPECT_EQ(strView.length(), str.size());
+}
+
+
+TEST(TestString_StringViewLite, SubStr)
+{
+  StringViewLite strView("0123456789");
+
+  EXPECT_EQ(strView, strView.substr());
+  EXPECT_EQ("123456789", strView.substr(1u));
+  EXPECT_EQ("9", strView.substr(9u));
+
+  EXPECT_EQ("12", strView.substr(1u, 2));
+  EXPECT_EQ("9", strView.substr(9u, 2));
+
+  // its ok to read the last char
+  EXPECT_EQ("", strView.substr(10u));
+}
+
+TEST(TestString_StringViewLite, SubStr_Empty)
+{
+  StringViewLite strView;
+
+  EXPECT_EQ(StringViewLite(), strView.substr());
+  EXPECT_EQ("", strView.substr());
+}
+
+
+TEST(TestString_StringViewLite, SubStr_InvalidPos)
+{
+  StringViewLite strView("0123456789");
+
+  EXPECT_THROW(strView.substr(11u), std::out_of_range);
 }
 
 
@@ -529,4 +562,1083 @@ TEST(TestString_StringViewLite, opGreaterOrEqual5)
   StringViewLite strView2 = Convert(str2);
 
   EXPECT_TRUE(strView1 >= strView2);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// compare
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, compare)
+{
+  EXPECT_TRUE(StringViewLite("A").compare(StringViewLite("B")) < 0);
+  EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("B")) == 0);
+  EXPECT_TRUE(StringViewLite("C").compare(StringViewLite("B")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("A")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("C")) < 0);
+
+  EXPECT_TRUE(StringViewLite("A").compare(StringViewLite("BA")) < 0);
+  EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("BA")) < 0);
+  EXPECT_TRUE(StringViewLite("C").compare(StringViewLite("BA")) > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(StringViewLite("A")) > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(StringViewLite("B")) > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(StringViewLite("C")) < 0);
+
+  EXPECT_TRUE(StringViewLite("AA").compare(StringViewLite("B")) < 0);
+  EXPECT_TRUE(StringViewLite("BA").compare(StringViewLite("B")) > 0);
+  EXPECT_TRUE(StringViewLite("CA").compare(StringViewLite("B")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("AA")) > 0);
+  EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("BA")) < 0);
+  EXPECT_TRUE(StringViewLite("B").compare(StringViewLite("CA")) < 0);
+}
+
+TEST(TestString_StringViewLite, compare_CString)
+{
+  EXPECT_TRUE(StringViewLite("A").compare("B") < 0);
+  EXPECT_TRUE(StringViewLite("B").compare("B") == 0);
+  EXPECT_TRUE(StringViewLite("C").compare("B") > 0);
+  EXPECT_TRUE(StringViewLite("B").compare("A") > 0);
+  EXPECT_TRUE(StringViewLite("B").compare("C") < 0);
+
+  EXPECT_TRUE(StringViewLite("A").compare("BA") < 0);
+  EXPECT_TRUE(StringViewLite("B").compare("BA") < 0);
+  EXPECT_TRUE(StringViewLite("C").compare("BA") > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare("A") > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare("B") > 0);
+  EXPECT_TRUE(StringViewLite("BA").compare("C") < 0);
+
+  EXPECT_TRUE(StringViewLite("AA").compare("B") < 0);
+  EXPECT_TRUE(StringViewLite("BA").compare("B") > 0);
+  EXPECT_TRUE(StringViewLite("CA").compare("B") > 0);
+  EXPECT_TRUE(StringViewLite("B").compare("AA") > 0);
+  EXPECT_TRUE(StringViewLite("B").compare("BA") < 0);
+  EXPECT_TRUE(StringViewLite("B").compare("CA") < 0);
+}
+
+
+TEST(TestString_StringViewLite, compare_Null)
+{
+  EXPECT_TRUE(StringViewLite().compare(StringViewLite()) == 0);
+  EXPECT_TRUE(StringViewLite("").compare(StringViewLite()) == 0);
+  EXPECT_TRUE(StringViewLite().compare(StringViewLite("")) == 0);
+}
+
+TEST(TestString_StringViewLite, compare_Null_CString)
+{
+  EXPECT_TRUE(StringViewLite().compare(nullptr) == 0);
+  EXPECT_TRUE(StringViewLite("").compare(nullptr) == 0);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// starts_with
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, starts_with)
+{
+  EXPECT_TRUE(StringViewLite().starts_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite().starts_with(StringViewLite("")));
+
+  EXPECT_TRUE(StringViewLite("").starts_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("").starts_with(StringViewLite("")));
+
+  EXPECT_TRUE(StringViewLite("A").starts_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("A").starts_with(StringViewLite("")));
+  EXPECT_TRUE(StringViewLite("A").starts_with(StringViewLite("A")));
+
+  EXPECT_TRUE(StringViewLite("AB").starts_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("AB").starts_with(StringViewLite("")));
+  EXPECT_TRUE(StringViewLite("AB").starts_with(StringViewLite("A")));
+  EXPECT_TRUE(StringViewLite("AB").starts_with(StringViewLite("AB")));
+
+  EXPECT_TRUE(StringViewLite("ABC").starts_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with(StringViewLite("")));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with(StringViewLite("A")));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with(StringViewLite("AB")));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with(StringViewLite("ABC")));
+
+  EXPECT_FALSE(StringViewLite().starts_with(StringViewLite("A")));
+
+  EXPECT_FALSE(StringViewLite("").starts_with(StringViewLite("A")));
+
+  EXPECT_FALSE(StringViewLite("A").starts_with(StringViewLite("B")));
+  EXPECT_FALSE(StringViewLite("A").starts_with(StringViewLite("AB")));
+
+  EXPECT_FALSE(StringViewLite("AB").starts_with(StringViewLite("B")));
+  EXPECT_FALSE(StringViewLite("AB").starts_with(StringViewLite("AC")));
+  EXPECT_FALSE(StringViewLite("AB").starts_with(StringViewLite("ABC")));
+
+  EXPECT_FALSE(StringViewLite("ABC").starts_with(StringViewLite("B")));
+  EXPECT_FALSE(StringViewLite("ABC").starts_with(StringViewLite("AC")));
+  EXPECT_FALSE(StringViewLite("ABC").starts_with(StringViewLite("ABD")));
+  EXPECT_FALSE(StringViewLite("ABC").starts_with(StringViewLite("ABDA")));
+}
+
+
+TEST(TestString_StringViewLite, starts_with_CString)
+{
+  EXPECT_TRUE(StringViewLite().starts_with(nullptr));
+  EXPECT_TRUE(StringViewLite().starts_with(""));
+
+  EXPECT_TRUE(StringViewLite("").starts_with(nullptr));
+  EXPECT_TRUE(StringViewLite("").starts_with(""));
+
+  EXPECT_TRUE(StringViewLite("A").starts_with(nullptr));
+  EXPECT_TRUE(StringViewLite("A").starts_with(""));
+  EXPECT_TRUE(StringViewLite("A").starts_with("A"));
+
+  EXPECT_TRUE(StringViewLite("AB").starts_with(nullptr));
+  EXPECT_TRUE(StringViewLite("AB").starts_with(""));
+  EXPECT_TRUE(StringViewLite("AB").starts_with("A"));
+  EXPECT_TRUE(StringViewLite("AB").starts_with("AB"));
+
+  EXPECT_TRUE(StringViewLite("ABC").starts_with(nullptr));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with(""));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with("A"));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with("AB"));
+  EXPECT_TRUE(StringViewLite("ABC").starts_with("ABC"));
+
+  EXPECT_FALSE(StringViewLite().starts_with("A"));
+
+  EXPECT_FALSE(StringViewLite("").starts_with("A"));
+
+  EXPECT_FALSE(StringViewLite("A").starts_with("B"));
+  EXPECT_FALSE(StringViewLite("A").starts_with("AB"));
+
+  EXPECT_FALSE(StringViewLite("AB").starts_with("B"));
+  EXPECT_FALSE(StringViewLite("AB").starts_with("AC"));
+  EXPECT_FALSE(StringViewLite("AB").starts_with("ABC"));
+
+  EXPECT_FALSE(StringViewLite("ABC").starts_with("B"));
+  EXPECT_FALSE(StringViewLite("ABC").starts_with("AC"));
+  EXPECT_FALSE(StringViewLite("ABC").starts_with("ABD"));
+  EXPECT_FALSE(StringViewLite("ABC").starts_with("ABDA"));
+}
+
+TEST(TestString_StringViewLite, starts_with_char)
+{
+  EXPECT_TRUE(StringViewLite("A").starts_with('A'));
+  EXPECT_TRUE(StringViewLite("B").starts_with('B'));
+
+  EXPECT_TRUE(StringViewLite("AB").starts_with('A'));
+  EXPECT_TRUE(StringViewLite("BC").starts_with('B'));
+
+  EXPECT_FALSE(StringViewLite().starts_with(' '));
+  EXPECT_FALSE(StringViewLite().starts_with('a'));
+
+  EXPECT_FALSE(StringViewLite("").starts_with(' '));
+  EXPECT_FALSE(StringViewLite("").starts_with('a'));
+
+  EXPECT_FALSE(StringViewLite("A").starts_with(' '));
+  EXPECT_FALSE(StringViewLite("A").starts_with('a'));
+
+  EXPECT_FALSE(StringViewLite("AB").starts_with(' '));
+  EXPECT_FALSE(StringViewLite("AB").starts_with('a'));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// ends_with
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, ends_with)
+{
+  EXPECT_TRUE(StringViewLite().ends_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite().ends_with(StringViewLite("")));
+
+  EXPECT_TRUE(StringViewLite("").ends_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("").ends_with(StringViewLite("")));
+
+  EXPECT_TRUE(StringViewLite("A").ends_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("A").ends_with(StringViewLite("")));
+  EXPECT_TRUE(StringViewLite("A").ends_with(StringViewLite("A")));
+
+  EXPECT_TRUE(StringViewLite("BA").ends_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("BA").ends_with(StringViewLite("")));
+  EXPECT_TRUE(StringViewLite("BA").ends_with(StringViewLite("A")));
+  EXPECT_TRUE(StringViewLite("BA").ends_with(StringViewLite("BA")));
+
+  EXPECT_TRUE(StringViewLite("CBA").ends_with(StringViewLite()));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with(StringViewLite("")));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with(StringViewLite("A")));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with(StringViewLite("BA")));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with(StringViewLite("CBA")));
+
+  EXPECT_FALSE(StringViewLite().ends_with(StringViewLite("A")));
+
+  EXPECT_FALSE(StringViewLite("").ends_with(StringViewLite("A")));
+
+  EXPECT_FALSE(StringViewLite("A").ends_with(StringViewLite("B")));
+  EXPECT_FALSE(StringViewLite("A").ends_with(StringViewLite("BA")));
+
+  EXPECT_FALSE(StringViewLite("BA").ends_with(StringViewLite("B")));
+  EXPECT_FALSE(StringViewLite("BA").ends_with(StringViewLite("CA")));
+  EXPECT_FALSE(StringViewLite("BA").ends_with(StringViewLite("CBA")));
+
+  EXPECT_FALSE(StringViewLite("CBA").ends_with(StringViewLite("B")));
+  EXPECT_FALSE(StringViewLite("CBA").ends_with(StringViewLite("CA")));
+  EXPECT_FALSE(StringViewLite("CBA").ends_with(StringViewLite("DBA")));
+  EXPECT_FALSE(StringViewLite("CBA").ends_with(StringViewLite("ADBA")));
+}
+
+
+TEST(TestString_StringViewLite, ends_with_CString)
+{
+  EXPECT_TRUE(StringViewLite().ends_with(nullptr));
+  EXPECT_TRUE(StringViewLite().ends_with(""));
+
+  EXPECT_TRUE(StringViewLite("").ends_with(nullptr));
+  EXPECT_TRUE(StringViewLite("").ends_with(""));
+
+  EXPECT_TRUE(StringViewLite("A").ends_with(nullptr));
+  EXPECT_TRUE(StringViewLite("A").ends_with(""));
+  EXPECT_TRUE(StringViewLite("A").ends_with("A"));
+
+  EXPECT_TRUE(StringViewLite("BA").ends_with(nullptr));
+  EXPECT_TRUE(StringViewLite("BA").ends_with(""));
+  EXPECT_TRUE(StringViewLite("BA").ends_with("A"));
+  EXPECT_TRUE(StringViewLite("BA").ends_with("BA"));
+
+  EXPECT_TRUE(StringViewLite("CBA").ends_with(nullptr));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with(""));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with("A"));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with("BA"));
+  EXPECT_TRUE(StringViewLite("CBA").ends_with("CBA"));
+
+  EXPECT_FALSE(StringViewLite().ends_with("A"));
+
+  EXPECT_FALSE(StringViewLite("").ends_with("A"));
+
+  EXPECT_FALSE(StringViewLite("A").ends_with("B"));
+  EXPECT_FALSE(StringViewLite("A").ends_with("BA"));
+
+  EXPECT_FALSE(StringViewLite("BA").ends_with("B"));
+  EXPECT_FALSE(StringViewLite("BA").ends_with("CA"));
+  EXPECT_FALSE(StringViewLite("BA").ends_with("CBA"));
+
+  EXPECT_FALSE(StringViewLite("CBA").ends_with("B"));
+  EXPECT_FALSE(StringViewLite("CBA").ends_with("CA"));
+  EXPECT_FALSE(StringViewLite("CBA").ends_with("DBA"));
+  EXPECT_FALSE(StringViewLite("CBA").ends_with("ADBA"));
+}
+
+
+TEST(TestString_StringViewLite, ends_with_char)
+{
+  EXPECT_TRUE(StringViewLite("A").ends_with('A'));
+  EXPECT_TRUE(StringViewLite("B").ends_with('B'));
+
+  EXPECT_TRUE(StringViewLite("BA").ends_with('A'));
+  EXPECT_TRUE(StringViewLite("CB").ends_with('B'));
+
+  EXPECT_FALSE(StringViewLite().ends_with(' '));
+  EXPECT_FALSE(StringViewLite().ends_with('a'));
+
+  EXPECT_FALSE(StringViewLite("").ends_with(' '));
+  EXPECT_FALSE(StringViewLite("").ends_with('a'));
+
+  EXPECT_FALSE(StringViewLite("A").ends_with(' '));
+  EXPECT_FALSE(StringViewLite("A").ends_with('a'));
+
+  EXPECT_FALSE(StringViewLite("BA").ends_with(' '));
+  EXPECT_FALSE(StringViewLite("BA").ends_with('a'));
+}
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// find
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, find_char)
+{
+  EXPECT_EQ(0u, StringViewLite("a").find('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("a").find('a', 1u));
+
+  EXPECT_EQ(0u, StringViewLite("aa").find('a'));
+  EXPECT_EQ(1u, StringViewLite("aa").find('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("aa").find('a', 2u));
+
+  EXPECT_EQ(0u, StringViewLite("aba").find('a'));
+  EXPECT_EQ(2u, StringViewLite("aba").find('a', 1u));
+  EXPECT_EQ(2u, StringViewLite("aba").find('a', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("aba").find('a', 3u));
+
+  EXPECT_EQ(2u, StringViewLite("cba").find('a'));
+  EXPECT_EQ(2u, StringViewLite("cba").find('a', 1u));
+  EXPECT_EQ(2u, StringViewLite("cba").find('a', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("cba").find('a', 3u));
+
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().find(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().find('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().find(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().find('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().find(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().find('a', 2u));
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").find(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").find('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").find(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").find('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").find(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").find('a', 2u));
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("a").find(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("b").find('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("a").find(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("b").find('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("a").find(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("b").find('a', 2u));
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("ab").find(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("bc").find('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("ab").find(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("bc").find('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("ab").find(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("bc").find('a', 2u));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// rfind
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, rfind_char)
+{
+  EXPECT_EQ(0u, StringViewLite("a").rfind('a'));
+  EXPECT_EQ(0u, StringViewLite("a").rfind('a', 0u));
+  EXPECT_EQ(0u, StringViewLite("a").rfind('a', 1u));
+
+  EXPECT_EQ(1u, StringViewLite("aa").rfind('a'));
+  EXPECT_EQ(0u, StringViewLite("aa").rfind('a', 0u));
+  EXPECT_EQ(1u, StringViewLite("aa").rfind('a', 1u));
+  EXPECT_EQ(1u, StringViewLite("aa").rfind('a', 2u));
+
+  EXPECT_EQ(2u, StringViewLite("aba").rfind('a'));
+  EXPECT_EQ(0u, StringViewLite("aba").rfind('a', 0u));
+  EXPECT_EQ(0u, StringViewLite("aba").rfind('a', 1u));
+  EXPECT_EQ(2u, StringViewLite("aba").rfind('a', 2u));
+  EXPECT_EQ(2u, StringViewLite("aba").rfind('a', 3u));
+
+  EXPECT_EQ(2u, StringViewLite("cba").rfind('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("cba").rfind('a', 0u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("cba").rfind('a', 1u));
+  EXPECT_EQ(2u, StringViewLite("cba").rfind('a', 2u));
+  EXPECT_EQ(2u, StringViewLite("cba").rfind('a', 3u));
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().rfind(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().rfind('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().rfind(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().rfind('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().rfind(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite().rfind('a', 2u));
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").rfind(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").rfind('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").rfind(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").rfind('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").rfind(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("").rfind('a', 2u));
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("a").rfind(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("b").rfind('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("a").rfind(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("b").rfind('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("a").rfind(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("b").rfind('a', 2u));
+
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("ab").rfind(' '));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("bc").rfind('a'));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("ab").rfind(' ', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("bc").rfind('a', 1u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("ab").rfind(' ', 2u));
+  EXPECT_EQ(StringViewLite::npos, StringViewLite("bc").rfind('a', 2u));
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// Operator <
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, OperatorLessThan)
+{
+  EXPECT_LT(StringViewLite("A"), StringViewLite("B"));
+  EXPECT_LT(StringViewLite("A"), StringViewLite("AB"));
+  EXPECT_LT(StringViewLite(""), StringViewLite("AB"));
+
+  EXPECT_TRUE(StringViewLite("A") < StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") < StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("C") < StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") < StringViewLite("A"));
+  EXPECT_FALSE(StringViewLite("B") < StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") < StringViewLite("C"));
+
+  EXPECT_TRUE(StringViewLite("A") < StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("B") < StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("C") < StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("BA") < StringViewLite("A"));
+  EXPECT_FALSE(StringViewLite("BA") < StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("BA") < StringViewLite("C"));
+
+  EXPECT_TRUE(StringViewLite("AA") < StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("BA") < StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("CA") < StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") < StringViewLite("AA"));
+  EXPECT_TRUE(StringViewLite("B") < StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("B") < StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorLessThan_CString_LHS)
+{
+  EXPECT_LT("A", StringViewLite("B"));
+  EXPECT_LT("A", StringViewLite("AB"));
+  EXPECT_LT("", StringViewLite("AB"));
+
+  EXPECT_TRUE("A" < StringViewLite("B"));
+  EXPECT_FALSE("B" < StringViewLite("B"));
+  EXPECT_FALSE("C" < StringViewLite("B"));
+  EXPECT_FALSE("B" < StringViewLite("A"));
+  EXPECT_FALSE("B" < StringViewLite("B"));
+  EXPECT_TRUE("B" < StringViewLite("C"));
+
+  EXPECT_TRUE("A" < StringViewLite("BA"));
+  EXPECT_TRUE("B" < StringViewLite("BA"));
+  EXPECT_FALSE("C" < StringViewLite("BA"));
+  EXPECT_FALSE("BA" < StringViewLite("A"));
+  EXPECT_FALSE("BA" < StringViewLite("B"));
+  EXPECT_TRUE("BA" < StringViewLite("C"));
+
+  EXPECT_TRUE("AA" < StringViewLite("B"));
+  EXPECT_FALSE("BA" < StringViewLite("B"));
+  EXPECT_FALSE("CA" < StringViewLite("B"));
+  EXPECT_FALSE("B" < StringViewLite("AA"));
+  EXPECT_TRUE("B" < StringViewLite("BA"));
+  EXPECT_TRUE("B" < StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorLessThan_CString_RHS)
+{
+  EXPECT_LT(StringViewLite("A"), "B");
+  EXPECT_LT(StringViewLite("A"), "AB");
+  EXPECT_LT(StringViewLite(""), "AB");
+
+  EXPECT_TRUE(StringViewLite("A") < "B");
+  EXPECT_FALSE(StringViewLite("B") < "B");
+  EXPECT_FALSE(StringViewLite("C") < "B");
+  EXPECT_FALSE(StringViewLite("B") < "A");
+  EXPECT_FALSE(StringViewLite("B") < "B");
+  EXPECT_TRUE(StringViewLite("B") < "C");
+
+  EXPECT_TRUE(StringViewLite("A") < "BA");
+  EXPECT_TRUE(StringViewLite("B") < "BA");
+  EXPECT_FALSE(StringViewLite("C") < "BA");
+  EXPECT_FALSE(StringViewLite("BA") < "A");
+  EXPECT_FALSE(StringViewLite("BA") < "B");
+  EXPECT_TRUE(StringViewLite("BA") < "C");
+
+  EXPECT_TRUE(StringViewLite("AA") < "B");
+  EXPECT_FALSE(StringViewLite("BA") < "B");
+  EXPECT_FALSE(StringViewLite("CA") < "B");
+  EXPECT_FALSE(StringViewLite("B") < "AA");
+  EXPECT_TRUE(StringViewLite("B") < "BA");
+  EXPECT_TRUE(StringViewLite("B") < "CA");
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// Operator <=
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, OperatorLessThanOrEqual)
+{
+  EXPECT_LE(StringViewLite("A"), StringViewLite("B"));
+  EXPECT_LE(StringViewLite("A"), StringViewLite("AB"));
+  EXPECT_LE(StringViewLite(""), StringViewLite("AB"));
+  EXPECT_LE(StringViewLite("A"), StringViewLite("A"));
+
+  EXPECT_TRUE(StringViewLite("A") <= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") <= StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("C") <= StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") <= StringViewLite("A"));
+  EXPECT_TRUE(StringViewLite("B") <= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") <= StringViewLite("C"));
+
+  EXPECT_TRUE(StringViewLite("A") <= StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("B") <= StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("C") <= StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("BA") <= StringViewLite("A"));
+  EXPECT_FALSE(StringViewLite("BA") <= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("BA") <= StringViewLite("C"));
+
+  EXPECT_TRUE(StringViewLite("AA") <= StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("BA") <= StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("CA") <= StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") <= StringViewLite("AA"));
+  EXPECT_TRUE(StringViewLite("B") <= StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("B") <= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorLessThanOrEqual_CString_LHS)
+{
+  EXPECT_LE("A", StringViewLite("B"));
+  EXPECT_LE("A", StringViewLite("AB"));
+  EXPECT_LE("", StringViewLite("AB"));
+  EXPECT_LE("A", StringViewLite("A"));
+
+  EXPECT_TRUE("A" <= StringViewLite("B"));
+  EXPECT_TRUE("B" <= StringViewLite("B"));
+  EXPECT_FALSE("C" <= StringViewLite("B"));
+  EXPECT_FALSE("B" <= StringViewLite("A"));
+  EXPECT_TRUE("B" <= StringViewLite("B"));
+  EXPECT_TRUE("B" <= StringViewLite("C"));
+
+  EXPECT_TRUE("A" <= StringViewLite("BA"));
+  EXPECT_TRUE("B" <= StringViewLite("BA"));
+  EXPECT_FALSE("C" <= StringViewLite("BA"));
+  EXPECT_FALSE("BA" <= StringViewLite("A"));
+  EXPECT_FALSE("BA" <= StringViewLite("B"));
+  EXPECT_TRUE("BA" <= StringViewLite("C"));
+
+  EXPECT_TRUE("AA" <= StringViewLite("B"));
+  EXPECT_FALSE("BA" <= StringViewLite("B"));
+  EXPECT_FALSE("CA" <= StringViewLite("B"));
+  EXPECT_FALSE("B" <= StringViewLite("AA"));
+  EXPECT_TRUE("B" <= StringViewLite("BA"));
+  EXPECT_TRUE("B" <= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorLessThanOrEqual_CString_RHS)
+{
+  EXPECT_LE(StringViewLite("A"), "B");
+  EXPECT_LE(StringViewLite("A"), "AB");
+  EXPECT_LE(StringViewLite(""), "AB");
+  EXPECT_LE(StringViewLite("A"), "A");
+
+  EXPECT_TRUE(StringViewLite("A") <= "B");
+  EXPECT_TRUE(StringViewLite("B") <= "B");
+  EXPECT_FALSE(StringViewLite("C") <= "B");
+  EXPECT_FALSE(StringViewLite("B") <= "A");
+  EXPECT_TRUE(StringViewLite("B") <= "B");
+  EXPECT_TRUE(StringViewLite("B") <= "C");
+
+  EXPECT_TRUE(StringViewLite("A") <= "BA");
+  EXPECT_TRUE(StringViewLite("B") <= "BA");
+  EXPECT_FALSE(StringViewLite("C") <= "BA");
+  EXPECT_FALSE(StringViewLite("BA") <= "A");
+  EXPECT_FALSE(StringViewLite("BA") <= "B");
+  EXPECT_TRUE(StringViewLite("BA") <= "C");
+
+  EXPECT_TRUE(StringViewLite("AA") <= "B");
+  EXPECT_FALSE(StringViewLite("BA") <= "B");
+  EXPECT_FALSE(StringViewLite("CA") <= "B");
+  EXPECT_FALSE(StringViewLite("B") <= "AA");
+  EXPECT_TRUE(StringViewLite("B") <= "BA");
+  EXPECT_TRUE(StringViewLite("B") <= "CA");
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// Operator >
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, OperatorGreaterThan)
+{
+  EXPECT_GT(StringViewLite("B"), StringViewLite("A"));
+  EXPECT_GT(StringViewLite("AB"), StringViewLite("A"));
+  EXPECT_GT(StringViewLite("AB"), StringViewLite(""));
+
+  EXPECT_FALSE(StringViewLite("A") > StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") > StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("C") > StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") > StringViewLite("A"));
+  EXPECT_FALSE(StringViewLite("B") > StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") > StringViewLite("C"));
+
+  EXPECT_FALSE(StringViewLite("A") > StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("B") > StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("C") > StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("BA") > StringViewLite("A"));
+  EXPECT_TRUE(StringViewLite("BA") > StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("BA") > StringViewLite("C"));
+
+  EXPECT_FALSE(StringViewLite("AA") > StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("BA") > StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("CA") > StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") > StringViewLite("AA"));
+  EXPECT_FALSE(StringViewLite("B") > StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("B") > StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorGreaterThan_CString_LHS)
+{
+  EXPECT_GT("B", StringViewLite("A"));
+  EXPECT_GT("AB", StringViewLite("A"));
+  EXPECT_GT("AB", StringViewLite(""));
+
+  EXPECT_FALSE("A" > StringViewLite("B"));
+  EXPECT_FALSE("B" > StringViewLite("B"));
+  EXPECT_TRUE("C" > StringViewLite("B"));
+  EXPECT_TRUE("B" > StringViewLite("A"));
+  EXPECT_FALSE("B" > StringViewLite("B"));
+  EXPECT_FALSE("B" > StringViewLite("C"));
+
+  EXPECT_FALSE("A" > StringViewLite("BA"));
+  EXPECT_FALSE("B" > StringViewLite("BA"));
+  EXPECT_TRUE("C" > StringViewLite("BA"));
+  EXPECT_TRUE("BA" > StringViewLite("A"));
+  EXPECT_TRUE("BA" > StringViewLite("B"));
+  EXPECT_FALSE("BA" > StringViewLite("C"));
+
+  EXPECT_FALSE("AA" > StringViewLite("B"));
+  EXPECT_TRUE("BA" > StringViewLite("B"));
+  EXPECT_TRUE("CA" > StringViewLite("B"));
+  EXPECT_TRUE("B" > StringViewLite("AA"));
+  EXPECT_FALSE("B" > StringViewLite("BA"));
+  EXPECT_FALSE("B" > StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorGreaterThan_CString_RHS)
+{
+  EXPECT_GT(StringViewLite("B"), "A");
+  EXPECT_GT(StringViewLite("AB"), "A");
+  EXPECT_GT(StringViewLite("AB"), "");
+
+  EXPECT_FALSE(StringViewLite("A") > "B");
+  EXPECT_FALSE(StringViewLite("B") > "B");
+  EXPECT_TRUE(StringViewLite("C") > "B");
+  EXPECT_TRUE(StringViewLite("B") > "A");
+  EXPECT_FALSE(StringViewLite("B") > "B");
+  EXPECT_FALSE(StringViewLite("B") > "C");
+
+  EXPECT_FALSE(StringViewLite("A") > "BA");
+  EXPECT_FALSE(StringViewLite("B") > "BA");
+  EXPECT_TRUE(StringViewLite("C") > "BA");
+  EXPECT_TRUE(StringViewLite("BA") > "A");
+  EXPECT_TRUE(StringViewLite("BA") > "B");
+  EXPECT_FALSE(StringViewLite("BA") > "C");
+
+  EXPECT_FALSE(StringViewLite("AA") > "B");
+  EXPECT_TRUE(StringViewLite("BA") > "B");
+  EXPECT_TRUE(StringViewLite("CA") > "B");
+  EXPECT_TRUE(StringViewLite("B") > "AA");
+  EXPECT_FALSE(StringViewLite("B") > "BA");
+  EXPECT_FALSE(StringViewLite("B") > "CA");
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// Operator >=
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual)
+{
+  EXPECT_GE(StringViewLite("B"), StringViewLite("A"));
+  EXPECT_GE(StringViewLite("AB"), StringViewLite("A"));
+  EXPECT_GE(StringViewLite("AB"), StringViewLite(""));
+  EXPECT_GE(StringViewLite("A"), StringViewLite("A"));
+
+  EXPECT_FALSE(StringViewLite("A") >= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") >= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("C") >= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") >= StringViewLite("A"));
+  EXPECT_TRUE(StringViewLite("B") >= StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") >= StringViewLite("C"));
+
+  EXPECT_FALSE(StringViewLite("A") >= StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("B") >= StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("C") >= StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("BA") >= StringViewLite("A"));
+  EXPECT_TRUE(StringViewLite("BA") >= StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("BA") >= StringViewLite("C"));
+
+  EXPECT_FALSE(StringViewLite("AA") >= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("BA") >= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("CA") >= StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") >= StringViewLite("AA"));
+  EXPECT_FALSE(StringViewLite("B") >= StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("B") >= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual_CString_LHS)
+{
+  EXPECT_GE("B", StringViewLite("A"));
+  EXPECT_GE("AB", StringViewLite("A"));
+  EXPECT_GE("AB", StringViewLite(""));
+  EXPECT_GE("A", StringViewLite("A"));
+
+  EXPECT_FALSE("A" >= StringViewLite("B"));
+  EXPECT_TRUE("B" >= StringViewLite("B"));
+  EXPECT_TRUE("C" >= StringViewLite("B"));
+  EXPECT_TRUE("B" >= StringViewLite("A"));
+  EXPECT_TRUE("B" >= StringViewLite("B"));
+  EXPECT_FALSE("B" >= StringViewLite("C"));
+
+  EXPECT_FALSE("A" >= StringViewLite("BA"));
+  EXPECT_FALSE("B" >= StringViewLite("BA"));
+  EXPECT_TRUE("C" >= StringViewLite("BA"));
+  EXPECT_TRUE("BA" >= StringViewLite("A"));
+  EXPECT_TRUE("BA" >= StringViewLite("B"));
+  EXPECT_FALSE("BA" >= StringViewLite("C"));
+
+  EXPECT_FALSE("AA" >= StringViewLite("B"));
+  EXPECT_TRUE("BA" >= StringViewLite("B"));
+  EXPECT_TRUE("CA" >= StringViewLite("B"));
+  EXPECT_TRUE("B" >= StringViewLite("AA"));
+  EXPECT_FALSE("B" >= StringViewLite("BA"));
+  EXPECT_FALSE("B" >= StringViewLite("CA"));
+}
+
+TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual_CString_RHS)
+{
+  EXPECT_GE(StringViewLite("B"), "A");
+  EXPECT_GE(StringViewLite("AB"), "A");
+  EXPECT_GE(StringViewLite("AB"), "");
+  EXPECT_GE(StringViewLite("A"), "A");
+
+  EXPECT_FALSE(StringViewLite("A") >= "B");
+  EXPECT_TRUE(StringViewLite("B") >= "B");
+  EXPECT_TRUE(StringViewLite("C") >= "B");
+  EXPECT_TRUE(StringViewLite("B") >= "A");
+  EXPECT_TRUE(StringViewLite("B") >= "B");
+  EXPECT_FALSE(StringViewLite("B") >= "C");
+
+  EXPECT_FALSE(StringViewLite("A") >= "BA");
+  EXPECT_FALSE(StringViewLite("B") >= "BA");
+  EXPECT_TRUE(StringViewLite("C") >= "BA");
+  EXPECT_TRUE(StringViewLite("BA") >= "A");
+  EXPECT_TRUE(StringViewLite("BA") >= "B");
+  EXPECT_FALSE(StringViewLite("BA") >= "C");
+
+  EXPECT_FALSE(StringViewLite("AA") >= "B");
+  EXPECT_TRUE(StringViewLite("BA") >= "B");
+  EXPECT_TRUE(StringViewLite("CA") >= "B");
+  EXPECT_TRUE(StringViewLite("B") >= "AA");
+  EXPECT_FALSE(StringViewLite("B") >= "BA");
+  EXPECT_FALSE(StringViewLite("B") >= "CA");
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// Operator !=
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+TEST(TestString_StringViewLite, OperatorEqual)
+{
+  EXPECT_TRUE(StringViewLite("A") == StringViewLite("A"));
+  EXPECT_TRUE(StringViewLite("") == StringViewLite(""));
+  EXPECT_FALSE(StringViewLite("A") == StringViewLite(""));
+  EXPECT_FALSE(StringViewLite("A") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("A") == StringViewLite("a"));
+
+  EXPECT_FALSE(StringViewLite("A") == StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("C") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") == StringViewLite("A"));
+  EXPECT_TRUE(StringViewLite("B") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") == StringViewLite("C"));
+
+  EXPECT_FALSE(StringViewLite("A") == StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("B") == StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("C") == StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("BA") == StringViewLite("A"));
+  EXPECT_FALSE(StringViewLite("BA") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("BA") == StringViewLite("C"));
+
+  EXPECT_FALSE(StringViewLite("AA") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("BA") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("CA") == StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") == StringViewLite("AA"));
+  EXPECT_FALSE(StringViewLite("B") == StringViewLite("BA"));
+  EXPECT_FALSE(StringViewLite("B") == StringViewLite("CA"));
+}
+
+
+TEST(TestString_StringViewLite, OperatorEqual_CString_LHS)
+{
+  EXPECT_TRUE("A" == StringViewLite("A"));
+  EXPECT_TRUE("" == StringViewLite(""));    // NOLINT(readability-container-size-empty)
+  EXPECT_FALSE("A" == StringViewLite(""));
+  EXPECT_FALSE("A" == StringViewLite("B"));
+  EXPECT_FALSE("A" == StringViewLite("a"));
+
+  EXPECT_FALSE("A" == StringViewLite("B"));
+  EXPECT_TRUE("B" == StringViewLite("B"));
+  EXPECT_FALSE("C" == StringViewLite("B"));
+  EXPECT_FALSE("B" == StringViewLite("A"));
+  EXPECT_TRUE("B" == StringViewLite("B"));
+  EXPECT_FALSE("B" == StringViewLite("C"));
+
+  EXPECT_FALSE("A" == StringViewLite("BA"));
+  EXPECT_FALSE("B" == StringViewLite("BA"));
+  EXPECT_FALSE("C" == StringViewLite("BA"));
+  EXPECT_FALSE("BA" == StringViewLite("A"));
+  EXPECT_FALSE("BA" == StringViewLite("B"));
+  EXPECT_FALSE("BA" == StringViewLite("C"));
+
+  EXPECT_FALSE("AA" == StringViewLite("B"));
+  EXPECT_FALSE("BA" == StringViewLite("B"));
+  EXPECT_FALSE("CA" == StringViewLite("B"));
+  EXPECT_FALSE("B" == StringViewLite("AA"));
+  EXPECT_FALSE("B" == StringViewLite("BA"));
+  EXPECT_FALSE("B" == StringViewLite("CA"));
+}
+
+
+TEST(TestString_StringViewLite, OperatorEqual_CString_RHS)
+{
+  EXPECT_TRUE(StringViewLite("A") == "A");
+  EXPECT_TRUE(StringViewLite("") == "");      // NOLINT(readability-container-size-empty)
+  EXPECT_FALSE(StringViewLite("A") == "");    // NOLINT(readability-container-size-empty)
+  EXPECT_FALSE(StringViewLite("A") == "B");
+  EXPECT_FALSE(StringViewLite("A") == "a");
+
+  EXPECT_FALSE(StringViewLite("A") == "B");
+  EXPECT_TRUE(StringViewLite("B") == "B");
+  EXPECT_FALSE(StringViewLite("C") == "B");
+  EXPECT_FALSE(StringViewLite("B") == "A");
+  EXPECT_TRUE(StringViewLite("B") == "B");
+  EXPECT_FALSE(StringViewLite("B") == "C");
+
+  EXPECT_FALSE(StringViewLite("A") == "BA");
+  EXPECT_FALSE(StringViewLite("B") == "BA");
+  EXPECT_FALSE(StringViewLite("C") == "BA");
+  EXPECT_FALSE(StringViewLite("BA") == "A");
+  EXPECT_FALSE(StringViewLite("BA") == "B");
+  EXPECT_FALSE(StringViewLite("BA") == "C");
+
+  EXPECT_FALSE(StringViewLite("AA") == "B");
+  EXPECT_FALSE(StringViewLite("BA") == "B");
+  EXPECT_FALSE(StringViewLite("CA") == "B");
+  EXPECT_FALSE(StringViewLite("B") == "AA");
+  EXPECT_FALSE(StringViewLite("B") == "BA");
+  EXPECT_FALSE(StringViewLite("B") == "CA");
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// Operator !=
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, OperatorNotEqual)
+{
+  EXPECT_FALSE(StringViewLite("A") != StringViewLite("A"));
+  EXPECT_FALSE(StringViewLite("") != StringViewLite(""));
+  EXPECT_TRUE(StringViewLite("A") != StringViewLite(""));
+  EXPECT_TRUE(StringViewLite("A") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("A") != StringViewLite("a"));
+
+  EXPECT_TRUE(StringViewLite("A") != StringViewLite("B"));
+  EXPECT_FALSE(StringViewLite("B") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("C") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") != StringViewLite("A"));
+  EXPECT_FALSE(StringViewLite("B") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") != StringViewLite("C"));
+
+  EXPECT_TRUE(StringViewLite("A") != StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("B") != StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("C") != StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("BA") != StringViewLite("A"));
+  EXPECT_TRUE(StringViewLite("BA") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("BA") != StringViewLite("C"));
+
+  EXPECT_TRUE(StringViewLite("AA") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("BA") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("CA") != StringViewLite("B"));
+  EXPECT_TRUE(StringViewLite("B") != StringViewLite("AA"));
+  EXPECT_TRUE(StringViewLite("B") != StringViewLite("BA"));
+  EXPECT_TRUE(StringViewLite("B") != StringViewLite("CA"));
+}
+
+
+TEST(TestString_StringViewLite, OperatorNotEqual_CString_LHS)
+{
+  EXPECT_FALSE("A" != StringViewLite("A"));
+  EXPECT_FALSE("" != StringViewLite(""));    // NOLINT(readability-container-size-empty)
+  EXPECT_TRUE("A" != StringViewLite(""));
+  EXPECT_TRUE("A" != StringViewLite("B"));
+  EXPECT_TRUE("A" != StringViewLite("a"));
+
+  EXPECT_TRUE("A" != StringViewLite("B"));
+  EXPECT_FALSE("B" != StringViewLite("B"));
+  EXPECT_TRUE("C" != StringViewLite("B"));
+  EXPECT_TRUE("B" != StringViewLite("A"));
+  EXPECT_FALSE("B" != StringViewLite("B"));
+  EXPECT_TRUE("B" != StringViewLite("C"));
+
+  EXPECT_TRUE("A" != StringViewLite("BA"));
+  EXPECT_TRUE("B" != StringViewLite("BA"));
+  EXPECT_TRUE("C" != StringViewLite("BA"));
+  EXPECT_TRUE("BA" != StringViewLite("A"));
+  EXPECT_TRUE("BA" != StringViewLite("B"));
+  EXPECT_TRUE("BA" != StringViewLite("C"));
+
+  EXPECT_TRUE("AA" != StringViewLite("B"));
+  EXPECT_TRUE("BA" != StringViewLite("B"));
+  EXPECT_TRUE("CA" != StringViewLite("B"));
+  EXPECT_TRUE("B" != StringViewLite("AA"));
+  EXPECT_TRUE("B" != StringViewLite("BA"));
+  EXPECT_TRUE("B" != StringViewLite("CA"));
+}
+
+
+TEST(TestString_StringViewLite, OperatorNotEqual_CString_RHS)
+{
+  EXPECT_FALSE(StringViewLite("A") != "A");
+  EXPECT_FALSE(StringViewLite("") != "");    // NOLINT(readability-container-size-empty)
+  EXPECT_TRUE(StringViewLite("A") != "");    // NOLINT(readability-container-size-empty)
+  EXPECT_TRUE(StringViewLite("A") != "B");
+  EXPECT_TRUE(StringViewLite("A") != "a");
+
+  EXPECT_TRUE(StringViewLite("A") != "B");
+  EXPECT_FALSE(StringViewLite("B") != "B");
+  EXPECT_TRUE(StringViewLite("C") != "B");
+  EXPECT_TRUE(StringViewLite("B") != "A");
+  EXPECT_FALSE(StringViewLite("B") != "B");
+  EXPECT_TRUE(StringViewLite("B") != "C");
+
+  EXPECT_TRUE(StringViewLite("A") != "BA");
+  EXPECT_TRUE(StringViewLite("B") != "BA");
+  EXPECT_TRUE(StringViewLite("C") != "BA");
+  EXPECT_TRUE(StringViewLite("BA") != "A");
+  EXPECT_TRUE(StringViewLite("BA") != "B");
+  EXPECT_TRUE(StringViewLite("BA") != "C");
+
+  EXPECT_TRUE(StringViewLite("AA") != "B");
+  EXPECT_TRUE(StringViewLite("BA") != "B");
+  EXPECT_TRUE(StringViewLite("CA") != "B");
+  EXPECT_TRUE(StringViewLite("B") != "AA");
+  EXPECT_TRUE(StringViewLite("B") != "BA");
+  EXPECT_TRUE(StringViewLite("B") != "CA");
+}
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+// Operator null handling
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+
+TEST(TestString_StringViewLite, OperatorLessThan_Null)
+{
+  const char* pszNull = nullptr;
+  constexpr StringViewLite strViewNull(nullptr);
+
+  EXPECT_FALSE(StringViewLite("A") < pszNull);
+  EXPECT_FALSE(StringViewLite("A") < strViewNull);
+  EXPECT_TRUE(pszNull < StringViewLite("A"));
+  EXPECT_TRUE(strViewNull < StringViewLite("A"));
+
+  // Compare against empty string
+  EXPECT_FALSE(StringViewLite("") < pszNull);
+  EXPECT_FALSE(StringViewLite("") < strViewNull);
+  EXPECT_FALSE(pszNull < StringViewLite(""));
+  EXPECT_FALSE(strViewNull < StringViewLite(""));
+
+  // Compare against null
+  EXPECT_FALSE(pszNull < strViewNull);
+  EXPECT_FALSE(strViewNull < pszNull);
+  EXPECT_FALSE(strViewNull < strViewNull);
+}
+
+
+TEST(TestString_StringViewLite, OperatorLessThanOrEqual_Null)
+{
+  const char* pszNull = nullptr;
+  constexpr StringViewLite strViewNull(nullptr);
+
+  EXPECT_FALSE(StringViewLite("A") <= pszNull);
+  EXPECT_FALSE(StringViewLite("A") <= strViewNull);
+  EXPECT_TRUE(pszNull <= StringViewLite("A"));
+  EXPECT_TRUE(strViewNull <= StringViewLite("A"));
+
+  // Compare against empty string
+  EXPECT_TRUE(StringViewLite("") <= pszNull);
+  EXPECT_TRUE(StringViewLite("") <= strViewNull);
+  EXPECT_TRUE(pszNull <= StringViewLite(""));
+  EXPECT_TRUE(strViewNull <= StringViewLite(""));
+
+  // Compare against null
+  EXPECT_TRUE(pszNull <= strViewNull);
+  EXPECT_TRUE(strViewNull <= pszNull);
+  EXPECT_TRUE(strViewNull <= strViewNull);
+}
+
+
+TEST(TestString_StringViewLite, OperatorGreaterThan_Null)
+{
+  const char* pszNull = nullptr;
+  constexpr StringViewLite strViewNull(nullptr);
+
+  EXPECT_TRUE(StringViewLite("A") > pszNull);
+  EXPECT_TRUE(StringViewLite("A") > strViewNull);
+  EXPECT_FALSE(pszNull > StringViewLite("A"));
+  EXPECT_FALSE(strViewNull > StringViewLite("A"));
+
+  // Compare against empty string
+  EXPECT_FALSE(StringViewLite("") > pszNull);
+  EXPECT_FALSE(StringViewLite("") > strViewNull);
+  EXPECT_FALSE(pszNull > StringViewLite(""));
+  EXPECT_FALSE(strViewNull > StringViewLite(""));
+
+  // Compare against null
+  EXPECT_FALSE(pszNull > strViewNull);
+  EXPECT_FALSE(strViewNull > pszNull);
+  EXPECT_FALSE(strViewNull > strViewNull);
+}
+
+
+TEST(TestString_StringViewLite, OperatorGreaterThanOrEqual_Null)
+{
+  const char* pszNull = nullptr;
+  constexpr StringViewLite strViewNull(nullptr);
+
+  EXPECT_TRUE(StringViewLite("A") >= pszNull);
+  EXPECT_TRUE(StringViewLite("A") >= strViewNull);
+  EXPECT_FALSE(pszNull >= StringViewLite("A"));
+  EXPECT_FALSE(strViewNull >= StringViewLite("A"));
+
+  // Compare against empty string
+  EXPECT_TRUE(StringViewLite("") >= pszNull);
+  EXPECT_TRUE(StringViewLite("") >= strViewNull);
+  EXPECT_TRUE(pszNull >= StringViewLite(""));
+  EXPECT_TRUE(strViewNull >= StringViewLite(""));
+
+  // Compare against null
+  EXPECT_TRUE(pszNull >= strViewNull);
+  EXPECT_TRUE(strViewNull >= pszNull);
+  EXPECT_TRUE(strViewNull >= strViewNull);
+}
+
+
+TEST(TestString_StringViewLite, OperatorEqual_Null)
+{
+  const char* pszNull = nullptr;
+  constexpr StringViewLite strViewNull(nullptr);
+
+  EXPECT_FALSE(StringViewLite("A") == pszNull);
+  EXPECT_FALSE(StringViewLite("A") == strViewNull);
+  EXPECT_FALSE(pszNull == StringViewLite("A"));
+  EXPECT_FALSE(strViewNull == StringViewLite("A"));
+
+  // Compare against empty string
+  EXPECT_TRUE(pszNull == StringViewLite(""));
+  EXPECT_TRUE(strViewNull == StringViewLite(""));
+  EXPECT_TRUE(StringViewLite("") == pszNull);
+  EXPECT_TRUE(StringViewLite("") == strViewNull);
+
+  // Compare against null
+  EXPECT_TRUE(pszNull == strViewNull);
+  EXPECT_TRUE(strViewNull == pszNull);
+  EXPECT_TRUE(strViewNull == strViewNull);
+}
+
+
+TEST(TestString_StringViewLite, OperatorNotEqual_Null)
+{
+  const char* pszNull = nullptr;
+  constexpr StringViewLite strViewNull(nullptr);
+
+  EXPECT_TRUE(StringViewLite("A") != pszNull);
+  EXPECT_TRUE(StringViewLite("A") != strViewNull);
+  EXPECT_TRUE(pszNull != StringViewLite("A"));
+  EXPECT_TRUE(strViewNull != StringViewLite("A"));
+
+  // Compare against empty string
+  EXPECT_FALSE(pszNull != StringViewLite(""));
+  EXPECT_FALSE(strViewNull != StringViewLite(""));
+  EXPECT_FALSE(StringViewLite("") != pszNull);
+  EXPECT_FALSE(StringViewLite("") != strViewNull);
+
+  // Compare against null
+  EXPECT_FALSE(pszNull != strViewNull);
+  EXPECT_FALSE(strViewNull != pszNull);
+  EXPECT_FALSE(strViewNull != strViewNull);
 }

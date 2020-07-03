@@ -47,7 +47,7 @@ namespace Fsl
     Vector3 m_oldPosition;
     float m_inverseMass{0};
 
-  public:
+
     PointMass()
       : m_acceleration(0, 0, 0)
       , m_position(0, 0, 0)

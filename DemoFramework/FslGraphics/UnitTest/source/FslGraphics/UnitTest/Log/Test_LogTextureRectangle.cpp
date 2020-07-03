@@ -43,9 +43,9 @@ namespace
 
 TEST(TestLog_LogTextureRectangle, Log)
 {
-  TextureRectangle value(Rectangle(1, 2, 3, 4), Point2(5, 6));
+  TextureRectangle value(PxRectangle(1, 2, 3, 4), PxSize2D(5, 6));
 
   std::stringstream stream;
   stream << value;
-  EXPECT_EQ(std::string("{Rectangle={X=1 Y=2 Width=3 Height=4} TextureSize={X=5 Y=6}}"), stream.str());
+  EXPECT_EQ(std::string("{Rectangle={X=1 Y=2 Width=3 Height=4} TextureSize={Width=5 Height=6}}"), stream.str());
 }

@@ -36,6 +36,7 @@
 #include <FslGraphics/PixelFormat.hpp>
 #include <FslGraphics/PrimitiveType.hpp>
 #include <FslBase/Math/Rectangle.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <GLES2/gl2.h>
 #include <string>
 #include <vector>
@@ -50,7 +51,7 @@ namespace Fsl
     {
     public:
       //! @brief Get a list of all extensions
-      static std::vector<std::string> GetExtensions();
+      static std::vector<StringViewLite> GetExtensions();
 
       //! @brief Check if the given OpenGLES extension is available
       //! @note Do not expect mind blowing performance from this!

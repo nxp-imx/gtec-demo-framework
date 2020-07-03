@@ -24,7 +24,8 @@
 #include "CoverAlbumBitmap.hpp"
 namespace Fsl
 {
-  uint8_t CoverAlbumBitmaps::MozartBitmap[] = {
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  const uint8_t CoverAlbumBitmaps::MozartBitmap[] = {
     0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,
     0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,
     0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,   255, 0,   0,   0,

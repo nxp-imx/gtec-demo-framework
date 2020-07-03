@@ -57,7 +57,7 @@ namespace Fsl
 
   S08_EnvironmentMappingRefraction::S08_EnvironmentMappingRefraction(const DemoAppConfig& config)
     : DemoAppGLES2(config)
-    , m_renderState(config.ScreenResolution)
+    , m_renderState(config.WindowMetrics.GetSizePx())
   {
     const std::shared_ptr<IContentManager> content = config.DemoServiceProvider.Get<IContentManager>();
 
@@ -107,7 +107,7 @@ namespace Fsl
   }
 
 
-  void S08_EnvironmentMappingRefraction::Draw(const DemoTime& demoTime)
+  void S08_EnvironmentMappingRefraction::Draw(const DemoTime& /*demoTime*/)
   {
     glEnable(GL_CULL_FACE);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

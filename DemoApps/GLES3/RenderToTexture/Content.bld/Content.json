@@ -1,0 +1,16 @@
+{
+  "ContentBuilder" : {
+    "Version": "1",
+    "Content.SyncList": [
+      {
+        "SourcePath" : "${ProjectRoot}/Resources/Source/BasicUI",
+        "Content": [
+          "UIAtlas/License.json",
+          "UIAtlas/UIAtlas_*dpi.bta",
+          "UIAtlas/UIAtlas_*dpi_Font.nbf",
+          "UIAtlas/UIAtlas_*dpi.png"
+        ]
+      }     
+    ]
+  }
+}

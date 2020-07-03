@@ -49,7 +49,7 @@ namespace Fsl
     Vector3 m_angle;
 
   public:
-    S06_Texturing(const DemoAppConfig& config);
+    explicit S06_Texturing(const DemoAppConfig& config);
     ~S06_Texturing() override;
 
   protected:

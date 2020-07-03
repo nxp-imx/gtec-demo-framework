@@ -33,13 +33,14 @@
 #include <EGL/egl.h>
 #include "S05_PrecompiledShader.hpp"
 #include "OptionParser.hpp"
+#include <array>
 
 namespace Fsl
 {
   namespace
   {
     // Custom EGL config (these will per default overwrite the custom settings. However a exact EGL config can be used)
-    static const EGLint g_eglConfigAttribs[] = {
+    static const std::array<EGLint, (7 * 2) + 1> g_eglConfigAttribs = {
       EGL_SAMPLES,    0,  EGL_RED_SIZE,     8,
       EGL_GREEN_SIZE, 8,  EGL_BLUE_SIZE,    8,
       EGL_ALPHA_SIZE, 0,    // buffers with the smallest alpha component size are preferred
@@ -51,7 +52,7 @@ namespace Fsl
   // Configure the demo environment to run this demo app in a OpenGLES3 host environment
   void ConfigureDemoAppEnvironment(HostDemoAppSetup& rSetup)
   {
-    DemoAppHostConfigEGL config(g_eglConfigAttribs);
+    DemoAppHostConfigEGL config(g_eglConfigAttribs.data());
 
     DemoAppRegister::GLES3::Register<S05_PrecompiledShader, OptionParser>(rSetup, "GLES3.S05_PrecompiledShader", config);
   }

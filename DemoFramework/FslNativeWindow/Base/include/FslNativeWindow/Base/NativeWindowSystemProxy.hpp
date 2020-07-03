@@ -45,7 +45,7 @@ namespace Fsl
     std::shared_ptr<INativeWindowSystem> m_windowSystem;
 
   public:
-    NativeWindowSystemProxy(const std::shared_ptr<INativeWindowSystem>& windowSystem);
+    explicit NativeWindowSystemProxy(const std::shared_ptr<INativeWindowSystem>& windowSystem);
 
     std::shared_ptr<INativeWindow>
       CreateNativeWindow(const NativeWindowSetup& nativeWindowSetup,

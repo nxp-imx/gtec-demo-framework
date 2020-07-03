@@ -47,7 +47,7 @@ namespace Fsl
     EGLContext m_hContext;
 
   public:
-    EGLHostService(const ServiceProvider& serviceProvider);
+    explicit EGLHostService(const ServiceProvider& serviceProvider);
     ~EGLHostService() override;
 
     void SetDisplay(EGLDisplay value);

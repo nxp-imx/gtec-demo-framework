@@ -45,14 +45,11 @@ namespace Fsl
 
     struct Vertices
     {
-      VkPipelineVertexInputStateCreateInfo InputState;
+      VkPipelineVertexInputStateCreateInfo InputState{};
       std::vector<VkVertexInputBindingDescription> BindingDescriptions;
       std::vector<VkVertexInputAttributeDescription> AttributeDescriptions;
 
-      Vertices()
-        : InputState{}
-      {
-      }
+      Vertices() = default;
     };
 
     struct UniformData
@@ -67,7 +64,7 @@ namespace Fsl
       glm::mat4 Projection;
       glm::mat4 Modelview;
       glm::vec4 LightPos = glm::vec4(-48.0f, -40.0f, 46.0f, 0.0f);
-      glm::vec4 FrustumPlanes[6];
+      glm::vec4 FrustumPlanes[6];    // NOLINT(modernize-avoid-c-arrays)
       float DisplacementFactor = 32.0f;
       float TessellationFactor = 0.75f;
       glm::vec2 ViewportDim;
@@ -115,7 +112,7 @@ namespace Fsl
     Textures m_textures;
     QueryResult m_queryResult;
     RapidVulkan::QueryPool m_queryPool;
-    uint64_t m_pipelineStats[2]{};
+    uint64_t m_pipelineStats[2]{};    // NOLINT(modernize-avoid-c-arrays)
     Vertices m_vertices;
     UniformData m_uniformData;
     // View frustum passed to tessellation control shader for culling
@@ -132,7 +129,7 @@ namespace Fsl
     bool m_wireframe;
 
   public:
-    DynamicTerrainTessellation(const DemoAppConfig& config);
+    explicit DynamicTerrainTessellation(const DemoAppConfig& config);
     ~DynamicTerrainTessellation() override;
 
   protected:

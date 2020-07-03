@@ -76,7 +76,7 @@ TEST(TestMath_Rectangle3D, Construct1)
   EXPECT_EQ(static_cast<int32_t>(offsetZ + depth), value.Back());
 }
 
-TEST(TestMath_Rectangle3D, Construct2)
+TEST(TestMath_Rectangle3D, FromLeftTopFrontRightBottomBack)
 {
   int32_t left = 1;
   int32_t top = 2;
@@ -84,17 +84,17 @@ TEST(TestMath_Rectangle3D, Construct2)
   int32_t right = 10;
   int32_t bottom = 20;
   int32_t back = 30;
-  Rectangle3D value(left, top, front, right, bottom, back, true);
+  auto value = Rectangle3D::FromLeftTopFrontRightBottomBack(left, top, front, right, bottom, back);
 
   EXPECT_EQ(Offset3D(left, top, front), value.Offset);
   EXPECT_EQ(Extent3D(static_cast<uint32_t>(right - left), static_cast<uint32_t>(bottom - top), static_cast<uint32_t>(back - front)), value.Extent);
 }
 
-TEST(TestMath_Rectangle3D, Construct2_invalid)
+TEST(TestMath_Rectangle3D, FromLeftTopFrontRightBottomBack_Invalid)
 {
-  EXPECT_THROW(Rectangle3D(1, 2, 3, -10, 20, 30, true), std::invalid_argument);
-  EXPECT_THROW(Rectangle3D(1, 2, 3, 10, -20, 30, true), std::invalid_argument);
-  EXPECT_THROW(Rectangle3D(1, 2, 3, 10, 20, -30, true), std::invalid_argument);
+  EXPECT_THROW(Rectangle3D::FromLeftTopFrontRightBottomBack(1, 2, 3, -10, 20, 30), std::invalid_argument);
+  EXPECT_THROW(Rectangle3D::FromLeftTopFrontRightBottomBack(1, 2, 3, 10, -20, 30), std::invalid_argument);
+  EXPECT_THROW(Rectangle3D::FromLeftTopFrontRightBottomBack(1, 2, 3, 10, 20, -30), std::invalid_argument);
 }
 
 
@@ -124,6 +124,57 @@ TEST(TestMath_Rectangle3D, Inflate)
 }
 
 
+TEST(TestMath_Rectangle3D, Inflate_InvalidX)
+{
+  const int32_t offsetX = 1;
+  const int32_t offsetY = 2;
+  const int32_t offsetZ = 3;
+  const uint32_t width = 4;
+  const uint32_t height = 5;
+  const uint32_t depth = 6;
+  Rectangle3D value(offsetX, offsetY, offsetZ, width, height, depth);
+
+  const int32_t inflateX = -1;
+  const int32_t inflateY = 2;
+  const int32_t inflateZ = 3;
+  EXPECT_THROW(value.Inflate(inflateX, inflateY, inflateZ), std::invalid_argument);
+}
+
+
+TEST(TestMath_Rectangle3D, Inflate_InvalidY)
+{
+  const int32_t offsetX = 1;
+  const int32_t offsetY = 2;
+  const int32_t offsetZ = 3;
+  const uint32_t width = 4;
+  const uint32_t height = 5;
+  const uint32_t depth = 6;
+  Rectangle3D value(offsetX, offsetY, offsetZ, width, height, depth);
+
+  const int32_t inflateX = 1;
+  const int32_t inflateY = -2;
+  const int32_t inflateZ = 3;
+  EXPECT_THROW(value.Inflate(inflateX, inflateY, inflateZ), std::invalid_argument);
+}
+
+
+TEST(TestMath_Rectangle3D, Inflate_InvalidZ)
+{
+  const int32_t offsetX = 1;
+  const int32_t offsetY = 2;
+  const int32_t offsetZ = 3;
+  const uint32_t width = 4;
+  const uint32_t height = 5;
+  const uint32_t depth = 6;
+  Rectangle3D value(offsetX, offsetY, offsetZ, width, height, depth);
+
+  const int32_t inflateX = 1;
+  const int32_t inflateY = 2;
+  const int32_t inflateZ = -3;
+  EXPECT_THROW(value.Inflate(inflateX, inflateY, inflateZ), std::invalid_argument);
+}
+
+
 TEST(TestMath_Rectangle3D, Intersects)
 {
   const Rectangle3D rect1(0, 0, 0, 10, 10, 10);
@@ -149,5 +200,5 @@ TEST(TestMath_Rectangle3D, Union)
   // 0, 5 |  0, 4
   // 0, 5 | -1, 4
   // 0, 5 | -2, 6
-  EXPECT_EQ(Rectangle3D(0, -1, -2, 5, 5, 6, true), res);
+  EXPECT_EQ(Rectangle3D::FromLeftTopFrontRightBottomBack(0, -1, -2, 5, 5, 6), res);
 }

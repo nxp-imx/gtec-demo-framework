@@ -203,7 +203,7 @@ namespace Fsl
 
 
     template <typename TVertex, typename TIndex>
-    const RawMeshContent GenericMesh<TVertex, TIndex>::GenericDirectAccess() const
+    RawMeshContent GenericMesh<TVertex, TIndex>::GenericDirectAccess() const
     {
       return RawMeshContent(m_vertices.data(), static_cast<uint32_t>(m_vertices.size()), sizeof(TVertex), m_indices.data(),
                             static_cast<uint32_t>(m_indices.size()), sizeof(TIndex), GetPrimitiveType());

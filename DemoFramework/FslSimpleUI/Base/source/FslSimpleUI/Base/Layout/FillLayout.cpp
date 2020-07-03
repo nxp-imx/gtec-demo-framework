@@ -31,6 +31,8 @@
 
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
 #include <FslBase/Exceptions.hpp>
+//#include <FslBase/Log/Log3Fmt.hpp>
+//#include <FslBase/Log/Math/FmtVector2.hpp>
 #include <cmath>
 
 // Workaround for issues with std::isinf and std::isnan on qnx
@@ -46,34 +48,32 @@ namespace Fsl
     }
 
 
-    Vector2 FillLayout::ArrangeOverride(const Vector2& finalSize)
+    PxSize2D FillLayout::ArrangeOverride(const PxSize2D& finalSizePx)
     {
-      if (isinf(finalSize.X) || isinf(finalSize.Y))
-      {
-        throw UsageErrorException("FillLayout can not be used in infinity sized layouts");
-      }
-
-
+      // FSLLOG3_INFO("Arrange: finalSize: {}", finalSize);
       for (auto itr = begin(); itr != end(); ++itr)
       {
-        itr->Window->Arrange(Rect(0, 0, finalSize.X, finalSize.Y));
+        itr->Window->Arrange(PxRectangle(0, 0, finalSizePx.Width(), finalSizePx.Height()));
+        // FSLLOG3_INFO("Arrange: RenderSize: {}", itr->Window->RenderSize());
       }
-      return finalSize;
+      return finalSizePx;
     }
 
 
-    Vector2 FillLayout::MeasureOverride(const Vector2& availableSize)
+    PxSize2D FillLayout::MeasureOverride(const PxAvailableSize& availableSizePx)
     {
-      if (isinf(availableSize.X) || isinf(availableSize.Y))
+      if (!availableSizePx.IsNormal())
       {
         throw UsageErrorException("FillLayout can not be used in infinity sized layouts");
       }
 
+      // FSLLOG3_INFO("Measure: availableSize: {}", availableSize);
       for (auto itr = begin(); itr != end(); ++itr)
       {
-        itr->Window->Measure(availableSize);
+        itr->Window->Measure(availableSizePx);
+        // FSLLOG3_INFO("Measure: DesiredSize: {}", itr->Window->DesiredSize());
       }
-      return availableSize;
+      return availableSizePx.ToPxSize2D();
     }
   }
 }

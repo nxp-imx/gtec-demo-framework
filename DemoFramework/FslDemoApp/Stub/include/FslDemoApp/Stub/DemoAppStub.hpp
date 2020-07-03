@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppStub : public ADemoApp
   {
   public:
-    DemoAppStub(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppStub(const DemoAppConfig& demoAppConfig);
   };
 }
 

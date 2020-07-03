@@ -44,7 +44,7 @@ namespace Fsl
     GLint m_locWVP;
 
   public:
-    WhiteShader(const IContentManager& contentManager);
+    explicit WhiteShader(const IContentManager& contentManager);
 
     void SetWorldViewProjection(const Matrix& matrix);
   };

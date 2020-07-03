@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent3D.hpp>
+#include <FslBase/Math/Pixel/PxExtent3D.hpp>
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 
@@ -51,8 +51,8 @@ namespace Fsl
     //! @brief Convert the texture to the desired pixel format and origin (if possible, else throw a exception)
     static void Convert(Texture& rTexture, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin = BitmapOrigin::Undefined);
 
-    static Extent3D GetExtentForLevel(const Extent3D& extent, const uint32_t level);
-    static uint32_t CalcTotalTexels(const Extent3D& extent, const TextureInfo& textureInfo);
+    static PxExtent3D GetExtentForLevel(const PxExtent3D& extent, const uint32_t level);
+    static uint32_t CalcTotalTexels(const PxExtent3D& extent, const TextureInfo& textureInfo);
 
     //! @brief Try to change the origin of the texture
     static bool TryChangeOrigin(Texture& rTexture, const BitmapOrigin desiredOrigin);

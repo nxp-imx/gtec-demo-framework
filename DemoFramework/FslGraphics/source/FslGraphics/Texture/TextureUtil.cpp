@@ -333,18 +333,18 @@ namespace Fsl
   }
 
 
-  Extent3D TextureUtil::GetExtentForLevel(const Extent3D& extent, const uint32_t level)
+  PxExtent3D TextureUtil::GetExtentForLevel(const PxExtent3D& extent, const uint32_t level)
   {
     if (level <= 0)
     {
       return extent;
     }
-    return Extent3D(std::max(extent.Width >> level, static_cast<uint32_t>(1u)), std::max(extent.Height >> level, static_cast<uint32_t>(1u)),
-                    std::max(extent.Depth >> level, static_cast<uint32_t>(1u)));
+    return {std::max(extent.Width >> level, static_cast<uint32_t>(1u)), std::max(extent.Height >> level, static_cast<uint32_t>(1u)),
+            std::max(extent.Depth >> level, static_cast<uint32_t>(1u))};
   }
 
 
-  uint32_t TextureUtil::CalcTotalTexels(const Extent3D& extent, const TextureInfo& textureInfo)
+  uint32_t TextureUtil::CalcTotalTexels(const PxExtent3D& extent, const TextureInfo& textureInfo)
   {
     uint32_t totalTexels = 0;
     for (uint32_t level = 0; level < textureInfo.Levels; ++level)

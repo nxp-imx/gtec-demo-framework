@@ -73,11 +73,4 @@ namespace Fsl
   }
 }
 
-
-// Register a pure OpenGL ES 2 demo
-#define FSL_REGISTER_OPENGLES2_DEMO(tdEMOaPP, dEMOhOSTeglcONFIG) \
-  static_assert(false, "The FSL_REGISTER_OPENGLES2_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_OPENGLES2_DEMO_EX(tdEMOaPP, dEMOhOSTeglcONFIG, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_OPENGLES2_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

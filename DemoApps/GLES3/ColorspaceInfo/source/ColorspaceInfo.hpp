@@ -38,7 +38,7 @@ namespace Fsl
   class ColorspaceInfo : public DemoAppGLES3
   {
   public:
-    ColorspaceInfo(const DemoAppConfig& config);
+    explicit ColorspaceInfo(const DemoAppConfig& config);
   };
 }
 

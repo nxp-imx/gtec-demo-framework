@@ -40,7 +40,7 @@ namespace Fsl
     int32_t From{0};
     int32_t Length{0};
 
-    FontGlyphRange();
+    constexpr FontGlyphRange() = default;
     FontGlyphRange(const int32_t from, const int32_t length);
 
     bool Contains(const int32_t value) const

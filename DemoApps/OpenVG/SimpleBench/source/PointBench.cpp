@@ -30,9 +30,13 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/Exceptions.hpp>
+#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include "PointBench.hpp"
 #include <VG/openvg.h>
+#include <array>
 #include <cassert>
 #include <sstream>
 
@@ -43,15 +47,19 @@ namespace Fsl
   {
     const int32_t POINTS_PER_LINE = 200;
 
-    void BenchPointsViaClear(const uint32_t index, const int32_t count, const int32_t width, const std::vector<Vector4>& colors)
+    void BenchPointsViaClear(const uint32_t index, const int32_t count, const int32_t width, const ReadOnlySpan<Vector4> colors)
     {
+      if (colors.empty())
+      {
+        throw NotSupportedException("colors can not be empty");
+      }
       const std::size_t colorCount = colors.size();
       std::size_t colorIndex = index % colorCount;
       vgSetfv(VG_CLEAR_COLOR, 4, colors[colorIndex].DirectAccess());
 
-      uint32_t offset = index & 1;
-      int x = 0;
-      int y = 0;
+      auto offset = UncheckedNumericCast<VGint>(index & 1);
+      VGint x = 0;
+      VGint y = 0;
       for (int i = 0; i < count; ++i)
       {
         vgClear(x, y, 1, 1);
@@ -70,8 +78,13 @@ namespace Fsl
 
 
     void BenchPointsViaLine(const uint32_t index, const int32_t count, const int32_t width, const VGPath& hLine, const VGPaint& hPaint,
-                            const std::vector<Vector4>& colors)
+                            const ReadOnlySpan<Vector4> colors)
     {
+      if (colors.empty())
+      {
+        throw NotSupportedException("colors can not be empty");
+      }
+
       const std::size_t colorCount = colors.size();
       std::size_t colorIndex = index % colorCount;
       vgSetParameterfv(hPaint, VG_PAINT_COLOR, 4, colors[colorIndex].DirectAccess());
@@ -80,9 +93,9 @@ namespace Fsl
       vgSetf(VG_STROKE_LINE_WIDTH, 1);
       vgSetPaint(hPaint, VG_STROKE_PATH);
 
-      uint32_t offset = index & 1;
-      int x = 0;
-      int y = 0;
+      auto offset = UncheckedNumericCast<VGint>(index & 1);
+      VGint x = 0;
+      VGint y = 0;
       for (int i = 0; i < count; ++i)
       {
         {
@@ -104,8 +117,13 @@ namespace Fsl
 
 
     void BenchPointsViaNewPath(const uint32_t index, const int32_t count, const int32_t width, const VGPaint& hPaint,
-                               const std::vector<Vector4>& colors, std::vector<VGfloat>& rPathCoords, std::vector<VGubyte>& rPathSegments)
+                               const ReadOnlySpan<Vector4>& colors, std::vector<VGfloat>& rPathCoords, std::vector<VGubyte>& rPathSegments)
     {
+      if (colors.empty())
+      {
+        throw NotSupportedException("colors can not be empty");
+      }
+
       const float bias = 0.0f;
       const float scale = 1.0f;
 
@@ -121,8 +139,8 @@ namespace Fsl
       int dstIndex = 0;
       VGfloat* pDstCoords = rPathCoords.data();
 
-      uint32_t offset = index & 1;
-      int x = 0;
+      auto offset = UncheckedNumericCast<VGint>(index & 1);
+      VGint x = 0;
       VGfloat y = 0.0f;
       for (int i = 0; i < count; ++i)
       {
@@ -218,18 +236,22 @@ namespace Fsl
     //}
 
 
-    void BenchPointsViaBitmap(const uint32_t index, const int32_t count, const int32_t width, const OpenVG::VGImageBuffer* const pColors,
-                              const std::size_t colorCount)
+    void BenchPointsViaBitmap(const uint32_t index, const int32_t count, const int32_t width, const ReadOnlySpan<OpenVG::VGImageBuffer> span)
     {
-      std::size_t colorIndex = index % colorCount;
+      if (span.empty())
+      {
+        throw NotSupportedException("span can not be empty");
+      }
 
-      VGImage hCurrentImage = pColors[colorIndex].GetHandle();
+      std::size_t colorIndex = index % span.size();
+
+      VGImage hCurrentImage = span[colorIndex].GetHandle();
 
       vgSeti(VG_MATRIX_MODE, VG_MATRIX_IMAGE_USER_TO_SURFACE);
 
-      uint32_t offset = index & 1;
-      int x = 0;
-      int y = 0;
+      auto offset = UncheckedNumericCast<VGint>(index & 1);
+      VGint x = 0;
+      VGint y = 0;
       for (int i = 0; i < count; ++i)
       {
         {
@@ -243,20 +265,25 @@ namespace Fsl
           ++offset;
           x = offset & 1;
           ++y;
-          colorIndex = (colorIndex + 1) % colorCount;
-          hCurrentImage = pColors[colorIndex].GetHandle();
+          colorIndex = (colorIndex + 1) % span.size();
+          hCurrentImage = span[colorIndex].GetHandle();
         }
       }
     }
 
 
     void BenchPointsViaBitmapFont(const uint32_t index, const int32_t count, const int32_t width, const VGFont hFont,
-                                  const std::vector<Color>& colors, std::vector<VGuint>& glyphs, std::vector<VGfloat>& rPathCoords)
+                                  const ReadOnlySpan<Color> colors, std::vector<VGuint>& glyphs, std::vector<VGfloat>& rPathCoords)
     {
+      if (colors.empty())
+      {
+        throw NotSupportedException("colors can not be empty");
+      }
+
       const std::size_t colorCount = colors.size();
       std::size_t colorIndex = index % colorCount;
 
-      float origin[2] = {0, 0};
+      constexpr const std::array<float, 2> origin = {0, 0};
       vgSeti(VG_MATRIX_MODE, VG_MATRIX_GLYPH_USER_TO_SURFACE);
 
       int dstIndex = 0;
@@ -265,8 +292,8 @@ namespace Fsl
       VGfloat* pDstCoordsX = rPathCoords.data();
       VGfloat* pDstCoordsY = pDstCoordsX + (rPathCoords.size() / 2);
 
-      uint32_t offset = index & 1;
-      int x = 0;
+      auto offset = UncheckedNumericCast<VGint>(index & 1);
+      VGint x = 0;
       VGfloat y = 0;
       for (int i = 0; i < count; ++i)
       {
@@ -283,7 +310,7 @@ namespace Fsl
           {
             vgLoadIdentity();
             vgTranslate(static_cast<VGfloat>(x), y);
-            vgSetfv(VG_GLYPH_ORIGIN, 2, origin);
+            vgSetfv(VG_GLYPH_ORIGIN, UncheckedNumericCast<VGint>(origin.size()), origin.data());
             vgDrawGlyphs(hFont, dstIndex, pGlyphs, pDstCoordsX, pDstCoordsY, VG_FILL_PATH, VG_TRUE);
             dstIndex = 0;
           }
@@ -297,7 +324,7 @@ namespace Fsl
         x = offset & 1;
         vgLoadIdentity();
         vgTranslate(static_cast<VGfloat>(x), y);
-        vgSetfv(VG_GLYPH_ORIGIN, 2, origin);
+        vgSetfv(VG_GLYPH_ORIGIN, UncheckedNumericCast<VGint>(origin.size()), origin.data());
         vgDrawGlyphs(hFont, dstIndex, pGlyphs, pDstCoordsX, pDstCoordsY, VG_FILL_PATH, VG_TRUE);
       }
     }
@@ -308,8 +335,6 @@ namespace Fsl
     : m_pointCount(pointCount)
     , m_mode(mode)
     , m_index(0)
-    , m_colors(8)
-    , m_colorsV4(8)
     , m_pathCoords(POINTS_PER_LINE * 4)
     , m_pathSegments(POINTS_PER_LINE * 2)
     , m_hPath(VG_INVALID_HANDLE)
@@ -336,7 +361,7 @@ namespace Fsl
     m_imageColorParent.Reset(bitmap, VG_IMAGE_QUALITY_FASTER);
     for (uint32_t i = 0; i < colorCount; ++i)
     {
-      m_imageColors[i].Reset(vgChildImage(m_imageColorParent.GetHandle(), i, 0, 1, 1), Point2(1, 1));
+      m_imageColors[i].Reset(vgChildImage(m_imageColorParent.GetHandle(), i, 0, 1, 1), PxSize2D(1, 1));
     }
 
     m_paint.Reset(vgCreatePaint());
@@ -369,12 +394,12 @@ namespace Fsl
     //}
     if (m_mode == Mode::BitmapFont)
     {
-      VGfloat zero[2]{};
+      std::array<VGfloat, 2> zero{};
       m_fontBuffer.Reset(8);
       const VGFont hFont = m_fontBuffer.GetHandle();
       for (uint32_t i = 0; i < colorCount; ++i)
       {
-        vgSetGlyphToImage(hFont, i, m_imageColors[i].GetHandle(), zero, zero);
+        vgSetGlyphToImage(hFont, i, m_imageColors[i].GetHandle(), zero.data(), zero.data());
       }
     }
   }
@@ -434,29 +459,30 @@ namespace Fsl
   }
 
 
-  void PointBench::Draw(const Point2& screenResolution)
+  void PointBench::Draw(const PxSize2D& sizePc)
   {
     const int32_t width = POINTS_PER_LINE * 2;
 
     switch (m_mode)
     {
     case Mode::Clear:
-      BenchPointsViaClear(m_index, m_pointCount, width, m_colorsV4);
+      BenchPointsViaClear(m_index, m_pointCount, width, ReadOnlySpanUtil::AsSpan(m_colorsV4));
       break;
     case Mode::Line:
-      BenchPointsViaLine(m_index, m_pointCount, width, m_buffer.GetHandle(), m_paint.GetHandle(), m_colorsV4);
+      BenchPointsViaLine(m_index, m_pointCount, width, m_buffer.GetHandle(), m_paint.GetHandle(), ReadOnlySpanUtil::AsSpan(m_colorsV4));
       break;
     case Mode::NewPath:
-      BenchPointsViaNewPath(m_index, m_pointCount, width, m_paint.GetHandle(), m_colorsV4, m_pathCoords, m_pathSegments);
+      BenchPointsViaNewPath(m_index, m_pointCount, width, m_paint.GetHandle(), ReadOnlySpanUtil::AsSpan(m_colorsV4), m_pathCoords, m_pathSegments);
       break;
     // case Mode::ModifyPath:
     //  BenchPointsViaModifyPath(m_index, m_pointCount, width, m_hPath, m_paint.GetHandle(), m_colorsV4, m_pathCoords, m_pathSegments);
     //  break;
     case Mode::Bitmap:
-      BenchPointsViaBitmap(m_index, m_pointCount, width, m_imageColors, m_colors.size());
+      BenchPointsViaBitmap(m_index, m_pointCount, width, ReadOnlySpanUtil::AsSpan(m_imageColors));
       break;
     case Mode::BitmapFont:
-      BenchPointsViaBitmapFont(m_index, m_pointCount, width, m_fontBuffer.GetHandle(), m_colors, m_fontGlyphs, m_pathCoords);
+      BenchPointsViaBitmapFont(m_index, m_pointCount, width, m_fontBuffer.GetHandle(), ReadOnlySpanUtil::AsSpan(m_colors), m_fontGlyphs,
+                               m_pathCoords);
       break;
     default:
       break;

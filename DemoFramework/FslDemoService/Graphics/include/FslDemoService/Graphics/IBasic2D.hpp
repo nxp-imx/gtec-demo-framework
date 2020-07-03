@@ -32,6 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslBase/Math/Rectangle.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <FslBase/String/StringViewLite.hpp>
@@ -67,8 +69,8 @@ namespace Fsl
     //! @param position the position to draw the string at
     //! @param the color to use for rendering
     //! @note This is a minimal string rendering routine
-    virtual void DrawString(const char* const psz, const Vector2& dstPosition) = 0;
-    virtual void DrawString(const std::string& str, const Vector2& dstPosition) = 0;
+    virtual void DrawString(const char* const psz, const Vector2& dstPositionPxf) = 0;
+    virtual void DrawString(const std::string& str, const Vector2& dstPositionPxf) = 0;
 
     //! @brief Draw the string at position using a monospaced font.
     //!        The font and color is chosen by the back-end and its might be opaque!
@@ -76,10 +78,28 @@ namespace Fsl
     //! @param length the number of characters that the 'characters' contain.
     //! @param position the position to draw the string at
     //! @param the color to use for rendering
-    virtual void DrawString(const StringViewLite& strView, const Vector2& dstPosition) = 0;
+    virtual void DrawString(const StringViewLite& strView, const Vector2& dstPositionPxf) = 0;
+
+    //! @brief Draw the string at position using a monospaced font.
+    //!        The font and color is chosen by the back-end and its might be opaque!
+    //! @param characters a array of characters
+    //! @param length the number of characters that the 'characters' contain.
+    //! @param position the position to draw the string at
+    //! @param the color to use for rendering
+    //! @note This is a minimal string rendering routine
+    virtual void DrawString(const char* const psz, const PxPoint2& dstPositionPx) = 0;
+    virtual void DrawString(const std::string& str, const PxPoint2& dstPositionPx) = 0;
+
+    //! @brief Draw the string at position using a monospaced font.
+    //!        The font and color is chosen by the back-end and its might be opaque!
+    //! @param characters a array of characters
+    //! @param length the number of characters that the 'characters' contain.
+    //! @param position the position to draw the string at
+    //! @param the color to use for rendering
+    virtual void DrawString(const StringViewLite& strView, const PxPoint2& dstPositionPx) = 0;
 
     //! @brief Get the size of one monospaced font character
-    virtual const Point2 FontSize() const = 0;
+    virtual PxSize2D FontSize() const = 0;
   };
 }
 

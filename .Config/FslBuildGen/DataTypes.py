@@ -32,6 +32,7 @@
 
 from typing import List
 from typing import Optional
+from enum import Enum
 from FslBuildGen.Exceptions import UnknownTypeException
 
 class PackageType:
@@ -79,7 +80,9 @@ class PackageType:
 
     @staticmethod
     def AllStrings() -> List[str]:
-        return ["TopLevel", "Library", "Executable", "ExternalLibrary", "HeaderLibrary", "ToolRecipe"]
+        return [PackageType.ToString(PackageType.TopLevel), PackageType.ToString(PackageType.Library), PackageType.ToString(PackageType.Executable),
+                PackageType.ToString(PackageType.ExternalLibrary), PackageType.ToString(PackageType.HeaderLibrary),
+                PackageType.ToString(PackageType.ToolRecipe)]
 
 
 # Beware that code relies on the more accessible accesstype being smaller value (so public < private < link)
@@ -98,8 +101,11 @@ class AccessType:
             return "Link"
         raise Exception("Unknown AccessType: {0}".format(value))
 
+class DependencyCondition(object):
+    FindPackageAllowed = "AllowFindPackage"
+    FindPackageNotAllowed = "!AllowFindPackage"
 
-class ExternalDependencyType:
+class ExternalDependencyType(Enum):
     StaticLib = 1
     DLL = 2
     Headers = 3
@@ -107,10 +113,11 @@ class ExternalDependencyType:
     Assembly = 4
     PackageReference = 5
     # CMake specific
-    Find = 6
+    CMakeFindLegacy = 6
+    CMakeFindModern = 7
 
     @staticmethod
-    def ToString(value: int) -> str:
+    def ToString(value: 'ExternalDependencyType') -> str:
         if value == ExternalDependencyType.StaticLib:
             return 'StaticLib'
         elif value == ExternalDependencyType.DLL:
@@ -121,12 +128,14 @@ class ExternalDependencyType:
             return 'Assembly'
         elif value == ExternalDependencyType.PackageReference:
             return 'PackageReference'
-        elif value == ExternalDependencyType.Find:
-            return 'Find'
+        elif value == ExternalDependencyType.CMakeFindLegacy:
+            return 'CMakeFindLegacy'
+        elif value == ExternalDependencyType.CMakeFindModern:
+            return 'CMakeFindModern'
         raise Exception("Unknown ExternalDependencyType: {0}".format(value))
 
     @staticmethod
-    def TryFromString(value: str) -> Optional[int]:
+    def TryFromString(value: str) -> Optional['ExternalDependencyType']:
         if value == 'StaticLib':
             return ExternalDependencyType.StaticLib
         elif value == 'DLL':
@@ -137,17 +146,29 @@ class ExternalDependencyType:
             return ExternalDependencyType.Assembly
         elif value == 'PackageReference':
             return ExternalDependencyType.PackageReference
-        elif value == 'Find':
-            return ExternalDependencyType.Find
+        elif value == 'CMakeFindLegacy':
+            return ExternalDependencyType.CMakeFindLegacy
+        elif value == 'CMakeFindModern':
+            return ExternalDependencyType.CMakeFindModern
         return None
 
 
     @staticmethod
-    def FromString(value: str) -> int:
+    def FromString(value: str) -> 'ExternalDependencyType':
         result = ExternalDependencyType.TryFromString(value)
         if result is not None:
             return result
-        raise Exception("Unknown external dependency type: '{0}' expected: StaticLib, DLL, Headers, Assembly, Find".format(value))
+        raise Exception("Unknown external dependency type: '{0}' expected: StaticLib, DLL, Headers, Assembly, CMakeFindLegacy, CMakeFindModern".format(value))
+
+    @staticmethod
+    def AllStrings() -> List[str]:
+        return [ExternalDependencyType.ToString(ExternalDependencyType.StaticLib),
+                ExternalDependencyType.ToString(ExternalDependencyType.DLL),
+                ExternalDependencyType.ToString(ExternalDependencyType.Headers),
+                ExternalDependencyType.ToString(ExternalDependencyType.Assembly),
+                ExternalDependencyType.ToString(ExternalDependencyType.PackageReference),
+                ExternalDependencyType.ToString(ExternalDependencyType.CMakeFindLegacy),
+                ExternalDependencyType.ToString(ExternalDependencyType.CMakeFindModern)]
 
 
 class VariantType:
@@ -266,7 +287,7 @@ class MagicStrings:
     DefaultSDKConfiguration = "sdk"
 
 
-class CheckType:
+class CheckType(Enum):
     Normal = 1
     Forced = 2
 
@@ -342,13 +363,13 @@ class PackageCreationYearString:
     NotDefined = "NotDefined"
 
 
-class BuildVariantConfig:
+class BuildVariantConfig(Enum):
     Debug = 0
     Release = 1
     Coverage = 2
 
     @staticmethod
-    def ToString(value: int) -> str:
+    def ToString(value: 'BuildVariantConfig') -> str:
         if value == BuildVariantConfig.Release:
             return "release"
         elif value == BuildVariantConfig.Debug:
@@ -359,7 +380,7 @@ class BuildVariantConfig:
             raise Exception("Unsupported BuildVariantConfig '{0}'".format(value))
 
     @staticmethod
-    def FromString(value: str) -> int:
+    def FromString(value: str) -> 'BuildVariantConfig':
         if value == "release":
             return BuildVariantConfig.Release
         elif value == "debug":
@@ -369,13 +390,15 @@ class BuildVariantConfig:
         else:
             raise Exception("Unsupported BuildVariantConfig '{0}'".format(value))
 
+class BuildVariantConfigDefaults(object):
+    DefaultSetting = BuildVariantConfig.Release
 
-class CMakeTargetType:
+class CMakeTargetType(Enum):
     Project = 0
     Install = 1
 
     @staticmethod
-    def FromString(value: str) -> int:
+    def FromString(value: str) -> 'CMakeTargetType':
         if value == "project":
             return CMakeTargetType.Project
         elif value == "install":
@@ -384,7 +407,7 @@ class CMakeTargetType:
             raise Exception("Unsupported CMakeTargetType '{0}'".format(value))
 
 
-class BuildRecipePipelineCommand:
+class BuildRecipePipelineCommand(Enum):
     Invalid = 0
     Download = 1
     GitClone = 2
@@ -399,7 +422,7 @@ class BuildRecipePipelineCommand:
     JoinDelete = 11
 
 
-class BuildRecipeValidateCommand:
+class BuildRecipeValidateCommand(Enum):
     Invalid = 0
     EnvironmentVariable = 1
     Path = 2
@@ -475,6 +498,7 @@ class BoolStringHelper(object):
 
 class PackageString(object):
     PLATFORM_WILDCARD = '*'
+    PLATFORM_SEPARATOR = ';'
 
 
 class GeneratorNameString:
@@ -487,13 +511,13 @@ class GeneratorNameString:
         return [GeneratorNameString.Default, GeneratorNameString.CMake, GeneratorNameString.Legacy]
 
 
-class GeneratorType:
+class GeneratorType(Enum):
     Default = 0
     CMake = 1
     Legacy = 2
 
     @staticmethod
-    def FromString(value: str) -> int:
+    def FromString(value: str) -> 'GeneratorType':
         if value == GeneratorNameString.Default:
             return GeneratorType.Default
         elif value == GeneratorNameString.CMake:
@@ -503,14 +527,14 @@ class GeneratorType:
         raise Exception("Unsupported GeneratorName '{0}'".format(value))
 
     @staticmethod
-    def ToString(value: int) -> str:
+    def ToString(value: 'GeneratorType') -> str:
         result = GeneratorType.TryToString(value)
         if result is None:
             raise Exception("Unsupported GeneratorName '{0}'".format(value))
         return result
 
     @staticmethod
-    def TryToString(value: int, returnValueStringIfUnknown: bool = False) -> Optional[str]:
+    def TryToString(value: 'GeneratorType', returnValueStringIfUnknown: bool = False) -> Optional[str]:
         if value == GeneratorType.Default:
             return GeneratorNameString.Default
         elif value == GeneratorType.CMake:
@@ -518,3 +542,42 @@ class GeneratorType:
         elif value == GeneratorType.Legacy:
             return GeneratorNameString.Legacy
         return None if not returnValueStringIfUnknown else "{0}".format(value)
+
+class SpecialFiles(object):
+    Natvis = "Package.natvis"
+
+class ClangTidyProfileString(object):
+    Fast = "fast"
+    Strict = "strict"
+
+    @staticmethod
+    def AllStrings() -> List[str]:
+        return [ClangTidyProfileString.Fast, ClangTidyProfileString.Strict]
+
+class ClangTidyProfile(Enum):
+    Fast = 0
+    Strict = 1
+
+    @staticmethod
+    def FromString(value: str) -> 'ClangTidyProfile':
+        if value == ClangTidyProfileString.Fast:
+            return ClangTidyProfile.Fast
+        elif value == ClangTidyProfileString.Strict:
+            return ClangTidyProfile.Strict
+        raise Exception("Unsupported ClangTidyProfile '{0}'".format(value))
+
+    @staticmethod
+    def ToString(value: 'ClangTidyProfile') -> str:
+        result = ClangTidyProfile.TryToString(value)
+        if result is None:
+            raise Exception("Unsupported ClangTidyProfile '{0}'".format(value))
+        return result
+
+    @staticmethod
+    def TryToString(value: 'ClangTidyProfile', returnValueStringIfUnknown: bool = False) -> Optional[str]:
+        if value == ClangTidyProfile.Fast:
+            return ClangTidyProfileString.Fast
+        elif value == ClangTidyProfile.Strict:
+            return ClangTidyProfileString.Strict
+        return None if not returnValueStringIfUnknown else "{0}".format(value)
+

@@ -41,5 +41,5 @@ class XmlGenFileExternalDependencyPackageManager(XmlBase):
     def __init__(self, log: Log, xmlElement: ET.Element) -> None:
         super().__init__(log, xmlElement)
         self.Name = self._ReadAttrib(xmlElement, 'Name')  # type: str
-        self.PackageVersion = self._TryReadAttrib(xmlElement, 'PackageVersion')  # type: Optional[str]
+        self.Version = self._TryReadAttrib(xmlElement, 'Version')  # type: Optional[str]
         self.PackageTargetFramework = self._TryReadAttrib(xmlElement, 'PackageTargetFramework')  # type: Optional[str]

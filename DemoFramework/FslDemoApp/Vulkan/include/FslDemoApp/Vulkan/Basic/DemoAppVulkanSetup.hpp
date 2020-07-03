@@ -32,7 +32,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslDemoApp/Vulkan/Basic/DepthBufferMode.hpp>
 #include <FslDemoApp/Vulkan/Basic/ResizeStrategy.hpp>
 #include <vulkan/vulkan.h>
@@ -46,7 +46,7 @@ namespace Fsl
       //! If true a depth buffer will be created
       DepthBufferMode DepthBuffer{DepthBufferMode::Disabled};
       //! The minimum extent of the depth buffer (can be used to ensure the depth buffer is large enough to be reused for offscreen surfaces)
-      Extent2D DepthBufferMinimumExtent;
+      PxExtent2D DepthBufferMinimumExtent;
 
       //! This only selects a strategy, but the DemoAppEnvironment will still have to be set to support resize
       //! - CustomDemoAppConfig customConfig;

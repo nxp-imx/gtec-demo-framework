@@ -37,7 +37,7 @@
 
 namespace Fsl
 {
-  class AtlasFont;
+  class SpriteFont;
 
   namespace UI
   {
@@ -50,12 +50,12 @@ namespace Fsl
 
     private:
       std::string m_content;
-      std::shared_ptr<AtlasFont> m_font;
-      Color m_colorUp;
-      Color m_colorDown;
+      std::shared_ptr<SpriteFont> m_font;
+      Color m_colorUp{DefaultColor::Button::Up};
+      Color m_colorDown{DefaultColor::Button::Down};
 
     public:
-      LabelButton(const std::shared_ptr<WindowContext>& context);
+      explicit LabelButton(const std::shared_ptr<WindowContext>& context);
 
       const std::string& GetContent() const
       {
@@ -63,11 +63,11 @@ namespace Fsl
       }
       void SetContent(const std::string& value);
 
-      const std::shared_ptr<AtlasFont>& GetFont() const
+      const std::shared_ptr<SpriteFont>& GetFont() const
       {
         return m_font;
       }
-      void SetFont(const std::shared_ptr<AtlasFont>& value);
+      void SetFont(const std::shared_ptr<SpriteFont>& value);
 
       Color GetColorUp() const
       {
@@ -84,8 +84,8 @@ namespace Fsl
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
     };
   }
 }

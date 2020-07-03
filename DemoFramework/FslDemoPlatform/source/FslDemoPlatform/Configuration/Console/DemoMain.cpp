@@ -30,33 +30,42 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Log/Log3Core.hpp>
+#include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/IO/Directory.hpp>
 #include <FslBase/IO/Path.hpp>
 #include <FslDemoPlatform/DemoRunner.hpp>
 #include <csignal>
+#include <cstdlib>
 
 int main(int argc, char* argv[])
 {
-  const std::shared_ptr<Fsl::ITag> nativeWindowTag;
-
-  Fsl::IO::Path strContentPath;
-  Fsl::IO::Path strPersistentPath;
-  if (argc >= 1 && argv[0] != nullptr)
+  try
   {
-    strContentPath = Fsl::IO::Path::GetDirectoryName(argv[0]);
+    const std::shared_ptr<Fsl::ITag> nativeWindowTag;
+
+    Fsl::IO::Path strContentPath;
+    Fsl::IO::Path strPersistentPath;
+    if (argc >= 1 && argv[0] != nullptr)
+    {
+      strContentPath = Fsl::IO::Path::GetDirectoryName(argv[0]);
+    }
+    else
+    {
+      strContentPath = Fsl::IO::Directory::GetCurrentWorkingDirectory();
+      FSLLOG3_WARNING("Could not find the exe path, trying to use current working directory instead.");
+    }
+
+    strContentPath = Fsl::IO::Path::GetFullPath(strContentPath);
+    strPersistentPath = strContentPath;
+    strContentPath = Fsl::IO::Path::Combine(strContentPath, "Content");
+
+    Fsl::DemoRunnerConfig config(true, strContentPath, strPersistentPath, nativeWindowTag);
+    return Fsl::RunDemo(argc, argv, config);
   }
-  else
+  catch (const std::exception& ex)
   {
-    strContentPath = Fsl::IO::Directory::GetCurrentWorkingDirectory();
-    FSLLOG3_WARNING("Could not find the exe path, trying to use current working directory instead.");
+    FSLLOG3_ERROR("A exception occurred. {0}", ex.what());
+    return EXIT_FAILURE;
   }
-
-  strContentPath = Fsl::IO::Path::GetFullPath(strContentPath);
-  strPersistentPath = strContentPath;
-  strContentPath = Fsl::IO::Path::Combine(strContentPath, "Content");
-
-  Fsl::DemoRunnerConfig config(true, strContentPath, strPersistentPath, nativeWindowTag);
-  return Fsl::RunDemo(argc, argv, config);
 }
 #endif

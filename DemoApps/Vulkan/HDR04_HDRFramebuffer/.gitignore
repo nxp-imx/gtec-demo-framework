@@ -2,6 +2,7 @@
 /.vs/
 /CMakeLists.txt
 /Content/Textures/Bricks/
+/Content/UIAtlas/
 /Content/_ContentSyncCache.fsl
 /FslSDKIcon.ico
 /GNUmakefile_Yocto

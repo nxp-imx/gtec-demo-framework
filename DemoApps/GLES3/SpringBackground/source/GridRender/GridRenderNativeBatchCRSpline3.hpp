@@ -46,7 +46,7 @@ namespace Fsl
     std::vector<Vector2> m_coordinates2D;
 
   public:
-    GridRenderNativeBatchCRSpline3(const Point2& gridSize);
+    explicit GridRenderNativeBatchCRSpline3(const Point2& gridSize);
 
     const char* GetName() const override;
     void Update(const DemoTime& demoTime, const Vector2& areaSize, const std::vector<PointMass>& points) override;

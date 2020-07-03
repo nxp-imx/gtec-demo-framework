@@ -41,13 +41,17 @@ namespace Fsl
     //! For most purposes the 'button' code is identical to the ButtonBase implementation
     class Button : public ContentControl
     {
-      bool m_isClickable;
-      bool m_isDown;
+      bool m_isEnabled{true};
+      bool m_isDown{false};
 
     public:
-      Button(const std::shared_ptr<BaseWindowContext>& context);
-      virtual bool IsClickable() const;
-      virtual void SetClickable(const bool value);
+      explicit Button(const std::shared_ptr<BaseWindowContext>& context);
+      virtual bool IsEnabled() const
+      {
+        return m_isEnabled;
+      }
+
+      virtual void SetEnabled(const bool enable);
 
     protected:
       void OnClickInput(const RoutedEventArgs& args, const std::shared_ptr<WindowInputClickEvent>& theEvent) override;

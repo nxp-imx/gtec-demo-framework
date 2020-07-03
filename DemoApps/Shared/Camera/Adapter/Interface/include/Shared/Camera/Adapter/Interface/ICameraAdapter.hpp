@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <FslGraphics/Bitmap/RawBitmapEx.hpp>
 #include <FslGraphics/PixelFormat.hpp>
 #include <Shared/Camera/Adapter/Interface/CameraAdapterConfig.hpp>

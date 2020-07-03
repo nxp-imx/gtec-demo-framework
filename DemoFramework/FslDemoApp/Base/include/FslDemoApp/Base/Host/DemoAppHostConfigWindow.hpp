@@ -47,7 +47,7 @@ namespace Fsl
 
   public:
     DemoAppHostConfigWindow();
-    DemoAppHostConfigWindow(DemoHostCustomWindowSystemAllocationFunction customWindowSystemAllocator);
+    explicit DemoAppHostConfigWindow(DemoHostCustomWindowSystemAllocationFunction customWindowSystemAllocator);
     DemoAppHostConfigWindow(DemoHostCustomWindowSystemAllocationFunction customWindowSystemAllocator,
                             std::shared_ptr<DemoAppHostConfig> customDemoAppHostConfig);
     DemoAppHostConfigWindow(DemoHostCustomWindowSystemAllocationFunction customWindowSystemAllocator, const std::shared_ptr<ITag>& userTag);

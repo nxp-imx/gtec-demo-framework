@@ -56,8 +56,8 @@ namespace Fsl
       ApplicationInfoCopy(ApplicationInfoCopy&& other) noexcept;
 
       ApplicationInfoCopy();
-      ApplicationInfoCopy(const VkApplicationInfo& value);
-      ApplicationInfoCopy(const VkApplicationInfo* const pValue);
+      explicit ApplicationInfoCopy(const VkApplicationInfo& value);
+      explicit ApplicationInfoCopy(const VkApplicationInfo* const pValue);
 
 
       const VkApplicationInfo& Get() const

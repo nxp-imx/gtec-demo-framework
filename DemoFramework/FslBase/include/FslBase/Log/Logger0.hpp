@@ -45,6 +45,8 @@ namespace Fsl
     Verbose2 = 4,
     Verbose3 = 5,
     Verbose4 = 6,
+    Verbose5 = 7,
+    Verbose6 = 8,
   };
 
   //! WARNING: It is not a good idea to utilize this code before 'main' has been hit (so don't use it from static object constructors)

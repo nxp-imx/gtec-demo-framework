@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Vector3.hpp>
 #include <FslBase/Math/Matrix3Fields.hpp>
+#include <FslBase/Math/Vector3.hpp>
 #include <algorithm>
 #include <cstddef>
 //#include <FslBase/OptimizationFlag.hpp>
@@ -53,7 +53,7 @@ namespace Fsl
 
     static constexpr size_type NumElements = 3 * 3;
 
-    constexpr size_type size() const
+    constexpr size_type size() const    // NOLINT(readability-convert-member-functions-to-static)
     {
       return NumElements;
     }
@@ -68,7 +68,7 @@ namespace Fsl
     // const int _M31 = (3 * 2 + 0);
     // const int _M32 = (3 * 2 + 1);
     // const int _M33 = (3 * 2 + 2);
-    float m[NumElements]{};
+    float m[NumElements]{};    // NOLINT(modernize-avoid-c-arrays)
 
   public:
     //! @brief Creates a empty matrix (all components are set to zero)
@@ -98,7 +98,7 @@ namespace Fsl
     //! @brief Return a instance of the identity matrix
     static constexpr Matrix3 GetIdentity()
     {
-      return Matrix3(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+      return {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
     }
 
     //! @brief Fill the matrix with zero
@@ -141,8 +141,8 @@ namespace Fsl
     static constexpr Matrix3 Transpose(const Matrix3& matrix)
     {
       using namespace Matrix3Fields;
-      return Matrix3(matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M12], matrix.m[_M22], matrix.m[_M32], matrix.m[_M13], matrix.m[_M23],
-                     matrix.m[_M33]);
+      return {matrix.m[_M11], matrix.m[_M21], matrix.m[_M31], matrix.m[_M12], matrix.m[_M22],
+              matrix.m[_M32], matrix.m[_M13], matrix.m[_M23], matrix.m[_M33]};
     }
 
     static Matrix3 Invert(const Matrix3& matrix);

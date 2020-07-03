@@ -101,7 +101,7 @@ namespace Fsl
     FragUBOData m_fragUboData;
 
   public:
-    ModelLoaderBasics(const DemoAppConfig& config);
+    explicit ModelLoaderBasics(const DemoAppConfig& config);
     ~ModelLoaderBasics() override;
 
   protected:

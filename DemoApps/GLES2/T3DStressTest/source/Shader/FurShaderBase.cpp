@@ -43,13 +43,13 @@ namespace Fsl
 
   namespace
   {
-    const IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
+    IO::Path GetVert(const IO::Path& shaderPath, const bool useHighPrecision)
     {
       return IO::Path::Combine(shaderPath, (useHighPrecision ? "Fur_hp.vert" : "Fur_lp.vert"));
     }
 
 
-    const IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
+    IO::Path GetFrag(const IO::Path& shaderPath, const bool useHighPrecision, const int lightCount)
     {
       switch (lightCount)
       {

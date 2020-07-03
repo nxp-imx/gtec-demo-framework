@@ -66,11 +66,4 @@ namespace Fsl
   }
 }
 
-
-// Register a pure G2D demo
-#define FSL_REGISTER_G2D_DEMO(tdEMOaPP) \
-  static_assert(false, "The FSL_REGISTER_G2D_DEMO macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-#define FSL_REGISTER_G2D_DEMO_EX(tdEMOaPP, tdEMOaPPoPTIONpARSER) \
-  static_assert(false, "The FSL_REGISTER_G2D_DEMO_EX macro is not supported anymore, please create a ConfigureDemoAppEnvironment function");
-
 #endif

@@ -54,17 +54,18 @@ namespace Fsl
         UpdateEnabled = 0x04,
         DrawEnabled = 0x08,
         ClickInput = 0x10,
+        MouseOver = 0x20,
         //! enable the WinResolve callback (called before the window layout cycle is started to help resolve complex state issues)
-        ResolveEnabled = 0x20,
+        ResolveEnabled = 0x40,
 
-        All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | ResolveEnabled,
+        All = WinInit | LayoutDirty | UpdateEnabled | DrawEnabled | ClickInput | MouseOver | ResolveEnabled,
       };
 
 
       WindowFlags() = default;
 
 
-      WindowFlags(const Enum flags)
+      WindowFlags(const Enum flags)    // NOLINT(google-explicit-constructor)
         : m_value(flags)
       {
       }

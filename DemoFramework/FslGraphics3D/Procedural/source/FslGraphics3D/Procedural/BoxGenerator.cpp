@@ -45,7 +45,7 @@ namespace Fsl
     {
       void GenerateVertices(std::vector<BasicMesh::vertex_type>& rVertices, const Vector3& dstCenter, const float dstWidth, const float dstHeight,
                             const float dstDepth, const NativeTextureArea* const pTextureAreas, const int32_t numTextureAreas,
-                            const WindingOrder::Enum windingOrder)
+                            const WindingOrder::Enum /*windingOrder*/)
       {
         if (dstWidth <= 0.0f || dstHeight <= 0.0f || dstDepth <= 0.0f || pTextureAreas == nullptr || numTextureAreas < 6)
         {
@@ -83,10 +83,10 @@ namespace Fsl
         rVertices[index + 1].Normal = Vector3(0.0f, 0.0f, 1.0f);
         rVertices[index + 2].Normal = Vector3(0.0f, 0.0f, 1.0f);
         rVertices[index + 3].Normal = Vector3(0.0f, 0.0f, 1.0f);
-        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y2);
-        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
-        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y2);
-        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y1);
+        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y1);
+        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y0);
+        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
+        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y0);
 
         // Right (D,B,G,E)
         ++pTextureArea;
@@ -99,10 +99,10 @@ namespace Fsl
         rVertices[index + 1].Normal = Vector3(1.0f, 0.0f, 0.0f);
         rVertices[index + 2].Normal = Vector3(1.0f, 0.0f, 0.0f);
         rVertices[index + 3].Normal = Vector3(1.0f, 0.0f, 0.0f);
-        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y2);
-        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
-        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y2);
-        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y1);
+        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y1);
+        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y0);
+        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
+        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y0);
 
         // Back (G,E,H,F)
         ++pTextureArea;
@@ -115,10 +115,10 @@ namespace Fsl
         rVertices[index + 1].Normal = Vector3(0.0f, 0.0f, -1.0f);
         rVertices[index + 2].Normal = Vector3(0.0f, 0.0f, -1.0f);
         rVertices[index + 3].Normal = Vector3(0.0f, 0.0f, -1.0f);
-        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y2);
-        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
-        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y2);
-        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y1);
+        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y1);
+        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y0);
+        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
+        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y0);
 
         // Left (H,F,C,A)
         ++pTextureArea;
@@ -131,10 +131,10 @@ namespace Fsl
         rVertices[index + 1].Normal = Vector3(-1.0f, 0.0f, 0.0f);
         rVertices[index + 2].Normal = Vector3(-1.0f, 0.0f, 0.0f);
         rVertices[index + 3].Normal = Vector3(-1.0f, 0.0f, 0.0f);
-        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y2);
-        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
-        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y2);
-        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y1);
+        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y1);
+        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y0);
+        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
+        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y0);
 
         // Top (A,F,B,E)
         ++pTextureArea;
@@ -147,10 +147,10 @@ namespace Fsl
         rVertices[index + 1].Normal = Vector3(0.0f, 1.0f, 0.0f);
         rVertices[index + 2].Normal = Vector3(0.0f, 1.0f, 0.0f);
         rVertices[index + 3].Normal = Vector3(0.0f, 1.0f, 0.0f);
-        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y2);
-        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
-        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y2);
-        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y1);
+        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y1);
+        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y0);
+        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
+        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y0);
 
         // Bottom (H,C,G,D)
         ++pTextureArea;
@@ -163,10 +163,10 @@ namespace Fsl
         rVertices[index + 1].Normal = Vector3(0.0f, -1.0f, 0.0f);
         rVertices[index + 2].Normal = Vector3(0.0f, -1.0f, 0.0f);
         rVertices[index + 3].Normal = Vector3(0.0f, -1.0f, 0.0f);
-        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y2);
-        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
-        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y2);
-        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X2, pTextureArea->Y1);
+        rVertices[index + 0].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y1);
+        rVertices[index + 1].TextureCoordinate = Vector2(pTextureArea->X0, pTextureArea->Y0);
+        rVertices[index + 2].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y1);
+        rVertices[index + 3].TextureCoordinate = Vector2(pTextureArea->X1, pTextureArea->Y0);
       }
 
 

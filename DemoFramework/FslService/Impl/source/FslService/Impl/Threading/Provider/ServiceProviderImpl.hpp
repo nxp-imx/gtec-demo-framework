@@ -42,7 +42,7 @@ namespace Fsl
     TypeServiceMaps m_serviceProviderMaps;
 
   public:
-    ServiceProviderImpl(TypeServiceMaps serviceProviderMaps);
+    explicit ServiceProviderImpl(TypeServiceMaps serviceProviderMaps);
     ~ServiceProviderImpl() override;
 
     void Update();

@@ -54,7 +54,7 @@ namespace Fsl
     JuliaHelper m_helper;
 
   public:
-    FractalShaderJulia(const DemoAppConfig& config);
+    explicit FractalShaderJulia(const DemoAppConfig& config);
     ~FractalShaderJulia() override;
 
   protected:

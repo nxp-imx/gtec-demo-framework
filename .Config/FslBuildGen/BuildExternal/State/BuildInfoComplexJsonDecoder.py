@@ -38,8 +38,31 @@ import json
 from FslBuildGen.BuildExternal.State.JsonDictType import JsonDictType
 from FslBuildGen.BuildExternal.State.JsonRecipePackageContentState import JsonRecipePackageContentState
 from FslBuildGen.BuildExternal.State.JsonRecipePackageFileState import JsonRecipePackageFileState
+from FslBuildGen.BuildExternal.State.JsonRecipeCMakeConfig import JsonRecipeCMakeConfig
+from FslBuildGen.BuildExternal.State.JsonRecipeCMakeConfig import JsonRecipeCMakeVersion
 
 class BuildInfoComplexJsonDecoder(object):
+
+    @staticmethod
+    def DecodeJsonCMakeConfig(jsonDict: JsonDictType) -> JsonRecipeCMakeConfig:
+        generatorName = jsonDict["GeneratorName"]               # type: str
+        cmakeVersion  = BuildInfoComplexJsonDecoder.DecodeJsonRecipeCMakeVersion(jsonDict["CMakeVersion"]) # type: JsonRecipeCMakeVersion
+        configInternalArgs  = jsonDict["ConfigInternalArgs"]    # type: List[str]
+        configUserArgs = jsonDict["ConfigUserArgs"]             # type: List[str]
+
+        result = JsonRecipeCMakeConfig()
+        result.Set(generatorName, cmakeVersion, configInternalArgs, configUserArgs)
+        return result
+
+
+    @staticmethod
+    def DecodeJsonRecipeCMakeVersion(jsonDict: Dict[str,str]) -> JsonRecipeCMakeVersion:
+        major = int(jsonDict["Major"])
+        minor = int(jsonDict["Minor"])
+        result = JsonRecipeCMakeVersion()
+        result.Set(major, minor)
+        return result
+
     @staticmethod
     def DecodeJson(jsonDict: JsonDictType) -> JsonRecipePackageContentState:
         directories = jsonDict["Directories"] # type: List[str]

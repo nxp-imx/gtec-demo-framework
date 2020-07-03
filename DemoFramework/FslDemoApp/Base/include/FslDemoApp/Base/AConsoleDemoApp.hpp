@@ -58,12 +58,12 @@ namespace Fsl
     bool m_destroyed = false;
 
   public:
-    AConsoleDemoApp(const DemoAppConfig& demoAppConfig);
+    explicit AConsoleDemoApp(const DemoAppConfig& demoAppConfig);
     ~AConsoleDemoApp() override;
     void _PostConstruct() override;
     void _PreDestruct() override;
     void _OnEvent(IEvent* const pEvent) override;
-    void _Resized(const Point2& size) override;
+    void _ConfigurationChanged(const DemoWindowMetrics& windowMetrics) override;
     void _PreUpdate(const DemoTime& demoTime) override;
     void _FixedUpdate(const DemoTime& demoTime) override;
     void _Update(const DemoTime& demoTime) override;

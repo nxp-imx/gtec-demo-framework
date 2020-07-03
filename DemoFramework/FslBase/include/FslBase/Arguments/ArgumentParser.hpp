@@ -34,6 +34,8 @@
 #include <FslBase/Arguments/Command.hpp>
 #include <FslBase/Arguments/EncodedCommand.hpp>
 #include <FslBase/Arguments/ParseResult.hpp>
+#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <cstdint>
 #include <deque>
 
@@ -47,14 +49,13 @@ namespace Fsl
     {
       //! @brief Try to parse the argument list into commands.
       //! @param rEncodedArguments (the parsed argument commands)
-      //! @param the argument count (>= 0)
-      //! @param the arguments as a list of valid pointers (can not be a nullptr and neither can the elements being pointed to)
+      //! @param args = the arguments as a span of valid string view lites pointers.
       //! @param commands a list of valid commands.
       //! @param pErrorInfo a optional structure that will be filled with extra error information in case a error occurs.
       //! @note BEWARE: this does not skip the initial argument, so if you are parsing parameters directly from the main ensure that you
       //!               do argc-1, argv+1
-      ParseResult TryParse(std::deque<EncodedCommand>& rEncodedCommands, const int argCount, const char* const* const ppszArgs,
-                           const std::deque<Command>& commands, ParseErrorInfo* pErrorInfo = nullptr);
+      ParseResult TryParse(std::deque<EncodedCommand>& rEncodedCommands, const ReadOnlySpan<StringViewLite> args, const std::deque<Command>& commands,
+                           ParseErrorInfo* pErrorInfo = nullptr);
     };
   }
 }

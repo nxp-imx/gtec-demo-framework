@@ -31,108 +31,113 @@
 
 #include <g2d.h>
 #include <cstdio>
+#include <iostream>
 
-extern "C" int g2d_open(void** handle)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define FSL_LOCAL_PARAM_NOT_USED(pARAM) ((void)(pARAM))
+
+extern "C" int g2d_open(void** /*handle*/)
 {
   return -1;
 }
 
 
-extern "C" int g2d_close(void* handle)
+extern "C" int g2d_close(void* /*handle*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_make_current(void* handle, enum g2d_hardware_type type)
+extern "C" int g2d_make_current(void* /*handle*/, enum g2d_hardware_type /*type*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_clear(void* handle, struct g2d_surface* area)
+extern "C" int g2d_clear(void* /*handle*/, struct g2d_surface* /*area*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_blit(void* handle, struct g2d_surface* src, struct g2d_surface* dst)
+extern "C" int g2d_blit(void* /*handle*/, struct g2d_surface* /*src*/, struct g2d_surface* /*dst*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_copy(void* handle, struct g2d_buf* d, struct g2d_buf* s, int size)
+extern "C" int g2d_copy(void* /*handle*/, struct g2d_buf* /*d*/, struct g2d_buf* /*s*/, int /*size*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_multi_blit(void* handle, struct g2d_surface_pair* sp[], int layers)
+extern "C" int g2d_multi_blit(void* /*handle*/, struct g2d_surface_pair* sp[], int /*layers*/)
+{
+  FSL_LOCAL_PARAM_NOT_USED(sp);
+  return 0;
+}
+
+
+extern "C" int g2d_query_hardware(void* /*handle*/, enum g2d_hardware_type /*type*/, int* /*available*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_query_hardware(void* handle, enum g2d_hardware_type type, int* available)
+extern "C" int g2d_query_feature(void* /*handle*/, enum g2d_feature /*feature*/, int* /*available*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_query_feature(void* handle, enum g2d_feature feature, int* available)
+extern "C" int g2d_query_cap(void* /*handle*/, enum g2d_cap_mode /*cap*/, int* /*enable*/)
+{
+  return 0;
+}
+
+extern "C" int g2d_enable(void* /*handle*/, enum g2d_cap_mode /*cap*/)
+{
+  return 0;
+}
+
+extern "C" int g2d_disable(void* /*handle*/, enum g2d_cap_mode /*cap*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_query_cap(void* handle, enum g2d_cap_mode cap, int* enable)
+extern "C" int g2d_cache_op(struct g2d_buf* /*buf*/, enum g2d_cache_mode /*op*/)
 {
   return 0;
 }
 
-extern "C" int g2d_enable(void* handle, enum g2d_cap_mode cap)
+extern "C" struct g2d_buf* g2d_alloc(int /*size*/, int /*cacheable*/)
 {
-  return 0;
-}
-
-extern "C" int g2d_disable(void* handle, enum g2d_cap_mode cap)
-{
-  return 0;
-}
-
-
-extern "C" int g2d_cache_op(struct g2d_buf* buf, enum g2d_cache_mode op)
-{
-  return 0;
-}
-
-extern "C" struct g2d_buf* g2d_alloc(int size, int cacheable)
-{
-  printf("g2d_alloc not implemented");
+  std::cout << "g2d_alloc not implemented";
   return nullptr;
 }
 
-g2d_buf* g2d_buf_from_fd(int fd)
+g2d_buf* g2d_buf_from_fd(int /*fd*/)
 {
-  printf("g2d_buf_from_fd not implemented");
+  std::cout << "g2d_buf_from_fd not implemented";
   return nullptr;
 }
 
 
-extern "C" int g2d_free(struct g2d_buf* buf)
+extern "C" int g2d_free(struct g2d_buf* /*buf*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_flush(void* handle)
+extern "C" int g2d_flush(void* /*handle*/)
 {
   return 0;
 }
 
 
-extern "C" int g2d_finish(void* handle)
+extern "C" int g2d_finish(void* /*handle*/)
 {
   return 0;
 }

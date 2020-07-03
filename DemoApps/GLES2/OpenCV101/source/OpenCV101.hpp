@@ -43,7 +43,7 @@ namespace Fsl
     std::shared_ptr<GLES2::NativeBatch2D> m_batch;
 
   public:
-    OpenCV101(const DemoAppConfig& config);
+    explicit OpenCV101(const DemoAppConfig& config);
     ~OpenCV101() override;
 
   protected:

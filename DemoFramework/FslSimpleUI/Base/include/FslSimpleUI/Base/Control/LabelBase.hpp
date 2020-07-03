@@ -31,36 +31,64 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/String/StringViewLite.hpp>
-#include <FslSimpleUI/Base/BaseWindow.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
 #include <FslGraphics/Color.hpp>
+#include <FslSimpleUI/Base/BaseWindow.hpp>
 #include <string>
 
 namespace Fsl
 {
-  class AtlasFont;
+  class SpriteFont;
 
   namespace UI
   {
     class WindowContext;
     class LabelBase : public BaseWindow
     {
+      bool m_enabled{true};
+
     protected:
       const std::shared_ptr<WindowContext> m_windowContext;
 
     private:
-      std::shared_ptr<AtlasFont> m_font;
-      Color m_fontColor;
+      std::shared_ptr<SpriteFont> m_font;
+      Color m_fontColor{DefaultColor::Palette::Font};
+      Color m_fontDisabledColor{DefaultColor::Palette::FontDisabled};
+      ItemAlignment m_contentAlignmentX{ItemAlignment::Near};
+      ItemAlignment m_contentAlignmentY{ItemAlignment::Near};
 
     public:
-      LabelBase(const std::shared_ptr<WindowContext>& context);
+      explicit LabelBase(const std::shared_ptr<WindowContext>& context);
 
-      const std::shared_ptr<AtlasFont>& GetFont() const
+      bool IsEnabled() const
+      {
+        return m_enabled;
+      }
+
+      bool SetEnabled(const bool enabled);
+
+
+      ItemAlignment GetContentAlignmentX() const
+      {
+        return m_contentAlignmentX;
+      };
+
+      void SetContentAlignmentX(const ItemAlignment& value);
+
+      ItemAlignment GetContentAlignmentY() const
+      {
+        return m_contentAlignmentX;
+      };
+
+      void SetContentAlignmentY(const ItemAlignment& value);
+
+
+      const std::shared_ptr<SpriteFont>& GetFont() const
       {
         return m_font;
       }
 
-      void SetFont(const std::shared_ptr<AtlasFont>& value);
+      void SetFont(const std::shared_ptr<SpriteFont>& value);
 
       Color GetFontColor() const
       {
@@ -69,15 +97,27 @@ namespace Fsl
 
       void SetFontColor(const Color& color);
 
+      Color GetFontDisabledColor() const
+      {
+        return m_fontDisabledColor;
+      }
+
+      void SetFontDisabledColor(const Color& color);
+
       void WinDraw(const UIDrawContext& context) override;
 
     protected:
       virtual StringViewLite DoGetContent() const = 0;
 
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
 
-      Vector2 DoMeasureRenderedString(const std::string& value);
+      PxPoint2 DoMeasureRenderedString(const std::string& value) const
+      {
+        return DoMeasureRenderedString(StringViewLiteUtil::AsStringViewLite(value));
+      }
+
+      PxPoint2 DoMeasureRenderedString(const StringViewLite& value) const;
     };
   }
 }

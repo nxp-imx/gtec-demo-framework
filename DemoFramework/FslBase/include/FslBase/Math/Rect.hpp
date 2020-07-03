@@ -31,9 +31,11 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <algorithm>
 #include <FslBase/Math/Point2.hpp>
 #include <FslBase/Math/Vector2.hpp>
+#include <FslBase/OptimizationFlag.hpp>
+#include <algorithm>
+#include <cassert>
 
 namespace Fsl
 {
@@ -44,149 +46,189 @@ namespace Fsl
   //         result in a Rect.
   struct Rect
   {
+    using value_type = float;
+
   private:
     float m_left{0};
     float m_top{0};
     float m_right{0};
     float m_bottom{0};
 
-  public:
-    Rect() = default;
-    Rect(const float x, const float y, const float width, const float height);
-    Rect(const float left, const float top, const float right, const float bottom, const bool reserved);
+    constexpr explicit Rect(const float left, const float top, const float right, const float bottom, const OptimizationInternal /*unused*/)
+      : m_left{left}
+      , m_top{top}
+      , m_right{right}
+      , m_bottom{bottom}
+    {
+      assert(right >= left);
+      assert(bottom >= top);
+    }
 
-    static Rect Empty()
+  public:
+    constexpr Rect() noexcept = default;
+    // constexpr Rect(const float x, const float y, const float width, const float height, const OptimizationCheckFlag)
+
+    constexpr Rect(const float x, const float y, const float width, const float height)
+      : m_left(x)
+      , m_top(y)
+      , m_right(x + (width >= 0.0f ? width : 0.0f))
+      , m_bottom(y + (height >= 0.0f ? height : 0.0f))
+    {
+      assert(width >= 0);
+      assert(height >= 0);
+    }
+
+    static constexpr Rect FromLeftTopRightBottom(const float left, const float top, const float right, const float bottom)
+    {
+      return Rect(left, top, right, bottom, OptimizationInternal::Internal);
+    }
+
+    static constexpr Rect Empty()
     {
       return {};
     }
 
     //! @brief Check if the rectangle is considered t be valid
-    bool IsValid() const
+    constexpr bool IsValid() const
     {
       return m_right >= m_left && m_bottom >= m_top;
     }
 
-    void SetX(const float value)
+    constexpr void SetX(const float value)
     {
       m_right = value + (m_right - m_left);
       m_left = value;
     }
 
-    void SetY(const float value)
+    constexpr void SetY(const float value)
     {
       m_bottom = value + (m_bottom - m_top);
       m_top = value;
     }
 
-    float X() const
+    constexpr void SetLeftRight(const float left, const float right)
+    {
+      assert(left <= right);
+      m_left = left;
+      m_right = std::max(right, left);
+    }
+
+    constexpr void SetTopBottom(const float top, const float bottom)
+    {
+      assert(top <= bottom);
+      m_top = top;
+      m_bottom = std::max(bottom, top);
+    }
+
+    constexpr float X() const
     {
       return m_left;
     }
 
-    float Y() const
+    constexpr float Y() const
     {
       return m_top;
     }
 
-    float Width() const
+    constexpr float Width() const
     {
       return m_right - m_left;
     }
 
-    float Height() const
+    constexpr float Height() const
     {
       return m_bottom - m_top;
     }
 
-    float Left() const
+    constexpr float Left() const
     {
       return m_left;
     }
 
-    float Top() const
+    constexpr float Top() const
     {
       return m_top;
     }
 
-    float Right() const
+    constexpr float Right() const
     {
       return m_right;
     }
 
-    float Bottom() const
+    constexpr float Bottom() const
     {
       return m_bottom;
     }
 
-    inline Vector2 GetSize() const
+    inline constexpr Vector2 GetSize() const
     {
-      return Vector2(Width(), Height());
+      return {Width(), Height()};
     }
 
-    inline Vector2 TopLeft() const
+    inline constexpr Vector2 TopLeft() const
     {
-      return Vector2(m_left, m_top);
+      return {m_left, m_top};
     }
 
-    inline Vector2 TopRight() const
+    inline constexpr Vector2 TopRight() const
     {
-      return Vector2(m_right, m_top);
+      return {m_right, m_top};
     }
 
-    inline Vector2 BottomLeft() const
+    inline constexpr Vector2 BottomLeft() const
     {
-      return Vector2(m_left, m_bottom);
+      return {m_left, m_bottom};
     }
 
-    inline Vector2 BottomRight() const
+    inline constexpr Vector2 BottomRight() const
     {
-      return Vector2(m_right, m_bottom);
+      return {m_right, m_bottom};
     }
 
     void SetWidth(const float value);
     void SetHeight(const float value);
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
-    bool Contains(const int x, const int y) const
+    constexpr bool Contains(const int32_t x, const int32_t y) const
     {
       return (x >= Left() && x < Right() && y >= Top() && y < Bottom());
     }
 
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
-    bool Contains(const float x, const float y) const
+    constexpr bool Contains(const float x, const float y) const
     {
       return (x >= Left() && x < Right() && y >= Top() && y < Bottom());
     }
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
-    bool Contains(const Point2& value) const
+    constexpr bool Contains(const Point2& value) const
     {
       return (value.X >= Left() && value.X < Right() && value.Y >= Top() && value.Y < Bottom());
     }
 
     //! @brief Check if the x,y coordinate is considered to be contained within this rectangle
-    bool Contains(const Vector2& value) const
+    constexpr bool Contains(const Vector2& value) const
     {
       return (value.X >= Left() && value.X < Right() && value.Y >= Top() && value.Y < Bottom());
     }
 
     //! @brief Check if the rectangle is considered to be contained within this rectangle
-    bool Contains(const Rect& value) const
+    constexpr bool Contains(const Rect& value) const
     {
       return (value.Left() >= Left() && value.Right() <= Right() && value.Top() >= Top() && value.Bottom() <= Bottom());
     }
 
 
     //! @brief Get the start location of this rect
-    Vector2 GetLocation() const
+    constexpr Vector2 GetLocation() const
     {
-      return Vector2(m_left, m_top);
+      return {m_left, m_top};
     }
 
 
     //! @brief Set the start location of this rect
-    void SetLocation(const Vector2& location)
+    constexpr void SetLocation(const Vector2& location)
     {
       m_right = location.X + (m_right - m_left);
       m_bottom = location.Y + (m_bottom - m_top);
@@ -196,15 +238,15 @@ namespace Fsl
 
 
     //! @brief Get the center of this rect
-    Vector2 GetCenter() const
+    constexpr Vector2 GetCenter() const
     {
-      return Vector2(m_left + (Width() / 2), m_right + (Height() / 2));
+      return {m_left + (Width() / 2), m_top + (Height() / 2)};
     }
 
 
     //! @brief Each corner of the Rectangle is pushed away from the center of the rectangle by the specified amounts.
     //!        This results in the width and height of the Rectangle increasing by twice the values provide
-    void Inflate(const float horizontalValue, const float verticalValue)
+    constexpr void Inflate(const float horizontalValue, const float verticalValue)
     {
       m_left -= horizontalValue;
       m_top -= verticalValue;
@@ -215,14 +257,14 @@ namespace Fsl
 
     //! @brief Gets a value that indicates whether the Rectangle is empty
     //!        An empty rectangle has all its values set to 0.
-    bool IsEmpty() const
+    constexpr bool IsEmpty() const
     {
       return (Width() == 0 && Height() == 0 && X() == 0 && Y() == 0);
     }
 
 
     //! @brief Determines whether a specified Rectangle intersects with this Rectangle.
-    bool Intersects(const Rect& value) const
+    constexpr bool Intersects(const Rect& value) const
     {
       return value.Left() < Right() && Left() < value.Right() && value.Top() < Bottom() && Top() < value.Bottom();
     }
@@ -237,9 +279,9 @@ namespace Fsl
         const float leftSide = std::max(rect1.Left(), rect2.Left());
         const float topSide = std::max(rect1.Top(), rect2.Top());
         const float bottomSide = std::min(rect1.Bottom(), rect2.Bottom());
-        return Rect(leftSide, topSide, rightSide - leftSide, bottomSide - topSide);
+        return Rect::FromLeftTopRightBottom(leftSide, topSide, rightSide, bottomSide);
       }
-      return Rect();
+      return {};
     }
 
 
@@ -250,17 +292,17 @@ namespace Fsl
       const float top = std::min(rect1.Top(), rect2.Top());
       const float right = std::max(rect1.Right(), rect2.Right());
       const float bottom = std::max(rect1.Bottom(), rect2.Bottom());
-      return Rect(left, top, right, bottom, true);
+      return Rect::FromLeftTopRightBottom(left, top, right, bottom);
     }
 
 
-    bool operator==(const Rect& rhs) const
+    constexpr bool operator==(const Rect& rhs) const
     {
       return (m_left == rhs.m_left && m_top == rhs.m_top && m_right == rhs.m_right && m_bottom == rhs.m_bottom);
     }
 
 
-    bool operator!=(const Rect& rhs) const
+    constexpr bool operator!=(const Rect& rhs) const
     {
       return (m_left != rhs.m_left || m_top != rhs.m_top || m_right != rhs.m_right || m_bottom != rhs.m_bottom);
     }

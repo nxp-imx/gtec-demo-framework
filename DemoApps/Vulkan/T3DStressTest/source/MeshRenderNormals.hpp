@@ -72,7 +72,7 @@ namespace Fsl
       std::vector<FrameResourceRecord> FrameResources;
       RapidVulkan::PipelineLayout PipelineLayout;
 
-      Resources(const uint32_t maxFramesInFlight)
+      explicit Resources(const uint32_t maxFramesInFlight)
         : FrameResources(maxFramesInFlight)
       {
       }

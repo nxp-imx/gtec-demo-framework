@@ -34,6 +34,7 @@
 #include <FslService/Impl/Foundation/Message/CancellationToken.hpp>
 #include <FslService/Impl/Foundation/Message/IBasicMessageProvider.hpp>
 #include <memory>
+#include <utility>
 
 namespace Fsl
 {
@@ -46,8 +47,8 @@ namespace Fsl
     std::shared_ptr<CancellationToken> TheCancellationToken;
 
 
-    ServiceHostContext(const std::shared_ptr<IBasicMessageProvider>& incomingProvider)
-      : IncomingProvider(incomingProvider)
+    explicit ServiceHostContext(std::shared_ptr<IBasicMessageProvider> incomingProvider)
+      : IncomingProvider(std::move(incomingProvider))
     {
     }
   };

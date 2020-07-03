@@ -145,7 +145,7 @@ TEST(TestMath_Vector2_MonoGame, Transform)
 
   const Vector2 v2(1.1f, 2.45f);
   const Quaternion q2(0.11f, 0.22f, 0.33f, 0.55f);
-  const Quaternion q3(1, 2, 3, 4);
+  // const Quaternion q3(1, 2, 3, 4);
 
   {
     {

@@ -33,8 +33,8 @@
 
 #include <FslBase/Log/Log3Core.hpp>
 #include <FslBase/Log/Logger1.hpp>
-#include <fmt/format.h>
 #include <exception>
+#include <fmt/format.h>
 
 namespace Fsl
 {

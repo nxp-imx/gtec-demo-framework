@@ -30,6 +30,7 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoApp/OpenGLES3/Setup/RegisterDemoApp.hpp>
+#include <FslBase/Log/String/FmtStringViewLite.hpp>
 #include <FslDemoApp/Util/Graphics/RegisterDemoAppUtilGraphics.hpp>
 #include <FslDemoApp/Base/Setup/HostDemoAppSetup.hpp>
 #include <FslDemoApp/Base/Setup/IDemoAppRegistry.hpp>
@@ -40,7 +41,7 @@
 #include <FslDemoHost/Base/Setup/IDemoHostRegistry.hpp>
 #include <FslDemoHost/EGL/Service/EGLHost/EGLHostServiceFactory.hpp>
 #include <FslDemoHost/OpenGLES3/DemoHostSetupOpenGLES3.hpp>
-#include <FslDemoService/Graphics/Impl/GraphicsService.hpp>
+#include <FslDemoService/Graphics/Impl/GraphicsServiceFactory.hpp>
 #include <FslDemoService/NativeGraphics/OpenGLES3/NativeGraphicsService.hpp>
 #include <FslService/Impl/Registry/ServiceRegistry.hpp>
 #include <FslService/Impl/ServiceType/Local/ThreadLocalSingletonServiceFactoryTemplate.hpp>
@@ -48,14 +49,12 @@
 #include <FslUtil/EGL/DebugStrings.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/DebugStrings.hpp>
-#include <sstream>
+#include <fmt/format.h>
 
 namespace Fsl
 {
   namespace
   {
-    using GraphicsServiceFactory = ThreadLocalSingletonServiceFactoryTemplate2<GraphicsService, IGraphicsService, IGraphicsServiceControl>;
-
     DemoHostFeature CommenSetup(HostDemoAppSetup& rSetup, const uint16_t majorVersion, const uint16_t minorVersion)
     {
       // Use the EGLDemoHost for OpenGLES
@@ -70,8 +69,7 @@ namespace Fsl
 
       // Do common graphics app setup
       RegisterDemoAppUtilGraphics::Setup(rSetup);
-
-      return DemoHostFeature(DemoHostFeatureName::OpenGLES, DemoHostFeatureUtil::EncodeOpenGLESVersion(majorVersion, minorVersion));
+      return {DemoHostFeatureName::OpenGLES, DemoHostFeatureUtil::EncodeOpenGLESVersion(majorVersion, minorVersion)};
     }
 
     DemoAppHostConfigEGL CommenSetup(const DemoAppHostConfigEGL& cfg, const OpenGLESMinorVersion& minorVersion)
@@ -84,7 +82,7 @@ namespace Fsl
 
     inline bool TryFormatGLESGraphicsException(const std::exception& ex, std::string& rMessage)
     {
-      auto pException = dynamic_cast<const GLES3::GLESGraphicsException*>(&ex);
+      const auto* pException = dynamic_cast<const GLES3::GLESGraphicsException*>(&ex);
       if (pException == nullptr)
       {
         rMessage = std::string();
@@ -92,17 +90,16 @@ namespace Fsl
       }
 
       const auto errorCode = pException->GetError();
-      std::stringstream stream;
-      stream << pException->what() << " failed with error code " << GLES3::Debug::ErrorCodeToString(static_cast<GLenum>(errorCode)) << " ("
-             << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
-      rMessage = stream.str();
+      rMessage = fmt::format("{} failed with error code {} ({}) at {}({})", pException->what(),
+                             GLES3::Debug::ErrorCodeToString(static_cast<GLenum>(errorCode)), errorCode, pException->GetFilename(),
+                             pException->GetLineNumber());
       return true;
     }
 
 
     inline bool TryFormatEGLGraphicsException(const std::exception& ex, std::string& rMessage)
     {
-      auto pException = dynamic_cast<const EGLGraphicsException*>(&ex);
+      const auto* pException = dynamic_cast<const EGLGraphicsException*>(&ex);
       if (pException == nullptr)
       {
         rMessage = std::string();
@@ -110,10 +107,9 @@ namespace Fsl
       }
 
       const auto errorCode = pException->GetError();
-      std::stringstream stream;
-      stream << pException->what() << " failed with error code " << EGL::Debug::ErrorCodeToString(static_cast<EGLenum>(errorCode)) << " ("
-             << errorCode << ") at " << pException->GetFilename() << "(" << pException->GetLineNumber() << ")";
-      rMessage = stream.str();
+      rMessage =
+        fmt::format("{} failed with error code {} ({}) at {}({})", pException->what(), EGL::Debug::ErrorCodeToString(static_cast<EGLenum>(errorCode)),
+                    errorCode, pException->GetFilename(), pException->GetLineNumber());
       return true;
     }
 

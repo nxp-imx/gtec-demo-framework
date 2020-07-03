@@ -31,9 +31,24 @@
 #
 #****************************************************************************************************************************************************
 
-class FormatStringEnvironmentVariableResolveMethod(object):
+from typing import cast
+from enum import Enum
+from FslBuildGen.Exceptions import UnknownTypeException
+
+class FormatStringEnvironmentVariableResolveMethod(Enum):
     # Do a environment variable lookup right away
     Lookup = 0
     # Convert the OS shell specific environment variable format
     OSShellEnvironmentVariable = 1
 
+    @staticmethod
+    def ToInt(value: 'FormatStringEnvironmentVariableResolveMethod') -> int:
+        return cast(int, value.value)
+
+    @staticmethod
+    def Convert(value: int) -> 'FormatStringEnvironmentVariableResolveMethod':
+        if value == FormatStringEnvironmentVariableResolveMethod.Lookup:
+            return FormatStringEnvironmentVariableResolveMethod.Lookup
+        elif value == FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable:
+            return FormatStringEnvironmentVariableResolveMethod.OSShellEnvironmentVariable
+        raise UnknownTypeException("Unknown FormatStringEnvironmentVariableResolveMethod: {0}".format(value))

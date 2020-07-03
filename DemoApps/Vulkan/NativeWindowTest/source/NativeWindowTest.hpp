@@ -38,7 +38,7 @@ namespace Fsl
   class NativeWindowTest : public VulkanWindowDemoApp
   {
   public:
-    NativeWindowTest(const DemoAppConfig& config);
+    explicit NativeWindowTest(const DemoAppConfig& config);
   };
 }
 

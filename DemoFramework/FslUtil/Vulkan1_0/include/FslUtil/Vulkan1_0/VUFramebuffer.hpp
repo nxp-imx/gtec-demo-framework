@@ -121,7 +121,7 @@ namespace Fsl
       }
 
       //! @brief Extract information about this texture as a VUTextureInfo struct
-      operator VUTextureInfo() const
+      operator VUTextureInfo() const    // NOLINT(google-explicit-constructor)
       {
         return m_texture;
       }

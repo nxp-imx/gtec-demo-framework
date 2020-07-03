@@ -9,7 +9,7 @@
  */
 
 #include <vulkan/vulkan.h>
-#include <FslBase/Math/Extent2D.hpp>
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanDevice.hpp>
 #include <Shared/VulkanWillemsDemoAppExperimental/VulkanBuffer.hpp>
 #include <RapidVulkan/CommandPool.hpp>
@@ -39,7 +39,7 @@ namespace Fsl
       // WARNING: nasty pointer to object we dont own
       VulkanDevice* m_pVulkanDevice;
       VkQueue m_queue;
-      Extent2D m_framebufferExtent;
+      PxExtent2D m_framebufferExtent;
       VkRenderPass m_renderPass;
       // WARNING: nasty pointer to object we dont own
       const std::vector<RapidVulkan::Framebuffer>* m_pFramebuffers;
@@ -79,8 +79,8 @@ namespace Fsl
       //! @brief Default constructor
       //! @param vulkanDevice Pointer to a valid VulkanDevice
       VulkanTextOverlay(Willems::VulkanDevice* pVulkanDevice, const VkQueue queue, const std::vector<RapidVulkan::Framebuffer>* pFramebuffers,
-                        const Extent2D& framebufferExtent, const VkRenderPass renderPass,
-                        const std::vector<VkPipelineShaderStageCreateInfo>& shaderstages);
+                        const PxExtent2D& framebufferExtentPx, const VkRenderPass renderPass,
+                        std::vector<VkPipelineShaderStageCreateInfo> shaderstages);
       ~VulkanTextOverlay();
 
       //! @brief Prepare all vulkan resources required to render the font

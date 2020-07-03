@@ -37,7 +37,7 @@
 #include <FslDemoApp/Vulkan/Basic/DemoAppVulkanBasic.hpp>
 #include <FslGraphics3D/Camera/ArcballCamera.hpp>
 #include <FslUtil/Vulkan1_0/Managed/VMBufferManager.hpp>
-#include <FslUtil/Vulkan1_0/NativeBatch2D.hpp>
+#include <FslUtil/Vulkan1_0/Native/NativeBatch2D.hpp>
 #include <FslUtil/Vulkan1_0/VUTexture.hpp>
 #include <FslUtil/Vulkan1_0/VUFramebuffer.hpp>
 #include <RapidVulkan/DescriptorPool.hpp>
@@ -154,13 +154,13 @@ namespace Fsl
     std::shared_ptr<IVulkanScene> m_scene;
 
     bool m_renderUI;
-    int32_t m_gaussianBlurKernelWeight;
+    float m_gaussianBlurKernelWeight;
     BlurShaderType m_activeBlueShaderType;
     Gaussian5 m_gaussian5;
     Gaussian9 m_gaussian9;
 
   public:
-    Bloom(const DemoAppConfig& config);
+    explicit Bloom(const DemoAppConfig& config);
     ~Bloom() override;
 
   protected:

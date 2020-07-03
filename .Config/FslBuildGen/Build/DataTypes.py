@@ -32,24 +32,28 @@
 #****************************************************************************************************************************************************
 
 from typing import Optional
+from enum import Enum
 
-class CommandType(object):
+class CommandType(Enum):
     Build = 0
     Clean = 1
     Install = 2
+    Open = 3
 
     @staticmethod
-    def FromString(value: str) -> int:
+    def FromString(value: str) -> 'CommandType':
         if value == "build":
             return CommandType.Build
         elif value == "clean":
             return CommandType.Clean
         elif value == "install":
             return CommandType.Install
+        elif value == "open":
+            return CommandType.Open
         raise Exception("Unsupported Command '{0}'".format(value))
 
     @staticmethod
-    def ToString(value: int) -> str:
+    def ToString(value: 'CommandType') -> str:
         result = CommandType.TryToString(value)
         if result is not None:
             return result
@@ -57,11 +61,13 @@ class CommandType(object):
 
 
     @staticmethod
-    def TryToString(value: int) -> Optional[str]:
+    def TryToString(value: 'CommandType') -> Optional[str]:
         if value == CommandType.Build:
             return "build"
         elif value == CommandType.Clean:
             return "clean"
         elif value == CommandType.Install:
             return "install"
+        elif value == CommandType.Open:
+            return "open"
         return None

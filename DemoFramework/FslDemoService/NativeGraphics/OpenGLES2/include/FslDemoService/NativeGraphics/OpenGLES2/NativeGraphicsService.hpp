@@ -40,24 +40,24 @@ namespace Fsl
 {
   namespace GLES2
   {
-    class NativeGraphicsService
+    class NativeGraphicsService final
       : public ThreadLocalService
       , public INativeGraphicsService
     {
     public:
-      NativeGraphicsService(const ServiceProvider& serviceProvider);
-      ~NativeGraphicsService() override;
+      explicit NativeGraphicsService(const ServiceProvider& serviceProvider);
+      ~NativeGraphicsService() final;
 
       // From INativeGraphics
-      std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                        const TextureFlags& textureFlags) override;
       std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                        const TextureFlags& textureFlags) override;
+                                                        const TextureFlags textureFlags) final;
+      std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                      const TextureFlags textureFlags) final;
       // From INativeGraphicsService
-      bool IsSupported(const DemoHostFeature& activeAPI) const override;
-      void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) override;
-      std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const Point2& currentResolution) override;
-      std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const Point2& currentResolution) override;
+      bool IsSupported(const DemoHostFeature& activeAPI) const final;
+      void Capture(Bitmap& rBitmap, const Rectangle& srcRectangle) final;
+      std::shared_ptr<INativeGraphicsBasic2D> CreateBasic2D(const PxExtent2D& extentPx) final;
+      std::shared_ptr<INativeBatch2D> CreateNativeBatch2D(const PxExtent2D& extentPx) final;
 
     private:
     };

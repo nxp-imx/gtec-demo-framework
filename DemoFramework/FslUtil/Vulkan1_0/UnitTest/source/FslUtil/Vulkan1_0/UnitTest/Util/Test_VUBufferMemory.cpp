@@ -104,5 +104,5 @@ TEST_P(TestFixtureFslUtil_Vulkan1_0_VUBufferMemory, Mapped_Upload_Coherent)
 }
 
 
-INSTANTIATE_TEST_CASE_P(BufferTypes, TestFixtureFslUtil_Vulkan1_0_VUBufferMemory,
-                        ::testing::Values(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT));
+INSTANTIATE_TEST_SUITE_P(BufferTypes, TestFixtureFslUtil_Vulkan1_0_VUBufferMemory,
+                         ::testing::Values(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT));

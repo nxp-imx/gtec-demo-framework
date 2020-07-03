@@ -239,7 +239,7 @@ namespace Fsl
     void VUSwapchainKHR::RefreshImages()
     {
       // We dont use the VulkanHelper::GetSwapchainImagesKHR because we want to reuse our existing vector
-      uint32_t swapchainImagesCount;
+      uint32_t swapchainImagesCount = 0;
       RAPIDVULKAN_CHECK(vkGetSwapchainImagesKHR(m_swapchain.GetDevice(), m_swapchain.Get(), &swapchainImagesCount, nullptr));
 
       if (swapchainImagesCount != m_images.size())
@@ -314,7 +314,7 @@ namespace Fsl
     VkResult VUSwapchainKHR::TryQueuePresent(const VkQueue queue, const uint32_t waitSemaphoreCount, const VkSemaphore* pWaitSemaphores,
                                              const uint32_t* pImageIndices, VkResult* pResults) const
     {
-      auto swapchain = m_swapchain.Get();
+      VkSwapchainKHR swapchain = m_swapchain.Get();
 
       VkPresentInfoKHR presentInfo{};
       presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;

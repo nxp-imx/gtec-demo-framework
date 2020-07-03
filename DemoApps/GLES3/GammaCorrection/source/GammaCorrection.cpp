@@ -33,8 +33,10 @@
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <GLES3/gl3.h>
@@ -54,7 +56,8 @@ namespace Fsl
   GammaCorrection::GammaCorrection(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_keyboard(config.DemoServiceProvider.Get<IKeyboard>())
     , m_mouse(config.DemoServiceProvider.Get<IMouse>())
     , m_demoAppControl(config.DemoServiceProvider.Get<IDemoAppControl>())
@@ -155,10 +158,9 @@ namespace Fsl
     UpdateInput(demoTime);
     UpdateSceneTransition(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     auto matrixWorld = Matrix::GetIdentity();
     auto matrixView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    const float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
     m_vertexUboData.MatModelView = matrixWorld * matrixView;
 
@@ -166,7 +168,7 @@ namespace Fsl
   }
 
 
-  void GammaCorrection::Draw(const DemoTime& demoTime)
+  void GammaCorrection::Draw(const DemoTime& /*demoTime*/)
   {
     glUseProgram(m_resources.Program.Get());
 
@@ -294,7 +296,7 @@ namespace Fsl
 
   void GammaCorrection::DrawScenes()
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto windowSizePx = GetWindowSizePx();
 
     // Set the shader program
     glUseProgram(m_resources.Program.Get());
@@ -315,10 +317,10 @@ namespace Fsl
     // Bind the vertex array
     m_resources.VertexArray.Bind();
 
-    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue() * screenResolution.X));
-    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue() * screenResolution.Y));
-    const GLint remainderX = screenResolution.X - splitX;
-    const GLint remainderY = screenResolution.Y - splitY;
+    const auto splitX = static_cast<GLint>(std::round(m_splitX.GetValue() * windowSizePx.Width()));
+    const auto splitY = static_cast<GLint>(std::round(m_splitY.GetValue() * windowSizePx.Height()));
+    const GLint remainderX = windowSizePx.Width() - splitX;
+    const GLint remainderY = windowSizePx.Height() - splitY;
 
     glBindTexture(GL_TEXTURE_2D, m_resources.TexLinear.Get());
 
@@ -348,7 +350,7 @@ namespace Fsl
     m_resources.VertexArray.Unbind();
 
     // Restore the viewport
-    glViewport(0, 0, screenResolution.X, screenResolution.Y);
+    glViewport(0, 0, windowSizePx.Width(), windowSizePx.Height());
   }
 
 

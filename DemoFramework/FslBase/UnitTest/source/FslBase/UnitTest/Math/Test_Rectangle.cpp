@@ -84,13 +84,13 @@ TEST(TestMath_Rectangle, Construct1)
   EXPECT_EQ(Point2(offsetX + width, offsetY + height), value.BottomRight());
 }
 
-TEST(TestMath_Rectangle, Construct2)
+TEST(TestMath_Rectangle, FromLeftTopRigtBottom)
 {
   int32_t left = 1;
   int32_t top = 2;
   int32_t right = 10;
   int32_t bottom = 20;
-  Rectangle value(left, top, right, bottom, true);
+  auto value = Rectangle::FromLeftTopRigtBottom(left, top, right, bottom);
 
   EXPECT_EQ(left, value.Left());
   EXPECT_EQ(top, value.Top());
@@ -166,4 +166,126 @@ TEST(TestMath_Rectangle, SetHeight_Invalid)
   EXPECT_EQ(0, value.Bottom());
   EXPECT_EQ(10, value.Width());
   EXPECT_EQ(0, value.Height());
+}
+
+
+TEST(TestMath_Rectangle, Intersects_BruteForce)
+{
+  // Basically brute force test all combinations by moving A from 0,0 to 10,8
+
+  //   012345678901        0123456789012
+  // 0                    0
+  // 1                    1
+  // 2                    2
+  // 3     *----*         3    *----*
+  // 4 *--*|B   |         4    |B   |*-*
+  // 5 | A||    |  -->    5    |    ||A|
+  // 6 *--*|    |         6    |    |*-*
+  // 7     *----*         7    *----*
+  // 8                    8
+  {
+    std::array<uint8_t, 11 * 10> result = {
+      // 0    1      2     3     4     5     6     7     8     9    10
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 0
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 1
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 2
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 3
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 4
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 5
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 6
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 7
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
+    };
+    Rectangle rectB(4, 3, 6, 5);
+
+    for (int32_t y = 0; y < 10; ++y)
+    {
+      const int32_t yOffset = y * 11;
+      for (int32_t x = 0; x < 11; ++x)
+      {
+        Rectangle rectA(x, y, 4, 3);
+        EXPECT_EQ(result[x + yOffset] != 0u, rectA.Intersects(rectB));
+        EXPECT_EQ(result[x + yOffset] != 0u, rectB.Intersects(rectA));
+      }
+    }
+  }
+}
+
+
+TEST(TestMath_Rectangle, Intersect_BruteForce)
+{
+  // Basically brute force test all combinations by moving A from 0,0 to 10,8
+
+  //   012345678901        0123456789012
+  // 0                    0
+  // 1                    1
+  // 2                    2
+  // 3     *----*         3    *----*
+  // 4 *--*|B   |         4    |B   |*-*
+  // 5 | A||    |  -->    5    |    ||A|
+  // 6 *--*|    |         6    |    |*-*
+  // 7     *----*         7    *----*
+  // 8                    8
+  {
+    std::array<uint8_t, 11 * 10> result = {
+      // 0    1      2     3     4     5     6     7     8     9    10
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 0
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 1
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 2
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 3
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 4
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 5
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 6
+      0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00,    // 7
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 8
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,    // 9
+    };
+    Rectangle rectB(4, 3, 6, 5);
+
+    for (int32_t y = 0; y < 10; ++y)
+    {
+      const int32_t yOffset = y * 11;
+      for (int32_t x = 0; x < 11; ++x)
+      {
+        Rectangle rectA(x, y, 4, 3);
+
+        auto res1 = Rectangle::Intersect(rectA, rectB);
+        auto res2 = Rectangle::Intersect(rectB, rectA);
+        EXPECT_EQ(res1, res2);
+        // check for intersection
+        EXPECT_EQ(result[x + yOffset] != 0u, !res1.IsEmpty());
+        // check result
+        if (result[x + yOffset] != 0u)
+        {
+          EXPECT_EQ(std::max(rectA.Left(), rectB.Left()), res1.Left());
+          EXPECT_EQ(std::max(rectA.Top(), rectB.Top()), res1.Top());
+          EXPECT_EQ(std::min(rectA.Right(), rectB.Right()), res1.Right());
+          EXPECT_EQ(std::min(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+        }
+      }
+    }
+  }
+}
+
+TEST(TestMath_Rectangle, Union_BruteForce)
+{
+  Rectangle rectB(4, 3, 6, 5);
+
+  for (int32_t y = 0; y < 10; ++y)
+  {
+    for (int32_t x = 0; x < 11; ++x)
+    {
+      Rectangle rectA(x, y, 4u, 3u);
+
+      auto res1 = Rectangle::Union(rectA, rectB);
+      auto res2 = Rectangle::Union(rectB, rectA);
+      EXPECT_EQ(res1, res2);
+
+      EXPECT_EQ(std::min(rectA.Left(), rectB.Left()), res1.Left());
+      EXPECT_EQ(std::min(rectA.Top(), rectB.Top()), res1.Top());
+      EXPECT_EQ(std::max(rectA.Right(), rectB.Right()), res1.Right());
+      EXPECT_EQ(std::max(rectA.Bottom(), rectB.Bottom()), res1.Bottom());
+    }
+  }
 }

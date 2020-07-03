@@ -38,6 +38,7 @@
 #include <FslUtil/Vulkan1_0/VUDevice.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <RapidVulkan/Instance.hpp>
+#include <fmt/format.h>
 #include <iostream>
 #include <string>
 
@@ -52,12 +53,20 @@ protected:
 public:
   TestFixtureFslUtil_Vulkan1_0_Compute()
   {
-    m_instance = TryCreateInstance();
-    if (m_instance.IsValid())
+    try
     {
-      VkPhysicalDevice physicalDevice = FindDevice(m_instance.Get());
+      m_instance = TryCreateInstance();
+      if (m_instance.IsValid())
+      {
+        VkPhysicalDevice physicalDevice = FindDevice(m_instance.Get());
 
-      m_device = CreateDevice(physicalDevice);
+        m_device = CreateDevice(physicalDevice);
+      }
+    }
+    catch (const std::exception& ex)
+    {
+      SkipTest(fmt::format("Failed to create vulkan instance: {}", ex.what()));
+      m_instance.Reset();
     }
   }
 
@@ -103,18 +112,18 @@ private:
     }
   }
 
-  Fsl::Vulkan::VUDevice CreateDevice(const VkPhysicalDevice physicalDevice)
+  static Fsl::Vulkan::VUDevice CreateDevice(const VkPhysicalDevice physicalDevice)
   {
     const auto deviceQueueFamilyProperties = Fsl::Vulkan::PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(physicalDevice);
     const uint32_t queueFamilyIndex = Fsl::Vulkan::QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_COMPUTE_BIT, 0, nullptr);
 
-    const float queuePriorities[1] = {0.0f};
+    const float queuePriorities = 0.0f;
     VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
     deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     deviceQueueCreateInfo.flags = 0;
     deviceQueueCreateInfo.queueFamilyIndex = queueFamilyIndex;
     deviceQueueCreateInfo.queueCount = 1;
-    deviceQueueCreateInfo.pQueuePriorities = queuePriorities;
+    deviceQueueCreateInfo.pQueuePriorities = &queuePriorities;
 
     VkDeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -124,7 +133,7 @@ private:
     return Fsl::Vulkan::VUDevice(physicalDevice, deviceCreateInfo);
   }
 
-  VkPhysicalDevice FindDevice(const VkInstance instance)
+  static VkPhysicalDevice FindDevice(const VkInstance instance)
   {
     const auto physicalDevices = Fsl::Vulkan::InstanceUtil::EnumeratePhysicalDevices(instance);
     if (physicalDevices.empty())
@@ -133,7 +142,7 @@ private:
     }
 
     // Locate a device that support compute
-    for (auto& physicalDevice : physicalDevices)
+    for (const auto& physicalDevice : physicalDevices)
     {
       VkPhysicalDeviceProperties deviceProperties{};
       vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);

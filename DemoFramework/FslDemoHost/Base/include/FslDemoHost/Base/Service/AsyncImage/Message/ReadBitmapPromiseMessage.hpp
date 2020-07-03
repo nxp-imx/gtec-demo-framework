@@ -37,6 +37,7 @@
 #include <FslGraphics/Bitmap/BitmapOrigin.hpp>
 #include <FslGraphics/PixelChannelOrder.hpp>
 #include <FslGraphics/PixelFormat.hpp>
+#include <utility>
 
 namespace Fsl
 {
@@ -51,9 +52,9 @@ namespace Fsl
 
       ReadBitmapPromiseMessage() = default;
 
-      ReadBitmapPromiseMessage(const IO::Path& absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
+      ReadBitmapPromiseMessage(IO::Path absolutePath, const PixelFormat desiredPixelFormat, const BitmapOrigin desiredOrigin,
                                const PixelChannelOrder preferredChannelOrder)
-        : AbsolutePath(absolutePath)
+        : AbsolutePath(std::move(absolutePath))
         , DesiredPixelFormat(desiredPixelFormat)
         , DesiredOrigin(desiredOrigin)
         , PreferredChannelOrderHint(preferredChannelOrder)

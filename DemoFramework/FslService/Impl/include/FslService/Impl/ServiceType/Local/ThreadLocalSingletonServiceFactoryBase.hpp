@@ -45,7 +45,7 @@ namespace Fsl
     std::shared_ptr<AServiceOptionParser> m_optionParser;
 
   public:
-    ThreadLocalSingletonServiceFactoryBase(const std::type_index& interfaceType);
+    explicit ThreadLocalSingletonServiceFactoryBase(const std::type_index& interfaceType);
     ThreadLocalSingletonServiceFactoryBase(const std::type_index& interfaceType, const ServiceCaps::Flags flags);
 
     std::shared_ptr<AServiceOptionParser> GetOptionParser() const override

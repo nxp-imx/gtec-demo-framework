@@ -90,17 +90,17 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     //    bool boolValue;
-    int intValue;
-    uint32_t uintValue;
-    float floatValue;
+    int intValue = 0;
+    uint32_t uintValue = 0;
+    float floatValue = 0.0f;
 
     switch (cmdId)
     {
     case CommandId::RenderMode:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -108,7 +108,7 @@ namespace Fsl
       m_config.SetRenderMode(static_cast<RenderMode::Enum>(intValue));
       return OptionParseResult::Parsed;
     case CommandId::KernelLength:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -116,7 +116,7 @@ namespace Fsl
       m_config.SetKernelLength(intValue);
       return OptionParseResult::Parsed;
     case CommandId::Sigma:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -124,7 +124,7 @@ namespace Fsl
       m_config.SetSigma(floatValue);
       return OptionParseResult::Parsed;
     case CommandId::ShaderType:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -135,7 +135,7 @@ namespace Fsl
       m_config.SetCompareEnabled(true);
       return OptionParseResult::Parsed;
     case CommandId::CRMFlags:
-      if (StringParseUtil::Parse(uintValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(uintValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -146,7 +146,7 @@ namespace Fsl
       m_demoMode = true;
       return OptionParseResult::Parsed;
     case CommandId::Caption:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

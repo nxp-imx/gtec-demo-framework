@@ -34,13 +34,14 @@
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/System/Threading/Thread.hpp>
-#include <FslUtil/OpenGLES3/Exceptions.hpp>
-#include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslGraphics3D/Procedural/MeshBuilder.hpp>
 #include <FslGraphics3D/Procedural/SegmentedQuadGenerator.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslGraphics/TextureRectangle.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
+#include <FslUtil/OpenGLES3/Exceptions.hpp>
+#include <FslUtil/OpenGLES3/GLCheck.hpp>
+#include <FslUtil/OpenGLES3/TextureUtil.hpp>
 #include <Shared/T3DStressTest/FurTexture.hpp>
 #include <Shared/T3DStressTest/OptionParser.hpp>
 #include <GLES3/gl3.h>
@@ -89,11 +90,11 @@ namespace Fsl
       return GLTexture(furBitmap, texParams);
     }
 
-    Procedural::BasicMesh CreateMesh(const Point2& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
+    Procedural::BasicMesh CreateMesh(const PxSize2D& tex1Size, const int textureRepeatCount, const Point2& vertexCount, int instanceCount,
                                      const bool shareInstanceVertices, const bool useTriangleStrip)
     {
-      TextureRectangle texRect(Rectangle(0, 0, tex1Size.X, tex1Size.Y), tex1Size);
-      const NativeTextureArea texArea(GLTexture::CalcTextureArea(texRect, textureRepeatCount, textureRepeatCount));
+      TextureRectangle texRect(PxRectangle(0, 0, tex1Size.Width(), tex1Size.Height()), tex1Size);
+      const NativeTextureArea texArea(TextureUtil::CalcTextureArea(texRect, textureRepeatCount, textureRepeatCount));
 
       BasicMesh mesh;
       if (useTriangleStrip)
@@ -196,24 +197,21 @@ namespace Fsl
   T3DStressTest::~T3DStressTest() = default;
 
 
-  void T3DStressTest::FixedUpdate(const DemoTime& demoTime)
+  void T3DStressTest::FixedUpdate(const DemoTime& /*demoTime*/)
   {
-    const Point2 screenResolution = GetScreenResolution();
-
     Vector3 forceDirection(std::sin(m_radians), 0, 0);
     m_displacement = m_gravity + forceDirection;
 
     m_radians += 0.01f;
 
-    m_world = Matrix::CreateRotationX(MathHelper::TO_RADS * (m_xAngle / 100.0f));
-    m_world *= Matrix::CreateRotationY(MathHelper::TO_RADS * (m_yAngle / 100.0f));
-    m_world *= Matrix::CreateRotationZ(MathHelper::TO_RADS * (m_zAngle / 100.0f));
+    m_world = Matrix::CreateRotationX(MathHelper::TO_RADS * (float(m_xAngle) / 100.0f));
+    m_world *= Matrix::CreateRotationY(MathHelper::TO_RADS * (float(m_yAngle) / 100.0f));
+    m_world *= Matrix::CreateRotationZ(MathHelper::TO_RADS * (float(m_zAngle) / 100.0f));
 
     // Pull the camera back from the cube
     m_view = Matrix::CreateTranslation(0.0f, 0.0f, -m_config.GetCameraDistance());
 
-    m_perspective =
-      Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), screenResolution.X / static_cast<float>(screenResolution.Y), 1, 100.0f);
+    m_perspective = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), GetWindowAspectRatio(), 1, 100.0f);
     m_MVP = m_world * m_view * m_perspective;
 
     // m_xAngle += 10;
@@ -247,7 +245,7 @@ namespace Fsl
   }
 
 
-  void T3DStressTest::Draw(const DemoTime& demoTime)
+  void T3DStressTest::Draw(const DemoTime& /*demoTime*/)
   {
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
@@ -274,7 +272,6 @@ namespace Fsl
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_resources.Tex2.Get());
-
     bool bypassRender = false;
     if (m_config.GetToggleMinMax())
     {
@@ -300,7 +297,7 @@ namespace Fsl
         m_shaderMultiPass.SetProjection(m_perspective);
         m_shaderMultiPass.SetDisplacement(m_displacement);
 
-        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / (m_config.GetLayerCount() - 1) : 1);
+        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / float(m_config.GetLayerCount() - 1) : 1);
         float layer = 0.0f;
 
         MeshRender& render = m_resources.MeshStuff->Render;
@@ -325,7 +322,7 @@ namespace Fsl
         m_shaderInstanced.SetProjection(m_perspective);
         m_shaderInstanced.SetDisplacement(m_displacement);
 
-        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / (m_config.GetLayerCount() - 1) : 1);
+        float layerAdd = (m_config.GetLayerCount() > 1 ? 1.0f / float(m_config.GetLayerCount() - 1) : 1);
         m_shaderInstanced.SetInstanceDistance(layerAdd);
 
         MeshRender& render = m_resources.MeshStuff->Render;

@@ -40,10 +40,11 @@
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
 #include <FslSimpleUI/Base/Control/Label.hpp>
-#include <FslSimpleUI/Base/Control/Image.hpp>
 #include <FslSimpleUI/Base/Control/Extended/Texture2DImage.hpp>
+#include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslSimpleUI/Base/Layout/FillLayout.hpp>
+#include <FslSimpleUI/Base/WindowContext.hpp>
 #include <GLES3/gl3.h>
 
 namespace Fsl
@@ -57,7 +58,7 @@ namespace Fsl
 
     cv::Mat SafeImread(const IO::Path& path)
     {
-      const cv::Mat srcImage = cv::imread(path.ToUTF8String());
+      cv::Mat srcImage = cv::imread(path.ToUTF8String());
       if (srcImage.data == nullptr)
       {
         throw GraphicsException("Failed to load image");
@@ -85,6 +86,7 @@ namespace Fsl
 
       const auto label = std::make_shared<UI::Label>(context);
       label->SetContent(strCaption);
+      label->SetAlignmentY(UI::ItemAlignment::Center);
 
       auto stack = std::make_shared<UI::StackLayout>(context);
       stack->SetLayoutOrientation(UI::LayoutOrientation::Horizontal);
@@ -126,7 +128,8 @@ namespace Fsl
   OpenCVMatToUI::OpenCVMatToUI(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_uiEventListener(this)    // The UI listener forwards call to 'this' object
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))    // Prepare the extension
+    , m_uiExtension(
+        std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "UIAtlas/UIAtlas_160dpi"))    // Prepare the extension
     , m_graphics(config.DemoServiceProvider.Get<IGraphicsService>())
     , m_nativeBatch(m_graphics->GetNativeBatch2D())    // We just acquire the completely API independent version (see DFNativeBatch2D if you want
                                                        // access to the OpenGLES3 specific methods)
@@ -147,12 +150,12 @@ namespace Fsl
   OpenCVMatToUI::~OpenCVMatToUI() = default;
 
 
-  void OpenCVMatToUI::Update(const DemoTime& demoTime)
+  void OpenCVMatToUI::Update(const DemoTime& /*demoTime*/)
   {
   }
 
 
-  void OpenCVMatToUI::Draw(const DemoTime& demoTime)
+  void OpenCVMatToUI::Draw(const DemoTime& /*demoTime*/)
   {
     // Clear the screen using the API (we dont currently have a API independent way to do it)
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);

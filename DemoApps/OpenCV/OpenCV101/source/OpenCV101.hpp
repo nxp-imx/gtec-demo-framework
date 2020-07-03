@@ -38,7 +38,7 @@ namespace Fsl
   class OpenCV101 : public DemoAppConsole
   {
   public:
-    OpenCV101(const DemoAppConfig& config);
+    explicit OpenCV101(const DemoAppConfig& config);
     ~OpenCV101() override;
 
   protected:

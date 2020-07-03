@@ -30,29 +30,30 @@
  ****************************************************************************************************************************************************/
 
 #include <FslDemoHost/Base/Setup/DemoHostSetup.hpp>
+#include <utility>
 
 namespace Fsl
 {
-  DemoHostSetup::DemoHostSetup(const std::shared_ptr<IDemoHostFactory>& rFactory)
-    : Factory(rFactory)
+  DemoHostSetup::DemoHostSetup(std::shared_ptr<IDemoHostFactory> rFactory)
+    : Factory(std::move(rFactory))
 
   {
   }
 
 
-  DemoHostSetup::DemoHostSetup(const std::shared_ptr<IDemoHostFactory>& rFactory, const std::shared_ptr<ADemoHostOptionParser>& rOptionParser)
-    : Factory(rFactory)
-    , OptionParser(rOptionParser)
+  DemoHostSetup::DemoHostSetup(std::shared_ptr<IDemoHostFactory> rFactory, std::shared_ptr<ADemoHostOptionParser> rOptionParser)
+    : Factory(std::move(rFactory))
+    , OptionParser(std::move(rOptionParser))
 
   {
   }
 
 
-  DemoHostSetup::DemoHostSetup(const std::shared_ptr<IDemoHostFactory>& rFactory, const std::shared_ptr<ADemoHostOptionParser>& rOptionParser,
-                               const std::shared_ptr<ServiceOptionParserDeque>& serviceOptionParsers)
-    : Factory(rFactory)
-    , OptionParser(rOptionParser)
-    , ServiceOptionParsers(serviceOptionParsers)
+  DemoHostSetup::DemoHostSetup(std::shared_ptr<IDemoHostFactory> rFactory, std::shared_ptr<ADemoHostOptionParser> rOptionParser,
+                               std::shared_ptr<ServiceOptionParserDeque> serviceOptionParsers)
+    : Factory(std::move(rFactory))
+    , OptionParser(std::move(rOptionParser))
+    , ServiceOptionParsers(std::move(serviceOptionParsers))
   {
   }
 }

@@ -42,7 +42,7 @@ namespace Fsl
     Shared m_shared;
 
   public:
-    Stats(const DemoAppConfig& config);
+    explicit Stats(const DemoAppConfig& config);
 
   protected:
     void Update(const DemoTime& demoTime) override;

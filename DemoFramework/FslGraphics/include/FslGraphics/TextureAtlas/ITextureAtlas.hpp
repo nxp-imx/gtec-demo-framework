@@ -32,16 +32,25 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslGraphics/TextureAtlas/NamedAtlasTexture.hpp>
 
 namespace Fsl
 {
+  struct NamedAtlasTexture;
+  struct TextureAtlasNineSlicePatch;
+
   class ITextureAtlas
   {
   public:
     virtual ~ITextureAtlas() = default;
-    virtual int32_t Count() const = 0;
-    virtual NamedAtlasTexture GetEntry(const int32_t index) const = 0;
+
+    //! @brief get the number of texture atlas entries
+    virtual uint32_t Count() const = 0;
+    //! @brief get a specific texture atlas entry by index
+    virtual const NamedAtlasTexture& GetEntry(const uint32_t index) const = 0;
+    //! @brief get the number of texture atlas nine-slice entries
+    virtual uint32_t NineSliceCount() const = 0;
+    //! @brief get a specific nineslice entry by index
+    virtual const TextureAtlasNineSlicePatch& GetNineSlicePatch(const uint32_t index) const = 0;
   };
 }
 #endif

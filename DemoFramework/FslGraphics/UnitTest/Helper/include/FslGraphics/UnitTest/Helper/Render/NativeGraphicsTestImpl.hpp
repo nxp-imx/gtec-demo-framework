@@ -33,6 +33,7 @@
 
 #include <FslBase/BasicTypes.hpp>
 #include <FslGraphics/Render/Adapter/INativeGraphics.hpp>
+#include <FslGraphics/UnitTest/Helper/Render/DynamicNativeTextureTestImpl.hpp>
 #include <FslGraphics/UnitTest/Helper/Render/NativeTextureTestImpl.hpp>
 #include <memory>
 
@@ -41,16 +42,16 @@ namespace Fsl
   class NativeGraphicsTestImpl : public INativeGraphics
   {
   public:
-    std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawBitmap& bitmap, const Texture2DFilterHint filterHint,
-                                                      const TextureFlags& textureFlags) override
-    {
-      return std::make_shared<NativeTextureTestImpl>(bitmap, filterHint, textureFlags);
-    }
-
     std::shared_ptr<INativeTexture2D> CreateTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
-                                                      const TextureFlags& textureFlags) override
+                                                      const TextureFlags textureFlags) override
     {
       return std::make_shared<NativeTextureTestImpl>(texture, filterHint, textureFlags);
+    }
+
+    std::shared_ptr<IDynamicNativeTexture2D> CreateDynamicTexture2D(const RawTexture& texture, const Texture2DFilterHint filterHint,
+                                                                    const TextureFlags textureFlags) override
+    {
+      return std::make_shared<DynamicNativeTextureTestImpl>(texture, filterHint, textureFlags);
     }
   };
 }

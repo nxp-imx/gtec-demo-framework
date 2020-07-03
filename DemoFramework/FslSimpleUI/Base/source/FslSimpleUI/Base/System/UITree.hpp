@@ -31,16 +31,20 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Math/Pixel/PxExtent2D.hpp>
+#include <FslBase/Math/Pixel/PxRectangle.hpp>
 #include <FslBase/Math/Rect.hpp>
+#include <FslSimpleUI/Base/UIStats.hpp>
 #include <FslSimpleUI/Base/IWindowManager.hpp>
 #include <FslSimpleUI/Base/UIDrawContext.hpp>
 #include <deque>
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 #include "ITreeContextInfo.hpp"
 #include "ITreeNodeLocator.hpp"
-#include "ITreeNodeClickInputTargetLocator.hpp"
+#include "ITreeNodeClickInputTargetLocater.hpp"
 #include "Event/IEventHandler.hpp"
 #include "Event/WindowEventQueueRecord.hpp"
 #include "Event/EventRoute.hpp"
@@ -77,30 +81,29 @@ namespace Fsl
       }
     };
 
-    struct UITreeClickInputTargetRecord
+    struct UITreeInputTargetRecord
     {
-      Rect VisibleRect;
+      PxRectangle VisibleRectPx;
       std::shared_ptr<TreeNode> Node;
 
-      UITreeClickInputTargetRecord() = default;
+      UITreeInputTargetRecord() = default;
 
-      UITreeClickInputTargetRecord(const Rect& visibleRect, const std::shared_ptr<TreeNode>& node)
-        : VisibleRect(visibleRect)
-        , Node(node)
+      UITreeInputTargetRecord(const PxRectangle& visibleRectPx, std::shared_ptr<TreeNode> node)
+        : VisibleRectPx(visibleRectPx)
+        , Node(std::move(node))
       {
       }
     };
 
     using UITreeDrawVector = std::vector<UITreeDrawRecord>;
-    using UITreeClickInputTargetVector = std::vector<UITreeClickInputTargetRecord>;
 
 
     //! @note This tree is designed with the assumption that windows will NOT be reused.
-    class UITree
+    class UITree final
       : public IWindowManager
       , public ITreeContextInfo
       , public ITreeNodeLocator
-      , public ITreeNodeClickInputTargetLocator
+      , public ITreeNodeClickInputTargetLocater
       , public IEventHandler
     {
       enum class Context
@@ -132,7 +135,7 @@ namespace Fsl
       std::shared_ptr<RootWindow> m_rootWindow;
       //! the root node
       std::shared_ptr<TreeNode> m_root;
-      Rect m_rootRect;
+      PxRectangle m_rootRectPx;
 
       bool m_updateCacheDirty;
       bool m_resolveCacheDirty;
@@ -144,25 +147,38 @@ namespace Fsl
       FastTreeNodeVector m_vectorUpdate;
       FastTreeNodeVector m_vectorResolve;
       UITreeDrawVector m_vectorDraw;
-      UITreeClickInputTargetVector m_vectorClickInputTarget;
+      std::vector<UITreeInputTargetRecord> m_vectorClickInputTarget;
+      std::vector<UITreeInputTargetRecord> m_vectorMouseOverTarget;
 
       FastTreeNodeVector m_nodeScratchpad;
       FastTreeNodeVector m_nodeScratchpadPostResolve;
       mutable Context m_context;
 
+      UIStats m_stats;
+
     public:
-      UITree(const std::shared_ptr<ModuleCallbackRegistry>& moduleCallbackRegistry, const std::shared_ptr<WindowEventPool>& eventPool,
-             const std::shared_ptr<WindowEventQueueEx>& eventQueue);
-      ~UITree() override;
+      UITree(std::shared_ptr<ModuleCallbackRegistry> moduleCallbackRegistry, std::shared_ptr<WindowEventPool> eventPool,
+             std::shared_ptr<WindowEventQueueEx> eventQueue);
+      ~UITree() final;
 
       void Init(const std::shared_ptr<RootWindow>& rootWindow);
       void Shutdown();
       void ScheduleCloseAll();
 
+      //! Check if the tree is considered idle
+      //! NOTE: Basically checks that there are now pending work scheduled and that no child element expects updates
+      bool IsIdle() const;
+
+      UIStats GetStats() const
+      {
+        return m_stats;
+      }
+
       void ProcessEvents();
-      void Resized(const Vector2& size);
+      void Resized(const PxExtent2D& extentPx, const uint32_t densityDpi);
       void Update(const DemoTime& demoTime);
       void Draw();
+
 
       std::size_t GetNodeCount() const;
 
@@ -172,37 +188,38 @@ namespace Fsl
       }
 
       // From IWindowInfo
-      Vector2 PointToScreen(const IWindowId* const pWindow, const Vector2& point) const override;
-      Vector2 PointFromScreen(const IWindowId* const pWindow, const Vector2& point) const override;
+      PxPoint2 PointToScreen(const IWindowId* const pWindow, const PxPoint2& point) const final;
+      PxPoint2 PointFromScreen(const IWindowId* const pWindow, const PxPoint2& point) const final;
 
       // From IWindowManager
-      void Add(const std::shared_ptr<BaseWindow>& window) override;
-      void AddChild(const BaseWindow* const parentWindow, const std::shared_ptr<BaseWindow>& window) override;
-      void AddChild(const std::shared_ptr<BaseWindow>& parentWindow, const std::shared_ptr<BaseWindow>& window) override;
-      bool Exists(const BaseWindow* const pWindow) const override;
-      bool Exists(const std::shared_ptr<BaseWindow>& window) const override;
-      bool IsMemberOfTree(const std::shared_ptr<BaseWindow>& tree, const std::shared_ptr<BaseWindow>& window) const override;
+      void Add(const std::shared_ptr<BaseWindow>& window) final;
+      void AddChild(const BaseWindow* const parentWindow, const std::shared_ptr<BaseWindow>& window) final;
+      void AddChild(const std::shared_ptr<BaseWindow>& parentWindow, const std::shared_ptr<BaseWindow>& window) final;
+      bool Exists(const BaseWindow* const pWindow) const final;
+      bool Exists(const std::shared_ptr<BaseWindow>& window) const final;
+      bool IsMemberOfTree(const std::shared_ptr<BaseWindow>& tree, const std::shared_ptr<BaseWindow>& window) const final;
       bool IsMemberOfTree(const std::shared_ptr<BaseWindow>& tree, const std::shared_ptr<BaseWindow>& window,
-                          const bool considerTreeRootAMember) const override;
-      void ScheduleClose(const std::shared_ptr<BaseWindow>& window) override;
-      void ScheduleCloseAllChildren(const std::shared_ptr<BaseWindow>& parentWindow) override;
-      bool TrySetWindowFlags(const BaseWindow* const pWindow, const WindowFlags& flags) override;
-      void SYS_SetEventSource(WindowEvent* const pEvent, const IWindowId* const pSource) override;
+                          const bool considerTreeRootAMember) const final;
+      void ScheduleClose(const std::shared_ptr<BaseWindow>& window) final;
+      void ScheduleCloseAllChildren(const std::shared_ptr<BaseWindow>& parentWindow) final;
+      bool TrySetWindowFlags(const BaseWindow* const pWindow, const WindowFlags& flags, const bool enable) final;
+      void SYS_SetEventSource(WindowEvent* const pEvent, const IWindowId* const pSource) final;
 
       // From ITreeContextInfo
-      bool IsInSystemContext() const override;
+      bool IsInSystemContext() const final;
 
       // From ITreeNodeLocator
-      std::shared_ptr<TreeNode> Get(const IWindowId* const pWindowId) const override;
-      std::shared_ptr<TreeNode> Get(const std::shared_ptr<IWindowId>& windowId) const override;
-      std::shared_ptr<TreeNode> TryGet(const IWindowId* const pWindowId) const override;
-      std::shared_ptr<TreeNode> TryGet(const std::shared_ptr<IWindowId>& windowId) const override;
+      std::shared_ptr<TreeNode> Get(const IWindowId* const pWindowId) const final;
+      std::shared_ptr<TreeNode> Get(const std::shared_ptr<IWindowId>& windowId) const final;
+      std::shared_ptr<TreeNode> TryGet(const IWindowId* const pWindowId) const final;
+      std::shared_ptr<TreeNode> TryGet(const std::shared_ptr<IWindowId>& windowId) const final;
 
-      // From ITreeNodeClickInputTargetLocator
-      std::shared_ptr<TreeNode> TryGet(const Vector2& hitPosition) const override;
+      // From ITreeNodeClickInputTargetLocater
+      std::shared_ptr<TreeNode> TryGetMouseOverWindow(const PxPoint2& hitPositionPx) const final;
+      std::shared_ptr<TreeNode> TryGetClickInputWindow(const PxPoint2& hitPositionPx) const final;
 
       // From IEventHandler
-      void HandleEvent(const std::shared_ptr<TreeNode>& target, const RoutedEvent& routedEvent) override;
+      void HandleEvent(const std::shared_ptr<TreeNode>& target, const RoutedEvent& routedEvent) final;
 
       //! @brief Register a event listener
       void RegisterEventListener(const std::weak_ptr<IEventListener>& eventListener);
@@ -212,7 +229,7 @@ namespace Fsl
     private:
       inline void PerformLayout();
       inline void RebuildDeques();
-      void RebuildDeques(const std::shared_ptr<TreeNode>& node, const Rect& parentRect);
+      void RebuildDeques(const std::shared_ptr<TreeNode>& node, const PxRectangle& parentRectPx);
       inline void ProcessEventsPreUpdate();
       inline void ProcessEventsPostUpdate(const DemoTime& demoTime);
       inline void ProcessEventsPostResolve(const DemoTime& demoTime);

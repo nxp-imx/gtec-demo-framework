@@ -96,7 +96,7 @@ namespace Fsl
     DemoHostFeature m_activeApi;
 
   public:
-    EGLDemoHost(const DemoHostConfig& demoHostConfig);
+    explicit EGLDemoHost(const DemoHostConfig& demoHostConfig);
     ~EGLDemoHost() override;
 
     void OnConstructed() override;
@@ -105,7 +105,7 @@ namespace Fsl
     void OnSuspend() override;
     void OnResume() override;
     DemoHostFeature GetActiveAPI() const override;
-    Point2 GetScreenResolution() const override;
+    DemoWindowMetrics GetWindowMetrics() const override;
     SwapBuffersResult TrySwapBuffers() override;
     bool ProcessNativeMessages(const bool allowBlock) override;
 

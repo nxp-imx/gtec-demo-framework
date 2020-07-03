@@ -31,6 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
+#include <FslBase/Attributes.hpp>
+#include <FslBase/OptimizationFlag.hpp>
 #include <cassert>
 #include <cstddef>
 #include <stdexcept>
@@ -49,6 +51,8 @@ namespace Fsl
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
+    static constexpr const size_type npos = size_type(-1);
+
   protected:
     const char* m_pStr{nullptr};
     size_type m_length{0u};
@@ -56,14 +60,24 @@ namespace Fsl
   public:
     constexpr StringViewLite() noexcept = default;
     constexpr StringViewLite(const StringViewLite& other) noexcept = default;
-    constexpr StringViewLite(const const_pointer pStr, size_type count)
+    //! @brief overload that allows you to create a StringViewLite from pointer and count that is noexcept.
+    //!        only use this in cases where you are 100% sure that your input is valid
+    explicit constexpr StringViewLite(const const_pointer pStr, size_type count, const OptimizationCheckFlag /*unused*/) noexcept
       : m_pStr(pStr)
       , m_length(count)
     {
       assert(pStr != nullptr || count == 0u);
     }
 
-    constexpr StringViewLite(const const_pointer psz)
+
+    explicit constexpr StringViewLite(const const_pointer pStr, size_type count)
+      : m_pStr(pStr)
+      , m_length(count)
+    {
+      assert(pStr != nullptr || count == 0u);
+    }
+
+    constexpr StringViewLite(const const_pointer psz)    // NOLINT(google-explicit-constructor)
       : m_pStr(psz)
       , m_length(CalcLength(psz))
     {
@@ -91,7 +105,7 @@ namespace Fsl
       return m_pStr[pos];
     }
 
-    const_reference at(size_type pos) const
+    constexpr const_reference at(size_type pos) const
     {
       if (pos >= size())
       {
@@ -118,30 +132,235 @@ namespace Fsl
       return m_pStr[0];
     }
 
-  private:
-    static inline constexpr size_type CalcLength(const char* const pszStart)
+    constexpr void remove_prefix(size_type n)
     {
-      assert(pszStart != nullptr);
-      auto psz = pszStart;
-      while (*psz != 0)
+      assert(n <= m_length);
+      m_pStr += n;
+      m_length -= n;
+    }
+
+    constexpr void remove_suffix(size_type n)
+    {
+      assert(n <= m_length);
+      m_length -= n;
+    }
+
+
+    //! @brief Returns a view of the substring [pos, pos + rcount), where rcount is the smaller of count and size() - pos.
+    constexpr StringViewLite substr(size_type pos = 0, size_type count = npos) const
+    {
+      if (pos > m_length)
       {
-        ++psz;
+        throw std::out_of_range("pos out of range");
       }
-      return psz - pszStart;
+      auto maxLength = (m_length - pos);
+      return StringViewLite(m_pStr + pos, (count <= maxLength ? count : maxLength), OptimizationCheckFlag::NoCheck);
+    }
+
+    // constexpr int compare(StringViewLite value) const noexcept
+    int compare(StringViewLite value) const noexcept;
+
+    // constexpr int compare(size_type pos1, size_type count1, basic_string_view v) const;
+    int compare(size_type pos1, size_type count1, StringViewLite v) const
+    {
+      return substr(pos1, count1).compare(v);
+    }
+
+    // constexpr int compare(size_type pos1, size_type count1, StringViewLite v, size_type pos2, size_type count2) const
+    int compare(size_type pos1, size_type count1, StringViewLite v, size_type pos2, size_type count2) const
+    {
+      return substr(pos1, count1).compare(v.substr(pos2, count2));
+    }
+
+    // constexpr int compare(const char* const psz) const
+    int compare(const value_type* const psz) const
+    {
+      return compare(StringViewLite(psz));
+    }
+
+    // constexpr int compare(size_type pos1, size_type count1, const char*const psz) const;
+    int compare(size_type pos1, size_type count1, const char* const psz) const
+    {
+      return substr(pos1, count1).compare(StringViewLite(psz));
+    }
+
+    // constexpr int compare(size_type pos1, size_type count1, const char*const psz, size_type count2) const;
+    int compare(size_type pos1, size_type count1, const char* const psz, size_type count2) const
+    {
+      return substr(pos1, count1).compare(StringViewLite(psz, count2));
+    }
+
+    // constexpr bool starts_with(StringViewLite value) const noexcept;
+    bool starts_with(StringViewLite value) const noexcept;
+
+    constexpr bool starts_with(char ch) const noexcept
+    {
+      return (m_length > 0u && m_pStr[0] == ch);
+    }
+
+    // constexpr bool starts_with(const char* const psz) const;
+    bool starts_with(const char* const psz) const
+    {
+      return starts_with(StringViewLite(psz));
+    }
+
+    // constexpr bool ends_with(StringViewLite value) const noexcept;
+    bool ends_with(StringViewLite value) const noexcept;
+
+    constexpr bool ends_with(char ch) const noexcept
+    {
+      return (m_length > 0u && m_pStr[m_length - 1u] == ch);
+    }
+
+    // constexpr bool ends_with(const char*const psz) const;
+    bool ends_with(const char* const psz) const
+    {
+      return ends_with(StringViewLite(psz));
+    }
+
+    // constexpr size_type find(basic_string_view v, size_type pos = 0) const noexcept
+    // size_type find(StringViewLite value, const size_type pos = 0) const noexcept;
+
+    constexpr size_type find(const value_type ch, size_type pos = 0) const noexcept
+    {
+      while (pos < m_length && m_pStr[pos] != ch)
+      {
+        ++pos;
+      }
+      return (pos < m_length ? pos : npos);
+    }
+
+    // constexpr size_type rfind(basic_string_view v, size_type pos = npos) const noexcept;
+    // constexpr size_type rfind(CharT c, size_type pos = npos) const noexcept;
+
+    constexpr size_type rfind(value_type ch, size_type pos = npos) const noexcept
+    {
+      if (m_length > 0u)
+      {
+        const char* pCurrent = pos <= m_length ? (m_pStr + pos) : ((m_pStr + m_length) - 1u);
+        while (pCurrent >= m_pStr && *pCurrent != ch)
+        {
+          --pCurrent;
+        }
+        return (pCurrent >= m_pStr ? static_cast<size_type>(pCurrent - m_pStr) : npos);
+      }
+      return npos;
+    }
+
+    // constexpr size_type rfind(const CharT* s, size_type pos, size_type count) const;
+    // constexpr size_type rfind(const CharT* s, size_type pos = npos) const;
+
+
+  private:
+    static constexpr inline size_type CalcLength(const char* const pszStart)
+    {
+      if (pszStart != nullptr)
+      {
+        const auto* psz = pszStart;
+        while (*psz != 0)
+        {
+          ++psz;
+        }
+        return psz - pszStart;
+      }
+      return 0u;
     }
   };
 
-  extern bool operator==(const StringViewLite& lhs, const StringViewLite& rhs) noexcept;
-  extern bool operator!=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept;
-  extern bool operator<(const StringViewLite& lhs, const StringViewLite& rhs) noexcept;
-  extern bool operator<=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept;
-  extern bool operator>(const StringViewLite& lhs, const StringViewLite& rhs) noexcept;
-  extern bool operator>=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept;
+  // Operator ==
 
-  extern bool operator==(const StringViewLite& lhs, const char* const pszRhs) noexcept;
-  extern bool operator!=(const StringViewLite& lhs, const char* const pszRhs) noexcept;
-  extern bool operator==(const char* const pszLhs, const StringViewLite& rhs) noexcept;
-  extern bool operator!=(const char* const pszLhs, const StringViewLite& rhs) noexcept;
+  inline bool operator==(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.compare(rhs) == 0;
+  }
+
+  inline bool operator==(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs.compare(pszRhs) == 0;
+  }
+
+  inline bool operator==(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs == pszLhs;
+  }
+
+  // Operator !=
+
+  inline bool operator!=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  {
+    return !(lhs == rhs);
+  }
+  inline bool operator!=(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  {
+    return !(lhs == pszRhs);
+  }
+  inline bool operator!=(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs != pszLhs;
+  }
+
+  // Operator <
+
+  inline bool operator<(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.compare(rhs) < 0;
+  }
+
+  inline bool operator<(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs < StringViewLite(pszRhs);
+  }
+  inline bool operator<(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  {
+    return StringViewLite(pszLhs) < rhs;
+  }
+
+  // Operator <=
+
+  inline bool operator<=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  {
+    return lhs.compare(rhs) <= 0;
+  }
+
+  inline bool operator<=(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs <= StringViewLite(pszRhs);
+  }
+  inline bool operator<=(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  {
+    return StringViewLite(pszLhs) <= rhs;
+  }
+
+  // Operator >
+
+  inline bool operator>(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs < lhs;
+  }
+  inline bool operator>(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs > StringViewLite(pszRhs);
+  }
+  inline bool operator>(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  {
+    return StringViewLite(pszLhs) > rhs;
+  }
+
+  // Operator >=
+
+  inline bool operator>=(const StringViewLite& lhs, const StringViewLite& rhs) noexcept
+  {
+    return rhs <= lhs;
+  }
+  inline bool operator>=(const StringViewLite& lhs, const char* const pszRhs) noexcept
+  {
+    return lhs >= StringViewLite(pszRhs);
+  }
+  inline bool operator>=(const char* const pszLhs, const StringViewLite& rhs) noexcept
+  {
+    return StringViewLite(pszLhs) >= rhs;
+  }
+
 }
 
 #endif

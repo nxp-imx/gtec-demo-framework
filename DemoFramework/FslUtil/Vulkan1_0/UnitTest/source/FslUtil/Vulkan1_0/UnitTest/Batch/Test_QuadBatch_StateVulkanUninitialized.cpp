@@ -29,8 +29,9 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
 #include <FslUtil/Vulkan1_0/UnitTest/Helper/TestFixtureFslUtil_Vulkan1_0.hpp>
+#include <FslUtil/Vulkan1_0/UnitTest/Helper/Common.hpp>
+#include <FslBase/ReadOnlySpanUtil.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatch.hpp>
 #include <FslUtil/Vulkan1_0/Batch/QuadBatchShaders.hpp>
 #include <vector>
@@ -40,16 +41,11 @@ using namespace Fsl::Vulkan;
 
 namespace
 {
-  std::vector<uint8_t> ToVectorBinary(const QuadBatchShaders::Content& content)
-  {
-    return std::vector<uint8_t>(content.Data, content.Data + content.Length);
-  }
-
   class TestFixtureFslUtil_Vulkan1_0_TestQuadBatch : public TestFixtureFslUtil_Vulkan1_0
   {
   public:
     QuadBatch m_quadBatch;
-    Point2 m_screenResolution;
+    PxSize2D m_sizePx;
 
     std::vector<VertexPositionColorTexture> m_verticesEmpty;
     std::vector<VertexPositionColorTexture> m_verticesSimple = {
@@ -63,8 +59,10 @@ namespace
 
 
     TestFixtureFslUtil_Vulkan1_0_TestQuadBatch()
-      : m_quadBatch(ToVectorBinary(QuadBatchShaders::GetVertexShader()), ToVectorBinary(QuadBatchShaders::GetFragmentShader()), 4096, true)
-      , m_screenResolution(640, 480)
+      : m_quadBatch(ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetVertexShader()),
+                    ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetFragmentShader()),
+                    ReadOnlySpanUtil::ToVector(QuadBatchShaders::GetSdfFragmentShader()), 4096, true)
+      , m_sizePx(640, 480)
     {
     }
 
@@ -101,7 +99,7 @@ TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, Begi
 TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, BeginFrame_NullHandle_Begin_DestroyDependentResources)
 {
   m_quadBatch.BeginFrame(VK_NULL_HANDLE, 0);
-  m_quadBatch.Begin(m_screenResolution, BlendState::Additive, true);
+  m_quadBatch.Begin(m_sizePx, BlendState::Additive, BatchSdfRenderConfig(), true);
   m_quadBatch.DestroyDependentResources();
 }
 
@@ -112,12 +110,12 @@ TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, Cons
 
 TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, Begin_NoBeginFrame)
 {
-  ASSERT_THROW(m_quadBatch.Begin(m_screenResolution, BlendState::Additive, true), UsageErrorException);
+  ASSERT_THROW(m_quadBatch.Begin(m_sizePx, BlendState::Additive, BatchSdfRenderConfig(), true), UsageErrorException);
 }
 
 TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, Begin_End)
 {
-  ASSERT_THROW(m_quadBatch.Begin(m_screenResolution, BlendState::Additive, true), UsageErrorException);
+  ASSERT_THROW(m_quadBatch.Begin(m_sizePx, BlendState::Additive, BatchSdfRenderConfig(), true), UsageErrorException);
   ASSERT_THROW(m_quadBatch.End(), UsageErrorException);
 }
 
@@ -129,7 +127,7 @@ TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, End)
 
 TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, DrawQuads_NoBeginFrame_InvalidAllParams)
 {
-  ASSERT_THROW(m_quadBatch.Begin(m_screenResolution, BlendState::Additive, true), UsageErrorException);
+  ASSERT_THROW(m_quadBatch.Begin(m_sizePx, BlendState::Additive, BatchSdfRenderConfig(), true), UsageErrorException);
   ASSERT_THROW(m_quadBatch.DrawQuads(nullptr, 0, m_textureInfoInvalid), UsageErrorException);
   ASSERT_THROW(m_quadBatch.End(), UsageErrorException);
 }
@@ -137,7 +135,7 @@ TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, Draw
 
 TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, DrawQuads_NoBeginFrame_Empty_InvalidTexture)
 {
-  ASSERT_THROW(m_quadBatch.Begin(m_screenResolution, BlendState::Additive, true), UsageErrorException);
+  ASSERT_THROW(m_quadBatch.Begin(m_sizePx, BlendState::Additive, BatchSdfRenderConfig(), true), UsageErrorException);
   ASSERT_THROW(m_quadBatch.DrawQuads(m_verticesEmpty.data(), static_cast<uint32_t>(m_verticesEmpty.size()), m_textureInfoInvalid),
                UsageErrorException);
   ASSERT_THROW(m_quadBatch.End(), UsageErrorException);
@@ -146,7 +144,7 @@ TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, Draw
 
 TEST_F(TestFixtureFslUtil_Vulkan1_0_TestQuadBatch_StateVulkanUninitialized, DrawQuads_NoBeginFrame_InvalidTexture)
 {
-  ASSERT_THROW(m_quadBatch.Begin(m_screenResolution, BlendState::Additive, true), UsageErrorException);
+  ASSERT_THROW(m_quadBatch.Begin(m_sizePx, BlendState::Additive, BatchSdfRenderConfig(), true), UsageErrorException);
   ASSERT_THROW(m_quadBatch.DrawQuads(m_verticesSimple.data(), static_cast<uint32_t>(m_verticesSimple.size()), m_textureInfoInvalid),
                UsageErrorException);
   ASSERT_THROW(m_quadBatch.End(), UsageErrorException);

@@ -33,12 +33,17 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <algorithm>
 
-
-#define MAX_LIGHTS 10
-#define MIN_LIGHTS 1
-
 namespace Fsl
 {
+  namespace
+  {
+    namespace LocalConfig
+    {
+      constexpr const int MaxLights = 10;
+      constexpr const int MinLight = 1;
+    }
+  }
+
   Config::Config(const int32_t defaultRenderMode)
     : m_renderMode(defaultRenderMode)
     , m_layerCount(10)
@@ -52,7 +57,7 @@ namespace Fsl
     , m_textureRepeatCountX(1)
     , m_textureRepeatCountY(1)
     , m_useHighShaderPrecision(false)
-    , m_lightCount(MIN_LIGHTS)
+    , m_lightCount(LocalConfig::MinLight)
     , m_forceFinishEachFrame(false)
     , m_backgroundColor(0xFF808080)
     , m_demoId(0)
@@ -108,7 +113,7 @@ namespace Fsl
   }
 
 
-  const Point2 Config::GetFurTextureDimensions() const
+  Point2 Config::GetFurTextureDimensions() const
   {
     return m_furTextureDimensions;
   }
@@ -189,13 +194,13 @@ namespace Fsl
 
   int Config::GetTextureRepeatCountY() const
   {
-    return m_textureRepeatCountX;
+    return m_textureRepeatCountY;
   }
 
 
   void Config::SetTextureRepeatCountY(const int value)
   {
-    m_textureRepeatCountX = std::max(value, 1);
+    m_textureRepeatCountY = std::max(value, 1);
   }
 
 
@@ -219,7 +224,7 @@ namespace Fsl
 
   void Config::SetLightCount(const int value)
   {
-    m_lightCount = std::min(std::max(value, MIN_LIGHTS), MAX_LIGHTS);
+    m_lightCount = std::min(std::max(value, LocalConfig::MinLight), LocalConfig::MaxLights);
   }
 
 

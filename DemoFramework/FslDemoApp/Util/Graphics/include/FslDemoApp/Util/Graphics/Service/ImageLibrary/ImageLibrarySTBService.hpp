@@ -39,27 +39,27 @@ namespace Fsl
 {
   class IBitmapConverter;
 
-  class ImageLibrarySTBService
+  class ImageLibrarySTBService final
     : public ThreadLocalService
     , public IImageLibraryService
   {
     std::shared_ptr<IBitmapConverter> m_bitmapConverter;
 
   public:
-    ImageLibrarySTBService(const ServiceProvider& serviceProvider);
-    ~ImageLibrarySTBService() override;
+    explicit ImageLibrarySTBService(const ServiceProvider& serviceProvider);
+    ~ImageLibrarySTBService() final;
 
     // From IImageLibraryService
-    std::string GetName() const override;
-    void ExtractSupportedImageFormats(std::deque<ImageFormat>& rFormats) override;
+    std::string GetName() const final;
+    void ExtractSupportedImageFormats(std::deque<ImageFormat>& rFormats) final;
     bool TryRead(Bitmap& rBitmap, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint,
-                 const PixelChannelOrder preferredChannelOrderHint) override;
+                 const PixelChannelOrder preferredChannelOrderHint) final;
     bool TryRead(Texture& rTexture, const IO::Path& absolutePath, const PixelFormat pixelFormatHint, const BitmapOrigin originHint,
-                 const PixelChannelOrder preferredChannelOrderHint) override;
-    bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const bool allowOverwrite) override;
+                 const PixelChannelOrder preferredChannelOrderHint) final;
+    bool TryWrite(const IO::Path& absolutePath, const Bitmap& bitmap, const ImageFormat imageFormat, const bool allowOverwrite) final;
 
   private:
-    bool TryWrite(const std::string& dstName, const Bitmap& bitmap, const int comp, const ImageFormat imageFormat);
+    bool TryWrite(const IO::Path& dstName, const Bitmap& bitmap, const int comp, const ImageFormat imageFormat);
   };
 }
 

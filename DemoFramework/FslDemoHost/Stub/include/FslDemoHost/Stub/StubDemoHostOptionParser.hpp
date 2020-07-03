@@ -35,13 +35,13 @@
 
 namespace Fsl
 {
-  class StubDemoHostOptionParser : public ADemoHostOptionParser
+  class StubDemoHostOptionParser final : public ADemoHostOptionParser
   {
   public:
     StubDemoHostOptionParser();
-    void ArgumentSetup(std::deque<Option>& rOptions) override;
-    OptionParseResult Parse(const int cmdId, const char* const pszOptArg) override;
-    bool ParsingComplete() override;
+    void ArgumentSetup(std::deque<Option>& rOptions) final;
+    OptionParseResult Parse(const int cmdId, const StringViewLite& strOptArg) final;
+    bool ParsingComplete() final;
   };
 }
 

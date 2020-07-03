@@ -32,7 +32,7 @@
 #include <FslBase/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Log/Math/LogRectangle.hpp>
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxPoint2.hpp>
 #include <FslBase/Math/Vector2.hpp>
 #include <wayland-client.h>
 #include <wayland-cursor.h>
@@ -77,8 +77,12 @@ namespace Fsl
     {
       struct display* display{nullptr};
       PlatformNativeWindowType native{};
-      struct geometry geometry{};
-      struct geometry window_size{};
+      struct geometry geometry
+      {
+      };
+      struct geometry window_size
+      {
+      };
       wl_surface* surface{nullptr};
       wl_shell_surface* shell_surface{nullptr};
 #ifdef FSL_WINDOWSYSTEM_WAYLAND_IVI
@@ -105,7 +109,7 @@ namespace Fsl
       wl_surface* cursor_surface{nullptr};
       VirtualKey::Enum keycode{};
       bool isPressed{false};
-      Point2 mousePosition;
+      PxPoint2 mousePosition;
       int zDelta{};
       VirtualMouseButton::Enum mouseButton{};
       bool mouseIsPressed{};
@@ -115,8 +119,12 @@ namespace Fsl
 #endif
     };
 
-    struct display sdisplay{};
-    struct window swindow{};
+    struct display sdisplay
+    {
+    };
+    struct window swindow
+    {
+    };
     bool dummyRunning = true;
 
 
@@ -167,6 +175,14 @@ namespace Fsl
 
       if (!window->fullscreen)
         window->window_size = window->geometry;
+
+      {    // Let the framework know that we might have been resized
+        std::shared_ptr<INativeWindowEventQueue> eventQueue = g_eventQueue.lock();
+        if (eventQueue)
+        {
+          eventQueue->PostEvent(NativeWindowEventHelper::EncodeWindowResizedEvent());
+        }
+      }
     }
 
 
@@ -729,7 +745,7 @@ namespace Fsl
   PlatformNativeWindowWayland::PlatformNativeWindowWayland(const NativeWindowSetup& nativeWindowSetup,
                                                            const PlatformNativeWindowParams& platformWindowParams,
                                                            const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
+    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams, NativeWindowCapabilityFlags::NoFlags)
   {
     const NativeWindowConfig nativeWindowConfig = nativeWindowSetup.GetConfig();
     g_eventQueue = nativeWindowSetup.GetEventQueue();
@@ -840,23 +856,7 @@ namespace Fsl
   }
 
 
-  bool PlatformNativeWindowWayland::TryGetDPI(Vector2& rDPI) const
-  {
-    {    // Remove this once its implemented
-      static bool warnedNotImplementedOnce = false;
-      if (!warnedNotImplementedOnce)
-      {
-        FSLLOG3_INFO("PlatformNativeWindowWayland: TryGetDPI is not implemented on this backend.");
-        warnedNotImplementedOnce = true;
-      }
-    }
-
-    rDPI = Vector2();
-    return false;
-  }
-
-
-  bool PlatformNativeWindowWayland::TryGetSize(Point2& rSize) const
+  bool PlatformNativeWindowWayland::TryGetNativeSize(PxPoint2& rSize) const
   {
     auto width = swindow.window_size.width;
     auto height = swindow.window_size.height;
@@ -865,7 +865,7 @@ namespace Fsl
       return false;
     }
 
-    rSize = Point2(width, height);
+    rSize = PxPoint2(width, height);
     return true;
   }
 }

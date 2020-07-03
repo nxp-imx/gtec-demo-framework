@@ -32,7 +32,8 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
-#include <FslBase/String/UTF8String.hpp>
+#include <FslBase/IO/Path.hpp>
+#include <FslBase/IO/PathView.hpp>
 #include <FslGraphics/TextureAtlas/AtlasTextureInfo.hpp>
 
 namespace Fsl
@@ -43,7 +44,11 @@ namespace Fsl
   {
   public:
     //! @brief Get the atlas texture info for the supplied texture
-    static AtlasTextureInfo GetAtlasTextureInfo(const ITextureAtlas& textureAtlas, const UTF8String& name);
+    static AtlasTextureInfo GetAtlasTextureInfo(const ITextureAtlas& textureAtlas, const IO::PathView& name);
+    static AtlasTextureInfo GetAtlasTextureInfo(const ITextureAtlas& textureAtlas, const IO::Path& name)
+    {
+      return GetAtlasTextureInfo(textureAtlas, name.AsPathView());
+    }
   };
 }
 #endif

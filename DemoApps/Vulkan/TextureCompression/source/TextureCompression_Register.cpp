@@ -39,14 +39,14 @@ namespace Fsl
   {
     using namespace Vulkan;
 
-    CustomDemoAppConfig customConfig;
-    customConfig.RestartOnResize = false;
+    CustomDemoAppConfig customDemoAppConfig;
+    customDemoAppConfig.RestartFlags = CustomDemoAppConfigRestartFlags::Never;
 
     DemoAppHostConfigVulkan config;
     config.AddPhysicalDeviceFeatureRequest(Vulkan::PhysicalDeviceFeature::TextureCompressionETC2, FeatureRequirement::Optional);
     config.AddPhysicalDeviceFeatureRequest(Vulkan::PhysicalDeviceFeature::TextureCompressionASTC_LDR, FeatureRequirement::Optional);
     config.AddPhysicalDeviceFeatureRequest(Vulkan::PhysicalDeviceFeature::TextureCompressionBC, FeatureRequirement::Optional);
 
-    DemoAppRegister::Vulkan::Register<TextureCompression>(rSetup, "Vulkan.TextureCompression", config, customConfig);
+    DemoAppRegister::Vulkan::Register<TextureCompression>(rSetup, "Vulkan.TextureCompression", config, customDemoAppConfig);
   }
 }

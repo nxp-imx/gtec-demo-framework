@@ -38,6 +38,7 @@
 #include <FslBase/ExceptionMessageFormatter.hpp>
 #include <FslDemoApp/Base/ADemoOptionParser.hpp>
 #include <FslDemoApp/Base/CustomDemoAppConfig.hpp>
+#include <FslDemoApp/Shared/Host/DemoWindowMetrics.hpp>
 #include <FslService/Consumer/ServiceProvider.hpp>
 
 namespace Fsl
@@ -48,6 +49,8 @@ namespace Fsl
 
   public:
     ExceptionMessageFormatter ExceptionFormatter;
+
+    DemoWindowMetrics WindowMetrics;
 
     // The screen resolution (at launch)
     Point2 ScreenResolution;
@@ -61,10 +64,15 @@ namespace Fsl
     //! The custom configuration that can be supplied during app registration (beware some of the values have been used when you get this)
     CustomDemoAppConfig CustomConfig;
 
-    DemoAppConfig(std::shared_ptr<ADemoOptionParser> demoOptionParser, ExceptionMessageFormatter exceptionFormatter, const Point2& screenResolution,
-                  const ServiceProvider& serviceProvider, CustomDemoAppConfig customConfig);
+    DemoAppConfig(std::shared_ptr<ADemoOptionParser> demoOptionParser, ExceptionMessageFormatter exceptionFormatter,
+                  const DemoWindowMetrics& windowMetrics, const ServiceProvider& serviceProvider, CustomDemoAppConfig customConfig);
     ~DemoAppConfig();
 
+    void UpdateWindowMetrics(const DemoWindowMetrics& windowMetrics)
+    {
+      WindowMetrics = windowMetrics;
+      ScreenResolution = Point2(windowMetrics.ExtentPx.Width, windowMetrics.ExtentPx.Height);
+    }
 
     //! Get the option parser if its available
     template <typename T>

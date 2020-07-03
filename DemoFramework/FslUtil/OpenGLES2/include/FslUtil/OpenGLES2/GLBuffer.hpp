@@ -128,7 +128,7 @@ namespace Fsl
 
       //! @brief Get the gl handle associated with the buffer.
       //! @return the handle or GLValues::INVALID_HANDLE if the buffer is unallocated.
-      FSL_ATTR_DEPRECATED GLuint GetHandle() const
+      [[deprecated("use one of the other overloads instead")]] GLuint GetHandle() const
       {
         return m_handle;
       }

@@ -30,11 +30,12 @@
  ****************************************************************************************************************************************************/
 
 #include <FslBase/BasicTypes.hpp>
+#include <FslBase/Exceptions.hpp>
+#include <FslBase/Getopt/OptionBaseValues.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslBase/String/StringParseUtil.hpp>
-#include <FslBase/Getopt/OptionBaseValues.hpp>
-#include <FslBase/Exceptions.hpp>
+#include <FslBase/SpanUtil.hpp>
 #include <algorithm>
 #include <cmath>
 #include "OptionParser.hpp"
@@ -86,37 +87,37 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    float floatArrayValuesMax4[4]{};
-    float floatValue;
-    int intValue;
+    std::array<float, 4> floatArrayValuesMax4{};
+    float floatValue = 0.0f;
+    int intValue = 0;
 
     switch (cmdId)
     {
     case CommandId::Scene:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_scene = intValue;
       return OptionParseResult::Parsed;
     case CommandId::DisplacementFactor:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_displacementFactor = floatValue;
       return OptionParseResult::Parsed;
     case CommandId::DisplacementMod:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_displacementMod = floatValue;
       return OptionParseResult::Parsed;
     case CommandId::FieldOfView:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -124,7 +125,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     case CommandId::MatSpecular:
     {
-      auto res = StringParseUtil::ParseArray(floatArrayValuesMax4, sizeof(floatArrayValuesMax4) / sizeof(float), pszOptArg);
+      auto res = StringParseUtil::ParseArray(SpanUtil::AsSpan(floatArrayValuesMax4), strOptArg);
       if (res.ArrayEntries != 3)
       {
         return OptionParseResult::Failed;
@@ -133,7 +134,7 @@ namespace Fsl
       return OptionParseResult::Parsed;
     }
     case CommandId::MatShininess:
-      if (StringParseUtil::Parse(floatValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(floatValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

@@ -73,12 +73,12 @@ namespace Fsl
 
 namespace Fsl
 {
-  const std::shared_ptr<IVulkanNativeWindowSystem> VulkanNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
+  std::shared_ptr<IVulkanNativeWindowSystem> VulkanNativeWindowSystemFactory::Allocate(const NativeWindowSystemSetup& setup)
   {
     return std::make_shared<VULKANNATIVEWINDOWSYSTEM>(setup);
   }
 
-  const std::shared_ptr<INativeWindowSystem> VulkanNativeWindowSystemFactory::AllocateNative(const NativeWindowSystemSetup& setup)
+  std::shared_ptr<INativeWindowSystem> VulkanNativeWindowSystemFactory::AllocateNative(const NativeWindowSystemSetup& setup)
   {
     return Allocate(setup);
   }

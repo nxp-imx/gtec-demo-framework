@@ -41,7 +41,7 @@ namespace Fsl
     {
       std::vector<VkQueueFamilyProperties> GetPhysicalDeviceQueueFamilyProperties(const VkPhysicalDevice device)
       {
-        uint32_t count;
+        uint32_t count = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &count, nullptr);
 
         std::vector<VkQueueFamilyProperties> result(count);

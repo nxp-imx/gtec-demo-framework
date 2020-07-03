@@ -37,10 +37,11 @@
 #include <FslService/Impl/ServiceType/Local/ThreadLocalService.hpp>
 #include <list>
 #include <queue>
+#include <utility>
 
 namespace Fsl
 {
-  class EventsService
+  class EventsService final
     : public ThreadLocalService
     , public IEventService
     , public IEventPoster
@@ -50,13 +51,13 @@ namespace Fsl
       std::shared_ptr<IEvent> ComplexEvent;
       BasicEvent Event;
 
-      EventRecord(const std::shared_ptr<IEvent>& event)
-        : ComplexEvent(event)
+      explicit EventRecord(std::shared_ptr<IEvent> event)
+        : ComplexEvent(std::move(event))
       {
       }
 
-      EventRecord(const BasicEvent& event)
-        : Event(event)
+      explicit EventRecord(BasicEvent event)
+        : Event(std::move(event))
       {
       }
     };
@@ -71,16 +72,16 @@ namespace Fsl
     bool m_isLocked;
 
   public:
-    EventsService(const ServiceProvider& serviceProvider);
+    explicit EventsService(const ServiceProvider& serviceProvider);
 
-    void Update() override;
+    void Update() final;
 
     // From IEventService
-    void Register(const std::weak_ptr<IEventListener>& subscriber) override;
-    void Unregister(const std::weak_ptr<IEventListener>& subscriber) override;
+    void Register(const std::weak_ptr<IEventListener>& subscriber) final;
+    void Unregister(const std::weak_ptr<IEventListener>& subscriber) final;
     // From IEventPoster
-    void Post(const std::shared_ptr<IEvent>& event) override;
-    void Post(const BasicEvent& event) override;
+    void Post(const std::shared_ptr<IEvent>& event) final;
+    void Post(const BasicEvent& event) final;
 
   private:
     void SendEvent(const EventRecord& eventRecord);

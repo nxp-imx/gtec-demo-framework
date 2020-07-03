@@ -42,6 +42,7 @@
 #include <FslBase/Math/Vector4.hpp>
 #include <FslBase/Math/Matrix.hpp>
 #include <FslBase/Math/MathHelper.hpp>
+#include <FslBase/Math/Pixel/TypeConverter.hpp>
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -55,7 +56,7 @@ namespace Fsl
       const float MIN_ZOOM = 1.0f;
       const float MAX_ZOOM = std::numeric_limits<float>::max();
 
-      inline Vector3 MapToSphere(const Vector2& screenResolutionBounds, const Point2& point)
+      inline Vector3 MapToSphere(const Vector2& screenResolutionBounds, const PxPoint2& point)
       {
         Vector2 scaledPoint;
 
@@ -72,12 +73,12 @@ namespace Fsl
           // Compute a normalizing factor (radius / sqrt(length))
           const float norm = 1.0f / std::sqrt(length);
           // Return the "normalized" vector, a point on the sphere
-          return Vector3(scaledPoint.X * norm, scaledPoint.Y * norm, 0.0f);
+          return {scaledPoint.X * norm, scaledPoint.Y * norm, 0.0f};
         }
 
         // Else it's on the inside
         // Return a vector to a point mapped inside the sphere sqrt(radius squared - length)
-        return Vector3(scaledPoint.X, scaledPoint.Y, std::sqrt(1.0f - length));
+        return {scaledPoint.X, scaledPoint.Y, std::sqrt(1.0f - length)};
       }
 
 
@@ -91,7 +92,7 @@ namespace Fsl
           // It's non zero
           // We're ok, so return the perpendicular vector as the transform after all
           // In the quaternion values, w is cosine (theta / 2), where theta is rotation angle
-          return Quaternion(perpendicularVector, Vector3::Dot(vec1, vec2));
+          return {perpendicularVector, Vector3::Dot(vec1, vec2)};
         }
 
         // it's zero and therefor the begin and end vectors coincide, so use an identity transform
@@ -100,7 +101,13 @@ namespace Fsl
     }
 
 
-    ArcballCamera::ArcballCamera(const Point2& screenResolution)
+    ArcballCamera::ArcballCamera(const PxPoint2& screenResolution)
+      : ArcballCamera(TypeConverter::UncheckedTo<PxSize2D>(screenResolution))
+    {
+    }
+
+
+    ArcballCamera::ArcballCamera(const PxSize2D& screenResolution)
       : m_rotationMatrix(Matrix::GetIdentity())
       , m_zoom(MIN_ZOOM)
       , m_isDragging(false)
@@ -110,28 +117,29 @@ namespace Fsl
     }
 
 
-    ArcballCamera::~ArcballCamera() = default;
-
-
-    void ArcballCamera::SetScreenResolution(const Point2& screenResolution)
+    void ArcballCamera::SetScreenResolution(const PxPoint2& screenResolution)
     {
       if (screenResolution.X < 1 || screenResolution.Y < 1)
       {
         throw std::invalid_argument("Invalid resolution");
       }
+      SetScreenResolution(TypeConverter::UncheckedTo<PxSize2D>(screenResolution));
+    }
 
+    void ArcballCamera::SetScreenResolution(const PxSize2D& screenResolution)
+    {
       // Set adjustment factor for width/height
-      m_screenResolutionBounds = Vector2(1.0f / ((screenResolution.X - 1.0f) * 0.5f), 1.0f / ((screenResolution.Y - 1.0f) * 0.5f));
+      m_screenResolutionBounds = Vector2(1.0f / ((screenResolution.Width() - 1.0f) * 0.5f), 1.0f / ((screenResolution.Height() - 1.0f) * 0.5f));
     }
 
 
-    float ArcballCamera::GetMinZoom() const
+    float ArcballCamera::GetMinZoom() const    // NOLINT(readability-convert-member-functions-to-static)
     {
       return MIN_ZOOM;
     }
 
 
-    float ArcballCamera::GetMaxZoom() const
+    float ArcballCamera::GetMaxZoom() const    // NOLINT(readability-convert-member-functions-to-static)
     {
       return MAX_ZOOM;
     }
@@ -155,7 +163,7 @@ namespace Fsl
     }
 
 
-    void ArcballCamera::BeginDrag(const Point2& position)
+    void ArcballCamera::BeginDrag(const PxPoint2& position)
     {
       FSLLOG3_WARNING_IF(m_isDragging, "Already dragging. Please end the drag before starting a new one.");
       m_isDragging = true;
@@ -165,7 +173,7 @@ namespace Fsl
     }
 
 
-    void ArcballCamera::Drag(const Point2& position)
+    void ArcballCamera::Drag(const PxPoint2& position)
     {
       if (!m_isDragging)
       {
@@ -180,7 +188,7 @@ namespace Fsl
     }
 
 
-    void ArcballCamera::EndDrag(const Point2& position)
+    void ArcballCamera::EndDrag(const PxPoint2& position)
     {
       FSLLOG3_WARNING_IF(!m_isDragging, "Not dragging, please start a drag before stopping it");
       Drag(position);

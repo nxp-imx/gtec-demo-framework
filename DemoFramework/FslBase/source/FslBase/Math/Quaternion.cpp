@@ -472,8 +472,8 @@ namespace Fsl
 
   Quaternion Quaternion::Slerp(const Quaternion& quaternion1, const Quaternion& quaternion2, const float amount)
   {
-    float num2;
-    float num3;
+    float num2 = 0.0f;
+    float num3 = 0.0f;
     float num = amount;
     float num4 =
       (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
@@ -509,8 +509,8 @@ namespace Fsl
 
   void Quaternion::Slerp(Quaternion& rResult, const Quaternion& quaternion1, const Quaternion& quaternion2, const float amount)
   {
-    float num2;
-    float num3;
+    float num2 = 0.0f;
+    float num3 = 0.0f;
     float num = amount;
     float num4 =
       (((quaternion1.X * quaternion2.X) + (quaternion1.Y * quaternion2.Y)) + (quaternion1.Z * quaternion2.Z)) + (quaternion1.W * quaternion2.W);
@@ -798,56 +798,57 @@ namespace Fsl
   //      Z = value.Z;
   //    }
   //  }
-}
 
 
-Fsl::Quaternion operator/(const Fsl::Quaternion lhs, const Fsl::Quaternion& rhs)
-{
-  const float x = lhs.X;
-  const float y = lhs.Y;
-  const float z = lhs.Z;
-  const float w = lhs.W;
-  const float num14 = (((rhs.X * rhs.X) + (rhs.Y * rhs.Y)) + (rhs.Z * rhs.Z)) + (rhs.W * rhs.W);
-  const float num5 = 1.0f / num14;
-  const float num4 = -rhs.X * num5;
-  const float num3 = -rhs.Y * num5;
-  const float num2 = -rhs.Z * num5;
-  const float num = rhs.W * num5;
-  const float num13 = (y * num2) - (z * num3);
-  const float num12 = (z * num4) - (x * num2);
-  const float num11 = (x * num3) - (y * num4);
-  const float num10 = ((x * num4) + (y * num3)) + (z * num2);
+  Quaternion operator/(const Quaternion lhs, const Quaternion& rhs)
+  {
+    const float x = lhs.X;
+    const float y = lhs.Y;
+    const float z = lhs.Z;
+    const float w = lhs.W;
+    const float num14 = (((rhs.X * rhs.X) + (rhs.Y * rhs.Y)) + (rhs.Z * rhs.Z)) + (rhs.W * rhs.W);
+    const float num5 = 1.0f / num14;
+    const float num4 = -rhs.X * num5;
+    const float num3 = -rhs.Y * num5;
+    const float num2 = -rhs.Z * num5;
+    const float num = rhs.W * num5;
+    const float num13 = (y * num2) - (z * num3);
+    const float num12 = (z * num4) - (x * num2);
+    const float num11 = (x * num3) - (y * num4);
+    const float num10 = ((x * num4) + (y * num3)) + (z * num2);
 
-  // Fsl::Quaternion quaternion(Fsl::OptimizationFlag::NoInitialization);
-  Fsl::Quaternion quaternion;
-  quaternion.X = ((x * num) + (num4 * w)) + num13;
-  quaternion.Y = ((y * num) + (num3 * w)) + num12;
-  quaternion.Z = ((z * num) + (num2 * w)) + num11;
-  quaternion.W = (w * num) - num10;
-  return quaternion;
-}
+    // Quaternion quaternion(OptimizationFlag::NoInitialization);
+    Quaternion quaternion;
+    quaternion.X = ((x * num) + (num4 * w)) + num13;
+    quaternion.Y = ((y * num) + (num3 * w)) + num12;
+    quaternion.Z = ((z * num) + (num2 * w)) + num11;
+    quaternion.W = (w * num) - num10;
+    return quaternion;
+  }
 
 
-Fsl::Quaternion operator*(const Fsl::Quaternion lhs, const Fsl::Quaternion& rhs)
-{
-  const float x = lhs.X;
-  const float y = lhs.Y;
-  const float z = lhs.Z;
-  const float w = lhs.W;
-  const float num4 = rhs.X;
-  const float num3 = rhs.Y;
-  const float num2 = rhs.Z;
-  const float num = rhs.W;
-  const float num12 = (y * num2) - (z * num3);
-  const float num11 = (z * num4) - (x * num2);
-  const float num10 = (x * num3) - (y * num4);
-  const float num9 = ((x * num4) + (y * num3)) + (z * num2);
+  Quaternion operator*(const Quaternion lhs, const Quaternion& rhs)
+  {
+    const float x = lhs.X;
+    const float y = lhs.Y;
+    const float z = lhs.Z;
+    const float w = lhs.W;
+    const float num4 = rhs.X;
+    const float num3 = rhs.Y;
+    const float num2 = rhs.Z;
+    const float num = rhs.W;
+    const float num12 = (y * num2) - (z * num3);
+    const float num11 = (z * num4) - (x * num2);
+    const float num10 = (x * num3) - (y * num4);
+    const float num9 = ((x * num4) + (y * num3)) + (z * num2);
 
-  // Fsl::Quaternion quaternion(Fsl::OptimizationFlag::NoInitialization);
-  Fsl::Quaternion quaternion;
-  quaternion.X = ((x * num) + (num4 * w)) + num12;
-  quaternion.Y = ((y * num) + (num3 * w)) + num11;
-  quaternion.Z = ((z * num) + (num2 * w)) + num10;
-  quaternion.W = (w * num) - num9;
-  return quaternion;
+    // Quaternion quaternion(OptimizationFlag::NoInitialization);
+    Quaternion quaternion;
+    quaternion.X = ((x * num) + (num4 * w)) + num12;
+    quaternion.Y = ((y * num) + (num3 * w)) + num11;
+    quaternion.Z = ((z * num) + (num2 * w)) + num10;
+    quaternion.W = (w * num) - num9;
+    return quaternion;
+  }
+
 }

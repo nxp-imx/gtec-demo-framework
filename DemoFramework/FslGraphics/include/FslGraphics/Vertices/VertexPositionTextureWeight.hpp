@@ -45,9 +45,9 @@ namespace Fsl
     Vector2 TextureCoordinate;
     float Weight{0.0f};
 
-    constexpr VertexPositionTextureWeight() = default;
+    constexpr VertexPositionTextureWeight() noexcept = default;
 
-    constexpr VertexPositionTextureWeight(const Vector3& position, const Vector2& texture, const float weight)
+    constexpr VertexPositionTextureWeight(const Vector3& position, const Vector2& texture, const float weight) noexcept
       : Position(position)
       , TextureCoordinate(texture)
       , Weight(weight)

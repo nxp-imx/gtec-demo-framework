@@ -31,8 +31,8 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/BoundingSphere.hpp>
 #include <FslBase/Log/Math/LogVector3.hpp>
+#include <FslBase/Math/BoundingSphere.hpp>
 #include <ostream>
 
 namespace Fsl

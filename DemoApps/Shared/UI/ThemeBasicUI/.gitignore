@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/Shared.UI.ThemeBasicUI.VC.VC.opendb
+/Shared.UI.ThemeBasicUI.VC.db
+/Shared.UI.ThemeBasicUI.manifest
+/Shared.UI.ThemeBasicUI.opensdf
+/Shared.UI.ThemeBasicUI.sdf
+/Shared.UI.ThemeBasicUI.sln
+/Shared.UI.ThemeBasicUI.v12.sdf
+/Shared.UI.ThemeBasicUI.v12.suo
+/Shared.UI.ThemeBasicUI.vcxproj
+/Shared.UI.ThemeBasicUI.vcxproj.filters
+/Shared.UI.ThemeBasicUI.vcxproj.user
+/build/

@@ -31,8 +31,10 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Arguments/ParseResult.hpp>
 #include <FslBase/Arguments/Command.hpp>
+#include <FslBase/Arguments/ParseResult.hpp>
+#include <FslBase/ReadOnlySpan.hpp>
+#include <FslBase/String/StringViewLite.hpp>
 #include <cstdint>
 #include <deque>
 #include <string>
@@ -50,13 +52,13 @@ namespace Fsl
       public:
         virtual ~ErrorFormatter() = default;
 
-        virtual std::string Format(const char* const pszFormat, const char* const pszArg0) = 0;
+        virtual std::string Format(const char* const pszFormat, const StringViewLite strArg0) = 0;
         virtual std::string Format(const char* const pszFormat, const std::string& str) = 0;
         virtual std::string Format(const char* const pszFormat, const uint32_t arg0) = 0;
       };
 
-      std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const int argCount,
-                                 const char* const* const ppszArgs, const std::deque<Command>& commands, ErrorFormatter& formatter);
+      std::string GetErrorString(const ParseResult result, const ParseErrorInfo& parseErrorInfo, const ReadOnlySpan<StringViewLite> args,
+                                 const std::deque<Command>& commands, ErrorFormatter& formatter);
     };
   }
 }

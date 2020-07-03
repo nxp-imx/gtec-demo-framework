@@ -41,6 +41,7 @@ from FslBuildGen import PackageListUtil
 from FslBuildGen import ParseUtil
 from FslBuildGen import PluginSharedValues
 from FslBuildGen.Build import Builder
+from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
 from FslBuildGen.BuildExternal import RecipeBuilder
 from FslBuildGen.BuildExternal.BuilderConfig import BuilderConfig
 from FslBuildGen.Config import Config
@@ -125,17 +126,20 @@ class ToolFlowBuildGen(AToolAppFlow):
             config.IgnoreNotSupported = True
 
         if localToolConfig.Graph:
-            PluginConfig.EnableGraph()
+            self.ToolAppContext.PluginConfigContext.EnableGraph()
 
         theFiles = MainFlow.DoGetFiles(config, toolConfig.GetMinimalConfig(), currentDirPath, localToolConfig.Recursive)
 
-        PluginConfig.SetLegacyGeneratorType(localToolConfig.GenType)
+        self.ToolAppContext.PluginConfigContext.SetLegacyGeneratorType(localToolConfig.GenType)
 
 
-        platformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator, True,
-                                                                      config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
-        generatorContext = GeneratorContext(config, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
-        packages = MainFlow.DoGenerateBuildFiles(config, theFiles, platformGeneratorPlugin, localToolConfig.BuildPackageFilters)
+        buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        platformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName,
+                                                                                                 localToolConfig.Generator, buildVariantConfig, True,
+                                                                                                 config.ToolConfig.CMakeConfiguration,
+                                                                                                 localToolConfig.GetUserCMakeConfig())
+        generatorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, platformGeneratorPlugin)
+        packages = MainFlow.DoGenerateBuildFiles(self.ToolAppContext.PluginConfigContext, config, self.ErrorHelpManager, theFiles, platformGeneratorPlugin, localToolConfig.BuildPackageFilters)
 
         # If the platform was manually switched, then check if the build platform is supported,
         # if its not disable recipe building and log a warning
@@ -169,9 +173,12 @@ class ToolFlowBuildGen(AToolAppFlow):
                     platformPackageList = platformResult[0]
                     if len(platformPackageList) > 0 and PlatformUtil.TryCheckBuildPlatform(platformName):
                         self.Log.DoPrint("Generator: {0}".format(platformName))
-                        tempPlatformGeneratorPlugin = PluginConfig.GetGeneratorPluginById(platformName, localToolConfig.Generator, True,
-                                                                                          config.ToolConfig.CMakeConfiguration, localToolConfig.GetUserCMakeConfig())
-                        tempGeneratorContext = GeneratorContext(config, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, tempPlatformGeneratorPlugin)
+                        tempPlatformGeneratorPlugin = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(platformName,
+                                                                                                                     localToolConfig.Generator,
+                                                                                                                     buildVariantConfig, True,
+                                                                                                                     config.ToolConfig.CMakeConfiguration,
+                                                                                                                     localToolConfig.GetUserCMakeConfig())
+                        tempGeneratorContext = GeneratorContext(config, self.ErrorHelpManager, localToolConfig.BuildPackageFilters.RecipeFilterManager, config.ToolConfig.Experimental, tempPlatformGeneratorPlugin)
                         try:
                             self.Log.PushIndent()
                             self.__DoBuildRecipes(config, tempGeneratorContext, platformPackageList,  localToolConfig.ForceClaimInstallArea, localToolConfig.BuildThreads)

@@ -45,7 +45,7 @@
 
 namespace Fsl
 {
-  class AsyncImageServiceImpl : public AsynchronousServiceImpl
+  class AsyncImageServiceImpl final : public AsynchronousServiceImpl
   {
     std::shared_ptr<IImageBasicService> m_image;
 

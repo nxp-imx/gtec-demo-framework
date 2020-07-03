@@ -41,28 +41,28 @@ namespace Fsl
 {
   class IEventPoster;
 
-  class MouseService
+  class MouseService final
     : public ThreadLocalService
     , public std::enable_shared_from_this<MouseService>
     , public IMouse
     , public INativeWindowEventListener
   {
     VirtualMouseButtonFlags m_buttonState;
-    Point2 m_position;
-    Point2 m_rawPosition;
+    PxPoint2 m_position;
+    PxPoint2 m_rawPosition;
     std::shared_ptr<IEventPoster> m_eventPoster;
 
   public:
-    MouseService(const ServiceProvider& serviceProvider);
-    ~MouseService() override;
+    explicit MouseService(const ServiceProvider& serviceProvider);
+    ~MouseService() final;
 
-    void Link(const ServiceProvider& serviceProvider) override;
+    void Link(const ServiceProvider& serviceProvider) final;
 
     // From IMouse
-    MouseState GetState() override;
+    MouseState GetState() final;
 
     // From INativeWindowEventListener
-    void OnNativeWindowEvent(const NativeWindowEvent& event) override;
+    void OnNativeWindowEvent(const NativeWindowEvent& event) final;
 
   private:
     void OnMouseButton(const NativeWindowEvent& event);

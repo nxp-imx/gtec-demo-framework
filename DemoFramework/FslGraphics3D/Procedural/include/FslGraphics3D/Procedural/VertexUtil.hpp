@@ -78,8 +78,8 @@ namespace Fsl
 
 
     template <typename TVertexDst, typename TVertexSrc>
-    void VertexUtil::ExtractNormalsAsLineList(std::vector<TVertexDst>& rDst, const std::size_t dstIndex, const std::vector<TVertexSrc>& srcVertices,
-                                              const float len)
+    void VertexUtil::ExtractNormalsAsLineList(std::vector<TVertexDst>& rDst, const std::size_t /*dstIndex*/,
+                                              const std::vector<TVertexSrc>& srcVertices, const float len)
     {
       // We could generate one piece of code that handles this in a generic way by using the vertex declarations and direct memory access
       // ExtractNormalsAsLineList(rDst.data(), dstIndex, rDst.size(), TVertexDst::GetVertexDeclaration(), srcVertices.data(), srcVertices.size(),

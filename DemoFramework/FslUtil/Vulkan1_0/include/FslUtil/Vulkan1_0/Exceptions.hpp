@@ -49,10 +49,15 @@ namespace Fsl
       {
       }
 
-      UnsupportedVulkanPixelFormatException(const VkFormat pixelFormat)
+      explicit UnsupportedVulkanPixelFormatException(const VkFormat pixelFormat)
         : RapidVulkan::VulkanException("Unsupported pixel format")
         , m_pixelFormat(pixelFormat)
       {
+      }
+
+      VkFormat GetPixelFormat() const
+      {
+        return m_pixelFormat;
       }
     };
   }

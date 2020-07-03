@@ -38,11 +38,13 @@
 #include <FslUtil/OpenGLES2/Exceptions.hpp>
 #include <FslBase/Log/Log3Fmt.hpp>
 
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define GL_CHECK_FOR_ERROR() Fsl::GLES2::CheckError(glGetError(), __FILE__, __LINE__)
 
 
 // Call method X and then check glGetError to see if a error occurred and if it did then throw a Fsl::GLESGraphicsException
 // TODO: implement a better version of this macro as it can give unexpected behavior
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define GL_CHECK(X)                                               \
   X;                                                              \
   {                                                               \
@@ -52,6 +54,7 @@
 
 // Call method X and then check glGetError to see if a error occurred and if it did then call 'return'
 // TODO: implement a better version of this macro as it can give unexpected behavior
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define GL_ON_ERROR_LOG_AND_RETURN(X)                                                                                                              \
   X;                                                                                                                                               \
   {                                                                                                                                                \
@@ -65,6 +68,7 @@
   }
 
 // TODO: implement a better version of this macro as it can give unexpected behavior
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define GL_LOG_ERROR(X)                                                                                                                            \
   X;                                                                                                                                               \
   {                                                                                                                                                \

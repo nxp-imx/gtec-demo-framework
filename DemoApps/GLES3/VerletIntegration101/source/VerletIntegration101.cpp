@@ -58,7 +58,7 @@ namespace Fsl
   VerletIntegration101::VerletIntegration101(const DemoAppConfig& config)
     : DemoAppGLES3(config)
     , m_uiEventListener(this)
-    , m_uiExtension(std::make_shared<UIDemoAppExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
+    , m_uiExtension(std::make_shared<UIDemoAppLegacyExtension>(config, m_uiEventListener.GetListener(), "MainAtlas"))
     , m_batch(std::dynamic_pointer_cast<NativeBatch2D>(config.DemoServiceProvider.Get<IGraphicsService>()->GetNativeBatch2D()))
     , m_rotation(0)
   {
@@ -73,7 +73,7 @@ namespace Fsl
     auto screenResolution = config.ScreenResolution;
     const auto safeX = static_cast<int32_t>(screenResolution.X * 0.10f);
     const auto safeY = static_cast<int32_t>(screenResolution.Y * 0.10f);
-    m_boundaryRect = Rectangle(safeX, safeY, screenResolution.X - (2 * safeX), screenResolution.Y - (2 * safeY));
+    m_boundaryRect = PxRectangle(safeX, safeY, screenResolution.X - (2 * safeX), screenResolution.Y - (2 * safeY));
 
     auto offsetX = static_cast<float>(safeX);
     auto offsetY = static_cast<float>(safeY);
@@ -97,7 +97,7 @@ namespace Fsl
   VerletIntegration101::~VerletIntegration101() = default;
 
 
-  void VerletIntegration101::FixedUpdate(const DemoTime& demoTime)
+  void VerletIntegration101::FixedUpdate(const DemoTime& /*demoTime*/)
   {
     const float friction = 0.999f;
     UpdateParticles(m_particles, friction);
@@ -109,13 +109,13 @@ namespace Fsl
   }
 
 
-  void VerletIntegration101::Update(const DemoTime& demoTime)
+  void VerletIntegration101::Update(const DemoTime& /*demoTime*/)
   {
     m_rotation += 0.01f;
   }
 
 
-  void VerletIntegration101::Draw(const DemoTime& demoTime)
+  void VerletIntegration101::Draw(const DemoTime& /*demoTime*/)
   {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -165,7 +165,7 @@ namespace Fsl
   }
 
 
-  void VerletIntegration101::ConstrainPoints(std::deque<Particle>& particles, const Rectangle& boundaryRect, const float friction)
+  void VerletIntegration101::ConstrainPoints(std::deque<Particle>& particles, const PxRectangle& boundaryRect, const float friction)
   {
     const auto boundaryLeft = static_cast<float>(boundaryRect.Left());
     const auto boundaryTop = static_cast<float>(boundaryRect.Top());
@@ -216,7 +216,7 @@ namespace Fsl
   void VerletIntegration101::DrawParticles(const std::deque<Particle>& particles)
   {
     const Vector2 scale(0.2f, 0.2f);
-    const Vector2 origin(m_texBall.GetSize().X * 0.5f, m_texBall.GetSize().Y * 0.5f);
+    const Vector2 origin(m_texBall.GetSize().Width() * 0.5f, m_texBall.GetSize().Height() * 0.5f);
     const auto color = Color::White();
 
     for (auto itr = particles.begin(); itr != particles.end(); ++itr)

@@ -26,6 +26,7 @@
 // Recreated as a DemoFramework freestyle console sample by Freescale (2016)
 
 #include <FslBase/Log/Log3Fmt.hpp>
+#include <FslBase/UncheckedNumericCast.hpp>
 #include <FslBase/Exceptions.hpp>
 #include <FslGraphics/Bitmap/Bitmap.hpp>
 #include <FslUtil/Vulkan1_0/Util/DeviceUtil.hpp>
@@ -36,14 +37,11 @@
 #include "OptionParser.hpp"
 #include "VulkanComputeMandelbrot.hpp"
 #include "SaveHelper.hpp"
+#include <array>
 #include <thread>
-
-using namespace RapidVulkan;
 
 namespace Fsl
 {
-  using namespace Vulkan;
-
   namespace
   {
     // const auto IMAGE_NAME = "texture/mandelbrot.tga";
@@ -65,26 +63,26 @@ namespace Fsl
       {    // this was basically the setup done in main.cpp in the original example
         const auto options = config.GetOptions<OptionParser>();
 
-        m_instance =
-          InstanceUtil::CreateInstance("VulkanComputeMandelbrot", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0, nullptr, 0, nullptr);
+        m_instance = Vulkan::InstanceUtil::CreateInstance("VulkanComputeMandelbrot", VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0), 0, 0,
+                                                          nullptr, 0, nullptr);
 
         const uint32_t physicalDeviceIndex = options->GetPhysicalDeviceIndex();
-        m_physicalDevice = VUPhysicalDeviceRecord(InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicalDeviceIndex));
+        m_physicalDevice = Vulkan::VUPhysicalDeviceRecord(Vulkan::InstanceUtil::GetPhysicalDevice(m_instance.Get(), physicalDeviceIndex));
 
-        const auto deviceQueueFamilyProperties = PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice.Device);
-        const uint32_t queueFamilyIndex = QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_COMPUTE_BIT, 0, nullptr);
+        const auto deviceQueueFamilyProperties = Vulkan::PhysicalDeviceUtil::GetPhysicalDeviceQueueFamilyProperties(m_physicalDevice.Device);
+        const uint32_t queueFamilyIndex = Vulkan::QueueUtil::GetQueueFamilyIndex(deviceQueueFamilyProperties, VK_QUEUE_COMPUTE_BIT, 0, nullptr);
 
-        const float queuePriorities[1] = {0.0f};
+        std::array<float, 1> queuePriorities = {0.0f};
         VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
         deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         deviceQueueCreateInfo.flags = 0;
         deviceQueueCreateInfo.queueFamilyIndex = 0;
-        deviceQueueCreateInfo.queueCount = 1;
-        deviceQueueCreateInfo.pQueuePriorities = queuePriorities;
+        deviceQueueCreateInfo.queueCount = UncheckedNumericCast<uint32_t>(queuePriorities.size());
+        deviceQueueCreateInfo.pQueuePriorities = queuePriorities.data();
 
         m_device.Reset(m_physicalDevice.Device, 0, 1, &deviceQueueCreateInfo, 0, nullptr, 0, nullptr, nullptr);
 
-        m_deviceQueue = DeviceUtil::GetDeviceQueue(m_device.Get(), queueFamilyIndex, 0);
+        m_deviceQueue = Vulkan::DeviceUtil::GetDeviceQueue(m_device.Get(), queueFamilyIndex, 0);
       }
 
       m_fence.Reset(m_device.Get(), 0);
@@ -177,7 +175,7 @@ namespace Fsl
 
   ImageData VulkanComputeMandelbrot::GatherImageData()
   {
-    Fence fence(m_device.Get(), 0);
+    RapidVulkan::Fence fence(m_device.Get(), 0);
 
     ImageData imageData(IMAGE_LENGTH, IMAGE_LENGTH, 1, VK_IMAGE_TYPE_2D, VK_FORMAT_R8G8B8A8_UNORM);
 
@@ -403,7 +401,7 @@ namespace Fsl
 
   void VulkanComputeMandelbrot::BuildDescriptorSets()
   {
-    const auto currentDescriptorSetLayout = m_descriptorSetLayout.Get();
+    const VkDescriptorSetLayout currentDescriptorSetLayout = m_descriptorSetLayout.Get();
     m_descriptorSets.Reset(m_device.Get(), m_descriptorPool.Get(), 1, &currentDescriptorSetLayout);
 
     VkDescriptorImageInfo descriptorImageInfo{};
@@ -428,7 +426,7 @@ namespace Fsl
 
   void VulkanComputeMandelbrot::BuildPipelineLayout()
   {
-    const auto currentDescriptorSet = m_descriptorSetLayout.Get();
+    const VkDescriptorSetLayout currentDescriptorSet = m_descriptorSetLayout.Get();
     m_pipelineLayout.Reset(m_device.Get(), 0, 1, &currentDescriptorSet, 0, nullptr);
   }
 
@@ -478,15 +476,15 @@ namespace Fsl
   DeviceBuffer VulkanComputeMandelbrot::CreateBuffer(const VkDevice device, const VkBufferCreateInfo& bufferCreateInfo,
                                                      const VkMemoryPropertyFlags memoryPropertyFlags) const
   {
-    VUBuffer buffer(device, bufferCreateInfo.flags, bufferCreateInfo.size, bufferCreateInfo.usage, bufferCreateInfo.sharingMode,
-                    bufferCreateInfo.queueFamilyIndexCount, bufferCreateInfo.pQueueFamilyIndices);
+    Vulkan::VUBuffer buffer(device, bufferCreateInfo.flags, bufferCreateInfo.size, bufferCreateInfo.usage, bufferCreateInfo.sharingMode,
+                            bufferCreateInfo.queueFamilyIndexCount, bufferCreateInfo.pQueueFamilyIndices);
 
     // Get the memory requirements
     const auto memoryRequirements = buffer.GetBufferMemoryRequirements();
     const auto physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
-    VUDeviceMemory deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties, memoryPropertyFlags,
-                                m_physicalDevice.Properties.limits.nonCoherentAtomSize);
+    Vulkan::VUDeviceMemory deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties, memoryPropertyFlags,
+                                        m_physicalDevice.Properties.limits.nonCoherentAtomSize);
 
     RAPIDVULKAN_CHECK(vkBindBufferMemory(device, buffer.Get(), deviceMemory.Get(), 0));
     return DeviceBuffer(std::move(buffer), std::move(deviceMemory));
@@ -507,8 +505,8 @@ namespace Fsl
     const auto memoryRequirements = image.GetImageMemoryRequirements();
     const auto physicalDeviceMemoryProperties = m_physicalDevice.MemoryProperties;
 
-    VUDeviceMemory deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties, memoryPropertyFlagBits,
-                                m_physicalDevice.Properties.limits.nonCoherentAtomSize);
+    Vulkan::VUDeviceMemory deviceMemory(device, memoryRequirements, physicalDeviceMemoryProperties, memoryPropertyFlagBits,
+                                        m_physicalDevice.Properties.limits.nonCoherentAtomSize);
 
     // Bind image to memory.
     RAPIDVULKAN_CHECK(vkBindImageMemory(device, image.Get(), deviceMemory.Get(), 0));

@@ -1,0 +1,15 @@
+/.StartProject.bat
+/.vs/
+/CMakeLists.txt
+/FslSimpleUI.Theme.Basic.VC.VC.opendb
+/FslSimpleUI.Theme.Basic.VC.db
+/FslSimpleUI.Theme.Basic.manifest
+/FslSimpleUI.Theme.Basic.opensdf
+/FslSimpleUI.Theme.Basic.sdf
+/FslSimpleUI.Theme.Basic.sln
+/FslSimpleUI.Theme.Basic.v12.sdf
+/FslSimpleUI.Theme.Basic.v12.suo
+/FslSimpleUI.Theme.Basic.vcxproj
+/FslSimpleUI.Theme.Basic.vcxproj.filters
+/FslSimpleUI.Theme.Basic.vcxproj.user
+/build/

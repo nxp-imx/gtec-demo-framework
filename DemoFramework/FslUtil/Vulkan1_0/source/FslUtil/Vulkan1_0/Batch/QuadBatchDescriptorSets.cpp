@@ -85,7 +85,7 @@ namespace Fsl
       if (m_index < m_entries)
       {
         // Reuse a existing set
-        auto result = m_descriptorSets[m_index];
+        VkDescriptorSet result = m_descriptorSets[m_index];
         ++m_index;
         return result;
       }
@@ -116,7 +116,7 @@ namespace Fsl
     }
 
 
-    QuadBatchDescriptorSets::QuadBatchDescriptorSets(const VkDevice device, const VkDescriptorSetLayout descriptorSetLayout)
+    QuadBatchDescriptorSets::QuadBatchDescriptorSets(const VkDevice device, const VkDescriptorSetLayout /*descriptorSetLayout*/)
       : QuadBatchDescriptorSets()
     {
       Reset(device, m_descriptorSetLayoutTexture);

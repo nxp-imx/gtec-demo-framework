@@ -123,7 +123,7 @@ namespace Fsl
 
   PlatformNativeWindowQNX::PlatformNativeWindowQNX(const NativeWindowSetup& nativeWindowSetup, const PlatformNativeWindowParams& platformWindowParams,
                                                    const PlatformNativeWindowAllocationParams* const pPlatformCustomWindowAllocationParams)
-    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams)
+    : PlatformNativeWindow(nativeWindowSetup, platformWindowParams, pPlatformCustomWindowAllocationParams, NativeWindowCapabilityFlags::NoFlags)
   {
     LOCAL_LOG("QNX: PlatformNativeWindowSystemQNX start");
 
@@ -221,34 +221,18 @@ namespace Fsl
   }
 
 
-  bool PlatformNativeWindowQNX::TryGetDPI(Vector2& rDPI) const
+  bool PlatformNativeWindowQNX::TryGetNativeSize(PxPoint2& rSize) const
   {
     {    // Remove this once its implemented
       static bool warnedNotImplementedOnce = false;
       if (!warnedNotImplementedOnce)
       {
-        FSLLOG3_INFO("PlatformNativeWindowQNX: TryGetDPI is not implemented on this backend.");
+        FSLLOG3_INFO("PlatformNativeWindowQNX: TryGetNativeSize is not implemented on this backend.");
         warnedNotImplementedOnce = true;
       }
     }
 
-    rDPI = Vector2();
-    return false;
-  }
-
-
-  bool PlatformNativeWindowQNX::TryGetSize(Point2& rSize) const
-  {
-    {    // Remove this once its implemented
-      static bool warnedNotImplementedOnce = false;
-      if (!warnedNotImplementedOnce)
-      {
-        FSLLOG3_INFO("PlatformNativeWindowQNX: TryGetSize is not implemented on this backend.");
-        warnedNotImplementedOnce = true;
-      }
-    }
-
-    rSize = Point2();
+    rSize = PxPoint2();
     return false;
   }
 

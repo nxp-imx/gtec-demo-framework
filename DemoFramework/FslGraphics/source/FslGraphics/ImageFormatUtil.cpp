@@ -31,6 +31,8 @@
 
 #include <FslGraphics/Exceptions.hpp>
 #include <FslGraphics/ImageFormatUtil.hpp>
+#include <FslBase/String/StringViewLiteUtil.hpp>
+#include <array>
 #include <cassert>
 #include <cstring>
 #include <cctype>
@@ -41,21 +43,21 @@ namespace Fsl
   {
     namespace
     {
-      inline ImageFormat TryDetectImageFormat(const char* const pSrc, const std::size_t srcLength)
+      inline ImageFormat TryDetectImageFormat(const StringViewLite& strView)
       {
-        if (pSrc == nullptr || srcLength >= 5 || srcLength == 0)
+        if (strView.size() >= 5u || strView.empty())
         {
           return ImageFormat::Undefined;
         }
 
         static_assert('a' > 'A', "We expect ASCII");
 
-        char ext[6]{};
+        std::array<char, 6> ext{};
 
         // This should be ok as we are working on ASCII chars
-        for (std::size_t i = 0; i < srcLength; ++i)
+        for (std::size_t i = 0; i < strView.size(); ++i)
         {
-          char ch = pSrc[i];
+          char ch = strView[i];
           if (ch >= 'A' && ch <= 'Z')
           {
             ch += ('a' - 'A');
@@ -64,37 +66,37 @@ namespace Fsl
         }
 
         // Skip the leading '.' if it exists
-        const char* pszExt = ext[0] == '.' ? ext + 1 : ext;
+        const StringViewLite strExtView = ext[0] == '.' ? strView.substr(1) : strView;
 
-        if (strcmp(pszExt, "jpg") == 0 || strcmp(pszExt, "jpeg") == 0)
+        if (strExtView == "jpg" || strExtView == "jpeg")
         {
           return ImageFormat::Jpeg;
         }
-        if (strcmp(pszExt, "png") == 0)
+        if (strExtView == "png")
         {
           return ImageFormat::Png;
         }
-        if (strcmp(pszExt, "dds") == 0)
+        if (strExtView == "dds")
         {
           return ImageFormat::DDS;
         }
-        if (strcmp(pszExt, "bmp") == 0)
+        if (strExtView == "bmp")
         {
           return ImageFormat::Bmp;
         }
-        if (strcmp(pszExt, "hdr") == 0)
+        if (strExtView == "hdr")
         {
           return ImageFormat::Hdr;
         }
-        if (strcmp(pszExt, "exr") == 0)
+        if (strExtView == "exr")
         {
           return ImageFormat::Exr;
         }
-        if (strcmp(pszExt, "ktx") == 0)
+        if (strExtView == "ktx")
         {
           return ImageFormat::KTX;
         }
-        if (strcmp(pszExt, "tga") == 0)
+        if (strExtView == "tga")
         {
           return ImageFormat::Tga;
         }
@@ -104,26 +106,25 @@ namespace Fsl
 
     ImageFormat TryDetectImageFormat(const std::string& extension)
     {
-      const auto size = extension.size();
-      return TryDetectImageFormat(extension.c_str(), size);
+      return TryDetectImageFormat(StringViewLiteUtil::AsStringViewLite(extension));
     }
 
 
     ImageFormat TryDetectImageFormat(const IO::Path& extension)
     {
-      return TryDetectImageFormat(extension.ToAsciiString());
+      return TryDetectImageFormat(extension.AsStringViewLite());
     }
 
 
     ImageFormat TryDetectImageFormatFromExtension(const IO::Path& path)
     {
-      auto extension = IO::Path::GetExtension(path);
-      if (extension.GetByteSize() <= 0)
+      auto extension = IO::Path::GetExtensionView(path.AsPathView());
+      if (extension.empty())
       {
         return ImageFormat::Undefined;
       }
 
-      return TryDetectImageFormat(extension.ToAsciiString());
+      return TryDetectImageFormat(extension);
     }
 
 

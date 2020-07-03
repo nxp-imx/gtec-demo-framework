@@ -31,7 +31,7 @@
  *
  ****************************************************************************************************************************************************/
 
-#include <FslBase/Math/Point2.hpp>
+#include <FslBase/Math/Pixel/PxSize2D.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/KeyEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseButtonEvent.hpp>
 #include <FslDemoApp/Base/Service/Events/Basic/MouseMoveEvent.hpp>
@@ -54,7 +54,7 @@ namespace Fsl
     std::vector<GamepadState> m_gamepadStates;
 
   public:
-    InputLogger(const ServiceProvider& serviceProvider);
+    explicit InputLogger(const ServiceProvider& serviceProvider);
 
     void OnKeyEvent(const KeyEvent& event);
     void OnMouseButtonEvent(const MouseButtonEvent& event);
@@ -64,7 +64,7 @@ namespace Fsl
 
     void UpdateGamepadStates();
 
-    void Draw(const Point2& resolution);
+    void Draw(const PxSize2D& sizePx);
   };
 }
 

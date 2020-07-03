@@ -69,20 +69,20 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
-    int intValue;
+    int intValue = 0;
 
     switch (cmdId)
     {
     case CommandId::Scene:
-      if (std::string("basic") == pszOptArg)
+      if (strOptArg == "basic")
       {
         m_scene = DemoScene::Basic;
       }
       else
       {
-        if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+        if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
         {
           return OptionParseResult::Failed;
         }

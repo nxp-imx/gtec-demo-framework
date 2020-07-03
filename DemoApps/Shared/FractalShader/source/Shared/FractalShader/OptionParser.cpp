@@ -84,31 +84,31 @@ namespace Fsl
   }
 
 
-  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const char* const pszOptArg)
+  OptionParseResult OptionParser::OnParse(const int32_t cmdId, const StringViewLite& strOptArg)
   {
     //    bool boolValue;
-    int intValue;
+    int intValue = 0;
     //    float floatValue;
 
     switch (cmdId)
     {
     case CommandId::Scene:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
       m_config.SetScene(intValue);
       return OptionParseResult::Parsed;
     case CommandId::Quality:
-      if (strcmp(pszOptArg, "low") == 0)
+      if (strOptArg == "low")
       {
         m_config.SetQuality(Quality::Low);
       }
-      else if (strcmp(pszOptArg, "medium") == 0)
+      else if (strOptArg == "medium")
       {
         m_config.SetQuality(Quality::Medium);
       }
-      else if (strcmp(pszOptArg, "high") == 0)
+      else if (strOptArg == "high")
       {
         m_config.SetQuality(Quality::High);
       }
@@ -118,7 +118,7 @@ namespace Fsl
       }
       return OptionParseResult::Parsed;
     case CommandId::RenderMode:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -126,7 +126,7 @@ namespace Fsl
       m_config.SetRenderMode(static_cast<RenderMode>(intValue));
       return OptionParseResult::Parsed;
     case CommandId::Iterations:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }
@@ -142,7 +142,7 @@ namespace Fsl
       m_config.SetShow(true);
       return OptionParseResult::Parsed;
     case CommandId::AnimationMode:
-      if (StringParseUtil::Parse(intValue, pszOptArg) <= 0)
+      if (StringParseUtil::Parse(intValue, strOptArg) <= 0)
       {
         return OptionParseResult::Failed;
       }

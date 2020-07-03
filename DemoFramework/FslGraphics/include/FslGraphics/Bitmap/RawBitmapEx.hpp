@@ -42,13 +42,13 @@ namespace Fsl
   public:
     constexpr RawBitmapEx() = default;
 
-    RawBitmapEx(void* const pContent, const Extent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
+    RawBitmapEx(void* const pContent, const PxExtent2D extent, const PixelFormat pixelFormat, const BitmapOrigin origin)
       : RawBitmap(pContent, extent, pixelFormat, origin)
       , m_pContent(pContent)
     {
     }
 
-    RawBitmapEx(void* const pContent, const Extent2D extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin origin)
+    RawBitmapEx(void* const pContent, const PxExtent2D extent, const PixelFormat pixelFormat, const uint32_t stride, const BitmapOrigin origin)
       : RawBitmap(pContent, extent, pixelFormat, stride, origin)
       , m_pContent(pContent)
     {

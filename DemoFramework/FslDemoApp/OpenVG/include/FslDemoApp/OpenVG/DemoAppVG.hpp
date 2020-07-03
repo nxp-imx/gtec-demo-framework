@@ -38,7 +38,7 @@ namespace Fsl
   class DemoAppVG : public ADemoApp
   {
   public:
-    DemoAppVG(const DemoAppConfig& demoAppConfig);
+    explicit DemoAppVG(const DemoAppConfig& demoAppConfig);
   };
 }
 

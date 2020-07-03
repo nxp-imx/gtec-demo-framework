@@ -65,7 +65,7 @@ namespace Fsl
     Texture2D m_texTestMatB;
 
   public:
-    OpenCVMatToNativeBatch(const DemoAppConfig& config);
+    explicit OpenCVMatToNativeBatch(const DemoAppConfig& config);
     ~OpenCVMatToNativeBatch() override;
 
   protected:

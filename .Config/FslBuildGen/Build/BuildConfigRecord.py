@@ -35,23 +35,29 @@ from typing import Dict
 from typing import List
 from typing import Optional
 from typing import Union
+from FslBuildGen.Build.BuildVariantConfigUtil import BuildVariantConfigUtil
+from FslBuildGen.Build.DataTypes import CommandType
 from FslBuildGen.DataTypes import BuildVariantConfig
 from FslBuildGen.ExtensionListManager import ExtensionListManager
 from FslBuildGen.Generator.GeneratorPluginBase2 import GeneratorPluginBase2
+from FslBuildGen.Version import Version
 from FslBuildGen.PackageFilters import PackageFilters
 from FslBuildGen.QualifiedRequirementExtensionName import QualifiedRequirementExtensionName
 from FslBuildGen.SharedGeneration import ToolAddedVariant
 
 
 class BuildConfigRecord(object):
-    def __init__(self, platformName: str,
+    def __init__(self,
+                 toolVersion: Version,
+                 platformName: str,
                  variantSettingsDict: Dict[str, str],
-                 buildCommand: int,
+                 buildCommand: CommandType,
                  buildArgs: List[str],
                  runCommand: Optional[str],
                  generator: Optional[GeneratorPluginBase2],
                  buildThreads: int) -> None:
         super().__init__()
+        self.ToolVersion = toolVersion
         self.PlatformName = platformName
         self.VariantSettingsDict = variantSettingsDict
         self.BuildCommand = buildCommand
@@ -59,14 +65,4 @@ class BuildConfigRecord(object):
         self.RunCommand = runCommand
         self.Generator = generator
         self.BuildThreads = buildThreads
-        if ToolAddedVariant.CONFIG in variantSettingsDict:
-            self.ActiveBuildVariantConfig = self.__GetBuildConfig(variantSettingsDict[ToolAddedVariant.CONFIG])
-        else:
-            self.ActiveBuildVariantConfig = BuildVariantConfig.Debug
-
-
-    def __GetBuildConfig(self, config: str) -> int:
-        config = config.lower()
-        if config == "release":
-            return BuildVariantConfig.Release
-        return BuildVariantConfig.Debug
+        self.ActiveBuildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(variantSettingsDict)

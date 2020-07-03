@@ -34,7 +34,6 @@
 #include <FslBase/Math/MathHelper.hpp>
 #include <FslGraphics/Vertices/VertexPositionNormalTexture.hpp>
 #include <FslGraphics/Vertices/VertexPositionTexture.hpp>
-#include <FslSimpleUI/Base/Control/Background9Slice.hpp>
 #include <FslSimpleUI/Base/Layout/StackLayout.hpp>
 #include <FslUtil/OpenGLES3/Exceptions.hpp>
 #include <FslUtil/OpenGLES3/GLCheck.hpp>
@@ -71,7 +70,7 @@ namespace Fsl
     }
 
 
-    GLES3::GLFrameBuffer CreateHdrFrameBuffer(const Point2& resolution)
+    GLES3::GLFrameBuffer CreateHdrFrameBuffer(const PxSize2D& resolution)
     {
       GLTextureParameters params(GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT);
       GLTextureImageParameters texImageParams(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT);
@@ -118,19 +117,19 @@ namespace Fsl
     m_resources.TexSRGB = CreateTexture(contentManager);
     m_resources.Program = CreateShader(contentManager);
 
-    const auto filenameTonemapLinear = (hasHDRFramebuffer ? "TonemapperLinear.frag" : "TonemapperLinearLDR.frag");
-    const auto filenameTonemapLinearDebug = (hasHDRFramebuffer ? "TonemapperLinearDebug.frag" : "TonemapperLinearLDRDebug.frag");
+    const auto* const filenameTonemapLinear = (hasHDRFramebuffer ? "TonemapperLinear.frag" : "TonemapperLinearLDR.frag");
+    const auto* const filenameTonemapLinearDebug = (hasHDRFramebuffer ? "TonemapperLinearDebug.frag" : "TonemapperLinearLDRDebug.frag");
     // NOTE: The Uncharted2Lum shader is really intended for LDR displays so it does not look nice on a real HDR framebuffer
     //       This will be changed in a upcoming update.
-    const auto filenameTonemap = (hasHDRFramebuffer ? "TonemapperUncharted2Lum.frag" : "TonemapperUncharted2LumLDR.frag");
-    const auto filenameTonemapDebug = (hasHDRFramebuffer ? "TonemapperUncharted2LumDebug.frag" : "TonemapperUncharted2LumLDRDebug.frag");
+    const auto* const filenameTonemap = (hasHDRFramebuffer ? "TonemapperUncharted2Lum.frag" : "TonemapperUncharted2LumLDR.frag");
+    const auto* const filenameTonemapDebug = (hasHDRFramebuffer ? "TonemapperUncharted2LumDebug.frag" : "TonemapperUncharted2LumLDRDebug.frag");
 
     m_resources.ProgramTonemapLinear = CreateTonemapShader(contentManager, filenameTonemapLinear);
     m_resources.ProgramTonemapLinearDebug = CreateTonemapShader(contentManager, filenameTonemapLinearDebug);
     m_resources.ProgramTonemap = CreateTonemapShader(contentManager, filenameTonemap);
     m_resources.ProgramTonemapDebug = CreateTonemapShader(contentManager, filenameTonemapDebug);
 
-    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(config.ScreenResolution);
+    m_resources.HdrFrameBuffer = CreateHdrFrameBuffer(config.WindowMetrics.GetSizePx());
 
     m_resources.MeshTunnel = SimpleMeshUtil::CreateTunnelVertexArray(m_resources.Program.Program);
     m_resources.MeshQuad = SimpleMeshUtil::CreateQuadVertexArray(m_resources.ProgramTonemapLinear.Program);
@@ -201,17 +200,16 @@ namespace Fsl
     UpdateInput(demoTime);
     m_menuUI.Update(demoTime);
 
-    const auto screenResolution = GetScreenResolution();
     m_vertexUboData.MatModel = Matrix::GetIdentity();
     m_vertexUboData.MatView = m_camera.GetViewMatrix();
-    float aspect = static_cast<float>(screenResolution.X) / screenResolution.Y;    // ok since we divide both by two when we show four screens
+    const float aspect = GetWindowAspectRatio();    // ok since we divide both by two when we show four screens
     m_vertexUboData.MatProj = Matrix::CreatePerspectiveFieldOfView(MathHelper::ToRadians(45.0f), aspect, 0.1f, 100.0f);
   }
 
 
-  void HDR04_HDRFramebuffer::Draw(const DemoTime& demoTime)
+  void HDR04_HDRFramebuffer::Draw(const DemoTime& /*demoTime*/)
   {
-    const auto screenResolution = GetScreenResolution();
+    const auto widowSizePx = GetWindowSizePx();
 
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
@@ -223,8 +221,8 @@ namespace Fsl
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * screenResolution.X));
-    const GLint remainderX = std::min(std::max(screenResolution.X - splitX, 0), screenResolution.X);
+    const auto splitX = static_cast<GLint>(std::round(m_menuUI.SplitX.GetValue() * widowSizePx.Width()));
+    const GLint remainderX = std::min(std::max(widowSizePx.Width() - splitX, 0), widowSizePx.Width());
 
     const bool inTransition = !m_menuUI.SplitX.IsCompleted();
     const bool useClip = m_menuUI.GetState() == SceneState::Split2 || inTransition;
@@ -245,7 +243,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(0, 0, splitX, screenResolution.Y);
+        glScissor(0, 0, splitX, widowSizePx.Height());
       }
       auto& rTonemapProgram = m_useDebugPattern ? m_resources.ProgramTonemapLinearDebug : m_resources.ProgramTonemapLinear;
       DrawTonemappedScene(rTonemapProgram, m_resources.HdrFrameBuffer);
@@ -254,7 +252,7 @@ namespace Fsl
     {
       if (useClip)
       {
-        glScissor(splitX, 0, remainderX, screenResolution.Y);
+        glScissor(splitX, 0, remainderX, widowSizePx.Height());
       }
       auto& rTonemapProgram = m_useDebugPattern ? m_resources.ProgramTonemapDebug : m_resources.ProgramTonemap;
       DrawTonemappedScene(rTonemapProgram, m_resources.HdrFrameBuffer);

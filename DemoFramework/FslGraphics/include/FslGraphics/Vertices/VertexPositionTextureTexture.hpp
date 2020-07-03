@@ -45,9 +45,9 @@ namespace Fsl
     Vector2 TextureCoordinate0;
     Vector2 TextureCoordinate1;
 
-    constexpr VertexPositionTextureTexture() = default;
+    constexpr VertexPositionTextureTexture() noexcept = default;
 
-    constexpr VertexPositionTextureTexture(const Vector3& position, const Vector2& texture0, const Vector2& texture1)
+    constexpr VertexPositionTextureTexture(const Vector3& position, const Vector2& texture0, const Vector2& texture1) noexcept
       : Position(position)
       , TextureCoordinate0(texture0)
       , TextureCoordinate1(texture1)

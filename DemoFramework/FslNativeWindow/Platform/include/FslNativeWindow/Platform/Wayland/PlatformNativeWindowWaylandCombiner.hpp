@@ -57,7 +57,7 @@ namespace Fsl
       {
         if (func2)
         {
-          return std::bind(CombineCallbackNativeWindowWaylandDestroy, _1, func1, func2);
+          return [=](auto&& arg1) { return CombineCallbackNativeWindowWaylandDestroy(arg1, func1, func2); };
         }
         return func1;
       }
@@ -90,7 +90,9 @@ namespace Fsl
       {
         if (func2)
         {
-          return std::bind(CombineCallbackNativeWindowWaylandResize, _1, _2, _3, _4, _5, func1, func2);
+          return [=](auto&& arg1, auto&& arg2, auto&& arg3, auto&& arg4, auto&& arg5) {
+            return CombineCallbackNativeWindowWaylandResize(arg1, arg2, arg3, arg4, arg5, func1, func2);
+          };
         }
 
         return func1;

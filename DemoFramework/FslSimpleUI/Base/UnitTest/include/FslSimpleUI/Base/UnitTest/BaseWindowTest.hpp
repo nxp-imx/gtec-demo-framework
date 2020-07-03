@@ -68,11 +68,11 @@ namespace Fsl
         return m_callId;
       }
 
-      BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags = WindowFlags());
+      explicit BaseWindowTest(const std::shared_ptr<BaseWindowContext>& context, const WindowFlags& windowFlags = WindowFlags());
 
       void WinInit() override;
       bool WinMarkLayoutAsDirty() override;
-      Rect WinGetContentRect() const override;
+      const PxRectangle& WinGetContentPxRectangle() const override;
       void WinHandleEvent(const RoutedEvent& routedEvent) override;
       void WinUpdate(const DemoTime& demoTime) override;
       void WinResolve(const DemoTime& demoTime) override;
@@ -84,8 +84,8 @@ namespace Fsl
       void OnSelect(const RoutedEventArgs& args, const std::shared_ptr<WindowSelectEvent>& theEvent) override;
       void OnContentChanged(const RoutedEventArgs& args, const std::shared_ptr<WindowContentChangedEvent>& theEvent) override;
 
-      Vector2 ArrangeOverride(const Vector2& finalSize) override;
-      Vector2 MeasureOverride(const Vector2& availableSize) override;
+      PxSize2D ArrangeOverride(const PxSize2D& finalSizePx) override;
+      PxSize2D MeasureOverride(const PxAvailableSize& availableSizePx) override;
       void OnPropertiesUpdated(const PropertyTypeFlags& flags) override;
     };
   }

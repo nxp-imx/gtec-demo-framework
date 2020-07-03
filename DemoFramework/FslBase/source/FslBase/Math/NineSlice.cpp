@@ -34,8 +34,8 @@
 
 namespace Fsl
 {
-  NineSlice::NineSlice(const int32_t sliceFromTopLeftX, const int32_t sliceFromTopLeftY, const int32_t sliceFromBottomRightX,
-                       const int32_t sliceFromBottomRightY)
+  NineSlice::NineSlice(const value_type sliceFromTopLeftX, const value_type sliceFromTopLeftY, const value_type sliceFromBottomRightX,
+                       const value_type sliceFromBottomRightY)
     : m_sliceFromTopLeftX(sliceFromTopLeftX)
     , m_sliceFromTopLeftY(sliceFromTopLeftY)
     , m_sliceFromBottomRightX(sliceFromBottomRightX)

@@ -41,7 +41,7 @@ namespace Fsl
     {
       uint32_t Value;
 
-      EncodedVulkanVersion(const uint32_t value)
+      explicit EncodedVulkanVersion(const uint32_t value)
       {
         Value = value;
       }
