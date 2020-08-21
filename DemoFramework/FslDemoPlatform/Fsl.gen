@@ -11,7 +11,6 @@
       <Dependency Name="Platform.Android.Glue" Access="Private"/>
       <Dependency Name="Platform.Android.NDKHelper" Access="Private"/>
       <Dependency Name="Platform.Android.JNIUtil" Access="Private"/>
-      <Dependency Name="half" Access="Private"/>
     </Platform>
     <Platform Name="Ubuntu"/>
     <Platform Name="QNX"/>

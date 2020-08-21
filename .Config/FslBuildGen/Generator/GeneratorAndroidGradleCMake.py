@@ -303,6 +303,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
                                  cmakePackageRootVariables: str) -> Callable[[str], str]:
         androidHome = AndroidUtil.GetSDKPath()
         androidNDK = AndroidUtil.GetNDKPath()
+        ndkVersion  = AndroidUtil.GetNDKVersion()
         androidNDKForProp = self.__ToPropPath(androidNDK)
         androidHomeForProp = self.__ToPropPath(androidHome)
 
@@ -347,6 +348,7 @@ class GeneratorAndroidGradleCMake(GeneratorBase):
         templateFileProcessor.Environment.Set("##FSL_PACKAGE_GLES_VERSION##", appPackageTemplateInfo.MinGLESVersion)
         templateFileProcessor.Environment.Set("##FSL_PACKAGE_MIN_ANDROID_SDK_VERSION##", appPackageTemplateInfo.MinSDKVersion.VersionString)
         templateFileProcessor.Environment.Set("##FSL_PACKAGE_TARGET_ANDROID_SDK_VERSION##", appPackageTemplateInfo.TargetSDKVersion.VersionString)
+        templateFileProcessor.Environment.Set("##FSL_NDK_VERSION##", ndkVersion)
         templateFileProcessor.Environment.Set("##PACKAGE_APP_PLATFORM##", appPackageTemplateInfo.MinSDKVersion.AppPlatform)
         templateFileProcessor.Environment.Set("##PACKAGE_VARIANT_ANDROID_ABIS##", packageVariantGradleAndroidABIList)
         templateFileProcessor.Environment.Set("##PREFIXED_PROJECT_NAME##", appPackageTemplateInfo.PrefixedProjectName)

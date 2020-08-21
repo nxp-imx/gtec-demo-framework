@@ -1,4 +1,9 @@
 @echo off
+
+if not defined FSL_CI_FEATURES (
+set FSL_CI_FEATURES=[EarlyAccess,EGL,G2D,OpenCL1.2,GoogleUnitTest,OpenCV,OpenCV4,OpenGLES2,OpenGLES3,OpenGLES3.1,OpenVG,OpenVX,OpenVX1.1]
+)
+
 call "%WORKSPACE%\.Config\Jenkins\windows\PrepareJenkinsEnvironment.bat"
 if %errorlevel% neq 0 (
   exit /b %errorlevel%

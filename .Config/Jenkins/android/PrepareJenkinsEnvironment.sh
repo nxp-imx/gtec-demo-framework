@@ -37,6 +37,12 @@ export FSL_GRAPHICS_SDK=$WORKSPACE
 export FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR=$FSL_GRAPHICS_SDK/Android
 export FSL_PLATFORM_NAME=Android
 
+
+echo Ensuring dirs exist
+mkdir -p $FSL_GRAPHICS_SDK_THIRD_PARTY_LIBS_DIR
+mkdir -p $FSL_GRAPHICS_SDK_ANDROID_PROJECT_DIR
+
+echo Setting up DemoFramework
 source prepare.sh  
 
 export FSL_TEST_REPORTS=$WORKSPACE/.Reports/UnitTests
@@ -44,4 +50,6 @@ export FSL_TEST_REPORTS=$WORKSPACE/.Reports/UnitTests
 # Since a specific executor can run build multiple version of the %JOB_NAME% and there is no way 
 # to get information about that to create a unique directory name based on 'JOB_NAME' 'EXECUTOR_NUMBER' and this 'magic workspace #'
 # we force claim the install area instead bypassing a security check
+echo Claiming persistent cache
 FslBuildExternal.py --ForceClaimInstallArea --VoidBuild
+echo Prepare done

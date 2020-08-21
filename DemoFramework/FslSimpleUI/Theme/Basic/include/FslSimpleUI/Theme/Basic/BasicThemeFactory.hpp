@@ -219,12 +219,14 @@ namespace Fsl
           return CreateLabel(StringViewLiteUtil::AsStringViewLite(str));
         }
 
+
         // ----- CreateFmtValueLabel
 
         template <typename TValue>
         std::shared_ptr<FmtValueLabel<TValue>> CreateFmtValueLabel(const TValue value)
         {
           auto label = std::make_shared<FmtValueLabel<TValue>>(m_context);
+          UpdateLabelColor(*label);
           label->SetContent(value);
           label->FinishAnimation();
           return label;
@@ -534,6 +536,10 @@ namespace Fsl
 
         std::shared_ptr<BackgroundNineSlice> CreateBottomBar(const BarType barType = BarType::Normal);
         std::shared_ptr<BackgroundNineSlice> CreateBottomBar(const std::shared_ptr<BaseWindow>& content, const BarType barType = BarType::Normal);
+
+      private:
+        static void UpdateLabelColor(LabelBase& rLabel);
+
       };
     }
   }

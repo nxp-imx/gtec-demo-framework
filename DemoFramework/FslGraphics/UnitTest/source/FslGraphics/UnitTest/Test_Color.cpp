@@ -87,7 +87,7 @@ namespace
     uint32_t r = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.R()))), 0u, 255u);
     uint32_t g = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.G()))), 0u, 255u);
     uint32_t b = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.B()))), 0u, 255u);
-    uint32_t a = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * float(color.A()))), 0u, 255u);
+    uint32_t a = MathHelper::Clamp(static_cast<uint32_t>(std::round(alpha * 255.0f)), 0u, 255u);
     return {r, g, b, a};
   }
 

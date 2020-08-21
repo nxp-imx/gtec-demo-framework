@@ -139,7 +139,7 @@ namespace Fsl
     void GenerateRandomTexture(GLTexture& rTexture, const int32_t width, const BitmapOrigin /*bitmapOrigin*/)
     {
       std::mt19937 random;
-      Bitmap bitmap(width, 1, PixelFormat::R8G8B8A8_UNORM);
+      Bitmap bitmap(width, 1, PixelFormat::R8G8B8A8_UNORM, BitmapOrigin::LowerLeft);
 
       std::uniform_int_distribution<uint16_t> randomVal(0, 255);
 

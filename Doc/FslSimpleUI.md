@@ -27,8 +27,8 @@ For example
 
 UI system | Physical size| Density independent 'pixel'
 ----------|--------------|-----------------------------
-[Android](https://material.io/design/layout/pixel-density.html#density-independence) | 1/160 inch | 1dp at 160dpi is equal to one pixel, 1 dp at 640dpi is equal to four pixels.
-[Wpf](https://material.io/design/layout/pixel-density.html#density-independence)     | 1/96 inch  | 1px at 96dpi is qual to one pixel, 1px at 384dpi is equal to four pixels.
+[Android](https://material.io/design/layout/pixel-density.html#pixel-density-on-android) | 1/160 inch | 1dp at 160dpi is equal to one pixel, 1 dp at 640dpi is equal to four pixels.
+[Wpf](https://docs.microsoft.com/en-us/dotnet/api/system.windows.frameworkelement.width?view=netcore-3.1)     | 1/96 inch  | 1px at 96dpi is qual to one pixel, 1px at 384dpi is equal to four pixels.
 
 By representing the UI as having a physical size it will ensure that its elements are of the same physical size no matter what screen DPI you use it on.
 

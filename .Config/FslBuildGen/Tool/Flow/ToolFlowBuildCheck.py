@@ -226,6 +226,11 @@ class ToolFlowBuildCheck(AToolAppFlow):
 
         # Get the platform and see if its supported
         buildVariantConfig = BuildVariantConfigUtil.GetBuildVariantConfig(localToolConfig.BuildVariantsDict)
+        if applyClangTidy and config.ToolConfig.CMakeConfiguration is not None:
+            # Disable allow find package for the build checks for now as we dont use cmake for those
+            # We basically have to update the tidy pass to utilize ninja+cmake for the tidy pass so that find_package will work
+            config.LogPrintVerbose(2, "Force disabling 'AllowFindPackage'")
+            config.ToolConfig.CMakeConfiguration.SetAllowFindPackage(False)
         generator = self.ToolAppContext.PluginConfigContext.GetGeneratorPluginById(localToolConfig.PlatformName, localToolConfig.Generator,
                                                                                    buildVariantConfig, False, config.ToolConfig.CMakeConfiguration,
                                                                                    localToolConfig.GetUserCMakeConfig())

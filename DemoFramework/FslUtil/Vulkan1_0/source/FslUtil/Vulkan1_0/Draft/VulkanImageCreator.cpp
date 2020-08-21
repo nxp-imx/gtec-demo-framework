@@ -73,6 +73,22 @@ namespace Fsl
         return ImageView(device, imageViewCreateInfo);
       }
 
+      inline TextureInfo GetTextureInfo(const RawBitmap& src)
+      {
+        return {1u, 1u, 1u};
+      }
+
+      inline TextureInfo GetTextureInfo(const Bitmap& src)
+      {
+        return {1u, 1u, 1u};
+      }
+
+      template <typename T>
+      inline TextureInfo GetTextureInfo(const T& src)
+      {
+        return src.GetTextureInfo();
+      }
+
       template <typename T>
       inline VUImageMemoryView DoCreateImage(const VUPhysicalDeviceRecord& physicalDevice, RapidVulkan::CommandBuffer& rCommandBuffer,
                                              const VkQueue queue, const T& src, const TextureType textureType, const std::string& name,
@@ -85,8 +101,7 @@ namespace Fsl
         VulkanImageCreatorUtil::Create(image, memory, physicalDevice, rCommandBuffer.GetDevice(), queue, rCommandBuffer.Get(), src, accessMask,
                                        imageUsageFlags);
 
-        const TextureInfo info(1, 1, 1);
-        auto imageView = CreateImageView(rCommandBuffer.GetDevice(), image.Get(), image.GetFormat(), textureType, info);
+        auto imageView = CreateImageView(rCommandBuffer.GetDevice(), image.Get(), image.GetFormat(), textureType, GetTextureInfo(src));
 
         return VUImageMemoryView(std::move(image), std::move(memory), std::move(imageView), name);
       }

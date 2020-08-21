@@ -233,7 +233,7 @@ namespace Fsl
       auto r = MathHelper::Clamp(static_cast<uint32_t>((alpha * float(color.R())) + roundMagic), 0u, 255u);
       auto g = MathHelper::Clamp(static_cast<uint32_t>((alpha * float(color.G())) + roundMagic), 0u, 255u);
       auto b = MathHelper::Clamp(static_cast<uint32_t>((alpha * float(color.B())) + roundMagic), 0u, 255u);
-      auto a = MathHelper::Clamp(static_cast<uint32_t>((alpha * float(color.A())) + roundMagic), 0u, 255u);
+      auto a = MathHelper::Clamp(static_cast<uint32_t>((alpha * 255.0f) + roundMagic), 0u, 255u);
       return {static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), uint8_t(a)};
     }
 

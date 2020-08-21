@@ -3,6 +3,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 apply plugin: 'com.android.application'
 
 android {
+    ndkVersion "##FSL_NDK_VERSION##"
     compileSdkVersion ##FSL_PACKAGE_TARGET_ANDROID_SDK_VERSION##
     defaultConfig {
         applicationId "com.freescale.##PREFIXED_PROJECT_NAME_L##.##PACKAGE_TARGET_NAME##"

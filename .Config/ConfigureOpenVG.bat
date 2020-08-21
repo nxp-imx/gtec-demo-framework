@@ -6,7 +6,7 @@ if /i %1==ref goto BACKEND_REF
   goto BACKEND_REF
 
 :BACKEND_REF
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenVG_Reference.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenVG_Reference.bat"
   goto EXIT
 
 :EXIT

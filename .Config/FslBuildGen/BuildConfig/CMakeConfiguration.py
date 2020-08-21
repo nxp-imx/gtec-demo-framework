@@ -62,3 +62,7 @@ class CMakeConfiguration(object):
     def TryGetPlatformConfig(self, platformName: str) -> Optional[CMakeConfigurationPlatform]:
         platformId = platformName.lower()
         return self.__PlatformDict[platformId] if platformId in self.__PlatformDict else None
+
+    def SetAllowFindPackage(self, enabled: bool) -> None:
+        for entry in self.__PlatformDict.values():
+            entry.AllowFindPackage = enabled

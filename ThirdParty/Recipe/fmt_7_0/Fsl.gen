@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FslBuildGen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../FslBuildGen.xsd">
-  <ExternalLibrary Name="Recipe.fmt_6_2" CreationYear="2019">
+  <ExternalLibrary Name="Recipe.fmt_7_0" CreationYear="2019">
     <Default.Platform.Supported Value="false"/>
 
     <Platform Name="Android;Ubuntu;QNX" Supported="true">
-      <ExperimentalRecipe Name="fmt" Version="6.2.1" Find="True">
+      <ExperimentalRecipe Name="fmt" Version="7.0.1" Find="True">
         <Pipeline>
-          <Download URL="https://github.com/fmtlib/fmt/archive/6.2.1.zip" To="fmt-6.2.1.zip" Hash="36485a8b409579db7318bb7328380e5fb610e6f1e5be2734be284c8935618a3e"/> 
-          <Unpack File="fmt-6.2.1.zip" OutputPath="fmt-6.2.1"/>
+          <Download URL="https://github.com/fmtlib/fmt/archive/7.0.2.zip" To="fmt-7.0.2.zip" Hash="c4fef44e41aecdbd01127a708219c78c517b4107e67fd4e6e7dcc3009e05782e"/> 
+          <Unpack File="fmt-7.0.2.zip" OutputPath="fmt-7.0.2"/>
           <CMakeBuild Project="fmt" Target="install" Configuration="release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>
@@ -20,10 +20,10 @@
     </Platform>
     
     <Platform Name="Windows" Supported="true">
-      <ExperimentalRecipe Name="fmt" Version="6.2.1" Find="True">
+      <ExperimentalRecipe Name="fmt" Version="7.0.2" Find="True">
         <Pipeline>
-          <Download URL="https://github.com/fmtlib/fmt/archive/6.2.1.zip" To="fmt-6.2.1.zip" Hash="36485a8b409579db7318bb7328380e5fb610e6f1e5be2734be284c8935618a3e"/> 
-          <Unpack File="fmt-6.2.1.zip" OutputPath="fmt-6.2.1"/>
+          <Download URL="https://github.com/fmtlib/fmt/archive/7.0.2.zip" To="fmt-7.0.2.zip" Hash="c4fef44e41aecdbd01127a708219c78c517b4107e67fd4e6e7dcc3009e05782e"/> 
+          <Unpack File="fmt-7.0.2.zip" OutputPath="fmt-7.0.2"/>
           <CMakeBuild Project="fmt" Target="install" Configuration="debug;release" Options="-DFMT_DOC=OFF -DFMT_TEST=OFF" OutputPath="_Install"/>
         </Pipeline>
         <Installation>

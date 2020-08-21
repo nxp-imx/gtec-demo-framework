@@ -1,5 +1,8 @@
 # Latest version
 
+* Upgraded FMT from 6.2 to 7.0.
+
+## Release 5.6.0
 * Renamed the new UIDemoAppExtension2 to UIDemoAppExtension as it has now replaced the former UIDemoAppExtension which is now called UIDemoAppLegacyExtension.
 * **Breaking change** Renamed UIDemoAppExtension to UIDemoAppLegacyExtension.
 * Downgraded ninja from 1.9.0 to 1.8.2 for better default compatibility with Ubuntu 18.04

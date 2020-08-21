@@ -577,28 +577,29 @@ class PerformClangTidyHelper2(object):
 
         RunHelper.RunNinja(log, ninjaExeInfo, ninjaOutputFile, currentWorkingDirectory, numBuildThreads, logOutput)
 
-        log.LogPrint("Checking for tidy fixes.")
+        if performClangTidyConfig.Repair:
+            log.LogPrint("Checking for tidy fixes.")
 
-        # Since we delete all yaml files on startup we dont need the more advanced version
-        unusedFixes = [] # type: List[str]
-        if useWorkAround:
-            foundFixes = PerformClangTidyHelper2.FindFixesSimple(log, clangTidyFixOutputFolder)
-        else:
-            foundFixes, unusedFixes = PerformClangTidyHelper2.FindFixes(log, clangTidyFixOutputFolder, outputFolders)
+            # Since we delete all yaml files on startup we dont need the more advanced version
+            unusedFixes = [] # type: List[str]
+            if useWorkAround:
+                foundFixes = PerformClangTidyHelper2.FindFixesSimple(log, clangTidyFixOutputFolder)
+            else:
+                foundFixes, unusedFixes = PerformClangTidyHelper2.FindFixes(log, clangTidyFixOutputFolder, outputFolders)
 
-        if len(foundFixes) > 0:
-            log.LogPrint("Applying tidy {0} fixes.".format(len(foundFixes)))
-            if not useWorkAround:
-                # we delete the unused fixes as they might be from a earlier run on a different package set
-                PerformClangTidyHelper2.DeleteFixes(log, clangTidyFixOutputFolder, unusedFixes)
-            PerformClangTidyHelper2.ApplyFixes(log, clangTidyApplyReplacementsExeInfo, clangTidyFixOutputFolder, foundFixes,
-                                               currentWorkingDirectory, logOutput)
-            # since clang-apply-replacements doesnt 'remove' the applied fixes we need to delete the yaml files :(
-            # but we do that on launch
-            #if useWorkAround:
-            #    PerformClangTidyHelper2.DeleteFixes(log, clangTidyFixOutputFolder, foundFixes)
-        else:
-            log.LogPrint("No fixes found")
+            if len(foundFixes) > 0:
+                log.LogPrint("Applying tidy {0} fixes.".format(len(foundFixes)))
+                if not useWorkAround:
+                    # we delete the unused fixes as they might be from a earlier run on a different package set
+                    PerformClangTidyHelper2.DeleteFixes(log, clangTidyFixOutputFolder, unusedFixes)
+                PerformClangTidyHelper2.ApplyFixes(log, clangTidyApplyReplacementsExeInfo, clangTidyFixOutputFolder, foundFixes,
+                                                   currentWorkingDirectory, logOutput)
+                # since clang-apply-replacements doesnt 'remove' the applied fixes we need to delete the yaml files :(
+                # but we do that on launch
+                #if useWorkAround:
+                #    PerformClangTidyHelper2.DeleteFixes(log, clangTidyFixOutputFolder, foundFixes)
+            else:
+                log.LogPrint("No fixes found")
 
         return totalProcessedCount
 
@@ -767,8 +768,13 @@ class PerformClangTidyHelper2(object):
                         )
 
             tidyChecks = "" if customChecks is None else "--checks ${0} ".format(PerformClangTidyHelper2.VAR_CUSTOM_CHECKS)
-            tidyCommand = "{0} $in --export-fixes=${1} {2}-- {3}".format(clangTidyExeInfo.Command, PerformClangTidyHelper2.VAR_YAML_FILE,
-                                                                         tidyChecks, compilerArguments)
+            tidyCommand = ""
+            if performClangTidyConfig.Repair:
+                tidyCommand = "{0} $in --export-fixes=${1} {2}-- {3}".format(clangTidyExeInfo.Command, PerformClangTidyHelper2.VAR_YAML_FILE,
+                                                                             tidyChecks, compilerArguments)
+            else:
+                tidyCommand = "{0} $in {1}-- {2}".format(clangTidyExeInfo.Command, tidyChecks, compilerArguments)
+
             writer.rule(name=PerformClangTidyHelper2.RULE_TIDY,
                         command=tidyCommand,
                         #rspfile="$out.rsp",

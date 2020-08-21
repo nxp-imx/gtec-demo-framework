@@ -828,11 +828,12 @@ class PackageResolver(object):
             return
 
         isCMakeBuild = self.__GeneratorInfo.IsCMakeGenerator
+        allowFindPackage = self.__GeneratorInfo.AllowFindPackage
         for command in commandList:
             if command.CommandType == BuildRecipeValidateCommand.AddHeaders:
                 if not isinstance(command, XmlRecipeValidateCommandAddHeaders):
                     raise Exception("Invalid command type")
-                if not isCMakeBuild or not sourceRecipe.AllowFind:
+                if not isCMakeBuild or not allowFindPackage or not sourceRecipe.AllowFind:
                     processedEntry = self.__CreateExternalHeadersDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
                     self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
                     if basicConfig.Verbosity >= 2:
@@ -844,7 +845,7 @@ class PackageResolver(object):
             elif command.CommandType == BuildRecipeValidateCommand.AddLib:
                 if not isinstance(command, XmlRecipeValidateCommandAddLib):
                     raise Exception("Invalid command type")
-                if not isCMakeBuild or not sourceRecipe.AllowFind:
+                if not isCMakeBuild or not allowFindPackage or not sourceRecipe.AllowFind:
                     processedEntry = self.__CreateExternalStaticLibDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
                     self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
                     if basicConfig.Verbosity >= 2:
@@ -859,7 +860,7 @@ class PackageResolver(object):
             elif command.CommandType == BuildRecipeValidateCommand.AddDLL:
                 if not isinstance(command, XmlRecipeValidateCommandAddDLL):
                     raise Exception("Invalid command type")
-                if not isCMakeBuild or not sourceRecipe.AllowFind:
+                if not isCMakeBuild or not allowFindPackage or not sourceRecipe.AllowFind:
                     processedEntry = self.__CreateExternalDLLDependency(basicConfig, pathBuilder, package, sourceRecipe, command)
                     self.__ResolveAdd(package, processedEntry, rAllDict, rPublicList, rPrivateList)
                     if basicConfig.Verbosity >= 2:

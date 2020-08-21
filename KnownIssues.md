@@ -71,3 +71,8 @@ The new cross platform camera API.
 - Camera support is limited.
 - i.MX8 MIPI Camera always provides the data in a B8G8R8X8 format (even if you request a R8G8B8), fixed the camera adapter to consider the 32bpp format.
 - Some of the camera adapters do not obey our origin request so the image is upside down
+
+## FslSimpleUI
+
+- ImageSprite's with trim does not handle scaling of the trimmed area correctly. Meaning it might be off with a couple of pixels compared to the non-trimmed version (Fixed in 5.7.0).
+- NineSliceSprite's with trim does not handle scaling of the trimmed area correctly. Meaning it might be off with a couple of pixels compared to the non-trimmed version (Fixed in 5.7.0).

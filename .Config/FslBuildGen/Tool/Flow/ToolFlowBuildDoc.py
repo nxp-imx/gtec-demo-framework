@@ -124,6 +124,7 @@ def TocEntryName(line: str) -> str:
 def TocEntryLink(line: str) -> str:
     line = line.strip()
     line = line.replace(' ', '-')
+    line = line.replace('.', '')
     line = line.lower()
     return line
 
@@ -529,11 +530,8 @@ def ProcessPackages(toolAppContext: ToolAppContext, config: Config, packages: Li
                 exampleImagePath = IOUtil.Join(package.AbsolutePath, "Example.jpg")
                 if IOUtil.IsFile(exampleImagePath):
                     exampleImagePath = exampleImagePath[len(rootDir.ResolvedPath)+1:]
-                    #result.append('<a href="{0}">'.format(packageDir))
-                    result.append('<a href="{0}">'.format(exampleImagePath))
-                    #result.append('<img src="{0}" height="108px" style="float:right;clear:both;display:table;margin:1px">'.format(exampleImagePath))
-                    result.append('<img src="{0}" height="108px">'.format(exampleImagePath))
-                    result.append('</a>')
+                    result.append("")
+                    result.append('<a href="{0}"><img src="{0}" height="108px" title="{1}"></a>'.format(exampleImagePath, package.Name))
                     result.append("")
 
                 readmePath = IOUtil.Join(package.AbsolutePath, "README.md")

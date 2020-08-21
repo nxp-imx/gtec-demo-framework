@@ -28,6 +28,7 @@
     <Platform Name="Windows" ProjectId="0552A8CE-DC30-4694-9E5F-60DF9545EA79">
       <Dependency Name="DevIL" Access="Private"/>    
       <Dependency Name="gli" Access="Private"/>
+      <!--Dependency Name="half" Access="Private"/-->
     </Platform>
   </Library>
 </FslBuildGen>

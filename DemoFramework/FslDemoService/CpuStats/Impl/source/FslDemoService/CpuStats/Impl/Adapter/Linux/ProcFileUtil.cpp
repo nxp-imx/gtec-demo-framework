@@ -82,7 +82,7 @@ namespace Fsl
           break;
         case CPUParseState::ParseCPULine:
         {
-          std::size_t written;
+          std::size_t written = 0;
           if (fileParser.TryReadLineUntil(written, file, lineBuffer.data(), lineBuffer.size() - 1, ' ') && written > 0)
           {
             // zero terminate by appending a zero (which we always reserved room for above)
@@ -136,6 +136,7 @@ namespace Fsl
             parseState = CPUParseState::ParseCPULineDone;
           }
           break;
+        }
         case CPUParseState::ParseCPULineSkipSpace:
           fileParser.TrySkipCharacter(file, ' ');
           parseState = CPUParseState::ParseCPULine;
@@ -150,7 +151,6 @@ namespace Fsl
           parseState = CPUParseState::FindNextLine;
           parseIndex = 0u;
           break;
-        }
         default:
           throw NotSupportedException("unsupported parse state");
         }
@@ -192,7 +192,7 @@ namespace Fsl
           break;
         case RAMParseState::ParseVmRSSLine:
         {
-          std::size_t written;
+          std::size_t written = 0;
           if (fileParser.TryReadLineUntil(written, file, lineBuffer.data(), lineBuffer.size() - 1, ' ', true) && written > 0)
           {
             // zero terminate by appending a zero (which we always reserved room for above)
@@ -250,6 +250,7 @@ namespace Fsl
             parseState = RAMParseState::ParseVmRSSLineFailed;
           }
           break;
+        }
         case RAMParseState::ParseVmRSSLineSkipWhitespaces:
           fileParser.TrySkipCharacter(file, ' ');
           parseState = RAMParseState::ParseVmRSSLine;
@@ -262,7 +263,6 @@ namespace Fsl
         }
         case RAMParseState::ParseVmRSSLineFailed:
           return false;
-        }
         default:
           throw NotSupportedException("unsupported parse state");
         }

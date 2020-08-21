@@ -80,15 +80,23 @@ namespace Fsl
           constexpr const Color SwitchBackground(0xFF9a9999);
 
           constexpr const Color BarColor(0xFF303030);
-          constexpr const Color TransparentBarColor(Color::Premultiply(BarColor, 0.85f));
 
           constexpr const Color PrimaryDark(0xFF004BA0);
           // constexpr const Color FontOnPrimaryDark(0xFFFFFFFF);
 
-          constexpr const Color FontOnPrimaryDisabled(Color::Premultiply(Palette::FontOnPrimary, DisabledOpacity));
-          constexpr const Color PrimaryDisabled(Color::Premultiply(Palette::Primary, DisabledOpacity));
-
           constexpr const Color ImageOnPrimary = Color::White();
+        }
+
+        namespace Bar
+        {
+          constexpr const Color Normal(Color::Premultiply(Palette::BarColor));
+          constexpr const Color Transparent(Color::Premultiply(Palette::BarColor, 0.85f));
+        }
+
+        namespace DefaultFont
+        {
+          constexpr const Color Primary(Color::Premultiply(Palette::FontOnPrimary));
+          constexpr const Color PrimaryDisabled(Color::Premultiply(Palette::FontOnPrimary, DisabledOpacity));
         }
 
 
@@ -97,12 +105,13 @@ namespace Fsl
           constexpr const Color BackgroundHoverUp(Color::Premultiply(Palette::Primary));
           constexpr const Color BackgroundUp(Color::Premultiply(Palette::Primary));
           constexpr const Color BackgroundDown(Color::Premultiply(Palette::Primary, ButtonDownAlpha));
-          constexpr const Color BackgroundDisabled(Palette::PrimaryDisabled);
+          constexpr const Color BackgroundDisabled(Color::Premultiply(Palette::Primary, DisabledOpacity));
           constexpr const Color BackgroundHoverOverlayUp(Color::PremultiplyRGB(Palette::Primary, 0.10f, 0));
           constexpr const Color BackgroundHoverOverlayDown(Color::PremultiplyRGB(Palette::Primary, 0.08f, 0));
 
           constexpr const Color FontUp(Color::Premultiply(Palette::FontOnPrimary));
           constexpr const Color FontDown(Color::Premultiply(Palette::FontOnPrimary, ButtonDownAlpha));
+          constexpr const Color FontDisabled(Color::Premultiply(Palette::FontOnPrimary, DisabledOpacity));
 
           constexpr const Color OutlineFontUp(Color::Premultiply(Palette::ButtonOutlineFont));
           constexpr const Color OutlineFontDown(Color::Premultiply(Palette::ButtonOutlineFont, ButtonDownAlpha));
@@ -123,8 +132,8 @@ namespace Fsl
           constexpr const Color BackgroundCheckedDisabled(Color::Premultiply(Palette::Primary, DisabledOpacity));
           constexpr const Color BackgroundUnchecked(Color::Premultiply(Palette::RadioButtonBackground));
           constexpr const Color BackgroundUncheckedDisabled(Color::Premultiply(Palette::RadioButtonBackground, DisabledOpacity));
-          constexpr const Color CheckedFont(Palette::FontOnPrimary);
-          constexpr const Color UncheckedFont(Palette::FontOnPrimary);
+          constexpr const Color CheckedFont(Color::Premultiply(Palette::FontOnPrimary));
+          constexpr const Color UncheckedFont(Color::Premultiply(Palette::FontOnPrimary));
         }
 
         namespace ImageButton
@@ -132,7 +141,7 @@ namespace Fsl
           constexpr const Color BackgroundHoverUp(Color::Premultiply(Palette::Primary, 1.10f));
           constexpr const Color BackgroundUp(Color::Premultiply(Palette::Primary));
           constexpr const Color BackgroundDown(Color::Premultiply(Palette::Primary, ButtonDownAlpha));
-          constexpr const Color BackgroundDisabled(Palette::PrimaryDisabled);
+          constexpr const Color BackgroundDisabled(Color::Premultiply(Palette::Primary, DisabledOpacity));
 
           constexpr const Color ImageUp(Color::Premultiply(Palette::ImageOnPrimary));
           constexpr const Color ImageDown(Color::Premultiply(Palette::ImageOnPrimary, ButtonDownAlpha));
@@ -153,8 +162,8 @@ namespace Fsl
           constexpr const Color BackgroundCheckedDisabled(Color::Premultiply(Palette::Primary, DisabledOpacity));
           constexpr const Color BackgroundUnchecked(Color::Premultiply(Palette::RadioButtonBackground));
           constexpr const Color BackgroundUncheckedDisabled(Color::Premultiply(Palette::RadioButtonBackground, DisabledOpacity));
-          constexpr const Color CheckedFont(Palette::FontOnPrimary);
-          constexpr const Color UncheckedFont(Palette::FontOnPrimary);
+          constexpr const Color CheckedFont(Color::Premultiply(Palette::FontOnPrimary));
+          constexpr const Color UncheckedFont(Color::Premultiply(Palette::FontOnPrimary));
         }
 
         // Switch
@@ -171,17 +180,17 @@ namespace Fsl
           constexpr const Color BackgroundUnchecked(Color::Premultiply(Palette::SwitchBackground));
           constexpr const Color BackgroundUncheckedDisabled(Color::Premultiply(Palette::SwitchBackground, DisabledOpacity));
 
-          constexpr const Color CheckedFont(Palette::FontOnPrimary);
-          constexpr const Color UncheckedFont(Palette::FontOnPrimary);
+          constexpr const Color CheckedFont(Color::Premultiply(Palette::FontOnPrimary));
+          constexpr const Color UncheckedFont(Color::Premultiply(Palette::FontOnPrimary));
         }
 
         // Slider
         namespace Slider
         {
           constexpr const Color Background(Color::Premultiply(Palette::Primary));
-          constexpr const Color BackgroundDisabled(Palette::PrimaryDisabled);
+          constexpr const Color BackgroundDisabled(Color::Premultiply(Palette::Primary, DisabledOpacity));
           constexpr const Color Cursor(Color::Premultiply(Palette::Primary));
-          constexpr const Color CursorDisabled(Palette::PrimaryDisabled);
+          constexpr const Color CursorDisabled(Color::Premultiply(Palette::Primary, DisabledOpacity));
           constexpr const Color HoverColor(Color::PremultiplyRGB(Palette::Primary, SliderHoverAlpha, 0));
         }
       }
@@ -261,10 +270,10 @@ namespace Fsl
           switch (type)
           {
           case BarType::Transparent:
-            return ThemeColor::Palette::TransparentBarColor;
+            return ThemeColor::Bar::Transparent;
           case BarType::Normal:
           default:
-            return ThemeColor::Palette::BarColor;
+            return ThemeColor::Bar::Normal;
           }
         }
       }
@@ -335,28 +344,28 @@ namespace Fsl
 
       Color BasicThemeFactory::GetThemePrimaryColor() const    // NOLINT(readability-convert-member-functions-to-static)
       {
-        return ThemeColor::Palette::Primary;
+        return Color::Premultiply(ThemeColor::Palette::Primary);
       }
 
       Color BasicThemeFactory::GetThemePrimaryDarkColor() const    // NOLINT(readability-convert-member-functions-to-static)
       {
-        return ThemeColor::Palette::PrimaryDark;
+        return Color::Premultiply(ThemeColor::Palette::PrimaryDark);
       }
 
       Color BasicThemeFactory::GetThemeSidebarColor() const    // NOLINT(readability-convert-member-functions-to-static)
       {
-        return ThemeColor::Palette::BarColor;
+        return ThemeColor::Bar::Normal;
       }
 
 
       Color BasicThemeFactory::GetThemeFontOnPrimaryColor() const
       {
-        return ThemeColor::Palette::FontOnPrimary;
+        return ThemeColor::DefaultFont::Primary;
       }
 
       Color BasicThemeFactory::GetThemeFontOnPrimaryDisabledColor() const
       {
-        return ThemeColor::Palette::FontOnPrimaryDisabled;
+        return ThemeColor::DefaultFont::PrimaryDisabled;
       }
 
 
@@ -371,8 +380,8 @@ namespace Fsl
       std::shared_ptr<UI::Label> BasicThemeFactory::CreateLabel(const StringViewLite& strView)
       {
         auto label = std::make_shared<UI::Label>(m_context);
+        UpdateLabelColor(*label);
         label->SetContent(strView);
-        label->SetFontDisabledColor(ThemeColor::Palette::FontOnPrimaryDisabled);
         label->FinishAnimation();
         return label;
       }
@@ -380,8 +389,8 @@ namespace Fsl
       std::shared_ptr<UI::Label> BasicThemeFactory::CreateLabel(std::string&& str)
       {
         auto label = std::make_shared<UI::Label>(m_context);
+        UpdateLabelColor(*label);
         label->SetContent(std::move(str));
-        label->SetFontDisabledColor(ThemeColor::Palette::FontOnPrimaryDisabled);
         label->FinishAnimation();
         return label;
       }
@@ -458,6 +467,7 @@ namespace Fsl
         newButton->SetContentAlignmentY(UI::ItemAlignment::Center);
         newButton->SetFontColorUp(ThemeColor::Button::FontUp);
         newButton->SetFontColorDown(ThemeColor::Button::FontDown);
+        newButton->SetFontColorDisabled(ThemeColor::Button::FontDisabled);
         // newButton->SetMinWidth(64);
         // newButton->SetMinHeight(36);
         switch (buttonType)
@@ -467,8 +477,6 @@ namespace Fsl
           newButton->SetBackgroundHoverOverlay(m_outlineButtonHoverSprite);
           newButton->SetBackgroundHoverOverlayColorUp(ThemeColor::Button::BackgroundHoverOverlayUp);
           newButton->SetBackgroundHoverOverlayColorDown(ThemeColor::Button::BackgroundHoverOverlayDown);
-          newButton->SetFontColorDown(ThemeColor::Button::BackgroundDown);
-          newButton->SetFontColorUp(ThemeColor::Button::BackgroundUp);
           newButton->SetFontColorDown(ThemeColor::Button::OutlineFontDown);
           newButton->SetFontColorUp(ThemeColor::Button::OutlineFontUp);
           newButton->SetFontColorDisabled(ThemeColor::Button::OutlineFontDisabled);
@@ -497,7 +505,6 @@ namespace Fsl
           newButton->SetBackground(m_containedButtonNormalSprite);
           newButton->SetBackgroundHover(m_containedButtonHoverSprite);
           newButton->SetBackgroundHoverOverlay(m_outlineButtonHoverSprite);
-          newButton->SetFontColorDisabled(ThemeColor::Palette::FontOnPrimaryDisabled);
           break;
         default:
           FSLLOG3_WARNING("Unknown button type {}, using default", static_cast<int>(buttonType));
@@ -551,7 +558,7 @@ namespace Fsl
         newControl->SetBackgroundUncheckedDisabledColor(ThemeColor::CheckBox::BackgroundUncheckedDisabled);
         newControl->SetFontCheckedkColor(ThemeColor::CheckBox::CheckedFont);
         newControl->SetFontUncheckColor(ThemeColor::CheckBox::UncheckedFont);
-        newControl->SetFontDisabledColor(ThemeColor::Palette::FontOnPrimaryDisabled);
+        newControl->SetFontDisabledColor(ThemeColor::DefaultFont::PrimaryDisabled);
 
         newControl->FinishAnimation();
         return newControl;
@@ -608,7 +615,7 @@ namespace Fsl
         newControl->SetBackgroundUncheckedDisabledColor(ThemeColor::RadioButton::BackgroundUncheckedDisabled);
         newControl->SetFontCheckedkColor(ThemeColor::RadioButton::CheckedFont);
         newControl->SetFontUncheckColor(ThemeColor::RadioButton::UncheckedFont);
-        newControl->SetFontDisabledColor(ThemeColor::Palette::FontOnPrimaryDisabled);
+        newControl->SetFontDisabledColor(ThemeColor::DefaultFont::PrimaryDisabled);
 
 
         newControl->FinishAnimation();
@@ -660,7 +667,7 @@ namespace Fsl
         newControl->SetBackgroundUncheckedDisabledColor(ThemeColor::Switch::BackgroundUncheckedDisabled);
         newControl->SetFontCheckedkColor(ThemeColor::Switch::CheckedFont);
         newControl->SetFontUncheckColor(ThemeColor::Switch::UncheckedFont);
-        newControl->SetFontDisabledColor(ThemeColor::Palette::FontOnPrimaryDisabled);
+        newControl->SetFontDisabledColor(ThemeColor::DefaultFont::PrimaryDisabled);
 
         newControl->FinishAnimation();
         return newControl;
@@ -809,6 +816,12 @@ namespace Fsl
         background->SetContent(content);
         background->FinishAnimation();
         return background;
+      }
+
+      void BasicThemeFactory::UpdateLabelColor(LabelBase& rLabel)
+      {
+        rLabel.SetFontColor(ThemeColor::DefaultFont::Primary);
+        rLabel.SetFontDisabledColor(ThemeColor::DefaultFont::PrimaryDisabled);
       }
     }
   }

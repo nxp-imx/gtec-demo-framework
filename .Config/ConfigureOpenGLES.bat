@@ -13,31 +13,31 @@ if /i %1==vivante goto BACKEND_VIVANTE
   goto BACKEND_ARM
 
 :BACKEND_ARM
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Arm.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Arm.bat"
   goto EXIT
 
 :BACKEND_ANGLE
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Angle.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Angle.bat"
   goto EXIT
 
 :BACKEND_POWERVR
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_PowerVR.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_PowerVR.bat"
   goto EXIT
 
 :BACKEND_POWERVR_FRAME
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_PowerVR_Frame.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_PowerVR_Frame.bat"
   goto EXIT
   
 :BACKEND_POWERVR_TRACE
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_PowerVR_Trace.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_PowerVR_Trace.bat"
   goto EXIT
 
 :BACKEND_QUALCOMM
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Qualcomm.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Qualcomm.bat"
   goto EXIT
 
 :BACKEND_VIVANTE
-  call %FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Vivante.bat
+  call "%FSL_GRAPHICS_SDK%\.Config\Configure\ConfigureOpenGLES_Vivante.bat"
   goto EXIT
 
 :EXIT

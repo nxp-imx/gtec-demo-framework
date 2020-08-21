@@ -41,11 +41,10 @@ namespace
 {
   namespace LocalConfig
   {
-    // LocalConfig::FormatBeginRange has been removed from new vulkan headers, so default back to VK_FORMAT_UNDEFINED instead
+    // VK_FORMAT_BEGIN_RANGE has been removed from new vulkan headers, so default back to VK_FORMAT_UNDEFINED instead
     constexpr uint32_t FormatBeginRange = VK_FORMAT_UNDEFINED;
     constexpr uint32_t FormatEndRange = VK_FORMAT_ASTC_12x12_SRGB_BLOCK;
     constexpr uint32_t FormatRangeSize = (FormatEndRange - FormatBeginRange) + 1;
-
   }
 }
 
