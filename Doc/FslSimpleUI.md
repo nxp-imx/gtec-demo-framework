@@ -48,12 +48,26 @@ Taking a native 160dpi image and scaling it up to higher DPI's lead to severely 
 
 The first row is native 160dpi up-scaled, the second  is native 640dpi down-scaled and the third is native sized images.
 
-
 160 dpi | 320 dpi | 640 dpi
 --------|---------|--------
 ![image](./Images/FslSimpleUI/Scaling/Base160dpi.png "Native 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base160dpiScaledTo320dpi.png "160dpi scaled to 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base160dpiScaledTo640dpi.png "160dpi scaled to 640dpi")
 ![image](./Images/FslSimpleUI/Scaling/Base640dpiScaledTo160dpi.png "640dpi scaled to 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpiScaledTo320dpi.png "640dpi scaled to 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpi.png "Native 640dpi")
 ![image](./Images/FslSimpleUI/Scaling/Base160dpi.png "Native 160dpi")|![image](./Images/FslSimpleUI/Scaling/Base320dpi.png "Native 320dpi")|![image](./Images/FslSimpleUI/Scaling/Base640dpi.png "Native 640dpi")
+
+#### Animated example
+
+The animation below shows native vs the given scaling algorithm.
+
+Upscale bilinear | Upscale nearest | Downscale bilinear | Downscale nearest
+-----------------|-----------------|--------------------|-------------------
+![image](./Images/FslSimpleUI/Scaling/Anim/AnimNativeUpscaleBilinear.gif "Native vs upscale bilinear") | ![image](./Images/FslSimpleUI/Scaling/Anim/AnimNativeUpscaleNearest.gif "Native vs upscale nearest") | ![image](./Images/FslSimpleUI/Scaling/Anim/AnimNativeDownscaleBilinear.gif "Native vs downscale bilinear") | ![image](./Images/FslSimpleUI/Scaling/Anim/AnimNativeDownscaleNearest.gif "Native vs downscale nearest") |
+
+Lets zoom in a bit to make it even more clear
+
+Upscale bilinear | Upscale nearest | Downscale bilinear | Downscale nearest
+-----------------|-----------------|--------------------|-------------------
+![image](./Images/FslSimpleUI/Scaling/Anim/AnimScale4xZoomUpscaleBilinear.gif "Native vs upscale bilinear") | ![image](./Images/FslSimpleUI/Scaling/Anim/AnimScale4xZoomUpscaleNearest.gif "Native vs upscale nearest") | ![image](./Images/FslSimpleUI/Scaling/Anim/AnimScale4xZoomDownscaleBilinear.gif "Native vs downscale bilinear") | ![image](./Images/FslSimpleUI/Scaling/Anim/AnimScale4xZoomDownscaleNearest.gif "Native vs downscale nearest") |
+
 
 #### A strategy
 
@@ -94,6 +108,8 @@ A alternative choice is to use Signed Distance Field fonts (SDF) which scales a 
 The SDF fonts will appear 'sharp' in all resolutions, while the bitmap based one can be blurred.
 The above bitmap/SDF example is a **worst case comparison** as it up-scales the font images which produces the worst looking images, if you have multiple resolutions of the bitmap font available, then the scaling will often be of the downscale variant and it should rarely be scaled by as much as 200%.
 
+![image](./Images/FslSimpleUI/Fonts/AnimBitmapVsSDF_2x_4xZoom.gif "Bitmap vs SDF at 2x scale seen at 400% zoom")
+
 Rendering the actual font bitmaps with correct scaling and alignment to the font baseline is complex and all solutions have to make various sacrifices to ensure the rendered glyphs are as sharp as possible. The exact rendering and scaling issues will be examined closer in the "Pixel perfect rendering" section.
 
 Examples                                                       | Description
@@ -118,6 +134,10 @@ While the blurriness can be mostly removed by using a 'nearest' texture filter v
 
 A good test to see how well a custom UI handles scaling and pixel precision issues when rendering at 1:1 resolution is to replace all graphics with a red/blue checkerboard pattern as any issues will be clearly visible (linear filtering should be used as well to make it easier to spot).
 
+For good measure here is a animated comparison with native vs off by half a pixel in x (bilinear filtering).
+
+![image](./Images/FslSimpleUI/SubPixel/AnimXOffByHalfAPixel.gif "Pixel perfect vs off by half a pixel")
+
 #### Pixel perfect scaling
 
 The main rule is to ensure that the resulting image starts and ends at a full pixel. However if you animate the scaling, it might look more fluid with sub pixel precision. So it is often a good idea to differentiate between fixed scaling for static content and scaling done for animation.
@@ -133,7 +153,9 @@ Native                                                            |4x zoom
 ![image](./Images/UI.DpiScale/0A.png "Correct")  |![image](./Images/UI.DpiScale/0A_4x.png "Correct")
 ![image](./Images/UI.DpiScale/0B.png "Incorrect")|![image](./Images/UI.DpiScale/0B_4x.png "Incorrect")
 
-The blurring on the 0.5 sub-pixel rendering is obvious.
+The blurring on the 0.5 sub-pixel rendering is obvious.  
+
+![image](./Images/FslSimpleUI/SubPixel/AnimTextOffByHalfAPixel.gif "Pixel perfect vs off by half a pixel")
 
 Scaling text strings rendered with bitmap fonts is a bit tricky. Just scaling everything according to a scale factor and rendering it with sub pixel precision will lead to blurry text as each individual char is an image and any image rendered at a sub pixel position becomes blurry. So a ideal solution will produce a rendering string that is roughly the same pixel size as the 'naive' solution, while making sure each individual character starts and ends on a full pixel boundary.
 
@@ -148,6 +170,10 @@ Texture 160dpi scale 0.8375
 2|![image](./Images/UI.DpiScale/2H.png "Pixel perfect scaling")|![image](./Images/UI.DpiScale/2H_4x.png "Pixel perfect scaling")
 
 The second solution provides a less blurry rendering of the font but the height of each individual glyph might be slightly off. But since that applies to all texting being rendered with that font at the given size, it will probably be unnoticeable by most people.  See ```Vulkan.UI.DpiScale``` for more details.
+
+Here is an example animation of the basic scaling vs the pixel aware result:
+
+![image](./Images/FslSimpleUI/Fonts/AnimTextScaling.gif "Basic scaling vs pixel aware")
 
 #### Scrolling UI elements
 

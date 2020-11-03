@@ -1731,7 +1731,7 @@ namespace Fsl
     RAPIDOPENVX_CHECK(vxGetStatus((vx_reference)programObj));
 
     IO::Path contentPath = m_contentManager->GetContentPath();
-    std::string buildOptionStr = "-cl-viv-vx-extension -I ";
+    std::string buildOptionStr = "-cl-viv-vx-extension -I /usr/include/CL -I ";
     buildOptionStr += contentPath.ToUTF8String();
     const vx_char* buildOptions = buildOptionStr.c_str();
     RAPIDOPENVX_CHECK(vxBuildProgram(programObj, buildOptions));

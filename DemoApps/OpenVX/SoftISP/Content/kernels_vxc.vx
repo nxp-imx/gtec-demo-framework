@@ -29,7 +29,8 @@
 *
 ****************************************************************************************************************************************************/
 
-#include "cl_viv_vx_ext.vx" 
+#define VX_USE_INTRINSIC 1
+#include "cl_viv_vx_ext.h" 
 __kernel void whitebalance 
   ( 
   __read_only image2d_t   in_image, 
